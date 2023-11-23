@@ -118,7 +118,7 @@ const migrations = {
     ...state,
     messageSentFromRoute: [],
   }),
-  [3]: state => ({
+  [3]: (state: any) => ({
     currentUserInfo: state.currentUserInfo,
     entryStore: state.entryStore,
     threadInfos: state.threadInfos,
@@ -145,7 +145,7 @@ const migrations = {
     ...state,
     calendarFilters: defaultCalendarFilters,
   }),
-  [6]: state => ({
+  [6]: (state: any) => ({
     ...state,
     threadInfos: undefined,
     threadStore: {
@@ -153,7 +153,7 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [7]: state => ({
+  [7]: (state: AppState) => ({
     ...state,
     lastUserInteraction: undefined,
     sessionID: undefined,
@@ -176,14 +176,14 @@ const migrations = {
       actualizedCalendarQuery: undefined,
     },
   }),
-  [9]: state => ({
+  [9]: (state: any) => ({
     ...state,
     connection: {
       ...state.connection,
       lateResponses: [],
     },
   }),
-  [10]: state => ({
+  [10]: (state: any) => ({
     ...state,
     nextLocalID: highestLocalIDSelector(state) + 1,
     connection: {
@@ -211,7 +211,7 @@ const migrations = {
     deviceOrientation: Orientation.getInitialOrientation(),
   }),
   [14]: (state: AppState) => state,
-  [15]: state => ({
+  [15]: (state: any) => ({
     ...state,
     threadStore: {
       ...state.threadStore,
@@ -229,7 +229,7 @@ const migrations = {
     },
     queuedReports: [],
   }),
-  [16]: state => {
+  [16]: (state: any) => {
     const result = {
       ...state,
       messageSentFromRoute: undefined,
@@ -243,7 +243,7 @@ const migrations = {
     }
     return result;
   },
-  [17]: state => ({
+  [17]: (state: any) => ({
     ...state,
     userInfos: undefined,
     userStore: {
@@ -251,14 +251,14 @@ const migrations = {
       inconsistencyResponses: [],
     },
   }),
-  [18]: state => ({
+  [18]: (state: AppState) => ({
     ...state,
     userStore: {
       userInfos: state.userStore.userInfos,
       inconsistencyReports: [],
     },
   }),
-  [19]: state => {
+  [19]: (state: any) => {
     const threadInfos: { [string]: RawThreadInfo } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
@@ -286,7 +286,7 @@ const migrations = {
       messageTypes.SIDEBAR_SOURCE,
     ]),
   }),
-  [22]: state => {
+  [22]: (state: any) => {
     for (const key in state.drafts) {
       const value = state.drafts[key];
       try {
@@ -302,19 +302,19 @@ const migrations = {
       drafts: undefined,
     };
   },
-  [23]: state => ({
+  [23]: (state: AppState) => ({
     ...state,
     globalThemeInfo: defaultGlobalThemeInfo,
   }),
-  [24]: state => ({
+  [24]: (state: AppState) => ({
     ...state,
     enabledApps: defaultEnabledApps,
   }),
-  [25]: state => ({
+  [25]: (state: AppState) => ({
     ...state,
     crashReportsEnabled: __DEV__,
   }),
-  [26]: state => {
+  [26]: (state: any) => {
     const { currentUserInfo } = state;
     if (currentUserInfo.anonymous) {
       return state;
@@ -333,7 +333,7 @@ const migrations = {
       },
     };
   },
-  [27]: state => ({
+  [27]: (state: any) => ({
     ...state,
     queuedReports: undefined,
     enabledReports: undefined,
@@ -358,7 +358,7 @@ const migrations = {
       ],
     },
   }),
-  [28]: state => {
+  [28]: (state: AppState) => {
     const threadParentToChildren: { [string]: string[] } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
@@ -463,7 +463,7 @@ const migrations = {
   },
   [32]: (state: AppState) => unshimClientDB(state, [messageTypes.MULTIMEDIA]),
   [33]: (state: AppState) => unshimClientDB(state, [messageTypes.REACTION]),
-  [34]: state => {
+  [34]: (state: any) => {
     const { threadIDsToNotifIDs, ...stateSansThreadIDsToNotifIDs } = state;
     return stateSansThreadIDsToNotifIDs;
   },
@@ -523,7 +523,7 @@ const migrations = {
 
     // 8. Convert rawThreadInfos to a map of threadID to threadInfo
     const threadIDToThreadInfo = rawThreadInfosWithPinnedCount.reduce(
-      (acc, threadInfo) => {
+      (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
         acc[threadInfo.id] = threadInfo;
         return acc;
       },
@@ -568,7 +568,7 @@ const migrations = {
 
     return state;
   },
-  [37]: state => {
+  [37]: (state: AppState) => {
     const operations = messageStoreOpsHandlers.convertOpsToClientDBOps([
       {
         type: 'remove_all_threads',
@@ -591,10 +591,10 @@ const migrations = {
 
     return state;
   },
-  [38]: state =>
+  [38]: (state: AppState) =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
-  [40]: state =>
+  [40]: (state: AppState) =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
   [41]: (state: AppState) => {
     const queuedReports = state.reportStore.queuedReports.map(report => ({
@@ -624,7 +624,7 @@ const migrations = {
     }
     return state;
   },
-  [43]: async state => {
+  [43]: async (state: any) => {
     const { messages, drafts, threads, messageStoreThreads } =
       await commCoreModule.getClientDBStore();
 
@@ -677,7 +677,7 @@ const migrations = {
       inviteLinksStore: convertInviteLinksStoreToNewIDSchema(inviteLinksStore),
     };
   },
-  [44]: async state => {
+  [44]: async (state: any) => {
     const { cookie, ...rest } = state;
 
     return {
@@ -685,7 +685,7 @@ const migrations = {
       keyserverStore: { keyserverInfos: { [ashoatKeyserverID]: { cookie } } },
     };
   },
-  [45]: async state => {
+  [45]: async (state: any) => {
     const { updatesCurrentAsOf, keyserverStore, ...rest } = state;
 
     return {
@@ -702,7 +702,7 @@ const migrations = {
       },
     };
   },
-  [46]: async state => {
+  [46]: async (state: AppState) => {
     const { currentAsOf } = state.messageStore;
 
     return {
@@ -713,7 +713,7 @@ const migrations = {
       },
     };
   },
-  [47]: async state => {
+  [47]: async (state: any) => {
     const { urlPrefix, keyserverStore, ...rest } = state;
 
     return {
@@ -730,7 +730,7 @@ const migrations = {
       },
     };
   },
-  [48]: async state => {
+  [48]: async (state: any) => {
     const { connection, keyserverStore, ...rest } = state;
 
     return {
@@ -747,7 +747,7 @@ const migrations = {
       },
     };
   },
-  [49]: async state => {
+  [49]: async (state: AppState) => {
     const { keyserverStore, ...rest } = state;
 
     const { connection, ...keyserverRest } =
@@ -767,7 +767,7 @@ const migrations = {
       connection,
     };
   },
-  [50]: async state => {
+  [50]: async (state: any) => {
     const { connection, ...rest } = state;
     const { actualizedCalendarQuery, ...connectionRest } = connection;
 
@@ -777,7 +777,7 @@ const migrations = {
       actualizedCalendarQuery,
     };
   },
-  [51]: async state => {
+  [51]: async (state: any) => {
     const { lastCommunicatedPlatformDetails, keyserverStore, ...rest } = state;
 
     return {
@@ -794,14 +794,14 @@ const migrations = {
       },
     };
   },
-  [52]: async state => ({
+  [52]: async (state: AppState) => ({
     ...state,
     integrityStore: {
       threadHashes: {},
       threadHashingStatus: 'data_not_loaded',
     },
   }),
-  [53]: state => {
+  [53]: (state: any) => {
     if (!state.userStore.inconsistencyReports) {
       return state;
     }
@@ -833,7 +833,7 @@ const migrations = {
       },
     };
   },
-  [54]: state => {
+  [54]: (state: any) => {
     let updatedMessageStoreThreads: MessageStoreThreads = {};
     for (const threadID: string in state.messageStore.threads) {
       const { lastNavigatedTo, lastPruned, ...rest } =
@@ -853,7 +853,7 @@ const migrations = {
       },
     };
   },
-  [55]: async state =>
+  [55]: async (state: AppState) =>
     __DEV__
       ? {
           ...state,
@@ -869,7 +869,7 @@ const migrations = {
           },
         }
       : state,
-  [56]: state => {
+  [56]: (state: any) => {
     const { deviceToken, keyserverStore, ...rest } = state;
 
     return {
@@ -886,7 +886,7 @@ const migrations = {
       },
     };
   },
-  [57]: async state => {
+  [57]: async (state: any) => {
     const {
       // eslint-disable-next-line no-unused-vars
       connection,
@@ -926,15 +926,18 @@ const migrations = {
     }
     return state;
   },
-  [59]: state => {
+  [59]: (state: AppState) => {
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
     const rawThreadInfos = clientDBThreadInfos.map(
       convertClientDBThreadInfoToRawThreadInfo,
     );
-    const rawThreadInfosObject = rawThreadInfos.reduce((acc, threadInfo) => {
-      acc[threadInfo.id] = threadInfo;
-      return acc;
-    }, {});
+    const rawThreadInfosObject = rawThreadInfos.reduce(
+      (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
+        acc[threadInfo.id] = threadInfo;
+        return acc;
+      },
+      {},
+    );
 
     const migratedRawThreadInfos =
       persistMigrationToRemoveSelectRolePermissions(rawThreadInfosObject);
@@ -964,7 +967,7 @@ const migrations = {
 
     return state;
   },
-  [60]: state =>
+  [60]: (state: AppState) =>
     updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
 };
 

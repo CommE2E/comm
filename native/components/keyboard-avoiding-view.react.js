@@ -120,7 +120,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     }
   };
 
-  get relativeKeyboardHeight() {
+  get relativeKeyboardHeight(): number {
     const { viewFrame, keyboardFrame } = this;
     if (!viewFrame || !keyboardFrame) {
       return 0;
@@ -145,7 +145,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
 
   // ESLint doesn't recognize that invariant always throws
   // eslint-disable-next-line consistent-return
-  render() {
+  render(): React.Node {
     const {
       behavior,
       children,

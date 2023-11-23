@@ -67,7 +67,7 @@ type Props = {
   +navContext: ?NavContextType,
 };
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { panelIosHighlightUnderlay, panelForegroundSecondaryLabel } =
       this.props.colors;
     const loadingIndicator =
@@ -122,7 +122,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
     );
   };
 
-  async leaveThread() {
+  async leaveThread(): Promise<LeaveThreadPayload> {
     const threadID = this.props.threadInfo.id;
     const { navContext } = this.props;
     invariant(navContext, 'navContext should exist in leaveThread');

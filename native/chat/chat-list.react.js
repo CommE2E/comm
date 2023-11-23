@@ -70,7 +70,7 @@ class ChatList extends React.PureComponent<Props, State> {
   flatList: ?FlatListElementRef;
   scrollPos = 0;
 
-  newMessagesPillProgress = new Animated.Value(0);
+  newMessagesPillProgress: Animated.Value = new Animated.Value(0);
   newMessagesPillStyle: ViewStyle;
 
   constructor(props: Props) {
@@ -125,7 +125,7 @@ class ChatList extends React.PureComponent<Props, State> {
     }
   };
 
-  get scrolledToBottom() {
+  get scrolledToBottom(): boolean {
     return this.scrollPos <= 0;
   }
 
@@ -218,7 +218,7 @@ class ChatList extends React.PureComponent<Props, State> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { navigation, viewerID, ...rest } = this.props;
     const { newMessageCount } = this.state;
     return (
@@ -250,7 +250,7 @@ class ChatList extends React.PureComponent<Props, State> {
   static getItemLayout = (
     data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
     index: number,
-  ) => {
+  ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }

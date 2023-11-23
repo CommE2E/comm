@@ -79,7 +79,7 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
     };
   }
 
-  render() {
+  render(): React.Node {
     const componentLabel = 'Push notifs';
     let notificationsSettingsLinkingIcon: React.Node = undefined;
     if (!this.props.hasPushPermissions) {

@@ -29,7 +29,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class LinkButton extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const disabledStyle = this.props.disabled
       ? this.props.styles.disabled
       : null;

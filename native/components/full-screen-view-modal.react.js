@@ -40,7 +40,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors.js';
 import type { NativeMethods } from '../types/react-native.js';
-import type { AnimatedStyleObj } from '../types/styles.js';
+import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
 import {
   clamp,
@@ -175,16 +175,16 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
 
   closeButton: ?React.ElementRef<TouchableOpacityInstance>;
   mediaIconsContainer: ?React.ElementRef<typeof View>;
-  closeButtonX = new Value(-1);
-  closeButtonY = new Value(-1);
-  closeButtonWidth = new Value(0);
-  closeButtonHeight = new Value(0);
-  closeButtonLastState = new Value(1);
-  mediaIconsX = new Value(-1);
-  mediaIconsY = new Value(-1);
-  mediaIconsWidth = new Value(0);
-  mediaIconsHeight = new Value(0);
-  actionLinksLastState = new Value(1);
+  closeButtonX: Value = new Value(-1);
+  closeButtonY: Value = new Value(-1);
+  closeButtonWidth: Value = new Value(0);
+  closeButtonHeight: Value = new Value(0);
+  closeButtonLastState: Value = new Value(1);
+  mediaIconsX: Value = new Value(-1);
+  mediaIconsY: Value = new Value(-1);
+  mediaIconsWidth: Value = new Value(0);
+  mediaIconsHeight: Value = new Value(0);
+  actionLinksLastState: Value = new Value(1);
 
   centerX: Value;
   centerY: Value;
@@ -959,7 +959,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     return { width, height: safeAreaHeight };
   }
 
-  get contentViewContainerStyle(): AnimatedStyleObj {
+  get contentViewContainerStyle(): AnimatedViewStyle {
     const { height, width } = this.props.contentDimensions;
     const { height: frameHeight, width: frameWidth } = this.frame;
     const top = (frameHeight - height) / 2 + this.props.dimensions.topInset;
@@ -979,13 +979,13 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     };
   }
 
-  static isActive(props) {
+  static isActive(props: Props): boolean {
     const { overlayContext } = props;
     invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
     return !overlayContext.isDismissing;
   }
 
-  get contentContainerStyle() {
+  get contentContainerStyle(): ViewStyle {
     const { verticalBounds } = this.props.route.params;
     const fullScreenHeight = this.props.dimensions.height;
     const top = verticalBounds.y;
@@ -998,7 +998,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     return [styles.contentContainer, verticalStyle];
   }
 
-  render() {
+  render(): React.Node {
     const { children, saveContentCallback, copyContentCallback } = this.props;
 
     const statusBar = FullScreenViewModal.isActive(this.props) ? (

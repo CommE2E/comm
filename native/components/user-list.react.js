@@ -21,7 +21,7 @@ type Props = {
   +indicatorStyle: IndicatorStyle,
 };
 class UserList extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <FlatList
         data={this.props.userInfos}
@@ -36,11 +36,11 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static keyExtractor = (userInfo: UserListItem) => {
+  static keyExtractor = (userInfo: UserListItem): string => {
     return userInfo.id;
   };
 
-  renderItem = (row: { item: UserListItem, ... }) => {
+  renderItem = (row: { +item: UserListItem, ... }): React.Node => {
     return (
       <UserListUser
         userInfo={row.item}
@@ -53,7 +53,7 @@ class UserList extends React.PureComponent<Props> {
   static getItemLayout = (
     data: ?$ReadOnlyArray<UserListItem>,
     index: number,
-  ) => {
+  ): { length: number, offset: number, index: number } => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }

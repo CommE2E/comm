@@ -54,7 +54,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class ThreadSettingsColor extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     let colorButton;
     if (this.props.loadingStatus !== 'loading') {
       colorButton = (

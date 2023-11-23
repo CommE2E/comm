@@ -77,7 +77,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
     };
   }
 
-  render() {
+  render(): React.Node {
     return (
       <Modal
         containerStyle={this.props.styles.container}

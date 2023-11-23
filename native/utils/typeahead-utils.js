@@ -18,20 +18,34 @@ const nativeMentionTypeaheadRegex: RegExp = new RegExp(
   `((^(.|\n)*\\s+)|^)@(${validChatNameRegexString})?$`,
 );
 
+type FocusAndUpdateTextAndSelection = (
+  text: string,
+  selection: Selection,
+) => void;
+
 export type TypeaheadTooltipActionsParams<SuggestionItemType> = {
   +suggestions: $ReadOnlyArray<SuggestionItemType>,
   +textBeforeAtSymbol: string,
   +text: string,
   +query: string,
-  +focusAndUpdateTextAndSelection: (text: string, selection: Selection) => void,
+  +focusAndUpdateTextAndSelection: FocusAndUpdateTextAndSelection,
 };
+
+type MentionTypeaheadTooltipActionExecuteHandlerParams = {
+  +textBeforeAtSymbol: string,
+  +text: string,
+  +query: string,
+  +mentionText: string,
+  +focusAndUpdateTextAndSelection: FocusAndUpdateTextAndSelection,
+};
+
 function mentionTypeaheadTooltipActionExecuteHandler({
   textBeforeAtSymbol,
   text,
   query,
   mentionText,
   focusAndUpdateTextAndSelection,
-}) {
+}: MentionTypeaheadTooltipActionExecuteHandlerParams) {
   const { newText, newSelectionStart } = getNewTextAndSelection(
     textBeforeAtSymbol,
     text,
@@ -43,6 +57,7 @@ function mentionTypeaheadTooltipActionExecuteHandler({
     end: newSelectionStart,
   });
 }
+
 function mentionTypeaheadTooltipActions({
   suggestions,
   textBeforeAtSymbol,
