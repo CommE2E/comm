@@ -10,6 +10,8 @@ import type {
   StackNavigationHelpers,
   StackNavigationProp,
   StackRouterOptions,
+  RouteProp,
+  StackCardInterpolationProps,
 } from '@react-navigation/core';
 import {
   createNavigatorFactory,
@@ -93,7 +95,10 @@ function RootNavigator({
     React.useState(true);
   const mergedScreenOptions = React.useMemo(() => {
     if (typeof screenOptions === 'function') {
-      return input => ({
+      return (input: {
+        +route: RouteProp<>,
+        +navigation: RootNavigationHelpers<>,
+      }) => ({
         ...screenOptions(input),
         keyboardHandlingEnabled,
       });
@@ -152,7 +157,7 @@ const baseTransitionPreset = Platform.select({
 });
 const transitionPreset = {
   ...baseTransitionPreset,
-  cardStyleInterpolator: interpolatorProps => {
+  cardStyleInterpolator: (interpolatorProps: StackCardInterpolationProps) => {
     const baseCardStyleInterpolator =
       baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
     const overlayOpacity = interpolatorProps.current.progress.interpolate({

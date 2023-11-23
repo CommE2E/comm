@@ -113,40 +113,41 @@ class MessageList extends React.PureComponent<Props, State> {
   };
   flatListContainer: ?React.ElementRef<typeof View>;
 
-  flatListExtraDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
-    (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
-    (propsAndState: PropsAndState) => propsAndState.navigation,
-    (propsAndState: PropsAndState) => propsAndState.route,
-    (
-      messageListVerticalBounds: ?VerticalBounds,
-      focusedMessageKey: ?string,
-      navigation: ChatNavigationProp<'MessageList'>,
-      route: NavigationRoute<'MessageList'>,
-    ) => ({
-      messageListVerticalBounds,
-      focusedMessageKey,
-      navigation,
-      route,
-    }),
-  );
+  flatListExtraDataSelector: PropsAndState => FlatListExtraData =
+    createSelector(
+      (propsAndState: PropsAndState) => propsAndState.messageListVerticalBounds,
+      (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
+      (propsAndState: PropsAndState) => propsAndState.navigation,
+      (propsAndState: PropsAndState) => propsAndState.route,
+      (
+        messageListVerticalBounds: ?VerticalBounds,
+        focusedMessageKey: ?string,
+        navigation: ChatNavigationProp<'MessageList'>,
+        route: NavigationRoute<'MessageList'>,
+      ) => ({
+        messageListVerticalBounds,
+        focusedMessageKey,
+        navigation,
+        route,
+      }),
+    );
 
   get flatListExtraData(): FlatListExtraData {
     return this.flatListExtraDataSelector({ ...this.props, ...this.state });
   }
 
-  static getOverlayContext(props: Props) {
+  static getOverlayContext(props: Props): OverlayContextType {
     const { overlayContext } = props;
     invariant(overlayContext, 'MessageList should have OverlayContext');
     return overlayContext;
   }
 
-  static scrollDisabled(props: Props) {
+  static scrollDisabled(props: Props): boolean {
     const overlayContext = MessageList.getOverlayContext(props);
     return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
-  static modalOpen(props: Props) {
+  static modalOpen(props: Props): boolean {
     const overlayContext = MessageList.getOverlayContext(props);
     return overlayContext.scrollBlockingModalStatus === 'open';
   }
@@ -174,7 +175,7 @@ class MessageList extends React.PureComponent<Props, State> {
     keyboardState && keyboardState.dismissKeyboard();
   };
 
-  renderItem = (row: { item: ChatMessageItemWithHeight, ... }) => {
+  renderItem = (row: { item: ChatMessageItemWithHeight, ... }): React.Node => {
     if (row.item.itemType === 'loader') {
       return (
         <TouchableWithoutFeedback onPress={this.dismissKeyboard}>
@@ -211,9 +212,11 @@ class MessageList extends React.PureComponent<Props, State> {
   };
 
   // Actually header, it's just that our FlatList is inverted
-  ListFooterComponent = () => <View style={this.props.styles.header} />;
+  ListFooterComponent = (): React.Node => (
+    <View style={this.props.styles.header} />
+  );
 
-  render() {
+  render(): React.Node {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? this.ListFooterComponent : undefined;
     let relationshipPrompt = null;

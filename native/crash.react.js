@@ -65,9 +65,9 @@ type State = {
   +doneWaiting: boolean,
 };
 class Crash extends React.PureComponent<Props, State> {
-  errorTitle = _shuffle(errorTitles)[0];
+  errorTitle: string = _shuffle(errorTitles)[0];
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       errorReportID: null,
@@ -89,7 +89,7 @@ class Crash extends React.PureComponent<Props, State> {
     this.setState({ doneWaiting: true });
   }
 
-  render() {
+  render(): React.Node {
     const errorText = [...this.props.errorData]
       .reverse()
       .map(errorData => errorData.error.message)

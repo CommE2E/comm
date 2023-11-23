@@ -16,7 +16,12 @@ function keyExtractor(item: SelectedKeyserverInfo) {
   return `${item.keyserverAdminUserInfo.id}${item.keyserverInfo.urlPrefix}`;
 }
 
-function renderKeyserverListItem({ item }) {
+function renderKeyserverListItem({
+  item,
+}: {
+  +item: SelectedKeyserverInfo,
+  ...
+}) {
   return <KeyserverSelectionListItem {...item} />;
 }
 

@@ -50,29 +50,30 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
-  listDataSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.threadInfos,
-    (propsAndState: PropsAndState) => propsAndState.searchText,
-    (propsAndState: PropsAndState) => propsAndState.searchResults,
-    (propsAndState: PropsAndState) => propsAndState.itemStyle,
-    (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
-    (
-      threadInfos: $ReadOnlyArray<ThreadInfo>,
-      text: string,
-      searchResults: Set<string>,
-    ) =>
-      text
-        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-        : // We spread to make sure the result of this selector updates when
-          // any input param (namely itemStyle or itemTextStyle) changes
-          [...threadInfos],
-  );
+  listDataSelector: PropsAndState => $ReadOnlyArray<ThreadInfo> =
+    createSelector(
+      (propsAndState: PropsAndState) => propsAndState.threadInfos,
+      (propsAndState: PropsAndState) => propsAndState.searchText,
+      (propsAndState: PropsAndState) => propsAndState.searchResults,
+      (propsAndState: PropsAndState) => propsAndState.itemStyle,
+      (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
+      (
+        threadInfos: $ReadOnlyArray<ThreadInfo>,
+        text: string,
+        searchResults: Set<string>,
+      ): $ReadOnlyArray<ThreadInfo> =>
+        text
+          ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+          : // We spread to make sure the result of this selector updates when
+            // any input param (namely itemStyle or itemTextStyle) changes
+            [...threadInfos],
+    );
 
-  get listData() {
+  get listData(): $ReadOnlyArray<ThreadInfo> {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
-  render() {
+  render(): React.Node {
     let searchBar = null;
     if (this.props.searchIndex) {
       searchBar = (
@@ -103,11 +104,11 @@ class ThreadList extends React.PureComponent<Props, State> {
 
   static keyExtractor = (
     threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  ) => {
+  ): string => {
     return threadInfo.id;
   };
 
-  renderItem = (row: { item: ThreadInfo, ... }) => {
+  renderItem = (row: { +item: ThreadInfo, ... }): React.Node => {
     return (
       <ThreadListThread
         threadInfo={row.item}
@@ -121,7 +122,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   static getItemLayout = (
     data: ?$ReadOnlyArray<ThreadInfo | MinimallyEncodedThreadInfo>,
     index: number,
-  ) => {
+  ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };
   };
 

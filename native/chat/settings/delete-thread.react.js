@@ -142,7 +142,7 @@ class DeleteThread extends React.PureComponent<Props> {
     this.mounted = false;
   }
 
-  render() {
+  render(): React.Node {
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
@@ -207,7 +207,7 @@ class DeleteThread extends React.PureComponent<Props> {
     );
   };
 
-  async deleteThread() {
+  async deleteThread(): Promise<LeaveThreadPayload> {
     const { threadInfo, navDispatch } = this.props;
     navDispatch({
       type: clearThreadsActionType,

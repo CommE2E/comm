@@ -49,7 +49,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class UserListUser extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { userInfo } = this.props;
     let notice = null;
     if (userInfo.notice) {

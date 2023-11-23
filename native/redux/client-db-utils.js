@@ -70,10 +70,13 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
   );
 
   // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
-  const threadIDToThreadInfo = rawThreadInfos.reduce((acc, threadInfo) => {
-    acc[threadInfo.id] = threadInfo;
-    return acc;
-  }, {});
+  const threadIDToThreadInfo = rawThreadInfos.reduce(
+    (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
+      acc[threadInfo.id] = threadInfo;
+      return acc;
+    },
+    {},
+  );
 
   // Apply `migrationFunc` to `threadInfo`s.
   const updatedThreadIDToThreadInfo: ThreadStoreThreadInfos =

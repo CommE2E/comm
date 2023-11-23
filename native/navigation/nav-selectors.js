@@ -46,7 +46,9 @@ import type { RemoveEditMode } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
 
-const baseCreateIsForegroundSelector = (routeName: string) =>
+const baseCreateIsForegroundSelector: (
+  routeName: string,
+) => (context: ?NavContextType) => boolean = (routeName: string) =>
   createSelector(
     (context: ?NavContextType) => context && context.state,
     (navigationState: ?PossiblyStaleNavigationState) => {
@@ -73,7 +75,9 @@ function useIsAppLoggedIn(): boolean {
   }, [navContext]);
 }
 
-const baseCreateActiveTabSelector = (routeName: string) =>
+const baseCreateActiveTabSelector: (
+  routeName: string,
+) => (context: ?NavContextType) => boolean = (routeName: string) =>
   createSelector(
     (context: ?NavContextType) => context && context.state,
     (navigationState: ?PossiblyStaleNavigationState) => {

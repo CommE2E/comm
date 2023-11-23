@@ -10,6 +10,7 @@ import {
 } from 'lib/actions/relationship-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { ReactRef } from 'lib/types/react-types.js';
 import {
   type RelationshipRequest,
   type RelationshipAction,
@@ -118,9 +119,9 @@ type Props = {
   +navigateToUserProfileBottomSheet: (userID: string) => mixed,
 };
 class RelationshipListItem extends React.PureComponent<Props> {
-  editButton = React.createRef<React.ElementRef<typeof View>>();
+  editButton: ReactRef<React.ElementRef<typeof View>> = React.createRef();
 
-  render() {
+  render(): React.Node {
     const {
       lastListItem,
       removeUserLoadingStatus,
@@ -230,7 +231,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
     this.props.onSelect({ id, username });
   };
 
-  visibleEntryIDs() {
+  visibleEntryIDs(): [string] {
     const { relationshipListRoute } = this.props;
     const id = {
       [FriendListRouteName]: 'unfriend',
@@ -300,7 +301,9 @@ class RelationshipListItem extends React.PureComponent<Props> {
     );
   }
 
-  async updateFriendship(action: RelationshipAction) {
+  async updateFriendship(
+    action: RelationshipAction,
+  ): Promise<RelationshipErrors> {
     try {
       return await this.props.updateRelationships({
         action,

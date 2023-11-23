@@ -102,7 +102,7 @@ type Props = {
   +dispatch: Dispatch,
 };
 class DevTools extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     const serverButtons: Array<React.Node> = [];
@@ -206,7 +206,7 @@ class DevTools extends React.PureComponent<Props> {
     );
   }
 
-  onPressCrash = () => {
+  onPressCrash = (): empty => {
     throw new Error('User triggered crash through dev menu!');
   };
 

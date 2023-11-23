@@ -136,7 +136,7 @@ function saveMedia(
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
 } {
   let resolveResult;
-  const sendResult = result => {
+  const sendResult = (result: MediaMissionResult) => {
     if (resolveResult) {
       resolveResult(result);
     }

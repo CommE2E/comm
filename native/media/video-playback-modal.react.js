@@ -75,6 +75,12 @@ export type VideoPlaybackModalParams = {
   +item: ChatMultimediaMessageInfoItem,
 };
 
+type ReactNativeVideoOnProgressData = {
+  +currentTime: number,
+  +playableDuration: number,
+  +seekableDuration: number,
+};
+
 type Props = {
   +navigation: AppNavigationProp<'VideoPlaybackModal'>,
   +route: NavigationRoute<'VideoPlaybackModal'>,
@@ -197,7 +203,7 @@ function VideoPlaybackModal(props: Props): React.Node {
 
   const controlsShowing = useValue(1);
   const outsideButtons = React.useCallback(
-    (x, y) =>
+    (x: Animated.Value, y: Animated.Value) =>
       and(
         or(
           eq(controlsShowing, 0),
@@ -586,13 +592,16 @@ function VideoPlaybackModal(props: Props): React.Node {
     videoRef.current.seek(0);
   }, []);
 
-  const progressCallback = React.useCallback(res => {
-    setTimeElapsed(formatDuration(res.currentTime));
-    setTotalDuration(formatDuration(res.seekableDuration));
-    setPercentElapsed(
-      Math.ceil((res.currentTime / res.seekableDuration) * 100),
-    );
-  }, []);
+  const progressCallback = React.useCallback(
+    (res: ReactNativeVideoOnProgressData) => {
+      setTimeElapsed(formatDuration(res.currentTime));
+      setTotalDuration(formatDuration(res.seekableDuration));
+      setPercentElapsed(
+        Math.ceil((res.currentTime / res.seekableDuration) * 100),
+      );
+    },
+    [],
+  );
 
   const readyForDisplayCallback = React.useCallback(() => {
     setSpinnerVisible(false);
