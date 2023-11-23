@@ -58,7 +58,7 @@ type Props = {
   +loadingStatus: LoadingStatus,
   +otherUsersButNoOtherAdmins: boolean,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs

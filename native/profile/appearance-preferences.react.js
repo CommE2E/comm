@@ -89,7 +89,7 @@ type Props = {
   +route: NavigationRoute<'AppearancePreferences'>,
   +globalThemeInfo: GlobalThemeInfo,
   +updateThemePreference: (themePreference: GlobalThemePreference) => mixed,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +colors: Colors,
 };
 class AppearancePreferences extends React.PureComponent<Props> {

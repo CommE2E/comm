@@ -35,7 +35,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
 };
 type State = {

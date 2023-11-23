@@ -111,7 +111,7 @@ type Props = {
   +dimensions: DimensionsInfo,
   +foreground: boolean,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 type State = {
   +selections: ?$ReadOnlyArray<MediaLibrarySelection>,

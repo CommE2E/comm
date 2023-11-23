@@ -39,7 +39,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   +title: string,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {

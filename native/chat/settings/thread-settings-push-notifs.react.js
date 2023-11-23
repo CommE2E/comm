@@ -59,7 +59,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs

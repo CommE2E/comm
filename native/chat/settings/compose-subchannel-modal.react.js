@@ -66,7 +66,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +colors: Colors,
-  +styles: typeof unboundStyles,
+  +styles: $ReadOnly<typeof unboundStyles>,
 };
 class ComposeSubchannelModal extends React.PureComponent<Props> {
   render(): React.Node {
