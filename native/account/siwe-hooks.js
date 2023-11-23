@@ -4,7 +4,10 @@ import * as React from 'react';
 
 import { siweAuth, siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
-import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type {
+  LogInStartingPayload,
+  LogInExtraInfo,
+} from 'lib/types/account-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -32,7 +35,12 @@ function useSIWEServerCall(
   const siweAuthCall = useServerCall(siweAuth);
 
   const callSIWE = React.useCallback(
-    async (message, signature, extraInfo, callServerEndpointOptions) => {
+    async (
+      message: string,
+      signature: string,
+      extraInfo: LogInExtraInfo,
+      callServerEndpointOptions: ?CallServerEndpointOptions,
+    ) => {
       try {
         return await siweAuthCall(
           {

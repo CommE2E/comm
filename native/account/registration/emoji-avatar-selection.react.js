@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types';
 
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
@@ -38,7 +39,7 @@ function EmojiAvatarSelection(props: Props): React.Node {
 
   const { goBack } = props.navigation;
   const onSuccess = React.useCallback(
-    avatarRequest => {
+    (avatarRequest: UpdateUserAvatarRequest) => {
       goBack();
       return nativeSetUserAvatar(avatarRequest);
     },

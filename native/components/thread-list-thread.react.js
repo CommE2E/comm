@@ -43,7 +43,7 @@ type Props = {
   +styles: typeof unboundStyles,
 };
 class ThreadListThread extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;
 
     return (

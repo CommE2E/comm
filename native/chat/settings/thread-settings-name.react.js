@@ -83,7 +83,7 @@ type Props = {
 class ThreadSettingsName extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof BaseTextInput>;
 
-  render() {
+  render(): React.Node {
     return (
       <View style={this.props.styles.row}>
         <Text style={this.props.styles.label}>Name</Text>
@@ -92,7 +92,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     );
   }
 
-  renderButton() {
+  renderButton(): React.Node {
     if (this.props.loadingStatus === 'loading') {
       return (
         <ActivityIndicator
@@ -114,7 +114,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     return <SaveSettingButton onPress={this.onSubmit} />;
   }
 
-  renderContent() {
+  renderContent(): React.Node {
     if (
       this.props.nameEditValue === null ||
       this.props.nameEditValue === undefined
@@ -152,7 +152,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     this.textInput = textInput;
   };
 
-  threadEditName() {
+  threadEditName(): string {
     return firstLine(
       this.props.threadInfo.name ? this.props.threadInfo.name : '',
     );
@@ -191,7 +191,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     });
   };
 
-  async editName(newName: string) {
+  async editName(newName: string): Promise<ChangeThreadSettingsPayload> {
     try {
       return await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,

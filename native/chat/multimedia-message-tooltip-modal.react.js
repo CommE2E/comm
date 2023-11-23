@@ -16,6 +16,7 @@ import {
 } from '../tooltip/tooltip.react.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import type { TextStyle } from '../types/styles.js';
 import { useNavigateToPinModal } from '../utils/toggle-pin-utils.js';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{
@@ -33,17 +34,21 @@ function TooltipMenu(
   const onPressTogglePin = useNavigateToPinModal(overlayContext, route);
 
   const renderPinIcon = React.useCallback(
-    style => <CommIcon name="pin-outline" style={style} size={16} />,
+    (style: TextStyle) => (
+      <CommIcon name="pin-outline" style={style} size={16} />
+    ),
     [],
   );
   const renderUnpinIcon = React.useCallback(
-    style => <CommIcon name="unpin-outline" style={style} size={16} />,
+    (style: TextStyle) => (
+      <CommIcon name="unpin-outline" style={style} size={16} />
+    ),
     [],
   );
 
   const onPressSidebar = useAnimatedNavigateToSidebar(route.params.item);
   const renderSidebarIcon = React.useCallback(
-    style => (
+    (style: TextStyle) => (
       <SWMansionIcon name="message-circle-lines" style={style} size={16} />
     ),
     [],
@@ -51,7 +56,9 @@ function TooltipMenu(
 
   const onPressReport = useOnPressReport(route);
   const renderReportIcon = React.useCallback(
-    style => <SWMansionIcon name="warning-circle" style={style} size={16} />,
+    (style: TextStyle) => (
+      <SWMansionIcon name="warning-circle" style={style} size={16} />
+    ),
     [],
   );
 

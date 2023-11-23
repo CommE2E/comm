@@ -8,12 +8,23 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { updateConnectivityActiveType } from './action-types.js';
 import { useSelector } from './redux-utils.js';
 
+type NetInfoStateType =
+  | 'none'
+  | 'unknown'
+  | 'cellular'
+  | 'wifi'
+  | 'bluetooth'
+  | 'ethernet'
+  | 'wimax'
+  | 'vpn'
+  | 'other';
+
 export default function ConnectivityUpdater(): null {
   const connectivity = useSelector(state => state.connectivity);
   const dispatch = useDispatch();
 
   const onConnectionChange = React.useCallback(
-    ({ type }) => {
+    ({ type }: { +type: NetInfoStateType, ... }) => {
       const connected = type !== 'none' && type !== 'unknown';
       const hasWiFi = type === 'wifi';
       if (

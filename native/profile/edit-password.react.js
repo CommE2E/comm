@@ -129,7 +129,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  render() {
+  render(): React.Node {
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />

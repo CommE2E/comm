@@ -119,7 +119,7 @@ type Props = {
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
 
-  render() {
+  render(): React.Node {
     const userText = stringForUser(this.props.memberInfo);
 
     let usernameInfo = null;
@@ -248,7 +248,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
     });
   };
 
-  dismissKeyboardIfShowing = () => {
+  dismissKeyboardIfShowing = (): boolean => {
     const { keyboardState } = this.props;
     return !!(keyboardState && keyboardState.dismissKeyboardIfShowing());
   };

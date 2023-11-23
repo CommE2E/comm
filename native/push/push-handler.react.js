@@ -420,7 +420,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  requestAndroidNotificationsPermission = () => {
+  requestAndroidNotificationsPermission = (): Promise<boolean> => {
     if (!this.androidNotificationsPermissionPromise) {
       this.androidNotificationsPermissionPromise = (async () => {
         const notifPermission =
@@ -675,7 +675,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   handleAndroidNotificationIfActive = (
     threadID: string,
     texts: { body: string, title: ?string },
-  ) => {
+  ): boolean => {
     if (this.currentState !== 'active') {
       return false;
     }
@@ -683,7 +683,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     return true;
   };
 
-  render() {
+  render(): React.Node {
     return (
       <InAppNotification
         {...this.state.inAppNotifProps}

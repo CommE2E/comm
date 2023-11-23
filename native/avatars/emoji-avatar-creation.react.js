@@ -11,12 +11,13 @@ import {
 import type {
   UpdateUserAvatarRequest,
   ClientEmojiAvatar,
-} from 'lib/types/avatar-types';
+} from 'lib/types/avatar-types.js';
 
 import Avatar from './avatar.react.js';
 import Button from '../components/button.react.js';
 import ColorRows from '../components/color-rows.react.js';
 import EmojiKeyboard from '../components/emoji-keyboard.react.js';
+import type { EmojiSelection } from '../components/emoji-keyboard.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -60,7 +61,7 @@ function EmojiAvatarCreation(props: Props): React.Node {
     setPendingColor(resetEmojiAvatar.color);
   }, [savedEmojiAvatarFunc]);
 
-  const onEmojiSelected = React.useCallback(emoji => {
+  const onEmojiSelected = React.useCallback((emoji: EmojiSelection) => {
     setPendingEmoji(emoji.emoji);
   }, []);
 
