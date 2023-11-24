@@ -703,6 +703,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    56,
+    async () => {
+      await dbQuery(
+        SQL`
+          UPDATE roles
+          SET special_role = ${specialRoles.ADMIN_ROLE}
+          WHERE name = 'Admins'
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
