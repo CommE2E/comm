@@ -16,7 +16,10 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { inviteLinksStoreValidator } from 'lib/types/link-types.js';
+import {
+  inviteLinksStoreValidator,
+  type InviteLinkWithHolder,
+} from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
   messageStoreValidator,
@@ -294,7 +297,10 @@ async function getInitialReduxStateResponder(
   const inviteLinksStorePromise = (async () => {
     const primaryInviteLinks = await fetchPrimaryInviteLinks(viewer);
     const links = {};
-    for (const link of primaryInviteLinks) {
+    for (const {
+      blobHolder,
+      ...link
+    }: InviteLinkWithHolder of primaryInviteLinks) {
       if (link.primary) {
         links[link.communityID] = {
           primaryLink: link,

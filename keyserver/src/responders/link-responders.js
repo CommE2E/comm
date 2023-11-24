@@ -10,6 +10,7 @@ import {
   inviteLinkValidator,
   type CreateOrUpdatePublicLinkRequest,
   type DisableInviteLinkRequest,
+  type InviteLinkWithHolder,
 } from 'lib/types/link-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -57,7 +58,9 @@ async function fetchPrimaryInviteLinksResponder(
 ): Promise<FetchInviteLinksResponse> {
   const primaryLinks = await fetchPrimaryInviteLinks(viewer);
   return {
-    links: primaryLinks,
+    links: primaryLinks.map(
+      ({ blobHolder, ...rest }: InviteLinkWithHolder) => rest,
+    ),
   };
 }
 
