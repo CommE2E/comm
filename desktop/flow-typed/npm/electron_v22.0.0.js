@@ -228,7 +228,7 @@ declare module 'electron' {
   declare type IpcMain = {
     on(
       channel: string,
-      listener: (event: IpcMainEvent, ...args: $ReadOnlyArray<any>) => void,
+      listener: (event: IpcMainEvent, ...args: $ReadOnlyArray<any>) => mixed,
     ): void,
     removeListener(
       channel: string,
