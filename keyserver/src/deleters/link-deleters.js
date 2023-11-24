@@ -6,6 +6,7 @@ import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
+import { deleteBlob } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 
 async function deleteInviteLink(
@@ -24,9 +25,13 @@ async function deleteInviteLink(
   const query = SQL`
     DELETE FROM invite_links
     WHERE name = ${request.name} AND community = ${request.communityID}
+    RETURNING blob_holder AS blobHolder
   `;
 
-  await dbQuery(query);
+  const [[row]] = await dbQuery(query);
+  if (row?.blobHolder) {
+    await deleteBlob(`invite_${request.name}`, row.blobHolder);
+  }
 }
 
 export { deleteInviteLink };
