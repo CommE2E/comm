@@ -36,14 +36,8 @@ pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
 pub const DEVICE_TYPE: DeviceType = DeviceType::Android;
 
 lazy_static! {
-  pub static ref RUNTIME: Arc<Runtime> = Arc::new(
-    Builder::new_multi_thread()
-      .worker_threads(1)
-      .max_blocking_threads(1)
-      .enable_all()
-      .build()
-      .unwrap()
-  );
+  pub static ref RUNTIME: Arc<Runtime> =
+    Arc::new(Builder::new_multi_thread().enable_all().build().unwrap());
 }
 
 use backup::ffi::*;
