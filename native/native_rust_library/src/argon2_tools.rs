@@ -2,9 +2,16 @@ use argon2::{Algorithm, Argon2, Params, Version};
 
 pub const BACKUP_KEY_LENGTH: usize = 32; //256-bit digest
 
-pub fn compute_backup_key(
+pub fn compute_backup_key_str(
   password: &str,
   backup_id: &str,
+) -> Result<[u8; BACKUP_KEY_LENGTH], argon2::Error> {
+  compute_backup_key(password.as_bytes(), backup_id.as_bytes())
+}
+
+pub fn compute_backup_key(
+  backup_secret: &[u8],
+  backup_id: &[u8],
 ) -> Result<[u8; BACKUP_KEY_LENGTH], argon2::Error> {
   let mut backup_key = [0u8; BACKUP_KEY_LENGTH];
   let argon_params = Params::new(
@@ -15,11 +22,7 @@ pub fn compute_backup_key(
   )?;
 
   Argon2::new(Algorithm::Argon2i, Version::V0x13, argon_params)
-    .hash_password_into(
-      password.as_bytes(),
-      backup_id.as_bytes(),
-      &mut backup_key,
-    )?;
+    .hash_password_into(backup_secret, backup_id, &mut backup_key)?;
 
   Ok(backup_key)
 }
@@ -33,7 +36,7 @@ mod tests {
     let password = "password123";
     let backup_id = "backup_123";
 
-    let result = compute_backup_key(password, backup_id);
+    let result = compute_backup_key_str(password, backup_id);
     assert!(result.is_ok());
 
     let key = result.unwrap();
@@ -45,7 +48,7 @@ mod tests {
     let password = "password123";
     let backup_id = "";
 
-    let result = compute_backup_key(password, backup_id);
+    let result = compute_backup_key_str(password, backup_id);
     assert!(result.is_err());
   }
 
@@ -54,8 +57,8 @@ mod tests {
     let password = "password123";
     let backup_id = "backup_123";
 
-    let result1 = compute_backup_key(password, backup_id);
-    let result2 = compute_backup_key(password, backup_id);
+    let result1 = compute_backup_key_str(password, backup_id);
+    let result2 = compute_backup_key_str(password, backup_id);
     assert!(result1.is_ok());
     assert!(result2.is_ok());
     let key1 = result1.unwrap();
