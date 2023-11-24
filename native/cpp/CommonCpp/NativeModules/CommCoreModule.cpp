@@ -3,6 +3,7 @@
 #include "BaseDataStore.h"
 #include "DatabaseManager.h"
 #include "InternalModules/GlobalDBSingleton.h"
+#include "InternalModules/RustPromiseManager.h"
 #include "NativeModuleUtils.h"
 #include "TerminateApp.h"
 
@@ -1062,9 +1063,44 @@ jsi::Value CommCoreModule::createNewBackup(
   std::string userDataStr = userData.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->jsInvoker_->invokeAsync([=, &innerRt]() {
-          promise->resolve(
-              jsi::String::createFromUtf8(innerRt, std::string("")));
+        this->cryptoThread->scheduleTask([=, &innerRt]() {
+          std::string error;
+
+          std::string backupID;
+          try {
+            backupID = crypto::Tools::generateRandomString(32);
+          } catch (const std::exception &e) {
+            error = "Failed to generate backupID";
+          }
+
+          std::string pickleKey;
+          std::string pickledAccount;
+          if (!error.size()) {
+            try {
+              pickleKey = crypto::Tools::generateRandomString(64);
+              crypto::Persist persist =
+                  this->cryptoModule->storeAsB64(pickleKey);
+              pickledAccount =
+                  std::string(persist.account.begin(), persist.account.end());
+            } catch (const std::exception &e) {
+              error = "Failed to pickle crypto account";
+            }
+          }
+
+          if (!error.size()) {
+            auto currentID = RustPromiseManager::instance.addPromise(
+                promise, this->jsInvoker_, innerRt);
+            ::createBackup(
+                rust::string(backupID),
+                rust::string(backupSecretStr),
+                rust::string(pickleKey),
+                rust::string(pickledAccount),
+                rust::string(userDataStr),
+                currentID);
+          } else {
+            this->jsInvoker_->invokeAsync(
+                [=, &innerRt]() { promise->reject(error); });
+          }
         });
       });
 }
@@ -1081,9 +1117,15 @@ jsi::Value CommCoreModule::restoreBackup(
   std::string encryptedUserDataStr = encryptedUserData.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->jsInvoker_->invokeAsync([=, &innerRt]() {
-          promise->resolve(
-              jsi::String::createFromUtf8(innerRt, std::string("")));
+        this->cryptoThread->scheduleTask([=, &innerRt]() {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          ::restoreBackup(
+              rust::string(backupIDStr),
+              rust::string(backupSecretStr),
+              rust::string(encryptedUserKeysStr),
+              rust::string(encryptedUserDataStr),
+              currentID);
         });
       });
 }
