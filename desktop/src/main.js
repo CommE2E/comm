@@ -225,6 +225,15 @@ const createErrorWindow = () => {
   return win;
 };
 
+const sendDeviceTokenToWebApp = async () => {
+  if (!mainWindow) {
+    return;
+  }
+
+  const token = await registerForNotifications();
+  mainWindow?.webContents.send('on-device-token-registered', token);
+};
+
 const show = (urlPath?: string) => {
   const splash = createSplashWindow();
   const error = createErrorWindow();
@@ -262,10 +271,7 @@ const show = (urlPath?: string) => {
       main.show();
 
       if (app.isPackaged) {
-        (async () => {
-          const token = await registerForNotifications();
-          main.webContents.send('on-device-token-registered', token);
-        })();
+        sendDeviceTokenToWebApp();
       }
     }
   });
@@ -291,6 +297,7 @@ const run = () => {
       } catch (error) {
         console.error(error);
       }
+
       listenForNotifications(threadID => {
         if (mainWindow) {
           mainWindow.webContents.send('on-notification-clicked', {
@@ -300,6 +307,7 @@ const run = () => {
           show(`chat/thread/${threadID}/`);
         }
       });
+      ipcMain.on('fetch-device-token', sendDeviceTokenToWebApp);
     }
 
     ipcMain.on('set-badge', (event, value) => {
