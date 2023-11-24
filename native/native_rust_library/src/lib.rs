@@ -18,6 +18,7 @@ use tonic::Status;
 use tracing::instrument;
 
 mod argon2_tools;
+mod backup;
 mod constants;
 
 use argon2_tools::compute_backup_key_str;
@@ -45,6 +46,7 @@ lazy_static! {
   );
 }
 
+use backup::ffi::*;
 #[cxx::bridge]
 mod ffi {
 
@@ -177,6 +179,28 @@ mod ffi {
       sealed_data: &mut [u8],
       plaintext: &mut [u8],
     ) -> Result<()>;
+  }
+
+  // Backup
+  extern "Rust" {
+    #[cxx_name = "createBackup"]
+    fn create_backup_sync(
+      backup_id: String,
+      backup_secret: String,
+      pickle_key: String,
+      pickled_account: String,
+      user_data: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "restoreBackup"]
+    fn restore_backup_sync(
+      backup_id: String,
+      backup_secret: String,
+      encrypted_user_keys: String,
+      encrypted_user_data: String,
+      promise_id: u32,
+    );
   }
 }
 
