@@ -5,6 +5,7 @@ import fs from 'fs';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -671,6 +672,23 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         ALTER TABLE invite_links 
           ADD COLUMN blob_holder char(36) CHARSET latin1
       `),
+  ],
+  [
+    54,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE roles
+          ADD COLUMN IF NOT EXISTS special_role 
+            tinyint(2) UNSIGNED DEFAULT NULL;
+
+          UPDATE roles r
+          JOIN threads t ON r.id = t.default_role
+          SET r.special_role = ${specialRoles.DEFAULT_ROLE};
+        `,
+        { multipleStatements: true },
+      );
+    },
   ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
