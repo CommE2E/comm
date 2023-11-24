@@ -44,6 +44,10 @@ function useCreateDesktopPushSubscription() {
     [callSetDeviceToken, dispatchActionPromise],
   );
 
+  React.useEffect(() => {
+    electron?.fetchDeviceToken();
+  }, []);
+
   const dispatch = useDispatch();
 
   React.useEffect(
