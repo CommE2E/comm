@@ -458,6 +458,10 @@ declare module 'electron' {
       event: T,
       listener: $ElementType<WebContentsEvents, T>,
     ): void;
+    removeListener: <T: $Keys<WebContentsEvents>>(
+      event: T,
+      listener: $ElementType<WebContentsEvents, T>,
+    ) => void;
     inspectSharedWorker(): void;
   }
   declare type WebContentsEvents = {
