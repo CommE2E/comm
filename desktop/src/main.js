@@ -253,10 +253,16 @@ const show = (urlPath?: string) => {
       main.show();
 
       if (app.isPackaged) {
-        (async () => {
+        const sendDeviceTokenToWebApp = async () => {
           const token = await registerForNotifications();
           main.webContents.send('on-device-token-registered', token);
-        })();
+        };
+
+        sendDeviceTokenToWebApp();
+
+        ipcMain.on('fetch-device-token', () => {
+          sendDeviceTokenToWebApp();
+        });
       }
     }
   });
