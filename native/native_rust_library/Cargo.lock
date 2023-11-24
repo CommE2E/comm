@@ -773,6 +773,7 @@ name = "native_rust_library"
 version = "0.1.0"
 dependencies = [
  "argon2 0.5.1",
+ "base64",
  "comm-opaque2",
  "cxx",
  "cxx-build",
