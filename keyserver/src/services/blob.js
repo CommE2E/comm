@@ -85,4 +85,23 @@ async function download(hash: string): Promise<BlobDownloadResult> {
   return { found: true, blob };
 }
 
-export { upload, uploadBlob, assignHolder, download };
+type DeleteBlobParams = {
+  +hash: string,
+  +holder: string,
+};
+async function deleteBlob({ hash, holder }: DeleteBlobParams) {
+  const endpoint = blobService.httpEndpoints.DELETE_BLOB;
+  const url = makeBlobServiceEndpointURL(endpoint);
+  await fetch(url, {
+    method: endpoint.method,
+    body: JSON.stringify({
+      holder,
+      blob_hash: hash,
+    }),
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
+}
+
+export { upload, uploadBlob, assignHolder, download, deleteBlob };
