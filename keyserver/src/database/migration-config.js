@@ -690,6 +690,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    55,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE threads
+          DROP COLUMN IF EXISTS default_role;
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

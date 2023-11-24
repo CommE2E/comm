@@ -158,7 +158,6 @@ async function createTables() {
         containing_thread_id bigint(20) DEFAULT NULL,
         community bigint(20) DEFAULT NULL,
         depth int UNSIGNED NOT NULL DEFAULT 0,
-        default_role bigint(20) NOT NULL,
         creator varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         creation_time bigint(20) NOT NULL,
         color char(6) COLLATE utf8mb4_bin NOT NULL,
