@@ -22,7 +22,7 @@ mod constants;
 mod cxx_promise_manager;
 mod secure_store;
 
-use argon2_tools::compute_backup_key;
+use argon2_tools::compute_backup_key_str;
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -129,7 +129,11 @@ mod ffi {
     fn version_supported(promise_id: u32);
 
     // Argon2
-    fn compute_backup_key(password: &str, backup_id: &str) -> Result<[u8; 32]>;
+    #[cxx_name = "compute_backup_key"]
+    fn compute_backup_key_str(
+      password: &str,
+      backup_id: &str,
+    ) -> Result<[u8; 32]>;
   }
 
   unsafe extern "C++" {

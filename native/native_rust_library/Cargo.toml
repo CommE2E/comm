@@ -12,12 +12,12 @@ tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 tonic = "0.9.1"
 lazy_static = "1.4"
 tracing = "0.1"
-comm-opaque2 = {path = "../../shared/comm-opaque2"}
+comm-opaque2 = { path = "../../shared/comm-opaque2" }
 derive_more = "0.99"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-argon2 = "0.5.1"
-grpc_clients = {path = "../../shared/grpc_clients"}
+argon2 = { version = "0.5.1", features = ["std"] }
+grpc_clients = { path = "../../shared/grpc_clients" }
 
 [build-dependencies]
 cxx-build = "1.0"
