@@ -26,6 +26,7 @@ import {
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -93,6 +94,9 @@ registerConfig({
     platform: electron?.platform ?? 'web',
     codeVersion: 42,
     stateVersion: persistConfig.version,
+    majorDesktopVersion: electron?.version
+      ? extractMajorDesktopVersion(electron?.version)
+      : null,
   },
 });
 
