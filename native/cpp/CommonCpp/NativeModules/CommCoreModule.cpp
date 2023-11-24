@@ -1054,4 +1054,38 @@ jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::createNewBackup(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::String userData) {
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string userDataStr = userData.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          promise->resolve(
+              jsi::String::createFromUtf8(innerRt, std::string("")));
+        });
+      });
+}
+
+jsi::Value CommCoreModule::restoreBackup(
+    jsi::Runtime &rt,
+    jsi::String backupID,
+    jsi::String backupSecret,
+    jsi::String encryptedUserKeys,
+    jsi::String encryptedUserData) {
+  std::string backupIDStr = backupID.utf8(rt);
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string encryptedUserKeysStr = encryptedUserKeys.utf8(rt);
+  std::string encryptedUserDataStr = encryptedUserData.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          promise->resolve(
+              jsi::String::createFromUtf8(innerRt, std::string("")));
+        });
+      });
+}
+
 } // namespace comm

@@ -108,6 +108,13 @@ interface Spec extends TurboModule {
   +getCommServicesAuthMetadata: () => Promise<CommServicesAuthMetadata>;
   +setCommServicesAccessToken: (accessToken: string) => Promise<void>;
   +clearCommServicesAccessToken: () => Promise<void>;
+  +createNewBackup: (backupSecret: string, userData: string) => Promise<string>;
+  +restoreBackup: (
+    backupID: string,
+    backupSecret: string,
+    encryptedUserKeys: string,
+    encryptedUserData: string,
+  ) => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {
