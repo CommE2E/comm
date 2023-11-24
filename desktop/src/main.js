@@ -225,8 +225,7 @@ const show = (urlPath?: string) => {
   const error = createErrorWindow();
   const main = createMainWindow(urlPath);
 
-  let loadedSuccessfully = true;
-  main.webContents.on('did-fail-load', () => {
+  const failedLoadHandler = () => {
     loadedSuccessfully = false;
     if (!splash.isDestroyed()) {
       splash.destroy();
@@ -239,7 +238,10 @@ const show = (urlPath?: string) => {
       loadedSuccessfully = true;
       main.loadURL(url);
     }, 1000);
-  });
+  };
+
+  let loadedSuccessfully = true;
+  main.webContents.on('did-fail-load', failedLoadHandler);
 
   main.webContents.on('did-finish-load', () => {
     if (loadedSuccessfully) {
@@ -249,6 +251,8 @@ const show = (urlPath?: string) => {
       if (!error.isDestroyed()) {
         error.destroy();
       }
+
+      main.webContents.removeListener('did-fail-load', failedLoadHandler);
 
       main.show();
 
