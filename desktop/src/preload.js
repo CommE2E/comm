@@ -35,6 +35,7 @@ const bridge: ElectronBridge = {
     return () =>
       ipcRenderer.removeListener('on-notification-clicked', withEvent);
   },
+  fetchDeviceToken: () => ipcRenderer.send('fetch-device-token'),
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);
