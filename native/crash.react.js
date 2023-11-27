@@ -148,11 +148,15 @@ class Crash extends React.PureComponent<Props, State> {
   }
 
   async sendReport() {
-    const sanitizedReduxReport: ReduxCrashReport = sanitizeReduxReport({
+    // There's a type error here because ActionLogger doesn't understand the
+    // exact shape of the Redux state / actions it is passed. We could solve it
+    // by adding some type params to ActionLogger
+    const rawReduxReport: ReduxCrashReport = ({
       preloadedState: actionLogger.preloadedState,
       currentState: actionLogger.currentState,
       actions: actionLogger.actions,
-    });
+    }: any);
+    const sanitizedReduxReport = sanitizeReduxReport(rawReduxReport);
     const result = await sendReport({
       type: reportTypes.ERROR,
       platformDetails: {
