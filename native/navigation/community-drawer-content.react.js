@@ -64,7 +64,7 @@ function CommunityDrawerContent(): React.Node {
     })();
   }, [callFetchPrimaryLinks, dispatchActionPromise, drawerStatus]);
 
-  const [expanded, setExpanded] = React.useState(() => {
+  const [expanded, setExpanded] = React.useState<Set<string>>(() => {
     if (communitiesSuffixed.length === 1) {
       return new Set([communitiesSuffixed[0].id]);
     }

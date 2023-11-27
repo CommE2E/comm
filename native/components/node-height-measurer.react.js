@@ -92,8 +92,14 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       mergeItemWithHeight,
       initialMeasuredHeights,
     } = props;
-    const unmeasurableItems = new Map();
-    const measurableItems = new Map();
+    const unmeasurableItems = new Map<
+      string,
+      MergedItemPair<InnerItem, InnerMergedItem>,
+    >();
+    const measurableItems = new Map<
+      string,
+      MergedItemPair<InnerItem, InnerMergedItem>,
+    >();
     const measuredHeights = initialMeasuredHeights
       ? new Map(initialMeasuredHeights)
       : new Map();
@@ -154,7 +160,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
 
     const { listData, itemToMeasureKey, itemToDummy } = props;
 
-    const toMeasure = new Map();
+    const toMeasure = new Map<string, React.MixedElement>();
     if (listData) {
       for (const item of listData) {
         const measureKey = itemToMeasureKey(item);
@@ -353,8 +359,8 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       measurableItemsChanged ||
       unmeasurableItemsChanged
     ) {
-      const currentMeasurableItems = new Map();
-      const currentUnmeasurableItems = new Map();
+      const currentMeasurableItems = new Map<string, Item>();
+      const currentUnmeasurableItems = new Map<string, Item>();
       if (listData) {
         for (const item of listData) {
           const id = itemToID(item);
