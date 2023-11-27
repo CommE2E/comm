@@ -77,7 +77,7 @@ function ThreadSettingsCategoryFooter(props: FooterProps): React.Node {
   );
 }
 
-const paddingHeight = Platform.select({
+const paddingHeight: number = Platform.select({
   android: 6.5,
   default: 6,
 });
