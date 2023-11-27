@@ -262,13 +262,24 @@ impl IdentityClientService for AuthenticatedService {
       Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
     };
 
-    let user_id = self
-      .db_client
-      .get_user_id_from_user_info(user_ident, &auth_type)
-      .await
-      .map_err(handle_db_error)?;
+    let (is_reserved_result, user_id_result) = tokio::join!(
+      self
+        .db_client
+        .username_in_reserved_usernames_table(&user_ident),
+      self
+        .db_client
+        .get_user_id_from_user_info(user_ident.clone(), &auth_type),
+    );
+    let username_reserved = is_reserved_result.map_err(handle_db_error)?;
+    let user_id = user_id_result.map_err(handle_db_error)?;
 
-    Ok(Response::new(FindUserIdResponse { user_id }))
+    // should be true only for reserved usernames that are not registered with Identity
+    let is_reserved = username_reserved && user_id.is_none();
+
+    Ok(Response::new(FindUserIdResponse {
+      user_id,
+      is_reserved,
+    }))
   }
 
   async fn update_user_password_start(
