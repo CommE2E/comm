@@ -47,7 +47,7 @@ import { promiseAll } from 'lib/utils/promises.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import {
-  prepareEncryptedIOSNotifications,
+  prepareEncryptedAPNsNotifications,
   prepareEncryptedAndroidNotifications,
   prepareEncryptedWebNotifications,
 } from './crypto.js';
@@ -954,7 +954,7 @@ async function prepareAPNsNotification(
     }));
   }
 
-  const notifsWithMessageInfos = await prepareEncryptedIOSNotifications(
+  const notifsWithMessageInfos = await prepareEncryptedAPNsNotifications(
     devices,
     copyWithMessageInfos,
     platformDetails.codeVersion,
@@ -981,7 +981,7 @@ async function prepareAPNsNotification(
     );
   }
 
-  const notifsWithoutMessageInfos = await prepareEncryptedIOSNotifications(
+  const notifsWithoutMessageInfos = await prepareEncryptedAPNsNotifications(
     devicesWithExcessiveSize,
     notification,
     platformDetails.codeVersion,
@@ -1602,7 +1602,7 @@ async function updateBadgeCount(
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (codeVersion > 222) {
-          const notificationsArray = await prepareEncryptedIOSNotifications(
+          const notificationsArray = await prepareEncryptedAPNsNotifications(
             deviceInfos,
             notification,
             codeVersion,

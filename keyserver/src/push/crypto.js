@@ -21,7 +21,7 @@ import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 import { encrypt, generateKey } from '../utils/aes-crypto-utils.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
 
-async function encryptIOSNotification(
+async function encryptAPNsNotification(
   cookieID: string,
   notification: apn.Notification,
   codeVersion?: ?number,
@@ -260,7 +260,7 @@ async function encryptWebNotification(
   }
 }
 
-function prepareEncryptedIOSNotifications(
+function prepareEncryptedAPNsNotifications(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
   codeVersion?: ?number,
@@ -277,7 +277,7 @@ function prepareEncryptedIOSNotifications(
 > {
   const notificationPromises = devices.map(
     async ({ cookieID, deviceToken }) => {
-      const notif = await encryptIOSNotification(
+      const notif = await encryptAPNsNotification(
         cookieID,
         notification,
         codeVersion,
@@ -302,7 +302,7 @@ function prepareEncryptedIOSNotificationRescind(
 > {
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
-      const { notification: notif } = await encryptIOSNotification(
+      const { notification: notif } = await encryptAPNsNotification(
         cookieID,
         notification,
         codeVersion,
@@ -408,7 +408,7 @@ async function encryptBlobPayload(payload: string): Promise<{
 }
 
 export {
-  prepareEncryptedIOSNotifications,
+  prepareEncryptedAPNsNotifications,
   prepareEncryptedIOSNotificationRescind,
   prepareEncryptedAndroidNotifications,
   prepareEncryptedAndroidNotificationRescinds,
