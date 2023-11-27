@@ -31,8 +31,8 @@ use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
 
 use client_service::{ClientService, IdentityClientServiceServer};
-use grpc_services::authenticated::auth_proto::identity_client_service_server::IdentityClientServiceServer as AuthServer;
 use grpc_services::authenticated::AuthenticatedService;
+use grpc_services::protos::auth::identity_client_service_server::IdentityClientServiceServer as AuthServer;
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
