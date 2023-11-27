@@ -5,8 +5,8 @@ import { Text, View, ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
-  deleteAccountActionTypes,
-  useDeleteAccount,
+  deleteKeyserverAccountActionTypes,
+  useDeleteKeyserverAccount,
 } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -21,7 +21,7 @@ import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(
-  deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
 );
 
 type Props = {
@@ -35,7 +35,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteAccount = useDeleteAccount();
+    const callDeleteAccount = useDeleteKeyserverAccount();
 
     const buttonContent =
       loadingStatus === 'loading' ? (
@@ -62,7 +62,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     }, [callDeleteAccount, preRequestUserState]);
 
     const onDelete = React.useCallback(() => {
-      dispatchActionPromise(deleteAccountActionTypes, deleteAction());
+      dispatchActionPromise(deleteKeyserverAccountActionTypes, deleteAction());
     }, [dispatchActionPromise, deleteAction]);
 
     return (
