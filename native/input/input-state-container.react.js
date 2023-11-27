@@ -26,6 +26,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
   type BlobServiceUploadAction,
+  type BlobServiceUploadResult,
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
@@ -839,47 +840,47 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadThumbnailResult,
       mediaMissionResult;
     try {
-      const uploadPromises = [];
       if (
         this.useBlobServiceUploads &&
         (processedMedia.mediaType === 'encrypted_photo' ||
           processedMedia.mediaType === 'encrypted_video')
       ) {
-        uploadPromises.push(
-          this.props.blobServiceUpload({
-            uploadInput: {
-              blobInput: {
-                type: 'uri',
-                uri: uploadURI,
-                filename: filename,
-                mimeType: mime,
-              },
-              blobHash: processedMedia.blobHash,
-              encryptionKey: processedMedia.encryptionKey,
-              dimensions: processedMedia.dimensions,
-              thumbHash:
-                processedMedia.mediaType === 'encrypted_photo'
-                  ? processedMedia.thumbHash
-                  : null,
+        const uploadPromise = this.props.blobServiceUpload({
+          uploadInput: {
+            blobInput: {
+              type: 'uri',
+              uri: uploadURI,
+              filename: filename,
+              mimeType: mime,
             },
-            keyserverOrThreadID: threadInfo.id,
-            callbacks: {
-              blobServiceUploadHandler,
-              onProgress: (percent: number) => {
-                this.setProgress(
-                  localMessageID,
-                  localMediaID,
-                  'uploading',
-                  percent,
-                );
-              },
+            blobHash: processedMedia.blobHash,
+            encryptionKey: processedMedia.encryptionKey,
+            dimensions: processedMedia.dimensions,
+            thumbHash:
+              processedMedia.mediaType === 'encrypted_photo'
+                ? processedMedia.thumbHash
+                : null,
+          },
+          keyserverOrThreadID: threadInfo.id,
+          callbacks: {
+            blobServiceUploadHandler,
+            onProgress: (percent: number) => {
+              this.setProgress(
+                localMessageID,
+                localMediaID,
+                'uploading',
+                percent,
+              );
             },
-          }),
-        );
+          },
+        });
 
-        if (processedMedia.mediaType === 'encrypted_video') {
-          uploadPromises.push(
-            this.props.blobServiceUpload({
+        const uploadThumbnailPromise: Promise<?BlobServiceUploadResult> =
+          (async () => {
+            if (processedMedia.mediaType !== 'encrypted_video') {
+              return undefined;
+            }
+            return await this.props.blobServiceUpload({
               uploadInput: {
                 blobInput: {
                   type: 'uri',
@@ -897,49 +898,51 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               callbacks: {
                 blobServiceUploadHandler,
               },
-            }),
-          );
-        }
-        [uploadResult, uploadThumbnailResult] = await Promise.all(
-          uploadPromises,
-        );
+            });
+          })();
+
+        [uploadResult, uploadThumbnailResult] = await Promise.all([
+          uploadPromise,
+          uploadThumbnailPromise,
+        ]);
       } else {
-        uploadPromises.push(
-          this.props.uploadMultimedia(
-            { uri: uploadURI, name: filename, type: mime },
-            {
-              ...processedMedia.dimensions,
-              loop:
-                processedMedia.mediaType === 'video' ||
-                processedMedia.mediaType === 'encrypted_video'
-                  ? processedMedia.loop
-                  : undefined,
-              encryptionKey: processedMedia.encryptionKey,
-              thumbHash:
-                processedMedia.mediaType === 'photo' ||
-                processedMedia.mediaType === 'encrypted_photo'
-                  ? processedMedia.thumbHash
-                  : null,
-            },
-            {
-              onProgress: (percent: number) =>
-                this.setProgress(
-                  localMessageID,
-                  localMediaID,
-                  'uploading',
-                  percent,
-                ),
-              uploadBlob: this.uploadBlob,
-            },
-          ),
+        const uploadPromise = this.props.uploadMultimedia(
+          { uri: uploadURI, name: filename, type: mime },
+          {
+            ...processedMedia.dimensions,
+            loop:
+              processedMedia.mediaType === 'video' ||
+              processedMedia.mediaType === 'encrypted_video'
+                ? processedMedia.loop
+                : undefined,
+            encryptionKey: processedMedia.encryptionKey,
+            thumbHash:
+              processedMedia.mediaType === 'photo' ||
+              processedMedia.mediaType === 'encrypted_photo'
+                ? processedMedia.thumbHash
+                : null,
+          },
+          {
+            onProgress: (percent: number) =>
+              this.setProgress(
+                localMessageID,
+                localMediaID,
+                'uploading',
+                percent,
+              ),
+            uploadBlob: this.uploadBlob,
+          },
         );
 
-        if (
-          processedMedia.mediaType === 'video' ||
-          processedMedia.mediaType === 'encrypted_video'
-        ) {
-          uploadPromises.push(
-            this.props.uploadMultimedia(
+        const uploadThumbnailPromise: Promise<?UploadMultimediaResult> =
+          (async () => {
+            if (
+              processedMedia.mediaType !== 'video' &&
+              processedMedia.mediaType !== 'encrypted_video'
+            ) {
+              return undefined;
+            }
+            return await this.props.uploadMultimedia(
               {
                 uri: processedMedia.uploadThumbnailURI,
                 name: replaceExtension(`thumb${filename}`, 'jpg'),
@@ -954,12 +957,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               {
                 uploadBlob: this.uploadBlob,
               },
-            ),
-          );
-        }
-        [uploadResult, uploadThumbnailResult] = await Promise.all(
-          uploadPromises,
-        );
+            );
+          })();
+
+        [uploadResult, uploadThumbnailResult] = await Promise.all([
+          uploadPromise,
+          uploadThumbnailPromise,
+        ]);
       }
       mediaMissionResult = { success: true };
     } catch (e) {
