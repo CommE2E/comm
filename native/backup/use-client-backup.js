@@ -98,7 +98,7 @@ function useClientBackup(): ClientBackup {
         error: undefined,
       };
 
-      const backupIDPromise = (async () => {
+      const backupIDPromise: Promise<?string> = (async () => {
         try {
           // We are using UserID instead of the username.
           // The reason is tha the initial version of the backup service
@@ -128,7 +128,7 @@ function useClientBackup(): ClientBackup {
         deviceID: ed25519,
       };
 
-      const userKeysPromise = (async () => {
+      const userKeysPromise: Promise<?Uint8Array> = (async () => {
         try {
           const userKeysResponse = await getUserKeys(backupID, backupAuth);
           result.getUserKeys = true;
@@ -139,7 +139,7 @@ function useClientBackup(): ClientBackup {
           return undefined;
         }
       })();
-      const userDataPromise = (async () => {
+      const userDataPromise: Promise<?Uint8Array> = (async () => {
         try {
           const userDataResponse = await getUserData(backupID, backupAuth);
           result.getUserData = true;

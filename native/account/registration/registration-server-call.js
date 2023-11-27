@@ -135,7 +135,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
-      new Promise(
+      new Promise<void>(
         // eslint-disable-next-line no-async-promise-executor
         async (resolve, reject) => {
           try {

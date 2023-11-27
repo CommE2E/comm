@@ -73,9 +73,11 @@ function processMedia(
   };
 
   const reportPromise = innerProcessMedia(selection, config, sendResult);
-  const resultPromise = new Promise(resolve => {
-    resolveResult = resolve;
-  });
+  const resultPromise = new Promise<MediaMissionFailure | MediaResult>(
+    resolve => {
+      resolveResult = resolve;
+    },
+  );
 
   return { reportPromise, resultPromise };
 }
