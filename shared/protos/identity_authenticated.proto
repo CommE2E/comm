@@ -126,8 +126,12 @@ message FindUserIDRequest {
 }
 
 message FindUserIDResponse {
-  // none if user not found
+  // userID if the user is registered with Identity Service, null otherwise
   optional string userID = 1;
+  // true if the identifier (username or wallet address) exists in the
+  // reserved usernames list, false otherwise. This is always false
+  // when the user is registered with Identity Service (userID != null).
+  bool is_reserved = 2;
 }
 
 // UpdateUserPassword
