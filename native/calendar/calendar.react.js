@@ -772,7 +772,7 @@ class Calendar extends React.PureComponent<Props, State> {
     // but it is hidden by the keyboard since it is at the bottom
     const { bottomInset, tabBarHeight } = this.props.dimensions;
     const inputBarHeight = Platform.OS === 'android' ? 37.7 : 35.5;
-    const keyboardHeight = Platform.select({
+    const keyboardHeight: number = Platform.select({
       // Android doesn't include the bottomInset in this height measurement
       android: event.endCoordinates.height,
       default: Math.max(event.endCoordinates.height - bottomInset, 0),

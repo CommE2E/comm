@@ -15,7 +15,7 @@ const unboundStyles = {
   editIcon: {
     color: 'modalForegroundSecondaryLabel',
     lineHeight: 20,
-    paddingTop: Platform.select({ android: 1, default: 0 }),
+    paddingTop: (Platform.select({ android: 1, default: 0 }): number),
     textAlign: 'right',
   },
 };
