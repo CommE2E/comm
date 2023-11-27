@@ -10,6 +10,7 @@ package identity.authenticated;
 // token through an interceptor, thus avoiding the need to explicitly pass
 // the credentials on every request
 service IdentityClientService {
+  // X3DH actions
 
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
@@ -25,13 +26,13 @@ service IdentityClientService {
   //   - Identity keys (both Content and Notif Keys)
   //   - PreKey (including preKey signature)
   //   - One-time PreKey
-  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest)
-    returns (identity.client.OutboundKeysForUserResponse) {}
+  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest) returns
+    (OutboundKeysForUserResponse) {}
   // Called by receivers of a communication request. The reponse will only
   // return identity keys (both content and notif keys) and related prekeys per
   // device, but will not contain one-time keys.
-  rpc GetInboundKeysForUser(InboundKeysForUserRequest)
-    returns (identity.client.InboundKeysForUserResponse) {}
+  rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
+    (InboundKeysForUserResponse) {}
 
   // Called by user to update password and receive new access token
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
@@ -84,11 +85,31 @@ message KeyserverKeysResponse {
   optional OutboundKeyInfo keyserverInfo = 1;
 }
 
+// GetOutboundKeysForUser
+
+message OutboundKeysForUserResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, OutboundKeyInfo> devices = 1;
+}
+
 // Information needed by a device to establish communcation when responding
 // to a request.
 // The device receiving a request only needs the content key and prekey.
 message OutboundKeysForUserRequest {
   string userID = 1;
+}
+
+// GetInboundKeysForUser
+
+message InboundKeyInfo {
+  identity.client.IdentityKeyInfo identityInfo = 1;
+  identity.client.PreKey contentPrekey = 2;
+  identity.client.PreKey notifPrekey = 3;
+}
+
+message InboundKeysForUserResponse {
+  // Map is keyed on devices' public ed25519 key used for signing
+  map<string, InboundKeyInfo> devices = 1;
 }
 
 message InboundKeysForUserRequest {
