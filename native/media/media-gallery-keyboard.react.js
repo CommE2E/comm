@@ -521,7 +521,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
     const { queuedMediaURIs } = this.state;
     const queueCount = queuedMediaURIs ? queuedMediaURIs.size : 0;
-    const bottomInset = Platform.select({
+    const bottomInset: number = Platform.select({
       ios: -1 * this.props.dimensions.bottomInset,
       default: 0,
     });

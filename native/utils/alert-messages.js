@@ -7,7 +7,7 @@ type AlertDetails = {
   +message: string,
 };
 
-const platformStore = Platform.select({
+const platformStore: string = Platform.select({
   ios: 'App Store',
   android: 'Play Store',
 });

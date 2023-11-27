@@ -564,7 +564,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     ) {
       return;
     }
-    const keyboardHeight = Platform.select({
+    const keyboardHeight: number = Platform.select({
       // Android doesn't include the bottomInset in this height measurement
       android: event.endCoordinates.height,
       default: Math.max(
