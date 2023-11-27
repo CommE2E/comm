@@ -19,6 +19,7 @@ import StatusIndicator from '../components/status-indicator.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import Alert from '../utils/alert.js';
 
 export type KeyserverSelectionBottomSheetParams = {
@@ -50,7 +51,7 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
 
   const removeKeyserverContainerRef =
     React.useRef<?React.ElementRef<typeof View>>();
-  const bottomSheetRef = React.useRef();
+  const bottomSheetRef = React.useRef<?BottomSheetRef>();
 
   const colors = useColors();
   const styles = useStyles(unboundStyles);

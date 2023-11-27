@@ -20,6 +20,7 @@ import {
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
+import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import Alert from '../utils/alert.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
@@ -116,7 +117,7 @@ function SIWEPanel(props: Props): React.Node {
     }
   }, [isLoading, walletConnectModalHeight, bottomInset, keyboardHeight]);
 
-  const bottomSheetRef = React.useRef();
+  const bottomSheetRef = React.useRef<?BottomSheetRef>();
   const snapToIndex = bottomSheetRef.current?.snapToIndex;
   React.useEffect(() => {
     // When the snapPoints change, always reset to the first one
