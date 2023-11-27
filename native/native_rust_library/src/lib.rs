@@ -2,12 +2,12 @@ use crate::ffi::{bool_callback, string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use grpc_clients::identity::protos::authenticated::{
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::client::{
-  outbound_keys_for_user_request::Identifier, DeviceKeyUpload, DeviceType,
-  Empty, IdentityKeyInfo, OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
-  OutboundKeyInfo, OutboundKeysForUserRequest, PreKey,
+  DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OutboundKeyInfo, PreKey,
   RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
 };
 use grpc_clients::identity::{
@@ -114,8 +114,10 @@ mod ffi {
 
     #[cxx_name = "identityGetOutboundKeysForUserDevice"]
     fn get_outbound_keys_for_user_device(
-      identifier_type: String,
-      identifier_value: String,
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      user_id: String,
       device_id: String,
       promise_id: u32,
     );
@@ -750,8 +752,7 @@ async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
 }
 
 struct GetOutboundKeysRequestInfo {
-  identifier_type: String,
-  identifier_value: String,
+  user_id: String,
   device_id: String,
 }
 
@@ -818,50 +819,47 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
 }
 
 fn get_outbound_keys_for_user_device(
-  identifier_type: String,
-  identifier_value: String,
+  auth_user_id: String,
+  auth_device_id: String,
+  auth_access_token: String,
+  user_id: String,
   device_id: String,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
-    let get_outbound_keys_request_info = GetOutboundKeysRequestInfo {
-      identifier_type,
-      identifier_value,
-      device_id,
+    let get_outbound_keys_request_info =
+      GetOutboundKeysRequestInfo { user_id, device_id };
+    let auth_info = AuthInfo {
+      access_token: auth_access_token,
+      user_id: auth_user_id,
+      device_id: auth_device_id,
     };
-    let result =
-      get_outbound_keys_for_user_device_helper(get_outbound_keys_request_info)
-        .await;
+    let result = get_outbound_keys_for_user_device_helper(
+      get_outbound_keys_request_info,
+      auth_info,
+    )
+    .await;
     handle_string_result_as_callback(result, promise_id);
   });
 }
 
 async fn get_outbound_keys_for_user_device_helper(
   get_outbound_keys_request_info: GetOutboundKeysRequestInfo,
+  auth_info: AuthInfo,
 ) -> Result<String, Error> {
-  let identifier = match get_outbound_keys_request_info.identifier_type.as_str()
-  {
-    "walletAddress" => Some(Identifier::WalletAddress(
-      get_outbound_keys_request_info.identifier_value,
-    )),
-    "username" => Some(Identifier::Username(
-      get_outbound_keys_request_info.identifier_value,
-    )),
-    _ => {
-      return Err(Error::TonicGRPC(tonic::Status::invalid_argument(
-        "invalid identifier",
-      )))
-    }
-  };
-
-  let mut identity_client = get_unauthenticated_client(
+  let mut identity_client = get_auth_client(
     "http://127.0.0.1:50054",
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
   let mut response = identity_client
-    .get_outbound_keys_for_user(OutboundKeysForUserRequest { identifier })
+    .get_outbound_keys_for_user(OutboundKeysForUserRequest {
+      user_id: get_outbound_keys_request_info.user_id,
+    })
     .await?
     .into_inner();
 
