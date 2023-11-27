@@ -33,6 +33,7 @@ const secondaryThreshold = 120;
 const panGestureHandlerActiveOffsetX = [-4, 4];
 const panGestureHandlerFailOffsetY = [-5, 5];
 
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function dividePastDistance(value, distance, factor) {
   'worklet';
   const absValue = Math.abs(value);
@@ -43,6 +44,7 @@ function dividePastDistance(value, distance, factor) {
   return absFactor * (distance + (absValue - distance) / factor);
 }
 
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function makeSpringConfig(velocity) {
   'worklet';
   return {
@@ -56,18 +58,22 @@ function makeSpringConfig(velocity) {
   };
 }
 
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function interpolateOpacityForViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function interpolateOpacityForNonViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function interpolateTranslateXForViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
+// $FlowFixMe ENG-623 Reanimated 2.3 is failing to strip Flow types
 function interpolateTranslateXForNonViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
