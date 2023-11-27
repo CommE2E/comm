@@ -63,9 +63,9 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
     if (messageKey && parsedSpoilerIdentifier !== null) {
       setSpoilerRevealed({
         ...spoilerRevealed,
-        [messageKey]: {
+        [(messageKey: string)]: {
           ...spoilerRevealed[messageKey],
-          [parsedSpoilerIdentifier]: true,
+          [(parsedSpoilerIdentifier: number)]: true,
         },
       });
     }
