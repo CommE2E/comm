@@ -11,7 +11,7 @@ type ThrowExceptions = 'throw' | typeof undefined;
 type PermissionsResult = { +[permission: string]: boolean };
 
 async function getAndroidPermissions(
-  permissions: $ReadOnlyArray<string>,
+  permissions: Array<string>,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
@@ -61,14 +61,14 @@ function printException(e: mixed, caller: string) {
 }
 
 function requestAndroidPermissions(
-  permissions: $ReadOnlyArray<string>,
+  permissions: Array<string>,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'request', throwExceptions);
 }
 
 function checkAndroidPermissions(
-  permissions: $ReadOnlyArray<string>,
+  permissions: Array<string>,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'check', throwExceptions);
