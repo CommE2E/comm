@@ -8,10 +8,7 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import {
-  NEXT_CODE_VERSION,
-  hasMinCodeVersion,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
@@ -275,7 +272,7 @@ function rawThreadInfosFromServerThreadInfos(
     native: 221,
   });
   const codeVersionBelow283 = !hasMinCodeVersion(viewer.platformDetails, {
-    native: NEXT_CODE_VERSION,
+    native: 285,
   });
 
   const threadInfos = {};

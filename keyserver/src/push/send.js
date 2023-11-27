@@ -25,10 +25,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import {
-  NEXT_CODE_VERSION,
-  hasMinCodeVersion,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -1211,7 +1208,7 @@ async function prepareWebNotification(
   const isStaffOrDev = isStaff(userID) || isDev;
   const shouldBeEncrypted =
     hasMinCodeVersion(convertedData.platformDetails, {
-      web: NEXT_CODE_VERSION,
+      web: 43,
     }) && isStaffOrDev;
 
   if (!shouldBeEncrypted) {
