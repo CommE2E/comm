@@ -58,7 +58,7 @@ function useHandleLinkClick(
 ): () => void {
   const { setLinkModalActive } = markdownContext;
   const onDismiss = React.useCallback(() => {
-    messageKey && setLinkModalActive({ [messageKey]: false });
+    messageKey && setLinkModalActive({ [(messageKey: string)]: false });
   }, [setLinkModalActive, messageKey]);
 
   const url = normalizeURL(inputURL);
@@ -78,7 +78,7 @@ function useHandleLinkClick(
       deepLinksContext?.setCurrentLinkUrl(url);
       return;
     }
-    messageKey && setLinkModalActive({ [messageKey]: true });
+    messageKey && setLinkModalActive({ [(messageKey: string)]: true });
     Alert.alert(
       'External link',
       `You sure you want to open this link?\n\n${displayURL}`,
