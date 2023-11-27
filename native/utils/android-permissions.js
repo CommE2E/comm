@@ -5,8 +5,6 @@ import { PermissionsAndroid } from 'react-native';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
-const granted = new Set();
-
 type CheckOrRequest = 'check' | 'request';
 type ThrowExceptions = 'throw' | typeof undefined;
 
@@ -17,22 +15,14 @@ async function getAndroidPermissions(
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
-  const result = {},
-    missing = [];
+  const result = {};
 
-  for (const permission of permissions) {
-    if (granted.has(permission)) {
-      result[permission] = true;
-    } else {
-      missing.push(permission);
-    }
-  }
-  if (missing.length === 0) {
+  if (permissions.length === 0) {
     return result;
   }
 
   if (checkOrRequest === 'check') {
-    for (const permission of missing) {
+    for (const permission of permissions) {
       result[permission] = (async () => {
         try {
           return await PermissionsAndroid.check(permission);
@@ -50,14 +40,14 @@ async function getAndroidPermissions(
 
   let requestResult = {};
   try {
-    requestResult = await PermissionsAndroid.requestMultiple(missing);
+    requestResult = await PermissionsAndroid.requestMultiple(permissions);
   } catch (e) {
     printException(e, 'PermissionsAndroid.requestMultiple');
     if (throwExceptions === 'throw') {
       throw e;
     }
   }
-  for (const permission of missing) {
+  for (const permission of permissions) {
     result[permission] =
       requestResult[permission] === PermissionsAndroid.RESULTS.GRANTED;
   }
