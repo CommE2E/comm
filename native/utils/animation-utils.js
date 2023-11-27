@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Platform } from 'react-native';
 import { State as GestureState } from 'react-native-gesture-handler';
 import Animated, {
   EasingNode,
@@ -162,13 +161,14 @@ function ratchetAlongWithKeyboardHeight(
   ratchetFunction: NodeParam,
 ): Node {
   const prevKeyboardHeightValue = new Value(-1);
-  const whenToUpdate = Platform.select({
-    // In certain situations, iOS will send multiple keyboardShows in rapid
-    // succession with increasing height values. Only the final value has any
-    // semblance of reality. I've encountered this when using the native
-    // password management integration
-    default: greaterThan(keyboardHeight, max(prevKeyboardHeightValue, 0)),
-  });
+  // In certain situations, iOS will send multiple keyboardShows in rapid
+  // succession with increasing height values. Only the final value has any
+  // semblance of reality. I've encountered this when using the native
+  // password management integration
+  const whenToUpdate = greaterThan(
+    keyboardHeight,
+    max(prevKeyboardHeightValue, 0),
+  );
   const whenToReset = and(
     eq(keyboardHeight, 0),
     greaterThan(prevKeyboardHeightValue, 0),
