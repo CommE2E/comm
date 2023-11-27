@@ -33,10 +33,8 @@ function UserProfileBottomSheet(props: Props): React.Node {
     state => state.userStore.userInfos[userID],
   );
 
-  const bottomSheetRef = React.useRef();
-
   return (
-    <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
+    <BottomSheet onClosed={goBack}>
       <UserProfile userInfo={userInfo} />
     </BottomSheet>
   );
