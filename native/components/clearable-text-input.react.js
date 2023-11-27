@@ -16,12 +16,13 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
 
   onChangeText: (inputText: string) => void = inputText => {
     let text;
+    const { lastMessageSent } = this;
     if (
-      this.lastMessageSent &&
-      this.lastMessageSent.length < inputText.length &&
-      inputText.startsWith(this.lastMessageSent)
+      lastMessageSent &&
+      lastMessageSent.length < inputText.length &&
+      inputText.startsWith(lastMessageSent)
     ) {
-      text = inputText.substring(this.lastMessageSent.length);
+      text = inputText.substring(lastMessageSent.length);
     } else {
       text = inputText;
       this.lastMessageSent = null;
