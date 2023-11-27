@@ -33,7 +33,7 @@ import { ffmpeg } from './ffmpeg.js';
 const defaultInputs = Object.freeze({});
 const defaultFields = Object.freeze({});
 
-type FetchFileInfoResult = {
+export type FetchFileInfoResult = {
   +success: true,
   +uri: string,
   +orientation: ?number,
