@@ -111,7 +111,7 @@ function KeyserverSelection(props: Props): React.Node {
   const serverCallParamOverride = React.useMemo(
     () => ({
       keyserverInfos: {
-        [keyserverURL]: {
+        [(keyserverURL: string)]: {
           urlPrefix: keyserverURL,
         },
       },
