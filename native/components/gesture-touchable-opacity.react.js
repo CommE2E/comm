@@ -200,7 +200,7 @@ function ForwardedGestureTouchableOpacity(
   ]);
 
   const fillStyle = React.useMemo(() => {
-    const result = StyleSheet.flatten(props.style);
+    const result = StyleSheet.flatten<ViewStyle>(props.style);
     if (!result) {
       return undefined;
     }

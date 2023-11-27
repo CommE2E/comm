@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet.js';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
@@ -53,7 +52,7 @@ function Markdown(props: Props): React.Node {
     ) {
       return style;
     }
-    const flattened: FlattenedTextStyle = (StyleSheet.flatten(style): any);
+    const flattened = StyleSheet.flatten<TextStyle>(style);
     invariant(
       flattened && typeof flattened === 'object',
       `Markdown component should have style`,
