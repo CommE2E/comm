@@ -2,7 +2,7 @@
 
 import {
   logOutActionTypes,
-  deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
@@ -16,7 +16,7 @@ function reduceCryptoStore(state: ?CryptoStore, action: Action): ?CryptoStore {
     return action.payload;
   } else if (
     action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success ||
+    action.type === deleteKeyserverAccountActionTypes.success ||
     (action.type === setNewSessionActionType &&
       action.payload.sessionChange.cookieInvalidated)
   ) {

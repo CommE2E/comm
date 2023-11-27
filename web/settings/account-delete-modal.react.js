@@ -3,8 +3,8 @@
 import * as React from 'react';
 
 import {
-  useDeleteAccount,
-  deleteAccountActionTypes,
+  useDeleteKeyserverAccount,
+  deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -18,7 +18,7 @@ import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
-  deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
 );
 
 const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
@@ -27,7 +27,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const inputDisabled = useSelector(
       state => deleteAccountLoadingStatusSelector(state) === 'loading',
     );
-    const callDeleteAccount = useDeleteAccount();
+    const callDeleteAccount = useDeleteKeyserverAccount();
     const dispatchActionPromise = useDispatchActionPromise();
 
     const { popModal } = useModalContext();
@@ -54,7 +54,10 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const onDelete = React.useCallback(
       (event: SyntheticEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        dispatchActionPromise(deleteAccountActionTypes, deleteAction());
+        dispatchActionPromise(
+          deleteKeyserverAccountActionTypes,
+          deleteAction(),
+        );
       },
       [dispatchActionPromise, deleteAction],
     );

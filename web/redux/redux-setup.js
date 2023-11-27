@@ -5,7 +5,7 @@ import type { PersistState } from 'redux-persist/es/types.js';
 
 import {
   logOutActionTypes,
-  deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import {
   type ThreadStoreOperation,
@@ -192,7 +192,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
       )) ||
-    (action.type === deleteAccountActionTypes.success &&
+    (action.type === deleteKeyserverAccountActionTypes.success &&
       invalidSessionDowngrade(
         oldState,
         action.payload.currentUserInfo,
