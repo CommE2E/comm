@@ -70,7 +70,10 @@ async function fetchFileInfo(
     })();
   }
 
-  const getLocalURIPromise = (async () => {
+  const getLocalURIPromise: Promise<?{
+    +localURI: string,
+    +path: string,
+  }> = (async () => {
     if (inputPath) {
       return { localURI: inputURI, path: inputPath };
     }
@@ -88,7 +91,7 @@ async function fetchFileInfo(
     return { localURI, path };
   })();
 
-  const getOrientationPromise = (async () => {
+  const getOrientationPromise: Promise<?number> = (async () => {
     if (!optionalFields.orientation || !assetInfoPromise) {
       return null;
     }
@@ -96,7 +99,7 @@ async function fetchFileInfo(
     return orientation;
   })();
 
-  const getFileSizePromise = (async () => {
+  const getFileSizePromise: Promise<?number> = (async () => {
     const localURIResult = await getLocalURIPromise;
     if (!localURIResult) {
       return null;
@@ -109,7 +112,10 @@ async function fetchFileInfo(
     return fileSize;
   })();
 
-  const getTypesPromise = (async () => {
+  const getTypesPromise: Promise<{
+    +mime: ?string,
+    +mediaType: ?MediaType,
+  }> = (async () => {
     if (!optionalFields.mime && !optionalFields.mediaType) {
       return { mime: null, mediaType: null };
     }
