@@ -984,7 +984,7 @@ async function searchMessagesInSingleChat(
   inputQuery: string,
   threadID: string,
   viewer?: Viewer,
-  cursor?: string,
+  cursor?: ?string,
 ): Promise<SearchMessagesResponse> {
   if (inputQuery === '') {
     console.warn('received empty search query');
