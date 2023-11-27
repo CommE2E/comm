@@ -76,7 +76,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       if (result.success) {
         message = 'saved!';
       } else if (result.reason === 'save_unsupported') {
-        const os = Platform.select({
+        const os: string = Platform.select({
           ios: 'iOS',
           android: 'Android',
           default: Platform.OS,

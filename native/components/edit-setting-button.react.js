@@ -43,7 +43,7 @@ function EditSettingButton(props: Props): React.Node {
 const styles = StyleSheet.create({
   editIcon: {
     paddingLeft: 10,
-    paddingTop: Platform.select({ android: 1, default: 0 }),
+    paddingTop: (Platform.select({ android: 1, default: 0 }): number),
     textAlign: 'right',
   },
 });
