@@ -2,12 +2,12 @@ use crate::ffi::{bool_callback, string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use grpc_clients::identity::protos::authenticated::{
-  OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
+  OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::client::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OutboundKeyInfo, PreKey,
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, PreKey,
   RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
 };
 use grpc_clients::identity::{

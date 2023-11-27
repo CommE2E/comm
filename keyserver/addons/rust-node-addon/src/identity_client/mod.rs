@@ -9,11 +9,13 @@ pub mod upload_one_time_keys;
 use client_proto::identity_client_service_client::IdentityClientServiceClient;
 use client_proto::{
   AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
-  InboundKeyInfo, PreKey, RegistrationFinishRequest, RegistrationStartRequest,
+  PreKey, RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
-use grpc_clients::identity::protos::authenticated::UploadOneTimeKeysRequest;
+use grpc_clients::identity::protos::authenticated::{
+  InboundKeyInfo, UploadOneTimeKeysRequest,
+};
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
 use grpc_clients::identity::{
