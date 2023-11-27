@@ -4,9 +4,9 @@ import Icon from '@expo/vector-icons/Feather.js';
 import { Image } from 'expo-image';
 import * as React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
 import { useStyles } from '../themes/colors.js';
+import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
 
 type Props = {
