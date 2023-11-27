@@ -28,6 +28,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 declare var baseURL: string;
+declare var olmFilename: string;
 
 function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
@@ -85,7 +86,8 @@ function useCreatePushSubscription(): () => Promise<void> {
 
     const origin = window.location.origin;
     const olmWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
-    const olmWasmPath = `${olmWasmDirPath}/${DEFAULT_OLM_FILENAME}`;
+    const olmWasmFilename = olmFilename ? olmFilename : DEFAULT_OLM_FILENAME;
+    const olmWasmPath = `${olmWasmDirPath}/${olmWasmFilename}`;
     workerRegistration.active?.postMessage({ olmWasmPath, staffCanSee });
 
     const subscription = await workerRegistration.pushManager.subscribe({
