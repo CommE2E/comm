@@ -4,11 +4,6 @@ use tonic::Status;
 use tracing::error;
 
 use crate::{
-  client_service::client_proto::{
-    DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, PreKey,
-    RegistrationStartRequest, ReservedRegistrationStartRequest,
-    ReservedWalletLoginRequest, WalletLoginRequest,
-  },
   constants::{
     CONTENT_ONE_TIME_KEY, NOTIF_ONE_TIME_KEY,
     USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
@@ -20,7 +15,14 @@ use crate::{
     USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   },
   database::DeviceKeys,
-  grpc_services::authenticated::auth_proto::{InboundKeyInfo, OutboundKeyInfo},
+  grpc_services::protos::{
+    auth::{InboundKeyInfo, OutboundKeyInfo},
+    unauth::{
+      DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, PreKey,
+      RegistrationStartRequest, ReservedRegistrationStartRequest,
+      ReservedWalletLoginRequest, WalletLoginRequest,
+    },
+  },
   token::AuthType,
 };
 
