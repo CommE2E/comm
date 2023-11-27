@@ -9,7 +9,7 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
-  deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -115,7 +115,7 @@ function reducer(state: AppState = defaultState, action: Action) {
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
       )) ||
-    (action.type === deleteAccountActionTypes.success &&
+    (action.type === deleteKeyserverAccountActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
@@ -182,7 +182,7 @@ function reducer(state: AppState = defaultState, action: Action) {
   } else if (
     action.type === logOutActionTypes.started ||
     action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success
+    action.type === deleteKeyserverAccountActionTypes.success
   ) {
     state = {
       ...state,
