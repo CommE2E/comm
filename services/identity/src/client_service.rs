@@ -593,7 +593,7 @@ impl IdentityClientService for ClientService {
 
     let devices_map = self
       .client
-      .get_keys_for_user(user_ident, &auth_type, true)
+      .get_keys_for_user_info(user_ident, &auth_type, true)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| match auth_type {
@@ -608,7 +608,7 @@ impl IdentityClientService for ClientService {
       .filter_map(|(key, device_info)| {
         let device_info_with_auth = DeviceInfoWithAuth {
           device_info,
-          auth_type: &auth_type,
+          auth_type: Some(&auth_type),
         };
         match OutboundKeyInfo::try_from(device_info_with_auth) {
           Ok(key_info) => Some((key, key_info)),
@@ -642,7 +642,7 @@ impl IdentityClientService for ClientService {
 
     let devices_map = self
       .client
-      .get_keys_for_user(user_ident, &auth_type, false)
+      .get_keys_for_user_info(user_ident, &auth_type, false)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| match auth_type {
@@ -657,7 +657,7 @@ impl IdentityClientService for ClientService {
       .filter_map(|(key, device_info)| {
         let device_info_with_auth = DeviceInfoWithAuth {
           device_info,
-          auth_type: &auth_type,
+          auth_type: Some(&auth_type),
         };
         match InboundKeyInfo::try_from(device_info_with_auth) {
           Ok(key_info) => Some((key, key_info)),
