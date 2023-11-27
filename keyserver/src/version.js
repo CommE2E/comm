@@ -1,3 +1,3 @@
 // @flow
 
-export const keyserverCodeVersion = 42;
+export const keyserverCodeVersion = 43;
