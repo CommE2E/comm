@@ -10,18 +10,19 @@ type ThrowExceptions = 'throw' | typeof undefined;
 
 type PermissionsResult = { +[permission: string]: boolean };
 
+const emptyObj: PermissionsResult = {};
+
 async function getAndroidPermissions(
   permissions: Array<string>,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
 ): Promise<PermissionsResult> {
-  const result = {};
-
   if (permissions.length === 0) {
-    return result;
+    return emptyObj;
   }
 
   if (checkOrRequest === 'check') {
+    const result: { [string]: Promise<boolean> } = {};
     for (const permission of permissions) {
       result[permission] = (async () => {
         try {
@@ -47,6 +48,8 @@ async function getAndroidPermissions(
       throw e;
     }
   }
+
+  const result: { [string]: boolean } = {};
   for (const permission of permissions) {
     result[permission] =
       requestResult[permission] === PermissionsAndroid.RESULTS.GRANTED;
