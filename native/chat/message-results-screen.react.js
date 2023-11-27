@@ -6,7 +6,10 @@ import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { useFetchPinnedMessages } from 'lib/actions/message-actions.js';
-import { messageListData } from 'lib/selectors/chat-selectors.js';
+import {
+  messageListData,
+  type ChatMessageInfoItem,
+} from 'lib/selectors/chat-selectors.js';
 import {
   createMessageInfo,
   isInvalidPinSourceForThread,
@@ -92,7 +95,10 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       // By the nature of using messageListData and passing in
       // the desired translatedMessageResults as additional
       // messages, we will have duplicate ChatMessageInfoItems.
-      const uniqueChatMessageInfoItemsMap = new Map();
+      const uniqueChatMessageInfoItemsMap = new Map<
+        string,
+        ChatMessageInfoItem,
+      >();
       chatMessageInfoItems.forEach(
         item =>
           item.messageInfo &&
@@ -105,9 +111,9 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
       // in the order of pin_time (newest first).
       const sortedChatMessageInfoItems = [];
       for (let i = 0; i < rawMessageResults.length; i++) {
-        sortedChatMessageInfoItems.push(
-          uniqueChatMessageInfoItemsMap.get(rawMessageResults[i].id),
-        );
+        const { id } = rawMessageResults[i];
+        invariant(id, 'pinned message returned from server should have ID');
+        sortedChatMessageInfoItems.push(uniqueChatMessageInfoItemsMap.get(id));
       }
 
       return sortedChatMessageInfoItems.filter(Boolean);
