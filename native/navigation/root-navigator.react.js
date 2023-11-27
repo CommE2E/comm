@@ -12,7 +12,6 @@ import type {
   StackRouterOptions,
   RouteProp,
   StackCardInterpolationProps,
-  TransitionPreset,
 } from '@react-navigation/core';
 import {
   createNavigatorFactory,
@@ -152,7 +151,7 @@ const createRootNavigator = createNavigatorFactory<
   ExtraStackNavigatorProps,
 >(RootNavigator);
 
-const baseTransitionPreset: TransitionPreset = Platform.select({
+const baseTransitionPreset = Platform.select({
   ios: TransitionPresets.ModalSlideFromBottomIOS,
   default: TransitionPresets.FadeFromBottomAndroid,
 });

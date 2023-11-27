@@ -17,7 +17,7 @@ import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 
 const unboundStyles = {
   colorLine: {
-    lineHeight: (Platform.select({ android: 22, default: 25 }): number),
+    lineHeight: Platform.select({ android: 22, default: 25 }),
   },
   colorRow: {
     backgroundColor: 'panelForeground',
