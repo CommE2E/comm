@@ -6,7 +6,10 @@ import invariant from 'invariant';
 import url from 'url';
 
 import { isStaff } from 'lib/shared/staff-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
@@ -729,10 +732,12 @@ async function isCookieMissingOlmNotificationsSession(
     !viewer.platformDetails ||
     (viewer.platformDetails.platform !== 'ios' &&
       viewer.platformDetails.platform !== 'android' &&
-      !(viewer.platformDetails.platform === 'web' && isStaffOrDev)) ||
+      !(viewer.platformDetails.platform === 'web' && isStaffOrDev) &&
+      !(viewer.platformDetails.platform === 'macos' && isStaffOrDev)) ||
     !hasMinCodeVersion(viewer.platformDetails, {
       native: 222,
       web: 43,
+      majorDesktop: NEXT_CODE_VERSION,
     })
   ) {
     return false;
