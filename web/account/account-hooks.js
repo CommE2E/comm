@@ -229,11 +229,13 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
       );
 
       const persistEncryptionKeyPromise = (async () => {
-        let cryptoKeyPersistentForm = encryptionKey;
+        let cryptoKeyPersistentForm;
         if (isDesktopSafari) {
           // Safari doesn't support structured clone algorithm in service
           // worker context so we have to store CryptoKey as JSON
           cryptoKeyPersistentForm = await exportKeyToJWK(encryptionKey);
+        } else {
+          cryptoKeyPersistentForm = encryptionKey;
         }
 
         await localforage.setItem(
