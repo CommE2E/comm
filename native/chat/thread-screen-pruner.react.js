@@ -66,7 +66,7 @@ const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
     }, [navContext]);
 
     const inStackThreadIDs = React.useMemo(() => {
-      const threadIDs = new Set();
+      const threadIDs = new Set<string>();
       if (!chatRouteState) {
         return threadIDs;
       }

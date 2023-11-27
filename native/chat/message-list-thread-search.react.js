@@ -40,7 +40,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
     const styles = useStyles(unboundStyles);
 
     const [userListItems, nonFriends] = React.useMemo(() => {
-      const nonFriendsSet = new Set();
+      const nonFriendsSet = new Set<string>();
       if (userInfoInputArray.length > 0) {
         return [userSearchResults, nonFriendsSet];
       }
