@@ -21,6 +21,8 @@ export type ImagePasteModalParams = {
   +thread: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 
+const safeAreaEdges = ['top'];
+
 type Props = {
   +navigation: RootNavigationProp<'ImagePasteModal'>,
   +route: NavigationRoute<'ImagePasteModal'>,
@@ -51,18 +53,40 @@ function ImagePasteModal(props: Props): React.Node {
     filesystem.unlink(imagePasteStagingInfo.uri);
   }, [imagePasteStagingInfo.uri, navigation]);
 
-  return (
-    <Modal modalStyle={styles.modal} safeAreaEdges={['top']}>
-      <Image style={styles.image} source={{ uri: imagePasteStagingInfo.uri }} />
-      <View style={styles.linebreak} />
-      <View style={styles.spacer} />
-      <Button disabled={sendButtonDisabled} title="Send" onPress={sendImage} />
-      <View style={styles.linebreak} />
-      <View style={styles.spacer} />
-      <Button title="Cancel" onPress={cancel} />
-      <View style={styles.spacer} />
-    </Modal>
+  const imageSource = React.useMemo(
+    () => ({ uri: imagePasteStagingInfo.uri }),
+    [imagePasteStagingInfo.uri],
   );
+
+  const imagePasteModal = React.useMemo(
+    () => (
+      <Modal modalStyle={styles.modal} safeAreaEdges={safeAreaEdges}>
+        <Image style={styles.image} source={imageSource} />
+        <View style={styles.linebreak} />
+        <View style={styles.spacer} />
+        <Button
+          disabled={sendButtonDisabled}
+          title="Send"
+          onPress={sendImage}
+        />
+        <View style={styles.linebreak} />
+        <View style={styles.spacer} />
+        <Button title="Cancel" onPress={cancel} />
+        <View style={styles.spacer} />
+      </Modal>
+    ),
+    [
+      cancel,
+      imageSource,
+      sendButtonDisabled,
+      sendImage,
+      styles.image,
+      styles.linebreak,
+      styles.modal,
+      styles.spacer,
+    ],
+  );
+  return imagePasteModal;
 }
 
 const unboundStyles = {
