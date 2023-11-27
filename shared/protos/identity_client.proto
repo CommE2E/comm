@@ -31,22 +31,6 @@ service IdentityClientService {
   // Called by clients to get a nonce for a Sign-In with Ethereum message
   rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
 
-  // X3DH actions
-
-  // Called by clients to get all device keys associated with a user in order
-  // to open a new channel of communication on any of their devices.
-  // Specially, this will return the following per device:
-  //   - Identity keys (both Content and Notif Keys)
-  //   - PreKey (including preKey signature)
-  //   - One-time PreKey
-  rpc GetOutboundKeysForUser(OutboundKeysForUserRequest) returns
-    (OutboundKeysForUserResponse) {}
-  // Called by receivers of a communication request. The reponse will only
-  // return identity keys (both content and notif keys) and related prekeys per
-  // device, but will not contain one-time keys.
-  rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
-    (InboundKeysForUserResponse) {}
-
   // Service actions
 
   // Called by other services to verify a user's access token
@@ -241,16 +225,6 @@ message OutboundKeyInfo {
   optional string oneTimeNotifPrekey = 5;
 }
 
-// Information needed by a device to establish communcation when responding
-// to a request.
-// The device receiving a request only needs the content key and prekey.
-message OutboundKeysForUserRequest {
-  oneof identifier {
-    string username = 1;
-    string walletAddress = 2;
-  }
-}
-
 message OutboundKeysForUserResponse {
   // Map is keyed on devices' public ed25519 key used for signing
   map<string, OutboundKeyInfo> devices = 1;
@@ -262,13 +236,6 @@ message InboundKeyInfo {
   IdentityKeyInfo identityInfo = 1;
   PreKey contentPrekey = 2;
   PreKey notifPrekey = 3;
-}
-
-message InboundKeysForUserRequest {
-  oneof identifier {
-    string username = 1;
-    string walletAddress = 2;
-  }
 }
 
 message InboundKeysForUserResponse {
