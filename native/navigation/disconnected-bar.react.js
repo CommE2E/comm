@@ -10,7 +10,7 @@ import {
 
 import { useStyles } from '../themes/colors.js';
 
-const expandedHeight = Platform.select({
+const expandedHeight: number = Platform.select({
   android: 29.5,
   default: 27,
 });

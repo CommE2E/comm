@@ -1088,7 +1088,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flashButton: {
-    marginTop: Platform.select({ android: 15, default: 13 }),
+    marginTop: (Platform.select({ android: 15, default: 13 }): number),
     paddingHorizontal: 10,
     paddingVertical: 3,
     position: 'absolute',
@@ -1133,7 +1133,7 @@ const styles = StyleSheet.create({
   },
   retakeButton: {
     left: 20,
-    marginTop: Platform.select({ android: 15, default: 15 }),
+    marginTop: (Platform.select({ android: 15, default: 15 }): number),
     paddingBottom: 3,
     paddingHorizontal: 10,
     position: 'absolute',
