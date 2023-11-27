@@ -10,6 +10,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import { decryptBase64, decryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
 
 type BaseProps = {
@@ -34,7 +35,7 @@ function EncryptedImage(props: Props): React.Node {
   } = props;
 
   const mediaCache = React.useContext(MediaCacheContext);
-  const [source, setSource] = React.useState(null);
+  const [source, setSource] = React.useState<?ImageSource>(null);
 
   const connection = useSelector(connectionSelector(ashoatKeyserverID));
   invariant(connection, 'keyserver missing from keyserverStore');
