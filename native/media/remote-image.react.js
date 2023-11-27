@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import type { ImageSource } from 'react-native/Libraries/Image/ImageSource';
 
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
@@ -10,6 +9,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
 
 type BaseProps = {
