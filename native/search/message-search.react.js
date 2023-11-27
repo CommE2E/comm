@@ -47,7 +47,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     return props.navigation.addListener('beforeRemove', clearQuery);
   }, [props.navigation, clearQuery]);
 
-  const [lastID, setLastID] = React.useState();
+  const [lastID, setLastID] = React.useState<?string>();
   const [searchResults, setSearchResults] = React.useState<
     $ReadOnlyArray<RawMessageInfo>,
   >([]);
