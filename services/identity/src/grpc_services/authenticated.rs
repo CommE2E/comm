@@ -14,24 +14,18 @@ use crate::{
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use tonic::{Request, Response, Status};
+use tracing::{debug, error};
 
-// This must be named client, because generated code from the authenticated
-// protobuf file references message structs from the client protobuf file
-// with the client:: namespace
-use crate::client_service::client_proto as client;
-
-pub mod auth_proto {
-  tonic::include_proto!("identity.authenticated");
-}
-use auth_proto::{
+use super::protos::auth::{
   find_user_id_request, identity_client_service_server::IdentityClientService,
   FindUserIdRequest, FindUserIdResponse, InboundKeyInfo,
   InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
   OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPreKeysRequest, UploadOneTimeKeysRequest,
+  RefreshUserPreKeysRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest,
 };
-use client::{Empty, IdentityKeyInfo};
-use tracing::{debug, error};
+use super::protos::client::{Empty, IdentityKeyInfo, PreKey};
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
@@ -213,11 +207,11 @@ impl IdentityClientService for AuthenticatedService {
           payload_signature: db_keys.key_payload_signature,
           social_proof: db_keys.social_proof,
         }),
-        content_prekey: Some(client::PreKey {
+        content_prekey: Some(PreKey {
           pre_key: db_keys.content_prekey.prekey,
           pre_key_signature: db_keys.content_prekey.prekey_signature,
         }),
-        notif_prekey: Some(client::PreKey {
+        notif_prekey: Some(PreKey {
           pre_key: db_keys.notif_prekey.prekey,
           pre_key_signature: db_keys.notif_prekey.prekey_signature,
         }),
@@ -279,11 +273,9 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn update_user_password_start(
     &self,
-    request: tonic::Request<auth_proto::UpdateUserPasswordStartRequest>,
-  ) -> Result<
-    tonic::Response<auth_proto::UpdateUserPasswordStartResponse>,
-    tonic::Status,
-  > {
+    request: tonic::Request<UpdateUserPasswordStartRequest>,
+  ) -> Result<tonic::Response<UpdateUserPasswordStartResponse>, tonic::Status>
+  {
     let (user_id, _) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
@@ -302,7 +294,7 @@ impl IdentityClientService for AuthenticatedService {
       .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
       .await;
 
-    let response = auth_proto::UpdateUserPasswordStartResponse {
+    let response = UpdateUserPasswordStartResponse {
       session_id,
       opaque_registration_response: server_message,
     };
@@ -311,7 +303,7 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn update_user_password_finish(
     &self,
-    request: tonic::Request<auth_proto::UpdateUserPasswordFinishRequest>,
+    request: tonic::Request<UpdateUserPasswordFinishRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 

@@ -11,7 +11,12 @@ use tonic::Response;
 use tracing::{debug, error};
 
 // Workspace crate imports
-use crate::client_service::client_proto::{
+use crate::config::CONFIG;
+use crate::database::{
+  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
+};
+use crate::error::Error as DBError;
+use crate::grpc_services::protos::unauth::{
   AddReservedUsernamesRequest, Empty, GenerateNonceResponse,
   OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
   OpaqueLoginStartResponse, RegistrationFinishRequest,
@@ -21,11 +26,6 @@ use crate::client_service::client_proto::{
   VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
   WalletLoginRequest, WalletLoginResponse,
 };
-use crate::config::CONFIG;
-use crate::database::{
-  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
-};
-use crate::error::Error as DBError;
 use crate::grpc_utils::DeviceKeyUploadActions;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
@@ -36,13 +36,10 @@ use crate::reserved_users::{
 };
 use crate::siwe::{is_valid_ethereum_address, parse_and_verify_siwe_message};
 use crate::token::{AccessTokenData, AuthType};
-pub use client_proto::identity_client_service_server::{
-  IdentityClientService, IdentityClientServiceServer,
-};
 
-pub mod client_proto {
-  tonic::include_proto!("identity.client");
-}
+pub use crate::grpc_services::protos::client::identity_client_service_server::{
+    IdentityClientService, IdentityClientServiceServer,
+  };
 
 #[derive(Clone)]
 pub enum WorkflowInProgress {
