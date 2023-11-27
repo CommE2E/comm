@@ -1729,7 +1729,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
-      useMessageCreationSideEffectsFunc(messageTypes.TEXT);
+      useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
 
     return (
       <InputStateContainer
