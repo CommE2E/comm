@@ -951,18 +951,40 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_keys_for_user(
+  pub async fn get_keys_for_user_info(
     &self,
     user_info: String,
     auth_type: &AuthType,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
-    let Some(mut user) =
+    let Some(user) =
       self.get_user_from_user_info(user_info, auth_type).await?
     else {
       return Ok(None);
     };
 
+    self.get_keys_for_user(user, get_one_time_keys).await
+  }
+
+  pub async fn get_keys_for_user_id(
+    &self,
+    user_id: &str,
+    get_one_time_keys: bool,
+  ) -> Result<Option<Devices>, Error> {
+    let Some(user) =
+      self.get_item_from_users_table(user_id).await?.item
+    else {
+      return Ok(None);
+    };
+
+    self.get_keys_for_user(user, get_one_time_keys).await
+  }
+
+  async fn get_keys_for_user(
+    &self,
+    mut user: HashMap<String, AttributeValue>,
+    get_one_time_keys: bool,
+  ) -> Result<Option<Devices>, Error> {
     let devices = parse_map_attribute(
       USERS_TABLE_DEVICES_ATTRIBUTE,
       user.remove(USERS_TABLE_DEVICES_ATTRIBUTE),

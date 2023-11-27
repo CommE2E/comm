@@ -26,7 +26,7 @@ use crate::{
 
 pub struct DeviceInfoWithAuth<'a> {
   pub device_info: HashMap<String, String>,
-  pub auth_type: &'a AuthType,
+  pub auth_type: Option<&'a AuthType>,
 }
 
 impl TryFrom<DeviceInfoWithAuth<'_>> for InboundKeyInfo {
@@ -96,7 +96,7 @@ fn extract_key(
 
 fn extract_identity_info(
   device_info: &mut HashMap<String, String>,
-  auth_type: &AuthType,
+  auth_type: Option<&AuthType>,
 ) -> Result<IdentityKeyInfo, Status> {
   let payload = extract_key(
     device_info,
@@ -108,7 +108,7 @@ fn extract_identity_info(
   )?;
   let social_proof =
     device_info.remove(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME);
-  if social_proof.is_none() && auth_type == &AuthType::Wallet {
+  if social_proof.is_none() && auth_type == Some(&AuthType::Wallet) {
     error!("Social proof missing for wallet user");
     return Err(Status::failed_precondition("Database item malformed"));
   }
