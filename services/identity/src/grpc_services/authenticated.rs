@@ -25,9 +25,10 @@ pub mod auth_proto {
 }
 use auth_proto::{
   find_user_id_request, identity_client_service_server::IdentityClientService,
-  FindUserIdRequest, FindUserIdResponse, KeyserverKeysResponse,
-  OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPreKeysRequest,
-  UploadOneTimeKeysRequest,
+  FindUserIdRequest, FindUserIdResponse, InboundKeyInfo,
+  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  RefreshUserPreKeysRequest, UploadOneTimeKeysRequest,
 };
 use client::{Empty, IdentityKeyInfo};
 use tracing::{debug, error};
@@ -127,9 +128,8 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn get_outbound_keys_for_user(
     &self,
-    request: tonic::Request<auth_proto::OutboundKeysForUserRequest>,
-  ) -> Result<tonic::Response<client::OutboundKeysForUserResponse>, tonic::Status>
-  {
+    request: tonic::Request<OutboundKeysForUserRequest>,
+  ) -> Result<tonic::Response<OutboundKeysForUserResponse>, tonic::Status> {
     let message = request.into_inner();
 
     let devices_map = self
@@ -146,7 +146,7 @@ impl IdentityClientService for AuthenticatedService {
           device_info,
           auth_type: None,
         };
-        match client::OutboundKeyInfo::try_from(device_info_with_auth) {
+        match OutboundKeyInfo::try_from(device_info_with_auth) {
           Ok(key_info) => Some((key, key_info)),
           Err(_) => {
             error!("Failed to transform device info for key {}", key);
@@ -156,16 +156,15 @@ impl IdentityClientService for AuthenticatedService {
       })
       .collect::<HashMap<_, _>>();
 
-    Ok(tonic::Response::new(client::OutboundKeysForUserResponse {
+    Ok(tonic::Response::new(OutboundKeysForUserResponse {
       devices: transformed_devices,
     }))
   }
 
   async fn get_inbound_keys_for_user(
     &self,
-    request: tonic::Request<auth_proto::InboundKeysForUserRequest>,
-  ) -> Result<tonic::Response<client::InboundKeysForUserResponse>, tonic::Status>
-  {
+    request: tonic::Request<InboundKeysForUserRequest>,
+  ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
     let message = request.into_inner();
 
     let devices_map = self
@@ -182,7 +181,7 @@ impl IdentityClientService for AuthenticatedService {
           device_info,
           auth_type: None,
         };
-        match client::InboundKeyInfo::try_from(device_info_with_auth) {
+        match InboundKeyInfo::try_from(device_info_with_auth) {
           Ok(key_info) => Some((key, key_info)),
           Err(_) => {
             error!("Failed to transform device info for key {}", key);
@@ -192,7 +191,7 @@ impl IdentityClientService for AuthenticatedService {
       })
       .collect::<HashMap<_, _>>();
 
-    Ok(tonic::Response::new(client::InboundKeysForUserResponse {
+    Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
     }))
   }

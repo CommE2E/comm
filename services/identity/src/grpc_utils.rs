@@ -5,10 +5,9 @@ use tracing::error;
 
 use crate::{
   client_service::client_proto::{
-    DeviceKeyUpload, IdentityKeyInfo, InboundKeyInfo, OpaqueLoginStartRequest,
-    OutboundKeyInfo, PreKey, RegistrationStartRequest,
-    ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
-    WalletLoginRequest,
+    DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, PreKey,
+    RegistrationStartRequest, ReservedRegistrationStartRequest,
+    ReservedWalletLoginRequest, WalletLoginRequest,
   },
   constants::{
     CONTENT_ONE_TIME_KEY, NOTIF_ONE_TIME_KEY,
@@ -21,6 +20,7 @@ use crate::{
     USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   },
   database::DeviceKeys,
+  grpc_services::authenticated::auth_proto::{InboundKeyInfo, OutboundKeyInfo},
   token::AuthType,
 };
 
