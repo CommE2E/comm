@@ -20,7 +20,6 @@ import {
 } from 'lib/types/report-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
-import { promiseAll } from 'lib/utils/promises.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   generateReportID,
@@ -37,6 +36,7 @@ import {
   fetchFileHash,
   copyFile,
   temporaryDirectoryPath,
+  type FetchFileInfoResult,
 } from './file-utils.js';
 import { getMediaLibraryIdentifier } from './identifier-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
@@ -143,7 +143,7 @@ function saveMedia(
   };
 
   const reportPromise = innerSaveMedia(uri, permissions, sendResult);
-  const resultPromise = new Promise(resolve => {
+  const resultPromise = new Promise<MediaMissionResult>(resolve => {
     resolveResult = resolve;
   });
 
@@ -410,14 +410,22 @@ async function copyToSortedDirectory(
   }
   let mime = inputMIME;
 
-  const promises = {};
-  promises.hashStep = fetchFileHash(path);
-  if (!mime) {
-    promises.fileInfoResult = fetchFileInfo(localURI, undefined, {
+  const hashStepPromise = fetchFileHash(path);
+  const fileInfoPromise: Promise<?{
+    steps: $ReadOnlyArray<MediaMissionStep>,
+    result: MediaMissionFailure | FetchFileInfoResult,
+  }> = (async () => {
+    if (mime) {
+      return undefined;
+    }
+    return await fetchFileInfo(localURI, undefined, {
       mime: true,
     });
-  }
-  const { hashStep, fileInfoResult } = await promiseAll(promises);
+  })();
+  const [hashStep, fileInfoResult] = await Promise.all([
+    hashStepPromise,
+    fileInfoPromise,
+  ]);
 
   steps.push(hashStep);
   if (!hashStep.success) {
