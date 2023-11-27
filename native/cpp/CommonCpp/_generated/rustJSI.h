@@ -26,7 +26,7 @@ public:
   virtual jsi::Value loginWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String socialProof) = 0;
   virtual jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
   virtual jsi::Value deleteUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
-  virtual jsi::Value getOutboundKeysForUserDevice(jsi::Runtime &rt, jsi::String identifierType, jsi::String identifierValue, jsi::String deviceID) = 0;
+  virtual jsi::Value getOutboundKeysForUserDevice(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::String deviceID) = 0;
   virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
 
 };
@@ -97,13 +97,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::deleteUser, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
     }
-    jsi::Value getOutboundKeysForUserDevice(jsi::Runtime &rt, jsi::String identifierType, jsi::String identifierValue, jsi::String deviceID) override {
+    jsi::Value getOutboundKeysForUserDevice(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, jsi::String deviceID) override {
       static_assert(
-          bridging::getParameterCount(&T::getOutboundKeysForUserDevice) == 4,
-          "Expected getOutboundKeysForUserDevice(...) to have 4 parameters");
+          bridging::getParameterCount(&T::getOutboundKeysForUserDevice) == 6,
+          "Expected getOutboundKeysForUserDevice(...) to have 6 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getOutboundKeysForUserDevice, jsInvoker_, instance_, std::move(identifierType), std::move(identifierValue), std::move(deviceID));
+          rt, &T::getOutboundKeysForUserDevice, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID), std::move(deviceID));
     }
     jsi::Value versionSupported(jsi::Runtime &rt) override {
       static_assert(
