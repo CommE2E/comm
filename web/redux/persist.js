@@ -264,7 +264,6 @@ type PersistedKeyserverInfo = $Diff<
   KeyserverInfo,
   {
     +connection: ConnectionInfo,
-    +updatesCurrentAsOf: number,
     +sessionID?: ?string,
   },
 >;
