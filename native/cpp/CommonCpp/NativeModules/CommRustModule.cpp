@@ -225,8 +225,10 @@ jsi::Value CommRustModule::deleteUser(
 
 jsi::Value CommRustModule::getOutboundKeysForUserDevice(
     jsi::Runtime &rt,
-    jsi::String identifierType,
-    jsi::String identifierValue,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::String userID,
     jsi::String deviceID) {
   return createPromiseAsJSIValue(
       rt,
@@ -237,8 +239,10 @@ jsi::Value CommRustModule::getOutboundKeysForUserDevice(
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityGetOutboundKeysForUserDevice(
-              jsiStringToRustString(identifierType, innerRt),
-              jsiStringToRustString(identifierValue, innerRt),
+              jsiStringToRustString(authUserID, innerRt),
+              jsiStringToRustString(authDeviceID, innerRt),
+              jsiStringToRustString(authAccessToken, innerRt),
+              jsiStringToRustString(userID, innerRt),
               jsiStringToRustString(deviceID, innerRt),
               currentID);
         } catch (const std::exception &e) {
