@@ -214,35 +214,6 @@ message GenerateNonceResponse{
   string nonce = 1;
 }
 
-// GetOutboundKeysForUser
-
-// Information needed when establishing communication to someone else's device
-message OutboundKeyInfo {
-  IdentityKeyInfo identityInfo = 1;
-  PreKey contentPrekey = 2;
-  PreKey notifPrekey = 3;
-  optional string oneTimeContentPrekey = 4;
-  optional string oneTimeNotifPrekey = 5;
-}
-
-message OutboundKeysForUserResponse {
-  // Map is keyed on devices' public ed25519 key used for signing
-  map<string, OutboundKeyInfo> devices = 1;
-}
-
-// GetInboundKeysForUser
-
-message InboundKeyInfo {
-  IdentityKeyInfo identityInfo = 1;
-  PreKey contentPrekey = 2;
-  PreKey notifPrekey = 3;
-}
-
-message InboundKeysForUserResponse {
-  // Map is keyed on devices' public ed25519 key used for signing
-  map<string, InboundKeyInfo> devices = 1;
-}
-
 // VerifyUserAccessToken
 
 message VerifyUserAccessTokenRequest {
