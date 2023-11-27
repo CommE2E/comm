@@ -114,9 +114,13 @@ function ChatRouter(
         if (!lastState) {
           return lastState;
         }
-        return removeScreensFromStack(lastState, (route: Route<>) =>
-          threadIDs.has(getThreadIDFromRoute(route)) ? 'remove' : 'keep',
-        );
+        return removeScreensFromStack(lastState, (route: Route<>) => {
+          const threadID = getThreadIDFromRoute(route);
+          if (!threadID) {
+            return 'keep';
+          }
+          return threadIDs.has(threadID) ? 'remove' : 'keep';
+        });
       } else if (action.type === pushNewThreadActionType) {
         const { threadInfo } = action.payload;
         if (!lastState) {
