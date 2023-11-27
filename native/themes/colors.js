@@ -267,7 +267,7 @@ const colorsSelector: (state: AppState) => Colors = createSelector(
   },
 );
 
-const magicStrings = new Set();
+const magicStrings = new Set<string>();
 for (const theme in colors) {
   for (const magicString in colors[theme]) {
     magicStrings.add(magicString);
