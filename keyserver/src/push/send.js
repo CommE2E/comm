@@ -26,7 +26,10 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -90,6 +93,7 @@ export type Device = {
   +cookieID: string,
   +codeVersion: ?number,
   +stateVersion: ?number,
+  +majorDesktopVersion: ?number,
 };
 
 export type PushUserInfo = {
@@ -303,6 +307,7 @@ async function preparePushNotif(input: {
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
+            userID,
             {
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
@@ -407,11 +412,13 @@ async function preparePushNotif(input: {
   const macosVersionsToTokens = byPlatform.get('macos');
   if (macosVersionsToTokens) {
     for (const [versionKey, devices] of macosVersionsToTokens) {
-      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const { codeVersion, stateVersion, majorDesktopVersion } =
+        stringToVersionKey(versionKey);
       const platformDetails = {
         platform: 'macos',
         codeVersion,
         stateVersion,
+        majorDesktopVersion,
       };
       const shimmedNewRawMessageInfos = shimUnsupportedRawMessageInfos(
         newRawMessageInfos,
@@ -420,6 +427,7 @@ async function preparePushNotif(input: {
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
+            userID,
             {
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
@@ -801,10 +809,18 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
   return await createIDs('notifications', numIDsNeeded);
 }
 
-type VersionKey = { codeVersion: number, stateVersion: number };
+type VersionKey = {
+  +codeVersion: number,
+  +stateVersion: number,
+  +majorDesktopVersion?: number,
+};
 const versionKeyRegex: RegExp = new RegExp(/^-?\d+\|-?\d+$/);
 function versionKeyToString(versionKey: VersionKey): string {
-  return `${versionKey.codeVersion}|${versionKey.stateVersion}`;
+  const baseStringVersionKey = `${versionKey.codeVersion}|${versionKey.stateVersion}`;
+  if (!versionKey.majorDesktopVersion) {
+    return baseStringVersionKey;
+  }
+  return `${baseStringVersionKey}|${versionKey.majorDesktopVersion}`;
 }
 
 function stringToVersionKey(versionKeyString: string): VersionKey {
@@ -812,8 +828,10 @@ function stringToVersionKey(versionKeyString: string): VersionKey {
     versionKeyRegex.test(versionKeyString),
     'should pass correct version key string',
   );
-  const [codeVersion, stateVersion] = versionKeyString.split('|').map(Number);
-  return { codeVersion, stateVersion };
+  const [codeVersion, stateVersion, majorDesktopVersion] = versionKeyString
+    .split('|')
+    .map(Number);
+  return { codeVersion, stateVersion, majorDesktopVersion };
 }
 
 function getDevicesByPlatform(
@@ -830,18 +848,20 @@ function getDevicesByPlatform(
       byPlatform.set(device.platform, innerMap);
     }
     const codeVersion: number =
-      device.codeVersion !== null &&
-      device.codeVersion !== undefined &&
-      device.platform !== 'windows' &&
-      device.platform !== 'macos'
+      device.codeVersion !== null && device.codeVersion !== undefined
         ? device.codeVersion
         : -1;
     const stateVersion: number = device.stateVersion ?? -1;
 
-    const versionKey = versionKeyToString({
-      codeVersion,
-      stateVersion,
-    });
+    let versionsObject = { codeVersion, stateVersion };
+    if (device.majorDesktopVersion) {
+      versionsObject = {
+        ...versionsObject,
+        majorDesktopVersion: device.majorDesktopVersion,
+      };
+    }
+
+    const versionKey = versionKeyToString(versionsObject);
     let innerMostArrayTmp: ?Array<NotificationTargetDevice> =
       innerMap.get(versionKey);
     if (!innerMostArrayTmp) {
@@ -877,6 +897,7 @@ const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
   platformDetails: tPlatformDetails,
 });
 async function prepareAPNsNotification(
+  userID: string,
   inputData: APNsNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
@@ -906,10 +927,21 @@ async function prepareAPNsNotification(
   const canDecryptAllNotifTypes =
     platformDetails.codeVersion && platformDetails.codeVersion >= 267;
 
-  const shouldBeEncrypted =
+  const canDecryptIOSNotifs =
     platformDetails.platform === 'ios' &&
     (canDecryptAllNotifTypes ||
       (isNonCollapsibleTextNotification && canDecryptNonCollapsibleTextNotifs));
+
+  const isStaffOrDev = isStaff(userID) || isDev;
+  const canDecryptMacOSNotifs =
+    isStaffOrDev &&
+    platformDetails.platform === 'macos' &&
+    hasMinCodeVersion(platformDetails, {
+      web: NEXT_CODE_VERSION,
+      majorDesktop: NEXT_CODE_VERSION,
+    });
+
+  const shouldBeEncrypted = canDecryptIOSNotifs || canDecryptMacOSNotifs;
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
@@ -1710,11 +1742,36 @@ async function updateBadgeCount(
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
-        return deviceInfos.map(({ deviceToken }) => ({
-          notification: ({
+        const isStaffOrDev = isStaff(userID) || isDev;
+        const shouldBeEncrypted =
+          isStaffOrDev &&
+          hasMinCodeVersion(viewer.platformDetails, {
+            web: NEXT_CODE_VERSION,
+            majorDesktop: NEXT_CODE_VERSION,
+          });
+        let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
+        if (shouldBeEncrypted) {
+          const notificationsArray = await prepareEncryptedAPNsNotifications(
+            deviceInfos,
+            notification,
+            codeVersion,
+          );
+          targetedNotifications = notificationsArray.map(
+            ({ notification: notif, deviceToken, encryptionOrder }) => ({
+              notification: notif,
+              deviceToken,
+              encryptionOrder,
+            }),
+          );
+        } else {
+          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
             deviceToken,
             notification,
-          }: TargetedAPNsNotification),
+          }));
+        }
+
+        return targetedNotifications.map(targetedNotification => ({
+          notification: targetedNotification,
           platform: 'macos',
           notificationInfo: {
             source,
