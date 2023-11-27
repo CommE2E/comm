@@ -37,7 +37,7 @@ function MarkdownUserMention(props: Props): React.Node {
       return;
     }
 
-    setUserProfileBottomSheetActive({ [messageKey]: false });
+    setUserProfileBottomSheetActive({ [(messageKey: string)]: false });
   }, [messageKey, setUserProfileBottomSheetActive]);
 
   useFocusEffect(onFocusCallback);
@@ -47,7 +47,7 @@ function MarkdownUserMention(props: Props): React.Node {
       return;
     }
 
-    setUserProfileBottomSheetActive({ [messageKey]: true });
+    setUserProfileBottomSheetActive({ [(messageKey: string)]: true });
     navigateToUserProfileBottomSheet(userID);
   }, [
     messageKey,
