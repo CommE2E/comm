@@ -19,6 +19,9 @@ import Animated, {
   cancelAnimation,
   Extrapolate,
   type SharedValue,
+  // ESLint doesn't understand Flow comment syntax
+  // eslint-disable-next-line no-unused-vars
+  type WithSpringConfig,
 } from 'react-native-reanimated';
 import tinycolor from 'tinycolor2';
 
@@ -33,7 +36,11 @@ const secondaryThreshold = 120;
 const panGestureHandlerActiveOffsetX = [-4, 4];
 const panGestureHandlerFailOffsetY = [-5, 5];
 
-function dividePastDistance(value, distance, factor) {
+function dividePastDistance(
+  value /*: number */,
+  distance /*: number */,
+  factor /*: number */,
+) /*: number */ {
   'worklet';
   const absValue = Math.abs(value);
   if (absValue < distance) {
@@ -43,7 +50,7 @@ function dividePastDistance(value, distance, factor) {
   return absFactor * (distance + (absValue - distance) / factor);
 }
 
-function makeSpringConfig(velocity) {
+function makeSpringConfig(velocity /*: number */) /*: WithSpringConfig */ {
   'worklet';
   return {
     stiffness: 257.1370588235294,
@@ -56,19 +63,27 @@ function makeSpringConfig(velocity) {
   };
 }
 
-function interpolateOpacityForViewerPrimarySnake(translateX) {
+function interpolateOpacityForViewerPrimarySnake(
+  translateX /*: number */,
+) /*: number */ {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
-function interpolateOpacityForNonViewerPrimarySnake(translateX) {
+function interpolateOpacityForNonViewerPrimarySnake(
+  translateX /*: number */,
+) /*: number */ {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
-function interpolateTranslateXForViewerSecondarySnake(translateX) {
+function interpolateTranslateXForViewerSecondarySnake(
+  translateX /*: number */,
+) /*: number */ {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
-function interpolateTranslateXForNonViewerSecondarySnake(translateX) {
+function interpolateTranslateXForNonViewerSecondarySnake(
+  translateX /*: number */,
+) /*: number */ {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
@@ -198,11 +213,17 @@ function SwipeableMessage(props: Props): React.Node {
   const translateX = useSharedValue(0);
   const swipeEvent = useAnimatedGestureHandler<PanGestureEvent>(
     {
-      onStart: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
+      onStart: (
+        event /*: PanGestureEvent */,
+        ctx /*: { [string]: mixed } */,
+      ) => {
         ctx.translationAtStart = translateX.value;
         cancelAnimation(translateX.value);
       },
-      onActive: (event: PanGestureEvent, ctx: { [string]: mixed }) => {
+      onActive: (
+        event /*: PanGestureEvent */,
+        ctx /*: { [string]: mixed } */,
+      ) => {
         const { translationAtStart } = ctx;
         invariant(
           typeof translationAtStart === 'number',
@@ -231,7 +252,7 @@ function SwipeableMessage(props: Props): React.Node {
         }
         ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
       },
-      onEnd: (event: PanGestureEvent) => {
+      onEnd: (event /*: PanGestureEvent */) => {
         const absValue = Math.abs(translateX.value);
         if (absValue >= secondaryThreshold && secondaryActionExists) {
           runOnJS(secondaryAction)();

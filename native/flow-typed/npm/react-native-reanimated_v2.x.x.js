@@ -503,7 +503,7 @@ declare module 'react-native-reanimated' {
     dependencies?: $ReadOnlyArray<mixed>,
   ) => T;
 
-  declare type WithSpringConfig = $Shape<{|
+  declare export type WithSpringConfig = $Shape<{|
     +stiffness: number,
     +damping: number,
     +mass: number,
