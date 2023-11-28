@@ -1,15 +1,15 @@
 // @flow
 
 import type {
-  RawThreadInfos,
-  RawThreadInfo,
+  LegacyRawThreadInfos,
+  LegacyRawThreadInfo,
   LegacyRoleInfo,
 } from 'lib/types/thread-types.js';
 import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
 function persistMigrationToRemoveSelectRolePermissions(
-  rawThreadInfos: RawThreadInfos,
-): RawThreadInfos {
+  rawThreadInfos: LegacyRawThreadInfos,
+): LegacyRawThreadInfos {
   // This is to handle the client being logged out and not having any threads
   // to provide here. In this case, we want the migration to still succeed
   // so we early return an empty object.
@@ -17,7 +17,7 @@ function persistMigrationToRemoveSelectRolePermissions(
     return {};
   }
 
-  const updatedThreadInfos: { [string]: RawThreadInfo } = {};
+  const updatedThreadInfos: { [string]: LegacyRawThreadInfo } = {};
   for (const threadID in rawThreadInfos) {
     const threadInfo = rawThreadInfos[threadID];
     const { roles } = threadInfo;

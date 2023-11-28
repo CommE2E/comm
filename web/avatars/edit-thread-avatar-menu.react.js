@@ -10,7 +10,10 @@ import type {
   MinimallyEncodedRawThreadInfo,
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  LegacyRawThreadInfo,
+  ThreadInfo,
+} from 'lib/types/thread-types.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -27,7 +30,7 @@ const editIcon = (
 
 type Props = {
   +threadInfo:
-    | RawThreadInfo
+    | LegacyRawThreadInfo
     | ThreadInfo
     | MinimallyEncodedThreadInfo
     | MinimallyEncodedRawThreadInfo,

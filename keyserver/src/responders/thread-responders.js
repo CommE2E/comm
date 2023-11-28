@@ -30,7 +30,7 @@ import {
   type RoleModificationResult,
   type RoleDeletionRequest,
   type RoleDeletionResult,
-  rawThreadInfoValidator,
+  legacyRawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
 import { userInfosValidator } from 'lib/types/user-types.js';
@@ -289,7 +289,7 @@ export const roleModificationRequestInputValidator: TUnion<RoleModificationReque
 
 export const roleModificationResultValidator: TInterface<RoleModificationResult> =
   tShape<RoleModificationResult>({
-    threadInfo: t.maybe(rawThreadInfoValidator),
+    threadInfo: t.maybe(legacyRawThreadInfoValidator),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
@@ -310,7 +310,7 @@ export const roleDeletionRequestInputValidator: TInterface<RoleDeletionRequest> 
 
 export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
   tShape<RoleDeletionResult>({
-    threadInfo: t.maybe(rawThreadInfoValidator),
+    threadInfo: t.maybe(legacyRawThreadInfoValidator),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),

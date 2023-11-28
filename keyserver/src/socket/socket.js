@@ -42,7 +42,7 @@ import {
   serverSocketMessageTypes,
   serverServerSocketMessageValidator,
 } from 'lib/types/socket-types.js';
-import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import type { LegacyRawThreadInfos } from 'lib/types/thread-types.js';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -516,7 +516,7 @@ class Socket {
       );
       // We have a type error here because Flow doesn't know spec.hashKey
       const castPromises: {
-        +threadInfos: Promise<RawThreadInfos>,
+        +threadInfos: Promise<LegacyRawThreadInfos>,
         +currentUserInfo: Promise<CurrentUserInfo>,
         +entryInfos: Promise<$ReadOnlyArray<RawEntryInfo>>,
         +userInfos: Promise<$ReadOnlyArray<UserInfo>>,

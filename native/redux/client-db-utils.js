@@ -9,7 +9,7 @@ import type {
 } from 'lib/types/message-types.js';
 import type {
   ClientDBThreadInfo,
-  RawThreadInfo,
+  LegacyRawThreadInfo,
   ThreadStoreThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
@@ -71,7 +71,10 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
 
   // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
   const threadIDToThreadInfo = rawThreadInfos.reduce(
-    (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
+    (
+      acc: { [string]: LegacyRawThreadInfo },
+      threadInfo: LegacyRawThreadInfo,
+    ) => {
       acc[threadInfo.id] = threadInfo;
       return acc;
     },
@@ -83,7 +86,7 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
     migrationFunc(threadIDToThreadInfo);
 
   // Convert the updated `threadInfo`s back into an array.
-  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = values(
+  const updatedRawThreadInfos: $ReadOnlyArray<LegacyRawThreadInfo> = values(
     updatedThreadIDToThreadInfo,
   );
 

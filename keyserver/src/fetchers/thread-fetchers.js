@@ -14,9 +14,9 @@ import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
-  type RawThreadInfos,
+  type LegacyRawThreadInfos,
   type ServerThreadInfo,
-  type RawThreadInfo,
+  type LegacyRawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -245,7 +245,7 @@ async function fetchServerThreadInfos(
 }
 
 export type FetchThreadInfosResult = {
-  +threadInfos: RawThreadInfos,
+  +threadInfos: LegacyRawThreadInfos,
 };
 
 async function fetchThreadInfos(
@@ -278,7 +278,7 @@ function rawThreadInfosFromServerThreadInfos(
     native: 285,
   });
 
-  const threadInfos: { [string]: RawThreadInfo } = {};
+  const threadInfos: { [string]: LegacyRawThreadInfo } = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(
