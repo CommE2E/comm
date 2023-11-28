@@ -49,4 +49,5 @@ export type ExcludedData = {
 export type InitialReduxStateRequest = {
   +urlInfo: URLInfo,
   +excludedData: ExcludedData,
+  +clientUpdatesCurrentAsOf: number,
 };

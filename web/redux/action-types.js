@@ -26,15 +26,21 @@ const getInitialReduxState =
   ): ((input: InitialReduxStateRequest) => Promise<InitialReduxState>) =>
   async input => {
     const requests: { [string]: InitialReduxStateRequest } = {};
-    const { urlInfo, excludedData } = input;
+    const { urlInfo, ...inputRest } = input;
     const { thread, inviteSecret, ...rest } = urlInfo;
     const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
 
     for (const keyserverID of allKeyserverIDs) {
       if (keyserverID === threadKeyserverID) {
-        requests[keyserverID] = { urlInfo, excludedData };
+        requests[keyserverID] = {
+          ...inputRest,
+          urlInfo,
+        };
       } else {
-        requests[keyserverID] = { urlInfo: rest, excludedData };
+        requests[keyserverID] = {
+          ...inputRest,
+          urlInfo: rest,
+        };
       }
     }
 
