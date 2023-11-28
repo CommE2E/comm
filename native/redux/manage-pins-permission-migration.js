@@ -2,7 +2,7 @@
 
 import type {
   RawThreadInfo,
-  MemberInfo,
+  LegacyMemberInfo,
   ThreadCurrentUserInfo,
   LegacyRoleInfo,
   RawThreadInfos,
@@ -13,7 +13,7 @@ type ThreadStoreThreadInfos = RawThreadInfos;
 const adminRoleName = 'Admins';
 
 function addManagePinsThreadPermissionToUser<
-  TargetMemberInfo: MemberInfo | ThreadCurrentUserInfo,
+  TargetMemberInfo: LegacyMemberInfo | ThreadCurrentUserInfo,
 >(
   threadInfo: RawThreadInfo,
   member: TargetMemberInfo,

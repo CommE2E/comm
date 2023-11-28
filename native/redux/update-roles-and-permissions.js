@@ -10,7 +10,7 @@ import type { ThreadPermissionsBlob } from 'lib/types/thread-permission-types.js
 import type {
   RawThreadInfo,
   ThreadStoreThreadInfos,
-  MemberInfo,
+  LegacyMemberInfo,
 } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -84,7 +84,7 @@ function updateRolesAndPermissions(
     const memberToThreadPermissionsForChildren: {
       [string]: ?ThreadPermissionsBlob,
     } = {};
-    for (const member: MemberInfo of threadInfo.members) {
+    for (const member: LegacyMemberInfo of threadInfo.members) {
       const { id, role } = member;
 
       const rolePermissions = role ? threadInfo.roles[role].permissions : null;
