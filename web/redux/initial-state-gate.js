@@ -6,6 +6,7 @@ import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/thread-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
@@ -42,6 +43,8 @@ function InitialReduxStateGate(props: Props): React.Node {
   }, [initError]);
 
   const isRehydrated = useSelector(state => !!state._persist?.rehydrated);
+  const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
+
   const prevIsRehydrated = React.useRef(false);
   React.useEffect(() => {
     if (!prevIsRehydrated.current && isRehydrated) {
@@ -60,7 +63,10 @@ function InitialReduxStateGate(props: Props): React.Node {
 
           const payload = await callGetInitialReduxState({
             urlInfo,
-            excludedData: { threadStore: !!clientDBStore.threadStore },
+            excludedData: {
+              threadStore: !!clientDBStore.threadStore,
+            },
+            allUpdatesCurrentAsOf,
           });
 
           const currentLoggedInUserID = payload.currentUserInfo?.anonymous
@@ -113,7 +119,7 @@ function InitialReduxStateGate(props: Props): React.Node {
         }
       })();
     }
-  }, [callGetInitialReduxState, dispatch, isRehydrated]);
+  }, [callGetInitialReduxState, dispatch, isRehydrated, allUpdatesCurrentAsOf]);
 
   const initialStateLoaded = useSelector(state => state.initialStateLoaded);
 

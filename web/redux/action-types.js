@@ -4,9 +4,11 @@ import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { extractKeyserverIDFromID } from 'lib/utils/action-utils.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
+import type { URLInfo } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type {
+  ExcludedData,
   InitialReduxState,
   InitialReduxStateResponse,
   InitialKeyserverInfo,
@@ -19,22 +21,42 @@ export const updateWindowActiveActionType = 'UPDATE_WINDOW_ACTIVE';
 export const setInitialReduxState = 'SET_INITIAL_REDUX_STATE';
 
 const getInitialReduxStateCallServerEndpointOptions = { timeout: 300000 };
+
+type GetInitialReduxStateInput = {
+  +urlInfo: URLInfo,
+  +excludedData: ExcludedData,
+  +allUpdatesCurrentAsOf: {
+    +[keyserverID: string]: number,
+  },
+};
 const getInitialReduxState =
   (
     callKeyserverEndpoint: CallKeyserverEndpoint,
     allKeyserverIDs: $ReadOnlyArray<string>,
-  ): ((input: InitialReduxStateRequest) => Promise<InitialReduxState>) =>
+  ): ((input: GetInitialReduxStateInput) => Promise<InitialReduxState>) =>
   async input => {
     const requests: { [string]: InitialReduxStateRequest } = {};
-    const { urlInfo, excludedData } = input;
+    const { urlInfo, excludedData, allUpdatesCurrentAsOf } = input;
     const { thread, inviteSecret, ...rest } = urlInfo;
     const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
 
     for (const keyserverID of allKeyserverIDs) {
+      const clientUpdatesCurrentAsOf = allUpdatesCurrentAsOf[keyserverID];
+      const keyserverExcludedData: ExcludedData = {
+        threadStore: !!excludedData.threadStore && !!clientUpdatesCurrentAsOf,
+      };
       if (keyserverID === threadKeyserverID) {
-        requests[keyserverID] = { urlInfo, excludedData };
+        requests[keyserverID] = {
+          urlInfo,
+          excludedData: keyserverExcludedData,
+          clientUpdatesCurrentAsOf,
+        };
       } else {
-        requests[keyserverID] = { urlInfo: rest, excludedData };
+        requests[keyserverID] = {
+          urlInfo: rest,
+          excludedData: keyserverExcludedData,
+          clientUpdatesCurrentAsOf,
+        };
       }
     }
 
@@ -142,7 +164,7 @@ const getInitialReduxState =
   };
 
 function useGetInitialReduxState(): (
-  input: InitialReduxStateRequest,
+  input: GetInitialReduxStateInput,
 ) => Promise<InitialReduxState> {
   return useKeyserverCall(getInitialReduxState);
 }
