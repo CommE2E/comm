@@ -1,8 +1,8 @@
-diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-index 8fa1171..316b482 100644
---- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-+++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-@@ -208,6 +208,13 @@ export type TextContentType =
+diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.flow.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.flow.js
+index 7ed4579..8ba1e9f 100644
+--- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.flow.js
++++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.flow.js
+@@ -196,6 +196,13 @@ export type enterKeyHintType =
  type PasswordRules = string;
  
  type IOSProps = $ReadOnly<{|
@@ -16,34 +16,8 @@ index 8fa1171..316b482 100644
    /**
     * When the clear button should appear on the right side of the text view.
     * This property is supported only for single-line TextInput component.
-diff --git a/node_modules/react-native/Libraries/Lists/VirtualizedList.js b/node_modules/react-native/Libraries/Lists/VirtualizedList.js
-index 69e6309..5343e6a 100644
---- a/node_modules/react-native/Libraries/Lists/VirtualizedList.js
-+++ b/node_modules/react-native/Libraries/Lists/VirtualizedList.js
-@@ -34,6 +34,7 @@ const RefreshControl = require('../Components/RefreshControl/RefreshControl');
- const ScrollView = require('../Components/ScrollView/ScrollView');
- const View = require('../Components/View/View');
- const Batchinator = require('../Interaction/Batchinator');
-+const Platform = require('../Utilities/Platform');
- const ReactNative = require('../Renderer/shims/ReactNative');
- const flattenStyle = require('../StyleSheet/flattenStyle');
- const StyleSheet = require('../StyleSheet/StyleSheet');
-@@ -2170,9 +2171,10 @@ function describeNestedLists(childList: {
- }
- 
- const styles = StyleSheet.create({
--  verticallyInverted: {
--    transform: [{scaleY: -1}],
--  },
-+  verticallyInverted:
-+    Platform.OS === 'android'
-+      ? { scaleY: -1 }
-+      : { transform: [{scaleY: -1}] },
-   horizontallyInverted: {
-     transform: [{scaleX: -1}],
-   },
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
-index 5ccb6b6..1f326d4 100644
+index 1215ff0..be0c707 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 @@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
@@ -56,25 +30,25 @@ index 5ccb6b6..1f326d4 100644
  
  @end
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-index 92371bc..e991835 100644
+index 5d5d308..3ec5919 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-@@ -164,8 +164,12 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
+@@ -165,8 +165,12 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
  
  - (void)paste:(id)sender
  {
--  [super paste:sender];
 -  _textWasPasted = YES;
+-  [super paste:sender];
 +  if ([UIPasteboard generalPasteboard].hasImages && _allowImagePasteForThreadID) {
 +    [_textInputDelegate textInputImagePasted:_allowImagePasteForThreadID];
 +  } else {
-+    [super paste:sender];
 +    _textWasPasted = YES;
++    [super paste:sender];
 +  }
  }
  
  // Turn off scroll animation to fix flaky scrolling.
-@@ -254,6 +258,10 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+@@ -258,6 +262,10 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
      return NO;
    }
  
@@ -86,10 +60,10 @@ index 92371bc..e991835 100644
  }
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-index c2a4362..90f8583 100644
+index 7187177..77c6573 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
+@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
  
  - (void)textInputDidChangeSelection;
  
@@ -99,7 +73,7 @@ index c2a4362..90f8583 100644
  
  - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
-index a492492..e3b38cb 100644
+index 0bc14b4..c6df1b1 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 @@ -19,6 +19,8 @@
@@ -111,7 +85,7 @@ index a492492..e3b38cb 100644
  @implementation RCTBaseTextInputView {
    __weak RCTBridge *_bridge;
    __weak id<RCTEventDispatcherProtocol> _eventDispatcher;
-@@ -491,6 +493,46 @@ - (void)textInputDidChangeSelection
+@@ -523,6 +525,46 @@ - (void)textInputDidChangeSelection
    });
  }
  
@@ -159,10 +133,10 @@ index a492492..e3b38cb 100644
  {
    [self enforceTextAttributesIfNeeded];
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
-index b1ecf85..3462f98 100644
+index 47da2ce..b33be0f 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
-@@ -33,6 +33,7 @@ @implementation RCTBaseTextInputViewManager
+@@ -32,6 +32,7 @@ @implementation RCTBaseTextInputViewManager {
  
  #pragma mark - Unified <TextInput> properties
  
