@@ -11,7 +11,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedRelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { type RelativeMemberInfo } from 'lib/types/thread-types.js';
+import { type LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import { AddMembersModal } from './add-members-modal.react.js';
@@ -43,8 +43,9 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   const allMembers = React.useMemo(
     () =>
       threadMembersNotFiltered.filter(
-        (member: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo) =>
-          searchText.length === 0 || userIDs.includes(member.id),
+        (
+          member: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+        ) => searchText.length === 0 || userIDs.includes(member.id),
       ),
     [searchText.length, threadMembersNotFiltered, userIDs],
   );
@@ -53,8 +54,9 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   const adminMembers = React.useMemo(
     () =>
       allMembers.filter(
-        (member: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo) =>
-          roleIsAdminRole(roles.get(member.id)),
+        (
+          member: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+        ) => roleIsAdminRole(roles.get(member.id)),
       ),
     [allMembers, roles],
   );
