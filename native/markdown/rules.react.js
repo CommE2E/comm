@@ -7,14 +7,11 @@ import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import { chatMentionRegex } from 'lib/shared/mention-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
-  MinimallyEncodedThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LegacyRelativeMemberInfo,
   ThreadInfo,
   ChatMentionCandidates,
+  RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 
 import MarkdownChatMention from './markdown-chat-mention.react.js';
@@ -377,9 +374,7 @@ function useTextMessageRulesFunc(
 }
 
 function textMessageRules(
-  members: $ReadOnlyArray<
-    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
-  >,
+  members: $ReadOnlyArray<RelativeMemberInfo>,
   chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
 ): MarkdownRules {
