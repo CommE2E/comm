@@ -15,7 +15,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ThreadInfo,
-  RelativeMemberInfo,
+  LegacyRelativeMemberInfo,
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 
@@ -52,7 +52,7 @@ export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
   +frozenUserMentionsCandidates: $ReadOnlyArray<
-    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   >,
   +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,

@@ -13,7 +13,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ThreadInfo,
-  type RelativeMemberInfo,
+  type LegacyRelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 
 import ThreadMember from './member.react.js';
@@ -22,7 +22,7 @@ import css from './members-modal.css';
 type Props = {
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +threadMembers: $ReadOnlyArray<
-    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   >,
 };
 
@@ -50,7 +50,9 @@ function ThreadMembersList(props: Props): React.Node {
             .sort((a, b) => stringForUser(a).localeCompare(stringForUser(b)))
             .map(
               (
-                user: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+                user:
+                  | LegacyRelativeMemberInfo
+                  | MinimallyEncodedRelativeMemberInfo,
               ) => (
                 <ThreadMember
                   key={user.id}
