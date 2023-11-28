@@ -5,14 +5,8 @@ import * as React from 'react';
 import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
-import type {
-  MinimallyEncodedRelativeMemberInfo,
-  MinimallyEncodedThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  ThreadInfo,
-  LegacyRelativeMemberInfo,
-} from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
@@ -28,7 +22,7 @@ import {
 import Alert from '../../utils/alert.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 }>;
 

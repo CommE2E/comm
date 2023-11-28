@@ -34,7 +34,6 @@ import {
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
   MinimallyEncodedResolvedThreadInfo,
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -44,7 +43,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
-  type LegacyRelativeMemberInfo,
+  type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
@@ -210,9 +209,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'member',
       +key: string,
-      +memberInfo:
-        | LegacyRelativeMemberInfo
-        | MinimallyEncodedRelativeMemberInfo,
+      +memberInfo: RelativeMemberInfo,
       +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -1143,9 +1140,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
 const threadMembersChangeIsSaving = (
   state: AppState,
-  threadMembers: $ReadOnlyArray<
-    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
-  >,
+  threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 ) => {
   for (const threadMember of threadMembers) {
     const removeUserLoadingStatus = createLoadingStatusSelector(
