@@ -30,20 +30,6 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.RegistrationFinishResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.RegistrationFinishResponse>;
 
-  updateUserPasswordStart(
-    request: identityStructs.UpdateUserPasswordStartRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.UpdateUserPasswordStartResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.UpdateUserPasswordStartResponse>;
-
-  updateUserPasswordFinish(
-    request: identityStructs.UpdateUserPasswordFinishRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.Empty) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
-
   loginPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
     metadata: grpcWeb.Metadata | void,
@@ -72,47 +58,12 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.WalletLoginResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
 
-  logOutUser(
-    request: identityStructs.LogoutRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.Empty) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
-
-  deleteUser(
-    request: identityStructs.DeleteUserRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.Empty) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
-
   generateNonce(
     request: identityStructs.Empty,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.GenerateNonceResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.GenerateNonceResponse>;
-
-  getOutboundKeysForUser(
-    request: identityStructs.OutboundKeysForUserRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.OutboundKeysForUserResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.OutboundKeysForUserResponse>;
-
-  getInboundKeysForUser(
-    request: identityStructs.InboundKeysForUserRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.InboundKeysForUserResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.InboundKeysForUserResponse>;
-
-  uploadOneTimeKeys(
-    request: identityStructs.UploadOneTimeKeysRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.Empty) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
@@ -164,16 +115,6 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.RegistrationFinishResponse>;
 
-  updateUserPasswordStart(
-    request: identityStructs.UpdateUserPasswordStartRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.UpdateUserPasswordStartResponse>;
-
-  updateUserPasswordFinish(
-    request: identityStructs.UpdateUserPasswordFinishRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.Empty>;
-
   loginPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
     metadata?: grpcWeb.Metadata
@@ -194,35 +135,10 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.WalletLoginResponse>;
 
-  logOutUser(
-    request: identityStructs.LogoutRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.Empty>;
-
-  deleteUser(
-    request: identityStructs.DeleteUserRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.Empty>;
-
   generateNonce(
     request: identityStructs.Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.GenerateNonceResponse>;
-
-  getOutboundKeysForUser(
-    request: identityStructs.OutboundKeysForUserRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.OutboundKeysForUserResponse>;
-
-  getInboundKeysForUser(
-    request: identityStructs.InboundKeysForUserRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.InboundKeysForUserResponse>;
-
-  uploadOneTimeKeys(
-    request: identityStructs.UploadOneTimeKeysRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.Empty>;
 
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,

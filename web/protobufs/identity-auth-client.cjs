@@ -203,6 +203,372 @@ proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.refres
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.authenticated.OutboundKeysForUserRequest,
+ *   !proto.identity.authenticated.OutboundKeysForUserResponse>}
+ */
+const methodDescriptor_IdentityClientService_GetOutboundKeysForUser = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/GetOutboundKeysForUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.authenticated.OutboundKeysForUserRequest,
+  proto.identity.authenticated.OutboundKeysForUserResponse,
+  /**
+   * @param {!proto.identity.authenticated.OutboundKeysForUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.authenticated.OutboundKeysForUserResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.authenticated.OutboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.authenticated.OutboundKeysForUserResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.authenticated.OutboundKeysForUserResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.getOutboundKeysForUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/GetOutboundKeysForUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetOutboundKeysForUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.authenticated.OutboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.authenticated.OutboundKeysForUserResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.getOutboundKeysForUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/GetOutboundKeysForUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetOutboundKeysForUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.authenticated.InboundKeysForUserRequest,
+ *   !proto.identity.authenticated.InboundKeysForUserResponse>}
+ */
+const methodDescriptor_IdentityClientService_GetInboundKeysForUser = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/GetInboundKeysForUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.authenticated.InboundKeysForUserRequest,
+  proto.identity.authenticated.InboundKeysForUserResponse,
+  /**
+   * @param {!proto.identity.authenticated.InboundKeysForUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.authenticated.InboundKeysForUserResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.authenticated.InboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.authenticated.InboundKeysForUserResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.authenticated.InboundKeysForUserResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.getInboundKeysForUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/GetInboundKeysForUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetInboundKeysForUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.authenticated.InboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.authenticated.InboundKeysForUserResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.getInboundKeysForUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/GetInboundKeysForUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetInboundKeysForUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.authenticated.UpdateUserPasswordStartRequest,
+ *   !proto.identity.authenticated.UpdateUserPasswordStartResponse>}
+ */
+const methodDescriptor_IdentityClientService_UpdateUserPasswordStart = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/UpdateUserPasswordStart',
+  grpc.web.MethodType.UNARY,
+  proto.identity.authenticated.UpdateUserPasswordStartRequest,
+  proto.identity.authenticated.UpdateUserPasswordStartResponse,
+  /**
+   * @param {!proto.identity.authenticated.UpdateUserPasswordStartRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.authenticated.UpdateUserPasswordStartResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.authenticated.UpdateUserPasswordStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.authenticated.UpdateUserPasswordStartResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.authenticated.UpdateUserPasswordStartResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.updateUserPasswordStart =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/UpdateUserPasswordStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UpdateUserPasswordStart,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.authenticated.UpdateUserPasswordStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.authenticated.UpdateUserPasswordStartResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.updateUserPasswordStart =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/UpdateUserPasswordStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UpdateUserPasswordStart);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.authenticated.UpdateUserPasswordFinishRequest,
+ *   !proto.identity.client.Empty>}
+ */
+const methodDescriptor_IdentityClientService_UpdateUserPasswordFinish = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/UpdateUserPasswordFinish',
+  grpc.web.MethodType.UNARY,
+  proto.identity.authenticated.UpdateUserPasswordFinishRequest,
+  identity_client_pb.Empty,
+  /**
+   * @param {!proto.identity.authenticated.UpdateUserPasswordFinishRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_client_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.authenticated.UpdateUserPasswordFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.updateUserPasswordFinish =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/UpdateUserPasswordFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UpdateUserPasswordFinish,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.authenticated.UpdateUserPasswordFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.client.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.updateUserPasswordFinish =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/UpdateUserPasswordFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UpdateUserPasswordFinish);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.client.Empty,
+ *   !proto.identity.client.Empty>}
+ */
+const methodDescriptor_IdentityClientService_LogOutUser = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/LogOutUser',
+  grpc.web.MethodType.UNARY,
+  identity_client_pb.Empty,
+  identity_client_pb.Empty,
+  /**
+   * @param {!proto.identity.client.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_client_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.logOutUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/LogOutUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogOutUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.client.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.logOutUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/LogOutUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogOutUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.client.Empty,
+ *   !proto.identity.client.Empty>}
+ */
+const methodDescriptor_IdentityClientService_DeleteUser = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/DeleteUser',
+  grpc.web.MethodType.UNARY,
+  identity_client_pb.Empty,
+  identity_client_pb.Empty,
+  /**
+   * @param {!proto.identity.client.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_client_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.deleteUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/DeleteUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeleteUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.client.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.client.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.deleteUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/DeleteUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeleteUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.authenticated.OutboundKeysForUserRequest,
  *   !proto.identity.authenticated.KeyserverKeysResponse>}
  */
 const methodDescriptor_IdentityClientService_GetKeyserverKeys = new grpc.web.MethodDescriptor(
@@ -260,4 +626,66 @@ proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.getKey
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.authenticated.FindUserIDRequest,
+ *   !proto.identity.authenticated.FindUserIDResponse>}
+ */
+const methodDescriptor_IdentityClientService_FindUserID = new grpc.web.MethodDescriptor(
+  '/identity.authenticated.IdentityClientService/FindUserID',
+  grpc.web.MethodType.UNARY,
+  proto.identity.authenticated.FindUserIDRequest,
+  proto.identity.authenticated.FindUserIDResponse,
+  /**
+   * @param {!proto.identity.authenticated.FindUserIDRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.authenticated.FindUserIDResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.authenticated.FindUserIDRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.authenticated.FindUserIDResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.authenticated.FindUserIDResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.authenticated.IdentityClientServiceClient.prototype.findUserID =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/FindUserID',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserID,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.authenticated.FindUserIDRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.authenticated.FindUserIDResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.authenticated.IdentityClientServicePromiseClient.prototype.findUserID =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.authenticated.IdentityClientService/FindUserID',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserID);
+};
+
+
 module.exports = proto.identity.authenticated;
+

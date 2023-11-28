@@ -25,6 +25,48 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
+  getOutboundKeysForUser(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.OutboundKeysForUserResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.OutboundKeysForUserResponse>;
+
+  getInboundKeysForUser(
+    request: identityAuthStructs.InboundKeysForUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.InboundKeysForUserResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.InboundKeysForUserResponse>;
+
+  updateUserPasswordStart(
+    request: identityAuthStructs.UpdateUserPasswordStartRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.UpdateUserPasswordStartResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.UpdateUserPasswordStartResponse>;
+
+  updateUserPasswordFinish(
+    request: identityAuthStructs.UpdateUserPasswordFinishRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  logOutUser(
+    request: identityStructs.Empty,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  deleteUser(
+    request: identityStructs.Empty,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
   getKeyserverKeys(
     request: identityAuthStructs.OutboundKeysForUserRequest,
     metadata: grpcWeb.Metadata | void,
@@ -32,6 +74,12 @@ declare export class IdentityClientServiceClient {
                response: identityAuthStructs.KeyserverKeysResponse) => void
   ): grpcWeb.ClientReadableStream<identityAuthStructs.KeyserverKeysResponse>;
 
+  findUserID(
+    request: identityAuthStructs.FindUserIDRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.FindUserIDResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.FindUserIDResponse>;
 }
 
 declare export class IdentityClientServicePromiseClient {
@@ -49,9 +97,43 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
+  getOutboundKeysForUser(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.OutboundKeysForUserResponse>;
+
+  getInboundKeysForUser(
+    request: identityAuthStructs.InboundKeysForUserRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.InboundKeysForUserResponse>;
+
+  updateUserPasswordStart(
+    request: identityAuthStructs.UpdateUserPasswordStartRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.UpdateUserPasswordStartResponse>;
+
+  updateUserPasswordFinish(
+    request: identityAuthStructs.UpdateUserPasswordFinishRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  logOutUser(
+    request: identityStructs.Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  deleteUser(
+    request: identityStructs.Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
   getKeyserverKeys(
     request: identityAuthStructs.OutboundKeysForUserRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityAuthStructs.KeyserverKeysResponse>;
 
+  findUserID(
+    request: identityAuthStructs.FindUserIDRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.FindUserIDResponse>;
 }
