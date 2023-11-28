@@ -52,15 +52,21 @@ async function decryptWebNotification(
   const { id, encryptedPayload } = encryptedNotification;
 
   const retrieveEncryptionKeyPromise: Promise<?CryptoKey> = (async () => {
-    const persistedCryptoKey = await localforage.getItem<CryptoKey>(
-      NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
-    );
-    if (isDesktopSafari && persistedCryptoKey) {
-      // Safari doesn't support structured clone algorithm in service
-      // worker context so we have to store CryptoKey as JSON
-      return await importJWKKey(persistedCryptoKey);
+    if (!isDesktopSafari) {
+      return await localforage.getItem<CryptoKey>(
+        NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+      );
     }
-    return persistedCryptoKey;
+    // Safari doesn't support structured clone algorithm in service
+    // worker context so we have to store CryptoKey as JSON
+    const persistedCryptoKey =
+      await localforage.getItem<SubtleCrypto$JsonWebKey>(
+        NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+      );
+    if (!persistedCryptoKey) {
+      return null;
+    }
+    return await importJWKKey(persistedCryptoKey);
   })();
 
   const [encryptedOlmData, encryptionKey, utilsData] = await Promise.all([
