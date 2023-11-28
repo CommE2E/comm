@@ -289,6 +289,7 @@ const keyserverStoreTransform: Transform = createTransform(
         ...state.keyserverInfos[key],
         connection: { ...defaultConnectionInfo },
         sessionID: null,
+        updatesCurrentAsOf: state.keyserverInfos[key].updatesCurrentAsOf ?? 0,
       };
     }
     return {
