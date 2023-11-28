@@ -1,6 +1,6 @@
 // @flow
 
-import type { RawThreadInfos } from 'lib/types/thread-types.js';
+import type { LegacyRawThreadInfos } from 'lib/types/thread-types.js';
 import { deepDiff } from 'lib/utils/objects.js';
 
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
@@ -8,7 +8,7 @@ import { threadStoreThreadsWithIncorrectPermissions } from './update-roles-and-p
 
 describe('persistMigrationToRemoveDescendantOpenVoiced', () => {
   it("should correctly remove 'descendant_open_voiced' from permissions", () => {
-    const migratedRawThreadInfos: RawThreadInfos =
+    const migratedRawThreadInfos: LegacyRawThreadInfos =
       persistMigrationToRemoveSelectRolePermissions(
         threadStoreThreadsWithIncorrectPermissions,
       );
