@@ -2,7 +2,7 @@
 
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
-  MemberInfo,
+  LegacyMemberInfo,
   ThreadCurrentUserInfo,
   RawThreadInfo,
   LegacyRoleInfo,
@@ -10,7 +10,7 @@ import type {
 } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
-  T: MemberInfo | ThreadCurrentUserInfo,
+  T: LegacyMemberInfo | ThreadCurrentUserInfo,
 >(threadInfo: RawThreadInfo, member: T, threadID: string): T {
   let newPermissions = null;
   if (threadInfo.type === threadTypes.PRIVATE) {
