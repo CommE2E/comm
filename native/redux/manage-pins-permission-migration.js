@@ -4,7 +4,7 @@ import type {
   RawThreadInfo,
   MemberInfo,
   ThreadCurrentUserInfo,
-  RoleInfo,
+  LegacyRoleInfo,
   RawThreadInfos,
 } from 'lib/types/thread-types.js';
 
@@ -37,7 +37,9 @@ function addManagePinsThreadPermissionToUser<
     : member;
 }
 
-function addManagePinsThreadPermissionToRole(role: RoleInfo): RoleInfo {
+function addManagePinsThreadPermissionToRole(
+  role: LegacyRoleInfo,
+): LegacyRoleInfo {
   const isAdminRole = role.name === adminRoleName;
   let updatedPermissions;
 

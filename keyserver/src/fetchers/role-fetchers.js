@@ -1,11 +1,11 @@
 // @flow
 
 import { specialRoles } from 'lib/permissions/special-roles.js';
-import type { RoleInfo } from 'lib/types/thread-types.js';
+import type { LegacyRoleInfo } from 'lib/types/thread-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 
-async function fetchRoles(threadID: string): Promise<RoleInfo[]> {
+async function fetchRoles(threadID: string): Promise<LegacyRoleInfo[]> {
   const query = SQL`
     SELECT id, name, permissions, 
       special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
