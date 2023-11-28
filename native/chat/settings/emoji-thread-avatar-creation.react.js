@@ -10,7 +10,10 @@ import type {
   MinimallyEncodedRawThreadInfo,
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  LegacyRawThreadInfo,
+  ThreadInfo,
+} from 'lib/types/thread-types.js';
 
 import { useNativeSetThreadAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
@@ -21,7 +24,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 
 export type EmojiThreadAvatarCreationParams = {
   +threadInfo:
-    | RawThreadInfo
+    | LegacyRawThreadInfo
     | ThreadInfo
     | MinimallyEncodedRawThreadInfo
     | MinimallyEncodedThreadInfo,

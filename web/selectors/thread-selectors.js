@@ -16,7 +16,10 @@ import type {
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo, RawThreadInfos } from 'lib/types/thread-types.js';
+import type {
+  ThreadInfo,
+  LegacyRawThreadInfos,
+} from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -141,7 +144,7 @@ const unreadCountInSelectedCommunity: (state: AppState) => number =
   createSelector(
     (state: AppState) => state.threadStore.threadInfos,
     (state: AppState) => state.communityPickerStore.chat,
-    (threadInfos: RawThreadInfos, communityID: ?string): number =>
+    (threadInfos: LegacyRawThreadInfos, communityID: ?string): number =>
       values(threadInfos).filter(
         threadInfo =>
           threadInHomeChatList(threadInfo) &&

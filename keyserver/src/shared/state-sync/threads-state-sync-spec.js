@@ -3,9 +3,9 @@
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import {
-  type RawThreadInfos,
-  type RawThreadInfo,
-  rawThreadInfoValidator,
+  type LegacyRawThreadInfos,
+  type LegacyRawThreadInfo,
+  legacyRawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
@@ -15,9 +15,9 @@ import type { Viewer } from '../../session/viewer.js';
 import { validateOutput } from '../../utils/validation-utils.js';
 
 export const threadsStateSyncSpec: ServerStateSyncSpec<
-  RawThreadInfos,
-  RawThreadInfos,
-  RawThreadInfo,
+  LegacyRawThreadInfos,
+  LegacyRawThreadInfos,
+  LegacyRawThreadInfo,
   $ReadOnlyArray<ClientThreadInconsistencyReportCreationRequest>,
 > = Object.freeze({
   fetch,
@@ -40,10 +40,10 @@ async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   return result.threadInfos;
 }
 
-function getServerInfosHash(infos: RawThreadInfos) {
+function getServerInfosHash(infos: LegacyRawThreadInfos) {
   return combineUnorderedHashes(values(infos).map(getServerInfoHash));
 }
 
-function getServerInfoHash(info: RawThreadInfo) {
-  return hash(validateOutput(null, rawThreadInfoValidator, info));
+function getServerInfoHash(info: LegacyRawThreadInfo) {
+  return hash(validateOutput(null, legacyRawThreadInfoValidator, info));
 }
