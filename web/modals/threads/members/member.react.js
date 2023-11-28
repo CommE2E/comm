@@ -11,14 +11,8 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type {
-  MinimallyEncodedRelativeMemberInfo,
-  MinimallyEncodedThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import {
-  type LegacyRelativeMemberInfo,
-  type ThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
@@ -34,7 +28,7 @@ import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.j
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +setOpenMenu: SetState<?string>,
 };
