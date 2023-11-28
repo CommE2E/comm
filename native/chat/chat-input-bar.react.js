@@ -81,7 +81,7 @@ import type {
   ThreadInfo,
   ClientThreadJoinRequest,
   ThreadJoinPayload,
-  RelativeMemberInfo,
+  LegacyRelativeMemberInfo,
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
@@ -300,7 +300,7 @@ type Props = {
   +inputState: ?InputState,
   +userSearchIndex: SentencePrefixSearchIndex,
   +userMentionsCandidates: $ReadOnlyArray<
-    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   >,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,

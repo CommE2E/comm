@@ -15,7 +15,10 @@ import type {
   MinimallyEncodedRelativeMemberInfo,
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
+import type {
+  LegacyRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/thread-types';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -28,7 +31,7 @@ import Modal from '../../modal.react.js';
 import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
 type ChangeMemberRoleModalProps = {
-  +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
 };
 

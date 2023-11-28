@@ -25,7 +25,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ThreadInfo,
-  type RelativeMemberInfo,
+  type LegacyRelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
@@ -93,7 +93,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,

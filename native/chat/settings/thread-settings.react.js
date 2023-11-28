@@ -44,7 +44,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
-  type RelativeMemberInfo,
+  type LegacyRelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
@@ -210,7 +210,9 @@ type ChatSettingsItem =
   | {
       +itemType: 'member',
       +key: string,
-      +memberInfo: RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+      +memberInfo:
+        | LegacyRelativeMemberInfo
+        | MinimallyEncodedRelativeMemberInfo,
       +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -1142,7 +1144,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 const threadMembersChangeIsSaving = (
   state: AppState,
   threadMembers: $ReadOnlyArray<
-    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   >,
 ) => {
   for (const threadMember of threadMembers) {

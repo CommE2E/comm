@@ -11,7 +11,7 @@ import type {
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  RelativeMemberInfo,
+  LegacyRelativeMemberInfo,
   ThreadInfo,
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
@@ -184,7 +184,7 @@ function useTextMessageRulesFunc(
 
 function textMessageRules(
   members: $ReadOnlyArray<
-    RelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   >,
   chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
