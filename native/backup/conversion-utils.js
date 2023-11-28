@@ -3,11 +3,9 @@
 import { commUtilsModule } from '../native-modules.js';
 import { arrayBufferFromBlob } from '../utils/blob-utils-module.js';
 
-function getBackupBytesFromBlob(blob: Blob): Uint8Array {
+function getBackupStringFromBlob(blob: Blob): string {
   const buffer = arrayBufferFromBlob(blob);
-  const str = commUtilsModule.decodeUTF8ArrayBufferToString(buffer);
-  const decodedBuffer = commUtilsModule.base64DecodeBuffer(str);
-  return new Uint8Array(decodedBuffer);
+  return commUtilsModule.decodeUTF8ArrayBufferToString(buffer);
 }
 
 function convertObjToBytes<T>(obj: T): Uint8Array {
@@ -21,4 +19,4 @@ function convertBytesToObj<T>(bytes: Uint8Array): T {
   return JSON.parse(str);
 }
 
-export { getBackupBytesFromBlob, convertObjToBytes, convertBytesToObj };
+export { getBackupStringFromBlob, convertObjToBytes, convertBytesToObj };

@@ -8,22 +8,24 @@ import { makeBackupServiceEndpointURL } from 'lib/utils/backup-service.js';
 import { toBase64URL } from 'lib/utils/base64.js';
 import { handleHTTPResponseError } from 'lib/utils/services-utils.js';
 
-import { getBackupBytesFromBlob } from './conversion-utils.js';
+import { getBackupStringFromBlob } from './conversion-utils.js';
 import { commUtilsModule } from '../native-modules.js';
 
 function getBackupFormData(backup: BackupEncrypted): FormData {
   const { backupID, userKeys, userData } = backup;
-  const userKeysHash = commUtilsModule.sha256(userKeys.buffer);
-  const userDataHash = commUtilsModule.sha256(userData.buffer);
-  const userKeysStr = commUtilsModule.base64EncodeBuffer(userKeys.buffer);
-  const userDataStr = commUtilsModule.base64EncodeBuffer(userData.buffer);
+  const userKeysHash = commUtilsModule.sha256(
+    commUtilsModule.encodeStringToUTF8ArrayBuffer(userKeys),
+  );
+  const userDataHash = commUtilsModule.sha256(
+    commUtilsModule.encodeStringToUTF8ArrayBuffer(userData),
+  );
 
   const formData = new FormData();
   formData.append('backup_id', backupID);
   formData.append('user_keys_hash', toBase64URL(userKeysHash));
-  formData.append('user_keys', userKeysStr);
+  formData.append('user_keys', backup.userKeys);
   formData.append('user_data_hash', toBase64URL(userDataHash));
-  formData.append('user_data', userDataStr);
+  formData.append('user_data', backup.userData);
   formData.append('attachments', '');
   return formData;
 }
@@ -71,7 +73,7 @@ async function getBackupID(username: string): Promise<string> {
 async function getUserKeys(
   backupID: string,
   auth: BackupAuth,
-): Promise<Uint8Array> {
+): Promise<string> {
   const authHeader = getBackupAuthorizationHeader(auth);
 
   const getUserKeysEndpoint = backupService.httpEndpoints.GET_USER_KEYS;
@@ -88,13 +90,13 @@ async function getUserKeys(
   handleHTTPResponseError(getUserKeysResponse);
 
   const blob = await getUserKeysResponse.blob();
-  return getBackupBytesFromBlob(blob);
+  return getBackupStringFromBlob(blob);
 }
 
 async function getUserData(
   backupID: string,
   auth: BackupAuth,
-): Promise<Uint8Array> {
+): Promise<string> {
   const authHeader = getBackupAuthorizationHeader(auth);
 
   const getUserDataEndpoint = backupService.httpEndpoints.GET_USER_DATA;
@@ -111,7 +113,7 @@ async function getUserData(
   handleHTTPResponseError(getUserDataResponse);
 
   const blob = await getUserDataResponse.blob();
-  return getBackupBytesFromBlob(blob);
+  return getBackupStringFromBlob(blob);
 }
 
 export { uploadBackup, getBackupID, getUserKeys, getUserData };
