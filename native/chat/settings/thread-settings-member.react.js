@@ -19,13 +19,10 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { getAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type {
-  MinimallyEncodedRelativeMemberInfo,
-  MinimallyEncodedThreadInfo,
-} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ThreadInfo,
-  type LegacyRelativeMemberInfo,
+  type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
@@ -93,7 +90,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
