@@ -1,21 +1,21 @@
 // @flow
 
 import type {
-  RawThreadInfo,
+  LegacyRawThreadInfo,
   LegacyMemberInfo,
   ThreadCurrentUserInfo,
   LegacyRoleInfo,
-  RawThreadInfos,
+  LegacyRawThreadInfos,
 } from 'lib/types/thread-types.js';
 
-type ThreadStoreThreadInfos = RawThreadInfos;
+type ThreadStoreThreadInfos = LegacyRawThreadInfos;
 
 const adminRoleName = 'Admins';
 
 function addManagePinsThreadPermissionToUser<
   TargetMemberInfo: LegacyMemberInfo | ThreadCurrentUserInfo,
 >(
-  threadInfo: RawThreadInfo,
+  threadInfo: LegacyRawThreadInfo,
   member: TargetMemberInfo,
   threadID: string,
 ): TargetMemberInfo {
@@ -59,9 +59,9 @@ function addManagePinsThreadPermissionToRole(
 function persistMigrationForManagePinsThreadPermission(
   threadInfos: ThreadStoreThreadInfos,
 ): ThreadStoreThreadInfos {
-  const newThreadInfos: { [string]: RawThreadInfo } = {};
+  const newThreadInfos: { [string]: LegacyRawThreadInfo } = {};
   for (const threadID in threadInfos) {
-    const threadInfo: RawThreadInfo = threadInfos[threadID];
+    const threadInfo: LegacyRawThreadInfo = threadInfos[threadID];
     const updatedMembers = threadInfo.members.map(member =>
       addManagePinsThreadPermissionToUser(threadInfo, member, threadID),
     );

@@ -72,7 +72,7 @@ import {
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type {
   ClientDBThreadInfo,
-  RawThreadInfo,
+  LegacyRawThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -259,7 +259,7 @@ const migrations = {
     },
   }),
   [19]: (state: any) => {
-    const threadInfos: { [string]: RawThreadInfo } = {};
+    const threadInfos: { [string]: LegacyRawThreadInfo } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
       const { visibilityRules, ...rest } = threadInfo;
@@ -379,7 +379,7 @@ const migrations = {
       return state;
     }
 
-    const threadInfos: { [string]: RawThreadInfo } = {};
+    const threadInfos: { [string]: LegacyRawThreadInfo } = {};
     const stack = [...rootIDs];
     while (stack.length > 0) {
       const threadID = stack.shift();
@@ -523,7 +523,10 @@ const migrations = {
 
     // 8. Convert rawThreadInfos to a map of threadID to threadInfo
     const threadIDToThreadInfo = rawThreadInfosWithPinnedCount.reduce(
-      (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
+      (
+        acc: { [string]: LegacyRawThreadInfo },
+        threadInfo: LegacyRawThreadInfo,
+      ) => {
         acc[threadInfo.id] = threadInfo;
         return acc;
       },
@@ -932,7 +935,10 @@ const migrations = {
       convertClientDBThreadInfoToRawThreadInfo,
     );
     const rawThreadInfosObject = rawThreadInfos.reduce(
-      (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
+      (
+        acc: { [string]: LegacyRawThreadInfo },
+        threadInfo: LegacyRawThreadInfo,
+      ) => {
         acc[threadInfo.id] = threadInfo;
         return acc;
       },

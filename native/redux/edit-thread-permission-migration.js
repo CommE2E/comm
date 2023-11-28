@@ -4,14 +4,14 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   LegacyMemberInfo,
   ThreadCurrentUserInfo,
-  RawThreadInfo,
+  LegacyRawThreadInfo,
   LegacyRoleInfo,
-  RawThreadInfos,
+  LegacyRawThreadInfos,
 } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
   T: LegacyMemberInfo | ThreadCurrentUserInfo,
->(threadInfo: RawThreadInfo, member: T, threadID: string): T {
+>(threadInfo: LegacyRawThreadInfo, member: T, threadID: string): T {
   let newPermissions = null;
   if (threadInfo.type === threadTypes.PRIVATE) {
     newPermissions = {
@@ -59,11 +59,11 @@ function addDetailedThreadEditPermissionsToRole(
 }
 
 function migrateThreadStoreForEditThreadPermissions(threadInfos: {
-  +[id: string]: RawThreadInfo,
-}): RawThreadInfos {
-  const newThreadInfos: { [string]: RawThreadInfo } = {};
+  +[id: string]: LegacyRawThreadInfo,
+}): LegacyRawThreadInfos {
+  const newThreadInfos: { [string]: LegacyRawThreadInfo } = {};
   for (const threadID in threadInfos) {
-    const threadInfo: RawThreadInfo = threadInfos[threadID];
+    const threadInfo: LegacyRawThreadInfo = threadInfos[threadID];
     const updatedMembers = threadInfo.members.map(member =>
       addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
     );

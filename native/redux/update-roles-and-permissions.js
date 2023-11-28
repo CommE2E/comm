@@ -8,7 +8,7 @@ import {
 } from 'lib/permissions/thread-permissions.js';
 import type { ThreadPermissionsBlob } from 'lib/types/thread-permission-types.js';
 import type {
-  RawThreadInfo,
+  LegacyRawThreadInfo,
   ThreadStoreThreadInfos,
   LegacyMemberInfo,
 } from 'lib/types/thread-types.js';
@@ -56,7 +56,8 @@ function updateRolesAndPermissions(
   const recursivelyUpdateRoles = (
     node: $ReadOnly<ThreadTraversalNode>,
   ): void => {
-    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+    const threadInfo: LegacyRawThreadInfo =
+      updatedThreadStoreInfos[node.threadID];
     const computedRolePermissionBlobs = getRolePermissionBlobs(threadInfo.type);
 
     const roles = { ...threadInfo.roles };
@@ -78,7 +79,8 @@ function updateRolesAndPermissions(
     node: $ReadOnly<ThreadTraversalNode>,
     memberToThreadPermissionsFromParent: ?MemberToThreadPermissionsFromParent,
   ): void => {
-    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+    const threadInfo: LegacyRawThreadInfo =
+      updatedThreadStoreInfos[node.threadID];
 
     const updatedMembers = [];
     const memberToThreadPermissionsForChildren: {
@@ -123,7 +125,8 @@ function updateRolesAndPermissions(
     node: $ReadOnly<ThreadTraversalNode>,
     permissionsFromParent: ?ThreadPermissionsBlob,
   ): void => {
-    const threadInfo: RawThreadInfo = updatedThreadStoreInfos[node.threadID];
+    const threadInfo: LegacyRawThreadInfo =
+      updatedThreadStoreInfos[node.threadID];
     const { currentUser, roles } = threadInfo;
     const { role } = currentUser;
 
