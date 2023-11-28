@@ -3,20 +3,17 @@
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 
-import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import type { BackupAuth, UserData, UserKeys } from 'lib/types/backup-types.js';
+import type {
+  BackupAuth,
+  UserData,
+  BackupEncrypted,
+} from 'lib/types/backup-types.js';
 
 import { getBackupID, getUserData, getUserKeys, uploadBackup } from './api.js';
-import { BACKUP_ID_LENGTH } from './constants.js';
-import {
-  decryptUserData,
-  decryptUserKeys,
-  encryptBackup,
-} from './encryption.js';
+import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { generateKey } from '../utils/aes-crypto-module.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 // purpose of this result is to improve logging and
@@ -25,7 +22,6 @@ type RestoreBackupResult = {
   getBackupID?: boolean,
   getUserKeys?: boolean,
   getUserData?: boolean,
-  decryptUserKeys?: boolean,
   decryptUserData?: boolean,
   userDataIntegrity?: boolean,
   error?: Error,
@@ -37,6 +33,14 @@ type ClientBackup = {
     expectedUserData: UserData,
   ) => Promise<RestoreBackupResult>,
 };
+
+async function getBackupSecret(): Promise<string> {
+  const nativeCredentials = await fetchNativeKeychainCredentials();
+  if (!nativeCredentials) {
+    throw new Error('Native credentials are missing');
+  }
+  return nativeCredentials.password;
+}
 
 function useClientBackup(): ClientBackup {
   const accessToken = useSelector(state => state.commServicesAccessToken);
@@ -52,24 +56,16 @@ function useClientBackup(): ClientBackup {
       }
       console.info('Start uploading backup...');
 
-      const backupDataKey = generateKey();
+      const backupSecret = await getBackupSecret();
 
-      const [ed25519, backupID] = await Promise.all([
-        getContentSigningKey(),
-        commCoreModule.generateRandomString(BACKUP_ID_LENGTH),
-      ]);
+      const encryptedBackupStr = await commCoreModule.createNewBackup(
+        backupSecret,
+        JSON.stringify(userData),
+      );
 
-      const userKeys: UserKeys = {
-        backupDataKey: uintArrayToHexString(backupDataKey),
-        ed25519,
-      };
+      const encryptedBackup: BackupEncrypted = JSON.parse(encryptedBackupStr);
 
-      const encryptedBackup = await encryptBackup({
-        backupID,
-        userKeys,
-        userData,
-      });
-
+      const ed25519 = await getContentSigningKey();
       const backupAuth: BackupAuth = {
         userID: currentUserID,
         accessToken: accessToken ? accessToken : '',
@@ -92,7 +88,6 @@ function useClientBackup(): ClientBackup {
         getBackupID: undefined,
         getUserKeys: undefined,
         getUserData: undefined,
-        decryptUserKeys: undefined,
         decryptUserData: undefined,
         userDataIntegrity: undefined,
         error: undefined,
@@ -101,7 +96,7 @@ function useClientBackup(): ClientBackup {
       const backupIDPromise: Promise<?string> = (async () => {
         try {
           // We are using UserID instead of the username.
-          // The reason is tha the initial version of the backup service
+          // The reason is that the initial version of the backup service
           // cannot get UserID based on username.
           const backupID = await getBackupID(currentUserID);
           result.getBackupID = true;
@@ -128,7 +123,7 @@ function useClientBackup(): ClientBackup {
         deviceID: ed25519,
       };
 
-      const userKeysPromise: Promise<?Uint8Array> = (async () => {
+      const userKeysPromise: Promise<?string> = (async () => {
         try {
           const userKeysResponse = await getUserKeys(backupID, backupAuth);
           result.getUserKeys = true;
@@ -139,7 +134,7 @@ function useClientBackup(): ClientBackup {
           return undefined;
         }
       })();
-      const userDataPromise: Promise<?Uint8Array> = (async () => {
+      const userDataPromise: Promise<?string> = (async () => {
         try {
           const userDataResponse = await getUserData(backupID, backupAuth);
           result.getUserData = true;
@@ -162,33 +157,24 @@ function useClientBackup(): ClientBackup {
         return result;
       }
 
-      let userKeys;
-      try {
-        userKeys = await decryptUserKeys(backupID, userKeysResponse.buffer);
-        result.decryptUserKeys = true;
-      } catch (e) {
-        result.decryptUserKeys = false;
-        result.error = e;
-      }
-
-      if (!userKeys) {
-        result.decryptUserKeys = false;
-        result.error = new Error('UserKeys is empty');
-        return result;
-      }
-
       if (!userDataResponse) {
         result.getUserData = false;
         result.error = new Error('UserData response is empty');
         return result;
       }
 
-      let userData;
+      const backupSecret = await getBackupSecret();
+
+      let userData: UserData;
       try {
-        userData = await decryptUserData(
-          userKeys.backupDataKey,
-          userDataResponse.buffer,
+        const restoreResultStr = await commCoreModule.restoreBackup(
+          backupID,
+          backupSecret,
+          userKeysResponse,
+          userDataResponse,
         );
+        const { userData: userDataStr } = JSON.parse(restoreResultStr);
+        userData = JSON.parse(userDataStr);
         result.decryptUserData = true;
       } catch (e) {
         result.decryptUserData = false;
