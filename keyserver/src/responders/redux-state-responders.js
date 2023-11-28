@@ -70,6 +70,7 @@ export const initialReduxStateRequestValidator: TInterface<InitialReduxStateRequ
   tShape<InitialReduxStateRequest>({
     urlInfo: urlInfoValidator,
     excludedData: excludedDataValidator,
+    clientUpdatesCurrentAsOf: t.Number,
   });
 
 const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
@@ -95,7 +96,7 @@ async function getInitialReduxStateResponder(
   viewer: Viewer,
   request: InitialReduxStateRequest,
 ): Promise<InitialReduxStateResponse> {
-  const { urlInfo, excludedData } = request;
+  const { urlInfo, excludedData, clientUpdatesCurrentAsOf } = request;
   const useDatabase = viewer.loggedIn && canUseDatabaseOnWeb(viewer.userID);
 
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
@@ -140,7 +141,10 @@ async function getInitialReduxStateResponder(
     };
   })();
   const messageSelectionCriteria = { joinedThreads: true };
-  const initialTime = Date.now();
+  const serverUpdatesCurrentAsOf =
+    useDatabase && clientUpdatesCurrentAsOf
+      ? clientUpdatesCurrentAsOf
+      : Date.now();
 
   const threadInfoPromise = fetchThreadInfos(viewer);
   const messageInfoPromise = fetchMessageInfos(
@@ -158,7 +162,7 @@ async function getInitialReduxStateResponder(
   const sessionIDPromise = (async () => {
     const calendarQuery = await calendarQueryPromise;
     if (viewer.loggedIn) {
-      await setNewSession(viewer, calendarQuery, initialTime);
+      await setNewSession(viewer, calendarQuery, serverUpdatesCurrentAsOf);
     }
     return viewer.sessionID;
   })();
@@ -197,7 +201,7 @@ async function getInitialReduxStateResponder(
       {
         [ashoatKeyserverID]: mostRecentMessageTimestamp(
           rawMessageInfos,
-          initialTime,
+          serverUpdatesCurrentAsOf,
         ),
       },
       threadInfos,
@@ -219,7 +223,7 @@ async function getInitialReduxStateResponder(
     return {
       entryInfos: _keyBy('id')(rawEntryInfos),
       daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
-      lastUserInteractionCalendar: initialTime,
+      lastUserInteractionCalendar: serverUpdatesCurrentAsOf,
     };
   })();
   const userInfosPromise = (async () => {
@@ -303,7 +307,7 @@ async function getInitialReduxStateResponder(
   })();
   const currentAsOfPromise = (async () => {
     const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
-    return hasNotAcknowledgedPolicies ? 0 : initialTime;
+    return hasNotAcknowledgedPolicies ? 0 : serverUpdatesCurrentAsOf;
   })();
 
   const pushApiPublicKeyPromise: Promise<?string> = (async () => {
