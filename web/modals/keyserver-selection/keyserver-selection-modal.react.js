@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { setCustomServerActionType } from 'lib/actions/custom-server-actions.js';
 import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
@@ -12,6 +13,7 @@ import css from './keyserver-selection-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import KeyserverPill from '../../components/keyserver-pill.react.js';
 import StatusIndicator from '../../components/status-indicator.react.js';
+import { useStaffCanSee } from '../../utils/staff-utils.js';
 import Alert from '../alert.react.js';
 import ConfirmationAlert from '../confirmation-alert.react.js';
 import Modal from '../modal.react.js';
@@ -39,6 +41,8 @@ function KeyserverSelectionModal(props: Props): React.Node {
     [pushModal],
   );
 
+  const staffCanSee = useStaffCanSee();
+
   const dispatch = useDispatch();
 
   const onDeleteKeyserver = React.useCallback(() => {
@@ -49,8 +53,21 @@ function KeyserverSelectionModal(props: Props): React.Node {
       },
     });
 
+    if (staffCanSee) {
+      dispatch({
+        type: setCustomServerActionType,
+        payload: keyserverInfo.urlPrefix,
+      });
+    }
+
     clearModals();
-  }, [clearModals, dispatch, keyserverAdminUserInfo.id]);
+  }, [
+    clearModals,
+    dispatch,
+    keyserverAdminUserInfo.id,
+    keyserverInfo.urlPrefix,
+    staffCanSee,
+  ]);
 
   const onClickRemoveKeyserver = React.useCallback(
     () =>
