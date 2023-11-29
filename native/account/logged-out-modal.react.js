@@ -291,9 +291,9 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         },
       }),
     );
-    const setRegisterState = setStateForContainer(
+    const setRegisterState = setStateForContainer<State, RegisterState>(
       this.guardedSetState,
-      (change: $Shape<RegisterState>) => (fullState: State) => ({
+      (change: Partial<RegisterState>) => (fullState: State) => ({
         registerState: {
           ...fullState.registerState,
           state: { ...fullState.registerState.state, ...change },
