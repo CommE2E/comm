@@ -5,7 +5,6 @@ import * as React from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { AlertCircle as AlertCircleIcon } from 'react-feather';
 
-import type { Shape } from 'lib/types/core.js';
 import type { EncryptedMediaType } from 'lib/types/media-types.js';
 
 import { decryptMedia } from './encryption-utils.js';
@@ -22,7 +21,7 @@ type Props = {
   +thumbnailEncryptionKey?: ?string,
   +placeholderSrc?: ?string,
   +multimediaClassName?: string,
-  +elementStyle?: ?Shape<CSSStyle>,
+  +elementStyle?: ?Partial<CSSStyle>,
   // if provided, this component will be shown instead of the loading indicator
   +loadingIndicatorComponent?: React.Node,
   // if true, the loading indicator will not be shown

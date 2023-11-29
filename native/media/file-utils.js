@@ -13,7 +13,6 @@ import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
 } from 'lib/media/file-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
@@ -41,8 +40,8 @@ export type FetchFileInfoResult = {
   +mime: ?string,
   +mediaType: ?MediaType,
 };
-type OptionalInputs = Shape<{ +mediaNativeID: ?string }>;
-type OptionalFields = Shape<{
+type OptionalInputs = Partial<{ +mediaNativeID: ?string }>;
+type OptionalFields = Partial<{
   +orientation: boolean,
   +mediaType: boolean,
   +mime: boolean,

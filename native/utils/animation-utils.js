@@ -9,8 +9,6 @@ import Animated, {
   type TimingConfig,
 } from 'react-native-reanimated';
 
-import type { Shape } from 'lib/types/core.js';
-
 /* eslint-disable import/no-named-as-default-member */
 const {
   Clock,
@@ -87,7 +85,7 @@ function runTiming(
   initialValue: Node | number,
   finalValue: Node | number,
   startStopClock: boolean = true,
-  config?: Shape<TimingConfig>,
+  config?: Partial<TimingConfig>,
 ): Node {
   const state = {
     finished: new Value(0),
@@ -117,7 +115,7 @@ function runTiming(
 
 const defaultSpringConfig = SpringUtils.makeDefaultConfig();
 
-type SpringAnimationInitialState = Shape<{
+type SpringAnimationInitialState = Partial<{
   +velocity: Value | number,
 }>;
 function runSpring(
@@ -125,7 +123,7 @@ function runSpring(
   initialValue: Node | number,
   finalValue: Node | number,
   startStopClock: boolean = true,
-  config?: Shape<SpringConfig>,
+  config?: Partial<SpringConfig>,
   initialState?: SpringAnimationInitialState,
 ): Node {
   const state = {

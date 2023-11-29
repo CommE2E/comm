@@ -16,7 +16,6 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.j
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
-import type { Shape } from 'lib/types/core.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
@@ -99,7 +98,7 @@ export type AppState = {
 
 export type Action =
   | BaseAction
-  | { type: 'UPDATE_NAV_INFO', payload: Shape<NavInfo> }
+  | { type: 'UPDATE_NAV_INFO', payload: Partial<NavInfo> }
   | {
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,
