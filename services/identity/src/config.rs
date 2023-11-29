@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose, DecodeError, Engine as _};
+use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
 use std::{collections::HashSet, env, fmt, fs, io, path};
 use tracing::{error, info};
@@ -9,15 +10,56 @@ use crate::constants::{
   TUNNELBROKER_GRPC_ENDPOINT,
 };
 
-pub static CONFIG: Lazy<Config> =
-  Lazy::new(|| Config::load().expect("failed to load config"));
+/// Raw CLI arguments, should be only used internally to create ServerConfig
+static CLI: Lazy<Cli> = Lazy::new(Cli::parse);
 
-pub(super) fn load_config() {
-  Lazy::force(&CONFIG);
+pub static CONFIG: Lazy<ServerConfig> = Lazy::new(|| {
+  ServerConfig::from_cli(&CLI).expect("Failed to load server config")
+});
+
+pub(super) fn parse_cli_command() -> &'static Command {
+  &Lazy::force(&CLI).command
+}
+
+pub(super) fn load_server_config() -> &'static ServerConfig {
+  Lazy::force(&CONFIG)
+}
+
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+#[clap(propagate_version = true)]
+struct Cli {
+  #[clap(subcommand)]
+  command: Command,
+
+  /// AWS Localstack service URL
+  #[arg(long, global = true)]
+  #[arg(env = LOCALSTACK_ENDPOINT)]
+  localstack_endpoint: Option<String>,
+
+  /// Tunnelbroker gRPC endpoint
+  #[arg(long, global = true)]
+  #[arg(env = TUNNELBROKER_GRPC_ENDPOINT)]
+  #[arg(default_value = DEFAULT_TUNNELBROKER_ENDPOINT)]
+  tunnelbroker_endpoint: String,
+}
+
+#[derive(Subcommand)]
+pub enum Command {
+  /// Runs the server
+  Server,
+  /// Generates and persists a keypair to use for PAKE registration and login
+  Keygen {
+    #[arg(short, long)]
+    #[arg(default_value = SECRETS_DIRECTORY)]
+    dir: String,
+  },
+  /// Populates the `identity-users` table in DynamoDB from MySQL
+  PopulateDB,
 }
 
 #[derive(Clone)]
-pub struct Config {
+pub struct ServerConfig {
   pub localstack_endpoint: Option<String>,
   // Opaque 2.0 server secrets
   pub server_setup: comm_opaque2::ServerSetup<comm_opaque2::Cipher>,
@@ -27,44 +69,31 @@ pub struct Config {
   pub tunnelbroker_endpoint: String,
 }
 
-impl Config {
-  fn load() -> Result<Self, Error> {
-    let localstack_endpoint = env::var(LOCALSTACK_ENDPOINT).ok();
-    let tunnelbroker_endpoint = match env::var(TUNNELBROKER_GRPC_ENDPOINT) {
-      Ok(val) => {
-        info!("Using Tunnelbroker endpoint from env var: {}", val);
-        val
-      }
-      Err(std::env::VarError::NotPresent) => {
-        let val = DEFAULT_TUNNELBROKER_ENDPOINT;
-        info!("Falling back to default Tunnelbroker endpoint: {}", val);
-        val.to_string()
-      }
-      Err(e) => {
-        error!(
-          "Failed to read environment variable {}: {:?}",
-          TUNNELBROKER_GRPC_ENDPOINT, e
-        );
-        return Err(Error::Env(e));
-      }
-    };
+impl ServerConfig {
+  fn from_cli(cli: &Cli) -> Result<Self, Error> {
+    if !matches!(cli.command, Command::Server) {
+      panic!("ServerConfig is only available for the `server` command");
+    }
+
+    info!("Tunnelbroker endpoint: {}", &cli.tunnelbroker_endpoint);
+    if let Some(endpoint) = &cli.localstack_endpoint {
+      info!("Using Localstack endpoint: {}", endpoint);
+    }
 
     let mut path_buf = path::PathBuf::new();
     path_buf.push(SECRETS_DIRECTORY);
     path_buf.push(SECRETS_SETUP_FILE);
 
     let server_setup = get_server_setup(path_buf.as_path())?;
-
     let reserved_usernames = get_reserved_usernames_set()?;
-
     let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
 
     Ok(Self {
-      localstack_endpoint,
+      localstack_endpoint: cli.localstack_endpoint.clone(),
+      tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
       server_setup,
       reserved_usernames,
       keyserver_public_key,
-      tunnelbroker_endpoint,
     })
   }
 
@@ -73,9 +102,9 @@ impl Config {
   }
 }
 
-impl fmt::Debug for Config {
+impl fmt::Debug for ServerConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("Config")
+    f.debug_struct("ServerConfig")
       .field("server_keypair", &"** redacted **")
       .field("keyserver_auth_token", &"** redacted **")
       .field("localstack_endpoint", &self.localstack_endpoint)
