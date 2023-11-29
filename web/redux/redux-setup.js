@@ -93,6 +93,7 @@ export type AppState = {
   +initialStateLoaded: boolean,
   +integrityStore: IntegrityStore,
   +globalThemeInfo: GlobalThemeInfo,
+  +customServer: ?string,
 };
 
 export type Action =

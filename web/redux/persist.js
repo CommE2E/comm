@@ -211,6 +211,7 @@ const persistWhitelist = [
   'commServicesAccessToken',
   'keyserverStore',
   'globalThemeInfo',
+  'customServer',
 ];
 
 const rootKey = 'root';
