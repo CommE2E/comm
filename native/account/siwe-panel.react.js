@@ -47,7 +47,7 @@ type Props = {
   +onSuccessfulWalletSignature: SIWEResult => mixed,
   +closing: boolean,
   +setLoading: boolean => mixed,
-  +keyserverCallParamOverride?: $Shape<BindServerCallsParams>,
+  +keyserverCallParamOverride?: Partial<BindServerCallsParams>,
 };
 function SIWEPanel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
