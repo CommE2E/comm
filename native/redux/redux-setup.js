@@ -6,7 +6,6 @@ import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
-import { setCustomServerActionType } from 'lib/actions/custom-server-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
@@ -146,12 +145,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     return state;
   }
 
-  if (action.type === setCustomServerActionType) {
-    return {
-      ...state,
-      customServer: action.payload,
-    };
-  } else if (action.type === updateDimensionsActiveType) {
+  if (action.type === updateDimensionsActiveType) {
     return {
       ...state,
       dimensions: {
