@@ -3,8 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { Shape } from 'lib/types/core.js';
-
 import { decryptMedia } from './encryption-utils.js';
 import { preloadImage } from './media-utils.js';
 import type { CSSStyle } from '../types/styles';
@@ -21,7 +19,7 @@ type Props = {
   +uri: ?string,
   +thumbnailSource: ThumbnailSource,
   +thumbHashDataURL?: ?string,
-  +elementStyle?: ?Shape<CSSStyle>,
+  +elementStyle?: ?Partial<CSSStyle>,
   +multimediaClassName?: string,
 };
 

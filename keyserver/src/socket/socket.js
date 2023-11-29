@@ -16,7 +16,6 @@ import {
 } from 'lib/shared/timeouts.js';
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
 import type { RawEntryInfo } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
@@ -829,7 +828,7 @@ class Socket {
     }
   }
 
-  setStateCheckConditions(newConditions: Shape<StateCheckConditions>) {
+  setStateCheckConditions(newConditions: Partial<StateCheckConditions>) {
     this.stateCheckConditions = {
       ...this.stateCheckConditions,
       ...newConditions,

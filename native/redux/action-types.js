@@ -3,7 +3,6 @@
 import type { Orientations } from 'react-native-orientation-locker';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
-import type { Shape } from 'lib/types/core.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
@@ -36,7 +35,7 @@ export type Action =
     }
   | {
       +type: 'UPDATE_DIMENSIONS',
-      +payload: Shape<DimensionsInfo>,
+      +payload: Partial<DimensionsInfo>,
     }
   | {
       +type: 'UPDATE_CONNECTIVITY',
@@ -44,7 +43,7 @@ export type Action =
     }
   | {
       +type: 'UPDATE_DEVICE_CAMERA_INFO',
-      +payload: Shape<DeviceCameraInfo>,
+      +payload: Partial<DeviceCameraInfo>,
     }
   | {
       +type: 'UPDATE_DEVICE_ORIENTATION',
