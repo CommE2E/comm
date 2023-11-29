@@ -9,8 +9,8 @@ import {
 
 declare export class Empty extends Message {
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): {||};
-  static toObject(includeInstance: boolean, msg: Empty): {||};
+  toObject(includeInstance?: boolean): {};
+  static toObject(includeInstance: boolean, msg: Empty): {};
   static serializeBinaryToWriter(message: Empty, writer: BinaryWriter): void;
   static deserializeBinary(bytes: Uint8Array): Empty;
   static deserializeBinaryFromReader(message: Empty, reader: BinaryReader): Empty;
