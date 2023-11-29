@@ -1,12 +1,11 @@
 // @flow
 
-import type { Shape } from 'lib/types/core.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
 
-export type SessionUpdate = Shape<{
+export type SessionUpdate = Partial<{
   +query: CalendarQuery,
   +lastUpdate: number,
   +lastValidated: number,

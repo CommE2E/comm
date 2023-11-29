@@ -22,7 +22,6 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import {
   type EntryInfo,
   type CreateEntryInfo,
@@ -105,7 +104,7 @@ class Entry extends React.PureComponent<Props, State> {
     this.nextSaveAttemptIndex = 0;
   }
 
-  guardedSetState(input: Shape<State>) {
+  guardedSetState(input: Partial<State>) {
     if (this.mounted) {
       this.setState(input);
     }

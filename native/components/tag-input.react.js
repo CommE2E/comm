@@ -13,7 +13,6 @@ import {
   Platform,
 } from 'react-native';
 
-import type { Shape } from 'lib/types/core.js';
 import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import TextInput from './text-input.react.js';
@@ -140,7 +139,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   static getDerivedStateFromProps(
     props: BaseTagInputProps<T>,
     state: State,
-  ): Shape<State> {
+  ): Partial<State> {
     const wrapperHeight = Math.max(
       Math.min(props.maxHeight, state.contentHeight),
       props.minHeight,

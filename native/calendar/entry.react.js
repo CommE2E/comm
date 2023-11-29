@@ -31,7 +31,6 @@ import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import type {
   CreateEntryInfo,
   SaveEntryInfo,
@@ -242,7 +241,7 @@ class InternalEntry extends React.Component<Props, State> {
     };
   }
 
-  guardedSetState(input: Shape<State>) {
+  guardedSetState(input: Partial<State>) {
     if (this.mounted) {
       this.setState(input);
     }
