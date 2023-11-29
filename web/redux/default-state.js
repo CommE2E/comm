@@ -85,6 +85,7 @@ const defaultWebState: AppState = Object.freeze({
   initialStateLoaded: false,
   integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
   globalThemeInfo: defaultGlobalThemeInfo,
+  customServer: null,
 });
 
 export { defaultWebState };
