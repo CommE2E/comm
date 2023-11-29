@@ -569,7 +569,7 @@ async function updateDescendantPermissions(
   return { membershipRows, relationshipChangeset };
 }
 
-type DescendantUserInfo = $Shape<{
+type DescendantUserInfo = Partial<{
   curRole?: string,
   curRolePermissions?: ?ThreadRolePermissionsBlob,
   curPermissions?: ?ThreadPermissionsBlob,

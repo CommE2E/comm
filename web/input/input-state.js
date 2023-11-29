@@ -98,7 +98,7 @@ export type BaseInputState = {
 
 export type TypeaheadInputState = {
   +typeaheadState: TypeaheadState,
-  +setTypeaheadState: ($Shape<TypeaheadState>) => void,
+  +setTypeaheadState: (Partial<TypeaheadState>) => void,
 };
 
 // This type represents the input state for a particular thread

@@ -21,7 +21,7 @@ type Props = {
   +searchText: string,
   +onChangeText: (updatedSearchText: string) => mixed,
   +onBlur: () => mixed,
-  +additionalProps?: $Shape<React.ElementConfig<typeof Search>>,
+  +additionalProps?: Partial<React.ElementConfig<typeof Search>>,
   +onSearchCancel: () => mixed,
   +searchStatus: SearchStatus,
   +innerSearchAutoFocus?: boolean,

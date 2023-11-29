@@ -20,7 +20,7 @@ import { fetchUpdateInfoForThreadDeletion } from '../fetchers/update-fetchers.js
 import { rescindPushNotifs } from '../push/rescind.js';
 import type { Viewer } from '../session/viewer.js';
 
-type DeleteThreadOptions = $Shape<{
+type DeleteThreadOptions = Partial<{
   +ignorePermissions: boolean,
 }>;
 async function deleteThread(

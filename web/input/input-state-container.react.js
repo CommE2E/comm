@@ -1452,7 +1452,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  setTypeaheadState = (newState: $Shape<TypeaheadState>) => {
+  setTypeaheadState = (newState: Partial<TypeaheadState>) => {
     this.setState(prevState => ({
       typeaheadState: {
         ...prevState.typeaheadState,
