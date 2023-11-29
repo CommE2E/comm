@@ -7,7 +7,6 @@ import url from 'url';
 
 import { isStaff } from 'lib/shared/staff-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
@@ -493,7 +492,7 @@ function addSessionChangeInfoToResult(
   result.cookieChange = sessionChange;
 }
 
-type AnonymousCookieCreationParams = Shape<{
+type AnonymousCookieCreationParams = Partial<{
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
 }>;

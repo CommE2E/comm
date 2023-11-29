@@ -1,6 +1,5 @@
 // @flow
 
-import type { Shape } from 'lib/types/core.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type UpdateData } from 'lib/types/update-types.js';
@@ -29,7 +28,7 @@ async function main() {
   }
 }
 
-type ReplaceUserInfo = Shape<{
+type ReplaceUserInfo = Partial<{
   +username: boolean,
   +password: boolean,
 }>;

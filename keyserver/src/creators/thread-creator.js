@@ -11,7 +11,6 @@ import {
 } from 'lib/shared/color-utils.js';
 import { isInvalidSidebarSource } from 'lib/shared/message-utils.js';
 import { getThreadTypeParentRequirement } from 'lib/shared/thread-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo, MessageData } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -64,7 +63,7 @@ const privateThreadDescription: string =
   'This is your private chat, ' +
   'where you can set reminders and jot notes in private!';
 
-type CreateThreadOptions = Shape<{
+type CreateThreadOptions = Partial<{
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
   +silentlyFailMembers: boolean,

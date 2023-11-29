@@ -5,8 +5,6 @@ import * as React from 'react';
 import { View, StyleSheet, PixelRatio } from 'react-native';
 import shallowequal from 'shallowequal';
 
-import type { Shape } from 'lib/types/core.js';
-
 import {
   addLifecycleListener,
   getCurrentLifecycleState,
@@ -133,7 +131,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   static getDerivedStateFromProps<InnerItem, InnerMergedItem>(
     props: Props<InnerItem, InnerMergedItem>,
     state: State<InnerItem, InnerMergedItem>,
-  ): ?Shape<State<InnerItem, InnerMergedItem>> {
+  ): ?Partial<State<InnerItem, InnerMergedItem>> {
     return NodeHeightMeasurer.getPossibleStateUpdateForNextBatch<
       InnerItem,
       InnerMergedItem,
@@ -143,7 +141,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   static getPossibleStateUpdateForNextBatch<InnerItem, InnerMergedItem>(
     props: Props<InnerItem, InnerMergedItem>,
     state: State<InnerItem, InnerMergedItem>,
-  ): ?Shape<State<InnerItem, InnerMergedItem>> {
+  ): ?Partial<State<InnerItem, InnerMergedItem>> {
     const { currentlyMeasuring, measuredHeights } = state;
 
     let stillMeasuring = false;

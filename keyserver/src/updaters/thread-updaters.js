@@ -10,7 +10,6 @@ import {
   viewerIsMember,
   getThreadTypeParentRequirement,
 } from 'lib/shared/thread-utils.js';
-import type { Shape } from 'lib/types/core.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo, MessageData } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -324,7 +323,7 @@ async function leaveThread(
   return { updatesResult: { newUpdates: viewerUpdates } };
 }
 
-type UpdateThreadOptions = Shape<{
+type UpdateThreadOptions = Partial<{
   +forceAddMembers: boolean,
   +forceUpdateRoot: boolean,
   +silenceMessages: boolean,
