@@ -25,7 +25,7 @@ import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 import type { Viewer } from '../session/viewer.js';
 
-type FetchThreadInfosFilter = $Shape<{
+type FetchThreadInfosFilter = Partial<{
   +accessibleToUserID: string,
   +threadID: string,
   +threadIDs: $ReadOnlySet<string>,

@@ -284,7 +284,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     // Mostly due to Flow typing requirements...
     const setLogInState = setStateForContainer(
       this.guardedSetState,
-      (change: $Shape<LogInState>) => (fullState: State) => ({
+      (change: Partial<LogInState>) => (fullState: State) => ({
         logInState: {
           ...fullState.logInState,
           state: { ...fullState.logInState.state, ...change },
