@@ -1,5 +1,6 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import {
   setThreadUnreadStatusResultValidator,
   updateActivityResultValidator,
@@ -129,6 +130,7 @@ describe('user responder validators', () => {
                   descendant_opentoplevel_join_thread: true,
                 },
                 isDefault: true,
+                specialRole: specialRoles.DEFAULT_ROLE,
               },
             },
             currentUser: {
@@ -284,6 +286,7 @@ describe('user responder validators', () => {
                   descendant_opentoplevel_join_thread: true,
                 },
                 isDefault: true,
+                specialRole: specialRoles.DEFAULT_ROLE,
               },
               '83796': {
                 id: '83796',
@@ -322,6 +325,7 @@ describe('user responder validators', () => {
                   descendant_change_role: true,
                 },
                 isDefault: false,
+                specialRole: specialRoles.ADMIN_ROLE,
               },
             },
             currentUser: {
