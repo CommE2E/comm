@@ -2,6 +2,7 @@
 
 import Filter from 'bad-words';
 
+import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
 import type {
   CreateOrUpdatePublicLinkRequest,
   InviteLink,
@@ -152,7 +153,7 @@ async function createOrUpdatePublicLink(
 function getInviteLinkBlob(
   request: CreateOrUpdatePublicLinkRequest,
 ): Promise<BlobDownloadResult> {
-  const hash = `invite_${request.name}`;
+  const hash = inviteLinkBlobHash(request.name);
   return download(hash);
 }
 
