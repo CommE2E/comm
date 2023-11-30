@@ -122,7 +122,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
 
   get relativeKeyboardHeight(): number {
     const { viewFrame, keyboardFrame } = this;
-    if (!viewFrame || !keyboardFrame) {
+    if (!viewFrame || !keyboardFrame || keyboardFrame.screenY === 0) {
       return 0;
     }
     return Math.max(viewFrame.y + viewFrame.height - keyboardFrame.screenY, 0);
