@@ -41,7 +41,7 @@ import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
-  type ThreadInfo,
+  type LegacyThreadInfo,
   type ResolvedThreadInfo,
   type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
@@ -110,7 +110,7 @@ import type { ChatNavigationProp } from '../chat.react.js';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -225,7 +225,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'mediaGallery',
       +key: string,
-      +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+      +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
       +limit: number,
       +verticalBounds: ?VerticalBounds,
     }
@@ -711,7 +711,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.threadInfo,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
       (
-        threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+        threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
         verticalBounds: ?VerticalBounds,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -1169,7 +1169,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     );
     const threadID = props.route.params.threadInfo.id;
 
-    const reduxThreadInfo: ?ThreadInfo = useSelector(
+    const reduxThreadInfo: ?LegacyThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
     React.useEffect(() => {
@@ -1186,7 +1186,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: ThreadInfo | MinimallyEncodedThreadInfo =
+    const threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
@@ -1201,7 +1201,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     }, [threadInfo]);
 
     const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
+    const parentThreadInfo: ?LegacyThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
     const resolvedParentThreadInfo =

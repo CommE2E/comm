@@ -39,7 +39,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  type ThreadInfo,
+  type LegacyThreadInfo,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
@@ -68,7 +68,7 @@ import {
 } from '../utils/typeahead-utils.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +inputState: InputState,
 };
 type Props = {
@@ -84,7 +84,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +parentThreadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {

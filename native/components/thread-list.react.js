@@ -7,7 +7,7 @@ import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Search from './search.react.js';
 import ThreadListThread from './thread-list-thread.react.js';
@@ -26,7 +26,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfos: $ReadOnlyArray<ThreadInfo>,
+  +threadInfos: $ReadOnlyArray<LegacyThreadInfo>,
   +onSelect: (threadID: string) => void,
   +itemStyle?: ViewStyle,
   +itemTextStyle?: TextStyle,
@@ -50,7 +50,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
-  listDataSelector: PropsAndState => $ReadOnlyArray<ThreadInfo> =
+  listDataSelector: PropsAndState => $ReadOnlyArray<LegacyThreadInfo> =
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.threadInfos,
       (propsAndState: PropsAndState) => propsAndState.searchText,
@@ -58,10 +58,10 @@ class ThreadList extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.itemStyle,
       (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
       (
-        threadInfos: $ReadOnlyArray<ThreadInfo>,
+        threadInfos: $ReadOnlyArray<LegacyThreadInfo>,
         text: string,
         searchResults: Set<string>,
-      ): $ReadOnlyArray<ThreadInfo> =>
+      ): $ReadOnlyArray<LegacyThreadInfo> =>
         text
           ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
           : // We spread to make sure the result of this selector updates when
@@ -69,7 +69,7 @@ class ThreadList extends React.PureComponent<Props, State> {
             [...threadInfos],
     );
 
-  get listData(): $ReadOnlyArray<ThreadInfo> {
+  get listData(): $ReadOnlyArray<LegacyThreadInfo> {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
@@ -103,12 +103,12 @@ class ThreadList extends React.PureComponent<Props, State> {
   }
 
   static keyExtractor = (
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): string => {
     return threadInfo.id;
   };
 
-  renderItem = (row: { +item: ThreadInfo, ... }): React.Node => {
+  renderItem = (row: { +item: LegacyThreadInfo, ... }): React.Node => {
     return (
       <ThreadListThread
         threadInfo={row.item}
@@ -120,7 +120,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<ThreadInfo | MinimallyEncodedThreadInfo>,
+    data: ?$ReadOnlyArray<LegacyThreadInfo | MinimallyEncodedThreadInfo>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };

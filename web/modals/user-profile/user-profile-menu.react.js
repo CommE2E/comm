@@ -8,7 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { LegacyThreadInfo } from 'lib/types/thread-types';
 
 import MenuItem from '../../components/menu-item.react.js';
 import Menu from '../../components/menu.react.js';
@@ -22,7 +22,7 @@ const blockIcon = <FontAwesomeIcon icon={faUserShield} />;
 const unblockIcon = <FontAwesomeIcon icon={faUserShield} />;
 
 type Props = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function UserProfileMenu(props: Props): React.Node {

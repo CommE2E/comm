@@ -39,7 +39,10 @@ import type {
   ResolvedNotifTexts,
 } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
-import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  ServerThreadInfo,
+  LegacyThreadInfo,
+} from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
@@ -192,7 +195,7 @@ async function preparePushNotif(input: {
   userID: string,
   pushUserInfo: PushUserInfo,
   unreadCount: number,
-  threadInfos: { +[threadID: string]: ThreadInfo },
+  threadInfos: { +[threadID: string]: LegacyThreadInfo },
   userInfos: { +[userID: string]: GlobalUserInfo },
   dbIDs: string[], // mutable
   rowsToSave: Map<string, NotificationRow>, // mutable

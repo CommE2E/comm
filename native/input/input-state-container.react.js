@@ -82,7 +82,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThreadRequest,
   type NewThreadResult,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -176,7 +176,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   pendingThreadCreations: Map<string, Promise<string>> = new Map();
   pendingThreadUpdateHandlers: Map<
     string,
-    (ThreadInfo | MinimallyEncodedThreadInfo) => mixed,
+    (LegacyThreadInfo | MinimallyEncodedThreadInfo) => mixed,
   > = new Map();
   // TODO: flip the switch
   // Note that this enables Blob service for encrypted media only
@@ -449,8 +449,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   sendTextMessage = async (
     messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    inputThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
 
@@ -547,7 +547,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   startThreadCreation(
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
       return Promise.resolve(threadInfo.id);
@@ -570,8 +570,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       await this.props.textMessageCreationSideEffectsFunc(
@@ -609,14 +609,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   shouldEncryptMedia(
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): boolean {
     return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
   sendMultimediaMessage = async (
     selections: $ReadOnlyArray<NativeMediaSelection>,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
     const localMessageID = this.props.nextLocalID;
@@ -717,7 +717,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async uploadFiles(
     localMessageID: string,
     uploadFileInputs: $ReadOnlyArray<UploadFileInput>,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ) {
     const results = await Promise.all(
       uploadFileInputs.map(uploadFileInput =>
@@ -733,7 +733,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async uploadFile(
     localMessageID: string,
     uploadFileInput: UploadFileInput,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
     const { localMediaID } = ids;
@@ -1343,8 +1343,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   retryTextMessage = async (
     rawMessageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => {
     await this.sendTextMessage(
       {
@@ -1359,7 +1359,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   retryMultimediaMessage = async (
     rawMessageInfo: RawMultimediaMessageInfo,
     localMessageID: string,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): Promise<void> => {
     const pendingUploads = this.state.pendingUploads[localMessageID] ?? {};
 
@@ -1573,8 +1573,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   retryMessage = async (
     localMessageID: string,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
 
@@ -1673,7 +1673,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   setPendingThreadUpdateHandler = (
     threadID: string,
     pendingThreadUpdateHandler: ?(
-      ThreadInfo | MinimallyEncodedThreadInfo,
+      LegacyThreadInfo | MinimallyEncodedThreadInfo,
     ) => mixed,
   ) => {
     if (!pendingThreadUpdateHandler) {

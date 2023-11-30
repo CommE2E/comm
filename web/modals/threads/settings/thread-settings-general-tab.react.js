@@ -11,7 +11,10 @@ import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
+import {
+  type LegacyThreadInfo,
+  type ThreadChanges,
+} from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
@@ -25,7 +28,7 @@ import ColorSelector from '../color-selector.react.js';
 
 type ThreadSettingsGeneralTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,

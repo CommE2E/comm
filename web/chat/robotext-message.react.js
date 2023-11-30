@@ -7,7 +7,7 @@ import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.j
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   entityTextToReact,
   useENSNamesForEntityText,
@@ -35,7 +35,7 @@ const availableTooltipPositionsForRobotext = [
 
 type Props = {
   +item: RobotextChatMessageInfoItem,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 function RobotextMessage(props: Props): React.Node {
   let inlineEngagement;
@@ -105,7 +105,7 @@ type BaseInnerThreadEntityProps = {
 };
 type InnerThreadEntityProps = {
   ...BaseInnerThreadEntityProps,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {

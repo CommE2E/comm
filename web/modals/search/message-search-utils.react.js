@@ -11,12 +11,12 @@ import {
 import { filterChatMessageInfosForSearch } from 'lib/shared/search-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useSelector } from '../../redux/redux-utils.js';
 
 function useParseSearchResults(
-  threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   searchResults: $ReadOnlyArray<RawMessageInfo>,
 ): $ReadOnlyArray<ChatMessageInfoItem> {
   const userInfos = useSelector(state => state.userStore.userInfos);

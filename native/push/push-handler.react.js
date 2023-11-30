@@ -31,7 +31,7 @@ import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -104,7 +104,7 @@ type Props = {
   +deviceTokens: {
     +[keyserverID: string]: ?string,
   },
-  +threadInfos: { +[id: string]: ThreadInfo },
+  +threadInfos: { +[id: string]: LegacyThreadInfo },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
   +updatesCurrentAsOf: number,
@@ -521,7 +521,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
+  navigateToThread(threadInfo: LegacyThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
       this.props.navigation.dispatch({
         type: replaceWithThreadActionType,
