@@ -12,6 +12,8 @@ pub enum Error {
   GrpcStatus(Status),
   #[display(fmt = "Invalid Device Type")]
   InvalidDeviceType,
+  #[display(fmt = "Cookie Error: {}", _0)]
+  CookieError(CookieError),
 }
 
 pub fn unsupported_version() -> Status {
@@ -21,4 +23,17 @@ pub fn unsupported_version() -> Status {
 pub fn is_version_unsupported(status: &Status) -> bool {
   status.code() == Code::Unimplemented
     && status.message() == "Unsupported version"
+}
+
+#[derive(Debug, derive_more::Display, derive_more::Error)]
+pub struct CookieError {
+  message: String,
+}
+
+impl CookieError {
+  pub fn new(message: &str) -> CookieError {
+    CookieError {
+      message: message.to_string(),
+    }
+  }
 }

@@ -1,7 +1,8 @@
+use crate::error::{CookieError, Error};
 use tonic::{
   metadata::{errors::InvalidMetadataValue, Ascii, MetadataValue},
   service::Interceptor,
-  Request, Status,
+  Request, Response, Status,
 };
 
 pub struct CodeVersionLayer {
@@ -54,4 +55,20 @@ where
     let request = self.first.call(request)?;
     self.second.call(request)
   }
+}
+
+pub fn get_lb_cookie<T>(
+  response: &Response<T>,
+) -> Result<MetadataValue<Ascii>, Error> {
+  let cookie_meta = response.metadata().get("set-cookie").ok_or_else(|| {
+    Error::from(CookieError::new("No cookie found in response"))
+  })?;
+  let cookie_str = cookie_meta.to_str().map_err(|_| {
+    Error::from(CookieError::new("Failed to convert cookie to string"))
+  })?;
+  MetadataValue::try_from(cookie_str).map_err(|_| {
+    Error::from(CookieError::new(
+      "Failed to create MetadataValue from cookie string",
+    ))
+  })
 }

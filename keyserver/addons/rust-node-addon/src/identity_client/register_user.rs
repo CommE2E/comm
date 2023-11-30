@@ -50,12 +50,19 @@ pub async fn register_user(
   });
 
   // Finish OPAQUE registration and send final registration request
-  let registration_start_response = identity_client
+  let response = identity_client
     .register_password_user_start(registration_start_request)
     .await
-    .map_err(handle_grpc_error)?
-    .into_inner();
+    .map_err(handle_grpc_error)?;
   debug!("Received registration start response");
+
+  // We need to get the load balancer cookie from from the response and send it
+  // in the subsequent request to ensure it is routed to the same identity
+  // service instance as the first request
+  let cookie = get_lb_cookie(&response)
+    .map_err(|_| Error::from_reason("Failed to get lb cookie from response"))?;
+
+  let registration_start_response = response.into_inner();
 
   let opaque_registration_upload = opaque_registration
     .finish(
@@ -64,10 +71,14 @@ pub async fn register_user(
     )
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
 
-  let registration_finish_request = Request::new(RegistrationFinishRequest {
-    session_id: registration_start_response.session_id,
-    opaque_registration_upload,
-  });
+  let mut registration_finish_request =
+    Request::new(RegistrationFinishRequest {
+      session_id: registration_start_response.session_id,
+      opaque_registration_upload,
+    });
+  registration_finish_request
+    .metadata_mut()
+    .insert("cookie", cookie);
 
   let registration_response = identity_client
     .register_password_user_finish(registration_finish_request)
