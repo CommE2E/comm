@@ -129,6 +129,7 @@ describe('user responder validators', () => {
                   descendant_opentoplevel_join_thread: true,
                 },
                 isDefault: true,
+                specialRole: 1,
               },
             },
             currentUser: {
@@ -284,6 +285,7 @@ describe('user responder validators', () => {
                   descendant_opentoplevel_join_thread: true,
                 },
                 isDefault: true,
+                specialRole: 1,
               },
               '83796': {
                 id: '83796',
@@ -322,6 +324,7 @@ describe('user responder validators', () => {
                   descendant_change_role: true,
                 },
                 isDefault: false,
+                specialRole: 2,
               },
             },
             currentUser: {
