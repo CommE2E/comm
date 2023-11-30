@@ -4,11 +4,11 @@
 
 .description {
   font-size: var(--s-font-14);
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
 }
 
 .sectionHeader {
   font-size: var(--m-font-16);
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   margin: 32px 0 16px;
 }
