@@ -82,14 +82,21 @@ function processDBStoreOperations(
   const { draftStoreOperations, reportStoreOperations, threadStoreOperations } =
     storeOperations;
 
-  if (draftStoreOperations) {
-    processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
-  }
-  if (reportStoreOperations) {
-    processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
-  }
-  if (threadStoreOperations) {
-    processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
+  try {
+    sqliteQueryExecutor.beginTransaction();
+    if (draftStoreOperations && draftStoreOperations.length > 0) {
+      processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
+    }
+    if (reportStoreOperations && reportStoreOperations.length > 0) {
+      processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
+    }
+    if (threadStoreOperations && threadStoreOperations.length > 0) {
+      processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
+    }
+    sqliteQueryExecutor.commitTransaction();
+  } catch (e) {
+    sqliteQueryExecutor.rollbackTransaction();
+    console.log('Error while processing store ops: ', e);
   }
 }
 

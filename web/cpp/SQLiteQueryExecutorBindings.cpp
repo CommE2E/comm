@@ -71,7 +71,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("replaceThreadWeb", &SQLiteQueryExecutor::replaceThreadWeb)
       .function("getAllThreadsWeb", &SQLiteQueryExecutor::getAllThreadsWeb)
       .function("removeAllThreads", &SQLiteQueryExecutor::removeAllThreads)
-      .function("removeThreads", &SQLiteQueryExecutor::removeThreads);
+      .function("removeThreads", &SQLiteQueryExecutor::removeThreads)
+      .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
+      .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
+      .function("rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction);
 }
 
 } // namespace comm
