@@ -46,7 +46,7 @@ import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-enc
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  type ThreadInfo,
+  type LegacyThreadInfo,
   type ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
@@ -191,7 +191,7 @@ type SharedProps = {
 };
 type BaseProps = {
   ...SharedProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo,
 };
 type Props = {
   ...SharedProps,

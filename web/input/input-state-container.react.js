@@ -80,7 +80,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThreadRequest,
   type NewThreadResult,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -420,7 +420,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return rawMessageInfo;
   }
 
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
+  shouldEncryptMedia(threadInfo: LegacyThreadInfo): boolean {
     return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
@@ -567,7 +567,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   startThreadCreation(
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
       return Promise.resolve(threadInfo.id);
@@ -629,20 +629,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             draft: draft ?? '',
             textCursorPosition: textCursorPosition ?? 0,
             appendFiles: (
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo,
               files: $ReadOnlyArray<File>,
             ) => this.appendFiles(threadInfo, files),
             cancelPendingUpload: (localUploadID: string) =>
               this.cancelPendingUpload(threadID, localUploadID),
             sendTextMessage: (
               messageInfo: RawTextMessageInfo,
-              threadInfo: ThreadInfo,
-              parentThreadInfo: ?ThreadInfo,
+              threadInfo: LegacyThreadInfo,
+              parentThreadInfo: ?LegacyThreadInfo,
             ) =>
               this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
             createMultimediaMessage: (
               localID: number,
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo,
             ) => this.createMultimediaMessage(localID, threadInfo),
             setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
             setTextCursorPosition: (newPosition: number) =>
@@ -651,7 +651,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               this.messageHasUploadFailure(assignedUploads[localMessageID]),
             retryMultimediaMessage: (
               localMessageID: string,
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo,
             ) =>
               this.retryMultimediaMessage(
                 localMessageID,
@@ -690,7 +690,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFiles(
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo,
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
     const selectionTime = Date.now();
@@ -747,7 +747,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFile(
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo,
     file: File,
     selectTime: number,
   ): Promise<{
@@ -1244,8 +1244,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    inputThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
@@ -1342,8 +1342,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       await this.props.textMessageCreationSideEffectsFunc(
@@ -1382,7 +1382,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
+  createMultimediaMessage(localID: number, threadInfo: LegacyThreadInfo) {
     this.props.sendCallbacks.forEach(callback => callback());
 
     const localMessageID = `${localIDPrefix}${localID}`;
@@ -1503,7 +1503,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   retryMultimediaMessage(
     localMessageID: string,
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());

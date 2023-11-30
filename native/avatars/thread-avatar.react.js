@@ -14,7 +14,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
-  ThreadInfo,
+  LegacyThreadInfo,
   ResolvedThreadInfo,
   RawThreadInfo,
 } from 'lib/types/thread-types.js';
@@ -25,7 +25,7 @@ import { useSelector } from '../redux/redux-utils.js';
 type Props = {
   +threadInfo:
     | RawThreadInfo
-    | ThreadInfo
+    | LegacyThreadInfo
     | ResolvedThreadInfo
     | MinimallyEncodedThreadInfo
     | MinimallyEncodedResolvedThreadInfo,

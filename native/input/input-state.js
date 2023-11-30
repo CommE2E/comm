@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
 
@@ -32,12 +32,12 @@ export type InputState = {
   +pendingUploads: PendingMultimediaUploads,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +sendMultimediaMessage: (
     selections: $ReadOnlyArray<NativeMediaSelection>,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +editInputMessage: (params: EditInputBarMessageParameters) => void,
   +addEditInputMessageListener: (
@@ -49,8 +49,8 @@ export type InputState = {
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMessage: (
     localMessageID: string,
-    threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => Promise<void>,
   +registerSendCallback: (() => void) => void,
   +unregisterSendCallback: (() => void) => void,
@@ -59,7 +59,7 @@ export type InputState = {
   +setPendingThreadUpdateHandler: (
     threadID: string,
     pendingThreadUpdateHandler: ?(
-      ThreadInfo | MinimallyEncodedThreadInfo,
+      LegacyThreadInfo | MinimallyEncodedThreadInfo,
     ) => mixed,
   ) => void,
   +scrollToMessage: (messageKey: string) => void,

@@ -12,7 +12,10 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+import type {
+  LegacyThreadInfo,
+  RelativeMemberInfo,
+} from 'lib/types/thread-types';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -26,7 +29,7 @@ import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
 type ChangeMemberRoleModalProps = {
   +memberInfo: RelativeMemberInfo,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
