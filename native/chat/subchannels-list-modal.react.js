@@ -5,7 +5,7 @@ import { View } from 'react-native';
 
 import { useSearchSubchannels } from 'lib/hooks/search-threads.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import SubchannelItem from './subchannel-item.react.js';
 import ThreadListModal from './thread-list-modal.react.js';
@@ -15,7 +15,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 export type SubchannelListModalParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo,
 };
 
 type Props = {
@@ -41,14 +41,14 @@ function SubchannelListModal(props: Props): React.Node {
 }
 
 const createRenderItem =
-  (onPressItem: (threadInfo: ThreadInfo) => void) =>
+  (onPressItem: (threadInfo: LegacyThreadInfo) => void) =>
   // eslint-disable-next-line react/display-name
   (row: { +item: ChatThreadItem, +index: number, ... }) => {
     return <Item subchannelInfo={row.item} onPressItem={onPressItem} />;
   };
 
 function Item(props: {
-  onPressItem: (threadInfo: ThreadInfo) => void,
+  onPressItem: (threadInfo: LegacyThreadInfo) => void,
   subchannelInfo: ChatThreadItem,
 }): React.Node {
   const { onPressItem, subchannelInfo } = props;

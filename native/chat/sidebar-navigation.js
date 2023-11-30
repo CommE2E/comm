@@ -12,7 +12,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  ThreadInfo,
+  LegacyThreadInfo,
   ChatMentionCandidates,
 } from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';
@@ -30,7 +30,7 @@ type GetUnresolvedSidebarThreadInfoInput = {
 };
 function getUnresolvedSidebarThreadInfo(
   input: GetUnresolvedSidebarThreadInfoInput,
-): ?ThreadInfo | ?MinimallyEncodedThreadInfo {
+): ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo {
   const { sourceMessage, loggedInUserInfo, chatMentionCandidates } = input;
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
   if (threadCreatedFromMessage) {
@@ -57,7 +57,7 @@ type GetSidebarThreadInfoInput = {
 };
 async function getSidebarThreadInfo(
   input: GetSidebarThreadInfoInput,
-): Promise<?ThreadInfo | ?MinimallyEncodedThreadInfo> {
+): Promise<?LegacyThreadInfo | ?MinimallyEncodedThreadInfo> {
   const {
     sourceMessage,
     loggedInUserInfo,

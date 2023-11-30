@@ -6,7 +6,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
@@ -31,7 +31,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
   +isSearchEmpty: boolean,
   +areSettingsEnabled: boolean,

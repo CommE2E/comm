@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useDisplayDeleteRoleAlert } from './role-utils.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -20,7 +20,7 @@ import { useStyles } from '../themes/colors.js';
 
 type RolePanelEntryProps = {
   +navigation: RolesNavigationProp<'CommunityRolesScreen'>,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +roleName: string,
   +rolePermissions: $ReadOnlySet<UserSurfacedPermission>,
   +memberCount: number,

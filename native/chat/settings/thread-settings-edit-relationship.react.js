@@ -19,7 +19,7 @@ import {
   type RelationshipAction,
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -32,7 +32,7 @@ import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
   +relationshipButton: RelationshipButton,
 };

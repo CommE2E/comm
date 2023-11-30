@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 export type KeyboardState = {
   +keyboardShowing: boolean,
@@ -11,9 +11,11 @@ export type KeyboardState = {
   +dismissKeyboardIfShowing: () => boolean,
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
-  +showMediaGallery: (thread: ThreadInfo | MinimallyEncodedThreadInfo) => void,
+  +showMediaGallery: (
+    thread: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ) => void,
   +hideMediaGallery: () => void,
-  +getMediaGalleryThread: () => ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  +getMediaGalleryThread: () => ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 
 const KeyboardContext: React.Context<?KeyboardState> =

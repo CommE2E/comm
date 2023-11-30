@@ -30,7 +30,7 @@ import type {
   MinimallyEncodedThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  ThreadInfo,
+  LegacyThreadInfo,
   ResolvedThreadInfo,
   LeaveThreadPayload,
 } from 'lib/types/thread-types.js';
@@ -53,7 +53,7 @@ import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const unboundStyles = {

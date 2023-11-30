@@ -5,7 +5,7 @@ import * as React from 'react';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
@@ -13,7 +13,7 @@ import Search from '../../../../components/search.react.js';
 import { useSelector } from '../../../../redux/redux-utils.js';
 
 type SubchannelMembersProps = {
-  +parentThreadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +selectedUsers: $ReadOnlySet<string>,
   +searchText: string,
   +setSearchText: string => void,

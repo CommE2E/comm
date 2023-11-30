@@ -21,7 +21,7 @@ import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
-  type ThreadInfo,
+  type LegacyThreadInfo,
   type RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
@@ -91,7 +91,7 @@ const unboundStyles = {
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
   +firstListItem: boolean,

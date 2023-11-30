@@ -23,7 +23,7 @@ import {
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { getCompatibleMediaURI } from './identifier-utils.js';
 import MediaGalleryMedia from './media-gallery-media.react.js';
@@ -103,7 +103,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,

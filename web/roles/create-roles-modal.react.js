@@ -17,7 +17,7 @@ import {
   userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
 import type {
-  ThreadInfo,
+  LegacyThreadInfo,
   RoleModificationRequest,
 } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
@@ -37,7 +37,7 @@ const createRolesLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 type CreateRolesModalProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo,
   +action: 'create_role' | 'edit_role',
   +existingRoleID?: string,
   +roleName: string,

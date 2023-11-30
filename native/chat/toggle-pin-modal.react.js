@@ -9,7 +9,7 @@ import {
   toggleMessagePinActionTypes,
 } from 'lib/actions/message-actions.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import MessageResult from './message-result.react.js';
@@ -22,7 +22,7 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 
 export type TogglePinModalParams = {
   +item: ChatMessageInfoItemWithHeight,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo,
 };
 
 type TogglePinModalProps = {

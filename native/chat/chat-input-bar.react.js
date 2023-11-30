@@ -75,7 +75,7 @@ import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thr
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
-  ThreadInfo,
+  LegacyThreadInfo,
   ClientThreadJoinRequest,
   ThreadJoinPayload,
   ChatMentionCandidates,
@@ -274,7 +274,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,
@@ -299,7 +299,7 @@ type Props = {
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
-  +parentThreadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (

@@ -14,7 +14,7 @@ import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-uti
 import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   inlineEngagementLabelStyle,
@@ -33,7 +33,7 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 function dummyNodeForInlineEngagementHeightMeasurement(
-  sidebarInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (
@@ -49,7 +49,7 @@ function dummyNodeForInlineEngagementHeightMeasurement(
 type DummyInlineEngagementNodeProps = {
   ...React.ElementConfig<typeof View>,
   +editedLabel?: ?string,
-  +sidebarInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  +sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   +reactions: ReactionInfo,
 };
 function DummyInlineEngagementNode(
@@ -129,8 +129,8 @@ function DummyInlineEngagementNode(
 
 type Props = {
   +messageInfo: MessageInfo,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  +sidebarThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +sidebarThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   +reactions: ReactionInfo,
   +disabled?: boolean,
   +positioning?: 'left' | 'right' | 'center',
