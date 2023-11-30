@@ -9,7 +9,7 @@ import Button from '../../components/button.react.js';
 import CopyInviteLinkButton from '../copy-invite-link-button.react.js';
 
 const buttonColor = {
-  color: 'var(--purple-link)',
+  color: 'var(--link-background-primary-default)',
 };
 
 type Props = {

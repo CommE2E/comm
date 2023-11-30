@@ -3,20 +3,20 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  background: var(--text-input-bg);
+  background: var(--inputField-background-secondary-default);
   padding: 12px 16px;
   border-radius: 20px;
 }
 
 .linkUrl {
   font-size: var(--m-font-16);
-  color: var(--label-default-color);
+  color: var(--text-background-secondary-default);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .linkCopyButton {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-size: var(--xs-font-12);
   display: flex;
   flex-direction: row;
