@@ -1,7 +1,6 @@
 use crate::ffi::{bool_callback, string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use grpc_clients::identity::get_unauthenticated_client;
 use grpc_clients::identity::protos::client::{
   outbound_keys_for_user_request::Identifier, DeleteUserRequest,
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
@@ -10,11 +9,15 @@ use grpc_clients::identity::protos::client::{
   RegistrationStartRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, WalletLoginRequest,
 };
+use grpc_clients::identity::{
+  get_unauthenticated_client, REQUEST_METADATA_COOKIE_KEY,
+  RESPONSE_METADATA_COOKIE_KEY,
+};
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
-use tonic::Status;
+use tonic::{Request, Status};
 use tracing::instrument;
 
 mod argon2_tools;
@@ -374,10 +377,19 @@ async fn register_user_helper(
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  let registration_start_response = identity_client
+  let response = identity_client
     .register_password_user_start(registration_start_request)
-    .await?
-    .into_inner();
+    .await?;
+
+  // We need to get the load balancer cookie from from the response and send it
+  // in the subsequent request to ensure it is routed to the same identity
+  // service instance as the first request
+  let cookie = response
+    .metadata()
+    .get(RESPONSE_METADATA_COOKIE_KEY)
+    .cloned();
+
+  let registration_start_response = response.into_inner();
 
   let opaque_registration_upload = client_registration
     .finish(
@@ -385,13 +397,23 @@ async fn register_user_helper(
       &registration_start_response.opaque_registration_response,
     )
     .map_err(handle_error)?;
+
   let registration_finish_request = RegistrationFinishRequest {
     session_id: registration_start_response.session_id,
     opaque_registration_upload,
   };
 
+  let mut finish_request = Request::new(registration_finish_request);
+
+  // Cookie won't be available in local dev environments
+  if let Some(cookie_metadata) = cookie {
+    finish_request
+      .metadata_mut()
+      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
+  }
+
   let registration_finish_response = identity_client
-    .register_password_user_finish(registration_finish_request)
+    .register_password_user_finish(finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token = UserIDAndDeviceAccessToken {
@@ -470,21 +492,40 @@ async fn login_password_user_helper(
   )
   .await?;
 
-  let login_start_response = identity_client
+  let response = identity_client
     .login_password_user_start(login_start_request)
-    .await?
-    .into_inner();
+    .await?;
+
+  // We need to get the load balancer cookie from from the response and send it
+  // in the subsequent request to ensure it is routed to the same identity
+  // service instance as the first request
+  let cookie = response
+    .metadata()
+    .get(RESPONSE_METADATA_COOKIE_KEY)
+    .cloned();
+
+  let login_start_response = response.into_inner();
 
   let opaque_login_upload = client_login
     .finish(&login_start_response.opaque_login_response)
     .map_err(handle_error)?;
+
   let login_finish_request = OpaqueLoginFinishRequest {
     session_id: login_start_response.session_id,
     opaque_login_upload,
   };
 
+  let mut finish_request = Request::new(login_finish_request);
+
+  // Cookie won't be available in local dev environments
+  if let Some(cookie_metadata) = cookie {
+    finish_request
+      .metadata_mut()
+      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
+  }
+
   let login_finish_response = identity_client
-    .login_password_user_finish(login_finish_request)
+    .login_password_user_finish(finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token = UserIDAndDeviceAccessToken {
@@ -633,10 +674,19 @@ async fn update_user_password_helper(
   )
   .await?;
 
-  let update_password_start_response = identity_client
+  let response = identity_client
     .update_user_password_start(update_password_start_request)
-    .await?
-    .into_inner();
+    .await?;
+
+  // We need to get the load balancer cookie from from the response and send it
+  // in the subsequent request to ensure it is routed to the same identity
+  // service instance as the first request
+  let cookie = response
+    .metadata()
+    .get(RESPONSE_METADATA_COOKIE_KEY)
+    .cloned();
+
+  let update_password_start_response = response.into_inner();
 
   let opaque_registration_upload = client_registration
     .finish(
@@ -644,13 +694,23 @@ async fn update_user_password_helper(
       &update_password_start_response.opaque_registration_response,
     )
     .map_err(handle_error)?;
+
   let update_password_finish_request = UpdateUserPasswordFinishRequest {
     session_id: update_password_start_response.session_id,
     opaque_registration_upload,
   };
 
+  let mut finish_request = Request::new(update_password_finish_request);
+
+  // Cookie won't be available in local dev environments
+  if let Some(cookie_metadata) = cookie {
+    finish_request
+      .metadata_mut()
+      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
+  }
+
   identity_client
-    .update_user_password_finish(update_password_finish_request)
+    .update_user_password_finish(finish_request)
     .await?;
 
   Ok(())
