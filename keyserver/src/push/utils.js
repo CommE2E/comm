@@ -408,7 +408,10 @@ async function blobServiceUpload(payload: string): Promise<
   try {
     const { encryptionKey, encryptedPayload, encryptedPayloadHash } =
       await encryptBlobPayload(payload);
-    await upload(encryptedPayload, encryptedPayloadHash, blobHolder);
+    await upload(encryptedPayload, {
+      hash: encryptedPayloadHash,
+      holder: blobHolder,
+    });
     return {
       blobHash: encryptedPayloadHash,
       encryptionKey,
