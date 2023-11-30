@@ -67,7 +67,7 @@ function QRCodeSignInNavigator(props: QRCodeSignInNavigatorProps): React.Node {
 const unboundStyles = {
   safeArea: {
     flex: 1,
-    backgroundColor: 'modalBackground',
+    backgroundColor: 'panelBackground',
   },
   headerLeftStyle: {
     paddingLeft: 12,
