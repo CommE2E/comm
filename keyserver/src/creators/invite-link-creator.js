@@ -2,6 +2,7 @@
 
 import Filter from 'bad-words';
 
+import { roleIsDefaultRole } from 'lib/shared/thread-utils.js';
 import type {
   CreateOrUpdatePublicLinkRequest,
   InviteLink,
@@ -60,8 +61,8 @@ async function createOrUpdatePublicLink(
   if (!threadInfo) {
     throw new ServerError('invalid_parameters');
   }
-  const defaultRoleID = Object.keys(threadInfo.roles).find(
-    roleID => threadInfo.roles[roleID].isDefault,
+  const defaultRoleID = Object.keys(threadInfo.roles).find(roleID =>
+    roleIsDefaultRole(threadInfo.roles[roleID]),
   );
   if (!defaultRoleID) {
     throw new ServerError('invalid_parameters');
