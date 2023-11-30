@@ -1,5 +1,5 @@
 locals {
-  identity_service_image_tag      = "0.3"
+  identity_service_image_tag      = "0.5"
   identity_service_server_image   = "commapp/identity-server:${local.identity_service_image_tag}"
   identity_service_container_name = "identity-server"
 
@@ -89,10 +89,7 @@ resource "aws_ecs_service" "identity_service" {
   task_definition      = aws_ecs_task_definition.identity_service.arn
   force_new_deployment = true
 
-  desired_count = 1
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
+  desired_count = 2
 
   # Expose Identity service to other services in the cluster
   service_connect_configuration {
@@ -157,6 +154,12 @@ resource "aws_lb_target_group" "identity_service_grpc" {
 
   # The "bridge" network mode requires target type set to instance
   target_type = "instance"
+
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 10 # Duration in seconds
+    enabled         = true
+  }
 
   health_check {
     enabled             = true
