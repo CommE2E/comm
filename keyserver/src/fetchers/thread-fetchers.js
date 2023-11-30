@@ -99,7 +99,7 @@ async function fetchServerThreadInfos(
   const whereClause = filter ? constructWhereClause(filter) : '';
 
   const rolesQuery = SQL`
-    SELECT t.id, r.id AS role, r.name, r.permissions,
+    SELECT t.id, r.id AS role, r.name, r.permissions, r.special_role,
       r.special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
   `
     .append(primaryFetchClause)
@@ -237,6 +237,7 @@ async function fetchServerThreadInfos(
         name: rolesRow.name,
         permissions: JSON.parse(rolesRow.permissions),
         isDefault: Boolean(rolesRow.is_default),
+        specialRole: rolesRow.special_role,
       };
     }
   }
