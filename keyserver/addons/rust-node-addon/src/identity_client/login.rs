@@ -54,20 +54,34 @@ pub async fn login_user(
   };
 
   debug!("Starting login to identity service");
-  let login_start_response = identity_client
+  let response = identity_client
     .login_password_user_start(login_start_request)
     .await
-    .map_err(handle_grpc_error)?
-    .into_inner();
-
+    .map_err(handle_grpc_error)?;
   debug!("Received login response from identity service");
+
+  // We need to get the load balancer cookie from from the response and send it
+  // in the subsequent request to ensure it is routed to the same identity
+  // service instance as the first request
+  let cookie = response.metadata().get("set-cookie").cloned();
+
+  let login_start_response = response.into_inner();
+
   let opaque_login_upload = client_login
     .finish(&login_start_response.opaque_login_response)
     .map_err(|_| Error::from_reason("Failed to finish opaque login request"))?;
-  let login_finish_request = OpaqueLoginFinishRequest {
+
+  let mut login_finish_request = Request::new(OpaqueLoginFinishRequest {
     session_id: login_start_response.session_id,
     opaque_login_upload,
-  };
+  });
+
+  // Cookie won't be available in local dev environments
+  if let Some(cookie_metadata) = cookie {
+    login_finish_request
+      .metadata_mut()
+      .insert("cookie", cookie_metadata);
+  }
 
   debug!("Attempting to finalize opaque login exchange with identity service");
   let login_finish_response = identity_client
