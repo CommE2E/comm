@@ -82,14 +82,35 @@ function processDBStoreOperations(
   const { draftStoreOperations, reportStoreOperations, threadStoreOperations } =
     storeOperations;
 
-  if (draftStoreOperations) {
-    processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
+  if (draftStoreOperations && draftStoreOperations.length > 0) {
+    try {
+      sqliteQueryExecutor.beginTransaction();
+      processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      console.log('Error while processing draft store ops: ', e);
+    }
   }
-  if (reportStoreOperations) {
-    processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
+  if (reportStoreOperations && reportStoreOperations.length > 0) {
+    try {
+      sqliteQueryExecutor.beginTransaction();
+      processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      console.log('Error while processing report store ops: ', e);
+    }
   }
-  if (threadStoreOperations) {
-    processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
+  if (threadStoreOperations && threadStoreOperations.length > 0) {
+    try {
+      sqliteQueryExecutor.beginTransaction();
+      processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      console.log('Error while processing thread store ops: ', e);
+    }
   }
 }
 

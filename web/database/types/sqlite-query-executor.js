@@ -37,6 +37,10 @@ declare export class SQLiteQueryExecutor {
   removeAllThreads(): void;
   getAllThreadsWeb(): WebClientDBThreadInfo[];
 
+  beginTransaction(): void;
+  commitTransaction(): void;
+  rollbackTransaction(): void;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
