@@ -6,7 +6,7 @@ import css from './manage-invite-links-modal.css';
 import Button from '../../components/button.react.js';
 
 const buttonColor = {
-  color: 'var(--purple-link)',
+  color: 'var(--link-background-primary-default)',
 };
 
 type Props = {
