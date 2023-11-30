@@ -31,6 +31,11 @@ async function createRequestHeaders(
   };
 }
 
+type BlobDescriptor = {
+  +hash: string,
+  +holder: string,
+};
+
 async function uploadBlob(blob: Blob, hash: string): Promise<void> {
   const formData = new FormData();
   formData.append('blob_hash', hash);
@@ -52,7 +57,8 @@ async function uploadBlob(blob: Blob, hash: string): Promise<void> {
   }
 }
 
-async function assignHolder(holder: string, hash: string): Promise<void> {
+async function assignHolder(params: BlobDescriptor): Promise<void> {
+  const { hash, holder } = params;
   const headers = await createRequestHeaders();
   const assignHolderResponse = await fetch(
     makeBlobServiceEndpointURL(blobService.httpEndpoints.ASSIGN_HOLDER),
@@ -74,9 +80,10 @@ async function assignHolder(holder: string, hash: string): Promise<void> {
   }
 }
 
-async function upload(blob: Blob, hash: string, holder: string): Promise<void> {
+async function upload(blob: Blob, params: BlobDescriptor): Promise<void> {
+  const { hash, holder } = params;
   try {
-    await Promise.all([assignHolder(holder, hash), uploadBlob(blob, hash)]);
+    await Promise.all([assignHolder({ hash, holder }), uploadBlob(blob, hash)]);
   } catch (e) {
     throw new Error(
       `Payload upload failed with: ${
@@ -109,11 +116,7 @@ async function download(hash: string): Promise<BlobDownloadResult> {
   return { found: true, blob };
 }
 
-type DeleteBlobParams = {
-  +hash: string,
-  +holder: string,
-};
-async function deleteBlob(params: DeleteBlobParams, instant?: boolean) {
+async function deleteBlob(params: BlobDescriptor, instant?: boolean) {
   const { hash, holder } = params;
   const endpoint = blobService.httpEndpoints.DELETE_BLOB;
   const url = makeBlobServiceEndpointURL(endpoint);
