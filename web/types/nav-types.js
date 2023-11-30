@@ -4,8 +4,8 @@ import type { TInterface } from 'tcomb';
 
 import { type BaseNavInfo } from 'lib/types/nav-types.js';
 import {
-  type ThreadInfo,
-  threadInfoValidator,
+  type LegacyThreadInfo,
+  legacyThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import {
   type AccountUserInfo,
@@ -35,7 +35,7 @@ export type NavInfo = {
   ...$Exact<BaseNavInfo>,
   +tab: NavigationTab,
   +activeChatThreadID: ?string,
-  +pendingThread?: ThreadInfo,
+  +pendingThread?: LegacyThreadInfo,
   +settingsSection?: NavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,
@@ -48,7 +48,7 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   endDate: t.String,
   tab: navigationTabValidator,
   activeChatThreadID: t.maybe(tID),
-  pendingThread: t.maybe(threadInfoValidator),
+  pendingThread: t.maybe(legacyThreadInfoValidator),
   settingsSection: t.maybe(navigationSettingsSectionValidator),
   selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
   chatMode: t.maybe(navigationChatModeValidator),

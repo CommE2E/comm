@@ -10,7 +10,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
-  type ThreadInfo,
+  type LegacyThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types.js';
@@ -28,7 +28,7 @@ import Alert from '../../utils/alert.js';
 export type ColorSelectorModalParams = {
   +presentedFrom: string,
   +color: string,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +setColor: (color: string) => void,
 };
 

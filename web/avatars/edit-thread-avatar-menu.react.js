@@ -7,7 +7,10 @@ import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RawThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  RawThreadInfo,
+  LegacyThreadInfo,
+} from 'lib/types/thread-types.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -23,7 +26,7 @@ const editIcon = (
 );
 
 type Props = {
-  +threadInfo: RawThreadInfo | ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: RawThreadInfo | LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 function EditThreadAvatarMenu(props: Props): React.Node {
   const { threadInfo } = props;

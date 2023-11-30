@@ -12,7 +12,10 @@ import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types.js';
+import {
+  type LegacyThreadInfo,
+  type ThreadChanges,
+} from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import SubmitSection from './submit-section.react.js';
@@ -39,7 +42,7 @@ const secretStatements = [
 
 type ThreadSettingsPrivacyTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
   +setErrorMessage: SetState<?string>,

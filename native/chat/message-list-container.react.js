@@ -21,7 +21,7 @@ import {
   pendingThreadType,
 } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
@@ -89,8 +89,8 @@ type Props = {
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
-  +genesisThreadInfo: ?ThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +genesisThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,

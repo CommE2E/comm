@@ -16,7 +16,7 @@ import {
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useHeightMeasurer } from './chat-context.js';
 import type { ChatNavigationProp } from './chat.react';
@@ -29,7 +29,7 @@ import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 
 export type MessageResultsScreenParams = {
-  +threadInfo: ThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type MessageResultsScreenProps = {
