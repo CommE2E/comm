@@ -25,6 +25,7 @@ import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateDimensionsActiveType,
@@ -110,18 +111,21 @@ function reducer(state: AppState = defaultState, action: Action) {
         state,
         action.payload.sessionChange.currentUserInfo,
         action.payload.preRequestUserState,
+        action.payload.keyserverID,
       )) ||
     (action.type === logOutActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
+        ashoatKeyserverID,
       )) ||
     (action.type === deleteKeyserverAccountActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
+        ashoatKeyserverID,
       ))
   ) {
     return state;

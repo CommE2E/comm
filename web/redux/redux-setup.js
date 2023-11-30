@@ -163,11 +163,14 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       storeOperations,
     );
   } else if (action.type === setNewSessionActionType) {
+    const { keyserverID } = action.payload;
+
     if (
       invalidSessionDowngrade(
         oldState,
         action.payload.sessionChange.currentUserInfo,
         action.payload.preRequestUserState,
+        keyserverID,
       )
     ) {
       return oldState;
@@ -179,8 +182,8 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         ...state.keyserverStore,
         keyserverInfos: {
           ...state.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [keyserverID]: {
+            ...state.keyserverStore.keyserverInfos[keyserverID],
             sessionID: action.payload.sessionChange.sessionID,
           },
         },
@@ -192,12 +195,14 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         oldState,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
+        ashoatKeyserverID,
       )) ||
     (action.type === deleteKeyserverAccountActionTypes.success &&
       invalidSessionDowngrade(
         oldState,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
+        ashoatKeyserverID,
       ))
   ) {
     return oldState;
