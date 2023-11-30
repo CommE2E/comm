@@ -1,6 +1,9 @@
 // @flow
 
-import { defaultSpecialRoles } from 'lib/permissions/special-roles.js';
+import {
+  defaultSpecialRoles,
+  specialRoles,
+} from 'lib/permissions/special-roles.js';
 import {
   getRolePermissionBlobs,
   getThreadPermissionBlobFromUserSurfacedPermissions,
@@ -67,6 +70,7 @@ async function createInitialRolesForNewThread(
     name: 'Members',
     permissions: rolePermissions.Members,
     isDefault: true,
+    specialRole: specialRoles.DEFAULT_ROLE,
   };
   if (!rolePermissions.Admins) {
     return {
@@ -80,6 +84,7 @@ async function createInitialRolesForNewThread(
     name: 'Admins',
     permissions: rolePermissions.Admins,
     isDefault: false,
+    specialRole: specialRoles.ADMIN_ROLE,
   };
   return {
     default: defaultRoleInfo,
