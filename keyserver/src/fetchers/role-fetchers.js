@@ -7,7 +7,7 @@ import { dbQuery, SQL } from '../database/database.js';
 
 async function fetchRoles(threadID: string): Promise<LegacyRoleInfo[]> {
   const query = SQL`
-    SELECT id, name, permissions, 
+    SELECT id, name, permissions, special_role,
       special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
     FROM roles
     WHERE thread = ${threadID}
@@ -21,6 +21,7 @@ async function fetchRoles(threadID: string): Promise<LegacyRoleInfo[]> {
       name: row.name,
       permissions: JSON.parse(row.permissions),
       isDefault: Boolean(row.is_default),
+      specialRole: row.special_role,
     });
   }
   return roles;
