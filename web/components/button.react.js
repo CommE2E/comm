@@ -23,7 +23,7 @@ export const buttonThemes: { [string]: ButtonColor } = {
     backgroundColor: 'var(--btn-bg-success)',
   },
   outline: {
-    backgroundColor: 'var(--btn-bg-outline)',
+    backgroundColor: 'transparent',
   },
 };
 

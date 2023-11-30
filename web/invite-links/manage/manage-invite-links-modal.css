@@ -30,13 +30,13 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   font-size: var(--s-font-14);
 }
 
 .editLinkDescription {
   font-weight: var(--semi-bold);
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -47,7 +47,7 @@
 }
 
 .separator {
-  border-color: var(--border-color);
+  border-color: var(--separator-background-primary-default);
   margin: 0;
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: center;
   font-size: var(--s-font-14);
-  color: var(--error-primary);
+  color: var(--text-background-danger-default);
 }
 
 .disableLinkRow {
