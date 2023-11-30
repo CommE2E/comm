@@ -1,5 +1,6 @@
 // @flow
 
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import type { ThreadStoreThreadInfos } from 'lib/types/thread-types.js';
 
 const threadStoreThreads: ThreadStoreThreadInfos = {
@@ -285,6 +286,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '83795': {
         id: '83795',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           descendant_open_know_of: true,
@@ -297,6 +299,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '83796': {
         id: '83796',
         isDefault: false,
+        specialRole: specialRoles.ADMIN_ROLE,
         name: 'Admins',
         permissions: {
           add_members: true,
@@ -621,6 +624,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '84597': {
         id: '84597',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           child_open_join_thread: true,
@@ -921,6 +925,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '84599': {
         id: '84599',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           child_open_join_thread: true,
@@ -1309,6 +1314,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '84628': {
         id: '84628',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           child_open_join_thread: true,
@@ -1784,6 +1790,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '84657': {
         id: '84657',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           add_members: true,
@@ -2179,6 +2186,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '86072': {
         id: '86072',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           child_open_join_thread: true,
@@ -2654,6 +2662,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '87790': {
         id: '87790',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           add_members: true,
@@ -3136,6 +3145,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '87818': {
         id: '87818',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           add_members: true,
@@ -3531,6 +3541,7 @@ const threadStoreThreads: ThreadStoreThreadInfos = {
       '87838': {
         id: '87838',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {
           add_members: true,
@@ -3837,12 +3848,14 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '83795': {
         id: '83795',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
       '83796': {
         id: '83796',
         isDefault: false,
+        specialRole: specialRoles.ADMIN_ROLE,
         name: 'Admins',
         permissions: {},
       },
@@ -4131,6 +4144,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '84597': {
         id: '84597',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -4418,6 +4432,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '84599': {
         id: '84599',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -4792,6 +4807,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '84628': {
         id: '84628',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -5253,6 +5269,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '84657': {
         id: '84657',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -5627,6 +5644,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '86072': {
         id: '86072',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -6088,6 +6106,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '87790': {
         id: '87790',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -6549,6 +6568,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '87818': {
         id: '87818',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -6923,6 +6943,7 @@ const threadStoreThreadsWithEmptyRolePermissions: ThreadStoreThreadInfos = {
       '87838': {
         id: '87838',
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
         name: 'Members',
         permissions: {},
       },
@@ -7057,12 +7078,14 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '83795': {
           id: '83795',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
         '83796': {
           id: '83796',
           isDefault: false,
+          specialRole: specialRoles.ADMIN_ROLE,
           name: 'Admins',
           permissions: {},
         },
@@ -7189,6 +7212,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '84597': {
           id: '84597',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7314,6 +7338,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '84599': {
           id: '84599',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7445,6 +7470,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '84628': {
           id: '84628',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7582,6 +7608,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '84657': {
           id: '84657',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7713,6 +7740,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '86072': {
           id: '86072',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7850,6 +7878,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '87790': {
           id: '87790',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -7987,6 +8016,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '87818': {
           id: '87818',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8118,6 +8148,7 @@ const threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions: ThreadStor
         '87838': {
           id: '87838',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8171,12 +8202,14 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '83795': {
           id: '83795',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
         '83796': {
           id: '83796',
           isDefault: false,
+          specialRole: specialRoles.ADMIN_ROLE,
           name: 'Admins',
           permissions: {},
         },
@@ -8222,6 +8255,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '84597': {
           id: '84597',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8266,6 +8300,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '84599': {
           id: '84599',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8316,6 +8351,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '84628': {
           id: '84628',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8372,6 +8408,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '84657': {
           id: '84657',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8422,6 +8459,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '86072': {
           id: '86072',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8478,6 +8516,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '87790': {
           id: '87790',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8534,6 +8573,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '87818': {
           id: '87818',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -8584,6 +8624,7 @@ const threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions: ThreadS
         '87838': {
           id: '87838',
           isDefault: true,
+          specialRole: specialRoles.DEFAULT_ROLE,
           name: 'Members',
           permissions: {},
         },
@@ -9174,6 +9215,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           voiced: true,
         },
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
       },
       '256|84854': {
         id: '256|84854',
@@ -9218,6 +9260,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           leave_thread: true,
         },
         isDefault: false,
+        specialRole: specialRoles.ADMIN_ROLE,
       },
     },
     currentUser: {
@@ -9537,6 +9580,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           create_subthreads: true,
         },
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
       },
       '256|85024': {
         id: '256|85024',
@@ -9581,6 +9625,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           leave_thread: true,
         },
         isDefault: false,
+        specialRole: specialRoles.ADMIN_ROLE,
       },
       '256|85027': {
         id: '256|85027',
@@ -9599,6 +9644,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           voiced: true,
         },
         isDefault: false,
+        specialRole: null,
       },
     },
     currentUser: {
@@ -9919,6 +9965,7 @@ const threadStoreThreadsWithIncorrectPermissions: ThreadStoreThreadInfos = {
           add_members: true,
         },
         isDefault: true,
+        specialRole: specialRoles.DEFAULT_ROLE,
       },
     },
     currentUser: {
