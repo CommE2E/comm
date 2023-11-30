@@ -1,5 +1,6 @@
 // @flow
 
+import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
 import type { DisableInviteLinkRequest } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -31,7 +32,7 @@ async function deleteInviteLink(
   const [[row]] = await dbQuery(query);
   if (row?.blobHolder) {
     await deleteBlob({
-      hash: `invite_${request.name}`,
+      hash: inviteLinkBlobHash(request.name),
       holder: row.blobHolder,
     });
   }
