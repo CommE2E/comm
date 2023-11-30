@@ -2,15 +2,18 @@
 
 import * as React from 'react';
 
+import { removeKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './keyserver-selection-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import KeyserverPill from '../../components/keyserver-pill.react.js';
 import StatusIndicator from '../../components/status-indicator.react.js';
 import Alert from '../alert.react.js';
+import ConfirmationAlert from '../confirmation-alert.react.js';
 import Modal from '../modal.react.js';
 
 type Props = {
@@ -21,7 +24,7 @@ type Props = {
 function KeyserverSelectionModal(props: Props): React.Node {
   const { keyserverAdminUserInfo, keyserverInfo } = props;
 
-  const { popModal, pushModal } = useModalContext();
+  const { popModal, pushModal, clearModals } = useModalContext();
 
   const onClickDisconnectKeyserver = React.useCallback(
     () =>
@@ -34,6 +37,40 @@ function KeyserverSelectionModal(props: Props): React.Node {
         </Alert>,
       ),
     [pushModal],
+  );
+
+  const dispatch = useDispatch();
+
+  const onDeleteKeyserver = React.useCallback(() => {
+    dispatch({
+      type: removeKeyserverActionType,
+      payload: {
+        keyserverAdminUserID: keyserverAdminUserInfo.id,
+      },
+    });
+
+    clearModals();
+  }, [clearModals, dispatch, keyserverAdminUserInfo.id]);
+
+  const onClickRemoveKeyserver = React.useCallback(
+    () =>
+      pushModal(
+        <ConfirmationAlert
+          title="Confirm deletion"
+          confirmationButtonContent="Delete"
+          onConfirm={onDeleteKeyserver}
+          isDestructive
+        >
+          <div className={css.keyserverRemoveConfirmationContainer}>
+            <div>
+              Are you sure you want to delete this keyserver from your keyserver
+              list?
+            </div>
+            <div>You will still remain in the associated communities.</div>
+          </div>
+        </ConfirmationAlert>,
+      ),
+    [onDeleteKeyserver, pushModal],
   );
 
   const { keyerverRemoveInfoText, keyserverRemoveButton } =
@@ -58,6 +95,7 @@ function KeyserverSelectionModal(props: Props): React.Node {
             variant="filled"
             buttonColor={buttonThemes.danger}
             className={css.button}
+            onClick={onClickRemoveKeyserver}
           >
             Delete keyserver from list
           </Button>
@@ -96,7 +134,11 @@ function KeyserverSelectionModal(props: Props): React.Node {
         keyerverRemoveInfoText: removeInfoText,
         keyserverRemoveButton: removeButton,
       };
-    }, [keyserverInfo.connection.status, onClickDisconnectKeyserver]);
+    }, [
+      keyserverInfo.connection.status,
+      onClickDisconnectKeyserver,
+      onClickRemoveKeyserver,
+    ]);
 
   return (
     <Modal size="large" onClose={popModal} name="Keyserver details">

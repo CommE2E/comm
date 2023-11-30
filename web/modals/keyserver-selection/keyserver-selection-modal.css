@@ -39,3 +39,11 @@
 .button {
   width: 100%;
 }
+
+.keyserverRemoveConfirmationContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 24px;
+  padding: 24px 32px;
+  color: var(--text-background-primary-default);
+}
