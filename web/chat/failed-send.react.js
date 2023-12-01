@@ -11,7 +11,7 @@ import {
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed.js';
@@ -28,7 +28,7 @@ type Props = {
   ...BaseProps,
   +rawMessageInfo: RawComposableMessageInfo,
   +inputState: ?InputState,
-  +parentThreadInfo: ?LegacyThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;

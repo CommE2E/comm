@@ -38,7 +38,6 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  type LegacyThreadInfo,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
   type ThreadInfo,
@@ -84,7 +83,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +parentThreadInfo: ?LegacyThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
