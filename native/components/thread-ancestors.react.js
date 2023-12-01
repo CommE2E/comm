@@ -6,8 +6,7 @@ import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from './button.react.js';
 import CommunityPill from './community-pill.react.js';
@@ -17,7 +16,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function ThreadAncestors(props: Props): React.Node {

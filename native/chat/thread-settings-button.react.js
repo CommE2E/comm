@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
@@ -19,7 +18,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
 };
 type Props = {

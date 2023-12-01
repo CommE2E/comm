@@ -7,13 +7,12 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { modifyCommunityRoleActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type UserSurfacedPermissionOption,
   type UserSurfacedPermission,
   userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import CreateRolesHeaderRightButton from './create-roles-header-right-button.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -25,7 +24,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CreateRolesScreenParams = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
   +existingRoleID?: string,
   +roleName: string,
