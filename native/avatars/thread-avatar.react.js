@@ -11,7 +11,7 @@ import type { AvatarSize } from 'lib/types/avatar-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
-  ResolvedThreadInfo,
+  LegacyResolvedThreadInfo,
   RawThreadInfo,
   ThreadInfo,
 } from 'lib/types/thread-types.js';
@@ -23,7 +23,7 @@ type Props = {
   +threadInfo:
     | RawThreadInfo
     | ThreadInfo
-    | ResolvedThreadInfo
+    | LegacyResolvedThreadInfo
     | MinimallyEncodedResolvedThreadInfo,
   +size: AvatarSize,
 };
