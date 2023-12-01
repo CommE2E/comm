@@ -1,5 +1,5 @@
 .roleDeletionText {
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   font-size: var(--m-font-14);
   padding: 16px 32px;
 }
