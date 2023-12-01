@@ -5,8 +5,7 @@ import cluster from 'cluster';
 import geoip from 'geoip-lite';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
-
-import { handleAsyncPromise } from '../responders/handlers.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 type GeoIPLicenseConfig = { +key: string };
 async function updateGeoipDB(): Promise<void> {
@@ -56,7 +55,7 @@ async function updateAndReloadGeoipDB(): Promise<void> {
 if (!cluster.isMaster) {
   process.on('message', (ipcMessage: IPCMessage) => {
     if (ipcMessage.type === 'geoip_reload') {
-      handleAsyncPromise(reloadGeoipDB());
+      ignorePromiseRejections(reloadGeoipDB());
     }
   });
 }

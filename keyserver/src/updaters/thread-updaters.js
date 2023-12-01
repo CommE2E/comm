@@ -28,7 +28,7 @@ import {
 } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { promiseAll } from 'lib/utils/promises.js';
+import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 import { validChatNameRegex } from 'lib/utils/validation-utils.js';
@@ -63,7 +63,6 @@ import {
   verifyUserIDs,
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
@@ -861,7 +860,7 @@ async function joinThread(
   });
 
   if (request.inviteLinkSecret) {
-    handleAsyncPromise(reportLinkUsage(request.inviteLinkSecret));
+    ignorePromiseRejections(reportLinkUsage(request.inviteLinkSecret));
   }
 
   const messageData = {
