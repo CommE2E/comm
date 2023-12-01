@@ -5,14 +5,16 @@ import {
   getBlobFetchableURL,
   makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
-import { getMessageForException } from 'lib/utils/errors.js';
 
 type BlobDescriptor = {
   +hash: string,
   +holder: string,
 };
 
-async function uploadBlob(blob: Blob, hash: string): Promise<void> {
+type BlobOperationResult = 'SUCCESS' | 'FAILURE';
+type BlobUploadResult = BlobOperationResult | 'HASH_IN_USE';
+
+async function uploadBlob(blob: Blob, hash: string): Promise<BlobUploadResult> {
   const formData = new FormData();
   formData.append('blob_hash', hash);
   formData.append('blob_data', blob);
@@ -26,12 +28,21 @@ async function uploadBlob(blob: Blob, hash: string): Promise<void> {
   );
 
   if (!uploadBlobResponse.ok) {
-    const { status, statusText } = uploadBlobResponse;
-    throw new Error(`Payload upload failed with HTTP ${status}: ${statusText}`);
+    const { status } = uploadBlobResponse;
+
+    if (status === 409) {
+      return 'HASH_IN_USE';
+    }
+    return 'FAILURE';
   }
+
+  return 'SUCCESS';
 }
 
-async function assignHolder({ hash, holder }: BlobDescriptor): Promise<void> {
+async function assignHolder({
+  hash,
+  holder,
+}: BlobDescriptor): Promise<BlobOperationResult> {
   const assignHolderResponse = await fetch(
     makeBlobServiceEndpointURL(blobService.httpEndpoints.ASSIGN_HOLDER),
     {
@@ -47,25 +58,27 @@ async function assignHolder({ hash, holder }: BlobDescriptor): Promise<void> {
   );
 
   if (!assignHolderResponse.ok) {
-    const { status, statusText } = assignHolderResponse;
-    throw new Error(
-      `Holder assignment failed with HTTP ${status}: ${statusText}`,
-    );
+    return 'FAILURE';
   }
+
+  return 'SUCCESS';
 }
 
 async function upload(
   blob: Blob,
   { hash, holder }: BlobDescriptor,
-): Promise<void> {
+): Promise<BlobUploadResult> {
   try {
-    await Promise.all([assignHolder({ hash, holder }), uploadBlob(blob, hash)]);
+    const [holderResult, uploadResult] = await Promise.all([
+      assignHolder({ hash, holder }),
+      uploadBlob(blob, hash),
+    ]);
+    if (holderResult === 'FAILURE' || uploadResult === 'FAILURE') {
+      return 'FAILURE';
+    }
+    return uploadResult;
   } catch (e) {
-    throw new Error(
-      `Payload upload failed with: ${
-        getMessageForException(e) ?? 'unknown error'
-      }`,
-    );
+    return 'FAILURE';
   }
 }
 
