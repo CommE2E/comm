@@ -935,7 +935,6 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tonic 0.8.2",
- "tonic-build 0.8.2",
  "tracing",
  "tracing-actix-web",
  "tracing-futures",
@@ -1498,7 +1497,7 @@ dependencies = [
  "derive_more",
  "prost",
  "tonic 0.9.2",
- "tonic-build 0.9.2",
+ "tonic-build",
  "tracing",
  "tracing-subscriber",
 ]
@@ -2876,19 +2875,6 @@ dependencies = [
  "tower-layer",
  "tower-service",
  "tracing",
-]
-
-[[package]]
-name = "tonic-build"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48c6fd7c2581e36d63388a9e04c350c21beb7a8b059580b2e93993c526899ddc"
-dependencies = [
- "prettyplease",
- "proc-macro2",
- "prost-build",
- "quote",
- "syn 1.0.103",
 ]
 
 [[package]]
