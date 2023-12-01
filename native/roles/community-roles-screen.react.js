@@ -9,7 +9,7 @@ import {
   useRoleMemberCountsForCommunity,
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import RolePanelEntry from './role-panel-entry.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -20,7 +20,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CommunityRolesScreenParams = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 type CommunityRolesScreenProps = {
@@ -37,7 +37,7 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
   // manually pull in the threadInfo from the redux store, since the threadInfo
   // passed into the route params will not be updated automatically.
   const threadID = threadInfo.id;
-  const reduxThreadInfo: ?LegacyThreadInfo = useSelector(
+  const reduxThreadInfo: ?ThreadInfo = useSelector(
     state => threadInfoSelector(state)[threadID],
   );
 

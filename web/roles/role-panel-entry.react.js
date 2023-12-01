@@ -2,14 +2,14 @@
 
 import * as React from 'react';
 
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import RoleActionsMenu from './role-actions-menu.react.js';
 import css from './role-panel-entry.css';
 import CommIcon from '../CommIcon.react.js';
 
 type RolePanelEntryProps = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
   +roleName: string,
   +memberCount: number,
 };

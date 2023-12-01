@@ -6,7 +6,7 @@ import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import Search from './search.react.js';
 import ThreadListThread from './thread-list-thread.react.js';
@@ -25,7 +25,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfos: $ReadOnlyArray<LegacyThreadInfo>,
+  +threadInfos: $ReadOnlyArray<ThreadInfo>,
   +onSelect: (threadID: string) => void,
   +itemStyle?: ViewStyle,
   +itemTextStyle?: TextStyle,
@@ -49,7 +49,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
-  listDataSelector: PropsAndState => $ReadOnlyArray<LegacyThreadInfo> =
+  listDataSelector: PropsAndState => $ReadOnlyArray<ThreadInfo> =
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.threadInfos,
       (propsAndState: PropsAndState) => propsAndState.searchText,
@@ -57,10 +57,10 @@ class ThreadList extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.itemStyle,
       (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
       (
-        threadInfos: $ReadOnlyArray<LegacyThreadInfo>,
+        threadInfos: $ReadOnlyArray<ThreadInfo>,
         text: string,
         searchResults: Set<string>,
-      ): $ReadOnlyArray<LegacyThreadInfo> =>
+      ): $ReadOnlyArray<ThreadInfo> =>
         text
           ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
           : // We spread to make sure the result of this selector updates when
@@ -68,7 +68,7 @@ class ThreadList extends React.PureComponent<Props, State> {
             [...threadInfos],
     );
 
-  get listData(): $ReadOnlyArray<LegacyThreadInfo> {
+  get listData(): $ReadOnlyArray<ThreadInfo> {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
