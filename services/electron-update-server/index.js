@@ -8,7 +8,7 @@ const hazelServer = hazel({
   // Cache refresh interval (in minutes)
   interval: 15,
   repository: process.env.HAZEL_REPOSITORY ?? 'comm',
-  account: process.env.HAZEL_ACCOUNT ?? 'CommE2e',
+  account: process.env.HAZEL_ACCOUNT ?? 'CommE2E',
 });
 
 const app = express();
