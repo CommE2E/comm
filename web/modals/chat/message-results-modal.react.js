@@ -18,8 +18,7 @@ import {
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
 import css from './message-results-modal.css';
@@ -29,7 +28,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import Modal from '../modal.react.js';
 
 type MessageResultsModalProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +modalName: string,
 };
 

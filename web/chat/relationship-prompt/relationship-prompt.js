@@ -9,15 +9,14 @@ import {
 import * as React from 'react';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import RelationshipPromptButtonContainer from './relationship-prompt-button-container.js';
 import RelationshipPromptButton from './relationship-prompt-button.js';
 import { buttonThemes } from '../../components/button.react.js';
 
-type Props = { +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo };
+type Props = { +threadInfo: ThreadInfo };
 
 function RelationshipPrompt(props: Props) {
   const { threadInfo } = props;
