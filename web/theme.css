@@ -230,7 +230,6 @@
   --unsaved-changes-modal-text-color: var(--shades-white-60);
   --modal-secondary-label: var(--shades-black-50);
   --modal-separator: var(--shades-black-75);
-  --create-roles-text-color: var(--shades-white-100);
 }
 
 /* 
@@ -278,6 +277,7 @@
 
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
+  --link-background-primary-disabled: var(--shades-black-50);
 
   /* Separator */
   --separator-background-primary-default: var(--shades-black-75);
