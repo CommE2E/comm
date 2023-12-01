@@ -11,8 +11,7 @@ import {
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed.js';
@@ -23,7 +22,7 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...BaseProps,

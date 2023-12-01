@@ -12,8 +12,7 @@ import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { getMessageLabel } from 'lib/shared/edit-messages-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
 import { getComposedMessageID } from './chat-constants.js';
 import css from './chat-message-list.css';
@@ -51,7 +50,7 @@ const availableTooltipPositionsForNonViewerMessage = [
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
   +sendFailed: boolean,
   +children: React.Node,
