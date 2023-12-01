@@ -33,14 +33,14 @@ import {
   threadIsChannel,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  type LegacyResolvedThreadInfo,
-  type RelativeMemberInfo,
-  type ThreadInfo,
+import type {
+  LegacyResolvedThreadInfo,
+  RelativeMemberInfo,
+  ThreadInfo,
+  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
@@ -137,26 +137,20 @@ type ChatSettingsItem =
   | {
       +itemType: 'avatar',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'name',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +nameEditValue: ?string,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'color',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +colorEditValue: string,
       +canChangeSettings: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -165,9 +159,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'description',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +descriptionEditValue: ?string,
       +descriptionTextHeight: ?number,
       +canChangeSettings: boolean,
@@ -175,33 +167,23 @@ type ChatSettingsItem =
   | {
       +itemType: 'parent',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
-      +parentThreadInfo:
-        | ?LegacyResolvedThreadInfo
-        | ?MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
+      +parentThreadInfo: ?ResolvedThreadInfo,
     }
   | {
       +itemType: 'visibility',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'pushNotifs',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'homeNotifs',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'seeMore',
@@ -211,9 +193,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'childThread',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +firstListItem: boolean,
       +lastListItem: boolean,
     }
@@ -225,9 +205,7 @@ type ChatSettingsItem =
       +itemType: 'member',
       +key: string,
       +memberInfo: RelativeMemberInfo,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
       +firstListItem: boolean,
@@ -249,18 +227,14 @@ type ChatSettingsItem =
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
     }
   | {
       +itemType: 'editRelationship',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
       +relationshipButton: RelationshipButton,
@@ -292,10 +266,8 @@ type Props = {
   // Redux state
   +userInfos: UserInfos,
   +viewerID: ?string,
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-  +parentThreadInfo:
-    | ?LegacyResolvedThreadInfo
-    | ?MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
+  +parentThreadInfo: ?ResolvedThreadInfo,
   +childThreadInfos: ?$ReadOnlyArray<LegacyResolvedThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: $ReadOnly<typeof unboundStyles>,
@@ -374,12 +346,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
       (propsAndState: PropsAndState) => propsAndState.route.key,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
-        parentThreadInfo:
-          | ?LegacyResolvedThreadInfo
-          | ?MinimallyEncodedResolvedThreadInfo,
+        threadInfo: ResolvedThreadInfo,
+        parentThreadInfo: ?ResolvedThreadInfo,
         nameEditValue: ?string,
         colorEditValue: string,
         descriptionEditValue: ?string,
@@ -534,13 +502,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
       (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
+        threadInfo: ResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
-        childThreads: ?$ReadOnlyArray<
-          LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-        >,
+        childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
         numSubchannelsShowing: number,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -605,9 +569,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
       (
         navigate: ThreadSettingsNavigate,
-        childThreads: ?$ReadOnlyArray<
-          LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-        >,
+        childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
         numSidebarsShowing: number,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -666,9 +628,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
+        threadInfo: ResolvedThreadInfo,
         canStartEditing: boolean,
         navigate: ThreadSettingsNavigate,
         routeKey: string,
@@ -778,12 +738,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.userInfos,
       (propsAndState: PropsAndState) => propsAndState.viewerID,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
-        parentThreadInfo:
-          | ?LegacyResolvedThreadInfo
-          | ?MinimallyEncodedResolvedThreadInfo,
+        threadInfo: ResolvedThreadInfo,
+        parentThreadInfo: ?ResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
         styles: $ReadOnly<typeof unboundStyles>,
         userInfos: UserInfos,
