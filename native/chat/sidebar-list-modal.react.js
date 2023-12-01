@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { useSearchSidebars } from 'lib/hooks/search-threads.js';
-import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
+import type { SidebarInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import { SidebarItem } from './sidebar-item.react.js';
 import ThreadListModal from './thread-list-modal.react.js';
@@ -16,7 +16,7 @@ import ExtendedArrow from '../vectors/arrow-extended.react.js';
 import Arrow from '../vectors/arrow.react.js';
 
 export type SidebarListModalParams = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 type Props = {
@@ -30,7 +30,7 @@ function SidebarListModal(props: Props): React.Node {
   const numOfSidebarsWithExtendedArrow = listData.length - 1;
 
   const createRenderItem = React.useCallback(
-    (onPressItem: (threadInfo: LegacyThreadInfo) => void) =>
+    (onPressItem: (threadInfo: ThreadInfo) => void) =>
       // eslint-disable-next-line react/display-name
       (row: { +item: SidebarInfo, +index: number, ... }) => {
         let extendArrow: boolean = false;
@@ -64,7 +64,7 @@ function SidebarListModal(props: Props): React.Node {
 
 function Item(props: {
   item: SidebarInfo,
-  onPressItem: (threadInfo: LegacyThreadInfo) => void,
+  onPressItem: (threadInfo: ThreadInfo) => void,
   extendArrow: boolean,
 }): React.Node {
   const { item, onPressItem, extendArrow } = props;
