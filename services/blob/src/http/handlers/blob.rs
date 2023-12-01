@@ -182,6 +182,10 @@ pub async fn upload_blob_handler(
 pub struct RemoveHolderPayload {
   holder: String,
   blob_hash: String,
+  /// If true, the blob will be deleted intantly
+  /// after the last holder is revoked.
+  #[serde(default)]
+  instant_delete: bool,
 }
 
 #[instrument(name = "remove_holder", skip(service))]
@@ -190,10 +194,16 @@ pub async fn remove_holder_handler(
   payload: web::Json<RemoveHolderPayload>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Revoke holder request");
-  let RemoveHolderPayload { holder, blob_hash } = payload.into_inner();
+  let RemoveHolderPayload {
+    holder,
+    blob_hash,
+    instant_delete,
+  } = payload.into_inner();
   validate_identifier!(holder);
   validate_identifier!(blob_hash);
 
-  service.revoke_holder(blob_hash, holder).await?;
+  service
+    .revoke_holder(blob_hash, holder, instant_delete)
+    .await?;
   Ok(HttpResponse::NoContent().finish())
 }

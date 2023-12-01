@@ -192,6 +192,7 @@ impl BlobService {
     &self,
     blob_hash: impl Into<String>,
     holder: impl Into<String>,
+    instant_delete: bool,
   ) -> BlobServiceResult<()> {
     let blob_hash: String = blob_hash.into();
     let holder: String = holder.into();
@@ -199,7 +200,7 @@ impl BlobService {
     trace!(blob_hash, holder, "Attempting to revoke holder");
     self.db.delete_holder_assignment(&blob_hash, holder).await?;
 
-    if self.config.instant_delete_orphaned_blobs {
+    if instant_delete || self.config.instant_delete_orphaned_blobs {
       trace!("Instant orphan deletion enabled. Looking for holders");
       let is_orphan = self
         .db
