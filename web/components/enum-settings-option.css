@@ -7,7 +7,7 @@ div.optionContainer {
 }
 
 div.optionContainerSelected {
-  background: var(--notification-settings-option-selected-bg);
+  background: var(--enumOption-background-primary-selected);
 }
 
 div.optionIcon {
@@ -37,13 +37,13 @@ div.optionContent {
 div.optionTitle {
   font-size: var(--m-font-16);
   font-weight: var(--semi-bold);
-  color: var(--notification-settings-option-title-color);
+  color: var(--enumOption-title-primary-default);
   margin-bottom: 4px;
 }
 
 div.optionDescription {
   font-size: var(--xs-font-12);
-  color: var(--notification-settings-option-color);
+  color: var(--enumOption-description-primary-default);
   display: flex;
   flex-direction: column;
   row-gap: 4px;

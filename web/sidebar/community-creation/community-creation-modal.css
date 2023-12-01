@@ -21,22 +21,19 @@ div.formTitle {
   font-size: 14px;
   font-weight: 600;
   vertical-align: top;
-  color: var(--fg);
+  color: var(--text-background-primary-default);
 }
 
 div.formContent {
   display: flex;
   font-family: var(--font-stack);
-  color: var(--fg);
   margin-top: 8px;
   margin-bottom: 12px;
 }
 
 div.formContent textarea {
   padding: 12px;
-  background: var(--modal-bg);
-  color: var(--fg);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--separator-background-primary-default);
   font-size: var(--m-font-16);
   border-radius: 4px;
   width: 100%;
@@ -45,7 +42,7 @@ div.formContent textarea {
 }
 
 div.formNotice {
-  color: var(--community-creation-form-notice);
+  color: var(--text-background-secondary-default);
   font-size: var(--xs-font-12);
   text-align: center;
 }
@@ -58,11 +55,11 @@ hr {
 }
 
 div.optionalSettingsContainer {
-  color: var(--enum-option-icon-color);
+  color: var(--enumOption-icon-primary-default);
 }
 
 div.optionalSettingsLabel {
-  color: var(--compose-subchannel-label-color);
+  color: var(--text-background-tertiary-default);
   padding-bottom: 20px;
 }
 
