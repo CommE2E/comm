@@ -17,7 +17,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
-  type ResolvedThreadInfo,
+  type LegacyResolvedThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types.js';
@@ -62,7 +62,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +nameEditValue: ?string,
   +setNameEditValue: (value: ?string, callback?: () => void) => void,
   +canChangeSettings: boolean,
