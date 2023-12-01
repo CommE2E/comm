@@ -1,5 +1,5 @@
 .modalDescription {
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   padding: 16px 32px 0 32px;
   font-size: var(--m-font-16);
 }
@@ -12,7 +12,7 @@
 }
 
 .rolePanelTitle {
-  color: var(--community-roles-text-color);
+  color: var(--text-background-primary-default);
   font-size: var(--l-font-18);
 }
 
@@ -27,7 +27,7 @@
   align-self: center;
   height: 2px;
   border: none;
-  border-top: var(--modal-separator) solid 1px;
+  border-top: var(--separator-background-primary-default) solid 1px;
 }
 
 .rolePanelList {
