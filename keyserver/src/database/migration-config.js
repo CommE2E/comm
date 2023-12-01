@@ -664,9 +664,8 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       await dbQuery(updateQuery);
     },
   ],
-  [52, updateRolesAndPermissionsForAllThreads],
   [
-    53,
+    52,
     async () =>
       dbQuery(SQL`
         ALTER TABLE invite_links 
@@ -674,7 +673,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       `),
   ],
   [
-    54,
+    53,
     async () => {
       await dbQuery(
         SQL`
@@ -693,7 +692,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     },
   ],
   [
-    55,
+    54,
     async () => {
       await dbQuery(
         SQL`
@@ -704,7 +703,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     },
   ],
   [
-    56,
+    55,
     async () => {
       await dbQuery(
         SQL`
@@ -715,6 +714,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [56, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
