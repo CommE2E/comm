@@ -1,6 +1,7 @@
 // @flow
 
 import Filter from 'bad-words';
+import uuid from 'uuid';
 
 import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
 import type {
@@ -20,8 +21,16 @@ import {
 import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
-import { download, type BlobDownloadResult } from '../services/blob.js';
+import {
+  download,
+  type BlobDownloadResult,
+  assignHolder,
+  uploadBlob,
+  deleteBlob,
+} from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
+import { fetchIdentityInfo } from '../user/identity.js';
+import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 const secretRegex = /^[a-zA-Z0-9]+$/;
 const badWordsFilter = new Filter();
@@ -81,15 +90,37 @@ async function createOrUpdatePublicLink(
   const existingPrimaryLink = existingPrimaryLinks.find(
     link => link.communityID === request.communityID && link.primary,
   );
+
+  const blobHolder = uuid.v4();
+  const blobResult = await uploadInviteLinkBlob(request.name, blobHolder);
+  if (!blobResult.success) {
+    if (blobResult.reason === 'HASH_IN_USE') {
+      throw new ServerError('already_in_use');
+    } else {
+      throw new ServerError('unknown_error');
+    }
+  }
+
   if (existingPrimaryLink) {
     const query = SQL`
       UPDATE invite_links
-      SET name = ${request.name}
+      SET name = ${request.name}, blob_holder = ${blobHolder}
       WHERE \`primary\` = 1 AND community = ${request.communityID}
     `;
     try {
       await dbQuery(query);
+      const holder = existingPrimaryLink.blobHolder;
+      if (holder) {
+        await deleteBlob({
+          hash: inviteLinkBlobHash(existingPrimaryLink.name),
+          holder,
+        });
+      }
     } catch (e) {
+      await deleteBlob({
+        hash: inviteLinkBlobHash(request.name),
+        holder: blobHolder,
+      });
       if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
         throw new ServerError('already_in_use');
       }
@@ -108,10 +139,17 @@ async function createOrUpdatePublicLink(
 
   const [id] = await createIDs('invite_links', 1);
 
-  const row = [id, request.name, true, request.communityID, defaultRoleID];
+  const row = [
+    id,
+    request.name,
+    true,
+    request.communityID,
+    defaultRoleID,
+    blobHolder,
+  ];
 
   const createLinkQuery = SQL`
-    INSERT INTO invite_links(id, name, \`primary\`, community, role)
+    INSERT INTO invite_links(id, name, \`primary\`, community, role, blob_holder)
     SELECT ${row}
     WHERE NOT EXISTS (
       SELECT i.id
@@ -127,7 +165,13 @@ async function createOrUpdatePublicLink(
   try {
     result = (await dbQuery(createLinkQuery))[0];
   } catch (e) {
-    await dbQuery(deleteIDs);
+    await Promise.all([
+      dbQuery(deleteIDs),
+      deleteBlob({
+        hash: inviteLinkBlobHash(request.name),
+        holder: blobHolder,
+      }),
+    ]);
     if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
       throw new ServerError('already_in_use');
     }
@@ -135,7 +179,13 @@ async function createOrUpdatePublicLink(
   }
 
   if (result.affectedRows === 0) {
-    await dbQuery(deleteIDs);
+    await Promise.all([
+      dbQuery(deleteIDs),
+      deleteBlob({
+        hash: inviteLinkBlobHash(request.name),
+        holder: blobHolder,
+      }),
+    ]);
     throw new ServerError('invalid_parameters');
   }
 
@@ -155,6 +205,32 @@ function getInviteLinkBlob(
 ): Promise<BlobDownloadResult> {
   const hash = inviteLinkBlobHash(request.name);
   return download(hash);
+}
+
+async function uploadInviteLinkBlob(linkSecret: string, holder: string) {
+  const identityInfo = await fetchIdentityInfo();
+  const keyserverID = identityInfo?.userId;
+  if (!keyserverID) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
+  const keyserverURL = baseDomain + basePath;
+
+  const payload = {
+    keyserverID,
+    keyserverURL,
+  };
+  const payloadString = JSON.stringify(payload);
+  const key = inviteLinkBlobHash(linkSecret);
+  const blob = new Blob([payloadString]);
+
+  const uploadResult = await uploadBlob(blob, key);
+  if (!uploadResult.success) {
+    return uploadResult;
+  }
+
+  return await assignHolder({ holder, hash: key });
 }
 
 export { createOrUpdatePublicLink };
