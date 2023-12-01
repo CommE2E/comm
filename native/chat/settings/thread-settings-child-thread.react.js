@@ -3,8 +3,7 @@
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
@@ -14,7 +13,7 @@ import { useColors, useStyles } from '../../themes/colors.js';
 import { useNavigateToThread } from '../message-list-types.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +firstListItem: boolean,
   +lastListItem: boolean,
 };

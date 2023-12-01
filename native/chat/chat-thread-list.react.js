@@ -31,9 +31,8 @@ import {
   getThreadListSearchResults,
   useThreadListSearch,
 } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
@@ -77,9 +76,7 @@ type BaseProps = {
   +route:
     | NavigationRoute<'HomeChatThreadList'>
     | NavigationRoute<'BackgroundChatThreadList'>,
-  +filterThreads: (
-    threadItem: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => boolean,
+  +filterThreads: (threadItem: ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{}>,
 };
 export type SearchStatus = 'inactive' | 'activating' | 'active';
