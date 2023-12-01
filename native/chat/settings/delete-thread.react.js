@@ -27,7 +27,7 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  ResolvedThreadInfo,
+  LegacyResolvedThreadInfo,
   LeaveThreadPayload,
   ThreadInfo,
 } from 'lib/types/thread-types.js';
@@ -115,7 +115,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: ResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
   +colors: Colors,
