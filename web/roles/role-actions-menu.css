@@ -1,4 +1,4 @@
 .menuContainer {
-  color: var(--menu-color-light);
+  color: var(--text-background-secondary-default);
   width: 10px;
 }
