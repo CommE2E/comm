@@ -664,7 +664,20 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       await dbQuery(updateQuery);
     },
   ],
-  [52, updateRolesAndPermissionsForAllThreads],
+  [
+    52,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE roles
+          ADD COLUMN IF NOT EXISTS
+            special_role tinyint(2) UNSIGNED DEFAULT NULL
+        `,
+      );
+
+      await updateRolesAndPermissionsForAllThreads();
+    },
+  ],
   [
     53,
     async () =>
