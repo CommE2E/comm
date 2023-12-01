@@ -45,10 +45,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  type LegacyThreadInfo,
-  type ResolvedThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { ResolvedThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -191,7 +188,7 @@ type SharedProps = {
 };
 type BaseProps = {
   ...SharedProps,
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...SharedProps,

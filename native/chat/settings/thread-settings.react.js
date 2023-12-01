@@ -38,7 +38,6 @@ import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
-  type LegacyThreadInfo,
   type ResolvedThreadInfo,
   type RelativeMemberInfo,
   type ThreadInfo,
@@ -1164,7 +1163,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     );
     const threadID = props.route.params.threadInfo.id;
 
-    const reduxThreadInfo: ?LegacyThreadInfo = useSelector(
+    const reduxThreadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
     React.useEffect(() => {
@@ -1196,7 +1195,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     }, [threadInfo]);
 
     const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?LegacyThreadInfo = useSelector(state =>
+    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
     const resolvedParentThreadInfo =

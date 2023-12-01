@@ -3,10 +3,7 @@
 import * as React from 'react';
 
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LegacyThreadInfo,
-  ResolvedThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { ResolvedThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import Button from './button.react.js';
@@ -37,7 +34,7 @@ type SharedProps = {
 };
 type BaseProps = {
   ...SharedProps,
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...SharedProps,

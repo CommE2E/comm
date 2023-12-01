@@ -31,7 +31,7 @@ import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { type LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -521,7 +521,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  navigateToThread(threadInfo: LegacyThreadInfo, clearChatRoutes: boolean) {
+  navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
       this.props.navigation.dispatch({
         type: replaceWithThreadActionType,

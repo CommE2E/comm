@@ -74,7 +74,6 @@ import type {
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
-  LegacyThreadInfo,
   ClientThreadJoinRequest,
   ThreadJoinPayload,
   ChatMentionCandidates,
@@ -299,7 +298,7 @@ type Props = {
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
-  +parentThreadInfo: ?LegacyThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (
