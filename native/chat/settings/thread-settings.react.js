@@ -37,7 +37,6 @@ import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
-  LegacyResolvedThreadInfo,
   RelativeMemberInfo,
   ThreadInfo,
   ResolvedThreadInfo,
@@ -268,7 +267,7 @@ type Props = {
   +viewerID: ?string,
   +threadInfo: ResolvedThreadInfo,
   +parentThreadInfo: ?ResolvedThreadInfo,
-  +childThreadInfos: ?$ReadOnlyArray<LegacyResolvedThreadInfo>,
+  +childThreadInfos: ?$ReadOnlyArray<ResolvedThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
