@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useRoleUserSurfacedPermissions } from 'lib/shared/thread-utils.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useRoleDeletableAndEditableStatus } from 'lib/utils/role-utils.js';
 
 import CreateRolesModal from './create-roles-modal.react.js';
@@ -18,7 +18,7 @@ import Menu from '../components/menu.react.js';
 const menuIcon = <SWMansionIcon icon="menu-horizontal" size={20} />;
 
 type RoleActionsMenuProps = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
   +roleName: string,
 };
 
