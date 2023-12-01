@@ -25,11 +25,10 @@ import {
   getThreadsToDeleteText,
 } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  LegacyResolvedThreadInfo,
   LeaveThreadPayload,
   ThreadInfo,
+  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
@@ -115,7 +114,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
   +colors: Colors,
