@@ -3,7 +3,7 @@
   background-color: transparent;
   width: 24px;
   height: 24px;
-  border: 1px solid var(--radio-border);
+  border: 1px solid var(--enumOption-input-primary-default);
   border-radius: 3.6px;
   display: flex;
   align-items: center;
@@ -17,7 +17,7 @@
   border-radius: 2.4px;
   transform: scale(0);
   transition: 120ms transform ease-in-out;
-  background-color: var(--radio-color);
+  background-color: var(--enumOption-input-primary-selected);
 }
 
 .checkbox:checked::before {
