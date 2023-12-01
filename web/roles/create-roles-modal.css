@@ -5,19 +5,18 @@
 }
 
 .roleNameLabel {
-  color: var(--create-roles-text-color);
+  color: var(--text-background-primary-default);
   padding: 4px 0;
   margin-top: 20px;
 }
 
 .roleNameInput {
   display: flex;
-  color: var(--fg);
   margin: 8px 0 12px 0;
 }
 
 .errorMessage {
-  color: var(--error);
+  color: var(--text-background-danger-default);
   font-size: var(--s-font-14);
   align-self: center;
   visibility: hidden;
@@ -34,7 +33,7 @@
   align-self: center;
   height: 2px;
   border: none;
-  border-top: var(--modal-separator) solid 1px;
+  border-top: var(--separator-background-primary-default) solid 1px;
 }
 
 .permissionsHeaderContainer {
@@ -45,7 +44,7 @@
 }
 
 .permissionsLabel {
-  color: var(--create-roles-text-color);
+  color: var(--text-background-primary-default);
 }
 
 .clearPermissions {
@@ -53,12 +52,12 @@
 }
 
 .clearPermissionsDisabled {
-  color: var(--color-disabled);
+  color: var(--link-background-primary-disabled);
   cursor: not-allowed;
 }
 
 .clearPermissionsEnabled {
-  color: var(--purple-link);
+  color: var(--link-background-primary-default);
   cursor: pointer;
 }
 
