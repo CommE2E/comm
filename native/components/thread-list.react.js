@@ -6,8 +6,7 @@ import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import Search from './search.react.js';
 import ThreadListThread from './thread-list-thread.react.js';
@@ -102,9 +101,7 @@ class ThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  static keyExtractor = (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ): string => {
+  static keyExtractor = (threadInfo: ThreadInfo): string => {
     return threadInfo.id;
   };
 
@@ -120,7 +117,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<LegacyThreadInfo | MinimallyEncodedThreadInfo>,
+    data: ?$ReadOnlyArray<ThreadInfo>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };

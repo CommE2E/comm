@@ -7,8 +7,7 @@ import type {
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
 import type { TextMessageInfo } from 'lib/types/messages/text.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { EntityText } from 'lib/utils/entity-text.js';
 
 import type { MessagePendingUploads } from '../input/input-state.js';
@@ -17,12 +16,12 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +itemType: 'message',
   +messageShapeType: 'robotext',
   +messageInfo: RobotextMessageInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
   +robotext: EntityText,
-  +threadCreatedFromMessage: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
   +reactions: ReactionInfo,
 };
@@ -32,12 +31,12 @@ export type ChatTextMessageInfoItemWithHeight = {
   +messageShapeType: 'text',
   +messageInfo: TextMessageInfo,
   +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
   +contentHeight: number,
-  +threadCreatedFromMessage: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo,
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,
   +isPinned: ?boolean,
@@ -57,11 +56,11 @@ export type ChatMultimediaMessageInfoItem = {
   +messageShapeType: 'multimedia',
   +messageInfo: MultimediaMessageInfo,
   +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
-  +threadCreatedFromMessage: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadCreatedFromMessage: ?ThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
   +reactions: ReactionInfo,
   +hasBeenEdited: ?boolean,

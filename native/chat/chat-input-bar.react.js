@@ -71,7 +71,6 @@ import type {
   SendEditMessageResponse,
   MessageInfo,
 } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
@@ -80,6 +79,7 @@ import type {
   ThreadJoinPayload,
   ChatMentionCandidates,
   RelativeMemberInfo,
+  ThreadInfo,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
@@ -274,7 +274,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...BaseProps,

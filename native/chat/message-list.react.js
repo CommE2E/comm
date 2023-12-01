@@ -19,9 +19,8 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -69,7 +68,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,

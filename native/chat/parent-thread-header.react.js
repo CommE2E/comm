@@ -4,9 +4,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Button from '../components/button.react.js';
@@ -15,7 +14,7 @@ import ThreadVisibility from '../components/thread-visibility.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +parentThreadInfo: ThreadInfo,
   +childThreadType: ThreadType,
 };
 function ParentThreadHeader(props: Props): React.Node {

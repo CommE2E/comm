@@ -6,8 +6,7 @@ import { Button, View, Image } from 'react-native';
 import filesystem from 'react-native-fs';
 
 import type { PhotoPaste } from 'lib/types/media-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import sleep from 'lib/utils/sleep.js';
 
 import Modal from '../components/modal.react.js';
@@ -18,7 +17,7 @@ import { useStyles } from '../themes/colors.js';
 
 export type ImagePasteModalParams = {
   +imagePasteStagingInfo: PhotoPaste,
-  +thread: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +thread: ThreadInfo,
 };
 
 const safeAreaEdges = ['top'];
