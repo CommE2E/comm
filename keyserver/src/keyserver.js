@@ -15,6 +15,7 @@ import qrcode from 'qrcode';
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
@@ -23,7 +24,6 @@ import { emailSubscriptionResponder } from './responders/comm-landing-responders
 import {
   jsonHandler,
   downloadHandler,
-  handleAsyncPromise,
   htmlHandler,
   uploadHandler,
 } from './responders/handlers.js';
@@ -103,7 +103,9 @@ const shouldDisplayQRCodeInTerminal = false;
       // We don't await here, as Tunnelbroker communication is not needed for
       // normal keyserver behavior yet. In addition, this doesn't return
       // information useful for other keyserver functions.
-      handleAsyncPromise(createAndMaintainTunnelbrokerWebsocket(identityInfo));
+      ignorePromiseRejections(
+        createAndMaintainTunnelbrokerWebsocket(identityInfo),
+      );
     } catch (e) {
       console.warn(
         'Failed identity login. Login optional until staging environment is available',

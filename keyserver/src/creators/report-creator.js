@@ -17,6 +17,7 @@ import {
   reportTypes,
 } from 'lib/types/report-types.js';
 import { values } from 'lib/utils/objects.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 import {
   sanitizeReduxReport,
   type ReduxCrashReport,
@@ -26,7 +27,6 @@ import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchUsername } from '../fetchers/user-fetchers.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import { createBotViewer } from '../session/bots.js';
 import type { Viewer } from '../session/viewer.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
@@ -78,7 +78,7 @@ async function createReport(
     VALUES ${[row]}
   `;
   await dbQuery(query);
-  handleAsyncPromise(sendCommbotMessage(viewer, request, id));
+  ignorePromiseRejections(sendCommbotMessage(viewer, request, id));
   return { id };
 }
 
