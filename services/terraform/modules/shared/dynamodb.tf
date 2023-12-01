@@ -139,6 +139,37 @@ resource "aws_dynamodb_table" "identity-users" {
   }
 }
 
+resource "aws_dynamodb_table" "identity-devices" {
+  name         = "identity-devices"
+  hash_key     = "userID"
+  range_key    = "itemID"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "userID"
+    type = "S"
+  }
+
+  # this is either device ID or device list datetime
+  attribute {
+    name = "itemID"
+    type = "S"
+  }
+
+  # only for sorting device lists
+  attribute {
+    name = "timestamp"
+    type = "N"
+  }
+
+  # sparse index allowing to sort device list updates by timestamp
+  local_secondary_index {
+    name            = "deviceList-timestamp-index"
+    range_key       = "timestamp"
+    projection_type = "ALL"
+  }
+}
+
 # Identity users with opaque_ke 2.0 credentials
 resource "aws_dynamodb_table" "identity-users-opaque2" {
   # This table doesnt exist in prod
