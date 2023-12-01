@@ -10,9 +10,8 @@ import {
   createPendingThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -40,7 +39,7 @@ function useInfosForPendingThread(): InfosForPendingThread {
 
 function useThreadInfoForPossiblyPendingThread(
   activeChatThreadID: ?string,
-): ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo {
+): ?ThreadInfo {
   const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
 
   const loggedInUserInfo = useLoggedInUserInfo();

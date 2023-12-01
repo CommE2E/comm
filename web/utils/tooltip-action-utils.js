@@ -17,9 +17,8 @@ import {
   useSidebarExistsOrCanBeCreated,
 } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 
@@ -128,7 +127,7 @@ function useTooltip({
 
 function useMessageTooltipSidebarAction(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { threadCreatedFromMessage, messageInfo } = item;
   const { popModal } = useModalContext();
@@ -170,7 +169,7 @@ function useMessageTooltipSidebarAction(
 
 function useMessageTooltipReplyAction(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
   const { popModal } = useModalContext();
@@ -235,7 +234,7 @@ function useMessageCopyAction(
 
 function useMessageReactAction(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
 
@@ -270,7 +269,7 @@ function useMessageReactAction(
 
 function useMessageTogglePinAction(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { pushModal } = useModalContext();
   const { messageInfo, isPinned } = item;
@@ -306,7 +305,7 @@ function useMessageTogglePinAction(
 
 function useMessageEditAction(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
 
@@ -349,7 +348,7 @@ function useMessageEditAction(
 
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
 ): $ReadOnlyArray<MessageTooltipAction> {
   const sidebarAction = useMessageTooltipSidebarAction(item, threadInfo);
   const replyAction = useMessageTooltipReplyAction(item, threadInfo);
@@ -386,7 +385,7 @@ const undefinedTooltipSize = {
 type UseMessageTooltipArgs = {
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function useMessageTooltip({
