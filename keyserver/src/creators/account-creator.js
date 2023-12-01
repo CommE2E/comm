@@ -26,6 +26,7 @@ import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 import { reservedUsernamesSet } from 'lib/utils/reserved-users.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
@@ -45,7 +46,6 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import { searchForUser } from '../search/users.js';
 import { createNewUserCookie, setNewSession } from '../session/cookies.js';
 import { createScriptViewer } from '../session/scripts.js';
@@ -189,7 +189,9 @@ async function createAccount(
     ...messageInfos,
   ];
 
-  handleAsyncPromise(createAndSendReservedUsernameMessage([request.username]));
+  ignorePromiseRejections(
+    createAndSendReservedUsernameMessage([request.username]),
+  );
 
   return {
     id,
@@ -287,7 +289,9 @@ async function processSIWEAccountCreation(
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
   await Promise.all([createMessages(viewer, messageDatas)]);
 
-  handleAsyncPromise(createAndSendReservedUsernameMessage([request.address]));
+  ignorePromiseRejections(
+    createAndSendReservedUsernameMessage([request.address]),
+  );
 
   return id;
 }

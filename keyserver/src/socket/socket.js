@@ -45,7 +45,7 @@ import type { LegacyRawThreadInfos } from 'lib/types/thread-types.js';
 import type { UserInfo, CurrentUserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
+import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver.js';
 import sleep from 'lib/utils/sleep.js';
 import { tShape, tCookie } from 'lib/utils/validation-utils.js';
@@ -71,7 +71,6 @@ import {
   newEntryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
 } from '../responders/entry-responders.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   fetchViewerForSocket,
   updateCookie,
@@ -250,7 +249,7 @@ class Socket {
         throw new ServerError('session_mutated_from_socket');
       }
       if (clientSocketMessage.type !== clientSocketMessageTypes.PING) {
-        handleAsyncPromise(updateCookie(viewer));
+        ignorePromiseRejections(updateCookie(viewer));
       }
       for (const response of serverResponses) {
         // Normally it's an anti-pattern to await in sequence like this. But in

@@ -31,7 +31,7 @@ import {
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
 import { signedIdentityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
 import { hash, values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
+import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 import {
   tShape,
   tPlatform,
@@ -44,7 +44,6 @@ import createReport from '../creators/report-creator.js';
 import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
 import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers.js';
 import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,
@@ -197,7 +196,7 @@ async function processClientResponses(
           : { status: 'state_validated' };
     } else if (clientResponse.type === serverRequestTypes.MORE_ONE_TIME_KEYS) {
       invariant(clientResponse.keys, 'keys expected in client response');
-      handleAsyncPromise(saveOneTimeKeys(viewer, clientResponse.keys));
+      ignorePromiseRejections(saveOneTimeKeys(viewer, clientResponse.keys));
     } else if (
       clientResponse.type === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB
     ) {
@@ -216,7 +215,7 @@ async function processClientResponses(
           signedIdentityKeysBlob.payload,
           signedIdentityKeysBlob.signature,
         );
-        handleAsyncPromise(
+        ignorePromiseRejections(
           setCookieSignedIdentityKeysBlob(
             viewer.cookieID,
             signedIdentityKeysBlob,

@@ -8,7 +8,7 @@ import { updateTypes } from 'lib/types/update-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
-import { promiseAll } from 'lib/utils/promises.js';
+import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -17,7 +17,6 @@ import {
   fetchUsername,
 } from '../fetchers/user-fetchers.js';
 import { rescindPushNotifs } from '../push/rescind.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import { createNewAnonymousCookie } from '../session/cookies.js';
 import type { Viewer, AnonymousViewerData } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
@@ -98,7 +97,7 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     };
     const message = JSON.stringify(reservedUsernameMessage);
 
-    handleAsyncPromise(
+    ignorePromiseRejections(
       (async () => {
         const rustAPI = await getRustAPI();
         const accountInfo = await fetchOlmAccount('content');
@@ -119,7 +118,7 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
   if (viewer.isScriptViewer) {
     await deletionUpdatesPromise;
   } else {
-    handleAsyncPromise(deletionUpdatesPromise);
+    ignorePromiseRejections(deletionUpdatesPromise);
   }
 
   if (viewer.isScriptViewer) {

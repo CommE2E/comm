@@ -21,7 +21,7 @@ import {
 import { redisMessageTypes } from 'lib/types/redis-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
-import { promiseAll } from 'lib/utils/promises.js';
+import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import createIDs from './id-creator.js';
 import type { UpdatesForCurrentSession } from './update-creator.js';
@@ -41,7 +41,6 @@ import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import type { Device, PushUserInfo } from '../push/send.js';
 import { sendPushNotifs, sendRescindNotifs } from '../push/send.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import type { Viewer } from '../session/viewer.js';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
 import { publisher } from '../socket/redis.js';
@@ -191,9 +190,9 @@ async function createMessages(
   if (!viewer.isScriptViewer) {
     // If we're not being called from a script, then we avoid awaiting
     // postMessageSendPromise below so that we don't delay the response to the
-    // user on external services. In that case, we use handleAsyncPromise to
-    // make sure any exceptions are caught and logged.
-    handleAsyncPromise(postMessageSendPromise);
+    // user on external services. In that case, we use ignorePromiseRejections
+    // to make sure any exceptions are caught and logged.
+    ignorePromiseRejections(postMessageSendPromise);
   }
 
   await Promise.all([
