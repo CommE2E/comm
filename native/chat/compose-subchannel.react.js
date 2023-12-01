@@ -20,7 +20,7 @@ import {
 import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
-import type { ThreadInfo, LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
@@ -222,26 +222,25 @@ function ComposeSubchannel(props: Props): React.Node {
     ],
   );
 
-  const existingThreads: $ReadOnlyArray<LegacyThreadInfo> =
-    React.useMemo(() => {
-      if (userInfoInputIDs.length === 0) {
-        return [];
-      }
-      return _flow(
-        _filter(
-          (threadInfo: ThreadInfo) =>
-            threadInFilterList(threadInfo) &&
-            threadInfo.parentThreadID === parentThreadInfo.id &&
-            userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
-        ),
-        _sortBy(
-          ([
-            'members.length',
-            (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
-          ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
-        ),
-      )(threadInfos);
-    }, [userInfoInputIDs, threadInfos, parentThreadInfo]);
+  const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {
+    if (userInfoInputIDs.length === 0) {
+      return [];
+    }
+    return _flow(
+      _filter(
+        (threadInfo: ThreadInfo) =>
+          threadInFilterList(threadInfo) &&
+          threadInfo.parentThreadID === parentThreadInfo.id &&
+          userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
+      ),
+      _sortBy(
+        ([
+          'members.length',
+          (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
+        ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
+      ),
+    )(threadInfos);
+  }, [userInfoInputIDs, threadInfos, parentThreadInfo]);
 
   const navigateToThread = useNavigateToThread();
   const onSelectExistingThread = React.useCallback(

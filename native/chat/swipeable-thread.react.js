@@ -7,14 +7,14 @@ import * as React from 'react';
 import SwipeableComponent from 'react-native-gesture-handler/Swipeable';
 
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import Swipeable from '../components/swipeable.js';
 import { useColors } from '../themes/colors.js';
 type Props = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
-  +onSwipeableWillOpen: (threadInfo: LegacyThreadInfo) => void,
+  +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId?: string,
   +iconSize: number,
   +children: React.Node,

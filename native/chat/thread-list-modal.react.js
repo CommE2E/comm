@@ -13,11 +13,7 @@ import {
 import type { ThreadSearchState } from 'lib/hooks/search-threads.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type {
-  LegacyThreadInfo,
-  SidebarInfo,
-  ThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { SidebarInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Modal from '../components/modal.react.js';
@@ -39,9 +35,7 @@ function getItemLayout(
 
 type Props<U> = {
   +threadInfo: ThreadInfo,
-  +createRenderItem: (
-    onPressItem: (threadInfo: LegacyThreadInfo) => void,
-  ) => (row: {
+  +createRenderItem: (onPressItem: (threadInfo: ThreadInfo) => void) => (row: {
     +item: U,
     +index: number,
     ...

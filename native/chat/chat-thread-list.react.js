@@ -32,7 +32,7 @@ import {
   useThreadListSearch,
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
@@ -186,7 +186,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onPressSeeMoreSidebars = React.useCallback(
-    (threadInfo: LegacyThreadInfo) => {
+    (threadInfo: ThreadInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();
