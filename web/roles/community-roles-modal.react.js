@@ -6,7 +6,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-roles-modal.css';
 import CreateRolesModal from './create-roles-modal.react.js';
@@ -16,17 +16,16 @@ import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type CommunityRolesModalProps = {
-  +community: LegacyThreadInfo,
+  +community: ThreadInfo,
 };
 
 function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
   const { popModal, pushModal } = useModalContext();
   const { community } = props;
 
-  const [threadInfo, setThreadInfo] =
-    React.useState<LegacyThreadInfo>(community);
+  const [threadInfo, setThreadInfo] = React.useState<ThreadInfo>(community);
   const threadID = threadInfo.id;
-  const reduxThreadInfo: ?LegacyThreadInfo = useSelector(
+  const reduxThreadInfo: ?ThreadInfo = useSelector(
     state => threadInfoSelector(state)[threadID],
   );
 
