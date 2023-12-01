@@ -8,11 +8,10 @@ import {
 } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
-  LegacyResolvedThreadInfo,
   RawThreadInfo,
+  ResolvedThreadInfo,
   ThreadInfo,
 } from 'lib/types/thread-types.js';
 
@@ -20,11 +19,7 @@ import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
-  +threadInfo:
-    | RawThreadInfo
-    | ThreadInfo
-    | LegacyResolvedThreadInfo
-    | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo | ResolvedThreadInfo,
   +size: AvatarSize,
 };
 

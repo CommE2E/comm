@@ -20,8 +20,7 @@ import {
   type RestoreEntryPayload,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
@@ -41,7 +40,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +loggedIn: boolean,
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
