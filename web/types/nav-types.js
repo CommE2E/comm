@@ -4,8 +4,8 @@ import type { TInterface } from 'tcomb';
 
 import { type BaseNavInfo } from 'lib/types/nav-types.js';
 import {
-  type LegacyThreadInfo,
   legacyThreadInfoValidator,
+  type ThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type AccountUserInfo,
@@ -35,7 +35,7 @@ export type NavInfo = {
   ...$Exact<BaseNavInfo>,
   +tab: NavigationTab,
   +activeChatThreadID: ?string,
-  +pendingThread?: LegacyThreadInfo,
+  +pendingThread?: ThreadInfo,
   +settingsSection?: NavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,

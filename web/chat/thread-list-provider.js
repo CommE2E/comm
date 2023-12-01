@@ -147,6 +147,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
       if (indexToInsert === -1) {
         indexToInsert = parentItem.sidebars.length;
       }
+
       const activeSidebar = {
         type: 'sidebar',
         lastUpdatedTime: activeChatThreadItem.lastUpdatedTime,
