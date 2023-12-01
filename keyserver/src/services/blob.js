@@ -36,7 +36,21 @@ type BlobDescriptor = {
   +holder: string,
 };
 
-async function uploadBlob(blob: Blob, hash: string): Promise<void> {
+type BlobOperationResult =
+  | {
+      +success: true,
+    }
+  | {
+      +success: false,
+      +reason: 'HASH_IN_USE' | 'OTHER',
+      +status: number,
+      +statusText: string,
+    };
+
+async function uploadBlob(
+  blob: Blob,
+  hash: string,
+): Promise<BlobOperationResult> {
   const formData = new FormData();
   formData.append('blob_hash', hash);
   formData.append('blob_data', blob);
@@ -53,11 +67,21 @@ async function uploadBlob(blob: Blob, hash: string): Promise<void> {
 
   if (!uploadBlobResponse.ok) {
     const { status, statusText } = uploadBlobResponse;
-    throw new Error(`Payload upload failed with HTTP ${status}: ${statusText}`);
+    const reason = status === 409 ? 'HASH_IN_USE' : 'OTHER';
+    return {
+      success: false,
+      reason,
+      status,
+      statusText,
+    };
   }
+
+  return { success: true };
 }
 
-async function assignHolder(params: BlobDescriptor): Promise<void> {
+async function assignHolder(
+  params: BlobDescriptor,
+): Promise<BlobOperationResult> {
   const { hash, holder } = params;
   const headers = await createRequestHeaders();
   const assignHolderResponse = await fetch(
@@ -74,23 +98,39 @@ async function assignHolder(params: BlobDescriptor): Promise<void> {
 
   if (!assignHolderResponse.ok) {
     const { status, statusText } = assignHolderResponse;
-    throw new Error(
-      `Holder assignment failed with HTTP ${status}: ${statusText}`,
-    );
+    return { success: false, reason: 'OTHER', status, statusText };
   }
+
+  return { success: true };
 }
 
-async function upload(blob: Blob, params: BlobDescriptor): Promise<void> {
+async function upload(
+  blob: Blob,
+  params: BlobDescriptor,
+): Promise<
+  | {
+      +success: true,
+    }
+  | {
+      +success: false,
+      +assignHolderResult: BlobOperationResult,
+      +uploadBlobResult: BlobOperationResult,
+    },
+> {
   const { hash, holder } = params;
-  try {
-    await Promise.all([assignHolder({ hash, holder }), uploadBlob(blob, hash)]);
-  } catch (e) {
-    throw new Error(
-      `Payload upload failed with: ${
-        getMessageForException(e) ?? 'unknown error'
-      }`,
-    );
+
+  const [holderResult, uploadResult] = await Promise.all([
+    assignHolder({ hash, holder }),
+    uploadBlob(blob, hash),
+  ]);
+  if (holderResult.success && uploadResult.success) {
+    return { success: true };
   }
+  return {
+    success: false,
+    assignHolderResult: holderResult,
+    uploadBlobResult: uploadResult,
+  };
 }
 
 export type BlobDownloadResult =
