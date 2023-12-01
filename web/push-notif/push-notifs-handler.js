@@ -48,7 +48,7 @@ function useCreateDesktopPushSubscription() {
   );
 
   React.useEffect(() => {
-    electron?.fetchDeviceToken();
+    electron?.fetchDeviceToken?.();
   }, []);
 
   React.useEffect(
