@@ -29,6 +29,3 @@ tracing = "0.1"
 tracing-actix-web = "0.7.3"
 tracing-futures = { version = "0.2", features = ["futures-03"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-[build-dependencies]
-tonic-build = "0.8"
