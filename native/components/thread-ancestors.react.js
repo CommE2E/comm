@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from './button.react.js';
 import CommunityPill from './community-pill.react.js';
@@ -24,7 +24,7 @@ function ThreadAncestors(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const ancestorThreads: $ReadOnlyArray<LegacyThreadInfo> = useSelector(
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
     ancestorThreadInfos(threadInfo.id),
   );
 

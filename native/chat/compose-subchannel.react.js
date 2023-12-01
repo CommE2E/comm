@@ -229,7 +229,7 @@ function ComposeSubchannel(props: Props): React.Node {
       }
       return _flow(
         _filter(
-          (threadInfo: LegacyThreadInfo) =>
+          (threadInfo: ThreadInfo) =>
             threadInFilterList(threadInfo) &&
             threadInfo.parentThreadID === parentThreadInfo.id &&
             userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
@@ -237,10 +237,8 @@ function ComposeSubchannel(props: Props): React.Node {
         _sortBy(
           ([
             'members.length',
-            (threadInfo: LegacyThreadInfo) => (threadInfo.name ? 1 : 0),
-          ]: $ReadOnlyArray<
-            string | ((threadInfo: LegacyThreadInfo) => mixed),
-          >),
+            (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
+          ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
         ),
       )(threadInfos);
     }, [userInfoInputIDs, threadInfos, parentThreadInfo]);

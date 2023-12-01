@@ -6,7 +6,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type UserInfo } from 'lib/types/user-types.js';
 
 import { ChatContext } from './chat-context.js';
@@ -95,7 +95,7 @@ function useTextMessageMarkdownRules(useDarkStyle: boolean): MarkdownRules {
 }
 
 function useNavigateToThreadWithFadeAnimation(
-  threadInfo: LegacyThreadInfo,
+  threadInfo: ThreadInfo,
   messageKey: ?string,
 ): () => mixed {
   const chatContext = React.useContext(ChatContext);

@@ -126,7 +126,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onSwipeableWillOpen = React.useCallback(
-    (threadInfo: LegacyThreadInfo) => setOpenedSwipeableID(threadInfo.id),
+    (threadInfo: ThreadInfo) => setOpenedSwipeableID(threadInfo.id),
     [],
   );
 
@@ -175,10 +175,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   const searchInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
 
   const onPressItem = React.useCallback(
-    (
-      threadInfo: LegacyThreadInfo,
-      pendingPersonalThreadUserInfo?: UserInfo,
-    ) => {
+    (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();

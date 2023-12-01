@@ -4,7 +4,7 @@ import { useBottomSheetModal } from '@gorhom/bottom-sheet';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
 import { useNavigateToThread } from '../chat/message-list-types.js';
@@ -13,7 +13,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo,
+  +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
 };
 
