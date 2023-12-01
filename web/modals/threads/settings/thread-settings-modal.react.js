@@ -19,11 +19,7 @@ import {
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  type LegacyThreadInfo,
-  type ThreadChanges,
-  type ThreadInfo,
-} from 'lib/types/thread-types.js';
+import { type ThreadChanges, type ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
@@ -54,7 +50,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         deleteThreadLoadingStatusSelector(state) === 'loading' ||
         changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     );
-    const threadInfo: ?LegacyThreadInfo = useSelector(
+    const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
@@ -70,7 +66,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       if (threadInfo.name === null || threadInfo.name === undefined) {
         return threadInfo;
       }
-      const withNoName = { ...threadInfo, name: undefined };
+      // Branching on `minimallyEncoded` to appease `flow`.
+      const withNoName = threadInfo.minimallyEncoded
+        ? { ...threadInfo, name: undefined }
+        : { ...threadInfo, name: undefined };
       return {
         ...withNoName,
         uiName: threadUIName(withNoName),

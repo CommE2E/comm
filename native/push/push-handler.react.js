@@ -31,7 +31,7 @@ import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -104,7 +104,7 @@ type Props = {
   +deviceTokens: {
     +[keyserverID: string]: ?string,
   },
-  +threadInfos: { +[id: string]: LegacyThreadInfo },
+  +threadInfos: { +[id: string]: ThreadInfo },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
   +updatesCurrentAsOf: number,

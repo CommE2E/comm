@@ -18,6 +18,7 @@ import {
   threadIsPending,
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import {
@@ -147,12 +148,14 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
       if (indexToInsert === -1) {
         indexToInsert = parentItem.sidebars.length;
       }
+
+      const threadInfo: ThreadInfo = activeChatThreadItem.threadInfo;
       const activeSidebar = {
         type: 'sidebar',
         lastUpdatedTime: activeChatThreadItem.lastUpdatedTime,
         mostRecentNonLocalMessage:
           activeChatThreadItem.mostRecentNonLocalMessage,
-        threadInfo: activeChatThreadItem.threadInfo,
+        threadInfo,
       };
       const newSidebarItems = [...parentItem.sidebars];
       newSidebarItems.splice(indexToInsert, 0, activeSidebar);
