@@ -3,11 +3,11 @@ div.ancestryContainer {
   justify-content: center;
   align-items: center;
   height: 40px;
-  background-color: var(--community-creation-ancestry-bg);
+  background-color: var(--panel-background-tertiary-default);
   margin-top: 20px;
 }
 
 div.ancestryContainer p {
-  color: var(--community-creation-ancestry-text);
+  color: var(--text-background-tertiary-default);
   margin-right: 6px;
 }
