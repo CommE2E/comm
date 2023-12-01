@@ -26,10 +26,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -937,8 +934,8 @@ async function prepareAPNsNotification(
     isStaffOrDev &&
     platformDetails.platform === 'macos' &&
     hasMinCodeVersion(platformDetails, {
-      web: NEXT_CODE_VERSION,
-      majorDesktop: NEXT_CODE_VERSION,
+      web: 47,
+      majorDesktop: 9,
     });
 
   const shouldBeEncrypted = canDecryptIOSNotifs || canDecryptMacOSNotifs;
@@ -1746,8 +1743,8 @@ async function updateBadgeCount(
         const shouldBeEncrypted =
           isStaffOrDev &&
           hasMinCodeVersion(viewer.platformDetails, {
-            web: NEXT_CODE_VERSION,
-            majorDesktop: NEXT_CODE_VERSION,
+            web: 47,
+            majorDesktop: 9,
           });
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (shouldBeEncrypted) {
