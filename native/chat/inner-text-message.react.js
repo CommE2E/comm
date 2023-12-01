@@ -6,8 +6,7 @@ import Animated from 'react-native-reanimated';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { DummyInlineEngagementNode } from './inline-engagement.react.js';
@@ -34,7 +33,7 @@ const { Node } = Animated;
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,
   editedLabel?: ?string,
-  sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (

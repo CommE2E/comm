@@ -11,8 +11,7 @@ import type {
 } from '@react-navigation/core';
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 
 import { createNavigateToThreadAction } from './message-list-types.js';
 import {
@@ -64,13 +63,9 @@ export type ChatRouterNavigationAction =
 
 export type ChatRouterNavigationHelpers = {
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
-  +replaceWithThread: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => void,
+  +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
-  +pushNewThread: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => void,
+  +pushNewThread: (threadInfo: ThreadInfo) => void,
 };
 
 function ChatRouter(
