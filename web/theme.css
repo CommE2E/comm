@@ -92,7 +92,6 @@
   --community-creation-btn-bg: var(--shades-black-75);
   --community-creation-ancestry-bg: var(--shades-black-75);
   --community-creation-ancestry-text: var(--shades-black-50);
-  --community-creation-form-notice: var(--shades-white-60);
   --community-creation-keyserver-container: var(--shades-black-95);
   --modal-bg: var(--shades-black-85);
   --modal-fg: var(--shades-white-60);
@@ -257,6 +256,7 @@
 :root {
   /* Panel */
   --panel-background-primary-default: var(--shades-black-95);
+  --panel-background-tertiary-default: var(--shades-black-75);
 
   /* Text */
   --text-background-primary-default: var(--shades-white-100);
@@ -304,12 +304,21 @@
   --statusIndicator-background-outer-inactive: var(--error-dark-90);
   --statusIndicator-background-inner-active: var(--success-primary);
   --statusIndicator-background-inner-inactive: var(--error-primary);
+
+  /* Enum Option */
+  --enumOption-background-primary-selected: var(--shades-black-75);
+  --enumOption-icon-primary-default: var(--violet-dark-100);
+  --enumOption-title-primary-default: var(--shades-white-90);
+  --enumOption-description-primary-default: var(--shades-white-60);
+  --enumOption-input-primary-default: var(--shades-black-60);
+  --enumOption-input-primary-selected: var(--shades-white-60);
 }
 
 /* Light theme */
 [data-theme='light'] {
   /* Panel */
   --panel-background-primary-default: var(--shades-white-100);
+  --panel-background-tertiary-default: var(--shades-white-60);
 
   /* Text */
   --text-background-primary-default: var(--shades-black-95);
@@ -357,4 +366,12 @@
   --statusIndicator-background-outer-inactive: var(--error-dark-50);
   --statusIndicator-background-inner-active: var(--success-primary);
   --statusIndicator-background-inner-inactive: var(--error-primary);
+
+  /* Enum Option */
+  --enumOption-background-primary-selected: var(--shades-white-70);
+  --enumOption-icon-primary-default: var(--violet-dark-100);
+  --enumOption-title-primary-default: var(--shades-black-85);
+  --enumOption-description-primary-default: var(--shades-black-60);
+  --enumOption-input-primary-default: var(--shades-black-50);
+  --enumOption-input-primary-selected: var(--shades-black-60);
 }
