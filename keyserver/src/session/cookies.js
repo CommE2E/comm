@@ -21,6 +21,7 @@ import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import {
   isBcryptHash,
@@ -33,7 +34,6 @@ import createIDs from '../creators/id-creator.js';
 import { createSession } from '../creators/session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
-import { handleAsyncPromise } from '../responders/handlers.js';
 import { clearDeviceToken } from '../updaters/device-token-updaters.js';
 import { assertSecureRequest } from '../utils/security-utils.js';
 import {
@@ -676,7 +676,7 @@ function addCookieToJSONResponse(
     viewer.cookieInvalidated = false;
   }
   if (!viewer.getData().cookieInsertedThisRequest) {
-    handleAsyncPromise(updateCookie(viewer));
+    ignorePromiseRejections(updateCookie(viewer));
   }
   if (viewer.sessionChanged) {
     addSessionChangeInfoToResult(viewer, res, result);

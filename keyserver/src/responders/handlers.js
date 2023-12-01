@@ -227,14 +227,6 @@ function uploadHandler(
   };
 }
 
-async function handleAsyncPromise(promise: Promise<any>) {
-  try {
-    await promise;
-  } catch (error) {
-    console.warn(error);
-  }
-}
-
 export {
   createJSONResponder,
   jsonHandler,
@@ -242,5 +234,4 @@ export {
   downloadHandler,
   htmlHandler,
   uploadHandler,
-  handleAsyncPromise,
 };
