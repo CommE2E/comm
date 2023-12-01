@@ -26,7 +26,8 @@
 }
 
 .btn.outline {
-  border: var(--border-width) solid var(--btn-outline-border);
+  border: var(--border-width) solid var(--button-border-outline-default);
+  color: var(--text-background-secondary-default);
 }
 
 .btn > * {
