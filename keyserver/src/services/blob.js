@@ -6,7 +6,7 @@ import {
   makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
 
-type BlobDescriptor = {
+export type BlobDescriptor = {
   +hash: string,
   +holder: string,
 };
