@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react';
 
 import css from './community-drawer-item.css';
@@ -28,7 +27,7 @@ function getChildren({
   hasSubchannelsButton: boolean,
   itemChildren: $ReadOnlyArray<CommunityDrawerItemData<string>>,
   paddingLeft: number,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: ThreadInfo,
   expandable: boolean,
   handlerType: NavigationTab,
 }): React.Node {

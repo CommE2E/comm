@@ -6,8 +6,7 @@ import * as React from 'react';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './message-result.css';
@@ -17,7 +16,7 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
 
 type MessageResultProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +scrollable: boolean,
 };
 

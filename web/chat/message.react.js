@@ -5,8 +5,7 @@ import * as React from 'react';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import css from './chat-message-list.css';
@@ -18,7 +17,7 @@ import TextMessage from './text-message.react.js';
 
 type Props = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
 function Message(props: Props): React.Node {

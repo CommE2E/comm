@@ -16,13 +16,13 @@ import {
   getSingleOtherUser,
   threadUIName,
 } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type LegacyThreadInfo,
   type ThreadChanges,
+  type ThreadInfo,
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -101,7 +101,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const hasPermissionForTab = React.useCallback(
       // ESLint doesn't recognize that invariant always throws
       // eslint-disable-next-line consistent-return
-      (thread: LegacyThreadInfo | MinimallyEncodedThreadInfo, tab: TabType) => {
+      (thread: ThreadInfo, tab: TabType) => {
         if (tab === 'general') {
           return (
             threadHasPermission(thread, threadPermissions.EDIT_THREAD_NAME) ||
