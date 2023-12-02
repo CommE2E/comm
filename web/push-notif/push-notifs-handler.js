@@ -39,7 +39,7 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(
     () =>
       electron?.onDeviceTokenRegistered?.((token: ?string) => {
-        dispatchActionPromise(
+        void dispatchActionPromise(
           setDeviceTokenActionTypes,
           callSetDeviceToken(token),
         );
