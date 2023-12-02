@@ -11,7 +11,7 @@ export type ButtonProps = {
   +content: React.Node,
   +disabled?: boolean,
   +loading?: boolean,
-  +onClick: () => void,
+  +onClick: () => mixed,
 };
 
 type ButtonType = 'prev' | 'next';
