@@ -12,6 +12,7 @@ use client_proto::{
   InboundKeyInfo, PreKey, RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest, UploadOneTimeKeysRequest,
 };
+use generated::CODE_VERSION;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
@@ -22,6 +23,8 @@ use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
 use std::env::var;
+use std::fs;
+use std::path::Path;
 use tonic::codegen::InterceptedService;
 use tonic::{transport::Channel, Request};
 use tracing::{self, info, instrument, warn, Level};
@@ -32,8 +35,9 @@ mod generated {
   include!(concat!(env!("OUT_DIR"), "/version.rs"));
 }
 
-pub use generated::CODE_VERSION;
-pub const DEVICE_TYPE: &str = "keyserver";
+const DEVICE_TYPE: &str = "keyserver";
+const ENV_CONFIG_VAR: &str = "COMM_JSONCONFIG_secrets_identity_service_config";
+const FALLBACK_CONFIG_FILE: &str = "secrets/identity_service_config.json";
 
 lazy_static! {
   static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
@@ -46,8 +50,20 @@ lazy_static! {
     tracing::subscriber::set_global_default(subscriber)
       .expect("Unable to configure tracing");
 
-    let config_json_string =
-      var("COMM_JSONCONFIG_secrets_identity_service_config");
+    let config_json_string = var(ENV_CONFIG_VAR).or_else(|e| {
+      warn!(
+        "Failed to read config from env var '{}': {}",
+        ENV_CONFIG_VAR, e
+      );
+      fs::read_to_string(Path::new(FALLBACK_CONFIG_FILE)).map_err(|e| {
+        warn!(
+          "Failed to read config file '{}': {}",
+          FALLBACK_CONFIG_FILE, e
+        );
+        e
+      })
+    });
+
     match config_json_string {
       Ok(json) => serde_json::from_str(&json).unwrap(),
       Err(_) => IdentityServiceConfig::default(),
