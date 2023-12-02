@@ -1,4 +1,5 @@
 pub mod add_reserved_usernames;
+pub mod config;
 pub mod get_inbound_keys_for_user;
 pub mod login;
 pub mod prekey;
@@ -12,6 +13,8 @@ use client_proto::{
   PreKey, RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };
+use config::get_identity_service_config;
+use generated::CODE_VERSION;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::authenticated::{
   InboundKeyInfo, UploadOneTimeKeysRequest,
@@ -35,8 +38,7 @@ mod generated {
   include!(concat!(env!("OUT_DIR"), "/version.rs"));
 }
 
-pub use generated::CODE_VERSION;
-pub const DEVICE_TYPE: &str = "keyserver";
+const DEVICE_TYPE: &str = "keyserver";
 const ENV_NODE_ENV: &str = "NODE_ENV";
 const ENV_DEVELOPMENT: &str = "development";
 
@@ -51,12 +53,8 @@ lazy_static! {
     tracing::subscriber::set_global_default(subscriber)
       .expect("Unable to configure tracing");
 
-    let config_json_string =
-      var("COMM_JSONCONFIG_secrets_identity_service_config");
-    match config_json_string {
-      Ok(json) => serde_json::from_str(&json).unwrap(),
-      Err(_) => IdentityServiceConfig::default(),
-    }
+    get_identity_service_config()
+      .unwrap_or_else(|_| IdentityServiceConfig::default())
   };
 }
 
