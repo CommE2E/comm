@@ -63,9 +63,23 @@ struct IdentityServiceConfig {
 
 impl Default for IdentityServiceConfig {
   fn default() -> Self {
-    info!("Using default identity configuration");
+    info!("Using default identity configuration based on NODE_ENV");
+
+    const DEV_SOCKET_ADDR: &str =
+      "https://identity.staging.commtechnologies.org:50054";
+    const PROD_SOCKET_ADDR: &str =
+      "https://identity.commtechnologies.org:50054";
+    const ENV_NODE_ENV: &str = "NODE_ENV";
+    const ENV_DEVELOPMENT: &str = "development";
+
+    let default_socket_addr = match var(ENV_NODE_ENV) {
+      Ok(val) if val == ENV_DEVELOPMENT => DEV_SOCKET_ADDR,
+      _ => PROD_SOCKET_ADDR,
+    }
+    .to_string();
+
     Self {
-      identity_socket_addr: "http://[::1]:50054".to_string(),
+      identity_socket_addr: default_socket_addr,
     }
   }
 }
