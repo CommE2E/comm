@@ -214,9 +214,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
           content: 'Create',
           loading: loadingState === 'loading',
           disabled: selectedUsers.size === 0,
-          onClick: () => {
-            dispatchCreateSubchannel();
-          },
+          onClick: dispatchCreateSubchannel,
         },
       },
     }),
