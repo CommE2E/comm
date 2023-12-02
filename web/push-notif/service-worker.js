@@ -55,9 +55,7 @@ function buildDecryptionErrorNotification(
   return baseErrorPayload;
 }
 
-self.addEventListener('install', () => {
-  skipWaiting();
-});
+self.addEventListener('install', skipWaiting);
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(clients.claim());
@@ -171,7 +169,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
             ? 'https://web.comm.app'
             : 'http://localhost:3000/webapp';
         const url = threadID ? baseURL + `/chat/thread/${threadID}/` : baseURL;
-        clients.openWindow(url);
+        await clients.openWindow(url);
       }
     })(),
   );
