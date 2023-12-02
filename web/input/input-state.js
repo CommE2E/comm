@@ -71,7 +71,7 @@ export type BaseInputState = {
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
-  ) => Promise<void>,
+  ) => mixed,
   +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
