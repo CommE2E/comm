@@ -77,13 +77,15 @@ function EditUserAvatar(props: Props): React.Node {
     );
   }, [navigate, getRegistrationModeEnabled]);
 
-  const setENSUserAvatar = React.useCallback(() => {
-    nativeSetUserAvatar({ type: 'ens' });
-  }, [nativeSetUserAvatar]);
+  const setENSUserAvatar = React.useCallback(
+    () => nativeSetUserAvatar({ type: 'ens' }),
+    [nativeSetUserAvatar],
+  );
 
-  const removeUserAvatar = React.useCallback(() => {
-    nativeSetUserAvatar({ type: 'remove' });
-  }, [nativeSetUserAvatar]);
+  const removeUserAvatar = React.useCallback(
+    () => nativeSetUserAvatar({ type: 'remove' }),
+    [nativeSetUserAvatar],
+  );
 
   const hasCurrentAvatar = !!userInfo?.avatar;
   const actionSheetConfig = React.useMemo(() => {
