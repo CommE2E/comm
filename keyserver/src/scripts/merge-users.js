@@ -192,4 +192,4 @@ async function replaceUser(
   };
 }
 
-main();
+void main();
