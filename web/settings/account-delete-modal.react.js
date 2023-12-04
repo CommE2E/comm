@@ -54,7 +54,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const onDelete = React.useCallback(
       (event: SyntheticEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        dispatchActionPromise(
+        void dispatchActionPromise(
           deleteKeyserverAccountActionTypes,
           deleteAction(),
         );

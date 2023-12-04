@@ -294,7 +294,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
   onPressUpdateFriendship(action: RelationshipAction) {
     const { id } = this.props.userInfo;
     const customKeyName = `${updateRelationshipsActionTypes.started}:${id}`;
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       updateRelationshipsActionTypes,
       this.updateFriendship(action),
       { customKeyName },

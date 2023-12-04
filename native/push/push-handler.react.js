@@ -246,7 +246,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   onForeground() {
     if (this.props.loggedIn) {
-      this.ensurePushNotifsEnabled();
+      void this.ensurePushNotifsEnabled();
     } else {
       // We do this in case there was a crash, so we can clear deviceToken from
       // any other cookies it might be set for
@@ -284,13 +284,13 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     if (this.props.loggedIn && !prevProps.loggedIn) {
-      this.ensurePushNotifsEnabled();
+      void this.ensurePushNotifsEnabled();
     } else {
       for (const keyserverID in this.props.deviceTokens) {
         const deviceToken = this.props.deviceTokens[keyserverID];
         const prevDeviceToken = prevProps.deviceTokens[keyserverID];
         if (!deviceToken && prevDeviceToken) {
-          this.ensurePushNotifsEnabled();
+          void this.ensurePushNotifsEnabled();
           break;
         }
       }
@@ -468,14 +468,14 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
 
   setDeviceToken(deviceTokens: DeviceTokens) {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceToken(deviceTokens),
     );
   }
 
   setAllDeviceTokensNull = () => {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceTokenFanout(null),
     );

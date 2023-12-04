@@ -120,7 +120,7 @@ class HistoryEntry extends React.PureComponent<Props> {
     event.preventDefault();
     const entryID = this.props.entryInfo.id;
     invariant(entryID, 'entryInfo.id (serverID) should be set');
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       restoreEntryActionTypes,
       this.restoreEntryAction(),
       { customKeyName: `${restoreEntryActionTypes.started}:${entryID}` },

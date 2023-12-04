@@ -112,7 +112,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 
   onConfirmLeaveThread = () => {
     const threadID = this.props.threadInfo.id;
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       leaveThreadActionTypes,
       this.leaveThread(),
       {

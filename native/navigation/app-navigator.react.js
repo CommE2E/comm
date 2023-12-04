@@ -84,7 +84,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
       return;
     }
     splashScreenHasHidden = true;
-    (async () => {
+    void (async () => {
       await waitForInteractions();
       try {
         await SplashScreen.hideAsync();

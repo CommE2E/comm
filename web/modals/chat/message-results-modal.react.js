@@ -51,7 +51,7 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
   const loadingStatus = useSelector(loadingStatusSelector);
 
   React.useEffect(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       fetchPinnedMessageActionTypes,
       (async () => {
         const result = await callFetchPinnedMessages({ threadID });

@@ -222,7 +222,7 @@ async function processAppRequest(
 
   persistNeeded = true;
   if (!persistInProgress) {
-    persist();
+    void persist();
   }
 
   return undefined;

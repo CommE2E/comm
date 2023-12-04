@@ -92,7 +92,7 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
         newRole: selectedRole,
       });
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
       createChangeThreadMemberRolesPromise(),
     );

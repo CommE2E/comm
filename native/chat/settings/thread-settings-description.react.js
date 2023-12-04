@@ -251,14 +251,14 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     const action = changeThreadSettingsActionTypes.started;
     const threadID = this.props.threadInfo.id;
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       editDescriptionPromise,
       {
         customKeyName: `${action}:${threadID}:description`,
       },
     );
-    editDescriptionPromise.then(() => {
+    void editDescriptionPromise.then(() => {
       this.props.setDescriptionEditValue(null);
     });
   };

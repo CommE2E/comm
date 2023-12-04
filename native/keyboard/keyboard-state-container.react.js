@@ -67,7 +67,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
       return;
     }
     if (this.state.mediaGalleryOpen && !prevState.mediaGalleryOpen) {
-      (async () => {
+      void (async () => {
         await sleep(tabBarAnimationDuration);
         await waitForInteractions();
         this.setState({ renderKeyboardInputHost: true });

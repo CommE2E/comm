@@ -106,7 +106,7 @@ class FailedSend extends React.PureComponent<Props> {
         return;
       }
       this.retryingText = true;
-      inputState.sendTextMessage(
+      void inputState.sendTextMessage(
         {
           ...rawMessageInfo,
           time: Date.now(),

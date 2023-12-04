@@ -346,7 +346,7 @@ function validateStateAndProcessDBOperations(
     };
   }
 
-  processDBStoreOperations(storeOperations, state.currentUserInfo?.id);
+  void processDBStoreOperations(storeOperations, state.currentUserInfo?.id);
 
   return state;
 }

@@ -13,7 +13,7 @@ function useTunnelbrokerInitMessage(): ?ConnectionInitializationMessage {
   const accessToken = useSelector(state => state.commServicesAccessToken);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       const contentSigningKey = await getContentSigningKey();
       setDeviceID(contentSigningKey);
     })();

@@ -91,7 +91,7 @@ function CommunityConfiguration(props: Props): React.Node {
   const createNewCommunity = React.useCallback(async () => {
     setErrorMessage();
     const newThreadResultPromise = callCreateNewCommunity();
-    dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
+    void dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     const newThreadResult = await newThreadResultPromise;
 
     navigate<'CommunityCreationMembers'>({

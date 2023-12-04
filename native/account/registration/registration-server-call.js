@@ -113,7 +113,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           throw e;
         }
       })();
-      dispatchActionPromise(
+      void dispatchActionPromise(
         registerActionTypes,
         registerPromise,
         undefined,
@@ -188,7 +188,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     }
     avatarBeingSetRef.current = true;
     const { avatarData, resolve } = currentStep;
-    (async () => {
+    void (async () => {
       try {
         if (!avatarData) {
           return;
