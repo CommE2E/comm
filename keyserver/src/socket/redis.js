@@ -10,6 +10,7 @@ import {
   type UpdateTarget,
   type SessionIdentifier,
 } from 'lib/types/redis-types.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import { getScriptContext } from '../scripts/script-context.js';
 
@@ -104,7 +105,10 @@ class RedisSubscriber {
         this.quit();
       }
     }
-    this.onMessageCallback(message);
+    const callbackResult = this.onMessageCallback(message);
+    if (callbackResult) {
+      ignorePromiseRejections(callbackResult);
+    }
   };
 
   quit() {
