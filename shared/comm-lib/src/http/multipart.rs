@@ -8,7 +8,7 @@ use tracing::warn;
 ///
 /// # Example
 /// ```no_run
-/// # use comm_services_lib::http::multipart;
+/// # use comm_lib::http::multipart;
 /// # use actix_multipart::Multipart;
 /// # async fn f(mut payload: Multipart) {
 /// let Some((name, mut stream)) = multipart::get_text_field(&mut payload).await.unwrap() else {

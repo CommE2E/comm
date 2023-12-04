@@ -5,7 +5,7 @@ use crate::constants::{
   PLATFORM_IOS,
 };
 use aws_sdk_dynamodb::types::{AttributeValue, Select};
-use comm_services_lib::database::{
+use comm_lib::database::{
   self, AttributeMap, DBItemError, Error, TryFromAttribute,
 };
 use std::collections::HashMap;

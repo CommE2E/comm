@@ -2,7 +2,7 @@ use crate::config::CONFIG;
 use crate::constants::{PLATFORM_ANDROID, PLATFORM_IOS};
 use crate::database::{DatabaseClient, FeatureConfig, Platform};
 use actix_web::{web, App, HttpResponse, HttpServer};
-use comm_services_lib::database::Error;
+use comm_lib::database::Error;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use tracing::info;

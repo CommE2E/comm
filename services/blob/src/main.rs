@@ -7,7 +7,7 @@ pub mod service;
 pub mod tools;
 
 use anyhow::Result;
-use comm_services_lib::auth::AuthService;
+use comm_lib::auth::AuthService;
 use config::Command;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 

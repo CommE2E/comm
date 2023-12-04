@@ -1,7 +1,5 @@
 use aws_sdk_dynamodb::types::AttributeValue;
-use comm_services_lib::database::{
-  self, batch_operations::ExponentialBackoffConfig,
-};
+use comm_lib::database::{self, batch_operations::ExponentialBackoffConfig};
 
 use crate::constants::REPORT_LIST_DEFAULT_PAGE_SIZE;
 use crate::report_types::ReportID;

@@ -25,7 +25,7 @@ serde_json = "1.0.96"
 rand = "0.8.5"
 reqwest = { version = "0.11", features = ["json", "multipart", "stream"] }
 serde = "1.0"
-comm-services-lib = { path = "../comm-services-lib" }
+comm-lib = { path = "../../shared/comm-lib" }
 uuid = { version = "1.2", features = ["v4"] }
 
 [build-dependencies]

@@ -2,7 +2,7 @@ use std::convert::Infallible;
 
 use crate::tools::Error;
 use async_stream::stream;
-use comm_services_lib::auth::UserIdentity;
+use comm_lib::auth::UserIdentity;
 use reqwest::{
   multipart::{Form, Part},
   Body,

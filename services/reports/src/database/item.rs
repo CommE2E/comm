@@ -1,6 +1,6 @@
 use aws_sdk_dynamodb::{primitives::Blob, types::AttributeValue};
 use chrono::{DateTime, Utc};
-use comm_services_lib::{
+use comm_lib::{
   blob::{
     client::{BlobServiceClient, BlobServiceError},
     types::BlobInfo,
@@ -294,7 +294,7 @@ impl TryFromAttribute for ReportPlatform {
 
 #[cfg(test)]
 mod tests {
-  use comm_services_lib::database::AttributeTryInto;
+  use comm_lib::database::AttributeTryInto;
 
   use super::*;
 
