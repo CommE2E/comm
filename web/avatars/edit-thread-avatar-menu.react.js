@@ -61,7 +61,7 @@ function EditThreadAvatarMenu(props: Props): React.Node {
       const { target } = event;
       invariant(target instanceof HTMLInputElement, 'target not input');
       const uploadResult = await uploadAvatarMedia(target.files[0]);
-      baseSetThreadAvatar(threadInfo.id, uploadResult);
+      await baseSetThreadAvatar(threadInfo.id, uploadResult);
     },
     [baseSetThreadAvatar, threadInfo.id, uploadAvatarMedia],
   );
