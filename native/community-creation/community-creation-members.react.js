@@ -13,7 +13,7 @@ import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
@@ -144,25 +144,15 @@ function CommunityCreationMembers(props: Props): React.Node {
     setOptions,
   ]);
 
-  const userSearchResults = React.useMemo(
-    () =>
-      getPotentialMemberItems({
-        text: usernameInputText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs: selectedUserIDs,
-        threadType: announcement
-          ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
-          : threadTypes.COMMUNITY_ROOT,
-      }),
-    [
-      announcement,
-      otherUserInfos,
-      selectedUserIDs,
-      userSearchIndex,
-      usernameInputText,
-    ],
-  );
+  const userSearchResults = usePotentialMemberItems({
+    text: usernameInputText,
+    userInfos: otherUserInfos,
+    searchIndex: userSearchIndex,
+    excludeUserIDs: selectedUserIDs,
+    threadType: announcement
+      ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
+      : threadTypes.COMMUNITY_ROOT,
+  });
 
   const onSelectUser = React.useCallback(
     ({ id }: AccountUserInfo) => {
