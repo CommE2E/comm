@@ -17,7 +17,7 @@ import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -200,27 +200,15 @@ function ComposeSubchannel(props: Props): React.Node {
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
   );
-  const userSearchResults = React.useMemo(
-    () =>
-      getPotentialMemberItems({
-        text: usernameInputText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs: userInfoInputIDs,
-        inputParentThreadInfo: parentThreadInfo,
-        inputCommunityThreadInfo: communityThreadInfo,
-        threadType,
-      }),
-    [
-      usernameInputText,
-      otherUserInfos,
-      userSearchIndex,
-      userInfoInputIDs,
-      parentThreadInfo,
-      communityThreadInfo,
-      threadType,
-    ],
-  );
+  const userSearchResults = usePotentialMemberItems({
+    text: usernameInputText,
+    userInfos: otherUserInfos,
+    searchIndex: userSearchIndex,
+    excludeUserIDs: userInfoInputIDs,
+    inputParentThreadInfo: parentThreadInfo,
+    inputCommunityThreadInfo: communityThreadInfo,
+    threadType,
+  });
 
   const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {
     if (userInfoInputIDs.length === 0) {
