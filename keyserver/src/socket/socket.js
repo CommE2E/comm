@@ -854,7 +854,7 @@ class Socket {
     const timeUntilStateCheck =
       viewer.sessionLastValidated + sessionCheckFrequency - Date.now();
     if (timeUntilStateCheck <= 0) {
-      this.initiateStateCheck();
+      ignorePromiseRejections(this.initiateStateCheck());
     } else {
       this.stateCheckTimeoutID = setTimeout(
         this.initiateStateCheck,
