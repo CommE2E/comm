@@ -10,6 +10,5 @@ find . -maxdepth 1 \
   ! -name "node_modules" \
   ! -name "commtest" \
   ! -name "terraform" \
-  ! -name "comm-services-lib" \
   ! -name ".*" \
   -print0 | xargs -0 -n1 basename

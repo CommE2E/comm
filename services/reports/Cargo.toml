@@ -13,7 +13,7 @@ aws-config = "0.55"
 aws-sdk-dynamodb = "0.27"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4.0", features = ["derive", "env"] }
-comm-services-lib = { path = "../comm-services-lib", features = [
+comm-lib = { path = "../../shared/comm-lib", features = [
   "blob-client",
   "http",
   "crypto",

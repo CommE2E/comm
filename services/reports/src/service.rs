@@ -1,6 +1,6 @@
 use actix_web::FromRequest;
 use chrono::Utc;
-use comm_services_lib::{
+use comm_lib::{
   auth::{AuthService, AuthorizationCredential},
   blob::client::{BlobServiceClient, BlobServiceError},
   crypto::aes256,

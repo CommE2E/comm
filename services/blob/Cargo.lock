@@ -926,7 +926,7 @@ dependencies = [
  "aws-sdk-s3",
  "chrono",
  "clap",
- "comm-services-lib",
+ "comm-lib",
  "derive_more",
  "http",
  "once_cell",
@@ -1080,7 +1080,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "comm-services-lib"
+name = "comm-lib"
 version = "0.1.0"
 dependencies = [
  "actix-cors",
