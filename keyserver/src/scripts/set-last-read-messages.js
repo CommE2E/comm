@@ -127,4 +127,4 @@ async function setLastReadMessage() {
   }
 }
 
-main();
+void main();

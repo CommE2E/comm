@@ -28,4 +28,4 @@ async function createFriendRelationshipsForThreadMembers() {
   await createUndirectedRelationships(result, undirectedStatus.FRIEND);
 }
 
-main();
+void main();
