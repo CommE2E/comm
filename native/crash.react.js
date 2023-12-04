@@ -185,7 +185,7 @@ class Crash extends React.PureComponent<Props, State> {
     commCoreModule.terminate();
   };
 
-  onPressWipe = async () => {
+  onPressWipe = () => {
     if (!this.state.doneWaiting) {
       return;
     }
