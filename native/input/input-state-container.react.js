@@ -397,24 +397,25 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   inputStateSelector: State => InputState = createSelector(
     (state: State) => state.pendingUploads,
-    (pendingUploads: PendingMultimediaUploads) => ({
-      pendingUploads,
-      sendTextMessage: this.sendTextMessage,
-      sendMultimediaMessage: this.sendMultimediaMessage,
-      editInputMessage: this.editInputMessage,
-      addEditInputMessageListener: this.addEditInputMessageListener,
-      removeEditInputMessageListener: this.removeEditInputMessageListener,
-      messageHasUploadFailure: this.messageHasUploadFailure,
-      retryMessage: this.retryMessage,
-      registerSendCallback: this.registerSendCallback,
-      unregisterSendCallback: this.unregisterSendCallback,
-      uploadInProgress: this.uploadInProgress,
-      reportURIDisplayed: this.reportURIDisplayed,
-      setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
-      scrollToMessage: this.scrollToMessage,
-      addScrollToMessageListener: this.addScrollToMessageListener,
-      removeScrollToMessageListener: this.removeScrollToMessageListener,
-    }),
+    (pendingUploads: PendingMultimediaUploads) =>
+      ({
+        pendingUploads,
+        sendTextMessage: this.sendTextMessage,
+        sendMultimediaMessage: this.sendMultimediaMessage,
+        editInputMessage: this.editInputMessage,
+        addEditInputMessageListener: this.addEditInputMessageListener,
+        removeEditInputMessageListener: this.removeEditInputMessageListener,
+        messageHasUploadFailure: this.messageHasUploadFailure,
+        retryMessage: this.retryMessage,
+        registerSendCallback: this.registerSendCallback,
+        unregisterSendCallback: this.unregisterSendCallback,
+        uploadInProgress: this.uploadInProgress,
+        reportURIDisplayed: this.reportURIDisplayed,
+        setPendingThreadUpdateHandler: this.setPendingThreadUpdateHandler,
+        scrollToMessage: this.scrollToMessage,
+        addScrollToMessageListener: this.addScrollToMessageListener,
+        removeScrollToMessageListener: this.removeScrollToMessageListener,
+      }: InputState),
   );
 
   scrollToMessage = (messageID: string) => {
