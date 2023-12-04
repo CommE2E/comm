@@ -13,3 +13,10 @@ keyserver/src/lib
 keyserver/src/web
 native/android
 native/ios
+native/vendor
+desktop/addons/windows-pushnotifications
+web/protobufs
+keyserver/cpu_profiling_logs
+_generated
+.fingerprint
+build
