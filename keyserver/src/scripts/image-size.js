@@ -33,4 +33,4 @@ async function addImageSizeToUploadsTable() {
   }
 }
 
-main();
+void main();

@@ -12,17 +12,19 @@ function endScript() {
   endAPNs();
 }
 
-async function main(functions: $ReadOnlyArray<() => Promise<mixed>>) {
-  await prefetchAllURLFacts();
-  try {
-    for (const f of functions) {
-      await f();
+function main(functions: $ReadOnlyArray<() => Promise<mixed>>) {
+  void (async () => {
+    await prefetchAllURLFacts();
+    try {
+      for (const f of functions) {
+        await f();
+      }
+    } catch (e) {
+      console.warn(e);
+    } finally {
+      endScript();
     }
-  } catch (e) {
-    console.warn(e);
-  } finally {
-    endScript();
-  }
+  })();
 }
 
 export { endScript, main };

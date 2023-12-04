@@ -66,4 +66,4 @@ async function createKnowOfRelationships() {
   await createUndirectedRelationships(result, undirectedStatus.KNOW_OF);
 }
 
-main();
+void main();

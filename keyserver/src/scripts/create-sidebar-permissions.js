@@ -39,4 +39,4 @@ async function createSidebarPermissions() {
   await dbQuery(updateAdminRoles);
 }
 
-main();
+void main();

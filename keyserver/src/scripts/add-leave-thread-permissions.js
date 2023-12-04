@@ -29,4 +29,4 @@ async function addLeaveThreadPermissions() {
   await dbQuery(updateAllRoles);
 }
 
-main();
+void main();
