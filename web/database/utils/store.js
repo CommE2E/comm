@@ -57,7 +57,9 @@ async function processDBStoreOperations(
   const { draftStoreOperations, threadStoreOperations, reportStoreOperations } =
     storeOperations;
 
-  const convertedThreadStoreOperations = canUseDatabaseOnWeb(userID)
+  const canUseDatabase = canUseDatabaseOnWeb(userID);
+
+  const convertedThreadStoreOperations = canUseDatabase
     ? threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations)
     : [];
   const convertedReportStoreOperations =
@@ -68,14 +70,23 @@ async function processDBStoreOperations(
   if (!isSupported) {
     return;
   }
-  await databaseModule.schedule({
-    type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-    storeOperations: {
-      draftStoreOperations,
-      reportStoreOperations: convertedReportStoreOperations,
-      threadStoreOperations: convertedThreadStoreOperations,
-    },
-  });
+  try {
+    await databaseModule.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: {
+        draftStoreOperations,
+        reportStoreOperations: convertedReportStoreOperations,
+        threadStoreOperations: convertedThreadStoreOperations,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    if (canUseDatabase) {
+      window.alert(e.message);
+      await databaseModule.init({ clearDatabase: true });
+      location.reload();
+    }
+  }
 }
 
 export { getClientStore, processDBStoreOperations };
