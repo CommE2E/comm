@@ -4,7 +4,7 @@ use actix_web::error::{
 };
 use actix_web::{web, App, HttpResponse, HttpServer, ResponseError};
 use anyhow::Result;
-use comm_services_lib::auth::AuthService;
+use comm_lib::auth::AuthService;
 use http::StatusCode;
 use tracing::{debug, error, info, trace, warn};
 
@@ -19,7 +19,7 @@ pub async fn run_http_server(
   auth_service: AuthService,
 ) -> Result<()> {
   use actix_web::middleware::{Logger, NormalizePath};
-  use comm_services_lib::http::cors_config;
+  use comm_lib::http::cors_config;
   use tracing_actix_web::TracingLogger;
 
   info!(
@@ -55,7 +55,7 @@ pub async fn run_http_server(
 
 fn handle_reports_service_error(err: &ReportsServiceError) -> actix_web::Error {
   use aws_sdk_dynamodb::Error as DynamoDBError;
-  use comm_services_lib::database::Error as DBError;
+  use comm_lib::database::Error as DBError;
 
   trace!("Handling reports service error: {:?}", err);
   match err {

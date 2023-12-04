@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use async_stream::try_stream;
 use chrono::Duration;
-use comm_services_lib::http::ByteStream;
-use comm_services_lib::tools::BoxedError;
+use comm_lib::http::ByteStream;
+use comm_lib::tools::BoxedError;
 use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
 use tracing::{debug, error, info, trace, warn};

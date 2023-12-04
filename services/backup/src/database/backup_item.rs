@@ -1,6 +1,6 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
-use comm_services_lib::{
+use comm_lib::{
   blob::{client::BlobServiceClient, types::BlobInfo},
   database::{AttributeTryInto, DBItemError, TryFromAttribute},
 };

@@ -7,7 +7,7 @@ use aws_sdk_dynamodb::{
   Error as DynamoDBError,
 };
 use chrono::Utc;
-use comm_services_lib::database::{
+use comm_lib::database::{
   self, batch_operations::ExponentialBackoffConfig, TryFromAttribute,
 };
 use std::collections::HashMap;

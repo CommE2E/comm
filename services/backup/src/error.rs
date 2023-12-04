@@ -6,8 +6,8 @@ use actix_web::{
   HttpResponse, ResponseError,
 };
 pub use aws_sdk_dynamodb::Error as DynamoDBError;
-use comm_services_lib::blob::client::BlobServiceError;
-use comm_services_lib::database::Error as DBError;
+use comm_lib::blob::client::BlobServiceError;
+use comm_lib::database::Error as DBError;
 use reqwest::StatusCode;
 use tracing::{error, trace, warn};
 
@@ -17,7 +17,7 @@ use tracing::{error, trace, warn};
 pub enum BackupError {
   NoBackup,
   BlobError(BlobServiceError),
-  DB(comm_services_lib::database::Error),
+  DB(comm_lib::database::Error),
 }
 
 impl From<&BackupError> for actix_web::Error {
