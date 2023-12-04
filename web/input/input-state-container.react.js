@@ -620,7 +620,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               ];
             }
           }
-          return {
+          return ({
             pendingUploads: threadPendingUploads,
             assignedUploads,
             draft: draft ?? '',
@@ -660,7 +660,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             removeReplyListener: this.removeReplyListener,
             registerSendCallback: this.props.registerSendCallback,
             unregisterSendCallback: this.props.unregisterSendCallback,
-          };
+          }: BaseInputState);
         },
       ),
     );
