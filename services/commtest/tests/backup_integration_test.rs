@@ -1,11 +1,10 @@
+use backup_client::{
+  BackupClient, BackupData, BackupDescriptor, Error as BackupClientError,
+  RequestedData,
+};
 use bytesize::ByteSize;
 use comm_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
 use commtest::{
-  backup::{
-    backup_utils::BackupData,
-    create_new_backup,
-    pull_backup::{self, BackupDescriptor, RequestedData},
-  },
   service_addr,
   tools::{generate_stable_nbytes, Error},
 };
@@ -13,18 +12,15 @@ use reqwest::StatusCode;
 
 #[tokio::test]
 async fn backup_integration_test() -> Result<(), Error> {
-  let url = reqwest::Url::try_from(service_addr::BACKUP_SERVICE_HTTP)
-    .expect("failed to parse backup service url");
+  let backup_client = BackupClient::new(service_addr::BACKUP_SERVICE_HTTP)?;
 
   let backup_datas = [
     BackupData {
       backup_id: "b1".to_string(),
-      user_keys_hash: "kh1".to_string(),
       user_keys: generate_stable_nbytes(
         ByteSize::kib(4).as_u64() as usize,
         Some(b'a'),
       ),
-      user_data_hash: "dh1".to_string(),
       user_data: generate_stable_nbytes(
         ByteSize::mib(4).as_u64() as usize,
         Some(b'A'),
@@ -33,12 +29,10 @@ async fn backup_integration_test() -> Result<(), Error> {
     },
     BackupData {
       backup_id: "b2".to_string(),
-      user_keys_hash: "kh2".to_string(),
       user_keys: generate_stable_nbytes(
         ByteSize::kib(4).as_u64() as usize,
         Some(b'b'),
       ),
-      user_data_hash: "dh2".to_string(),
       user_data: generate_stable_nbytes(
         ByteSize::mib(4).as_u64() as usize,
         Some(b'B'),
@@ -53,8 +47,12 @@ async fn backup_integration_test() -> Result<(), Error> {
     device_id: "dummy device_id".to_string(),
   };
 
-  create_new_backup::run(url.clone(), &user_identity, &backup_datas[0]).await?;
-  create_new_backup::run(url.clone(), &user_identity, &backup_datas[1]).await?;
+  backup_client
+    .upload_backup(&user_identity, backup_datas[0].clone())
+    .await?;
+  backup_client
+    .upload_backup(&user_identity, backup_datas[1].clone())
+    .await?;
 
   // Test direct lookup
   let second_backup_descriptor = BackupDescriptor::BackupID {
@@ -62,20 +60,14 @@ async fn backup_integration_test() -> Result<(), Error> {
     user_identity: user_identity.clone(),
   };
 
-  let user_keys = pull_backup::run(
-    url.clone(),
-    second_backup_descriptor.clone(),
-    RequestedData::UserKeys,
-  )
-  .await?;
+  let user_keys = backup_client
+    .download_backup_data(&second_backup_descriptor, RequestedData::UserKeys)
+    .await?;
   assert_eq!(user_keys, backup_datas[1].user_keys);
 
-  let user_data = pull_backup::run(
-    url.clone(),
-    second_backup_descriptor.clone(),
-    RequestedData::UserData,
-  )
-  .await?;
+  let user_data = backup_client
+    .download_backup_data(&second_backup_descriptor, RequestedData::UserData)
+    .await?;
   assert_eq!(user_data, backup_datas[1].user_data);
 
   // Test latest backup lookup
@@ -84,22 +76,16 @@ async fn backup_integration_test() -> Result<(), Error> {
     username: "1".to_string(),
   };
 
-  let backup_id_response = pull_backup::run(
-    url.clone(),
-    latest_backup_descriptor.clone(),
-    RequestedData::BackupID,
-  )
-  .await?;
+  let backup_id_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+    .await?;
   let response: LatestBackupIDResponse =
     serde_json::from_slice(&backup_id_response)?;
   assert_eq!(response.backup_id, backup_datas[1].backup_id);
 
-  let user_keys = pull_backup::run(
-    url.clone(),
-    latest_backup_descriptor.clone(),
-    RequestedData::UserKeys,
-  )
-  .await?;
+  let user_keys = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
+    .await?;
   assert_eq!(user_keys, backup_datas[1].user_keys);
 
   // Test cleanup
@@ -108,15 +94,18 @@ async fn backup_integration_test() -> Result<(), Error> {
     user_identity: user_identity.clone(),
   };
 
-  let response = pull_backup::run(
-    url.clone(),
-    first_backup_descriptor.clone(),
-    RequestedData::UserKeys,
-  )
-  .await;
-  assert!(
-    matches!(response, Err(Error::HttpStatus(StatusCode::NOT_FOUND))),
-    "First backup should have been removed, instead got response: {response:?}"
+  let response = backup_client
+    .download_backup_data(&first_backup_descriptor, RequestedData::UserKeys)
+    .await;
+
+  let Err(BackupClientError::ReqwestError(error)) = response else {
+    panic!("First backup should have been removed, instead got response: {response:?}");
+  };
+
+  assert_eq!(
+    error.status(),
+    Some(StatusCode::NOT_FOUND),
+    "Expected status 'not found'"
   );
 
   Ok(())

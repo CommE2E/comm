@@ -1,11 +1,9 @@
+use backup_client::{
+  BackupClient, BackupData, BackupDescriptor, RequestedData,
+};
 use bytesize::ByteSize;
 use comm_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
 use commtest::{
-  backup::{
-    backup_utils::BackupData,
-    create_new_backup,
-    pull_backup::{self, BackupDescriptor},
-  },
   service_addr,
   tools::{generate_stable_nbytes, obtain_number_of_threads, Error},
 };
@@ -13,8 +11,7 @@ use tokio::{runtime::Runtime, task::JoinSet};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
-  let url = reqwest::Url::try_from(service_addr::BACKUP_SERVICE_HTTP)
-    .expect("failed to parse backup service url");
+  let backup_client = BackupClient::new(service_addr::BACKUP_SERVICE_HTTP)?;
 
   let number_of_threads = obtain_number_of_threads();
 
@@ -29,12 +26,10 @@ async fn backup_performance_test() -> Result<(), Error> {
   for i in 0..number_of_threads {
     backup_data.push(BackupData {
       backup_id: format!("b{i}"),
-      user_keys_hash: format!("kh{i}"),
       user_keys: generate_stable_nbytes(
         ByteSize::kib(4).as_u64() as usize,
         Some(i as u8),
       ),
-      user_data_hash: format!("dh{i}"),
       user_data: generate_stable_nbytes(
         ByteSize::mib(4).as_u64() as usize,
         Some(i as u8),
@@ -60,12 +55,12 @@ async fn backup_performance_test() -> Result<(), Error> {
     println!("Creating new backups");
     rt.block_on(async {
       let mut set = JoinSet::new();
-      for (i, item) in backup_data.iter().enumerate() {
-        let url = url.clone();
+      for (i, item) in backup_data.iter().cloned().enumerate() {
+        let backup_client = backup_client.clone();
         let user = user_identities[i % user_identities.len()].clone();
-        let item = item.clone();
+
         set.spawn(async move {
-          create_new_backup::run(url, &user, &item).await.unwrap();
+          backup_client.upload_backup(&user, item).await.unwrap();
         });
       }
 
@@ -79,18 +74,15 @@ async fn backup_performance_test() -> Result<(), Error> {
     rt.block_on(async {
       let mut handlers = vec![];
       for user in &user_identities {
-        let url = url.clone();
+        let backup_client = backup_client.clone();
         let descriptor = BackupDescriptor::Latest {
           username: user.user_id.clone(),
         };
         handlers.push(tokio::spawn(async move {
-          let response = pull_backup::run(
-            url,
-            descriptor,
-            pull_backup::RequestedData::BackupID,
-          )
-          .await
-          .unwrap();
+          let response = backup_client
+            .download_backup_data(&descriptor, RequestedData::BackupID)
+            .await
+            .unwrap();
 
           serde_json::from_slice::<LatestBackupIDResponse>(&response).unwrap()
         }));
@@ -108,18 +100,15 @@ async fn backup_performance_test() -> Result<(), Error> {
     rt.block_on(async {
       let mut handlers = vec![];
       for user in &user_identities {
-        let url = url.clone();
+        let backup_client = backup_client.clone();
         let descriptor = BackupDescriptor::Latest {
           username: user.user_id.clone(),
         };
         handlers.push(tokio::spawn(async move {
-          pull_backup::run(
-            url,
-            descriptor,
-            pull_backup::RequestedData::UserKeys,
-          )
-          .await
-          .unwrap()
+          backup_client
+            .download_backup_data(&descriptor, RequestedData::UserKeys)
+            .await
+            .unwrap()
         }));
       }
 
@@ -145,19 +134,16 @@ async fn backup_performance_test() -> Result<(), Error> {
     rt.block_on(async {
       let mut handlers = vec![];
       for (i, backup_id) in latest_ids_for_user.iter().enumerate() {
-        let url = url.clone();
+        let backup_client = backup_client.clone();
         let descriptor = BackupDescriptor::BackupID {
           backup_id: backup_id.clone(),
           user_identity: user_identities[i % user_identities.len()].clone(),
         };
         handlers.push(tokio::spawn(async move {
-          pull_backup::run(
-            url,
-            descriptor,
-            pull_backup::RequestedData::UserData,
-          )
-          .await
-          .unwrap()
+          backup_client
+            .download_backup_data(&descriptor, RequestedData::UserData)
+            .await
+            .unwrap()
         }));
       }
 

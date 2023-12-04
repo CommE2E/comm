@@ -1,0 +1,22 @@
+[package]
+name = "backup_client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+comm-lib = { path = "../comm-lib" }
+reqwest = { version = "0.11", default-features = false, features = [
+  "multipart",
+  "stream",
+] }
+url = "2.3.1"
+derive_more = "0.99"
+serde_json = { version = "1.0" }
+async-stream = "0.3.2"
+sha2 = "0.10"
+hex = "0.4.3"
+
+[features]
+default = ["native-tls"]
+native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]
