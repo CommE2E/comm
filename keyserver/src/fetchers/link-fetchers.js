@@ -7,6 +7,7 @@ import type {
 } from 'lib/types/link-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
 import { Viewer } from '../session/viewer.js';
 
 async function verifyInviteLink(
@@ -56,22 +57,17 @@ async function checkIfInviteLinkIsValid(
   return result.length === 1;
 }
 
-async function fetchPrimaryInviteLinks(
-  viewer: Viewer,
+async function fetchInviteLinksWithCondition(
+  condition: SQLStatementType,
 ): Promise<$ReadOnlyArray<InviteLinkWithHolder>> {
-  if (!viewer.loggedIn) {
-    return [];
-  }
-
   const query = SQL`
     SELECT i.name, i.role, i.community, i.expiration_time AS expirationTime, 
       i.limit_of_uses AS limitOfUses, i.number_of_uses AS numberOfUses, 
       i.\`primary\`, blob_holder AS blobHolder
     FROM invite_links i
-    INNER JOIN memberships m 
-      ON i.community = m.thread AND m.user = ${viewer.userID}
-    WHERE i.\`primary\` = 1 AND m.role > 0
   `;
+  query.append(condition);
+
   const [result] = await dbQuery(query);
   return result.map(row => ({
     name: row.name,
@@ -85,4 +81,33 @@ async function fetchPrimaryInviteLinks(
   }));
 }
 
-export { verifyInviteLink, checkIfInviteLinkIsValid, fetchPrimaryInviteLinks };
+function fetchPrimaryInviteLinks(
+  viewer: Viewer,
+): Promise<$ReadOnlyArray<InviteLinkWithHolder>> {
+  if (!viewer.loggedIn) {
+    return Promise.resolve([]);
+  }
+
+  const condition = SQL`
+    INNER JOIN memberships m 
+      ON i.community = m.thread AND m.user = ${viewer.userID}
+    WHERE i.\`primary\` = 1 AND m.role > 0
+  `;
+  return fetchInviteLinksWithCondition(condition);
+}
+
+function fetchAllPrimaryInviteLinks(): Promise<
+  $ReadOnlyArray<InviteLinkWithHolder>,
+> {
+  const condition = SQL`
+    WHERE i.\`primary\` = 1
+  `;
+  return fetchInviteLinksWithCondition(condition);
+}
+
+export {
+  verifyInviteLink,
+  checkIfInviteLinkIsValid,
+  fetchPrimaryInviteLinks,
+  fetchAllPrimaryInviteLinks,
+};
