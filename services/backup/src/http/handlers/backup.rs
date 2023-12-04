@@ -3,7 +3,7 @@ use actix_web::{
   web::{self, Bytes},
   HttpResponse, Responder,
 };
-use comm_services_lib::{
+use comm_lib::{
   auth::UserIdentity,
   backup::LatestBackupIDResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},

@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use aws_sdk_dynamodb::Error as DynamoDBError;
-use comm_services_lib::database::DBItemError;
+use comm_lib::database::DBItemError;
 
 use crate::s3::S3PathError;
 
@@ -21,9 +21,9 @@ pub enum Error {
   MaxRetriesExceeded,
 }
 
-impl From<comm_services_lib::database::Error> for Error {
-  fn from(value: comm_services_lib::database::Error) -> Self {
-    use comm_services_lib::database::Error as E;
+impl From<comm_lib::database::Error> for Error {
+  fn from(value: comm_lib::database::Error) -> Self {
+    use comm_lib::database::Error as E;
     match value {
       E::AwsSdk(err) => Self::AwsSdk(err),
       E::Attribute(err) => Self::Attribute(err),

@@ -33,7 +33,7 @@ services:
       # others
       COMM_NUMBER_OF_THREADS: '4'
       BLOB_SERVICE_EXECUTABLE: /shared/bin/blob
-      RUST_LOG: blob=trace,comm_services_lib=debug
+      RUST_LOG: blob=trace,comm_lib=debug
 
   tunnelbroker-server:
     image: tunnelbroker
@@ -62,7 +62,7 @@ services:
     platform: '${PLATFORM:-linux/amd64}'
     env_file: test-commons.env
     environment:
-      RUST_LOG: blob=trace,comm_services_lib=debug
+      RUST_LOG: blob=trace,comm_lib=debug
 
   identity-server:
     image: identity

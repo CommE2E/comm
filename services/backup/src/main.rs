@@ -1,5 +1,5 @@
 use anyhow::Result;
-use comm_services_lib::blob::client::BlobServiceClient;
+use comm_lib::blob::client::BlobServiceClient;
 use tracing::Level;
 use tracing_subscriber::EnvFilter;
 
