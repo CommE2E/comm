@@ -39,6 +39,7 @@ shared/protos/build
 
 # Shared libraries
 shared/tunnelbroker-client/target
+shared/backup_client/target
 
 # Nix
 result*
