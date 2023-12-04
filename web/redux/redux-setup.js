@@ -11,6 +11,7 @@ import {
   type ThreadStoreOperation,
   threadStoreOpsHandlers,
 } from 'lib/ops/thread-store-ops.js';
+import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -173,7 +174,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         keyserverID,
       )
     ) {
-      return oldState;
+      return {
+        ...oldState,
+        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+      };
     }
 
     state = {
@@ -205,7 +209,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         ashoatKeyserverID,
       ))
   ) {
-    return oldState;
+    return {
+      ...oldState,
+      loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+    };
   }
 
   if (
