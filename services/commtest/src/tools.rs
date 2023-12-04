@@ -32,6 +32,8 @@ pub enum Error {
   JsonError(serde_json::error::Error),
   #[display(...)]
   FromUtf8Error(std::string::FromUtf8Error),
+  #[display(...)]
+  BackupClientError(backup_client::Error),
 }
 
 pub fn obtain_number_of_threads() -> usize {
