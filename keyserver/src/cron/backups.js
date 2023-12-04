@@ -42,7 +42,7 @@ async function backupDB() {
   const filePath = `${backupConfig.directory}/${filename}`;
 
   const rawStream = new PassThrough();
-  (async () => {
+  void (async () => {
     try {
       await mysqldump(dbConfig, filename, rawStream, ['--no-data'], {
         end: false,
