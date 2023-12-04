@@ -91,7 +91,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       inputState,
       'inputState should be set in onMediaGalleryItemSelected',
     );
-    inputState.sendMultimediaMessage(selections, mediaGalleryThread);
+    await inputState.sendMultimediaMessage(selections, mediaGalleryThread);
   };
 
   hideMediaGallery = () => {
