@@ -30,7 +30,7 @@ function ChatCameraModal(props: Props): React.Node {
   const sendPhoto = React.useCallback(
     (capture: PhotoCapture) => {
       invariant(inputState, 'inputState should be set');
-      inputState.sendMultimediaMessage([capture], thread);
+      return inputState.sendMultimediaMessage([capture], thread);
     },
     [inputState, thread],
   );
