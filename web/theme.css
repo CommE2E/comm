@@ -126,8 +126,6 @@
   --menu-color-hover: var(--shades-white-100);
   --menu-color-dangerous: var(--error-primary);
   --menu-color-dangerous-hover: var(--error-light-50);
-  --app-list-icon-read-only-color: var(--shades-black-50);
-  --app-list-icon-enabled-color: var(--success-primary);
   --app-list-icon-disabled-color: var(--shades-white-80);
   --chat-thread-list-color-active: var(--shades-white-60);
   --chat-thread-list-menu-color: var(--shades-white-60);
@@ -266,9 +264,12 @@
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-75);
+  --button-background-tetriary-default: var(--shades-white-80);
+  --button-background-success-default: var(--success-primary);
   --button-background-primary-hover: var(--violet-dark-80);
   --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-black-75);
+  --button-background-tetriary-disabled: var(--shades-black-50);
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-60);
@@ -329,9 +330,12 @@
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-50);
+  --button-background-tetriary-default: var(--shades-black-75);
+  --button-background-success-default: var(--success-primary);
   --button-background-primary-hover: var(--violet-dark-80);
   --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-white-60);
+  --button-background-tetriary-disabled: var(--shades-black-50);
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-90);
