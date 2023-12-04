@@ -550,7 +550,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     }
 
     if (this.props.foreground && !prevProps.foreground && this.camera) {
-      this.camera.refreshAuthorizationStatus();
+      void this.camera.refreshAuthorizationStatus();
     }
 
     if (this.state.stagingMode && !prevState.stagingMode) {
@@ -573,7 +573,9 @@ class CameraModal extends React.PureComponent<Props, State> {
       !this.state.pendingPhotoCapture &&
       prevState.pendingPhotoCapture
     ) {
-      CameraModal.cleanUpPendingPhotoCapture(prevState.pendingPhotoCapture);
+      void CameraModal.cleanUpPendingPhotoCapture(
+        prevState.pendingPhotoCapture,
+      );
       this.sendButtonProgress.setValue(0);
     }
   }
@@ -620,7 +622,7 @@ class CameraModal extends React.PureComponent<Props, State> {
     ...
   }): React.Node => {
     if (camera && camera._cameraHandle) {
-      this.fetchCameraIDs(camera);
+      void this.fetchCameraIDs(camera);
     }
     if (this.state.stagingMode) {
       return this.renderStagingView();

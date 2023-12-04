@@ -121,7 +121,7 @@ function ColorSelectorModal(props: Props): React.Node {
 
       const action = changeThreadSettingsActionTypes.started;
       const threadID = props.route.params.threadInfo.id;
-      dispatchActionPromise(
+      void dispatchActionPromise(
         changeThreadSettingsActionTypes,
         editColor(colorEditValue),
         {

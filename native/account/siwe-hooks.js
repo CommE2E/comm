@@ -88,7 +88,7 @@ function useSIWEServerCall(
         callServerEndpointOptions,
       );
 
-      dispatchActionPromise(
+      void dispatchActionPromise(
         siweAuthActionTypes,
         siwePromise,
         undefined,

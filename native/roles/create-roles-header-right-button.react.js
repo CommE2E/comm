@@ -60,7 +60,7 @@ function CreateRolesHeaderRightButton(props: Props): React.Node {
       };
     }
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       modifyCommunityRoleActionTypes,
       callModifyCommunityRole(callModifyCommunityRoleParams),
     );

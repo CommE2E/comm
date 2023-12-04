@@ -126,7 +126,7 @@ function Root() {
 
   React.useEffect(() => {
     Orientation.lockToPortrait();
-    (async () => {
+    void (async () => {
       let loadedState = initialState;
       if (__DEV__) {
         try {
@@ -195,7 +195,7 @@ function Root() {
         return;
       }
 
-      (async () => {
+      void (async () => {
         try {
           await AsyncStorage.setItem(
             navStateAsyncStorageKey,

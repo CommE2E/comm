@@ -60,7 +60,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     drop: item => {
       const { files } = item;
       if (inputState && files.length > 0) {
-        inputState.appendFiles(threadInfo, files);
+        void inputState.appendFiles(threadInfo, files);
       }
     },
     collect: monitor => ({
@@ -91,7 +91,7 @@ function ChatMessageListContainer(props: Props): React.Node {
         return;
       }
       e.preventDefault();
-      inputState.appendFiles(threadInfo, [...files]);
+      void inputState.appendFiles(threadInfo, [...files]);
     },
     [inputState, threadInfo],
   );

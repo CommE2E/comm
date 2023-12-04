@@ -96,7 +96,7 @@ function useSendReaction(
         action,
       };
 
-      dispatchActionPromise(
+      void dispatchActionPromise(
         sendReactionMessageActionTypes,
         reactionMessagePromise,
         undefined,

@@ -64,7 +64,7 @@ function useHandleLinkClick(
   const url = normalizeURL(inputURL);
   const onConfirm = React.useCallback(() => {
     onDismiss();
-    Linking.openURL(url);
+    void Linking.openURL(url);
   }, [url, onDismiss]);
 
   let displayURL = url.substring(0, 64);

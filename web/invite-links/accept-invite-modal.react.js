@@ -67,7 +67,10 @@ function AcceptInviteModal(props: Props): React.Node {
   }, [calendarQuery, callJoinThread, communityID, inviteSecret, popModal]);
   const dispatchActionPromise = useDispatchActionPromise();
   const joinCommunity = React.useCallback(() => {
-    dispatchActionPromise(joinThreadActionTypes, createJoinCommunityAction());
+    void dispatchActionPromise(
+      joinThreadActionTypes,
+      createJoinCommunityAction(),
+    );
   }, [createJoinCommunityAction, dispatchActionPromise]);
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
 

@@ -292,7 +292,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           rawMessageInfo.type === messageTypes.MULTIMEDIA,
         `rawMessageInfo ${localMessageID} should be multimedia`,
       );
-      this.dispatchMultimediaMessageAction(rawMessageInfo);
+      void this.dispatchMultimediaMessageAction(rawMessageInfo);
     }
   }
 
@@ -300,7 +300,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     messageInfo: RawMultimediaMessageInfo,
   ): Promise<void> {
     if (!threadIsPending(messageInfo.threadID)) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         sendMultimediaMessageActionTypes,
         this.sendMultimediaMessageAction(messageInfo),
         undefined,
@@ -351,7 +351,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadID: newThreadID,
       time: Date.now(),
     };
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
       this.sendMultimediaMessageAction(newMessageInfo),
       undefined,
@@ -460,7 +460,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (!threadIsPending(inputThreadInfo.id)) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
         this.sendTextMessageAction(
           messageInfo,
@@ -530,7 +530,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           id: newThreadID,
         };
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
       this.sendTextMessageAction(
         newMessageInfo,
@@ -612,7 +612,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ) => {
     this.sendCallbacks.forEach(callback => callback());
     const localMessageID = this.props.nextLocalID;
-    this.startThreadCreation(threadInfo);
+    void this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {
       this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
@@ -1357,7 +1357,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const now = Date.now();
 
-    this.startThreadCreation(threadInfo);
+    void this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {
       this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
@@ -1483,7 +1483,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
     if (incompleteMedia.length === 0) {
-      this.dispatchMultimediaMessageAction(newRawMessageInfo);
+      void this.dispatchMultimediaMessageAction(newRawMessageInfo);
       this.setState(prevState => ({
         pendingUploads: {
           ...prevState.pendingUploads,

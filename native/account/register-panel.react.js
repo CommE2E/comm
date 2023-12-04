@@ -229,11 +229,11 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   };
 
   onTermsOfUsePressed = () => {
-    Linking.openURL('https://comm.app/terms');
+    void Linking.openURL('https://comm.app/terms');
   };
 
   onPrivacyPolicyPressed = () => {
-    Linking.openURL('https://comm.app/privacy');
+    void Linking.openURL('https://comm.app/privacy');
   };
 
   onChangeUsernameInputText = (text: string) => {
@@ -307,7 +307,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       const extraInfo = await this.props.logInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await this.props.getInitialNotificationsEncryptedMessage();
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         registerActionTypes,
         this.registerAction({
           ...extraInfo,

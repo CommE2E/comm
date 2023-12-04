@@ -62,7 +62,10 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     }, [callDeleteAccount, preRequestUserState]);
 
     const onDelete = React.useCallback(() => {
-      dispatchActionPromise(deleteKeyserverAccountActionTypes, deleteAction());
+      void dispatchActionPromise(
+        deleteKeyserverAccountActionTypes,
+        deleteAction(),
+      );
     }, [dispatchActionPromise, deleteAction]);
 
     return (

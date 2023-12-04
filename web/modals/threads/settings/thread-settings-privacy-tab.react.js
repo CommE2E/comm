@@ -91,7 +91,7 @@ function ThreadSettingsPrivacyTab(
   const onSubmit = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
-      dispatchActionPromise(
+      void dispatchActionPromise(
         changeThreadSettingsActionTypes,
         changeThreadSettingsAction(),
       );

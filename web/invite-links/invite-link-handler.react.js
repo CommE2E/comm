@@ -35,8 +35,11 @@ function InviteLinkHandler(): null {
       payload: { inviteSecret: null },
     });
     const validateLinkPromise = validateLink({ secret: inviteSecret });
-    dispatchActionPromise(verifyInviteLinkActionTypes, validateLinkPromise);
-    (async () => {
+    void dispatchActionPromise(
+      verifyInviteLinkActionTypes,
+      validateLinkPromise,
+    );
+    void (async () => {
       const result = await validateLinkPromise;
       if (result.status === 'already_joined') {
         return;

@@ -33,7 +33,7 @@ function QrCodeLogin(): React.Node {
   }, [ed25519Key]);
 
   React.useEffect(() => {
-    generateQRCode();
+    void generateQRCode();
   }, [generateQRCode]);
 
   return (

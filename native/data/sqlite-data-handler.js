@@ -137,7 +137,7 @@ function SQLiteDataHandler(): React.Node {
 
     const databaseNeedsDeletion = commCoreModule.checkIfDatabaseNeedsDeletion();
     if (databaseNeedsDeletion) {
-      (async () => {
+      void (async () => {
         try {
           await callClearSensitiveData('detecting corrupted database');
         } catch (e) {
@@ -164,7 +164,7 @@ function SQLiteDataHandler(): React.Node {
       dispatch({ type: setStoreLoadedActionType });
       return;
     }
-    (async () => {
+    void (async () => {
       await Promise.all([
         sensitiveDataHandled,
         mediaCacheContext?.evictCache(),

@@ -58,7 +58,7 @@ function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
   const userInfos = useSelector(state => state.userStore.userInfos);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       const result = await callFetchPinnedMessages({ threadID });
       setRawMessageResults(result.pinnedMessages);
     })();

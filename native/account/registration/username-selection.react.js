@@ -88,7 +88,7 @@ function UsernameSelection(props: Props): React.Node {
     }
 
     const searchPromise = exactSearchUserCall(username);
-    dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+    void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
     const { userInfo } = await searchPromise;
 
     if (userInfo) {

@@ -108,7 +108,10 @@ function AddUsersModal(props: Props): React.Node {
     if (userInfoInputArrayEmpty) {
       return;
     }
-    dispatchActionPromise(changeThreadSettingsActionTypes, addUsersToThread());
+    void dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      addUsersToThread(),
+    );
   }, [userInfoInputArrayEmpty, dispatchActionPromise, addUsersToThread]);
 
   const changeThreadSettingsLoadingStatus = useSelector(

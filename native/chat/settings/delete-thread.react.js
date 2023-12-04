@@ -179,7 +179,7 @@ class DeleteThread extends React.PureComponent<Props> {
   };
 
   dispatchDeleteThreadAction = () => {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
     );

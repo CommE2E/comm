@@ -45,7 +45,7 @@ function SQLiteDataHandler(): React.Node {
   }, [currentLoggedInUserID]);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       const databaseModule = await getDatabaseModule();
 
       if (!rehydrateConcluded) {

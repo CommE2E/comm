@@ -19,7 +19,7 @@ let visibilityModule: VisibilityModule = {
 
 let callbacks = [];
 
-(async () => {
+void (async () => {
   if (typeof window === 'undefined') {
     return;
   }

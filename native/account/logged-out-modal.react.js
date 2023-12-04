@@ -350,7 +350,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     if (this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
+      void this.onInitialAppLoad();
     }
     if (this.props.isForeground) {
       this.onForeground();
@@ -369,7 +369,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.setMode('prompt');
     }
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
+      void this.onInitialAppLoad();
     }
     if (!prevProps.isForeground && this.props.isForeground) {
       this.onForeground();

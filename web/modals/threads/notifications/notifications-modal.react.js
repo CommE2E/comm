@@ -169,7 +169,7 @@ function NotificationsModal(props: Props): React.Node {
   const callUpdateSubscription = useUpdateSubscription();
 
   const onClickSave = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       updateSubscriptionActionTypes,
       callUpdateSubscription({
         threadID: threadID,

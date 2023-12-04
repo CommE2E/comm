@@ -25,7 +25,10 @@ function VersionSupportedChecker(): React.Node {
 
   const onUsernameAlertAcknowledged = React.useCallback(() => {
     if (loggedIn) {
-      dispatchActionPromise(logOutActionTypes, callLogOut(preRequestUserState));
+      void dispatchActionPromise(
+        logOutActionTypes,
+        callLogOut(preRequestUserState),
+      );
     }
   }, [callLogOut, dispatchActionPromise, loggedIn, preRequestUserState]);
 
@@ -56,7 +59,7 @@ function VersionSupportedChecker(): React.Node {
       return;
     }
     hasRun.current = true;
-    checkVersionSupport();
+    void checkVersionSupport();
   }, [checkVersionSupport]);
 
   return null;

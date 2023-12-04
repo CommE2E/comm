@@ -27,7 +27,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const navigation = useNavigation();
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setHasPermission(status === 'granted');
 

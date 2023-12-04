@@ -248,7 +248,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     ...fixUnreadActiveThreadResult.threadStoreOperations,
   ];
 
-  processDBStoreOperations({
+  void processDBStoreOperations({
     draftStoreOperations,
     messageStoreOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
