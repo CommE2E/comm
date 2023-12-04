@@ -230,7 +230,6 @@
   --change-member-role-modal-disabled-background: var(--shades-black-75);
   --unsaved-changes-modal-text-color: var(--shades-white-60);
   --modal-secondary-label: var(--shades-black-50);
-  --community-roles-text-color: var(--shades-white-100);
   --modal-separator: var(--shades-black-75);
   --create-roles-text-color: var(--shades-white-100);
 }
