@@ -977,7 +977,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     const editedMessage = this.getEditedMessage();
     if (editedMessage && editedMessage.id) {
-      this.editMessage(editedMessage.id, this.state.text);
+      await this.editMessage(editedMessage.id, this.state.text);
       return;
     }
 
@@ -1002,7 +1002,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       'inputState should be set in ChatInputBar.onSend',
     );
 
-    this.props.inputState.sendTextMessage(
+    await this.props.inputState.sendTextMessage(
       {
         type: messageTypes.TEXT,
         localID,
