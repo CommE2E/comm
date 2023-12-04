@@ -8,7 +8,7 @@ pub mod report_utils;
 pub mod service;
 
 use anyhow::Result;
-use comm_services_lib::{auth::AuthService, blob::client::BlobServiceClient};
+use comm_lib::{auth::AuthService, blob::client::BlobServiceClient};
 use service::ReportsService;
 use tracing_subscriber::filter::{EnvFilter, LevelFilter};
 

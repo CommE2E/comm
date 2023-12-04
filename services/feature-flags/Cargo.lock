@@ -858,7 +858,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "comm-services-lib"
+name = "comm-lib"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -1091,7 +1091,7 @@ dependencies = [
  "aws-sdk-dynamodb",
  "aws-types",
  "clap",
- "comm-services-lib",
+ "comm-lib",
  "http",
  "once_cell",
  "serde",

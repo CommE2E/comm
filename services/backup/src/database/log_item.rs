@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use aws_sdk_dynamodb::types::AttributeValue;
-use comm_services_lib::database::{DBItemError, TryFromAttribute};
+use comm_lib::database::{DBItemError, TryFromAttribute};
 
 use crate::constants::{
   LOG_TABLE_FIELD_ATTACHMENT_HOLDERS, LOG_TABLE_FIELD_BACKUP_ID,
@@ -42,7 +42,7 @@ impl LogItem {
   }
 
   /// Total size of this item in the DynamoDB table. This value must be
-  /// smaller than [`comm_services_lib::constants::DDB_ITEM_SIZE_LIMIT`]
+  /// smaller than [`comm_lib::constants::DDB_ITEM_SIZE_LIMIT`]
   /// in order to successfully put this item into a DynamoDB database.
   pub fn total_size(&self) -> usize {
     let mut size: usize = LOG_ITEM_HEADERS_SIZE;

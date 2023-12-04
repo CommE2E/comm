@@ -1,6 +1,6 @@
 use actix_web::{web, App, HttpResponse, HttpServer};
 use anyhow::Result;
-use comm_services_lib::{
+use comm_lib::{
   blob::client::BlobServiceClient,
   http::auth::get_comm_authentication_middleware,
 };
@@ -27,7 +27,7 @@ pub async fn run_http_server(
   HttpServer::new(move || {
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
-      .wrap(comm_services_lib::http::cors_config(
+      .wrap(comm_lib::http::cors_config(
         CONFIG.localstack_endpoint.is_some(),
       ))
       .app_data(db.clone())

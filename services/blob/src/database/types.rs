@@ -1,6 +1,6 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
-use comm_services_lib::database::{
+use comm_lib::database::{
   parse_timestamp_attribute, AttributeTryInto, DBItemError, Value,
 };
 use derive_more::Constructor;
@@ -233,7 +233,7 @@ fn is_raw_row_unchecked(
     return Err(DBError::Attribute(DBItemError::new(
       ATTR_UNCHECKED.to_string(),
       Value::String(value.to_string()),
-      comm_services_lib::database::DBItemAttributeError::IncorrectType,
+      comm_lib::database::DBItemAttributeError::IncorrectType,
     )));
   }
 
