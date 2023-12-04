@@ -13,7 +13,7 @@ import {
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
 import {
-  getPotentialMemberItems,
+  usePotentialMemberItems,
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import {
@@ -253,21 +253,13 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
     const serverSearchResults = useSearchUsers(usernameInputText);
 
-    const userSearchResults = React.useMemo(() => {
-      return getPotentialMemberItems({
-        text: usernameInputText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
-        includeServerSearchUsers: serverSearchResults,
-      });
-    }, [
-      usernameInputText,
-      otherUserInfos,
-      userSearchIndex,
-      userInfoInputArray,
-      serverSearchResults,
-    ]);
+    const userSearchResults = usePotentialMemberItems({
+      text: usernameInputText,
+      userInfos: otherUserInfos,
+      searchIndex: userSearchIndex,
+      excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
+      includeServerSearchUsers: serverSearchResults,
+    });
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
       props.route.params.threadInfo,
