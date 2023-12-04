@@ -7,6 +7,7 @@ license = "BSD-3-Clause"
 [dependencies]
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
 grpc_clients = { path = "../../shared/grpc_clients" }
+backup_client = { path = "../../shared/backup_client" }
 tonic = "0.8"
 tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 prost = "0.11"
