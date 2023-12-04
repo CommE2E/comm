@@ -55,8 +55,8 @@ function AppListing(props: Props): React.Node {
     }
     const iconClasses = classnames({
       [css.appListingIconState]: true,
-      [css.iconEnabled]: enabled,
-      [css.iconDisabled]: !enabled,
+      [css.iconSelected]: enabled,
+      [css.iconUnselected]: !enabled,
     });
     return (
       <Button className={iconClasses} onClick={switchAppState}>

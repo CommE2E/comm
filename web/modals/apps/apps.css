@@ -5,12 +5,6 @@ div.appsDirectoryContainer {
   padding-bottom: 16px;
 }
 
-h4.appsHeader {
-  color: var(--fg);
-  padding: 20px 0 40px 40px;
-  font-weight: var(--semi-bold);
-}
-
 div.appsDirectoryList {
   display: flex;
   flex-direction: column;
@@ -21,7 +15,7 @@ div.appsDirectoryList {
 }
 
 div.appListingContainer {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   display: flex;
   flex-direction: row;
   align-items: space-between;
@@ -55,13 +49,13 @@ small.appCopy {
 }
 
 div.iconReadOnly {
-  color: var(--app-list-icon-read-only-color);
+  color: var(--button-background-tetriary-disabled);
 }
 
-.iconEnabled {
-  color: var(--app-list-icon-enabled-color);
+.iconSelected {
+  color: var(--button-background-success-default);
 }
 
-.iconDisabled {
-  color: var(--app-list-icon-disabled-color);
+.iconUnselected {
+  color: var(--button-background-tetriary-default);
 }
