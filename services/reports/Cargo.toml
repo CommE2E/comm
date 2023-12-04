@@ -11,7 +11,7 @@ actix-web = "4.3"
 anyhow = "1.0"
 aws-config = "0.55"
 aws-sdk-dynamodb = "0.27"
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4.31", features = ["serde"] }
 clap = { version = "4.0", features = ["derive", "env"] }
 comm-lib = { path = "../../shared/comm-lib", features = [
   "blob-client",
