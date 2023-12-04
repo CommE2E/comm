@@ -12,7 +12,7 @@ import {
   userSearchIndexForPotentialMembers,
   userInfoSelectorForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
@@ -54,27 +54,15 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     [pendingUsersToAdd, threadInfo.members],
   );
 
-  const userSearchResults = React.useMemo(
-    () =>
-      getPotentialMemberItems({
-        text: searchText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs,
-        inputParentThreadInfo: parentThreadInfo,
-        inputCommunityThreadInfo: communityThreadInfo,
-        threadType: threadInfo.type,
-      }),
-    [
-      communityThreadInfo,
-      excludeUserIDs,
-      otherUserInfos,
-      parentThreadInfo,
-      searchText,
-      threadInfo.type,
-      userSearchIndex,
-    ],
-  );
+  const userSearchResults = usePotentialMemberItems({
+    text: searchText,
+    userInfos: otherUserInfos,
+    searchIndex: userSearchIndex,
+    excludeUserIDs,
+    inputParentThreadInfo: parentThreadInfo,
+    inputCommunityThreadInfo: communityThreadInfo,
+    threadType: threadInfo.type,
+  });
   const userSearchResultsWithENSNames = useENSNames(userSearchResults);
 
   const onSwitchUser = React.useCallback(
