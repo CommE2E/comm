@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -28,6 +29,8 @@ function AddKeyserverModal(): React.Node {
   const [keyserverURL, setKeyserverURL] = React.useState<string>(
     customServer && staffCanSee ? customServer : '',
   );
+  const [showErrorMessage, setShowErrorMessage] =
+    React.useState<boolean>(false);
 
   const onChangeKeyserverURL = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) =>
@@ -35,7 +38,20 @@ function AddKeyserverModal(): React.Node {
     [],
   );
 
-  const onClickAddKeyserver = React.useCallback(() => {
+  const isKeyserverURLValidCallback = useIsKeyserverURLValid(keyserverURL);
+
+  const onClickAddKeyserver = React.useCallback(async () => {
+    setShowErrorMessage(false);
+    if (!currentUserID || !keyserverURL) {
+      return;
+    }
+
+    const isKeyserverURLValid = await isKeyserverURLValidCallback();
+    if (!isKeyserverURLValid) {
+      setShowErrorMessage(true);
+      return;
+    }
+
     const newKeyserverInfo: KeyserverInfo = {
       cookie: null,
       updatesCurrentAsOf: 0,
@@ -54,7 +70,26 @@ function AddKeyserverModal(): React.Node {
     });
 
     popModal();
-  }, [currentUserID, dispatch, keyserverURL, popModal]);
+  }, [
+    currentUserID,
+    dispatch,
+    keyserverURL,
+    popModal,
+    isKeyserverURLValidCallback,
+  ]);
+
+  const errorMessage = React.useMemo(() => {
+    if (!showErrorMessage) {
+      return null;
+    }
+
+    return (
+      <div className={css.errorMessage}>
+        Cannot connect to keyserver. Please check the URL or your connection and
+        try again.
+      </div>
+    );
+  }, [showErrorMessage]);
 
   const addKeyserverModal = React.useMemo(
     () => (
@@ -67,6 +102,7 @@ function AddKeyserverModal(): React.Node {
             onChange={onChangeKeyserverURL}
             placeholder="Keyserver URL"
           />
+          {errorMessage}
         </div>
         <div className={css.buttonContainer}>
           <Button
@@ -74,13 +110,20 @@ function AddKeyserverModal(): React.Node {
             buttonColor={buttonThemes.primary}
             className={css.button}
             onClick={onClickAddKeyserver}
+            disabled={!keyserverURL}
           >
             Add keyserver
           </Button>
         </div>
       </Modal>
     ),
-    [keyserverURL, onChangeKeyserverURL, onClickAddKeyserver, popModal],
+    [
+      errorMessage,
+      keyserverURL,
+      onChangeKeyserverURL,
+      onClickAddKeyserver,
+      popModal,
+    ],
   );
 
   return addKeyserverModal;
