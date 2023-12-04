@@ -182,7 +182,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       changeUserPasswordActionTypes,
       this.changeUserSettingsAction(),
     );

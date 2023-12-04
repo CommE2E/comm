@@ -195,7 +195,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   const callLeaveThread = useLeaveThread();
 
   const onConfirmLeaveThread = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       leaveThreadActionTypes,
       callLeaveThread({ threadID: threadInfo.id }),
     );

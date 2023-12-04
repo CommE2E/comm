@@ -60,7 +60,7 @@ function useRelationshipAction(input: OnRemoveUserProps) {
     };
     const onConfirmRemoveUser = () => {
       const customKeyName = `${updateRelationshipsActionTypes.started}:${input.relativeUserInfo.id}`;
-      dispatchActionPromise(
+      void dispatchActionPromise(
         updateRelationshipsActionTypes,
         callRemoveRelationships(),
         { customKeyName },

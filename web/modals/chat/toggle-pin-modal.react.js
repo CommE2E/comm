@@ -87,7 +87,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
       });
     };
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       toggleMessagePinActionTypes,
       createToggleMessagePinPromise(),
     );

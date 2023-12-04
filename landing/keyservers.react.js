@@ -15,7 +15,7 @@ import typography from './typography.css';
 
 function Keyservers(): React.Node {
   React.useEffect(() => {
-    import('@lottiefiles/lottie-player');
+    void import('@lottiefiles/lottie-player');
   }, []);
 
   const onEyeIllustrationLoad = React.useCallback(() => {

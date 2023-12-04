@@ -178,14 +178,14 @@ class ThreadSettingsName extends React.PureComponent<Props> {
     const action = changeThreadSettingsActionTypes.started;
     const threadID = this.props.threadInfo.id;
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
       editNamePromise,
       {
         customKeyName: `${action}:${threadID}:name`,
       },
     );
-    editNamePromise.then(() => {
+    void editNamePromise.then(() => {
       this.props.setNameEditValue(null);
     });
   };

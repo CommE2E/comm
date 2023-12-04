@@ -307,12 +307,12 @@ class Entry extends React.PureComponent<Props, State> {
     }
 
     if (!serverID) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         createEntryActionTypes,
         this.createAction(newText),
       );
     } else {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         saveEntryActionTypes,
         this.saveAction(serverID, newText),
       );
@@ -411,7 +411,7 @@ class Entry extends React.PureComponent<Props, State> {
 
   dispatchDelete(serverID: ?string, focusOnNextEntry: boolean) {
     const { localID } = this.props.entryInfo;
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       deleteEntryActionTypes,
       this.deleteAction(serverID, focusOnNextEntry),
       undefined,

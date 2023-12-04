@@ -76,7 +76,7 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
   }, [callToggleMessagePin, messageInfo.id, modalInfo.action]);
 
   const onPress = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       toggleMessagePinActionTypes,
       createToggleMessagePinPromise(),
     );

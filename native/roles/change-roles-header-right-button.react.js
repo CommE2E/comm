@@ -46,7 +46,7 @@ function ChangeRolesHeaderRightButton(props: Props): React.Node {
       return;
     }
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       changeThreadMemberRolesActionTypes,
       callChangeThreadMemberRoles({
         threadID: threadInfo.id,

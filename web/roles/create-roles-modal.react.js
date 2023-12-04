@@ -192,7 +192,7 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
       };
     }
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       modifyCommunityRoleActionTypes,
       (async () => {
         try {

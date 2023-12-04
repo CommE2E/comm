@@ -83,7 +83,7 @@ function EncryptedImage(props: Props): React.Node {
 
       if (isMounted) {
         if (result.success) {
-          mediaCache?.set(blobURI, result.uri);
+          void mediaCache?.set(blobURI, result.uri);
           setSource({ uri: result.uri });
         } else {
           setErrorOccured(true);
@@ -91,7 +91,7 @@ function EncryptedImage(props: Props): React.Node {
       }
     };
 
-    loadDecrypted();
+    void loadDecrypted();
 
     return () => {
       isMounted = false;

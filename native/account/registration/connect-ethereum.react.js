@@ -155,7 +155,7 @@ function ConnectEthereum(props: Props): React.Node {
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
       const searchPromise = exactSearchUserCall(result.address);
-      dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+      void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
 
       // We want to figure out if the user has an ENS avatar now
       // so that we can default to the ENS avatar in AvatarSelection

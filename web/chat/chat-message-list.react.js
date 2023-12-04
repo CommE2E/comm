@@ -338,7 +338,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     this.messageContainer = messageContainer;
     // In case we already have all the most recent messages,
     // but they're not enough
-    this.possiblyLoadMoreMessages();
+    void this.possiblyLoadMoreMessages();
     if (messageContainer) {
       messageContainer.addEventListener('scroll', this.onScroll);
     }
@@ -349,7 +349,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       return;
     }
     this.props.clearTooltip();
-    this.possiblyLoadMoreMessages();
+    void this.possiblyLoadMoreMessages();
     this.debounceEditModeAfterScrollToMessage();
   };
 

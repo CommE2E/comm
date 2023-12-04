@@ -81,8 +81,8 @@ function SIWEPanel(props: Props): React.Node {
     React.useState<?string>(null);
 
   React.useEffect(() => {
-    (async () => {
-      dispatchActionPromise(
+    void (async () => {
+      void dispatchActionPromise(
         getSIWENonceActionTypes,
         (async () => {
           const response = await getSIWENonceCall();

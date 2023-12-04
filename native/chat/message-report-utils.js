@@ -51,7 +51,10 @@ function useOnPressReport(
         throw e;
       }
     })();
-    dispatchActionPromise(sendMessageReportActionTypes, messageReportPromise);
+    void dispatchActionPromise(
+      sendMessageReportActionTypes,
+      messageReportPromise,
+    );
   }, [callSendMessageReport, messageID, dispatchActionPromise]);
 }
 

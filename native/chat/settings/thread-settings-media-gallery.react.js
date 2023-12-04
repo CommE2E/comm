@@ -60,7 +60,7 @@ function ThreadSettingsMediaGallery(
       });
       setMediaInfos(result.media);
     };
-    fetchData();
+    void fetchData();
   }, [callFetchThreadMedia, threadID, limit]);
 
   const memoizedStyles = React.useMemo(() => {

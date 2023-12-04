@@ -117,7 +117,7 @@ function useCreatePushSubscription(): () => Promise<void> {
       applicationServerKey: publicKey,
     });
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       setDeviceTokenActionTypes,
       callSetDeviceToken(JSON.stringify(subscription)),
     );
@@ -140,7 +140,7 @@ function PushNotificationsHandler(): React.Node {
   const supported = 'Notification' in window && !electron;
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       if (!navigator.serviceWorker || !supported) {
         return;
       }
@@ -175,7 +175,7 @@ function PushNotificationsHandler(): React.Node {
 
     if (!prevLoggedIn.current && loggedIn) {
       if (Notification.permission === 'granted') {
-        createPushSubscription();
+        void createPushSubscription();
       } else if (
         Notification.permission === 'default' &&
         !shouldSkipPushPermissionAlert(notifPermissionAlertInfo)
