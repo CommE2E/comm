@@ -54,7 +54,7 @@ import {
 
 const shouldDisplayQRCodeInTerminal = false;
 
-(async () => {
+void (async () => {
   const [webAppCorsConfig] = await Promise.all([
     getWebAppCorsConfig(),
     olm.init(),
