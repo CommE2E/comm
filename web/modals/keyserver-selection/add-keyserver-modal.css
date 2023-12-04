@@ -15,3 +15,8 @@
 .button {
   width: 100%;
 }
+
+.errorMessage {
+  color: var(--text-background-danger-default);
+  margin-top: 8px;
+}
