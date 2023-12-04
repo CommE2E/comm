@@ -232,7 +232,7 @@ class Calendar extends React.PureComponent<Props, State> {
       ...currentCalendarQuery,
       ...this.prevMonthDates(),
     };
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery({
         calendarQuery: newCalendarQuery,
@@ -250,7 +250,7 @@ class Calendar extends React.PureComponent<Props, State> {
       ...currentCalendarQuery,
       ...this.nextMonthDates(),
     };
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery({
         calendarQuery: newCalendarQuery,

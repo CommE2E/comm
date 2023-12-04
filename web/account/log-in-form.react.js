@@ -24,7 +24,7 @@ function LoginForm(): React.Node {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
 
   React.useEffect(() => {
-    getOrCreateCryptoStore();
+    void getOrCreateCryptoStore();
   }, [getOrCreateCryptoStore]);
 
   const onQRCodeLoginButtonClick = React.useCallback(() => {

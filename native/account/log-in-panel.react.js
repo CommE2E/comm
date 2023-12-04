@@ -71,7 +71,7 @@ class LogInPanel extends React.PureComponent<Props> {
   passwordInput: ?PasswordInput;
 
   componentDidMount() {
-    this.attemptToFetchCredentials();
+    void this.attemptToFetchCredentials();
   }
 
   get usernameInputText(): string {
@@ -241,7 +241,7 @@ class LogInPanel extends React.PureComponent<Props> {
     const initialNotificationsEncryptedMessage =
       await this.props.getInitialNotificationsEncryptedMessage();
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       logInActionTypes,
       this.logInAction({ ...extraInfo, initialNotificationsEncryptedMessage }),
       undefined,

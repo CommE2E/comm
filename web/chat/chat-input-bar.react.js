@@ -501,7 +501,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
 
-    this.props.inputState.sendTextMessage(
+    void this.props.inputState.sendTextMessage(
       {
         type: messageTypes.TEXT,
         localID,
@@ -538,7 +538,10 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onClickJoin = () => {
-    this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
+    void this.props.dispatchActionPromise(
+      joinThreadActionTypes,
+      this.joinAction(),
+    );
   };
 
   async joinAction(): Promise<ThreadJoinPayload> {

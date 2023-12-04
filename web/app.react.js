@@ -75,7 +75,7 @@ import css from './style.css';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 
-initOpaque();
+void initOpaque();
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every

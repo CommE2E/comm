@@ -234,7 +234,7 @@ function RelationshipList(props: Props): React.Node {
     if (noCurrentTags) {
       return;
     }
-    dispatchActionPromise(
+    void dispatchActionPromise(
       updateRelationshipsActionTypes,
       updateRelationshipsOnServer(),
     );

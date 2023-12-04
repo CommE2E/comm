@@ -97,7 +97,7 @@ function CommunityCreationModal(): React.Node {
     setErrorMessage();
 
     const newThreadResultPromise = callCreateNewCommunity();
-    dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
+    void dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     const newThreadResult: NewThreadResult = await newThreadResultPromise;
 
     const { newThreadID } = newThreadResult;

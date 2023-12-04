@@ -85,7 +85,7 @@ function CommunityCreationMembers(props: Props): React.Node {
   const communityThreadInfo = threadInfos[threadID];
 
   const addSelectedUsersToCommunity = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       changeThreadSettingsActionTypes,
       (async () => {
         const result = await callChangeThreadSettings({

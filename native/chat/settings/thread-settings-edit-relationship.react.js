@@ -76,7 +76,7 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const onButtonPress = React.useCallback(() => {
-      dispatchActionPromise(
+      void dispatchActionPromise(
         updateRelationshipsActionTypes,
         updateRelationship(relationshipAction),
       );

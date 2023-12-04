@@ -75,7 +75,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     if (!siweNonceShouldBeFetched) {
       return;
     }
-    dispatchActionPromise(
+    void dispatchActionPromise(
       getSIWENonceActionTypes,
       (async () => {
         const response = await getSIWENonceCall();

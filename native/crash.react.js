@@ -79,8 +79,11 @@ class Crash extends React.PureComponent<Props, State> {
     if (this.state.doneWaiting) {
       return;
     }
-    this.props.dispatchActionPromise(sendReportActionTypes, this.sendReport());
-    this.timeOut();
+    void this.props.dispatchActionPromise(
+      sendReportActionTypes,
+      this.sendReport(),
+    );
+    void this.timeOut();
   }
 
   async timeOut() {
@@ -189,7 +192,10 @@ class Crash extends React.PureComponent<Props, State> {
     if (!this.state.doneWaiting) {
       return;
     }
-    this.props.dispatchActionPromise(logOutActionTypes, this.logOutAndExit());
+    void this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.logOutAndExit(),
+    );
   };
 
   async logOutAndExit() {

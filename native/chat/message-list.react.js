@@ -303,7 +303,7 @@ class MessageList extends React.PureComponent<Props, State> {
     const { oldestMessageServerID } = this.props;
     const threadID = this.props.threadInfo.id;
 
-    (async () => {
+    void (async () => {
       try {
         if (oldestMessageServerID) {
           await this.props.dispatchActionPromise(

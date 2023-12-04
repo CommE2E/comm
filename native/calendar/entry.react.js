@@ -515,7 +515,7 @@ class InternalEntry extends React.Component<Props, State> {
     textInput => {
       this.textInput = textInput;
       if (textInput && this.state.editing) {
-        this.enterEditMode();
+        void this.enterEditMode();
       }
     };
 
@@ -619,12 +619,12 @@ class InternalEntry extends React.Component<Props, State> {
 
     this.guardedSetState({ loadingStatus: 'loading' });
     if (!serverID) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         createEntryActionTypes,
         this.createAction(newText),
       );
     } else {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         saveEntryActionTypes,
         this.saveAction(serverID, newText),
       );
@@ -736,7 +736,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.deleted = true;
     LayoutAnimation.easeInEaseOut();
     const { localID } = this.props.entryInfo;
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       deleteEntryActionTypes,
       this.deleteAction(serverID),
       undefined,

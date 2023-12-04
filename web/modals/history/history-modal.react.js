@@ -194,7 +194,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
   }
 
   loadDay() {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       fetchEntriesActionTypes,
       this.props.fetchEntries({
         startDate: this.props.dayString,
@@ -206,7 +206,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
   loadEntry(entryID: string) {
     this.setState({ mode: 'entry', currentEntryID: entryID });
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       fetchRevisionsForEntryActionTypes,
       this.fetchRevisionsForEntryAction(entryID),
     );

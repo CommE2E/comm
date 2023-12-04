@@ -21,7 +21,7 @@ function InviteLinksRefresher(): React.Node {
     if (!isActive || !loggedIn) {
       return;
     }
-    dispatchActionPromise(
+    void dispatchActionPromise(
       fetchPrimaryInviteLinkActionTypes,
       callFetchPrimaryLinks(),
     );

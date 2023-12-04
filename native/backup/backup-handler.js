@@ -32,7 +32,7 @@ function BackupHandler(): null {
   const { uploadBackupProtocol } = useClientBackup();
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       if (
         !isBackupEnabled ||
         !loggedIn ||

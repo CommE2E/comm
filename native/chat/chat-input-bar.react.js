@@ -1169,7 +1169,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   onPressJoin = () => {
-    this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
+    void this.props.dispatchActionPromise(
+      joinThreadActionTypes,
+      this.joinAction(),
+    );
   };
 
   async joinAction(): Promise<ThreadJoinPayload> {

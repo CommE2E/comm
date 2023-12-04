@@ -121,7 +121,7 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
     }
   }, [action, callUpdateRelationships, otherUserInfo.id, setErrorMessage]);
   const onClick = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       updateRelationshipsActionTypes,
       updateRelationshipsActionPromise(),
     );

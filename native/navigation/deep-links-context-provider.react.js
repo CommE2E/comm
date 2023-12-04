@@ -55,7 +55,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
     // We're also checking if the app was opened by using a link.
     // In that case the listener won't be called and we're instead checking
     // if the initial URL is set.
-    (async () => {
+    void (async () => {
       const initialURL = await Linking.getInitialURL();
       if (initialURL) {
         setCurrentLink(initialURL);
@@ -87,7 +87,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
   const validateLink = useServerCall(verifyInviteLink);
   const navigation = useNavigation();
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       if (!loggedIn || !currentLink) {
         return;
       }
@@ -103,7 +103,10 @@ function DeepLinksContextProvider(props: Props): React.Node {
       if (parsedData.type === 'invite-link') {
         const { secret } = parsedData.data;
         const validateLinkPromise = validateLink({ secret });
-        dispatchActionPromise(verifyInviteLinkActionTypes, validateLinkPromise);
+        void dispatchActionPromise(
+          verifyInviteLinkActionTypes,
+          validateLinkPromise,
+        );
         const result = await validateLinkPromise;
         if (result.status === 'already_joined') {
           return;

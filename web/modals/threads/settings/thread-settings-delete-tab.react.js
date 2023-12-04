@@ -76,7 +76,7 @@ function ThreadSettingsDeleteTab(
     threadInfo.id,
   ]);
   const dispatchDeleteThreadAction = React.useCallback(() => {
-    dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
+    void dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
   }, [dispatchActionPromise, deleteThreadAction]);
   const onDelete = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {

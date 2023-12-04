@@ -48,7 +48,7 @@ function ThreadSettingsMediaGalleryModal(
       });
       setMediaInfos(result.media);
     };
-    fetchData();
+    void fetchData();
   }, [callFetchThreadMedia, threadID, limit]);
 
   const onClick = React.useCallback(

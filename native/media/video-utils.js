@@ -100,7 +100,7 @@ async function processVideo(
     const thumbnailStep = await generateThumbnail(path, plan.thumbnailPath);
     steps.push(thumbnailStep);
     if (!thumbnailStep.success) {
-      unlink(plan.thumbnailPath);
+      void unlink(plan.thumbnailPath);
       return {
         steps,
         result: { success: false, reason: 'video_generate_thumbnail_failed' },
@@ -131,8 +131,8 @@ async function processVideo(
   steps.push(thumbnailStep, transcodeStep);
 
   if (!thumbnailStep.success) {
-    unlink(plan.outputPath);
-    unlink(plan.thumbnailPath);
+    void unlink(plan.outputPath);
+    void unlink(plan.thumbnailPath);
     return {
       steps,
       result: {
@@ -142,8 +142,8 @@ async function processVideo(
     };
   }
   if (!transcodeStep.success) {
-    unlink(plan.outputPath);
-    unlink(plan.thumbnailPath);
+    void unlink(plan.outputPath);
+    void unlink(plan.thumbnailPath);
     return {
       steps,
       result: {
@@ -156,8 +156,8 @@ async function processVideo(
   const transcodeProbeStep = await checkVideoInfo(plan.outputPath);
   steps.push(transcodeProbeStep);
   if (!transcodeProbeStep.validFormat) {
-    unlink(plan.outputPath);
-    unlink(plan.thumbnailPath);
+    void unlink(plan.outputPath);
+    void unlink(plan.thumbnailPath);
     return {
       steps,
       result: { success: false, reason: 'video_transcode_failed' },
