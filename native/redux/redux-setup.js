@@ -14,6 +14,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import {
   invalidSessionDowngrade,
@@ -128,7 +129,10 @@ function reducer(state: AppState = defaultState, action: Action) {
         ashoatKeyserverID,
       ))
   ) {
-    return state;
+    return {
+      ...state,
+      loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+    };
   }
   if (
     (action.type === setNewSessionActionType &&
