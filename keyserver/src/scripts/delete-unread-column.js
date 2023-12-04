@@ -16,4 +16,4 @@ async function deleteUnreadColumn() {
   }
 }
 
-deleteUnreadColumn();
+void deleteUnreadColumn();

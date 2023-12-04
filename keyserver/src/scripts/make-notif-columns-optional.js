@@ -21,4 +21,4 @@ async function makeNotifColumnsOptional() {
   `);
 }
 
-main();
+void main();
