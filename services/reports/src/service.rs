@@ -7,12 +7,7 @@ use comm_lib::{
   database,
 };
 use derive_more::{Display, Error, From};
-use std::{
-  collections::HashMap,
-  future::{ready, Future},
-  pin::Pin,
-  sync::Arc,
-};
+use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
 use tracing::{error, trace, warn};
 
 use crate::{
