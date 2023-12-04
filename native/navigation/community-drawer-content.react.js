@@ -53,15 +53,13 @@ function CommunityDrawerContent(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
   React.useEffect(() => {
-    (async () => {
-      if (drawerStatus !== 'open') {
-        return;
-      }
-      await dispatchActionPromise(
-        fetchPrimaryInviteLinkActionTypes,
-        callFetchPrimaryLinks(),
-      );
-    })();
+    if (drawerStatus !== 'open') {
+      return;
+    }
+    void dispatchActionPromise(
+      fetchPrimaryInviteLinkActionTypes,
+      callFetchPrimaryLinks(),
+    );
   }, [callFetchPrimaryLinks, dispatchActionPromise, drawerStatus]);
 
   const [expanded, setExpanded] = React.useState<Set<string>>(() => {
