@@ -385,7 +385,7 @@ pub fn parse_timestamp_attribute(
         DBItemAttributeError::TimestampOutOfRange,
       )
     })?;
-  Ok(DateTime::from_utc(naive_datetime, Utc))
+  Ok(DateTime::from_naive_utc_and_offset(naive_datetime, Utc))
 }
 
 pub fn parse_integer<T>(
