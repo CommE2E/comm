@@ -8,7 +8,7 @@ use actix_web::{
   web, HttpResponse,
 };
 use async_stream::try_stream;
-use comm_services_lib::http::multipart;
+use comm_lib::http::multipart;
 use serde::{Deserialize, Serialize};
 use tokio_stream::StreamExt;
 use tracing::{info, instrument, trace, warn};

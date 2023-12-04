@@ -1,5 +1,5 @@
 [package]
-name = "comm-services-lib"
+name = "comm-lib"
 version = "0.1.0"
 edition = "2021"
 license = "BSD-3-Clause"
@@ -34,7 +34,7 @@ base64 = "0.21"
 chrono = "0.4"
 constant_time_eq = "0.3"
 derive_more = "0.99"
-grpc_clients = { path = "../../shared/grpc_clients" }
+grpc_clients = { path = "../grpc_clients" }
 rand = "0.8"
 tokio = "1.32"
 tracing = "0.1"

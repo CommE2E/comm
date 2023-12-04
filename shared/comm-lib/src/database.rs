@@ -86,7 +86,7 @@ pub enum DBItemAttributeError {
 ///
 /// Types implementing this trait are able to do the following:
 /// ```ignore
-/// use comm_services_lib::database::{TryFromAttribute, AttributeTryInto};
+/// use comm_lib::database::{TryFromAttribute, AttributeTryInto};
 ///
 /// let foo = SomeType::try_from_attr("MyAttribute", Some(attribute))?;
 ///

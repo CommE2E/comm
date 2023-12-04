@@ -1,5 +1,5 @@
 use bytesize::ByteSize;
-use comm_services_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
+use comm_lib::{auth::UserIdentity, backup::LatestBackupIDResponse};
 use commtest::{
   backup::{
     backup_utils::BackupData,

@@ -2,7 +2,7 @@ use crate::{config::CONFIG, service::BlobService};
 
 use actix_web::{web, App, HttpServer};
 use anyhow::Result;
-use comm_services_lib::auth::AuthService;
+use comm_lib::auth::AuthService;
 use tracing::info;
 
 mod errors;
@@ -23,7 +23,7 @@ pub async fn run_http_server(
   HttpServer::new(move || {
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
-      .wrap(comm_services_lib::http::cors_config(
+      .wrap(comm_lib::http::cors_config(
         CONFIG.localstack_endpoint.is_some(),
       ))
       .app_data(auth_service.to_owned())

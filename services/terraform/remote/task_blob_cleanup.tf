@@ -15,7 +15,7 @@ resource "aws_ecs_task_definition" "blob_cleanup" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = local.is_staging ? "info,blob=trace,comm_services_lib=debug" : "info"
+          value = local.is_staging ? "info,blob=trace,comm_lib=debug" : "info"
         },
         {
           name  = "BLOB_S3_BUCKET_NAME",

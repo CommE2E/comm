@@ -7,7 +7,7 @@ use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
   types::{AttributeValue, ReturnValue},
 };
-use comm_services_lib::database::Error;
+use comm_lib::database::Error;
 use tracing::{error, trace, warn};
 
 use crate::constants::{
