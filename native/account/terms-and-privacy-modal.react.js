@@ -180,11 +180,11 @@ const unboundStyles = {
 };
 
 const onTermsOfUsePressed = () => {
-  Linking.openURL('https://comm.app/terms');
+  void Linking.openURL('https://comm.app/terms');
 };
 
 const onPrivacyPolicyPressed = () => {
-  Linking.openURL('https://comm.app/privacy');
+  void Linking.openURL('https://comm.app/privacy');
 };
 
 export default TermsAndPrivacyModal;

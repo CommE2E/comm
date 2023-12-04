@@ -395,7 +395,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       } else {
         rawMessageInfo = this.getRawMultimediaMessageInfo(messageID);
       }
-      this.sendMultimediaMessage(rawMessageInfo);
+      void this.sendMultimediaMessage(rawMessageInfo);
     }
 
     for (const [, messageInfo] of newMessageInfos) {
@@ -427,7 +427,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     messageInfo: RawMultimediaMessageInfo,
   ): Promise<void> {
     if (!threadIsPending(messageInfo.threadID)) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         sendMultimediaMessageActionTypes,
         this.sendMultimediaMessageAction(messageInfo),
         undefined,
@@ -498,7 +498,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     }
 
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       sendMultimediaMessageActionTypes,
       this.sendMultimediaMessageAction(newMessageInfo),
       undefined,
@@ -1196,7 +1196,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abortRequest = pendingUpload.abort;
         }
         if (pendingUpload.serverID) {
-          this.props.deleteUpload({
+          void this.props.deleteUpload({
             id: pendingUpload.serverID,
             keyserverOrThreadID: threadID,
           });
@@ -1208,7 +1208,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             const endpoint = blobService.httpEndpoints.DELETE_BLOB;
             const holder = pendingUpload.blobHolder;
             const blobHash = blobHashFromBlobServiceURI(pendingUpload.uri);
-            fetch(makeBlobServiceEndpointURL(endpoint), {
+            void fetch(makeBlobServiceEndpointURL(endpoint), {
               method: endpoint.method,
               body: JSON.stringify({
                 holder,
@@ -1256,7 +1256,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (!threadIsPending(inputThreadInfo.id)) {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
         this.sendTextMessageAction(
           messageInfo,
@@ -1325,7 +1325,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           ...threadInfo,
           id: newThreadID,
         };
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
       this.sendTextMessageAction(
         newMessageInfo,
@@ -1383,7 +1383,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.props.sendCallbacks.forEach(callback => callback());
 
     const localMessageID = `${localIDPrefix}${localID}`;
-    this.startThreadCreation(threadInfo);
+    void this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {
       this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
@@ -1520,7 +1520,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }: RawImagesMessageInfo);
     }
 
-    this.startThreadCreation(threadInfo);
+    void this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {
       this.pendingSidebarCreationMessageLocalIDs.add(localMessageID);
@@ -1528,7 +1528,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const completed = InputStateContainer.completedMessageIDs(this.state);
     if (completed.has(localMessageID)) {
-      this.sendMultimediaMessage(newRawMessageInfo);
+      void this.sendMultimediaMessage(newRawMessageInfo);
       return;
     }
 
@@ -1590,7 +1590,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    this.uploadFiles(threadInfo.id, uploadsToRetry);
+    void this.uploadFiles(threadInfo.id, uploadsToRetry);
   }
 
   addReply = (message: string) => {

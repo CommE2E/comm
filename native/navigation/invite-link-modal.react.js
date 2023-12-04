@@ -111,7 +111,10 @@ function InviteLinkModal(props: Props): React.Node {
   }, [calendarQuery, callJoinThread, communityID, props.navigation, secret]);
   const dispatchActionPromise = useDispatchActionPromise();
   const joinCommunity = React.useCallback(() => {
-    dispatchActionPromise(joinThreadActionTypes, createJoinCommunityAction());
+    void dispatchActionPromise(
+      joinThreadActionTypes,
+      createJoinCommunityAction(),
+    );
   }, [createJoinCommunityAction, dispatchActionPromise]);
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
 

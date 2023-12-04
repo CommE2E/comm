@@ -255,7 +255,7 @@ function usePlaceholder(thumbHash: ?string, encryptionKey: ?string): ?string {
       return;
     }
 
-    (async () => {
+    void (async () => {
       try {
         const decryptedThumbHash = await decryptThumbhashToDataURL(
           thumbHash,

@@ -170,7 +170,7 @@ function PasswordSelection(props: Props): React.Node {
     // It's okay to call this hook conditionally because
     // the condition is guaranteed to never change
     React.useEffect(() => {
-      (async () => {
+      void (async () => {
         await sleep(250);
         if (shouldAutoFocus.current) {
           passwordInputRef.current?.focus();

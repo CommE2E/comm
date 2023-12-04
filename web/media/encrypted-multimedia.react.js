@@ -63,7 +63,7 @@ function EncryptedMultimedia(props: Props): React.Node {
       }
     };
 
-    loadDecrypted();
+    void loadDecrypted();
 
     return () => {
       isMounted = false;

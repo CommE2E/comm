@@ -7,7 +7,7 @@ function useOnFirstLaunchEffect(uniqueKey: string, effect: () => mixed) {
   const [started, setStarted] = React.useState(false);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       if (started) {
         return;
       }

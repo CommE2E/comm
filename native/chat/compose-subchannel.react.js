@@ -122,7 +122,7 @@ function ComposeSubchannel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatchNewChatThreadAction = React.useCallback(() => {
     setCreateButtonEnabled(false);
-    dispatchActionPromise(newThreadActionTypes, newChatThreadAction());
+    void dispatchActionPromise(newThreadActionTypes, newChatThreadAction());
   }, [dispatchActionPromise, newChatThreadAction]);
 
   const userInfoInputArrayEmpty = userInfoInputArray.length === 0;

@@ -39,7 +39,7 @@ function FeatureFlagsProvider(props: Props): React.Node {
   const [featuresConfig, setFeaturesConfig] = React.useState(defaultContext);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       if (featuresConfig.loadedFromService) {
         return;
       }
@@ -63,7 +63,7 @@ function FeatureFlagsProvider(props: Props): React.Node {
   }, [featuresConfig.loadedFromService]);
 
   React.useEffect(() => {
-    (async () => {
+    void (async () => {
       try {
         const config = await tryMultipleTimes(
           () => fetchFeatureFlags(Platform.OS, isStaff, codeVersion),

@@ -360,7 +360,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   };
 
   logOut() {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       logOutActionTypes,
       this.props.logOut(this.props.preRequestUserState),
     );

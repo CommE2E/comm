@@ -95,7 +95,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   const callChangeThreadSettings = useChangeThreadSettings();
 
   const addUsers = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       changeThreadSettingsActionTypes,
       callChangeThreadSettings({
         threadID,

@@ -37,7 +37,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   }, []);
 
   React.useEffect(() => {
-    generateQRCode();
+    void generateQRCode();
   }, [generateQRCode]);
 
   const styles = useStyles(unboundStyles);

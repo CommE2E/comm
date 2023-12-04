@@ -41,7 +41,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
       uriToDispose;
     setThumbnailImage(null);
 
-    (async () => {
+    void (async () => {
       if (thumbnailURI) {
         await preloadImage(thumbnailURI);
         if (isMounted) {

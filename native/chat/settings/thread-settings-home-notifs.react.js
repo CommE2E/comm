@@ -84,7 +84,7 @@ class ThreadSettingsHomeNotifs extends React.PureComponent<Props, State> {
 
   onValueChange = (value: boolean) => {
     this.setState({ currentValue: value });
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       updateSubscriptionActionTypes,
       this.props.updateSubscription({
         threadID: this.props.threadInfo.id,

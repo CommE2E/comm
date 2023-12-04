@@ -51,7 +51,7 @@ function DeleteRoleModal(props: DeleteRoleModalProps): React.Node {
   );
 
   const onDeleteRole = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       deleteCommunityRoleActionTypes,
       (async () => {
         const response = await callDeleteCommunityRole({

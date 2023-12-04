@@ -290,7 +290,7 @@ const migrations = {
     for (const key in state.drafts) {
       const value = state.drafts[key];
       try {
-        commCoreModule.updateDraft(key, value);
+        void commCoreModule.updateDraft(key, value);
       } catch (e) {
         if (!isTaskCancelledError(e)) {
           throw e;

@@ -71,7 +71,7 @@ function SIWE(): React.Node {
     const statement = getSIWEStatementForPublicKey(
       siwePrimaryIdentityPublicKey,
     );
-    signInWithEthereum(address, signer, siweNonce, statement);
+    void signInWithEthereum(address, signer, siweNonce, statement);
   }, [address, signer, siweNonce, siwePrimaryIdentityPublicKey]);
 
   const { openConnectModal } = useConnectModal();

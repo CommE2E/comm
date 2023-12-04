@@ -130,7 +130,7 @@ function KeyserverSelection(props: Props): React.Node {
     }
 
     const getVersionPromise = getVersionCall();
-    dispatchActionPromise(getVersionActionTypes, getVersionPromise);
+    void dispatchActionPromise(getVersionActionTypes, getVersionPromise);
 
     // We don't care about the result; just need to make sure this doesn't throw
     try {

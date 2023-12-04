@@ -160,7 +160,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchPhotos();
+    void this.fetchPhotos();
   }
 
   componentWillUnmount() {
@@ -219,7 +219,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
 
     if (this.props.foreground && !prevProps.foreground) {
-      this.fetchPhotos();
+      void this.fetchPhotos();
     }
 
     if (
@@ -559,7 +559,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   onEndReached = () => {
     const { cursor } = this.state;
     if (cursor !== null) {
-      this.fetchPhotos(cursor);
+      void this.fetchPhotos(cursor);
     }
   };
 

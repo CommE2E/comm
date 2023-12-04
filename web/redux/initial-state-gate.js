@@ -49,7 +49,7 @@ function InitialReduxStateGate(props: Props): React.Node {
   React.useEffect(() => {
     if (!prevIsRehydrated.current && isRehydrated) {
       prevIsRehydrated.current = isRehydrated;
-      (async () => {
+      void (async () => {
         try {
           let urlInfo = infoFromURL(decodeURI(window.location.href));
           // Handle older links

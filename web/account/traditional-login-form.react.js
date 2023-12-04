@@ -120,7 +120,7 @@ function TraditionalLoginForm(): React.Node {
       }
 
       const extraInfo = loginExtraInfo();
-      dispatchActionPromise(
+      void dispatchActionPromise(
         logInActionTypes,
         logInAction(extraInfo),
         undefined,

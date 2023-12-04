@@ -125,7 +125,7 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
   selectNotificationSetting = (data: NotificationTypes) => {
     const { dispatchActionPromise } = this.props;
 
-    dispatchActionPromise(
+    void dispatchActionPromise(
       setUserSettingsActionTypes,
       this.updatedDefaultNotifications(data),
     );

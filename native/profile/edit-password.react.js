@@ -274,7 +274,7 @@ class EditPassword extends React.PureComponent<Props, State> {
     } else if (this.state.newPassword === this.state.currentPassword) {
       this.goBackOnce();
     } else {
-      this.props.dispatchActionPromise(
+      void this.props.dispatchActionPromise(
         changeUserPasswordActionTypes,
         this.savePassword(),
       );

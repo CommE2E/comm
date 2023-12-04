@@ -327,7 +327,7 @@ class Calendar extends React.PureComponent<Props, State> {
         // centering but can be off when there is a particularly large Entry in
         // the list. scrollToToday lets us actually center, but gets overriden
         // by initialScrollIndex if we call it right after the FlatList mounts
-        sleep(50).then(() => this.scrollToToday());
+        void sleep(50).then(() => this.scrollToToday());
       }
       return;
     }
@@ -361,7 +361,7 @@ class Calendar extends React.PureComponent<Props, State> {
       // current calendar query gets reset due to inactivity, let's reset the
       // scroll position to the center (today)
       if (!this.props.calendarActive) {
-        sleep(50).then(() => this.scrollToToday());
+        void sleep(50).then(() => this.scrollToToday());
       }
       this.firstScrollComplete = false;
     } else if (newStartDate < lastStartDate) {
@@ -1000,7 +1000,7 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 
   dispatchCalendarQueryUpdate(calendarQuery: CalendarQuery) {
-    this.props.dispatchActionPromise(
+    void this.props.dispatchActionPromise(
       updateCalendarQueryActionTypes,
       this.props.updateCalendarQuery({ calendarQuery }),
     );

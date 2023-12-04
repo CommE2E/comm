@@ -23,7 +23,7 @@ function useDisplayDeleteRoleAlert(
   const dispatchActionPromise = useDispatchActionPromise();
 
   const onDeleteRole = React.useCallback(() => {
-    dispatchActionPromise(
+    void dispatchActionPromise(
       deleteCommunityRoleActionTypes,
       callDeleteCommunityRole({
         community: threadInfo.id,

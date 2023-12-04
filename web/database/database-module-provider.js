@@ -155,6 +155,6 @@ async function getDatabaseModule(): Promise<DatabaseModule> {
   return newModule;
 }
 // Start initializing the database immediately
-getDatabaseModule();
+void getDatabaseModule();
 
 export { getDatabaseModule };
