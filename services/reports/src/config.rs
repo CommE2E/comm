@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{ArgAction, Parser};
-use comm_services_lib::blob::client::Url;
+use comm_lib::blob::client::Url;
 use once_cell::sync::Lazy;
 use tracing::{info, warn};
 

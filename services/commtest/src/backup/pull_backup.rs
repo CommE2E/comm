@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::tools::Error;
-use comm_services_lib::auth::UserIdentity;
+use comm_lib::auth::UserIdentity;
 
 #[derive(Debug, Clone)]
 pub enum BackupDescriptor {
