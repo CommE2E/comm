@@ -385,7 +385,7 @@ async function postMessageSend(
         cookieID: cookieID.toString(),
         codeVersion: versions ? versions.codeVersion : null,
         stateVersion: versions ? versions.stateVersion : null,
-        majorDesktopVersion: versions ? versions.desktopCodeVersion : null,
+        majorDesktopVersion: versions ? versions.majorDesktopVersion : null,
       });
     }
     thisUserInfo.threadIDs.add(threadID);
