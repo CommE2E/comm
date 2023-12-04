@@ -14,7 +14,7 @@ import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors.js';
-import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
@@ -173,27 +173,15 @@ function AddUsersModal(props: Props): React.Node {
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
   );
-  const userSearchResults = React.useMemo(
-    () =>
-      getPotentialMemberItems({
-        text: usernameInputText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs,
-        inputParentThreadInfo: parentThreadInfo,
-        inputCommunityThreadInfo: communityThreadInfo,
-        threadType: threadInfo.type,
-      }),
-    [
-      usernameInputText,
-      otherUserInfos,
-      userSearchIndex,
-      excludeUserIDs,
-      parentThreadInfo,
-      communityThreadInfo,
-      threadInfo.type,
-    ],
-  );
+  const userSearchResults = usePotentialMemberItems({
+    text: usernameInputText,
+    userInfos: otherUserInfos,
+    searchIndex: userSearchIndex,
+    excludeUserIDs,
+    inputParentThreadInfo: parentThreadInfo,
+    inputCommunityThreadInfo: communityThreadInfo,
+    threadType: threadInfo.type,
+  });
 
   const onChangeTagInput = React.useCallback(
     (newUserInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
