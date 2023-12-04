@@ -11,7 +11,7 @@ import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
-  getPotentialMemberItems,
+  usePotentialMemberItems,
   useSearchUsers,
   notFriendNotice,
 } from 'lib/shared/search-utils.js';
@@ -60,23 +60,13 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const serverSearchResults = useSearchUsers(usernameInputText);
 
-  const userListItems = React.useMemo(
-    () =>
-      getPotentialMemberItems({
-        text: usernameInputText,
-        userInfos: otherUserInfos,
-        searchIndex: userSearchIndex,
-        excludeUserIDs: userInfoInputIDs,
-        includeServerSearchUsers: serverSearchResults,
-      }),
-    [
-      usernameInputText,
-      otherUserInfos,
-      userSearchIndex,
-      userInfoInputIDs,
-      serverSearchResults,
-    ],
-  );
+  const userListItems = usePotentialMemberItems({
+    text: usernameInputText,
+    userInfos: otherUserInfos,
+    searchIndex: userSearchIndex,
+    excludeUserIDs: userInfoInputIDs,
+    includeServerSearchUsers: serverSearchResults,
+  });
 
   const userListItemsWithENSNames = useENSNames(userListItems);
 
