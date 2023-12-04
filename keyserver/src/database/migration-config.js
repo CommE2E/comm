@@ -626,14 +626,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       const defaultCorsConfig = {
         domain: 'http://localhost:3000',
       };
-      writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
+      await writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
     },
   ],
   [
     50,
     async () => {
-      moveToNonApacheConfig('facts/webapp_url.json', '/webapp/');
-      moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
+      await moveToNonApacheConfig('facts/webapp_url.json', '/webapp/');
+      await moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
   ],
   [
