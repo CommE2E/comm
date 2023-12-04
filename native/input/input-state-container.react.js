@@ -414,7 +414,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       scrollToMessage: this.scrollToMessage,
       addScrollToMessageListener: this.addScrollToMessageListener,
       removeScrollToMessageListener: this.removeScrollToMessageListener,
-    }),
+    }: InputState),
   );
 
   scrollToMessage = (messageID: string) => {
