@@ -110,8 +110,9 @@ async function fetchUserViewer(
 
   const cookieRow = result[0];
   let platformDetails = null;
+  let versions = null;
   if (cookieRow.versions) {
-    const versions = JSON.parse(cookieRow.versions);
+    versions = JSON.parse(cookieRow.versions);
     platformDetails = {
       platform: cookieRow.platform,
       codeVersion: versions.codeVersion,
@@ -120,6 +121,14 @@ async function fetchUserViewer(
   } else {
     platformDetails = { platform: cookieRow.platform };
   }
+
+  if (platformDetails && versions && versions.majorDesktopVersion) {
+    platformDetails = {
+      ...platformDetails,
+      majorDesktopVersion: versions.majorDesktopVersion,
+    };
+  }
+
   const deviceToken = cookieRow.device_token;
   const cookieHash = cookieRow.hash;
 
@@ -195,8 +204,9 @@ async function fetchAnonymousViewer(
 
   const cookieRow = result[0];
   let platformDetails = null;
+  let versions = null;
   if (cookieRow.platform && cookieRow.versions) {
-    const versions = JSON.parse(cookieRow.versions);
+    versions = JSON.parse(cookieRow.versions);
     platformDetails = {
       platform: cookieRow.platform,
       codeVersion: versions.codeVersion,
@@ -205,6 +215,14 @@ async function fetchAnonymousViewer(
   } else if (cookieRow.platform) {
     platformDetails = { platform: cookieRow.platform };
   }
+
+  if (platformDetails && versions && versions.majorDesktopVersion) {
+    platformDetails = {
+      ...platformDetails,
+      majorDesktopVersion: versions.majorDesktopVersion,
+    };
+  }
+
   const deviceToken = cookieRow.device_token;
   const cookieHash = cookieRow.hash;
 

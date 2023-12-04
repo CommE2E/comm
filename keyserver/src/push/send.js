@@ -811,7 +811,7 @@ type VersionKey = {
   +stateVersion: number,
   +majorDesktopVersion?: number,
 };
-const versionKeyRegex: RegExp = new RegExp(/^-?\d+\|-?\d+$/);
+const versionKeyRegex: RegExp = new RegExp(/^-?\d+\|-?\d+(\|-?\d+)?$/);
 function versionKeyToString(versionKey: VersionKey): string {
   const baseStringVersionKey = `${versionKey.codeVersion}|${versionKey.stateVersion}`;
   if (!versionKey.majorDesktopVersion) {
