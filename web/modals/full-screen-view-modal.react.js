@@ -12,7 +12,7 @@ import css from './full-screen-view-modal.css';
 
 type BaseProps = {
   +children: React.Node,
-  +dynamicContentDimensions?: ?Dimensions,
+  +initialContentDimensions?: ?Dimensions,
   +setDynamicContentDimensions?: SetState<?Dimensions>,
 };
 
@@ -79,12 +79,12 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     };
 
   calculateDynamicContentDimensions: () => mixed = () => {
-    const { dynamicContentDimensions, setDynamicContentDimensions } =
+    const { initialContentDimensions, setDynamicContentDimensions } =
       this.props;
 
     if (
       !this.overlay ||
-      !dynamicContentDimensions ||
+      !initialContentDimensions ||
       !setDynamicContentDimensions
     ) {
       return;
@@ -95,7 +95,7 @@ class FullScreenViewModal extends React.PureComponent<Props> {
     const containerAspectRatio = containerWidth / containerHeight;
 
     const { width: contentWidth, height: contentHeight } =
-      dynamicContentDimensions;
+      initialContentDimensions;
     const contentAspectRatio = contentWidth / contentHeight;
 
     let newWidth, newHeight;
