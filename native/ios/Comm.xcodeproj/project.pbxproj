@@ -1280,11 +1280,11 @@
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/release",
+					"$(SRCROOT)/../native_rust_library/target/aarch64-apple-ios/debug",
 				);
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = (
 					"$(inherited)",
-					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/release",
+					"$(SRCROOT)/../native_rust_library/target/x86_64-apple-ios/debug",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DFOLLY_MOBILE=1",
