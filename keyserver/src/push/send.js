@@ -1730,12 +1730,14 @@ async function updateBadgeCount(
   const macosVersionsToTokens = byPlatform.get('macos');
   if (macosVersionsToTokens) {
     for (const [versionKey, deviceInfos] of macosVersionsToTokens) {
-      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const { codeVersion, stateVersion, majorDesktopVersion } =
+        stringToVersionKey(versionKey);
       const notification = new apn.Notification();
       notification.topic = getAPNsNotificationTopic({
         platform: 'macos',
         codeVersion,
         stateVersion,
+        majorDesktopVersion,
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
