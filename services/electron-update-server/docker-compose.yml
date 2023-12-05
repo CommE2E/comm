@@ -1,5 +1,6 @@
 services:
   electron-update-server:
+    platform: linux/amd64
     image: commapp/electron-update-server:2.0
     build:
       context: ../..
