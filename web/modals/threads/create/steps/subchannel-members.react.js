@@ -2,14 +2,13 @@
 
 import * as React from 'react';
 
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
+import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
 import Search from '../../../../components/search.react.js';
-import { useSelector } from '../../../../redux/redux-utils.js';
 
 type SubchannelMembersProps = {
   +parentThreadInfo: ThreadInfo,
@@ -32,7 +31,7 @@ function SubchannelMembers(props: SubchannelMembersProps): React.Node {
 
   const communityThread = ancestorThreads[0] ?? parentThreadInfo;
 
-  const userSearchIndex = useSelector(userStoreSearchIndex);
+  const userSearchIndex = useUserSearchIndex(parentThreadInfo.members);
   const searchResult = React.useMemo(
     () => new Set(userSearchIndex.getSearchResults(searchText)),
     [userSearchIndex, searchText],
