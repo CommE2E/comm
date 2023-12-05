@@ -86,12 +86,14 @@ function EncryptedMultimedia(props: Props): React.Node {
 
   if (!source && !invisibleLoad) {
     loadingIndicator = props.loadingIndicatorComponent ?? (
-      <LoadingIndicator
-        status="loading"
-        size="large"
-        color="white"
-        loadingClassName={css.loadingIndicator}
-      />
+      <div className={css.loadingIndicatorContainer}>
+        <LoadingIndicator
+          status="loading"
+          size="large"
+          color="white"
+          loadingClassName={css.loadingIndicator}
+        />
+      </div>
     );
   }
 
