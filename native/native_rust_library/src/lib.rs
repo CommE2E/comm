@@ -1,6 +1,7 @@
-use crate::ffi::{bool_callback, string_callback, void_callback};
+use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
+use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::authenticated::{
   OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest,
@@ -30,9 +31,12 @@ use argon2_tools::compute_backup_key_str;
 mod generated {
   // We get the CODE_VERSION from this generated file
   include!(concat!(env!("OUT_DIR"), "/version.rs"));
+  // We get the IDENTITY_SOCKET_ADDR from this generated file
+  include!(concat!(env!("OUT_DIR"), "/socket_config.rs"));
 }
 
 pub use generated::CODE_VERSION;
+pub use generated::IDENTITY_SOCKET_ADDR;
 
 #[cfg(not(feature = "android"))]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
@@ -40,11 +44,10 @@ pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
 pub const DEVICE_TYPE: DeviceType = DeviceType::Android;
 
 lazy_static! {
-  pub static ref RUNTIME: Arc<Runtime> =
+  static ref RUNTIME: Arc<Runtime> =
     Arc::new(Builder::new_multi_thread().enable_all().build().unwrap());
 }
 
-use backup::ffi::*;
 #[cxx::bridge]
 mod ffi {
 
@@ -245,7 +248,7 @@ fn generate_nonce(promise_id: u32) {
 
 async fn fetch_nonce() -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -267,7 +270,7 @@ fn version_supported(promise_id: u32) {
 
 async fn version_supported_helper() -> Result<bool, Error> {
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -375,7 +378,7 @@ async fn register_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -489,7 +492,7 @@ async fn login_password_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -613,7 +616,7 @@ async fn login_wallet_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -668,7 +671,7 @@ async fn update_user_password_helper(
     opaque_registration_request,
   };
   let mut identity_client = get_auth_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     update_password_info.user_id,
     update_password_info.device_id,
     update_password_info.access_token,
@@ -738,7 +741,7 @@ fn delete_user(
 
 async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   let mut identity_client = get_auth_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
@@ -848,7 +851,7 @@ async fn get_outbound_keys_for_user_device_helper(
   auth_info: AuthInfo,
 ) -> Result<String, Error> {
   let mut identity_client = get_auth_client(
-    "http://127.0.0.1:50054",
+    IDENTITY_SOCKET_ADDR,
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
@@ -889,9 +892,15 @@ pub enum Error {
 #[cfg(test)]
 mod tests {
   use super::CODE_VERSION;
+  use super::IDENTITY_SOCKET_ADDR;
 
   #[test]
   fn test_code_version_exists() {
     assert!(CODE_VERSION > 0);
+  }
+
+  #[test]
+  fn test_identity_socket_addr_exists() {
+    assert!(IDENTITY_SOCKET_ADDR.len() > 0);
   }
 }
