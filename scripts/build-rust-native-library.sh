@@ -36,7 +36,12 @@ env PATH="${build_path}" "$PRJ_ROOT/scripts/ensure_rustup_setup.sh"
 # Set C++ standard and build cxx bridge
 export CXXFLAGS="-std=c++14"
 # Use the determined TARGET for the build
-env PATH="${build_path}" cargo build --release --target="$TARGET"
+# Check if the build configuration is Release
+if [[ "$CONFIGURATION" == "Release" ]]; then
+  env PATH="${build_path}" cargo build --release --target="$TARGET"
+else
+  env PATH="${build_path}" cargo build --target="$TARGET"
+fi
 # Unset the flag specifying C++ standard
 unset CXXFLAGS
 # Copy the CXX files to the cargo project root to make them
