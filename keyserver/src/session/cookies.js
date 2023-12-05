@@ -6,9 +6,16 @@ import invariant from 'invariant';
 import url from 'url';
 
 import { isStaff } from 'lib/shared/staff-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
+import {
+  type Platform,
+  type PlatformDetails,
+  isDeviceType,
+} from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
   type ServerSessionChange,
@@ -742,18 +749,34 @@ async function isCookieMissingSignedIdentityKeysBlob(
 async function isCookieMissingOlmNotificationsSession(
   viewer: Viewer,
 ): Promise<boolean> {
+  const isDeviceSupportingE2ENotifs =
+    isDeviceType(viewer.platformDetails?.platform) &&
+    hasMinCodeVersion(viewer.platformDetails, { native: 222 });
+
   const isStaffOrDev = isStaff(viewer.userID) || isDev;
+
+  const isWebSupportingE2ENotifs =
+    isStaffOrDev &&
+    viewer.platformDetails?.platform === 'web' &&
+    hasMinCodeVersion(viewer.platformDetails, { web: 43 });
+
+  const isMacOSSupportingE2ENotifs =
+    isStaffOrDev &&
+    viewer.platformDetails?.platform === 'macos' &&
+    hasMinCodeVersion(viewer.platformDetails, { web: 43, majorDesktop: 9 });
+
+  const isWindowsSupportingE2ENotifs =
+    isStaffOrDev &&
+    viewer.platformDetails?.platform === 'windows' &&
+    hasMinCodeVersion(viewer.platformDetails, {
+      majorDesktop: NEXT_CODE_VERSION,
+    });
+
   if (
-    !viewer.platformDetails ||
-    (viewer.platformDetails.platform !== 'ios' &&
-      viewer.platformDetails.platform !== 'android' &&
-      !(viewer.platformDetails.platform === 'web' && isStaffOrDev) &&
-      !(viewer.platformDetails.platform === 'macos' && isStaffOrDev)) ||
-    !hasMinCodeVersion(viewer.platformDetails, {
-      native: 222,
-      web: 43,
-      majorDesktop: 9,
-    })
+    !isDeviceSupportingE2ENotifs &&
+    !isWebSupportingE2ENotifs &&
+    !isMacOSSupportingE2ENotifs &&
+    !isWindowsSupportingE2ENotifs
   ) {
     return false;
   }
