@@ -358,7 +358,7 @@ async function updateThread(
   const { description } = request.changes;
   if (description !== undefined && description !== null) {
     changedFields.description = description;
-    sqlUpdate.description;
+    sqlUpdate.description = description;
   }
   if (request.changes.color) {
     const color = request.changes.color.toLowerCase();
