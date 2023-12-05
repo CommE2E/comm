@@ -4,8 +4,9 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
+import { values } from 'lib/utils/objects.js';
 
 import css from './user-list.css';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -25,7 +26,7 @@ type UserListProps = {
 export function UserList(props: UserListProps): React.Node {
   const { userRowComponent, filterUser, usersComparator, searchText } = props;
   const userInfos = useSelector(state => state.userStore.userInfos);
-  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+  const userStoreSearchIndex = useUserSearchIndex(values(userInfos));
   const [isMenuVisible, setIsMenuVisible] = React.useState(false);
 
   const onMenuVisibilityChange = React.useCallback(
