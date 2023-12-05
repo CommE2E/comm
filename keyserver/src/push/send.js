@@ -967,7 +967,7 @@ async function prepareAPNsNotification(
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
   }
-  if (collapseKey && canDecryptAllNotifTypes) {
+  if (collapseKey && (canDecryptAllNotifTypes || canDecryptMacOSNotifs)) {
     notification.payload.collapseID = collapseKey;
   } else if (collapseKey) {
     notification.collapseId = collapseKey;
