@@ -8,7 +8,7 @@ import {
 } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
 import type {
   UserRelationshipStatus,
@@ -22,6 +22,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
@@ -55,7 +56,9 @@ function AddUsersList(props: Props): React.Node {
   } = props;
 
   const viewerID = useSelector(state => state.currentUserInfo?.id);
-  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+  const userInfos = useSelector(state => state.userStore.userInfos);
+
+  const userStoreSearchIndex = useUserSearchIndex(values(userInfos));
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
     $ReadOnlySet<string>,
   >(new Set(userStoreSearchIndex.getSearchResults(searchText)));
@@ -68,7 +71,6 @@ function AddUsersList(props: Props): React.Node {
   const serverSearchResults = useSearchUsers(searchText);
 
   const searchTextPresent = searchText.length > 0;
-  const userInfos = useSelector(state => state.userStore.userInfos);
   const mergedUserInfos = React.useMemo(() => {
     const mergedInfos: { [string]: GlobalAccountUserInfo | AccountUserInfo } =
       {};
