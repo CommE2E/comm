@@ -3,8 +3,8 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
   roleIsAdminRole,
   threadHasPermission,
@@ -33,7 +33,7 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const { members: threadMembersNotFiltered } = threadInfo;
 
-  const userSearchIndex = useSelector(userStoreSearchIndex);
+  const userSearchIndex = useUserSearchIndex(threadMembersNotFiltered);
   const userIDs = React.useMemo(
     () => userSearchIndex.getSearchResults(searchText),
     [searchText, userSearchIndex],
