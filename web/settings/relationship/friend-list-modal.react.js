@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import type { AccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 
 import AddFriendsModal from './add-friends-modal.react.js';
 import FriendListRow from './friend-list-row.react.js';
@@ -16,7 +16,7 @@ const relationships = [
   userRelationshipStatus.FRIEND,
 ];
 
-function filterUser(userInfo: AccountUserInfo) {
+function filterUser(userInfo: UserInfo) {
   return relationships.includes(userInfo.relationshipStatus);
 }
 

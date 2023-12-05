@@ -4,13 +4,13 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import type { AccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 
 import BlockListRow from './block-list-row.react.js';
 import BlockUsersModal from './block-users-modal.react.js';
 import UserListModal from './user-list-modal.react.js';
 
-function filterUser(userInfo: AccountUserInfo) {
+function filterUser(userInfo: UserInfo) {
   return (
     userInfo.relationshipStatus === userRelationshipStatus.BLOCKED_BY_VIEWER ||
     userInfo.relationshipStatus === userRelationshipStatus.BOTH_BLOCKED
