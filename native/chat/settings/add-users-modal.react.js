@@ -10,10 +10,7 @@ import {
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
@@ -165,7 +162,6 @@ function AddUsersModal(props: Props): React.Node {
   );
 
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const { parentThreadID, community } = props.route.params.threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
@@ -176,7 +172,6 @@ function AddUsersModal(props: Props): React.Node {
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
-    searchIndex: userSearchIndex,
     excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,

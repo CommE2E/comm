@@ -9,10 +9,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -68,7 +65,6 @@ function CommunityCreationMembers(props: Props): React.Node {
   const { setOptions } = navigation;
 
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
   const [usernameInputText, setUsernameInputText] = React.useState<string>('');
   const [selectedUsers, setSelectedUsers] = React.useState<
@@ -147,7 +143,6 @@ function CommunityCreationMembers(props: Props): React.Node {
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
-    searchIndex: userSearchIndex,
     excludeUserIDs: selectedUserIDs,
     threadType: announcement
       ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
