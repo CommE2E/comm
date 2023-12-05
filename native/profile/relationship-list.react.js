@@ -11,8 +11,8 @@ import {
 } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
 import {
   userRelationshipStatus,
@@ -26,6 +26,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
+import { values } from 'lib/utils/objects.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RelationshipListItem from './relationship-list-item.react.js';
@@ -91,6 +92,7 @@ type Props = {
 };
 function RelationshipList(props: Props): React.Node {
   const userInfos = useSelector(state => state.userStore.userInfos);
+  const userInfosArray = React.useMemo(() => values(userInfos), [userInfos]);
 
   const [searchInputText, setSearchInputText] = React.useState<string>('');
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
@@ -123,7 +125,7 @@ function RelationshipList(props: Props): React.Node {
     [serverSearchResults, userInfos, excludeStatuses],
   );
 
-  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+  const userStoreSearchIndex = useUserSearchIndex(userInfosArray);
   const onChangeSearchText = React.useCallback(
     async (searchText: string) => {
       setSearchInputText(searchText);
