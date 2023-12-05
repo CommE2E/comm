@@ -62,17 +62,6 @@ span.multimedia > svg.progressIndicator {
   height: 50px;
 }
 
-span.multimedia .loadingIndicator {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto auto;
-  width: 25px;
-  height: 25px;
-}
-
 :global(.CircularProgressbar-background) {
   fill: #666 !important;
 }
@@ -84,4 +73,8 @@ span.multimedia .loadingIndicator {
 }
 :global(.CircularProgressbar-trail) {
   stroke: transparent !important;
+}
+
+.loadingIndicatorContainer {
+  position: absolute;
 }
