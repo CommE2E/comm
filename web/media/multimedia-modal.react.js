@@ -96,14 +96,6 @@ function MultimediaModal(props: Props): React.Node {
       thumbnailEncryptionKey,
     } = media;
 
-    const contentDimensions = dimensions ?? media.dimensions;
-    const elementStyle = contentDimensions
-      ? {
-          width: `${contentDimensions.width}px`,
-          height: `${contentDimensions.height}px`,
-        }
-      : undefined;
-
     return (
       <EncryptedMultimedia
         type={type}
@@ -112,10 +104,10 @@ function MultimediaModal(props: Props): React.Node {
         thumbnailBlobURI={thumbnailBlobURI}
         thumbnailEncryptionKey={thumbnailEncryptionKey}
         placeholderSrc={placeholderImage}
-        elementStyle={elementStyle}
+        invisibleLoad
       />
     );
-  }, [dimensions, media, placeholderImage]);
+  }, [media, placeholderImage]);
 
   const mediaModalItem = React.useMemo(() => {
     if (media.type === 'photo') {
