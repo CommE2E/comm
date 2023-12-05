@@ -913,7 +913,7 @@ async function prepareAPNsNotification(
     platformDetails,
   } = convertedData;
 
-  const canDecryptNonCollapsibleTextNotifs =
+  const canDecryptNonCollapsibleTextIOSNotifs =
     platformDetails.codeVersion && platformDetails.codeVersion > 222;
 
   const isNonCollapsibleTextNotification =
@@ -921,13 +921,14 @@ async function prepareAPNsNotification(
       newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
     ) && !collapseKey;
 
-  const canDecryptAllNotifTypes =
+  const canDecryptAllIOSNotifs =
     platformDetails.codeVersion && platformDetails.codeVersion >= 267;
 
-  const canDecryptIOSNotifs =
+  const canDecryptIOSNotif =
     platformDetails.platform === 'ios' &&
-    (canDecryptAllNotifTypes ||
-      (isNonCollapsibleTextNotification && canDecryptNonCollapsibleTextNotifs));
+    (canDecryptAllIOSNotifs ||
+      (isNonCollapsibleTextNotification &&
+        canDecryptNonCollapsibleTextIOSNotifs));
 
   const isStaffOrDev = isStaff(userID) || isDev;
   const canDecryptMacOSNotifs =
@@ -938,7 +939,7 @@ async function prepareAPNsNotification(
       majorDesktop: 9,
     });
 
-  const shouldBeEncrypted = canDecryptIOSNotifs || canDecryptMacOSNotifs;
+  const shouldBeEncrypted = canDecryptIOSNotif || canDecryptMacOSNotifs;
 
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
@@ -967,7 +968,7 @@ async function prepareAPNsNotification(
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
   }
-  if (collapseKey && canDecryptAllNotifTypes) {
+  if (collapseKey && (canDecryptAllIOSNotifs || canDecryptMacOSNotifs)) {
     notification.payload.collapseID = collapseKey;
   } else if (collapseKey) {
     notification.collapseId = collapseKey;

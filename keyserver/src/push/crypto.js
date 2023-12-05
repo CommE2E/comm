@@ -35,7 +35,8 @@ async function encryptAPNsNotification(
 }> {
   invariant(
     !notification.collapseId,
-    'Collapsible notifications encryption currently not implemented',
+    `Collapse ID can't be directly stored in apn.Notification object due ` +
+      `to security reasons. Please put it in payload property`,
   );
 
   const encryptedNotification = new apn.Notification();
