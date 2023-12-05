@@ -8,7 +8,10 @@ import _cloneDeep from 'lodash/fp/cloneDeep.js';
 
 import type {
   PlainTextWebNotification,
+  PlainTextWebNotificationPayload,
   WebNotification,
+  PlainTextWNSNotification,
+  WNSNotification,
 } from 'lib/types/notif-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
 
@@ -237,12 +240,18 @@ async function encryptAndroidNotificationRescind(
   };
 }
 
-async function encryptWebNotification(
+async function encryptBasicPayload<T>(
   cookieID: string,
-  notification: PlainTextWebNotification,
-): Promise<{ +notification: WebNotification, +encryptionOrder?: number }> {
-  const { id, ...payloadSansId } = notification;
-  const unencryptedSerializedPayload = JSON.stringify(payloadSansId);
+  basicPayload: T,
+): Promise<
+  | { +encryptedPayload: string, +encryptionOrder?: number }
+  | { ...T, +encryptionFailed: '1' },
+> {
+  const unencryptedSerializedPayload = JSON.stringify(basicPayload);
+
+  if (!unencryptedSerializedPayload) {
+    return { ...basicPayload, encryptionFailed: '1' };
+  }
 
   try {
     const {
@@ -253,19 +262,38 @@ async function encryptWebNotification(
     });
 
     return {
-      notification: { id, encryptedPayload: serializedPayload.body },
+      encryptedPayload: serializedPayload.body,
       encryptionOrder,
     };
   } catch (e) {
     console.log('Notification encryption failed: ' + e);
     return {
-      notification: {
-        id,
-        encryptionFailed: '1',
-        ...payloadSansId,
-      },
+      ...basicPayload,
+      encryptionFailed: '1',
     };
   }
+}
+
+async function encryptWebNotification(
+  cookieID: string,
+  notification: PlainTextWebNotification,
+): Promise<{ +notification: WebNotification, +encryptionOrder?: number }> {
+  const { id, ...payloadSansId } = notification;
+  const { encryptionOrder, ...encryptionResult } =
+    await encryptBasicPayload<PlainTextWebNotificationPayload>(
+      cookieID,
+      payloadSansId,
+    );
+  return { notification: { id, ...encryptionResult }, encryptionOrder };
+}
+
+async function encryptWNSNotification(
+  cookieID: string,
+  notification: PlainTextWNSNotification,
+): Promise<{ +notification: WNSNotification, +encryptionOrder?: number }> {
+  const { encryptionOrder, ...encryptionResult } =
+    await encryptBasicPayload<PlainTextWNSNotification>(cookieID, notification);
+  return { notification: encryptionResult, encryptionOrder };
 }
 
 function prepareEncryptedAPNsNotifications(
@@ -389,6 +417,25 @@ function prepareEncryptedWebNotifications(
   return Promise.all(notificationPromises);
 }
 
+function prepareEncryptedWNSNotifications(
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
+  notification: PlainTextWNSNotification,
+): Promise<
+  $ReadOnlyArray<{
+    +deviceToken: string,
+    +notification: WNSNotification,
+    +encryptionOrder?: number,
+  }>,
+> {
+  const notificationPromises = devices.map(
+    async ({ deviceToken, cookieID }) => {
+      const notif = await encryptWNSNotification(cookieID, notification);
+      return { ...notif, deviceToken };
+    },
+  );
+  return Promise.all(notificationPromises);
+}
+
 async function encryptBlobPayload(payload: string): Promise<{
   +encryptionKey: string,
   +encryptedPayload: Blob,
@@ -421,5 +468,6 @@ export {
   prepareEncryptedAndroidNotifications,
   prepareEncryptedAndroidNotificationRescinds,
   prepareEncryptedWebNotifications,
+  prepareEncryptedWNSNotifications,
   encryptBlobPayload,
 };
