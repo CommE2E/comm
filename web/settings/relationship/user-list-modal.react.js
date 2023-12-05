@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { AccountUserInfo } from 'lib/types/user-types.js';
+import type { AccountUserInfo, UserInfo } from 'lib/types/user-types.js';
 
 import css from './user-list.css';
 import { UserList, type UserRowProps } from './user-list.react.js';
@@ -13,7 +13,7 @@ type Props = {
   +onClose: () => void,
   +name: string,
   +userRowComponent: React.ComponentType<UserRowProps>,
-  +filterUser: (userInfo: AccountUserInfo) => boolean,
+  +filterUser: (userInfo: UserInfo) => boolean,
   +usersComparator: (user1: AccountUserInfo, user2: AccountUserInfo) => number,
   +buttonLabel: string,
   +onAddUsersClick: () => void,
