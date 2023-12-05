@@ -1,6 +1,7 @@
 use crate::ffi::{bool_callback, string_callback, void_callback};
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
+use constants::DEFAULT_SOCKET_ADDR;
 use grpc_clients::identity::protos::authenticated::{
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
 };
@@ -243,7 +244,7 @@ fn generate_nonce(promise_id: u32) {
 
 async fn fetch_nonce() -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -265,7 +266,7 @@ fn version_supported(promise_id: u32) {
 
 async fn version_supported_helper() -> Result<bool, Error> {
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -373,7 +374,7 @@ async fn register_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -487,7 +488,7 @@ async fn login_password_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -611,7 +612,7 @@ async fn login_wallet_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -666,7 +667,7 @@ async fn update_user_password_helper(
     opaque_registration_request,
   };
   let mut identity_client = get_auth_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     update_password_info.user_id,
     update_password_info.device_id,
     update_password_info.access_token,
@@ -736,7 +737,7 @@ fn delete_user(
 
 async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   let mut identity_client = get_auth_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
@@ -855,7 +856,7 @@ async fn get_outbound_keys_for_user_device_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    "http://127.0.0.1:50054",
+    DEFAULT_SOCKET_ADDR,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
