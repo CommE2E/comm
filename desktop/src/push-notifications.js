@@ -141,7 +141,11 @@ function listenForNotifications(
     });
   } else if (process.platform === 'win32') {
     windowsPushNotifEventEmitter.on('received-wns-notification', payload => {
-      showNewNotification(payload, handleClick);
+      if (payload.encryptedPayload) {
+        handleEncryptedNotification(payload.encryptedPayload);
+      } else {
+        showNewNotification(payload, handleClick);
+      }
     });
   }
 }

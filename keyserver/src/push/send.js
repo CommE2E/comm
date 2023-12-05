@@ -26,7 +26,10 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -34,10 +37,7 @@ import {
   type MessageData,
 } from 'lib/types/message-types.js';
 import { rawMessageInfoValidator } from 'lib/types/message-types.js';
-import type {
-  WNSNotification,
-  ResolvedNotifTexts,
-} from 'lib/types/notif-types.js';
+import type { ResolvedNotifTexts } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
@@ -50,6 +50,7 @@ import {
   prepareEncryptedAPNsNotifications,
   prepareEncryptedAndroidNotifications,
   prepareEncryptedWebNotifications,
+  prepareEncryptedWNSNotifications,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
@@ -452,27 +453,30 @@ async function preparePushNotif(input: {
   const windowsVersionsToTokens = byPlatform.get('windows');
   if (windowsVersionsToTokens) {
     for (const [versionKey, devices] of windowsVersionsToTokens) {
-      const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
+      const { codeVersion, stateVersion, majorDesktopVersion } =
+        stringToVersionKey(versionKey);
       const platformDetails = {
         platform: 'windows',
         codeVersion,
         stateVersion,
+        majorDesktopVersion,
       };
 
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
-          const notification = await prepareWNSNotification({
-            notifTexts,
-            threadID: threadInfo.id,
-            unreadCount,
-            platformDetails,
-          });
+          const targetedNotifications = await prepareWNSNotification(
+            userID,
+            devices,
+            {
+              notifTexts,
+              threadID: threadInfo.id,
+              unreadCount,
+              platformDetails,
+            },
+          );
 
-          return devices.map(({ deviceToken }) => ({
-            notification: ({
-              deviceToken,
-              notification,
-            }: TargetedWNSNotification),
+          return targetedNotifications.map(notification => ({
+            notification,
             platform: 'windows',
             notificationInfo: {
               ...notificationInfo,
@@ -1275,8 +1279,10 @@ const wnsNotifInputDataValidator = tShape<WNSNotifInputData>({
   platformDetails: tPlatformDetails,
 });
 async function prepareWNSNotification(
+  userID: string,
+  devices: $ReadOnlyArray<NotificationTargetDevice>,
   inputData: WNSNotifInputData,
-): Promise<WNSNotification> {
+): Promise<$ReadOnlyArray<TargetedWNSNotification>> {
   const convertedData = validateOutput(
     inputData.platformDetails,
     wnsNotifInputDataValidator,
@@ -1296,7 +1302,22 @@ async function prepareWNSNotification(
   ) {
     console.warn('WNS notification exceeds size limit');
   }
-  return notification;
+
+  const isStaffOrDev = isStaff(userID) || isDev;
+  const shouldBeEncrypted =
+    isStaffOrDev &&
+    hasMinCodeVersion(inputData.platformDetails, {
+      web: NEXT_CODE_VERSION,
+      majorDesktop: NEXT_CODE_VERSION,
+    });
+
+  if (!shouldBeEncrypted) {
+    return devices.map(({ deviceToken }) => ({
+      deviceToken,
+      notification,
+    }));
+  }
+  return await prepareEncryptedWNSNotifications(devices, notification);
 }
 
 type NotificationInfo =
