@@ -109,7 +109,9 @@ async function persist() {
   const module = dbModule;
   if (!sqliteQueryExecutor || !module) {
     persistInProgress = false;
-    throw new Error('Database not initialized');
+    throw new Error(
+      'Database not initialized while persisting database content',
+    );
   }
 
   if (!encryptionKey) {
@@ -169,7 +171,9 @@ async function processAppRequest(
   }
 
   if (!sqliteQueryExecutor) {
-    throw new Error('Database not initialized');
+    throw new Error(
+      `Database not initialized, unable to process request type: ${message.type}`,
+    );
   }
 
   // read-only operations
@@ -197,7 +201,9 @@ async function processAppRequest(
     throw new Error('Request type not supported');
   }
   if (!sqliteQueryExecutor) {
-    throw new Error('Database not initialized');
+    throw new Error(
+      `Database not initialized, unable to process request type: ${message.type}`,
+    );
   }
 
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
