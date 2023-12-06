@@ -1,7 +1,8 @@
-use crate::ffi::{bool_callback, string_callback, void_callback};
+use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use constants::DEFAULT_SOCKET_ADDR;
+use config::{get_identity_service_config, IdentityServiceConfig};
+use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::authenticated::{
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
 };
@@ -20,10 +21,12 @@ use serde::Serialize;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{Request, Status};
-use tracing::instrument;
+use tracing::{instrument, Level};
+use tracing_subscriber::EnvFilter;
 
 mod argon2_tools;
 mod backup;
+mod config;
 mod constants;
 
 use argon2_tools::compute_backup_key_str;
@@ -41,11 +44,23 @@ pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
 pub const DEVICE_TYPE: DeviceType = DeviceType::Android;
 
 lazy_static! {
-  pub static ref RUNTIME: Arc<Runtime> =
+  static ref RUNTIME: Arc<Runtime> =
     Arc::new(Builder::new_multi_thread().enable_all().build().unwrap());
+  static ref IDENTITY_SERVICE_CONFIG: IdentityServiceConfig = {
+    let filter = EnvFilter::builder()
+      .with_default_directive(Level::INFO.into())
+      .with_env_var(EnvFilter::DEFAULT_ENV)
+      .from_env_lossy();
+
+    let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
+    tracing::subscriber::set_global_default(subscriber)
+      .expect("Unable to configure tracing");
+
+    get_identity_service_config()
+      .unwrap_or_else(|_| IdentityServiceConfig::default())
+  };
 }
 
-use backup::ffi::*;
 #[cxx::bridge]
 mod ffi {
 
@@ -244,7 +259,7 @@ fn generate_nonce(promise_id: u32) {
 
 async fn fetch_nonce() -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -266,7 +281,7 @@ fn version_supported(promise_id: u32) {
 
 async fn version_supported_helper() -> Result<bool, Error> {
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -374,7 +389,7 @@ async fn register_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -488,7 +503,7 @@ async fn login_password_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -612,7 +627,7 @@ async fn login_wallet_user_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
@@ -667,7 +682,7 @@ async fn update_user_password_helper(
     opaque_registration_request,
   };
   let mut identity_client = get_auth_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     update_password_info.user_id,
     update_password_info.device_id,
     update_password_info.access_token,
@@ -737,7 +752,7 @@ fn delete_user(
 
 async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   let mut identity_client = get_auth_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
@@ -856,7 +871,7 @@ async fn get_outbound_keys_for_user_device_helper(
   };
 
   let mut identity_client = get_unauthenticated_client(
-    DEFAULT_SOCKET_ADDR,
+    &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
     CODE_VERSION,
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
