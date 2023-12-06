@@ -3,7 +3,9 @@
 
 use std::collections::HashMap;
 
-use aws_sdk_dynamodb::{client::fluent_builders::Query, model::AttributeValue};
+use aws_sdk_dynamodb::{
+  client::fluent_builders::Query, model::AttributeValue, output::GetItemOutput,
+};
 use chrono::{DateTime, Utc};
 use tracing::{error, warn};
 
@@ -371,6 +373,30 @@ impl DatabaseClient {
       .map(DeviceRow::try_from)
       .collect::<Result<Vec<DeviceRow>, DBItemError>>()
       .map_err(Error::from)
+  }
+
+  /// Checks if given device exists on user's current device list
+  pub async fn device_exists(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+  ) -> Result<bool, Error> {
+    let GetItemOutput { item, .. } = self
+      .client
+      .get_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id.into()))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id.into()).into())
+      // only fetch the primary key, we don't need the rest
+      .projection_expression(format!("{ATTR_USER_ID}, {ATTR_ITEM_ID}"))
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to check if device exists: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(item.is_some())
   }
 }
 
