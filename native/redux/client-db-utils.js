@@ -21,8 +21,8 @@ import {
 } from 'lib/utils/message-ops-utils.js';
 import { values, entries } from 'lib/utils/objects.js';
 import {
-  convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
+  deprecatedConvertClientDBThreadInfoToRawThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 
 import type { AppState } from './state-types.js';
@@ -66,7 +66,7 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
 ): $ReadOnlyArray<ClientDBThreadStoreOperation> {
   // Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
   const rawThreadInfos = clientDBThreadInfos.map(
-    convertClientDBThreadInfoToRawThreadInfo,
+    deprecatedConvertClientDBThreadInfoToRawThreadInfo,
   );
 
   // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
