@@ -17,6 +17,13 @@ pub enum Error {
   Status(tonic::Status),
   #[display(...)]
   MissingItem,
+  #[display(...)]
+  DeviceList(DeviceListError),
+}
+
+#[derive(Debug, derive_more::Display, derive_more::Error)]
+pub enum DeviceListError {
+  ConcurrentUpdateError,
 }
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
