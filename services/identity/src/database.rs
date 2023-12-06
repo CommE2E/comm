@@ -140,15 +140,20 @@ impl DatabaseClient {
     registration_state: UserRegistrationInfo,
     password_file: Vec<u8>,
   ) -> Result<String, Error> {
-    self
+    let device_key_upload = registration_state.flattened_device_key_upload;
+    let user_id = self
       .add_user_to_users_table(
-        registration_state.flattened_device_key_upload,
+        device_key_upload.clone(),
         Some((registration_state.username, Blob::new(password_file))),
         None,
         None,
         registration_state.user_id,
       )
-      .await
+      .await?;
+
+    self.add_device(&user_id, device_key_upload, None).await?;
+
+    Ok(user_id)
   }
 
   pub async fn add_wallet_user_to_users_table(
@@ -158,15 +163,22 @@ impl DatabaseClient {
     social_proof: String,
     user_id: Option<String>,
   ) -> Result<String, Error> {
-    self
+    let social_proof = Some(social_proof);
+    let user_id = self
       .add_user_to_users_table(
-        flattened_device_key_upload,
+        flattened_device_key_upload.clone(),
         None,
         Some(wallet_address),
-        Some(social_proof),
+        social_proof.clone(),
         user_id,
       )
-      .await
+      .await?;
+
+    self
+      .add_device(&user_id, flattened_device_key_upload, social_proof)
+      .await?;
+
+    Ok(user_id)
   }
 
   async fn add_user_to_users_table(
@@ -241,8 +253,29 @@ impl DatabaseClient {
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
   ) -> Result<(), Error> {
+    // add device to the legacy device list
     self
-      .add_device_to_users_table(user_id, flattened_device_key_upload, None)
+      .add_device_to_users_table(
+        user_id.clone(),
+        flattened_device_key_upload.clone(),
+        None,
+      )
+      .await?;
+
+    // add device to the new device list if not exists
+    let device_exists = self
+      .device_exists(
+        user_id.clone(),
+        flattened_device_key_upload.device_id_key.clone(),
+      )
+      .await?;
+
+    if device_exists {
+      return Ok(());
+    }
+
+    self
+      .add_device(user_id, flattened_device_key_upload, None)
       .await
   }
 
@@ -252,12 +285,30 @@ impl DatabaseClient {
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     social_proof: String,
   ) -> Result<(), Error> {
+    // add device to the legacy device list
     self
       .add_device_to_users_table(
-        user_id,
-        flattened_device_key_upload,
-        Some(social_proof),
+        user_id.clone(),
+        flattened_device_key_upload.clone(),
+        Some(social_proof.clone()),
       )
+      .await?;
+
+    // add device to the new device list if not exists
+    let device_exists = self
+      .device_exists(
+        user_id.clone(),
+        flattened_device_key_upload.device_id_key.clone(),
+      )
+      .await?;
+
+    if device_exists {
+      return Ok(());
+    }
+
+    // add device to the new device list
+    self
+      .add_device(user_id, flattened_device_key_upload, Some(social_proof))
       .await
   }
 
