@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use aws_sdk_dynamodb::model::AttributeValue;
 use chrono::{DateTime, Utc};
+use tracing::warn;
 
 use crate::{
   constants::devices_table::*,
@@ -55,6 +56,15 @@ impl From<DeviceIDAttribute> for AttributeValue {
   }
 }
 
+impl From<DeviceListKeyAttribute> for AttributeValue {
+  fn from(value: DeviceListKeyAttribute) -> Self {
+    AttributeValue::S(format!(
+      "{DEVICE_LIST_KEY_PREFIX}{}",
+      value.0.to_rfc3339()
+    ))
+  }
+}
+
 impl TryFrom<Option<AttributeValue>> for DeviceIDAttribute {
   type Error = DBItemError;
   fn try_from(value: Option<AttributeValue>) -> Result<Self, Self::Error> {
@@ -71,6 +81,33 @@ impl TryFrom<Option<AttributeValue>> for DeviceIDAttribute {
       .to_string();
 
     Ok(Self(device_id))
+  }
+}
+
+impl TryFrom<Option<AttributeValue>> for DeviceListKeyAttribute {
+  type Error = DBItemError;
+  fn try_from(value: Option<AttributeValue>) -> Result<Self, Self::Error> {
+    let item_id = parse_string_attribute(ATTR_ITEM_ID, value)?;
+
+    // remove the device-list- prefix, then parse the timestamp
+    let timestamp: DateTime<Utc> = item_id
+      .strip_prefix(DEVICE_LIST_KEY_PREFIX)
+      .ok_or_else(|| DBItemError {
+        attribute_name: ATTR_ITEM_ID.to_string(),
+        attribute_value: Some(AttributeValue::S(item_id.clone())),
+        attribute_error: DBItemAttributeError::InvalidValue,
+      })
+      .and_then(|s| {
+        s.parse().map_err(|e| {
+          DBItemError::new(
+            ATTR_ITEM_ID.to_string(),
+            Some(AttributeValue::S(item_id.clone())),
+            DBItemAttributeError::InvalidTimestamp(e),
+          )
+        })
+      })?;
+
+    Ok(Self(timestamp))
   }
 }
 
@@ -182,6 +219,82 @@ impl From<DeviceRow> for RawAttributes {
       );
     }
 
+    attrs
+  }
+}
+
+impl TryFrom<RawAttributes> for DeviceListRow {
+  type Error = DBItemError;
+
+  fn try_from(mut attrs: RawAttributes) -> Result<Self, Self::Error> {
+    let user_id =
+      parse_string_attribute(ATTR_USER_ID, attrs.remove(ATTR_USER_ID))?;
+    let DeviceListKeyAttribute(timestamp) =
+      attrs.remove(ATTR_ITEM_ID).try_into()?;
+
+    // validate timestamps are in sync
+    let timestamps_match = attrs
+      .remove(ATTR_TIMESTAMP)
+      .and_then(|attr| attr.as_n().ok().cloned())
+      .and_then(|val| val.parse::<i64>().ok())
+      .filter(|val| *val == timestamp.timestamp_millis())
+      .is_some();
+    if !timestamps_match {
+      warn!(
+        "DeviceList timestamp mismatch for (userID={}, itemID={})",
+        &user_id,
+        timestamp.to_rfc3339()
+      );
+    }
+
+    // this should be a list of strings
+    let device_ids = attrs
+      .remove(ATTR_DEVICE_IDS)
+      .ok_or_else(|| {
+        DBItemError::new(
+          ATTR_DEVICE_IDS.to_string(),
+          None,
+          DBItemAttributeError::Missing,
+        )
+      })?
+      .to_vec(ATTR_DEVICE_IDS)?
+      .iter()
+      .map(|v| v.to_string("device_ids[?]").cloned())
+      .collect::<Result<Vec<String>, DBItemError>>()?;
+
+    Ok(Self {
+      user_id,
+      timestamp,
+      device_ids,
+    })
+  }
+}
+
+impl From<DeviceListRow> for RawAttributes {
+  fn from(device_list: DeviceListRow) -> Self {
+    let mut attrs = HashMap::new();
+    attrs.insert(
+      ATTR_USER_ID.to_string(),
+      AttributeValue::S(device_list.user_id.clone()),
+    );
+    attrs.insert(
+      ATTR_ITEM_ID.to_string(),
+      DeviceListKeyAttribute(device_list.timestamp).into(),
+    );
+    attrs.insert(
+      ATTR_TIMESTAMP.to_string(),
+      AttributeValue::N(device_list.timestamp.timestamp_millis().to_string()),
+    );
+    attrs.insert(
+      ATTR_DEVICE_IDS.to_string(),
+      AttributeValue::L(
+        device_list
+          .device_ids
+          .into_iter()
+          .map(AttributeValue::S)
+          .collect(),
+      ),
+    );
     attrs
   }
 }
