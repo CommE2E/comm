@@ -11,4 +11,13 @@ async function reportLinkUsage(secret: string): Promise<void> {
   await dbQuery(query);
 }
 
-export { reportLinkUsage };
+async function setLinkHolder(secret: string, holder: string): Promise<void> {
+  const query = SQL`
+    UPDATE invite_links
+    SET blob_holder = ${holder}
+    WHERE name = ${secret}
+  `;
+  await dbQuery(query);
+}
+
+export { reportLinkUsage, setLinkHolder };
