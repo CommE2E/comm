@@ -1,6 +1,5 @@
 // @flow
 
-import type { CommQueryExecutorType } from './comm-query-executor.js';
 import type { FS } from './file-system.js';
 import type { SQLiteQueryExecutorType } from './sqlite-query-executor.js';
 
@@ -68,5 +67,4 @@ declare export class EmscriptenModule {
   FS: FS;
 
   SQLiteQueryExecutor: SQLiteQueryExecutorType;
-  CommQueryExecutor: CommQueryExecutorType;
 }
