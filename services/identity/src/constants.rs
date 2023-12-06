@@ -66,6 +66,8 @@ pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME: &str =
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
 pub const USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME: &str =
   "socialProof";
+pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
+  "deviceListTimestamp";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
 
@@ -87,6 +89,40 @@ pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
 // Usernames reserved because they exist in Ashoat's keyserver already
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
+
+pub mod devices_table {
+  /// table name
+  pub const NAME: &str = "identity-devices";
+  pub const TIMESTAMP_INDEX_NAME: &str = "deviceList-timestamp-index";
+
+  /// partition key
+  pub const ATTR_USER_ID: &str = "userID";
+  /// sort key
+  pub const ATTR_ITEM_ID: &str = "itemID";
+
+  // itemID prefixes (one shouldn't be a prefix of the other)
+  pub const DEVICE_ITEM_KEY_PREFIX: &str = "device-";
+  pub const DEVICE_LIST_KEY_PREFIX: &str = "devicelist-";
+
+  // device-specific attrs
+  pub const ATTR_DEVICE_TYPE: &str = "deviceType";
+  pub const ATTR_DEVICE_KEY_INFO: &str = "deviceKeyInfo";
+  pub const ATTR_CONTENT_PREKEY: &str = "contentPreKey";
+  pub const ATTR_NOTIF_PREKEY: &str = "notifPreKey";
+
+  // IdentityKeyInfo constants
+  pub const ATTR_KEY_PAYLOAD: &str = "keyPayload";
+  pub const ATTR_KEY_PAYLOAD_SIGNATURE: &str = "keyPayloadSignature";
+  pub const ATTR_SOCIAL_PROOF: &str = "socialProof";
+
+  // PreKey constants
+  pub const ATTR_PREKEY: &str = "preKey";
+  pub const ATTR_PREKEY_SIGNATURE: &str = "preKeySignature";
+
+  // device-list-specific attrs
+  pub const ATTR_TIMESTAMP: &str = "timestamp";
+  pub const ATTR_DEVICE_IDS: &str = "deviceIDs";
+}
 
 // One time keys table, which need to exist in their own table to ensure
 // atomicity of additions and removals
