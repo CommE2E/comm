@@ -3,14 +3,15 @@
 
 use std::collections::HashMap;
 
-use aws_sdk_dynamodb::model::AttributeValue;
+use aws_sdk_dynamodb::{client::fluent_builders::Query, model::AttributeValue};
 use chrono::{DateTime, Utc};
 use tracing::{error, warn};
 
 use crate::{
   constants::{
-    devices_table::*, USERS_TABLE,
-    USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
+    devices_table::{self, *},
+    USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
+    USERS_TABLE_PARTITION_KEY,
   },
   database::parse_string_attribute,
   ddb_utils::AttributesOptionExt,
@@ -18,7 +19,7 @@ use crate::{
   grpc_services::protos::unauth::DeviceType,
 };
 
-use super::parse_date_time_attribute;
+use super::{parse_date_time_attribute, DatabaseClient};
 
 type RawAttributes = HashMap<String, AttributeValue>;
 
@@ -346,6 +347,33 @@ impl From<DeviceListRow> for RawAttributes {
   }
 }
 
+impl DatabaseClient {
+  /// Retrieves user's current devices and their full data
+  pub async fn get_current_devices(
+    &self,
+    user_id: impl Into<String>,
+  ) -> Result<Vec<DeviceRow>, Error> {
+    let response =
+      query_rows_with_prefix(self, user_id, DEVICE_ITEM_KEY_PREFIX)
+        .send()
+        .await
+        .map_err(|e| {
+          error!("Failed to get current devices: {:?}", e);
+          Error::AwsSdk(e.into())
+        })?;
+
+    let Some(rows) = response.items else {
+      return Ok(Vec::new());
+    };
+
+    rows
+      .into_iter()
+      .map(DeviceRow::try_from)
+      .collect::<Result<Vec<DeviceRow>, DBItemError>>()
+      .map_err(Error::from)
+  }
+}
+
 /// Gets timestamp of user's current device list. Returns None if the user
 /// doesn't have a device lsit yet. Storing the timestamp in the users table is
 /// required for consistency. It's used as a condition when updating the device
@@ -382,4 +410,26 @@ async fn get_current_devicelist_timestamp(
     raw_datetime,
   )?;
   Ok(Some(timestamp))
+}
+
+/// Helper function to query rows by given sort key prefix
+fn query_rows_with_prefix(
+  db: &crate::database::DatabaseClient,
+  user_id: impl Into<String>,
+  prefix: &'static str,
+) -> Query {
+  db.client
+    .query()
+    .table_name(devices_table::NAME)
+    .key_condition_expression(
+      "#user_id = :user_id AND begins_with(#item_id, :device_prefix)",
+    )
+    .expression_attribute_names("#user_id", ATTR_USER_ID)
+    .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+    .expression_attribute_values(":user_id", AttributeValue::S(user_id.into()))
+    .expression_attribute_values(
+      ":device_prefix",
+      AttributeValue::S(prefix.to_string()),
+    )
+    .consistent_read(true)
 }
