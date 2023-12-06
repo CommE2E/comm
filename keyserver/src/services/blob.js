@@ -12,7 +12,7 @@ type BlobDescriptor = {
 };
 
 type BlobOperationResult = 'SUCCESS' | 'FAILURE';
-type BlobUploadResult = BlobOperationResult | 'HASH_IN_USE';
+export type BlobUploadResult = BlobOperationResult | 'HASH_IN_USE';
 
 async function uploadBlob(blob: Blob, hash: string): Promise<BlobUploadResult> {
   const formData = new FormData();
