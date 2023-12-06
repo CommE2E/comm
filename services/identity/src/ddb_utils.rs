@@ -2,6 +2,8 @@ use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
+use crate::error::{DBItemAttributeError, DBItemError};
+
 #[derive(Copy, Clone, Debug)]
 pub enum OlmAccountType {
   Content,
@@ -55,4 +57,24 @@ where
       create_one_time_key_put_request(device_id, otk.to_string(), account_type)
     })
     .collect()
+}
+
+pub trait AttributesOptionExt<T> {
+  fn ok_or_missing(
+    self,
+    attr_name: impl Into<String>,
+  ) -> Result<T, DBItemError>;
+}
+
+impl<T> AttributesOptionExt<T> for Option<T> {
+  fn ok_or_missing(
+    self,
+    attr_name: impl Into<String>,
+  ) -> Result<T, DBItemError> {
+    self.ok_or_else(|| DBItemError {
+      attribute_name: attr_name.into(),
+      attribute_value: None,
+      attribute_error: DBItemAttributeError::Missing,
+    })
+  }
 }
