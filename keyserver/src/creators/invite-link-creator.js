@@ -27,6 +27,7 @@ import {
   assignHolder,
   uploadBlob,
   deleteBlob,
+  type BlobUploadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 import { fetchIdentityInfo } from '../user/identity.js';
@@ -58,7 +59,7 @@ async function createOrUpdatePublicLink(
   const fetchThreadInfoPromise = fetchServerThreadInfos({
     threadID: request.communityID,
   });
-  const blobDownloadPromise = getInviteLinkBlob(request);
+  const blobDownloadPromise = getInviteLinkBlob(request.name);
   const [
     hasPermission,
     existingPrimaryLinks,
@@ -198,14 +199,15 @@ async function createOrUpdatePublicLink(
   };
 }
 
-async function getInviteLinkBlob(
-  request: CreateOrUpdatePublicLinkRequest,
-): Promise<BlobDownloadResult> {
-  const hash = inviteLinkBlobHash(request.name);
+async function getInviteLinkBlob(secret: string): Promise<BlobDownloadResult> {
+  const hash = inviteLinkBlobHash(secret);
   return download(hash);
 }
 
-async function uploadInviteLinkBlob(linkSecret: string, holder: string) {
+async function uploadInviteLinkBlob(
+  linkSecret: string,
+  holder: string,
+): Promise<BlobUploadResult> {
   const identityInfo = await fetchIdentityInfo();
   const keyserverID = identityInfo?.userId;
   if (!keyserverID) {
@@ -231,4 +233,4 @@ async function uploadInviteLinkBlob(linkSecret: string, holder: string) {
   return await assignHolder({ holder, hash: key });
 }
 
-export { createOrUpdatePublicLink };
+export { createOrUpdatePublicLink, uploadInviteLinkBlob, getInviteLinkBlob };
