@@ -13,6 +13,7 @@ use chrono::{DateTime, Utc};
 use tracing::{error, warn};
 
 use crate::{
+  client_service::FlattenedDeviceKeyUpload,
   constants::{
     devices_table::{self, *},
     USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
@@ -58,6 +59,28 @@ pub struct DeviceListRow {
   pub user_id: String,
   pub timestamp: DateTime<Utc>,
   pub device_ids: Vec<String>,
+}
+
+impl DeviceRow {
+  pub fn from_device_key_upload(
+    user_id: impl Into<String>,
+    upload: FlattenedDeviceKeyUpload,
+    social_proof: Option<String>,
+  ) -> Self {
+    Self {
+      user_id: user_id.into(),
+      device_id: upload.device_id_key,
+      device_type: DeviceType::from_str_name(upload.device_type.as_str_name())
+        .expect("DeviceType conversion failed. Identity client and server protos mismatch"),
+      key_payload: upload.key_payload,
+      key_payload_signature: upload.key_payload_signature,
+      content_prekey: upload.content_prekey,
+      content_prekey_signature: upload.content_prekey_signature,
+      notif_prekey: upload.notif_prekey,
+      notif_prekey_signature: upload.notif_prekey_signature,
+      social_proof,
+    }
+  }
 }
 
 impl DeviceListRow {
@@ -374,6 +397,52 @@ pub async fn get_current_devices(
     .map(DeviceRow::try_from)
     .collect::<Result<Vec<DeviceRow>, DBItemError>>()
     .map_err(Error::from)
+}
+
+/// Adds new device to user's device list. If the device already exists, the
+/// operation fails. Transactionally generates new device list version.
+pub async fn add_device(
+  db: &crate::database::DatabaseClient,
+  user_id: impl Into<String>,
+  device_key_upload: FlattenedDeviceKeyUpload,
+  social_proof: Option<String>,
+) -> Result<(), Error> {
+  let user_id: String = user_id.into();
+  transact_update_devicelist(db, &user_id, |ref mut user_devices| {
+    let new_device = DeviceRow::from_device_key_upload(
+      &user_id,
+      device_key_upload,
+      social_proof,
+    );
+
+    if user_devices
+      .iter()
+      .any(|d| d.device_id == new_device.device_id)
+    {
+      warn!(
+        "Device already exists in user's device list (userID={}, deviceID={})",
+        &user_id, &new_device.device_id
+      );
+      return Err(Error::DeviceList(DeviceListError::DeviceAlreadyExists));
+    }
+    user_devices.push(new_device.clone());
+
+    // Put new device
+    let put_device = Put::builder()
+      .table_name(devices_table::NAME)
+      .set_item(Some(new_device.into()))
+      .condition_expression(
+        "attribute_not_exists(#user_id) AND attribute_not_exists(#item_id)",
+      )
+      .expression_attribute_names("#user_id", ATTR_USER_ID)
+      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+      .build();
+    let put_device_operation =
+      TransactWriteItem::builder().put(put_device).build();
+
+    Ok(put_device_operation)
+  })
+  .await
 }
 
 /// Gets timestamp of user's current device list. Returns None if the user
