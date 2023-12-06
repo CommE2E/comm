@@ -28,6 +28,7 @@ import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAndUploadAccountPrekeys } from '../utils/olm-utils.js';
+import { synchronizeInviteLinksWithBlobs } from '../utils/synchronizeInviteLinksWithBlobs.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -140,6 +141,19 @@ if (cluster.isMaster) {
         );
       } catch (e) {
         console.warn('encountered error while trying to validate prekeys', e);
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
+    async () => {
+      try {
+        await synchronizeInviteLinksWithBlobs();
+      } catch (e) {
+        console.warn(
+          'encountered an error while trying to synchronize invite links with blobs',
+          e,
+        );
       }
     },
   );
