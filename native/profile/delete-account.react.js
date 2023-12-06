@@ -5,23 +5,34 @@ import { Text, View, ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
+  deleteIdentityAccountActionTypes,
   deleteKeyserverAccountActionTypes,
+  useDeleteIdentityAccount,
   useDeleteKeyserverAccount,
 } from 'lib/actions/user-actions.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import {
+  createLoadingStatusSelector,
+  combineLoadingStatuses,
+} from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
+import { commRustModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { getContentSigningKey } from '../utils/crypto-utils.js';
 
-const loadingStatusSelector = createLoadingStatusSelector(
+const keyserverLoadingStatusSelector = createLoadingStatusSelector(
   deleteKeyserverAccountActionTypes,
+);
+const identityLoadingStatusSelector = createLoadingStatusSelector(
+  deleteIdentityAccountActionTypes,
 );
 
 type Props = {
@@ -30,43 +41,79 @@ type Props = {
 };
 const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
   function DeleteAccount() {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const keyserverLoadingStatus = useSelector(keyserverLoadingStatusSelector);
+    const identityLoadingStatus = useSelector(identityLoadingStatusSelector);
+    const combinedLoadingStatuses = combineLoadingStatuses(
+      keyserverLoadingStatus,
+      identityLoadingStatus,
+    );
     const preRequestUserState = useSelector(preRequestUserStateSelector);
+
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteAccount = useDeleteKeyserverAccount();
+    const callDeleteKeyserverAccount = useDeleteKeyserverAccount();
+    const callDeleteIdentityAccount = useDeleteIdentityAccount();
 
-    const buttonContent =
-      loadingStatus === 'loading' ? (
-        <ActivityIndicator size="small" color="white" />
-      ) : (
-        <Text style={styles.saveText}>Delete account</Text>
-      );
+    const isButtonDisabled = combinedLoadingStatuses === 'loading';
+
+    const buttonContent = isButtonDisabled ? (
+      <ActivityIndicator size="small" color="white" />
+    ) : (
+      <Text style={styles.saveText}>Delete account</Text>
+    );
 
     const noWayToReverseThisStyles = React.useMemo(
       () => [styles.warningText, styles.lastWarningText],
       [styles.warningText, styles.lastWarningText],
     );
 
-    const deleteAction = React.useCallback(async () => {
+    const deleteKeyserverAction = React.useCallback(async () => {
       try {
         await deleteNativeCredentialsFor();
-        return await callDeleteAccount(preRequestUserState);
+        return await callDeleteKeyserverAccount(preRequestUserState);
       } catch (e) {
-        Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-          cancelable: false,
-        });
+        Alert.alert(
+          'Unknown error deleting keyserver account',
+          'Uhh... try again?',
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
         throw e;
       }
-    }, [callDeleteAccount, preRequestUserState]);
+    }, [callDeleteKeyserverAccount, preRequestUserState]);
+
+    const deleteIdentityAction = React.useCallback(async () => {
+      try {
+        const deviceID = await getContentSigningKey();
+        return await callDeleteIdentityAccount(commRustModule, deviceID);
+      } catch (e) {
+        Alert.alert(
+          'Unknown error deleting account',
+          'Uhh... try again?',
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
+        throw e;
+      }
+    }, [callDeleteIdentityAccount]);
 
     const onDelete = React.useCallback(() => {
       void dispatchActionPromise(
         deleteKeyserverAccountActionTypes,
-        deleteAction(),
+        deleteKeyserverAction(),
       );
-    }, [dispatchActionPromise, deleteAction]);
+      if (usingCommServicesAccessToken) {
+        void dispatchActionPromise(
+          deleteIdentityAccountActionTypes,
+          deleteIdentityAction(),
+        );
+      }
+    }, [dispatchActionPromise, deleteKeyserverAction, deleteIdentityAction]);
 
     return (
       <ScrollView
@@ -83,7 +130,11 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
             There is no way to reverse this.
           </Text>
         </View>
-        <Button onPress={onDelete} style={styles.deleteButton}>
+        <Button
+          onPress={onDelete}
+          style={styles.deleteButton}
+          disabled={isButtonDisabled}
+        >
           {buttonContent}
         </Button>
       </ScrollView>
