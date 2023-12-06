@@ -85,7 +85,7 @@ import {
 } from 'lib/utils/migration-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import {
-  convertClientDBThreadInfoToRawThreadInfo,
+  deprecatedConvertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
@@ -476,7 +476,7 @@ const migrations = {
     // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s and
     //    `ClientDBMessageInfo`s to `RawMessageInfo`s.
     const rawThreadInfos = clientDBThreadInfos.map(
-      convertClientDBThreadInfoToRawThreadInfo,
+      deprecatedConvertClientDBThreadInfoToRawThreadInfo,
     );
     const rawMessageInfos = clientDBMessageInfos.map(
       translateClientDBMessageInfoToRawMessageInfo,
@@ -932,7 +932,7 @@ const migrations = {
   [59]: (state: AppState) => {
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
     const rawThreadInfos = clientDBThreadInfos.map(
-      convertClientDBThreadInfoToRawThreadInfo,
+      deprecatedConvertClientDBThreadInfoToRawThreadInfo,
     );
     const rawThreadInfosObject = rawThreadInfos.reduce(
       (
