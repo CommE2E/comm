@@ -14,7 +14,7 @@ import { isNormalStartup } from './handle-squirrel-event.js';
 let windowsPushNotificationManager;
 const windowsPushNotifEventEmitter = new EventEmitter();
 if (process.platform === 'win32' && app.isPackaged && isNormalStartup()) {
-  (async () => {
+  void (async () => {
     try {
       const { PushNotificationManager } = await import('@commapp/windowspush');
 

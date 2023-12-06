@@ -176,17 +176,17 @@ const createMainWindow = (urlPath?: string) => {
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {
-    shell.openExternal(openURL);
+    void shell.openExternal(openURL);
     // Returning 'deny' prevents a new electron window from being created
     return { action: 'deny' };
   });
 
-  (async () => {
+  void (async () => {
     const css = await scrollbarCSS;
-    win.webContents.insertCSS(css);
+    await win.webContents.insertCSS(css);
   })();
 
-  win.loadURL(url + (urlPath ?? ''));
+  void win.loadURL(url + (urlPath ?? ''));
   mainWindow = win;
 
   return win;
@@ -202,7 +202,7 @@ const createSplashWindow = () => {
     center: true,
     backgroundColor: '#111827',
   });
-  win.loadFile(path.resolve(__dirname, '../pages/splash.html'));
+  void win.loadFile(path.resolve(__dirname, '../pages/splash.html'));
 
   return win;
 };
@@ -221,7 +221,7 @@ const createErrorWindow = () => {
   win.on('close', () => {
     app.quit();
   });
-  win.loadFile(path.resolve(__dirname, '../pages/error.html'));
+  void win.loadFile(path.resolve(__dirname, '../pages/error.html'));
 
   return win;
 };
@@ -252,7 +252,7 @@ const show = (urlPath?: string) => {
 
     setTimeout(() => {
       loadedSuccessfully = true;
-      main.loadURL(url);
+      void main.loadURL(url);
     }, 1000);
   };
 
@@ -272,7 +272,7 @@ const show = (urlPath?: string) => {
       main.show();
 
       if (app.isPackaged) {
-        sendDeviceTokenToWebApp();
+        void sendDeviceTokenToWebApp();
       }
     }
   });
@@ -289,7 +289,7 @@ const run = () => {
   }
   setApplicationMenu();
 
-  (async () => {
+  void (async () => {
     await app.whenReady();
 
     const handleNotificationClick = (threadID?: string) => {
