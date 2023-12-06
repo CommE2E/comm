@@ -11,7 +11,7 @@ type BlobDescriptor = {
   +holder: string,
 };
 
-type BlobOperationResult =
+export type BlobOperationResult =
   | {
       +success: true,
     }
