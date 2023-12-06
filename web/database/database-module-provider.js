@@ -9,7 +9,7 @@ import {
   SQLITE_ENCRYPTION_KEY,
 } from './utils/constants.js';
 import { isDesktopSafari, isSQLiteSupported } from './utils/db-utils.js';
-import WorkerConnectionProxy from './utils/WorkerConnectionProxy.js';
+import WorkerConnectionProxy from './utils/worker-connection-proxy.js';
 import {
   exportKeyToJWK,
   generateCryptoKey,
