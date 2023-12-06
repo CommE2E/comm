@@ -49,6 +49,8 @@ use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
 pub use grpc_clients::identity::DeviceType;
 
+mod device_list;
+
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
   pub curve25519: String,
