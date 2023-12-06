@@ -5,14 +5,19 @@ use std::collections::HashMap;
 
 use aws_sdk_dynamodb::model::AttributeValue;
 use chrono::{DateTime, Utc};
-use tracing::warn;
+use tracing::{error, warn};
 
 use crate::{
-  constants::devices_table::*,
+  constants::{
+    devices_table::*, USERS_TABLE,
+    USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
+  },
   database::parse_string_attribute,
-  error::{DBItemAttributeError, DBItemError, FromAttributeValue},
+  error::{DBItemAttributeError, DBItemError, Error, FromAttributeValue},
   grpc_services::protos::unauth::DeviceType,
 };
+
+use super::parse_date_time_attribute;
 
 type RawAttributes = HashMap<String, AttributeValue>;
 
@@ -297,4 +302,42 @@ impl From<DeviceListRow> for RawAttributes {
     );
     attrs
   }
+}
+
+/// Gets timestamp of user's current device list. Returns None if the user
+/// doesn't have a device lsit yet. Storing the timestamp in the users table is
+/// required for consistency. It's used as a condition when updating the device
+/// list.
+async fn get_current_devicelist_timestamp(
+  db: &crate::database::DatabaseClient,
+  user_id: impl Into<String>,
+) -> Result<Option<DateTime<Utc>>, Error> {
+  let response = db
+    .client
+    .get_item()
+    .table_name(USERS_TABLE)
+    .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id.into()))
+    .projection_expression(USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME)
+    .send()
+    .await
+    .map_err(|e| {
+      error!("Failed to get user's device list timestamp: {:?}", e);
+      Error::AwsSdk(e.into())
+    })?;
+
+  let mut user_item = response.item.unwrap_or_default();
+  let raw_datetime =
+    user_item.remove(USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME);
+
+  // existing records will not have this field when
+  // updating device list for the first time
+  if raw_datetime.is_none() {
+    return Ok(None);
+  }
+
+  let timestamp = parse_date_time_attribute(
+    USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
+    raw_datetime,
+  )?;
+  Ok(Some(timestamp))
 }
