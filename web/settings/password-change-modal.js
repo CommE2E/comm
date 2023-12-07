@@ -62,7 +62,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
     let errorMsg = <div className={css.errorPlaceholder} />;
     if (this.state.errorMessage) {
       errorMsg = (
-        <div className={css['modal-form-error']}>{this.state.errorMessage}</div>
+        <div className={css.modalFormError}>{this.state.errorMessage}</div>
       );
     }
 
@@ -90,12 +90,10 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
         primaryButton={changePasswordButton}
       >
         <form method="POST">
-          <div className={css['form-content']}>
-            <p className={css['username-container']}>
-              <span className={css['username-label']}>{'Logged in as '}</span>
-              <span className={css['username']}>
-                {this.props.stringForUser}
-              </span>
+          <div className={css.formContent}>
+            <p className={css.usernameContainer}>
+              <span className={css.usernameLabel}>{'Logged in as '}</span>
+              <span className={css.username}>{this.props.stringForUser}</span>
             </p>
             <Input
               type="password"
