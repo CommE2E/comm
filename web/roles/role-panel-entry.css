@@ -1,9 +1,13 @@
 .rolePanelEntry {
   display: grid;
   align-items: center;
-  padding: 12px;
+  padding: 12px 12px 12px 0;
   color: var(--text-background-primary-default);
   font-weight: 500;
+}
+
+.rolePanelEntry:last-of-type {
+  padding-bottom: 0;
 }
 
 .rolePanelNameEntry {
