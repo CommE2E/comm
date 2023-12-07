@@ -102,7 +102,9 @@ function Modal(props: ModalProps): React.Node {
 
   const buttonContainer = React.useMemo(() => {
     if (!primaryButton) {
-      return null;
+      // for empty modals we should add a bottom offset to match the height
+      // of the padding at the top of the modal
+      return <div className={css.emptyButtonContainerOffset} />;
     }
 
     const className = classNames(
