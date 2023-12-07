@@ -1,14 +1,14 @@
 .modalDescription {
   color: var(--text-background-secondary-default);
-  padding: 16px 32px 0 32px;
   font-size: var(--m-font-16);
+  margin-bottom: 16px;
 }
 
 .rolePanelTitleContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  margin: 32px 32px 16px 32px;
+  margin: 24px 0 16px;
 }
 
 .rolePanelTitle {
@@ -22,8 +22,7 @@
 
 .separator {
   border: 0;
-  margin: 0 32px 8px 32px;
-  width: 85%;
+  margin-bottom: 8px;
   align-self: center;
   height: 2px;
   border: none;
@@ -35,18 +34,4 @@
   flex-direction: column;
   overflow-y: auto;
   max-height: 400px;
-  margin: 0 32px 16px 24px;
-}
-
-.createRoleButtonContainer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-self: center;
-  align-items: stretch;
-  margin-bottom: 16px;
-}
-
-.createRoleButton {
-  margin: 0 32px 0 32px;
 }
