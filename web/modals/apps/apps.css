@@ -1,8 +1,6 @@
 div.appsDirectoryContainer {
   display: flex;
   flex-direction: column;
-  padding-top: 34px;
-  padding-bottom: 16px;
 }
 
 div.appsDirectoryList {
@@ -11,7 +9,6 @@ div.appsDirectoryList {
   row-gap: 16px;
   width: 100%;
   box-sizing: border-box;
-  padding: 12px 32px;
 }
 
 div.appListingContainer {
