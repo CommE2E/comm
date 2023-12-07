@@ -105,13 +105,16 @@ function InitialReduxStateGate(props: Props): React.Node {
               },
             }));
 
-            await processDBStoreOperations({
-              threadStoreOperations,
-              draftStoreOperations: [],
-              messageStoreOperations: [],
-              reportStoreOperations: [],
-              userStoreOperations: [],
-            });
+            await processDBStoreOperations(
+              {
+                threadStoreOperations,
+                draftStoreOperations: [],
+                messageStoreOperations: [],
+                reportStoreOperations: [],
+                userStoreOperations: [],
+              },
+              currentLoggedInUserID,
+            );
           }
           dispatch({ type: setInitialReduxState, payload });
         } catch (err) {
