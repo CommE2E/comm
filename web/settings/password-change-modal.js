@@ -59,71 +59,75 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
   }
 
   render(): React.Node {
-    let errorMsg;
+    const { inputDisabled } = this.props;
+
+    let errorMsg = <div className={css.errorPlaceholder} />;
     if (this.state.errorMessage) {
       errorMsg = (
         <div className={css['modal-form-error']}>{this.state.errorMessage}</div>
       );
     }
 
-    const { inputDisabled } = this.props;
+    const buttonIsDisabled =
+      inputDisabled ||
+      this.state.currentPassword.length === 0 ||
+      this.state.newPassword.length === 0 ||
+      this.state.confirmNewPassword.length === 0;
+
+    const changePasswordButton = (
+      <Button
+        type="submit"
+        variant="filled"
+        onClick={this.onSubmit}
+        disabled={buttonIsDisabled}
+      >
+        Change Password
+      </Button>
+    );
+
     return (
-      <Modal name="Change Password" onClose={this.props.popModal} size="large">
-        <div className={css['modal-body']}>
-          <form method="POST">
-            <div className={css['form-content']}>
-              <p className={css['username-container']}>
-                <span className={css['username-label']}>{'Logged in as '}</span>
-                <span className={css['username']}>
-                  {this.props.stringForUser}
-                </span>
-              </p>
-              <div className={css['form-content']}>
-                <Input
-                  type="password"
-                  placeholder="Current password"
-                  value={this.state.currentPassword}
-                  onChange={this.onChangeCurrentPassword}
-                  disabled={inputDisabled}
-                  ref={this.currentPasswordInputRef}
-                  label="Current password"
-                />
-              </div>
-              <Input
-                type="password"
-                placeholder="New password"
-                value={this.state.newPassword}
-                onChange={this.onChangeNewPassword}
-                ref={this.newPasswordInputRef}
-                disabled={inputDisabled}
-                label="New password"
-              />
-              <Input
-                type="password"
-                placeholder="Confirm new password"
-                value={this.state.confirmNewPassword}
-                onChange={this.onChangeConfirmNewPassword}
-                disabled={inputDisabled}
-              />
-            </div>
-            <div className={css['form-footer']}>
-              <Button
-                type="submit"
-                variant="filled"
-                onClick={this.onSubmit}
-                disabled={
-                  inputDisabled ||
-                  this.state.currentPassword.length === 0 ||
-                  this.state.newPassword.length === 0 ||
-                  this.state.confirmNewPassword.length === 0
-                }
-              >
-                Change Password
-              </Button>
-              {errorMsg}
-            </div>
-          </form>
-        </div>
+      <Modal
+        name="Change Password"
+        onClose={this.props.popModal}
+        size="large"
+        primaryButton={changePasswordButton}
+      >
+        <form method="POST">
+          <div className={css['form-content']}>
+            <p className={css['username-container']}>
+              <span className={css['username-label']}>{'Logged in as '}</span>
+              <span className={css['username']}>
+                {this.props.stringForUser}
+              </span>
+            </p>
+            <Input
+              type="password"
+              placeholder="Current password"
+              value={this.state.currentPassword}
+              onChange={this.onChangeCurrentPassword}
+              disabled={inputDisabled}
+              ref={this.currentPasswordInputRef}
+              label="Current password"
+            />
+            <Input
+              type="password"
+              placeholder="New password"
+              value={this.state.newPassword}
+              onChange={this.onChangeNewPassword}
+              ref={this.newPasswordInputRef}
+              disabled={inputDisabled}
+              label="New password"
+            />
+            <Input
+              type="password"
+              placeholder="Confirm new password"
+              value={this.state.confirmNewPassword}
+              onChange={this.onChangeConfirmNewPassword}
+              disabled={inputDisabled}
+            />
+          </div>
+          {errorMsg}
+        </form>
       </Modal>
     );
   }
