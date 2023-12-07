@@ -346,7 +346,10 @@ function validateStateAndProcessDBOperations(
     };
   }
 
-  void processDBStoreOperations(storeOperations, state.currentUserInfo?.id);
+  void processDBStoreOperations(
+    storeOperations,
+    state.currentUserInfo?.id ?? null,
+  );
 
   return state;
 }

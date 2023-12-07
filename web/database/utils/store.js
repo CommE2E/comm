@@ -52,7 +52,7 @@ async function getClientStore(): Promise<ClientStore> {
 
 async function processDBStoreOperations(
   storeOperations: StoreOperations,
-  userID: ?string,
+  userID: null | string,
 ): Promise<void> {
   const { draftStoreOperations, threadStoreOperations, reportStoreOperations } =
     storeOperations;
