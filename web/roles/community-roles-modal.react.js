@@ -68,8 +68,26 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
     [pushModal, threadInfo, rolePermissionsForNewRole],
   );
 
+  const createRoleButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        buttonColor={buttonThemes.standard}
+        onClick={onClickCreateRole}
+      >
+        Create Role
+      </Button>
+    ),
+    [onClickCreateRole],
+  );
+
   return (
-    <Modal name="Roles" onClose={popModal} size="large">
+    <Modal
+      name="Roles"
+      onClose={popModal}
+      size="large"
+      primaryButton={createRoleButton}
+    >
       <div className={css.modalDescription}>
         Roles help you group community members together and assign them certain
         permissions. When people join the community, they are automatically
@@ -84,16 +102,6 @@ function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
       </div>
       <hr className={css.separator} />
       <div className={css.rolePanelList}>{rolePanelList}</div>
-      <div className={css.createRoleButtonContainer}>
-        <Button
-          variant="filled"
-          className={css.createRoleButton}
-          buttonColor={buttonThemes.standard}
-          onClick={onClickCreateRole}
-        >
-          Create Role
-        </Button>
-      </div>
     </Modal>
   );
 }
