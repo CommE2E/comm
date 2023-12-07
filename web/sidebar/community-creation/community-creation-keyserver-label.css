@@ -4,7 +4,6 @@ div.ancestryContainer {
   align-items: center;
   height: 40px;
   background-color: var(--panel-background-tertiary-default);
-  margin-top: 20px;
 }
 
 div.ancestryContainer p {
