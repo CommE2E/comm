@@ -39,6 +39,8 @@ const announcementStatements = [
   },
 ];
 
+const communityCreationKeyserverLabel = <CommunityCreationKeyserverLabel />;
+
 const createNewCommunityLoadingStatusSelector =
   createLoadingStatusSelector(newThreadActionTypes);
 
@@ -135,28 +137,50 @@ function CommunityCreationModal(): React.Node {
   const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
     createNewCommunityLoadingStatusSelector,
   );
-  let buttonContent;
-  if (createNewCommunityLoadingStatus === 'loading') {
-    buttonContent = (
-      <LoadingIndicator
-        status={createNewCommunityLoadingStatus}
-        size="medium"
-      />
-    );
-  } else if (errorMessage) {
-    buttonContent = errorMessage;
-  } else {
-    buttonContent = 'Create community';
-  }
+
+  const buttonContent = React.useMemo(() => {
+    if (createNewCommunityLoadingStatus === 'loading') {
+      return (
+        <LoadingIndicator
+          status={createNewCommunityLoadingStatus}
+          size="medium"
+        />
+      );
+    } else if (errorMessage) {
+      return errorMessage;
+    } else {
+      return 'Create community';
+    }
+  }, [createNewCommunityLoadingStatus, errorMessage]);
+
+  const button = React.useMemo(
+    () => (
+      <Button
+        onClick={createNewCommunity}
+        variant="filled"
+        buttonColor={errorMessage ? buttonThemes.danger : buttonThemes.standard}
+        disabled={createNewCommunityLoadingStatus === 'loading'}
+      >
+        <div className={css.createCommunityButtonContent}>{buttonContent}</div>
+      </Button>
+    ),
+    [
+      buttonContent,
+      createNewCommunity,
+      createNewCommunityLoadingStatus,
+      errorMessage,
+    ],
+  );
 
   return (
     <Modal
       name="Create a community"
       onClose={modalContext.popModal}
       size="large"
+      primaryButton={button}
+      subheader={communityCreationKeyserverLabel}
     >
       <div className={css.modalBody}>
-        <CommunityCreationKeyserverLabel />
         {avatarNode}
         <form method="POST" className={css.formContainer}>
           <div>
@@ -185,20 +209,6 @@ function CommunityCreationModal(): React.Node {
               iconPosition="top"
               type="checkbox"
             />
-          </div>
-          <div className={css.createCommunityButtonContainer}>
-            <Button
-              onClick={createNewCommunity}
-              variant="filled"
-              buttonColor={
-                errorMessage ? buttonThemes.danger : buttonThemes.standard
-              }
-              disabled={createNewCommunityLoadingStatus === 'loading'}
-            >
-              <div className={css.createCommunityButtonContent}>
-                {buttonContent}
-              </div>
-            </Button>
           </div>
         </form>
       </div>
