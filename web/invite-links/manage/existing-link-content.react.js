@@ -23,7 +23,7 @@ function ExistingLinkContent(props: Props): React.Node {
       <div className={css.sectionHeaderRow}>
         <div className={css.sectionHeaderText}>Public link</div>
       </div>
-      <div>
+      <div className={css.linkContentContainer}>
         <CopyInviteLinkButton inviteLink={inviteLink} />
         <div className={css.description}>
           {'Public links allow unlimited uses and never expire. '}
