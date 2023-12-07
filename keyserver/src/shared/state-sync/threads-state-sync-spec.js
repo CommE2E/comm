@@ -4,8 +4,6 @@ import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import {
-  type LegacyRawThreadInfos,
-  type LegacyRawThreadInfo,
   type RawThreadInfo,
   type RawThreadInfos,
 } from 'lib/types/thread-types.js';
@@ -17,9 +15,9 @@ import type { Viewer } from '../../session/viewer.js';
 import { validateOutput } from '../../utils/validation-utils.js';
 
 export const threadsStateSyncSpec: ServerStateSyncSpec<
-  LegacyRawThreadInfos,
-  LegacyRawThreadInfos,
-  LegacyRawThreadInfo,
+  RawThreadInfos,
+  RawThreadInfos,
+  RawThreadInfo,
   $ReadOnlyArray<ClientThreadInconsistencyReportCreationRequest>,
 > = Object.freeze({
   fetch,
