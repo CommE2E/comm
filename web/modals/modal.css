@@ -79,3 +79,7 @@ h2.subtitle {
 .primaryButtonContainer > button {
   width: 100%;
 }
+
+.emptyButtonContainerOffset {
+  height: 8px;
+}
