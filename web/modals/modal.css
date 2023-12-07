@@ -63,6 +63,10 @@ h2.subtitle {
   color: var(--modal-fg);
 }
 
+.subheaderContainer {
+  margin-top: 16px;
+}
+
 .modalContentContainer {
   padding: 16px 32px 24px;
 }
