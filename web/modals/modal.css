@@ -62,3 +62,16 @@ h2.subtitle {
   line-height: 18px;
   color: var(--modal-fg);
 }
+
+.modalContentContainer {
+  padding: 16px 32px 24px;
+}
+
+.buttonContainer {
+  background-color: var(--modal-background-secondary-default);
+  padding: 16px 32px;
+}
+
+.primaryButtonContainer > button {
+  width: 100%;
+}
