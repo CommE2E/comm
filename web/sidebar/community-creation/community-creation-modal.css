@@ -13,7 +13,6 @@ div.avatarContainer {
 .formContainer {
   display: flex;
   flex-direction: column;
-  padding: 20px;
 }
 
 div.formTitle {
@@ -61,12 +60,6 @@ div.optionalSettingsContainer {
 div.optionalSettingsLabel {
   color: var(--text-background-tertiary-default);
   padding-bottom: 20px;
-}
-
-div.createCommunityButtonContainer {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
 }
 
 div.createCommunityButtonContent {
