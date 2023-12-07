@@ -19,13 +19,11 @@ function ViewInviteLinkModal(props: Props): React.Node {
 
   return (
     <Modal name="Invite link" onClose={popModal} size="large">
-      <div className={css.container}>
-        <div className={css.description}>
-          Share this invite link to help your friends join your community!
-        </div>
-        <div className={css.sectionHeader}>Public link</div>
-        <CopyInviteLinkButton inviteLink={inviteLink} />
+      <div className={css.description}>
+        Share this invite link to help your friends join your community!
       </div>
+      <div className={css.sectionHeader}>Public link</div>
+      <CopyInviteLinkButton inviteLink={inviteLink} />
     </Modal>
   );
 }
