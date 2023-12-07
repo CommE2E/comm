@@ -17,6 +17,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
   "blob-client",
   "http",
   "crypto",
+  "aws",
 ] }
 derive_more = "0.99"
 hex = "0.4"

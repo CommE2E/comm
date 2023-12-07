@@ -4,6 +4,7 @@ pub mod blob;
 pub mod constants;
 #[cfg(feature = "crypto")]
 pub mod crypto;
+#[cfg(feature = "aws")]
 pub mod database;
 #[cfg(feature = "http")]
 pub mod http;
