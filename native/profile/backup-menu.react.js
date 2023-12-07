@@ -41,8 +41,8 @@ function BackupMenu(props: Props): React.Node {
         .map(([key, value]) => `${key}: ${String(value)}`)
         .join('\n');
     } catch (e) {
-      console.error(`Backup uploading error: ${e}`);
       message = `Backup restore error: ${String(getMessageForException(e))}`;
+      console.error(message);
     }
     Alert.alert('Restore protocol result', message);
   }, [restoreBackupProtocol, userStore]);
