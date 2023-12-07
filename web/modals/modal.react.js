@@ -22,6 +22,7 @@ export type ModalOverridableProps = {
   +size?: ModalSize,
   +modalHeaderCentered?: boolean,
   +secondaryHeaderButton?: React.Node,
+  +primaryButton?: React.Node,
 };
 
 type ModalProps = {
@@ -40,6 +41,7 @@ function Modal(props: ModalProps): React.Node {
     withCloseButton = true,
     modalHeaderCentered = false,
     secondaryHeaderButton,
+    primaryButton,
   } = props;
 
   const modalContainerClasses = classNames(css.modalContainer, {
@@ -88,6 +90,19 @@ function Modal(props: ModalProps): React.Node {
     return <h2 className={css.subtitle}>{subtitle}</h2>;
   }, [subtitle]);
 
+  const buttonContainer = React.useMemo(() => {
+    if (!primaryButton) {
+      return null;
+    }
+
+    const className = classNames(
+      css.buttonContainer,
+      css.primaryButtonContainer,
+    );
+
+    return <div className={className}>{primaryButton}</div>;
+  }, [primaryButton]);
+
   const modal = React.useMemo(
     () => (
       <ModalOverlay onClose={onClose}>
@@ -102,11 +117,13 @@ function Modal(props: ModalProps): React.Node {
             </div>
             {subtitleNode}
           </div>
-          {children}
+          <div className={css.modalContentContainer}>{children}</div>
+          {buttonContainer}
         </div>
       </ModalOverlay>
     ),
     [
+      buttonContainer,
       children,
       headerButtons,
       headerIcon,
