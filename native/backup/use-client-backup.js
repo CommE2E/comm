@@ -4,12 +4,16 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import type { UserData } from 'lib/types/backup-types.js';
+import type { UserStore } from 'lib/types/user-types.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
+
+type UserData = {
+  +userStore: UserStore,
+};
 
 type ClientBackup = {
   +uploadBackupProtocol: (userData: UserData) => Promise<void>,
