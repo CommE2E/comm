@@ -32,6 +32,12 @@ function BackupHandler(): null {
   const { uploadBackupProtocol } = useClientBackup();
 
   React.useEffect(() => {
+    if (!isBackupEnabled) {
+      AsyncStorage.removeItem(BACKUP_HASH_STORAGE_KEY);
+    }
+  }, [isBackupEnabled]);
+
+  React.useEffect(() => {
     void (async () => {
       if (
         !isBackupEnabled ||
@@ -61,10 +67,11 @@ function BackupHandler(): null {
             currentBackupHash,
           );
         } catch (e) {
-          console.error(`Backup uploading error: ${e}`);
+          const message = String(getMessageForException(e));
+          console.error(`Backup uploading error: ${message}`);
           Alert.alert(
             'Backup protocol info',
-            `Backup uploading error: ${String(getMessageForException(e))}`,
+            `Backup uploading error: ${message}`,
           );
         }
       }
