@@ -39,6 +39,7 @@ import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
   getCommunity,
+  assertAllThreadInfosAreLegacy,
 } from 'lib/shared/thread-utils.js';
 import {
   DEPRECATED_unshimMessageStore,
@@ -73,6 +74,7 @@ import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
+  RawThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -379,7 +381,7 @@ const migrations = {
       return state;
     }
 
-    const threadInfos: { [string]: LegacyRawThreadInfo } = {};
+    const threadInfos: { [string]: RawThreadInfo } = {};
     const stack = [...rootIDs];
     while (stack.length > 0) {
       const threadID = stack.shift();
@@ -403,9 +405,12 @@ const migrations = {
     return { ...state, threadStore: { ...state.threadStore, threadInfos } };
   },
   [29]: (state: AppState) => {
-    const updatedThreadInfos = migrateThreadStoreForEditThreadPermissions(
-      state.threadStore.threadInfos,
-    );
+    const legacyRawThreadInfos: {
+      +[id: string]: LegacyRawThreadInfo,
+    } = assertAllThreadInfosAreLegacy(state.threadStore.threadInfos);
+
+    const updatedThreadInfos =
+      migrateThreadStoreForEditThreadPermissions(legacyRawThreadInfos);
 
     return {
       ...state,
