@@ -38,7 +38,7 @@ mod generated {
 }
 
 pub use generated::CODE_VERSION;
-pub use generated::IDENTITY_SOCKET_ADDR;
+pub use generated::{BACKUP_SOCKET_ADDR, IDENTITY_SOCKET_ADDR};
 
 #[cfg(not(feature = "android"))]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
@@ -921,7 +921,7 @@ pub enum Error {
 #[cfg(test)]
 mod tests {
   use super::CODE_VERSION;
-  use super::IDENTITY_SOCKET_ADDR;
+  use super::{BACKUP_SOCKET_ADDR, IDENTITY_SOCKET_ADDR};
 
   #[test]
   fn test_code_version_exists() {
@@ -931,5 +931,6 @@ mod tests {
   #[test]
   fn test_identity_socket_addr_exists() {
     assert!(IDENTITY_SOCKET_ADDR.len() > 0);
+    assert!(BACKUP_SOCKET_ADDR.len() > 0);
   }
 }
