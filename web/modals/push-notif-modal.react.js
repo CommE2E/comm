@@ -28,6 +28,24 @@ const PushNotifModal: React.ComponentType<{}> = React.memo(
       await createPushSubscription();
     }, [createPushSubscription, popModal]);
 
+    const primaryButton = React.useMemo(
+      () => (
+        <Button variant="filled" onClick={onEnable} type="submit">
+          Yes
+        </Button>
+      ),
+      [onEnable],
+    );
+
+    const secondaryButton = React.useMemo(
+      () => (
+        <Button variant="outline" onClick={popModal}>
+          No
+        </Button>
+      ),
+      [popModal],
+    );
+
     return (
       <Modal
         size="fit-content"
@@ -35,19 +53,11 @@ const PushNotifModal: React.ComponentType<{}> = React.memo(
         icon="bell"
         withCloseButton={false}
         onClose={popModal}
+        primaryButton={primaryButton}
+        secondaryButton={secondaryButton}
       >
         <div className={css.container}>
-          <p className={css.text}>
-            Would you like to enable push notifications?
-          </p>
-          <div className={css.buttonContainer}>
-            <Button variant="outline" onClick={popModal}>
-              No
-            </Button>
-            <Button variant="filled" onClick={onEnable} type="submit">
-              Yes
-            </Button>
-          </div>
+          Would you like to enable push notifications?
         </div>
       </Modal>
     );
