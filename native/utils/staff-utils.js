@@ -2,7 +2,7 @@
 
 import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 
-const isStaffRelease = true;
+const isStaffRelease = false;
 
 function useStaffCanSee(): boolean {
   const isCurrentUserStaff = useIsCurrentUserStaff();
