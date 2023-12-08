@@ -9,8 +9,8 @@ import type {
 } from 'lib/types/message-types.js';
 import type {
   ClientDBThreadInfo,
-  LegacyRawThreadInfo,
-  ThreadStoreThreadInfos,
+  RawThreadInfo,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -30,7 +30,7 @@ import { commCoreModule } from '../native-modules.js';
 
 function updateClientDBThreadStoreThreadInfos(
   state: AppState,
-  migrationFunc: ThreadStoreThreadInfos => ThreadStoreThreadInfos,
+  migrationFunc: RawThreadInfos => RawThreadInfos,
 ): AppState {
   // Get threads from SQLite `threads` table.
   const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
@@ -62,7 +62,7 @@ function updateClientDBThreadStoreThreadInfos(
 
 function createUpdateDBOpsForThreadStoreThreadInfos(
   clientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo>,
-  migrationFunc: ThreadStoreThreadInfos => ThreadStoreThreadInfos,
+  migrationFunc: RawThreadInfos => RawThreadInfos,
 ): $ReadOnlyArray<ClientDBThreadStoreOperation> {
   // Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
   const rawThreadInfos = clientDBThreadInfos.map(
@@ -71,10 +71,7 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
 
   // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
   const threadIDToThreadInfo = rawThreadInfos.reduce(
-    (
-      acc: { [string]: LegacyRawThreadInfo },
-      threadInfo: LegacyRawThreadInfo,
-    ) => {
+    (acc: { [string]: RawThreadInfo }, threadInfo: RawThreadInfo) => {
       acc[threadInfo.id] = threadInfo;
       return acc;
     },
@@ -82,11 +79,10 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
   );
 
   // Apply `migrationFunc` to `threadInfo`s.
-  const updatedThreadIDToThreadInfo: ThreadStoreThreadInfos =
-    migrationFunc(threadIDToThreadInfo);
+  const updatedThreadIDToThreadInfo = migrationFunc(threadIDToThreadInfo);
 
   // Convert the updated `threadInfo`s back into an array.
-  const updatedRawThreadInfos: $ReadOnlyArray<LegacyRawThreadInfo> = values(
+  const updatedRawThreadInfos: $ReadOnlyArray<RawThreadInfo> = values(
     updatedThreadIDToThreadInfo,
   );
 
