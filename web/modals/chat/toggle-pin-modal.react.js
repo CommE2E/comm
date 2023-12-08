@@ -100,29 +100,42 @@ function TogglePinModal(props: TogglePinModalProps): React.Node {
     popModal,
   ]);
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        buttonColor={modalInfo.buttonColor}
+        onClick={onClick}
+      >
+        {modalInfo.buttonText}
+      </Button>
+    ),
+    [modalInfo.buttonColor, modalInfo.buttonText, onClick],
+  );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button variant="outline" onClick={popModal}>
+        Cancel
+      </Button>
+    ),
+    [popModal],
+  );
+
   return (
-    <Modal name={modalInfo.name} onClose={popModal} size="large">
+    <Modal
+      name={modalInfo.name}
+      onClose={popModal}
+      size="large"
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
+    >
       <div className={css.confirmationText}>{modalInfo.confirmationText}</div>
-      <div className={css.messageContainer}>
-        <MessageResult
-          item={modifiedItem}
-          threadInfo={threadInfo}
-          scrollable={true}
-        />
-      </div>
-      <div className={css.buttonContainer}>
-        <Button
-          variant="filled"
-          className={css.togglePinButton}
-          buttonColor={modalInfo.buttonColor}
-          onClick={onClick}
-        >
-          {modalInfo.buttonText}
-        </Button>
-        <div className={css.cancelButton} onClick={popModal}>
-          Cancel
-        </div>
-      </div>
+      <MessageResult
+        item={modifiedItem}
+        threadInfo={threadInfo}
+        scrollable={true}
+      />
     </Modal>
   );
 }
