@@ -24,6 +24,7 @@ pub enum Error {
 #[derive(Debug, derive_more::Display, derive_more::Error)]
 pub enum DeviceListError {
   DeviceAlreadyExists,
+  DeviceNotFound,
   ConcurrentUpdateError,
 }
 
