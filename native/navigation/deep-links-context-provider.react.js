@@ -16,10 +16,8 @@ import {
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 
 import {
   InviteLinkModalRouteName,
@@ -84,7 +82,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
 
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
-  const validateLink = useServerCall(verifyInviteLink);
+  const validateLink = useKeyserverCall(verifyInviteLink);
   const navigation = useNavigation();
   React.useEffect(() => {
     void (async () => {
