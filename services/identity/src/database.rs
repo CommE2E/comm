@@ -738,6 +738,9 @@ impl DatabaseClient {
     user_id: String,
     device_id_key: String,
   ) -> Result<(), Error> {
+    // delete from new device list too
+    self.remove_device(&user_id, &device_id_key).await?;
+
     let update_expression =
       format!("REMOVE {}.{}", USERS_TABLE_DEVICES_ATTRIBUTE, "#deviceID");
 
