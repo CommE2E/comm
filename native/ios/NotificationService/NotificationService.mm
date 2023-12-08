@@ -99,6 +99,14 @@ size_t getMemoryUsageInBytes() {
     if (decryptErrorMessage.size()) {
       NSString *errorMessage =
           [NSString stringWithUTF8String:decryptErrorMessage.c_str()];
+      if (notifID.has_value() &&
+          [self isAppShowingNotificationWith:
+                    [NSString stringWithCString:notifID.value().c_str()
+                                       encoding:NSUTF8StringEncoding]]) {
+        errorMessage = [errorMessage
+            stringByAppendingString:@" App shows notif with this ID."];
+      }
+
       [self callContentHandlerForKey:contentHandlerKey
                       onErrorMessage:errorMessage
                withPublicUserContent:[[UNNotificationContent alloc] init]];
@@ -366,31 +374,7 @@ size_t getMemoryUsageInBytes() {
                                            content:localNotifContent
                                            trigger:nil];
 
-  // We must wait until local notif display completion
-  // handler returns. Context:
-  // https://developer.apple.com/forums/thread/108340?answerId=331640022#331640022
-
-  dispatch_semaphore_t localNotifDisplaySemaphore =
-      dispatch_semaphore_create(0);
-
-  __block NSError *localNotifDisplayError = nil;
-  [UNUserNotificationCenter.currentNotificationCenter
-      addNotificationRequest:localNotifRequest
-       withCompletionHandler:^(NSError *_Nullable error) {
-         if (error) {
-           localNotifDisplayError = error;
-         }
-         dispatch_semaphore_signal(localNotifDisplaySemaphore);
-       }];
-
-  dispatch_semaphore_wait(
-      localNotifDisplaySemaphore,
-      dispatch_time(DISPATCH_TIME_NOW, semaphoreAwaitTimeLimit));
-
-  if (localNotifDisplayError) {
-    throw std::runtime_error(
-        std::string([localNotifDisplayError.localizedDescription UTF8String]));
-  }
+  [self displayLocalNotificationFor:localNotifRequest];
 }
 
 - (void)persistMessagePayload:(NSDictionary *)payload {
@@ -606,13 +590,71 @@ size_t getMemoryUsageInBytes() {
            withPublicUserContent:(UNNotificationContent *)publicUserContent {
   comm::Logger::log(std::string([errorMessage UTF8String]));
 
-  if (!comm::StaffUtils::isStaffRelease()) {
-    [self callContentHandlerForKey:key withContent:publicUserContent];
-    return;
+  if (comm::StaffUtils::isStaffRelease()) {
+    NSString *errorNotifId = [@"error_for_" stringByAppendingString:key];
+    UNNotificationContent *content = [self buildContentForError:errorMessage];
+    UNNotificationRequest *localNotifRequest =
+        [UNNotificationRequest requestWithIdentifier:errorNotifId
+                                             content:content
+                                             trigger:nil];
+    [self displayLocalNotificationFor:localNotifRequest];
   }
 
-  UNNotificationContent *content = [self buildContentForError:errorMessage];
-  [self callContentHandlerForKey:key withContent:content];
+  [self callContentHandlerForKey:key withContent:publicUserContent];
+}
+
+- (void)displayLocalNotificationFor:(UNNotificationRequest *)localNotifRequest {
+  // We must wait until local notif display completion
+  // handler returns. Context:
+  // https://developer.apple.com/forums/thread/108340?answerId=331640022#331640022
+
+  dispatch_semaphore_t localNotifDisplaySemaphore =
+      dispatch_semaphore_create(0);
+
+  __block NSError *localNotifDisplayError = nil;
+  [UNUserNotificationCenter.currentNotificationCenter
+      addNotificationRequest:localNotifRequest
+       withCompletionHandler:^(NSError *_Nullable error) {
+         if (error) {
+           localNotifDisplayError = error;
+         }
+         dispatch_semaphore_signal(localNotifDisplaySemaphore);
+       }];
+
+  dispatch_semaphore_wait(
+      localNotifDisplaySemaphore,
+      dispatch_time(DISPATCH_TIME_NOW, semaphoreAwaitTimeLimit));
+
+  if (localNotifDisplayError) {
+    throw std::runtime_error(
+        std::string([localNotifDisplayError.localizedDescription UTF8String]));
+  }
+}
+
+- (BOOL)isAppShowingNotificationWith:(NSString *)identifier {
+  dispatch_semaphore_t getAllDeliveredNotifsSemaphore =
+      dispatch_semaphore_create(0);
+
+  __block BOOL foundNotification = NO;
+  [UNUserNotificationCenter.currentNotificationCenter
+      getDeliveredNotificationsWithCompletionHandler:^(
+          NSArray<UNNotification *> *_Nonnull notifications) {
+        for (UNNotification *notif in notifications) {
+          if (notif.request.content.userInfo[@"id"] &&
+              [notif.request.content.userInfo[@"id"]
+                  isEqualToString:identifier]) {
+            foundNotification = YES;
+            break;
+          }
+        }
+        dispatch_semaphore_signal(getAllDeliveredNotifsSemaphore);
+      }];
+
+  dispatch_semaphore_wait(
+      getAllDeliveredNotifsSemaphore,
+      dispatch_time(DISPATCH_TIME_NOW, semaphoreAwaitTimeLimit));
+
+  return foundNotification;
 }
 
 // Monitor memory usage
