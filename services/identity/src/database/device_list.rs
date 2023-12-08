@@ -6,7 +6,9 @@ use std::collections::HashMap;
 use aws_sdk_dynamodb::{
   client::fluent_builders::Query,
   error::TransactionCanceledException,
-  model::{AttributeValue, Put, TransactWriteItem, Update},
+  model::{
+    AttributeValue, DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
+  },
   output::GetItemOutput,
 };
 use chrono::{DateTime, Utc};
@@ -443,6 +445,57 @@ pub async fn add_device(
     Ok(put_device_operation)
   })
   .await
+}
+
+/// Deletes all user data from devices table
+pub async fn delete_devices_table_rows_for_user(
+  db: &crate::database::DatabaseClient,
+  user_id: impl Into<String>,
+) -> Result<(), Error> {
+  // 1. get all rows
+  // 2. batch write delete all
+
+  // we project only the primary keys so we can pass these directly to delete requests
+  let primary_keys = db
+    .client
+    .query()
+    .table_name(devices_table::NAME)
+    .projection_expression("#user_id, #item_id")
+    .key_condition_expression("#user_id = :user_id")
+    .expression_attribute_names("#user_id", ATTR_USER_ID)
+    .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+    .expression_attribute_values(":user_id", AttributeValue::S(user_id.into()))
+    .send()
+    .await
+    .map_err(|e| {
+      error!("Failed to list user's items in devices table: {:?}", e);
+      Error::AwsSdk(e.into())
+    })?
+    .items
+    .unwrap_or_default();
+
+  let delete_requests = primary_keys
+    .into_iter()
+    .map(|item| {
+      let request = DeleteRequest::builder().set_key(Some(item)).build();
+      WriteRequest::builder().delete_request(request).build()
+    })
+    .collect::<Vec<_>>();
+
+  // TODO: We can use the batch write helper from comm-services-lib when integrated
+  for batch in delete_requests.chunks(25) {
+    db.client
+      .batch_write_item()
+      .request_items(devices_table::NAME, batch.to_vec())
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to batch delete items from devices table: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+  }
+
+  Ok(())
 }
 
 /// Gets timestamp of user's current device list. Returns None if the user
