@@ -5,8 +5,8 @@ use comm_lib::{
   aws::ddb::{
     operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
     types::{
-      error::TransactionCanceledException, AttributeValue, DeleteRequest, Put,
-      TransactWriteItem, Update, WriteRequest,
+      error::TransactionCanceledException, AttributeValue, Delete,
+      DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
     },
   },
   database::{
@@ -647,6 +647,51 @@ impl DatabaseClient {
           TransactWriteItem::builder().put(put_device).build();
 
         Ok(put_device_operation)
+      })
+      .await
+  }
+
+  /// Removes device from user's device list. If the device doesn't exist, the
+  /// operation fails. Transactionally generates new device list version.
+  pub async fn remove_device(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl AsRef<str>,
+  ) -> Result<(), Error> {
+    let user_id: String = user_id.into();
+    let device_id = device_id.as_ref();
+    self
+      .transact_update_devicelist(&user_id, |ref mut device_ids| {
+        let device_exists = device_ids.iter().any(|id| id == device_id);
+        if !device_exists {
+          warn!(
+            "Device doesn't exist in user's device list \
+          (userID={}, deviceID={})",
+            &user_id, device_id
+          );
+          return Err(Error::DeviceList(DeviceListError::DeviceNotFound));
+        }
+
+        device_ids.retain(|id| id != device_id);
+
+        // Delete device DDB operation
+        let delete_device = Delete::builder()
+          .table_name(devices_table::NAME)
+          .key(ATTR_USER_ID, AttributeValue::S(user_id.clone()))
+          .key(
+            ATTR_ITEM_ID,
+            DeviceIDAttribute(device_id.to_string()).into(),
+          )
+          .condition_expression(
+            "attribute_exists(#user_id) AND attribute_exists(#item_id)",
+          )
+          .expression_attribute_names("#user_id", ATTR_USER_ID)
+          .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+          .build();
+        let operation =
+          TransactWriteItem::builder().delete(delete_device).build();
+
+        Ok(operation)
       })
       .await
   }
