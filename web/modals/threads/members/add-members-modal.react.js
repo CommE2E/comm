@@ -8,10 +8,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userSearchIndexForPotentialMembers,
-  userInfoSelectorForPotentialMembers,
-} from 'lib/selectors/user-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
@@ -45,7 +42,6 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     community ? threadInfoSelector(state)[community] : null,
   );
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const excludeUserIDs = React.useMemo(
     () =>
       threadActualMembers(threadInfo.members).concat(
@@ -57,7 +53,6 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   const userSearchResults = usePotentialMemberItems({
     text: searchText,
     userInfos: otherUserInfos,
-    searchIndex: userSearchIndex,
     excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
