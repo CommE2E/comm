@@ -24,26 +24,36 @@ function SidebarPromoteModal(props: Props): React.Node {
     onClose();
   }, [onClose, onConfirm]);
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button onClick={handleConfirm} type="submit" variant="filled">
+        Promote to channel
+      </Button>
+    ),
+    [handleConfirm],
+  );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button onClick={onClose} type="submit" variant="outline">
+        Cancel
+      </Button>
+    ),
+    [onClose],
+  );
+
   return (
     <Modal
       size="large"
       name="Promote to channel"
       icon="warning-circle"
       onClose={onClose}
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
     >
-      <div className={css.modal_body}>
-        <p>
-          {`Are you sure you want to promote "${uiName}"? 
-          Promoting a thread to a channel cannot be undone.`}
-        </p>
-        <div className={css.buttonContainer}>
-          <Button onClick={onClose} type="submit" variant="outline">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm} type="submit" variant="filled">
-            Promote to channel
-          </Button>
-        </div>
+      <div className={css.modalBody}>
+        Are you sure you want to promote &ldquo;{uiName}&rdquo;? Promoting a
+        thread to a channel cannot be undone.
       </div>
     </Modal>
   );
