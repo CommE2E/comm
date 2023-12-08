@@ -6,6 +6,7 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useENSName } from 'lib/hooks/ens-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { useUserProfileThreadInfo } from 'lib/shared/thread-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
@@ -37,6 +38,7 @@ function UserProfile(props: Props): React.Node {
   const userProfileThreadInfo = useUserProfileThreadInfo(userInfo);
 
   const usernameText = stringForUserExplicit(userInfo);
+  const resolvedUsernameText = useENSName(usernameText);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
@@ -97,11 +99,11 @@ function UserProfile(props: Props): React.Node {
   }, [userProfileThreadInfo]);
 
   const onPressCopyUsername = React.useCallback(async () => {
-    Clipboard.setString(usernameText);
+    Clipboard.setString(resolvedUsernameText);
     setUsernameCopied(true);
     await sleep(3000);
     setUsernameCopied(false);
-  }, [usernameText]);
+  }, [resolvedUsernameText]);
 
   const copyUsernameButton = React.useMemo(() => {
     if (usernameCopied) {
@@ -177,7 +179,9 @@ function UserProfile(props: Props): React.Node {
       <View style={styles.userInfoContainer}>
         <UserProfileAvatar userID={userInfo?.id} />
         <View style={styles.usernameContainer}>
-          <SingleLine style={styles.usernameText}>{usernameText}</SingleLine>
+          <SingleLine style={styles.usernameText}>
+            {resolvedUsernameText}
+          </SingleLine>
           {copyUsernameButton}
         </View>
       </View>
