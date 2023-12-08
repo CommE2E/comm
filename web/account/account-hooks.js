@@ -28,12 +28,12 @@ import {
   encryptData,
   exportKeyToJWK,
 } from '../crypto/aes-gcm-crypto-utils.js';
-import {
-  NOTIFICATIONS_OLM_DATA_CONTENT,
-  NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
-} from '../database/utils/constants.js';
 import { isDesktopSafari } from '../database/utils/db-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
+import {
+  getOlmDataContentKeyForCookie,
+  getOlmEncryptionKeyDBLabelForCookie,
+} from '../push-notif/notif-crypto-utils.js';
 import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -183,6 +183,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
 
   const createNewNotificationsSession = React.useCallback(
     async (
+      cookie: ?string,
       notificationsIdentityKeys: OLMIdentityKeys,
       notificationsInitializationInfo: OlmSessionInitializationInfo,
     ) => {
@@ -228,6 +229,10 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
         encryptionKey,
       );
 
+      const notifsOlmDataEncryptionKeyDBLabel =
+        getOlmEncryptionKeyDBLabelForCookie(cookie);
+      const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
+
       const persistEncryptionKeyPromise = (async () => {
         let cryptoKeyPersistentForm;
         if (isDesktopSafari) {
@@ -239,13 +244,13 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
         }
 
         await localforage.setItem(
-          NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+          notifsOlmDataEncryptionKeyDBLabel,
           cryptoKeyPersistentForm,
         );
       })();
 
       await Promise.all([
-        localforage.setItem(NOTIFICATIONS_OLM_DATA_CONTENT, encryptedOlmData),
+        localforage.setItem(notifsOlmDataContentKey, encryptedOlmData),
         persistEncryptionKeyPromise,
       ]);
 
@@ -257,6 +262,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
   const notificationsSessionPromise = React.useRef<?Promise<string>>(null);
   const createNotificationsSession = React.useCallback(
     async (
+      cookie: ?string,
       notificationsIdentityKeys: OLMIdentityKeys,
       notificationsInitializationInfo: OlmSessionInitializationInfo,
     ) => {
@@ -267,6 +273,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
       const newNotificationsSessionPromise = (async () => {
         try {
           return await createNewNotificationsSession(
+            cookie,
             notificationsIdentityKeys,
             notificationsInitializationInfo,
           );
@@ -304,6 +311,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
 }
 
 function useWebNotificationsSessionCreator(): (
+  cookie: ?string,
   notificationsIdentityKeys: OLMIdentityKeys,
   notificationsInitializationInfo: OlmSessionInitializationInfo,
 ) => Promise<string> {
