@@ -9,7 +9,6 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -32,7 +31,6 @@ import Search from '../components/search.react.js';
 import type { InputState } from '../input/input-state.js';
 import Alert from '../modals/alert.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
-import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
@@ -51,7 +49,6 @@ function ChatThreadComposer(props: Props): React.Node {
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
   const dispatch = useDispatch();
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
   const userInfoInputIDs = React.useMemo(
     () => userInfoInputArray.map(userInfo => userInfo.id),
@@ -63,7 +60,6 @@ function ChatThreadComposer(props: Props): React.Node {
   const userListItems = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
-    searchIndex: userSearchIndex,
     excludeUserIDs: userInfoInputIDs,
     includeServerSearchUsers: serverSearchResults,
   });
