@@ -83,3 +83,10 @@ h2.subtitle {
 .emptyButtonContainerOffset {
   height: 8px;
 }
+
+.primarySecondaryContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  column-gap: 16px;
+}
