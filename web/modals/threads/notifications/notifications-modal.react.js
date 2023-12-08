@@ -192,52 +192,56 @@ function NotificationsModal(props: Props): React.Node {
     ? 'Thread notifications'
     : 'Channel notifications';
 
-  let modalContent;
-  if (isSidebar && !parentThreadInfo?.currentUser.subscription.home) {
-    modalContent = (
+  const noticeText = React.useMemo(() => {
+    if (!isSidebar) {
+      return null;
+    }
+
+    return (
       <>
-        <p>
-          {'It’s not possible to change the notif settings for a thread ' +
-            'whose parent is in Background. That’s because Comm’s design ' +
-            'always shows threads underneath their parent in the Inbox, ' +
-            'which means that if a thread’s parent is in Background, the ' +
-            'thread must also be there.'}
+        <p className={css.notice}>
+          {'It’s not possible to move this thread to Background. ' +
+            'That’s because Comm’s design always shows threads ' +
+            'underneath their parent in the Inbox, which means ' +
+            'that if a thread’s parent is in Focused, the thread ' +
+            'must also be there.'}
         </p>
-        <p>
+        <p className={css.notice}>
           {canPromoteSidebar(threadInfo, parentThreadInfo)
-            ? 'If you want to change the notif settings for this thread, ' +
-              'you can either change the notif settings for the parent, ' +
+            ? 'If you want to move this thread to Background, ' +
+              'you can either move the parent to Background, ' +
               'or you can promote the thread to a channel.'
-            : 'If you want to change the notif settings for this thread, ' +
-              'you’ll have to change the notif settings for the parent.'}
+            : 'If you want to move this thread to Background, ' +
+              'you’ll have to move the parent to Background.'}
         </p>
       </>
     );
-  } else {
-    let noticeText = null;
-    if (isSidebar) {
-      noticeText = (
+  }, [isSidebar, parentThreadInfo, threadInfo]);
+
+  const modalContent = React.useMemo(() => {
+    if (isSidebar && !parentThreadInfo?.currentUser.subscription.home) {
+      return (
         <>
-          <p className={css.notice}>
-            {'It’s not possible to move this thread to Background. ' +
-              'That’s because Comm’s design always shows threads ' +
-              'underneath their parent in the Inbox, which means ' +
-              'that if a thread’s parent is in Focused, the thread ' +
-              'must also be there.'}
+          <p>
+            {'It’s not possible to change the notif settings for a thread ' +
+              'whose parent is in Background. That’s because Comm’s design ' +
+              'always shows threads underneath their parent in the Inbox, ' +
+              'which means that if a thread’s parent is in Background, the ' +
+              'thread must also be there.'}
           </p>
-          <p className={css.notice}>
+          <p>
             {canPromoteSidebar(threadInfo, parentThreadInfo)
-              ? 'If you want to move this thread to Background, ' +
-                'you can either move the parent to Background, ' +
+              ? 'If you want to change the notif settings for this thread, ' +
+                'you can either change the notif settings for the parent, ' +
                 'or you can promote the thread to a channel.'
-              : 'If you want to move this thread to Background, ' +
-                'you’ll have to move the parent to Background.'}
+              : 'If you want to change the notif settings for this thread, ' +
+                'you’ll have to change the notif settings for the parent.'}
           </p>
         </>
       );
     }
 
-    modalContent = (
+    return (
       <>
         <div className={css.optionsContainer}>
           {focusedItem}
@@ -254,7 +258,18 @@ function NotificationsModal(props: Props): React.Node {
         {noticeText}
       </>
     );
-  }
+  }, [
+    backgroundItem,
+    focusedBadgeOnlyItem,
+    focusedItem,
+    initialThreadSetting,
+    isSidebar,
+    noticeText,
+    notificationSettings,
+    onClickSave,
+    parentThreadInfo,
+    threadInfo,
+  ]);
 
   return (
     <Modal name={modalName} size="fit-content" onClose={onClose}>
