@@ -6,10 +6,7 @@ import invariant from 'invariant';
 import url from 'url';
 
 import { isStaff } from 'lib/shared/staff-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import {
   type Platform,
@@ -769,7 +766,7 @@ async function isCookieMissingOlmNotificationsSession(
     isStaffOrDev &&
     viewer.platformDetails?.platform === 'windows' &&
     hasMinCodeVersion(viewer.platformDetails, {
-      majorDesktop: NEXT_CODE_VERSION,
+      majorDesktop: 10,
     });
 
   if (

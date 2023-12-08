@@ -26,10 +26,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -1308,7 +1305,7 @@ async function prepareWNSNotification(
   const shouldBeEncrypted =
     isStaffOrDev &&
     hasMinCodeVersion(inputData.platformDetails, {
-      majorDesktop: NEXT_CODE_VERSION,
+      majorDesktop: 10,
     });
 
   if (!shouldBeEncrypted) {
