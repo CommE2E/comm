@@ -58,7 +58,7 @@ yarn-error.log
 android/app/.cxx/
 codegen/dist
 
-facts/alchemy.json
+facts/
 
 # Expo
 .expo

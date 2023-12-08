@@ -2,14 +2,34 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
+use std::io::Write;
 use std::path::Path;
 
-const DEFAULT_DEBUG_IDENTITY_SOCKET_ADDR: &str =
-  "https://identity.staging.commtechnologies.org:50054";
-const DEFAULT_RELEASE_IDENTITY_SOCKET_ADDR: &str =
-  "https://identity.commtechnologies.org:50054";
-const IDENTITY_SERVICE_CONFIG_PATH: &str =
-  "../facts/identity_service_config.json";
+trait ServiceConfig: for<'a> Deserialize<'a> {
+  const FILEPATH: &'static str;
+
+  fn debug_default() -> Self;
+  fn release_default() -> Self;
+
+  fn generated_code(&self) -> String;
+
+  fn get_config() -> Self {
+    let path = Path::new(Self::FILEPATH);
+
+    if let Ok(file_content) = fs::read_to_string(path) {
+      if let Ok(config) = serde_json::from_str(&file_content) {
+        return config;
+      }
+    }
+
+    let profile = env::var("PROFILE").expect("Error fetching PROFILE env var");
+    if profile == "release" {
+      Self::release_default()
+    } else {
+      Self::debug_default()
+    }
+  }
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -17,12 +37,59 @@ struct IdentityServiceConfig {
   identity_socket_addr: String,
 }
 
-fn get_identity_service_config(
-) -> Result<IdentityServiceConfig, Box<dyn std::error::Error>> {
-  let path = Path::new(IDENTITY_SERVICE_CONFIG_PATH);
-  let file_content = fs::read_to_string(path)?;
+impl ServiceConfig for IdentityServiceConfig {
+  const FILEPATH: &'static str = "../facts/identity_service_config.json";
 
-  serde_json::from_str(&file_content).map_err(|e| e.into())
+  fn debug_default() -> Self {
+    Self {
+      identity_socket_addr:
+        "https://identity.staging.commtechnologies.org:50054".to_string(),
+    }
+  }
+
+  fn release_default() -> Self {
+    Self {
+      identity_socket_addr: "https://identity.commtechnologies.org:50054"
+        .to_string(),
+    }
+  }
+
+  fn generated_code(&self) -> String {
+    format!(
+      r#"pub const IDENTITY_SOCKET_ADDR: &str = "{}";"#,
+      self.identity_socket_addr
+    )
+  }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct BackupServiceConfig {
+  backup_socket_addr: String,
+}
+
+impl ServiceConfig for BackupServiceConfig {
+  const FILEPATH: &'static str = "../facts/backup_service_config.json";
+
+  fn debug_default() -> Self {
+    Self {
+      backup_socket_addr: "https://backup.staging.commtechnologies.org"
+        .to_string(),
+    }
+  }
+
+  fn release_default() -> Self {
+    Self {
+      backup_socket_addr: "https://backup.commtechnologies.org".to_string(),
+    }
+  }
+
+  fn generated_code(&self) -> String {
+    format!(
+      r#"pub const BACKUP_SOCKET_ADDR: &str = "{}";"#,
+      self.backup_socket_addr
+    )
+  }
 }
 
 fn main() {
@@ -68,31 +135,22 @@ fn main() {
   )
   .expect("Failed to write version.rs");
 
-  let identity_socket_addr = match get_identity_service_config() {
-    Ok(config) => config.identity_socket_addr,
-    Err(_) => {
-      let profile =
-        env::var("PROFILE").expect("Error fetching PROFILE env var");
-      if profile == "release" {
-        DEFAULT_RELEASE_IDENTITY_SOCKET_ADDR.to_string()
-      } else {
-        DEFAULT_DEBUG_IDENTITY_SOCKET_ADDR.to_string()
-      }
-    }
-  };
+  let identity_config = IdentityServiceConfig::get_config();
+  let backup_config = BackupServiceConfig::get_config();
 
   let socket_config_path = Path::new(&out_dir).join("socket_config.rs");
 
-  fs::write(
-    socket_config_path,
-    format!(
-      "pub const IDENTITY_SOCKET_ADDR: &str = \"{}\";",
-      identity_socket_addr
-    ),
-  )
-  .expect("Failed to write socket_config.rs");
+  let mut file = fs::File::create(socket_config_path)
+    .expect("Couldn't create services config file");
+  file
+    .write_all(identity_config.generated_code().as_bytes())
+    .expect("Couldn't write identity service config");
+  file
+    .write_all(backup_config.generated_code().as_bytes())
+    .expect("Couldn't write backup service config");
 
   println!("cargo:rerun-if-changed=src/lib.rs");
   println!("cargo:rerun-if-changed={}", HEADER_PATH);
-  println!("cargo:rerun-if-changed={}", IDENTITY_SERVICE_CONFIG_PATH);
+  println!("cargo:rerun-if-changed={}", IdentityServiceConfig::FILEPATH);
+  println!("cargo:rerun-if-changed={}", BackupServiceConfig::FILEPATH);
 }
