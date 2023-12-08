@@ -666,8 +666,10 @@ impl DatabaseClient {
     &self,
     user_id: String,
   ) -> Result<DeleteItemOutput, Error> {
-    debug!("Attempting to delete user: {}", user_id);
+    debug!(user_id, "Attempting to delete user's devices");
+    self.delete_devices_table_rows_for_user(&user_id).await?;
 
+    debug!(user_id, "Attempting to delete user");
     match self
       .client
       .delete_item()
