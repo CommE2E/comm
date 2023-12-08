@@ -22,18 +22,19 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   generateCryptoKey,
   encryptData,
   exportKeyToJWK,
 } from '../crypto/aes-gcm-crypto-utils.js';
-import {
-  NOTIFICATIONS_OLM_DATA_CONTENT,
-  NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
-} from '../database/utils/constants.js';
 import { isDesktopSafari } from '../database/utils/db-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
+import {
+  getOlmDataContentKeyForCookie,
+  getOlmEncryptionKeyDBLabelForCookie,
+} from '../push-notif/notif-crypto-utils.js';
 import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -180,6 +181,9 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
 function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
   const currentCryptoStore = useSelector(state => state.cryptoStore);
+  const cookie = useSelector(
+    state => state.keyserverStore.keyserverInfos[ashoatKeyserverID].cookie,
+  );
 
   const createNewNotificationsSession = React.useCallback(
     async (
@@ -228,6 +232,10 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
         encryptionKey,
       );
 
+      const notifsOlmDataEncryptionKeyDBLabel =
+        getOlmEncryptionKeyDBLabelForCookie(cookie);
+      const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
+
       const persistEncryptionKeyPromise = (async () => {
         let cryptoKeyPersistentForm;
         if (isDesktopSafari) {
@@ -239,19 +247,19 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
         }
 
         await localforage.setItem(
-          NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+          notifsOlmDataEncryptionKeyDBLabel,
           cryptoKeyPersistentForm,
         );
       })();
 
       await Promise.all([
-        localforage.setItem(NOTIFICATIONS_OLM_DATA_CONTENT, encryptedOlmData),
+        localforage.setItem(notifsOlmDataContentKey, encryptedOlmData),
         persistEncryptionKeyPromise,
       ]);
 
       return initialNotificationsEncryptedMessage;
     },
-    [getOrCreateCryptoStore],
+    [getOrCreateCryptoStore, cookie],
   );
 
   const notificationsSessionPromise = React.useRef<?Promise<string>>(null);
