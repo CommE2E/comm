@@ -8,10 +8,7 @@ import { View, Text } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
@@ -249,14 +246,12 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     >([]);
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
     const serverSearchResults = useSearchUsers(usernameInputText);
 
     const userSearchResults = usePotentialMemberItems({
       text: usernameInputText,
       userInfos: otherUserInfos,
-      searchIndex: userSearchIndex,
       excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
       includeServerSearchUsers: serverSearchResults,
     });
