@@ -13,6 +13,12 @@ import Button from '../components/button.react.js';
 
 export type ModalSize = 'small' | 'large' | 'fit-content';
 
+type ModalButtons =
+  | {
+      +primaryButton?: React.Node,
+    }
+  | { +primaryButton: React.Node, +secondaryButton?: React.Node };
+
 export type ModalOverridableProps = {
   +name?: string,
   +subtitle?: string,
@@ -23,7 +29,7 @@ export type ModalOverridableProps = {
   +modalHeaderCentered?: boolean,
   +secondaryHeaderButton?: React.Node,
   +subheader?: React.Node,
-  +primaryButton?: React.Node,
+  ...ModalButtons,
 };
 
 type ModalProps = {
@@ -44,6 +50,7 @@ function Modal(props: ModalProps): React.Node {
     secondaryHeaderButton,
     subheader,
     primaryButton,
+    secondaryButton,
   } = props;
 
   const modalContainerClasses = classNames(css.modalContainer, {
@@ -107,13 +114,19 @@ function Modal(props: ModalProps): React.Node {
       return <div className={css.emptyButtonContainerOffset} />;
     }
 
-    const className = classNames(
-      css.buttonContainer,
-      css.primaryButtonContainer,
-    );
+    const className = classNames({
+      [css.buttonContainer]: true,
+      [css.primaryButtonContainer]: !secondaryButton,
+      [css.primarySecondaryContainer]: secondaryButton,
+    });
 
-    return <div className={className}>{primaryButton}</div>;
-  }, [primaryButton]);
+    return (
+      <div className={className}>
+        {secondaryButton}
+        {primaryButton}
+      </div>
+    );
+  }, [primaryButton, secondaryButton]);
 
   const modal = React.useMemo(
     () => (
