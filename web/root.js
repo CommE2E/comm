@@ -10,6 +10,7 @@ import { persistReducer, persistStore } from 'redux-persist';
 import thunk from 'redux-thunk';
 
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
+import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
 import {
@@ -46,7 +47,7 @@ const RootProvider = (): React.Node => (
             <Router history={history.getHistoryObject()}>
               <Route path="*" component={App} />
             </Router>
-            <Socket />
+            <KeyserverConnectionsHandler socketComponent={Socket} />
             <SQLiteDataHandler />
             <IntegrityHandler />
           </WebNotificationsSessionCreatorProvider>
