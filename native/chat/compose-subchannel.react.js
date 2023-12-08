@@ -13,10 +13,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  userInfoSelectorForPotentialMembers,
-  userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
@@ -195,7 +192,6 @@ function ComposeSubchannel(props: Props): React.Node {
   }, [newlyCreatedThreadInfo, pushNewThread]);
 
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const { community } = parentThreadInfo;
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
@@ -203,7 +199,6 @@ function ComposeSubchannel(props: Props): React.Node {
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
-    searchIndex: userSearchIndex,
     excludeUserIDs: userInfoInputIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
