@@ -1105,26 +1105,14 @@ jsi::Value CommCoreModule::createNewBackup(
       });
 }
 
-jsi::Value CommCoreModule::restoreBackup(
-    jsi::Runtime &rt,
-    jsi::String backupID,
-    jsi::String backupSecret,
-    jsi::String encryptedUserKeys,
-    jsi::String encryptedUserData) {
-  std::string backupIDStr = backupID.utf8(rt);
+jsi::Value
+CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
   std::string backupSecretStr = backupSecret.utf8(rt);
-  std::string encryptedUserKeysStr = encryptedUserKeys.utf8(rt);
-  std::string encryptedUserDataStr = encryptedUserData.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
             promise, this->jsInvoker_, innerRt);
-        ::restoreBackup(
-            rust::string(backupIDStr),
-            rust::string(backupSecretStr),
-            rust::string(encryptedUserKeysStr),
-            rust::string(encryptedUserDataStr),
-            currentID);
+        ::restoreBackup(rust::string(backupSecretStr), currentID);
       });
 }
 

@@ -197,13 +197,7 @@ mod ffi {
     );
 
     #[cxx_name = "restoreBackup"]
-    fn restore_backup_sync(
-      backup_id: String,
-      backup_secret: String,
-      encrypted_user_keys: String,
-      encrypted_user_data: String,
-      promise_id: u32,
-    );
+    fn restore_backup_sync(backup_secret: String, promise_id: u32);
   }
 
   // Secure store
@@ -215,7 +209,6 @@ mod ffi {
     #[cxx_name = "secureStoreSet"]
     fn secure_store_set(key: &str, value: String) -> Result<()>;
 
-    #[allow(unused)]
     #[cxx_name = "secureStoreGet"]
     fn secure_store_get(key: &str) -> Result<String>;
   }
