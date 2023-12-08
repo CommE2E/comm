@@ -18,6 +18,29 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
   const { threadInfo, onClose, onConfirm } = props;
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        onClick={onConfirm}
+        type="submit"
+        variant="filled"
+        buttonColor={buttonThemes.danger}
+      >
+        Yes, leave chat
+      </Button>
+    ),
+    [onConfirm],
+  );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button variant="outline" onClick={onClose}>
+        Cancel
+      </Button>
+    ),
+    [onClose],
+  );
+
   return (
     <Modal
       size="fit-content"
@@ -25,26 +48,11 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
       icon="warning-circle"
       withCloseButton={false}
       onClose={onClose}
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
     >
       <div className={css.container}>
-        <p>
-          {'Are you sure you want to leave "'}
-          <span className={css['thread-name']}>{uiName}</span>
-          {'"?'}
-        </p>
-        <div className={css.buttonContainer}>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            variant="filled"
-            buttonColor={buttonThemes.danger}
-            onClick={onConfirm}
-            type="submit"
-          >
-            Yes, leave chat
-          </Button>
-        </div>
+        Are you sure you want to leave &ldquo;{uiName}&rdquo;?
       </div>
     </Modal>
   );
