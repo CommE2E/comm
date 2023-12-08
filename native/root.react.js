@@ -27,6 +27,7 @@ import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
+import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -320,7 +321,8 @@ function Root() {
                                           {gated}
                                         </ReduxPersistGate>
                                         <PersistedStateGate>
-                                          <Socket
+                                          <KeyserverConnectionsHandler
+                                            socketComponent={Socket}
                                             detectUnsupervisedBackgroundRef={
                                               detectUnsupervisedBackgroundRef
                                             }
