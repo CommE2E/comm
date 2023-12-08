@@ -24,6 +24,7 @@ export type ModalOverridableProps = {
   +secondaryHeaderButton?: React.Node,
   +subheader?: React.Node,
   +primaryButton?: React.Node,
+  +secondaryButton?: React.Node,
 };
 
 type ModalProps = {
@@ -44,6 +45,7 @@ function Modal(props: ModalProps): React.Node {
     secondaryHeaderButton,
     subheader,
     primaryButton,
+    secondaryButton,
   } = props;
 
   const modalContainerClasses = classNames(css.modalContainer, {
@@ -101,19 +103,33 @@ function Modal(props: ModalProps): React.Node {
   }, [subheader]);
 
   const buttonContainer = React.useMemo(() => {
-    if (!primaryButton) {
-      // for empty modals we should add a bottom offset to match the height
-      // of the padding at the top of the modal
-      return <div className={css.emptyButtonContainerOffset} />;
+    if (primaryButton && secondaryButton) {
+      const className = classNames(
+        css.buttonContainer,
+        css.primarySecondaryContainer,
+      );
+
+      return (
+        <div className={className}>
+          {secondaryButton}
+          {primaryButton}
+        </div>
+      );
     }
 
-    const className = classNames(
-      css.buttonContainer,
-      css.primaryButtonContainer,
-    );
+    if (primaryButton) {
+      const className = classNames(
+        css.buttonContainer,
+        css.primaryButtonContainer,
+      );
 
-    return <div className={className}>{primaryButton}</div>;
-  }, [primaryButton]);
+      return <div className={className}>{primaryButton}</div>;
+    }
+
+    // for empty modals we should add a bottom offset to match the height
+    // of the padding at the top of the modal
+    return <div className={css.emptyButtonContainerOffset} />;
+  }, [primaryButton, secondaryButton]);
 
   const modal = React.useMemo(
     () => (
