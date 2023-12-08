@@ -11,6 +11,7 @@ import type {
   PlainTextWebNotification,
   EncryptedWebNotification,
 } from 'lib/types/notif-types.js';
+import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
 
 import {
   type EncryptedData,
@@ -50,20 +51,31 @@ async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
 ): Promise<PlainTextWebNotification | WebNotifDecryptionError> {
   const { id, encryptedPayload } = encryptedNotification;
-
-  const [encryptedOlmData, encryptionKey, utilsData] = await Promise.all([
-    localforage.getItem<EncryptedData>(NOTIFICATIONS_OLM_DATA_CONTENT),
-    retrieveEncryptionKey(),
-    localforage.getItem<WebNotifsServiceUtilsData>(
-      WEB_NOTIFS_SERVICE_UTILS_KEY,
-    ),
-  ]);
+  const utilsData = await localforage.getItem<WebNotifsServiceUtilsData>(
+    WEB_NOTIFS_SERVICE_UTILS_KEY,
+  );
 
   if (!utilsData) {
     return { id, error: 'Necessary data not found in IndexedDB' };
   }
-
   const { olmWasmPath, staffCanSee } = (utilsData: WebNotifsServiceUtilsData);
+
+  let olmDBKeys;
+  try {
+    olmDBKeys = await getNotifsOlmSessionDBKeys();
+  } catch (e) {
+    return {
+      id,
+      error: e.message,
+      displayErrorMessage: staffCanSee,
+    };
+  }
+  const { olmDataContentKey, encryptionKeyDBKey } = olmDBKeys;
+  const [encryptedOlmData, encryptionKey] = await Promise.all([
+    localforage.getItem<EncryptedData>(olmDataContentKey),
+    retrieveEncryptionKey(encryptionKeyDBKey),
+  ]);
+
   if (!encryptionKey || !encryptedOlmData) {
     return {
       id,
@@ -77,6 +89,7 @@ async function decryptWebNotification(
 
     const decryptedNotification = await commonDecrypt<PlainTextWebNotification>(
       encryptedOlmData,
+      olmDataContentKey,
       encryptionKey,
       encryptedPayload,
     );
@@ -95,11 +108,16 @@ async function decryptDesktopNotification(
   encryptedPayload: string,
   staffCanSee: boolean,
 ): Promise<{ +[string]: mixed }> {
-  let encryptedOlmData, encryptionKey;
+  let encryptedOlmData, encryptionKey, olmDataContentKey;
   try {
+    const { olmDataContentKey: olmDataContentKeyValue, encryptionKeyDBKey } =
+      await getNotifsOlmSessionDBKeys();
+
+    olmDataContentKey = olmDataContentKeyValue;
+
     [encryptedOlmData, encryptionKey] = await Promise.all([
-      localforage.getItem<EncryptedData>(NOTIFICATIONS_OLM_DATA_CONTENT),
-      retrieveEncryptionKey(),
+      localforage.getItem<EncryptedData>(olmDataContentKey),
+      retrieveEncryptionKey(encryptionKeyDBKey),
       initOlm(),
     ]);
   } catch (e) {
@@ -119,6 +137,7 @@ async function decryptDesktopNotification(
   try {
     return await commonDecrypt(
       encryptedOlmData,
+      olmDataContentKey,
       encryptionKey,
       encryptedPayload,
     );
@@ -132,6 +151,7 @@ async function decryptDesktopNotification(
 
 async function commonDecrypt<T>(
   encryptedOlmData: EncryptedData,
+  olmDataContentKey: string,
   encryptionKey: CryptoKey,
   encryptedPayload: string,
 ): Promise<T> {
@@ -191,10 +211,7 @@ async function commonDecrypt<T>(
     encryptionKey,
   );
 
-  await localforage.setItem(
-    NOTIFICATIONS_OLM_DATA_CONTENT,
-    updatedEncryptedSession,
-  );
+  await localforage.setItem(olmDataContentKey, updatedEncryptedSession);
 
   return decryptedNotification;
 }
@@ -246,16 +263,16 @@ function decryptWithPendingSession<T>(
   }
 }
 
-async function retrieveEncryptionKey(): Promise<?CryptoKey> {
+async function retrieveEncryptionKey(
+  encryptionKeyDBLabel: string,
+): Promise<?CryptoKey> {
   if (!isDesktopSafari) {
-    return await localforage.getItem<CryptoKey>(
-      NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
-    );
+    return await localforage.getItem<CryptoKey>(encryptionKeyDBLabel);
   }
   // Safari doesn't support structured clone algorithm in service
   // worker context so we have to store CryptoKey as JSON
   const persistedCryptoKey = await localforage.getItem<SubtleCrypto$JsonWebKey>(
-    NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+    encryptionKeyDBLabel,
   );
   if (!persistedCryptoKey) {
     return null;
@@ -263,4 +280,81 @@ async function retrieveEncryptionKey(): Promise<?CryptoKey> {
   return await importJWKKey(persistedCryptoKey);
 }
 
-export { decryptWebNotification, decryptDesktopNotification };
+async function getNotifsOlmSessionDBKeys(): Promise<{
+  +olmDataContentKey: string,
+  +encryptionKeyDBKey: string,
+}> {
+  const dbKeys = await localforage.keys();
+  const olmDataContentKeys = dbKeys
+    .filter(key => key.startsWith(NOTIFICATIONS_OLM_DATA_CONTENT))
+    .sort();
+  const encryptionKeyDBLabels = dbKeys
+    .filter(key => key.startsWith(NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY))
+    .sort();
+
+  if (olmDataContentKeys.length === 0 || encryptionKeyDBLabels.length === 0) {
+    throw new Error(
+      'Received encrypted notification but olm session was not created',
+    );
+  }
+
+  const latestDataContentKey =
+    olmDataContentKeys[olmDataContentKeys.length - 1];
+  const latestEncryptionKeyDBKey =
+    encryptionKeyDBLabels[encryptionKeyDBLabels.length - 1];
+
+  const latestDataContentCookieID =
+    getCookieIDFromOlmDBKey(latestDataContentKey);
+  const latestEncryptionKeyCookieID = getCookieIDFromOlmDBKey(
+    latestEncryptionKeyDBKey,
+  );
+
+  if (latestDataContentCookieID !== latestEncryptionKeyCookieID) {
+    throw new Error(
+      'Olm sessions and their encryption keys out of sync. Latest cookie ' +
+        `id for olm sessions ${latestDataContentCookieID}. Latest cookie ` +
+        `id for olm session encryption keys ${latestEncryptionKeyCookieID}`,
+    );
+  }
+
+  const olmDBKeys = {
+    olmDataContentKey: latestDataContentKey,
+    encryptionKeyDBKey: latestEncryptionKeyDBKey,
+  };
+
+  const keysToDelete: $ReadOnlyArray<string> = [
+    ...olmDataContentKeys.slice(0, olmDataContentKeys.length - 1),
+    ...encryptionKeyDBLabels.slice(0, encryptionKeyDBLabels.length - 1),
+  ];
+
+  await Promise.all(keysToDelete.map(key => localforage.removeItem(key)));
+  return olmDBKeys;
+}
+
+function getOlmDataContentKeyForCookie(cookie: ?string): string {
+  if (!cookie) {
+    return NOTIFICATIONS_OLM_DATA_CONTENT;
+  }
+  const cookieID = getCookieIDFromCookie(cookie);
+  return `${NOTIFICATIONS_OLM_DATA_CONTENT}:${cookieID}`;
+}
+
+function getOlmEncryptionKeyDBLabelForCookie(cookie: ?string): string {
+  if (!cookie) {
+    return NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY;
+  }
+  const cookieID = getCookieIDFromCookie(cookie);
+  return `${NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY}:${cookieID}`;
+}
+
+function getCookieIDFromOlmDBKey(olmDBKey: string): string | 'no_cookie' {
+  const cookieID = olmDBKey.split(':')[1];
+  return cookieID ?? 'no_cookie';
+}
+
+export {
+  decryptWebNotification,
+  decryptDesktopNotification,
+  getOlmDataContentKeyForCookie,
+  getOlmEncryptionKeyDBLabelForCookie,
+};
