@@ -5,10 +5,6 @@ edition = "2021"
 
 [dependencies]
 comm-lib = { path = "../comm-lib" }
-reqwest = { version = "0.11", default-features = false, features = [
-  "multipart",
-  "stream",
-] }
 url = "2.3.1"
 derive_more = "0.99"
 serde_json = { version = "1.0" }
@@ -16,7 +12,21 @@ async-stream = "0.3.2"
 sha2 = "0.10"
 hex = "0.4.3"
 
-[features]
-default = ["native-tls"]
-native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls-tls"]
+[target.'cfg( target_os = "android" )'.dependencies]
+reqwest = { version = "0.11", default-features = false, features = [
+  "multipart",
+  "stream",
+  "rustls-tls",
+] }
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+reqwest = { version = "0.11", default-features = false, features = [
+  "multipart",
+  "stream",
+  "native-tls",
+] }
+
+# [features]
+# default = ["native-tls"]
+# native-tls = ["reqwest/native-tls"]
+# rustls-tls = ["reqwest/rustls-tls"]
