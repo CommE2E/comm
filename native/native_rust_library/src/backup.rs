@@ -1,12 +1,21 @@
 use crate::argon2_tools::compute_backup_key;
+use crate::argon2_tools::compute_backup_key_str;
 use crate::constants::aes;
+use crate::constants::secure_store;
+use crate::ffi::secure_store_get;
 use crate::handle_string_result_as_callback;
+use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
-use base64::{prelude::BASE64_STANDARD, Engine};
+use backup_client::BackupDescriptor;
+use backup_client::LatestBackupIDResponse;
+use backup_client::RequestedData;
+use backup_client::{BackupClient, BackupData, UserIdentity};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::error::Error;
 pub mod ffi {
+  use crate::handle_void_result_as_callback;
+
   use super::*;
 
   pub fn create_backup_sync(
@@ -24,37 +33,27 @@ pub mod ffi {
         pickle_key,
         pickled_account,
         user_data,
-      );
-      handle_string_result_as_callback(result, promise_id);
+      )
+      .await;
+      handle_void_result_as_callback(result, promise_id);
     });
   }
 
-  pub fn restore_backup_sync(
-    backup_id: String,
-    backup_secret: String,
-    encrypted_user_keys: String,
-    encrypted_user_data: String,
-    promise_id: u32,
-  ) {
+  pub fn restore_backup_sync(backup_secret: String, promise_id: u32) {
     RUNTIME.spawn(async move {
-      let result = restore_backup(
-        backup_id,
-        backup_secret,
-        encrypted_user_keys,
-        encrypted_user_data,
-      );
+      let result = restore_backup(backup_secret).await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
 }
 
-pub fn create_backup(
+pub async fn create_backup(
   backup_id: String,
   backup_secret: String,
   pickle_key: String,
   pickled_account: String,
   user_data: String,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<(), Box<dyn Error>> {
   let mut backup_key =
     compute_backup_key(backup_secret.as_bytes(), backup_id.as_bytes())?;
 
@@ -71,46 +70,82 @@ pub fn create_backup(
   };
   let encrypted_user_keys = user_keys.encrypt(&mut backup_key)?;
 
-  Ok(
-    json!({
-      "backupID": backup_id,
-      "userKeys": BASE64_STANDARD.encode(encrypted_user_keys),
-      "userData": BASE64_STANDARD.encode(encrypted_user_data),
-    })
-    .to_string(),
-  )
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+
+  let user_identity = get_user_identity_from_secure_store()?;
+
+  let backup_data = BackupData {
+    backup_id,
+    user_data: encrypted_user_data,
+    user_keys: encrypted_user_keys,
+    attachments: Vec::new(),
+  };
+
+  backup_client
+    .upload_backup(&user_identity, backup_data)
+    .await?;
+
+  Ok(())
 }
 
-pub fn restore_backup(
-  backup_id: String,
+pub async fn restore_backup(
   backup_secret: String,
-  encrypted_user_keys: String,
-  encrypted_user_data: String,
 ) -> Result<String, Box<dyn Error>> {
-  let mut encrypted_user_keys: Vec<u8> =
-    BASE64_STANDARD.decode(&encrypted_user_keys)?;
-  let mut encrypted_user_data: Vec<u8> =
-    BASE64_STANDARD.decode(&encrypted_user_data)?;
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
 
-  let mut backup_id = backup_id.into_bytes();
+  let user_identity = get_user_identity_from_secure_store()?;
 
-  let mut backup_key =
-    compute_backup_key(backup_secret.as_bytes(), &mut backup_id)?;
+  let latest_backup_descriptor = BackupDescriptor::Latest {
+    username: user_identity.user_id.clone(),
+  };
+
+  let backup_id_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+    .await?;
+
+  let LatestBackupIDResponse { backup_id } =
+    serde_json::from_slice(&backup_id_response)?;
+
+  let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
+
+  let mut encrypted_user_keys = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
+    .await?;
 
   let mut user_keys =
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
+  let backup_data_descriptor = BackupDescriptor::BackupID {
+    backup_id,
+    user_identity,
+  };
+
+  let mut encrypted_user_data = backup_client
+    .download_backup_data(&backup_data_descriptor, RequestedData::UserData)
+    .await?;
+
   let user_data =
     decrypt(&mut user_keys.backup_data_key, &mut encrypted_user_data)?;
 
+  let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
+
   Ok(
     json!({
-        "userData": String::from_utf8(user_data)?,
+        "userData": user_data,
         "pickleKey": user_keys.pickle_key,
         "pickledAccount": user_keys.pickled_account,
     })
     .to_string(),
   )
+}
+
+fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
+{
+  Ok(UserIdentity {
+    user_id: secure_store_get(secure_store::USER_ID)?,
+    access_token: secure_store_get(secure_store::COMM_SERVICES_ACCESS_TOKEN)?,
+    device_id: secure_store_get(secure_store::DEVICE_ID)?,
+  })
 }
 
 #[derive(Debug, Serialize, Deserialize)]
