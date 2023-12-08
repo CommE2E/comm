@@ -6,7 +6,7 @@ import * as React from 'react';
 import { Linking, Platform } from 'react-native';
 
 import {
-  verifyInviteLink,
+  useVerifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import {
@@ -16,7 +16,6 @@ import {
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import {
@@ -82,7 +81,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
 
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
-  const validateLink = useLegacyAshoatKeyserverCall(verifyInviteLink);
+  const validateLink = useVerifyInviteLink();
   const navigation = useNavigation();
   React.useEffect(() => {
     void (async () => {
