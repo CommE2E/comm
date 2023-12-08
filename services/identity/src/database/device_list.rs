@@ -423,6 +423,58 @@ impl DatabaseClient {
       .map_err(Error::from)
   }
 
+  /// Gets user's device list history
+  pub async fn get_device_list_history(
+    &self,
+    user_id: impl Into<String>,
+    since: Option<DateTime<Utc>>,
+  ) -> Result<Vec<DeviceListRow>, Error> {
+    let rows = if let Some(since) = since {
+      // When tiemstamp is provided, it's better to query deice lists by timestamp LSI
+      self
+        .client
+        .query()
+        .table_name(devices_table::NAME)
+        .index_name(devices_table::TIMESTAMP_INDEX_NAME)
+        .consistent_read(true)
+        .key_condition_expression("#user_id = :user_id AND #timestamp > :since")
+        .expression_attribute_names("#user_id", ATTR_USER_ID)
+        .expression_attribute_names("#timestamp", ATTR_TIMESTAMP)
+        .expression_attribute_values(
+          ":user_id",
+          AttributeValue::S(user_id.into()),
+        )
+        .expression_attribute_values(
+          ":since",
+          AttributeValue::N(since.timestamp_millis().to_string()),
+        )
+        .send()
+        .await
+        .map_err(|e| {
+          error!("Failed to query device list updates by index: {:?}", e);
+          Error::AwsSdk(e.into())
+        })?
+        .items
+    } else {
+      // Query all device lists for user
+      query_rows_with_prefix(self, user_id, DEVICE_LIST_KEY_PREFIX)
+        .send()
+        .await
+        .map_err(|e| {
+          error!("Failed to query device list updates (all): {:?}", e);
+          Error::AwsSdk(e.into())
+        })?
+        .items
+    };
+
+    rows
+      .unwrap_or_default()
+      .into_iter()
+      .map(DeviceListRow::try_from)
+      .collect::<Result<Vec<DeviceListRow>, DBItemError>>()
+      .map_err(Error::from)
+  }
+
   /// Checks if given device exists on user's current device list
   pub async fn device_exists(
     &self,
