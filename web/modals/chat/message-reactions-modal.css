@@ -1,5 +1,4 @@
 div.modalContentContainer {
-  padding: 16px 24px 24px 24px;
   color: var(--fg);
   background-color: var(--modal-bg);
   flex: 1;
