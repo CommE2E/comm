@@ -3,12 +3,11 @@
 import * as React from 'react';
 
 import {
-  verifyInviteLink,
+  useVerifyInviteLink,
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -22,7 +21,7 @@ function InviteLinkHandler(): null {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
-  const validateLink = useLegacyAshoatKeyserverCall(verifyInviteLink);
+  const validateLink = useVerifyInviteLink();
   const { pushModal } = useModalContext();
   React.useEffect(() => {
     if (!inviteSecret || !loggedIn) {
