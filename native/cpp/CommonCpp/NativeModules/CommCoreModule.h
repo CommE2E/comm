@@ -109,12 +109,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String backupSecret,
       jsi::String userData) override;
-  virtual jsi::Value restoreBackup(
-      jsi::Runtime &rt,
-      jsi::String backupID,
-      jsi::String backupSecret,
-      jsi::String encryptedUserKeys,
-      jsi::String encryptedUserData) override;
+  virtual jsi::Value
+  restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
