@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::config::CONFIG;
+use crate::database::DeviceListRow;
 use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::{
   client_service::{
@@ -8,9 +9,11 @@ use crate::{
   },
   constants::request_metadata,
   database::DatabaseClient,
+  ddb_utils::DateTimeExt,
   grpc_services::shared::get_value,
   token::AuthType,
 };
+use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use tonic::{Request, Response, Status};
@@ -18,9 +21,10 @@ use tracing::{debug, error};
 
 use super::protos::auth::{
   find_user_id_request, identity_client_service_server::IdentityClientService,
-  FindUserIdRequest, FindUserIdResponse, InboundKeyInfo,
-  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
-  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  FindUserIdRequest, FindUserIdResponse, GetDeviceListRequest,
+  GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
+  InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
+  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
   RefreshUserPreKeysRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
@@ -374,5 +378,131 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Empty {};
     Ok(Response::new(response))
+  }
+
+  async fn get_device_list_for_user(
+    &self,
+    request: tonic::Request<GetDeviceListRequest>,
+  ) -> Result<tonic::Response<GetDeviceListResponse>, tonic::Status> {
+    let GetDeviceListRequest {
+      user_id,
+      since_timestamp,
+    } = request.into_inner();
+
+    let since = since_timestamp
+      .map(|timestamp| {
+        DateTime::<Utc>::from_utc_timestamp_millis(timestamp)
+          .ok_or_else(|| tonic::Status::invalid_argument("Invalid timestamp"))
+      })
+      .transpose()?;
+
+    let mut db_result = self
+      .db_client
+      .get_device_list_history(user_id, since)
+      .await
+      .map_err(handle_db_error)?;
+
+    // these should be sorted already, but just in case
+    db_result.sort_by_key(|list| list.timestamp);
+
+    let device_list_updates: Vec<SignedDeviceList> = db_result
+      .into_iter()
+      .map(RawDeviceList::from)
+      .map(SignedDeviceList::try_from_raw)
+      .collect::<Result<Vec<_>, _>>()?;
+
+    let stringified_updates = device_list_updates
+      .iter()
+      .map(serde_json::to_string)
+      .collect::<Result<Vec<_>, _>>()
+      .map_err(|err| {
+        error!("Failed to serialize device list updates: {}", err);
+        tonic::Status::failed_precondition("unexpected error")
+      })?;
+
+    Ok(Response::new(GetDeviceListResponse {
+      device_list_updates: stringified_updates,
+    }))
+  }
+}
+
+// raw deice list that can be serialized to JSON (and then signed in the future)
+#[derive(serde::Serialize)]
+struct RawDeviceList {
+  devices: Vec<String>,
+  timestamp: i64,
+}
+
+impl From<DeviceListRow> for RawDeviceList {
+  fn from(row: DeviceListRow) -> Self {
+    Self {
+      devices: row.device_ids,
+      timestamp: row.timestamp.timestamp_millis(),
+    }
+  }
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SignedDeviceList {
+  /// JSON-stringified [`RawDeviceList`]
+  raw_device_list: String,
+}
+
+impl SignedDeviceList {
+  /// Serialize (and sign in the future) a [`RawDeviceList`]
+  fn try_from_raw(raw: RawDeviceList) -> Result<Self, tonic::Status> {
+    let stringified_list = serde_json::to_string(&raw).map_err(|err| {
+      error!("Failed to serialize raw device list: {}", err);
+      tonic::Status::failed_precondition("unexpected error")
+    })?;
+
+    Ok(Self {
+      raw_device_list: stringified_list,
+    })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn serialize_device_list_updates() {
+    let raw_updates = vec![
+      RawDeviceList {
+        devices: vec!["device1".into()],
+        timestamp: 111111111,
+      },
+      RawDeviceList {
+        devices: vec!["device1".into(), "device2".into()],
+        timestamp: 222222222,
+      },
+    ];
+
+    let expected_raw_list1 = r#"{"devices":["device1"],"timestamp":111111111}"#;
+    let expected_raw_list2 =
+      r#"{"devices":["device1","device2"],"timestamp":222222222}"#;
+
+    let signed_updates = raw_updates
+      .into_iter()
+      .map(SignedDeviceList::try_from_raw)
+      .collect::<Result<Vec<_>, _>>()
+      .expect("signing device list updates failed");
+
+    assert_eq!(signed_updates[0].raw_device_list, expected_raw_list1);
+    assert_eq!(signed_updates[1].raw_device_list, expected_raw_list2);
+
+    let stringified_updates = signed_updates
+      .iter()
+      .map(serde_json::to_string)
+      .collect::<Result<Vec<_>, _>>()
+      .expect("serialize signed device lists failed");
+
+    let expected_stringified_list1 = r#"{"rawDeviceList":"{\"devices\":[\"device1\"],\"timestamp\":111111111}"}"#;
+    let expected_stringified_list2 = r#"{"rawDeviceList":"{\"devices\":[\"device1\",\"device2\"],\"timestamp\":222222222}"}"#;
+
+    assert_eq!(stringified_updates[0], expected_stringified_list1);
+    assert_eq!(stringified_updates[1], expected_stringified_list2);
   }
 }
