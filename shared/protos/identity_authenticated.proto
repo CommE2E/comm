@@ -52,6 +52,10 @@ service IdentityClientService {
 
   // Returns userID for given username or wallet address
   rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
+
+  // Returns device list history
+  rpc GetDeviceListForUser(GetDeviceListRequest) returns
+    (GetDeviceListResponse) {}
 }
 
 // Helper types
@@ -156,4 +160,25 @@ message UpdateUserPasswordStartResponse {
   // Identifier used to correlate start request with finish request
   string sessionID = 1;
   bytes opaqueRegistrationResponse = 2;
+}
+
+// GetDeviceListForUser
+
+message GetDeviceListRequest {
+  // User whose device lists we want to retrieve
+  string user_id = 1;
+  // UTC timestamp in milliseconds
+  // If none, whole device list history will be retrieved
+  optional int64 since_timestamp = 2;
+}
+
+message GetDeviceListResponse {
+  // A list of stringified JSON objects of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<device_id: string>, ...]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   })
+  // }
+  repeated string device_list_updates = 1;
 }

@@ -1,4 +1,5 @@
 use aws_sdk_dynamodb::model::{AttributeValue, PutRequest, WriteRequest};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
@@ -76,5 +77,16 @@ impl<T> AttributesOptionExt<T> for Option<T> {
       attribute_value: None,
       attribute_error: DBItemAttributeError::Missing,
     })
+  }
+}
+
+pub trait DateTimeExt {
+  fn from_utc_timestamp_millis(timestamp: i64) -> Option<DateTime<Utc>>;
+}
+
+impl DateTimeExt for DateTime<Utc> {
+  fn from_utc_timestamp_millis(timestamp: i64) -> Option<Self> {
+    let naive = NaiveDateTime::from_timestamp_millis(timestamp)?;
+    Some(Self::from_utc(naive, Utc))
   }
 }
