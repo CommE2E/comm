@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use crate::config::CONFIG;
+use crate::database::DeviceListRow;
 use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::{
   client_service::{
@@ -8,9 +9,11 @@ use crate::{
   },
   constants::request_metadata,
   database::DatabaseClient,
+  ddb_utils::DateTimeExt,
   grpc_services::shared::get_value,
   token::AuthType,
 };
+use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use tonic::{Request, Response, Status};
@@ -18,10 +21,11 @@ use tracing::{debug, error};
 
 use super::protos::auth::{
   find_user_id_request, identity_client_service_server::IdentityClientService,
-  FindUserIdRequest, FindUserIdResponse, InboundKeyInfo,
-  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
-  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPreKeysRequest, UpdateUserPasswordFinishRequest,
+  FindUserIdRequest, FindUserIdResponse, GetDeviceListRequest,
+  GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
+  InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
+  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  RefreshUserPreKeysRequest, SignedDeviceList, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
 };
@@ -374,5 +378,71 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Empty {};
     Ok(Response::new(response))
+  }
+
+  async fn get_device_list_for_user(
+    &self,
+    request: tonic::Request<GetDeviceListRequest>,
+  ) -> Result<tonic::Response<GetDeviceListResponse>, tonic::Status> {
+    let GetDeviceListRequest {
+      user_id,
+      since_timestamp,
+    } = request.into_inner();
+
+    let since = since_timestamp
+      .map(|timestamp| {
+        DateTime::<Utc>::from_utc_timestamp_millis(timestamp)
+          .ok_or_else(|| tonic::Status::invalid_argument("Invalid timestamp"))
+      })
+      .transpose()?;
+
+    let mut db_result = self
+      .db_client
+      .get_device_list_history(user_id, since)
+      .await
+      .map_err(handle_db_error)?;
+
+    // these should be sorted already, but just in case
+    db_result.sort_by_key(|list| list.timestamp);
+
+    let device_list_updates = db_result
+      .into_iter()
+      .map(RawDeviceList::from)
+      .map(SignedDeviceList::try_from)
+      .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(Response::new(GetDeviceListResponse {
+      device_list_updates,
+    }))
+  }
+}
+
+// raw deice list that can be serialized to JSON (and then signed in the future)
+#[derive(serde::Serialize)]
+struct RawDeviceList {
+  devices: Vec<String>,
+  timestamp: i64,
+}
+
+impl From<DeviceListRow> for RawDeviceList {
+  fn from(row: DeviceListRow) -> Self {
+    Self {
+      devices: row.device_ids,
+      timestamp: row.timestamp.timestamp_millis(),
+    }
+  }
+}
+
+impl TryFrom<RawDeviceList> for SignedDeviceList {
+  type Error = tonic::Status;
+  fn try_from(list: RawDeviceList) -> Result<Self, Self::Error> {
+    let stringified_list = serde_json::to_string(&list).map_err(|err| {
+      error!("Failed to serialize raw device list: {}", err);
+      tonic::Status::failed_precondition("unexpected error")
+    })?;
+
+    Ok(Self {
+      raw_device_list: stringified_list,
+    })
   }
 }
