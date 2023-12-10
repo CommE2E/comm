@@ -6,11 +6,13 @@ import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
 } from 'lib/permissions/thread-permissions.js';
+import { assertAllThreadInfosAreLegacy } from 'lib/shared/thread-utils.js';
 import type { ThreadPermissionsBlob } from 'lib/types/thread-permission-types.js';
 import type {
   LegacyRawThreadInfo,
   ThreadStoreThreadInfos,
   LegacyMemberInfo,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -48,10 +50,13 @@ type MemberToThreadPermissionsFromParent = {
   +[member: string]: ?ThreadPermissionsBlob,
 };
 
-function updateRolesAndPermissions(
-  threadStoreInfos: ThreadStoreThreadInfos,
-): ThreadStoreThreadInfos {
-  const updatedThreadStoreInfos = { ...threadStoreInfos };
+// This migration utility can only be used with LegacyRawThreadInfos
+function legacyUpdateRolesAndPermissions(
+  threadStoreInfos: RawThreadInfos,
+): RawThreadInfos {
+  const updatedThreadStoreInfos = assertAllThreadInfosAreLegacy({
+    ...threadStoreInfos,
+  });
 
   const recursivelyUpdateRoles = (
     node: $ReadOnly<ThreadTraversalNode>,
@@ -166,4 +171,4 @@ function updateRolesAndPermissions(
   return updatedThreadStoreInfos;
 }
 
-export { updateRolesAndPermissions };
+export { legacyUpdateRolesAndPermissions };
