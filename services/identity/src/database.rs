@@ -50,6 +50,7 @@ use crate::token::{AccessTokenData, AuthType};
 pub use grpc_clients::identity::DeviceType;
 
 mod device_list;
+pub use device_list::DeviceListRow;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
