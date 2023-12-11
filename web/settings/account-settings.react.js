@@ -6,7 +6,6 @@ import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
@@ -25,15 +24,10 @@ import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useLogOut();
-  const preRequestUserState = useSelector(preRequestUserStateSelector);
   const dispatchActionPromise = useDispatchActionPromise();
   const logOutUser = React.useCallback(
-    () =>
-      dispatchActionPromise(
-        logOutActionTypes,
-        sendLogoutRequest(preRequestUserState),
-      ),
-    [dispatchActionPromise, preRequestUserState, sendLogoutRequest],
+    () => dispatchActionPromise(logOutActionTypes, sendLogoutRequest()),
+    [dispatchActionPromise, sendLogoutRequest],
   );
 
   const { pushModal, popModal } = useModalContext();
