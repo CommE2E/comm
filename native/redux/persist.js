@@ -62,6 +62,7 @@ import {
   type MessageStoreThreads,
   type RawMessageInfo,
 } from 'lib/types/message-types.js';
+import { minimallyEncodeRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ReportStore,
   ClientReportCreationRequest,
@@ -75,6 +76,7 @@ import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
   RawThreadInfo,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -989,6 +991,22 @@ const migrations = {
       state,
       legacyUpdateRolesAndPermissions,
     ),
+  [61]: (state: AppState) => {
+    const minimallyEncodeThreadInfosFunc = (
+      threadStoreInfos: RawThreadInfos,
+    ): RawThreadInfos =>
+      Object.keys(threadStoreInfos).reduce(
+        (acc: { [string]: RawThreadInfo }, key: string) => {
+          const threadInfo = threadStoreInfos[key];
+          acc[threadInfo.id] = threadInfo.minimallyEncoded
+            ? threadInfo
+            : minimallyEncodeRawThreadInfo(threadInfo);
+          return acc;
+        },
+        {},
+      );
+    updateClientDBThreadStoreThreadInfos(state, minimallyEncodeThreadInfosFunc);
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
