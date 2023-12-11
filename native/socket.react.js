@@ -118,10 +118,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
 
     const socketCrashLoopRecovery = React.useCallback(async () => {
       if (!accountHasPassword(currentUserInfo)) {
-        void dispatchActionPromise(
-          logOutActionTypes,
-          callLogOut(preRequestUserState),
-        );
+        void dispatchActionPromise(logOutActionTypes, callLogOut());
         Alert.alert(
           'Log in needed',
           'After acknowledging the policies, we need you to log in to your account again',
@@ -144,7 +141,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       currentUserInfo,
       dispatch,
       dispatchActionPromise,
-      preRequestUserState,
       urlPrefix,
       getInitialNotificationsEncryptedMessage,
     ]);
