@@ -4,6 +4,7 @@ import _keyBy from 'lodash/fp/keyBy.js';
 import t, { type TInterface } from 'tcomb';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
+import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
@@ -28,7 +29,7 @@ import {
 } from 'lib/types/message-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { threadStoreValidator } from 'lib/types/thread-types.js';
+import { type ThreadStore } from 'lib/types/thread-types.js';
 import {
   currentUserInfoValidator,
   userInfosValidator,
@@ -38,7 +39,7 @@ import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
-import { tShape, ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
 import { navInfoValidator } from 'web/types/nav-types.js';
 import type {
   InitialReduxStateResponse,
@@ -77,6 +78,11 @@ const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
   sessionID: t.maybe(t.String),
   updatesCurrentAsOf: t.Number,
 });
+
+export const threadStoreValidator: TInterface<ThreadStore> =
+  tShape<ThreadStore>({
+    threadInfos: t.dict(tID, rawThreadInfoValidator),
+  });
 
 export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
   tShape<InitialReduxStateResponse>({
