@@ -19,6 +19,13 @@ use crate::{
   constants::{
     devices_table::{self, *},
     USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
+    USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
     USERS_TABLE_PARTITION_KEY,
   },
   database::parse_string_attribute,
@@ -473,6 +480,62 @@ impl DatabaseClient {
       .map(DeviceListRow::try_from)
       .collect::<Result<Vec<DeviceListRow>, DBItemError>>()
       .map_err(Error::from)
+  }
+
+  /// Returns all devices' keys for the given user. Response is in the same format
+  /// as [DatabaseClient::get_keys_for_user] for compatiblility reasons.
+  pub async fn get_keys_for_user_devices(
+    &self,
+    user_id: impl Into<String>,
+  ) -> Result<super::Devices, Error> {
+    let user_devices = self.get_current_devices(user_id).await?;
+
+    let user_devices_keys: super::Devices = user_devices
+      .into_iter()
+      .map(|device| {
+        // convert this to the map type returned by DatabaseClient::get_keys_for_user
+        let mut device_keys: super::DeviceKeys = HashMap::from([
+          (
+            USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
+            device.device_key_info.key_payload,
+          ),
+          (
+            USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
+              .to_string(),
+            device.device_key_info.key_payload_signature,
+          ),
+          (
+            USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME.to_string(),
+            device.content_prekey.pre_key,
+          ),
+          (
+            USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+              .to_string(),
+            device.content_prekey.pre_key_signature,
+          ),
+          (
+            USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
+            device.notif_prekey.pre_key,
+          ),
+          (
+            USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
+              .to_string(),
+            device.notif_prekey.pre_key_signature,
+          ),
+        ]);
+
+        if let Some(social_proof) = device.device_key_info.social_proof {
+          device_keys.insert(
+            USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+            social_proof,
+          );
+        }
+
+        (device.device_id, device_keys)
+      })
+      .collect();
+
+    Ok(user_devices_keys)
   }
 
   pub async fn update_device_prekeys(
