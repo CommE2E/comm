@@ -545,6 +545,18 @@ impl DatabaseClient {
     notif_prekey: String,
     notif_prekey_signature: String,
   ) -> Result<(), Error> {
+    // update new device list too
+    self
+      .update_device_prekeys(
+        user_id.clone(),
+        device_id.clone(),
+        content_prekey.clone(),
+        content_prekey_signature.clone(),
+        notif_prekey.clone(),
+        notif_prekey_signature.clone(),
+      )
+      .await?;
+
     let notif_prekey_av = AttributeValue::S(notif_prekey);
     let notif_prekey_signature_av = AttributeValue::S(notif_prekey_signature);
     let content_prekey_av = AttributeValue::S(content_prekey);

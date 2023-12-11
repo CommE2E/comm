@@ -441,6 +441,52 @@ impl DatabaseClient {
       .map_err(Error::from)
   }
 
+  pub async fn update_device_prekeys(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+  ) -> Result<(), Error> {
+    let content_prekey = PreKey {
+      pre_key: content_prekey,
+      pre_key_signature: content_prekey_signature,
+    };
+    let notif_prekey = PreKey {
+      pre_key: notif_prekey,
+      pre_key_signature: notif_prekey_signature,
+    };
+
+    self
+      .client
+      .update_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id.into()))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id.into()).into())
+      .condition_expression(
+        "attribute_exists(#user_id) AND attribute_exists(#item_id)",
+      )
+      .update_expression(
+        "SET #content_prekey = :content_prekey, #notif_prekey = :notif_prekey",
+      )
+      .expression_attribute_names("#user_id", ATTR_USER_ID)
+      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+      .expression_attribute_names("#content_prekey", ATTR_CONTENT_PREKEY)
+      .expression_attribute_names("#notif_prekey", ATTR_NOTIF_PREKEY)
+      .expression_attribute_values(":content_prekey", content_prekey.into())
+      .expression_attribute_values(":notif_prekey", notif_prekey.into())
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to update device prekeys: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
   /// Checks if given device exists on user's current device list
   pub async fn device_exists(
     &self,
