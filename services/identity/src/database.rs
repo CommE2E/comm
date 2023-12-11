@@ -1043,10 +1043,11 @@ impl DatabaseClient {
     mut user: AttributeMap,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
+    let user_id: String = user.take_attr(USERS_TABLE_PARTITION_KEY)?;
     let devices: AttributeMap =
       user.take_attr(USERS_TABLE_DEVICES_ATTRIBUTE)?;
 
-    let mut devices_response = HashMap::with_capacity(devices.len());
+    let mut devices_response = self.get_keys_for_user_devices(user_id).await?;
     for (device_id_key, device_info) in devices {
       let device_info_map =
         AttributeMap::try_from_attr(&device_id_key, Some(device_info))?;
@@ -1058,6 +1059,15 @@ impl DatabaseClient {
           == USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME
           || attribute_name
             == USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME
+        {
+          continue;
+        }
+
+        // Excluding info already taken from device list response
+        if devices_response
+          .get(&device_id_key)
+          .map(|device| device.contains_key(&attribute_name))
+          .unwrap_or(false)
         {
           continue;
         }
