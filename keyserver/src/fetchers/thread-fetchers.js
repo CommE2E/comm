@@ -9,14 +9,17 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  FUTURE_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
-  type LegacyRawThreadInfos,
   type ServerThreadInfo,
-  type LegacyRawThreadInfo,
+  type RawThreadInfos,
+  type RawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -245,7 +248,7 @@ async function fetchServerThreadInfos(
 }
 
 export type FetchThreadInfosResult = {
-  +threadInfos: LegacyRawThreadInfos,
+  +threadInfos: RawThreadInfos,
 };
 
 async function fetchThreadInfos(
@@ -277,8 +280,12 @@ function rawThreadInfosFromServerThreadInfos(
   const codeVersionBelow283 = !hasMinCodeVersion(viewer.platformDetails, {
     native: 285,
   });
+  const minimallyEncodedPermissionsSupported = hasMinCodeVersion(
+    viewer.platformDetails,
+    { native: FUTURE_CODE_VERSION },
+  );
 
-  const threadInfos: { [string]: LegacyRawThreadInfo } = {};
+  const threadInfos: { [string]: RawThreadInfo } = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(
@@ -289,6 +296,7 @@ function rawThreadInfosFromServerThreadInfos(
         excludePinInfo: codeVersionBelow209,
         filterManageInviteLinksPermission: codeVersionBelow221,
         filterVoicedInAnnouncementChannelsPermission: codeVersionBelow283,
+        minimallyEncodePermissions: minimallyEncodedPermissionsSupported,
       },
     );
     if (threadInfo) {
