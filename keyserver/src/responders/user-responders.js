@@ -11,6 +11,7 @@ import {
   policies,
   policyTypeValidator,
 } from 'lib/facts/policies.js';
+import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   ResetPasswordRequest,
@@ -437,7 +438,7 @@ export const logInResponseValidator: TInterface<LogInResponse> =
     rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
     serverTime: t.Number,
     cookieChange: tShape({
-      threadInfos: t.dict(tID, legacyRawThreadInfoValidator),
+      threadInfos: t.dict(tID, rawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
     notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
