@@ -218,8 +218,11 @@ function NotificationsModal(props: Props): React.Node {
     );
   }, [isSidebar, parentThreadInfo, threadInfo]);
 
+  const parentThreadIsInBackground =
+    isSidebar && !parentThreadInfo?.currentUser.subscription.home;
+
   const modalContent = React.useMemo(() => {
-    if (isSidebar && !parentThreadInfo?.currentUser.subscription.home) {
+    if (parentThreadIsInBackground) {
       return (
         <>
           <p>
@@ -248,13 +251,6 @@ function NotificationsModal(props: Props): React.Node {
           {focusedBadgeOnlyItem}
           {backgroundItem}
         </div>
-        <Button
-          variant="filled"
-          onClick={onClickSave}
-          disabled={notificationSettings === initialThreadSetting}
-        >
-          Save
-        </Button>
         {noticeText}
       </>
     );
@@ -262,17 +258,40 @@ function NotificationsModal(props: Props): React.Node {
     backgroundItem,
     focusedBadgeOnlyItem,
     focusedItem,
-    initialThreadSetting,
-    isSidebar,
     noticeText,
-    notificationSettings,
-    onClickSave,
     parentThreadInfo,
+    parentThreadIsInBackground,
     threadInfo,
   ]);
 
+  const saveButton = React.useMemo(() => {
+    if (parentThreadIsInBackground) {
+      return undefined;
+    }
+
+    return (
+      <Button
+        variant="filled"
+        onClick={onClickSave}
+        disabled={notificationSettings === initialThreadSetting}
+      >
+        Save
+      </Button>
+    );
+  }, [
+    initialThreadSetting,
+    notificationSettings,
+    onClickSave,
+    parentThreadIsInBackground,
+  ]);
+
   return (
-    <Modal name={modalName} size="fit-content" onClose={onClose}>
+    <Modal
+      name={modalName}
+      size="fit-content"
+      onClose={onClose}
+      primaryButton={saveButton}
+    >
       <div className={css.container}>{modalContent}</div>
     </Modal>
   );
