@@ -54,8 +54,6 @@ pub enum Command {
     #[arg(default_value = SECRETS_DIRECTORY)]
     dir: String,
   },
-  /// Populates the `identity-users` table in DynamoDB from MySQL
-  PopulateDB,
 }
 
 #[derive(Clone)]

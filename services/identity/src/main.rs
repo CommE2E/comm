@@ -79,7 +79,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(addr)
         .await?;
     }
-    Command::PopulateDB => unimplemented!(),
   }
 
   Ok(())
