@@ -325,6 +325,8 @@ impl DatabaseClient {
     &self,
     user_id: &str,
   ) -> Result<Option<OutboundKeys>, Error> {
+    use crate::grpc_services::protos::unauth::DeviceType as GrpcDeviceType;
+
     // DynamoDB doesn't have a way to "pop" a value from a list, so we must
     // first read in user info, then update one_time_keys with value we
     // gave to requester
@@ -334,10 +336,60 @@ impl DatabaseClient {
       .item
       .ok_or(Error::MissingItem)?;
 
+    let user_id = user_info
+      .get(USERS_TABLE_PARTITION_KEY)
+      .ok_or(Error::MissingItem)?
+      .to_string(USERS_TABLE_PARTITION_KEY)?;
     let devices = user_info
       .get(USERS_TABLE_DEVICES_ATTRIBUTE)
       .ok_or(Error::MissingItem)?
       .to_hashmap(USERS_TABLE_DEVICES_ATTRIBUTE)?;
+
+    let user_devices = self.get_current_devices(user_id).await?;
+    let maybe_keyserver_device = user_devices
+      .into_iter()
+      .find(|device| device.device_type == GrpcDeviceType::Keyserver);
+
+    if let Some(keyserver) = maybe_keyserver_device {
+      debug!(
+        "Found keyserver in devices table (ID={})",
+        &keyserver.device_id
+      );
+      let notif_one_time_key: Option<String> = self
+        .get_one_time_key(&keyserver.device_id, OlmAccountType::Notification)
+        .await?;
+      let content_one_time_key: Option<String> = self
+        .get_one_time_key(&keyserver.device_id, OlmAccountType::Content)
+        .await?;
+
+      debug!(
+        "Able to get notif one-time key for keyserver {}: {}",
+        &keyserver.device_id,
+        notif_one_time_key.is_some()
+      );
+      debug!(
+        "Able to get content one-time key for keyserver {}: {}",
+        &keyserver.device_id,
+        content_one_time_key.is_some()
+      );
+
+      let outbound_payload = OutboundKeys {
+        key_payload: keyserver.device_key_info.key_payload,
+        key_payload_signature: keyserver.device_key_info.key_payload_signature,
+        social_proof: keyserver.device_key_info.social_proof,
+        content_prekey: PreKey {
+          prekey: keyserver.content_prekey.pre_key,
+          prekey_signature: keyserver.content_prekey.pre_key_signature,
+        },
+        notif_prekey: PreKey {
+          prekey: keyserver.notif_prekey.pre_key,
+          prekey_signature: keyserver.notif_prekey.pre_key_signature,
+        },
+        content_one_time_key,
+        notif_one_time_key,
+      };
+      return Ok(Some(outbound_payload));
+    }
 
     let mut maybe_keyserver_id = None;
     for (device_id, device_info) in devices {
