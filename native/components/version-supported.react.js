@@ -3,10 +3,8 @@
 import * as React from 'react';
 
 import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
-import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { commRustModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -17,20 +15,14 @@ function VersionSupportedChecker(): React.Node {
   const hasRun = React.useRef(false);
 
   const loggedIn = useSelector(isLoggedIn);
-  const preRequestUserState = useSelector(
-    preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
-  );
   const dispatchActionPromise = useDispatchActionPromise();
   const callLogOut = useLogOut();
 
   const onUsernameAlertAcknowledged = React.useCallback(() => {
     if (loggedIn) {
-      void dispatchActionPromise(
-        logOutActionTypes,
-        callLogOut(preRequestUserState),
-      );
+      void dispatchActionPromise(logOutActionTypes, callLogOut());
     }
-  }, [callLogOut, dispatchActionPromise, loggedIn, preRequestUserState]);
+  }, [callLogOut, dispatchActionPromise, loggedIn]);
 
   const checkVersionSupport = React.useCallback(async () => {
     try {
