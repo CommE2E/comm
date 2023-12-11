@@ -5,11 +5,9 @@ import { View, Text, Platform, ScrollView } from 'react-native';
 
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
-import { type PreRequestUserState } from 'lib/types/session-types.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
@@ -150,12 +148,11 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
-  +preRequestUserState: PreRequestUserState,
   +logOutLoading: boolean,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
-  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +logOut: () => Promise<LogOutResult>,
   +staffCanSee: boolean,
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,
@@ -362,7 +359,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   logOut() {
     void this.props.dispatchActionPromise(
       logOutActionTypes,
-      this.props.logOut(this.props.preRequestUserState),
+      this.props.logOut(),
     );
   }
 
@@ -431,7 +428,6 @@ const logOutLoadingStatusSelector =
 const ConnectedProfileScreen: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
     const currentUserInfo = useSelector(state => state.currentUserInfo);
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
     const logOutLoading =
       useSelector(logOutLoadingStatusSelector) === 'loading';
     const colors = useColors();
@@ -448,7 +444,6 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       <ProfileScreen
         {...props}
         currentUserInfo={currentUserInfo}
-        preRequestUserState={preRequestUserState}
         logOutLoading={logOutLoading}
         colors={colors}
         styles={styles}
