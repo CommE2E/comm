@@ -62,7 +62,6 @@ import {
   type SubscriptionUpdateResponse,
   threadSubscriptionValidator,
 } from 'lib/types/subscription-types.js';
-import { legacyRawThreadInfoValidator } from 'lib/types/thread-types.js';
 import { createUpdatesResultValidator } from 'lib/types/update-types.js';
 import {
   type PasswordUpdate,
@@ -254,7 +253,7 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
     rawMessageInfos: t.list(rawMessageInfoValidator),
     currentUserInfo: loggedInUserInfoValidator,
     cookieChange: tShape({
-      threadInfos: t.dict(tID, legacyRawThreadInfoValidator),
+      threadInfos: t.dict(tID, rawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
   });
