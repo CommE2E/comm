@@ -1,17 +1,10 @@
 // @flow
 
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import type { UserLoginResponse } from 'lib/types/identity-service-types.js';
-
-type InboundKeyInfoResponse = {
-  +payload: string,
-  +payloadSignature: string,
-  +socialProof?: ?string,
-  +contentPrekey: string,
-  +contentPrekeySignature: string,
-  +notifPrekey: string,
-  +notifPrekeySignature: string,
-};
+import type {
+  InboundKeyInfoResponse,
+  UserLoginResponse,
+} from 'lib/types/identity-service-types.js';
 
 type RustNativeBindingAPI = {
   +loginUser: (
