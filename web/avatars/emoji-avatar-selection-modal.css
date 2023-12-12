@@ -2,20 +2,15 @@ div.modalContainer {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  min-height: 594px;
 }
 
 /* https://github.com/missive/emoji-mart/discussions/663 */
 em-emoji-picker {
-  max-height: 300px;
-}
-
-div.modalBody {
-  padding: 20px;
+  max-height: 324px;
 }
 
 div.tabBody {
-  height: 300px;
+  height: 324px;
   padding-top: 20px;
   display: flex;
   justify-content: center;
@@ -25,18 +20,12 @@ div.tabBody {
 div.avatarContainer {
   display: flex;
   justify-content: center;
-  padding-top: 20px;
 }
 
 div.emojiPickerContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-div.saveButtonContainer {
-  display: flex;
-  flex-direction: column;
 }
 
 div.saveAvatarButtonContent {
