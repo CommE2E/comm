@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider.js';
 import Search from '../components/search.react.js';
 
@@ -16,11 +17,13 @@ function ChatThreadListSearch(): React.Node {
 
   return React.useMemo(
     () => (
-      <Search
-        onChangeText={setSearchText}
-        searchText={searchText}
-        placeholder="Search chats"
-      />
+      <div className={css.searchBarContainer}>
+        <Search
+          onChangeText={setSearchText}
+          searchText={searchText}
+          placeholder="Search chats"
+        />
+      </div>
     ),
     [searchText, setSearchText],
   );
