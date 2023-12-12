@@ -2,12 +2,13 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 80vh;
 }
 
 .content {
   overflow-y: scroll;
   border-top: 2px solid var(--border-color);
-  padding: 16px 26px;
+  padding: 16px 0;
 }
 
 .content > * {
@@ -25,13 +26,13 @@
   size: 14;
   font-weight: 400;
   text-align: center;
-  margin: 20px;
+  margin-top: 20px;
 }
 
 .header {
   display: flex;
   flex-direction: row;
-  margin: 16px;
+  margin-bottom: 16px;
 }
 
 .button {
