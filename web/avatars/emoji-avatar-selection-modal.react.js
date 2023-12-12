@@ -103,8 +103,27 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
 
   const [currentTabType, setCurrentTabType] = React.useState<TabType>('emoji');
 
+  const saveButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        buttonColor={buttonColor}
+        onClick={onSaveAvatar}
+        disabled={avatarSaveInProgress}
+      >
+        <div className={css.saveAvatarButtonContent}>{saveButtonContent}</div>
+      </Button>
+    ),
+    [avatarSaveInProgress, buttonColor, onSaveAvatar, saveButtonContent],
+  );
+
   return (
-    <Modal name="Emoji avatar selection" size="large" onClose={popModal}>
+    <Modal
+      name="Emoji avatar selection"
+      size="large"
+      onClose={popModal}
+      primaryButton={saveButton}
+    >
       <div className={css.modalContainer}>
         <div className={css.avatarContainer}>
           <Avatar
@@ -136,20 +155,6 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
             </div>
           </Tabs.Item>
         </Tabs.Container>
-        <div className={css.modalBody}>
-          <div className={css.saveButtonContainer}>
-            <Button
-              variant="filled"
-              buttonColor={buttonColor}
-              onClick={onSaveAvatar}
-              disabled={avatarSaveInProgress}
-            >
-              <div className={css.saveAvatarButtonContent}>
-                {saveButtonContent}
-              </div>
-            </Button>
-          </div>
-        </div>
       </div>
     </Modal>
   );
