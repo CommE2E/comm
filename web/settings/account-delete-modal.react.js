@@ -34,7 +34,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     let error;
     if (errorMessage) {
       error = (
-        <div className={css.form_error}>
+        <div className={css.formError}>
           <p>{errorMessage}</p>
         </div>
       );
@@ -85,11 +85,11 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
         size="large"
         primaryButton={primaryButton}
       >
-        <div className={css.modal_body}>
+        <div className={css.modalBody}>
           <form method="POST">
             <div className={css.infoContainer}>
               <SWMansionIcon icon="warning-circle" size={22} />
-              <p className={css.deletion_warning}>
+              <p className={css.deletionWarning}>
                 Your account will be permanently deleted. There is no way to
                 reverse this.
               </p>

@@ -1,15 +1,15 @@
-.modal_body {
+.modalBody {
   color: var(--fg);
 }
-.modal_body p {
+.modalBody p {
   font-size: var(--s-font-14);
 }
 
-.deletion_warning {
+.deletionWarning {
   font-weight: var(--bold);
 }
 
-.form_error {
+.formError {
   font-size: var(--xs-font-12);
   color: var(--error);
   font-style: italic;
