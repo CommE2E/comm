@@ -117,13 +117,12 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityGetOutboundKeysForUserDevice"]
-    fn get_outbound_keys_for_user_device(
+    #[cxx_name = "identityGetOutboundKeysForUser"]
+    fn get_outbound_keys_for_user(
       auth_user_id: String,
       auth_device_id: String,
       auth_access_token: String,
       user_id: String,
-      device_id: String,
       promise_id: u32,
     );
 
@@ -785,7 +784,6 @@ async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
 
 struct GetOutboundKeysRequestInfo {
   user_id: String,
-  device_id: String,
 }
 
 // This struct should not be altered without also updating
@@ -850,23 +848,21 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
   }
 }
 
-fn get_outbound_keys_for_user_device(
+fn get_outbound_keys_for_user(
   auth_user_id: String,
   auth_device_id: String,
   auth_access_token: String,
   user_id: String,
-  device_id: String,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
-    let get_outbound_keys_request_info =
-      GetOutboundKeysRequestInfo { user_id, device_id };
+    let get_outbound_keys_request_info = GetOutboundKeysRequestInfo { user_id };
     let auth_info = AuthInfo {
       access_token: auth_access_token,
       user_id: auth_user_id,
       device_id: auth_device_id,
     };
-    let result = get_outbound_keys_for_user_device_helper(
+    let result = get_outbound_keys_for_user_helper(
       get_outbound_keys_request_info,
       auth_info,
     )
@@ -875,7 +871,7 @@ fn get_outbound_keys_for_user_device(
   });
 }
 
-async fn get_outbound_keys_for_user_device_helper(
+async fn get_outbound_keys_for_user_helper(
   get_outbound_keys_request_info: GetOutboundKeysRequestInfo,
   auth_info: AuthInfo,
 ) -> Result<String, Error> {
@@ -888,19 +884,18 @@ async fn get_outbound_keys_for_user_device_helper(
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  let mut response = identity_client
+  let response = identity_client
     .get_outbound_keys_for_user(OutboundKeysForUserRequest {
       user_id: get_outbound_keys_request_info.user_id,
     })
     .await?
     .into_inner();
 
-  let outbound_key_info = OutboundKeyInfoResponse::try_from(
-    response
-      .devices
-      .remove(&get_outbound_keys_request_info.device_id)
-      .ok_or(Error::MissingResponseData)?,
-  )?;
+  let outbound_key_info: Vec<OutboundKeyInfoResponse> = response
+    .devices
+    .into_values()
+    .map(OutboundKeyInfoResponse::try_from)
+    .collect::<Result<Vec<_>, _>>()?;
 
   Ok(serde_json::to_string(&outbound_key_info)?)
 }
