@@ -58,7 +58,7 @@ function SubchannelsModal(props: Props): React.Node {
       name="Subchannels"
       searchPlaceholder="Search"
       onClose={onClose}
-      size="fit-content"
+      size="large"
     >
       {subchannelsContent}
     </SearchModal>
