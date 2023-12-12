@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import { useENSName } from 'lib/hooks/ens-cache.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import { stringForUserExplicit } from 'lib/shared/user-utils.js';
 import type { UserProfileThreadInfo } from 'lib/types/thread-types';
@@ -27,6 +28,7 @@ function UserProfile(props: Props): React.Node {
   const { pushModal } = useModalContext();
 
   const usernameText = stringForUserExplicit(userInfo);
+  const resolvedUsernameText = useENSName(usernameText);
 
   const [usernameCopied, setUsernameCopied] = React.useState<boolean>(false);
 
@@ -39,11 +41,11 @@ function UserProfile(props: Props): React.Node {
       return;
     }
 
-    await navigator.clipboard.writeText(usernameText);
+    await navigator.clipboard.writeText(resolvedUsernameText);
     setUsernameCopied(true);
     await sleep(3000);
     setUsernameCopied(false);
-  }, [usernameCopied, usernameText]);
+  }, [usernameCopied, resolvedUsernameText]);
 
   const actionButtons = React.useMemo(() => {
     if (
@@ -66,7 +68,9 @@ function UserProfile(props: Props): React.Node {
             <UserAvatar userID={userInfo?.id} size="L" />
           </div>
           <div className={css.usernameContainer}>
-            <SingleLine className={css.usernameText}>{usernameText}</SingleLine>
+            <SingleLine className={css.usernameText}>
+              {resolvedUsernameText}
+            </SingleLine>
             <div
               className={css.copyUsernameContainer}
               onClick={onClickCopyUsername}
@@ -90,7 +94,7 @@ function UserProfile(props: Props): React.Node {
       onClickUserAvatar,
       userInfo?.id,
       usernameCopied,
-      usernameText,
+      resolvedUsernameText,
     ],
   );
 
