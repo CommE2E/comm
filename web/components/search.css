@@ -2,7 +2,6 @@ div.searchContainer {
   background-color: var(--inputField-background-secondary-default);
   display: flex;
   align-items: center;
-  margin: 1rem;
   border-radius: 8px;
   padding: 8px;
   flex: 1;
