@@ -100,6 +100,14 @@ function ThreadSettingsMediaGalleryModal(
       );
     }
 
+    if (filteredMediaInfos.length === 0) {
+      return (
+        <div className={css.noMedia}>
+          No {tab === 'All' ? 'media files' : tab.toLowerCase()} in this chat.
+        </div>
+      );
+    }
+
     return filteredMediaInfos.map((media, i) => {
       let imageSource;
       if (media.type === 'photo') {
