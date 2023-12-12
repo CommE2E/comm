@@ -32,6 +32,7 @@ div.searchRow {
 
 div.searchField {
   flex-grow: 1;
+  padding: 1rem;
 }
 
 .closeSearch {
