@@ -3,8 +3,7 @@ div.subchannelsListContainer {
   flex-direction: column;
   overflow: auto;
   row-gap: 8px;
-  width: 383px;
-  height: 458px;
+  height: 80vh;
 }
 
 div.noSubchannels {
@@ -16,8 +15,8 @@ div.noSubchannels {
   font-size: var(--m-font-18);
   line-height: var(--line-height-text);
   color: var(--subchannels-modal-color);
-  padding: 8px 16px;
   column-gap: 8px;
+  padding-top: 16px;
 }
 
 .subchannelContainer:hover {
