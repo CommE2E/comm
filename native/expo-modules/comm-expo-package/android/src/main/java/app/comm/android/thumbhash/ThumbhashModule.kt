@@ -53,7 +53,7 @@ class ThumbhashModule : Module() {
 
     val rgba = bitmap.toRGBA()
     val thumbHash = ThumbHash.rgbaToThumbHash(bitmap.width, bitmap.height, rgba)
-    return Base64.encodeToString(thumbHash, Base64.DEFAULT)
+    return Base64.encodeToString(thumbHash, Base64.NO_WRAP)
   }
 
   // endregion
