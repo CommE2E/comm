@@ -149,7 +149,7 @@ resource "aws_lb_target_group" "identity_service_grpc" {
   name             = "identity-service-ecs-grpc-tg"
   port             = local.identity_service_container_grpc_port
   protocol         = "HTTP"
-  protocol_version = "GRPC"
+  protocol_version = "HTTP2"
   vpc_id           = aws_vpc.default.id
 
   # The "bridge" network mode requires target type set to instance
