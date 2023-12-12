@@ -280,3 +280,7 @@ img.arrow {
   left: 28px;
   top: -10px;
 }
+
+.searchBarContainer {
+  padding: 1rem;
+}
