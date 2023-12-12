@@ -247,6 +247,30 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
       });
 }
 
+jsi::Value CommRustModule::getInboundKeysForUser(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::String userID) {
+  return createPromiseAsJSIValue(
+      rt, [&, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGetInboundKeysForUser(
+              jsiStringToRustString(authUserID, innerRt),
+              jsiStringToRustString(authDeviceID, innerRt),
+              jsiStringToRustString(authAccessToken, innerRt),
+              jsiStringToRustString(userID, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
