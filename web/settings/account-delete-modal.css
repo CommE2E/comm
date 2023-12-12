@@ -1,5 +1,4 @@
 .modal_body {
-  padding: 24px 32px;
   color: var(--fg);
 }
 .modal_body p {
@@ -8,19 +7,18 @@
 
 .deletion_warning {
   font-weight: var(--bold);
-  margin-bottom: 16px;
 }
 
-.form_footer {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  padding-top: 24px;
-}
 .form_error {
   font-size: var(--xs-font-12);
   color: var(--error);
   font-style: italic;
-  padding-left: 6px;
-  align-self: center;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.errorPlaceholder {
+  height: 24px;
 }
