@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
@@ -16,6 +15,7 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
+import { setConnectionIssueActionType } from 'lib/types/socket-types.js';
 import {
   useDispatchActionPromise,
   fetchNewCookieFromNativeCredentials,
@@ -114,11 +114,16 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useLogOut();
 
     const socketCrashLoopRecovery = React.useCallback(async () => {
       if (!accountHasPassword(currentUserInfo)) {
-        void dispatchActionPromise(logOutActionTypes, callLogOut());
+        void dispatch({
+          type: setConnectionIssueActionType,
+          payload: {
+            keyserverID: ashoatKeyserverID,
+            connectionIssue: 'socket_crash_loop',
+          },
+        });
         Alert.alert(
           'Log in needed',
           'After acknowledging the policies, we need you to log in to your account again',
@@ -136,11 +141,9 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         getInitialNotificationsEncryptedMessage,
       );
     }, [
-      callLogOut,
       cookie,
       currentUserInfo,
       dispatch,
-      dispatchActionPromise,
       urlPrefix,
       getInitialNotificationsEncryptedMessage,
     ]);
@@ -163,7 +166,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         preRequestUserState={preRequestUserState}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
-        logOut={callLogOut}
         noDataAfterPolicyAcknowledgment={noDataAfterPolicyAcknowledgment}
         socketCrashLoopRecovery={socketCrashLoopRecovery}
         getInitialNotificationsEncryptedMessage={
