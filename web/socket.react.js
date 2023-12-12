@@ -11,6 +11,7 @@ import {
   connectionSelector,
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
+import { openSocketSelector } from 'lib/selectors/socket-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
@@ -27,7 +28,6 @@ import {
   webCalendarQuery,
 } from './selectors/nav-selectors.js';
 import {
-  openSocketSelector,
   sessionIdentificationSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
