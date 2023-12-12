@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useLogOut } from 'lib/actions/user-actions.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
@@ -97,7 +96,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogOut = useLogOut();
 
     const lastCommunicatedPlatformDetails = useSelector(
       lastCommunicatedPlatformDetailsSelector(ashoatKeyserverID),
@@ -121,7 +119,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         preRequestUserState={preRequestUserState}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
-        logOut={callLogOut}
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
       />
