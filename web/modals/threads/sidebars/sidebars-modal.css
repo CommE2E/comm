@@ -2,8 +2,7 @@ div.sidebarListContainer {
   display: flex;
   flex-direction: column;
   line-height: var(--line-height-text);
-  width: 383px;
-  height: 458px;
+  height: 80vh;
 }
 
 div.sidebarList {
