@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { getDatabaseModule } from './database-module-provider.js';
@@ -19,28 +20,50 @@ function SQLiteDataHandler(): React.Node {
 
   const handleSensitiveData = React.useCallback(async () => {
     const databaseModule = await getDatabaseModule();
+    let currentDBUserID,
+      errorGettingUserID = false;
     try {
       const currentUserData = await databaseModule.schedule({
         type: workerRequestMessageTypes.GET_CURRENT_USER_ID,
       });
-      const currentDBUserID = currentUserData?.userID;
+      currentDBUserID = currentUserData?.userID;
+    } catch (error) {
+      errorGettingUserID = true;
+      console.error(
+        `Error setting current user ID: ${
+          getMessageForException(error) ?? 'unknown'
+        }`,
+      );
+    }
 
-      if (currentDBUserID === currentLoggedInUserID) {
-        return;
-      }
+    if (currentDBUserID === currentLoggedInUserID && !errorGettingUserID) {
+      return;
+    }
 
-      if (currentDBUserID) {
+    if (currentDBUserID || errorGettingUserID) {
+      try {
         await databaseModule.init({ clearDatabase: true });
+      } catch (error) {
+        console.error(
+          `Error clearing sensitive data: ${
+            getMessageForException(error) ?? 'unknown'
+          }`,
+        );
       }
-      if (currentLoggedInUserID) {
+    }
+    if (currentLoggedInUserID) {
+      try {
         await databaseModule.schedule({
           type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
           userID: currentLoggedInUserID,
         });
+      } catch (error) {
+        console.error(
+          `Error setting current user ID: ${
+            getMessageForException(error) ?? 'unknown'
+          }`,
+        );
       }
-    } catch (error) {
-      console.error(error);
-      throw error;
     }
   }, [currentLoggedInUserID]);
 
