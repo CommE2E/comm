@@ -47,37 +47,36 @@ class DatabaseModule {
       return;
     }
 
-    if (clearDatabase && this.status.type === databaseStatuses.initSuccess) {
-      console.info('Clearing sensitive data');
-      invariant(this.workerProxy, 'Worker proxy should exist');
-      await this.workerProxy.scheduleOnWorker({
-        type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
-      });
-      this.status = { type: databaseStatuses.notRunning };
-    }
-
     if (this.status.type === databaseStatuses.initInProgress) {
       await this.status.initPromise;
       return;
     }
 
     if (
-      this.status.type === databaseStatuses.initSuccess ||
+      (this.status.type === databaseStatuses.initSuccess && !clearDatabase) ||
       this.status.type === databaseStatuses.initError
     ) {
       return;
     }
 
-    this.worker = new SharedWorker(DATABASE_WORKER_PATH);
-    this.worker.onerror = console.error;
-    this.workerProxy = new WorkerConnectionProxy(
-      this.worker.port,
-      console.error,
-    );
-
-    const origin = window.location.origin;
-
     const initPromise = (async () => {
+      if (clearDatabase && this.status.type === databaseStatuses.initSuccess) {
+        console.info('Clearing sensitive data');
+        invariant(this.workerProxy, 'Worker proxy should exist');
+        await this.workerProxy.scheduleOnWorker({
+          type: workerRequestMessageTypes.CLEAR_SENSITIVE_DATA,
+        });
+      }
+
+      this.worker = new SharedWorker(DATABASE_WORKER_PATH);
+      this.worker.onerror = console.error;
+      this.workerProxy = new WorkerConnectionProxy(
+        this.worker.port,
+        console.error,
+      );
+
+      const origin = window.location.origin;
+
       try {
         let encryptionKey = null;
         if (isDesktopSafari) {
