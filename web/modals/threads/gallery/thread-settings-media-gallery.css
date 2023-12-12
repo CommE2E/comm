@@ -3,9 +3,8 @@ div.container {
   flex-wrap: wrap;
   overflow-y: scroll;
   justify-content: flex-start;
-  max-height: 700px;
-  padding: 10px;
-  margin-top: 10px;
+  height: 80vh;
+  padding-top: 16px;
 }
 
 div.mediaContainer {
@@ -21,4 +20,12 @@ video.media {
   height: 100%;
   object-fit: cover;
   cursor: pointer;
+}
+
+.noMedia {
+  margin-top: 16px;
+  color: var(--text-background-tertiary-default);
+  display: flex;
+  flex: 1;
+  justify-content: center;
 }
