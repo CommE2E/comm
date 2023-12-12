@@ -2,12 +2,12 @@ div.container {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  margin: 16px;
 }
 
 div.contentContainer {
   overflow: scroll;
   height: 448px;
+  padding-top: 16px;
 }
 
 div.threadPickerOptionContainer {
