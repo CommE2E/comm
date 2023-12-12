@@ -5,14 +5,12 @@ import { createSelector } from 'reselect';
 
 import {
   sessionIDSelector,
-  urlPrefixSelector,
   cookieSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
-import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
@@ -25,20 +23,6 @@ import type {
 import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
-
-const baseOpenSocketSelector: (
-  keyserverID: string,
-) => (state: AppState) => ?() => WebSocket = keyserverID =>
-  createSelector(urlPrefixSelector(keyserverID), (urlPrefix: ?string) => {
-    if (!urlPrefix) {
-      return null;
-    }
-    return createOpenSocketFunction(urlPrefix);
-  });
-
-const openSocketSelector: (
-  keyserverID: string,
-) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
 const baseSessionIdentificationSelector: (
   keyserverID: string,
@@ -120,7 +104,6 @@ const webSessionStateFuncSelector: (
 );
 
 export {
-  openSocketSelector,
   sessionIdentificationSelector,
   webGetClientResponsesSelector,
   webSessionStateFuncSelector,
