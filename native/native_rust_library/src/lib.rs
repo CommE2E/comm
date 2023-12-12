@@ -3,7 +3,8 @@ use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::authenticated::{
-  OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
+  InboundKeyInfo, InboundKeysForUserRequest, OutboundKeyInfo,
+  OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::client::{
@@ -117,6 +118,15 @@ mod ffi {
 
     #[cxx_name = "identityGetOutboundKeysForUser"]
     fn get_outbound_keys_for_user(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      user_id: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityGetInboundKeysForUser"]
+    fn get_inbound_keys_for_user(
       auth_user_id: String,
       auth_device_id: String,
       auth_access_token: String,
@@ -777,6 +787,10 @@ struct GetOutboundKeysRequestInfo {
   user_id: String,
 }
 
+struct GetInboundKeysRequestInfo {
+  user_id: String,
+}
+
 // This struct should not be altered without also updating
 // OutboundKeyInfoResponse in lib/types/identity-service-types.js
 #[derive(Serialize)]
@@ -791,6 +805,20 @@ struct OutboundKeyInfoResponse {
   pub notif_prekey_signature: String,
   pub one_time_content_prekey: Option<String>,
   pub one_time_notif_prekey: Option<String>,
+}
+
+// This struct should not be altered without also updating
+// InboundKeyInfoResponse in lib/types/identity-service-types.js
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InboundKeyInfoResponse {
+  pub payload: String,
+  pub payload_signature: String,
+  pub social_proof: Option<String>,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
 }
 
 impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
@@ -889,6 +917,99 @@ async fn get_outbound_keys_for_user_helper(
     .collect::<Result<Vec<_>, _>>()?;
 
   Ok(serde_json::to_string(&outbound_key_info)?)
+}
+
+impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
+  type Error = Error;
+
+  fn try_from(key_info: InboundKeyInfo) -> Result<Self, Error> {
+    let identity_info =
+      key_info.identity_info.ok_or(Error::MissingResponseData)?;
+
+    let IdentityKeyInfo {
+      payload,
+      payload_signature,
+      social_proof,
+    } = identity_info;
+
+    let content_prekey =
+      key_info.content_prekey.ok_or(Error::MissingResponseData)?;
+
+    let PreKey {
+      pre_key: content_prekey_value,
+      pre_key_signature: content_prekey_signature,
+    } = content_prekey;
+
+    let notif_prekey =
+      key_info.notif_prekey.ok_or(Error::MissingResponseData)?;
+
+    let PreKey {
+      pre_key: notif_prekey_value,
+      pre_key_signature: notif_prekey_signature,
+    } = notif_prekey;
+
+    Ok(Self {
+      payload,
+      payload_signature,
+      social_proof,
+      content_prekey: content_prekey_value,
+      content_prekey_signature,
+      notif_prekey: notif_prekey_value,
+      notif_prekey_signature,
+    })
+  }
+}
+
+fn get_inbound_keys_for_user(
+  auth_user_id: String,
+  auth_device_id: String,
+  auth_access_token: String,
+  user_id: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let get_inbound_keys_request_info = GetInboundKeysRequestInfo { user_id };
+    let auth_info = AuthInfo {
+      access_token: auth_access_token,
+      user_id: auth_user_id,
+      device_id: auth_device_id,
+    };
+    let result = get_inbound_keys_for_user_helper(
+      get_inbound_keys_request_info,
+      auth_info,
+    )
+    .await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn get_inbound_keys_for_user_helper(
+  get_inbound_keys_request_info: GetInboundKeysRequestInfo,
+  auth_info: AuthInfo,
+) -> Result<String, Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+  let response = identity_client
+    .get_inbound_keys_for_user(InboundKeysForUserRequest {
+      user_id: get_inbound_keys_request_info.user_id,
+    })
+    .await?
+    .into_inner();
+
+  let inbound_key_info: Vec<InboundKeyInfoResponse> = response
+    .devices
+    .into_values()
+    .map(InboundKeyInfoResponse::try_from)
+    .collect::<Result<Vec<_>, _>>()?;
+
+  Ok(serde_json::to_string(&inbound_key_info)?)
 }
 
 #[derive(
