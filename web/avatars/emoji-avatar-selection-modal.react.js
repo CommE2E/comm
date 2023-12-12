@@ -114,15 +114,38 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
 
   const [currentTabType, setCurrentTabType] = React.useState<TabType>('emoji');
 
-  const tabs = React.useMemo(
+  const subheader = React.useMemo(
     () => (
-      <Tabs
-        tabItems={tabsData}
-        activeTab={currentTabType}
-        setTab={setCurrentTabType}
-      />
+      <>
+        <div className={css.avatarContainer}>
+          <Avatar
+            avatarInfo={pendingEmojiAvatar}
+            size="XL"
+            showSpinner={avatarSaveInProgress}
+          />
+        </div>
+        <Tabs
+          tabItems={tabsData}
+          activeTab={currentTabType}
+          setTab={setCurrentTabType}
+        />
+      </>
     ),
-    [currentTabType],
+    [avatarSaveInProgress, currentTabType, pendingEmojiAvatar],
+  );
+
+  const saveButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        buttonColor={buttonColor}
+        onClick={onSaveAvatar}
+        disabled={avatarSaveInProgress}
+      >
+        <div className={css.saveAvatarButtonContent}>{saveButtonContent}</div>
+      </Button>
+    ),
+    [avatarSaveInProgress, buttonColor, onSaveAvatar, saveButtonContent],
   );
 
   const tabContent = React.useMemo(() => {
@@ -149,35 +172,17 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
         />
       </div>
     );
-  }, [currentTabType, onEmojiSelect, onColorSelection, pendingAvatarColor]);
+  }, [currentTabType, onColorSelection, onEmojiSelect, pendingAvatarColor]);
 
   return (
-    <Modal name="Emoji avatar selection" size="large" onClose={popModal}>
-      <div className={css.modalContainer}>
-        <div className={css.avatarContainer}>
-          <Avatar
-            avatarInfo={pendingEmojiAvatar}
-            size="XL"
-            showSpinner={avatarSaveInProgress}
-          />
-        </div>
-        {tabs}
-        {tabContent}
-        <div className={css.modalBody}>
-          <div className={css.saveButtonContainer}>
-            <Button
-              variant="filled"
-              buttonColor={buttonColor}
-              onClick={onSaveAvatar}
-              disabled={avatarSaveInProgress}
-            >
-              <div className={css.saveAvatarButtonContent}>
-                {saveButtonContent}
-              </div>
-            </Button>
-          </div>
-        </div>
-      </div>
+    <Modal
+      name="Emoji avatar selection"
+      size="large"
+      onClose={popModal}
+      subheader={subheader}
+      primaryButton={saveButton}
+    >
+      <div className={css.modalContainer}>{tabContent}</div>
     </Modal>
   );
 }
