@@ -120,6 +120,14 @@ function ThreadSettingsMediaGalleryModal(
       );
     }
 
+    if (filteredMediaInfos.length === 0) {
+      return (
+        <div className={css.noMedia}>
+          No {tab === 'All' ? 'media' : tab.toLowerCase()} in this chat.
+        </div>
+      );
+    }
+
     return filteredMediaInfos.map((media, i) => {
       let imageSource;
       if (media.type === 'photo') {
@@ -196,8 +204,7 @@ function ThreadSettingsMediaGalleryModal(
   );
 
   return (
-    <Modal name={modalName} onClose={onClose} size="large">
-      {tabs}
+    <Modal name={modalName} subheader={tabs} onClose={onClose} size="large">
       {tabContent}
     </Modal>
   );
