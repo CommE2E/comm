@@ -55,12 +55,11 @@ export interface Spec extends TurboModule {
     deviceID: string,
     accessToken: string,
   ) => Promise<void>;
-  +getOutboundKeysForUserDevice: (
+  +getOutboundKeysForUser: (
     authUserID: string,
     authDeviceID: string,
     authAccessToken: string,
     userID: string,
-    deviceID: string,
   ) => Promise<string>;
   +versionSupported: () => Promise<boolean>;
 }

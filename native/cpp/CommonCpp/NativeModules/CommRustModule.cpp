@@ -223,13 +223,12 @@ jsi::Value CommRustModule::deleteUser(
       });
 }
 
-jsi::Value CommRustModule::getOutboundKeysForUserDevice(
+jsi::Value CommRustModule::getOutboundKeysForUser(
     jsi::Runtime &rt,
     jsi::String authUserID,
     jsi::String authDeviceID,
     jsi::String authAccessToken,
-    jsi::String userID,
-    jsi::String deviceID) {
+    jsi::String userID) {
   return createPromiseAsJSIValue(
       rt, [&, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
@@ -241,7 +240,6 @@ jsi::Value CommRustModule::getOutboundKeysForUserDevice(
               jsiStringToRustString(authDeviceID, innerRt),
               jsiStringToRustString(authAccessToken, innerRt),
               jsiStringToRustString(userID, innerRt),
-              jsiStringToRustString(deviceID, innerRt),
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
