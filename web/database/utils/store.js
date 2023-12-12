@@ -65,6 +65,14 @@ async function processDBStoreOperations(
   const convertedReportStoreOperations =
     reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
 
+  if (
+    convertedThreadStoreOperations.length === 0 &&
+    convertedReportStoreOperations.length === 0 &&
+    draftStoreOperations.length === 0
+  ) {
+    return;
+  }
+
   const databaseModule = await getDatabaseModule();
   const isSupported = await databaseModule.isDatabaseSupported();
   if (!isSupported) {
