@@ -11,6 +11,7 @@ import {
   connectionSelector,
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
+import { openSocketSelector } from 'lib/selectors/socket-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
@@ -30,7 +31,6 @@ import { NavContext } from './navigation/navigation-context.js';
 import { useSelector } from './redux/redux-utils.js';
 import { noDataAfterPolicyAcknowledgmentSelector } from './selectors/account-selectors.js';
 import {
-  openSocketSelector,
   sessionIdentificationSelector,
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,

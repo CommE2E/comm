@@ -3,15 +3,11 @@
 import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
-import {
-  cookieSelector,
-  urlPrefixSelector,
-} from 'lib/selectors/keyserver-selectors.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
-import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
@@ -27,29 +23,6 @@ import { commCoreModule } from '../native-modules.js';
 import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
-
-const baseOpenSocketSelector: (
-  keyserverID: string,
-) => (state: AppState) => ?() => WebSocket = keyserverID =>
-  createSelector(
-    urlPrefixSelector(keyserverID),
-    // We don't actually use the cookie in the socket open function,
-    // but we do use it in the initial message, and when the cookie changes
-    // the socket needs to be reopened. By including the cookie here,
-    // whenever the cookie changes this function will change,
-    // which tells the Socket component to restart the connection.
-    cookieSelector(keyserverID),
-    (urlPrefix: ?string) => {
-      if (!urlPrefix) {
-        return null;
-      }
-      return createOpenSocketFunction(urlPrefix);
-    },
-  );
-
-const openSocketSelector: (
-  keyserverID: string,
-) => (state: AppState) => ?() => WebSocket = _memoize(baseOpenSocketSelector);
 
 const baseSessionIdentificationSelector: (
   keyserverID: string,
@@ -144,7 +117,6 @@ const nativeSessionStateFuncSelector: (
 );
 
 export {
-  openSocketSelector,
   sessionIdentificationSelector,
   nativeGetClientResponsesSelector,
   nativeSessionStateFuncSelector,
