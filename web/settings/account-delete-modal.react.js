@@ -60,30 +60,41 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
           deleteAccountAction(),
         );
       },
-      [dispatchActionPromise, deleteAccountAction],
+      [deleteAccountAction, dispatchActionPromise],
+    );
+
+    const primaryButton = React.useMemo(
+      () => (
+        <Button
+          variant="filled"
+          buttonColor={buttonThemes.danger}
+          type="submit"
+          onClick={onDelete}
+          disabled={inputDisabled}
+        >
+          Delete Account
+        </Button>
+      ),
+      [inputDisabled, onDelete],
     );
 
     return (
-      <Modal name="Delete Account" onClose={popModal} size="large">
+      <Modal
+        name="Delete Account"
+        onClose={popModal}
+        size="large"
+        primaryButton={primaryButton}
+      >
         <div className={css.modal_body}>
           <form method="POST">
-            <SWMansionIcon icon="warning-circle" size={22} />
-            <p className={css.deletion_warning}>
-              Your account will be permanently deleted. There is no way to
-              reverse this.
-            </p>
-            <div className={css.form_footer}>
-              <Button
-                variant="filled"
-                buttonColor={buttonThemes.danger}
-                type="submit"
-                onClick={onDelete}
-                disabled={inputDisabled}
-              >
-                Delete Account
-              </Button>
-              {error}
+            <div className={css.infoContainer}>
+              <SWMansionIcon icon="warning-circle" size={22} />
+              <p className={css.deletion_warning}>
+                Your account will be permanently deleted. There is no way to
+                reverse this.
+              </p>
             </div>
+            {error}
           </form>
         </div>
       </Modal>
