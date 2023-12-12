@@ -19,7 +19,8 @@ async function verifyInviteLink(
     FROM invite_links i
     INNER JOIN threads c ON c.id = i.community
     LEFT JOIN memberships m 
-      ON m.thread = i.community AND m.user = ${viewer.userID}
+      ON m.thread = i.community
+        AND m.user = ${viewer.loggedIn ? viewer.userID : null}
     WHERE i.name = ${request.secret}
       AND c.community IS NULL
   `;
