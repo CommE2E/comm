@@ -132,13 +132,15 @@ function MessageSearchModal(props: ContentProps): React.Node {
     <Modal name="Search messages" onClose={popModal} size="large">
       <div className={css.container}>
         <div className={css.header}>
-          <Search
-            onChangeText={setInput}
-            searchText={input}
-            placeholder={searchPlaceholder}
-            onClearText={clearQueryWrapper}
-            onKeyDown={onKeyDown}
-          />
+          <div className={css.searchBarContainer}>
+            <Search
+              onChangeText={setInput}
+              searchText={input}
+              placeholder={searchPlaceholder}
+              onClearText={clearQueryWrapper}
+              onKeyDown={onKeyDown}
+            />
+          </div>
           <Button
             onClick={onPressSearch}
             variant="filled"
