@@ -70,7 +70,7 @@ function SidebarsModal(props: Props): React.Node {
       name="Threads"
       searchPlaceholder="Search"
       onClose={onClose}
-      size="fit-content"
+      size="large"
     >
       {sidebarsContent}
     </SearchModal>
