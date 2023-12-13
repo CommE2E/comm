@@ -28,3 +28,10 @@ hr.separator {
   justify-content: center;
   display: flex;
 }
+
+.noPinnedMessages {
+  color: var(--text-background-tertiary-default);
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
