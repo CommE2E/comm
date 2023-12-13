@@ -39,6 +39,7 @@ import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
+import IdentityHandler from './components/identity-handler.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
@@ -75,7 +76,6 @@ import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
 import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
-
 // Add custom items to expo-dev-menu
 import './dev-menu.js';
 import './types/message-types-validator.js';
@@ -328,6 +328,7 @@ function Root() {
                                             }
                                           />
                                           <VersionSupportedChecker />
+                                          <IdentityHandler />
                                         </PersistedStateGate>
                                         {navigation}
                                       </RegistrationContextProvider>
