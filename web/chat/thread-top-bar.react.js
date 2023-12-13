@@ -14,7 +14,7 @@ import css from './thread-top-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
 import { InputStateContext } from '../input/input-state.js';
-import MessageResultsModal from '../modals/chat/message-results-modal.react.js';
+import PinnedMessagesModal from '../modals/chat/pinned-messages-modal.react.js';
 import MessageSearchModal from '../modals/search/message-search-modal.react.js';
 
 type ThreadTopBarProps = {
@@ -29,9 +29,6 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     threadMenu = <ThreadMenu threadInfo={threadInfo} />;
   }
 
-  // To allow the pinned messages modal to be re-used by the message search
-  // modal, it will be useful to make the modal accept a prop that defines it's
-  // name, instead of setting it directly in the modal.
   const bannerText = React.useMemo(() => {
     if (!threadInfo.pinnedCount || threadInfo.pinnedCount === 0) {
       return '';
@@ -46,7 +43,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const pushThreadPinsModal = React.useCallback(() => {
     pushModal(
       <InputStateContext.Provider value={inputState}>
-        <MessageResultsModal threadInfo={threadInfo} modalName={bannerText} />
+        <PinnedMessagesModal threadInfo={threadInfo} modalName={bannerText} />
       </InputStateContext.Provider>,
     );
   }, [pushModal, inputState, threadInfo, bannerText]);
