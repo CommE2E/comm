@@ -20,7 +20,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
-import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
+import { canToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import {
   type MessageTooltipAction,
