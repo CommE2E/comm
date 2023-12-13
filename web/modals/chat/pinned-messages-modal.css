@@ -1,3 +1,7 @@
+.container {
+  height: 80vh;
+}
+
 hr.separator {
   border: 0;
   margin: 20px 0 0 0;
@@ -8,12 +12,10 @@ hr.separator {
 }
 
 .messageResultsContainer {
+  display: flex;
+  flex-direction: column;
   overflow-y: scroll;
-  padding: 0 32px 8px 32px;
-}
-
-.messageResultsContainer > * {
-  margin-bottom: 16px;
+  row-gap: 16px;
 }
 
 .loadingIndicator {
@@ -21,7 +23,7 @@ hr.separator {
 }
 
 .topSpace {
-  height: 48px;
+  height: 8px;
   align-items: center;
   justify-content: center;
   display: flex;
