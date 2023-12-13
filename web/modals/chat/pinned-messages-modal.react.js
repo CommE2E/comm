@@ -20,6 +20,7 @@ import {
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
 import css from './pinned-messages-modal.css';
 import MessageResult from '../../components/message-result.react.js';
@@ -29,7 +30,6 @@ import Modal from '../modal.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +modalName: string,
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(
@@ -37,7 +37,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 function PinnedMessagesModal(props: Props): React.Node {
-  const { threadInfo, modalName } = props;
+  const { threadInfo } = props;
   const { id: threadID } = threadInfo;
   const { popModal } = useModalContext();
   const [rawMessageResults, setRawMessageResults] = React.useState<
@@ -126,6 +126,14 @@ function PinnedMessagesModal(props: Props): React.Node {
   );
 
   const messageResultsToDisplay = React.useMemo(() => {
+    if (modifiedItems.length === 0) {
+      return (
+        <div className={css.noPinnedMessages}>
+          No pinned messages in this thread.
+        </div>
+      );
+    }
+
     const items = modifiedItems.map(item => (
       <MessageResult
         key={item.messageInfo.id}
@@ -147,6 +155,8 @@ function PinnedMessagesModal(props: Props): React.Node {
     }
     return null;
   }, [loadingStatus]);
+
+  const modalName = pinnedMessageCountText(modifiedItems.length);
 
   return (
     <Modal name={modalName} onClose={popModal} size="large">
