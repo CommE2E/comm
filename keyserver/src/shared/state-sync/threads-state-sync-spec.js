@@ -1,13 +1,11 @@
 // @flow
 
-import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import {
   type LegacyRawThreadInfos,
   type LegacyRawThreadInfo,
-  type RawThreadInfo,
-  type RawThreadInfos,
+  legacyRawThreadInfoValidator,
 } from 'lib/types/thread-types.js';
 import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
@@ -42,10 +40,10 @@ async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   return result.threadInfos;
 }
 
-function getServerInfosHash(infos: RawThreadInfos) {
+function getServerInfosHash(infos: LegacyRawThreadInfos) {
   return combineUnorderedHashes(values(infos).map(getServerInfoHash));
 }
 
-function getServerInfoHash(info: RawThreadInfo) {
-  return hash(validateOutput(null, rawThreadInfoValidator, info));
+function getServerInfoHash(info: LegacyRawThreadInfo) {
+  return hash(validateOutput(null, legacyRawThreadInfoValidator, info));
 }
