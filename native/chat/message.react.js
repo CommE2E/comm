@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
+import { canToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
