@@ -28,9 +28,9 @@ import {
 } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { canToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
-import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 import { validChatNameRegex } from 'lib/utils/validation-utils.js';
 
 import { reportLinkUsage } from './link-updaters.js';
