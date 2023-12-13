@@ -8,7 +8,7 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import {
   createRecursiveDrawerItemsData,
-  appendSuffix,
+  useAppendCommunitySuffix,
 } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
@@ -25,10 +25,7 @@ function CommunityDrawer(): React.Node {
   const childThreadInfosMap = useSelector(childThreadInfos);
   const communities = useSelector(communityThreadSelector);
   const resolvedCommunities = useResolvedThreadInfos(communities);
-  const communitiesSuffixed = React.useMemo(
-    () => appendSuffix(resolvedCommunities),
-    [resolvedCommunities],
-  );
+  const communitiesSuffixed = useAppendCommunitySuffix(resolvedCommunities);
 
   const drawerItemsData = createRecursiveDrawerItemsData(
     childThreadInfosMap,

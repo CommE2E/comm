@@ -19,7 +19,7 @@ import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   createRecursiveDrawerItemsData,
-  appendSuffix,
+  useAppendCommunitySuffix,
 } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
@@ -43,10 +43,7 @@ const safeAreaEdges: $ReadOnlyArray<string> = Platform.select({
 function CommunityDrawerContent(): React.Node {
   const communities = useSelector(communityThreadSelector);
   const resolvedCommunities = useResolvedThreadInfos(communities);
-  const communitiesSuffixed = React.useMemo(
-    () => appendSuffix(resolvedCommunities),
-    [resolvedCommunities],
-  );
+  const communitiesSuffixed = useAppendCommunitySuffix(resolvedCommunities);
   const styles = useStyles(unboundStyles);
 
   const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
