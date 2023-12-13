@@ -37,10 +37,10 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const pushThreadPinsModal = React.useCallback(() => {
     pushModal(
       <InputStateContext.Provider value={inputState}>
-        <PinnedMessagesModal threadInfo={threadInfo} modalName={bannerText} />
+        <PinnedMessagesModal threadInfo={threadInfo} />
       </InputStateContext.Provider>,
     );
-  }, [pushModal, inputState, threadInfo, bannerText]);
+  }, [pushModal, inputState, threadInfo]);
 
   const pinnedCountBanner = React.useMemo(() => {
     if (!bannerText) {
