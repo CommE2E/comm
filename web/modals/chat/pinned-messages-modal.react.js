@@ -158,12 +158,20 @@ function PinnedMessagesModal(props: Props): React.Node {
 
   const modalName = pinnedMessageCountText(modifiedItems.length);
 
+  const subheader = React.useMemo(() => <hr className={css.separator} />, []);
+
   return (
-    <Modal name={modalName} onClose={popModal} size="large">
-      <hr className={css.separator} />
-      <div className={css.topSpace}>{loadingIndicator}</div>
-      <div className={css.messageResultsContainer}>
-        {messageResultsToDisplay}
+    <Modal
+      name={modalName}
+      onClose={popModal}
+      size="large"
+      subheader={subheader}
+    >
+      <div className={css.container}>
+        <div className={css.topSpace}>{loadingIndicator}</div>
+        <div className={css.messageResultsContainer}>
+          {messageResultsToDisplay}
+        </div>
       </div>
     </Modal>
   );
