@@ -21,13 +21,13 @@ import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 
-import css from './message-results-modal.css';
+import css from './pinned-messages-modal.css';
 import MessageResult from '../../components/message-result.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import Modal from '../modal.react.js';
 
-type MessageResultsModalProps = {
+type Props = {
   +threadInfo: ThreadInfo,
   +modalName: string,
 };
@@ -36,7 +36,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
   fetchPinnedMessageActionTypes,
 );
 
-function MessageResultsModal(props: MessageResultsModalProps): React.Node {
+function PinnedMessagesModal(props: Props): React.Node {
   const { threadInfo, modalName } = props;
   const { id: threadID } = threadInfo;
   const { popModal } = useModalContext();
@@ -167,4 +167,4 @@ function MessageResultsModal(props: MessageResultsModalProps): React.Node {
   );
 }
 
-export default MessageResultsModal;
+export default PinnedMessagesModal;
