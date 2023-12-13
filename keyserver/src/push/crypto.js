@@ -198,12 +198,19 @@ async function encryptAndroidNotification(
   +encryptionOrder?: number,
 }> {
   const { id, badgeOnly, ...unencryptedPayload } = notification.data;
+  let unencryptedData = { badgeOnly };
+  if (id) {
+    unencryptedData = { ...unencryptedData, id };
+  }
+
   let payloadSizeValidator;
   if (notificationSizeValidator) {
     payloadSizeValidator = (
       payload: AndroidNotificationPayload | { +encryptedPayload: string },
     ) => {
-      return notificationSizeValidator({ data: { id, badgeOnly, ...payload } });
+      return notificationSizeValidator({
+        data: { ...unencryptedData, ...payload },
+      });
     };
   }
   const { resultPayload, payloadSizeExceeded, encryptionOrder } =
@@ -215,8 +222,7 @@ async function encryptAndroidNotification(
   return {
     notification: {
       data: {
-        id,
-        badgeOnly,
+        ...unencryptedData,
         ...resultPayload,
       },
     },
