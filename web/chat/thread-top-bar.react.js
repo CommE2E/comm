@@ -8,6 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
@@ -29,15 +30,9 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     threadMenu = <ThreadMenu threadInfo={threadInfo} />;
   }
 
-  const bannerText = React.useMemo(() => {
-    if (!threadInfo.pinnedCount || threadInfo.pinnedCount === 0) {
-      return '';
-    }
-
-    const messageNoun = threadInfo.pinnedCount === 1 ? 'message' : 'messages';
-
-    return `${threadInfo.pinnedCount} pinned ${messageNoun}`;
-  }, [threadInfo.pinnedCount]);
+  const bannerText = threadInfo.pinnedCount
+    ? pinnedMessageCountText(threadInfo.pinnedCount)
+    : '';
 
   const inputState = React.useContext(InputStateContext);
   const pushThreadPinsModal = React.useCallback(() => {

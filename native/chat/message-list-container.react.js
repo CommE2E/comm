@@ -19,6 +19,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
+import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
 import { ChatInputBar } from './chat-input-bar.react.js';
@@ -361,13 +362,9 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       state => threadInfoSelector(state)[genesis.id],
     );
 
-    let bannerText;
-    if (!threadInfo.pinnedCount || threadInfo.pinnedCount === 0) {
-      bannerText = '';
-    } else {
-      const messageNoun = threadInfo.pinnedCount === 1 ? 'message' : 'messages';
-      bannerText = `${threadInfo.pinnedCount} pinned ${messageNoun}`;
-    }
+    const bannerText =
+      !!threadInfo.pinnedCount &&
+      pinnedMessageCountText(threadInfo.pinnedCount);
 
     const navigateToMessageResults = React.useCallback(() => {
       props.navigation.navigate<'MessageResultsScreen'>({
