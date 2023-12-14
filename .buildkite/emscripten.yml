@@ -1,10 +1,17 @@
 steps:
   - label: 'Emscripten build'
     command:
+      - 'apt update && apt install -y autoconf libtool build-essential cmake git'
       - 'cd web'
-      - 'nix develop --accept-flake-config --command yarn build-db-wasm'
+      - 'USE_ES6_IMPORT_META=0 ./scripts/run_emscripten.sh'
       - 'git diff --exit-code'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'emscripten/emsdk:latest'
+          propagate-environment: true
+    env:
+      USE_ES6_IMPORT_META: 0
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
