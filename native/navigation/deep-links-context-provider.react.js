@@ -15,6 +15,8 @@ import {
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
+import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -79,9 +81,13 @@ function DeepLinksContextProvider(props: Props): React.Node {
   }, []);
   useOnFirstLaunchEffect('ANDROID_REFERRER', checkInstallReferrer);
 
+  const [keyserverOverride, setKeyserverOverride] =
+    React.useState<?KeyserverOverride>(undefined);
+  const inviteLinkSecret = React.useRef<?string>(null);
+
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
-  const validateLink = useVerifyInviteLink();
+  const validateLink = useVerifyInviteLink(keyserverOverride);
   const navigation = useNavigation();
   React.useEffect(() => {
     void (async () => {
@@ -91,6 +97,8 @@ function DeepLinksContextProvider(props: Props): React.Node {
       // We're setting this to null so that we ensure that each link click
       // results in at most one validation and navigation.
       setCurrentLink(null);
+      setKeyserverOverride(undefined);
+      inviteLinkSecret.current = null;
 
       const parsedData: ParsedDeepLinkData = parseDataFromDeepLink(currentLink);
       if (!parsedData) {
@@ -99,28 +107,64 @@ function DeepLinksContextProvider(props: Props): React.Node {
 
       if (parsedData.type === 'invite-link') {
         const { secret } = parsedData.data;
+        inviteLinkSecret.current = secret;
+        try {
+          const newKeyserverOverride =
+            await getKeyserverOverrideForAnInviteLink(secret);
+          setKeyserverOverride(newKeyserverOverride);
+        } catch (e) {
+          console.log('Error while downloading an invite link blob', e);
+          navigation.navigate<'InviteLinkModal'>({
+            name: InviteLinkModalRouteName,
+            params: {
+              invitationDetails: {
+                status: 'invalid',
+              },
+              secret,
+            },
+          });
+        }
+      } else if (parsedData.type === 'qr-code') {
+        navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
+      }
+    })();
+  }, [currentLink, loggedIn, navigation]);
+
+  React.useEffect(() => {
+    const secret = inviteLinkSecret.current;
+    if (keyserverOverride === undefined || !secret) {
+      return;
+    }
+    setKeyserverOverride(undefined);
+
+    void (async () => {
+      let result;
+      try {
         const validateLinkPromise = validateLink({ secret });
         void dispatchActionPromise(
           verifyInviteLinkActionTypes,
           validateLinkPromise,
         );
-        const result = await validateLinkPromise;
+        result = await validateLinkPromise;
         if (result.status === 'already_joined') {
           return;
         }
-
-        navigation.navigate<'InviteLinkModal'>({
-          name: InviteLinkModalRouteName,
-          params: {
-            invitationDetails: result,
-            secret,
-          },
-        });
-      } else if (parsedData.type === 'qr-code') {
-        navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
+      } catch (e) {
+        console.log(e);
+        result = {
+          status: 'invalid',
+        };
       }
+
+      navigation.navigate<'InviteLinkModal'>({
+        name: InviteLinkModalRouteName,
+        params: {
+          invitationDetails: result,
+          secret,
+        },
+      });
     })();
-  }, [currentLink, dispatchActionPromise, loggedIn, navigation, validateLink]);
+  }, [dispatchActionPromise, keyserverOverride, navigation, validateLink]);
 
   const contextValue = React.useMemo(
     () => ({
