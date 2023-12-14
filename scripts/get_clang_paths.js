@@ -28,6 +28,11 @@ const clangPaths = [
     excludes: ['generated'],
   },
   {
+    path: 'native/native_rust_library',
+    extensions: ['cpp', 'h'],
+    excludes: ['target', 'lib.rs.h', 'cxx.h'],
+  },
+  {
     path: 'web/cpp',
     extensions: ['cpp', 'h'],
   },
