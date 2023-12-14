@@ -12,6 +12,10 @@ import {
   reactionSeeMoreLabel,
 } from '../chat/chat-constants.js';
 import type { PositionInfo } from '../chat/position-types.js';
+import {
+  navigationSidebarTooltipContainerStyle,
+  navigationSidebarTooltipStyle,
+} from '../navigation-sidebar/navigation-sidebar-constants.js';
 import { calculateMaxTextWidth } from '../utils/text-utils.js';
 
 export const tooltipPositions = Object.freeze({
@@ -407,9 +411,33 @@ function calculateReactionTooltipSize(
   };
 }
 
+function calculateNavigationSidebarTooltipSize(
+  tooltipLabel: string,
+): TooltipSize {
+  const { marginLeft } = navigationSidebarTooltipContainerStyle;
+  const {
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    paddingBottom,
+    height: contentHeight,
+  } = navigationSidebarTooltipStyle;
+
+  const tooltipLabelTextWidth = calculateMaxTextWidth([tooltipLabel], 14);
+
+  const width = marginLeft + paddingLeft + tooltipLabelTextWidth + paddingRight;
+  const height = paddingTop + contentHeight + paddingBottom;
+
+  return {
+    width,
+    height,
+  };
+}
+
 export {
   findTooltipPosition,
   getTooltipPositionStyle,
   calculateMessageTooltipSize,
   calculateReactionTooltipSize,
+  calculateNavigationSidebarTooltipSize,
 };
