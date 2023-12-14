@@ -15,6 +15,7 @@ import {
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -99,14 +100,27 @@ function DeepLinksContextProvider(props: Props): React.Node {
 
       if (parsedData.type === 'invite-link') {
         const { secret } = parsedData.data;
-        const validateLinkPromise = validateLink({ secret });
-        void dispatchActionPromise(
-          verifyInviteLinkActionTypes,
-          validateLinkPromise,
-        );
-        const result = await validateLinkPromise;
-        if (result.status === 'already_joined') {
-          return;
+        let result;
+        try {
+          const keyserverOverride =
+            await getKeyserverOverrideForAnInviteLink(secret);
+          const validateLinkPromise = validateLink(
+            { secret },
+            keyserverOverride,
+          );
+          void dispatchActionPromise(
+            verifyInviteLinkActionTypes,
+            validateLinkPromise,
+          );
+          result = await validateLinkPromise;
+          if (result.status === 'already_joined') {
+            return;
+          }
+        } catch (e) {
+          console.log(e);
+          result = {
+            status: 'invalid',
+          };
         }
 
         navigation.navigate<'InviteLinkModal'>({
