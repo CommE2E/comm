@@ -1,7 +1,9 @@
 use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use ffi::{bool_callback, string_callback, void_callback};
+use ffi::{
+  bool_callback, send_auth_metadata_to_js, string_callback, void_callback,
+};
 use grpc_clients::identity::protos::authenticated::{
   OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest,
@@ -181,6 +183,19 @@ mod ffi {
       key: &mut [u8],
       sealed_data: &mut [u8],
       plaintext: &mut [u8],
+    ) -> Result<()>;
+  }
+
+  // Comm Services Auth Metadata Emission
+  #[namespace = "comm"]
+  unsafe extern "C++" {
+    include!("RustCSAMetadataEmitter.h");
+
+    #[allow(unused)]
+    #[cxx_name = "sendAuthMetadataToJS"]
+    fn send_auth_metadata_to_js(
+      access_token: String,
+      user_id: String,
     ) -> Result<()>;
   }
 
