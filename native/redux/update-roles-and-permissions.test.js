@@ -1,29 +1,31 @@
 // @flow
 
+import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
 import {
   threadStoreThreads,
   threadStoreThreadsWithEmptyRolePermissions,
   threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions,
   threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions,
 } from './update-roles-and-permissions-test-data.js';
-import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 
 describe.skip('updateRolesAndPermissions()', () => {
   it('should leave threadStoreThreads from server unchanged', () => {
-    expect(updateRolesAndPermissions(threadStoreThreads)).toStrictEqual(
+    expect(legacyUpdateRolesAndPermissions(threadStoreThreads)).toStrictEqual(
       threadStoreThreads,
     );
   });
 
   it('should construct role permissions when missing from existing store', () => {
     expect(
-      updateRolesAndPermissions(threadStoreThreadsWithEmptyRolePermissions),
+      legacyUpdateRolesAndPermissions(
+        threadStoreThreadsWithEmptyRolePermissions,
+      ),
     ).toStrictEqual(threadStoreThreads);
   });
 
   it('should construct role permissions AND member permissions when missing from existing store', () => {
     expect(
-      updateRolesAndPermissions(
+      legacyUpdateRolesAndPermissions(
         threadStoreThreadsWithEmptyRolePermissionsAndMemberPermissions,
       ),
     ).toStrictEqual(threadStoreThreads);
@@ -31,7 +33,7 @@ describe.skip('updateRolesAndPermissions()', () => {
 
   it('should construct role permissions AND member permissions AND current user permissions when missing from existing store', () => {
     expect(
-      updateRolesAndPermissions(
+      legacyUpdateRolesAndPermissions(
         threadStoreThreadsWithEmptyRoleAndMemberAndCurrentUserPermissions,
       ),
     ).toStrictEqual(threadStoreThreads);
