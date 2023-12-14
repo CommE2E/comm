@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.database.CursorWindow;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
+import app.comm.android.commservices.CommServicesPackage;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.DatabaseInitializer;
 import app.comm.android.fbjni.GlobalDBSingleton;
@@ -49,6 +50,7 @@ public class MainApplication
           List<ReactPackage> packages = new PackageList(this).getPackages();
           packages.add(new KeyboardInputPackage(this.getApplication()));
           packages.add(new CommAndroidNotificationsPackage());
+          packages.add(new CommServicesPackage());
           return packages;
         }
 
