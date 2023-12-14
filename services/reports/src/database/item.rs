@@ -5,8 +5,8 @@ use comm_lib::{
   constants::DDB_ITEM_SIZE_LIMIT,
   crypto::aes256::EncryptionKey,
   database::{
-    self, blob::BlobOrDBContent, AttributeExtractor, AttributeMap, DBItemError,
-    TryFromAttribute,
+    self, blob::BlobOrDBContent, calculate_size_in_db, AttributeExtractor,
+    AttributeMap, DBItemError, TryFromAttribute,
   },
 };
 use num_traits::FromPrimitive;
@@ -32,20 +32,6 @@ pub struct ReportItem {
   #[serde(skip_serializing)]
   pub encryption_key: Option<EncryptionKey>,
 }
-
-/// contains some redundancy as not all keys are always present
-static REPORT_ITEM_KEYS_SIZE: usize = {
-  let mut size: usize = 0;
-  size += ATTR_REPORT_ID.as_bytes().len();
-  size += ATTR_REPORT_TYPE.as_bytes().len();
-  size += ATTR_USER_ID.as_bytes().len();
-  size += ATTR_PLATFORM.as_bytes().len();
-  size += ATTR_CREATION_TIME.as_bytes().len();
-  size += ATTR_ENCRYPTION_KEY.as_bytes().len();
-  size += ATTR_BLOB_INFO.as_bytes().len();
-  size += ATTR_REPORT_CONTENT.as_bytes().len();
-  size
-};
 
 impl ReportItem {
   pub fn into_attrs(self) -> AttributeMap {
@@ -79,7 +65,7 @@ impl ReportItem {
     &mut self,
     blob_client: &BlobServiceClient,
   ) -> Result<(), BlobServiceError> {
-    if self.total_size() < DDB_ITEM_SIZE_LIMIT {
+    if calculate_size_in_db(&self.clone().into_attrs()) < DDB_ITEM_SIZE_LIMIT {
       return Ok(());
     };
 
@@ -88,29 +74,6 @@ impl ReportItem {
       "Report content exceeds DDB item size limit, moving to blob storage"
     );
     self.content.move_to_blob(blob_client).await
-  }
-
-  fn total_size(&self) -> usize {
-    let mut size = REPORT_ITEM_KEYS_SIZE;
-    size += self.id.as_bytes().len();
-    size += self.user_id.as_bytes().len();
-    size += self.platform.to_string().as_bytes().len();
-    size += (self.report_type as u8).to_string().as_bytes().len();
-    size += match &self.content {
-      BlobOrDBContent::Database(data) => data.len(),
-      BlobOrDBContent::Blob(info) => {
-        let mut blob_size = 0;
-        blob_size += "holder".as_bytes().len();
-        blob_size += "blob_hash".as_bytes().len();
-        blob_size += info.holder.as_bytes().len();
-        blob_size += info.blob_hash.as_bytes().len();
-        blob_size
-      }
-    };
-    if let Some(key) = self.encryption_key.as_ref() {
-      size += key.as_ref().len();
-    }
-    size
   }
 }
 
