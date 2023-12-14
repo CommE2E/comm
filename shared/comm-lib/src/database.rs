@@ -720,6 +720,55 @@ pub mod batch_operations {
   }
 }
 
+#[derive(Debug, Clone, Copy, derive_more::Display, derive_more::Error)]
+pub struct UnknownAttributeTypeError;
+
+fn calculate_attr_value_size_in_db(
+  value: &AttributeValue,
+) -> Result<usize, UnknownAttributeTypeError> {
+  const ELEMENT_BYTE_OVERHEAD: usize = 1;
+  const CONTAINER_BYTE_OVERHEAD: usize = 3;
+  /// AWS doesn't provide an exact algorithm for calculating number size in bytes
+  /// in case they change the internal representation. We know that number can use
+  /// between 2 and 21 bytes so we use the maximum value as the byte size.
+  const NUMBER_BYTE_SIZE: usize = 21;
+
+  let result = match value {
+    AttributeValue::B(blob) => blob.as_ref().len(),
+    AttributeValue::L(list) => {
+      CONTAINER_BYTE_OVERHEAD
+        + list.len() * ELEMENT_BYTE_OVERHEAD
+        + list
+          .iter()
+          .try_fold(0, |a, v| Ok(a + calculate_attr_value_size_in_db(v)?))?
+    }
+    AttributeValue::M(map) => {
+      CONTAINER_BYTE_OVERHEAD
+        + map.len() * ELEMENT_BYTE_OVERHEAD
+        + calculate_size_in_db(map)?
+    }
+    AttributeValue::Bool(_) | AttributeValue::Null(_) => 1,
+    AttributeValue::Bs(set) => set.len(),
+    AttributeValue::N(_) => NUMBER_BYTE_SIZE,
+    AttributeValue::Ns(set) => set.len() * NUMBER_BYTE_SIZE,
+    AttributeValue::S(string) => string.as_bytes().len(),
+    AttributeValue::Ss(set) => {
+      set.iter().map(|string| string.as_bytes().len()).sum()
+    }
+    _ => return Err(UnknownAttributeTypeError),
+  };
+
+  Ok(result)
+}
+
+pub fn calculate_size_in_db(
+  value: &AttributeMap,
+) -> Result<usize, UnknownAttributeTypeError> {
+  value.iter().try_fold(0, |a, (attr, value)| {
+    Ok(a + attr.as_bytes().len() + calculate_attr_value_size_in_db(value)?)
+  })
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
