@@ -8,7 +8,6 @@ use aws_sdk_dynamodb::{
   types::{AttributeValue, ReturnValue},
 };
 use comm_lib::database::Error;
-use std::collections::HashMap;
 use tracing::{error, trace, warn};
 
 #[derive(Clone)]
@@ -22,8 +21,10 @@ impl DatabaseClient {
       client: aws_sdk_dynamodb::Client::new(aws_config),
     }
   }
+}
 
-  // backup item
+/// Backup functions
+impl DatabaseClient {
   pub async fn put_backup_item(
     &self,
     backup_item: BackupItem,
@@ -50,7 +51,7 @@ impl DatabaseClient {
     user_id: &str,
     backup_id: &str,
   ) -> Result<Option<BackupItem>, Error> {
-    let item_key = Self::get_item_key(user_id, backup_id);
+    let item_key = BackupItem::item_key(user_id, backup_id);
 
     let output = self
       .client
@@ -112,7 +113,7 @@ impl DatabaseClient {
     user_id: &str,
     backup_id: &str,
   ) -> Result<Option<BackupItem>, Error> {
-    let item_key = Self::get_item_key(user_id, backup_id);
+    let item_key = BackupItem::item_key(user_id, backup_id);
 
     let response = self
       .client
@@ -200,21 +201,5 @@ impl DatabaseClient {
     }
 
     Ok(removed_backups)
-  }
-
-  fn get_item_key(
-    user_id: &str,
-    backup_id: &str,
-  ) -> HashMap<String, AttributeValue> {
-    HashMap::from([
-      (
-        backup_table::attr::USER_ID.to_string(),
-        AttributeValue::S(user_id.to_string()),
-      ),
-      (
-        backup_table::attr::BACKUP_ID.to_string(),
-        AttributeValue::S(backup_id.to_string()),
-      ),
-    ])
   }
 }
