@@ -27,10 +27,14 @@ pub mod backup_table {
   }
 }
 
-pub const LOG_TABLE_NAME: &str = "backup-service-log";
-pub const LOG_TABLE_FIELD_BACKUP_ID: &str = "backupID";
-pub const LOG_TABLE_FIELD_LOG_ID: &str = "logID";
-pub const LOG_TABLE_FIELD_PERSISTED_IN_BLOB: &str = "persistedInBlob";
-pub const LOG_TABLE_FIELD_VALUE: &str = "value";
-pub const LOG_TABLE_FIELD_ATTACHMENT_HOLDERS: &str = "attachmentHolders";
-pub const LOG_TABLE_FIELD_DATA_HASH: &str = "dataHash";
+pub mod log_table {
+  pub const TABLE_NAME: &str = "backup-service-log";
+
+  pub mod attr {
+    pub const BACKUP_ID: &str = "backupID";
+    pub const LOG_ID: &str = "logID";
+    pub const CONTENT_DB: &str = "content";
+    pub const CONTENT_BLOB_INFO: &str = "blobInfo";
+    pub const ATTACHMENTS: &str = "attachments";
+  }
+}
