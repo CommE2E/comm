@@ -50,6 +50,22 @@ impl BackupItem {
       );
     }
   }
+
+  pub fn item_key(
+    user_id: &str,
+    backup_id: &str,
+  ) -> HashMap<String, AttributeValue> {
+    HashMap::from([
+      (
+        backup_table::attr::USER_ID.to_string(),
+        AttributeValue::S(user_id.to_string()),
+      ),
+      (
+        backup_table::attr::BACKUP_ID.to_string(),
+        AttributeValue::S(backup_id.to_string()),
+      ),
+    ])
+  }
 }
 
 impl From<BackupItem> for HashMap<String, AttributeValue> {
