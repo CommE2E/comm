@@ -6,5 +6,9 @@ steps:
       - 'git diff --exit-code'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'nixos/nix:latest'
+          propagate-environment: true
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
