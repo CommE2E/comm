@@ -36,6 +36,9 @@ rand = "0.8"
 tokio = "1.32"
 tracing = "0.1"
 anyhow = "1.0.74"
+hex = "0.4"
+uuid = { version = "1.2", features = ["v4"] }
+sha2 = "0.10"
 # aws dependencies
 aws-config = { version = "0.55", optional = true }
 aws-sdk-dynamodb = { version = "0.27", optional = true }

@@ -1,10 +1,21 @@
 use derive_more::Constructor;
+use hex::ToHex;
+use sha2::{Digest, Sha256};
 
 /// Blob owning information - stores both blob_hash and holder
 #[derive(Clone, Debug, Constructor)]
 pub struct BlobInfo {
   pub blob_hash: String,
   pub holder: String,
+}
+
+impl BlobInfo {
+  pub fn from_bytes(data: &[u8]) -> Self {
+    Self {
+      blob_hash: Sha256::digest(&data).encode_hex(),
+      holder: uuid::Uuid::new_v4().to_string(),
+    }
+  }
 }
 
 #[cfg(feature = "aws")]
