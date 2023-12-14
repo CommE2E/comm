@@ -4,7 +4,7 @@ use comm_lib::{
   auth::{AuthService, AuthorizationCredential},
   blob::client::{BlobServiceClient, BlobServiceError},
   crypto::aes256,
-  database,
+  database::{self, blob::BlobOrDBContent},
 };
 use derive_more::{Display, Error, From};
 use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
@@ -14,7 +14,7 @@ use crate::{
   config::CONFIG,
   database::{
     client::{DatabaseClient, ReportsPage},
-    item::{ReportContent, ReportItem},
+    item::ReportItem,
   },
   email::{config::EmailConfig, ReportEmail},
   report_types::{ReportID, ReportInput, ReportOutput, ReportType},
@@ -309,7 +309,7 @@ fn process_report(
     report_type,
     creation_time: time.unwrap_or_else(Utc::now),
     encryption_key,
-    content: ReportContent::Database(content),
+    content: BlobOrDBContent::new(content),
   };
 
   Ok(ProcessedReport { id, db_item, email })
