@@ -27,10 +27,12 @@ import {
   getTooltipPositionStyle,
   calculateMessageTooltipSize,
   calculateReactionTooltipSize,
+  calculateNavigationSidebarTooltipSize,
   type TooltipPosition,
   type TooltipPositionStyle,
   type TooltipSize,
 } from './tooltip-utils.js';
+import { tooltipPositions } from './tooltip-utils.js';
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
@@ -40,6 +42,7 @@ import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
+import NavigationSidebarTooltip from '../navigation-sidebar/navigation-sidebar-toolitp.react.js';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -477,6 +480,40 @@ function useReactionTooltip({
   };
 }
 
+const availableNavigationSidebarTooltipPositions = [tooltipPositions.RIGHT];
+
+type UseNavigationSidebarTooltipArgs = {
+  +tooltipLabel: string,
+};
+
+function useNavigationSidebarTooltip({
+  tooltipLabel,
+}: UseNavigationSidebarTooltipArgs): UseTooltipResult {
+  const tooltipSize = React.useMemo(() => {
+    if (typeof document === 'undefined') {
+      return undefinedTooltipSize;
+    }
+
+    return calculateNavigationSidebarTooltipSize(tooltipLabel);
+  }, [tooltipLabel]);
+
+  const createNavigationSidebarTooltip = React.useCallback(
+    () => <NavigationSidebarTooltip tooltipLabel={tooltipLabel} />,
+    [tooltipLabel],
+  );
+
+  const { onMouseEnter, onMouseLeave } = useTooltip({
+    createTooltip: createNavigationSidebarTooltip,
+    tooltipSize,
+    availablePositions: availableNavigationSidebarTooltipPositions,
+  });
+
+  return {
+    onMouseEnter,
+    onMouseLeave,
+  };
+}
+
 export {
   useMessageTooltipSidebarAction,
   useMessageTooltipReplyAction,
@@ -484,4 +521,5 @@ export {
   useMessageTooltipActions,
   useMessageTooltip,
   useReactionTooltip,
+  useNavigationSidebarTooltip,
 };
