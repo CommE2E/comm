@@ -7,6 +7,7 @@ pub use tonic;
 
 use error::Error;
 use std::path::Path;
+use std::time::Duration;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig};
 use tracing::info;
 
@@ -17,6 +18,7 @@ const CERT_PATHS: &[&str] = &[
   "/etc/ssl/certs/ca-bundle.crt",
   "/etc/ssl/certs/ca-certificates.crt",
 ];
+const CONNECT_TIMEOUT_DURATION: Duration = Duration::from_secs(5);
 
 pub(crate) fn get_ca_cert_contents() -> Option<String> {
   CERT_PATHS
@@ -32,7 +34,8 @@ pub(crate) async fn get_grpc_service_channel(
   let ca_cert = crate::get_ca_cert_contents().expect("Unable to get CA bundle");
 
   info!("Connecting to gRPC service at {}", url);
-  let mut channel = Channel::from_shared(url.to_string())?;
+  let mut channel = Channel::from_shared(url.to_string())?
+    .connect_timeout(CONNECT_TIMEOUT_DURATION);
 
   // tls_config will fail if the underlying URI is only http://
   if url.starts_with("https:") {
