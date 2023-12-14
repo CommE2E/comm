@@ -2,9 +2,13 @@ steps:
   - label: 'Emscripten build'
     command:
       - 'cd web'
-      - 'nix develop --accept-flake-config --command yarn build-db-wasm'
+      - 'nix develop '--extra-experimental-features flakes nix-command' --accept-flake-config --command yarn build-db-wasm'
       - 'git diff --exit-code'
     retry:
       automatic: true
+    plugins:
+      - docker#v5.3.0:
+          image: 'nixos/nix:latest'
+          propagate-environment: true
     agents:
-      - 'mac=true'
+      - 'autoscaling=true'
