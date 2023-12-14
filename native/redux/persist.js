@@ -101,11 +101,11 @@ import {
 } from './client-db-utils.js';
 import { defaultState } from './default-state.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
+import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
-import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
@@ -600,10 +600,16 @@ const migrations = {
     return state;
   },
   [38]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      legacyUpdateRolesAndPermissions,
+    ),
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
   [40]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      legacyUpdateRolesAndPermissions,
+    ),
   [41]: (state: AppState) => {
     const queuedReports = state.reportStore.queuedReports.map(report => ({
       ...report,
@@ -979,7 +985,10 @@ const migrations = {
     return state;
   },
   [60]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(state, updateRolesAndPermissions),
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      legacyUpdateRolesAndPermissions,
+    ),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
