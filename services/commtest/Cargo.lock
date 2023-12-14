@@ -288,11 +288,14 @@ dependencies = [
  "constant_time_eq",
  "derive_more",
  "grpc_clients",
+ "hex",
  "rand",
  "serde",
  "serde_json",
+ "sha2",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
