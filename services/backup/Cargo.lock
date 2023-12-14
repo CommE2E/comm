@@ -1046,14 +1046,17 @@ dependencies = [
  "futures-core",
  "futures-util",
  "grpc_clients",
+ "hex",
  "http",
  "rand",
  "reqwest",
  "serde",
  "serde_json",
+ "sha2",
  "tokio",
  "tokio-stream",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
