@@ -6,6 +6,9 @@ use std::fmt::{Display, Formatter};
 use std::num::ParseIntError;
 use std::str::FromStr;
 
+#[cfg(feature = "blob-client")]
+pub mod blob;
+
 // # Useful type aliases
 
 // Rust exports `pub type` only into the so-called "type namespace", but in
