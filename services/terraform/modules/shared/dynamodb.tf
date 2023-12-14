@@ -41,7 +41,7 @@ resource "aws_dynamodb_table" "backup-service-log" {
 
   attribute {
     name = "logID"
-    type = "S"
+    type = "N"
   }
 }
 
