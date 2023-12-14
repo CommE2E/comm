@@ -1,19 +1,15 @@
-use aws_sdk_dynamodb::{primitives::Blob, types::AttributeValue};
+use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_lib::{
-  blob::{
-    client::{BlobServiceClient, BlobServiceError},
-    types::BlobInfo,
-  },
-  bytes::Bytes,
+  blob::client::{BlobServiceClient, BlobServiceError},
   constants::DDB_ITEM_SIZE_LIMIT,
   crypto::aes256::EncryptionKey,
   database::{
-    self, AttributeExtractor, AttributeMap, DBItemError, TryFromAttribute,
+    self, blob::BlobOrDBContent, AttributeExtractor, AttributeMap, DBItemError,
+    TryFromAttribute,
   },
 };
 use num_traits::FromPrimitive;
-use tokio_stream::StreamExt;
 use tracing::debug;
 
 use super::constants::*;
@@ -32,7 +28,7 @@ pub struct ReportItem {
   pub platform: ReportPlatform,
   pub creation_time: DateTime<Utc>,
   #[serde(skip_serializing)]
-  pub content: ReportContent,
+  pub content: BlobOrDBContent,
   #[serde(skip_serializing)]
   pub encryption_key: Option<EncryptionKey>,
 }
@@ -68,7 +64,9 @@ impl ReportItem {
       ),
     ]);
 
-    let (content_attr_name, content_attr) = self.content.into_attr_pair();
+    let (content_attr_name, content_attr) = self
+      .content
+      .into_attr_pair(ATTR_BLOB_INFO, ATTR_REPORT_CONTENT);
     attrs.insert(content_attr_name, content_attr);
 
     if let Some(key) = self.encryption_key {
@@ -99,8 +97,8 @@ impl ReportItem {
     size += self.platform.to_string().as_bytes().len();
     size += (self.report_type as u8).to_string().as_bytes().len();
     size += match &self.content {
-      ReportContent::Database(data) => data.len(),
-      ReportContent::Blob(info) => {
+      BlobOrDBContent::Database(data) => data.len(),
+      BlobOrDBContent::Blob(info) => {
         let mut blob_size = 0;
         blob_size += "holder".as_bytes().len();
         blob_size += "blob_hash".as_bytes().len();
@@ -126,7 +124,11 @@ impl TryFrom<AttributeMap> for ReportItem {
     let platform = row.take_attr(ATTR_PLATFORM)?;
     let creation_time = row.take_attr(ATTR_CREATION_TIME)?;
 
-    let content = ReportContent::parse_from_attrs(&mut row)?;
+    let content = BlobOrDBContent::parse_from_attrs(
+      &mut row,
+      ATTR_BLOB_INFO,
+      ATTR_REPORT_CONTENT,
+    )?;
     let encryption_key = row
       .remove(ATTR_ENCRYPTION_KEY)
       .map(|attr| EncryptionKey::try_from_attr(ATTR_ENCRYPTION_KEY, Some(attr)))
@@ -141,77 +143,6 @@ impl TryFrom<AttributeMap> for ReportItem {
       encryption_key,
       creation_time,
     })
-  }
-}
-
-/// Represents the content of a report item stored in DynamoDB
-#[derive(Clone, Debug)]
-pub enum ReportContent {
-  Blob(BlobInfo),
-  Database(Vec<u8>),
-}
-
-impl ReportContent {
-  /// Returns a tuple of attribute name and value for this content
-  fn into_attr_pair(self) -> (String, AttributeValue) {
-    match self {
-      Self::Blob(blob_info) => (ATTR_BLOB_INFO.to_string(), blob_info.into()),
-      Self::Database(data) => (
-        ATTR_REPORT_CONTENT.to_string(),
-        AttributeValue::B(Blob::new(data)),
-      ),
-    }
-  }
-  fn parse_from_attrs(attrs: &mut AttributeMap) -> Result<Self, DBItemError> {
-    if let Some(blob_info_attr) = attrs.remove(ATTR_BLOB_INFO) {
-      let blob_info =
-        BlobInfo::try_from_attr(ATTR_BLOB_INFO, Some(blob_info_attr))?;
-      return Ok(ReportContent::Blob(blob_info));
-    }
-
-    let content_data = attrs.take_attr(ATTR_REPORT_CONTENT)?;
-    Ok(ReportContent::Database(content_data))
-  }
-
-  /// Moves report content to blob storage:
-  /// - Switches `self` from [`ReportStorage::Database`] to [`ReportStorage::Blob`]
-  /// - No-op for [`ReportStorage::Blob`]
-  async fn move_to_blob(
-    &mut self,
-    blob_client: &BlobServiceClient,
-  ) -> Result<(), BlobServiceError> {
-    let Self::Database(ref mut contents) = self else { return Ok(()); };
-    let data = std::mem::take(contents);
-
-    let new_blob_info = BlobInfo::from_bytes(&data);
-
-    // NOTE: We send the data as a single chunk. This shouldn't be a problem
-    // unless we start receiving very large reports. In that case, we should
-    // consider splitting the data into chunks and sending them as a stream.
-    let data_stream = tokio_stream::once(Result::<_, std::io::Error>::Ok(data));
-
-    blob_client
-      .simple_put(&new_blob_info.blob_hash, &new_blob_info.holder, data_stream)
-      .await?;
-
-    *self = Self::Blob(new_blob_info);
-    Ok(())
-  }
-
-  /// Fetches report content bytes
-  pub async fn fetch_bytes(
-    self,
-    blob_client: &BlobServiceClient,
-  ) -> Result<Vec<u8>, BlobServiceError> {
-    match self {
-      ReportContent::Database(data) => Ok(data),
-      ReportContent::Blob(BlobInfo { blob_hash, .. }) => {
-        let stream = blob_client.get(&blob_hash).await?;
-        let chunks: Vec<Bytes> = stream.collect::<Result<_, _>>().await?;
-        let data = chunks.into_iter().flatten().collect();
-        Ok(data)
-      }
-    }
   }
 }
 
