@@ -121,6 +121,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/NotificationsCryptoModuleJNIHelper.cpp"
   "./src/cpp/StaffUtilsJNIHelper.cpp"
   "./src/cpp/AESCrypto.cpp"
+  "./src/cpp/CommServicesAuthMetadataEmitter.cpp"
 )
 
 list(APPEND GENERATED_NATIVE_CODE
