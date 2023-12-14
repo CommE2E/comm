@@ -12,9 +12,7 @@ use comm_lib::{
     self, AttributeExtractor, AttributeMap, DBItemError, TryFromAttribute,
   },
 };
-use hex::ToHex;
 use num_traits::FromPrimitive;
-use sha2::{Digest, Sha256};
 use tokio_stream::StreamExt;
 use tracing::debug;
 
@@ -185,8 +183,7 @@ impl ReportContent {
     let Self::Database(ref mut contents) = self else { return Ok(()); };
     let data = std::mem::take(contents);
 
-    let blob_hash: String = Sha256::digest(&data).encode_hex();
-    let holder = uuid::Uuid::new_v4().to_string();
+    let new_blob_info = BlobInfo::from_bytes(&data);
 
     // NOTE: We send the data as a single chunk. This shouldn't be a problem
     // unless we start receiving very large reports. In that case, we should
@@ -194,10 +191,9 @@ impl ReportContent {
     let data_stream = tokio_stream::once(Result::<_, std::io::Error>::Ok(data));
 
     blob_client
-      .simple_put(&blob_hash, &holder, data_stream)
+      .simple_put(&new_blob_info.blob_hash, &new_blob_info.holder, data_stream)
       .await?;
 
-    let new_blob_info = BlobInfo::new(blob_hash, holder);
     *self = Self::Blob(new_blob_info);
     Ok(())
   }
