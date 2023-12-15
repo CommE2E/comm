@@ -313,6 +313,10 @@
   --enumOption-description-primary-default: var(--shades-white-60);
   --enumOption-input-primary-default: var(--shades-black-60);
   --enumOption-input-primary-selected: var(--shades-white-60);
+
+  /* Tooltip */
+  --tooltip-background-primary-default: var(--shades-black-75);
+  --tooltip-label-primary-default: var(--shades-white-100);
 }
 
 /* Light theme */
@@ -379,4 +383,9 @@
   --enumOption-description-primary-default: var(--shades-black-60);
   --enumOption-input-primary-default: var(--shades-black-50);
   --enumOption-input-primary-selected: var(--shades-black-60);
+
+  /* Tooltip */
+  /* @GINSU: TODO double check these values after redesign is finished */
+  --tooltip-background-primary-default: var(--shades-white-80);
+  --tooltip-label-primary-default: var(--shades-black-85);
 }

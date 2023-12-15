@@ -1,0 +1,24 @@
+.container {
+  position: relative;
+  margin-left: 24px;
+}
+
+.arrowLeft {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 100%;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid var(--tooltip-background-primary-default);
+}
+
+.tooltipLabel {
+  border-radius: 4px;
+  background-color: var(--tooltip-background-primary-default);
+  color: var(--tooltip-label-primary-default);
+  font-size: var(--s-font-14);
+  white-space: nowrap;
+}
