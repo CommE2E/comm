@@ -1,7 +1,7 @@
 locals {
   electron_update_container_name = "electron-update-server"
   electron_update_container_port = 80
-  electron_update_server_image   = "commapp/electron-update-server:1.0"
+  electron_update_server_image   = "commapp/electron-update-server:3.0"
 
   electron_update_domain_name = "electron-update.${local.root_domain}"
 }

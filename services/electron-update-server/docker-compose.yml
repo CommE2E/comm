@@ -1,7 +1,7 @@
 services:
   electron-update-server:
     platform: linux/amd64
-    image: commapp/electron-update-server:2.0
+    image: commapp/electron-update-server:3.0
     build:
       context: ../..
       dockerfile: services/electron-update-server/Dockerfile
