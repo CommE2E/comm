@@ -74,11 +74,15 @@ class IdentityServiceClientWrapper {
       );
   }
 
-  async deleteUser(
+  deleteUser: (
     userID: string,
     deviceID: string,
     accessToken: string,
-  ): Promise<void> {
+  ) => Promise<void> = async (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+  ): Promise<void> => {
     if (!this.authClient) {
       const authLayer: IdentityServiceAuthLayer = {
         userID,
@@ -93,7 +97,7 @@ class IdentityServiceClientWrapper {
     } else {
       throw new Error('Identity service client is not initialized');
     }
-  }
+  };
 }
 
 export { IdentityServiceClientWrapper };
