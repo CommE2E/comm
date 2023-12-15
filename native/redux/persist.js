@@ -1124,7 +1124,7 @@ const persistConfig = {
     'connection',
   ],
   debug: __DEV__,
-  version: 60,
+  version: 61,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
