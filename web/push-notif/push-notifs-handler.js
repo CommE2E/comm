@@ -102,7 +102,7 @@ function useCreatePushSubscription(): () => Promise<void> {
     }
 
     const workerRegistration = await navigator.serviceWorker?.ready;
-    if (!workerRegistration) {
+    if (!workerRegistration || !workerRegistration.pushManager) {
       return;
     }
 
