@@ -114,11 +114,13 @@ async function deleteBlob({ hash, holder }: BlobDescriptor) {
     body: JSON.stringify({
       holder,
       blob_hash: hash,
+      instant_delete: true,
     }),
     headers: {
       'content-type': 'application/json',
     },
   });
+  console.log('deleting');
 }
 
 export { upload, uploadBlob, assignHolder, download, deleteBlob };
