@@ -1,0 +1,13 @@
+.container {
+  padding-top: 24px;
+  border-bottom: 1px solid var(--separator-background-primary-default);
+}
+
+.buttonContainer {
+  color: var(--button-label-primary-default);
+  margin-bottom: 16px;
+}
+
+.buttonContainer:hover {
+  cursor: pointer;
+}
