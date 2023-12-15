@@ -5,61 +5,116 @@ import * as React from 'react';
 import {
   useDeleteKeyserverAccount,
   deleteKeyserverAccountActionTypes,
+  useDeleteIdentityAccount,
+  deleteIdentityAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import css from './account-delete-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
+import { IdentityServiceClientWrapper } from '../grpc/identity-service-client-wrapper.js';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
+const deleteKeyserverAccountLoadingStatusSelector = createLoadingStatusSelector(
   deleteKeyserverAccountActionTypes,
+);
+const deleteIdentityAccountLoadingStatusSelector = createLoadingStatusSelector(
+  deleteIdentityAccountActionTypes,
 );
 
 const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
   function AccountDeleteModal(): React.Node {
     const preRequestUserState = useSelector(preRequestUserStateSelector);
-    const inputDisabled = useSelector(
-      state => deleteAccountLoadingStatusSelector(state) === 'loading',
+    const isDeleteKeyserverAccountLoading = useSelector(
+      state => deleteKeyserverAccountLoadingStatusSelector(state) === 'loading',
     );
-    const callDeleteAccount = useDeleteKeyserverAccount();
+    const isDeleteIdentityAccountLoading = useSelector(
+      state => deleteIdentityAccountLoadingStatusSelector(state) === 'loading',
+    );
+    const inputDisabled =
+      isDeleteKeyserverAccountLoading || isDeleteIdentityAccountLoading;
+
+    const deviceID = useSelector(
+      state => state.cryptoStore?.primaryIdentityKeys.ed25519,
+    );
+
+    const identityServiceClientWrapperRef = React.useRef(
+      new IdentityServiceClientWrapper(),
+    );
+
+    const callDeleteKeyserverAccount = useDeleteKeyserverAccount();
+    const callDeleteIdentityAccount = useDeleteIdentityAccount(
+      identityServiceClientWrapperRef.current,
+      deviceID,
+    );
     const dispatchActionPromise = useDispatchActionPromise();
 
     const { popModal } = useModalContext();
 
-    const [errorMessage, setErrorMessage] = React.useState('');
+    const [keyserverErrorMessage, setKeyserverErrorMessage] =
+      React.useState('');
+    const [identityErrorMessage, setIdentityErrorMessage] = React.useState('');
 
-    let errorMsg;
-    if (errorMessage) {
-      errorMsg = <div className={css.form_error}>{errorMessage}</div>;
-    }
+    const combinedErrorMessages = (
+      <div className={css.form_error}>
+        {keyserverErrorMessage}
+        <br />
+        {identityErrorMessage}
+      </div>
+    );
 
-    const deleteAction = React.useCallback(async () => {
+    const deleteKeyserverAction = React.useCallback(async () => {
       try {
-        setErrorMessage('');
-        const response = await callDeleteAccount(preRequestUserState);
+        setKeyserverErrorMessage('');
+        const response = await callDeleteKeyserverAccount(preRequestUserState);
+        // This check ensures that we don't call `popModal()` twice
+        if (!usingCommServicesAccessToken) {
+          popModal();
+        }
+        return response;
+      } catch (e) {
+        setKeyserverErrorMessage(
+          'unknown error deleting account from keyserver',
+        );
+        throw e;
+      }
+    }, [callDeleteKeyserverAccount, preRequestUserState, popModal]);
+
+    const deleteIdentityAction = React.useCallback(async () => {
+      try {
+        setIdentityErrorMessage('');
+        const response = await callDeleteIdentityAccount();
         popModal();
         return response;
       } catch (e) {
-        setErrorMessage('unknown error');
+        setIdentityErrorMessage(
+          'unknown error deleting account from identity service',
+        );
         throw e;
       }
-    }, [callDeleteAccount, preRequestUserState, popModal]);
+    }, [callDeleteIdentityAccount, popModal]);
 
     const onDelete = React.useCallback(
       (event: SyntheticEvent<HTMLButtonElement>) => {
         event.preventDefault();
         void dispatchActionPromise(
           deleteKeyserverAccountActionTypes,
-          deleteAction(),
+          deleteKeyserverAction(),
         );
+        if (usingCommServicesAccessToken) {
+          void dispatchActionPromise(
+            deleteIdentityAccountActionTypes,
+            deleteIdentityAction(),
+          );
+        }
       },
-      [dispatchActionPromise, deleteAction],
+      [dispatchActionPromise, deleteKeyserverAction, deleteIdentityAction],
     );
 
     return (
@@ -81,7 +136,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
               >
                 Delete Account
               </Button>
-              {errorMsg}
+              {combinedErrorMessages}
             </div>
           </form>
         </div>
