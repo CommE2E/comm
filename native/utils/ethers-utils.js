@@ -15,7 +15,7 @@ try {
 
 let provider: ?EthersProvider;
 if (alchemyKey) {
-  provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+  provider = new ethers.providers.AlchemyProvider('goerli', alchemyKey);
 }
 
 export { provider };
