@@ -10,8 +10,8 @@ import {
   getCommunity,
 } from 'lib/shared/thread-utils.js';
 import {
-  FUTURE_CODE_VERSION,
   hasMinCodeVersion,
+  NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
@@ -282,7 +282,7 @@ function rawThreadInfosFromServerThreadInfos(
   });
   const minimallyEncodedPermissionsSupported = hasMinCodeVersion(
     viewer.platformDetails,
-    { native: FUTURE_CODE_VERSION },
+    { native: NEXT_CODE_VERSION },
   );
 
   const threadInfos: { [string]: RawThreadInfo } = {};
