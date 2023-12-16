@@ -192,9 +192,10 @@ module.exports = async function (env) {
     folder: 'secrets',
     name: 'identity_service_config',
   });
-  const envVars = {
-    IDENTITY_SERVICE_CONFIG: JSON.stringify(identityServiceConfig),
-  };
+  const identitySocketAddr = JSON.stringify(
+    identityServiceConfig?.identitySocketAddr,
+  );
+  const envVars = { IDENTITY_SOCKET_ADDR: identitySocketAddr };
   const browserConfigPromise = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig, envVars)
     : createDevBrowserConfig(baseDevBrowserConfig, babelConfig, envVars);
