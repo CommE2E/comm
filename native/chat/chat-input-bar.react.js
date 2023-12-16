@@ -308,12 +308,13 @@ type Props = {
   +navigation: ?ChatNavigationProp<'MessageList'>,
   +overlayContext: ?OverlayContextType,
   +messageEditingContext: ?MessageEditingContextType,
+  +selectionState: SyncedSelectionData,
+  +setSelectionState: (data: SyncedSelectionData) => void,
 };
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
-  +selectionState: SyncedSelectionData,
   +isExitingDuringEditMode: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
@@ -342,7 +343,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
-      selectionState: { text: props.draft, selection: { start: 0, end: 0 } },
       isExitingDuringEditMode: false,
     };
 
@@ -671,8 +671,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     const typeaheadRegexMatches = getTypeaheadRegexMatches(
-      this.state.selectionState.text,
-      this.state.selectionState.selection,
+      this.props.selectionState.text,
+      this.props.selectionState.selection,
       nativeMentionTypeaheadRegex,
     );
 
@@ -861,8 +861,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
-            selection={this.state.selectionState.selection}
-            onUpdateSyncedSelectionData={this.updateSelectionState}
+            selection={this.props.selectionState.selection}
+            onUpdateSyncedSelectionData={this.props.setSelectionState}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
@@ -920,10 +920,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.saveDraft(text);
   };
 
-  updateSelectionState: (data: SyncedSelectionData) => void = data => {
-    this.setState({ selectionState: data });
-  };
-
   saveDraft: (text: string) => void = _throttle(text => {
     this.props.dispatch({
       type: updateDraftActionType,
@@ -939,8 +935,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({
       text,
       textEdited: true,
-      selectionState: { text, selection },
     });
+    this.props.setSelectionState({ text, selection });
     this.saveDraft(text);
 
     this.focusAndUpdateButtonsVisibility();
@@ -1308,6 +1304,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   );
   const editMessage = useEditMessage();
 
+  const [selectionState, setSelectionState] =
+    React.useState<SyncedSelectionData>({
+      text: draft,
+      selection: { start: 0, end: 0 },
+    });
+
   return (
     <ChatInputBar
       {...props}
@@ -1337,6 +1339,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       navigation={props.navigation}
       overlayContext={overlayContext}
       messageEditingContext={messageEditingContext}
+      selectionState={selectionState}
+      setSelectionState={setSelectionState}
     />
   );
 }
