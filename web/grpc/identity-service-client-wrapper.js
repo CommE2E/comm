@@ -1,7 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
-
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.js';
 
@@ -20,18 +18,7 @@ class IdentityServiceClientWrapper {
   }
 
   determineSocketAddr(): string {
-    let identitySocketAddr;
-    const identityServiceConfigRaw = process.env.IDENTITY_SERVICE_CONFIG;
-
-    if (identityServiceConfigRaw !== null) {
-      invariant(
-        typeof identityServiceConfigRaw === 'object',
-        'identityServiceConfigRaw should be an object',
-      );
-      identitySocketAddr = identityServiceConfigRaw.identitySocketAddr;
-    }
-
-    return identitySocketAddr || identityServiceConfig.defaultURL;
+    return process.env.IDENTITY_SOCKET_ADDR ?? identityServiceConfig.defaultURL;
   }
 
   async initAuthClient(authLayer: IdentityServiceAuthLayer): Promise<void> {
