@@ -38,7 +38,7 @@ type SignedPrekeys = {
 type CommServicesAuthMetadata = {
   +userID?: ?string,
   +deviceID?: ?string,
-  +commServicesAccessToken?: ?string,
+  +accessToken?: ?string,
 };
 
 interface Spec extends TurboModule {
