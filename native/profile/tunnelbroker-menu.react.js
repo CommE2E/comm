@@ -13,6 +13,7 @@ import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import { createOlmSessionsWithOwnDevices } from '../utils/crypto-utils.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'TunnelbrokerMenu'>,
@@ -43,9 +44,17 @@ function TunnelbrokerMenu(props: Props): React.Node {
     try {
       await sendMessage({ deviceID: recipient, payload: message });
     } catch (e) {
-      console.error(e.message);
+      console.log(e.message);
     }
   }, [message, recipient, sendMessage]);
+
+  const onCreateSessions = React.useCallback(async () => {
+    try {
+      await createOlmSessionsWithOwnDevices(sendMessage);
+    } catch (e) {
+      console.log(`Error creating olm sessions with own devices: ${e.message}`);
+    }
+  }, [sendMessage]);
 
   return (
     <ScrollView
@@ -87,6 +96,17 @@ function TunnelbrokerMenu(props: Props): React.Node {
           iosActiveOpacity={0.85}
         >
           <Text style={styles.submenuText}>Send Message</Text>
+        </Button>
+        <Button
+          onPress={onCreateSessions}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>
+            Create session with own devices
+          </Text>
         </Button>
       </View>
 
