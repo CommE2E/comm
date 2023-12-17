@@ -32,6 +32,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   ReportStore reportStore;
   UserStore userStore;
 
+  void persistOlmAccount(std::shared_ptr<facebook::react::Promise> promise);
+
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
