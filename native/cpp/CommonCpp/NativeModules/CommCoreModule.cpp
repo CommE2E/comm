@@ -560,6 +560,7 @@ jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
             error = "user has not been initialized";
           } else {
             result = this->cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
+            this->persistOlmAccount(promise);
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
@@ -613,6 +614,7 @@ jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
             try {
               contentPrekey = this->cryptoModule->generateAndGetPrekey();
               contentPrekeySignature = this->cryptoModule->getPrekeySignature();
+              this->persistOlmAccount(promise);
               notifPrekey =
                   NotificationsCryptoModule::generateAndGetNotificationsPrekey(
                       "Comm");
