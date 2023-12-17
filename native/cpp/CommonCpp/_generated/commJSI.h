@@ -42,6 +42,7 @@ public:
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
+  virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
@@ -255,6 +256,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isNotificationsSessionInitialized, jsInvoker_, instance_);
+    }
+    jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::initializeContentOutboundSession) == 6,
+          "Expected initializeContentOutboundSession(...) to have 6 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::initializeContentOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKeys), std::move(deviceID));
     }
     double getCodeVersion(jsi::Runtime &rt) override {
       static_assert(
