@@ -718,6 +718,57 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::initializeContentOutboundSession(
+    jsi::Runtime &rt,
+    jsi::String identityKeys,
+    jsi::String prekey,
+    jsi::String prekeySignature,
+    jsi::String oneTimeKeys,
+    jsi::String deviceID) {
+  auto identityKeysCpp{identityKeys.utf8(rt)};
+  auto prekeyCpp{prekey.utf8(rt)};
+  auto prekeySignatureCpp{prekeySignature.utf8(rt)};
+  auto oneTimeKeysCpp{oneTimeKeys.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData initialEncryptedMessage;
+          try {
+            this->cryptoModule->initializeOutboundForSendingSession(
+                deviceIDCpp,
+                std::vector<uint8_t>(
+                    identityKeysCpp.begin(), identityKeysCpp.end()),
+                std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
+                std::vector<uint8_t>(
+                    prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
+                std::vector<uint8_t>(
+                    oneTimeKeysCpp.begin(), oneTimeKeysCpp.end()));
+
+            const std::string initMessage = "{\"type\": \"init\"}";
+            initialEncryptedMessage =
+                cryptoModule->encrypt(deviceIDCpp, initMessage);
+            this->persistCryptoModule();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(
+                innerRt,
+                std::string{
+                    initialEncryptedMessage.message.begin(),
+                    initialEncryptedMessage.message.end()}));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
