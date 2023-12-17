@@ -7,13 +7,21 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { TunnelbrokerMessage } from 'lib/types/tunnelbroker/messages.js';
+import {
+  type EncryptedMessage,
+  peerToPeerMessageTypes,
+} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import { createOlmSessionsWithOwnDevices } from '../utils/crypto-utils.js';
+import {
+  createOlmSessionsWithOwnDevices,
+  getContentSigningKey,
+} from '../utils/crypto-utils.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'TunnelbrokerMenu'>,
@@ -55,6 +63,30 @@ function TunnelbrokerMenu(props: Props): React.Node {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
   }, [sendMessage]);
+
+  const onSendEncryptedMessage = React.useCallback(async () => {
+    try {
+      const encrypted = await commCoreModule.encrypt(
+        `Encrypted message to ${recipient}`,
+        recipient,
+      );
+      const deviceID = await getContentSigningKey();
+      const encryptedMessage: EncryptedMessage = {
+        type: peerToPeerMessageTypes.ENCRYPTED_MESSAGE,
+        senderInfo: {
+          deviceID,
+          userID: 'someID',
+        },
+        encryptedContent: encrypted,
+      };
+      await sendMessage({
+        deviceID: recipient,
+        payload: JSON.stringify(encryptedMessage),
+      });
+    } catch (e) {
+      console.log(`Error sending encrypted content to device: ${e.message}`);
+    }
+  }, [recipient, sendMessage]);
 
   return (
     <ScrollView
@@ -106,6 +138,17 @@ function TunnelbrokerMenu(props: Props): React.Node {
         >
           <Text style={styles.submenuText}>
             Create session with own devices
+          </Text>
+        </Button>
+        <Button
+          onPress={onSendEncryptedMessage}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>
+            Send encrypted message to recipient
           </Text>
         </Button>
       </View>
