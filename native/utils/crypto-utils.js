@@ -156,6 +156,9 @@ async function createOlmSessionsWithOwnDevices(
         deviceID: recipientDeviceID,
         payload: JSON.stringify(sessionCreationMessage),
       });
+      console.log(
+        `Request to create a session with device ${recipientDeviceID} sent.`,
+      );
     } catch (e) {
       console.log(
         'Error creating outbound session with ' +
