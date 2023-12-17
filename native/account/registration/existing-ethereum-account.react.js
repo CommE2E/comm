@@ -44,7 +44,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
-    await siweServerCall(params);
+    await siweServerCall({ ...params, doNotRegister: true });
     dispatch({
       type: setDataLoadedActionType,
       payload: {

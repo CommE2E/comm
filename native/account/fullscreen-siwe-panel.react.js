@@ -46,7 +46,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
-      await siweServerCall(result);
+      await siweServerCall({ ...result, doNotRegister: true });
       dispatch({
         type: setDataLoadedActionType,
         payload: {

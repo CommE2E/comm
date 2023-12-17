@@ -22,6 +22,7 @@ import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 type SIWEServerCallParams = {
   +message: string,
   +signature: string,
+  +doNotRegister?: boolean,
   ...
 };
 type UseSIWEServerCallParams = {
@@ -38,7 +39,7 @@ function useSIWEServerCall(
     async (
       message: string,
       signature: string,
-      extraInfo: LogInExtraInfo,
+      extraInfo: $ReadOnly<{ ...LogInExtraInfo, +doNotRegister?: boolean }>,
       callServerEndpointOptions: ?CallServerEndpointOptions,
     ) => {
       try {
@@ -71,7 +72,10 @@ function useSIWEServerCall(
 
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
-    async ({ message, signature }, callServerEndpointOptions) => {
+    async (
+      { message, signature, doNotRegister },
+      callServerEndpointOptions,
+    ) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await getInitialNotificationsEncryptedMessage({
@@ -84,6 +88,7 @@ function useSIWEServerCall(
         {
           ...extraInfo,
           initialNotificationsEncryptedMessage,
+          doNotRegister,
         },
         callServerEndpointOptions,
       );
