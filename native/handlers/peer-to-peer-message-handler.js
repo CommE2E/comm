@@ -5,6 +5,7 @@ import {
   peerToPeerMessageTypes,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 
+import { commCoreModule } from '../native-modules.js';
 import { nativeInboundContentSessionCreator } from '../utils/crypto-utils.js';
 
 async function peerToPeerMessageHandler(
@@ -24,7 +25,21 @@ async function peerToPeerMessageHandler(
       );
     }
   } else if (message.type === peerToPeerMessageTypes.ENCRYPTED_MESSAGE) {
-    console.log('Received encrypted message');
+    try {
+      const decrypted = await commCoreModule.decrypt(
+        message.encryptedContent,
+        message.senderInfo.deviceID,
+      );
+      console.log(
+        'Decrypted message from device ' +
+          `${message.senderInfo.deviceID}: ${decrypted}`,
+      );
+    } catch (e) {
+      console.log(
+        'Error decrypting message from device ' +
+          `${message.senderInfo.deviceID}: ${e.message}`,
+      );
+    }
   }
 }
 
