@@ -294,6 +294,36 @@ void CommCoreModule::terminate(jsi::Runtime &rt) {
   TerminateApp::terminate();
 }
 
+void CommCoreModule::persistOlmAccount(std::shared_ptr<Promise> promise) {
+  folly::Optional<std::string> storedSecretKey =
+      this->secureStore.get(this->secureStoreAccountDataKey);
+  if (!storedSecretKey.hasValue()) {
+    storedSecretKey = crypto::Tools::generateRandomString(64);
+    this->secureStore.set(
+        this->secureStoreAccountDataKey, storedSecretKey.value());
+  }
+
+  crypto::Persist newPersist =
+      this->cryptoModule->storeAsB64(storedSecretKey.value());
+  GlobalDBSingleton::instance.scheduleOrRunCancellable(
+      [=]() {
+        std::string error;
+        try {
+          DatabaseManager::getQueryExecutor().storeOlmPersistData(newPersist);
+        } catch (std::system_error &e) {
+          error = e.what();
+        }
+        this->jsInvoker_->invokeAsync([=]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+        });
+      },
+      promise,
+      this->jsInvoker_);
+}
+
 jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
   folly::Optional<std::string> storedSecretKey =
       this->secureStore.get(this->secureStoreAccountDataKey);
