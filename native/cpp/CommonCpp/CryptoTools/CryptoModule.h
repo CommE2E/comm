@@ -55,27 +55,27 @@ public:
   void forgetOldPrekey();
 
   void initializeInboundForReceivingSession(
-      const std::string &targetUserId,
+      const std::string &targetDeviceId,
       const OlmBuffer &encryptedMessage,
       const OlmBuffer &idKeys,
       const bool overwrite = false);
   void initializeOutboundForSendingSession(
-      const std::string &targetUserId,
+      const std::string &targetDeviceId,
       const OlmBuffer &idKeys,
       const OlmBuffer &preKeys,
       const OlmBuffer &preKeySignature,
       const OlmBuffer &oneTimeKeys,
       size_t keyIndex = 0);
-  bool hasSessionFor(const std::string &targetUserId);
-  std::shared_ptr<Session> getSessionByUserId(const std::string &userId);
+  bool hasSessionFor(const std::string &targetDeviceId);
+  std::shared_ptr<Session> getSessionByDeviceId(const std::string &deviceId);
 
   Persist storeAsB64(const std::string &secretKey);
   void restoreFromB64(const std::string &secretKey, Persist persist);
 
   EncryptedData
-  encrypt(const std::string &targetUserId, const std::string &content);
+  encrypt(const std::string &targetDeviceId, const std::string &content);
   std::string
-  decrypt(const std::string &targetUserId, EncryptedData &encryptedData);
+  decrypt(const std::string &targetDeviceId, EncryptedData &encryptedData);
 
   std::string signMessage(const std::string &message);
   static void verifySignature(
