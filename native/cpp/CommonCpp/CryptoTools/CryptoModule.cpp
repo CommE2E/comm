@@ -223,13 +223,13 @@ void CryptoModule::forgetOldPrekey() {
 }
 
 void CryptoModule::initializeInboundForReceivingSession(
-    const std::string &targetUserId,
+    const std::string &targetDeviceId,
     const OlmBuffer &encryptedMessage,
     const OlmBuffer &idKeys,
     const bool overwrite) {
-  if (this->hasSessionFor(targetUserId)) {
+  if (this->hasSessionFor(targetDeviceId)) {
     if (overwrite) {
-      this->sessions.erase(this->sessions.find(targetUserId));
+      this->sessions.erase(this->sessions.find(targetDeviceId));
     } else {
       throw std::runtime_error{
           "error initializeInboundForReceivingSession => session already "
@@ -241,20 +241,20 @@ void CryptoModule::initializeInboundForReceivingSession(
       this->keys.identityKeys.data(),
       encryptedMessage,
       idKeys);
-  this->sessions.insert(make_pair(targetUserId, std::move(newSession)));
+  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
 }
 
 void CryptoModule::initializeOutboundForSendingSession(
-    const std::string &targetUserId,
+    const std::string &targetDeviceId,
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
     const OlmBuffer &oneTimeKeys,
     size_t keyIndex) {
-  if (this->hasSessionFor(targetUserId)) {
+  if (this->hasSessionFor(targetDeviceId)) {
     Logger::log(
-        "olm session overwritten for the user with id: " + targetUserId);
-    this->sessions.erase(this->sessions.find(targetUserId));
+        "olm session overwritten for the device with id: " + targetDeviceId);
+    this->sessions.erase(this->sessions.find(targetDeviceId));
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
       this->getOlmAccount(),
@@ -264,16 +264,16 @@ void CryptoModule::initializeOutboundForSendingSession(
       preKeySignature,
       oneTimeKeys,
       keyIndex);
-  this->sessions.insert(make_pair(targetUserId, std::move(newSession)));
+  this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
 }
 
-bool CryptoModule::hasSessionFor(const std::string &targetUserId) {
-  return (this->sessions.find(targetUserId) != this->sessions.end());
+bool CryptoModule::hasSessionFor(const std::string &targetDeviceId) {
+  return (this->sessions.find(targetDeviceId) != this->sessions.end());
 }
 
 std::shared_ptr<Session>
-CryptoModule::getSessionByUserId(const std::string &userId) {
-  return this->sessions.at(userId);
+CryptoModule::getSessionByDeviceId(const std::string &deviceId) {
+  return this->sessions.at(deviceId);
 }
 
 Persist CryptoModule::storeAsB64(const std::string &secretKey) {
@@ -332,12 +332,12 @@ void CryptoModule::restoreFromB64(
 }
 
 EncryptedData CryptoModule::encrypt(
-    const std::string &targetUserId,
+    const std::string &targetDeviceId,
     const std::string &content) {
-  if (!this->hasSessionFor(targetUserId)) {
+  if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{"error encrypt => uninitialized session"};
   }
-  OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
+  OlmSession *session = this->sessions.at(targetDeviceId)->getOlmSession();
   OlmBuffer encryptedMessage(
       ::olm_encrypt_message_length(session, content.size()));
   OlmBuffer messageRandom;
@@ -360,12 +360,12 @@ EncryptedData CryptoModule::encrypt(
 }
 
 std::string CryptoModule::decrypt(
-    const std::string &targetUserId,
+    const std::string &targetDeviceId,
     EncryptedData &encryptedData) {
-  if (!this->hasSessionFor(targetUserId)) {
+  if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{"error decrypt => uninitialized session"};
   }
-  OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
+  OlmSession *session = this->sessions.at(targetDeviceId)->getOlmSession();
 
   OlmBuffer utilityBuffer(::olm_utility_size());
   OlmUtility *olmUtility = ::olm_utility(utilityBuffer.data());
