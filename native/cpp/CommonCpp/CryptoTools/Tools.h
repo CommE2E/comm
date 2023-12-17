@@ -14,6 +14,8 @@
 #define ONE_TIME_KEYS_PREFIX_OFFSET 25
 #define ONE_TIME_KEYS_MIDDLE_OFFSET 12
 
+#define ENCRYPTED_MESSAGE_TYPE 1
+
 namespace comm {
 namespace crypto {
 
