@@ -810,6 +810,40 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
       });
 }
 
+jsi::Value CommCoreModule::encrypt(
+    jsi::Runtime &rt,
+    jsi::String message,
+    jsi::String deviceID) {
+  auto messageCpp{message.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData initialEncryptedMessage;
+          try {
+            initialEncryptedMessage =
+                cryptoModule->encrypt(deviceIDCpp, messageCpp);
+            this->persistCryptoModule();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(
+                innerRt,
+                std::string{
+                    initialEncryptedMessage.message.begin(),
+                    initialEncryptedMessage.message.end()}));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
