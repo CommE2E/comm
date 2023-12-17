@@ -72,6 +72,12 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
         "error createInbound => " +
         std::string{::olm_session_last_error(session->getOlmSession())});
   }
+
+  if (-1 == ::olm_remove_one_time_keys(account, session->getOlmSession())) {
+    throw std::runtime_error(
+        "error createInbound (remove oneTimeKeys) => " +
+        std::string{::olm_session_last_error(session->getOlmSession())});
+  }
   return session;
 }
 
