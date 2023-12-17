@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { setAccessTokenActionType } from 'lib/actions/user-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
+import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
@@ -70,8 +70,8 @@ function IdentityHandler(): React.Node {
             prekeys.contentPrekeySignature,
             prekeys.notifPrekey,
             prekeys.notifPrekeySignature,
-            getOneTimeKeyValues(primaryOneTimeKeys),
-            getOneTimeKeyValues(notificationsOneTimeKeys),
+            getOneTimeKeyArray(primaryOneTimeKeys),
+            getOneTimeKeyArray(notificationsOneTimeKeys),
           );
           console.log('Registered to identity');
         } catch (registerError) {
@@ -89,8 +89,8 @@ function IdentityHandler(): React.Node {
               prekeys.contentPrekeySignature,
               prekeys.notifPrekey,
               prekeys.notifPrekeySignature,
-              getOneTimeKeyValues(primaryOneTimeKeys),
-              getOneTimeKeyValues(notificationsOneTimeKeys),
+              getOneTimeKeyArray(primaryOneTimeKeys),
+              getOneTimeKeyArray(notificationsOneTimeKeys),
             );
             console.log('Logged in to identity');
           } catch (loginError) {
