@@ -1,12 +1,19 @@
 // @flow
 
+import { type ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type {
   IdentityKeysBlob,
   OLMIdentityKeys,
 } from 'lib/types/crypto-types.js';
-import type { InboundKeyInfoResponse } from 'lib/types/identity-service-types.js';
+import type {
+  OutboundKeyInfoResponse,
+  InboundKeyInfoResponse,
+} from 'lib/types/identity-service-types';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
-import type { OutboundSessionCreation } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import {
+  type OutboundSessionCreation,
+  peerToPeerMessageTypes,
+} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 
 import { commCoreModule, commRustModule } from '../native-modules.js';
 
@@ -75,8 +82,91 @@ async function nativeInboundContentSessionCreator(
   );
 }
 
+function nativeOutboundContentSessionCreator(
+  contentIdentityKeys: OLMIdentityKeys,
+  contentInitializationInfo: OlmSessionInitializationInfo,
+  deviceID: string,
+): Promise<string> {
+  const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
+  const identityKeys = JSON.stringify({
+    curve25519: contentIdentityKeys.curve25519,
+    ed25519: contentIdentityKeys.ed25519,
+  });
+
+  return commCoreModule.initializeContentOutboundSession(
+    identityKeys,
+    prekey,
+    prekeySignature,
+    oneTimeKey,
+    deviceID,
+  );
+}
+
+async function createOlmSessionsWithOwnDevices(
+  sendMessage: (message: ClientMessageToDevice) => Promise<void>,
+): Promise<void> {
+  const authMetadata = await commCoreModule.getCommServicesAuthMetadata();
+  const { userID, deviceID, accessToken } = authMetadata;
+  if (!userID || !deviceID || !accessToken) {
+    throw new Error('CommServicesAuthMetadata is missing');
+  }
+
+  const keysResponse = await commRustModule.getOutboundKeysForUser(
+    userID,
+    deviceID,
+    accessToken,
+    userID,
+  );
+
+  const outboundKeys: OutboundKeyInfoResponse[] = JSON.parse(keysResponse);
+
+  for (const deviceKeys: OutboundKeyInfoResponse of outboundKeys) {
+    const keysPayload: IdentityKeysBlob = JSON.parse(deviceKeys.payload);
+
+    if (keysPayload.primaryIdentityPublicKeys.ed25519 === deviceID) {
+      continue;
+    }
+    const recipientDeviceID = keysPayload.primaryIdentityPublicKeys.ed25519;
+    if (!deviceKeys.oneTimeContentPrekey) {
+      console.log(`One-time key is missing for device ${recipientDeviceID}`);
+      continue;
+    }
+    try {
+      const encryptedContent = await nativeOutboundContentSessionCreator(
+        keysPayload.primaryIdentityPublicKeys,
+        {
+          prekey: deviceKeys.contentPrekey,
+          prekeySignature: deviceKeys.contentPrekeySignature,
+          oneTimeKey: deviceKeys.oneTimeContentPrekey,
+        },
+        recipientDeviceID,
+      );
+
+      const sessionCreationMessage: OutboundSessionCreation = {
+        type: peerToPeerMessageTypes.OUTBOUND_SESSION_CREATION,
+        senderInfo: {
+          userID,
+          deviceID,
+        },
+        encryptedContent,
+      };
+
+      await sendMessage({
+        deviceID: recipientDeviceID,
+        payload: JSON.stringify(sessionCreationMessage),
+      });
+    } catch (e) {
+      console.log(
+        `Error creating outbound session with device ${recipientDeviceID}: ${e.message}`,
+        e,
+      );
+    }
+  }
+}
+
 export {
   getContentSigningKey,
   nativeNotificationsSessionCreator,
   nativeInboundContentSessionCreator,
+  createOlmSessionsWithOwnDevices,
 };
