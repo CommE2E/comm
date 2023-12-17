@@ -96,6 +96,11 @@ interface Spec extends TurboModule {
     oneTimeKeys: string,
     deviceID: string,
   ) => Promise<string>;
+  +initializeContentInboundSession: (
+    identityKeys: string,
+    encryptedMessage: string,
+    deviceID: string,
+  ) => Promise<string>;
   +getCodeVersion: () => number;
   +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;
