@@ -31,6 +31,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   ReportStore reportStore;
   UserStore userStore;
 
+  void persistCryptoModule();
+
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
   updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
