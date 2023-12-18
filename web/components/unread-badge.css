@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 12px;
+  height: 12px;
+  border-radius: 10px;
+  background-color: var(--unreadIndicator-background-primary-default);
+  color: var(--unreadIndicator-label-primary-default);
+  font-size: var(--xxs-font-10);
+  font-weight: var(--semi-bold);
+  padding: 4px;
+}
