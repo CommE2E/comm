@@ -46,6 +46,8 @@ import {
   getTypeaheadRegexMatches,
   type Selection,
   getUserMentionsCandidates,
+  type MentionTypeaheadSuggestionItem,
+  type TypeaheadMatchedStrings,
 } from 'lib/shared/mention-utils.js';
 import {
   useNextLocalID,
@@ -310,6 +312,8 @@ type Props = {
   +messageEditingContext: ?MessageEditingContextType,
   +selectionState: SyncedSelectionData,
   +setSelectionState: (data: SyncedSelectionData) => void,
+  +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
+  +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
 };
 type State = {
   +text: string,
@@ -670,45 +674,23 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     }
 
-    const typeaheadRegexMatches = getTypeaheadRegexMatches(
-      this.props.selectionState.text,
-      this.props.selectionState.selection,
-      nativeMentionTypeaheadRegex,
-    );
-
     let typeaheadTooltip = null;
 
-    if (typeaheadRegexMatches && !isEditMode) {
-      const typeaheadMatchedStrings = {
-        textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
-        query: typeaheadRegexMatches[4] ?? '',
-      };
-
-      const suggestedUsers = getMentionTypeaheadUserSuggestions(
-        this.props.userSearchIndex,
-        this.props.userMentionsCandidates,
-        this.props.viewerID,
-        typeaheadMatchedStrings.query,
+    if (
+      this.props.suggestions.length > 0 &&
+      this.props.typeaheadMatchedStrings &&
+      !isEditMode
+    ) {
+      typeaheadTooltip = (
+        <TypeaheadTooltip
+          text={this.state.text}
+          matchedStrings={this.props.typeaheadMatchedStrings}
+          suggestions={this.props.suggestions}
+          focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+          typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
+          TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
+        />
       );
-      const suggestedChats = getMentionTypeaheadChatSuggestions(
-        this.props.chatMentionSearchIndex,
-        this.props.chatMentionCandidates,
-        typeaheadMatchedStrings.query,
-      );
-      const suggestions = [...suggestedUsers, ...suggestedChats];
-
-      if (suggestions.length > 0) {
-        typeaheadTooltip = (
-          <TypeaheadTooltip
-            text={this.state.text}
-            matchedStrings={typeaheadMatchedStrings}
-            suggestions={suggestions}
-            focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
-            typeaheadTooltipActionsGetter={mentionTypeaheadTooltipActions}
-            TypeaheadTooltipButtonComponent={MentionTypeaheadTooltipButton}
-          />
-        );
-      }
     }
 
     let content;
@@ -1310,6 +1292,57 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       selection: { start: 0, end: 0 },
     });
 
+  const typeaheadRegexMatches = getTypeaheadRegexMatches(
+    selectionState.text,
+    selectionState.selection,
+    nativeMentionTypeaheadRegex,
+  );
+
+  const typeaheadResults: {
+    typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
+    suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
+  } = React.useMemo(() => {
+    if (!typeaheadRegexMatches) {
+      return {
+        typeaheadMatchedStrings: null,
+        suggestions: [],
+      };
+    }
+
+    const typeaheadMatchedStrings: TypeaheadMatchedStrings = {
+      textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
+      query: typeaheadRegexMatches[4] ?? '',
+    };
+
+    const suggestedUsers = getMentionTypeaheadUserSuggestions(
+      userSearchIndex,
+      userMentionsCandidates,
+      viewerID,
+      typeaheadMatchedStrings.query,
+    );
+    const suggestedChats = getMentionTypeaheadChatSuggestions(
+      chatMentionSearchIndex,
+      chatMentionCandidates,
+      typeaheadMatchedStrings.query,
+    );
+    const suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem> = [
+      ...suggestedUsers,
+      ...suggestedChats,
+    ];
+
+    return {
+      typeaheadMatchedStrings,
+      suggestions,
+    };
+  }, [
+    chatMentionCandidates,
+    chatMentionSearchIndex,
+    typeaheadRegexMatches,
+    userMentionsCandidates,
+    userSearchIndex,
+    viewerID,
+  ]);
+
   return (
     <ChatInputBar
       {...props}
@@ -1341,6 +1374,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       messageEditingContext={messageEditingContext}
       selectionState={selectionState}
       setSelectionState={setSelectionState}
+      suggestions={typeaheadResults.suggestions}
+      typeaheadMatchedStrings={typeaheadResults.typeaheadMatchedStrings}
     />
   );
 }
