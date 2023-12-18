@@ -1,3 +1,17 @@
+.container {
+  position: relative;
+}
+
 .container:hover {
   cursor: pointer;
+}
+
+.unreadBadgeContainer {
+  position: absolute;
+  right: -10px;
+  bottom: 14px;
+  border-radius: 50%;
+  /* We want the border color of the unread badge to always 
+  match the panel background color */
+  border: 1px solid var(--panel-background-secondary-default);
 }
