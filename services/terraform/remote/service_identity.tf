@@ -46,6 +46,10 @@ resource "aws_ecs_task_definition" "identity_service" {
         {
           name  = "KEYSERVER_PUBLIC_KEY"
           value = nonsensitive(local.secrets["keyserverPublicKey"])
+        },
+        {
+          name  = "TUNNELBROKER_GRPC_ENDPOINT"
+          value = local.tunnelbroker_local_grpc_url
         }
       ]
       secrets = [

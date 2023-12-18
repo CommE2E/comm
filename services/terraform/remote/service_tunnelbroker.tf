@@ -7,7 +7,13 @@ locals {
     websocket_port = 51001
     container_name = "tunnelbroker-server"
     domain_name    = "tunnelbroker.${local.root_domain}"
+
+    local_dns_name = "tunnelbroker"
+    grpc_port_name = "tunnelbroker_grpc"
   }
+
+  # Used for other services to connect to Tunnelbroker gRPC endpoint
+  tunnelbroker_local_grpc_url = "http://${local.tunnelbroker_config.local_dns_name}:${local.tunnelbroker_config.grpc_port}"
 
   # utility locals
   tunnelbroker_docker_image = "${local.tunnelbroker_config.docker_image}:${local.tunnelbroker_config.docker_tag}"
@@ -53,7 +59,7 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
           appProtocol   = "http"
         },
         {
-          name          = "tunnelbroker_grpc"
+          name          = local.tunnelbroker_config.grpc_port_name
           containerPort = local.tunnelbroker_config.grpc_port
           protocol      = "tcp"
           appProtocol   = "grpc"
@@ -123,6 +129,14 @@ resource "aws_ecs_service" "tunnelbroker" {
 
   service_connect_configuration {
     enabled = true
+    service {
+      discovery_name = local.tunnelbroker_config.local_dns_name
+      port_name      = local.tunnelbroker_config.grpc_port_name
+      client_alias {
+        port     = local.tunnelbroker_config.grpc_port
+        dns_name = local.tunnelbroker_config.local_dns_name
+      }
+    }
   }
 
   # Websocket
