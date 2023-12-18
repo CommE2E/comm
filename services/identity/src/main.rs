@@ -22,6 +22,7 @@ mod reserved_users;
 mod siwe;
 mod token;
 mod tunnelbroker;
+mod websockets;
 
 use constants::IDENTITY_SERVICE_SOCKET_ADDR;
 use cors::cors_layer;
@@ -32,9 +33,10 @@ use tracing_subscriber::EnvFilter;
 use client_service::{ClientService, IdentityClientServiceServer};
 use grpc_services::authenticated::AuthenticatedService;
 use grpc_services::protos::auth::identity_client_service_server::IdentityClientServiceServer as AuthServer;
+use websockets::errors::BoxedError;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), BoxedError> {
   let filter = EnvFilter::builder()
     .with_default_directive(Level::INFO.into())
     .with_env_var(EnvFilter::DEFAULT_ENV)
@@ -70,14 +72,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
 
       info!("Listening to gRPC traffic on {}", addr);
-      Server::builder()
+
+      let grpc_server = Server::builder()
         .accept_http1(true)
         .layer(cors_layer())
         .layer(GrpcWebLayer::new())
         .add_service(client_service)
         .add_service(auth_service)
-        .serve(addr)
-        .await?;
+        .serve(addr);
+
+      let websocket_server = websockets::run_server();
+
+      return tokio::select! {
+        websocket_result = websocket_server => websocket_result,
+        grpc_result = grpc_server => { grpc_result.map_err(|e| e.into()) },
+      };
     }
   }
 
