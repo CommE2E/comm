@@ -169,12 +169,19 @@ function useTextMessageRulesFunc(
   chatMentionCandidates: ChatMentionCandidates,
 ): boolean => MarkdownRules {
   const { members } = threadInfo;
+  const membersMap = SharedMarkdown.useMemberMapForUserMentions(members);
+
   return React.useMemo(
     () =>
       _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-        textMessageRules(members, chatMentionCandidates, useDarkStyle),
+        textMessageRules(
+          members,
+          chatMentionCandidates,
+          useDarkStyle,
+          membersMap,
+        ),
       ),
-    [chatMentionCandidates, members],
+    [chatMentionCandidates, members, membersMap],
   );
 }
 
@@ -182,9 +189,9 @@ function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
   chatMentionCandidates: ChatMentionCandidates,
   useDarkStyle: boolean,
+  membersMap: $ReadOnlyMap<string, string>,
 ): MarkdownRules {
   const baseRules = markdownRules(useDarkStyle);
-  const membersMap = SharedMarkdown.createMemberMapForUserMentions(members);
 
   return {
     ...baseRules,
@@ -232,15 +239,26 @@ function textMessageRules(
 }
 
 let defaultTextMessageRules = null;
+const defaultMembersMap = new Map<string, string>();
 
 function getDefaultTextMessageRules(
   overrideDefaultChatMentionCandidates: ChatMentionCandidates = {},
 ): MarkdownRules {
   if (Object.keys(overrideDefaultChatMentionCandidates).length > 0) {
-    return textMessageRules([], overrideDefaultChatMentionCandidates, false);
+    return textMessageRules(
+      [],
+      overrideDefaultChatMentionCandidates,
+      false,
+      defaultMembersMap,
+    );
   }
   if (!defaultTextMessageRules) {
-    defaultTextMessageRules = textMessageRules([], {}, false);
+    defaultTextMessageRules = textMessageRules(
+      [],
+      {},
+      false,
+      defaultMembersMap,
+    );
   }
   return defaultTextMessageRules;
 }
