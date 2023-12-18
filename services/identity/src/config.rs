@@ -5,8 +5,9 @@ use std::{collections::HashSet, env, fmt, fs, io, path};
 use tracing::{error, info};
 
 use crate::constants::{
-  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
-  OPAQUE_SERVER_SETUP, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
+  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
+  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
+  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
   TUNNELBROKER_GRPC_ENDPOINT,
 };
 
@@ -42,6 +43,12 @@ struct Cli {
   #[arg(env = TUNNELBROKER_GRPC_ENDPOINT)]
   #[arg(default_value = DEFAULT_TUNNELBROKER_ENDPOINT)]
   tunnelbroker_endpoint: String,
+
+  /// OpenSearch domain endpoint
+  #[arg(long, global = true)]
+  #[arg(env = OPENSEARCH_ENDPOINT)]
+  #[arg(default_value = DEFAULT_OPENSEARCH_ENDPOINT)]
+  opensearch_endpoint: String,
 }
 
 #[derive(Subcommand)]
@@ -65,6 +72,7 @@ pub struct ServerConfig {
   pub reserved_usernames: HashSet<String>,
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
+  pub opensearch_endpoint: String,
 }
 
 impl ServerConfig {
@@ -78,6 +86,8 @@ impl ServerConfig {
       info!("Using Localstack endpoint: {}", endpoint);
     }
 
+    info!("Using OpenSearch endpoint: {}", cli.opensearch_endpoint);
+
     let mut path_buf = path::PathBuf::new();
     path_buf.push(SECRETS_DIRECTORY);
     path_buf.push(SECRETS_SETUP_FILE);
@@ -89,6 +99,7 @@ impl ServerConfig {
     Ok(Self {
       localstack_endpoint: cli.localstack_endpoint.clone(),
       tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
+      opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       reserved_usernames,
       keyserver_public_key,
