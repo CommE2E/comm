@@ -1,3 +1,13 @@
+.container {
+  position: relative;
+}
+
 .container:hover {
   cursor: pointer;
+}
+
+.unreadBadgeContainer {
+  position: absolute;
+  right: -8px;
+  bottom: 14px;
 }
