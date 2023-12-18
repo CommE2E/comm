@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--unreadIndicator-background-primary-default);
+  color: var(--unreadIndicator-label-primary-default);
+  font-size: var(--xxs-font-10);
+  font-weight: var(--semi-bold);
+  padding: 1px;
+}
