@@ -115,6 +115,7 @@ mkShell {
     CoreFoundation
     CoreServices
     Security
+    SystemConfiguration
     libiconv  # identity service
   ]);
 
