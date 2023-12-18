@@ -1,6 +1,7 @@
 .container {
   padding-top: 24px;
   border-bottom: 1px solid var(--separator-background-primary-default);
+  position: relative;
 }
 
 .buttonContainer {
@@ -10,4 +11,14 @@
 
 .buttonContainer:hover {
   cursor: pointer;
+}
+
+.unreadBadgeContainer {
+  position: absolute;
+  right: -10px;
+  top: 16px;
+  border-radius: 50%;
+  /* We want the border color of the unread badge to always 
+  match the panel background color */
+  border: 1px solid var(--panel-background-secondary-default);
 }
