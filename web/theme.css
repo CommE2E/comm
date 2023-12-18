@@ -318,6 +318,11 @@
   /* Tooltip */
   --tooltip-background-primary-default: var(--shades-black-75);
   --tooltip-label-primary-default: var(--shades-white-100);
+
+  /* Unread Indicator */
+  --unreadIndicator-background-primary-default: var(--error-primary);
+  --unreadIndicator-label-primary-default: var(--shades-white-100);
+  --unreadIndicator-border-primary-default: var(--shades-black-85);
 }
 
 /* Light theme */
@@ -390,4 +395,9 @@
   /* @GINSU: TODO double check these values after redesign is finished */
   --tooltip-background-primary-default: var(--shades-white-80);
   --tooltip-label-primary-default: var(--shades-black-85);
+
+  /* Unread Indicator */
+  --unreadIndicator-background-primary-default: var(--error-primary);
+  --unreadIndicator-label-primary-default: var(--shades-white-100);
+  --unreadIndicator-border-primary-default: var(--shades-white-80);
 }
