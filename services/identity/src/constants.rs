@@ -108,6 +108,7 @@ pub const NOTIF_ONE_TIME_KEY: &str = "notifOneTimeKey";
 
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
 pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50054";
+pub const IDENTITY_SERVICE_WEBSOCKET_ADDR: &str = "[::]:51004";
 
 // Token
 
@@ -130,6 +131,11 @@ pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 // OPAQUE Server Setup
 
 pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";
+
+// Opensearch Domain
+
+pub const OPENSEARCH_ENDPOINT: &str = "OPENSEARCH_ENDPOINT";
+pub const DEFAULT_OPENSEARCH_ENDPOINT: &str = "http://localhost:9200";
 
 // Tunnelbroker
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
