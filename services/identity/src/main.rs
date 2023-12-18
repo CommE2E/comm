@@ -22,6 +22,7 @@ mod reserved_users;
 mod siwe;
 mod token;
 mod tunnelbroker;
+mod websockets;
 
 use constants::IDENTITY_SERVICE_SOCKET_ADDR;
 use cors::cors_layer;
@@ -70,14 +71,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
 
       info!("Listening to gRPC traffic on {}", addr);
-      Server::builder()
+
+      let grpc_server = Server::builder()
         .accept_http1(true)
         .layer(cors_layer())
         .layer(GrpcWebLayer::new())
         .add_service(client_service)
         .add_service(auth_service)
-        .serve(addr)
-        .await?;
+        .serve(addr);
+
+      let websocket_server = websockets::run_server();
+
+      return tokio::select! {
+        Ok(_) = websocket_server => { Ok(()) },
+        Ok(_) = grpc_server => { Ok(()) },
+        else => {
+          tracing::error!("grpc or websocket server crashed");
+          unimplemented!();
+        }
+      };
     }
   }
 

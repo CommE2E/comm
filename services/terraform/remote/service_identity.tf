@@ -8,6 +8,11 @@ locals {
   identity_sc_port_name                = "identity-service-ecs-grpc"
   identity_sc_dns_name                 = "identity-service"
 
+  # Port that Websocket server listens on
+  identity_service_container_ws_port = 50057
+  identity_sc_ws_port_name           = "identity-service-ecs-ws"
+  identity_sc_ws_dns_name            = "identity-service-search"
+
   # URL accessible by other services in the same Service Connect namespace
   # This renders to e.g. 'http://identity-service:50054'
   identity_local_url = "http://${local.identity_sc_dns_name}:${local.identity_service_container_grpc_port}"
@@ -36,6 +41,12 @@ resource "aws_ecs_task_definition" "identity_service" {
           containerPort = local.identity_service_container_grpc_port
           protocol      = "tcp"
           appProtocol   = "grpc"
+        },
+        {
+          name          = local.identity_sc_ws_port_name
+          containerPort = local.identity_service_container_ws_port
+          protocol      = "tcp"
+          appProtocol   = "http"
         }
       ]
       environment = [
@@ -50,6 +61,10 @@ resource "aws_ecs_task_definition" "identity_service" {
         {
           name  = "TUNNELBROKER_GRPC_ENDPOINT"
           value = local.tunnelbroker_local_grpc_url
+        },
+        {
+          name  = "OPENSEARCH_ENDPOINT"
+          value = "${module.shared.opensearch_domain_identity.endpoint}"
         }
       ]
       secrets = [
@@ -109,6 +124,12 @@ resource "aws_ecs_service" "identity_service" {
   }
 
   load_balancer {
+    target_group_arn = aws_lb_target_group.identity_service_ws.arn
+    container_name   = local.identity_service_container_name
+    container_port   = local.identity_service_container_ws_port
+  }
+
+  load_balancer {
     target_group_arn = aws_lb_target_group.identity_service_grpc.arn
     container_name   = local.identity_service_container_name
     container_port   = local.identity_service_container_grpc_port
@@ -134,6 +155,14 @@ resource "aws_security_group" "identity_service" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "gRPC port"
+  }
+
+  ingress {
+    from_port   = local.identity_service_container_ws_port
+    to_port     = local.identity_service_container_ws_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Websocket port"
   }
 
   # Allow all outbound traffic
@@ -172,6 +201,26 @@ resource "aws_lb_target_group" "identity_service_grpc" {
   }
 }
 
+resource "aws_lb_target_group" "identity_service_ws" {
+  name             = "identity-service-ecs-ws-tg"
+  port             = local.identity_service_container_ws_port
+  protocol         = "HTTP"
+  protocol_version = "HTTP1"
+  vpc_id           = aws_vpc.default.id
+  target_type      = "instance"
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+
+    protocol = "HTTP"
+    path     = "/health"
+    matcher  = "200"
+
+  }
+}
+
 # Load Balancer
 resource "aws_lb" "identity_service" {
   load_balancer_type = "application"
@@ -182,6 +231,24 @@ resource "aws_lb" "identity_service" {
     aws_subnet.public_b.id,
     aws_subnet.public_c.id,
   ]
+}
+
+resource "aws_lb_listener" "identity_service_ws" {
+  load_balancer_arn = aws_lb.identity_service.arn
+  port              = local.identity_service_container_ws_port
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.identity_service.arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.identity_service_ws.arn
+  }
+
+  lifecycle {
+    ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
+    replace_triggered_by = [aws_lb_target_group.identity_service_ws]
+  }
 }
 
 resource "aws_lb_listener" "identity_service_grpc" {
