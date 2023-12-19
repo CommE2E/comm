@@ -1,5 +1,5 @@
 steps:
-  - label: ':nix: Blob Unittests'
+  - label: 'Blob Unittests'
     command:
       - 'apt update && apt install -y autoconf libtool build-essential cmake git'
       - './scripts/install_protobuf.sh'
