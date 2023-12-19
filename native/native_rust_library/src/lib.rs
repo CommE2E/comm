@@ -1,9 +1,7 @@
 use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use ffi::{
-  bool_callback, send_auth_metadata_to_js, string_callback, void_callback,
-};
+use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::authenticated::{
   OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest,
@@ -40,9 +38,9 @@ mod generated {
 pub use generated::CODE_VERSION;
 pub use generated::IDENTITY_SOCKET_ADDR;
 
-#[cfg(not(feature = "android"))]
+#[cfg(not(target_os = "android"))]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
-#[cfg(feature = "android")]
+#[cfg(target_os = "android")]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Android;
 
 lazy_static! {
@@ -906,8 +904,7 @@ pub enum Error {
 
 #[cfg(test)]
 mod tests {
-  use super::CODE_VERSION;
-  use super::IDENTITY_SOCKET_ADDR;
+  use super::{CODE_VERSION, IDENTITY_SOCKET_ADDR};
 
   #[test]
   fn test_code_version_exists() {
