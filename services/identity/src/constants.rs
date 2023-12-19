@@ -122,6 +122,10 @@ pub mod devices_table {
   // device-list-specific attrs
   pub const ATTR_TIMESTAMP: &str = "timestamp";
   pub const ATTR_DEVICE_IDS: &str = "deviceIDs";
+
+  // migration-specific attrs
+  pub const ATTR_CODE_VERSION: &str = "codeVersion";
+  pub const ATTR_LOGIN_TIME: &str = "loginTime";
 }
 
 // One time keys table, which need to exist in their own table to ensure

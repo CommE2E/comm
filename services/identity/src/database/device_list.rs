@@ -56,6 +56,11 @@ pub struct DeviceRow {
   pub device_key_info: IdentityKeyInfo,
   pub content_prekey: PreKey,
   pub notif_prekey: PreKey,
+
+  // migration-related data
+  pub code_version: u64,
+  /// Timestamp of last login (access token generation)
+  pub login_time: DateTime<Utc>,
 }
 
 #[derive(Clone, Debug)]
@@ -83,6 +88,8 @@ impl DeviceRow {
     user_id: impl Into<String>,
     upload: FlattenedDeviceKeyUpload,
     social_proof: Option<String>,
+    code_version: u64,
+    login_time: DateTime<Utc>,
   ) -> Self {
     Self {
       user_id: user_id.into(),
@@ -101,7 +108,9 @@ impl DeviceRow {
       notif_prekey: PreKey {
         pre_key: upload.notif_prekey,
         pre_key_signature: upload.notif_prekey_signature,
-      }
+      },
+      code_version,
+      login_time,
     }
   }
 }
@@ -222,6 +231,17 @@ impl TryFrom<RawAttributes> for DeviceRow {
       .cloned()
       .and_then(PreKey::try_from)?;
 
+    let code_version = attrs
+      .remove(ATTR_CODE_VERSION)
+      .and_then(|attr| attr.as_n().ok().cloned())
+      .and_then(|val| val.parse::<u64>().ok())
+      .unwrap_or_default();
+
+    let login_time = parse_date_time_attribute(
+      ATTR_LOGIN_TIME,
+      attrs.remove(ATTR_LOGIN_TIME),
+    )?;
+
     Ok(Self {
       user_id,
       device_id,
@@ -229,6 +249,8 @@ impl TryFrom<RawAttributes> for DeviceRow {
       device_key_info,
       content_prekey,
       notif_prekey,
+      code_version,
+      login_time,
     })
   }
 }
@@ -251,6 +273,15 @@ impl From<DeviceRow> for RawAttributes {
       ),
       (ATTR_CONTENT_PREKEY.to_string(), value.content_prekey.into()),
       (ATTR_NOTIF_PREKEY.to_string(), value.notif_prekey.into()),
+      // migration attributes
+      (
+        ATTR_CODE_VERSION.to_string(),
+        AttributeValue::N(value.code_version.to_string()),
+      ),
+      (
+        ATTR_LOGIN_TIME.to_string(),
+        AttributeValue::S(value.login_time.to_rfc3339()),
+      ),
     ])
   }
 }
@@ -648,6 +679,8 @@ impl DatabaseClient {
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
     social_proof: Option<String>,
+    code_version: u64,
+    login_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     let user_id: String = user_id.into();
     self
@@ -656,6 +689,8 @@ impl DatabaseClient {
           &user_id,
           device_key_upload,
           social_proof,
+          code_version,
+          login_time,
         );
 
         if device_ids.iter().any(|id| &new_device.device_id == id) {
