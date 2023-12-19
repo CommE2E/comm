@@ -1026,3 +1026,176 @@ fn query_rows_with_prefix(
     )
     .consistent_read(true)
 }
+
+// Helper module for "migration" code into new device list schema.
+// We can get rid of this when primary device takes over the responsibility
+// of managing the device list.
+mod migration {
+  use std::cmp::Ordering;
+
+  use super::*;
+
+  /// Returns reference to primary device (if any) from given list of devices
+  /// or None if there's no valid primary device.
+  fn determine_primary_device(devices: &[DeviceRow]) -> Option<&DeviceRow> {
+    // 1. Find mobile devices with valid token (in fact all devices provided here)
+    // 2. Prioritize these with latest code version
+    // 3. If there's a tie, select the one with latest login time
+
+    let mut mobile_devices = devices
+      .iter()
+      .filter(|device| {
+        device.device_type == DeviceType::Ios
+          || device.device_type == DeviceType::Android
+      })
+      .collect::<Vec<_>>();
+
+    mobile_devices.sort_by(|a, b| {
+      let code_version_cmp = b.code_version.cmp(&a.code_version);
+      if code_version_cmp == Ordering::Equal {
+        b.login_time.cmp(&a.login_time)
+      } else {
+        code_version_cmp
+      }
+    });
+    mobile_devices.first().cloned()
+  }
+
+  mod tests {
+    use chrono::Duration;
+
+    use super::*;
+
+    // Implement the following unit tests:
+    // - User with only one mobile device - returns that device
+    // User with web and mobile device - returns mobile
+    // User with multiple mobile devices - returns latest code version
+    // User with multiple mobile devices and same code version - returns more recent login date
+    // User with multiple mobile devices and web - returns mobile same as above
+    // User with no devices - returns None
+    // User with web-only - returns None
+
+    #[test]
+    fn determine_primary_device_returns_none_for_empty_list() {
+      let devices = vec![];
+      assert!(determine_primary_device(&devices).is_none());
+    }
+
+    #[test]
+    fn determine_primary_device_returns_none_for_web_only() {
+      let devices =
+        vec![create_test_device("web", DeviceType::Web, 0, Utc::now())];
+
+      assert!(
+        determine_primary_device(&devices).is_none(),
+        "Primary device should be None for web-only devices"
+      );
+    }
+
+    #[test]
+    fn determine_primary_device_prioritizes_mobile() {
+      let devices = vec![
+        create_test_device("mobile", DeviceType::Android, 0, Utc::now()),
+        create_test_device("web", DeviceType::Web, 0, Utc::now()),
+      ];
+
+      let primary_device = determine_primary_device(&devices)
+        .expect("Primary device should be present");
+      assert_eq!(
+        primary_device.device_id, "mobile",
+        "Primary device should be mobile"
+      );
+    }
+
+    #[test]
+    fn determine_primary_device_prioritizes_latest_code_version() {
+      let devices_with_latest_code_version = vec![
+        create_test_device("mobile1", DeviceType::Android, 1, Utc::now()),
+        create_test_device("mobile2", DeviceType::Android, 2, Utc::now()),
+        create_test_device("web", DeviceType::Web, 0, Utc::now()),
+      ];
+
+      let primary_device =
+        determine_primary_device(&devices_with_latest_code_version)
+          .expect("Primary device should be present");
+
+      assert_eq!(
+        primary_device.device_id, "mobile2",
+        "Primary device should be mobile with latest code version"
+      );
+    }
+
+    #[test]
+    fn determine_primary_device_prioritizes_latest_login_time() {
+      let devices = vec![
+        create_test_device("mobile1_today", DeviceType::Ios, 1, Utc::now()),
+        create_test_device(
+          "mobile2_yesterday",
+          DeviceType::Android,
+          1,
+          Utc::now() - Duration::days(1),
+        ),
+        create_test_device("web", DeviceType::Web, 0, Utc::now()),
+      ];
+
+      let primary_device = determine_primary_device(&devices)
+        .expect("Primary device should be present");
+
+      assert_eq!(
+        primary_device.device_id, "mobile1_today",
+        "Primary device should be mobile with latest login time"
+      );
+    }
+
+    #[test]
+    fn determine_primary_device_all_rules_togehter() {
+      use DeviceType::{Android, Ios, Web};
+      let today = Utc::now();
+      let yesterday = today - Duration::days(1);
+
+      let devices = vec![
+        create_test_device("mobile1_today", Android, 1, today),
+        create_test_device("mobile2_today", Android, 2, today),
+        create_test_device("mobile3_yesterday", Ios, 1, yesterday),
+        create_test_device("mobile4_yesterday", Ios, 2, yesterday),
+        create_test_device("web", Web, 5, today),
+      ];
+
+      let primary_device = determine_primary_device(&devices)
+        .expect("Primary device should be present");
+
+      assert_eq!(
+        primary_device.device_id, "mobile2_today",
+        "Primary device should be mobile with latest code version and login time"
+    );
+    }
+
+    fn create_test_device(
+      id: &str,
+      platform: DeviceType,
+      code_version: u64,
+      login_time: DateTime<Utc>,
+    ) -> DeviceRow {
+      DeviceRow {
+        user_id: "test".into(),
+        device_id: id.into(),
+        device_type: platform,
+        device_key_info: IdentityKeyInfo {
+          key_payload: "".into(),
+          key_payload_signature: "".into(),
+          social_proof: None,
+        },
+        content_prekey: PreKey {
+          pre_key: "".into(),
+          pre_key_signature: "".into(),
+        },
+        notif_prekey: PreKey {
+          pre_key: "".into(),
+          pre_key_signature: "".into(),
+        },
+        code_version,
+        login_time,
+      }
+    }
+  }
+}
