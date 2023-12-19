@@ -91,8 +91,13 @@ async function processDBStoreOperations(
     console.log(e);
     if (canUseDatabase) {
       window.alert(e.message);
-      await databaseModule.init({ clearDatabase: true });
-      location.reload();
+      if (
+        reportStoreOperations.length > 0 ||
+        threadStoreOperations.length > 0
+      ) {
+        await databaseModule.init({ clearDatabase: true });
+        location.reload();
+      }
     }
   }
 }
