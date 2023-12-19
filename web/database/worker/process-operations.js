@@ -16,11 +16,22 @@ import {
   clientDBThreadInfoToWebThread,
   webThreadToClientDBThreadInfo,
 } from '../types/entities.js';
+import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
+function getProcessingStoreOpsExceptionMessage(
+  e: mixed,
+  module: EmscriptenModule,
+): string {
+  if (typeof e === 'number') {
+    return module.getExceptionMessage(e);
+  }
+  return getMessageForException(e) ?? 'unknown error';
+}
 function processDraftStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
+  module: EmscriptenModule,
 ) {
   for (const operation: DraftStoreOperation of operations) {
     try {
@@ -37,9 +48,9 @@ function processDraftStoreOperations(
       }
     } catch (e) {
       throw new Error(
-        `Error while processing draft operation: ${operation.type}: ${
-          getMessageForException(e) ?? 'unknown error'
-        }`,
+        `Error while processing ${
+          operation.type
+        } draft operation: ${getProcessingStoreOpsExceptionMessage(e, module)}`,
       );
     }
   }
@@ -48,6 +59,7 @@ function processDraftStoreOperations(
 function processReportStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
+  module: EmscriptenModule,
 ) {
   for (const operation: ClientDBReportStoreOperation of operations) {
     try {
@@ -64,9 +76,12 @@ function processReportStoreOperations(
       }
     } catch (e) {
       throw new Error(
-        `Error while processing report operation: ${operation.type}: ${
-          getMessageForException(e) ?? 'unknown error'
-        }`,
+        `Error while processing ${
+          operation.type
+        } report operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
       );
     }
   }
@@ -75,6 +90,7 @@ function processReportStoreOperations(
 function processThreadStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
+  module: EmscriptenModule,
 ) {
   for (const operation: ClientDBThreadStoreOperation of operations) {
     try {
@@ -92,9 +108,12 @@ function processThreadStoreOperations(
       }
     } catch (e) {
       throw new Error(
-        `Error while processing thread operation: ${operation.type}: ${
-          getMessageForException(e) ?? 'unknown error'
-        }`,
+        `Error while processing ${
+          operation.type
+        } thread operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
       );
     }
   }
@@ -103,6 +122,7 @@ function processThreadStoreOperations(
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
+  module: EmscriptenModule,
 ) {
   const { draftStoreOperations, reportStoreOperations, threadStoreOperations } =
     storeOperations;
@@ -110,13 +130,25 @@ function processDBStoreOperations(
   try {
     sqliteQueryExecutor.beginTransaction();
     if (draftStoreOperations && draftStoreOperations.length > 0) {
-      processDraftStoreOperations(sqliteQueryExecutor, draftStoreOperations);
+      processDraftStoreOperations(
+        sqliteQueryExecutor,
+        draftStoreOperations,
+        module,
+      );
     }
     if (reportStoreOperations && reportStoreOperations.length > 0) {
-      processReportStoreOperations(sqliteQueryExecutor, reportStoreOperations);
+      processReportStoreOperations(
+        sqliteQueryExecutor,
+        reportStoreOperations,
+        module,
+      );
     }
     if (threadStoreOperations && threadStoreOperations.length > 0) {
-      processThreadStoreOperations(sqliteQueryExecutor, threadStoreOperations);
+      processThreadStoreOperations(
+        sqliteQueryExecutor,
+        threadStoreOperations,
+        module,
+      );
     }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {

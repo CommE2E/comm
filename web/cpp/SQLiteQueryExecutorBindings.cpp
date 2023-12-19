@@ -8,7 +8,21 @@ namespace comm {
 
 using namespace emscripten;
 
+std::string getExceptionMessage(int exceptionPtr) {
+  if (exceptionPtr == 0) {
+    return std::string("Exception pointer value was null");
+  }
+
+  std::exception *e = reinterpret_cast<std::exception *>(exceptionPtr);
+  if (e) {
+    return std::string(e->what());
+  }
+  return std::string("Pointer to exception was invalid");
+}
+
 EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
+  function("getExceptionMessage", &getExceptionMessage);
+
   value_object<NullableString>("NullableString")
       .field("value", &NullableString::value)
       .field("isNull", &NullableString::isNull);
