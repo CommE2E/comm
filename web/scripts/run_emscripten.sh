@@ -77,6 +77,11 @@ EMCC_FLAGS=(
   -Oz
   -flto
   --closure 1
+
+  # error handling
+  -s DISABLE_EXCEPTION_CATCHING=0
+  -s EXCEPTION_DEBUG
+  -fexceptions
 )
 
 CFLAGS=(

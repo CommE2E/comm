@@ -193,14 +193,18 @@ async function processAppRequest(
   if (!workerWriteRequests.includes(message.type)) {
     throw new Error('Request type not supported');
   }
-  if (!sqliteQueryExecutor) {
+  if (!sqliteQueryExecutor || !dbModule) {
     throw new Error(
       `Database not initialized, unable to process request type: ${message.type}`,
     );
   }
 
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
-    processDBStoreOperations(sqliteQueryExecutor, message.storeOperations);
+    processDBStoreOperations(
+      sqliteQueryExecutor,
+      message.storeOperations,
+      dbModule,
+    );
   } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
     sqliteQueryExecutor.setMetadata(CURRENT_USER_ID_KEY, message.userID);
   } else if (
