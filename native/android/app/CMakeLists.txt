@@ -61,11 +61,7 @@ FetchContent_MakeAvailable(Corrosion)
 
 include(../../../shared/cmake/corrosion-cxx.cmake)
 
-add_library_rust(
-  PATH ../../native_rust_library
-  FEATURES android
-  NAMESPACE comm
-)
+add_library_rust(PATH ../../native_rust_library NAMESPACE comm)
 
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR
