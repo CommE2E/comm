@@ -680,7 +680,7 @@ impl DatabaseClient {
   ) -> Result<(), Error> {
     let user_id: String = user_id.into();
     self
-      .transact_update_devicelist(&user_id, |ref mut device_ids| {
+      .transact_update_devicelist(&user_id, |device_ids, mut devices_data| {
         let new_device = DeviceRow::from_device_key_upload(
           &user_id,
           device_key_upload,
@@ -698,6 +698,10 @@ impl DatabaseClient {
           return Err(Error::DeviceList(DeviceListError::DeviceAlreadyExists));
         }
         device_ids.push(new_device.device_id.clone());
+
+        // Reorder devices (determine primary device again)
+        devices_data.push(new_device.clone());
+        migration::reorder_device_list(&user_id, device_ids, &devices_data);
 
         // Put new device
         let put_device = Put::builder()
@@ -727,7 +731,7 @@ impl DatabaseClient {
     let user_id: String = user_id.into();
     let device_id = device_id.as_ref();
     self
-      .transact_update_devicelist(&user_id, |ref mut device_ids| {
+      .transact_update_devicelist(&user_id, |device_ids, mut devices_data| {
         let device_exists = device_ids.iter().any(|id| id == device_id);
         if !device_exists {
           warn!(
@@ -739,6 +743,10 @@ impl DatabaseClient {
         }
 
         device_ids.retain(|id| id != device_id);
+
+        // Reorder devices (determine primary device again)
+        devices_data.retain(|d| d.device_id != device_id);
+        migration::reorder_device_list(&user_id, device_ids, &devices_data);
 
         // Delete device DDB operation
         let delete_device = Delete::builder()
@@ -772,10 +780,14 @@ impl DatabaseClient {
     // The closure performing a transactional update of the device list. It receives a mutable
     // reference to the current device list. The closure should return a transactional DDB
     // operation to be performed when updating the device list.
-    action: impl FnOnce(&mut Vec<String>) -> Result<TransactWriteItem, Error>,
+    action: impl FnOnce(
+      &mut Vec<String>,
+      Vec<DeviceRow>,
+    ) -> Result<TransactWriteItem, Error>,
   ) -> Result<(), Error> {
     let previous_timestamp =
       get_current_devicelist_timestamp(self, user_id).await?;
+    let current_devices_data = self.get_current_devices(user_id).await?;
     let mut device_ids = self
       .get_current_device_list(user_id)
       .await?
@@ -783,7 +795,7 @@ impl DatabaseClient {
       .unwrap_or_default();
 
     // Perform the update action, then generate new device list
-    let operation = action(&mut device_ids)?;
+    let operation = action(&mut device_ids, current_devices_data)?;
     let new_device_list = DeviceListRow::new(user_id, device_ids);
 
     // Update timestamp in users table
@@ -993,9 +1005,80 @@ fn query_rows_with_prefix(
 // We can get rid of this when primary device takes over the responsibility
 // of managing the device list.
 mod migration {
-  use std::cmp::Ordering;
+  use std::{cmp::Ordering, collections::HashSet};
+  use tracing::{debug, error, info};
 
   use super::*;
+
+  pub(super) fn reorder_device_list(
+    user_id: &str,
+    list: &mut [String],
+    devices_data: &[DeviceRow],
+  ) {
+    if !validate_device_list_match(list, devices_data) {
+      error!("Found corrupt device list for user (userID={})!", user_id);
+      return;
+    }
+
+    let Some(first_device) = list.first() else {
+      debug!("Skipping device list rotation. Nothing to reorder.");
+      return;
+    };
+    let Some(primary_device) = determine_primary_device(devices_data) else {
+      info!(
+        "No valid primary device found for user (userID={}).\
+        Skipping device list reorder.",
+        user_id
+      );
+      return;
+    };
+
+    if first_device == &primary_device.device_id {
+      debug!("Skipping device list reorder. Primary device is already first");
+      return;
+    }
+
+    // swap primary device with the first one
+    let Some(primary_device_idx) = list
+      .iter()
+      .position(|id| id == &primary_device.device_id) else {
+        error!(
+          "Primary device not found in device list (userID={})",
+          user_id
+        );
+        return;
+      };
+    list.swap(0, primary_device_idx);
+    info!("Reordered device list for user (userID={})", user_id);
+  }
+
+  // checks if device list matches given devices data
+  fn validate_device_list_match(
+    list: &[String],
+    devices_data: &[DeviceRow],
+  ) -> bool {
+    if list.len() != devices_data.len() {
+      error!("Device list length mismatch!");
+      return false;
+    }
+
+    let actual_device_ids = devices_data
+      .iter()
+      .map(|device| &device.device_id)
+      .collect::<HashSet<_>>();
+
+    for device_id in list {
+      if !actual_device_ids.contains(device_id) {
+        error!(
+          "Device list contains unknown device (deviceID={})",
+          device_id
+        );
+        return false;
+      }
+    }
+
+    true
+  }
 
   /// Returns reference to primary device (if any) from given list of devices
   /// or None if there's no valid primary device.
@@ -1026,6 +1109,47 @@ mod migration {
   mod tests {
     use super::*;
     use chrono::Duration;
+
+    #[test]
+    fn reorder_skips_no_devices() {
+      let mut list = vec![];
+      reorder_device_list("", &mut list, &[]);
+      assert_eq!(list, Vec::<String>::new());
+    }
+
+    #[test]
+    fn reorder_skips_single_device() {
+      let mut list = vec!["test".into()];
+      let devices_data =
+        vec![create_test_device("test", DeviceType::Web, 0, Utc::now())];
+
+      reorder_device_list("", &mut list, &devices_data);
+      assert_eq!(list, vec!["test"]);
+    }
+
+    #[test]
+    fn reorder_skips_for_valid_list() {
+      let mut list = vec!["mobile".into(), "web".into()];
+      let devices_data = vec![
+        create_test_device("mobile", DeviceType::Android, 1, Utc::now()),
+        create_test_device("web", DeviceType::Web, 0, Utc::now()),
+      ];
+
+      reorder_device_list("", &mut list, &devices_data);
+      assert_eq!(list, vec!["mobile", "web"]);
+    }
+
+    #[test]
+    fn reorder_swaps_primary_device_when_possible() {
+      let mut list = vec!["web".into(), "mobile".into()];
+      let devices_data = vec![
+        create_test_device("web", DeviceType::Web, 0, Utc::now()),
+        create_test_device("mobile", DeviceType::Android, 1, Utc::now()),
+      ];
+
+      reorder_device_list("", &mut list, &devices_data);
+      assert_eq!(list, vec!["mobile", "web"]);
+    }
 
     #[test]
     fn determine_primary_device_returns_none_for_empty_list() {
