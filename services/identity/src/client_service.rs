@@ -8,10 +8,11 @@ use moka::future::Cache;
 use rand::rngs::OsRng;
 use siwe::eip55;
 use tonic::Response;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 
 // Workspace crate imports
 use crate::config::CONFIG;
+use crate::constants::request_metadata;
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
 };
@@ -26,6 +27,7 @@ use crate::grpc_services::protos::unauth::{
   VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
   WalletLoginRequest, WalletLoginResponse,
 };
+use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::DeviceKeyUploadActions;
 use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
@@ -198,6 +200,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<RegistrationFinishRequest>,
   ) -> Result<tonic::Response<RegistrationFinishResponse>, tonic::Status> {
+    let code_version = get_code_version(&request);
     let message = request.into_inner();
 
     if let Some(WorkflowInProgress::Registration(state)) =
@@ -213,7 +216,12 @@ impl IdentityClientService for ClientService {
       let device_id = state.flattened_device_key_upload.device_id_key.clone();
       let user_id = self
         .client
-        .add_password_user_to_users_table(*state, password_file)
+        .add_password_user_to_users_table(
+          *state,
+          password_file,
+          code_version,
+          chrono::Utc::now(),
+        )
         .await
         .map_err(handle_db_error)?;
 
@@ -309,6 +317,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<OpaqueLoginFinishRequest>,
   ) -> Result<tonic::Response<OpaqueLoginFinishResponse>, tonic::Status> {
+    let code_version = get_code_version(&request);
     let message = request.into_inner();
 
     if let Some(WorkflowInProgress::Login(state)) =
@@ -326,6 +335,8 @@ impl IdentityClientService for ClientService {
         .add_password_user_device_to_users_table(
           state.user_id.clone(),
           state.flattened_device_key_upload.clone(),
+          code_version,
+          chrono::Utc::now(),
         )
         .await
         .map_err(handle_db_error)?;
@@ -360,6 +371,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<WalletLoginRequest>,
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
+    let code_version = get_code_version(&request);
     let message = request.into_inner();
 
     let parsed_message = parse_and_verify_siwe_message(
@@ -404,6 +416,8 @@ impl IdentityClientService for ClientService {
             id.clone(),
             flattened_device_key_upload.clone(),
             social_proof,
+            code_version,
+            chrono::Utc::now(),
           )
           .await
           .map_err(handle_db_error)?;
@@ -436,6 +450,8 @@ impl IdentityClientService for ClientService {
             wallet_address,
             social_proof,
             None,
+            code_version,
+            chrono::Utc::now(),
           )
           .await
           .map_err(handle_db_error)?
@@ -469,6 +485,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<ReservedWalletLoginRequest>,
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
+    let code_version = get_code_version(&request);
     let message = request.into_inner();
 
     let parsed_message = parse_and_verify_siwe_message(
@@ -525,6 +542,8 @@ impl IdentityClientService for ClientService {
         wallet_address,
         social_proof,
         Some(user_id.clone()),
+        code_version,
+        chrono::Utc::now(),
       )
       .await
       .map_err(handle_db_error)?;
@@ -767,4 +786,16 @@ fn construct_flattened_device_key_upload(
   };
 
   Ok(flattened_device_key_upload)
+}
+
+fn get_code_version<T: std::fmt::Debug>(req: &tonic::Request<T>) -> u64 {
+  get_value(req, request_metadata::CODE_VERSION)
+    .and_then(|version| version.parse().ok())
+    .unwrap_or_else(|| {
+      warn!(
+        "Could not retrieve code version from request: {:?}. Defaulting to 0",
+        req
+      );
+      Default::default()
+    })
 }
