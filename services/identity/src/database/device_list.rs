@@ -640,6 +640,40 @@ impl DatabaseClient {
     Ok(item.is_some())
   }
 
+  /// Required only for migration purposes (determining primary device)
+  pub async fn update_device_login_time(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+    login_time: DateTime<Utc>,
+  ) -> Result<(), Error> {
+    self
+      .client
+      .update_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id.into()))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id.into()).into())
+      .condition_expression(
+        "attribute_exists(#user_id) AND attribute_exists(#item_id)",
+      )
+      .update_expression("SET #login_time = :login_time")
+      .expression_attribute_names("#user_id", ATTR_USER_ID)
+      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+      .expression_attribute_names("#login_time", ATTR_LOGIN_TIME)
+      .expression_attribute_values(
+        ":login_time",
+        AttributeValue::S(login_time.to_rfc3339()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to update device login time: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
   pub async fn get_current_device_list(
     &self,
     user_id: impl Into<String>,
