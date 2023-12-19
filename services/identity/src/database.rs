@@ -148,6 +148,8 @@ impl DatabaseClient {
     &self,
     registration_state: UserRegistrationInfo,
     password_file: Vec<u8>,
+    code_version: u64,
+    access_token_creation_time: DateTime<Utc>,
   ) -> Result<String, Error> {
     let device_key_upload = registration_state.flattened_device_key_upload;
     let user_id = self
@@ -160,7 +162,15 @@ impl DatabaseClient {
       )
       .await?;
 
-    self.add_device(&user_id, device_key_upload, None).await?;
+    self
+      .add_device(
+        &user_id,
+        device_key_upload,
+        None,
+        code_version,
+        access_token_creation_time,
+      )
+      .await?;
 
     Ok(user_id)
   }
@@ -171,6 +181,8 @@ impl DatabaseClient {
     wallet_address: String,
     social_proof: String,
     user_id: Option<String>,
+    code_version: u64,
+    access_token_creation_time: DateTime<Utc>,
   ) -> Result<String, Error> {
     let social_proof = Some(social_proof);
     let user_id = self
@@ -184,7 +196,13 @@ impl DatabaseClient {
       .await?;
 
     self
-      .add_device(&user_id, flattened_device_key_upload, social_proof)
+      .add_device(
+        &user_id,
+        flattened_device_key_upload,
+        social_proof,
+        code_version,
+        access_token_creation_time,
+      )
       .await?;
 
     Ok(user_id)
@@ -261,6 +279,8 @@ impl DatabaseClient {
     &self,
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
+    code_version: u64,
+    access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     // add device to the legacy device list
     self
@@ -284,7 +304,13 @@ impl DatabaseClient {
     }
 
     self
-      .add_device(user_id, flattened_device_key_upload, None)
+      .add_device(
+        user_id,
+        flattened_device_key_upload,
+        None,
+        code_version,
+        access_token_creation_time,
+      )
       .await
   }
 
@@ -293,6 +319,8 @@ impl DatabaseClient {
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     social_proof: String,
+    code_version: u64,
+    access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     // add device to the legacy device list
     self
@@ -317,7 +345,13 @@ impl DatabaseClient {
 
     // add device to the new device list
     self
-      .add_device(user_id, flattened_device_key_upload, Some(social_proof))
+      .add_device(
+        user_id,
+        flattened_device_key_upload,
+        Some(social_proof),
+        code_version,
+        access_token_creation_time,
+      )
       .await
   }
 
