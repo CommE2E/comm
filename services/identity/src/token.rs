@@ -39,6 +39,23 @@ impl AccessTokenData {
     }
   }
 
+  pub fn with_created_time(
+    user_id: String,
+    signing_public_key: String,
+    creation_time: DateTime<Utc>,
+    auth_type: AuthType,
+    rng: &mut (impl Rng + CryptoRng),
+  ) -> Self {
+    AccessTokenData {
+      user_id,
+      signing_public_key,
+      access_token: Alphanumeric.sample_string(rng, ACCESS_TOKEN_LENGTH),
+      created: creation_time,
+      auth_type,
+      valid: true,
+    }
+  }
+
   pub fn is_valid(&self) -> bool {
     self.valid
   }
