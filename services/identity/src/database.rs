@@ -284,14 +284,19 @@ impl DatabaseClient {
       .await?;
 
     // add device to the new device list if not exists
+    let device_id = flattened_device_key_upload.device_id_key.clone();
     let device_exists = self
-      .device_exists(
-        user_id.clone(),
-        flattened_device_key_upload.device_id_key.clone(),
-      )
+      .device_exists(user_id.clone(), device_id.clone())
       .await?;
 
     if device_exists {
+      self
+        .update_device_login_time(
+          user_id.clone(),
+          device_id,
+          access_token_creation_time,
+        )
+        .await?;
       return Ok(());
     }
 
@@ -324,14 +329,19 @@ impl DatabaseClient {
       .await?;
 
     // add device to the new device list if not exists
+    let device_id = flattened_device_key_upload.device_id_key.clone();
     let device_exists = self
-      .device_exists(
-        user_id.clone(),
-        flattened_device_key_upload.device_id_key.clone(),
-      )
+      .device_exists(user_id.clone(), device_id.clone())
       .await?;
 
     if device_exists {
+      self
+        .update_device_login_time(
+          user_id.clone(),
+          device_id,
+          access_token_creation_time,
+        )
+        .await?;
       return Ok(());
     }
 
