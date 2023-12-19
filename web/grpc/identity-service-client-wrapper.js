@@ -1,10 +1,14 @@
 // @flow
 
 import identityServiceConfig from 'lib/facts/identity-service.js';
-import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.js';
+import type {
+  IdentityServiceAuthLayer,
+  OutboundKeyInfo,
+} from 'lib/types/identity-service-types.js';
 
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
+import * as IdentityAuthStructs from '../protobufs/identity-auth-structs.cjs';
 import * as IdentityClient from '../protobufs/identity-client.cjs';
 import { Empty } from '../protobufs/identity-structs.cjs';
 
@@ -80,6 +84,56 @@ class IdentityServiceClientWrapper {
     } else {
       throw new Error('Identity service client is not initialized');
     }
+  }
+
+  async getKeyserverKeys(
+    userAuth: IdentityServiceAuthLayer,
+    keyserverID: string,
+  ): Promise<?OutboundKeyInfo> {
+    if (!this.authClient) {
+      await this.initAuthClient(userAuth);
+    }
+
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const request = new IdentityAuthStructs.OutboundKeysForUserRequest();
+    request.setUserid(keyserverID);
+    const response = await client.getKeyserverKeys(request);
+    const keyserverInfo = response.getKeyserverinfo();
+    if (!response.hasKeyserverinfo() || !keyserverInfo) {
+      return null;
+    }
+
+    const identityInfo = keyserverInfo.getIdentityinfo();
+    const contentPreKey = keyserverInfo.getContentprekey();
+    const notifPreKey = keyserverInfo.getNotifprekey();
+
+    return {
+      identityInfo: identityInfo
+        ? {
+            payload: identityInfo.getPayload(),
+            payloadSignature: identityInfo.getPayloadsignature(),
+            socialProof: identityInfo.getSocialproof(),
+          }
+        : null,
+      contentPreKey: contentPreKey
+        ? {
+            preKey: contentPreKey.getPrekey(),
+            preKeySignature: contentPreKey.getPrekeysignature(),
+          }
+        : null,
+      notifPreKey: notifPreKey
+        ? {
+            preKey: notifPreKey.getPrekey(),
+            preKeySignature: notifPreKey.getPrekeysignature(),
+          }
+        : null,
+      oneTimeContentPreKey: keyserverInfo.getOnetimecontentprekey(),
+      oneTimeNotifPreKey: keyserverInfo.getOnetimenotifprekey(),
+    };
   }
 }
 
