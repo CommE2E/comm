@@ -67,4 +67,5 @@ declare export class EmscriptenModule {
   FS: FS;
 
   SQLiteQueryExecutor: SQLiteQueryExecutorType;
+  getExceptionMessage(exceptionPtr: number): string;
 }
