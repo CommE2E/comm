@@ -238,6 +238,13 @@ async function preparePushNotif(input: {
   const updateBadge = threadInfo.currentUser.subscription.home;
   const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
   const username = userInfos[userID] && userInfos[userID].username;
+
+  let resolvedUsername;
+  if (getENSNames) {
+    const userInfosWithENSNames = await getENSNames([userInfos[userID]]);
+    resolvedUsername = userInfosWithENSNames[0].username;
+  }
+
   const userWasMentioned =
     username &&
     threadInfo.currentUser.role &&
@@ -249,7 +256,9 @@ async function preparePushNotif(input: {
           : newMessageInfo;
       return (
         unwrappedMessageInfo.type === messageTypes.TEXT &&
-        isUserMentioned(username, unwrappedMessageInfo.text)
+        (isUserMentioned(username, unwrappedMessageInfo.text) ||
+          (resolvedUsername &&
+            isUserMentioned(resolvedUsername, unwrappedMessageInfo.text)))
       );
     });
   if (!updateBadge && !displayBanner && !userWasMentioned) {
