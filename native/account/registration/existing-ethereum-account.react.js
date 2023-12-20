@@ -31,20 +31,19 @@ type Props = {
   +route: NavigationRoute<'ExistingEthereumAccount'>,
 };
 function ExistingEthereumAccount(props: Props): React.Node {
-  const siweServerCallParams = React.useMemo(() => {
-    const onServerCallFailure = () => {
-      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-        cancelable: false,
-      });
-    };
-    return { onFailure: onServerCallFailure };
-  }, []);
-  const siweServerCall = useSIWEServerCall(siweServerCallParams);
+  const siweServerCall = useSIWEServerCall();
 
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
-    await siweServerCall({ ...params, doNotRegister: true });
+    try {
+      await siweServerCall({ ...params, doNotRegister: true });
+    } catch (e) {
+      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+        cancelable: false,
+      });
+      throw e;
+    }
     dispatch({
       type: setDataLoadedActionType,
       payload: {
