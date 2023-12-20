@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
@@ -19,6 +20,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
 import {
@@ -52,6 +54,10 @@ type Props = {
 function ConnectEthereum(props: Props): React.Node {
   const { params } = props.route;
   const { userSelections } = props.route.params;
+
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { cachedSelections } = registrationContext;
 
   const isNerdMode = userSelections.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
@@ -192,13 +198,48 @@ function ConnectEthereum(props: Props): React.Node {
     );
   }
 
+  const { ethereumAccount } = cachedSelections;
+  const alreadyHasConnected = !!ethereumAccount;
+
   const exactSearchUserCallLoading = useSelector(
     state => exactSearchUserLoadingStatusSelector(state) === 'loading',
   );
+  const defaultConnectButtonVariant = alreadyHasConnected
+    ? 'outline'
+    : 'enabled';
   const connectButtonVariant =
     exactSearchUserCallLoading || panelState === 'opening'
       ? 'loading'
-      : 'enabled';
+      : defaultConnectButtonVariant;
+  const connectButtonText = alreadyHasConnected
+    ? 'Connect new Ethereum wallet'
+    : 'Connect Ethereum wallet';
+
+  const onUseAlreadyConnectedWallet = React.useCallback(() => {
+    invariant(
+      ethereumAccount,
+      'ethereumAccount should be set in onUseAlreadyConnectedWallet',
+    );
+    const newUserSelections = {
+      ...userSelections,
+      accountSelection: ethereumAccount,
+    };
+    navigate<'AvatarSelection'>({
+      name: AvatarSelectionRouteName,
+      params: { userSelections: newUserSelections },
+    });
+  }, [ethereumAccount, userSelections, navigate]);
+
+  let alreadyConnectedButton;
+  if (alreadyHasConnected) {
+    alreadyConnectedButton = (
+      <RegistrationButton
+        onPress={onUseAlreadyConnectedWallet}
+        label="Use connected Ethereum wallet"
+        variant="enabled"
+      />
+    );
+  }
 
   return (
     <>
@@ -213,9 +254,10 @@ function ConnectEthereum(props: Props): React.Node {
           </View>
         </RegistrationContentContainer>
         <RegistrationButtonContainer>
+          {alreadyConnectedButton}
           <RegistrationButton
             onPress={openPanel}
-            label="Connect Ethereum wallet"
+            label={connectButtonText}
             variant={connectButtonVariant}
           />
           <RegistrationButton
