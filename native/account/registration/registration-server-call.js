@@ -124,14 +124,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     [logInExtraInfo, callRegister, dispatchActionPromise],
   );
 
-  const siweServerCallParams = React.useMemo(() => {
-    const onServerCallFailure = () => {
-      Alert.alert('Unknown error', 'Uhh... try again?');
-    };
-    return { onFailure: onServerCallFailure };
-  }, []);
-  const siweServerCall = useSIWEServerCall(siweServerCallParams);
-
+  const siweServerCall = useSIWEServerCall();
   const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
@@ -146,9 +139,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (accountSelection.accountType === 'username') {
               await registerUsernameAccount(accountSelection, keyserverURL);
             } else {
-              await siweServerCall(accountSelection, {
-                urlPrefixOverride: keyserverURL,
-              });
+              try {
+                await siweServerCall(accountSelection, {
+                  urlPrefixOverride: keyserverURL,
+                });
+              } catch (e) {
+                Alert.alert('Unknown error', 'Uhh... try again?');
+                throw e;
+              }
             }
             dispatch({
               type: setURLPrefix,

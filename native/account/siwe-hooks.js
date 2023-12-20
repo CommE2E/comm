@@ -25,38 +25,28 @@ type SIWEServerCallParams = {
   +doNotRegister?: boolean,
   ...
 };
-type UseSIWEServerCallParams = {
-  +onFailure: () => mixed,
-};
-function useSIWEServerCall(
-  params: UseSIWEServerCallParams,
-): (SIWEServerCallParams, ?CallServerEndpointOptions) => Promise<void> {
-  const { onFailure } = params;
-
+function useSIWEServerCall(): (
+  SIWEServerCallParams,
+  ?CallServerEndpointOptions,
+) => Promise<void> {
   const siweAuthCall = useServerCall(siweAuth);
 
   const callSIWE = React.useCallback(
-    async (
+    (
       message: string,
       signature: string,
       extraInfo: $ReadOnly<{ ...LogInExtraInfo, +doNotRegister?: boolean }>,
       callServerEndpointOptions: ?CallServerEndpointOptions,
-    ) => {
-      try {
-        return await siweAuthCall(
-          {
-            message,
-            signature,
-            ...extraInfo,
-          },
-          callServerEndpointOptions,
-        );
-      } catch (e) {
-        onFailure();
-        throw e;
-      }
-    },
-    [onFailure, siweAuthCall],
+    ) =>
+      siweAuthCall(
+        {
+          message,
+          signature,
+          ...extraInfo,
+        },
+        callServerEndpointOptions,
+      ),
+    [siweAuthCall],
   );
 
   const navContext = React.useContext(NavContext);

@@ -27,26 +27,24 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [],
   );
 
-  const { goBackToPrompt } = props;
-  const siweServerCallParams = React.useMemo(() => {
-    const onServerCallFailure = () => {
-      Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
-        [{ text: 'OK', onPress: goBackToPrompt }],
-        { cancelable: false },
-      );
-    };
-    return { onFailure: onServerCallFailure };
-  }, [goBackToPrompt]);
-  const siweServerCall = useSIWEServerCall(siweServerCallParams);
-
+  const siweServerCall = useSIWEServerCall();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
+  const { goBackToPrompt } = props;
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
-      await siweServerCall({ ...result, doNotRegister: true });
+      try {
+        await siweServerCall({ ...result, doNotRegister: true });
+      } catch (e) {
+        Alert.alert(
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: goBackToPrompt }],
+          { cancelable: false },
+        );
+        throw e;
+      }
       dispatch({
         type: setDataLoadedActionType,
         payload: {
@@ -54,7 +52,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         },
       });
     },
-    [siweServerCall, dispatch],
+    [siweServerCall, dispatch, goBackToPrompt],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {
