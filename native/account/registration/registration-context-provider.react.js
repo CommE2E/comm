@@ -15,14 +15,27 @@ function RegistrationContextProvider(props: Props): React.Node {
   const [cachedSelections, setCachedSelections] =
     React.useState<CachedUserSelections>(emptyObj);
 
+  const [skipEthereumLoginOnce, baseSetSkipEthereumLoginOnce] =
+    React.useState<?true>();
+  const setSkipEthereumLoginOnce = React.useCallback((skip: boolean) => {
+    baseSetSkipEthereumLoginOnce(skip || undefined);
+  }, []);
+
   const registrationServerCall = useRegistrationServerCall();
   const contextValue = React.useMemo(
     () => ({
       register: registrationServerCall,
       cachedSelections,
       setCachedSelections,
+      skipEthereumLoginOnce,
+      setSkipEthereumLoginOnce,
     }),
-    [registrationServerCall, cachedSelections],
+    [
+      registrationServerCall,
+      cachedSelections,
+      skipEthereumLoginOnce,
+      setSkipEthereumLoginOnce,
+    ],
   );
 
   return (

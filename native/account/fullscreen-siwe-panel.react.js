@@ -1,6 +1,7 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -10,6 +11,7 @@ import { ServerError } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
+import { RegistrationContext } from './registration/registration-context.js';
 import { useSIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import {
@@ -34,6 +36,10 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [],
   );
 
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { setSkipEthereumLoginOnce } = registrationContext;
+
   const getEthereumAccountFromSIWEResult =
     useGetEthereumAccountFromSIWEResult();
   const { navigate } = useNavigation();
@@ -41,12 +47,18 @@ function FullscreenSIWEPanel(props: Props): React.Node {
   const onAccountDoesNotExist = React.useCallback(
     async (result: SIWEResult) => {
       await getEthereumAccountFromSIWEResult(result);
+      setSkipEthereumLoginOnce(true);
       goBackToPrompt();
       navigate<'Registration'>(RegistrationRouteName, {
         screen: AccountDoesNotExistRouteName,
       });
     },
-    [getEthereumAccountFromSIWEResult, navigate, goBackToPrompt],
+    [
+      getEthereumAccountFromSIWEResult,
+      navigate,
+      goBackToPrompt,
+      setSkipEthereumLoginOnce,
+    ],
   );
 
   const siweServerCall = useSIWEServerCall();
