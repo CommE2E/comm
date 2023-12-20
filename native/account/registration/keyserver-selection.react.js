@@ -24,6 +24,7 @@ import CommIcon from '../../components/comm-icon.react.js';
 import {
   type NavigationRoute,
   ConnectEthereumRouteName,
+  AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
@@ -50,7 +51,12 @@ type Props = {
 function KeyserverSelection(props: Props): React.Node {
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { cachedSelections, setCachedSelections } = registrationContext;
+  const {
+    cachedSelections,
+    setCachedSelections,
+    skipEthereumLoginOnce,
+    setSkipEthereumLoginOnce,
+  } = registrationContext;
 
   const initialKeyserverURL = cachedSelections.keyserverURL;
   const [customKeyserver, setCustomKeyserver] = React.useState(
@@ -111,6 +117,7 @@ function KeyserverSelection(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
 
+  const { ethereumAccount } = cachedSelections;
   const onSubmit = React.useCallback(async () => {
     setError(undefined);
 
@@ -125,9 +132,24 @@ function KeyserverSelection(props: Props): React.Node {
       ...oldUserSelections,
       keyserverURL,
     }));
-    navigate<'ConnectEthereum'>({
-      name: ConnectEthereumRouteName,
-      params: { userSelections: { coolOrNerdMode, keyserverURL } },
+
+    const userSelections = { coolOrNerdMode, keyserverURL };
+    if (!skipEthereumLoginOnce || !ethereumAccount) {
+      navigate<'ConnectEthereum'>({
+        name: ConnectEthereumRouteName,
+        params: { userSelections },
+      });
+      return;
+    }
+
+    const userSelectionsWithAccount = {
+      ...userSelections,
+      accountSelection: ethereumAccount,
+    };
+    setSkipEthereumLoginOnce(false);
+    navigate<'AvatarSelection'>({
+      name: AvatarSelectionRouteName,
+      params: { userSelections: userSelectionsWithAccount },
     });
   }, [
     keyserverURL,
@@ -135,6 +157,9 @@ function KeyserverSelection(props: Props): React.Node {
     setCachedSelections,
     navigate,
     coolOrNerdMode,
+    skipEthereumLoginOnce,
+    ethereumAccount,
+    setSkipEthereumLoginOnce,
   ]);
 
   const styles = useStyles(unboundStyles);
