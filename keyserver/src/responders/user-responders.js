@@ -553,7 +553,15 @@ async function siweAuthResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  // 2. Ensure that the `nonce` exists in the `siwe_nonces` table
+  // 2. Check if there's already a user for this ETH address.
+  const existingUserID = await fetchUserIDForEthereumAddress(
+    siweMessage.address,
+  );
+  if (!existingUserID && doNotRegister) {
+    throw new ServerError('account_does_not_exist');
+  }
+
+  // 3. Ensure that the `nonce` exists in the `siwe_nonces` table
   //    AND hasn't expired. If those conditions are met, delete the entry to
   //    ensure that the same `nonce` can't be re-used in a future request.
   const wasNonceCheckedAndInvalidated = await checkAndInvalidateSIWENonceEntry(
@@ -563,7 +571,7 @@ async function siweAuthResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  // 3. Validate SIWEMessage signature and handle possible errors.
+  // 4. Validate SIWEMessage signature and handle possible errors.
   try {
     await siweMessage.validate(signature);
   } catch (error) {
@@ -581,7 +589,7 @@ async function siweAuthResponder(
     }
   }
 
-  // 4. Pull `primaryIdentityPublicKey` out from SIWEMessage `statement`.
+  // 5. Pull `primaryIdentityPublicKey` out from SIWEMessage `statement`.
   //    We expect it to be included for BOTH native and web clients.
   const { statement } = siweMessage;
   const primaryIdentityPublicKey =
@@ -592,7 +600,7 @@ async function siweAuthResponder(
     throw new ServerError('invalid_siwe_statement_public_key');
   }
 
-  // 5. Verify `signedIdentityKeysBlob.payload` with included `signature`
+  // 6. Verify `signedIdentityKeysBlob.payload` with included `signature`
   //    if `signedIdentityKeysBlob` was included in the `SIWEAuthRequest`.
   let identityKeys: ?IdentityKeysBlob;
   if (signedIdentityKeysBlob) {
@@ -613,7 +621,7 @@ async function siweAuthResponder(
     }
   }
 
-  // 6. Ensure that `primaryIdentityPublicKeys.ed25519` matches SIWE
+  // 7. Ensure that `primaryIdentityPublicKeys.ed25519` matches SIWE
   //    statement `primaryIdentityPublicKey` if `identityKeys` exists.
   if (
     identityKeys &&
@@ -622,19 +630,17 @@ async function siweAuthResponder(
     throw new ServerError('primary_public_key_mismatch');
   }
 
-  // 7. Construct `SIWESocialProof` object with the stringified
+  // 8. Construct `SIWESocialProof` object with the stringified
   //    SIWEMessage and the corresponding signature.
   const socialProof: SIWESocialProof = {
     siweMessage: siweMessage.toMessage(),
     siweMessageSignature: signature,
   };
 
-  // 8. Create account with call to `processSIWEAccountCreation(...)`
+  // 9. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
-  let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
-  if (!userID && doNotRegister) {
-    throw new ServerError('account_does_not_exist');
-  } else if (!userID) {
+  let userID = existingUserID;
+  if (!userID) {
     const siweAccountCreationRequest = {
       address: siweMessage.address,
       calendarQuery,
@@ -648,7 +654,7 @@ async function siweAuthResponder(
     );
   }
 
-  // 9. Complete login with call to `processSuccessfulLogin(...)`.
+  // 10. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
     input: request,
