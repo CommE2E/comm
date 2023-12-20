@@ -145,6 +145,7 @@ export const KeyserverSelectionListRouteName = 'KeyserverSelectionList';
 export const AddKeyserverRouteName = 'AddKeyserver';
 export const KeyserverSelectionBottomSheetRouteName =
   'KeyserverSelectionBottomSheet';
+export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -258,6 +259,7 @@ export type RegistrationParamList = {
   +EmojiAvatarSelection: EmojiAvatarSelectionParams,
   +RegistrationUserAvatarCameraModal: void,
   +RegistrationTerms: RegistrationTermsParams,
+  +AccountDoesNotExist: void,
 };
 
 export type InviteLinkParamList = {
