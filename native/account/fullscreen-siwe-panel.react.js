@@ -1,14 +1,21 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
+import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { useSIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
+import {
+  AccountDoesNotExistRouteName,
+  RegistrationRouteName,
+} from '../navigation/route-names.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -27,16 +34,41 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     [],
   );
 
+  const getEthereumAccountFromSIWEResult =
+    useGetEthereumAccountFromSIWEResult();
+  const { navigate } = useNavigation();
+  const { goBackToPrompt } = props;
+  const onAccountDoesNotExist = React.useCallback(
+    async (result: SIWEResult) => {
+      await getEthereumAccountFromSIWEResult(result);
+      goBackToPrompt();
+      navigate<'Registration'>(RegistrationRouteName, {
+        screen: AccountDoesNotExistRouteName,
+      });
+    },
+    [
+      getEthereumAccountFromSIWEResult,
+      navigate,
+      goBackToPrompt,
+    ],
+  );
+
   const siweServerCall = useSIWEServerCall();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
-  const { goBackToPrompt } = props;
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
       try {
         await siweServerCall({ ...result, doNotRegister: true });
       } catch (e) {
+        if (
+          e instanceof ServerError &&
+          e.message === 'account_does_not_exist'
+        ) {
+          await onAccountDoesNotExist(result);
+          return;
+        }
         Alert.alert(
           'Unknown error',
           'Uhh... try again?',
@@ -52,7 +84,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         },
       });
     },
-    [siweServerCall, dispatch, goBackToPrompt],
+    [siweServerCall, dispatch, goBackToPrompt, onAccountDoesNotExist],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {

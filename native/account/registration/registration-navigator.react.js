@@ -7,6 +7,7 @@ import type {
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
+import AccountDoesNotExist from './account-does-not-exist.react.js';
 import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
@@ -29,6 +30,7 @@ import {
   EmojiAvatarSelectionRouteName,
   RegistrationUserAvatarCameraModalRouteName,
   RegistrationTermsRouteName,
+  AccountDoesNotExistRouteName,
   type ScreenParamList,
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
@@ -105,6 +107,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={RegistrationTermsRouteName}
         component={RegistrationTerms}
+      />
+      <Registration.Screen
+        name={AccountDoesNotExistRouteName}
+        component={AccountDoesNotExist}
       />
     </Registration.Navigator>
   );
