@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.appList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  background-color: var(--card-background-primary-default);
+  padding: 16px;
+  flex: 1;
+  border-radius: 0 0 8px 8px;
+}
