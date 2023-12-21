@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type {
   ChatMessageInfoItem,
@@ -440,6 +441,8 @@ function useMessageTooltip({
   };
 }
 
+const useENSNamesOptions = { allAtOnce: true };
+
 type UseReactionTooltipArgs = {
   +reaction: string,
   +reactions: ReactionInfo,
@@ -453,15 +456,17 @@ function useReactionTooltip({
 }: UseReactionTooltipArgs): UseTooltipResult {
   const { users } = reactions[reaction];
 
+  const resolvedUsers = useENSNames(users, useENSNamesOptions);
+
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
       return undefinedTooltipSize;
     }
 
-    const usernames = users.map(user => user.username).filter(Boolean);
+    const usernames = resolvedUsers.map(user => user.username).filter(Boolean);
 
     return calculateReactionTooltipSize(usernames);
-  }, [users]);
+  }, [resolvedUsers]);
 
   const createReactionTooltip = React.useCallback(
     () => <ReactionTooltip reactions={reactions} reaction={reaction} />,

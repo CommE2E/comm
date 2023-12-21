@@ -206,10 +206,10 @@ class App extends React.PureComponent<Props> {
     return (
       <DndProvider backend={HTML5Backend}>
         <EditModalProvider>
-          <TooltipProvider>
-            <MenuProvider>
-              <WagmiConfig config={wagmiConfig}>
-                <AlchemyENSCacheProvider>
+          <MenuProvider>
+            <WagmiConfig config={wagmiConfig}>
+              <AlchemyENSCacheProvider>
+                <TooltipProvider>
                   <MessageSearchStateProvider>
                     <ChatMentionContextProvider>
                       <FocusHandler />
@@ -221,10 +221,10 @@ class App extends React.PureComponent<Props> {
                       {content}
                     </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
-                </AlchemyENSCacheProvider>
-              </WagmiConfig>
-            </MenuProvider>
-          </TooltipProvider>
+                </TooltipProvider>
+              </AlchemyENSCacheProvider>
+            </WagmiConfig>
+          </MenuProvider>
         </EditModalProvider>
       </DndProvider>
     );
