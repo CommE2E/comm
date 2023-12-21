@@ -37,6 +37,7 @@ import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import RegisterPanel from './register-panel.react.js';
 import type { RegisterState } from './register-panel.react.js';
+import { enableNewRegistrationMode } from './registration/registration-types.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import {
@@ -652,7 +653,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           </Text>
         </TouchableOpacity>,
       );
-      if (__DEV__) {
+      if (enableNewRegistrationMode) {
         registerButtons.push(
           <TouchableOpacity
             onPress={this.onPressNewRegister}

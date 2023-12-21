@@ -12,6 +12,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
+import { enableNewRegistrationMode } from './registration/registration-types.js';
 import { useSIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import {
@@ -68,7 +69,10 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     async (result: SIWEResult) => {
       successRef.current = true;
       try {
-        await siweServerCall({ ...result, doNotRegister: true });
+        await siweServerCall({
+          ...result,
+          doNotRegister: enableNewRegistrationMode,
+        });
       } catch (e) {
         if (
           e instanceof ServerError &&
