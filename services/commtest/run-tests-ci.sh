@@ -57,6 +57,7 @@ run_test identity_access_tokens_tests
 run_test identity_one_time_key_tests
 run_test identity_prekey_tests
 run_test identity_tunnelbroker_tests
+run_test identity_device_list_tests
 
 if [ $NUM_FAILURES -eq 0 ]; then
   echo "COMMTEST: ALL TESTS PASSED"
