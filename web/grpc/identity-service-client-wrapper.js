@@ -5,8 +5,8 @@ import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.
 
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
-import * as IdentityClient from '../protobufs/identity-client.cjs';
-import { Empty } from '../protobufs/identity-structs.cjs';
+import { Empty } from '../protobufs/identity-unauth-structs.cjs';
+import * as IdentityClient from '../protobufs/identity-unauth.cjs';
 
 class IdentityServiceClientWrapper {
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;

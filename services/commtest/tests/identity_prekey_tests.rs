@@ -4,7 +4,7 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client,
-  protos::{authenticated::RefreshUserPrekeysRequest, client::Prekey},
+  protos::{authenticated::RefreshUserPrekeysRequest, unauth::Prekey},
 };
 
 #[tokio::test]

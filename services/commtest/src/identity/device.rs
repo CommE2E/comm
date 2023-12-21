@@ -7,7 +7,7 @@ use crate::identity::olm_account_infos::{
 };
 
 use crate::service_addr;
-use grpc_clients::identity::protos::client::{
+use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, IdentityKeyInfo, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest,
 };

@@ -7,7 +7,7 @@ use grpc_clients::identity::protos::authenticated::{
   OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UploadOneTimeKeysRequest,
 };
-use grpc_clients::identity::protos::client::{
+use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,

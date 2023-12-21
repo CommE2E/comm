@@ -7,7 +7,7 @@ import {
   Map as ProtoMap,
 } from 'google-protobuf';
 
-import * as identityStructs from './identity-structs.cjs';
+import * as identityStructs from './identity-unauth-structs.cjs';
 
 declare export class UploadOneTimeKeysRequest extends Message {
   getContentonetimeprekeysList(): Array<string>;

@@ -6,25 +6,26 @@ PROTO_PATH="../shared/protos/"
 
 OUTPUT_DIR="protobufs"
 
-protoc -I=$PROTO_PATH identity_client.proto identity_authenticated.proto \
+protoc -I=$PROTO_PATH identity_unauth.proto identity_auth.proto \
   --js_out=import_style=commonjs:$OUTPUT_DIR \
   --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:$OUTPUT_DIR
 
-mv $OUTPUT_DIR/identity_client_pb.js \
-   $OUTPUT_DIR/identity-structs.cjs
-mv $OUTPUT_DIR/identity_client_grpc_web_pb.js \
-   $OUTPUT_DIR/identity-client.cjs
-mv $OUTPUT_DIR/identity_client_pb.d.ts \
-   $OUTPUT_DIR/identity-structs.cjs.flow
-mv $OUTPUT_DIR/identity_client_grpc_web_pb.d.ts \
-   $OUTPUT_DIR/identity-client.cjs.flow
-mv $OUTPUT_DIR/identity_authenticated_pb.js \
+mv $OUTPUT_DIR/identity_unauth_pb.js \
+   $OUTPUT_DIR/identity-unauth-structs.cjs
+mv $OUTPUT_DIR/identity_unauth_grpc_web_pb.js \
+   $OUTPUT_DIR/identity-unauth.cjs
+mv $OUTPUT_DIR/identity_unauth_pb.d.ts \
+   $OUTPUT_DIR/identity-unauth-structs.cjs.flow
+mv $OUTPUT_DIR/identity_unauth_grpc_web_pb.d.ts \
+   $OUTPUT_DIR/identity-unauth.cjs.flow
+
+mv $OUTPUT_DIR/identity_auth_pb.js \
    $OUTPUT_DIR/identity-auth-structs.cjs
-mv $OUTPUT_DIR/identity_authenticated_grpc_web_pb.js \
+mv $OUTPUT_DIR/identity_auth_grpc_web_pb.js \
    $OUTPUT_DIR/identity-auth-client.cjs
-mv $OUTPUT_DIR/identity_authenticated_pb.d.ts \
+mv $OUTPUT_DIR/identity_auth_pb.d.ts \
    $OUTPUT_DIR/identity-auth-structs.cjs.flow
-mv $OUTPUT_DIR/identity_authenticated_grpc_web_pb.d.ts \
+mv $OUTPUT_DIR/identity_auth_grpc_web_pb.d.ts \
    $OUTPUT_DIR/identity-auth-client.cjs.flow
 
 # This echo statement splits the string to ensure that Phabricator shows this file in reviews
