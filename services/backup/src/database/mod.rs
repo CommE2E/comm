@@ -1,8 +1,11 @@
 pub mod backup_item;
 pub mod log_item;
 
-use self::backup_item::{BackupItem, OrderedBackupItem};
-use crate::constants::backup_table;
+use self::{
+  backup_item::{BackupItem, OrderedBackupItem},
+  log_item::LogItem,
+};
+use crate::constants::{backup_table, log_table};
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
   types::{AttributeValue, ReturnValue},
@@ -201,5 +204,26 @@ impl DatabaseClient {
     }
 
     Ok(removed_backups)
+  }
+}
+
+/// Backup log functions
+impl DatabaseClient {
+  pub async fn put_log_item(&self, log_item: LogItem) -> Result<(), Error> {
+    let item = log_item.into();
+
+    self
+      .client
+      .put_item()
+      .table_name(log_table::TABLE_NAME)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to put log item");
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
   }
 }
