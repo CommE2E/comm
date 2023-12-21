@@ -41,7 +41,7 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
   useMentionTypeaheadUserSuggestions,
-  getMentionTypeaheadChatSuggestions,
+  useMentionTypeaheadChatSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
   useUserMentionsCandidates,
@@ -1316,26 +1316,17 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     typeaheadMatchedStrings,
   );
 
+  const suggestedChats = useMentionTypeaheadChatSuggestions(
+    chatMentionSearchIndex,
+    chatMentionCandidates,
+    typeaheadMatchedStrings,
+  );
+
   const suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem> =
-    React.useMemo(() => {
-      if (!typeaheadRegexMatches || !typeaheadMatchedStrings) {
-        return [];
-      }
-
-      const suggestedChats = getMentionTypeaheadChatSuggestions(
-        chatMentionSearchIndex,
-        chatMentionCandidates,
-        typeaheadMatchedStrings.query,
-      );
-
-      return [...suggestedUsers, ...suggestedChats];
-    }, [
-      chatMentionCandidates,
-      chatMentionSearchIndex,
-      typeaheadRegexMatches,
-      typeaheadMatchedStrings,
-      suggestedUsers,
-    ]);
+    React.useMemo(
+      () => [...suggestedUsers, ...suggestedChats],
+      [suggestedUsers, suggestedChats],
+    );
 
   return (
     <ChatInputBar

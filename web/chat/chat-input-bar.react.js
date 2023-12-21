@@ -19,7 +19,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   getTypeaheadRegexMatches,
   useUserMentionsCandidates,
-  getMentionTypeaheadChatSuggestions,
+  useMentionTypeaheadChatSuggestions,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadMatchedStrings,
   useMentionTypeaheadUserSuggestions,
@@ -647,25 +647,17 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       typeaheadMatchedStrings,
     );
 
-    const suggestions = React.useMemo(() => {
-      if (!typeaheadMatchedStrings) {
-        return ([]: $ReadOnlyArray<MentionTypeaheadSuggestionItem>);
-      }
-      const suggestedChats = getMentionTypeaheadChatSuggestions(
-        chatMentionSearchIndex,
-        props.inputState.typeaheadState.frozenChatMentionsCandidates,
-        typeaheadMatchedStrings.query,
-      );
-      return ([
-        ...suggestedUsers,
-        ...suggestedChats,
-      ]: $ReadOnlyArray<MentionTypeaheadSuggestionItem>);
-    }, [
-      suggestedUsers,
-      typeaheadMatchedStrings,
-      props.inputState.typeaheadState.frozenChatMentionsCandidates,
+    const suggestedChats = useMentionTypeaheadChatSuggestions(
       chatMentionSearchIndex,
-    ]);
+      props.inputState.typeaheadState.frozenChatMentionsCandidates,
+      typeaheadMatchedStrings,
+    );
+
+    const suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem> =
+      React.useMemo(
+        () => [...suggestedUsers, ...suggestedChats],
+        [suggestedUsers, suggestedChats],
+      );
 
     return (
       <ChatInputBar
