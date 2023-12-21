@@ -733,12 +733,10 @@ impl DatabaseClient {
     device_id_key: String,
   ) -> Result<(), Error> {
     let update_expression =
-      format!("REMOVE {}.{}", USERS_TABLE_DEVICES_ATTRIBUTE, ":deviceID");
+      format!("REMOVE {}.{}", USERS_TABLE_DEVICES_ATTRIBUTE, "#deviceID");
 
-    let expression_attribute_values = HashMap::from([(
-      ":deviceID".to_string(),
-      AttributeValue::S(device_id_key),
-    )]);
+    let expression_attribute_names =
+      HashMap::from([("#deviceID".to_string(), device_id_key)]);
 
     self
       .client
@@ -746,7 +744,7 @@ impl DatabaseClient {
       .table_name(USERS_TABLE)
       .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
       .update_expression(update_expression)
-      .set_expression_attribute_values(Some(expression_attribute_values))
+      .set_expression_attribute_names(Some(expression_attribute_names))
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
