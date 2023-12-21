@@ -9,10 +9,7 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
@@ -282,7 +279,7 @@ function rawThreadInfosFromServerThreadInfos(
   });
   const minimallyEncodedPermissionsSupported = hasMinCodeVersion(
     viewer.platformDetails,
-    { native: NEXT_CODE_VERSION, web: NEXT_CODE_VERSION },
+    { native: 301, web: 56 },
   );
 
   const threadInfos: { [string]: RawThreadInfo } = {};
