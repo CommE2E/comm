@@ -528,7 +528,7 @@ async fn login_password_user_helper(
   .await?;
 
   let response = identity_client
-    .login_password_user_start(login_start_request)
+    .log_in_password_user_start(login_start_request)
     .await?;
 
   // We need to get the load balancer cookie from from the response and send it
@@ -560,7 +560,7 @@ async fn login_password_user_helper(
   }
 
   let login_finish_response = identity_client
-    .login_password_user_finish(finish_request)
+    .log_in_password_user_finish(finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token = UserIDAndDeviceAccessToken {
@@ -652,7 +652,7 @@ async fn login_wallet_user_helper(
   .await?;
 
   let login_response = identity_client
-    .login_wallet_user(login_request)
+    .log_in_wallet_user(login_request)
     .await?
     .into_inner();
 
