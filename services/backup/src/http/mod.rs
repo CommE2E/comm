@@ -6,10 +6,11 @@ use comm_lib::{
 };
 use tracing::info;
 
-use crate::{database::DatabaseClient, CONFIG};
+use crate::{database::DatabaseClient, http::handlers::log::handle_ws, CONFIG};
 
 mod handlers {
   pub(super) mod backup;
+  pub(super) mod log;
 }
 
 pub async fn run_http_server(
@@ -34,7 +35,7 @@ pub async fn run_http_server(
       .app_data(blob.clone())
       .route("/health", web::get().to(HttpResponse::Ok))
       .service(
-        // Services that don't require authetication
+        // Backup services that don't require authetication
         web::scope("/backups/latest")
           .service(
             web::resource("{username}/backup_id")
@@ -45,7 +46,7 @@ pub async fn run_http_server(
           )),
       )
       .service(
-        // Services requiring authetication
+        // Backup services requiring authetication
         web::scope("/backups")
           .wrap(get_comm_authentication_middleware())
           .service(
@@ -59,6 +60,11 @@ pub async fn run_http_server(
             web::resource("{backup_id}/user_data")
               .route(web::get().to(handlers::backup::download_user_data)),
           ),
+      )
+      .service(
+        web::scope("/logs")
+          .wrap(get_comm_authentication_middleware())
+          .service(web::resource("{backup_d}").route(web::get().to(handle_ws))),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
