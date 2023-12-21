@@ -58,3 +58,5 @@ export const ensAvatarSelection: AvatarData = {
   updateUserAvatarRequest: { type: 'ens' },
   clientAvatar: { type: 'ens' },
 };
+
+export const enableNewRegistrationMode = __DEV__;
