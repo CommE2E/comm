@@ -1,9 +1,9 @@
-use commtest::{identity::device::create_device, service_addr};
+use commtest::{identity::device::register_user_device, service_addr};
 
 #[tokio::test]
 async fn verify_access_token() {
   use grpc_clients::identity::unauthenticated::client::verify_user_access_token;
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
   let code_version = 1000;
   let device_type = "android";
 
