@@ -19,18 +19,17 @@ use crate::{
   error::BackupError,
 };
 
-#[instrument(name = "upload_backup", skip_all, fields(backup_id))]
+#[instrument(skip_all, fields(%user, backup_id))]
 pub async fn upload(
   user: UserIdentity,
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
   mut multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
-  info!("Upload backup request");
-
   let backup_id = get_named_text_field("backup_id", &mut multipart).await?;
-
   tracing::Span::current().record("backup_id", &backup_id);
+
+  info!("Backup data upload started");
 
   let (user_keys_blob_info, user_keys_revoke) = forward_field_to_blob(
     &mut multipart,
@@ -107,11 +106,7 @@ pub async fn upload(
   Ok(HttpResponse::Ok().finish())
 }
 
-#[instrument(
-  skip_all,
-  name = "forward_to_blob",
-  fields(hash_field_name, data_field_name)
-)]
+#[instrument(skip_all, fields(hash_field_name, data_field_name))]
 async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   multipart: &mut actix_multipart::Multipart,
   blob_client: &'blob web::Data<BlobServiceClient>,
@@ -180,7 +175,7 @@ async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   Ok((blob_info, revoke_holder))
 }
 
-#[instrument(skip_all, name = "create_attachment_holder")]
+#[instrument(skip_all)]
 async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
   attachment: &str,
   blob_client: &'blob web::Data<BlobServiceClient>,
@@ -204,7 +199,7 @@ async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
   Ok((holder, revoke_holder))
 }
 
-#[instrument(name = "download_user_keys", skip_all, fields(backup_id = %path.as_str()))]
+#[instrument(skip_all, fields(%user, backup_id = %path))]
 pub async fn download_user_keys(
   user: UserIdentity,
   path: web::Path<String>,
@@ -223,7 +218,7 @@ pub async fn download_user_keys(
   .await
 }
 
-#[instrument(name = "download_user_data", skip_all, fields(backup_id = %path.as_str()))]
+#[instrument(skip_all, fields(%user, backup_id = %path))]
 pub async fn download_user_data(
   user: UserIdentity,
   path: web::Path<String>,
@@ -267,7 +262,7 @@ pub async fn download_user_blob(
   )
 }
 
-#[instrument(name = "get_latest_backup_id", skip_all, fields(username = %path.as_str()))]
+#[instrument(skip_all, fields(username = %path))]
 pub async fn get_latest_backup_id(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
@@ -291,7 +286,7 @@ pub async fn get_latest_backup_id(
   Ok(web::Json(response))
 }
 
-#[instrument(name = "download_latest_backup_keys", skip_all, fields(username = %path.as_str()))]
+#[instrument(skip_all, fields(username = %path))]
 pub async fn download_latest_backup_keys(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
