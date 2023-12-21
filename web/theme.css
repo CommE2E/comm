@@ -262,6 +262,10 @@
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
+  /* Card */
+  --card-headerBackground-primary-default: var(--shades-black-85);
+  --card-headerShawdow-primary-default: #00000059;
+
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-75);
@@ -337,6 +341,11 @@
   --text-background-secondary-default: var(--shades-black-60);
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
+
+  /* Card */
+  /* @GINSU: TODO double check these values after redesign is finished */
+  --card-headerBackground-primary-default: var(--shades-white-80);
+  --card-headerShawdow-primary-default: #ffffff59;
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
