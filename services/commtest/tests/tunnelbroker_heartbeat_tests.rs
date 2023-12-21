@@ -1,4 +1,4 @@
-use commtest::identity::device::create_device;
+use commtest::identity::device::register_user_device;
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::sink::SinkExt;
 use futures_util::stream::StreamExt;
@@ -24,7 +24,7 @@ async fn receive_and_parse_message(
 
 #[tokio::test]
 async fn test_receiving() {
-  let client = create_device(None).await;
+  let client = register_user_device(None, None).await;
   let mut socket = create_socket(&client).await.unwrap();
 
   let message_to_device = receive_and_parse_message(&mut socket).await;
@@ -39,7 +39,7 @@ async fn test_receiving() {
 
 #[tokio::test]
 async fn test_responding() {
-  let client = create_device(None).await;
+  let client = register_user_device(None, None).await;
   let mut socket = create_socket(&client).await.unwrap();
 
   let message_to_device = receive_and_parse_message(&mut socket).await;
@@ -66,7 +66,7 @@ async fn test_responding() {
 
 #[tokio::test]
 async fn test_closing() {
-  let client = create_device(None).await;
+  let client = register_user_device(None, None).await;
   let mut socket = create_socket(&client).await.unwrap();
 
   let message_to_device = receive_and_parse_message(&mut socket).await;

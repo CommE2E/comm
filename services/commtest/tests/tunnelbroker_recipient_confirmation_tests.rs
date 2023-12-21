@@ -1,4 +1,4 @@
-use commtest::identity::device::create_device;
+use commtest::identity::device::register_user_device;
 use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
@@ -15,8 +15,8 @@ use tunnelbroker_messages::MessageToDevice;
 
 #[tokio::test]
 async fn deliver_until_confirmation_not_connected() {
-  let sender = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
-  let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
+  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
 
   // send message to not connected client
   let mut sender_socket = create_socket(&sender).await.unwrap();
@@ -59,8 +59,8 @@ async fn deliver_until_confirmation_not_connected() {
 
 #[tokio::test]
 async fn deliver_until_confirmation_connected() {
-  let sender = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
-  let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
+  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
 
   // send message to connected client
   let mut receiver_socket = create_socket(&receiver).await.unwrap();
@@ -98,8 +98,8 @@ async fn deliver_until_confirmation_connected() {
 
 #[tokio::test]
 async fn test_confirming_deleted_message() {
-  let sender = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
-  let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
+  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
 
   // send message to connected client
   let mut receiver_socket = create_socket(&receiver).await.unwrap();
@@ -153,8 +153,8 @@ async fn test_confirming_deleted_message() {
 
 #[tokio::test]
 async fn test_confirming() {
-  let sender = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
-  let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
+  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
 
   // send message to connected client
   let mut receiver_socket = create_socket(&receiver).await.unwrap();
