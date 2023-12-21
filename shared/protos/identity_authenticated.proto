@@ -60,29 +60,29 @@ service IdentityClientService {
 
 // As OPKs get exhausted, they need to be refreshed
 message UploadOneTimeKeysRequest {
-  repeated string contentOneTimePreKeys = 1;
-  repeated string notifOneTimePreKeys = 2;
+  repeated string content_one_time_pre_keys = 1;
+  repeated string notif_one_time_pre_keys = 2;
 }
 
 
 // RefreshUserPreKeys
 
 message RefreshUserPreKeysRequest {
-  identity.client.PreKey newContentPreKeys = 1;
-  identity.client.PreKey newNotifPreKeys = 2;
+  identity.client.PreKey new_content_pre_keys = 1;
+  identity.client.PreKey new_notif_pre_keys = 2;
 }
 
 // Information needed when establishing communication to someone else's device
 message OutboundKeyInfo {
-  identity.client.IdentityKeyInfo identityInfo = 1;
-  identity.client.PreKey contentPrekey = 2;
-  identity.client.PreKey notifPrekey = 3;
-  optional string oneTimeContentPrekey = 4;
-  optional string oneTimeNotifPrekey = 5;
+  identity.client.IdentityKeyInfo identity_info = 1;
+  identity.client.PreKey content_prekey = 2;
+  identity.client.PreKey notif_prekey = 3;
+  optional string one_time_content_prekey = 4;
+  optional string one_time_notif_prekey = 5;
 }
 
 message KeyserverKeysResponse {
-  optional OutboundKeyInfo keyserverInfo = 1;
+  optional OutboundKeyInfo keyserver_info = 1;
 }
 
 // GetOutboundKeysForUser
@@ -96,15 +96,15 @@ message OutboundKeysForUserResponse {
 // to a request.
 // The device receiving a request only needs the content key and prekey.
 message OutboundKeysForUserRequest {
-  string userID = 1;
+  string user_id = 1;
 }
 
 // GetInboundKeysForUser
 
 message InboundKeyInfo {
-  identity.client.IdentityKeyInfo identityInfo = 1;
-  identity.client.PreKey contentPrekey = 2;
-  identity.client.PreKey notifPrekey = 3;
+  identity.client.IdentityKeyInfo identity_info = 1;
+  identity.client.PreKey content_prekey = 2;
+  identity.client.PreKey notif_prekey = 3;
 }
 
 message InboundKeysForUserResponse {
@@ -113,7 +113,7 @@ message InboundKeysForUserResponse {
 }
 
 message InboundKeysForUserRequest {
-  string userID = 1;
+  string user_id = 1;
 }
 
 // FindUserID
@@ -121,13 +121,13 @@ message InboundKeysForUserRequest {
 message FindUserIDRequest {
   oneof identifier {
     string username = 1;
-    string walletAddress = 2;
+    string wallet_address = 2;
   }
 }
 
 message FindUserIDResponse {
   // userID if the user is registered with Identity Service, null otherwise
-  optional string userID = 1;
+  optional string user_id = 1;
   // true if the identifier (username or wallet address) exists in the
   // reserved usernames list, false otherwise. It doesn't take into account
   // whether the user is registered with Identity Service (userID != null).
@@ -140,20 +140,20 @@ message FindUserIDResponse {
 // access token to validate user before updating password
 message UpdateUserPasswordStartRequest {
   // Message sent to initiate PAKE registration (step 1)
-  bytes opaqueRegistrationRequest = 1;
+  bytes opaque_registration_request = 1;
 }
 
 // Do a user registration, but overwrite the existing credentials
 // after validation of user
 message UpdateUserPasswordFinishRequest {
   // Identifier used to correlate start and finish request
-  string sessionID = 1;
+  string session_id = 1;
   // Opaque client registration upload (step 3)
-  bytes opaqueRegistrationUpload = 2;
+  bytes opaque_registration_upload = 2;
 }
 
 message UpdateUserPasswordStartResponse {
   // Identifier used to correlate start request with finish request
-  string sessionID = 1;
-  bytes opaqueRegistrationResponse = 2;
+  string session_id = 1;
+  bytes opaque_registration_response = 2;
 }

@@ -19,7 +19,7 @@ message Empty {}
 
 message MessageToDevice {
   // The primary identity key of a device
-  string deviceID = 1;
+  string device_id = 1;
   // JSON encoded message. See shared/tunnelbroker_messages for valid payloads
   string payload = 2;
 }

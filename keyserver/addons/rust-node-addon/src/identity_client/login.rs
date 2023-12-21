@@ -55,7 +55,7 @@ pub async fn login_user(
 
   debug!("Starting login to identity service");
   let response = identity_client
-    .login_password_user_start(login_start_request)
+    .log_in_password_user_start(login_start_request)
     .await
     .map_err(handle_grpc_error)?;
   debug!("Received login response from identity service");
@@ -88,7 +88,7 @@ pub async fn login_user(
 
   debug!("Attempting to finalize opaque login exchange with identity service");
   let login_finish_response = identity_client
-    .login_password_user_finish(login_finish_request)
+    .log_in_password_user_finish(login_finish_request)
     .await
     .map_err(handle_grpc_error)?
     .into_inner();
