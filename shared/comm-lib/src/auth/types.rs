@@ -2,7 +2,7 @@ use base64::{prelude::BASE64_STANDARD, Engine};
 use constant_time_eq::constant_time_eq;
 use derive_more::{Display, Error, From};
 use serde::{Deserialize, Serialize};
-use std::{str::FromStr, string::FromUtf8Error};
+use std::{fmt::Display, str::FromStr, string::FromUtf8Error};
 
 /// This implements [`actix_web::FromRequest`], so it can be used to extract user
 /// identity information from HTTP requests.
@@ -105,6 +105,15 @@ impl UserIdentity {
     let json = serde_json::to_string(self)?;
     let base64_str = BASE64_STANDARD.encode(json);
     Ok(base64_str)
+  }
+}
+
+impl Display for UserIdentity {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("UserIdentity")
+      .field("user_id", &self.user_id)
+      .field("device_id", &self.device_id)
+      .finish_non_exhaustive()
   }
 }
 
