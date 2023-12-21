@@ -1,5 +1,5 @@
 use commtest::identity::device::{
-  create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
+  register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
@@ -12,7 +12,7 @@ use grpc_clients::identity::{
 #[tokio::test]
 async fn set_prekey() {
   let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
 
   let mut client = get_auth_client(
     &identity_grpc_endpoint,

@@ -1,5 +1,5 @@
 use commtest::identity::device::{
-  create_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
+  register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{create_socket, receive_message};
@@ -12,7 +12,7 @@ use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
 async fn test_tunnelbroker_invalid_auth() {
-  let mut device_info = create_device(None).await;
+  let mut device_info = register_user_device(None, None).await;
   device_info.access_token = "".to_string();
   let socket = create_socket(&device_info).await;
   assert!(matches!(socket, Result::Err(_)))
@@ -20,7 +20,7 @@ async fn test_tunnelbroker_invalid_auth() {
 
 #[tokio::test]
 async fn test_tunnelbroker_valid_auth() {
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
   let mut socket = create_socket(&device_info).await.unwrap();
 
   socket
@@ -33,7 +33,7 @@ async fn test_tunnelbroker_valid_auth() {
 #[tokio::test]
 async fn test_refresh_keys_request_upon_depletion() {
   let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
 
   // Request outbound keys, which should trigger identity service to ask for more keys
   let mut client = get_auth_client(
@@ -71,7 +71,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   // from Tunnelbroker to refresh keys
   // Create session as a keyserver
 
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
   let mut socket = create_socket(&device_info).await.unwrap();
   for _ in 0..2 {
     let response = receive_message(&mut socket).await.unwrap();
