@@ -21,7 +21,7 @@ async fn verify_access_token() {
 
   let verify_request = VerifyUserAccessTokenRequest {
     user_id: device_info.user_id,
-    signing_public_key: device_info.device_id,
+    device_id: device_info.device_id,
     access_token: device_info.access_token,
   };
 

@@ -25,11 +25,11 @@ use super::protos::auth::{
   GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
   InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPreKeysRequest, UpdateUserPasswordFinishRequest,
+  RefreshUserPrekeysRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
 };
-use super::protos::client::{Empty, IdentityKeyInfo, PreKey};
+use super::protos::client::{Empty, IdentityKeyInfo, Prekey};
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
@@ -91,9 +91,9 @@ pub fn get_user_and_device_id<T>(
 
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
-  async fn refresh_user_pre_keys(
+  async fn refresh_user_prekeys(
     &self,
-    request: Request<RefreshUserPreKeysRequest>,
+    request: Request<RefreshUserPrekeysRequest>,
   ) -> Result<Response<Empty>, Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
@@ -101,10 +101,10 @@ impl IdentityClientService for AuthenticatedService {
     debug!("Refreshing prekeys for user: {}", user_id);
 
     let content_keys = message
-      .new_content_pre_keys
+      .new_content_prekeys
       .ok_or_else(|| Status::invalid_argument("Missing content keys"))?;
     let notif_keys = message
-      .new_notif_pre_keys
+      .new_notif_prekeys
       .ok_or_else(|| Status::invalid_argument("Missing notification keys"))?;
 
     self
@@ -112,10 +112,10 @@ impl IdentityClientService for AuthenticatedService {
       .set_prekey(
         user_id,
         device_id,
-        content_keys.pre_key,
-        content_keys.pre_key_signature,
-        notif_keys.pre_key,
-        notif_keys.pre_key_signature,
+        content_keys.prekey,
+        content_keys.prekey_signature,
+        notif_keys.prekey,
+        notif_keys.prekey_signature,
       )
       .await
       .map_err(handle_db_error)?;
@@ -211,13 +211,13 @@ impl IdentityClientService for AuthenticatedService {
           payload_signature: db_keys.key_payload_signature,
           social_proof: db_keys.social_proof,
         }),
-        content_prekey: Some(PreKey {
-          pre_key: db_keys.content_prekey.prekey,
-          pre_key_signature: db_keys.content_prekey.prekey_signature,
+        content_prekey: Some(Prekey {
+          prekey: db_keys.content_prekey.prekey,
+          prekey_signature: db_keys.content_prekey.prekey_signature,
         }),
-        notif_prekey: Some(PreKey {
-          pre_key: db_keys.notif_prekey.prekey,
-          pre_key_signature: db_keys.notif_prekey.prekey_signature,
+        notif_prekey: Some(Prekey {
+          prekey: db_keys.notif_prekey.prekey,
+          prekey_signature: db_keys.notif_prekey.prekey_signature,
         }),
         one_time_content_prekey: db_keys.content_one_time_key,
         one_time_notif_prekey: db_keys.notif_one_time_key,
@@ -242,8 +242,8 @@ impl IdentityClientService for AuthenticatedService {
       .db_client
       .append_one_time_prekeys(
         device_id,
-        message.content_one_time_pre_keys,
-        message.notif_one_time_pre_keys,
+        message.content_one_time_prekeys,
+        message.notif_one_time_prekeys,
       )
       .await
       .map_err(handle_db_error)?;

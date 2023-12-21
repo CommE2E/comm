@@ -22,7 +22,7 @@ pub async fn verify_user_access_token(
 
   let message = VerifyUserAccessTokenRequest {
     user_id: user_id.to_string(),
-    signing_public_key: device_id.to_string(),
+    device_id: device_id.to_string(),
     access_token: access_token.to_string(),
   };
 

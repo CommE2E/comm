@@ -8,7 +8,7 @@ use crate::identity::olm_account_infos::{
 
 use crate::service_addr;
 use grpc_clients::identity::protos::client::{
-  DeviceKeyUpload, DeviceType, IdentityKeyInfo, PreKey,
+  DeviceKeyUpload, DeviceType, IdentityKeyInfo, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest,
 };
 
@@ -49,13 +49,13 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
         payload_signature: "foo".to_string(),
         social_proof: None,
       }),
-      content_upload: Some(PreKey {
-        pre_key: "content_prekey".to_string(),
-        pre_key_signature: "content_prekey_sig".to_string(),
+      content_upload: Some(Prekey {
+        prekey: "content_prekey".to_string(),
+        prekey_signature: "content_prekey_sig".to_string(),
       }),
-      notif_upload: Some(PreKey {
-        pre_key: "notif_prekey".to_string(),
-        pre_key_signature: "notif_prekey_sig".to_string(),
+      notif_upload: Some(Prekey {
+        prekey: "notif_prekey".to_string(),
+        prekey_signature: "notif_prekey_sig".to_string(),
       }),
       one_time_content_prekeys: Vec::new(),
       one_time_notif_prekeys: Vec::new(),

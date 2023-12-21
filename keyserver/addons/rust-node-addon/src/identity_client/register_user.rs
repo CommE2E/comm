@@ -31,13 +31,13 @@ pub async fn register_user(
       payload_signature: signed_identity_keys_blob.signature,
       social_proof: None,
     }),
-    content_upload: Some(PreKey {
-      pre_key: content_prekey,
-      pre_key_signature: content_prekey_signature,
+    content_upload: Some(Prekey {
+      prekey: content_prekey,
+      prekey_signature: content_prekey_signature,
     }),
-    notif_upload: Some(PreKey {
-      pre_key: notif_prekey,
-      pre_key_signature: notif_prekey_signature,
+    notif_upload: Some(Prekey {
+      prekey: notif_prekey,
+      prekey_signature: notif_prekey_signature,
     }),
     one_time_content_prekeys: content_one_time_keys,
     one_time_notif_prekeys: notif_one_time_keys,

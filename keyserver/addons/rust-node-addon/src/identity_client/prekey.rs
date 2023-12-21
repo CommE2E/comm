@@ -1,7 +1,7 @@
 use super::get_authenticated_identity_client;
 use super::{Error, Status};
 use grpc_clients::identity::protos::{
-  authenticated::RefreshUserPreKeysRequest, unauthenticated::PreKey,
+  authenticated::RefreshUserPrekeysRequest, unauthenticated::Prekey,
 };
 use napi::Result;
 use tracing::warn;
@@ -21,18 +21,18 @@ pub async fn publish_prekeys(
   let mut client =
     get_authenticated_identity_client(user_id, device_id, access_token).await?;
 
-  let message = RefreshUserPreKeysRequest {
-    new_content_pre_keys: Some(PreKey {
-      pre_key: content_prekey,
-      pre_key_signature: content_prekey_signature,
+  let message = RefreshUserPrekeysRequest {
+    new_content_prekeys: Some(Prekey {
+      prekey: content_prekey,
+      prekey_signature: content_prekey_signature,
     }),
-    new_notif_pre_keys: Some(PreKey {
-      pre_key: notif_prekey,
-      pre_key_signature: notif_prekey_signature,
+    new_notif_prekeys: Some(Prekey {
+      prekey: notif_prekey,
+      prekey_signature: notif_prekey_signature,
     }),
   };
 
-  client.refresh_user_pre_keys(message).await.map_err(|e| {
+  client.refresh_user_prekeys(message).await.map_err(|e| {
     warn!(
       "Failed to upload new prekeys to identity service: {:?}",
       e.message()

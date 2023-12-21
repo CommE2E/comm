@@ -54,8 +54,8 @@ type RustNativeBindingAPI = {
     userId: string,
     deviceId: string,
     accessToken: string,
-    contentOneTimePreKeys: $ReadOnlyArray<string>,
-    notifOneTimePreKeys: $ReadOnlyArray<string>,
+    contentOneTimePrekeys: $ReadOnlyArray<string>,
+    notifOneTimePrekeys: $ReadOnlyArray<string>,
   ) => Promise<boolean>,
   +getInboundKeysForUserDevice: (
     authUserId: string,
