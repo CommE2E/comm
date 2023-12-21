@@ -806,11 +806,14 @@ dependencies = [
  "constant_time_eq 0.3.0",
  "derive_more",
  "grpc_clients",
+ "hex",
  "rand 0.8.5",
  "serde",
  "serde_json",
+ "sha2 0.10.6",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
