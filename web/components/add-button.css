@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+}
+
+.addButton {
+  background-color: var(--button-background-secondary-default);
+  border-radius: 4px;
+  color: var(--button-label-secondary-default);
+}
+
+.addButton:hover {
+  cursor: pointer;
+  background-color: var(--button-background-secondary-hover);
+}
