@@ -37,7 +37,7 @@ use crate::reserved_users::{
 use crate::siwe::{is_valid_ethereum_address, parse_and_verify_siwe_message};
 use crate::token::{AccessTokenData, AuthType};
 
-pub use crate::grpc_services::protos::client::identity_client_service_server::{
+pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
     IdentityClientService, IdentityClientServiceServer,
   };
 

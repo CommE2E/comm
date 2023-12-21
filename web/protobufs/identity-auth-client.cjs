@@ -20,7 +20,7 @@ const grpc = {};
 grpc.web = require('grpc-web');
 
 
-var identity_client_pb = require('./identity-structs.cjs')
+var identity_client_pb = require('./identity-unauth-structs.cjs');
 const proto = {};
 proto.identity = {};
 proto.identity.authenticated = require('./identity-auth-structs.cjs');

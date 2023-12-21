@@ -3,7 +3,7 @@
 import * as grpcWeb from 'grpc-web';
 
 import * as identityAuthStructs from './identity-auth-structs.cjs';
-import * as identityStructs from './identity-structs.cjs';
+import * as identityStructs from './identity-unauth-structs.cjs';
 
 
 declare export class IdentityClientServiceClient {
