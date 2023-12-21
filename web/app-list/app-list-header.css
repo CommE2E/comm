@@ -1,0 +1,15 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card-headerBackground-primary-default);
+  padding: 16px;
+  box-shadow: 0px 1px 3px 0px var(--card-headerShawdow-primary-default);
+  z-index: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.headerLabel {
+  color: var(--text-background-primary-default);
+  font-weight: var(--semi-bold);
+}
