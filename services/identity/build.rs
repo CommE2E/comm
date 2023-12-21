@@ -4,8 +4,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .build_client(false)
     .compile(
       &[
-        "../../shared/protos/identity_client.proto",
-        "../../shared/protos/identity_authenticated.proto",
+        "../../shared/protos/identity_unauth.proto",
+        "../../shared/protos/identity_auth.proto",
       ],
       &["../../shared/protos/"],
     )?;

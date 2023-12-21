@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package identity.client;
+package identity.unauth;
 
 // RPCs from a client (iOS, Android, or web) to identity service
 service IdentityClientService {

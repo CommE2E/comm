@@ -4,7 +4,7 @@ use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 
 use super::{
-  protos::client::identity_client_service_client::IdentityClientServiceClient,
+  protos::unauth::identity_client_service_client::IdentityClientServiceClient,
   shared::CodeVersionLayer,
 };
 use crate::error::Error;

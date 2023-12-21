@@ -3,7 +3,7 @@ use commtest::identity::device::{
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
-  get_unauthenticated_client, protos::client::VerifyUserAccessTokenRequest,
+  get_unauthenticated_client, protos::unauth::VerifyUserAccessTokenRequest,
 };
 
 #[tokio::test]

@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use crate::error::Error;
-pub use crate::identity::protos::client::DeviceType;
+pub use crate::identity::protos::unauth::DeviceType;
 
 impl TryFrom<i32> for DeviceType {
   type Error = crate::error::Error;

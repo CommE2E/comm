@@ -2,7 +2,7 @@
 
 import * as grpcWeb from 'grpc-web';
 
-import * as identityStructs from './identity-structs.cjs';
+import * as identityStructs from './identity-unauth-structs.cjs';
 
 declare export class IdentityClientServiceClient {
   constructor (hostname: string,

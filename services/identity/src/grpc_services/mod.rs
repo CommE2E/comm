@@ -3,14 +3,9 @@ pub mod shared;
 
 pub mod protos {
   pub mod unauth {
-    tonic::include_proto!("identity.client");
+    tonic::include_proto!("identity.unauth");
   }
   pub mod auth {
-    tonic::include_proto!("identity.authenticated");
+    tonic::include_proto!("identity.auth");
   }
-
-  // This must be named client, because generated code from the authenticated
-  // protobuf file references message structs from the client protobuf file
-  // with the client:: namespace
-  pub use self::unauth as client;
 }
