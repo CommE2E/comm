@@ -22,7 +22,7 @@ var global =
     (function () { return this; }).call(null) ||
     Function('return this')();
 
-var identity_client_pb = require('./identity-structs.cjs');
+var identity_client_pb = require('./identity-unauth-structs.cjs');
 goog.object.extend(proto, identity_client_pb);
 goog.exportSymbol('proto.identity.authenticated.FindUserIDRequest', null, global);
 goog.exportSymbol('proto.identity.authenticated.FindUserIDRequest.IdentifierCase', null, global);

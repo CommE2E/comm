@@ -10,7 +10,7 @@ pub const SECRETS_SETUP_FILE: &str = "server_setup.txt";
 // Users can sign in either through username+password or Eth wallet.
 //
 // This structure should be aligned with the messages defined in
-// shared/protos/identity_client.proto
+// shared/protos/identity_unauthenticated.proto
 //
 // Structure for a user should be:
 // {

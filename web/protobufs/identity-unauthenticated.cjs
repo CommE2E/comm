@@ -21,7 +21,7 @@ grpc.web = require('grpc-web');
 
 const proto = {};
 proto.identity = {};
-proto.identity.client = require('./identity-structs.cjs');
+proto.identity.client = require('./identity-unauth-structs.cjs');
 
 /**
  * @param {string} hostname

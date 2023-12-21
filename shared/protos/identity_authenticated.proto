@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "identity_client.proto";
+import "identity_unauthenticated.proto";
 
 package identity.authenticated;
 
@@ -14,11 +14,11 @@ service IdentityClientService {
 
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
-    returns (identity.client.Empty) {}
+    returns (identity.unauth.Empty) {}
   // Rotate a device's preKey and preKey signature
   // Rotated for deniability of older messages
   rpc RefreshUserPreKeys(RefreshUserPreKeysRequest)
-    returns (identity.client.Empty) {}
+    returns (identity.unauth.Empty) {}
 
   // Called by clients to get all device keys associated with a user in order
   // to open a new channel of communication on any of their devices.
@@ -38,12 +38,12 @@ service IdentityClientService {
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
     (UpdateUserPasswordStartResponse) {}
   rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
-    (identity.client.Empty) {}
+    (identity.unauth.Empty) {}
 
   // Called by user to log out (clears device's keys and access token)
-  rpc LogOutUser(identity.client.Empty) returns (identity.client.Empty) {}
+  rpc LogOutUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
   // Called by a user to delete their own account
-  rpc DeleteUser(identity.client.Empty) returns (identity.client.Empty) {}
+  rpc DeleteUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
 
   // Called by clients to get required keys for opening a connection
   // to a user's keyserver
@@ -68,15 +68,15 @@ message UploadOneTimeKeysRequest {
 // RefreshUserPreKeys
 
 message RefreshUserPreKeysRequest {
-  identity.client.PreKey new_content_pre_keys = 1;
-  identity.client.PreKey new_notif_pre_keys = 2;
+  identity.unauth.PreKey new_content_pre_keys = 1;
+  identity.unauth.PreKey new_notif_pre_keys = 2;
 }
 
 // Information needed when establishing communication to someone else's device
 message OutboundKeyInfo {
-  identity.client.IdentityKeyInfo identity_info = 1;
-  identity.client.PreKey content_prekey = 2;
-  identity.client.PreKey notif_prekey = 3;
+  identity.unauth.IdentityKeyInfo identity_info = 1;
+  identity.unauth.PreKey content_prekey = 2;
+  identity.unauth.PreKey notif_prekey = 3;
   optional string one_time_content_prekey = 4;
   optional string one_time_notif_prekey = 5;
 }
@@ -102,9 +102,9 @@ message OutboundKeysForUserRequest {
 // GetInboundKeysForUser
 
 message InboundKeyInfo {
-  identity.client.IdentityKeyInfo identity_info = 1;
-  identity.client.PreKey content_prekey = 2;
-  identity.client.PreKey notif_prekey = 3;
+  identity.unauth.IdentityKeyInfo identity_info = 1;
+  identity.unauth.PreKey content_prekey = 2;
+  identity.unauth.PreKey notif_prekey = 3;
 }
 
 message InboundKeysForUserResponse {
