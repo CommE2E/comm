@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 
 import {
@@ -21,6 +22,8 @@ type Props = {
 
 function ReactionTooltip(props: Props): React.Node {
   const { reactions, reaction } = props;
+  const { users } = reactions[reaction];
+
   const { pushModal, popModal } = useModalContext();
 
   const onClickReactionTooltip = React.useCallback(
@@ -34,10 +37,10 @@ function ReactionTooltip(props: Props): React.Node {
     [popModal, pushModal, reactions],
   );
 
-  const usernames = React.useMemo(() => {
-    const { users } = reactions[reaction];
+  const resolvedUsers = useENSNames(users);
 
-    return users.map(user => (
+  const usernames = React.useMemo(() => {
+    return resolvedUsers.map(user => (
       <p
         key={user.id}
         className={css.usernameText}
@@ -46,7 +49,7 @@ function ReactionTooltip(props: Props): React.Node {
         {user.username}
       </p>
     ));
-  }, [reaction, reactions]);
+  }, [resolvedUsers]);
 
   let seeMoreText;
   if (usernames && usernames.length > 5) {
