@@ -243,7 +243,7 @@ impl IdentityClientService for ClientService {
     }
   }
 
-  async fn login_password_user_start(
+  async fn log_in_password_user_start(
     &self,
     request: tonic::Request<OpaqueLoginStartRequest>,
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
@@ -305,7 +305,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
-  async fn login_password_user_finish(
+  async fn log_in_password_user_finish(
     &self,
     request: tonic::Request<OpaqueLoginFinishRequest>,
   ) -> Result<tonic::Response<OpaqueLoginFinishResponse>, tonic::Status> {
@@ -356,7 +356,7 @@ impl IdentityClientService for ClientService {
     }
   }
 
-  async fn login_wallet_user(
+  async fn log_in_wallet_user(
     &self,
     request: tonic::Request<WalletLoginRequest>,
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
@@ -465,7 +465,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
-  async fn login_reserved_wallet_user(
+  async fn log_in_reserved_wallet_user(
     &self,
     request: tonic::Request<ReservedWalletLoginRequest>,
   ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
@@ -574,13 +574,13 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<VerifyUserAccessTokenRequest>,
   ) -> Result<tonic::Response<VerifyUserAccessTokenResponse>, tonic::Status> {
     let message = request.into_inner();
-    debug!("Verifying device: {}", &message.signing_public_key);
+    debug!("Verifying device: {}", &message.device_id);
 
     let token_valid = self
       .client
       .verify_access_token(
         message.user_id,
-        message.signing_public_key.clone(),
+        message.device_id.clone(),
         message.access_token,
       )
       .await
@@ -589,7 +589,7 @@ impl IdentityClientService for ClientService {
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
     debug!(
       "device {} was verified: {}",
-      &message.signing_public_key, token_valid
+      &message.device_id, token_valid
     );
     Ok(response)
   }

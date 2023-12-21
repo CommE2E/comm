@@ -10,7 +10,7 @@ pub mod upload_one_time_keys;
 use client_proto::identity_client_service_client::IdentityClientServiceClient;
 use client_proto::{
   AddReservedUsernamesRequest, DeviceKeyUpload, DeviceType, IdentityKeyInfo,
-  PreKey, RegistrationFinishRequest, RegistrationStartRequest,
+  Prekey, RegistrationFinishRequest, RegistrationStartRequest,
   RemoveReservedUsernameRequest,
 };
 use config::get_identity_service_config;
@@ -169,18 +169,18 @@ impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
       .content_prekey
       .ok_or(Error::from_status(Status::GenericFailure))?;
 
-    let PreKey {
-      pre_key: content_prekey_value,
-      pre_key_signature: content_prekey_signature,
+    let Prekey {
+      prekey: content_prekey_value,
+      prekey_signature: content_prekey_signature,
     } = content_prekey;
 
     let notif_prekey = key_info
       .notif_prekey
       .ok_or(Error::from_status(Status::GenericFailure))?;
 
-    let PreKey {
-      pre_key: notif_prekey_value,
-      pre_key_signature: notif_prekey_signature,
+    let Prekey {
+      prekey: notif_prekey_value,
+      prekey_signature: notif_prekey_signature,
     } = notif_prekey;
 
     Ok(Self {

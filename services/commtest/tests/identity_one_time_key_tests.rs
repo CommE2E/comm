@@ -22,11 +22,11 @@ async fn upload_one_time_keys() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    content_one_time_pre_keys: vec![
+    content_one_time_prekeys: vec![
       "content1".to_string(),
       "content2".to_string(),
     ],
-    notif_one_time_pre_keys: vec!["notif1".to_string(), "notif2".to_string()],
+    notif_one_time_prekeys: vec!["notif1".to_string(), "notif2".to_string()],
   };
 
   identity_client

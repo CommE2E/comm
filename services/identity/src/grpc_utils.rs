@@ -18,7 +18,7 @@ use crate::{
   grpc_services::protos::{
     auth::{InboundKeyInfo, OutboundKeyInfo},
     unauth::{
-      DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, PreKey,
+      DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, Prekey,
       RegistrationStartRequest, ReservedRegistrationStartRequest,
       ReservedWalletLoginRequest, WalletLoginRequest,
     },
@@ -126,10 +126,10 @@ fn create_prekey(
   device_info: &mut HashMap<String, String>,
   key_attr: &str,
   signature_attr: &str,
-) -> Result<PreKey, Status> {
-  Ok(PreKey {
-    pre_key: extract_key(device_info, key_attr)?,
-    pre_key_signature: extract_key(device_info, signature_attr)?,
+) -> Result<Prekey, Status> {
+  Ok(Prekey {
+    prekey: extract_key(device_info, key_attr)?,
+    prekey_signature: extract_key(device_info, signature_attr)?,
   })
 }
 
@@ -201,7 +201,7 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .and_then(|upload| upload.content_upload.as_ref())
-      .map(|prekey| prekey.pre_key.clone())
+      .map(|prekey| prekey.prekey.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 
@@ -209,7 +209,7 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .and_then(|upload| upload.content_upload.as_ref())
-      .map(|prekey| prekey.pre_key_signature.clone())
+      .map(|prekey| prekey.prekey_signature.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 
@@ -217,7 +217,7 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .and_then(|upload| upload.notif_upload.as_ref())
-      .map(|prekey| prekey.pre_key.clone())
+      .map(|prekey| prekey.prekey.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 
@@ -225,7 +225,7 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .and_then(|upload| upload.notif_upload.as_ref())
-      .map(|prekey| prekey.pre_key_signature.clone())
+      .map(|prekey| prekey.prekey_signature.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 

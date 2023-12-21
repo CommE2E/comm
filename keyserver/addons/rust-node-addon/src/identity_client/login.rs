@@ -39,13 +39,13 @@ pub async fn login_user(
         payload_signature: signed_identity_keys_blob.signature,
         social_proof: None,
       }),
-      content_upload: Some(PreKey {
-        pre_key: content_prekey,
-        pre_key_signature: content_prekey_signature,
+      content_upload: Some(Prekey {
+        prekey: content_prekey,
+        prekey_signature: content_prekey_signature,
       }),
-      notif_upload: Some(PreKey {
-        pre_key: notif_prekey,
-        pre_key_signature: notif_prekey_signature,
+      notif_upload: Some(Prekey {
+        prekey: notif_prekey,
+        prekey_signature: notif_prekey_signature,
       }),
       one_time_content_prekeys: content_one_time_keys,
       one_time_notif_prekeys: notif_one_time_keys,
@@ -55,7 +55,7 @@ pub async fn login_user(
 
   debug!("Starting login to identity service");
   let response = identity_client
-    .login_password_user_start(login_start_request)
+    .log_in_password_user_start(login_start_request)
     .await
     .map_err(handle_grpc_error)?;
   debug!("Received login response from identity service");
@@ -88,7 +88,7 @@ pub async fn login_user(
 
   debug!("Attempting to finalize opaque login exchange with identity service");
   let login_finish_response = identity_client
-    .login_password_user_finish(login_finish_request)
+    .log_in_password_user_finish(login_finish_request)
     .await
     .map_err(handle_grpc_error)?
     .into_inner();

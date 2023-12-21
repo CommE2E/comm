@@ -48,8 +48,8 @@ async fn test_refresh_keys_request_upon_depletion() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    content_one_time_pre_keys: vec!["content1".to_string()],
-    notif_one_time_pre_keys: vec!["notif1".to_string()],
+    content_one_time_prekeys: vec!["content1".to_string()],
+    notif_one_time_prekeys: vec!["notif1".to_string()],
   };
 
   client.upload_one_time_keys(upload_request).await.unwrap();

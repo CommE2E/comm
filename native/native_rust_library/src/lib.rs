@@ -9,7 +9,7 @@ use grpc_clients::identity::protos::authenticated::{
 };
 use grpc_clients::identity::protos::client::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, PreKey,
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
 };
 use grpc_clients::identity::{
@@ -402,13 +402,13 @@ async fn register_user_helper(
         payload_signature: password_user_info.key_payload_signature,
         social_proof: None,
       }),
-      content_upload: Some(PreKey {
-        pre_key: password_user_info.content_prekey,
-        pre_key_signature: password_user_info.content_prekey_signature,
+      content_upload: Some(Prekey {
+        prekey: password_user_info.content_prekey,
+        prekey_signature: password_user_info.content_prekey_signature,
       }),
-      notif_upload: Some(PreKey {
-        pre_key: password_user_info.notif_prekey,
-        pre_key_signature: password_user_info.notif_prekey_signature,
+      notif_upload: Some(Prekey {
+        prekey: password_user_info.notif_prekey,
+        prekey_signature: password_user_info.notif_prekey_signature,
       }),
       one_time_content_prekeys: password_user_info.content_one_time_keys,
       one_time_notif_prekeys: password_user_info.notif_one_time_keys,
@@ -516,13 +516,13 @@ async fn login_password_user_helper(
         payload_signature: password_user_info.key_payload_signature,
         social_proof: None,
       }),
-      content_upload: Some(PreKey {
-        pre_key: password_user_info.content_prekey,
-        pre_key_signature: password_user_info.content_prekey_signature,
+      content_upload: Some(Prekey {
+        prekey: password_user_info.content_prekey,
+        prekey_signature: password_user_info.content_prekey_signature,
       }),
-      notif_upload: Some(PreKey {
-        pre_key: password_user_info.notif_prekey,
-        pre_key_signature: password_user_info.notif_prekey_signature,
+      notif_upload: Some(Prekey {
+        prekey: password_user_info.notif_prekey,
+        prekey_signature: password_user_info.notif_prekey_signature,
       }),
       one_time_content_prekeys: password_user_info.content_one_time_keys,
       one_time_notif_prekeys: password_user_info.notif_one_time_keys,
@@ -538,7 +538,7 @@ async fn login_password_user_helper(
   .await?;
 
   let response = identity_client
-    .login_password_user_start(login_start_request)
+    .log_in_password_user_start(login_start_request)
     .await?;
 
   // We need to get the load balancer cookie from from the response and send it
@@ -570,7 +570,7 @@ async fn login_password_user_helper(
   }
 
   let login_finish_response = identity_client
-    .login_password_user_finish(finish_request)
+    .log_in_password_user_finish(finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token = UserIDAndDeviceAccessToken {
@@ -640,13 +640,13 @@ async fn login_wallet_user_helper(
         payload_signature: wallet_user_info.key_payload_signature,
         social_proof: Some(wallet_user_info.social_proof),
       }),
-      content_upload: Some(PreKey {
-        pre_key: wallet_user_info.content_prekey,
-        pre_key_signature: wallet_user_info.content_prekey_signature,
+      content_upload: Some(Prekey {
+        prekey: wallet_user_info.content_prekey,
+        prekey_signature: wallet_user_info.content_prekey_signature,
       }),
-      notif_upload: Some(PreKey {
-        pre_key: wallet_user_info.notif_prekey,
-        pre_key_signature: wallet_user_info.notif_prekey_signature,
+      notif_upload: Some(Prekey {
+        prekey: wallet_user_info.notif_prekey,
+        prekey_signature: wallet_user_info.notif_prekey_signature,
       }),
       one_time_content_prekeys: wallet_user_info.content_one_time_keys,
       one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
@@ -662,7 +662,7 @@ async fn login_wallet_user_helper(
   .await?;
 
   let login_response = identity_client
-    .login_wallet_user(login_request)
+    .log_in_wallet_user(login_request)
     .await?
     .into_inner();
 
@@ -847,17 +847,17 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
     let content_prekey =
       key_info.content_prekey.ok_or(Error::MissingResponseData)?;
 
-    let PreKey {
-      pre_key: content_prekey_value,
-      pre_key_signature: content_prekey_signature,
+    let Prekey {
+      prekey: content_prekey_value,
+      prekey_signature: content_prekey_signature,
     } = content_prekey;
 
     let notif_prekey =
       key_info.notif_prekey.ok_or(Error::MissingResponseData)?;
 
-    let PreKey {
-      pre_key: notif_prekey_value,
-      pre_key_signature: notif_prekey_signature,
+    let Prekey {
+      prekey: notif_prekey_value,
+      prekey_signature: notif_prekey_signature,
     } = notif_prekey;
 
     let one_time_content_prekey = key_info.one_time_content_prekey;
@@ -945,17 +945,17 @@ impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
     let content_prekey =
       key_info.content_prekey.ok_or(Error::MissingResponseData)?;
 
-    let PreKey {
-      pre_key: content_prekey_value,
-      pre_key_signature: content_prekey_signature,
+    let Prekey {
+      prekey: content_prekey_value,
+      prekey_signature: content_prekey_signature,
     } = content_prekey;
 
     let notif_prekey =
       key_info.notif_prekey.ok_or(Error::MissingResponseData)?;
 
-    let PreKey {
-      pre_key: notif_prekey_value,
-      pre_key_signature: notif_prekey_signature,
+    let Prekey {
+      prekey: notif_prekey_value,
+      prekey_signature: notif_prekey_signature,
     } = notif_prekey;
 
     Ok(Self {
@@ -1033,8 +1033,8 @@ fn upload_one_time_keys(
 ) {
   RUNTIME.spawn(async move {
     let upload_request = UploadOneTimeKeysRequest {
-      content_one_time_pre_keys: content_one_time_keys,
-      notif_one_time_pre_keys: notif_one_time_keys,
+      content_one_time_prekeys: content_one_time_keys,
+      notif_one_time_prekeys: notif_one_time_keys,
     };
     let auth_info = AuthInfo {
       access_token: auth_access_token,

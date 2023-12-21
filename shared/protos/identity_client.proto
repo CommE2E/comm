@@ -18,12 +18,12 @@ service IdentityClientService {
   rpc RegisterPasswordUserFinish(RegistrationFinishRequest) returns (
     RegistrationFinishResponse) {}
   // Called by user to register device and get an access token
-  rpc LoginPasswordUserStart(OpaqueLoginStartRequest) returns
+  rpc LogInPasswordUserStart(OpaqueLoginStartRequest) returns
     (OpaqueLoginStartResponse) {}
-  rpc LoginPasswordUserFinish(OpaqueLoginFinishRequest) returns
+  rpc LogInPasswordUserFinish(OpaqueLoginFinishRequest) returns
     (OpaqueLoginFinishResponse) {}
-  rpc LoginWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
-  rpc LoginReservedWalletUser(ReservedWalletLoginRequest) returns
+  rpc LogInWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
+  rpc LogInReservedWalletUser(ReservedWalletLoginRequest) returns
     (WalletLoginResponse) {}
 
   // Sign-In with Ethereum actions
@@ -56,9 +56,9 @@ service IdentityClientService {
 
 message Empty {}
 
-message PreKey {
-  string preKey = 1;
-  string preKeySignature = 2;
+message Prekey {
+  string prekey = 1;
+  string prekey_signature = 2;
 }
 
 // Key information needed for starting a X3DH session
@@ -68,10 +68,10 @@ message IdentityKeyInfo {
   // For keyservers, this will only contain ContentKeys
   string payload = 1;
   // Payload signed with the signing ed25519 key
-  string payloadSignature = 2;
+  string payload_signature = 2;
   // Signed message used for SIWE
   // This correlates a given wallet with a device's content key
-  optional string socialProof = 3;
+  optional string social_proof = 3;
 }
 
 // RegisterUser
@@ -84,69 +84,69 @@ message IdentityKeyInfo {
 // be provide to avoid exhausting them.
 
 enum DeviceType {
-  Keyserver = 0;
-  Web = 1;
+  KEYSERVER = 0;
+  WEB = 1;
   // iOS doesn't leave a good option for title to camel case renaming
-  Ios = 2;
-  Android = 3;
-  Windows = 4;
-  MacOS = 5;
+  IOS = 2;
+  ANDROID = 3;
+  WINDOWS = 4;
+  MAC_OS = 5;
 }
 
 // Bundle of information needed for creating an initial message using X3DH
 message DeviceKeyUpload {
-  IdentityKeyInfo deviceKeyInfo = 1;
-  PreKey contentUpload = 2;
-  PreKey notifUpload = 3;
-  repeated string oneTimeContentPrekeys = 4;
-  repeated string oneTimeNotifPrekeys = 5;
-  DeviceType deviceType = 6;
+  IdentityKeyInfo device_key_info = 1;
+  Prekey content_upload = 2;
+  Prekey notif_upload = 3;
+  repeated string one_time_content_prekeys = 4;
+  repeated string one_time_notif_prekeys = 5;
+  DeviceType device_type = 6;
 }
 
 // Request for registering a new user
 message RegistrationStartRequest {
   // Message sent to initiate PAKE registration (step 1)
-  bytes opaqueRegistrationRequest = 1;
+  bytes opaque_registration_request = 1;
   string username = 2;
   // Information needed to open a new channel to current user's device
-  DeviceKeyUpload deviceKeyUpload = 3;
+  DeviceKeyUpload device_key_upload = 3;
 }
 
 message ReservedRegistrationStartRequest {
   // Message sent to initiate PAKE registration (step 1)
-  bytes opaqueRegistrationRequest = 1;
+  bytes opaque_registration_request = 1;
   string username = 2;
   // Information needed to open a new channel to current user's device
-  DeviceKeyUpload deviceKeyUpload = 3;
+  DeviceKeyUpload device_key_upload = 3;
   // Message from Ashoat's keyserver attesting that a given user has ownership
   // of a given username
-  string keyserverMessage = 4;
+  string keyserver_message = 4;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
-  string keyserverSignature = 5;
+  string keyserver_signature = 5;
 }
 
 // Messages sent from a client to Identity Service
 message RegistrationFinishRequest {
   // Identifier to correlate RegisterStart session
-  string sessionID = 1;
+  string session_id = 1;
   // Final message in PAKE registration
-  bytes opaqueRegistrationUpload = 2;
+  bytes opaque_registration_upload = 2;
 }
 
 // Messages sent from Identity Service to client
 message RegistrationStartResponse {
   // Identifier used to correlate start request with finish request
-  string sessionID = 1;
+  string session_id = 1;
   // sent to the user upon reception of the PAKE registration attempt
   // (step 2)
-  bytes opaqueRegistrationResponse = 2;
+  bytes opaque_registration_response = 2;
 }
 
 message RegistrationFinishResponse {
   // Unique identifier for newly registered user
-  string userID = 1;
+  string user_id = 1;
   // After successful unpacking of user credentials, return token
-  string accessToken = 2;
+  string access_token = 2;
 }
 
 // LoginUser
@@ -154,58 +154,58 @@ message RegistrationFinishResponse {
 message OpaqueLoginStartRequest {
   string username = 1;
   // Message sent to initiate PAKE login (step 1)
-  bytes opaqueLoginRequest = 2;
+  bytes opaque_login_request = 2;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
-  DeviceKeyUpload deviceKeyUpload = 3;
+  DeviceKeyUpload device_key_upload = 3;
 }
 
 message OpaqueLoginFinishRequest {
   // Identifier used to correlate start request with finish request
-  string sessionID = 1;
+  string session_id = 1;
   // Message containing client's reponse to server challenge.
   // Used to verify that client holds password secret (Step 3)
-  bytes opaqueLoginUpload = 2;
+  bytes opaque_login_upload = 2;
 }
 
 message OpaqueLoginStartResponse {
   // Identifier used to correlate start request with finish request
-  string sessionID = 1;
+  string session_id = 1;
   // Opaque challenge sent from server to client attempting to login (Step 2)
-  bytes opaqueLoginResponse = 2;
+  bytes opaque_login_response = 2;
 }
 
 message OpaqueLoginFinishResponse {
-  string userID = 1;
+  string user_id = 1;
   // Mint and return a new access token upon successful login
-  string accessToken = 2;
+  string access_token = 2;
 
 }
 
 message WalletLoginRequest {
-  string siweMessage = 1;
-  string siweSignature = 2;
+  string siwe_message = 1;
+  string siwe_signature = 2;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
-  DeviceKeyUpload deviceKeyUpload = 3;
+  DeviceKeyUpload device_key_upload = 3;
 }
 
 message ReservedWalletLoginRequest {
-  string siweMessage = 1;
-  string siweSignature = 2;
+  string siwe_message = 1;
+  string siwe_signature = 2;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
-  DeviceKeyUpload deviceKeyUpload = 3;
+  DeviceKeyUpload device_key_upload = 3;
   // Message from Ashoat's keyserver attesting that a given user has ownership
   // of a given wallet address
-  string keyserverMessage = 4;
+  string keyserver_message = 4;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
-  string keyserverSignature = 5;
+  string keyserver_signature = 5;
 }
 
 message WalletLoginResponse {
-  string userID = 1;
-  string accessToken = 2;
+  string user_id = 1;
+  string access_token = 2;
 }
 
 // GenerateNonce
@@ -217,14 +217,14 @@ message GenerateNonceResponse{
 // VerifyUserAccessToken
 
 message VerifyUserAccessTokenRequest {
-  string userID = 1;
+  string user_id = 1;
   // signing ed25519 key for the given user's device
-  string signingPublicKey = 2;
-  string accessToken = 3;
+  string device_id = 2;
+  string access_token = 3;
 }
 
 message VerifyUserAccessTokenResponse {
-  bool tokenValid = 1;
+  bool token_valid = 1;
 }
 
 // AddReservedUsernames

@@ -4,7 +4,7 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client,
-  protos::{authenticated::RefreshUserPreKeysRequest, client::PreKey},
+  protos::{authenticated::RefreshUserPrekeysRequest, client::Prekey},
 };
 
 #[tokio::test]
@@ -22,20 +22,20 @@ async fn set_prekey() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let upload_request = RefreshUserPreKeysRequest {
-    new_content_pre_keys: Some(PreKey {
-      pre_key: "content_prekey".to_string(),
-      pre_key_signature: "content_prekey_signature".to_string(),
+  let upload_request = RefreshUserPrekeysRequest {
+    new_content_prekeys: Some(Prekey {
+      prekey: "content_prekey".to_string(),
+      prekey_signature: "content_prekey_signature".to_string(),
     }),
-    new_notif_pre_keys: Some(PreKey {
-      pre_key: "content_prekey".to_string(),
-      pre_key_signature: "content_prekey_signature".to_string(),
+    new_notif_prekeys: Some(Prekey {
+      prekey: "content_prekey".to_string(),
+      prekey_signature: "content_prekey_signature".to_string(),
     }),
   };
 
   // This send will fail if the one-time keys weren't successfully added
   println!(
     "Error: {:?}",
-    client.refresh_user_pre_keys(upload_request).await
+    client.refresh_user_prekeys(upload_request).await
   );
 }
