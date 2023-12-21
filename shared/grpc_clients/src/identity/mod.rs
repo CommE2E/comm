@@ -4,11 +4,11 @@ pub mod shared;
 pub mod unauthenticated;
 
 pub mod protos {
-  // This must be named client for authenticated generated code
-  pub mod client {
-    tonic::include_proto!("identity.client");
+  // This must be named unauth for authenticated generated code
+  pub mod unauth {
+    tonic::include_proto!("identity.unauth");
   }
-  pub use client as unauthenticated;
+  pub use unauth as unauthenticated;
 
   pub mod authenticated {
     tonic::include_proto!("identity.authenticated");

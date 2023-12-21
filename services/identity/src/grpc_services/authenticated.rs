@@ -25,7 +25,7 @@ use super::protos::auth::{
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
 };
-use super::protos::client::{Empty, IdentityKeyInfo, PreKey};
+use super::protos::unauth::{Empty, IdentityKeyInfo, PreKey};
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {

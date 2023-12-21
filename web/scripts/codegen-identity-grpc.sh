@@ -6,18 +6,18 @@ PROTO_PATH="../shared/protos/"
 
 OUTPUT_DIR="protobufs"
 
-protoc -I=$PROTO_PATH identity_client.proto identity_authenticated.proto \
+protoc -I=$PROTO_PATH identity_unauthenticated.proto identity_authenticated.proto \
   --js_out=import_style=commonjs:$OUTPUT_DIR \
   --grpc-web_out=import_style=commonjs+dts,mode=grpcwebtext:$OUTPUT_DIR
 
-mv $OUTPUT_DIR/identity_client_pb.js \
-   $OUTPUT_DIR/identity-structs.cjs
-mv $OUTPUT_DIR/identity_client_grpc_web_pb.js \
-   $OUTPUT_DIR/identity-client.cjs
-mv $OUTPUT_DIR/identity_client_pb.d.ts \
-   $OUTPUT_DIR/identity-structs.cjs.flow
-mv $OUTPUT_DIR/identity_client_grpc_web_pb.d.ts \
-   $OUTPUT_DIR/identity-client.cjs.flow
+mv $OUTPUT_DIR/identity_unauthenticated_pb.js \
+   $OUTPUT_DIR/identity-unauth-structs.cjs
+mv $OUTPUT_DIR/identity_unauthenticated_grpc_web_pb.js \
+   $OUTPUT_DIR/identity-unauthenticated.cjs
+mv $OUTPUT_DIR/identity_unauthenticated_pb.d.ts \
+   $OUTPUT_DIR/identity-unauth-structs.cjs.flow
+mv $OUTPUT_DIR/identity_unauthenticated_grpc_web_pb.d.ts \
+   $OUTPUT_DIR/identity-unauthenticated.cjs.flow
 mv $OUTPUT_DIR/identity_authenticated_pb.js \
    $OUTPUT_DIR/identity-auth-structs.cjs
 mv $OUTPUT_DIR/identity_authenticated_grpc_web_pb.js \
