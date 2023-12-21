@@ -1,7 +1,7 @@
 mod proto {
   tonic::include_proto!("tunnelbroker");
 }
-use commtest::identity::device::create_device;
+use commtest::identity::device::register_user_device;
 use commtest::identity::olm_account_infos::{
   MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
 };
@@ -20,7 +20,7 @@ use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
 async fn persist_grpc_messages() {
-  let device_info = create_device(None).await;
+  let device_info = register_user_device(None, None).await;
 
   // Send request for keyserver to refresh keys (identity service)
   let mut tunnelbroker_client =
@@ -60,8 +60,8 @@ async fn persist_grpc_messages() {
 
 #[tokio::test]
 async fn persist_websocket_messages() {
-  let sender = create_device(Some(&MOCK_CLIENT_KEYS_1)).await;
-  let receiver = create_device(Some(&MOCK_CLIENT_KEYS_2)).await;
+  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
 
   // Send message to not connected client
   let mut sender_socket = create_socket(&sender).await.unwrap();

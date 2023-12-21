@@ -22,7 +22,14 @@ pub struct DeviceInfo {
   pub access_token: String,
 }
 
-pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
+/// Register a new user with a device.
+/// - Gives random username (returned by function).
+/// - Device type defaults to keyserver.
+/// - Device ID taken from `keys` (ed25519), see [`DEFAULT_CLIENT_KEYS`]
+pub async fn register_user_device(
+  keys: Option<&ClientPublicKeys>,
+  device_type: Option<DeviceType>,
+) -> DeviceInfo {
   let password = "pass";
   let username: String = rand::thread_rng()
     .sample_iter(&Alphanumeric)
@@ -36,6 +43,7 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
     serde_json::to_string(&keys).expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
   let device_id = &keys.primary_identity_public_keys.ed25519;
+  let device_type = device_type.unwrap_or(DeviceType::Keyserver);
 
   let mut client_registration = Registration::new();
   let opaque_registration_request =
@@ -59,7 +67,7 @@ pub async fn create_device(keys: Option<&ClientPublicKeys>) -> DeviceInfo {
       }),
       one_time_content_prekeys: Vec::new(),
       one_time_notif_prekeys: Vec::new(),
-      device_type: DeviceType::Keyserver.into(),
+      device_type: device_type.into(),
     }),
   };
 
