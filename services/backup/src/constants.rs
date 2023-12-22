@@ -4,6 +4,7 @@ pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
 pub const ID_SEPARATOR: &str = ":";
 pub const ATTACHMENT_HOLDER_SEPARATOR: &str = ";";
 pub const WS_FRAME_SIZE: usize = 1_048_576; // 1MiB
+pub const LOG_DEFAULT_PAGE_SIZE: i32 = 20;
 
 // Configuration defaults
 pub const DEFAULT_HTTP_PORT: u16 = 50052;
