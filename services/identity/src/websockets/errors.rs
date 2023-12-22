@@ -5,7 +5,9 @@ pub type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 )]
 pub enum WebsocketError {
   InvalidMessage,
+  UnauthorizedDevice,
   SendError,
   SearchError,
+  AuthError,
   SerializationError,
 }
