@@ -16,6 +16,8 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
 
+mod auth;
+
 use crate::config::CONFIG;
 use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
 
@@ -166,6 +168,14 @@ async fn send_error_response(
   }
 }
 
+async fn close_connection(
+  outgoing: Arc<Mutex<SplitSink<WebSocketStream<Upgraded>, Message>>>,
+) {
+  if let Err(e) = outgoing.lock().await.close().await {
+    error!("Error closing connection: {}", e);
+  }
+}
+
 async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   debug!("Incoming WebSocket connection from {}", addr);
 
@@ -183,6 +193,27 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
 
   let opensearch_url =
     format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
+
+  if let Some(Ok(auth_message)) = incoming.next().await {
+    match auth_message {
+      Message::Text(text) => {
+        if let Err(auth_error) = auth::handle_auth_message(&text).await {
+          send_error_response(auth_error, outgoing.clone()).await;
+          close_connection(outgoing).await;
+          return;
+        }
+      }
+      _ => {
+        error!("Invalid authentication message from {}", addr);
+        close_connection(outgoing).await;
+        return;
+      }
+    }
+  } else {
+    error!("No authentication message from {}", addr);
+    close_connection(outgoing).await;
+    return;
+  }
 
   while let Some(message) = incoming.next().await {
     match message {
@@ -296,7 +327,5 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
     }
   }
 
-  if let Err(e) = outgoing.lock().await.close().await {
-    error!("Failed to close WebSocket connection: {}", e);
-  };
+  close_connection(outgoing).await;
 }
