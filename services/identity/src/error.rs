@@ -29,6 +29,7 @@ pub enum DeviceListError {
   ConcurrentUpdateError,
 }
 
+#[deprecated(note = "Use comm-lib traits instead")]
 pub trait FromAttributeValue {
   fn to_vec(
     &self,

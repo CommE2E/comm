@@ -9,7 +9,10 @@ use comm_lib::{
       TransactWriteItem, Update, WriteRequest,
     },
   },
-  database::{AttributeMap, DBItemAttributeError, DBItemError, DynamoDBError},
+  database::{
+    AttributeExtractor, AttributeMap, DBItemAttributeError, DBItemError,
+    DynamoDBError, TryFromAttribute,
+  },
 };
 use tracing::{error, warn};
 
@@ -20,13 +23,12 @@ use crate::{
     USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
     USERS_TABLE_PARTITION_KEY,
   },
-  database::parse_string_attribute,
   ddb_utils::AttributesOptionExt,
   error::{DeviceListError, Error, FromAttributeValue},
   grpc_services::protos::unauth::DeviceType,
 };
 
-use super::{parse_date_time_attribute, DatabaseClient};
+use super::DatabaseClient;
 
 #[derive(Clone, Debug)]
 pub struct DeviceRow {
@@ -119,7 +121,7 @@ impl From<DeviceListKeyAttribute> for AttributeValue {
 impl TryFrom<Option<AttributeValue>> for DeviceIDAttribute {
   type Error = DBItemError;
   fn try_from(value: Option<AttributeValue>) -> Result<Self, Self::Error> {
-    let item_id = parse_string_attribute(ATTR_ITEM_ID, value)?;
+    let item_id = String::try_from_attr(ATTR_ITEM_ID, value)?;
 
     // remove the device- prefix
     let device_id = item_id
@@ -138,7 +140,7 @@ impl TryFrom<Option<AttributeValue>> for DeviceIDAttribute {
 impl TryFrom<Option<AttributeValue>> for DeviceListKeyAttribute {
   type Error = DBItemError;
   fn try_from(value: Option<AttributeValue>) -> Result<Self, Self::Error> {
-    let item_id = parse_string_attribute(ATTR_ITEM_ID, value)?;
+    let item_id = String::try_from_attr(ATTR_ITEM_ID, value)?;
 
     // remove the device-list- prefix, then parse the timestamp
     let timestamp: DateTime<Utc> = item_id
@@ -166,12 +168,10 @@ impl TryFrom<AttributeMap> for DeviceRow {
   type Error = DBItemError;
 
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let user_id =
-      parse_string_attribute(ATTR_USER_ID, attrs.remove(ATTR_USER_ID))?;
+    let user_id = attrs.take_attr(ATTR_USER_ID)?;
     let DeviceIDAttribute(device_id) = attrs.remove(ATTR_ITEM_ID).try_into()?;
 
-    let raw_device_type =
-      parse_string_attribute(ATTR_DEVICE_TYPE, attrs.remove(ATTR_DEVICE_TYPE))?;
+    let raw_device_type: String = attrs.take_attr(ATTR_DEVICE_TYPE)?;
     let device_type =
       DeviceType::from_str_name(&raw_device_type).ok_or_else(|| {
         DBItemError::new(
@@ -260,12 +260,8 @@ impl From<IdentityKeyInfo> for AttributeValue {
 impl TryFrom<AttributeMap> for IdentityKeyInfo {
   type Error = DBItemError;
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let key_payload =
-      parse_string_attribute(ATTR_KEY_PAYLOAD, attrs.remove(ATTR_KEY_PAYLOAD))?;
-    let key_payload_signature = parse_string_attribute(
-      ATTR_KEY_PAYLOAD_SIGNATURE,
-      attrs.remove(ATTR_KEY_PAYLOAD_SIGNATURE),
-    )?;
+    let key_payload = attrs.take_attr(ATTR_KEY_PAYLOAD)?;
+    let key_payload_signature = attrs.take_attr(ATTR_KEY_PAYLOAD_SIGNATURE)?;
     // social proof is optional
     let social_proof = attrs
       .remove(ATTR_SOCIAL_PROOF)
@@ -296,12 +292,8 @@ impl From<PreKey> for AttributeValue {
 impl TryFrom<AttributeMap> for PreKey {
   type Error = DBItemError;
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let pre_key =
-      parse_string_attribute(ATTR_PREKEY, attrs.remove(ATTR_PREKEY))?;
-    let pre_key_signature = parse_string_attribute(
-      ATTR_PREKEY_SIGNATURE,
-      attrs.remove(ATTR_PREKEY_SIGNATURE),
-    )?;
+    let pre_key = attrs.take_attr(ATTR_PREKEY)?;
+    let pre_key_signature = attrs.take_attr(ATTR_PREKEY_SIGNATURE)?;
     Ok(Self {
       pre_key,
       pre_key_signature,
@@ -313,8 +305,7 @@ impl TryFrom<AttributeMap> for DeviceListRow {
   type Error = DBItemError;
 
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let user_id =
-      parse_string_attribute(ATTR_USER_ID, attrs.remove(ATTR_USER_ID))?;
+    let user_id = attrs.take_attr(ATTR_USER_ID)?;
     let DeviceListKeyAttribute(timestamp) =
       attrs.remove(ATTR_ITEM_ID).try_into()?;
 
@@ -333,20 +324,7 @@ impl TryFrom<AttributeMap> for DeviceListRow {
       );
     }
 
-    // this should be a list of strings
-    let device_ids = attrs
-      .remove(ATTR_DEVICE_IDS)
-      .ok_or_else(|| {
-        DBItemError::new(
-          ATTR_DEVICE_IDS.to_string(),
-          None.into(),
-          DBItemAttributeError::Missing,
-        )
-      })?
-      .to_vec(ATTR_DEVICE_IDS)?
-      .iter()
-      .map(|v| v.to_string("device_ids[?]").cloned())
-      .collect::<Result<Vec<String>, DBItemError>>()?;
+    let device_ids: Vec<String> = attrs.take_attr(ATTR_DEVICE_IDS)?;
 
     Ok(Self {
       user_id,
@@ -725,7 +703,7 @@ async fn get_current_devicelist_timestamp(
     return Ok(None);
   }
 
-  let timestamp = parse_date_time_attribute(
+  let timestamp = DateTime::<Utc>::try_from_attr(
     USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
     raw_datetime,
   )?;
