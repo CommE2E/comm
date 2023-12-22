@@ -640,8 +640,13 @@ void trace_queries(sqlite3 *db) {
   }
 }
 
+// We don't want to run `PRAGMA key = ...;`
+// on main web database. The context is here:
+// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
 void on_database_open(sqlite3 *db) {
+#ifndef EMSCRIPTEN
   set_encryption_key(db);
+#endif
   trace_queries(db);
 }
 
@@ -868,7 +873,12 @@ bool set_up_database(sqlite3 *db) {
 }
 
 void SQLiteQueryExecutor::migrate() {
+// We don't want to run `PRAGMA key = ...;`
+// on main web database. The context is here:
+// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
+#ifndef EMSCRIPTEN
   validate_encryption();
+#endif
 
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
