@@ -3,7 +3,10 @@
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { registerActionTypes, register } from 'lib/actions/user-actions.js';
+import {
+  keyserverRegisterActionTypes,
+  keyserverRegister,
+} from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useServerCall,
@@ -65,7 +68,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   );
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callRegister = useServerCall(register);
+  const callRegister = useServerCall(keyserverRegister);
 
   const registerUsernameAccount = React.useCallback(
     async (
@@ -114,7 +117,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         }
       })();
       void dispatchActionPromise(
-        registerActionTypes,
+        keyserverRegisterActionTypes,
         registerPromise,
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
