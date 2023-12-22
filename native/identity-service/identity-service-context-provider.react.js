@@ -10,7 +10,10 @@ import {
   type KeyserverKeys,
   keyserverKeysValidator,
 } from 'lib/types/identity-service-types.js';
-import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
+import {
+  ONE_TIME_KEYS_NUMBER,
+  identityAuthResultValidator,
+} from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
@@ -133,6 +136,39 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         );
         const { userID, accessToken } = JSON.parse(registrationResult);
         return { accessToken, userID, username };
+      },
+      logInPasswordUser: async (username: string, password: string) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature },
+          notificationsOneTimeKeys,
+          primaryOneTimeKeys,
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.generateAndGetPrekeys(),
+        ]);
+        const loginResult = await commRustModule.logInPasswordUser(
+          username,
+          password,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyArray(primaryOneTimeKeys),
+          getOneTimeKeyArray(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken } = JSON.parse(loginResult);
+        const identityAuthResult = { accessToken, userID, username };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
       },
     }),
     [getAuthMetadata],
