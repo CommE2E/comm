@@ -1,5 +1,6 @@
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::aws::DynamoDBError;
+use comm_lib::database::{DBItemAttributeError, DBItemError, Value};
 use std::collections::hash_map::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use tracing::error;
@@ -29,47 +30,6 @@ pub enum DeviceListError {
   ConcurrentUpdateError,
 }
 
-#[derive(Debug, derive_more::Error, derive_more::Constructor)]
-pub struct DBItemError {
-  pub attribute_name: String,
-  pub attribute_value: Option<AttributeValue>,
-  pub attribute_error: DBItemAttributeError,
-}
-
-impl Display for DBItemError {
-  fn fmt(&self, f: &mut Formatter) -> FmtResult {
-    match &self.attribute_error {
-      DBItemAttributeError::Missing => {
-        write!(f, "Attribute {} is missing", self.attribute_name)
-      }
-      DBItemAttributeError::IncorrectType => write!(
-        f,
-        "Value for attribute {} has incorrect type: {:?}",
-        self.attribute_name, self.attribute_value
-      ),
-      error => write!(
-        f,
-        "Error regarding attribute {} with value {:?}: {}",
-        self.attribute_name, self.attribute_value, error
-      ),
-    }
-  }
-}
-
-#[derive(Debug, derive_more::Display, derive_more::Error)]
-pub enum DBItemAttributeError {
-  #[display(...)]
-  Missing,
-  #[display(...)]
-  IncorrectType,
-  #[display(...)]
-  InvalidTimestamp(chrono::ParseError),
-  #[display(...)]
-  ExpiredTimestamp,
-  #[display(...)]
-  InvalidValue,
-}
-
 pub trait FromAttributeValue {
   fn to_vec(
     &self,
@@ -85,7 +45,7 @@ pub trait FromAttributeValue {
 fn handle_attr_failure(value: &AttributeValue, attr_name: &str) -> DBItemError {
   DBItemError {
     attribute_name: attr_name.to_string(),
-    attribute_value: Some(value.clone()),
+    attribute_value: Value::AttributeValue(Some(value.clone())),
     attribute_error: DBItemAttributeError::IncorrectType,
   }
 }
@@ -125,7 +85,7 @@ impl AttributeValueFromHashMap for HashMap<String, AttributeValue> {
       .get(key)
       .ok_or(DBItemError {
         attribute_name: key.to_string(),
-        attribute_value: None,
+        attribute_value: None.into(),
         attribute_error: DBItemAttributeError::Missing,
       })?
       .to_string(key)
@@ -139,7 +99,7 @@ impl AttributeValueFromHashMap for HashMap<String, AttributeValue> {
       .get(key)
       .ok_or(DBItemError {
         attribute_name: key.to_string(),
-        attribute_value: None,
+        attribute_value: None.into(),
         attribute_error: DBItemAttributeError::Missing,
       })?
       .to_hashmap(key)
@@ -150,7 +110,7 @@ impl AttributeValueFromHashMap for HashMap<String, AttributeValue> {
       .get(key)
       .ok_or(DBItemError {
         attribute_name: key.to_string(),
-        attribute_value: None,
+        attribute_value: None.into(),
         attribute_error: DBItemAttributeError::Missing,
       })?
       .to_vec(key)

@@ -35,7 +35,7 @@ pub enum Error {
   MaxRetriesExceeded,
 }
 
-#[derive(Debug)]
+#[derive(Debug, derive_more::From)]
 pub enum Value {
   AttributeValue(Option<AttributeValue>),
   String(String),
@@ -43,9 +43,9 @@ pub enum Value {
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
 pub struct DBItemError {
-  attribute_name: String,
-  attribute_value: Value,
-  attribute_error: DBItemAttributeError,
+  pub attribute_name: String,
+  pub attribute_value: Value,
+  pub attribute_error: DBItemAttributeError,
 }
 
 impl Display for DBItemError {
@@ -80,6 +80,10 @@ pub enum DBItemAttributeError {
   InvalidTimestamp(chrono::ParseError),
   #[display(...)]
   InvalidNumberFormat(ParseIntError),
+  #[display(...)]
+  ExpiredTimestamp,
+  #[display(...)]
+  InvalidValue,
 }
 
 /// Conversion trait for [`AttributeValue`]
