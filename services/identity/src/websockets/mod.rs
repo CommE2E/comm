@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
 
+mod auth;
+
 use crate::config::CONFIG;
 use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
 
@@ -150,6 +152,35 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
 
   let opensearch_url =
     format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
+
+  if let Some(Ok(auth_message)) = incoming.next().await {
+    match auth_message {
+      Message::Text(text) => {
+        if let Err(auth_error) = auth::handle_auth_message(&text).await {
+          let error_msg = serde_json::json!({
+            "action": "errorMessage",
+            "error": auth_error.to_string()
+          });
+
+          if let Err(send_error) = outgoing
+            .send(Message::Text(format!("{}", error_msg.to_string())))
+            .await
+          {
+            error!("Error sending auth error response: {}", send_error);
+          }
+
+          return;
+        }
+      }
+      _ => {
+        error!("Invalid authentication message from {}", addr);
+        return;
+      }
+    }
+  } else {
+    error!("No authentication message from {}", addr);
+    return;
+  }
 
   while let Some(message) = incoming.next().await {
     match message {
