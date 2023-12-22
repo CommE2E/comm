@@ -8,7 +8,9 @@ use actix_web::{
 use actix_web_actors::ws::{self, WebsocketContext};
 use comm_lib::{
   auth::UserIdentity,
-  backup::{LogWSRequest, LogWSResponse, UploadLogRequest},
+  backup::{
+    DownloadLogsRequest, LogWSRequest, LogWSResponse, UploadLogRequest,
+  },
   blob::{
     client::{BlobServiceClient, BlobServiceError},
     types::BlobInfo,
@@ -146,6 +148,40 @@ impl LogWSActor {
         db_client.put_log_item(log_item).await?;
 
         Ok(vec![LogWSResponse::LogUploaded { log_id }])
+      }
+      LogWSRequest::DownloadLogs(DownloadLogsRequest { from_id }) => {
+        let (log_items, last_id) =
+          db_client.fetch_log_items(&info.backup_id, from_id).await?;
+
+        let mut messages = vec![];
+
+        for LogItem {
+          log_id,
+          content,
+          attachments,
+          ..
+        } in log_items
+        {
+          let content = content.fetch_bytes(&blob_client).await?;
+          let attachments: Vec<String> =
+            attachments.into_iter().map(|att| att.blob_hash).collect();
+          let attachments = if attachments.is_empty() {
+            None
+          } else {
+            Some(attachments)
+          };
+          messages.push(LogWSResponse::LogDownload {
+            log_id,
+            content,
+            attachments,
+          })
+        }
+
+        messages.push(LogWSResponse::LogDownloadFinished {
+          last_log_id: last_id,
+        });
+
+        Ok(messages)
       }
     }
   }

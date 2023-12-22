@@ -14,12 +14,28 @@ pub struct UploadLogRequest {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DownloadLogsRequest {
+  pub from_id: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LogWSRequest {
   UploadLog(UploadLogRequest),
+  DownloadLogs(DownloadLogsRequest),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LogWSResponse {
-  LogUploaded { log_id: usize },
+  LogUploaded {
+    log_id: usize,
+  },
+  LogDownload {
+    log_id: usize,
+    content: Vec<u8>,
+    attachments: Option<Vec<String>>,
+  },
+  LogDownloadFinished {
+    last_log_id: Option<usize>,
+  },
   ServerError,
 }

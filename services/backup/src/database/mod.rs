@@ -5,12 +5,12 @@ use self::{
   backup_item::{BackupItem, OrderedBackupItem},
   log_item::LogItem,
 };
-use crate::constants::{backup_table, log_table};
+use crate::constants::{backup_table, log_table, LOG_DEFAULT_PAGE_SIZE};
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
   types::{AttributeValue, ReturnValue},
 };
-use comm_lib::database::Error;
+use comm_lib::database::{parse_int_attribute, Error};
 use tracing::{error, trace, warn};
 
 #[derive(Clone)]
@@ -225,5 +225,59 @@ impl DatabaseClient {
       })?;
 
     Ok(())
+  }
+
+  pub async fn fetch_log_items(
+    &self,
+    backup_id: &str,
+    from_id: Option<usize>,
+  ) -> Result<(Vec<LogItem>, Option<usize>), Error> {
+    let mut query = self
+      .client
+      .query()
+      .table_name(log_table::TABLE_NAME)
+      .key_condition_expression("#backupID = :valueToMatch")
+      .expression_attribute_names("#backupID", log_table::attr::BACKUP_ID)
+      .expression_attribute_values(
+        ":valueToMatch",
+        AttributeValue::S(backup_id.to_string()),
+      )
+      .limit(LOG_DEFAULT_PAGE_SIZE);
+
+    if let Some(from_id) = from_id {
+      query = query
+        .exclusive_start_key(
+          log_table::attr::BACKUP_ID,
+          AttributeValue::S(backup_id.to_string()),
+        )
+        .exclusive_start_key(
+          log_table::attr::LOG_ID,
+          AttributeValue::N(from_id.to_string()),
+        );
+    }
+
+    let response = query.send().await.map_err(|e| {
+      error!("DynamoDB client failed to fetch logs");
+      Error::AwsSdk(e.into())
+    })?;
+
+    let last_id = response
+      .last_evaluated_key()
+      .map(|key| {
+        parse_int_attribute(
+          log_table::attr::LOG_ID,
+          key.get(log_table::attr::LOG_ID).cloned(),
+        )
+      })
+      .transpose()?;
+
+    let items = response
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(LogItem::try_from)
+      .collect::<Result<Vec<_>, _>>()?;
+
+    Ok((items, last_id))
   }
 }
