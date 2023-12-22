@@ -1,11 +1,12 @@
-use aws_config::SdkConfig;
-use aws_sdk_dynamodb::error::SdkError;
-use aws_sdk_dynamodb::operation::delete_item::{
+use comm_lib::aws::ddb::error::SdkError;
+use comm_lib::aws::ddb::operation::delete_item::{
   DeleteItemError, DeleteItemOutput,
 };
-use aws_sdk_dynamodb::operation::put_item::PutItemError;
-use aws_sdk_dynamodb::operation::query::QueryError;
-use aws_sdk_dynamodb::{types::AttributeValue, Client};
+use comm_lib::aws::ddb::operation::put_item::PutItemError;
+use comm_lib::aws::ddb::operation::query::QueryError;
+use comm_lib::aws::ddb::{types::AttributeValue, Client};
+use comm_lib::aws::AwsConfig;
+use comm_lib::database::AttributeMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error};
@@ -38,7 +39,7 @@ pub fn handle_ddb_error<E>(db_error: SdkError<E>) -> tonic::Status {
 }
 
 impl DatabaseClient {
-  pub fn new(aws_config: &SdkConfig) -> Self {
+  pub fn new(aws_config: &AwsConfig) -> Self {
     let client = Client::new(aws_config);
 
     DatabaseClient {
@@ -76,7 +77,7 @@ impl DatabaseClient {
   pub async fn retrieve_messages(
     &self,
     device_id: &str,
-  ) -> Result<Vec<HashMap<String, AttributeValue>>, SdkError<QueryError>> {
+  ) -> Result<Vec<AttributeMap>, SdkError<QueryError>> {
     debug!("Retrieving messages for device: {}", device_id);
 
     let response = self
