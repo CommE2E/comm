@@ -117,6 +117,33 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { userID, accessToken } = JSON.parse(registrationResult);
         return { accessToken, userID, username };
       },
+      logInPasswordUser: async (
+        username: string,
+        password: string,
+        keyPayload: string,
+        keyPayloadSignature: string,
+        contentPrekey: string,
+        contentPrekeySignature: string,
+        notifPrekey: string,
+        notifPrekeySignature: string,
+        contentOneTimeKeys: Array<string>,
+        notifOneTimeKeys: Array<string>,
+      ) => {
+        const loginResult = await commRustModule.logInPasswordUser(
+          username,
+          password,
+          keyPayload,
+          keyPayloadSignature,
+          contentPrekey,
+          contentPrekeySignature,
+          notifPrekey,
+          notifPrekeySignature,
+          contentOneTimeKeys,
+          notifOneTimeKeys,
+        );
+        const { userID, accessToken } = JSON.parse(loginResult);
+        return { accessToken, userID, username };
+      },
     };
   }, [getAuthMetadata]);
 
