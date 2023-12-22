@@ -233,28 +233,13 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
     console.log('redux-persist: migrating state to SQLite storage');
   }
 
-  // We need to simulate the keyserverStoreTransform for data stored in the
-  // old local storage (because redux persist will only run it for the
-  // sqlite storage which is empty in this case).
-  // We don't just use keyserverStoreTransform.out(oldStorage) because
-  // the transform might change in the future, but we need to treat
-  // this code like migration code (it shouldn't change).
-  if (oldStorage?._persist?.version === 4) {
-    const defaultConnection = defaultConnectionInfo;
+  if (oldStorage?._persist?.version >= 4) {
     return {
       ...oldStorage,
-      keyserverStore: {
-        ...oldStorage.keyserverStore,
-        keyserverInfos: {
-          ...oldStorage.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...oldStorage.keyserverStore.keyserverInfos[ashoatKeyserverID],
-            connection: { ...defaultConnection },
-            updatesCurrentAsOf: 0,
-            sessionID: null,
-          },
-        },
-      },
+      keyserverStore: keyserverStoreTransform.out(
+        oldStorage.keyserverStore,
+        'keyserverStore',
+      ),
     };
   }
 
@@ -313,6 +298,9 @@ const persistConfig: PersistConfig = {
     migrateStorageToSQLite,
   ): any),
   version: 10,
+  // Whenever a new transform is added, its .out should also be executed inside
+  // migrateStorageToSQLite. See
+  // https://linear.app/comm/issue/ENG-6104/connection-missing#comment-edd66405
   transforms: [keyserverStoreTransform],
 };
 
