@@ -14,8 +14,8 @@ import Animated from 'react-native-reanimated';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
-  registerActionTypes,
-  register,
+  keyserverRegisterActionTypes,
+  keyserverRegister,
   getOlmSessionInitializationDataActionTypes,
 } from 'lib/actions/user-actions.js';
 import {
@@ -305,7 +305,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       const initialNotificationsEncryptedMessage =
         await this.props.getInitialNotificationsEncryptedMessage();
       void this.props.dispatchActionPromise(
-        registerActionTypes,
+        keyserverRegisterActionTypes,
         this.registerAction({
           ...extraInfo,
           initialNotificationsEncryptedMessage,
@@ -460,8 +460,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const registerLoadingStatusSelector =
-  createLoadingStatusSelector(registerActionTypes);
+const registerLoadingStatusSelector = createLoadingStatusSelector(
+  keyserverRegisterActionTypes,
+);
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
@@ -480,7 +481,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callRegister = useServerCall(register);
+    const callRegister = useServerCall(keyserverRegister);
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(
         nativeNotificationsSessionCreator,
