@@ -22,12 +22,7 @@ http = [
   "dep:actix-web-httpauth",
 ]
 crypto = ["dep:aead", "dep:aes-gcm", "dep:bytes"]
-aws = [
-  "dep:aws-config",
-  "dep:aws-sdk-dynamodb",
-  "dep:aws-sdk-secretsmanager",
-  "dep:aws-types",
-]
+aws = ["dep:aws-config", "dep:aws-sdk-dynamodb", "dep:aws-sdk-secretsmanager"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -45,7 +40,6 @@ anyhow = "1.0.74"
 aws-config = { version = "0.55", optional = true }
 aws-sdk-dynamodb = { version = "0.27", optional = true }
 aws-sdk-secretsmanager = { version = "0.27", optional = true }
-aws-types = { version = "0.55", optional = true }
 # blob client dependencies
 bytes = { version = "1.4", optional = true }
 futures-core = { version = "0.3", optional = true }
