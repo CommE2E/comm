@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use aws_sdk_dynamodb::types::AttributeValue;
+use comm_lib::database::AttributeMap;
 use tunnelbroker_messages::MessageToDevice;
 
 use crate::constants::dynamodb::undelivered_messages::{
@@ -14,13 +12,13 @@ pub enum MessageErrors {
 
 pub trait MessageToDeviceExt {
   fn from_hashmap(
-    hashmap: HashMap<String, AttributeValue>,
+    hashmap: AttributeMap,
   ) -> Result<MessageToDevice, MessageErrors>;
 }
 
 impl MessageToDeviceExt for MessageToDevice {
   fn from_hashmap(
-    hashmap: HashMap<String, AttributeValue>,
+    hashmap: AttributeMap,
   ) -> Result<MessageToDevice, MessageErrors> {
     let device_id: String = hashmap
       .get(DEVICE_ID)
