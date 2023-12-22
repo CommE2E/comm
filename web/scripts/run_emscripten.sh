@@ -21,10 +21,18 @@ SQLITE_BITCODE_FILE="${SQLITE_DIR}sqlite3.bc"
 OUTPUT_FILE_NAME="comm-query-executor"
 OUTPUT_FILE="${OUTPUT_DIR}${OUTPUT_FILE_NAME}.js"
 
-# SQLite resources
-SQLITE_AMALGAMATION="sqlite-amalgamation-3390300"
-SQLITE_AMALGAMATION_URL="https://www.sqlite.org/2022/${SQLITE_AMALGAMATION}.zip"
-SQLITE_AMALGAMATION_FILE="${SQLITE_DIR}${SQLITE_AMALGAMATION}.zip"
+# OpenSSLresources
+OPENSSL_VERSION="3.2.0"
+OPENSSL_URL="https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz"
+OPENSSL_FILE="${SQLITE_DIR}openssl-file"
+OPENSSL_DIR="${SQLITE_DIR}openssl-${OPENSSL_VERSION}"
+OPENSSL_HEADERS="${OPENSSL_DIR}/include"
+
+# SQLCipher resources
+SQLCIPHER_AMALGAMATION_VERSION="4.5.5b"
+SQLCIPHER_AMALGAMATION="sqlcipher-amalgamation-${SQLCIPHER_AMALGAMATION_VERSION}"
+SQLCIPHER_AMALGAMATION_URL="https://codeload.github.com/CommE2E/sqlcipher-amalgamation/zip/refs/tags/${SQLCIPHER_AMALGAMATION_VERSION}"
+SQLCIPHER_AMALGAMATION_FILE="${SQLITE_DIR}${SQLCIPHER_AMALGAMATION}"
 
 SQLITE_COMPILATION_FLAGS=(
  -Oz
@@ -34,22 +42,56 @@ SQLITE_COMPILATION_FLAGS=(
  -DSQLITE_ENABLE_FTS3_PARENTHESIS
  -DSQLITE_THREADSAFE=0
  -DSQLITE_ENABLE_NORMALIZE
+ -DSQLITE_HAS_CODEC
+ -DSQLITE_TEMP_STORE=2
+ -DSQLCIPHER_CRYPTO_OPENSSL
 )
 
 download_sqlite() {
   mkdir -p "$SQLITE_DIR"
 
-  curl "${SQLITE_AMALGAMATION_URL}" --output "${SQLITE_AMALGAMATION_FILE}"
+  curl "${SQLCIPHER_AMALGAMATION_URL}" --output "${SQLCIPHER_AMALGAMATION_FILE}"
 
-  unzip -jo "${SQLITE_AMALGAMATION_FILE}" -d "${SQLITE_DIR}"
-  rm -f "${SQLITE_AMALGAMATION_FILE}"
+  unzip -jo "${SQLCIPHER_AMALGAMATION_FILE}" -d "${SQLITE_DIR}"
+  rm -f "${SQLCIPHER_AMALGAMATION_FILE}"
+
+  curl "${OPENSSL_URL}" --output "${OPENSSL_FILE}"
+
+  tar -xf "${OPENSSL_FILE}" -C "${SQLITE_DIR}"
+  rm -f "${OPENSSL_FILE}"
+}
+
+build_openssl() {
+  cd "${OPENSSL_DIR}"
+
+  ./Configure \
+    no-asm \
+    no-async \
+    no-egd \
+    no-ktls \
+    no-module \
+    no-posix-io \
+    no-secure-memory \
+    no-shared \
+    no-sock \
+    no-stdio \
+    no-ui-console \
+    no-weak-ssl-ciphers \
+    no-engine \
+    linux-generic32
+
+  make CC="emcc" AR="emar" RANLIB="emranlib"
+
+  cd -
 }
 
 if [ ! -f "$SQLITE_BITCODE_FILE" ]; then
     echo "SQLite engine not found. Downloading."
     download_sqlite
+    build_openssl
 
     emcc "${SQLITE_COMPILATION_FLAGS[@]}" \
+      -I "${OPENSSL_HEADERS}" \
       -c "$SQLITE_SOURCE" \
       -o "$SQLITE_BITCODE_FILE"
 fi
@@ -98,6 +140,8 @@ emcc -lembind \
   "${EMCC_FLAGS[@]}" \
   "${CFLAGS[@]}" \
   "${INPUT_FILES[@]}" \
+  -L "${OPENSSL_DIR}" \
+  -lcrypto \
   -o "${OUTPUT_FILE}" \
   -std=c++17
 
