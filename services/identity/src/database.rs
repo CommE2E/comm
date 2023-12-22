@@ -7,6 +7,7 @@ use comm_lib::aws::ddb::{
   types::{AttributeValue, PutRequest, ReturnConsumedCapacity, WriteRequest},
 };
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
+use comm_lib::database::{AttributeMap, DBItemAttributeError, DBItemError};
 use constant_time_eq::constant_time_eq;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
@@ -15,7 +16,7 @@ use std::sync::Arc;
 use crate::ddb_utils::{
   create_one_time_key_partition_key, into_one_time_put_requests, OlmAccountType,
 };
-use crate::error::{consume_error, DBItemAttributeError, DBItemError, Error};
+use crate::error::{consume_error, Error};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -90,7 +91,7 @@ impl TryFrom<DBDeviceTypeInt> for DeviceType {
       Error::Attribute(DBItemError {
         attribute_name: USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME
           .to_string(),
-        attribute_value: Some(AttributeValue::N(value.0.to_string())),
+        attribute_value: Some(AttributeValue::N(value.0.to_string())).into(),
         attribute_error: DBItemAttributeError::InvalidValue,
       })
     })
@@ -926,13 +927,16 @@ impl DatabaseClient {
           .get(USERS_TABLE_PARTITION_KEY)
           .ok_or(DBItemError {
             attribute_name: USERS_TABLE_PARTITION_KEY.to_string(),
-            attribute_value: None,
+            attribute_value: None.into(),
             attribute_error: DBItemAttributeError::Missing,
           })?
           .as_s()
           .map_err(|_| DBItemError {
             attribute_name: USERS_TABLE_PARTITION_KEY.to_string(),
-            attribute_value: first_item.get(USERS_TABLE_PARTITION_KEY).cloned(),
+            attribute_value: first_item
+              .get(USERS_TABLE_PARTITION_KEY)
+              .cloned()
+              .into(),
             attribute_error: DBItemAttributeError::IncorrectType,
           })?;
         let result = self.get_item_from_users_table(user_id).await?;
@@ -971,7 +975,7 @@ impl DatabaseClient {
 
   async fn get_keys_for_user(
     &self,
-    mut user: HashMap<String, AttributeValue>,
+    mut user: AttributeMap,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
     let devices = parse_map_attribute(
@@ -1330,14 +1334,14 @@ fn parse_date_time_attribute(
     created.parse().map_err(|e| {
       DBItemError::new(
         attribute_name.to_string(),
-        attribute,
+        attribute.into(),
         DBItemAttributeError::InvalidTimestamp(e),
       )
     })
   } else {
     Err(DBItemError::new(
       attribute_name.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::Missing,
     ))
   }
@@ -1352,14 +1356,14 @@ fn parse_auth_type_attribute(
       "wallet" => Ok(AuthType::Wallet),
       _ => Err(DBItemError::new(
         ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
-        attribute,
+        attribute.into(),
         DBItemAttributeError::IncorrectType,
       )),
     }
   } else {
     Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::Missing,
     ))
   }
@@ -1372,12 +1376,12 @@ fn parse_valid_attribute(
     Some(AttributeValue::Bool(valid)) => Ok(valid),
     Some(_) => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::Missing,
     )),
   }
@@ -1390,12 +1394,12 @@ fn parse_token_attribute(
     Some(AttributeValue::S(token)) => Ok(token),
     Some(_) => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::Missing,
     )),
   }
@@ -1410,12 +1414,12 @@ fn parse_registration_data_attribute(
     }
     Some(_) => Err(DBItemError::new(
       USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
       USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
-      attribute,
+      attribute.into(),
       DBItemAttributeError::Missing,
     )),
   }
@@ -1425,7 +1429,7 @@ fn parse_registration_data_attribute(
 fn parse_map_attribute(
   attribute_name: &str,
   attribute_value: Option<AttributeValue>,
-) -> Result<HashMap<String, AttributeValue>, DBItemError> {
+) -> Result<AttributeMap, DBItemError> {
   match attribute_value {
     Some(AttributeValue::M(map)) => Ok(map),
     Some(_) => {
@@ -1437,7 +1441,7 @@ fn parse_map_attribute(
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
-        attribute_value,
+        attribute_value.into(),
         DBItemAttributeError::IncorrectType,
       ))
     }
@@ -1449,7 +1453,7 @@ fn parse_map_attribute(
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
-        attribute_value,
+        attribute_value.into(),
         DBItemAttributeError::Missing,
       ))
     }
@@ -1471,7 +1475,7 @@ fn parse_string_attribute(
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
-        attribute_value,
+        attribute_value.into(),
         DBItemAttributeError::IncorrectType,
       ))
     }
@@ -1483,7 +1487,7 @@ fn parse_string_attribute(
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
-        attribute_value,
+        attribute_value.into(),
         DBItemAttributeError::Missing,
       ))
     }
@@ -1493,7 +1497,7 @@ fn parse_string_attribute(
 fn create_device_info(
   flattened_device_key_upload: FlattenedDeviceKeyUpload,
   social_proof: Option<String>,
-) -> HashMap<String, AttributeValue> {
+) -> AttributeMap {
   let mut device_info = HashMap::from([
     (
       USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),

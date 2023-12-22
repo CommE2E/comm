@@ -1,9 +1,12 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use comm_lib::aws::ddb::types::{AttributeValue, PutRequest, WriteRequest};
+use comm_lib::{
+  aws::ddb::types::{AttributeValue, PutRequest, WriteRequest},
+  database::Value,
+};
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
-use crate::error::{DBItemAttributeError, DBItemError};
+use comm_lib::database::{DBItemAttributeError, DBItemError};
 
 #[derive(Copy, Clone, Debug)]
 pub enum OlmAccountType {
@@ -74,7 +77,7 @@ impl<T> AttributesOptionExt<T> for Option<T> {
   ) -> Result<T, DBItemError> {
     self.ok_or_else(|| DBItemError {
       attribute_name: attr_name.into(),
-      attribute_value: None,
+      attribute_value: None.into(),
       attribute_error: DBItemAttributeError::Missing,
     })
   }
