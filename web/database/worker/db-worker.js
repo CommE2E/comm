@@ -53,11 +53,17 @@ async function initDatabase(
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
-  const newModule = getDatabaseModule(
-    commQueryExecutorFilename,
-    databaseModuleFilePath,
-  );
-  dbModule = newModule;
+  if (!!dbModule && !!sqliteQueryExecutor) {
+    console.log('Database already initialized');
+    return;
+  }
+
+  const newModule = dbModule
+    ? dbModule
+    : getDatabaseModule(commQueryExecutorFilename, databaseModuleFilePath);
+  if (!dbModule) {
+    dbModule = newModule;
+  }
 
   if (encryptionKeyJWK) {
     encryptionKey = await importJWKKey(encryptionKeyJWK);
