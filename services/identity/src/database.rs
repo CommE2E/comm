@@ -7,7 +7,10 @@ use comm_lib::aws::ddb::{
   types::{AttributeValue, PutRequest, ReturnConsumedCapacity, WriteRequest},
 };
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
-use comm_lib::database::{AttributeMap, DBItemAttributeError, DBItemError};
+use comm_lib::database::{
+  AttributeExtractor, AttributeMap, DBItemAttributeError, DBItemError,
+  TryFromAttribute,
+};
 use constant_time_eq::constant_time_eq;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
@@ -723,7 +726,7 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       }) => {
-        let created = parse_date_time_attribute(
+        let created = DateTime::<Utc>::try_from_attr(
           ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
           item.remove(ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE),
         )?;
@@ -978,15 +981,13 @@ impl DatabaseClient {
     mut user: AttributeMap,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
-    let devices = parse_map_attribute(
-      USERS_TABLE_DEVICES_ATTRIBUTE,
-      user.remove(USERS_TABLE_DEVICES_ATTRIBUTE),
-    )?;
+    let devices: AttributeMap =
+      user.take_attr(USERS_TABLE_DEVICES_ATTRIBUTE)?;
 
     let mut devices_response = HashMap::with_capacity(devices.len());
     for (device_id_key, device_info) in devices {
       let device_info_map =
-        parse_map_attribute(&device_id_key, Some(device_info))?;
+        AttributeMap::try_from_attr(&device_id_key, Some(device_info))?;
 
       let mut device_info_string_map = HashMap::new();
       for (attribute_name, attribute_value) in device_info_map {
@@ -1000,7 +1001,7 @@ impl DatabaseClient {
         }
 
         let attribute_value_str =
-          parse_string_attribute(&attribute_name, Some(attribute_value))?;
+          String::try_from_attr(&attribute_name, Some(attribute_value))?;
         device_info_string_map.insert(attribute_name, attribute_value_str);
       }
 
@@ -1036,12 +1037,10 @@ impl DatabaseClient {
       .get_user_from_user_info(user_info.clone(), auth_type)
       .await
     {
-      Ok(Some(mut user)) => parse_string_attribute(
-        USERS_TABLE_PARTITION_KEY,
-        user.remove(USERS_TABLE_PARTITION_KEY),
-      )
-      .map(Some)
-      .map_err(Error::Attribute),
+      Ok(Some(mut user)) => user
+        .take_attr(USERS_TABLE_PARTITION_KEY)
+        .map(Some)
+        .map_err(Error::Attribute),
       Ok(_) => Ok(None),
       Err(e) => Err(e),
     }
@@ -1056,10 +1055,7 @@ impl DatabaseClient {
       .await
     {
       Ok(Some(mut user)) => {
-        let user_id = parse_string_attribute(
-          USERS_TABLE_PARTITION_KEY,
-          user.remove(USERS_TABLE_PARTITION_KEY),
-        )?;
+        let user_id = user.take_attr(USERS_TABLE_PARTITION_KEY)?;
         let password_file = parse_registration_data_attribute(
           user.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
         )?;
@@ -1115,10 +1111,9 @@ impl DatabaseClient {
     let mut result = Vec::new();
     if let Some(attributes) = scan_output.items {
       for mut attribute in attributes {
-        if let Ok(username) = parse_string_attribute(
-          USERS_TABLE_USERNAME_ATTRIBUTE,
-          attribute.remove(USERS_TABLE_USERNAME_ATTRIBUTE),
-        ) {
+        if let Ok(username) =
+          attribute.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE)
+        {
           result.push(username);
         }
       }
@@ -1178,19 +1173,14 @@ impl DatabaseClient {
       return Ok(None);
     };
 
-    let nonce = parse_string_attribute(
-      NONCE_TABLE_PARTITION_KEY,
-      item.remove(&NONCE_TABLE_PARTITION_KEY.to_string()),
-    )?;
-
-    let created = parse_date_time_attribute(
+    let nonce = item.take_attr(NONCE_TABLE_PARTITION_KEY)?;
+    let created = DateTime::<Utc>::try_from_attr(
       NONCE_TABLE_CREATED_ATTRIBUTE,
-      item.remove(&NONCE_TABLE_CREATED_ATTRIBUTE.to_string()),
+      item.remove(NONCE_TABLE_CREATED_ATTRIBUTE),
     )?;
-
-    let expiration_time = parse_date_time_attribute(
+    let expiration_time = DateTime::<Utc>::try_from_attr(
       NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
-      item.remove(&NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE.to_string()),
+      item.remove(NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE),
     )?;
 
     Ok(Some(NonceData {
@@ -1326,27 +1316,6 @@ fn create_composite_primary_key(
   primary_key
 }
 
-fn parse_date_time_attribute(
-  attribute_name: &str,
-  attribute: Option<AttributeValue>,
-) -> Result<DateTime<Utc>, DBItemError> {
-  if let Some(AttributeValue::S(created)) = &attribute {
-    created.parse().map_err(|e| {
-      DBItemError::new(
-        attribute_name.to_string(),
-        attribute.into(),
-        DBItemAttributeError::InvalidTimestamp(e),
-      )
-    })
-  } else {
-    Err(DBItemError::new(
-      attribute_name.to_string(),
-      attribute.into(),
-      DBItemAttributeError::Missing,
-    ))
-  }
-}
-
 fn parse_auth_type_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<AuthType, DBItemError> {
@@ -1425,6 +1394,7 @@ fn parse_registration_data_attribute(
   }
 }
 
+#[deprecated(note = "Use `comm_lib` counterpart instead")]
 #[allow(dead_code)]
 fn parse_map_attribute(
   attribute_name: &str,
@@ -1438,40 +1408,6 @@ fn parse_map_attribute(
           value = ?attribute_value,
           error_type = "IncorrectType",
           "Unexpected attribute type when parsing map attribute"
-      );
-      Err(DBItemError::new(
-        attribute_name.to_string(),
-        attribute_value.into(),
-        DBItemAttributeError::IncorrectType,
-      ))
-    }
-    None => {
-      error!(
-        attribute = attribute_name,
-        error_type = "Missing",
-        "Attribute is missing"
-      );
-      Err(DBItemError::new(
-        attribute_name.to_string(),
-        attribute_value.into(),
-        DBItemAttributeError::Missing,
-      ))
-    }
-  }
-}
-
-fn parse_string_attribute(
-  attribute_name: &str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<String, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::S(value)) => Ok(value),
-    Some(_) => {
-      error!(
-          attribute = attribute_name,
-          value = ?attribute_value,
-          error_type = "IncorrectType",
-          "Unexpected attribute type when parsing string attribute"
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
@@ -1583,7 +1519,7 @@ mod tests {
   fn validate_keys() {
     // Taken from test user
     let example_payload = r#"{\"notificationIdentityPublicKeys\":{\"curve25519\":\"DYmV8VdkjwG/VtC8C53morogNJhpTPT/4jzW0/cxzQo\",\"ed25519\":\"D0BV2Y7Qm36VUtjwyQTJJWYAycN7aMSJmhEsRJpW2mk\"},\"primaryIdentityPublicKeys\":{\"curve25519\":\"Y4ZIqzpE1nv83kKGfvFP6rifya0itRg2hifqYtsISnk\",\"ed25519\":\"cSlL+VLLJDgtKSPlIwoCZg0h0EmHlQoJC08uV/O+jvg\"}}"#;
-    let serialized_payload = KeyPayload::from_str(&example_payload).unwrap();
+    let serialized_payload = KeyPayload::from_str(example_payload).unwrap();
 
     assert_eq!(
       serialized_payload
