@@ -134,6 +134,34 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { userID, accessToken } = JSON.parse(registrationResult);
         return { accessToken, userID, username };
       },
+      logInPasswordUser: async (username: string, password: string) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature },
+          notificationsOneTimeKeys,
+          primaryOneTimeKeys,
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.generateAndGetPrekeys(),
+        ]);
+        const loginResult = await commRustModule.logInPasswordUser(
+          username,
+          password,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyArray(primaryOneTimeKeys),
+          getOneTimeKeyArray(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken } = JSON.parse(loginResult);
+        return { accessToken, userID, username };
+      },
     }),
     [getAuthMetadata],
   );
