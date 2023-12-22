@@ -1,5 +1,7 @@
 // @flow
 
+import { Login } from '@commapp/opaque-ke-wasm';
+
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import {
   type IdentityServiceAuthLayer,
@@ -7,25 +9,43 @@ import {
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type UserDevicesOlmOutboundKeys,
+  type IdentityAuthResult,
+  type IdentityDeviceKeyUpload,
+  identityDeviceTypes,
+  identityAuthResultValidator,
 } from 'lib/types/identity-service-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
+import { initOpaque } from '../crypto/opaque-utils.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
 import * as IdentityAuthStructs from '../protobufs/identity-auth-structs.cjs';
-import { Empty } from '../protobufs/identity-unauth-structs.cjs';
+import {
+  DeviceKeyUpload,
+  Empty,
+  IdentityKeyInfo,
+  OpaqueLoginFinishRequest,
+  OpaqueLoginStartRequest,
+  Prekey,
+} from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
 class IdentityServiceClientWrapper implements IdentityServiceClient {
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
+  getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
 
-  constructor(authLayer: ?IdentityServiceAuthLayer) {
+  constructor(
+    authLayer: ?IdentityServiceAuthLayer,
+    getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
+  ) {
     if (authLayer) {
       this.authClient =
         IdentityServiceClientWrapper.createAuthClient(authLayer);
     }
     this.unauthClient = IdentityServiceClientWrapper.createUnauthClient();
+    this.getDeviceKeyUpload = getDeviceKeyUpload;
   }
 
   static determineSocketAddr(): string {
@@ -201,6 +221,105 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     );
 
     return devicesKeys.filter(Boolean);
+  };
+
+  logInPasswordUser: (
+    username: string,
+    password: string,
+  ) => Promise<IdentityAuthResult> = async (
+    username: string,
+    password: string,
+  ) => {
+    const client = this.unauthClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const [identityDeviceKeyUpload] = await Promise.all([
+      this.getDeviceKeyUpload(),
+      initOpaque(),
+    ]);
+
+    const {
+      keyPayload,
+      keyPayloadSignature,
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+      contentOneTimeKeys,
+      notifOneTimeKeys,
+    } = identityDeviceKeyUpload;
+
+    const contentOneTimeKeysArray = [...contentOneTimeKeys];
+    const notifOneTimeKeysArray = [...notifOneTimeKeys];
+
+    const opaqueLogin = new Login();
+    const startRequestBytes = opaqueLogin.start(password);
+
+    const identityKeyInfo = new IdentityKeyInfo();
+    identityKeyInfo.setPayload(keyPayload);
+    identityKeyInfo.setPayloadSignature(keyPayloadSignature);
+
+    const contentPrekeyUpload = new Prekey();
+    contentPrekeyUpload.setPrekey(contentPrekey);
+    contentPrekeyUpload.setPrekeySignature(contentPrekeySignature);
+
+    const notifPrekeyUpload = new Prekey();
+    notifPrekeyUpload.setPrekey(notifPrekey);
+    notifPrekeyUpload.setPrekeySignature(notifPrekeySignature);
+
+    const deviceKeyUpload = new DeviceKeyUpload();
+    deviceKeyUpload.setDeviceKeyInfo(identityKeyInfo);
+    deviceKeyUpload.setContentUpload(contentPrekeyUpload);
+    deviceKeyUpload.setNotifUpload(notifPrekeyUpload);
+    deviceKeyUpload.setOneTimeContentPrekeysList(contentOneTimeKeysArray);
+    deviceKeyUpload.setOneTimeNotifPrekeysList(notifOneTimeKeysArray);
+    deviceKeyUpload.setDeviceType(identityDeviceTypes.WEB);
+
+    const loginStartRequest = new OpaqueLoginStartRequest();
+    loginStartRequest.setUsername(username);
+    loginStartRequest.setOpaqueLoginRequest(startRequestBytes);
+    loginStartRequest.setDeviceKeyUpload(deviceKeyUpload);
+
+    let loginStartResponse;
+    try {
+      loginStartResponse =
+        await client.logInPasswordUserStart(loginStartRequest);
+    } catch (e) {
+      console.log('Error calling logInPasswordUserStart:', e);
+      throw new Error(
+        `logInPasswordUserStart RPC failed: ${
+          getMessageForException(e) ?? 'unknown'
+        }`,
+      );
+    }
+    const finishRequestBytes = opaqueLogin.finish(
+      loginStartResponse.getOpaqueLoginResponse_asU8(),
+    );
+
+    const loginFinishRequest = new OpaqueLoginFinishRequest();
+    loginFinishRequest.setSessionId(loginStartResponse.getSessionId());
+    loginFinishRequest.setOpaqueLoginUpload(finishRequestBytes);
+
+    let loginFinishResponse;
+    try {
+      loginFinishResponse =
+        await client.logInPasswordUserFinish(loginFinishRequest);
+    } catch (e) {
+      console.log('Error calling logInPasswordUserFinish:', e);
+      throw new Error(
+        `logInPasswordUserFinish RPC failed: ${
+          getMessageForException(e) ?? 'unknown'
+        }`,
+      );
+    }
+
+    const userID = loginFinishResponse.getUserId();
+    const accessToken = loginFinishResponse.getAccessToken();
+    const identityAuthResult = { accessToken, userID, username };
+
+    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
 }
 
