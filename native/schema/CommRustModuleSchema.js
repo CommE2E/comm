@@ -63,6 +63,12 @@ export interface Spec extends TurboModule {
     deviceID: string,
   ) => Promise<string>;
   +versionSupported: () => Promise<boolean>;
+  +getKeyserverKeys: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    keyserverID: string,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

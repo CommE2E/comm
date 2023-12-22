@@ -68,6 +68,12 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String userID,
       jsi::String deviceID) override;
   virtual jsi::Value versionSupported(jsi::Runtime &rt) override;
+  virtual jsi::Value getKeyserverKeys(
+      jsi::Runtime &rt,
+      jsi::String authUserID,
+      jsi::String authDeviceID,
+      jsi::String authAccessToken,
+      jsi::String keyserverID) override;
 
 public:
   CommRustModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

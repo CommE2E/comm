@@ -263,4 +263,28 @@ jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommRustModule::getKeyserverKeys(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::String keyserverID) {
+  return createPromiseAsJSIValue(
+      rt, [&, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGetKeyserverKeys(
+              jsiStringToRustString(authUserID, innerRt),
+              jsiStringToRustString(authDeviceID, innerRt),
+              jsiStringToRustString(authAccessToken, innerRt),
+              jsiStringToRustString(keyserverID, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm

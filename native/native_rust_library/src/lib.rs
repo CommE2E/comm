@@ -5,8 +5,8 @@ use ffi::{
   bool_callback, send_auth_metadata_to_js, string_callback, void_callback,
 };
 use grpc_clients::identity::protos::authenticated::{
-  OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest,
+  KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::client::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
@@ -132,6 +132,15 @@ mod ffi {
 
     #[cxx_name = "identityVersionSupported"]
     fn version_supported(promise_id: u32);
+
+    #[cxx_name = "identityGetKeyserverKeys"]
+    fn get_keyserver_keys(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      keyserver_id: String,
+      promise_id: u32,
+    );
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
@@ -315,6 +324,51 @@ async fn version_supported_helper() -> Result<bool, Error> {
       }
     }
   }
+}
+
+fn get_keyserver_keys(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  keyserver_id: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let get_keyserver_keys_request = OutboundKeysForUserRequest {
+      user_id: keyserver_id,
+    };
+    let auth_info = AuthInfo {
+      access_token,
+      user_id,
+      device_id,
+    };
+    let result =
+      get_keyserver_keys_helper(get_keyserver_keys_request, auth_info).await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn get_keyserver_keys_helper(
+  get_keyserver_keys_request: OutboundKeysForUserRequest,
+  auth_info: AuthInfo,
+) -> Result<String, Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+  let mut response = identity_client
+    .get_keyserver_keys(get_keyserver_keys_request)
+    .await?
+    .into_inner();
+
+  let keyserver_keys = OutboundKeyInfoResponse::try_from(response)?;
+
+  Ok(serde_json::to_string(&keyserver_keys)?)
 }
 
 struct AuthInfo {
@@ -847,6 +901,15 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
       one_time_content_prekey,
       one_time_notif_prekey,
     })
+  }
+}
+
+impl TryFrom<KeyserverKeysResponse> for OutboundKeyInfoResponse {
+  type Error = Error;
+
+  fn try_from(response: KeyserverKeysResponse) -> Result<Self, Error> {
+    let key_info = response.keyserver_info.ok_or(Error::MissingResponseData)?;
+    Self::try_from(key_info)
   }
 }
 
