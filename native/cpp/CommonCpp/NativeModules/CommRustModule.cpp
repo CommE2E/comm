@@ -375,4 +375,37 @@ jsi::Value CommRustModule::uploadOneTimeKeys(
       });
 }
 
+jsi::Value CommRustModule::getKeyserverKeys(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::String keyserverID) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
+  auto keyserverIDRust = jsiStringToRustString(keyserverID, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityGetKeyserverKeys(
+              authUserIDRust,
+              authDeviceIDRust,
+              authAccessTokenRust,
+              keyserverIDRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 } // namespace comm
