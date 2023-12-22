@@ -1,12 +1,12 @@
-use aws_sdk_dynamodb::operation::delete_item::DeleteItemOutput;
-use aws_sdk_dynamodb::operation::get_item::GetItemOutput;
-use aws_sdk_dynamodb::operation::put_item::PutItemOutput;
-use aws_sdk_dynamodb::operation::query::QueryOutput;
-use aws_sdk_dynamodb::primitives::Blob;
-use aws_sdk_dynamodb::types::{
-  AttributeValue, PutRequest, ReturnConsumedCapacity, WriteRequest,
+use comm_lib::aws::ddb::{
+  operation::{
+    delete_item::DeleteItemOutput, get_item::GetItemOutput,
+    put_item::PutItemOutput, query::QueryOutput,
+  },
+  primitives::Blob,
+  types::{AttributeValue, PutRequest, ReturnConsumedCapacity, WriteRequest},
 };
-use aws_sdk_dynamodb::Client;
+use comm_lib::aws::{AwsConfig, DynamoDBClient};
 use constant_time_eq::constant_time_eq;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
@@ -16,7 +16,6 @@ use crate::ddb_utils::{
   create_one_time_key_partition_key, into_one_time_put_requests, OlmAccountType,
 };
 use crate::error::{consume_error, DBItemAttributeError, DBItemError, Error};
-use aws_config::SdkConfig;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -116,11 +115,11 @@ pub struct OutboundKeys {
 
 #[derive(Clone)]
 pub struct DatabaseClient {
-  client: Arc<Client>,
+  client: Arc<DynamoDBClient>,
 }
 
 impl DatabaseClient {
-  pub fn new(aws_config: &SdkConfig) -> Self {
+  pub fn new(aws_config: &AwsConfig) -> Self {
     let client = match &CONFIG.localstack_endpoint {
       Some(endpoint) => {
         info!(
@@ -128,11 +127,11 @@ impl DatabaseClient {
           endpoint
         );
         let ddb_config_builder =
-          aws_sdk_dynamodb::config::Builder::from(aws_config)
+          comm_lib::aws::ddb::config::Builder::from(aws_config)
             .endpoint_url(endpoint);
-        Client::from_conf(ddb_config_builder.build())
+        DynamoDBClient::from_conf(ddb_config_builder.build())
       }
-      None => Client::new(aws_config),
+      None => DynamoDBClient::new(aws_config),
     };
 
     DatabaseClient {

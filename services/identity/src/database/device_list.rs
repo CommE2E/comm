@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 
-use aws_sdk_dynamodb::{
-  operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
-  types::{
-    error::TransactionCanceledException, AttributeValue, DeleteRequest, Put,
-    TransactWriteItem, Update, WriteRequest,
-  },
-};
 use chrono::{DateTime, Utc};
+use comm_lib::{
+  aws::ddb::{
+    operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
+    types::{
+      error::TransactionCanceledException, AttributeValue, DeleteRequest, Put,
+      TransactWriteItem, Update, WriteRequest,
+    },
+  },
+  database::{AttributeMap, DynamoDBError},
+};
 use tracing::{error, warn};
 
 use crate::{
@@ -27,8 +30,6 @@ use crate::{
 };
 
 use super::{parse_date_time_attribute, DatabaseClient};
-
-type RawAttributes = HashMap<String, AttributeValue>;
 
 #[derive(Clone, Debug)]
 pub struct DeviceRow {
@@ -164,10 +165,10 @@ impl TryFrom<Option<AttributeValue>> for DeviceListKeyAttribute {
   }
 }
 
-impl TryFrom<RawAttributes> for DeviceRow {
+impl TryFrom<AttributeMap> for DeviceRow {
   type Error = DBItemError;
 
-  fn try_from(mut attrs: RawAttributes) -> Result<Self, Self::Error> {
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
     let user_id =
       parse_string_attribute(ATTR_USER_ID, attrs.remove(ATTR_USER_ID))?;
     let DeviceIDAttribute(device_id) = attrs.remove(ATTR_ITEM_ID).try_into()?;
@@ -215,7 +216,7 @@ impl TryFrom<RawAttributes> for DeviceRow {
   }
 }
 
-impl From<DeviceRow> for RawAttributes {
+impl From<DeviceRow> for AttributeMap {
   fn from(value: DeviceRow) -> Self {
     HashMap::from([
       (ATTR_USER_ID.to_string(), AttributeValue::S(value.user_id)),
@@ -259,9 +260,9 @@ impl From<IdentityKeyInfo> for AttributeValue {
   }
 }
 
-impl TryFrom<RawAttributes> for IdentityKeyInfo {
+impl TryFrom<AttributeMap> for IdentityKeyInfo {
   type Error = DBItemError;
-  fn try_from(mut attrs: RawAttributes) -> Result<Self, Self::Error> {
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
     let key_payload =
       parse_string_attribute(ATTR_KEY_PAYLOAD, attrs.remove(ATTR_KEY_PAYLOAD))?;
     let key_payload_signature = parse_string_attribute(
@@ -295,9 +296,9 @@ impl From<PreKey> for AttributeValue {
   }
 }
 
-impl TryFrom<RawAttributes> for PreKey {
+impl TryFrom<AttributeMap> for PreKey {
   type Error = DBItemError;
-  fn try_from(mut attrs: RawAttributes) -> Result<Self, Self::Error> {
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
     let pre_key =
       parse_string_attribute(ATTR_PREKEY, attrs.remove(ATTR_PREKEY))?;
     let pre_key_signature = parse_string_attribute(
@@ -311,10 +312,10 @@ impl TryFrom<RawAttributes> for PreKey {
   }
 }
 
-impl TryFrom<RawAttributes> for DeviceListRow {
+impl TryFrom<AttributeMap> for DeviceListRow {
   type Error = DBItemError;
 
-  fn try_from(mut attrs: RawAttributes) -> Result<Self, Self::Error> {
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
     let user_id =
       parse_string_attribute(ATTR_USER_ID, attrs.remove(ATTR_USER_ID))?;
     let DeviceListKeyAttribute(timestamp) =
@@ -358,7 +359,7 @@ impl TryFrom<RawAttributes> for DeviceListRow {
   }
 }
 
-impl From<DeviceListRow> for RawAttributes {
+impl From<DeviceListRow> for AttributeMap {
   fn from(device_list: DeviceListRow) -> Self {
     let mut attrs = HashMap::new();
     attrs.insert(
@@ -618,8 +619,8 @@ impl DatabaseClient {
       .transact_items(timestamp_update_operation)
       .send()
       .await
-      .map_err(|e| match aws_sdk_dynamodb::Error::from(e) {
-        aws_sdk_dynamodb::Error::TransactionCanceledException(
+      .map_err(|e| match DynamoDBError::from(e) {
+        DynamoDBError::TransactionCanceledException(
           TransactionCanceledException {
             cancellation_reasons: Some(reasons),
             ..
