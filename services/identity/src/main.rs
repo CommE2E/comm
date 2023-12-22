@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use comm_lib::aws;
 use config::Command;
 use database::DatabaseClient;
 use moka::future::Cache;
@@ -50,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Command::Server => {
       config::load_server_config();
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
-      let aws_config = aws_config::from_env().region("us-east-2").load().await;
+      let aws_config = aws::config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
       let workflow_cache = Cache::builder()
         .time_to_live(Duration::from_secs(10))
