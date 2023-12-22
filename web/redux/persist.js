@@ -233,32 +233,18 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
     console.log('redux-persist: migrating state to SQLite storage');
   }
 
-  // We need to simulate the keyserverStoreTransform for data stored in the
-  // old local storage (because redux persist will only run it for the
-  // sqlite storage which is empty in this case).
-  // We don't just use keyserverStoreTransform.out(oldStorage) because
-  // the transform might change in the future, but we need to treat
-  // this code like migration code (it shouldn't change).
-  if (oldStorage?._persist?.version === 4) {
-    const defaultConnection = defaultConnectionInfo;
-    return {
-      ...oldStorage,
-      keyserverStore: {
-        ...oldStorage.keyserverStore,
-        keyserverInfos: {
-          ...oldStorage.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...oldStorage.keyserverStore.keyserverInfos[ashoatKeyserverID],
-            connection: { ...defaultConnection },
-            updatesCurrentAsOf: 0,
-            sessionID: null,
-          },
-        },
-      },
-    };
+  const allKeys = Object.keys(oldStorage);
+  const transforms = persistConfig.transforms ?? [];
+  const newStorage = { ...oldStorage };
+
+  for (const transform of transforms) {
+    for (const key of allKeys) {
+      const transformedStore = transform.out(newStorage[key], key, newStorage);
+      newStorage[key] = transformedStore;
+    }
   }
 
-  return oldStorage;
+  return newStorage;
 };
 
 type PersistedKeyserverInfo = $Diff<
