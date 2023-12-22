@@ -1,16 +1,11 @@
-// TODO: get rid of this
-#![allow(dead_code)]
-
 use std::collections::HashMap;
 
 use aws_sdk_dynamodb::{
-  client::fluent_builders::Query,
-  error::TransactionCanceledException,
-  model::{
-    AttributeValue, Delete, DeleteRequest, Put, TransactWriteItem, Update,
-    WriteRequest,
+  operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
+  types::{
+    error::TransactionCanceledException, AttributeValue, Delete, DeleteRequest,
+    Put, TransactWriteItem, Update, WriteRequest,
   },
-  output::GetItemOutput,
 };
 use chrono::{DateTime, Utc};
 use tracing::{error, warn};
@@ -1022,7 +1017,7 @@ fn query_rows_with_prefix(
   db: &crate::database::DatabaseClient,
   user_id: impl Into<String>,
   prefix: &'static str,
-) -> Query {
+) -> QueryFluentBuilder {
   db.client
     .query()
     .table_name(devices_table::NAME)

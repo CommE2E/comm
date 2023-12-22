@@ -1,4 +1,5 @@
-use aws_sdk_dynamodb::{model::AttributeValue, Error as DynamoDBError};
+use aws_sdk_dynamodb::types::AttributeValue;
+use aws_sdk_dynamodb::Error as DynamoDBError;
 use std::collections::hash_map::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use tracing::error;
