@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
+import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
@@ -15,7 +15,10 @@ import {
   type UserDevicesOlmOutboundKeys,
   type UserLoginResponse,
 } from 'lib/types/identity-service-types.js';
-import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
+import {
+  ONE_TIME_KEYS_NUMBER,
+  identityAuthResultValidator,
+} from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
@@ -217,11 +220,42 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyArray(contentOneTimeKeys),
-          getOneTimeKeyArray(notificationsOneTimeKeys),
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         return { accessToken: token, userID, username };
+      },
+      logInPasswordUser: async (username: string, password: string) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const loginResult = await commRustModule.logInPasswordUser(
+          username,
+          password,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken: token } = JSON.parse(loginResult);
+        const identityAuthResult = { accessToken: token, userID, username };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
       },
     }),
     [getAuthMetadata],
