@@ -1,15 +1,11 @@
-// TODO: get rid of this
-#![allow(dead_code)]
-
 use std::collections::HashMap;
 
 use aws_sdk_dynamodb::{
-  client::fluent_builders::Query,
-  error::TransactionCanceledException,
-  model::{
-    AttributeValue, DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
+  operation::{get_item::GetItemOutput, query::builders::QueryFluentBuilder},
+  types::{
+    error::TransactionCanceledException, AttributeValue, DeleteRequest, Put,
+    TransactWriteItem, Update, WriteRequest,
   },
-  output::GetItemOutput,
 };
 use chrono::{DateTime, Utc};
 use tracing::{error, warn};
@@ -33,12 +29,6 @@ use crate::{
 use super::{parse_date_time_attribute, DatabaseClient};
 
 type RawAttributes = HashMap<String, AttributeValue>;
-
-#[derive(Clone, Debug)]
-pub enum DevicesTableRow {
-  Device(DeviceRow),
-  DeviceList(DeviceListRow),
-}
 
 #[derive(Clone, Debug)]
 pub struct DeviceRow {
@@ -786,7 +776,7 @@ fn query_rows_with_prefix(
   db: &crate::database::DatabaseClient,
   user_id: impl Into<String>,
   prefix: &'static str,
-) -> Query {
+) -> QueryFluentBuilder {
   db.client
     .query()
     .table_name(devices_table::NAME)
