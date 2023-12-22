@@ -30,6 +30,7 @@ public:
   virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
   virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
   virtual jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) = 0;
+  virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
 
 };
 
@@ -130,6 +131,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::uploadOneTimeKeys, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(contentOneTimePreKeys), std::move(notifOneTimePreKeys));
+    }
+    jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) override {
+      static_assert(
+          bridging::getParameterCount(&T::getKeyserverKeys) == 5,
+          "Expected getKeyserverKeys(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getKeyserverKeys, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(keyserverID));
     }
 
   private:

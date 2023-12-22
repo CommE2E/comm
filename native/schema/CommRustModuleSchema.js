@@ -75,6 +75,12 @@ export interface Spec extends TurboModule {
     contentOneTimePreKeys: $ReadOnlyArray<string>,
     notifOneTimePreKeys: $ReadOnlyArray<string>,
   ) => Promise<void>;
+  +getKeyserverKeys: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    keyserverID: string,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
