@@ -2,7 +2,7 @@
 use std::str::FromStr;
 
 // External crate imports
-use aws_sdk_dynamodb::Error as DynamoDBError;
+use comm_lib::aws::DynamoDBError;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;

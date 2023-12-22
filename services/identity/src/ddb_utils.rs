@@ -1,5 +1,5 @@
-use aws_sdk_dynamodb::types::{AttributeValue, PutRequest, WriteRequest};
 use chrono::{DateTime, NaiveDateTime, Utc};
+use comm_lib::aws::ddb::types::{AttributeValue, PutRequest, WriteRequest};
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
