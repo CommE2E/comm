@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-
-use aws_sdk_dynamodb::types::AttributeValue;
+use comm_lib::database::{AttributeExtractor, AttributeMap, DBItemError};
 use tunnelbroker_messages::MessageToDevice;
 
 use crate::constants::dynamodb::undelivered_messages::{
@@ -12,34 +10,26 @@ pub enum MessageErrors {
   SerializationError,
 }
 
+impl From<DBItemError> for MessageErrors {
+  fn from(err: DBItemError) -> Self {
+    tracing::error!("Failed to extract MessageToDevice attribute: {:?}", err);
+    MessageErrors::SerializationError
+  }
+}
+
 pub trait MessageToDeviceExt {
   fn from_hashmap(
-    hashmap: HashMap<String, AttributeValue>,
+    hashmap: AttributeMap,
   ) -> Result<MessageToDevice, MessageErrors>;
 }
 
 impl MessageToDeviceExt for MessageToDevice {
   fn from_hashmap(
-    hashmap: HashMap<String, AttributeValue>,
+    mut hashmap: AttributeMap,
   ) -> Result<MessageToDevice, MessageErrors> {
-    let device_id: String = hashmap
-      .get(DEVICE_ID)
-      .ok_or(MessageErrors::SerializationError)?
-      .as_s()
-      .map_err(|_| MessageErrors::SerializationError)?
-      .to_string();
-    let message_id: String = hashmap
-      .get(MESSAGE_ID)
-      .ok_or(MessageErrors::SerializationError)?
-      .as_s()
-      .map_err(|_| MessageErrors::SerializationError)?
-      .to_string();
-    let payload: String = hashmap
-      .get(PAYLOAD)
-      .ok_or(MessageErrors::SerializationError)?
-      .as_s()
-      .map_err(|_| MessageErrors::SerializationError)?
-      .to_string();
+    let device_id: String = hashmap.take_attr(DEVICE_ID)?;
+    let message_id: String = hashmap.take_attr(MESSAGE_ID)?;
+    let payload: String = hashmap.take_attr(PAYLOAD)?;
 
     Ok(MessageToDevice {
       device_id,

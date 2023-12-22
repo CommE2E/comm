@@ -2,8 +2,8 @@ use crate::constants::{
   CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY, MAX_RMQ_MSG_PRIORITY,
   RMQ_CONSUMER_TAG,
 };
-use aws_sdk_dynamodb::error::SdkError;
-use aws_sdk_dynamodb::operation::put_item::PutItemError;
+use comm_lib::aws::ddb::error::SdkError;
+use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use derive_more;
 use futures_util::stream::SplitSink;
 use futures_util::SinkExt;

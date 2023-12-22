@@ -1,6 +1,7 @@
 use crate::constants;
 use anyhow::{ensure, Result};
 use clap::Parser;
+use comm_lib::aws;
 use once_cell::sync::Lazy;
 use tracing::info;
 
@@ -47,8 +48,8 @@ pub(super) fn parse_cmdline_args() -> Result<()> {
 }
 
 /// Provides region/credentials configuration for AWS SDKs
-pub async fn load_aws_config() -> aws_config::SdkConfig {
-  let mut config_builder = aws_config::from_env();
+pub async fn load_aws_config() -> aws::AwsConfig {
+  let mut config_builder = aws::config::from_env();
 
   if let Some(endpoint) = &CONFIG.localstack_endpoint {
     info!("Using localstack URL: {}", endpoint);
