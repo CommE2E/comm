@@ -9,7 +9,7 @@ use comm_lib::{
       DeleteRequest, Put, TransactWriteItem, Update, WriteRequest,
     },
   },
-  database::{AttributeMap, DynamoDBError},
+  database::{AttributeMap, DBItemAttributeError, DBItemError, DynamoDBError},
 };
 use tracing::{error, warn};
 
@@ -29,10 +29,7 @@ use crate::{
   },
   database::parse_string_attribute,
   ddb_utils::AttributesOptionExt,
-  error::{
-    DBItemAttributeError, DBItemError, DeviceListError, Error,
-    FromAttributeValue,
-  },
+  error::{DeviceListError, Error, FromAttributeValue},
   grpc_services::protos::unauth::DeviceType,
 };
 
@@ -151,7 +148,7 @@ impl TryFrom<Option<AttributeValue>> for DeviceIDAttribute {
       .strip_prefix(DEVICE_ITEM_KEY_PREFIX)
       .ok_or_else(|| DBItemError {
         attribute_name: ATTR_ITEM_ID.to_string(),
-        attribute_value: Some(AttributeValue::S(item_id.clone())),
+        attribute_value: Some(AttributeValue::S(item_id.clone())).into(),
         attribute_error: DBItemAttributeError::InvalidValue,
       })?
       .to_string();
@@ -170,14 +167,14 @@ impl TryFrom<Option<AttributeValue>> for DeviceListKeyAttribute {
       .strip_prefix(DEVICE_LIST_KEY_PREFIX)
       .ok_or_else(|| DBItemError {
         attribute_name: ATTR_ITEM_ID.to_string(),
-        attribute_value: Some(AttributeValue::S(item_id.clone())),
+        attribute_value: Some(AttributeValue::S(item_id.clone())).into(),
         attribute_error: DBItemAttributeError::InvalidValue,
       })
       .and_then(|s| {
         s.parse().map_err(|e| {
           DBItemError::new(
             ATTR_ITEM_ID.to_string(),
-            Some(AttributeValue::S(item_id.clone())),
+            Some(AttributeValue::S(item_id.clone())).into(),
             DBItemAttributeError::InvalidTimestamp(e),
           )
         })
@@ -201,7 +198,7 @@ impl TryFrom<AttributeMap> for DeviceRow {
       DeviceType::from_str_name(&raw_device_type).ok_or_else(|| {
         DBItemError::new(
           ATTR_DEVICE_TYPE.to_string(),
-          Some(AttributeValue::S(raw_device_type)),
+          Some(AttributeValue::S(raw_device_type)).into(),
           DBItemAttributeError::InvalidValue,
         )
       })?;
@@ -386,7 +383,7 @@ impl TryFrom<AttributeMap> for DeviceListRow {
       .ok_or_else(|| {
         DBItemError::new(
           ATTR_DEVICE_IDS.to_string(),
-          None,
+          None.into(),
           DBItemAttributeError::Missing,
         )
       })?
