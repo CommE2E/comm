@@ -16,5 +16,17 @@ mod reexports {
 
   #[cfg(feature = "http")]
   pub use {actix_web, http};
+
+  #[cfg(feature = "aws")]
+  pub mod aws {
+    pub use aws_config as config;
+    pub use aws_sdk_dynamodb as ddb;
+    pub use aws_sdk_secretsmanager as secretsmanager;
+
+    // commonly used types
+    pub use config::SdkConfig as AwsConfig;
+    pub use ddb::Client as DynamoDBClient;
+    pub use ddb::Error as DynamoDBError;
+  }
 }
 pub use reexports::*;
