@@ -124,6 +124,10 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 pub const NONCE_LENGTH: usize = 17;
 pub const NONCE_TTL_DURATION: i64 = 30;
 
+// Identity
+
+pub const DEFAULT_IDENTITY_ENDPOINT: &str = "http://localhost:50054";
+
 // LocalStack
 
 pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
