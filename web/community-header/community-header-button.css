@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+}
+
+.addButton {
+  background-color: var(--button-background-tertiary-default);
+  color: var(--button-label-tertiary-default);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.addButton:hover {
+  cursor: pointer;
+  background-color: var(--button-background-tetirary-hover);
+  color: var(--button-label-tertiary-hover);
+}
