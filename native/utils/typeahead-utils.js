@@ -92,7 +92,7 @@ function mentionTypeaheadTooltipActions({
         },
       });
     } else if (suggestion.type === 'chat') {
-      const { threadInfo } = suggestion;
+      const { rawChatName, threadInfo } = suggestion;
       const mentionText = getRawChatMention(threadInfo);
       actions.push({
         key: threadInfo.id,
@@ -107,6 +107,7 @@ function mentionTypeaheadTooltipActions({
         actionButtonContent: {
           type: 'chat',
           threadInfo,
+          rawChatName,
         },
       });
     }
