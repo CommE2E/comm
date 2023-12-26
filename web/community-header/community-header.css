@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  min-height: 32px;
+}
+
+.header {
+  display: flex;
+  column-gap: 8px;
+  color: var(--text-background-primary-default);
+  font-size: var(--xl-font-20);
+  font-weight: var(--semi-bold);
+}
+
+.communityButtonsContainer {
+  display: flex;
+  column-gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
