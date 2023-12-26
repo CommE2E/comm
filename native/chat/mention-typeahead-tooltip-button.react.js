@@ -28,10 +28,10 @@ function MentionTypeaheadTooltipButton(props: Props): React.Node {
     );
     typeaheadTooltipButtonText = item.actionButtonContent.userInfo.username;
   } else if (item.actionButtonContent.type === 'chat') {
-    typeaheadTooltipButtonText = item.actionButtonContent.threadInfo.uiName;
-    avatarComponent = (
-      <ThreadAvatar size="S" threadInfo={item.actionButtonContent.threadInfo} />
-    );
+    const chatMentionCandidate = item.actionButtonContent.chatMentionCandidate;
+    const { threadInfo } = chatMentionCandidate;
+    typeaheadTooltipButtonText = threadInfo.uiName;
+    avatarComponent = <ThreadAvatar size="S" threadInfo={threadInfo} />;
   }
 
   return (

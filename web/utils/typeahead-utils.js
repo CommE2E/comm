@@ -143,10 +143,11 @@ function getMentionTypeaheadTooltipActions(
         },
       });
     } else if (suggestion.type === 'chat') {
-      const suggestedChat = suggestion.threadInfo;
-      const mentionText = getRawChatMention(suggestedChat);
+      const { chatMentionCandidate } = suggestion;
+      const { threadInfo } = chatMentionCandidate;
+      const mentionText = getRawChatMention(threadInfo);
       actions.push({
-        key: suggestedChat.id,
+        key: threadInfo.id,
         execute: () =>
           mentionTypeaheadTooltipActionExecuteHandler({
             textBeforeAtSymbol,
@@ -158,7 +159,7 @@ function getMentionTypeaheadTooltipActions(
           }),
         actionButtonContent: {
           type: 'chat',
-          threadInfo: suggestedChat,
+          chatMentionCandidate,
         },
       });
     }
@@ -197,10 +198,10 @@ function getMentionTypeaheadTooltipButtons(
       );
       typeaheadButtonText = `@${stringForUserExplicit(suggestedUser)}`;
     } else if (actionButtonContent.type === 'chat') {
-      const suggestedChat = actionButtonContent.threadInfo;
-      avatarComponent = (
-        <ThreadAvatar size="S" threadInfo={actionButtonContent.threadInfo} />
-      );
+      const chatMentionCandidate = actionButtonContent.chatMentionCandidate;
+      const { threadInfo } = chatMentionCandidate;
+      const suggestedChat = threadInfo;
+      avatarComponent = <ThreadAvatar size="S" threadInfo={threadInfo} />;
       typeaheadButtonText = `@${suggestedChat.uiName}`;
     }
 
