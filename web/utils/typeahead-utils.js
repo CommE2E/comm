@@ -143,10 +143,10 @@ function getMentionTypeaheadTooltipActions(
         },
       });
     } else if (suggestion.type === 'chat') {
-      const suggestedChat = suggestion.threadInfo;
-      const mentionText = getRawChatMention(suggestedChat);
+      const { rawChatName, threadInfo } = suggestion;
+      const mentionText = getRawChatMention(threadInfo);
       actions.push({
-        key: suggestedChat.id,
+        key: threadInfo.id,
         execute: () =>
           mentionTypeaheadTooltipActionExecuteHandler({
             textBeforeAtSymbol,
@@ -158,7 +158,8 @@ function getMentionTypeaheadTooltipActions(
           }),
         actionButtonContent: {
           type: 'chat',
-          threadInfo: suggestedChat,
+          threadInfo,
+          rawChatName,
         },
       });
     }
