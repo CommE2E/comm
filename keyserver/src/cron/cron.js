@@ -6,6 +6,7 @@ import schedule from 'node-schedule';
 
 import { backupDB } from './backups.js';
 import { createDailyUpdatesThread } from './daily-updates.js';
+import { postLeaderboard } from './phab-leaderboard.js';
 import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 import { updateIdentityReservedUsernames } from './update-identity-reserved-usernames.js';
 import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
@@ -89,6 +90,22 @@ if (cluster.isMaster) {
       } catch (e) {
         console.warn(
           'encountered error while trying to create daily updates thread',
+          e,
+        );
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '0 0 1 * *', // first of every month at midnight in the keyserver's timezone
+    async () => {
+      try {
+        if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
+          // This is a job that the Comm internal team uses
+          await postLeaderboard();
+        }
+      } catch (e) {
+        console.warn(
+          'encountered error while trying to post Phabricator leaderboard',
           e,
         );
       }
