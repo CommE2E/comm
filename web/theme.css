@@ -50,6 +50,9 @@
   --error-dark-50: #b62602;
   --error-dark-90: #4f1203;
 
+  --shadow-dark-35: #00000059;
+  --shadow-light-35: #ffffff59;
+
   --logo-bg: #111827;
   --spoiler-color: #33332c;
   --loading-foreground: #1b0e38;
@@ -262,6 +265,10 @@
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
+  /* Card */
+  --card-background-primary-default: var(--shades-black-85);
+  --card-headerShadow-primary-default: var(--shadow-dark-35);
+
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-75);
@@ -337,6 +344,11 @@
   --text-background-secondary-default: var(--shades-black-60);
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
+
+  /* Card */
+  /* @GINSU: TODO double check these values after redesign is finished */
+  --card-background-primary-default: var(--shades-white-80);
+  --card-headerShadow-primary-default: var(--shadow-light-35);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
