@@ -1,0 +1,17 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 8px;
+  color: var(--text-background-tertiary-default);
+  font-size: var(--s-font-14);
+}
+
+.container:hover {
+  cursor: pointer;
+}
+
+.container:hover,
+.selected {
+  color: var(--text-background-primary-default);
+}
