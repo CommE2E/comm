@@ -15,6 +15,7 @@ import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { setNewSessionKeyserverInfoBase } from 'lib/shared/keyserver-utils.js';
 import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
@@ -179,6 +180,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
       };
     }
+    const keyserverInfoBase = setNewSessionKeyserverInfoBase(
+      state.keyserverStore,
+      action.payload,
+    );
 
     state = {
       ...state,
@@ -187,7 +192,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
         keyserverInfos: {
           ...state.keyserverStore.keyserverInfos,
           [keyserverID]: {
-            ...state.keyserverStore.keyserverInfos[keyserverID],
+            ...keyserverInfoBase,
             sessionID: action.payload.sessionChange.sessionID,
           },
         },
