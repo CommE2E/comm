@@ -2,7 +2,7 @@
 
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -71,14 +71,7 @@ const defaultWebState: AppState = Object.freeze({
   communityPickerStore: { chat: null, calendar: null },
   keyserverStore: {
     keyserverInfos: {
-      [ashoatKeyserverID]: {
-        cookie: null,
-        updatesCurrentAsOf: 0,
-        urlPrefix: keyserverURL,
-        connection: { ...defaultConnectionInfo },
-        lastCommunicatedPlatformDetails: null,
-        deviceToken: null,
-      },
+      [ashoatKeyserverID]: defaultKeyserverInfo(keyserverURL),
     },
   },
   threadActivityStore: {},
