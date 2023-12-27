@@ -6,7 +6,7 @@ import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './add-keyserver-modal.css';
@@ -53,12 +53,8 @@ function AddKeyserverModal(): React.Node {
     }
 
     const newKeyserverInfo: KeyserverInfo = {
-      cookie: null,
-      updatesCurrentAsOf: 0,
+      ...defaultKeyserverInfo,
       urlPrefix: keyserverURL,
-      connection: defaultConnectionInfo,
-      lastCommunicatedPlatformDetails: null,
-      deviceToken: null,
     };
 
     dispatch({
