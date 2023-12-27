@@ -8,6 +8,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import AppListHeader from './app-list-header.react.js';
 import AppListItem from './app-list-item.react.js';
 import css from './app-list.css';
+import Card from '../components/card.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -82,10 +83,13 @@ function AppList(): React.Node {
 
   const appList = React.useMemo(
     () => (
-      <div className={css.container}>
-        <AppListHeader />
-        {appListBody}
-      </div>
+      <Card.Container>
+        <Card.Item
+          header={<AppListHeader />}
+          body={appListBody}
+          className={css.container}
+        />
+      </Card.Container>
     ),
     [appListBody],
   );
