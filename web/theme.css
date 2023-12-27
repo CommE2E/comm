@@ -267,6 +267,7 @@
 
   /* Card */
   --card-background-primary-default: var(--shades-black-85);
+  --card-background-secondary-default: var(--shades-black-90);
   --card-headerShadow-primary-default: var(--shadow-dark-35);
 
   /* Button */
@@ -353,6 +354,7 @@
   /* Card */
   /* @GINSU: TODO double check these values after redesign is finished */
   --card-background-primary-default: var(--shades-white-80);
+  --card-background-secondary-default: var(--shades-white-90);
   --card-headerShadow-primary-default: var(--shadow-light-35);
 
   /* Button */

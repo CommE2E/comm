@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  height: 100%;
+}
+
+.itemContainer {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card-background-primary-default);
+}
+
+.secondaryItemContainer {
+  background-color: var(--card-background-secondary-default);
+}
+
+.singleItemContainer {
+  border-radius: 8px;
+}
+
+.firstMultiItemContainer {
+  border-radius: 8px 0 0 8px;
+}
+
+.lastMultiItemContainer {
+  border-radius: 0 8px 8px 0;
+}
+
+.headerContainer {
+  height: 56px;
+  box-shadow: 0px 1px 3px 0px var(--card-headerShadow-primary-default);
+  clip-path: inset(0 0 -3px 0);
+}
