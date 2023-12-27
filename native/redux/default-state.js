@@ -6,7 +6,7 @@ import Orientation from 'react-native-orientation-locker';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { defaultConnectionInfo } from 'lib/types/socket-types.js';
+import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -72,14 +72,7 @@ const defaultState = ({
   },
   keyserverStore: {
     keyserverInfos: {
-      [ashoatKeyserverID]: {
-        cookie: null,
-        updatesCurrentAsOf: 0,
-        urlPrefix: defaultURLPrefix,
-        connection: defaultConnectionInfo,
-        lastCommunicatedPlatformDetails: null,
-        deviceToken: null,
-      },
+      [ashoatKeyserverID]: defaultKeyserverInfo(defaultURLPrefix),
     },
   },
   localSettings: {
