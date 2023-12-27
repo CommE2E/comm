@@ -1085,6 +1085,9 @@ const keyserverStoreTransform: Transform = createTransform(
     const keyserverInfos: { [string]: PersistedKeyserverInfo } = {};
     for (const key in state.keyserverInfos) {
       const { connection, ...rest } = state.keyserverInfos[key];
+      if (connection.connectionIssue === 'temporarily_connected') {
+        continue;
+      }
       keyserverInfos[key] = rest;
     }
     return {
