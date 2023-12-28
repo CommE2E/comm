@@ -21,6 +21,7 @@ use crate::ddb_utils::{
   OlmAccountType,
 };
 use crate::error::{consume_error, Error};
+use crate::reserved_users::UserDetail;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -35,7 +36,8 @@ use crate::constants::{
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
   NOTIF_ONE_TIME_KEY, RESERVED_USERNAMES_TABLE,
-  RESERVED_USERNAMES_TABLE_PARTITION_KEY, USERS_TABLE,
+  RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+  RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_ATTRIBUTE,
   USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
@@ -1036,19 +1038,18 @@ impl DatabaseClient {
 
   pub async fn filter_out_taken_usernames(
     &self,
-    usernames: Vec<String>,
-  ) -> Result<Vec<String>, Error> {
+    user_details: Vec<UserDetail>,
+  ) -> Result<Vec<UserDetail>, Error> {
     let db_usernames = self.get_all_usernames().await?;
 
     let db_usernames_set: HashSet<String> = db_usernames.into_iter().collect();
-    let usernames_set: HashSet<String> = usernames.into_iter().collect();
 
-    let available_usernames: Vec<String> = usernames_set
-      .difference(&db_usernames_set)
-      .cloned()
+    let available_user_details: Vec<UserDetail> = user_details
+      .into_iter()
+      .filter(|user_detail| !db_usernames_set.contains(&user_detail.username))
       .collect();
 
-    Ok(available_usernames)
+    Ok(available_user_details)
   }
 
   async fn get_user_from_user_info(
@@ -1395,17 +1396,21 @@ impl DatabaseClient {
 
   pub async fn add_usernames_to_reserved_usernames_table(
     &self,
-    usernames: Vec<String>,
+    user_details: Vec<UserDetail>,
   ) -> Result<(), Error> {
     // A single call to BatchWriteItem can consist of up to 25 operations
-    for usernames_chunk in usernames.chunks(25) {
-      let write_requests = usernames_chunk
+    for user_chunk in user_details.chunks(25) {
+      let write_requests = user_chunk
         .iter()
-        .map(|username| {
+        .map(|user_detail| {
           let put_request = PutRequest::builder()
             .item(
               RESERVED_USERNAMES_TABLE_PARTITION_KEY,
-              AttributeValue::S(username.to_string()),
+              AttributeValue::S(user_detail.username.to_string()),
+            )
+            .item(
+              RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE,
+              AttributeValue::S(user_detail.user_id.to_string()),
             )
             .build();
 
