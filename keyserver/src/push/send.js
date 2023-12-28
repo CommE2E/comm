@@ -311,7 +311,6 @@ async function preparePushNotif(input: {
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
-            userID,
             {
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
@@ -430,7 +429,6 @@ async function preparePushNotif(input: {
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
-            userID,
             {
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
@@ -903,7 +901,6 @@ const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
   platformDetails: tPlatformDetails,
 });
 async function prepareAPNsNotification(
-  userID: string,
   inputData: APNsNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
@@ -939,9 +936,7 @@ async function prepareAPNsNotification(
       (isNonCollapsibleTextNotification &&
         canDecryptNonCollapsibleTextIOSNotifs));
 
-  const isStaffOrDev = isStaff(userID) || isDev;
   const canDecryptMacOSNotifs =
-    isStaffOrDev &&
     platformDetails.platform === 'macos' &&
     hasMinCodeVersion(platformDetails, {
       web: 47,
@@ -1764,13 +1759,10 @@ async function updateBadgeCount(
       notification.badge = unreadCount;
       notification.pushType = 'alert';
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
-        const isStaffOrDev = isStaff(userID) || isDev;
-        const shouldBeEncrypted =
-          isStaffOrDev &&
-          hasMinCodeVersion(viewer.platformDetails, {
-            web: 47,
-            majorDesktop: 9,
-          });
+        const shouldBeEncrypted = hasMinCodeVersion(viewer.platformDetails, {
+          web: 47,
+          majorDesktop: 9,
+        });
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (shouldBeEncrypted) {
           const notificationsArray = await prepareEncryptedAPNsNotifications(
