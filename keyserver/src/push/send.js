@@ -390,7 +390,6 @@ async function preparePushNotif(input: {
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
           const targetedNotifications = await prepareWebNotification(
-            userID,
             {
               notifTexts,
               threadID: threadInfo.id,
@@ -1241,7 +1240,6 @@ const webNotifInputDataValidator = tShape<WebNotifInputData>({
   platformDetails: tPlatformDetails,
 });
 async function prepareWebNotification(
-  userID: string,
   inputData: WebNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedWebNotification>> {
@@ -1260,11 +1258,9 @@ async function prepareWebNotification(
     threadID,
   };
 
-  const isStaffOrDev = isStaff(userID) || isDev;
-  const shouldBeEncrypted =
-    hasMinCodeVersion(convertedData.platformDetails, {
-      web: 43,
-    }) && isStaffOrDev;
+  const shouldBeEncrypted = hasMinCodeVersion(convertedData.platformDetails, {
+    web: 43,
+  });
 
   if (!shouldBeEncrypted) {
     return devices.map(({ deviceToken }) => ({ deviceToken, notification }));
