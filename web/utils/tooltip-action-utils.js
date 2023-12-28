@@ -32,7 +32,6 @@ import {
   type TooltipPositionStyle,
   type TooltipSize,
 } from './tooltip-utils.js';
-import { tooltipPositions } from './tooltip-utils.js';
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import MessageTooltip from '../chat/message-tooltip.react.js';
@@ -480,32 +479,47 @@ function useReactionTooltip({
   };
 }
 
-const availableNavigationSidebarTooltipPositions = [tooltipPositions.RIGHT];
-
 type UseNavigationSidebarTooltipArgs = {
   +tooltipLabel: string,
+  +position: TooltipPosition,
+  // The margin size should be between the point of origin and
+  // the base of the tooltip. The arrow is a "decoration" and
+  // should not be considered when measuring the margin size.
+  +tooltipMargin: number,
 };
 
 function useNavigationSidebarTooltip({
   tooltipLabel,
+  position,
+  tooltipMargin,
 }: UseNavigationSidebarTooltipArgs): UseTooltipResult {
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
       return undefinedTooltipSize;
     }
 
-    return calculateNavigationSidebarTooltipSize(tooltipLabel);
-  }, [tooltipLabel]);
+    return calculateNavigationSidebarTooltipSize(
+      tooltipLabel,
+      position,
+      tooltipMargin,
+    );
+  }, [position, tooltipLabel, tooltipMargin]);
 
   const createNavigationSidebarTooltip = React.useCallback(
-    () => <NavigationSidebarTooltip tooltipLabel={tooltipLabel} />,
-    [tooltipLabel],
+    () => (
+      <NavigationSidebarTooltip
+        tooltipLabel={tooltipLabel}
+        position={position}
+        tooltipMargin={tooltipMargin}
+      />
+    ),
+    [position, tooltipLabel, tooltipMargin],
   );
 
   const { onMouseEnter, onMouseLeave } = useTooltip({
     createTooltip: createNavigationSidebarTooltip,
     tooltipSize,
-    availablePositions: availableNavigationSidebarTooltipPositions,
+    availablePositions: [position],
   });
 
   return {

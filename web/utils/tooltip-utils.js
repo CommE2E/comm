@@ -12,10 +12,7 @@ import {
   reactionSeeMoreLabel,
 } from '../chat/chat-constants.js';
 import type { PositionInfo } from '../chat/position-types.js';
-import {
-  navigationSidebarTooltipContainerStyle,
-  navigationSidebarTooltipStyle,
-} from '../navigation-sidebar/navigation-sidebar-constants.js';
+import { navigationSidebarTooltipStyle } from '../navigation-sidebar/navigation-sidebar-constants.js';
 import { calculateMaxTextWidth } from '../utils/text-utils.js';
 
 export const tooltipPositions = Object.freeze({
@@ -413,8 +410,9 @@ function calculateReactionTooltipSize(
 
 function calculateNavigationSidebarTooltipSize(
   tooltipLabel: string,
+  position: TooltipPosition,
+  tooltipMargin: number,
 ): TooltipSize {
-  const { marginLeft } = navigationSidebarTooltipContainerStyle;
   const {
     paddingLeft,
     paddingRight,
@@ -425,8 +423,17 @@ function calculateNavigationSidebarTooltipSize(
 
   const tooltipLabelTextWidth = calculateMaxTextWidth([tooltipLabel], 14);
 
-  const width = marginLeft + paddingLeft + tooltipLabelTextWidth + paddingRight;
-  const height = paddingTop + contentHeight + paddingBottom;
+  const marginIsHorizontal =
+    position === tooltipPositions.RIGHT || position === tooltipPositions.LEFT;
+  const marginIsVertical =
+    position === tooltipPositions.TOP || position === tooltipPositions.BOTTOM;
+
+  const horizontalMargin = marginIsHorizontal ? tooltipMargin : 0;
+  const verticalMargin = marginIsVertical ? tooltipMargin : 0;
+
+  const width =
+    paddingLeft + tooltipLabelTextWidth + paddingRight + horizontalMargin;
+  const height = paddingTop + contentHeight + paddingBottom + verticalMargin;
 
   return {
     width,
