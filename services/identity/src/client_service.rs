@@ -627,20 +627,20 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    let usernames = validate_add_reserved_usernames_message(
+    let user_details = validate_add_reserved_usernames_message(
       &message.message,
       &message.signature,
     )?;
 
-    let filtered_usernames = self
+    let filtered_user_details = self
       .client
-      .filter_out_taken_usernames(usernames)
+      .filter_out_taken_usernames(user_details)
       .await
       .map_err(handle_db_error)?;
 
     self
       .client
-      .add_usernames_to_reserved_usernames_table(filtered_usernames)
+      .add_usernames_to_reserved_usernames_table(filtered_user_details)
       .await
       .map_err(handle_db_error)?;
 
