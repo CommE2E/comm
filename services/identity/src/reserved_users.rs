@@ -21,10 +21,10 @@ struct Message<T> {
 // `ReservedUsernameMessage` in lib/types/crypto-types.js
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct UsernameAndID {
-  username: String,
+pub struct UserDetail {
+  pub username: String,
   #[serde(rename = "userID")]
-  user_id: String,
+  pub user_id: String,
 }
 
 fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
@@ -88,7 +88,7 @@ pub fn validate_account_ownership_message_and_get_user_id(
   const EXPECTED_STATEMENT: &[u8; 60] =
     b"This user is the owner of the following username and user ID";
 
-  let deserialized_message = validate_and_decode_message::<UsernameAndID>(
+  let deserialized_message = validate_and_decode_message::<UserDetail>(
     keyserver_message,
     keyserver_signature,
     EXPECTED_STATEMENT,
@@ -104,8 +104,8 @@ pub fn validate_account_ownership_message_and_get_user_id(
 pub fn validate_add_reserved_usernames_message(
   keyserver_message: &str,
   keyserver_signature: &str,
-) -> Result<Vec<String>, Status> {
-  let deserialized_message = validate_and_decode_message::<Vec<String>>(
+) -> Result<Vec<UserDetail>, Status> {
+  let deserialized_message = validate_and_decode_message::<Vec<UserDetail>>(
     keyserver_message,
     keyserver_signature,
     b"Add the following usernames to reserved list",

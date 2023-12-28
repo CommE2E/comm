@@ -7,6 +7,7 @@ import {
   FUTURE_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
+import type { UserDetail } from 'lib/types/crypto-types.js';
 import {
   undirectedStatus,
   directedStatus,
@@ -448,6 +449,16 @@ async function fetchAllUsernames(): Promise<string[]> {
   return result.map(row => row.username);
 }
 
+async function fetchAllUserDetails(): Promise<UserDetail[]> {
+  const query = SQL`SELECT username, id FROM users`;
+  const [result] = await dbQuery(query);
+
+  return result.map(row => ({
+    username: row.username,
+    userID: row.id,
+  }));
+}
+
 async function fetchKeyserverAdminID(): Promise<?string> {
   const changeRoleExtractString = `$.${threadPermissions.CHANGE_ROLE}`;
   const query = SQL`
@@ -490,6 +501,7 @@ export {
   fetchAllUserIDs,
   fetchUsername,
   fetchAllUsernames,
+  fetchAllUserDetails,
   fetchKnownUserInfos,
   fetchKeyserverAdminID,
   fetchUserIDForEthereumAddress,
