@@ -5,7 +5,6 @@ import type { $Response, $Request } from 'express';
 import invariant from 'invariant';
 import url from 'url';
 
-import { isStaff } from 'lib/shared/staff-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import {
@@ -24,7 +23,6 @@ import {
 import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
 
 import {
@@ -750,8 +748,6 @@ async function isCookieMissingOlmNotificationsSession(
     isDeviceType(viewer.platformDetails?.platform) &&
     hasMinCodeVersion(viewer.platformDetails, { native: 222 });
 
-  const isStaffOrDev = isStaff(viewer.userID) || isDev;
-
   const isWebSupportingE2ENotifs =
     viewer.platformDetails?.platform === 'web' &&
     hasMinCodeVersion(viewer.platformDetails, { web: 43 });
@@ -761,7 +757,6 @@ async function isCookieMissingOlmNotificationsSession(
     hasMinCodeVersion(viewer.platformDetails, { web: 43, majorDesktop: 9 });
 
   const isWindowsSupportingE2ENotifs =
-    isStaffOrDev &&
     viewer.platformDetails?.platform === 'windows' &&
     hasMinCodeVersion(viewer.platformDetails, {
       majorDesktop: 10,
