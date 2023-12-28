@@ -9,22 +9,22 @@ import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import css from './message-tooltip.css';
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
-} from './chat-constants.js';
-import css from './message-tooltip.css';
-import {
-  useSendReaction,
-  getEmojiKeyboardPosition,
-} from './reaction-message-utils.js';
+} from './tooltip-constants.js';
 import { useTooltipContext } from './tooltip-provider.js';
 import type {
   MessageTooltipAction,
   TooltipSize,
   TooltipPositionStyle,
-} from '../utils/tooltip-utils.js';
+} from './tooltip-utils.js';
+import {
+  useSendReaction,
+  getEmojiKeyboardPosition,
+} from '../chat/reaction-message-utils.js';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,

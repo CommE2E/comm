@@ -3,17 +3,17 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { getAppContainerPositionInfo } from './window-utils.js';
 import {
+  labelTooltipStyle,
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
   reactionTooltipStyle,
   reactionSeeMoreLabel,
-} from '../chat/chat-constants.js';
+} from './tooltip-constants.js';
 import type { PositionInfo } from '../chat/position-types.js';
-import { labelTooltipStyle } from '../navigation-sidebar/navigation-sidebar-constants.js';
 import { calculateMaxTextWidth } from '../utils/text-utils.js';
+import { getAppContainerPositionInfo } from '../utils/window-utils.js';
 
 export const tooltipPositions = Object.freeze({
   LEFT: 'left',
