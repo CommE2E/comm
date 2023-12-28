@@ -757,7 +757,6 @@ async function isCookieMissingOlmNotificationsSession(
     hasMinCodeVersion(viewer.platformDetails, { web: 43 });
 
   const isMacOSSupportingE2ENotifs =
-    isStaffOrDev &&
     viewer.platformDetails?.platform === 'macos' &&
     hasMinCodeVersion(viewer.platformDetails, { web: 43, majorDesktop: 9 });
 
