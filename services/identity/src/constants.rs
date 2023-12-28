@@ -87,6 +87,7 @@ pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
 // Usernames reserved because they exist in Ashoat's keyserver already
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
+pub const RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE: &str = "userID";
 
 // One time keys table, which need to exist in their own table to ensure
 // atomicity of additions and removals
