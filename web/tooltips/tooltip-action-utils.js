@@ -22,6 +22,10 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 import { canToggleMessagePin } from 'lib/utils/toggle-pin-utils.js';
 
+import LabelTooltip from './label-toolitp.react.js';
+import MessageTooltip from './message-tooltip.react.js';
+import ReactionTooltip from './reaction-tooltip.react.js';
+import { useTooltipContext } from './tooltip-provider.js';
 import {
   type MessageTooltipAction,
   getTooltipPositionStyle,
@@ -34,14 +38,10 @@ import {
 } from './tooltip-utils.js';
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
-import MessageTooltip from '../chat/message-tooltip.react.js';
 import type { PositionInfo } from '../chat/position-types.js';
-import ReactionTooltip from '../chat/reaction-tooltip.react.js';
-import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
-import LabelTooltip from '../navigation-sidebar/label-toolitp.react.js';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,

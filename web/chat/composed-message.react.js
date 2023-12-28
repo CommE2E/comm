@@ -22,8 +22,8 @@ import UserAvatar from '../avatars/user-avatar.react.js';
 import CommIcon from '../CommIcon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { usePushUserProfileModal } from '../modals/user-profile/user-profile-utils.js';
-import { useMessageTooltip } from '../utils/tooltip-action-utils.js';
-import { tooltipPositions } from '../utils/tooltip-utils.js';
+import { useMessageTooltip } from '../tooltips/tooltip-action-utils.js';
+import { tooltipPositions } from '../tooltips/tooltip-utils.js';
 
 export type ComposedMessageID = string;
 

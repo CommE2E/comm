@@ -4,11 +4,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import css from './label-tooltip.css';
-import { labelTooltipStyle } from './navigation-sidebar-constants.js';
-import {
-  tooltipPositions,
-  type TooltipPosition,
-} from '../utils/tooltip-utils.js';
+import { labelTooltipStyle } from './tooltip-constants.js';
+import { tooltipPositions, type TooltipPosition } from './tooltip-utils.js';
 
 type Props = {
   +tooltipLabel: string,
