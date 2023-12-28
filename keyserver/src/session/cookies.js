@@ -753,7 +753,6 @@ async function isCookieMissingOlmNotificationsSession(
   const isStaffOrDev = isStaff(viewer.userID) || isDev;
 
   const isWebSupportingE2ENotifs =
-    isStaffOrDev &&
     viewer.platformDetails?.platform === 'web' &&
     hasMinCodeVersion(viewer.platformDetails, { web: 43 });
 
