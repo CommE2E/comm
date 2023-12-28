@@ -13,6 +13,7 @@ import type {
   RegisterRequest,
 } from 'lib/types/account-types.js';
 import type {
+  UserDetail,
   ReservedUsernameMessage,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
@@ -190,7 +191,9 @@ async function createAccount(
   ];
 
   ignorePromiseRejections(
-    createAndSendReservedUsernameMessage([request.username]),
+    createAndSendReservedUsernameMessage([
+      { username: request.username, userID: id },
+    ]),
   );
 
   return {
@@ -248,7 +251,9 @@ async function processSIWEAccountCreation(
   await processAccountCreationCommon(viewer);
 
   ignorePromiseRejections(
-    createAndSendReservedUsernameMessage([request.address]),
+    createAndSendReservedUsernameMessage([
+      { username: request.address, userID: id }
+    ]),
   );
 
   return id;
@@ -349,7 +354,7 @@ async function processAccountCreationCommon(viewer: Viewer) {
 }
 
 async function createAndSendReservedUsernameMessage(
-  payload: $ReadOnlyArray<string>,
+  payload: $ReadOnlyArray<UserDetail>,
 ) {
   const issuedAt = new Date().toISOString();
   const reservedUsernameMessage: ReservedUsernameMessage = {
