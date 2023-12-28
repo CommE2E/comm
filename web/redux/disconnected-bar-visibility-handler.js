@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useDisconnectedBarVisibilityHandler } from 'lib/hooks/disconnected-bar.js';
 
-function useNetworkConnected() {
+function useNetworkConnected(): boolean {
   const [networkConnected, setNetworkConnected] = React.useState(true);
   React.useEffect(() => {
     if (!window) {
@@ -30,4 +30,4 @@ function DisconnectedBarVisibilityHandler(): null {
   return null;
 }
 
-export default DisconnectedBarVisibilityHandler;
+export { useNetworkConnected, DisconnectedBarVisibilityHandler };
