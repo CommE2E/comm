@@ -49,13 +49,13 @@ small.appCopy {
 }
 
 div.iconReadOnly {
-  color: var(--button-background-tetriary-disabled);
+  color: var(--enumOption-input-secondary-disabled);
 }
 
 .iconSelected {
-  color: var(--button-background-success-default);
+  color: var(--enumOption-input-secondary-selected);
 }
 
 .iconUnselected {
-  color: var(--button-background-tetriary-default);
+  color: var(--enumOption-input-secondary-default);
 }

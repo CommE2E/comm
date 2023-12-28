@@ -272,12 +272,10 @@
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-75);
-  --button-background-tetriary-default: var(--shades-white-80);
   --button-background-success-default: var(--success-primary);
   --button-background-primary-hover: var(--violet-dark-80);
   --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-black-75);
-  --button-background-tetriary-disabled: var(--shades-black-50);
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-60);
@@ -321,6 +319,9 @@
   --enumOption-description-primary-default: var(--shades-white-60);
   --enumOption-input-primary-default: var(--shades-black-60);
   --enumOption-input-primary-selected: var(--shades-white-60);
+  --enumOption-input-secondary-default: var(--shades-white-80);
+  --enumOption-input-secondary-selected: var(--success-primary);
+  --enumOption-input-secondary-disabled: var(--shades-black-50);
 
   /* Tooltip */
   --tooltip-background-primary-default: var(--shades-black-75);
@@ -353,12 +354,10 @@
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
   --button-background-secondary-default: var(--shades-black-50);
-  --button-background-tetriary-default: var(--shades-black-75);
   --button-background-success-default: var(--success-primary);
   --button-background-primary-hover: var(--violet-dark-80);
   --button-background-secondary-hover: var(--shades-black-60);
   --button-background-primary-disabled: var(--shades-white-60);
-  --button-background-tetriary-disabled: var(--shades-black-50);
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-90);
@@ -402,6 +401,9 @@
   --enumOption-description-primary-default: var(--shades-black-60);
   --enumOption-input-primary-default: var(--shades-black-50);
   --enumOption-input-primary-selected: var(--shades-black-60);
+  --enumOption-input-secondary-default: var(--shades-black-75);
+  --enumOption-input-secondary-selected: var(--success-primary);
+  --enumOption-input-secondary-disabled: var(--shades-black-50);
 
   /* Tooltip */
   /* @GINSU: TODO double check these values after redesign is finished */
