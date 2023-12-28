@@ -3,29 +3,19 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import {
-  useShouldShowDisconnectedBar,
-  useDisconnectedBar,
-} from 'lib/hooks/disconnected-bar.js';
-
+import { useNetworkConnected } from './disconnected-bar-visibility-handler.js';
 import css from './disconnected-bar.css';
 
 function DisconnectedBar(): React.Node {
-  const { shouldShowDisconnectedBar } = useShouldShowDisconnectedBar();
-  const [showing, setShowing] = React.useState(shouldShowDisconnectedBar);
-
-  const barCause = useDisconnectedBar(setShowing);
-  const isDisconnected = barCause === 'disconnected';
-  const text = isDisconnected ? 'DISCONNECTED' : 'CONNECTING…';
-  if (!showing) {
+  const isNetworkConnected = useNetworkConnected();
+  if (isNetworkConnected) {
     return null;
   }
-
-  const textClasses = classNames(css.bar, {
-    [css.disconnected]: isDisconnected,
-    [css.connecting]: !isDisconnected,
+  const textClasses = classNames({
+    [css.bar]: true,
+    [css.connecting]: !isNetworkConnected,
   });
-  return <p className={textClasses}>{text}</p>;
+  return <p className={textClasses}>{'CONNECTING…'}</p>;
 }
 
 export default DisconnectedBar;
