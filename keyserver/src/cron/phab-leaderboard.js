@@ -84,7 +84,48 @@ function messageForLineCountLeaderboard(
   dateTimeFormatOptions: Intl$DateTimeFormatOptions,
 ) {
   return (
-    '### Phabricator leaderboard for ' +
+    '### Line count leaderboard for ' +
+    `${date.toLocaleString('default', dateTimeFormatOptions)}\n` +
+    '```\n' +
+    `${JSON.stringify(leaderboard, undefined, 2)}\n` +
+    '```'
+  );
+}
+
+type NumRevisionsLandedLeaderboard = Array<{
+  +username: string,
+  +num_revisions_landed: string,
+}>;
+async function getNumRevisionsLandedLeaderboard(
+  conn: DBConnection,
+  startTime: number,
+  endTime: number,
+): Promise<NumRevisionsLandedLeaderboard> {
+  const query = SQL`
+    SELECT u.userName AS username,
+      COUNT(DISTINCT r.id) AS num_revisions_landed
+    FROM phabricator_differential.differential_revision r
+    LEFT JOIN phabricator_user.user u
+      ON u.phid = r.authorPHID
+    LEFT JOIN phabricator_differential.differential_transaction t
+      ON t.objectPHID = r.phid
+        AND t.transactionType = 'differential.revision.close'
+    WHERE r.status = 'published'
+      AND t.dateModified >= ${startTime} AND t.dateModified < ${endTime}
+    GROUP BY u.userName
+    ORDER BY num_revisions_landed DESC;
+  `;
+  const [results] = await conn.query(query);
+  return results;
+}
+
+function messageForNumRevisionsLandedLeaderboard(
+  leaderboard: NumRevisionsLandedLeaderboard,
+  date: Date,
+  dateTimeFormatOptions: Intl$DateTimeFormatOptions,
+) {
+  return (
+    '### Total revisions landed for ' +
     `${date.toLocaleString('default', dateTimeFormatOptions)}\n` +
     '```\n' +
     `${JSON.stringify(leaderboard, undefined, 2)}\n` +
@@ -119,27 +160,40 @@ async function postLeaderboard() {
 
   let monthlyLineCountResults: ?LineCountLeaderboard;
   let yearlyLineCountResults: ?LineCountLeaderboard;
+  let monthlyNumRevisionsLandedResults: ?NumRevisionsLandedLeaderboard;
+  let yearlyNumRevisionsLandedResults: ?NumRevisionsLandedLeaderboard;
   try {
-    const monthlyLineCountPromise = getLineCountLeaderboard(
-      conn,
-      startOfLastMonth.getTime() / 1000,
-      startOfThisMonth.getTime() / 1000,
-    );
-    const yearlyLineCountPromise: Promise<?LineCountLeaderboard> =
-      (async () => {
-        if (startOfThisMonth.getMonth() !== 0) {
-          return undefined;
-        }
-        return await getLineCountLeaderboard(
-          conn,
-          startOfLastYear.getTime() / 1000,
-          startOfThisMonth.getTime() / 1000,
-        );
-      })();
-    [monthlyLineCountResults, yearlyLineCountResults] = await Promise.all([
-      monthlyLineCountPromise,
-      yearlyLineCountPromise,
+    const monthlyPromise = (async () => {
+      const startTime = startOfLastMonth.getTime() / 1000;
+      const endTime = startOfThisMonth.getTime() / 1000;
+      return Promise.all([
+        getLineCountLeaderboard(conn, startTime, endTime),
+        getNumRevisionsLandedLeaderboard(conn, startTime, endTime),
+      ]);
+    })();
+    const yearlyPromise: Promise<?[
+      LineCountLeaderboard,
+      NumRevisionsLandedLeaderboard,
+    ]> = (async () => {
+      if (startOfThisMonth.getMonth() !== 0) {
+        return undefined;
+      }
+      const startTime = startOfLastYear.getTime() / 1000;
+      const endTime = startOfThisMonth.getTime() / 1000;
+      return Promise.all([
+        getLineCountLeaderboard(conn, startTime, endTime),
+        getNumRevisionsLandedLeaderboard(conn, startTime, endTime),
+      ]);
+    })();
+    const [monthlyResults, yearlyResults] = await Promise.all([
+      monthlyPromise,
+      yearlyPromise,
     ]);
+    [monthlyLineCountResults, monthlyNumRevisionsLandedResults] =
+      monthlyResults;
+    if (yearlyResults) {
+      [yearlyLineCountResults, yearlyNumRevisionsLandedResults] = yearlyResults;
+    }
   } finally {
     conn.end();
   }
@@ -158,6 +212,17 @@ async function postLeaderboard() {
         { month: 'long', year: 'numeric' },
       ),
     },
+    {
+      type: messageTypes.TEXT,
+      threadID: phabLeaderboardChannel,
+      creatorID: bots.commbot.userID,
+      time: Date.now(),
+      text: messageForNumRevisionsLandedLeaderboard(
+        monthlyNumRevisionsLandedResults,
+        startOfLastMonth,
+        { month: 'long', year: 'numeric' },
+      ),
+    },
   ];
   if (yearlyLineCountResults) {
     messageDatas.push({
@@ -167,6 +232,19 @@ async function postLeaderboard() {
       time: Date.now(),
       text: messageForLineCountLeaderboard(
         yearlyLineCountResults,
+        startOfLastYear,
+        { year: 'numeric' },
+      ),
+    });
+  }
+  if (yearlyNumRevisionsLandedResults) {
+    messageDatas.push({
+      type: messageTypes.TEXT,
+      threadID: phabLeaderboardChannel,
+      creatorID: bots.commbot.userID,
+      time: Date.now(),
+      text: messageForNumRevisionsLandedLeaderboard(
+        yearlyNumRevisionsLandedResults,
         startOfLastYear,
         { year: 'numeric' },
       ),
