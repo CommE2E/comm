@@ -8,7 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import css from './community-creation-button.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
 import CommunityCreationModal from '../sidebar/community-creation/community-creation-modal.react.js';
-import { useNavigationSidebarTooltip } from '../utils/tooltip-action-utils.js';
+import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 function CommunityCreationButton(): React.Node {
@@ -19,7 +19,7 @@ function CommunityCreationButton(): React.Node {
     [pushModal],
   );
 
-  const { onMouseEnter, onMouseLeave } = useNavigationSidebarTooltip({
+  const { onMouseEnter, onMouseLeave } = useLabelTooltip({
     tooltipLabel: 'Create community',
     position: tooltipPositions.RIGHT,
     tooltipMargin: navigationSidebarLabelTooltipMargin,

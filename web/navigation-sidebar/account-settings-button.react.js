@@ -8,7 +8,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import css from './account-settings-button.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
-import { useNavigationSidebarTooltip } from '../utils/tooltip-action-utils.js';
+import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 function AccountSettingsButton(): React.Node {
@@ -26,7 +26,7 @@ function AccountSettingsButton(): React.Node {
     [dispatch],
   );
 
-  const { onMouseEnter, onMouseLeave } = useNavigationSidebarTooltip({
+  const { onMouseEnter, onMouseLeave } = useLabelTooltip({
     tooltipLabel: 'Settings',
     position: tooltipPositions.RIGHT,
     tooltipMargin: navigationSidebarLabelTooltipMargin,

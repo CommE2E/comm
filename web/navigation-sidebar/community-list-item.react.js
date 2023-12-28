@@ -10,7 +10,7 @@ import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-consta
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useNavigationSidebarTooltip } from '../utils/tooltip-action-utils.js';
+import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 type Props = {
@@ -36,7 +36,7 @@ function CommunityListItem(props: Props): React.Node {
     );
   }, [unreadCountValue]);
 
-  const { onMouseEnter, onMouseLeave } = useNavigationSidebarTooltip({
+  const { onMouseEnter, onMouseLeave } = useLabelTooltip({
     tooltipLabel: threadInfo.uiName,
     position: tooltipPositions.RIGHT,
     tooltipMargin: navigationSidebarLabelTooltipMargin,

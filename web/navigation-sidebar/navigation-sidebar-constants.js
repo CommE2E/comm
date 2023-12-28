@@ -2,7 +2,7 @@
 
 export const navigationSidebarLabelTooltipMargin = 24;
 
-export const navigationSidebarTooltipStyle = {
+export const labelTooltipStyle = {
   paddingTop: 8,
   paddingBottom: 8,
   paddingLeft: 8,
