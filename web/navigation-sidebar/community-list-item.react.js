@@ -6,10 +6,12 @@ import { unreadCountSelectorForCommunity } from 'lib/selectors/thread-selectors.
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-list-item.css';
+import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useNavigationSidebarTooltip } from '../utils/tooltip-action-utils.js';
+import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 type Props = {
   +threadInfo: ResolvedThreadInfo,
@@ -36,6 +38,8 @@ function CommunityListItem(props: Props): React.Node {
 
   const { onMouseEnter, onMouseLeave } = useNavigationSidebarTooltip({
     tooltipLabel: threadInfo.uiName,
+    position: tooltipPositions.RIGHT,
+    tooltipMargin: navigationSidebarLabelTooltipMargin,
   });
 
   return (

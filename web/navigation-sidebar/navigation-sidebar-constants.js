@@ -1,8 +1,6 @@
 // @flow
 
-export const navigationSidebarTooltipContainerStyle = {
-  marginLeft: 24,
-};
+export const navigationSidebarLabelTooltipMargin = 24;
 
 export const navigationSidebarTooltipStyle = {
   paddingTop: 8,

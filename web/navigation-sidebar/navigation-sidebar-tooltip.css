@@ -2,16 +2,46 @@
   position: relative;
 }
 
-.arrowLeft {
+.arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 100%;
   width: 0;
   height: 0;
+}
+
+.arrowLeft,
+.arrowRight {
+  top: 50%;
+  transform: translateY(-50%);
   border-top: 10px solid transparent;
   border-bottom: 10px solid transparent;
+}
+
+.arrowTop,
+.arrowBottom {
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+
+.arrowLeft {
+  right: 100%;
   border-right: 10px solid var(--tooltip-background-primary-default);
+}
+
+.arrowRight {
+  left: 100%;
+  border-left: 10px solid var(--tooltip-background-primary-default);
+}
+
+.arrowTop {
+  bottom: 100%;
+  border-bottom: 10px solid var(--tooltip-background-primary-default);
+}
+
+.arrowBottom {
+  top: 100%;
+  border-top: 10px solid var(--tooltip-background-primary-default);
 }
 
 .tooltipLabel {
