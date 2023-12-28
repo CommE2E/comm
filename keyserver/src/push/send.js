@@ -21,7 +21,6 @@ import {
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
-import { isStaff } from 'lib/shared/staff-utils.js';
 import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
@@ -39,7 +38,6 @@ import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
-import { isDev } from 'lib/utils/dev-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
@@ -467,16 +465,12 @@ async function preparePushNotif(input: {
 
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
-          const targetedNotifications = await prepareWNSNotification(
-            userID,
-            devices,
-            {
-              notifTexts,
-              threadID: threadInfo.id,
-              unreadCount,
-              platformDetails,
-            },
-          );
+          const targetedNotifications = await prepareWNSNotification(devices, {
+            notifTexts,
+            threadID: threadInfo.id,
+            unreadCount,
+            platformDetails,
+          });
 
           return targetedNotifications.map(notification => ({
             notification,
@@ -1277,7 +1271,6 @@ const wnsNotifInputDataValidator = tShape<WNSNotifInputData>({
   platformDetails: tPlatformDetails,
 });
 async function prepareWNSNotification(
-  userID: string,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   inputData: WNSNotifInputData,
 ): Promise<$ReadOnlyArray<TargetedWNSNotification>> {
@@ -1301,12 +1294,9 @@ async function prepareWNSNotification(
     console.warn('WNS notification exceeds size limit');
   }
 
-  const isStaffOrDev = isStaff(userID) || isDev;
-  const shouldBeEncrypted =
-    isStaffOrDev &&
-    hasMinCodeVersion(inputData.platformDetails, {
-      majorDesktop: 10,
-    });
+  const shouldBeEncrypted = hasMinCodeVersion(inputData.platformDetails, {
+    majorDesktop: 10,
+  });
 
   if (!shouldBeEncrypted) {
     return devices.map(({ deviceToken }) => ({
