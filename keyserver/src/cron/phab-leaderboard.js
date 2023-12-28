@@ -133,6 +133,69 @@ function messageForNumRevisionsLandedLeaderboard(
   );
 }
 
+type NumRevisionsReviewedLeaderboard = Array<{
+  +username: string,
+  +num_revisions_reviewed: string,
+}>;
+async function getNumRevisionsReviewedLeaderboard(
+  conn: DBConnection,
+  startTime: number,
+  endTime: number,
+): Promise<NumRevisionsReviewedLeaderboard> {
+  const query = SQL`
+    SELECT x.username, COUNT(x.id) AS num_revisions_reviewed
+    FROM (
+      SELECT r.username, r.id, r.comment_time
+      FROM (
+        SELECT r.id,
+          u.userName AS username,
+          t.dateCreated AS comment_time,
+          JSON_ARRAYAGG(t.transactionType) AS transactions
+        FROM phabricator_differential.differential_revision r
+        LEFT JOIN phabricator_differential.differential_transaction t
+          ON t.objectPHID = r.phid
+        LEFT JOIN phabricator_user.user u
+          ON u.phid = t.authorPHID
+        WHERE t.authorPHID != r.authorPHID
+          AND u.userName IS NOT NULL
+        GROUP BY r.id, u.userName, t.dateCreated
+      ) r
+      WHERE
+        (
+          NOT JSON_CONTAINS(transactions, '"differential.revision.resign"') OR
+          JSON_CONTAINS(transactions, '"differential:inline"')
+        )
+        AND (
+          JSON_CONTAINS(transactions, '"differential:inline"') OR
+          JSON_CONTAINS(transactions, '"core:comment"') OR
+          JSON_CONTAINS(transactions, '"differential.revision.status"') OR
+          JSON_CONTAINS(transactions, '"differential.revision.accept"') OR
+          JSON_CONTAINS(transactions, '"differential.revision.reject"')
+        )
+        AND r.comment_time >= ${startTime} AND r.comment_time < ${endTime}
+      GROUP BY r.username, r.id
+    ) x
+    GROUP BY x.username
+    ORDER BY num_revisions_reviewed DESC;
+  `;
+  const [results] = await conn.query(query);
+  return results;
+}
+
+function messageForNumRevisionsReviewedLeaderboard(
+  leaderboard: NumRevisionsReviewedLeaderboard,
+  date: Date,
+  dateTimeFormatOptions: Intl$DateTimeFormatOptions,
+) {
+  return (
+    '### Review leaderboard for ' +
+    `${date.toLocaleString('default', dateTimeFormatOptions)}\n` +
+    '```\n' +
+    `${JSON.stringify(leaderboard, undefined, 2)}\n` +
+    '```'
+  );
+}
+
 async function postLeaderboard() {
   if (!process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
     // This is a job that the Comm internal team uses
@@ -162,6 +225,8 @@ async function postLeaderboard() {
   let yearlyLineCountResults: ?LineCountLeaderboard;
   let monthlyNumRevisionsLandedResults: ?NumRevisionsLandedLeaderboard;
   let yearlyNumRevisionsLandedResults: ?NumRevisionsLandedLeaderboard;
+  let monthlyNumRevisionsReviewedResults: ?NumRevisionsReviewedLeaderboard;
+  let yearlyNumRevisionsReviewedResults: ?NumRevisionsReviewedLeaderboard;
   try {
     const monthlyPromise = (async () => {
       const startTime = startOfLastMonth.getTime() / 1000;
@@ -169,11 +234,13 @@ async function postLeaderboard() {
       return Promise.all([
         getLineCountLeaderboard(conn, startTime, endTime),
         getNumRevisionsLandedLeaderboard(conn, startTime, endTime),
+        getNumRevisionsReviewedLeaderboard(conn, startTime, endTime),
       ]);
     })();
     const yearlyPromise: Promise<?[
       LineCountLeaderboard,
       NumRevisionsLandedLeaderboard,
+      NumRevisionsReviewedLeaderboard,
     ]> = (async () => {
       if (startOfThisMonth.getMonth() !== 0) {
         return undefined;
@@ -183,16 +250,24 @@ async function postLeaderboard() {
       return Promise.all([
         getLineCountLeaderboard(conn, startTime, endTime),
         getNumRevisionsLandedLeaderboard(conn, startTime, endTime),
+        getNumRevisionsReviewedLeaderboard(conn, startTime, endTime),
       ]);
     })();
     const [monthlyResults, yearlyResults] = await Promise.all([
       monthlyPromise,
       yearlyPromise,
     ]);
-    [monthlyLineCountResults, monthlyNumRevisionsLandedResults] =
-      monthlyResults;
+    [
+      monthlyLineCountResults,
+      monthlyNumRevisionsLandedResults,
+      monthlyNumRevisionsReviewedResults,
+    ] = monthlyResults;
     if (yearlyResults) {
-      [yearlyLineCountResults, yearlyNumRevisionsLandedResults] = yearlyResults;
+      [
+        yearlyLineCountResults,
+        yearlyNumRevisionsLandedResults,
+        yearlyNumRevisionsReviewedResults,
+      ] = yearlyResults;
     }
   } finally {
     conn.end();
@@ -223,6 +298,17 @@ async function postLeaderboard() {
         { month: 'long', year: 'numeric' },
       ),
     },
+    {
+      type: messageTypes.TEXT,
+      threadID: phabLeaderboardChannel,
+      creatorID: bots.commbot.userID,
+      time: Date.now(),
+      text: messageForNumRevisionsReviewedLeaderboard(
+        monthlyNumRevisionsReviewedResults,
+        startOfLastMonth,
+        { month: 'long', year: 'numeric' },
+      ),
+    },
   ];
   if (yearlyLineCountResults) {
     messageDatas.push({
@@ -245,6 +331,19 @@ async function postLeaderboard() {
       time: Date.now(),
       text: messageForNumRevisionsLandedLeaderboard(
         yearlyNumRevisionsLandedResults,
+        startOfLastYear,
+        { year: 'numeric' },
+      ),
+    });
+  }
+  if (yearlyNumRevisionsReviewedResults) {
+    messageDatas.push({
+      type: messageTypes.TEXT,
+      threadID: phabLeaderboardChannel,
+      creatorID: bots.commbot.userID,
+      time: Date.now(),
+      text: messageForNumRevisionsReviewedLeaderboard(
+        yearlyNumRevisionsReviewedResults,
         startOfLastYear,
         { year: 'numeric' },
       ),
