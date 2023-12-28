@@ -8,12 +8,7 @@ p.bar {
   font-size: var(--m-font-16);
 }
 
-p.connecting {
+p.disconnected {
   background-color: var(--disconnected-bar-connecting-bg);
   color: var(--disconnected-bar-connecting-color);
-}
-
-p.disconnected {
-  background-color: var(--disconnected-bar-alert-bg);
-  color: var(--disconnected-bar-alert-color);
 }
