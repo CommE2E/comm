@@ -9,12 +9,12 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './message-search-modal.css';
 import { useParseSearchResults } from './message-search-utils.react.js';
-import { useTooltipContext } from '../../chat/tooltip-provider.js';
 import Button from '../../components/button.react.js';
 import MessageResult from '../../components/message-result.react.js';
 import Search from '../../components/search.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useMessageSearchContext } from '../../search/message-search-state-provider.react.js';
+import { useTooltipContext } from '../../tooltips/tooltip-provider.js';
 import Modal from '../modal.react.js';
 
 type ContentProps = {

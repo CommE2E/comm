@@ -20,7 +20,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import {
   type TooltipSize,
   type TooltipPositionStyle,
-} from '../utils/tooltip-utils.js';
+} from '../tooltips/tooltip-utils.js';
 import { getAppContainerPositionInfo } from '../utils/window-utils.js';
 
 function useSendReaction(
