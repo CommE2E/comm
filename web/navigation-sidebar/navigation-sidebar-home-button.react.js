@@ -9,13 +9,13 @@ import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-consta
 import css from './navigation-sidebar-home-button.css';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useNavigationSidebarTooltip } from '../utils/tooltip-action-utils.js';
+import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
 import { tooltipPositions } from '../utils/tooltip-utils.js';
 
 function NavigationSidebarHomeButton(): React.Node {
   const unreadCountValue = useSelector(unreadCount);
 
-  const { onMouseEnter, onMouseLeave } = useNavigationSidebarTooltip({
+  const { onMouseEnter, onMouseLeave } = useLabelTooltip({
     tooltipLabel: 'Home',
     position: tooltipPositions.RIGHT,
     tooltipMargin: navigationSidebarLabelTooltipMargin,

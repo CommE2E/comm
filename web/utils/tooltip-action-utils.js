@@ -27,7 +27,7 @@ import {
   getTooltipPositionStyle,
   calculateMessageTooltipSize,
   calculateReactionTooltipSize,
-  calculateNavigationSidebarTooltipSize,
+  calculateLabelTooltipSize,
   type TooltipPosition,
   type TooltipPositionStyle,
   type TooltipSize,
@@ -41,7 +41,7 @@ import { useTooltipContext } from '../chat/tooltip-provider.js';
 import CommIcon from '../CommIcon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
-import NavigationSidebarTooltip from '../navigation-sidebar/navigation-sidebar-toolitp.react.js';
+import LabelTooltip from '../navigation-sidebar/label-toolitp.react.js';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -479,7 +479,7 @@ function useReactionTooltip({
   };
 }
 
-type UseNavigationSidebarTooltipArgs = {
+type UseLabelTooltipArgs = {
   +tooltipLabel: string,
   +position: TooltipPosition,
   // The margin size should be between the point of origin and
@@ -488,26 +488,22 @@ type UseNavigationSidebarTooltipArgs = {
   +tooltipMargin: number,
 };
 
-function useNavigationSidebarTooltip({
+function useLabelTooltip({
   tooltipLabel,
   position,
   tooltipMargin,
-}: UseNavigationSidebarTooltipArgs): UseTooltipResult {
+}: UseLabelTooltipArgs): UseTooltipResult {
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
       return undefinedTooltipSize;
     }
 
-    return calculateNavigationSidebarTooltipSize(
-      tooltipLabel,
-      position,
-      tooltipMargin,
-    );
+    return calculateLabelTooltipSize(tooltipLabel, position, tooltipMargin);
   }, [position, tooltipLabel, tooltipMargin]);
 
-  const createNavigationSidebarTooltip = React.useCallback(
+  const createLabelTooltip = React.useCallback(
     () => (
-      <NavigationSidebarTooltip
+      <LabelTooltip
         tooltipLabel={tooltipLabel}
         position={position}
         tooltipMargin={tooltipMargin}
@@ -517,7 +513,7 @@ function useNavigationSidebarTooltip({
   );
 
   const { onMouseEnter, onMouseLeave } = useTooltip({
-    createTooltip: createNavigationSidebarTooltip,
+    createTooltip: createLabelTooltip,
     tooltipSize,
     availablePositions: [position],
   });
@@ -535,5 +531,5 @@ export {
   useMessageTooltipActions,
   useMessageTooltip,
   useReactionTooltip,
-  useNavigationSidebarTooltip,
+  useLabelTooltip,
 };

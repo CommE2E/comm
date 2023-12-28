@@ -3,8 +3,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { navigationSidebarTooltipStyle } from './navigation-sidebar-constants.js';
-import css from './navigation-sidebar-tooltip.css';
+import css from './label-tooltip.css';
+import { labelTooltipStyle } from './navigation-sidebar-constants.js';
 import {
   tooltipPositions,
   type TooltipPosition,
@@ -16,7 +16,7 @@ type Props = {
   +tooltipMargin: number,
 };
 
-function NavigationSidebarTooltip(props: Props): React.Node {
+function LabelTooltip(props: Props): React.Node {
   const { tooltipLabel, position, tooltipMargin } = props;
 
   const tooltipMarginStyle = React.useMemo(() => {
@@ -53,11 +53,11 @@ function NavigationSidebarTooltip(props: Props): React.Node {
   return (
     <div className={css.container} style={tooltipMarginStyle}>
       <div className={arrowClassName} />
-      <div className={css.tooltipLabel} style={navigationSidebarTooltipStyle}>
+      <div className={css.tooltipLabel} style={labelTooltipStyle}>
         {tooltipLabel}
       </div>
     </div>
   );
 }
 
-export default NavigationSidebarTooltip;
+export default LabelTooltip;
