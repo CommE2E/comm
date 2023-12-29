@@ -258,7 +258,8 @@ async function preparePushNotif(input: {
         unwrappedMessageInfo.type === messageTypes.TEXT &&
         (isUserMentioned(username, unwrappedMessageInfo.text) ||
           (resolvedUsername &&
-            isUserMentioned(resolvedUsername, unwrappedMessageInfo.text)))
+            isUserMentioned(resolvedUsername, unwrappedMessageInfo.text)) ||
+          userID !== unwrappedMessageInfo.creator.id)
       );
     });
   if (!updateBadge && !displayBanner && !userWasMentioned) {
