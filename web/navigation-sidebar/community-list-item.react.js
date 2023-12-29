@@ -10,8 +10,8 @@ import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-consta
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
-import { tooltipPositions } from '../utils/tooltip-utils.js';
+import { useLabelTooltip } from '../tooltips/tooltip-action-utils.js';
+import { tooltipPositions } from '../tooltips/tooltip-utils.js';
 
 type Props = {
   +threadInfo: ResolvedThreadInfo,

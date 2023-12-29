@@ -40,7 +40,6 @@ import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provid
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
-import { TooltipProvider } from './chat/tooltip-provider.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { initOpaque } from './crypto/opaque-utils.js';
 import electron from './electron.js';
@@ -72,6 +71,7 @@ import CommunityPicker from './sidebar/community-picker.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
+import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { type NavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 

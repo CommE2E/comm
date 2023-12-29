@@ -8,8 +8,8 @@ import { useNextLocalID } from 'lib/shared/message-utils.js';
 
 import { useSendReaction } from './reaction-message-utils.js';
 import css from './reaction-pill.css';
-import { useReactionTooltip } from '../utils/tooltip-action-utils.js';
-import { tooltipPositions } from '../utils/tooltip-utils.js';
+import { useReactionTooltip } from '../tooltips/tooltip-action-utils.js';
+import { tooltipPositions } from '../tooltips/tooltip-utils.js';
 
 const availableReactionTooltipPositions = [
   tooltipPositions.TOP,

@@ -8,8 +8,8 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import css from './account-settings-button.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
-import { useLabelTooltip } from '../utils/tooltip-action-utils.js';
-import { tooltipPositions } from '../utils/tooltip-utils.js';
+import { useLabelTooltip } from '../tooltips/tooltip-action-utils.js';
+import { tooltipPositions } from '../tooltips/tooltip-utils.js';
 
 function AccountSettingsButton(): React.Node {
   const dispatch = useDispatch();

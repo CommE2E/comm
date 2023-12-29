@@ -5,13 +5,13 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 
+import css from './reaction-tooltip.css';
 import {
   tooltipLabelStyle,
   reactionTooltipStyle,
   reactionSeeMoreLabel,
   reactionSeeMoreLabelStyle,
-} from './chat-constants.js';
-import css from './reaction-tooltip.css';
+} from './tooltip-constants.js';
 import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
 
 type Props = {
