@@ -1312,7 +1312,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const suggestedUsers = useMentionTypeaheadUserSuggestions(
     userMentionsCandidates,
-    viewerID,
     typeaheadMatchedStrings,
   );
 

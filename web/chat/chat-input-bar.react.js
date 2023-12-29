@@ -643,7 +643,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
 
     const suggestedUsers = useMentionTypeaheadUserSuggestions(
       props.inputState.typeaheadState.frozenUserMentionsCandidates,
-      viewerID,
       typeaheadMatchedStrings,
     );
 
