@@ -155,6 +155,8 @@ import {
   roleModificationResultValidator,
 } from './responders/thread-responders.js';
 import {
+  olmAuthRequestInputValidator,
+  olmAuthResponder,
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
   sendVerificationEmailResponder,
@@ -403,6 +405,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     roleModificationRequestInputValidator,
     roleModificationResultValidator,
     baseLegalPolicies,
+  ),
+  olm_auth: createJSONResponder(
+    olmAuthResponder,
+    olmAuthRequestInputValidator,
+    logInResponseValidator,
+    [],
   ),
   policy_acknowledgment: createJSONResponder(
     policyAcknowledgmentResponder,
