@@ -11,26 +11,29 @@ import { createPickledOlmSession } from '../utils/olm-utils.js';
 async function createOlmSession(
   initialEncryptedMessage: string,
   olmSessionType: 'content' | 'notifications',
-  cookieID: string,
-): Promise<void> {
+  theirCurve25519Key?: string,
+): Promise<string> {
   const callback = (account: OlmAccount, picklingKey: string) =>
-    createPickledOlmSession(account, picklingKey, initialEncryptedMessage);
+    createPickledOlmSession(
+      account,
+      picklingKey,
+      initialEncryptedMessage,
+      theirCurve25519Key,
+    );
 
-  let pickledOlmSession;
   try {
-    pickledOlmSession = await fetchCallUpdateOlmAccount(
-      olmSessionType,
-      callback,
-    );
+    return await fetchCallUpdateOlmAccount(olmSessionType, callback);
   } catch (e) {
-    console.warn(
-      `failed to create olm session of type: ${olmSessionType} ` +
-        `for user with cookie id: ${cookieID}`,
-      e,
-    );
+    console.warn(`failed to create olm session of type: ${olmSessionType}`, e);
     throw new ServerError('olm_session_creation_failure');
   }
+}
 
+async function persistFreshOlmSession(
+  pickledOlmSession: string,
+  olmSessionType: 'content' | 'notifications',
+  cookieID: string,
+): Promise<void> {
   const isContent = olmSessionType === 'content';
   // We match the native client behavior here where olm session is overwritten
   // in case it is initialized twice for the same pair of identities
@@ -45,4 +48,19 @@ async function createOlmSession(
   );
 }
 
-export { createOlmSession };
+async function createAndPersistOlmSession(
+  initialEncryptedMessage: string,
+  olmSessionType: 'content' | 'notifications',
+  cookieID: string,
+  theirCurve25519Key?: string,
+): Promise<void> {
+  const pickledOlmSession = await createOlmSession(
+    initialEncryptedMessage,
+    olmSessionType,
+    theirCurve25519Key,
+  );
+
+  await persistFreshOlmSession(pickledOlmSession, olmSessionType, cookieID);
+}
+
+export { createOlmSession, persistFreshOlmSession, createAndPersistOlmSession };
