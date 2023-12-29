@@ -9,9 +9,10 @@ import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import type {
+  UserIdentifier,
   RegisterResponse,
   RegisterRequest,
-} from 'lib/types/account-types.js';
+} from 'lib/types/account-types';
 import type {
   ReservedUsernameMessage,
   SignedIdentityKeysBlob,
@@ -245,12 +246,69 @@ async function processSIWEAccountCreation(
 
   await setNewSession(viewer, calendarQuery, 0);
 
+  await processAccountCreationCommon(viewer, id);
+
+  ignorePromiseRejections(
+    createAndSendReservedUsernameMessage([request.address]),
+  );
+
+  return id;
+}
+
+export type ProcessOLMAccountCreationRequest = {
+  +userID: string,
+  +identifier: UserIdentifier,
+  +calendarQuery: CalendarQuery,
+  +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+  +platformDetails: PlatformDetails,
+  +signedIdentityKeysBlob: SignedIdentityKeysBlob,
+};
+// Note: `processOLMAccountCreation(...)` assumes that the validity of
+//       `ProcessOLMAccountCreationRequest` was checked at call site.
+async function processOLMAccountCreation(
+  viewer: Viewer,
+  request: ProcessOLMAccountCreationRequest,
+): Promise<void> {
+  const { calendarQuery, signedIdentityKeysBlob } = request;
+  await verifyCalendarQueryThreadIDs(calendarQuery);
+
+  const time = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
+  const newUserRow = [
+    request.userID,
+    request.identifier.username,
+    request.identifier.walletAddress,
+    time,
+  ];
+  const newUserQuery = SQL`
+    INSERT INTO users(id, username, ethereum_address, creation_time)
+    VALUES ${[newUserRow]}
+  `;
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(request.userID, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+      signedIdentityKeysBlob,
+    }),
+    deleteCookie(viewer.cookieID),
+    dbQuery(newUserQuery),
+  ]);
+  viewer.setNewCookie(userViewerData);
+
+  await setNewSession(viewer, calendarQuery, 0);
+
+  await processAccountCreationCommon(viewer, request.userID);
+}
+
+async function processAccountCreationCommon(viewer: Viewer, userID: string) {
   await Promise.all([
     updateThread(
       createScriptViewer(ashoat.id),
       {
         threadID: genesis.id,
-        changes: { newMemberIDs: [id] },
+        changes: { newMemberIDs: [userID] },
       },
       { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
     ),
@@ -288,12 +346,6 @@ async function processSIWEAccountCreation(
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
   await Promise.all([createMessages(viewer, messageDatas)]);
-
-  ignorePromiseRejections(
-    createAndSendReservedUsernameMessage([request.address]),
-  );
-
-  return id;
 }
 
 async function createAndSendReservedUsernameMessage(
@@ -316,4 +368,4 @@ async function createAndSendReservedUsernameMessage(
   await rustAPI.addReservedUsernames(stringifiedMessage, signature);
 }
 
-export { createAccount, processSIWEAccountCreation };
+export { createAccount, processSIWEAccountCreation, processOLMAccountCreation };
