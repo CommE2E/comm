@@ -155,6 +155,8 @@ import {
   roleModificationResultValidator,
 } from './responders/thread-responders.js';
 import {
+  keyserverAuthRequestInputValidator,
+  keyserverAuthResponder,
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
   sendVerificationEmailResponder,
@@ -379,6 +381,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     joinThreadRequestInputValidator,
     threadJoinResultValidator,
     baseLegalPolicies,
+  ),
+  keyserver_auth: createJSONResponder(
+    keyserverAuthResponder,
+    keyserverAuthRequestInputValidator,
+    logInResponseValidator,
+    [],
   ),
   leave_thread: createJSONResponder(
     threadLeaveResponder,
