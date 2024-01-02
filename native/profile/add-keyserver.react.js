@@ -6,8 +6,7 @@ import { View, Text } from 'react-native';
 
 import { addKeyserverActionType } from 'lib/actions/keyserver-actions.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
-import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
-import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
+import { type AddKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -55,8 +54,7 @@ function AddKeyserver(props: Props): React.Node {
       return;
     }
 
-    const newKeyserverInfo: KeyserverInfo = {
-      ...defaultKeyserverInfo,
+    const newKeyserverInfo: AddKeyserverInfo = {
       urlPrefix: urlInput,
     };
 
