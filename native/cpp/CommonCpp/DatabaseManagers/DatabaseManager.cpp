@@ -2,6 +2,7 @@
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "../Tools/CommSecureStore.h"
 #include "Logger.h"
+#include "PlatformSpecificTools.h"
 #include "SQLiteQueryExecutor.h"
 
 namespace comm {
@@ -34,6 +35,7 @@ void DatabaseManager::clearSensitiveData() {
   CommSecureStore::set(CommSecureStore::deviceID, "");
   CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
   SQLiteQueryExecutor::clearSensitiveData();
+  PlatformSpecificTools::removeBackupDirectory();
   NotificationsCryptoModule::clearSensitiveData();
   DatabaseManager::setDatabaseStatusAsWorkable();
 }
