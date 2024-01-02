@@ -10,6 +10,7 @@
 
 #ifndef EMSCRIPTEN
 #include "CommSecureStore.h"
+#include "PlatformSpecificTools.h"
 #endif
 
 #define ACCOUNT_ID 1
@@ -570,9 +571,11 @@ bool create_schema(sqlite3 *db) {
   return false;
 }
 
-void set_encryption_key(sqlite3 *db) {
+void set_encryption_key(
+    sqlite3 *db,
+    const std::string &encryptionKey = SQLiteQueryExecutor::encryptionKey) {
   std::string set_encryption_key_query =
-      "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
+      "PRAGMA key = \"x'" + encryptionKey + "'\";";
 
   char *error_set_key;
   sqlite3_exec(
@@ -648,6 +651,14 @@ void on_database_open(sqlite3 *db) {
   set_encryption_key(db);
 #endif
   trace_queries(db);
+}
+
+// This is a temporary solution. In future we want to keep
+// a separate table for blob hashes. Tracked on Linear:
+// https://linear.app/comm/issue/ENG-6261/introduce-blob-hash-table
+std::string blob_hash_from_blob_service_uri(const std::string &media_uri) {
+  static const std::string blob_service_prefix = "comm-blob-service://";
+  return media_uri.substr(blob_service_prefix.size());
 }
 
 bool file_exists(const std::string &file_path) {
@@ -872,75 +883,9 @@ bool set_up_database(sqlite3 *db) {
   return true;
 }
 
-void SQLiteQueryExecutor::migrate() {
-// We don't want to run `PRAGMA key = ...;`
-// on main web database. The context is here:
-// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-#ifndef EMSCRIPTEN
-  validate_encryption();
-#endif
-
-  sqlite3 *db;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  on_database_open(db);
-
-  std::stringstream db_path;
-  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
-          << std::endl;
-  Logger::log(db_path.str());
-
-  auto db_version = get_database_version(db);
-  std::stringstream version_msg;
-  version_msg << "db version: " << db_version << std::endl;
-  Logger::log(version_msg.str());
-
-  if (db_version == 0) {
-    auto db_created = set_up_database(db);
-    if (!db_created) {
-      sqlite3_close(db);
-      Logger::log("Database structure creation error.");
-      throw std::runtime_error("Database structure creation error");
-    }
-    Logger::log("Database structure created.");
-
-    sqlite3_close(db);
-    return;
-  }
-
-  for (const auto &[idx, migration] : migrations) {
-    const auto &[applyMigration, shouldBeInTransaction] = migration;
-
-    MigrationResult migrationResult;
-    if (shouldBeInTransaction) {
-      migrationResult = applyMigrationWithTransaction(db, applyMigration, idx);
-    } else {
-      migrationResult =
-          applyMigrationWithoutTransaction(db, applyMigration, idx);
-    }
-
-    if (migrationResult == MigrationResult::NOT_APPLIED) {
-      continue;
-    }
-
-    std::stringstream migration_msg;
-    if (migrationResult == MigrationResult::FAILURE) {
-      migration_msg << "migration " << idx << " failed." << std::endl;
-      Logger::log(migration_msg.str());
-      sqlite3_close(db);
-      throw std::runtime_error(migration_msg.str());
-    }
-    if (migrationResult == MigrationResult::SUCCESS) {
-      migration_msg << "migration " << idx << " succeeded." << std::endl;
-      Logger::log(migration_msg.str());
-    }
-  }
-
-  sqlite3_close(db);
-}
-
-auto &SQLiteQueryExecutor::getStorage() {
-  static auto storage = make_storage(
-      SQLiteQueryExecutor::sqliteFilePath,
+auto getEncryptedStorageAtPath(const std::string &databasePath) {
+  auto storage = make_storage(
+      databasePath,
       make_index("messages_idx_thread_time", &Message::thread, &Message::time),
       make_index("media_idx_container", &Media::container),
       make_table(
@@ -1018,6 +963,78 @@ auto &SQLiteQueryExecutor::getStorage() {
 
   );
   storage.on_open = on_database_open;
+  return storage;
+}
+
+void SQLiteQueryExecutor::migrate() {
+// We don't want to run `PRAGMA key = ...;`
+// on main web database. The context is here:
+// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
+#ifndef EMSCRIPTEN
+  validate_encryption();
+#endif
+
+  sqlite3 *db;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  on_database_open(db);
+
+  std::stringstream db_path;
+  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
+          << std::endl;
+  Logger::log(db_path.str());
+
+  auto db_version = get_database_version(db);
+  std::stringstream version_msg;
+  version_msg << "db version: " << db_version << std::endl;
+  Logger::log(version_msg.str());
+
+  if (db_version == 0) {
+    auto db_created = set_up_database(db);
+    if (!db_created) {
+      sqlite3_close(db);
+      Logger::log("Database structure creation error.");
+      throw std::runtime_error("Database structure creation error");
+    }
+    Logger::log("Database structure created.");
+
+    sqlite3_close(db);
+    return;
+  }
+
+  for (const auto &[idx, migration] : migrations) {
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
+
+    MigrationResult migrationResult;
+    if (shouldBeInTransaction) {
+      migrationResult = applyMigrationWithTransaction(db, applyMigration, idx);
+    } else {
+      migrationResult =
+          applyMigrationWithoutTransaction(db, applyMigration, idx);
+    }
+
+    if (migrationResult == MigrationResult::NOT_APPLIED) {
+      continue;
+    }
+
+    std::stringstream migration_msg;
+    if (migrationResult == MigrationResult::FAILURE) {
+      migration_msg << "migration " << idx << " failed." << std::endl;
+      Logger::log(migration_msg.str());
+      sqlite3_close(db);
+      throw std::runtime_error(migration_msg.str());
+    }
+    if (migrationResult == MigrationResult::SUCCESS) {
+      migration_msg << "migration " << idx << " succeeded." << std::endl;
+      Logger::log(migration_msg.str());
+    }
+  }
+
+  sqlite3_close(db);
+}
+
+auto &SQLiteQueryExecutor::getStorage() {
+  static auto storage =
+      getEncryptedStorageAtPath(SQLiteQueryExecutor::sqliteFilePath);
   return storage;
 }
 
@@ -1405,6 +1422,78 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     }
     SQLiteQueryExecutor::assign_encryption_key();
   });
+}
+
+void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
+  std::string finalBackupPath =
+      PlatformSpecificTools::getBackupFilePath(backupID, false);
+  std::string finalAttachmentsPath =
+      PlatformSpecificTools::getBackupFilePath(backupID, true);
+
+  std::string tempBackupPath = finalBackupPath + "_tmp";
+  std::string tempAttachmentsPath = finalAttachmentsPath + "_tmp";
+
+  if (file_exists(tempBackupPath)) {
+    Logger::log(
+        "Attempting to delete temporary backup file from previous backup "
+        "attempt.");
+    attempt_delete_file(
+        tempBackupPath,
+        "Failed to delete temporary backup file from previous backup attempt.");
+  }
+
+  if (file_exists(tempAttachmentsPath)) {
+    Logger::log(
+        "Attempting to delete temporary attachments file from previous backup "
+        "attempt.");
+    attempt_delete_file(
+        tempAttachmentsPath,
+        "Failed to delete temporary attachments file from previous backup "
+        "attempt.");
+  }
+
+  auto backupStorage = getEncryptedStorageAtPath(tempBackupPath);
+  auto backupObj =
+      SQLiteQueryExecutor::getStorage().make_backup_to(backupStorage);
+  int backupResult = backupObj.step(-1);
+
+  if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
+    throw std::runtime_error(
+        "Programmer error. Database in transaction during backup attempt.");
+  } else if (backupResult != SQLITE_DONE) {
+    std::stringstream error_message;
+    error_message << "Failed to create database backup. Details: "
+                  << sqlite3_errstr(backupResult);
+    throw std::runtime_error(error_message.str());
+  }
+  backupStorage.vacuum();
+
+  attempt_rename_file(
+      tempBackupPath,
+      finalBackupPath,
+      "Failed to rename complete temporary backup file to final backup file.");
+
+  std::ofstream tempAttachmentsFile(tempAttachmentsPath);
+  if (!tempAttachmentsFile.is_open()) {
+    throw std::runtime_error(
+        "Unable to create attachments file for backup id: " + backupID);
+  }
+
+  auto blobServiceURIRows = SQLiteQueryExecutor::getStorage().select(
+      columns(&Media::uri), where(like(&Media::uri, "comm-blob-service://%")));
+
+  for (const auto &blobServiceURIRow : blobServiceURIRows) {
+    std::string blobServiceURI = std::get<0>(blobServiceURIRow);
+    std::string blobHash = blob_hash_from_blob_service_uri(blobServiceURI);
+    tempAttachmentsFile << blobHash << "\n";
+  }
+  tempAttachmentsFile.close();
+
+  attempt_rename_file(
+      tempAttachmentsPath,
+      finalAttachmentsPath,
+      "Failed to rename complete temporary attachments file to final "
+      "attachments file.");
 }
 
 void SQLiteQueryExecutor::assign_encryption_key() {
