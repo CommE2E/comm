@@ -84,6 +84,9 @@ public:
   void setMetadata(std::string entry_name, std::string data) const override;
   void clearMetadata(std::string entry_name) const override;
   std::string getMetadata(std::string entry_name) const override;
+  void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
