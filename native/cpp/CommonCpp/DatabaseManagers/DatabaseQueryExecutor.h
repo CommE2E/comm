@@ -84,6 +84,8 @@ public:
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
+#else
+  virtual void createMainCompaction(std::string backupID) const = 0;
 #endif
 };
 
