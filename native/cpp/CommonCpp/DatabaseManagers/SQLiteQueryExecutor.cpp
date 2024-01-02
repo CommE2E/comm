@@ -646,7 +646,7 @@ void trace_queries(sqlite3 *db) {
 // We don't want to run `PRAGMA key = ...;`
 // on main web database. The context is here:
 // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
-void on_database_open(sqlite3 *db) {
+void default_on_db_open_callback(sqlite3 *db) {
 #ifndef EMSCRIPTEN
   set_encryption_key(db);
 #endif
@@ -683,13 +683,17 @@ void attempt_rename_file(
   }
 }
 
-bool is_database_queryable(sqlite3 *db, bool use_encryption_key) {
+bool is_database_queryable(
+    sqlite3 *db,
+    bool use_encryption_key,
+    const std::string &path = SQLiteQueryExecutor::sqliteFilePath,
+    const std::string &encryptionKey = SQLiteQueryExecutor::encryptionKey) {
   char *err_msg;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  sqlite3_open(path.c_str(), &db);
   // According to SQLCipher documentation running some SELECT is the only way to
   // check for key validity
   if (use_encryption_key) {
-    set_encryption_key(db);
+    set_encryption_key(db, encryptionKey);
   }
   sqlite3_exec(
       db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);
@@ -883,7 +887,10 @@ bool set_up_database(sqlite3 *db) {
   return true;
 }
 
-auto getEncryptedStorageAtPath(const std::string &databasePath) {
+auto getEncryptedStorageAtPath(
+    const std::string &databasePath,
+    std::function<void(sqlite3 *)> on_open_callback =
+        default_on_db_open_callback) {
   auto storage = make_storage(
       databasePath,
       make_index("messages_idx_thread_time", &Message::thread, &Message::time),
@@ -962,7 +969,7 @@ auto getEncryptedStorageAtPath(const std::string &databasePath) {
           make_column("user_info", &UserInfo::user_info))
 
   );
-  storage.on_open = on_database_open;
+  storage.on_open = on_open_callback;
   return storage;
 }
 
@@ -976,7 +983,7 @@ void SQLiteQueryExecutor::migrate() {
 
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  on_database_open(db);
+  default_on_db_open_callback(db);
 
   std::stringstream db_path;
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
@@ -1452,7 +1459,8 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
   }
 
-  auto backupStorage = getEncryptedStorageAtPath(tempBackupPath);
+  auto backupStorage = getEncryptedStorageAtPath(
+      tempBackupPath, [](sqlite3 *db) { set_encryption_key(db); });
   auto backupObj =
       SQLiteQueryExecutor::getStorage().make_backup_to(backupStorage);
   int backupResult = backupObj.step(-1);
@@ -1504,5 +1512,93 @@ void SQLiteQueryExecutor::assign_encryption_key() {
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
 #endif
+
+void SQLiteQueryExecutor::restoreFromMainCompaction(
+    std::string mainCompactionPath,
+    std::string mainCompactionEncryptionKey) const {
+
+  if (!file_exists(mainCompactionPath)) {
+    throw std::runtime_error("Restore attempt but backup file does not exist.");
+  }
+
+  sqlite3 *backup_db;
+  if (!is_database_queryable(
+          backup_db, true, mainCompactionPath, mainCompactionEncryptionKey)) {
+    throw std::runtime_error("Backup file or encryption key corrupted.");
+  }
+
+// We don't want to run `PRAGMA key = ...;`
+// on main web database. The context is here:
+// https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
+#ifdef EMSCRIPTEN
+  std::string plaintextBackupPath = mainCompactionPath + "_plaintext";
+  if (file_exists(plaintextBackupPath)) {
+    attempt_delete_file(
+        plaintextBackupPath,
+        "Failed to delete plaintext backup file from previous backup attempt.");
+  }
+
+  std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +
+      mainCompactionEncryptionKey +
+      "'\";"
+      "ATTACH DATABASE '" +
+      plaintextBackupPath +
+      "' AS plaintext KEY '';"
+      "SELECT sqlcipher_export('plaintext');"
+      "DETACH DATABASE plaintext;";
+
+  sqlite3_open(mainCompactionPath.c_str(), &backup_db);
+
+  char *plaintextMigrationErr;
+  sqlite3_exec(
+      backup_db,
+      plaintextMigrationDBQuery.c_str(),
+      nullptr,
+      nullptr,
+      &plaintextMigrationErr);
+  sqlite3_close(backup_db);
+
+  if (plaintextMigrationErr) {
+    std::stringstream error_message;
+    error_message << "Failed to migrate backup SQLCipher file to plaintext "
+                     "SQLite file. Details"
+                  << plaintextMigrationErr << std::endl;
+    std::string error_message_str = error_message.str();
+    sqlite3_free(plaintextMigrationErr);
+    
+    throw std::runtime_error(error_message_str);
+  }
+  auto backupStorage = getEncryptedStorageAtPath(plaintextBackupPath);
+#else
+  auto backupStorage = getEncryptedStorageAtPath(
+      mainCompactionPath, [mainCompactionEncryptionKey](sqlite3 *db) {
+        set_encryption_key(db, mainCompactionEncryptionKey);
+      });
+#endif
+
+  auto backupObject =
+      SQLiteQueryExecutor::getStorage().make_backup_from(backupStorage);
+  int backupResult = backupObject.step(-1);
+
+  if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
+    throw std::runtime_error(
+        "Programmer error. Database in transaction during restore attempt.");
+  } else if (backupResult != SQLITE_DONE) {
+    std::stringstream error_message;
+    error_message << "Failed to restore database from backup. Details: "
+                  << sqlite3_errstr(backupResult);
+    throw std::runtime_error(error_message.str());
+  }
+
+#ifdef EMSCRIPTEN
+  attempt_delete_file(
+      plaintextBackupPath,
+      "Failed to delete plaintext compaction file after successful restore.");
+#endif
+
+  attempt_delete_file(
+      mainCompactionPath,
+      "Failed to delete main compaction file after successful restore.");
+}
 
 } // namespace comm
