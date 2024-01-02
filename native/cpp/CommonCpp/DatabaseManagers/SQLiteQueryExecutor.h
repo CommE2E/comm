@@ -91,6 +91,7 @@ public:
 #else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
+  static void createMainCompaction(std::string backupID);
 #endif
 };
 
