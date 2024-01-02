@@ -89,7 +89,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
-          "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction);
+          "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction)
+      .function(
+          "restoreFromMainCompaction",
+          &SQLiteQueryExecutor::restoreFromMainCompaction);
 }
 
 } // namespace comm

@@ -40,6 +40,10 @@ declare export class SQLiteQueryExecutor {
   beginTransaction(): void;
   commitTransaction(): void;
   rollbackTransaction(): void;
+  restoreFromMainCompaction(
+    mainCompactionPath: string,
+    mainCompactionEncryptionKey: string,
+  ): void;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
