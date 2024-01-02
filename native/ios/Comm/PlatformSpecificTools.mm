@@ -37,4 +37,74 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
               .path UTF8String]);
 }
 
+NSURL *getBackupDirAsURL() {
+  NSError *err = nil;
+  NSURL *documentsUrl =
+      [NSFileManager.defaultManager URLForDirectory:NSDocumentDirectory
+                                           inDomain:NSUserDomainMask
+                                  appropriateForURL:nil
+                                             create:false
+                                              error:&err];
+  if (err) {
+    NSLog(@"Error: %@", err);
+    throw std::runtime_error(
+        "Failed to resolve backup path - could not find documentsUrl. "
+        "Details: " +
+        std::string([err.localizedDescription UTF8String]));
+  }
+
+  NSURL *backupDir = [documentsUrl URLByAppendingPathComponent:@"backup"];
+  NSError *backupDirCreateError = nil;
+  if (![NSFileManager.defaultManager fileExistsAtPath:backupDir.path]) {
+    [NSFileManager.defaultManager createDirectoryAtURL:backupDir
+                           withIntermediateDirectories:YES
+                                            attributes:nil
+                                                 error:&backupDirCreateError];
+  }
+  if (backupDirCreateError) {
+    throw std::runtime_error(
+        "Failed to create backup directory. Details: " +
+        std::string([backupDirCreateError.localizedDescription UTF8String]));
+  }
+  return backupDir;
+}
+
+std::string PlatformSpecificTools::getBackupDirectoryPath() {
+  return [getBackupDirAsURL().path UTF8String];
+}
+
+std::string PlatformSpecificTools::getBackupFilePath(
+    std::string backupID,
+    bool isAttachments) {
+
+  NSURL *backupDir = getBackupDirAsURL();
+  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
+                                              encoding:NSUTF8StringEncoding];
+  NSString *filename;
+  if (isAttachments) {
+    filename = [@[ @"backup", backupIDObjC, @"attachments" ]
+        componentsJoinedByString:@"_"];
+  } else {
+    filename = [@[ @"backup", backupIDObjC ] componentsJoinedByString:@"_"];
+  }
+  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+}
+
+void PlatformSpecificTools::removeBackupDirectory() {
+  NSURL *backupDir = getBackupDirAsURL();
+  if (![NSFileManager.defaultManager fileExistsAtPath:backupDir.path]) {
+    return;
+  }
+
+  NSError *backupDirRemovalError = nil;
+  [NSFileManager.defaultManager removeItemAtURL:backupDir
+                                          error:&backupDirRemovalError];
+
+  if (backupDirRemovalError) {
+    throw std::runtime_error(
+        "Failed to remove backup directory. Details: " +
+        std::string([backupDirRemovalError.localizedDescription UTF8String]));
+  }
+}
+
 }; // namespace comm
