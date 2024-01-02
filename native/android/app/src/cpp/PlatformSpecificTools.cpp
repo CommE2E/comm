@@ -31,6 +31,20 @@ public:
         cls->getStaticMethod<JString()>("getNotificationsCryptoAccountPath");
     return method(cls)->toStdString();
   }
+
+  static std::string
+  getBackupFilePath(std::string backupID, bool isAttachments) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString(std::string, bool)>("getBackupFilePath");
+    return method(cls, backupID, isAttachments)->toStdString();
+  }
+
+  static void removeBackupDirectory() {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void()>("removeBackupDirectory");
+    method(cls);
+  }
 };
 
 namespace comm {
@@ -53,6 +67,22 @@ std::string PlatformSpecificTools::getNotificationsCryptoAccountPath() {
     path = PlatformSpecificToolsJavaClass::getNotificationsCryptoAccountPath();
   });
   return path;
+}
+
+std::string PlatformSpecificTools::getBackupFilePath(
+    std::string backupID,
+    bool isAttachments) {
+  std::string path;
+  NativeAndroidAccessProvider::runTask([&path, backupID, isAttachments]() {
+    path = PlatformSpecificToolsJavaClass::getBackupFilePath(
+        backupID, isAttachments);
+  });
+  return path;
+}
+
+void PlatformSpecificTools::removeBackupDirectory() {
+  NativeAndroidAccessProvider::runTask(
+      []() { PlatformSpecificToolsJavaClass::removeBackupDirectory(); });
 }
 
 } // namespace comm
