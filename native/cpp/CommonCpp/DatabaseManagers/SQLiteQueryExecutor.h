@@ -93,6 +93,9 @@ public:
   static void initialize(std::string &databasePath);
   static void createMainCompaction(std::string backupID);
 #endif
+  static void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey);
 };
 
 } // namespace comm
