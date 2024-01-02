@@ -93,6 +93,9 @@ public:
   static void initialize(std::string &databasePath);
   void createMainCompaction(std::string backupID) const override;
 #endif
+  void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey) const override;
 };
 
 } // namespace comm

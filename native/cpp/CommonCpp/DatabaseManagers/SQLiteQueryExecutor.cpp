@@ -678,13 +678,17 @@ void attempt_rename_file(
   }
 }
 
-bool is_database_queryable(sqlite3 *db, bool use_encryption_key) {
+bool is_database_queryable(
+    sqlite3 *db,
+    bool use_encryption_key,
+    const std::string &path = SQLiteQueryExecutor::sqliteFilePath,
+    const std::string &encryptionKey = SQLiteQueryExecutor::encryptionKey) {
   char *err_msg;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  sqlite3_open(path.c_str(), &db);
   // According to SQLCipher documentation running some SELECT is the only way to
   // check for key validity
   if (use_encryption_key) {
-    set_encryption_key(db);
+    set_encryption_key(db, encryptionKey);
   }
   sqlite3_exec(
       db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);
@@ -878,7 +882,9 @@ bool set_up_database(sqlite3 *db) {
   return true;
 }
 
-auto getEncryptedStorageAtPath(const std::string &databasePath) {
+auto getEncryptedStorageAtPath(
+    const std::string &databasePath,
+    std::function<void(sqlite3 *)> on_open_callback = on_database_open) {
   auto storage = make_storage(
       databasePath,
       make_index("messages_idx_thread_time", &Message::thread, &Message::time),
@@ -957,7 +963,7 @@ auto getEncryptedStorageAtPath(const std::string &databasePath) {
           make_column("user_info", &UserInfo::user_info))
 
   );
-  storage.on_open = on_database_open;
+  storage.on_open = on_open_callback;
   return storage;
 }
 
@@ -1436,7 +1442,8 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
   }
 
-  auto backupStorage = getEncryptedStorageAtPath(tempBackupPath);
+  auto backupStorage = getEncryptedStorageAtPath(
+      tempBackupPath, [](sqlite3 *db) { set_encryption_key(db); });
   auto backupObj =
       SQLiteQueryExecutor::getStorage().make_backup_to(backupStorage);
   int backupResult = backupObj.step(-1);
@@ -1488,5 +1495,42 @@ void SQLiteQueryExecutor::assign_encryption_key() {
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
 #endif
+
+void SQLiteQueryExecutor::restoreFromMainCompaction(
+    std::string mainCompactionPath,
+    std::string mainCompactionEncryptionKey) const {
+
+  if (!file_exists(mainCompactionPath)) {
+    throw std::runtime_error("Restore attempt but backup file does not exist.");
+  }
+
+  sqlite3 *backup_db;
+  if (!is_database_queryable(
+          backup_db, true, mainCompactionPath, mainCompactionEncryptionKey)) {
+    throw std::runtime_error("Backup file or encryption key corrupted.");
+  }
+
+  auto backupStorage = getEncryptedStorageAtPath(
+      mainCompactionPath, [mainCompactionEncryptionKey](sqlite3 *db) {
+        set_encryption_key(db, mainCompactionEncryptionKey);
+      });
+  auto backupObject =
+      SQLiteQueryExecutor::getStorage().make_backup_from(backupStorage);
+  int backupResult = backupObject.step(-1);
+
+  if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
+    throw std::runtime_error(
+        "Programmer error. Database in transaction during restore attempt.");
+  } else if (backupResult != SQLITE_DONE) {
+    std::stringstream error_message;
+    error_message << "Failed to restore database from backup. Details: "
+                  << sqlite3_errstr(backupResult);
+    throw std::runtime_error(error_message.str());
+  }
+
+  attempt_delete_file(
+      mainCompactionPath,
+      "Failed to delete main compaction file after successful restore.");
+}
 
 } // namespace comm
