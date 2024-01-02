@@ -217,6 +217,7 @@ resource "aws_iam_role" "search_index_lambda" {
     aws_iam_policy.manage_cloudwatch_logs.arn,
     aws_iam_policy.manage_network_interface.arn,
     aws_iam_policy.read_identity_users_stream.arn,
+    aws_iam_policy.read_identity_reserved_usernames_stream.arn,
   ]
 }
 
@@ -243,6 +244,30 @@ resource "aws_iam_policy" "read_identity_users_stream" {
   path        = "/"
   description = "IAM policy for managing identity-users stream"
   policy      = data.aws_iam_policy_document.read_identity_users_stream.json
+}
+
+data "aws_iam_policy_document" "read_identity_reserved_usernames_stream" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "dynamodb:GetRecords",
+      "dynamodb:GetShardIterator",
+      "dynamodb:DescribeStream",
+      "dynamodb:ListStreams",
+    ]
+    resources = [
+      module.shared.dynamodb_tables["identity-reserved-usernames"].stream_arn,
+      "${module.shared.dynamodb_tables["identity-reserved-usernames"].arn}/stream/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "read_identity_reserved_usernames_stream" {
+  name        = "read-identity-reserved-usernames-stream"
+  path        = "/"
+  description = "IAM policy for managing identity-reserved-usernames stream"
+  policy      = data.aws_iam_policy_document.read_identity_reserved_usernames_stream.json
 }
 
 data "aws_iam_policy_document" "manage_cloudwatch_logs" {

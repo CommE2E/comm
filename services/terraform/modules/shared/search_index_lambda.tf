@@ -35,9 +35,15 @@ resource "aws_lambda_function" "search_index_lambda" {
   }
 }
 
-resource "aws_lambda_event_source_mapping" "trigger" {
+resource "aws_lambda_event_source_mapping" "identity_users_trigger" {
   count             = var.is_dev ? 0 : 1
   event_source_arn  = aws_dynamodb_table.identity-users.stream_arn
+  function_name     = aws_lambda_function.search_index_lambda.arn
+  starting_position = "LATEST"
+}
+
+resource "aws_lambda_event_source_mapping" "identity_reserved_usernames_trigger" {
+  event_source_arn  = aws_dynamodb_table.identity-reserved-usernames.stream_arn
   function_name     = aws_lambda_function.search_index_lambda.arn
   starting_position = "LATEST"
 }
