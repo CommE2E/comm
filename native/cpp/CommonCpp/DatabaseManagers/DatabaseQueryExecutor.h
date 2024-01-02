@@ -87,6 +87,9 @@ public:
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
 #endif
+  virtual void restoreFromMainCompaction(
+      std::string mainCompactionPath,
+      std::string mainCompactionEncryptionKey) const = 0;
 };
 
 } // namespace comm
