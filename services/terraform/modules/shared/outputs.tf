@@ -5,6 +5,7 @@ locals {
     aws_dynamodb_table.reports-service-reports,
     aws_dynamodb_table.tunnelbroker-undelivered-messages,
     aws_dynamodb_table.identity-users,
+    aws_dynamodb_table.identity-reserved-usernames,
   ]
 }
 

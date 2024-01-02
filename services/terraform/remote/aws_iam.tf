@@ -231,9 +231,10 @@ data "aws_iam_policy_document" "read_identity_users_stream" {
       "dynamodb:ListStreams",
     ]
     resources = [
-      module.shared.dynamodb_tables["identity-users"].arn,
       module.shared.dynamodb_tables["identity-users"].stream_arn,
       "${module.shared.dynamodb_tables["identity-users"].arn}/stream/*",
+      module.shared.dynamodb_tables["identity-reserved-usernames"].stream_arn,
+      "${module.shared.dynamodb_tables["identity-reserved-usernames"].arn}/stream/*",
     ]
   }
 }
