@@ -479,6 +479,7 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="emote-smile"
+            key="emote-smile"
             size={22}
             style={styles.bottomSheetIcon}
           />
@@ -487,6 +488,7 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="image-1"
+            key="image-1"
             size={22}
             style={styles.bottomSheetIcon}
           />
@@ -495,6 +497,7 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="camera"
+            key="camera"
             size={22}
             style={styles.bottomSheetIcon}
           />
@@ -503,6 +506,7 @@ function useShowAvatarActionSheet(
         return (
           <CommIcon
             name="ethereum-outline"
+            key="ethereum-outline"
             size={18}
             style={styles.bottomSheetIcon}
           />
@@ -511,6 +515,7 @@ function useShowAvatarActionSheet(
         return (
           <SWMansionIcon
             name="trash-2"
+            key="trash-2"
             size={22}
             style={styles.bottomSheetIcon}
           />
