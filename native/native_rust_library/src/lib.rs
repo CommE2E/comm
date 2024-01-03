@@ -234,6 +234,30 @@ mod ffi {
     #[cxx_name = "secureStoreGet"]
     fn secure_store_get(key: &str) -> Result<String>;
   }
+
+  // C++ Backup creation
+  #[namespace = "comm"]
+  unsafe extern "C++" {
+    include!("RustBackupExecutor.h");
+
+    #[allow(unused)]
+    #[cxx_name = "getBackupFilePath"]
+    fn get_backup_file_path(
+      backup_id: String,
+      is_attachments: bool,
+    ) -> Result<String>;
+
+    #[allow(unused)]
+    #[cxx_name = "createMainCompaction"]
+    fn create_main_compaction(backup_id: String) -> Result<()>;
+
+    #[allow(unused)]
+    #[cxx_name = "restoreFromMainCompaction"]
+    fn restore_from_main_compaction(
+      main_compaction_path: String,
+      main_compaction_encryption_key: String,
+    ) -> Result<()>;
+  }
 }
 
 fn handle_string_result_as_callback<E>(
