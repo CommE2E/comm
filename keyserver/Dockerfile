@@ -163,7 +163,7 @@ RUN cd keyserver && bash/docker-update-geoip.sh
 # These are needed for babel-build-comm-config
 COPY --chown=comm keyserver/src keyserver/src
 COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/source-nvm.sh
-COPY --chown=comm keyserver/babel.config.cjs keyserver/babel.config.cjs
+COPY --chown=comm keyserver/.babelrc.cjs keyserver/.babelrc.cjs
 
 COPY --chown=comm lib lib/
 

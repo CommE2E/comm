@@ -9,7 +9,7 @@ const {
   createWebWorkersConfig,
 } = require('lib/webpack/shared.cjs');
 
-const babelConfig = require('./babel.config.cjs');
+const babelConfig = require('./.babelrc.cjs');
 
 async function getConfig(configName) {
   const { getCommConfig } = await import(

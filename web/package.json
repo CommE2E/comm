@@ -104,7 +104,7 @@
       "<rootDir>"
     ],
     "transform": {
-      "\\.js$": "babel-jest"
+      "\\.js$": ["babel-jest", { "rootMode": "upward" }]
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!(@babel/runtime|thumbhash))"
