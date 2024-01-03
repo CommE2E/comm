@@ -26,9 +26,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useColors, colors } from '../themes/colors.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,

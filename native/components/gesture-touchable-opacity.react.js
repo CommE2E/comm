@@ -19,7 +19,6 @@ import {
   useReanimatedValueForBoolean,
 } from '../utils/animation-utils.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Clock,
   block,
@@ -35,7 +34,6 @@ const {
   clockRunning,
   useValue,
 } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 const pressAnimationSpec = {
   duration: 150,

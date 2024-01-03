@@ -146,10 +146,8 @@ import {
   mentionTypeaheadTooltipActions,
 } from '../utils/typeahead-utils.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
   Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 const expandoButtonsAnimationConfig = {
   duration: 150,

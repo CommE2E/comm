@@ -45,14 +45,12 @@ import { useColors } from '../themes/colors.js';
 
 const calendarTabOptions = {
   tabBarLabel: 'Calendar',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="calendar" style={[styles.icon, { color }]} />
   ),
 };
 const getChatTabOptions = (badge: number) => ({
   tabBarLabel: 'Inbox',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="message-square" style={[styles.icon, { color }]} />
   ),
@@ -60,14 +58,12 @@ const getChatTabOptions = (badge: number) => ({
 });
 const profileTabOptions = {
   tabBarLabel: 'Profile',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="user-2" style={[styles.icon, { color }]} />
   ),
 };
 const appsTabOptions = {
   tabBarLabel: 'Apps',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="globe-1" style={[styles.icon, { color }]} />
   ),

@@ -150,7 +150,6 @@ function ComposeSubchannel(props: Props): React.Node {
   const { setOptions } = navigation;
   React.useEffect(() => {
     setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => (
         <LinkButton
           text="Create"
