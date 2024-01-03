@@ -31,7 +31,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Messages {
-  RefreshKeysRequest(RefreshKeyRequest),
   ConnectionInitializationMessage(ConnectionInitializationMessage),
   ConnectionInitializationResponse(ConnectionInitializationResponse),
   // MessageToDeviceRequestStatus must be placed before MessageToDeviceRequest.
@@ -42,4 +41,10 @@ pub enum Messages {
   MessageToDevice(MessageToDevice),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
   Heartbeat(Heartbeat),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum PeerToPeerMessages {
+  RefreshKeysRequest(RefreshKeyRequest),
 }
