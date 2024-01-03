@@ -164,12 +164,18 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       storeOperations,
     );
   } else if (action.type === setNewSessionActionType) {
-    const { keyserverID } = action.payload;
+    const { keyserverID, sessionChange } = action.payload;
+    if (
+      !state.keyserverStore.keyserverInfos[keyserverID] &&
+      sessionChange.cookie?.startsWith('anonymous=')
+    ) {
+      return state;
+    }
 
     if (
       invalidSessionDowngrade(
         oldState,
-        action.payload.sessionChange.currentUserInfo,
+        sessionChange.currentUserInfo,
         action.payload.preRequestUserState,
         keyserverID,
       )
@@ -188,7 +194,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
           ...state.keyserverStore.keyserverInfos,
           [keyserverID]: {
             ...state.keyserverStore.keyserverInfos[keyserverID],
-            sessionID: action.payload.sessionChange.sessionID,
+            sessionID: sessionChange.sessionID,
           },
         },
       },
