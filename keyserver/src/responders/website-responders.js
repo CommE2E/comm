@@ -19,6 +19,7 @@ import {
   getWebAppURLFacts,
 } from '../utils/urls.js';
 
+// eslint-disable-next-line react/no-deprecated
 const { renderToNodeStream } = ReactDOMServer;
 
 const access = promisify(fs.access);
