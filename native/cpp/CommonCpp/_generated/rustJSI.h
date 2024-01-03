@@ -29,6 +29,7 @@ public:
   virtual jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
   virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
   virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
+  virtual jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) = 0;
 
 };
 
@@ -121,6 +122,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::versionSupported, jsInvoker_, instance_);
+    }
+    jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) override {
+      static_assert(
+          bridging::getParameterCount(&T::uploadOneTimeKeys) == 6,
+          "Expected uploadOneTimeKeys(...) to have 6 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::uploadOneTimeKeys, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(contentOneTimePreKeys), std::move(notifOneTimePreKeys));
     }
 
   private:
