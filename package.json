@@ -29,19 +29,19 @@
     "jest-all": "yarn workspace lib test && yarn workspace keyserver test && yarn workspace web test && yarn workspace native test"
   },
   "devDependencies": {
-    "babel-eslint": "^10.1.0",
+    "@babel/eslint-parser": "^7.23.3",
     "clang-format": "^1.8.0",
     "core-js": "^3.6.5",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-flowtype": "^5.4.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jest": "^24.2.2",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-flowtype": "^8.0.3",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jest": "^27.6.1",
     "eslint-plugin-monorepo": "^0.3.2",
-    "eslint-plugin-prettier": "^3.3.1",
-    "eslint-plugin-react": "^7.22.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "eslint-plugin-react-native": "^3.10.0",
+    "eslint-plugin-prettier": "^5.1.2",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-native": "^4.1.0",
     "find-up": "^5.0.0",
     "flow-mono-cli": "^1.5.0",
     "gaxios": "^4.3.2",
@@ -49,10 +49,9 @@
     "lint-staged": "^12.1.4",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.0.0",
-    "prettier": "^2.8.4"
+    "prettier": "^3.1.1"
   },
   "resolutions": {
-    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz",
-    "eslint/**/globals": "^13.20.0"
+    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
   }
 }
