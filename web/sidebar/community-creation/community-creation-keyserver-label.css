@@ -3,7 +3,7 @@ div.ancestryContainer {
   justify-content: center;
   align-items: center;
   height: 40px;
-  background-color: var(--panel-background-tertiary-default);
+  background-color: var(--frame-background-tertiary-default);
   margin-top: 20px;
 }
 

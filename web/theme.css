@@ -254,10 +254,10 @@
 
 /* Dark theme (default CSS theme) */
 :root {
-  /* Panel */
-  --panel-background-primary-default: var(--shades-black-95);
-  --panel-background-secondary-default: var(--shades-black-85);
-  --panel-background-tertiary-default: var(--shades-black-75);
+  /* Frame */
+  --frame-background-primary-default: var(--shades-black-95);
+  --frame-background-secondary-default: var(--shades-black-85);
+  --frame-background-tertiary-default: var(--shades-black-75);
 
   /* Text */
   --text-background-primary-default: var(--shades-white-100);
@@ -340,10 +340,10 @@
 
 /* Light theme */
 [data-theme='light'] {
-  /* Panel */
-  --panel-background-primary-default: var(--shades-white-100);
-  --panel-background-secondary-default: var(--shades-white-80);
-  --panel-background-tertiary-default: var(--shades-white-60);
+  /* Frame */
+  --frame-background-primary-default: var(--shades-white-100);
+  --frame-background-secondary-default: var(--shades-white-80);
+  --frame-background-tertiary-default: var(--shades-white-60);
 
   /* Text */
   --text-background-primary-default: var(--shades-black-95);
