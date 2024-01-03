@@ -13,7 +13,7 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
   "rules": {
     // Prettier is configured to keep lines to 80 chars, but there are two issues:
