@@ -13,6 +13,7 @@ const hazelServer = hazel({
 });
 
 const app = express();
+// prettier-ignore
 app.all('*', (req /*: $Request */, res /*: $Response */) => {
   hazelServer(req, res);
 });
