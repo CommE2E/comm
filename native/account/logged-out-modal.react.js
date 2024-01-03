@@ -82,7 +82,6 @@ import EthereumLogo from '../vectors/ethereum-logo.react.js';
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Value,
   Node,
@@ -104,7 +103,6 @@ const {
   stopClock,
   clockRunning,
 } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 export type LoggedOutMode =
   | 'loading'

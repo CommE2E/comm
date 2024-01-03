@@ -46,7 +46,6 @@ type VideoRef = {
   ...
 };
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Extrapolate,
   and,

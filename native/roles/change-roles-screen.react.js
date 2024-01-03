@@ -176,7 +176,6 @@ function ChangeRolesScreen(props: Props): React.Node {
 
   React.useEffect(() => {
     navigation.setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => {
         if (changeRolesLoadingStatus === 'loading') {
           return (

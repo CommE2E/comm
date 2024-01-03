@@ -31,9 +31,7 @@ type Props<RouteName: $Keys<TooltipModalParamList>> = {
   +sendReaction: (reaction: string) => mixed,
 };
 
-/* eslint-disable import/no-named-as-default-member */
 const { Extrapolate, interpolateNode, add, multiply } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
   props: Props<RouteName>,
