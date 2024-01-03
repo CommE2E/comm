@@ -8,6 +8,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import AppListHeader from './app-list-header.react.js';
 import AppListItem from './app-list-item.react.js';
 import css from './app-list.css';
+import Panel, { type PanelData } from '../components/panel.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -80,14 +81,20 @@ function AppList(): React.Node {
     [calendarAppListItem, onClickInbox],
   );
 
-  const appList = React.useMemo(
-    () => (
-      <div className={css.container}>
-        <AppListHeader />
-        {appListBody}
-      </div>
-    ),
+  const panelData: $ReadOnlyArray<PanelData> = React.useMemo(
+    () => [
+      {
+        header: <AppListHeader />,
+        body: appListBody,
+        classNameOveride: css.container,
+      },
+    ],
     [appListBody],
+  );
+
+  const appList = React.useMemo(
+    () => <Panel panelItems={panelData} />,
+    [panelData],
   );
 
   return appList;
