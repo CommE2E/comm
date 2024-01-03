@@ -77,7 +77,6 @@ function AddKeyserver(props: Props): React.Node {
 
   React.useEffect(() => {
     setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => (
         <HeaderRightTextButton label="Save" onPress={onPressSave} />
       ),

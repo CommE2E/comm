@@ -95,7 +95,6 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
           content: SimpleMarkdown.parseInline(parse, content, state),
         };
       },
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -135,7 +134,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     mailto: SimpleMarkdown.defaultRules.mailto,
     em: {
       ...SimpleMarkdown.defaultRules.em,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -148,7 +146,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     },
     strong: {
       ...SimpleMarkdown.defaultRules.strong,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -161,7 +158,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     },
     u: {
       ...SimpleMarkdown.defaultRules.u,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -174,7 +170,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     },
     del: {
       ...SimpleMarkdown.defaultRules.del,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -198,7 +193,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
           content: SimpleMarkdown.parseInline(parse, content, state),
         };
       },
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -213,7 +207,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     },
     inlineCode: {
       ...SimpleMarkdown.defaultRules.inlineCode,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -229,7 +222,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: SimpleMarkdown.blockRegex(
         SharedMarkdown.headingStripFollowingNewlineRegex,
       ),
-      // eslint-disable-next-line react/display-name
       react(
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -250,7 +242,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         SharedMarkdown.blockQuoteStripFollowingNewlineRegex,
       ),
       parse: SharedMarkdown.parseBlockQuote,
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -283,7 +274,6 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
           content: capture[1].replace(/^ {4}/gm, ''),
         };
       },
-      // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -389,7 +379,6 @@ function textMessageRules(
         match: SharedMarkdown.matchUserMentions(membersMap),
         parse: (capture: SharedMarkdown.Capture) =>
           SharedMarkdown.parseUserMentions(membersMap, capture),
-        // eslint-disable-next-line react/display-name
         react: (
           node: SharedMarkdown.SingleASTNode,
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
@@ -409,7 +398,6 @@ function textMessageRules(
         match: SimpleMarkdown.inlineRegex(chatMentionRegex),
         parse: (capture: SharedMarkdown.Capture) =>
           SharedMarkdown.parseChatMention(chatMentionCandidates, capture),
-        // eslint-disable-next-line react/display-name
         react: (
           node: SharedMarkdown.SingleASTNode,
           output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,

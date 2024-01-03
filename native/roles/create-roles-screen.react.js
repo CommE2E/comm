@@ -161,7 +161,6 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
   React.useEffect(
     () =>
       props.navigation.setOptions({
-        // eslint-disable-next-line react/display-name
         headerRight: () => {
           if (createRolesLoadingStatus === 'loading') {
             return (

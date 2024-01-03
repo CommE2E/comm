@@ -34,7 +34,6 @@ const RolesStack = createStackNavigator<
 
 const communityRolesScreenOptions = {
   headerTitle: 'Create role',
-  // eslint-disable-next-line react/display-name
   headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
     <CommunityRolesHeaderLeftButton {...headerLeftProps} />
   ),

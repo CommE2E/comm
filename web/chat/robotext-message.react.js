@@ -63,17 +63,13 @@ function RobotextMessage(props: Props): React.Node {
   );
   const textParts = React.useMemo(() => {
     return entityTextToReact(robotextWithENSNames, threadID, {
-      // eslint-disable-next-line react/display-name
       renderText: ({ text }) => (
         <Markdown rules={linkRules(false)}>{text}</Markdown>
       ),
-      // eslint-disable-next-line react/display-name
       renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
-      // eslint-disable-next-line react/display-name
       renderUser: ({ userID, usernameText }) => (
         <UserEntity userID={userID} usernameText={usernameText} />
       ),
-      // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
   }, [robotextWithENSNames, threadID]);

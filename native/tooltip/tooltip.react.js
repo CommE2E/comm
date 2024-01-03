@@ -44,9 +44,7 @@ import {
   type ReanimatedTransform,
 } from '../types/styles.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 const unboundStyles = {
   backdrop: {

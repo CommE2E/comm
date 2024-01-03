@@ -26,9 +26,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useTooltipActions } from '../tooltip/tooltip-hooks.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Node, interpolateNode, Extrapolate } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 type Props = {
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,

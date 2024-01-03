@@ -59,7 +59,6 @@ import {
 } from '../types/styles.js';
 import { clamp, gestureJustEnded } from '../utils/animation-utils.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Value,
   Node,
@@ -89,7 +88,6 @@ const {
   spring,
   SpringUtils,
 } = Reanimated;
-/* eslint-enable import/no-named-as-default-member */
 
 const maxZoom = 16;
 const zoomUpdateFactor = (() => {

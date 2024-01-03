@@ -112,7 +112,6 @@ function CommunityCreationMembers(props: Props): React.Node {
 
   React.useEffect(() => {
     setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => {
         if (changeThreadSettingsLoadingStatus === 'loading') {
           return (
