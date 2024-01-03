@@ -109,6 +109,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
+// eslint-disable-next-line react/no-deprecated
 const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
