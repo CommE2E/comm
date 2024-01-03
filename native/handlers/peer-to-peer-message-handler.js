@@ -1,11 +1,12 @@
 // @flow
 
+import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
 import {
   type PeerToPeerMessage,
   peerToPeerMessageTypes,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 
-import { commCoreModule } from '../native-modules.js';
+import { commCoreModule, commRustModule } from '../native-modules.js';
 import { nativeInboundContentSessionCreator } from '../utils/crypto-utils.js';
 
 async function peerToPeerMessageHandler(
@@ -39,6 +40,35 @@ async function peerToPeerMessageHandler(
         'Error decrypting message from device ' +
           `${message.senderInfo.deviceID}: ${e.message}`,
       );
+    }
+  } else if (message.type === peerToPeerMessageTypes.REFRESH_KEY_REQUEST) {
+    const [
+      { userID, deviceID, accessToken },
+      notificationsOneTimeKeys,
+      primaryOneTimeKeys,
+    ] = await Promise.all([
+      commCoreModule.getCommServicesAuthMetadata(),
+      commCoreModule.getNotificationsOneTimeKeys(message.numberOfKeys),
+      commCoreModule.getPrimaryOneTimeKeys(message.numberOfKeys),
+    ]);
+
+    if (!userID || !deviceID || !accessToken) {
+      console.log(
+        'CommServicesAuthMetadata is missing when uploading one-time keys',
+      );
+      return;
+    }
+
+    try {
+      await commRustModule.uploadOneTimeKeys(
+        userID,
+        deviceID,
+        accessToken,
+        getOneTimeKeyArray(primaryOneTimeKeys),
+        getOneTimeKeyArray(notificationsOneTimeKeys),
+      );
+    } catch (e) {
+      console.log(`Error uploading one-time keys: ${e.message}`);
     }
   }
 }
