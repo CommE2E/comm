@@ -91,9 +91,9 @@ const webCalendarQuery: (state: AppState) => () => CalendarQuery =
     currentCalendarQuery,
     (state: AppState) => state.navInfo.tab === 'calendar',
     (
-        calendarQuery: (calendarActive: boolean) => CalendarQuery,
-        calendarActive: boolean,
-      ) =>
+      calendarQuery: (calendarActive: boolean) => CalendarQuery,
+      calendarActive: boolean,
+    ) =>
       () =>
         calendarQuery(calendarActive),
   );

@@ -75,9 +75,8 @@ async function initDatabase(
     }
   }
 
-  const encryptedContent = await localforage.getItem<EncryptedData>(
-    SQLITE_CONTENT,
-  );
+  const encryptedContent =
+    await localforage.getItem<EncryptedData>(SQLITE_CONTENT);
 
   let dbContent = null;
   try {

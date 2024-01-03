@@ -12,9 +12,9 @@ const webLogInExtraInfoSelector: (state: AppState) => () => LogInExtraInfo =
     logInExtraInfoSelector,
     (state: AppState) => state.navInfo.tab === 'calendar',
     (
-        logInExtraInfoFunc: (calendarActive: boolean) => LogInExtraInfo,
-        calendarActive: boolean,
-      ) =>
+      logInExtraInfoFunc: (calendarActive: boolean) => LogInExtraInfo,
+      calendarActive: boolean,
+    ) =>
       () =>
         logInExtraInfoFunc(calendarActive),
   );
