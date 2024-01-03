@@ -16,9 +16,7 @@ import { updateDimensionsActiveType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { LayoutEvent } from '../types/react-native.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Value, timing, interpolateNode } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 const tabBarAnimationDuration = 200;
 
@@ -143,8 +141,6 @@ const styles = StyleSheet.create({
   },
 });
 
-// This is a render prop, not a component
-// eslint-disable-next-line react/display-name
 const tabBar = (props: Props): React.Node => <TabBar {...props} />;
 
 export { tabBarAnimationDuration, tabBar };

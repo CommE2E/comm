@@ -102,7 +102,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       onPasswordKeyPress = this.onPasswordKeyPress;
     }
 
-    /* eslint-disable react-native/no-raw-text */
     const privatePolicyNotice = (
       <View style={styles.notice}>
         <Text style={styles.noticeText}>
@@ -121,7 +120,6 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         </Text>
       </View>
     );
-    /* eslint-enable react-native/no-raw-text */
 
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>

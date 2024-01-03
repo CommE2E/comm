@@ -41,7 +41,6 @@ import type {
 } from '../types/layout-types.js';
 import type { AnimatedViewStyle } from '../types/styles.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Node,
   Extrapolate,
@@ -53,7 +52,6 @@ const {
   cond,
   sub,
 } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,

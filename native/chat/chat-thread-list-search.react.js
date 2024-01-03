@@ -13,9 +13,7 @@ import { useStyles } from '../themes/colors.js';
 import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
 import { animateTowards } from '../utils/animation-utils.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Node, Value, interpolateNode, useValue } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 type Props = {
   +searchText: string,
@@ -122,9 +120,7 @@ function ForwardedChatThreadListSearch(
         disabled={searchStatus !== 'active'}
         style={styles.cancelSearchButton}
       >
-        {/* eslint-disable react-native/no-raw-text */}
         <Animated.Text style={buttonStyle}>Cancel</Animated.Text>
-        {/* eslint-enable react-native/no-raw-text */}
       </Button>
     ),
     [buttonStyle, onSearchCancel, searchStatus, styles.cancelSearchButton],

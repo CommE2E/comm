@@ -11,7 +11,6 @@ declare var baseURL: string;
 type LocationType = LocationShape;
 type HistoryObject = HistoryModule.History<LocationType> & RouterHistory;
 
-// eslint-disable-next-line no-undef
 const history: ?HistoryObject = process.env.BROWSER
   ? (createBrowserHistory({ basename: baseURL }): any)
   : null;

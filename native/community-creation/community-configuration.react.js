@@ -41,7 +41,6 @@ type Props = {
 const createNewCommunityLoadingStatusSelector =
   createLoadingStatusSelector(newThreadActionTypes);
 
-// eslint-disable-next-line no-unused-vars
 function CommunityConfiguration(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();

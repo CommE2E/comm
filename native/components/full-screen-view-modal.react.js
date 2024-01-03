@@ -49,7 +49,6 @@ import {
   runTiming,
 } from '../utils/animation-utils.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Value,
   Node,
@@ -82,7 +81,6 @@ const {
   clockRunning,
   decay,
 } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 function scaleDelta(value: Node, gestureActive: Node): Node {
   const diffThisFrame = new Value(1);
