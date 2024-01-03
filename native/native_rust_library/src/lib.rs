@@ -7,7 +7,7 @@ use ffi::{
 use grpc_clients::identity::protos::authenticated::{
   InboundKeyInfo, InboundKeysForUserRequest, OutboundKeyInfo,
   OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartRequest, UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::client::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
@@ -141,6 +141,16 @@ mod ffi {
 
     #[cxx_name = "identityVersionSupported"]
     fn version_supported(promise_id: u32);
+
+    #[cxx_name = "identityUploadOneTimeKeys"]
+    fn upload_one_time_keys(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      promise_id: u32,
+    );
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
@@ -1010,6 +1020,49 @@ async fn get_inbound_keys_for_user_helper(
     .collect::<Result<Vec<_>, _>>()?;
 
   Ok(serde_json::to_string(&inbound_key_info)?)
+}
+
+#[instrument]
+fn upload_one_time_keys(
+  auth_user_id: String,
+  auth_device_id: String,
+  auth_access_token: String,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let upload_request = UploadOneTimeKeysRequest {
+      content_one_time_pre_keys: content_one_time_keys,
+      notif_one_time_pre_keys: notif_one_time_keys,
+    };
+    let auth_info = AuthInfo {
+      access_token: auth_access_token,
+      user_id: auth_user_id,
+      device_id: auth_device_id,
+    };
+    let result = upload_one_time_keys_helper(auth_info, upload_request).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn upload_one_time_keys_helper(
+  auth_info: AuthInfo,
+  upload_request: UploadOneTimeKeysRequest,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  identity_client.upload_one_time_keys(upload_request).await?;
+
+  Ok(())
 }
 
 #[derive(
