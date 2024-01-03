@@ -269,6 +269,17 @@ mod ffi {
       backup_id: String,
       is_attachments: bool,
     ) -> Result<String>;
+
+    #[allow(unused)]
+    #[cxx_name = "createMainCompaction"]
+    fn create_main_compaction(backup_id: String) -> Result<()>;
+
+    #[allow(unused)]
+    #[cxx_name = "restoreFromMainCompaction"]
+    fn restore_from_main_compaction(
+      main_compaction_path: String,
+      main_compaction_encryption_key: String,
+    ) -> Result<()>;
   }
 }
 
