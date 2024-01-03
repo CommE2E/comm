@@ -22,8 +22,8 @@ jobs:
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
-      - name: yarn eslint --max-warnings=0
-        run: yarn eslint --max-warnings=0
+      - name: yarn eslint:all --max-warnings=0
+        run: yarn eslint:all --max-warnings=0
 
       - name: '[lib] flow'
         working-directory: ./lib
