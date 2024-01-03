@@ -285,4 +285,37 @@ jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommRustModule::uploadOneTimeKeys(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::Array contentOneTimePreKeys,
+    jsi::Array notifOneTimePreKeys) {
+  return createPromiseAsJSIValue(
+      rt,
+      [this,
+       &authUserID,
+       &authDeviceID,
+       &authAccessToken,
+       &contentOneTimePreKeys,
+       &notifOneTimePreKeys](
+          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              promise, this->jsInvoker_, innerRt);
+          identityUploadOneTimeKeys(
+              jsiStringToRustString(authUserID, innerRt),
+              jsiStringToRustString(authDeviceID, innerRt),
+              jsiStringToRustString(authAccessToken, innerRt),
+              jsiStringArrayToRustVec(contentOneTimePreKeys, innerRt),
+              jsiStringArrayToRustVec(notifOneTimePreKeys, innerRt),
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+      });
+}
+
 } // namespace comm
