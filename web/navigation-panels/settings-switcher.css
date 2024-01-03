@@ -2,7 +2,7 @@
   width: 160px;
   padding-top: 12px;
   height: 100%;
-  background-color: var(--panel-background-primary-default);
+  background-color: var(--frame-background-primary-default);
 }
 
 .navigationPanelTab {
