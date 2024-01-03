@@ -104,9 +104,8 @@ async function fetchFileInfo(
       return null;
     }
     const { localURI } = localURIResult;
-    const { steps: fileSizeSteps, result: fileSize } = await fetchFileSize(
-      localURI,
-    );
+    const { steps: fileSizeSteps, result: fileSize } =
+      await fetchFileSize(localURI);
     steps.push(...fileSizeSteps);
     return fileSize;
   })();

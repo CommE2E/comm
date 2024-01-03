@@ -224,7 +224,7 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
   }
   const fontsURL = await getFontsURL();
   res.end(html`
-    <!DOCTYPE html>
+    <!doctype html>
     <html lang="en">
       <head>
         <meta charset="utf-8" />
@@ -245,8 +245,17 @@ async function inviteResponder(req: $Request, res: $Response): Promise<void> {
           }
 
           body {
-            font-family: 'Inter', -apple-system, 'Segoe UI', 'Roboto', 'Oxygen',
-              'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+            font-family:
+              'Inter',
+              -apple-system,
+              'Segoe UI',
+              'Roboto',
+              'Oxygen',
+              'Ubuntu',
+              'Cantarell',
+              'Fira Sans',
+              'Droid Sans',
+              'Helvetica Neue',
               ui-sans-serif;
             background: #0a0a0a url('/images/invite_link_background.png')
               no-repeat;

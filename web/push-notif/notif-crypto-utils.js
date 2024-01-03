@@ -271,9 +271,8 @@ async function retrieveEncryptionKey(
   }
   // Safari doesn't support structured clone algorithm in service
   // worker context so we have to store CryptoKey as JSON
-  const persistedCryptoKey = await localforage.getItem<SubtleCrypto$JsonWebKey>(
-    encryptionKeyDBLabel,
-  );
+  const persistedCryptoKey =
+    await localforage.getItem<SubtleCrypto$JsonWebKey>(encryptionKeyDBLabel);
   if (!persistedCryptoKey) {
     return null;
   }
