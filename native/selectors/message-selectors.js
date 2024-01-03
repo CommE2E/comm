@@ -43,10 +43,10 @@ const pruneThreadIDsSelector: (
   (input: NavPlusRedux) => input.redux.messageStore.threads,
   (input: NavPlusRedux) => activeThreadSelector(input.navContext),
   (
-      threadActivityStore: ThreadActivityStore,
-      threadMessageInfos: { +[id: string]: ThreadMessageInfo },
-      activeThread: ?string,
-    ) =>
+    threadActivityStore: ThreadActivityStore,
+    threadMessageInfos: { +[id: string]: ThreadMessageInfo },
+    activeThread: ?string,
+  ) =>
     (): $ReadOnlyArray<string> => {
       const now = Date.now();
       const threadIDsToPrune = [];

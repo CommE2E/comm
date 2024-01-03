@@ -101,7 +101,7 @@ function RelationshipList(props: Props): React.Node {
           userRelationshipStatus.BOTH_BLOCKED,
         ],
         [BlockListRouteName]: [],
-      }[routeName]),
+      })[routeName],
     [routeName],
   );
 

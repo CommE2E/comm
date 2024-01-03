@@ -35,11 +35,9 @@ function getItemLayout(
 
 type Props<U> = {
   +threadInfo: ThreadInfo,
-  +createRenderItem: (onPressItem: (threadInfo: ThreadInfo) => void) => (row: {
-    +item: U,
-    +index: number,
-    ...
-  }) => React.Node,
+  +createRenderItem: (
+    onPressItem: (threadInfo: ThreadInfo) => void,
+  ) => (row: { +item: U, +index: number, ... }) => React.Node,
   +listData: $ReadOnlyArray<U>,
   +searchState: ThreadSearchState,
   +setSearchState: SetState<ThreadSearchState>,

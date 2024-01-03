@@ -78,17 +78,17 @@ const webGetClientResponsesSelector: (
   (input: WebGetClientResponsesSelectorInputType) =>
     input.getInitialNotificationsEncryptedMessage,
   (
-      getClientResponsesFunc: (
-        calendarActive: boolean,
-        oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-        getInitialNotificationsEncryptedMessage: () => Promise<string>,
-        serverRequests: $ReadOnlyArray<ClientServerRequest>,
-      ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
-      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
+    getClientResponsesFunc: (
       calendarActive: boolean,
+      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       getInitialNotificationsEncryptedMessage: () => Promise<string>,
-    ) =>
+      serverRequests: $ReadOnlyArray<ClientServerRequest>,
+    ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
+    getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
+    calendarActive: boolean,
+    getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
@@ -106,9 +106,9 @@ const baseWebSessionStateFuncSelector: (
     sessionStateFuncSelector(keyserverID),
     (state: AppState) => state.navInfo.tab === 'calendar',
     (
-        sessionStateFunc: (calendarActive: boolean) => SessionState,
-        calendarActive: boolean,
-      ) =>
+      sessionStateFunc: (calendarActive: boolean) => SessionState,
+      calendarActive: boolean,
+    ) =>
       () =>
         sessionStateFunc(calendarActive),
   );
