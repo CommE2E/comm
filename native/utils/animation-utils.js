@@ -9,7 +9,6 @@ import Animated, {
   type TimingConfig,
 } from 'react-native-reanimated';
 
-/* eslint-disable import/no-named-as-default-member */
 const {
   Clock,
   Node,
@@ -35,7 +34,6 @@ const {
   spring,
   SpringUtils,
 } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 function clamp(
   value: Node,

@@ -60,7 +60,6 @@ function RegistrationTerms(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
 
-  /* eslint-disable react-native/no-raw-text */
   const termsNotice = (
     <Text style={styles.body}>
       By registering, you are agreeing to our{' '}
@@ -74,7 +73,6 @@ function RegistrationTerms(props: Props): React.Node {
       .
     </Text>
   );
-  /* eslint-enable react-native/no-raw-text */
 
   return (
     <RegistrationContainer>

@@ -64,7 +64,6 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const textParts = React.useMemo(() => {
     const darkColor = activeTheme === 'dark';
     return entityTextToReact(robotextWithENSNames, threadID, {
-      // eslint-disable-next-line react/display-name
       renderText: ({ text }) => (
         <Markdown
           style={styles.robotext}
@@ -73,13 +72,10 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
           {text}
         </Markdown>
       ),
-      // eslint-disable-next-line react/display-name
       renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
-      // eslint-disable-next-line react/display-name
       renderUser: ({ userID, usernameText }) => (
         <UserEntity userID={userID} usernameText={usernameText} />
       ),
-      // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
   }, [robotextWithENSNames, activeTheme, threadID, styles.robotext]);

@@ -52,7 +52,6 @@ type Props = {
   +dimensions: DimensionsInfo,
 };
 class MediaGalleryMedia extends React.PureComponent<Props> {
-  // eslint-disable-next-line import/no-named-as-default-member
   focusProgress: Reanimated.Value = new Reanimated.Value(0);
   buttonsStyle: AnimatedViewStyle;
   mediaStyle: AnimatedStyleObj;
@@ -61,7 +60,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
-    // eslint-disable-next-line import/no-named-as-default-member
     const buttonsScale = Reanimated.interpolateNode(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1.3, 1],
@@ -73,7 +71,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
       marginBottom: this.props.dimensions.bottomInset,
     };
 
-    // eslint-disable-next-line import/no-named-as-default-member
     const mediaScale = Reanimated.interpolateNode(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1, 1.3],
@@ -90,7 +87,6 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
   componentDidMount() {
     const isActive = MediaGalleryMedia.isActive(this.props);
     if (isActive) {
-      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 1,
@@ -113,13 +109,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     const isActive = MediaGalleryMedia.isActive(this.props);
     const wasActive = MediaGalleryMedia.isActive(prevProps);
     if (isActive && !wasActive) {
-      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 1,
       }).start();
     } else if (!isActive && wasActive) {
-      // eslint-disable-next-line import/no-named-as-default-member
       Reanimated.timing(this.focusProgress, {
         ...reanimatedSpec,
         toValue: 0,

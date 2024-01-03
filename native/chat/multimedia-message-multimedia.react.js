@@ -33,9 +33,7 @@ import {
   AnimatedView,
 } from '../types/styles.js';
 
-/* eslint-disable import/no-named-as-default-member */
 const { Node, sub, interpolateNode, Extrapolate } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 type BaseProps = {
   +mediaInfo: MediaInfo,

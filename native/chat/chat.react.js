@@ -109,14 +109,12 @@ export type ChatTopTabsNavigationHelpers =
 
 const homeChatThreadListOptions = {
   title: 'Focused',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="home-1" size={22} style={{ color }} />
   ),
 };
 const backgroundChatThreadListOptions = {
   title: 'Background',
-  // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
   ),
@@ -251,8 +249,6 @@ const messageListOptions = ({
     !threadIsPending(route.params.threadInfo.id) && !isSearchEmpty;
 
   return {
-    // This is a render prop, not a component
-    // eslint-disable-next-line react/display-name
     headerTitle: (props: HeaderTitleInputProps) => (
       <MessageListHeaderTitle
         threadInfo={route.params.threadInfo}
@@ -263,9 +259,7 @@ const messageListOptions = ({
       />
     ),
     headerRight: areSettingsEnabled
-      ? // This is a render prop, not a component
-        // eslint-disable-next-line react/display-name
-        () => (
+      ? () => (
           <View style={headerRightStyle}>
             <SearchMessagesButton
               threadInfo={route.params.threadInfo}
@@ -294,7 +288,6 @@ const threadSettingsOptions = ({
   +route: NavigationRoute<'ThreadSettings'>,
   ...
 }) => ({
-  // eslint-disable-next-line react/display-name
   headerTitle: (props: HeaderTitleInputProps) => (
     <ThreadSettingsHeaderTitle
       threadInfo={route.params.threadInfo}
@@ -316,7 +309,6 @@ const deleteThreadOptions = {
   headerBackTitleVisible: false,
 };
 const messageSearchOptions = {
-  // eslint-disable-next-line react/display-name
   headerTitle: () => <SearchHeader />,
   headerBackTitleVisible: false,
   headerTitleContainerStyle: {
@@ -333,7 +325,6 @@ const changeRolesScreenOptions = ({
   +route: NavigationRoute<'ChangeRolesScreen'>,
   ...
 }) => ({
-  // eslint-disable-next-line react/display-name
   headerLeft: (headerLeftProps: StackHeaderLeftButtonProps) => (
     <ChangeRolesHeaderLeftButton {...headerLeftProps} route={route} />
   ),
