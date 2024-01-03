@@ -24,14 +24,15 @@
     "@babel/preset-env": "^7.13.12",
     "@babel/preset-flow": "^7.13.13",
     "@babel/preset-react": "^7.13.13",
-    "babel-jest": "^26.6.3",
+    "babel-jest": "^29.7.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "concurrently": "^5.3.0",
     "copy-webpack-plugin": "^11.0.0",
     "flow-bin": "^0.202.1",
     "flow-typed": "^3.2.1",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^26.6.3",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "protoc-gen-js": "^3.21.2",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
@@ -113,6 +114,7 @@
     },
     "setupFiles": [
       "<rootDir>/jest-setup.js"
-    ]
+    ],
+    "testEnvironment": "jsdom"
   }
 }
