@@ -304,7 +304,6 @@ function RelationshipList(props: Props): React.Node {
       return;
     }
     setOptions({
-      // eslint-disable-next-line react/display-name
       headerRight: () => (
         <LinkButton
           text="Save"

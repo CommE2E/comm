@@ -904,7 +904,6 @@ const migrations = {
   },
   [57]: async (state: any) => {
     const {
-      // eslint-disable-next-line no-unused-vars
       connection,
       keyserverStore: { keyserverInfos },
       ...rest
@@ -1023,7 +1022,6 @@ const migrations = {
 // `JSON.stringify(...)` and written to disk. We specify the keys for which
 // this transformation should be executed in the `whitelist` property of the
 // `config` object that's passed to `createTransform(...)`.
-// eslint-disable-next-line no-unused-vars
 type PersistedMessageStore = {
   +local: { +[id: string]: LocalMessageInfo },
   +currentAsOf: { +[keyserverID: string]: number },

@@ -54,9 +54,7 @@ export type OverlayNavigationProp<
   ...OverlayRouterExtraNavigationHelpers,
 };
 
-/* eslint-disable import/no-named-as-default-member */
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
-/* eslint-enable import/no-named-as-default-member */
 
 type Scene = {
   +route: Route<>,

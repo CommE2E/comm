@@ -66,12 +66,12 @@ const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
 const linkedDevicesOptions = {
   headerTitle: 'Linked devices',
-  // eslint-disable-next-line react/display-name
+
   headerRight: () => <LinkedDevicesHeaderRightButton />,
 };
 const keyserverSelectionListOptions = {
   headerTitle: 'Keyservers',
-  // eslint-disable-next-line react/display-name
+
   headerRight: () => <KeyserverSelectionListHeaderRightButton />,
 };
 const addKeyserverOptions = { headerTitle: 'Add keyserver' };
