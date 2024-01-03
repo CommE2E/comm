@@ -68,6 +68,13 @@ export interface Spec extends TurboModule {
     userID: string,
   ) => Promise<string>;
   +versionSupported: () => Promise<boolean>;
+  +uploadOneTimeKeys: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    contentOneTimePreKeys: $ReadOnlyArray<string>,
+    notifOneTimePreKeys: $ReadOnlyArray<string>,
+  ) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
