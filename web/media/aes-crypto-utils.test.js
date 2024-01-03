@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 // @flow
 
 import {
