@@ -7,7 +7,7 @@ const {
   createNodeServerRenderingConfig,
 } = require('lib/webpack/shared.cjs');
 
-const babelConfig = require('./babel.config.cjs');
+const babelConfig = require('./.babelrc.cjs');
 
 const baseBrowserConfig = {
   entry: {
