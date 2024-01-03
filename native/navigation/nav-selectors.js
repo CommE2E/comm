@@ -248,9 +248,9 @@ const nativeCalendarQuery: (input: NavPlusRedux) => () => CalendarQuery =
     (input: NavPlusRedux) => currentCalendarQuery(input.redux),
     (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
     (
-        calendarQuery: (calendarActive: boolean) => CalendarQuery,
-        calendarActive: boolean,
-      ) =>
+      calendarQuery: (calendarActive: boolean) => CalendarQuery,
+      calendarActive: boolean,
+    ) =>
       () =>
         calendarQuery(calendarActive),
   );
