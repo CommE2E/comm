@@ -6,11 +6,11 @@
 .itemContainer {
   display: flex;
   flex-direction: column;
-  background-color: var(--card-background-primary-default);
+  background-color: var(--panel-background-primary-default);
 }
 
 .secondaryItemContainer {
-  background-color: var(--card-background-secondary-default);
+  background-color: var(--panel-background-secondary-default);
 }
 
 .singleItemContainer {
@@ -27,6 +27,6 @@
 
 .headerContainer {
   height: 56px;
-  box-shadow: 0px 1px 3px 0px var(--card-headerShadow-primary-default);
+  box-shadow: 0px 1px 3px 0px var(--panel-headerShadow-primary-default);
   clip-path: inset(0 0 -3px 0);
 }

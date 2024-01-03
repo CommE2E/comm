@@ -265,10 +265,10 @@
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
-  /* Card */
-  --card-background-primary-default: var(--shades-black-85);
-  --card-background-secondary-default: var(--shades-black-90);
-  --card-headerShadow-primary-default: var(--shadow-dark-35);
+  /* Panel */
+  --panel-background-primary-default: var(--shades-black-85);
+  --panel-background-secondary-default: var(--shades-black-90);
+  --panel-headerShadow-primary-default: var(--shadow-dark-35);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
@@ -351,11 +351,11 @@
   --text-background-tertiary-default: var(--shades-black-50);
   --text-background-danger-default: var(--error-primary);
 
-  /* Card */
+  /* Panel */
   /* @GINSU: TODO double check these values after redesign is finished */
-  --card-background-primary-default: var(--shades-white-80);
-  --card-background-secondary-default: var(--shades-white-90);
-  --card-headerShadow-primary-default: var(--shadow-light-35);
+  --panel-background-primary-default: var(--shades-white-80);
+  --panel-background-secondary-default: var(--shades-white-90);
+  --panel-headerShadow-primary-default: var(--shadow-light-35);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
