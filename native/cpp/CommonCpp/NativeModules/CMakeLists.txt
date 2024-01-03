@@ -88,6 +88,14 @@ set(DATA_STORES_SRCS
   ${_data_stores_path}/UserStore.cpp
 )
 
+set(_backup_op_path ./PersistentStorageUtilities/BackupOperationsUtilities)
+set(BACKUP_OP_HDRS
+  ${_backup_op_path}/BackupOperationsExecutor.h
+)
+set(BACKUP_OP_SRCS
+  ${_backup_op_path}/BackupOperationsExecutor.cpp
+)
+
 add_library(comm-modules-persistentstorage
   ${MESSAGE_HDRS}
   ${MESSAGE_SRCS}
@@ -96,6 +104,8 @@ add_library(comm-modules-persistentstorage
   ${THREAD_OP_SRCS}
   ${DATA_STORES_HDRS}
   ${DATA_STORES_SRCS}
+  ${BACKUP_OP_HDRS}
+  ${BACKUP_OP_SRCS}
 )
 
 # reference local directory when building, use installation path when installing
