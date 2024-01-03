@@ -352,9 +352,8 @@ async function saveRemoteMediaToDisk(
 ): Promise<IntermediateSaveResult> {
   const steps: Array<MediaMissionStep> = [];
 
-  const { result: fetchBlobResult, steps: fetchBlobSteps } = await fetchBlob(
-    inputURI,
-  );
+  const { result: fetchBlobResult, steps: fetchBlobSteps } =
+    await fetchBlob(inputURI);
   steps.push(...fetchBlobSteps);
   if (!fetchBlobResult.success) {
     return { result: fetchBlobResult, steps };

@@ -103,16 +103,16 @@ const nativeGetClientResponsesSelector: (
   (input: NativeGetClientResponsesSelectorInputType) =>
     input.getInitialNotificationsEncryptedMessage,
   (
-      getClientResponsesFunc: (
-        calendarActive: boolean,
-        oneTimeKeyGenerator: ?OneTimeKeyGenerator,
-        getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-        getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
-        serverRequests: $ReadOnlyArray<ClientServerRequest>,
-      ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
+    getClientResponsesFunc: (
       calendarActive: boolean,
-      getInitialNotificationsEncryptedMessage: () => Promise<string>,
-    ) =>
+      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
+      getInitialNotificationsEncryptedMessage: ?() => Promise<string>,
+      serverRequests: $ReadOnlyArray<ClientServerRequest>,
+    ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
+    calendarActive: boolean,
+    getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
@@ -130,9 +130,9 @@ const baseNativeSessionStateFuncSelector: (
     (input: NavPlusRedux) => sessionStateFuncSelector(keyserverID)(input.redux),
     (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
     (
-        sessionStateFunc: (calendarActive: boolean) => SessionState,
-        calendarActive: boolean,
-      ) =>
+      sessionStateFunc: (calendarActive: boolean) => SessionState,
+      calendarActive: boolean,
+    ) =>
       () =>
         sessionStateFunc(calendarActive),
   );

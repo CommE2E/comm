@@ -427,9 +427,8 @@ async function createThread(
 
     let editedSourceMessage = sourceMessage;
     if (sourceMessageID && sourceMessage.type === messageTypes.TEXT) {
-      const editMessageContent = await fetchLatestEditMessageContentByID(
-        sourceMessageID,
-      );
+      const editMessageContent =
+        await fetchLatestEditMessageContentByID(sourceMessageID);
       if (editMessageContent) {
         editedSourceMessage = {
           ...sourceMessage,

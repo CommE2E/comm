@@ -233,9 +233,8 @@ class Socket {
       );
       await policiesValidator(viewer, baseLegalPolicies);
 
-      const serverResponses = await this.handleClientSocketMessage(
-        clientSocketMessage,
-      );
+      const serverResponses =
+        await this.handleClientSocketMessage(clientSocketMessage);
       if (!this.redis) {
         this.redis = new RedisSubscriber(
           { userID: viewer.userID, sessionID: viewer.session },
