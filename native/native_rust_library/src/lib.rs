@@ -294,6 +294,16 @@ mod ffi {
     #[allow(unused)]
     #[cxx_name = "getBackupUserKeysFilePath"]
     fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
+
+    #[cxx_name = "createMainCompaction"]
+    fn create_main_compaction(backup_id: String) -> Result<()>;
+
+    #[allow(unused)]
+    #[cxx_name = "restoreFromMainCompaction"]
+    fn restore_from_main_compaction(
+      main_compaction_path: String,
+      main_compaction_encryption_key: String,
+    ) -> Result<()>;
   }
 }
 
