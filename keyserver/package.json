@@ -80,7 +80,7 @@
     "redux": "^4.0.4",
     "rereadable-stream": "^1.4.5",
     "rust-node-addon": "0.0.1",
-    "sharp": "^0.30.5",
+    "sharp": "^0.32.6",
     "siwe": "^1.1.6",
     "sql-template-strings": "^2.2.2",
     "tcomb": "^3.2.29",
