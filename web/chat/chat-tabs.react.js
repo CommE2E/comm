@@ -7,10 +7,11 @@ import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
 
 import css from './chat-tabs.css';
 import ChatThreadList from './chat-thread-list.react.js';
-import ChatThreadTab from './chat-thread-tab.react.js';
 import { ThreadListContext } from './thread-list-provider.js';
-import Tabs from '../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../components/tabs.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+
+type TabType = 'Background' | 'Focus';
 
 function ChatTabs(): React.Node {
   let backgroundTitle = 'Background';
@@ -18,6 +19,21 @@ function ChatTabs(): React.Node {
   if (unreadBackgroundCountVal) {
     backgroundTitle += ` (${unreadBackgroundCountVal})`;
   }
+
+  const tabsData: $ReadOnlyArray<TabData<TabType>> = React.useMemo(
+    () => [
+      {
+        id: 'Focus',
+        header: 'Focused',
+      },
+      {
+        id: 'Background',
+        header: backgroundTitle,
+      },
+    ],
+    [backgroundTitle],
+  );
+
   const threadListContext = React.useContext(ThreadListContext);
   invariant(
     threadListContext,
@@ -25,53 +41,24 @@ function ChatTabs(): React.Node {
   );
   const { activeTab, setActiveTab } = threadListContext;
 
-  const setActiveChatTab = React.useCallback(
-    (newTab: 'Background' | 'Focus') => {
-      setActiveTab(newTab);
-    },
-    [setActiveTab],
-  );
-
-  const chatThreadList = React.useMemo(
+  const tabs = React.useMemo(
     () => (
-      <div className={css.threadList}>
-        <ChatThreadList />
-      </div>
+      <Tabs
+        tabItems={tabsData}
+        activeTab={activeTab}
+        setTab={setActiveTab}
+        headerStyle="pill"
+      />
     ),
-    [],
-  );
-
-  const focusTabsItem = React.useMemo(
-    () => (
-      <Tabs.Item id="Focus" header={<ChatThreadTab title="Focused" />}>
-        {chatThreadList}
-      </Tabs.Item>
-    ),
-    [chatThreadList],
-  );
-
-  const backgroundTabsItem = React.useMemo(
-    () => (
-      <Tabs.Item
-        id="Background"
-        header={<ChatThreadTab title={backgroundTitle} />}
-      >
-        {chatThreadList}
-      </Tabs.Item>
-    ),
-    [backgroundTitle, chatThreadList],
+    [activeTab, setActiveTab, tabsData],
   );
 
   return (
     <div className={css.container}>
-      <Tabs.Container
-        activeTab={activeTab}
-        setTab={setActiveChatTab}
-        headerStyle="pill"
-      >
-        {focusTabsItem}
-        {backgroundTabsItem}
-      </Tabs.Container>
+      {tabs}
+      <div className={css.threadList}>
+        <ChatThreadList />
+      </div>
     </div>
   );
 }
