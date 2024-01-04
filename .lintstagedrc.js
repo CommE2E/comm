@@ -1,16 +1,20 @@
-const { CLIEngine } = require('eslint');
+const { ESLint } = require('eslint');
 const { getClangPaths } = require('./scripts/get_clang_paths');
 const { findRustProjectPath } = require('./scripts/get_cargo_path');
 
-const cli = new CLIEngine({});
+const removeIgnoredFiles = async (files) => {
+  const eslint = new ESLint();
+  const isIgnored = await Promise.all(
+    files.map(file => eslint.isPathIgnored(file)),
+  );
+  const filteredFiles = files.filter((_, i) => !isIgnored[i]);
+  return filteredFiles.join(' ');
+}
 
 module.exports = {
-  '*.{js,mjs,cjs}': function eslint(files) {
-    // This logic is likely broken and needs to be updated. see ENG-1011
-    return (
-      'eslint --cache --fix --report-unused-disable-directives --max-warnings=0 ' +
-      files.filter(file => !cli.isPathIgnored(file)).join(' ')
-    );
+  '*.{js,mjs,cjs}': async function eslint(files) {
+    const filesToLint = await removeIgnoredFiles(files);
+    return [`eslint --cache --fix --report-unused-disable-directives --max-warnings=0 ${filesToLint}`];
   },
   '*.{css,html,md,json}': function prettier(files) {
     return 'prettier --write ' + files.join(' ');
