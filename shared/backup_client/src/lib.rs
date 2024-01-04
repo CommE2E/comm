@@ -13,6 +13,7 @@ use reqwest::{
   Body,
 };
 use sha2::{Digest, Sha256};
+use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{
   connect_async,
   tungstenite::{
@@ -142,17 +143,10 @@ impl BackupClient {
     });
 
     let rx = rx.filter_map(|msg| async {
-      let bytes = match msg {
-        Ok(Binary(bytes)) => bytes,
-        // Handled by tungstenite
-        Ok(Ping(_)) => return None,
-        Ok(_) => return Some(Err(WSError::InvalidWSMessage)),
-        Err(err) => return Some(Err(err.into())),
-      };
-
-      let response = match bincode::deserialize(&bytes) {
-        Ok(response) => response,
-        Err(err) => return Some(Err(err.into())),
+      let response = match get_log_ws_response(msg) {
+        Some(Ok(response)) => response,
+        Some(Err(err)) => return Some(Err(err)),
+        None => return None,
       };
 
       match response {
@@ -162,6 +156,52 @@ impl BackupClient {
           Some(Err(WSError::InvalidBackupMessage))
         }
         LogWSResponse::ServerError => Some(Err(WSError::ServerError)),
+      }
+    });
+
+    Ok((tx, rx))
+  }
+
+  pub async fn download_logs(
+    &self,
+    user_identity: &UserIdentity,
+    backup_id: &str,
+  ) -> Result<
+    (
+      impl Sink<DownloadLogsRequest, Error = WSError>,
+      impl Stream<Item = Result<LogWSResponse, WSError>>,
+    ),
+    Error,
+  > {
+    let request = self.create_ws_request(user_identity, backup_id)?;
+    let (stream, response) = connect_async(request).await?;
+
+    if response.status().is_client_error() {
+      return Err(Error::WSInitError(TungsteniteError::Http(response)));
+    }
+
+    let (tx, rx) = stream.split();
+
+    let tx = tx.with(|request: DownloadLogsRequest| async {
+      let request = LogWSRequest::DownloadLogs(request);
+      let request = bincode::serialize(&request)?;
+      Ok(Binary(request))
+    });
+
+    let rx = rx.filter_map(|msg| async {
+      let response = match get_log_ws_response(msg) {
+        Some(Ok(response)) => response,
+        Some(Err(err)) => return Some(Err(err)),
+        None => return None,
+      };
+
+      match response {
+        LogWSResponse::LogDownloadFinished { .. }
+        | LogWSResponse::LogDownload { .. } => Some(Ok(response)),
+        LogWSResponse::LogUploaded { .. } => {
+          return Some(Err(WSError::InvalidBackupMessage))
+        }
+        LogWSResponse::ServerError => return Some(Err(WSError::ServerError)),
       }
     });
 
@@ -245,4 +285,21 @@ pub enum WSError {
   InvalidWSMessage,
   InvalidBackupMessage,
   ServerError,
+}
+
+fn get_log_ws_response(
+  msg: Result<Message, TungsteniteError>,
+) -> Option<Result<LogWSResponse, WSError>> {
+  let bytes = match msg {
+    Ok(Binary(bytes)) => bytes,
+    // Handled by tungstenite
+    Ok(Ping(_)) => return None,
+    Ok(_) => return Some(Err(WSError::InvalidWSMessage)),
+    Err(err) => return Some(Err(err.into())),
+  };
+
+  match bincode::deserialize(&bytes) {
+    Ok(response) => Some(Ok(response)),
+    Err(err) => Some(Err(err.into())),
+  }
 }
