@@ -149,7 +149,10 @@ function ChatThreadList(): React.Node {
       const sidebarHeight = _sum(
         items[index].sidebars.map(s => sizes.sidebars[s.type]),
       );
-      return sizes.thread + sidebarHeight;
+
+      const rowGap = index === items.length - 1 ? 0 : 8;
+
+      return sizes.thread + sidebarHeight + rowGap;
     };
 
     return (
