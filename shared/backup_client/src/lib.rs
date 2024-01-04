@@ -1,11 +1,27 @@
 pub use comm_lib::auth::UserIdentity;
-pub use comm_lib::backup::LatestBackupIDResponse;
+pub use comm_lib::backup::{
+  DownloadLogsRequest, LatestBackupIDResponse, LogWSRequest, LogWSResponse,
+  UploadLogRequest,
+};
+pub use futures_util::{SinkExt, StreamExt, TryStreamExt};
+
+use futures_util::{Sink, Stream};
 use hex::ToHex;
 use reqwest::{
+  header::InvalidHeaderValue,
   multipart::{Form, Part},
   Body,
 };
 use sha2::{Digest, Sha256};
+use tokio_tungstenite::{
+  connect_async,
+  tungstenite::{
+    client::IntoClientRequest,
+    http::{header, Request},
+    Error as TungsteniteError,
+    Message::{Binary, Ping},
+  },
+};
 
 #[derive(Debug, Clone)]
 pub struct BackupClient {
@@ -18,7 +34,10 @@ impl BackupClient {
       url: url.try_into()?,
     })
   }
+}
 
+/// Backup functions
+impl BackupClient {
   pub async fn upload_backup(
     &self,
     user_identity: &UserIdentity,
@@ -94,6 +113,86 @@ impl BackupClient {
   }
 }
 
+/// Log functions
+impl BackupClient {
+  pub async fn upload_logs(
+    &self,
+    user_identity: &UserIdentity,
+    backup_id: &str,
+  ) -> Result<
+    (
+      impl Sink<UploadLogRequest, Error = WSError>,
+      impl Stream<Item = Result<usize, WSError>>,
+    ),
+    Error,
+  > {
+    let request = self.create_ws_request(user_identity, backup_id)?;
+    let (stream, response) = connect_async(request).await?;
+
+    if response.status().is_client_error() {
+      return Err(Error::WSInitError(TungsteniteError::Http(response)));
+    }
+
+    let (tx, rx) = stream.split();
+
+    let tx = tx.with(|request: UploadLogRequest| async {
+      let request = LogWSRequest::UploadLog(request);
+      let request = bincode::serialize(&request)?;
+      Ok(Binary(request))
+    });
+
+    let rx = rx.filter_map(|msg| async {
+      let bytes = match msg {
+        Ok(Binary(bytes)) => bytes,
+        // Handled by tungstenite
+        Ok(Ping(_)) => return None,
+        Ok(_) => return Some(Err(WSError::InvalidWSMessage)),
+        Err(err) => return Some(Err(err.into())),
+      };
+
+      let response = match bincode::deserialize(&bytes) {
+        Ok(response) => response,
+        Err(err) => return Some(Err(err.into())),
+      };
+
+      match response {
+        LogWSResponse::LogUploaded { log_id } => Some(Ok(log_id)),
+        LogWSResponse::LogDownload { .. }
+        | LogWSResponse::LogDownloadFinished { .. } => {
+          return Some(Err(WSError::InvalidBackupMessage))
+        }
+        LogWSResponse::ServerError => return Some(Err(WSError::ServerError)),
+      }
+    });
+
+    Ok((tx, rx))
+  }
+
+  fn create_ws_request(
+    &self,
+    user_identity: &UserIdentity,
+    backup_id: &str,
+  ) -> Result<Request<()>, Error> {
+    let mut url = self.url.clone();
+
+    match url.scheme() {
+      "http" => url.set_scheme("ws")?,
+      "https" => url.set_scheme("wss")?,
+      _ => (),
+    };
+    let url = url.join("logs/")?.join(backup_id)?;
+
+    let mut request = url.into_client_request().unwrap();
+
+    let token = user_identity.as_authorization_token()?;
+    request
+      .headers_mut()
+      .insert(header::AUTHORIZATION, format!("Bearer {token}").parse()?);
+
+    Ok(request)
+  }
+}
+
 #[derive(Debug, Clone)]
 pub struct BackupData {
   pub backup_id: String,
@@ -124,7 +223,26 @@ pub enum RequestedData {
   Debug, derive_more::Display, derive_more::Error, derive_more::From,
 )]
 pub enum Error {
+  InvalidAuthorizationHeader,
   UrlError(url::ParseError),
   ReqwestError(reqwest::Error),
+  WSInitError(TungsteniteError),
   JsonError(serde_json::Error),
+}
+
+impl From<InvalidHeaderValue> for Error {
+  fn from(_: InvalidHeaderValue) -> Self {
+    Self::InvalidAuthorizationHeader
+  }
+}
+
+#[derive(
+  Debug, derive_more::Display, derive_more::Error, derive_more::From,
+)]
+pub enum WSError {
+  BincodeError(bincode::Error),
+  TungsteniteError(TungsteniteError),
+  InvalidWSMessage,
+  InvalidBackupMessage,
+  ServerError,
 }
