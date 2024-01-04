@@ -338,7 +338,17 @@
   --unreadIndicator-border-primary-default: var(--shades-black-85);
 
   /* Tab */
-  --tab-background-primary-default: var(--shades-black-85);
+  --tab-indicator-primary-default: var(--shades-black-85);
+  --tab-indicator-primary-active: var(--violet-dark-100);
+  --tab-label-primary-default: var(--shades-white-60);
+  --tab-label-primary-active: var(--shades-white-100);
+  --tab-label-primary-hover: var(--shades-white-80);
+  --tab-indicator-secondary-default: var(--shades-black-75);
+  --tab-indicator-secondary-active: var(--violet-light-100);
+  --tab-indicator-secondary-hover: var(--shades-black-60);
+  --tab-label-secondary-default: var(--shades-black-50);
+  --tab-label-secondary-active: var(--shades-white-100);
+  --tab-label-secondary-hover: var(--shades-white-80);
 }
 
 /* Light theme */
@@ -431,5 +441,15 @@
 
   /* Tab */
   /* @GINSU: TODO double check these values after redesign is finished */
-  --tab-background-primary-default: var(--shades-white-60);
+  --tab-indicator-primary-default: var(--shades-white-60);
+  --tab-indicator-primary-active: var(--violet-dark-100);
+  --tab-label-primary-default: var(--shades-black-75);
+  --tab-label-primary-active: var(--shades-white-100);
+  --tab-label-primary-hover: var(--shades-black-95);
+  --tab-indicator-secondary-default: var(--shades-black-50);
+  --tab-indicator-secondary-active: var(--violet-dark-100);
+  --tab-indicator-secondary-hover: var(--shades-black-60);
+  --tab-label-secondary-default: var(--shades-black-60);
+  --tab-label-secondary-active: var(--shades-black-95);
+  --tab-label-secondary-hover: var(--shades-black-85);
 }
