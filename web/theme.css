@@ -339,7 +339,7 @@
   --unreadIndicator-border-primary-default: var(--shades-black-85);
 
   /* Tab */
-  --tab-indicator-primary-default: var(--shades-black-85);
+  --tab-indicator-primary-default: var(--shades-black-75);
   --tab-indicator-primary-active: var(--violet-dark-100);
   --tab-label-primary-default: var(--shades-white-60);
   --tab-label-primary-active: var(--shades-white-100);
