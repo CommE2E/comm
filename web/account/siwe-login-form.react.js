@@ -16,6 +16,7 @@ import {
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import stores from 'lib/facts/stores.js';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   LogInStartingPayload,
@@ -41,7 +42,6 @@ import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
 type SIWELogInError = 'account_does_not_exist';
 
@@ -64,7 +64,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   );
   const siweAuthLoadingStatus = useSelector(siweAuthLoadingStatusSelector);
   const siweAuthCall = useServerCall(siweAuth);
-  const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const logInExtraInfo = useSelector(logInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
@@ -120,12 +120,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
 
   const attemptSIWEAuth = React.useCallback(
     (message: string, signature: string) => {
-      const extraInfo = logInExtraInfo();
       return dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWEAuthEndpoint(message, signature, extraInfo),
+        callSIWEAuthEndpoint(message, signature, logInExtraInfo),
         undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+        ({ calendarQuery: logInExtraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
     [callSIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
