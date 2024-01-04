@@ -1,6 +1,8 @@
 .thread {
   display: flex;
   flex-direction: row;
+  margin: 0 12px;
+  border-radius: 8px;
 }
 
 .sidebarItem {
@@ -16,6 +18,8 @@
   padding-right: 8px;
   position: relative;
   cursor: pointer;
+  margin: 0 12px;
+  border-radius: 8px;
 }
 .threadListSidebar > svg {
   position: absolute;
@@ -265,7 +269,7 @@ div.createNewThread {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 8px;
+  padding: 8px 16px 16px;
 }
 img.longArrow {
   height: 40px;
