@@ -7,7 +7,7 @@ import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
 import SidebarList from './sidebar-list.react.js';
 import css from './sidebars-modal.css';
-import Tabs from '../../../components/tabs.react.js';
+import Tabs from '../../../components/tabs-legacy.react.js';
 import SearchModal from '../../search-modal.react.js';
 
 type SidebarTab = 'All Threads' | 'My Threads';
