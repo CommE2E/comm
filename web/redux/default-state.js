@@ -1,6 +1,6 @@
 // @flow
 
-import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -47,7 +47,7 @@ const defaultWebState: AppState = Object.freeze({
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   watchedThreadIDs: [],
   lifecycleState: 'active',
-  enabledApps: defaultEnabledApps,
+  enabledApps: defaultWebEnabledApps,
   reportStore: {
     enabledReports: {
       crashReports: false,
