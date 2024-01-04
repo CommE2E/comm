@@ -27,7 +27,7 @@ import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react.js';
 import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react.js';
-import Tabs from '../../../components/tabs.react.js';
+import Tabs from '../../../components/tabs-legacy.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 

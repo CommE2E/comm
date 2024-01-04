@@ -14,7 +14,7 @@ import type {
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
-import Tabs from '../components/tabs.react.js';
+import Tabs from '../components/tabs-legacy.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';

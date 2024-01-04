@@ -1,70 +1,47 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
-import TabsHeader from './tabs-header.js';
-import type { TabsHeaderStyle } from './tabs-header.js';
-import cssPill from './tabs-pill.css';
-import cssUnderline from './tabs-underline.css';
+import TabsHeader, { type TabsHeaderStyle } from './tabs-header.js';
+import css from './tabs.css';
 
-type TabsContainerProps<T: string> = {
-  +children?: React.ChildrenArray<?React.Element<typeof TabsItem>>,
+export type TabData<T: string> = {
+  +id: T,
+  +header: React.Node,
+};
+
+type Props<T: string> = {
+  +tabItems: $ReadOnlyArray<TabData<T>>,
   +activeTab: T,
   +setTab: T => mixed,
   +headerStyle?: TabsHeaderStyle,
 };
 
-function TabsContainer<T: string>(props: TabsContainerProps<T>): React.Node {
-  const { children, activeTab, setTab, headerStyle = 'underline' } = props;
+function Tabs<T: string>(props: Props<T>): React.Node {
+  const { tabItems, activeTab, setTab, headerStyle = 'underline' } = props;
 
-  const css = headerStyle === 'pill' ? cssPill : cssUnderline;
+  const items = React.useMemo(
+    () =>
+      tabItems.map((item, index) => (
+        <TabsHeader
+          key={index}
+          id={item.id}
+          isActive={item.id === activeTab}
+          setTab={setTab}
+          headerStyle={headerStyle}
+        >
+          {item.header}
+        </TabsHeader>
+      )),
+    [activeTab, headerStyle, setTab, tabItems],
+  );
 
-  const headers = React.Children.map(children, tab => {
-    const { id, header } = tab.props;
-
-    const isActive = id === activeTab;
-    return (
-      <TabsHeader
-        id={id}
-        isActive={isActive}
-        setTab={setTab}
-        headerStyle={headerStyle}
-      >
-        {header}
-      </TabsHeader>
-    );
+  const className = classNames(css.container, {
+    [css.containerPill]: headerStyle === 'pill',
   });
 
-  const currentTab = React.Children.toArray(children).find(
-    tab => tab.props.id === activeTab,
-  );
-
-  const currentContent = currentTab ? currentTab.props.children : null;
-
-  return (
-    <div className={css.tabsContainer}>
-      <div className={css.tabsHeaderContainer}>
-        <div className={css.tabsHeaderContainerPill}>{headers}</div>
-      </div>
-      {currentContent}
-    </div>
-  );
+  return <div className={className}>{items}</div>;
 }
-
-type TabsItemProps<T: string> = {
-  +children: React.Node,
-  +id: T,
-  +header: React.Node,
-};
-
-function TabsItem<T: string>(props: TabsItemProps<T>): React.Node {
-  const { children } = props;
-  return children;
-}
-
-const Tabs = {
-  Container: TabsContainer,
-  Item: TabsItem,
-};
 
 export default Tabs;

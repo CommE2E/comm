@@ -14,7 +14,7 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import GalleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
-import Tabs from '../../../components/tabs.react.js';
+import Tabs from '../../../components/tabs-legacy.react.js';
 import MultimediaModal from '../../../media/multimedia-modal.react.js';
 import Modal from '../../modal.react.js';
 
