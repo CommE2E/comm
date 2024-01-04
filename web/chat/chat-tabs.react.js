@@ -5,8 +5,6 @@ import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
 
-import css from './chat-tabs.css';
-import ChatThreadList from './chat-thread-list.react.js';
 import { ThreadListContext } from './thread-list-provider.js';
 import Tabs, { type TabData } from '../components/tabs.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -41,25 +39,13 @@ function ChatTabs(): React.Node {
   );
   const { activeTab, setActiveTab } = threadListContext;
 
-  const tabs = React.useMemo(
-    () => (
-      <Tabs
-        tabItems={tabsData}
-        activeTab={activeTab}
-        setTab={setActiveTab}
-        headerStyle="pill"
-      />
-    ),
-    [activeTab, setActiveTab, tabsData],
-  );
-
   return (
-    <div className={css.container}>
-      {tabs}
-      <div className={css.threadList}>
-        <ChatThreadList />
-      </div>
-    </div>
+    <Tabs
+      tabItems={tabsData}
+      activeTab={activeTab}
+      setTab={setActiveTab}
+      headerStyle="pill"
+    />
   );
 }
 
