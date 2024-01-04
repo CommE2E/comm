@@ -14,7 +14,14 @@
     "prettier"
   ],
   "parser": "@babel/eslint-parser",
-  "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "flowtype",
+    "monorepo",
+    "import",
+    "@stylistic/js"
+  ],
   "rules": {
     // Prettier is configured to keep lines to 80 chars, but there are two issues:
     // - It doesn't handle comments (leaves them as-is)
@@ -22,12 +29,13 @@
     // We want ESLint to warn us in the first case, but not in the second case
     // since Prettier forces us in the second case. By setting code to 5000, we
     // make sure ESLint defers to Prettier for import statements.
-    "max-len": ["error", { "code": 5000, "comments": 80, "ignoreUrls": true }],
+    "@stylistic/js/max-len": [
+      "error",
+      { "code": 5000, "comments": 80, "ignoreUrls": true }
+    ],
     "flowtype/require-valid-file-annotation": ["error", "always"],
     "flowtype/require-exact-type": ["error", "never"],
     "curly": "error",
-    "linebreak-style": "error",
-    "semi": "error",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "monorepo/no-relative-import": "error",
