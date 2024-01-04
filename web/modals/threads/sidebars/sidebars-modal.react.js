@@ -7,10 +7,21 @@ import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
 import SidebarList from './sidebar-list.react.js';
 import css from './sidebars-modal.css';
-import Tabs from '../../../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../../../components/tabs.react.js';
 import SearchModal from '../../search-modal.react.js';
 
 type SidebarTab = 'All Threads' | 'My Threads';
+
+const tabsData: $ReadOnlyArray<TabData<SidebarTab>> = [
+  {
+    id: 'All Threads',
+    header: 'All Threads',
+  },
+  {
+    id: 'My Threads',
+    header: 'My Threads',
+  },
+];
 
 type ContentProps = {
   +searchText: string,
@@ -22,27 +33,39 @@ function SidebarsModalContent(props: ContentProps): React.Node {
   const { searchText, threadID, defaultTab } = props;
   const [tab, setTab] = React.useState<SidebarTab>(defaultTab);
 
+  const tabs = React.useMemo(
+    () => <Tabs tabItems={tabsData} activeTab={tab} setTab={setTab} />,
+    [tab],
+  );
+
   const sidebarList = useFilteredChildThreads(threadID, {
     predicate: threadIsSidebar,
     searchText,
   });
 
-  const sidebarsChatListVisibleInChat = sidebarList.filter(chatItem =>
-    threadInChatList(chatItem.threadInfo),
+  const tabContent = React.useMemo(() => {
+    if (tab === 'All Threads') {
+      return <SidebarList sidebars={sidebarList} />;
+    }
+
+    const sidebarsChatListVisibleInChat = sidebarList.filter(chatItem =>
+      threadInChatList(chatItem.threadInfo),
+    );
+
+    return <SidebarList sidebars={sidebarsChatListVisibleInChat} />;
+  }, [sidebarList, tab]);
+
+  const sidebarsModalContent = React.useMemo(
+    () => (
+      <div className={css.sidebarListContainer}>
+        {tabs}
+        {tabContent}
+      </div>
+    ),
+    [tabContent, tabs],
   );
 
-  return (
-    <div className={css.sidebarListContainer}>
-      <Tabs.Container activeTab={tab} setTab={setTab}>
-        <Tabs.Item id="All Threads" header="All Threads">
-          <SidebarList sidebars={sidebarList} />
-        </Tabs.Item>
-        <Tabs.Item id="My Threads" header="My Threads">
-          <SidebarList sidebars={sidebarsChatListVisibleInChat} />
-        </Tabs.Item>
-      </Tabs.Container>
-    </div>
-  );
+  return sidebarsModalContent;
 }
 
 type Props = {
