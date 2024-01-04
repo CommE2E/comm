@@ -3,15 +3,7 @@ div.container {
   background-color: var(--bg);
   border-right: 1px solid var(--border-color);
   display: flex;
-}
-
-div.tabItem {
-  display: flex;
-  align-items: center;
-}
-
-div.tabItem svg {
-  padding-right: 8px;
+  flex-direction: column;
 }
 
 div.threadList {
@@ -20,4 +12,5 @@ div.threadList {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border-top: 1px solid var(--border-color);
 }
