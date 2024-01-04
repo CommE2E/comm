@@ -336,6 +336,9 @@
   --unreadIndicator-background-primary-default: var(--error-primary);
   --unreadIndicator-label-primary-default: var(--shades-white-100);
   --unreadIndicator-border-primary-default: var(--shades-black-85);
+
+  /* Tab */
+  --tab-background-primary-default: var(--shades-black-85);
 }
 
 /* Light theme */
@@ -425,4 +428,8 @@
   --unreadIndicator-background-primary-default: var(--error-primary);
   --unreadIndicator-label-primary-default: var(--shades-white-100);
   --unreadIndicator-border-primary-default: var(--shades-white-80);
+
+  /* Tab */
+  /* @GINSU: TODO double check these values after redesign is finished */
+  --tab-background-primary-default: var(--shades-white-60);
 }
