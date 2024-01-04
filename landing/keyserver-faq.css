@@ -6,11 +6,6 @@
   padding: 96px 0;
 }
 
-.faqHeading {
-  color: var(--white-100);
-  margin-bottom: 64px;
-}
-
 .faqContainer {
   width: 1144px;
   max-width: 90vw;

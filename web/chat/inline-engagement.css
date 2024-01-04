@@ -44,10 +44,6 @@ div.unread {
   font-weight: bold;
 }
 
-svg.inlineEngagementIcon {
-  color: #666666;
-}
-
 div.messageLabel {
   display: flex;
   flex-shrink: 0;
