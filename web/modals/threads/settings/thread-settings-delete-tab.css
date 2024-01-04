@@ -7,6 +7,7 @@ form.container {
 div.warning_container {
   display: flex;
   flex-direction: row;
+  color: var(--text-background-primary-default);
 }
 
 .warning_icon {
@@ -15,7 +16,6 @@ div.warning_container {
 
 .deletion_warning {
   font-weight: var(--bold);
-  color: var(--fg);
   font-size: var(--s-font-14);
   margin-bottom: 16px;
 }

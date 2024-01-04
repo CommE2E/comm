@@ -27,7 +27,7 @@ import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react.js';
 import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react.js';
-import Tabs from '../../../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../../../components/tabs.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 
@@ -137,19 +137,61 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
 
     React.useEffect(() => () => setErrorMessage(''), [currentTabType]);
 
-    if (!threadInfo) {
-      return (
-        <Modal onClose={modalContext.popModal} name="Invalid chat">
-          <div className={css.modal_body}>
-            <p>You no longer have permission to view this chat</p>
-          </div>
-        </Modal>
-      );
-    }
+    const tabsData: $ReadOnlyArray<TabData<TabType>> = React.useMemo(() => {
+      if (!threadInfo) {
+        return [];
+      }
 
-    const tabs = [
-      <Tabs.Item id="general" header="General" key="general">
-        <div className={css.tab_body}>
+      const result = [{ id: 'general', header: 'General' }];
+
+      // This UI needs to be updated to handle sidebars but we haven't gotten
+      // there yet. We'll probably end up ripping it out anyways, so for now we
+      // are just hiding the privacy tab for any thread that was created as a
+      // sidebar
+      const canSeePrivacyTab =
+        (queuedChanges['parentThreadID'] ?? threadInfo['parentThreadID']) &&
+        !threadInfo.sourceMessageID &&
+        (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
+          threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
+
+      if (canSeePrivacyTab) {
+        result.push({ id: 'privacy', header: 'Privacy' });
+      }
+
+      if (availableRelationshipActions.length > 0 && otherUserInfo) {
+        result.push({ id: 'relationship', header: 'Relationship' });
+      }
+
+      if (hasPermissionForTab(threadInfo, 'delete')) {
+        result.push({ id: 'delete', header: 'Delete' });
+      }
+
+      return result;
+    }, [
+      availableRelationshipActions.length,
+      hasPermissionForTab,
+      otherUserInfo,
+      queuedChanges,
+      threadInfo,
+    ]);
+
+    const tabs = React.useMemo(
+      () => (
+        <Tabs
+          tabItems={tabsData}
+          activeTab={currentTabType}
+          setTab={setCurrentTabType}
+        />
+      ),
+      [currentTabType, tabsData],
+    );
+
+    const tabContent = React.useMemo(() => {
+      if (!threadInfo) {
+        return null;
+      }
+      if (currentTabType === 'general') {
+        return (
           <ThreadSettingsGeneralTab
             threadSettingsOperationInProgress={changeInProgress}
             threadInfo={threadInfo}
@@ -159,64 +201,56 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
             setErrorMessage={setErrorMessage}
             errorMessage={errorMessage}
           />
-        </div>
-      </Tabs.Item>,
-    ];
-
-    // This UI needs to be updated to handle sidebars but we haven't gotten
-    // there yet. We'll probably end up ripping it out anyways, so for now we
-    // are just hiding the privacy tab for any thread that was created as a
-    // sidebar
-    const canSeePrivacyTab =
-      (queuedChanges['parentThreadID'] ?? threadInfo['parentThreadID']) &&
-      !threadInfo.sourceMessageID &&
-      (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
-        threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
-    if (canSeePrivacyTab) {
-      tabs.push(
-        <Tabs.Item id="privacy" header="Privacy" key="privacy">
-          <div className={css.tab_body}>
-            <ThreadSettingsPrivacyTab
-              threadSettingsOperationInProgress={changeInProgress}
-              threadInfo={threadInfo}
-              queuedChanges={queuedChanges}
-              setQueuedChanges={setQueuedChanges}
-              setErrorMessage={setErrorMessage}
-              errorMessage={errorMessage}
-            />
-          </div>
-        </Tabs.Item>,
+        );
+      }
+      if (currentTabType === 'privacy') {
+        return (
+          <ThreadSettingsPrivacyTab
+            threadSettingsOperationInProgress={changeInProgress}
+            threadInfo={threadInfo}
+            queuedChanges={queuedChanges}
+            setQueuedChanges={setQueuedChanges}
+            setErrorMessage={setErrorMessage}
+            errorMessage={errorMessage}
+          />
+        );
+      }
+      if (currentTabType === 'relationship') {
+        invariant(otherUserInfo, 'otherUserInfo should be set');
+        return (
+          <ThreadSettingsRelationshipTab
+            setErrorMessage={setErrorMessage}
+            relationshipButtons={availableRelationshipActions}
+            otherUserInfo={otherUserInfo}
+          />
+        );
+      }
+      return (
+        <ThreadSettingsDeleteTab
+          threadSettingsOperationInProgress={changeInProgress}
+          threadInfo={threadInfo}
+          setErrorMessage={setErrorMessage}
+          errorMessage={errorMessage}
+        />
       );
-    }
+    }, [
+      availableRelationshipActions,
+      changeInProgress,
+      currentTabType,
+      errorMessage,
+      namePlaceholder,
+      otherUserInfo,
+      queuedChanges,
+      threadInfo,
+    ]);
 
-    if (availableRelationshipActions.length > 0 && otherUserInfo) {
-      tabs.push(
-        <Tabs.Item id="relationship" header="Relationship" key="relationship">
-          <div className={css.tab_body}>
-            <ThreadSettingsRelationshipTab
-              setErrorMessage={setErrorMessage}
-              relationshipButtons={availableRelationshipActions}
-              otherUserInfo={otherUserInfo}
-            />
-            <div className={css.modal_form_error}>{errorMessage}</div>
+    if (!threadInfo) {
+      return (
+        <Modal onClose={modalContext.popModal} name="Invalid chat">
+          <div className={css.modal_body}>
+            <p>You no longer have permission to view this chat</p>
           </div>
-        </Tabs.Item>,
-      );
-    }
-
-    const canDeleteThread = hasPermissionForTab(threadInfo, 'delete');
-    if (canDeleteThread) {
-      tabs.push(
-        <Tabs.Item id="delete" header="Delete" key="delete">
-          <div className={css.tab_body}>
-            <ThreadSettingsDeleteTab
-              threadSettingsOperationInProgress={changeInProgress}
-              threadInfo={threadInfo}
-              setErrorMessage={setErrorMessage}
-              errorMessage={errorMessage}
-            />
-          </div>
-        </Tabs.Item>,
+        </Modal>
       );
     }
 
@@ -228,9 +262,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         size="fit-content"
       >
         <div className={css.modal_body}>
-          <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
-            {tabs}
-          </Tabs.Container>
+          {tabs}
+          <div className={css.tab_body}>{tabContent}</div>
         </div>
       </Modal>
     );
