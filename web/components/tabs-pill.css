@@ -1,46 +1,24 @@
-div.tabsContainer {
-  color: var(--fg);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 100%;
-  flex: 1;
-}
-
-div.tabsHeaderContainer {
-  border-bottom: 1px solid var(--border);
-  height: 56px;
-}
-
-.tabsHeaderContainerPill {
-  display: flex;
-  background-color: var(--menu-bg);
-  border-radius: 8px;
-  margin: 8px;
-  align-items: center;
-}
-
 .tabHeader {
   flex: 1;
   font-size: var(--s-font-14);
   font-weight: var(--semi-bold);
-  color: var(--tabs-header-active-color);
+  color: var(--tab-label-primary-active);
   height: 32px;
   border-radius: 4px;
-  background-color: var(--tabs-header-active-background);
+  background-color: var(--tab-indicator-primary-active);
   margin: 4px;
 }
 
-.backgroundTabHeader {
-  color: var(--tabs-header-background-color-pill);
+.inActiveTabHeader {
+  color: var(--tab-label-primary-default);
   background-color: transparent;
 }
 
-.backgroundTabHeader:hover {
-  color: var(--tabs-header-background-color-hover);
+.inActiveTabHeader:hover {
+  color: var(--tab-label-primary-hover);
   transition: color 100ms;
 }
 
-.backgroundTabHeader:not(:hover) {
+.inActiveTabHeader:not(:hover) {
   transition: color 100ms;
 }
