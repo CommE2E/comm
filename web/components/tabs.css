@@ -1,0 +1,9 @@
+.container {
+  display: flex;
+}
+
+.containerPill {
+  background-color: var(--tab-background-primary-default);
+  margin: 8px;
+  border-radius: 8px;
+}
