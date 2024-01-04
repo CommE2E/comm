@@ -19,11 +19,15 @@ type Props<T: string> = {
 
 function TabsHeader<T: string>(props: Props<T>): React.Node {
   const { children, isActive, setTab, id, headerStyle = 'underline' } = props;
+
   const css = headerStyle === 'pill' ? cssPill : cssUnderline;
+
   const headerClasses = classnames(css.tabHeader, {
-    [css.backgroundTabHeader]: !isActive,
+    [css.inActiveTabHeader]: !isActive,
   });
+
   const onClickSetTab = React.useCallback(() => setTab(id), [setTab, id]);
+
   return (
     <Button className={headerClasses} onClick={onClickSetTab}>
       {children}
