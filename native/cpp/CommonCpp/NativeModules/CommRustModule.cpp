@@ -24,6 +24,10 @@ jsi::Value CommRustModule::generateNonce(jsi::Runtime &rt) {
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -72,6 +76,10 @@ jsi::Value CommRustModule::registerUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -120,6 +128,10 @@ jsi::Value CommRustModule::loginPasswordUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -170,6 +182,10 @@ jsi::Value CommRustModule::loginWalletUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -196,6 +212,10 @@ jsi::Value CommRustModule::updatePassword(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -220,6 +240,10 @@ jsi::Value CommRustModule::deleteUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -244,6 +268,10 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -268,6 +296,10 @@ jsi::Value CommRustModule::getInboundKeysForUser(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -282,6 +314,10 @@ jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
@@ -315,6 +351,10 @@ jsi::Value CommRustModule::uploadOneTimeKeys(
         } catch (const std::exception &e) {
           error = e.what();
         };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
       });
 }
 
