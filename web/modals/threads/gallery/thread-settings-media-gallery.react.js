@@ -14,11 +14,26 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import GalleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
-import Tabs from '../../../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../../../components/tabs.react.js';
 import MultimediaModal from '../../../media/multimedia-modal.react.js';
 import Modal from '../../modal.react.js';
 
 type MediaGalleryTab = 'All' | 'Images' | 'Videos';
+
+const tabsData: $ReadOnlyArray<TabData<MediaGalleryTab>> = [
+  {
+    id: 'All',
+    header: 'All',
+  },
+  {
+    id: 'Images',
+    header: 'Images',
+  },
+  {
+    id: 'Videos',
+    header: 'Videos',
+  },
+];
 
 type ThreadSettingsMediaGalleryModalProps = {
   +onClose: () => void,
@@ -38,6 +53,11 @@ function ThreadSettingsMediaGalleryModal(
   const callFetchThreadMedia = useFetchThreadMedia();
   const [mediaInfos, setMediaInfos] = React.useState<$ReadOnlyArray<Media>>([]);
   const [tab, setTab] = React.useState<MediaGalleryTab>(activeTab);
+
+  const tabs = React.useMemo(
+    () => <Tabs tabItems={tabsData} activeTab={tab} setTab={setTab} />,
+    [tab],
+  );
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -166,25 +186,19 @@ function ThreadSettingsMediaGalleryModal(
     [callFetchThreadMedia, threadID, limit, mediaInfos],
   );
 
+  const tabContent = React.useMemo(
+    () => (
+      <div className={css.container} onScroll={handleScroll}>
+        {mediaGalleryItems}
+      </div>
+    ),
+    [handleScroll, mediaGalleryItems],
+  );
+
   return (
     <Modal name={modalName} onClose={onClose} size="large">
-      <Tabs.Container activeTab={tab} setTab={setTab}>
-        <Tabs.Item id="All" header="All">
-          <div className={css.container} onScroll={handleScroll}>
-            {mediaGalleryItems}
-          </div>
-        </Tabs.Item>
-        <Tabs.Item id="Images" header="Images">
-          <div className={css.container} onScroll={handleScroll}>
-            {mediaGalleryItems}
-          </div>
-        </Tabs.Item>
-        <Tabs.Item id="Videos" header="Videos">
-          <div className={css.container} onScroll={handleScroll}>
-            {mediaGalleryItems}
-          </div>
-        </Tabs.Item>
-      </Tabs.Container>
+      {tabs}
+      {tabContent}
     </Modal>
   );
 }
