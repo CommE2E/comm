@@ -1,18 +1,18 @@
-use crate::argon2_tools::compute_backup_key;
-use crate::argon2_tools::compute_backup_key_str;
-use crate::constants::aes;
-use crate::constants::secure_store;
+use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
+use crate::constants::{aes, secure_store};
 use crate::ffi::secure_store_get;
 use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
-use backup_client::BackupDescriptor;
-use backup_client::LatestBackupIDResponse;
-use backup_client::RequestedData;
-use backup_client::{BackupClient, BackupData, UserIdentity};
+use backup_client::{
+  BackupClient, BackupData, BackupDescriptor, DownloadLogsRequest,
+  LatestBackupIDResponse, LogWSResponse, RequestedData, SinkExt, StreamExt,
+  UploadLogRequest, UserIdentity,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::error::Error;
+
 pub mod ffi {
   use crate::handle_void_result_as_callback;
 
@@ -75,7 +75,7 @@ pub async fn create_backup(
   let user_identity = get_user_identity_from_secure_store()?;
 
   let backup_data = BackupData {
-    backup_id,
+    backup_id: backup_id.clone(),
     user_data: encrypted_user_data,
     user_keys: encrypted_user_keys,
     attachments: Vec::new(),
@@ -84,6 +84,27 @@ pub async fn create_backup(
   backup_client
     .upload_backup(&user_identity, backup_data)
     .await?;
+
+  let (tx, rx) = backup_client
+    .upload_logs(&user_identity, &backup_id)
+    .await
+    .unwrap();
+
+  tokio::pin!(tx);
+  tokio::pin!(rx);
+
+  let log_data = UploadLogRequest {
+    log_id: 1,
+    content: (1..100).collect(),
+    attachments: None,
+  };
+  tx.send(log_data.clone()).await?;
+  match rx.next().await {
+    Some(Ok(1)) => (),
+    response => {
+      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
+    }
+  };
 
   Ok(())
 }
@@ -116,8 +137,8 @@ pub async fn restore_backup(
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
   let backup_data_descriptor = BackupDescriptor::BackupID {
-    backup_id,
-    user_identity,
+    backup_id: backup_id.clone(),
+    user_identity: user_identity.clone(),
   };
 
   let mut encrypted_user_data = backup_client
@@ -128,6 +149,37 @@ pub async fn restore_backup(
     decrypt(&mut user_keys.backup_data_key, &mut encrypted_user_data)?;
 
   let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
+
+  let (tx, rx) = backup_client
+    .download_logs(&user_identity, &backup_id)
+    .await
+    .unwrap();
+
+  tokio::pin!(tx);
+  tokio::pin!(rx);
+
+  tx.send(DownloadLogsRequest { from_id: None })
+    .await
+    .unwrap();
+
+  match rx.next().await {
+    Some(Ok(LogWSResponse::LogDownload {
+      log_id: 1,
+      content,
+      attachments: None,
+    }))
+      if content == (1..100).collect::<Vec<u8>>() => {}
+    response => {
+      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
+    }
+  };
+
+  match rx.next().await {
+    Some(Ok(LogWSResponse::LogDownloadFinished { last_log_id: None })) => {}
+    response => {
+      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
+    }
+  };
 
   Ok(
     json!({
@@ -187,3 +239,7 @@ fn decrypt(key: &mut [u8], data: &mut [u8]) -> Result<Vec<u8>, Box<dyn Error>> {
 
   Ok(decrypted)
 }
+
+#[derive(Debug, derive_more::Display)]
+struct InvalidWSLogResponse(String);
+impl Error for InvalidWSLogResponse {}
