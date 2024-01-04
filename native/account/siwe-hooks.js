@@ -14,7 +14,6 @@ import {
 } from 'lib/utils/action-utils.js';
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 
-import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
@@ -49,13 +48,7 @@ function useSIWEServerCall(): (
     [siweAuthCall],
   );
 
-  const navContext = React.useContext(NavContext);
-  const logInExtraInfo = useSelector(state =>
-    nativeLogInExtraInfoSelector({
-      redux: state,
-      navContext,
-    }),
-  );
+  const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const getInitialNotificationsEncryptedMessage =
     useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
