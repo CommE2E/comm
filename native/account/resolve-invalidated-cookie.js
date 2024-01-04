@@ -8,7 +8,6 @@ import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
-import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
@@ -26,10 +25,7 @@ async function resolveInvalidatedCookie(
   if (!keychainCredentials) {
     return;
   }
-  let extraInfo = await nativeLogInExtraInfoSelector({
-    redux: store.getState(),
-    navContext: getGlobalNavContext(),
-  })();
+  let extraInfo = await nativeLogInExtraInfoSelector(store.getState())();
 
   if (getInitialNotificationsEncryptedMessage) {
     const initialNotificationsEncryptedMessage =

@@ -43,7 +43,6 @@ import { TextInput } from './modal-components.react.js';
 import { setNativeCredentials } from './native-credentials.js';
 import { PanelButton, Panel } from './panel-components.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { NavContext } from '../navigation/navigation-context.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
@@ -477,13 +476,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
       olmSessionInitializationDataLoadingStatus,
     );
 
-    const navContext = React.useContext(NavContext);
-    const logInExtraInfo = useSelector(state =>
-      nativeLogInExtraInfoSelector({
-        redux: state,
-        navContext,
-      }),
-    );
+    const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
