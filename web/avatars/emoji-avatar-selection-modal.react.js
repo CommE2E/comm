@@ -14,12 +14,23 @@ import type {
 import Avatar from './avatar.react.js';
 import css from './emoji-avatar-selection-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
-import Tabs from '../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../components/tabs.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Modal from '../modals/modal.react.js';
 import ColorSelector from '../modals/threads/color-selector.react.js';
 
 type TabType = 'emoji' | 'color';
+
+const tabsData: $ReadOnlyArray<TabData<TabType>> = [
+  {
+    id: 'emoji',
+    header: 'Emoji',
+  },
+  {
+    id: 'color',
+    header: 'Color',
+  },
+];
 
 type Props = {
   +currentAvatar: ClientAvatar,
@@ -103,6 +114,43 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
 
   const [currentTabType, setCurrentTabType] = React.useState<TabType>('emoji');
 
+  const tabs = React.useMemo(
+    () => (
+      <Tabs
+        tabItems={tabsData}
+        activeTab={currentTabType}
+        setTab={setCurrentTabType}
+      />
+    ),
+    [currentTabType],
+  );
+
+  const tabContent = React.useMemo(() => {
+    if (currentTabType === 'emoji') {
+      return (
+        <div className={css.tabBody}>
+          <div className={css.emojiPickerContainer}>
+            <Picker
+              data={data}
+              theme="dark"
+              onEmojiSelect={onEmojiSelect}
+              perLine={12}
+            />
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className={css.tabBody}>
+        <ColorSelector
+          currentColor={pendingAvatarColor}
+          onColorSelection={onColorSelection}
+          size="large"
+        />
+      </div>
+    );
+  }, [currentTabType, onEmojiSelect, onColorSelection, pendingAvatarColor]);
+
   return (
     <Modal name="Emoji avatar selection" size="large" onClose={popModal}>
       <div className={css.modalContainer}>
@@ -113,29 +161,8 @@ function EmojiAvatarSelectionModal(props: Props): React.Node {
             showSpinner={avatarSaveInProgress}
           />
         </div>
-        <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
-          <Tabs.Item id="emoji" header="Emoji">
-            <div className={css.tabBody}>
-              <div className={css.emojiPickerContainer}>
-                <Picker
-                  data={data}
-                  theme="dark"
-                  onEmojiSelect={onEmojiSelect}
-                  perLine={12}
-                />
-              </div>
-            </div>
-          </Tabs.Item>
-          <Tabs.Item id="color" header="Color">
-            <div className={css.tabBody}>
-              <ColorSelector
-                currentColor={pendingAvatarColor}
-                onColorSelection={onColorSelection}
-                size="large"
-              />
-            </div>
-          </Tabs.Item>
-        </Tabs.Container>
+        {tabs}
+        {tabContent}
         <div className={css.modalBody}>
           <div className={css.saveButtonContainer}>
             <Button
