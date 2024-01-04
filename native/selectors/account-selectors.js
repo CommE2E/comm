@@ -11,20 +11,14 @@ import type { UserPolicies } from 'lib/types/policy-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import { commCoreModule } from '../native-modules.js';
-import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
-import type { NavPlusRedux } from '../types/selector-types.js';
 
 const nativeLogInExtraInfoSelector: (
-  input: NavPlusRedux,
+  state: AppState,
 ) => () => Promise<LogInExtraInfo> = createSelector(
-  (input: NavPlusRedux) => logInExtraInfoSelector(input.redux),
-  (input: NavPlusRedux) => calendarActiveSelector(input.navContext),
-  (
-    logInExtraInfoFunc: (calendarActive: boolean) => LogInExtraInfo,
-    calendarActive: boolean,
-  ) => {
+  logInExtraInfoSelector,
+  (logInExtraInfo: LogInExtraInfo) => {
     const loginExtraFuncWithIdentityKey = async () => {
       await commCoreModule.initializeCryptoAccount();
       const { blobPayload, signature } =
@@ -34,7 +28,7 @@ const nativeLogInExtraInfoSelector: (
         signature,
       };
       return {
-        ...logInExtraInfoFunc(calendarActive),
+        ...logInExtraInfo,
         signedIdentityKeysBlob,
       };
     };

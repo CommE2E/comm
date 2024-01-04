@@ -21,7 +21,6 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
-import { NavContext } from '../../navigation/navigation-context.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import { AppOutOfDateAlertDetails } from '../../utils/alert-messages.js';
@@ -56,13 +55,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   // STEP 1: ACCOUNT REGISTRATION
 
-  const navContext = React.useContext(NavContext);
-  const logInExtraInfo = useSelector(state =>
-    nativeLogInExtraInfoSelector({
-      redux: state,
-      navContext,
-    }),
-  );
+  const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callRegister = useServerCall(register);

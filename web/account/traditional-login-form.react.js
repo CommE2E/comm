@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { useLogIn, logInActionTypes } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   oldValidUsernameRegex,
@@ -25,12 +26,11 @@ import Button from '../components/button.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
-  const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const loginExtraInfo = useSelector(logInExtraInfoSelector);
   const callLogIn = useLogIn();
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
@@ -118,13 +118,11 @@ function TraditionalLoginForm(): React.Node {
         usernameInputRef.current?.focus();
         return;
       }
-
-      const extraInfo = loginExtraInfo();
       void dispatchActionPromise(
         logInActionTypes,
-        logInAction(extraInfo),
+        logInAction(loginExtraInfo),
         undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+        ({ calendarQuery: loginExtraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
     [dispatchActionPromise, logInAction, loginExtraInfo, username, password],
