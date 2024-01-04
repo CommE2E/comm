@@ -17,9 +17,22 @@ import { AddMembersModal } from './add-members-modal.react.js';
 import ThreadMembersList from './members-list.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
-import Tabs from '../../../components/tabs-legacy.react.js';
+import Tabs, { type TabData } from '../../../components/tabs.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import SearchModal from '../../search-modal.react.js';
+
+type TabType = 'All Members' | 'Admins';
+
+const tabsData: $ReadOnlyArray<TabData<TabType>> = [
+  {
+    id: 'All Members',
+    header: 'All Members',
+  },
+  {
+    id: 'Admins',
+    header: 'Admins',
+  },
+];
 
 type ContentProps = {
   +searchText: string,
@@ -28,7 +41,7 @@ type ContentProps = {
 function ThreadMembersModalContent(props: ContentProps): React.Node {
   const { threadID, searchText } = props;
 
-  const [tab, setTab] = React.useState<'All Members' | 'Admins'>('All Members');
+  const [tab, setTab] = React.useState<TabType>('All Members');
 
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const { members: threadMembersNotFiltered } = threadInfo;
@@ -57,26 +70,22 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     [allMembers, roles],
   );
 
-  const allUsersTab = React.useMemo(
-    () => (
-      <Tabs.Item id="All Members" header="All Members">
-        <ThreadMembersList threadInfo={threadInfo} threadMembers={allMembers} />
-      </Tabs.Item>
-    ),
-    [allMembers, threadInfo],
+  const tabs = React.useMemo(
+    () => <Tabs tabItems={tabsData} activeTab={tab} setTab={setTab} />,
+    [tab],
   );
 
-  const allAdminsTab = React.useMemo(
-    () => (
-      <Tabs.Item id="Admins" header="Admins">
-        <ThreadMembersList
-          threadInfo={threadInfo}
-          threadMembers={adminMembers}
-        />
-      </Tabs.Item>
-    ),
-    [adminMembers, threadInfo],
-  );
+  const tabContent = React.useMemo(() => {
+    if (tab === 'All Members') {
+      return (
+        <ThreadMembersList threadInfo={threadInfo} threadMembers={allMembers} />
+      );
+    }
+
+    return (
+      <ThreadMembersList threadInfo={threadInfo} threadMembers={adminMembers} />
+    );
+  }, [adminMembers, allMembers, tab, threadInfo]);
 
   const { pushModal, popModal } = useModalContext();
 
@@ -105,10 +114,8 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   return (
     <div className={css.modalContentContainer}>
       <div className={css.membersListTabs}>
-        <Tabs.Container activeTab={tab} setTab={setTab}>
-          {allUsersTab}
-          {allAdminsTab}
-        </Tabs.Container>
+        {tabs}
+        {tabContent}
       </div>
       {addMembersButton}
     </div>
