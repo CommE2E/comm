@@ -1,25 +1,3 @@
-p.confirm_account_password {
-  margin-bottom: 4px;
-  color: var(--fg);
-  font-size: var(--s-font-14);
-}
-
-div.form_title {
-  padding-top: 6px;
-  font-size: var(--s-font-14);
-  font-weight: 600;
-  vertical-align: top;
-  color: var(--fg);
-}
-
-div.form_content {
-  display: flex;
-  font-family: var(--font-stack);
-  color: var(--fg);
-  margin-top: 8px;
-  margin-bottom: 12px;
-}
-
 form.container {
   display: flex;
   flex-direction: column;

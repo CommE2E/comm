@@ -175,17 +175,6 @@ div.seeMoreButton {
 div.seeMoreText {
   padding-left: 14px;
 }
-div.sidebarLastActivity {
-  white-space: nowrap;
-  font-size: var(--xxs-font-10);
-  line-height: var(--line-height-text);
-  font-weight: var(--semi-bold);
-}
-svg.sidebarIcon {
-  color: var(--thread-color-read);
-  padding: 0 6px;
-  font-size: 20px;
-}
 div.sidebar .menu > button svg {
   font-size: 16px;
   color: var(--thread-color-read);

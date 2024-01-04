@@ -44,29 +44,6 @@ div.conversationHeader:last-child {
   padding-top: 6px;
 }
 
-div.messageTooltipActiveArea {
-  position: absolute;
-  display: flex;
-  top: 0;
-  bottom: 0;
-  align-items: center;
-  padding: 0 12px;
-}
-
-div.viewerMessageTooltipActiveArea {
-  right: 100%;
-}
-div.nonViewerMessageActiveArea {
-  left: 100%;
-}
-div.messageTooltipActiveArea > div + div {
-  margin-left: 4px;
-}
-
-div.messageTooltipLinkIcon:hover {
-  cursor: pointer;
-}
-
 div.textMessage {
   padding: 6px 12px;
   white-space: pre-wrap;
@@ -219,9 +196,6 @@ div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
 }
 div.sidebarMarginBottom {
   margin-bottom: 2px;
-}
-svg.inlineEngagementIcon {
-  color: #666666;
 }
 
 div.avatarContainer {
