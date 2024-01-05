@@ -282,7 +282,7 @@
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-60);
-  --button-label-tertiary-default: var(--shades-white-60);
+  --button-label-tertiary-default: var(--shades-black-50);
   --button-label-primary-hover: var(--shades-white-90);
   --button-label-primary-disabled: var(--shades-black-50);
   --button-label-tertiary-hover: var(--shades-white-80);
@@ -383,7 +383,7 @@
   --button-border-outline-default: var(--shades-black-50);
   --button-label-primary-default: var(--shades-white-100);
   --button-label-secondary-default: var(--shades-white-90);
-  --button-label-tertiary-default: var(--shades-white-90);
+  --button-label-tertiary-default: var(--shades-black-60);
   --button-label-primary-hover: var(--shades-white-90);
   --button-label-primary-disabled: var(--shades-black-50);
   --button-label-tertiary-hover: var(--shades-white-80);
