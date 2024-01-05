@@ -23,12 +23,12 @@
     "xcodebuild": "cd ios && PATH=/usr/bin:/bin:\"$PATH\" xcodebuild"
   },
   "devDependencies": {
-    "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.13.14",
-    "@babel/node": "^7.8.7",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
-    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
-    "@babel/preset-flow": "^7.9.0",
+    "@babel/cli": "^7.23.4",
+    "@babel/core": "^7.23.7",
+    "@babel/node": "^7.22.19",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.23.4",
+    "@babel/plugin-transform-optional-chaining": "^7.23.4",
+    "@babel/preset-flow": "^7.23.3",
     "@redux-devtools/cli": "^1.0.7",
     "babel-jest": "^29.7.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
