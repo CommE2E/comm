@@ -2,7 +2,6 @@
 
 import type { IconProps } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 import {
@@ -233,10 +232,9 @@ function SwipeableMessage(props: Props): React.Node {
         ctx /*: { [string]: mixed } */,
       ) => {
         const { translationAtStart } = ctx;
-        invariant(
-          typeof translationAtStart === 'number',
-          'translationAtStart should be number',
-        );
+        if (typeof translationAtStart !== 'number') {
+          throw new Error('translationAtStart should be number');
+        }
         const translationX = translationAtStart + event.translationX;
         const baseActiveTranslation = isViewer
           ? Math.min(translationX, 0)
