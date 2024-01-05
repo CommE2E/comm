@@ -43,35 +43,36 @@ jsi::Value CommRustModule::registerUser(
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys) {
+  auto usernameRust = jsiStringToRustString(username, rt);
+  auto passwordRust = jsiStringToRustString(password, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this,
-       &username,
-       &password,
-       &keyPayload,
-       &keyPayloadSignature,
-       &contentPrekey,
-       &contentPrekeySignature,
-       &notifPrekey,
-       &notifPrekeySignature,
-       &contentOneTimeKeys,
-       &notifOneTimeKeys](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityRegisterUser(
-              jsiStringToRustString(username, innerRt),
-              jsiStringToRustString(password, innerRt),
-              jsiStringToRustString(keyPayload, innerRt),
-              jsiStringToRustString(keyPayloadSignature, innerRt),
-              jsiStringToRustString(contentPrekey, innerRt),
-              jsiStringToRustString(contentPrekeySignature, innerRt),
-              jsiStringToRustString(notifPrekey, innerRt),
-              jsiStringToRustString(notifPrekeySignature, innerRt),
-              jsiStringArrayToRustVec(contentOneTimeKeys, innerRt),
-              jsiStringArrayToRustVec(notifOneTimeKeys, innerRt),
+              usernameRust,
+              passwordRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -95,35 +96,36 @@ jsi::Value CommRustModule::loginPasswordUser(
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys) {
+  auto usernameRust = jsiStringToRustString(username, rt);
+  auto passwordRust = jsiStringToRustString(password, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this,
-       &username,
-       &password,
-       &keyPayload,
-       &keyPayloadSignature,
-       &contentPrekey,
-       &contentPrekeySignature,
-       &notifPrekey,
-       &notifPrekeySignature,
-       &contentOneTimeKeys,
-       &notifOneTimeKeys](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityLoginPasswordUser(
-              jsiStringToRustString(username, innerRt),
-              jsiStringToRustString(password, innerRt),
-              jsiStringToRustString(keyPayload, innerRt),
-              jsiStringToRustString(keyPayloadSignature, innerRt),
-              jsiStringToRustString(contentPrekey, innerRt),
-              jsiStringToRustString(contentPrekeySignature, innerRt),
-              jsiStringToRustString(notifPrekey, innerRt),
-              jsiStringToRustString(notifPrekeySignature, innerRt),
-              jsiStringArrayToRustVec(contentOneTimeKeys, innerRt),
-              jsiStringArrayToRustVec(notifOneTimeKeys, innerRt),
+              usernameRust,
+              passwordRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -148,36 +150,38 @@ jsi::Value CommRustModule::loginWalletUser(
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys,
     jsi::String socialProof) {
+  auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
+  auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+  auto socialProofRust = jsiStringToRustString(socialProof, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this,
-       &siweMessage,
-       &siweSignature,
-       &keyPayload,
-       &keyPayloadSignature,
-       &contentPrekey,
-       &contentPrekeySignature,
-       &notifPrekey,
-       &notifPrekeySignature,
-       &contentOneTimeKeys,
-       &notifOneTimeKeys,
-       &socialProof](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityLoginWalletUser(
-              jsiStringToRustString(siweMessage, innerRt),
-              jsiStringToRustString(siweSignature, innerRt),
-              jsiStringToRustString(keyPayload, innerRt),
-              jsiStringToRustString(keyPayloadSignature, innerRt),
-              jsiStringToRustString(contentPrekey, innerRt),
-              jsiStringToRustString(contentPrekeySignature, innerRt),
-              jsiStringToRustString(notifPrekey, innerRt),
-              jsiStringToRustString(notifPrekeySignature, innerRt),
-              jsiStringArrayToRustVec(contentOneTimeKeys, innerRt),
-              jsiStringArrayToRustVec(notifOneTimeKeys, innerRt),
-              jsiStringToRustString(socialProof, innerRt),
+              siweMessageRust,
+              siweSignatureRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
+              socialProofRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -195,19 +199,22 @@ jsi::Value CommRustModule::updatePassword(
     jsi::String deviceID,
     jsi::String accessToken,
     jsi::String password) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto accessTokenRust = jsiStringToRustString(accessToken, rt);
+  auto passwordRust = jsiStringToRustString(password, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this, &userID, &deviceID, &accessToken, &password](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityUpdateUserPassword(
-              jsiStringToRustString(userID, innerRt),
-              jsiStringToRustString(deviceID, innerRt),
-              jsiStringToRustString(accessToken, innerRt),
-              jsiStringToRustString(password, innerRt),
+              userIDRust,
+              deviceIDRust,
+              accessTokenRust,
+              passwordRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -224,19 +231,18 @@ jsi::Value CommRustModule::deleteUser(
     jsi::String userID,
     jsi::String deviceID,
     jsi::String accessToken) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto accessTokenRust = jsiStringToRustString(accessToken, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this, &userID, &deviceID, &accessToken](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityDeleteUser(
-              jsiStringToRustString(userID, innerRt),
-              jsiStringToRustString(deviceID, innerRt),
-              jsiStringToRustString(accessToken, innerRt),
-              currentID);
+              userIDRust, deviceIDRust, accessTokenRust, currentID);
         } catch (const std::exception &e) {
           error = e.what();
         };
@@ -253,17 +259,22 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
     jsi::String authDeviceID,
     jsi::String authAccessToken,
     jsi::String userID) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
+  auto userIDRust = jsiStringToRustString(userID, rt);
+
   return createPromiseAsJSIValue(
-      rt, [&, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityGetOutboundKeysForUser(
-              jsiStringToRustString(authUserID, innerRt),
-              jsiStringToRustString(authDeviceID, innerRt),
-              jsiStringToRustString(authAccessToken, innerRt),
-              jsiStringToRustString(userID, innerRt),
+              authUserIDRust,
+              authDeviceIDRust,
+              authAccessTokenRust,
+              userIDRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -281,17 +292,22 @@ jsi::Value CommRustModule::getInboundKeysForUser(
     jsi::String authDeviceID,
     jsi::String authAccessToken,
     jsi::String userID) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
+  auto userIDRust = jsiStringToRustString(userID, rt);
+
   return createPromiseAsJSIValue(
-      rt, [&, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityGetInboundKeysForUser(
-              jsiStringToRustString(authUserID, innerRt),
-              jsiStringToRustString(authDeviceID, innerRt),
-              jsiStringToRustString(authAccessToken, innerRt),
-              jsiStringToRustString(userID, innerRt),
+              authUserIDRust,
+              authDeviceIDRust,
+              authAccessTokenRust,
+              userIDRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -305,7 +321,7 @@ jsi::Value CommRustModule::getInboundKeysForUser(
 
 jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
-      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
@@ -328,25 +344,26 @@ jsi::Value CommRustModule::uploadOneTimeKeys(
     jsi::String authAccessToken,
     jsi::Array contentOneTimePreKeys,
     jsi::Array notifOneTimePreKeys) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
+  auto contentOneTimePreKeysRust =
+      jsiStringArrayToRustVec(contentOneTimePreKeys, rt);
+  auto notifOneTimePreKeysRust =
+      jsiStringArrayToRustVec(notifOneTimePreKeys, rt);
+
   return createPromiseAsJSIValue(
-      rt,
-      [this,
-       &authUserID,
-       &authDeviceID,
-       &authAccessToken,
-       &contentOneTimePreKeys,
-       &notifOneTimePreKeys](
-          jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               promise, this->jsInvoker_, innerRt);
           identityUploadOneTimeKeys(
-              jsiStringToRustString(authUserID, innerRt),
-              jsiStringToRustString(authDeviceID, innerRt),
-              jsiStringToRustString(authAccessToken, innerRt),
-              jsiStringArrayToRustVec(contentOneTimePreKeys, innerRt),
-              jsiStringArrayToRustVec(notifOneTimePreKeys, innerRt),
+              authUserIDRust,
+              authDeviceIDRust,
+              authAccessTokenRust,
+              contentOneTimePreKeysRust,
+              notifOneTimePreKeysRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
