@@ -20,9 +20,10 @@ use tonic::{Request, Response, Status};
 use tracing::{debug, error};
 
 use super::protos::auth::{
-  find_user_id_request, identity_client_service_server::IdentityClientService,
+  find_user_id_request, identity,
+  identity_client_service_server::IdentityClientService, EthereumIdentity,
   FindUserIdRequest, FindUserIdResponse, GetDeviceListRequest,
-  GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
+  GetDeviceListResponse, Identity, InboundKeyInfo, InboundKeysForUserRequest,
   InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
   RefreshUserPrekeysRequest, UpdateUserPasswordFinishRequest,
@@ -163,6 +164,8 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
+    use identity::IdentityInfo;
+
     let message = request.into_inner();
 
     let devices_map = self
@@ -189,8 +192,19 @@ impl IdentityClientService for AuthenticatedService {
       })
       .collect::<HashMap<_, _>>();
 
+    let identifier = self
+      .db_client
+      .get_user_identifier(&message.user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let identity_info = IdentityInfo::try_from(identifier)?;
+
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
+      identity: Some(Identity {
+        identity_info: Some(identity_info),
+      }),
     }))
   }
 
