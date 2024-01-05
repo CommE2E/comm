@@ -11,6 +11,8 @@ type InboundKeyInfoResponse = {
   +contentPrekeySignature: string,
   +notifPrekey: string,
   +notifPrekeySignature: string,
+  +username?: ?string,
+  +walletAddress?: ?string,
 };
 
 type RustNativeBindingAPI = {
