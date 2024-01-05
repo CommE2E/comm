@@ -4,7 +4,7 @@
 
 .addButton {
   background-color: var(--button-background-tertiary-default);
-  color: var(--button-label-tertiary-default);
+  color: var(--button-label-secondary-default);
   border-radius: 8px;
   padding: 6px 10px;
 }
