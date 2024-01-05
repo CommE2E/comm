@@ -93,3 +93,8 @@ impl DateTimeExt for DateTime<Utc> {
     Some(Self::from_utc(naive, Utc))
   }
 }
+
+pub enum Identifier {
+  Username(String),
+  WalletAddress(String),
+}

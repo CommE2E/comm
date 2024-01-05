@@ -21,10 +21,10 @@ use tracing::{debug, error};
 
 use super::protos::auth::{
   find_user_id_request, identity_client_service_server::IdentityClientService,
-  FindUserIdRequest, FindUserIdResponse, GetDeviceListRequest,
-  GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
-  InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
-  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  inbound_keys_for_user_response, FindUserIdRequest, FindUserIdResponse,
+  GetDeviceListRequest, GetDeviceListResponse, InboundKeyInfo,
+  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
   RefreshUserPrekeysRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
@@ -163,6 +163,9 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
+    use crate::ddb_utils::Identifier as DBIdentifier;
+    use inbound_keys_for_user_response::Identifier;
+
     let message = request.into_inner();
 
     let devices_map = self
@@ -189,8 +192,21 @@ impl IdentityClientService for AuthenticatedService {
       })
       .collect::<HashMap<_, _>>();
 
+    let user_identifier = match self
+      .db_client
+      .get_user_identifier(&message.user_id)
+      .await
+      .map_err(handle_db_error)?
+    {
+      DBIdentifier::Username(username) => Identifier::Username(username),
+      DBIdentifier::WalletAddress(address) => {
+        Identifier::WalletAddress(address)
+      }
+    };
+
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
+      identifier: Some(user_identifier),
     }))
   }
 

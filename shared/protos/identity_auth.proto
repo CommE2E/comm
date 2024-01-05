@@ -28,9 +28,10 @@ service IdentityClientService {
   //   - One-time Prekey
   rpc GetOutboundKeysForUser(OutboundKeysForUserRequest) returns
     (OutboundKeysForUserResponse) {}
-  // Called by receivers of a communication request. The reponse will only
-  // return identity keys (both content and notif keys) and related prekeys per
-  // device, but will not contain one-time keys.
+  // Called by receivers of a communication request. The reponse will return
+  // identity keys (both content and notif keys) and related prekeys per device,
+  // but will not contain one-time keys. Additionally, the response will contain
+  // the other user's username.
   rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
     (InboundKeysForUserResponse) {}
 
@@ -114,6 +115,10 @@ message InboundKeyInfo {
 message InboundKeysForUserResponse {
   // Map is keyed on devices' public ed25519 key used for signing
   map<string, InboundKeyInfo> devices = 1;
+  oneof identifier {
+    string username = 2;
+    string wallet_address = 3;
+  }
 }
 
 message InboundKeysForUserRequest {
