@@ -320,64 +320,41 @@ function fixUnreadActiveThread(
   }
 
   const activeThreadInfo = state.threadStore.threadInfos[activeThread];
-  // TODO (atul): Try to get rid of this ridiculous branching.
-  if (activeThreadInfo.minimallyEncoded) {
-    const updatedActiveThreadInfo = {
-      ...activeThreadInfo,
-      currentUser: {
-        ...activeThreadInfo.currentUser,
-        unread: false,
-      },
-    };
-
-    const threadStoreOperations = [
-      {
-        type: 'replace',
-        payload: {
-          id: activeThread,
-          threadInfo: updatedActiveThreadInfo,
+  const updatedActiveThreadInfo = activeThreadInfo.minimallyEncoded
+    ? {
+        ...activeThreadInfo,
+        currentUser: {
+          ...activeThreadInfo.currentUser,
+          unread: false,
         },
-      },
-    ];
-
-    const updatedThreadStore = threadStoreOpsHandlers.processStoreOperations(
-      state.threadStore,
-      threadStoreOperations,
-    );
-
-    return {
-      state: { ...state, threadStore: updatedThreadStore },
-      threadStoreOperations,
-    };
-  } else {
-    const updatedActiveThreadInfo = {
-      ...activeThreadInfo,
-      currentUser: {
-        ...activeThreadInfo.currentUser,
-        unread: false,
-      },
-    };
-
-    const threadStoreOperations = [
-      {
-        type: 'replace',
-        payload: {
-          id: activeThread,
-          threadInfo: updatedActiveThreadInfo,
+      }
+    : {
+        ...activeThreadInfo,
+        currentUser: {
+          ...activeThreadInfo.currentUser,
+          unread: false,
         },
+      };
+
+  const threadStoreOperations = [
+    {
+      type: 'replace',
+      payload: {
+        id: activeThread,
+        threadInfo: updatedActiveThreadInfo,
       },
-    ];
+    },
+  ];
 
-    const updatedThreadStore = threadStoreOpsHandlers.processStoreOperations(
-      state.threadStore,
-      threadStoreOperations,
-    );
+  const updatedThreadStore = threadStoreOpsHandlers.processStoreOperations(
+    state.threadStore,
+    threadStoreOperations,
+  );
 
-    return {
-      state: { ...state, threadStore: updatedThreadStore },
-      threadStoreOperations,
-    };
-  }
+  return {
+    state: { ...state, threadStore: updatedThreadStore },
+    threadStoreOperations,
+  };
 }
 
 let appLastBecameInactive = 0;
