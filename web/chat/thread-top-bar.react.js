@@ -8,13 +8,13 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import PinnedMessagesBanner from './pinned-messages-banner.react.js';
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import MessageSearchModal from '../modals/search/message-search-modal.react.js';
+import { useInfosForPendingThread } from '../utils/thread-utils.js';
 
 type ThreadTopBarProps = {
   +threadInfo: ThreadInfo,
@@ -42,27 +42,41 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
-  return (
-    <>
-      <div className={css.topBarContainer}>
-        <div className={css.topBarThreadInfo}>
-          <ThreadAvatar size="S" threadInfo={threadInfo} />
-          <div className={css.threadTitle}>{uiName}</div>
-        </div>
-        <div className={css.buttons}>
-          <Button className={css.button} onClick={onClickSearch}>
-            <SWMansionIcon
-              size={24}
-              icon="search"
-              className={css.searchButtonIcon}
-            />
-          </Button>
-          {threadMenu}
-        </div>
+  const { isChatCreation, selectedUserInfos } = useInfosForPendingThread();
+
+  const threadTopBarButtons = React.useMemo(() => {
+    if (isChatCreation && selectedUserInfos.length === 0) {
+      return null;
+    }
+    return (
+      <div className={css.buttons}>
+        <Button onClick={onClickSearch}>
+          <SWMansionIcon
+            size={24}
+            icon="search"
+            className={css.searchButtonIcon}
+          />
+        </Button>
+        {threadMenu}
       </div>
-      <PinnedMessagesBanner threadInfo={threadInfo} />
-    </>
-  );
+    );
+  }, [isChatCreation, onClickSearch, selectedUserInfos, threadMenu]);
+
+  const threadTopBar = React.useMemo(() => {
+    return (
+      <>
+        <div className={css.topBarContainer}>
+          <div className={css.topBarThreadInfo}>
+            <ThreadAvatar size="S" threadInfo={threadInfo} />
+            <div className={css.threadTitle}>{uiName}</div>
+          </div>
+          {threadTopBarButtons}
+        </div>
+      </>
+    );
+  }, [threadInfo, threadTopBarButtons, uiName]);
+
+  return threadTopBar;
 }
 
 export default ThreadTopBar;

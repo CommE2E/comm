@@ -1,11 +1,9 @@
 div.topBarContainer {
   display: flex;
-  background-color: var(--bg);
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  color: var(--thread-top-bar-color);
-  border-bottom: 1px solid var(--border);
+  color: var(--text-background-primary-default);
 }
 
 div.topBarThreadInfo {
@@ -25,7 +23,7 @@ div.topBarThreadInfo {
 }
 
 .searchButtonIcon {
-  color: var(--thread-top-bar-search-button-color);
+  color: var(--button-label-tertiary-default);
 }
 
 .buttons {
