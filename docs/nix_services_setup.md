@@ -6,10 +6,11 @@ To build and run the services you need to install [Docker](https://docs.docker.c
 
 ## LocalStack
 
-We use LocalStack to emulate AWS services, allowing us to develop and test our services locally. To start LocalStack, run:
+We use LocalStack to emulate AWS services, allowing us to develop and test our services locally. To start LocalStack, run the following commands:
 
 ```
-comm-dev services start
+cd services
+./scripts/docker_localstack_up.sh
 ```
 
 Make sure your LocalStack resources are up to date:
