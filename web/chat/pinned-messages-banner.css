@@ -1,0 +1,24 @@
+.container {
+  background-color: var(--frame-background-secondary-default);
+  height: 40px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+a.pinnedCountText {
+  color: var(--text-background-secondary-default);
+  font-size: var(--xs-font-12);
+  display: inline-flex;
+  align-items: center;
+}
+
+a.pinnedCountText:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.chevronRight {
+  vertical-align: middle;
+}

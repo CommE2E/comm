@@ -1,21 +1,19 @@
 // @flow
 
 import * as React from 'react';
-import { ChevronRight } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
-import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
+import PinnedMessagesBanner from './pinned-messages-banner.react.js';
 import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import Button from '../components/button.react.js';
 import { InputStateContext } from '../input/input-state.js';
-import PinnedMessagesModal from '../modals/chat/pinned-messages-modal.react.js';
 import MessageSearchModal from '../modals/search/message-search-modal.react.js';
 
 type ThreadTopBarProps = {
@@ -30,32 +28,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
     threadMenu = <ThreadMenu threadInfo={threadInfo} />;
   }
 
-  const bannerText =
-    !!threadInfo.pinnedCount && pinnedMessageCountText(threadInfo.pinnedCount);
-
   const inputState = React.useContext(InputStateContext);
-  const pushThreadPinsModal = React.useCallback(() => {
-    pushModal(
-      <InputStateContext.Provider value={inputState}>
-        <PinnedMessagesModal threadInfo={threadInfo} />
-      </InputStateContext.Provider>,
-    );
-  }, [pushModal, inputState, threadInfo]);
-
-  const pinnedCountBanner = React.useMemo(() => {
-    if (!bannerText) {
-      return null;
-    }
-
-    return (
-      <div className={css.pinnedCountBanner}>
-        <a className={css.pinnedCountText} onClick={pushThreadPinsModal}>
-          {bannerText}
-          <ChevronRight size={14} className={css.chevronRight} />
-        </a>
-      </div>
-    );
-  }, [bannerText, pushThreadPinsModal]);
 
   const onClickSearch = React.useCallback(
     () =>
@@ -87,7 +60,7 @@ function ThreadTopBar(props: ThreadTopBarProps): React.Node {
           {threadMenu}
         </div>
       </div>
-      {pinnedCountBanner}
+      <PinnedMessagesBanner threadInfo={threadInfo} />
     </>
   );
 }
