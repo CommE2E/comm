@@ -26,6 +26,7 @@
       in
         import nixpkgs-unstable {
           inherit system;
+          config.allowUnfree = true;
           overlays = overlays ++ [
             # Re-introduce older packages that were removed in latest nixpkgs
             (_: _: {
