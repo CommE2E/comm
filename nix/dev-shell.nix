@@ -1,10 +1,8 @@
 { mkShell
 , stdenv
 , lib
-, amqp-cpp
 , awscli2
 , arcanist
-, aws-sdk-cpp
 , better-prompt
 , boost
 , bundler
@@ -21,7 +19,6 @@
 , fmt
 , glog
 , grpc
-, gtest
 , libiconv
 , libuv
 , localstack
@@ -80,7 +77,6 @@ mkShell {
     cargo-udeps
 
     # Tunnelbroker + CMake
-    amqp-cpp
     c-ares_cmake-config
     cmake
     cmake-format # linting
@@ -100,11 +96,9 @@ mkShell {
     # protobuf exposes both a library and a command
     # thus should appear in both inputs
     protobuf3_21
-    aws-sdk-cpp # tunnelbroker
     corrosion # tunnelbroker
     double-conversion # tunnelbroker
     glog # tunnelbroker
-    gtest # testing services
     folly # cpp tools
     fmt # needed for folly
     boost # needed for folly

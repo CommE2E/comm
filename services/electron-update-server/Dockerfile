@@ -1,4 +1,4 @@
-FROM node:16.18.0-bullseye
+FROM node:20.10.0-bullseye
 
 WORKDIR /home/comm/
 
