@@ -51,7 +51,9 @@
   --error-dark-90: #4f1203;
 
   --shadow-dark-35: #00000059;
+  --shadow-dark-25: #00000040;
   --shadow-light-35: #ffffff59;
+  --shadow-light-25: #ffffff40;
 
   --logo-bg: #111827;
   --spoiler-color: #33332c;
@@ -269,6 +271,7 @@
   --panel-background-primary-default: var(--shades-black-85);
   --panel-background-secondary-default: var(--shades-black-90);
   --panel-headerShadow-primary-default: var(--shadow-dark-35);
+  --panel-headerShadow-secondary-default: var(--shadow-dark-25);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
@@ -369,6 +372,7 @@
   --panel-background-primary-default: var(--shades-white-80);
   --panel-background-secondary-default: var(--shades-white-90);
   --panel-headerShadow-primary-default: var(--shadow-light-35);
+  --panel-headerShadow-secondary-default: var(--shadow-light-25);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
