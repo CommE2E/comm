@@ -31,9 +31,14 @@ function PanelItem(props: PanelItemProps): React.Node {
     classNameOveride,
   );
 
+  const headerClassName = classnames({
+    [css.headerContainer]: true,
+    [css.secondaryHeaderContainer]: index % 2 === 1,
+  });
+
   return (
     <div className={className}>
-      <div className={css.headerContainer}>{header}</div>
+      <div className={headerClassName}>{header}</div>
       {body}
     </div>
   );

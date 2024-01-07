@@ -30,3 +30,8 @@
   box-shadow: 0px 1px 3px 0px var(--panel-headerShadow-primary-default);
   clip-path: inset(0 0 -3px 0);
 }
+
+.secondaryHeaderContainer {
+  box-shadow: 0px 1px 3px 0px var(--panel-headerShadow-secondary-default);
+  clip-path: inset(0 0 -3px 0);
+}
