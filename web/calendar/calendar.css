@@ -1,11 +1,13 @@
 .container {
   display: flex;
   flex-direction: row;
+  background-color: var(--panel-background-secondary-default);
+  border-radius: 8px;
+  height: 100%;
 }
 
 .filtersButton {
-  color: var(--fg);
-  background-color: var(--filters-button-bg);
+  color: var(--button-label-primary-default);
   width: 40px;
   height: 40px;
   display: flex;
@@ -15,18 +17,18 @@
   margin: 0 0px 9px 24px;
   cursor: pointer;
   position: absolute;
-  border: 1px solid var(--filters-button-border);
+  border: 1px solid var(--button-border-outline-default);
   border-radius: 4px;
 }
 
 .filtersButton:hover {
-  background-color: var(--filters-button-hover-bg);
+  background-color: var(--button-background-tertiary-hover);
 }
 
 div.content {
   height: 100%;
-  overflow: auto;
   flex: 1;
+  overflow-y: scroll;
 }
 
 nav.nav {
