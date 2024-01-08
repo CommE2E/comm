@@ -18,7 +18,7 @@ import { logInActionSources } from 'lib/types/account-types.js';
 import { setConnectionIssueActionType } from 'lib/types/socket-types.js';
 import {
   useDispatchActionPromise,
-  fetchNewCookieFromNativeCredentials,
+  resolveKeyserverSessionInvalidation,
 } from 'lib/utils/action-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -132,7 +132,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         return;
       }
 
-      await fetchNewCookieFromNativeCredentials(
+      await resolveKeyserverSessionInvalidation(
         dispatch,
         cookie,
         urlPrefix,
