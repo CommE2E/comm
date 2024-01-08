@@ -1,11 +1,11 @@
 div.threadSearchContainer {
-  background-color: var(--thread-creation-search-container-bg);
-  color: var(--fg);
   display: flex;
   flex-direction: column;
   max-height: 50%;
   overflow: auto;
   flex-shrink: 0;
+  box-shadow: 0px 1px 3px 0px var(--panel-headerShadow-secondary-default);
+  clip-path: inset(0 0 -3px 0);
 }
 
 div.fullHeight {
@@ -36,7 +36,7 @@ div.searchField {
 }
 
 .closeSearch {
-  color: var(--thread-creation-close-search-color);
+  color: var(--button-label-tertiary-default);
   margin: 0 8px;
 }
 
@@ -53,7 +53,8 @@ ul.searchResultsContainer {
 }
 
 .searchResultsItem:hover {
-  background-color: var(--thread-creation-search-item-bg-hover);
+  background-color: var(--panel-listItem-primary-hover);
+  border-radius: 8px;
 }
 
 .searchResultsButton {
@@ -63,13 +64,13 @@ ul.searchResultsContainer {
 }
 
 div.userName {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   margin-left: 8px;
 }
 
 div.userInfo {
   font-style: italic;
-  color: var(--thread-creation-search-item-info-color);
+  color: var(--text-background-tertiary-default);
 }
 
 div.userContainer {
