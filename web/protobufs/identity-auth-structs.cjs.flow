@@ -10,15 +10,15 @@ import {
 import * as identityStructs from './identity-unauth-structs.cjs';
 
 declare export class UploadOneTimeKeysRequest extends Message {
-  getContentonetimeprekeysList(): Array<string>;
-  setContentonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
-  clearContentonetimeprekeysList(): UploadOneTimeKeysRequest;
-  addContentonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+  getContentOneTimePrekeysList(): Array<string>;
+  setContentOneTimePrekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearContentOneTimePrekeysList(): UploadOneTimeKeysRequest;
+  addContentOneTimePrekeys(value: string, index?: number): UploadOneTimeKeysRequest;
 
-  getNotifonetimeprekeysList(): Array<string>;
-  setNotifonetimeprekeysList(value: Array<string>): UploadOneTimeKeysRequest;
-  clearNotifonetimeprekeysList(): UploadOneTimeKeysRequest;
-  addNotifonetimeprekeys(value: string, index?: number): UploadOneTimeKeysRequest;
+  getNotifOneTimePrekeysList(): Array<string>;
+  setNotifOneTimePrekeysList(value: Array<string>): UploadOneTimeKeysRequest;
+  clearNotifOneTimePrekeysList(): UploadOneTimeKeysRequest;
+  addNotifOneTimePrekeys(value: string, index?: number): UploadOneTimeKeysRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UploadOneTimeKeysRequestObject;
@@ -29,59 +29,59 @@ declare export class UploadOneTimeKeysRequest extends Message {
 }
 
 export type UploadOneTimeKeysRequestObject = {
-  contentonetimeprekeysList: Array<string>,
-  notifonetimeprekeysList: Array<string>,
+  contentOneTimePrekeysList: Array<string>,
+  notifOneTimePrekeysList: Array<string>,
 };
 
-declare export class RefreshUserPreKeysRequest extends Message {
-  getNewcontentprekeys(): identityStructs.PreKey | void;
-  setNewcontentprekeys(value?: identityStructs.PreKey): RefreshUserPreKeysRequest;
-  hasNewcontentprekeys(): boolean;
-  clearNewcontentprekeys(): RefreshUserPreKeysRequest;
+declare export class RefreshUserPrekeysRequest extends Message {
+  getNewContentPrekeys(): identityStructs.Prekey | void;
+  setNewContentPrekeys(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
+  hasNewContentPrekeys(): boolean;
+  clearNewContentPrekeys(): RefreshUserPrekeysRequest;
 
-  getNewnotifprekeys(): identityStructs.PreKey | void;
-  setNewnotifprekeys(value?: identityStructs.PreKey): RefreshUserPreKeysRequest;
-  hasNewnotifprekeys(): boolean;
-  clearNewnotifprekeys(): RefreshUserPreKeysRequest;
+  getNewNotifPrekeys(): identityStructs.Prekey | void;
+  setNewNotifPrekeys(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
+  hasNewNotifPrekeys(): boolean;
+  clearNewNotifPrekeys(): RefreshUserPrekeysRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RefreshUserPreKeysRequestObject;
-  static toObject(includeInstance: boolean, msg: RefreshUserPreKeysRequest): RefreshUserPreKeysRequestObject;
-  static serializeBinaryToWriter(message: RefreshUserPreKeysRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RefreshUserPreKeysRequest;
-  static deserializeBinaryFromReader(message: RefreshUserPreKeysRequest, reader: BinaryReader): RefreshUserPreKeysRequest;
+  toObject(includeInstance?: boolean): RefreshUserPrekeysRequestObject;
+  static toObject(includeInstance: boolean, msg: RefreshUserPrekeysRequest): RefreshUserPrekeysRequestObject;
+  static serializeBinaryToWriter(message: RefreshUserPrekeysRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RefreshUserPrekeysRequest;
+  static deserializeBinaryFromReader(message: RefreshUserPrekeysRequest, reader: BinaryReader): RefreshUserPrekeysRequest;
 }
 
-export type RefreshUserPreKeysRequestObject = {
-  newcontentprekeys?: identityStructs.PreKeyObject,
-  newnotifprekeys?: identityStructs.PreKeyObject,
+export type RefreshUserPrekeysRequestObject = {
+  newContentPrekeys?: identityStructs.PrekeyObject,
+  newNotifPrekeys?: identityStructs.PrekeyObject,
 }
 
 declare export class OutboundKeyInfo extends Message {
-  getIdentityinfo(): identityStructs.IdentityKeyInfo | void;
-  setIdentityinfo(value?: identityStructs.IdentityKeyInfo): OutboundKeyInfo;
-  hasIdentityinfo(): boolean;
-  clearIdentityinfo(): OutboundKeyInfo;
+  getIdentityInfo(): identityStructs.IdentityKeyInfo | void;
+  setIdentityInfo(value?: identityStructs.IdentityKeyInfo): OutboundKeyInfo;
+  hasIdentityInfo(): boolean;
+  clearIdentityInfo(): OutboundKeyInfo;
 
-  getContentprekey(): identityStructs.PreKey | void;
-  setContentprekey(value?: identityStructs.PreKey): OutboundKeyInfo;
-  hasContentprekey(): boolean;
-  clearContentprekey(): OutboundKeyInfo;
+  getContentPrekey(): identityStructs.Prekey | void;
+  setContentPrekey(value?: identityStructs.Prekey): OutboundKeyInfo;
+  hasContentPrekey(): boolean;
+  clearContentPrekey(): OutboundKeyInfo;
 
-  getNotifprekey(): identityStructs.PreKey | void;
-  setNotifprekey(value?: identityStructs.PreKey): OutboundKeyInfo;
-  hasNotifprekey(): boolean;
-  clearNotifprekey(): OutboundKeyInfo;
+  getNotifPrekey(): identityStructs.Prekey | void;
+  setNotifPrekey(value?: identityStructs.Prekey): OutboundKeyInfo;
+  hasNotifPrekey(): boolean;
+  clearNotifPrekey(): OutboundKeyInfo;
 
-  getOnetimecontentprekey(): string;
-  setOnetimecontentprekey(value: string): OutboundKeyInfo;
-  hasOnetimecontentprekey(): boolean;
-  clearOnetimecontentprekey(): OutboundKeyInfo;
+  getOneTimeContentPrekey(): string;
+  setOneTimeContentPrekey(value: string): OutboundKeyInfo;
+  hasOneTimeContentPrekey(): boolean;
+  clearOneTimeContentPrekey(): OutboundKeyInfo;
 
-  getOnetimenotifprekey(): string;
-  setOnetimenotifprekey(value: string): OutboundKeyInfo;
-  hasOnetimenotifprekey(): boolean;
-  clearOnetimenotifprekey(): OutboundKeyInfo;
+  getOneTimeNotifPrekey(): string;
+  setOneTimeNotifPrekey(value: string): OutboundKeyInfo;
+  hasOneTimeNotifPrekey(): boolean;
+  clearOneTimeNotifPrekey(): OutboundKeyInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OutboundKeyInfoObject;
@@ -92,18 +92,18 @@ declare export class OutboundKeyInfo extends Message {
 }
 
 export type OutboundKeyInfoObject = {
-  identityinfo?: identityStructs.IdentityKeyInfoObject,
-  contentprekey?: identityStructs.PreKeyObject,
-  notifprekey?: identityStructs.PreKeyObject,
-  onetimecontentprekey?: string,
-  onetimenotifprekey?: string,
+  identityInfo?: identityStructs.IdentityKeyInfoObject,
+  contentPrekey?: identityStructs.PrekeyObject,
+  notifPrekey?: identityStructs.PrekeyObject,
+  oneTimeContentPrekey?: string,
+  oneTimeNotifPrekey?: string,
 };
 
 declare export class KeyserverKeysResponse extends Message {
-  getKeyserverinfo(): OutboundKeyInfo | void;
-  setKeyserverinfo(value?: OutboundKeyInfo): KeyserverKeysResponse;
-  hasKeyserverinfo(): boolean;
-  clearKeyserverinfo(): KeyserverKeysResponse;
+  getKeyserverInfo(): OutboundKeyInfo | void;
+  setKeyserverInfo(value?: OutboundKeyInfo): KeyserverKeysResponse;
+  hasKeyserverInfo(): boolean;
+  clearKeyserverInfo(): KeyserverKeysResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): KeyserverKeysResponseObject;
@@ -114,7 +114,7 @@ declare export class KeyserverKeysResponse extends Message {
 }
 
 export type KeyserverKeysResponseObject = {
-  keyserverinfo?: OutboundKeyInfoObject,
+  keyserverInfo?: OutboundKeyInfoObject,
 };
 
 declare export class OutboundKeysForUserResponse extends Message {
@@ -134,8 +134,8 @@ export type OutboundKeysForUserResponseObject = {
 };
 
 declare export class OutboundKeysForUserRequest extends Message {
-  getUserid(): string;
-  setUserid(value: string): OutboundKeysForUserRequest;
+  getUserId(): string;
+  setUserId(value: string): OutboundKeysForUserRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OutboundKeysForUserRequestObject;
@@ -146,24 +146,24 @@ declare export class OutboundKeysForUserRequest extends Message {
 }
 
 export type OutboundKeysForUserRequestObject = {
-  userid: string,
+  userId: string,
 };
 
 declare export class InboundKeyInfo extends Message {
-  getIdentityinfo(): identityStructs.IdentityKeyInfo | void;
-  setIdentityinfo(value?: identityStructs.IdentityKeyInfo): InboundKeyInfo;
-  hasIdentityinfo(): boolean;
-  clearIdentityinfo(): InboundKeyInfo;
+  getIdentityInfo(): identityStructs.IdentityKeyInfo | void;
+  setIdentityInfo(value?: identityStructs.IdentityKeyInfo): InboundKeyInfo;
+  hasIdentityInfo(): boolean;
+  clearIdentityInfo(): InboundKeyInfo;
 
-  getContentprekey(): identityStructs.PreKey | void;
-  setContentprekey(value?: identityStructs.PreKey): InboundKeyInfo;
-  hasContentprekey(): boolean;
-  clearContentprekey(): InboundKeyInfo;
+  getContentPrekey(): identityStructs.Prekey | void;
+  setContentPrekey(value?: identityStructs.Prekey): InboundKeyInfo;
+  hasContentPrekey(): boolean;
+  clearContentPrekey(): InboundKeyInfo;
 
-  getNotifprekey(): identityStructs.PreKey | void;
-  setNotifprekey(value?: identityStructs.PreKey): InboundKeyInfo;
-  hasNotifprekey(): boolean;
-  clearNotifprekey(): InboundKeyInfo;
+  getNotifPrekey(): identityStructs.Prekey | void;
+  setNotifPrekey(value?: identityStructs.Prekey): InboundKeyInfo;
+  hasNotifPrekey(): boolean;
+  clearNotifPrekey(): InboundKeyInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InboundKeyInfoObject;
@@ -174,9 +174,9 @@ declare export class InboundKeyInfo extends Message {
 }
 
 export type InboundKeyInfoObject = {
-  identityinfo?: identityStructs.IdentityKeyInfoObject,
-  contentprekey?: identityStructs.PreKeyObject,
-  notifprekey?: identityStructs.PreKeyObject,
+  identityInfo?: identityStructs.IdentityKeyInfoObject,
+  contentPrekey?: identityStructs.PrekeyObject,
+  notifPrekey?: identityStructs.PrekeyObject,
 };
 
 declare export class InboundKeysForUserResponse extends Message {
@@ -196,13 +196,8 @@ export type InboundKeysForUserResponseObject = {
 }
 
 declare export class InboundKeysForUserRequest extends Message {
-  getUsername(): string;
-  setUsername(value: string): InboundKeysForUserRequest;
-
-  getWalletaddress(): string;
-  setWalletaddress(value: string): InboundKeysForUserRequest;
-
-  getIdentifierCase(): IdentifierCase;
+  getUserId(): string;
+  setUserId(value: string): InboundKeysForUserRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InboundKeysForUserRequestObject;
@@ -213,7 +208,7 @@ declare export class InboundKeysForUserRequest extends Message {
 }
 
 export type InboundKeysForUserRequestObject = {
-  userid: string,
+  userId: string,
 };
 
 export type IdentifierCase = 0 | 1 | 2;
@@ -222,8 +217,8 @@ declare export class FindUserIDRequest extends Message {
   getUsername(): string;
   setUsername(value: string): FindUserIDRequest;
 
-  getWalletaddress(): string;
-  setWalletaddress(value: string): FindUserIDRequest;
+  getWalletAddress(): string;
+  setWalletAddress(value: string): FindUserIDRequest;
 
   getIdentifierCase(): IdentifierCase;
 
@@ -237,14 +232,14 @@ declare export class FindUserIDRequest extends Message {
 
 export type FindUserIDRequestObject = {
   username: string,
-  walletaddress: string,
+  walletAddress: string,
 }
 
 declare export class FindUserIDResponse extends Message {
-  getUserid(): string;
-  setUserid(value: string): FindUserIDResponse;
-  hasUserid(): boolean;
-  clearUserid(): FindUserIDResponse;
+  getUserId(): string;
+  setUserId(value: string): FindUserIDResponse;
+  hasUserId(): boolean;
+  clearUserId(): FindUserIDResponse;
 
   getIsReserved(): boolean;
   setIsReserved(value: boolean): FindUserIDResponse;
@@ -258,24 +253,15 @@ declare export class FindUserIDResponse extends Message {
 }
 
 export type FindUserIDResponseObject = {
-  userid?: string,
+  userId?: string,
   isReserved: boolean,
 }
 
 declare export class UpdateUserPasswordStartRequest extends Message {
-  getOpaqueregistrationrequest(): Uint8Array | string;
-  getOpaqueregistrationrequest_asU8(): Uint8Array;
-  getOpaqueregistrationrequest_asB64(): string;
-  setOpaqueregistrationrequest(value: Uint8Array | string): UpdateUserPasswordStartRequest;
-
-  getAccesstoken(): string;
-  setAccesstoken(value: string): UpdateUserPasswordStartRequest;
-
-  getUserid(): string;
-  setUserid(value: string): UpdateUserPasswordStartRequest;
-
-  getDeviceidkey(): string;
-  setDeviceidkey(value: string): UpdateUserPasswordStartRequest;
+  getOpaqueRegistrationRequest(): Uint8Array | string;
+  getOpaqueRegistrationRequest_asU8(): Uint8Array;
+  getOpaqueRegistrationRequest_asB64(): string;
+  setOpaqueRegistrationRequest(value: Uint8Array | string): UpdateUserPasswordStartRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordStartRequestObject;
@@ -286,20 +272,17 @@ declare export class UpdateUserPasswordStartRequest extends Message {
 }
 
 export type UpdateUserPasswordStartRequestObject = {
-  opaqueregistrationrequest: Uint8Array | string,
-  accesstoken: string,
-  userid: string,
-  deviceidkey: string,
+  opaqueRegistrationRequest: Uint8Array | string,
 };
 
 declare export class UpdateUserPasswordFinishRequest extends Message {
-  getSessionid(): string;
-  setSessionid(value: string): UpdateUserPasswordFinishRequest;
+  getSessionId(): string;
+  setSessionId(value: string): UpdateUserPasswordFinishRequest;
 
-  getOpaqueregistrationupload(): Uint8Array | string;
-  getOpaqueregistrationupload_asU8(): Uint8Array;
-  getOpaqueregistrationupload_asB64(): string;
-  setOpaqueregistrationupload(value: Uint8Array | string): UpdateUserPasswordFinishRequest;
+  getOpaqueRegistrationUpload(): Uint8Array | string;
+  getOpaqueRegistrationUpload_asU8(): Uint8Array;
+  getOpaqueRegistrationUpload_asB64(): string;
+  setOpaqueRegistrationUpload(value: Uint8Array | string): UpdateUserPasswordFinishRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordFinishRequestObject;
@@ -310,18 +293,18 @@ declare export class UpdateUserPasswordFinishRequest extends Message {
 }
 
 export type UpdateUserPasswordFinishRequestObject = {
-  sessionid: string,
-  opaqueregistrationupload: Uint8Array | string,
+  sessionId: string,
+  opaqueRegistrationUpload: Uint8Array | string,
 };
 
 declare export class UpdateUserPasswordStartResponse extends Message {
-  getSessionid(): string;
-  setSessionid(value: string): UpdateUserPasswordStartResponse;
+  getSessionId(): string;
+  setSessionId(value: string): UpdateUserPasswordStartResponse;
 
-  getOpaqueregistrationresponse(): Uint8Array | string;
-  getOpaqueregistrationresponse_asU8(): Uint8Array;
-  getOpaqueregistrationresponse_asB64(): string;
-  setOpaqueregistrationresponse(value: Uint8Array | string): UpdateUserPasswordStartResponse;
+  getOpaqueRegistrationResponse(): Uint8Array | string;
+  getOpaqueRegistrationResponse_asU8(): Uint8Array;
+  getOpaqueRegistrationResponse_asB64(): string;
+  setOpaqueRegistrationResponse(value: Uint8Array | string): UpdateUserPasswordStartResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordStartResponseObject;
@@ -332,7 +315,49 @@ declare export class UpdateUserPasswordStartResponse extends Message {
 }
 
 export type UpdateUserPasswordStartResponseObject = {
-  sessionid: string,
-  opaqueregistrationresponse: Uint8Array | string,
+  sessionId: string,
+  opaqueRegistrationResponse: Uint8Array | string,
 };
+
+export type SinceTimestampCase = 0 | 2;
+
+declare export class GetDeviceListRequest extends Message {
+  getUserId(): string;
+  setUserId(value: string): GetDeviceListRequest;
+
+  getSinceTimestamp(): number;
+  setSinceTimestamp(value: number): GetDeviceListRequest;
+  hasSinceTimestamp(): boolean;
+  clearSinceTimestamp(): GetDeviceListRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetDeviceListRequestObject;
+  static toObject(includeInstance: boolean, msg: GetDeviceListRequest): GetDeviceListRequestObject;
+  static serializeBinaryToWriter(message: GetDeviceListRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetDeviceListRequest;
+  static deserializeBinaryFromReader(message: GetDeviceListRequest, reader: BinaryReader): GetDeviceListRequest;
+}
+
+export type GetDeviceListRequestObject = {
+  userId: string,
+  sinceTimestamp?: number,
+}
+
+declare export class GetDeviceListResponse extends Message {
+  getDeviceListUpdatesList(): Array<string>;
+  setDeviceListUpdatesList(value: Array<string>): GetDeviceListResponse;
+  clearDeviceListUpdatesList(): GetDeviceListResponse;
+  addDeviceListUpdates(value: string, index?: number): GetDeviceListResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetDeviceListResponseObject;
+  static toObject(includeInstance: boolean, msg: GetDeviceListResponse): GetDeviceListResponseObject;
+  static serializeBinaryToWriter(message: GetDeviceListResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetDeviceListResponse;
+  static deserializeBinaryFromReader(message: GetDeviceListResponse, reader: BinaryReader): GetDeviceListResponse;
+}
+
+export type GetDeviceListResponseObject = {
+  deviceListUpdatesList: Array<string>,
+}
 
