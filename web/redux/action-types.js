@@ -1,7 +1,7 @@
 // @flow
 
+import { extractKeyserverIDFromID } from 'lib/ksconn/keyserver-utils.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import { extractKeyserverIDFromID } from 'lib/utils/action-utils.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
