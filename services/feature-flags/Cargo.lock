@@ -870,7 +870,6 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "aws-sdk-secretsmanager",
- "aws-types",
  "base64",
  "chrono",
  "constant_time_eq",
