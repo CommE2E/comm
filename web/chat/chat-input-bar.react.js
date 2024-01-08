@@ -309,22 +309,20 @@ class ChatInputBar extends React.PureComponent<Props> {
     ) {
       content = (
         <div className={css.inputBarWrapper}>
-          <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
-            <input
-              type="file"
-              onChange={this.onMultimediaFileChange}
-              ref={this.multimediaInputRef}
-              accept={allowedMimeTypeString}
-              multiple
-            />
-            <SWMansionIcon
-              icon="image-1"
-              size={22}
-              color={`#${this.props.threadInfo.color}`}
-              disableFill
-            />
-          </a>
           <div className={css.inputBarTextInput}>
+            <a
+              className={css.multimediaUpload}
+              onClick={this.onMultimediaClick}
+            >
+              <input
+                type="file"
+                onChange={this.onMultimediaFileChange}
+                ref={this.multimediaInputRef}
+                accept={allowedMimeTypeString}
+                multiple
+              />
+              <SWMansionIcon icon="image-1" size={22} disableFill />
+            </a>
             <textarea
               rows="1"
               placeholder="Type your message"
