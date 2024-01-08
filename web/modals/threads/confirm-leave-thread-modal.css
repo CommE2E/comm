@@ -1,5 +1,5 @@
 div.container {
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   box-sizing: border-box;
   font-size: var(--xl-font-20);
 }
