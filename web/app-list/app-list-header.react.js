@@ -4,8 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import css from './app-list-header.css';
-import AddButton from '../components/add-button.react.js';
+import PanelHeader from '../components/panel-header.react.js';
 import AppsDirectory from '../modals/apps/apps-directory-modal.react.js';
 
 function AppListHeader(): React.Node {
@@ -16,12 +15,7 @@ function AppListHeader(): React.Node {
     [pushModal],
   );
 
-  return (
-    <div className={css.container}>
-      <div className={css.headerLabel}>Your apps</div>
-      <AddButton onClick={onClickApps} />
-    </div>
-  );
+  return <PanelHeader headerLabel="Your apps" onClickAddButton={onClickApps} />;
 }
 
 export default AppListHeader;
