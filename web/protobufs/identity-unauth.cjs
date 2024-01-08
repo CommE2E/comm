@@ -1,5 +1,5 @@
 /**
- * @fileoverview gRPC-Web generated client stub for identity.client
+ * @fileoverview gRPC-Web generated client stub for identity.unauth
  * @enhanceable
  * @public
  * @generated
@@ -9,7 +9,8 @@
 // versions:
 // 	protoc-gen-grpc-web v1.4.2
 // 	protoc              v3.21.12
-// source: identity_client.proto
+// source: identity_unauth.proto
+
 
 /* eslint-disable */
 // @ts-nocheck
@@ -21,7 +22,7 @@ grpc.web = require('grpc-web');
 
 const proto = {};
 proto.identity = {};
-proto.identity.client = require('./identity-unauth-structs.cjs');
+proto.identity.unauth = require('./identity-unauth-structs.cjs');
 
 /**
  * @param {string} hostname
@@ -31,7 +32,7 @@ proto.identity.client = require('./identity-unauth-structs.cjs');
  * @struct
  * @final
  */
-proto.identity.client.IdentityClientServiceClient =
+proto.identity.unauth.IdentityClientServiceClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -57,7 +58,7 @@ proto.identity.client.IdentityClientServiceClient =
  * @struct
  * @final
  */
-proto.identity.client.IdentityClientServicePromiseClient =
+proto.identity.unauth.IdentityClientServicePromiseClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -78,39 +79,39 @@ proto.identity.client.IdentityClientServicePromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.RegistrationStartRequest,
- *   !proto.identity.client.RegistrationStartResponse>}
+ *   !proto.identity.unauth.RegistrationStartRequest,
+ *   !proto.identity.unauth.RegistrationStartResponse>}
  */
 const methodDescriptor_IdentityClientService_RegisterPasswordUserStart = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/RegisterPasswordUserStart',
+  '/identity.unauth.IdentityClientService/RegisterPasswordUserStart',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.RegistrationStartRequest,
-  proto.identity.client.RegistrationStartResponse,
+  proto.identity.unauth.RegistrationStartRequest,
+  proto.identity.unauth.RegistrationStartResponse,
   /**
-   * @param {!proto.identity.client.RegistrationStartRequest} request
+   * @param {!proto.identity.unauth.RegistrationStartRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.RegistrationStartResponse.deserializeBinary
+  proto.identity.unauth.RegistrationStartResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.RegistrationStartRequest} request The
+ * @param {!proto.identity.unauth.RegistrationStartRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.RegistrationStartResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.RegistrationStartResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.RegistrationStartResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.RegistrationStartResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.registerPasswordUserStart =
+proto.identity.unauth.IdentityClientServiceClient.prototype.registerPasswordUserStart =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterPasswordUserStart',
+      '/identity.unauth.IdentityClientService/RegisterPasswordUserStart',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterPasswordUserStart,
@@ -119,17 +120,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.registerPasswordUser
 
 
 /**
- * @param {!proto.identity.client.RegistrationStartRequest} request The
+ * @param {!proto.identity.unauth.RegistrationStartRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.RegistrationStartResponse>}
+ * @return {!Promise<!proto.identity.unauth.RegistrationStartResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.registerPasswordUserStart =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerPasswordUserStart =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterPasswordUserStart',
+      '/identity.unauth.IdentityClientService/RegisterPasswordUserStart',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterPasswordUserStart);
@@ -139,39 +140,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.registerPassw
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.ReservedRegistrationStartRequest,
- *   !proto.identity.client.RegistrationStartResponse>}
+ *   !proto.identity.unauth.ReservedRegistrationStartRequest,
+ *   !proto.identity.unauth.RegistrationStartResponse>}
  */
 const methodDescriptor_IdentityClientService_RegisterReservedPasswordUserStart = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/RegisterReservedPasswordUserStart',
+  '/identity.unauth.IdentityClientService/RegisterReservedPasswordUserStart',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.ReservedRegistrationStartRequest,
-  proto.identity.client.RegistrationStartResponse,
+  proto.identity.unauth.ReservedRegistrationStartRequest,
+  proto.identity.unauth.RegistrationStartResponse,
   /**
-   * @param {!proto.identity.client.ReservedRegistrationStartRequest} request
+   * @param {!proto.identity.unauth.ReservedRegistrationStartRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.RegistrationStartResponse.deserializeBinary
+  proto.identity.unauth.RegistrationStartResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.ReservedRegistrationStartRequest} request The
+ * @param {!proto.identity.unauth.ReservedRegistrationStartRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.RegistrationStartResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.RegistrationStartResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.RegistrationStartResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.RegistrationStartResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.registerReservedPasswordUserStart =
+proto.identity.unauth.IdentityClientServiceClient.prototype.registerReservedPasswordUserStart =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterReservedPasswordUserStart',
+      '/identity.unauth.IdentityClientService/RegisterReservedPasswordUserStart',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterReservedPasswordUserStart,
@@ -180,17 +181,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.registerReservedPass
 
 
 /**
- * @param {!proto.identity.client.ReservedRegistrationStartRequest} request The
+ * @param {!proto.identity.unauth.ReservedRegistrationStartRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.RegistrationStartResponse>}
+ * @return {!Promise<!proto.identity.unauth.RegistrationStartResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.registerReservedPasswordUserStart =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerReservedPasswordUserStart =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterReservedPasswordUserStart',
+      '/identity.unauth.IdentityClientService/RegisterReservedPasswordUserStart',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterReservedPasswordUserStart);
@@ -200,39 +201,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.registerReser
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.RegistrationFinishRequest,
- *   !proto.identity.client.RegistrationFinishResponse>}
+ *   !proto.identity.unauth.RegistrationFinishRequest,
+ *   !proto.identity.unauth.RegistrationFinishResponse>}
  */
 const methodDescriptor_IdentityClientService_RegisterPasswordUserFinish = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/RegisterPasswordUserFinish',
+  '/identity.unauth.IdentityClientService/RegisterPasswordUserFinish',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.RegistrationFinishRequest,
-  proto.identity.client.RegistrationFinishResponse,
+  proto.identity.unauth.RegistrationFinishRequest,
+  proto.identity.unauth.RegistrationFinishResponse,
   /**
-   * @param {!proto.identity.client.RegistrationFinishRequest} request
+   * @param {!proto.identity.unauth.RegistrationFinishRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.RegistrationFinishResponse.deserializeBinary
+  proto.identity.unauth.RegistrationFinishResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.RegistrationFinishRequest} request The
+ * @param {!proto.identity.unauth.RegistrationFinishRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.RegistrationFinishResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.RegistrationFinishResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.RegistrationFinishResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.RegistrationFinishResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.registerPasswordUserFinish =
+proto.identity.unauth.IdentityClientServiceClient.prototype.registerPasswordUserFinish =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterPasswordUserFinish',
+      '/identity.unauth.IdentityClientService/RegisterPasswordUserFinish',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterPasswordUserFinish,
@@ -241,17 +242,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.registerPasswordUser
 
 
 /**
- * @param {!proto.identity.client.RegistrationFinishRequest} request The
+ * @param {!proto.identity.unauth.RegistrationFinishRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.RegistrationFinishResponse>}
+ * @return {!Promise<!proto.identity.unauth.RegistrationFinishResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.registerPasswordUserFinish =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerPasswordUserFinish =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RegisterPasswordUserFinish',
+      '/identity.unauth.IdentityClientService/RegisterPasswordUserFinish',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RegisterPasswordUserFinish);
@@ -261,283 +262,283 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.registerPassw
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.OpaqueLoginStartRequest,
- *   !proto.identity.client.OpaqueLoginStartResponse>}
+ *   !proto.identity.unauth.OpaqueLoginStartRequest,
+ *   !proto.identity.unauth.OpaqueLoginStartResponse>}
  */
-const methodDescriptor_IdentityClientService_LoginPasswordUserStart = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/LoginPasswordUserStart',
+const methodDescriptor_IdentityClientService_LogInPasswordUserStart = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInPasswordUserStart',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.OpaqueLoginStartRequest,
-  proto.identity.client.OpaqueLoginStartResponse,
+  proto.identity.unauth.OpaqueLoginStartRequest,
+  proto.identity.unauth.OpaqueLoginStartResponse,
   /**
-   * @param {!proto.identity.client.OpaqueLoginStartRequest} request
+   * @param {!proto.identity.unauth.OpaqueLoginStartRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.OpaqueLoginStartResponse.deserializeBinary
+  proto.identity.unauth.OpaqueLoginStartResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.OpaqueLoginStartRequest} request The
+ * @param {!proto.identity.unauth.OpaqueLoginStartRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.OpaqueLoginStartResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.OpaqueLoginStartResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.OpaqueLoginStartResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.OpaqueLoginStartResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.loginPasswordUserStart =
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInPasswordUserStart =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginPasswordUserStart',
+      '/identity.unauth.IdentityClientService/LogInPasswordUserStart',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginPasswordUserStart,
+      methodDescriptor_IdentityClientService_LogInPasswordUserStart,
       callback);
 };
 
 
 /**
- * @param {!proto.identity.client.OpaqueLoginStartRequest} request The
+ * @param {!proto.identity.unauth.OpaqueLoginStartRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.OpaqueLoginStartResponse>}
+ * @return {!Promise<!proto.identity.unauth.OpaqueLoginStartResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.loginPasswordUserStart =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPasswordUserStart =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginPasswordUserStart',
+      '/identity.unauth.IdentityClientService/LogInPasswordUserStart',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginPasswordUserStart);
+      methodDescriptor_IdentityClientService_LogInPasswordUserStart);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.OpaqueLoginFinishRequest,
- *   !proto.identity.client.OpaqueLoginFinishResponse>}
+ *   !proto.identity.unauth.OpaqueLoginFinishRequest,
+ *   !proto.identity.unauth.OpaqueLoginFinishResponse>}
  */
-const methodDescriptor_IdentityClientService_LoginPasswordUserFinish = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/LoginPasswordUserFinish',
+const methodDescriptor_IdentityClientService_LogInPasswordUserFinish = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInPasswordUserFinish',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.OpaqueLoginFinishRequest,
-  proto.identity.client.OpaqueLoginFinishResponse,
+  proto.identity.unauth.OpaqueLoginFinishRequest,
+  proto.identity.unauth.OpaqueLoginFinishResponse,
   /**
-   * @param {!proto.identity.client.OpaqueLoginFinishRequest} request
+   * @param {!proto.identity.unauth.OpaqueLoginFinishRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.OpaqueLoginFinishResponse.deserializeBinary
+  proto.identity.unauth.OpaqueLoginFinishResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.OpaqueLoginFinishRequest} request The
+ * @param {!proto.identity.unauth.OpaqueLoginFinishRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.OpaqueLoginFinishResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.OpaqueLoginFinishResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.OpaqueLoginFinishResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.OpaqueLoginFinishResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.loginPasswordUserFinish =
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInPasswordUserFinish =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginPasswordUserFinish',
+      '/identity.unauth.IdentityClientService/LogInPasswordUserFinish',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginPasswordUserFinish,
+      methodDescriptor_IdentityClientService_LogInPasswordUserFinish,
       callback);
 };
 
 
 /**
- * @param {!proto.identity.client.OpaqueLoginFinishRequest} request The
+ * @param {!proto.identity.unauth.OpaqueLoginFinishRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.OpaqueLoginFinishResponse>}
+ * @return {!Promise<!proto.identity.unauth.OpaqueLoginFinishResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.loginPasswordUserFinish =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPasswordUserFinish =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginPasswordUserFinish',
+      '/identity.unauth.IdentityClientService/LogInPasswordUserFinish',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginPasswordUserFinish);
+      methodDescriptor_IdentityClientService_LogInPasswordUserFinish);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.WalletLoginRequest,
- *   !proto.identity.client.WalletLoginResponse>}
+ *   !proto.identity.unauth.WalletLoginRequest,
+ *   !proto.identity.unauth.WalletLoginResponse>}
  */
-const methodDescriptor_IdentityClientService_LoginWalletUser = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/LoginWalletUser',
+const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInWalletUser',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.WalletLoginRequest,
-  proto.identity.client.WalletLoginResponse,
+  proto.identity.unauth.WalletLoginRequest,
+  proto.identity.unauth.WalletLoginResponse,
   /**
-   * @param {!proto.identity.client.WalletLoginRequest} request
+   * @param {!proto.identity.unauth.WalletLoginRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.WalletLoginResponse.deserializeBinary
+  proto.identity.unauth.WalletLoginResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.WalletLoginRequest} request The
+ * @param {!proto.identity.unauth.WalletLoginRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.WalletLoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.WalletLoginResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.WalletLoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.WalletLoginResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.loginWalletUser =
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInWalletUser =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginWalletUser',
+      '/identity.unauth.IdentityClientService/LogInWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginWalletUser,
+      methodDescriptor_IdentityClientService_LogInWalletUser,
       callback);
 };
 
 
 /**
- * @param {!proto.identity.client.WalletLoginRequest} request The
+ * @param {!proto.identity.unauth.WalletLoginRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.WalletLoginResponse>}
+ * @return {!Promise<!proto.identity.unauth.WalletLoginResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.loginWalletUser =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInWalletUser =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginWalletUser',
+      '/identity.unauth.IdentityClientService/LogInWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginWalletUser);
+      methodDescriptor_IdentityClientService_LogInWalletUser);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.ReservedWalletLoginRequest,
- *   !proto.identity.client.WalletLoginResponse>}
+ *   !proto.identity.unauth.ReservedWalletLoginRequest,
+ *   !proto.identity.unauth.WalletLoginResponse>}
  */
-const methodDescriptor_IdentityClientService_LoginReservedWalletUser = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/LoginReservedWalletUser',
+const methodDescriptor_IdentityClientService_LogInReservedWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInReservedWalletUser',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.ReservedWalletLoginRequest,
-  proto.identity.client.WalletLoginResponse,
+  proto.identity.unauth.ReservedWalletLoginRequest,
+  proto.identity.unauth.WalletLoginResponse,
   /**
-   * @param {!proto.identity.client.ReservedWalletLoginRequest} request
+   * @param {!proto.identity.unauth.ReservedWalletLoginRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.WalletLoginResponse.deserializeBinary
+  proto.identity.unauth.WalletLoginResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.ReservedWalletLoginRequest} request The
+ * @param {!proto.identity.unauth.ReservedWalletLoginRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.WalletLoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.WalletLoginResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.WalletLoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.WalletLoginResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.loginReservedWalletUser =
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInReservedWalletUser =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginReservedWalletUser',
+      '/identity.unauth.IdentityClientService/LogInReservedWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginReservedWalletUser,
+      methodDescriptor_IdentityClientService_LogInReservedWalletUser,
       callback);
 };
 
 
 /**
- * @param {!proto.identity.client.ReservedWalletLoginRequest} request The
+ * @param {!proto.identity.unauth.ReservedWalletLoginRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.WalletLoginResponse>}
+ * @return {!Promise<!proto.identity.unauth.WalletLoginResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.loginReservedWalletUser =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInReservedWalletUser =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/LoginReservedWalletUser',
+      '/identity.unauth.IdentityClientService/LogInReservedWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_LoginReservedWalletUser);
+      methodDescriptor_IdentityClientService_LogInReservedWalletUser);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.Empty,
- *   !proto.identity.client.GenerateNonceResponse>}
+ *   !proto.identity.unauth.Empty,
+ *   !proto.identity.unauth.GenerateNonceResponse>}
  */
 const methodDescriptor_IdentityClientService_GenerateNonce = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/GenerateNonce',
+  '/identity.unauth.IdentityClientService/GenerateNonce',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.Empty,
-  proto.identity.client.GenerateNonceResponse,
+  proto.identity.unauth.Empty,
+  proto.identity.unauth.GenerateNonceResponse,
   /**
-   * @param {!proto.identity.client.Empty} request
+   * @param {!proto.identity.unauth.Empty} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.GenerateNonceResponse.deserializeBinary
+  proto.identity.unauth.GenerateNonceResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.Empty} request The
+ * @param {!proto.identity.unauth.Empty} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.GenerateNonceResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.GenerateNonceResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.GenerateNonceResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.GenerateNonceResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.generateNonce =
+proto.identity.unauth.IdentityClientServiceClient.prototype.generateNonce =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/GenerateNonce',
+      '/identity.unauth.IdentityClientService/GenerateNonce',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_GenerateNonce,
@@ -546,17 +547,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.generateNonce =
 
 
 /**
- * @param {!proto.identity.client.Empty} request The
+ * @param {!proto.identity.unauth.Empty} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.GenerateNonceResponse>}
+ * @return {!Promise<!proto.identity.unauth.GenerateNonceResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.generateNonce =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.generateNonce =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/GenerateNonce',
+      '/identity.unauth.IdentityClientService/GenerateNonce',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_GenerateNonce);
@@ -566,39 +567,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.generateNonce
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.VerifyUserAccessTokenRequest,
- *   !proto.identity.client.VerifyUserAccessTokenResponse>}
+ *   !proto.identity.unauth.VerifyUserAccessTokenRequest,
+ *   !proto.identity.unauth.VerifyUserAccessTokenResponse>}
  */
 const methodDescriptor_IdentityClientService_VerifyUserAccessToken = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/VerifyUserAccessToken',
+  '/identity.unauth.IdentityClientService/VerifyUserAccessToken',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.VerifyUserAccessTokenRequest,
-  proto.identity.client.VerifyUserAccessTokenResponse,
+  proto.identity.unauth.VerifyUserAccessTokenRequest,
+  proto.identity.unauth.VerifyUserAccessTokenResponse,
   /**
-   * @param {!proto.identity.client.VerifyUserAccessTokenRequest} request
+   * @param {!proto.identity.unauth.VerifyUserAccessTokenRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.VerifyUserAccessTokenResponse.deserializeBinary
+  proto.identity.unauth.VerifyUserAccessTokenResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.VerifyUserAccessTokenRequest} request The
+ * @param {!proto.identity.unauth.VerifyUserAccessTokenRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.VerifyUserAccessTokenResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.VerifyUserAccessTokenResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.VerifyUserAccessTokenResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.VerifyUserAccessTokenResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.verifyUserAccessToken =
+proto.identity.unauth.IdentityClientServiceClient.prototype.verifyUserAccessToken =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/VerifyUserAccessToken',
+      '/identity.unauth.IdentityClientService/VerifyUserAccessToken',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_VerifyUserAccessToken,
@@ -607,17 +608,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.verifyUserAccessToke
 
 
 /**
- * @param {!proto.identity.client.VerifyUserAccessTokenRequest} request The
+ * @param {!proto.identity.unauth.VerifyUserAccessTokenRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.VerifyUserAccessTokenResponse>}
+ * @return {!Promise<!proto.identity.unauth.VerifyUserAccessTokenResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.verifyUserAccessToken =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.verifyUserAccessToken =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/VerifyUserAccessToken',
+      '/identity.unauth.IdentityClientService/VerifyUserAccessToken',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_VerifyUserAccessToken);
@@ -627,39 +628,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.verifyUserAcc
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.AddReservedUsernamesRequest,
- *   !proto.identity.client.Empty>}
+ *   !proto.identity.unauth.AddReservedUsernamesRequest,
+ *   !proto.identity.unauth.Empty>}
  */
 const methodDescriptor_IdentityClientService_AddReservedUsernames = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/AddReservedUsernames',
+  '/identity.unauth.IdentityClientService/AddReservedUsernames',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.AddReservedUsernamesRequest,
-  proto.identity.client.Empty,
+  proto.identity.unauth.AddReservedUsernamesRequest,
+  proto.identity.unauth.Empty,
   /**
-   * @param {!proto.identity.client.AddReservedUsernamesRequest} request
+   * @param {!proto.identity.unauth.AddReservedUsernamesRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.Empty.deserializeBinary
+  proto.identity.unauth.Empty.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.AddReservedUsernamesRequest} request The
+ * @param {!proto.identity.unauth.AddReservedUsernamesRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.addReservedUsernames =
+proto.identity.unauth.IdentityClientServiceClient.prototype.addReservedUsernames =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/AddReservedUsernames',
+      '/identity.unauth.IdentityClientService/AddReservedUsernames',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_AddReservedUsernames,
@@ -668,17 +669,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.addReservedUsernames
 
 
 /**
- * @param {!proto.identity.client.AddReservedUsernamesRequest} request The
+ * @param {!proto.identity.unauth.AddReservedUsernamesRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.Empty>}
+ * @return {!Promise<!proto.identity.unauth.Empty>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.addReservedUsernames =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.addReservedUsernames =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/AddReservedUsernames',
+      '/identity.unauth.IdentityClientService/AddReservedUsernames',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_AddReservedUsernames);
@@ -688,39 +689,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.addReservedUs
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.RemoveReservedUsernameRequest,
- *   !proto.identity.client.Empty>}
+ *   !proto.identity.unauth.RemoveReservedUsernameRequest,
+ *   !proto.identity.unauth.Empty>}
  */
 const methodDescriptor_IdentityClientService_RemoveReservedUsername = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/RemoveReservedUsername',
+  '/identity.unauth.IdentityClientService/RemoveReservedUsername',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.RemoveReservedUsernameRequest,
-  proto.identity.client.Empty,
+  proto.identity.unauth.RemoveReservedUsernameRequest,
+  proto.identity.unauth.Empty,
   /**
-   * @param {!proto.identity.client.RemoveReservedUsernameRequest} request
+   * @param {!proto.identity.unauth.RemoveReservedUsernameRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.Empty.deserializeBinary
+  proto.identity.unauth.Empty.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.RemoveReservedUsernameRequest} request The
+ * @param {!proto.identity.unauth.RemoveReservedUsernameRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.removeReservedUsername =
+proto.identity.unauth.IdentityClientServiceClient.prototype.removeReservedUsername =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RemoveReservedUsername',
+      '/identity.unauth.IdentityClientService/RemoveReservedUsername',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RemoveReservedUsername,
@@ -729,17 +730,17 @@ proto.identity.client.IdentityClientServiceClient.prototype.removeReservedUserna
 
 
 /**
- * @param {!proto.identity.client.RemoveReservedUsernameRequest} request The
+ * @param {!proto.identity.unauth.RemoveReservedUsernameRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.Empty>}
+ * @return {!Promise<!proto.identity.unauth.Empty>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.removeReservedUsername =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.removeReservedUsername =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/RemoveReservedUsername',
+      '/identity.unauth.IdentityClientService/RemoveReservedUsername',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_RemoveReservedUsername);
@@ -749,39 +750,39 @@ proto.identity.client.IdentityClientServicePromiseClient.prototype.removeReserve
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.client.Empty,
- *   !proto.identity.client.Empty>}
+ *   !proto.identity.unauth.Empty,
+ *   !proto.identity.unauth.Empty>}
  */
 const methodDescriptor_IdentityClientService_Ping = new grpc.web.MethodDescriptor(
-  '/identity.client.IdentityClientService/Ping',
+  '/identity.unauth.IdentityClientService/Ping',
   grpc.web.MethodType.UNARY,
-  proto.identity.client.Empty,
-  proto.identity.client.Empty,
+  proto.identity.unauth.Empty,
+  proto.identity.unauth.Empty,
   /**
-   * @param {!proto.identity.client.Empty} request
+   * @param {!proto.identity.unauth.Empty} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.client.Empty.deserializeBinary
+  proto.identity.unauth.Empty.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.client.Empty} request The
+ * @param {!proto.identity.unauth.Empty} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.client.Empty)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.client.Empty>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.client.IdentityClientServiceClient.prototype.ping =
+proto.identity.unauth.IdentityClientServiceClient.prototype.ping =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.client.IdentityClientService/Ping',
+      '/identity.unauth.IdentityClientService/Ping',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_Ping,
@@ -790,22 +791,22 @@ proto.identity.client.IdentityClientServiceClient.prototype.ping =
 
 
 /**
- * @param {!proto.identity.client.Empty} request The
+ * @param {!proto.identity.unauth.Empty} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.client.Empty>}
+ * @return {!Promise<!proto.identity.unauth.Empty>}
  *     Promise that resolves to the response
  */
-proto.identity.client.IdentityClientServicePromiseClient.prototype.ping =
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.ping =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.client.IdentityClientService/Ping',
+      '/identity.unauth.IdentityClientService/Ping',
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_Ping);
 };
 
 
-module.exports = proto.identity.client;
+module.exports = proto.identity.unauth;
 
