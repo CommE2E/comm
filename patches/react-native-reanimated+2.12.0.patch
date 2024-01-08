@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-reanimated/android/build.gradle b/node_modules/react-native-reanimated/android/build.gradle
+index a38b2a5..32cb655 100644
+--- a/node_modules/react-native-reanimated/android/build.gradle
++++ b/node_modules/react-native-reanimated/android/build.gradle
+@@ -658,7 +658,7 @@ if (isNewArchitectureEnabled()) {
+ task downloadBoost(dependsOn: resolveBoost, type: Download) {
+     def transformedVersion = BOOST_VERSION.replace("_", ".")
+     def artifactLocalName = "boost_${BOOST_VERSION}.tar.gz"
+-    def srcUrl = "https://boostorg.jfrog.io/artifactory/main/release/${transformedVersion}/source/boost_${BOOST_VERSION}.tar.gz"
++    def srcUrl = "https://archives.boost.io/release/${BOOST_VERSION.replace("_", ".")}/source/boost_${BOOST_VERSION}.tar.gz"
+     if (REACT_NATIVE_MINOR_VERSION < 69) {
+         srcUrl = "https://github.com/react-native-community/boost-for-react-native/releases/download/v${transformedVersion}-0/boost_${BOOST_VERSION}.tar.gz"
+     }
