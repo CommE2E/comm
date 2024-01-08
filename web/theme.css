@@ -272,6 +272,7 @@
   --panel-background-secondary-default: var(--shades-black-90);
   --panel-headerShadow-primary-default: var(--shadow-dark-35);
   --panel-headerShadow-secondary-default: var(--shadow-dark-25);
+  --panel-listItem-primary-hover: var(--shades-black-75);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
@@ -378,6 +379,7 @@
   --panel-background-secondary-default: var(--shades-white-90);
   --panel-headerShadow-primary-default: var(--shadow-light-35);
   --panel-headerShadow-secondary-default: var(--shadow-light-25);
+  --panel-listItem-primary-hover: var(--shades-white-60);
 
   /* Button */
   --button-background-primary-default: var(--violet-dark-100);
