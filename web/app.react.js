@@ -88,9 +88,8 @@ const desktopDetails = electron?.version
   : null;
 
 registerConfig({
-  // We can't securely cache credentials on web, so we have no way to recover
-  // from a cookie invalidation
-  resolveInvalidatedCookie: null,
+  // We can't securely cache credentials on web
+  resolveKeyserverSessionInvalidationUsingNativeCredentials: null,
   setSessionIDOnRequest: true,
   // Never reset the calendar range
   calendarRangeInactivityLimit: null,

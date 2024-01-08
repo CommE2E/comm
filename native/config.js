@@ -4,11 +4,11 @@ import { Platform } from 'react-native';
 
 import { registerConfig } from 'lib/utils/config.js';
 
-import { resolveInvalidatedCookie } from './account/resolve-invalidated-cookie.js';
+import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './account/resolve-invalidated-cookie.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 
 registerConfig({
-  resolveInvalidatedCookie,
+  resolveKeyserverSessionInvalidationUsingNativeCredentials,
   setSessionIDOnRequest: false,
   calendarRangeInactivityLimit: 15 * 60 * 1000,
   platformDetails: {
