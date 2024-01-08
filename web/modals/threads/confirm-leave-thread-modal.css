@@ -1,8 +1,7 @@
 div.container {
   padding: 0 40px 32px;
   border-radius: 8px;
-  background: var(--modal-bg);
-  color: var(--modal-fg);
+  color: var(--text-background-secondary-default);
   min-width: 635px;
   box-sizing: border-box;
 }
