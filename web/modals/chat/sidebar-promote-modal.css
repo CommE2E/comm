@@ -1,7 +1,6 @@
 div.modal_body {
   padding: 24px 32px 32px 32px;
-  color: var(--fg);
-  background-color: var(--modal-bg);
+  color: var(--text-background-secondary-default);
   border-radius: 16px;
   flex: 1;
   display: flex;
