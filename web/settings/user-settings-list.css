@@ -1,0 +1,10 @@
+.container {
+  min-width: 160px;
+}
+
+.userSettingsList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+  padding: 16px;
+}
