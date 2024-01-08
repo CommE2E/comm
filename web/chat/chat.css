@@ -1,3 +1,7 @@
 .threadListPanel {
   width: 356px;
 }
+
+.messageListPanel {
+  flex: 1;
+}
