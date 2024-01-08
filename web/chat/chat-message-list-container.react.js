@@ -13,7 +13,7 @@ import ChatInputBar from './chat-input-bar.react.js';
 import css from './chat-message-list-container.css';
 import ChatMessageList from './chat-message-list.react.js';
 import ChatThreadComposer from './chat-thread-composer.react.js';
-import ThreadTopBar from './thread-top-bar.react.js';
+import PinnedMessagesBanner from './pinned-messages-banner.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import {
@@ -108,7 +108,6 @@ function ChatMessageListContainer(props: Props): React.Node {
   }, [onPaste]);
 
   const content = React.useMemo(() => {
-    const topBar = <ThreadTopBar threadInfo={threadInfo} />;
     const messageListAndInput = (
       <>
         <ChatMessageList threadInfo={threadInfo} />
@@ -118,7 +117,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     if (!isChatCreation) {
       return (
         <>
-          {topBar}
+          <PinnedMessagesBanner threadInfo={threadInfo} />
           {messageListAndInput}
         </>
       );
@@ -137,7 +136,6 @@ function ChatMessageListContainer(props: Props): React.Node {
     }
     return (
       <>
-        {topBar}
         {chatUserSelection}
         {messageListAndInput}
       </>
