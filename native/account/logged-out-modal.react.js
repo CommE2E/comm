@@ -28,6 +28,7 @@ import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
@@ -417,6 +418,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       return;
     }
     initialAppLoad = false;
+
+    if (usingCommServicesAccessToken) {
+      return;
+    }
 
     const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
     const hasUserCookie = cookie && cookie.startsWith('user=');
