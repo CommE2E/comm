@@ -12,7 +12,7 @@ import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
-async function resolveInvalidatedCookie(
+async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   callServerEndpoint: CallServerEndpoint,
   callKeyserverEndpoint: CallKeyserverEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
@@ -50,4 +50,4 @@ async function resolveInvalidatedCookie(
   );
 }
 
-export { resolveInvalidatedCookie };
+export { resolveKeyserverSessionInvalidationUsingNativeCredentials };
