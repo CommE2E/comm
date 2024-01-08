@@ -3,11 +3,13 @@ div.container {
   background-attachment: fixed;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
-  background-color: var(--filter-panel-bg);
+  background-color: var(--panel-background-primary-default);
+  border-radius: 8px 0 0 8px;
+  box-shadow: 0px 1px 3px 0px var(--panel-headerShadow-primary-default);
+  clip-path: inset(0 -3px 0 0);
 }
 div.filters {
-  color: #dddddd;
+  color: var(--text-background-primary-default);
   overflow-y: auto;
   height: 100%;
 }
@@ -47,6 +49,7 @@ div.optionCheckbox {
   width: calc(1em + 2px);
   height: calc(1em + 2px);
   border: 1px solid transparent;
+  border-radius: 4px;
   z-index: 0;
   position: absolute;
   left: 0;
@@ -163,8 +166,7 @@ div.category {
   margin: 5px 18px 8px 18px;
 }
 div.extras {
-  background-color: rgba(0, 0, 0, 0.89);
-  color: #dddddd;
+  color: var(--text-background-primary-default);
   padding: 8px 20px;
   font-size: 14px;
   display: flex;
