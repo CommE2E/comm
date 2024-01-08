@@ -18,8 +18,8 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
-  refreshUserPreKeys(
-    request: identityAuthStructs.RefreshUserPreKeysRequest,
+  refreshUserPrekeys(
+    request: identityAuthStructs.RefreshUserPrekeysRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.Empty) => void
@@ -80,6 +80,13 @@ declare export class IdentityClientServiceClient {
     callback: (err: grpcWeb.RpcError,
                response: identityAuthStructs.FindUserIDResponse) => void
   ): grpcWeb.ClientReadableStream<identityAuthStructs.FindUserIDResponse>;
+
+  getDeviceListForUser(
+    request: identityAuthStructs.GetDeviceListRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.GetDeviceListResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.GetDeviceListResponse>;
 }
 
 declare export class IdentityClientServicePromiseClient {
@@ -92,8 +99,8 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
-  refreshUserPreKeys(
-    request: identityAuthStructs.RefreshUserPreKeysRequest,
+  refreshUserPrekeys(
+    request: identityAuthStructs.RefreshUserPrekeysRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
@@ -136,4 +143,9 @@ declare export class IdentityClientServicePromiseClient {
     request: identityAuthStructs.FindUserIDRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityAuthStructs.FindUserIDResponse>;
+
+  getDeviceListForUser(
+    request: identityAuthStructs.GetDeviceListRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.GetDeviceListResponse>;
 }

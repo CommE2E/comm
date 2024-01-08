@@ -30,28 +30,28 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.RegistrationFinishResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.RegistrationFinishResponse>;
 
-  loginPasswordUserStart(
+  logInPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.OpaqueLoginStartResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.OpaqueLoginStartResponse>;
 
-  loginPasswordUserFinish(
+  logInPasswordUserFinish(
     request: identityStructs.OpaqueLoginFinishRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.OpaqueLoginFinishResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.OpaqueLoginFinishResponse>;
 
-  loginWalletUser(
+  logInWalletUser(
     request: identityStructs.WalletLoginRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.WalletLoginResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
 
-  loginReservedWalletUser(
+  logInReservedWalletUser(
     request: identityStructs.ReservedWalletLoginRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
@@ -115,22 +115,22 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.RegistrationFinishResponse>;
 
-  loginPasswordUserStart(
+  logInPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.OpaqueLoginStartResponse>;
 
-  loginPasswordUserFinish(
+  logInPasswordUserFinish(
     request: identityStructs.OpaqueLoginFinishRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.OpaqueLoginFinishResponse>;
 
-  loginWalletUser(
+  logInWalletUser(
     request: identityStructs.WalletLoginRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.WalletLoginResponse>;
 
-  loginReservedWalletUser(
+  logInReservedWalletUser(
     request: identityStructs.ReservedWalletLoginRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.WalletLoginResponse>;

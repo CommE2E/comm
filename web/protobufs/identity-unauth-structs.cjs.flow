@@ -16,43 +16,43 @@ declare export class Empty extends Message {
   static deserializeBinaryFromReader(message: Empty, reader: BinaryReader): Empty;
 }
 
-export type PreKeyObject = {
+export type PrekeyObject = {
   prekey: string,
-  prekeysignature: string,
+  prekeySignature: string,
 }
 
-declare export class PreKey extends Message {
+declare export class Prekey extends Message {
   getPrekey(): string;
-  setPrekey(value: string): PreKey;
+  setPrekey(value: string): Prekey;
 
-  getPrekeysignature(): string;
-  setPrekeysignature(value: string): PreKey;
+  getPrekeySignature(): string;
+  setPrekeySignature(value: string): Prekey;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): PreKeyObject;
-  static toObject(includeInstance: boolean, msg: PreKey): PreKeyObject;
-  static serializeBinaryToWriter(message: PreKey, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): PreKey;
-  static deserializeBinaryFromReader(message: PreKey, reader: BinaryReader): PreKey;
+  toObject(includeInstance?: boolean): PrekeyObject;
+  static toObject(includeInstance: boolean, msg: Prekey): PrekeyObject;
+  static serializeBinaryToWriter(message: Prekey, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Prekey;
+  static deserializeBinaryFromReader(message: Prekey, reader: BinaryReader): Prekey;
 }
 
 export type IdentityKeyInfoObject = {
   payload: string,
-  payloadsignature: string,
-  socialproof?: string,
+  payloadSignature: string,
+  socialProof?: string,
 };
 
 declare export class IdentityKeyInfo extends Message {
   getPayload(): string;
   setPayload(value: string): IdentityKeyInfo;
 
-  getPayloadsignature(): string;
-  setPayloadsignature(value: string): IdentityKeyInfo;
+  getPayloadSignature(): string;
+  setPayloadSignature(value: string): IdentityKeyInfo;
 
-  getSocialproof(): string;
-  setSocialproof(value: string): IdentityKeyInfo;
-  hasSocialproof(): boolean;
-  clearSocialproof(): IdentityKeyInfo;
+  getSocialProof(): string;
+  setSocialProof(value: string): IdentityKeyInfo;
+  hasSocialProof(): boolean;
+  clearSocialProof(): IdentityKeyInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IdentityKeyInfoObject;
@@ -63,33 +63,33 @@ declare export class IdentityKeyInfo extends Message {
 }
 
 declare export class DeviceKeyUpload extends Message {
-  getDevicekeyinfo(): IdentityKeyInfo | void;
-  setDevicekeyinfo(value?: IdentityKeyInfo): DeviceKeyUpload;
-  hasDevicekeyinfo(): boolean;
-  clearDevicekeyinfo(): DeviceKeyUpload;
+  getDeviceKeyInfo(): IdentityKeyInfo | void;
+  setDeviceKeyInfo(value?: IdentityKeyInfo): DeviceKeyUpload;
+  hasDeviceKeyInfo(): boolean;
+  clearDeviceKeyInfo(): DeviceKeyUpload;
 
-  getContentupload(): PreKey | void;
-  setContentupload(value?: PreKey): DeviceKeyUpload;
-  hasContentupload(): boolean;
-  clearContentupload(): DeviceKeyUpload;
+  getContentUpload(): Prekey | void;
+  setContentUpload(value?: Prekey): DeviceKeyUpload;
+  hasContentUpload(): boolean;
+  clearContentUpload(): DeviceKeyUpload;
 
-  getNotifupload(): PreKey | void;
-  setNotifupload(value?: PreKey): DeviceKeyUpload;
-  hasNotifupload(): boolean;
-  clearNotifupload(): DeviceKeyUpload;
+  getNotifUpload(): Prekey | void;
+  setNotifUpload(value?: Prekey): DeviceKeyUpload;
+  hasNotifUpload(): boolean;
+  clearNotifUpload(): DeviceKeyUpload;
 
-  getOnetimecontentprekeysList(): Array<string>;
-  setOnetimecontentprekeysList(value: Array<string>): DeviceKeyUpload;
-  clearOnetimecontentprekeysList(): DeviceKeyUpload;
-  addOnetimecontentprekeys(value: string, index?: number): DeviceKeyUpload;
+  getOneTimeContentPrekeysList(): Array<string>;
+  setOneTimeContentPrekeysList(value: Array<string>): DeviceKeyUpload;
+  clearOneTimeContentPrekeysList(): DeviceKeyUpload;
+  addOneTimeContentPrekeys(value: string, index?: number): DeviceKeyUpload;
 
-  getOnetimenotifprekeysList(): Array<string>;
-  setOnetimenotifprekeysList(value: Array<string>): DeviceKeyUpload;
-  clearOnetimenotifprekeysList(): DeviceKeyUpload;
-  addOnetimenotifprekeys(value: string, index?: number): DeviceKeyUpload;
+  getOneTimeNotifPrekeysList(): Array<string>;
+  setOneTimeNotifPrekeysList(value: Array<string>): DeviceKeyUpload;
+  clearOneTimeNotifPrekeysList(): DeviceKeyUpload;
+  addOneTimeNotifPrekeys(value: string, index?: number): DeviceKeyUpload;
 
-  getDevicetype(): DeviceType;
-  setDevicetype(value: DeviceType): DeviceKeyUpload;
+  getDeviceType(): DeviceType;
+  setDeviceType(value: DeviceType): DeviceKeyUpload;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): DeviceKeyUploadObject;
@@ -100,26 +100,27 @@ declare export class DeviceKeyUpload extends Message {
 }
 
 export type DeviceKeyUploadObject = {
-  devicekeyinfo?: IdentityKeyInfoObject,
-  identityupload?: PreKeyObject,
-  notifupload?: PreKeyObject,
-  onetimeidentityprekeysList: Array<string>,
-  onetimenotifprekeysList: Array<string>,
+  deviceKeyInfo?: IdentityKeyInfoObject,
+  contentUpload?: PrekeyObject,
+  notifUpload?: PrekeyObject,
+  oneTimeContentPrekeysList: Array<string>,
+  oneTimeNotifPrekeysList: Array<string>,
+  deviceType: DeviceType,
 };
 
 declare export class RegistrationStartRequest extends Message {
-  getOpaqueregistrationrequest(): Uint8Array | string;
-  getOpaqueregistrationrequest_asU8(): Uint8Array;
-  getOpaqueregistrationrequest_asB64(): string;
-  setOpaqueregistrationrequest(value: Uint8Array | string): RegistrationStartRequest;
+  getOpaqueRegistrationRequest(): Uint8Array | string;
+  getOpaqueRegistrationRequest_asU8(): Uint8Array;
+  getOpaqueRegistrationRequest_asB64(): string;
+  setOpaqueRegistrationRequest(value: Uint8Array | string): RegistrationStartRequest;
 
   getUsername(): string;
   setUsername(value: string): RegistrationStartRequest;
 
-  getDevicekeyupload(): DeviceKeyUpload | void;
-  setDevicekeyupload(value?: DeviceKeyUpload): RegistrationStartRequest;
-  hasDevicekeyupload(): boolean;
-  clearDevicekeyupload(): RegistrationStartRequest;
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): RegistrationStartRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): RegistrationStartRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationStartRequestObject;
@@ -130,30 +131,30 @@ declare export class RegistrationStartRequest extends Message {
 }
 
 export type RegistrationStartRequestObject = {
-  opaqueregistrationrequest: Uint8Array | string,
+  opaqueRegistrationRequest: Uint8Array | string,
   username: string,
-  devicekeyupload?: DeviceKeyUploadObject,
+  deviceKeyUpload?: DeviceKeyUploadObject,
 };
 
 declare export class ReservedRegistrationStartRequest extends Message {
-  getOpaqueregistrationrequest(): Uint8Array | string;
-  getOpaqueregistrationrequest_asU8(): Uint8Array;
-  getOpaqueregistrationrequest_asB64(): string;
-  setOpaqueregistrationrequest(value: Uint8Array | string): ReservedRegistrationStartRequest;
+  getOpaqueRegistrationRequest(): Uint8Array | string;
+  getOpaqueRegistrationRequest_asU8(): Uint8Array;
+  getOpaqueRegistrationRequest_asB64(): string;
+  setOpaqueRegistrationRequest(value: Uint8Array | string): ReservedRegistrationStartRequest;
 
   getUsername(): string;
   setUsername(value: string): ReservedRegistrationStartRequest;
 
-  getDevicekeyupload(): DeviceKeyUpload | void;
-  setDevicekeyupload(value?: DeviceKeyUpload): ReservedRegistrationStartRequest;
-  hasDevicekeyupload(): boolean;
-  clearDevicekeyupload(): ReservedRegistrationStartRequest;
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): ReservedRegistrationStartRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): ReservedRegistrationStartRequest;
 
-  getKeyservermessage(): string;
-  setKeyservermessage(value: string): ReservedRegistrationStartRequest;
+  getKeyserverMessage(): string;
+  setKeyserverMessage(value: string): ReservedRegistrationStartRequest;
 
-  getKeyserversignature(): string;
-  setKeyserversignature(value: string): ReservedRegistrationStartRequest;
+  getKeyserverSignature(): string;
+  setKeyserverSignature(value: string): ReservedRegistrationStartRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReservedRegistrationStartRequestObject;
@@ -164,11 +165,11 @@ declare export class ReservedRegistrationStartRequest extends Message {
 }
 
 export type ReservedRegistrationStartRequestObject = {
-  opaqueregistrationrequest: Uint8Array | string,
+  opaqueRegistrationRequest: Uint8Array | string,
   username: string,
-  devicekeyupload?: DeviceKeyUploadObject,
-  keyservermessage: string,
-  keyserversignature: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+  keyserverMessage: string,
+  keyserverSignature: string,
 };
 
 declare export class RegistrationFinishRequest extends Message {
@@ -194,13 +195,13 @@ export type RegistrationFinishRequestObject = {
 };
 
 declare export class RegistrationStartResponse extends Message {
-  getSessionid(): string;
-  setSessionid(value: string): RegistrationStartResponse;
+  getSessionId(): string;
+  setSessionId(value: string): RegistrationStartResponse;
 
-  getOpaqueregistrationresponse(): Uint8Array | string;
-  getOpaqueregistrationresponse_asU8(): Uint8Array;
-  getOpaqueregistrationresponse_asB64(): string;
-  setOpaqueregistrationresponse(value: Uint8Array | string): RegistrationStartResponse;
+  getOpaqueRegistrationResponse(): Uint8Array | string;
+  getOpaqueRegistrationResponse_asU8(): Uint8Array;
+  getOpaqueRegistrationResponse_asB64(): string;
+  setOpaqueRegistrationResponse(value: Uint8Array | string): RegistrationStartResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationStartResponseObject;
@@ -211,16 +212,16 @@ declare export class RegistrationStartResponse extends Message {
 }
 
 export type RegistrationStartResponseObject = {
-  sessionid: string,
-  opaqueregistrationresponse: Uint8Array | string,
+  sessionId: string,
+  opaqueRegistrationResponse: Uint8Array | string,
 };
 
 declare export class RegistrationFinishResponse extends Message {
-  getUserid(): string;
-  setUserid(value: string): RegistrationFinishResponse;
+  getUserId(): string;
+  setUserId(value: string): RegistrationFinishResponse;
 
-  getAccesstoken(): string;
-  setAccesstoken(value: string): RegistrationFinishResponse;
+  getAccessToken(): string;
+  setAccessToken(value: string): RegistrationFinishResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationFinishResponseObject;
@@ -231,23 +232,23 @@ declare export class RegistrationFinishResponse extends Message {
 }
 
 export type RegistrationFinishResponseObject = {
-  userid: string,
-  accesstoken: string,
+  userId: string,
+  accessToken: string,
 };
 
 declare export class OpaqueLoginStartRequest extends Message {
   getUsername(): string;
   setUsername(value: string): OpaqueLoginStartRequest;
 
-  getOpaqueloginrequest(): Uint8Array | string;
-  getOpaqueloginrequest_asU8(): Uint8Array;
-  getOpaqueloginrequest_asB64(): string;
-  setOpaqueloginrequest(value: Uint8Array | string): OpaqueLoginStartRequest;
+  getOpaqueLoginRequest(): Uint8Array | string;
+  getOpaqueLoginRequest_asU8(): Uint8Array;
+  getOpaqueLoginRequest_asB64(): string;
+  setOpaqueLoginRequest(value: Uint8Array | string): OpaqueLoginStartRequest;
 
-  getDevicekeyupload(): DeviceKeyUpload | void;
-  setDevicekeyupload(value?: DeviceKeyUpload): OpaqueLoginStartRequest;
-  hasDevicekeyupload(): boolean;
-  clearDevicekeyupload(): OpaqueLoginStartRequest;
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): OpaqueLoginStartRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): OpaqueLoginStartRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OpaqueLoginStartRequestObject;
@@ -259,18 +260,18 @@ declare export class OpaqueLoginStartRequest extends Message {
 
 export type OpaqueLoginStartRequestObject = {
   username: string,
-  opaqueloginrequest: Uint8Array | string,
-  devicekeyupload?: DeviceKeyUploadObject,
+  opaqueLoginRequest: Uint8Array | string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
 };
 
 declare export class OpaqueLoginFinishRequest extends Message {
-  getSessionid(): string;
-  setSessionid(value: string): OpaqueLoginFinishRequest;
+  getSessionId(): string;
+  setSessionId(value: string): OpaqueLoginFinishRequest;
 
-  getOpaqueloginupload(): Uint8Array | string;
-  getOpaqueloginupload_asU8(): Uint8Array;
-  getOpaqueloginupload_asB64(): string;
-  setOpaqueloginupload(value: Uint8Array | string): OpaqueLoginFinishRequest;
+  getOpaqueLoginUpload(): Uint8Array | string;
+  getOpaqueLoginUpload_asU8(): Uint8Array;
+  getOpaqueLoginUpload_asB64(): string;
+  setOpaqueLoginUpload(value: Uint8Array | string): OpaqueLoginFinishRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OpaqueLoginFinishRequestObject;
@@ -281,18 +282,18 @@ declare export class OpaqueLoginFinishRequest extends Message {
 }
 
 export type OpaqueLoginFinishRequestObject = {
-  sessionid: string,
-  opaqueloginupload: Uint8Array | string,
+  sessionId: string,
+  opaqueLoginUpload: Uint8Array | string,
 };
 
 declare export class OpaqueLoginStartResponse extends Message {
-  getSessionid(): string;
-  setSessionid(value: string): OpaqueLoginStartResponse;
+  getSessionId(): string;
+  setSessionId(value: string): OpaqueLoginStartResponse;
 
-  getOpaqueloginresponse(): Uint8Array | string;
-  getOpaqueloginresponse_asU8(): Uint8Array;
-  getOpaqueloginresponse_asB64(): string;
-  setOpaqueloginresponse(value: Uint8Array | string): OpaqueLoginStartResponse;
+  getOpaqueLoginResponse(): Uint8Array | string;
+  getOpaqueLoginResponse_asU8(): Uint8Array;
+  getOpaqueLoginResponse_asB64(): string;
+  setOpaqueLoginResponse(value: Uint8Array | string): OpaqueLoginStartResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OpaqueLoginStartResponseObject;
@@ -303,16 +304,16 @@ declare export class OpaqueLoginStartResponse extends Message {
 }
 
 export type OpaqueLoginStartResponseObject = {
-  sessionid: string,
-  opaqueloginresponse: Uint8Array | string,
+  sessionId: string,
+  opaqueLoginResponse: Uint8Array | string,
 };
 
 declare export class OpaqueLoginFinishResponse extends Message {
-  getUserid(): string;
-  setUserid(value: string): OpaqueLoginFinishResponse;
+  getUserId(): string;
+  setUserId(value: string): OpaqueLoginFinishResponse;
 
-  getAccesstoken(): string;
-  setAccesstoken(value: string): OpaqueLoginFinishResponse;
+  getAccessToken(): string;
+  setAccessToken(value: string): OpaqueLoginFinishResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OpaqueLoginFinishResponseObject;
@@ -323,21 +324,21 @@ declare export class OpaqueLoginFinishResponse extends Message {
 }
 
 export type OpaqueLoginFinishResponseObject = {
-  userid: string,
-  accesstoken: string,
+  userId: string,
+  accessToken: string,
 };
 
 declare export class WalletLoginRequest extends Message {
-  getSiwemessage(): string;
-  setSiwemessage(value: string): WalletLoginRequest;
+  getSiweMessage(): string;
+  setSiweMessage(value: string): WalletLoginRequest;
 
-  getSiwesignature(): string;
-  setSiwesignature(value: string): WalletLoginRequest;
+  getSiweSignature(): string;
+  setSiweSignature(value: string): WalletLoginRequest;
 
-  getDevicekeyupload(): DeviceKeyUpload | void;
-  setDevicekeyupload(value?: DeviceKeyUpload): WalletLoginRequest;
-  hasDevicekeyupload(): boolean;
-  clearDevicekeyupload(): WalletLoginRequest;
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): WalletLoginRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): WalletLoginRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WalletLoginRequestObject;
@@ -348,28 +349,28 @@ declare export class WalletLoginRequest extends Message {
 }
 
 export type WalletLoginRequestObject = {
-  siwemessage: string,
-  siwesignature: string,
-  devicekeyupload?: DeviceKeyUploadObject,
+  siweMessage: string,
+  siweSignature: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
 };
 
 declare export class ReservedWalletLoginRequest extends Message {
-  getSiwemessage(): string;
-  setSiwemessage(value: string): ReservedWalletLoginRequest;
+  getSiweMessage(): string;
+  setSiweMessage(value: string): ReservedWalletLoginRequest;
 
-  getSiwesignature(): string;
-  setSiwesignature(value: string): ReservedWalletLoginRequest;
+  getSiweSignature(): string;
+  setSiweSignature(value: string): ReservedWalletLoginRequest;
 
-  getDevicekeyupload(): DeviceKeyUpload | void;
-  setDevicekeyupload(value?: DeviceKeyUpload): ReservedWalletLoginRequest;
-  hasDevicekeyupload(): boolean;
-  clearDevicekeyupload(): ReservedWalletLoginRequest;
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): ReservedWalletLoginRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): ReservedWalletLoginRequest;
 
-  getKeyservermessage(): string;
-  setKeyservermessage(value: string): ReservedWalletLoginRequest;
+  getKeyserverMessage(): string;
+  setKeyserverMessage(value: string): ReservedWalletLoginRequest;
 
-  getKeyserversignature(): string;
-  setKeyserversignature(value: string): ReservedWalletLoginRequest;
+  getKeyserverSignature(): string;
+  setKeyserverSignature(value: string): ReservedWalletLoginRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReservedWalletLoginRequestObject;
@@ -380,19 +381,19 @@ declare export class ReservedWalletLoginRequest extends Message {
 }
 
 export type ReservedWalletLoginRequestObject = {
-  siwemessage: string,
-  siwesignature: string,
-  devicekeyupload?: DeviceKeyUploadObject,
-  keyservermessage: string,
-  keyserversignature: string,
+  siweMessage: string,
+  siweSignature: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+  keyserverMessage: string,
+  keyserverSignature: string,
 };
 
 declare export class WalletLoginResponse extends Message {
-  getUserid(): string;
-  setUserid(value: string): WalletLoginResponse;
+  getUserId(): string;
+  setUserId(value: string): WalletLoginResponse;
 
-  getAccesstoken(): string;
-  setAccesstoken(value: string): WalletLoginResponse;
+  getAccessToken(): string;
+  setAccessToken(value: string): WalletLoginResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WalletLoginResponseObject;
@@ -403,8 +404,8 @@ declare export class WalletLoginResponse extends Message {
 }
 
 export type WalletLoginResponseObject = {
-  userid: string,
-  accesstoken: string,
+  userId: string,
+  accessToken: string,
 };
 
 declare export class GenerateNonceResponse extends Message {
@@ -424,14 +425,14 @@ export type GenerateNonceResponseObject = {
 };
 
 declare export class VerifyUserAccessTokenRequest extends Message {
-  getUserid(): string;
-  setUserid(value: string): VerifyUserAccessTokenRequest;
+  getUserId(): string;
+  setUserId(value: string): VerifyUserAccessTokenRequest;
 
-  getSigningpublickey(): string;
-  setSigningpublickey(value: string): VerifyUserAccessTokenRequest;
+  getDeviceId(): string;
+  setDeviceId(value: string): VerifyUserAccessTokenRequest;
 
-  getAccesstoken(): string;
-  setAccesstoken(value: string): VerifyUserAccessTokenRequest;
+  getAccessToken(): string;
+  setAccessToken(value: string): VerifyUserAccessTokenRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): VerifyUserAccessTokenRequestObject;
@@ -442,14 +443,14 @@ declare export class VerifyUserAccessTokenRequest extends Message {
 }
 
 export type VerifyUserAccessTokenRequestObject = {
-  userid: string,
-  signingpublickey: string,
-  accesstoken: string,
+  userId: string,
+  deviceId: string,
+  accessToken: string,
 };
 
 declare export class VerifyUserAccessTokenResponse extends Message {
-  getTokenvalid(): boolean;
-  setTokenvalid(value: boolean): VerifyUserAccessTokenResponse;
+  getTokenValid(): boolean;
+  setTokenValid(value: boolean): VerifyUserAccessTokenResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): VerifyUserAccessTokenResponseObject;
@@ -460,7 +461,7 @@ declare export class VerifyUserAccessTokenResponse extends Message {
 }
 
 export type VerifyUserAccessTokenResponseObject = {
-  tokenvalid: boolean,
+  tokenValid: boolean,
 };
 
 declare export class AddReservedUsernamesRequest extends Message {
