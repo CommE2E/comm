@@ -18,7 +18,7 @@ import {
   logInActionSources,
   type LogInActionSource,
 } from 'lib/types/account-types.js';
-import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils.js';
+import { resolveKeyserverSessionInvalidation } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -65,7 +65,7 @@ function SQLiteDataHandler(): React.Node {
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
     async (source: LogInActionSource) => {
       try {
-        await fetchNewCookieFromNativeCredentials(
+        await resolveKeyserverSessionInvalidation(
           dispatch,
           cookie,
           urlPrefix,
