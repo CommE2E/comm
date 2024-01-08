@@ -2,6 +2,7 @@
 
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
+import { getRustAPI } from 'rust-node-addon';
 import { ErrorTypes, SiweMessage } from 'siwe';
 import t, { type TInterface, type TUnion, type TEnums } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
@@ -14,6 +15,7 @@ import {
 import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
+  KeyserverAuthRequest,
   ResetPasswordRequest,
   LogOutResponse,
   RegisterResponse,
@@ -24,7 +26,7 @@ import type {
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
   ClaimUsernameResponse,
-} from 'lib/types/account-types.js';
+} from 'lib/types/account-types';
 import {
   userSettingsTypes,
   notificationTypeValues,
@@ -98,10 +100,15 @@ import {
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
 import {
+  processOLMAccountCreation,
   createAccount,
   processSIWEAccountCreation,
 } from '../creators/account-creator.js';
-import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
+import {
+  createOlmSession,
+  persistFreshOlmSession,
+  createAndPersistOlmSession,
+} from '../creators/olm-session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteAccount } from '../deleters/account-deleters.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
@@ -133,7 +140,8 @@ import {
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { getOlmUtility } from '../utils/olm-utils.js';
+import { fetchIdentityInfo } from '../user/identity.js';
+import { getOlmUtility, getContentSigningKey } from '../utils/olm-utils.js';
 
 export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
   tShape<SubscriptionUpdateRequest>({
@@ -293,6 +301,8 @@ type ProcessSuccessfulLoginParams = {
   +socialProof?: ?SIWESocialProof,
   +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
   +initialNotificationsEncryptedMessage?: string,
+  +pickledContentOlmSession?: string,
+  +cookieHasBeenSet?: boolean,
 };
 
 async function processSuccessfulLogin(
@@ -306,6 +316,8 @@ async function processSuccessfulLogin(
     socialProof,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
+    pickledContentOlmSession,
+    cookieHasBeenSet,
   } = params;
 
   const request: LogInRequest = input;
@@ -313,17 +325,24 @@ async function processSuccessfulLogin(
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const [userViewerData, notAcknowledgedPolicies] = await Promise.all([
-    createNewUserCookie(userID, {
-      platformDetails: request.platformDetails,
-      deviceToken,
-      socialProof,
-      signedIdentityKeysBlob,
-    }),
+  const setNewCookiePromise = (async () => {
+    if (!cookieHasBeenSet) {
+      const [userViewerData] = await Promise.all([
+        createNewUserCookie(userID, {
+          platformDetails: request.platformDetails,
+          deviceToken,
+          socialProof,
+          signedIdentityKeysBlob,
+        }),
+        deleteCookie(viewer.cookieID),
+      ]);
+      viewer.setNewCookie(userViewerData);
+    }
+  })();
+  const [notAcknowledgedPolicies] = await Promise.all([
     fetchNotAcknowledgedPolicies(userID, baseLegalPolicies),
-    deleteCookie(viewer.cookieID),
+    setNewCookiePromise,
   ]);
-  viewer.setNewCookie(userViewerData);
 
   if (
     notAcknowledgedPolicies.length &&
@@ -348,16 +367,28 @@ async function processSuccessfulLogin(
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
   }
-  const olmSessionPromise = (async () => {
+  const olmNotifSessionPromise = (async () => {
     if (
-      userViewerData.cookieID &&
+      viewer.cookieID &&
       initialNotificationsEncryptedMessage &&
       signedIdentityKeysBlob
     ) {
       await createAndPersistOlmSession(
         initialNotificationsEncryptedMessage,
         'notifications',
-        userViewerData.cookieID,
+        viewer.cookieID,
+      );
+    }
+  })();
+  // `pickledContentOlmSession` is created in `keyserverAuthResponder(...)` in
+  // order to authenticate the user. Here, we simply persist the session if it
+  // exists.
+  const olmContentSessionPromise = (async () => {
+    if (viewer.cookieID && pickledContentOlmSession) {
+      await persistFreshOlmSession(
+        pickledContentOlmSession,
+        'content',
+        viewer.cookieID,
       );
     }
   })();
@@ -387,7 +418,8 @@ async function processSuccessfulLogin(
     entriesPromise,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
-    olmSessionPromise,
+    olmNotifSessionPromise,
+    olmContentSessionPromise,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -666,6 +698,123 @@ async function siweAuthResponder(
   });
 }
 
+export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest> =
+  tShape<KeyserverAuthRequest>({
+    userID: t.String,
+    deviceID: t.String,
+    calendarQuery: entryQueryInputValidator,
+    deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+    platformDetails: tPlatformDetails,
+    watchedIDs: t.list(tID),
+    initialContentEncryptedMessage: t.String,
+    initialNotificationsEncryptedMessage: t.String,
+    doNotRegister: t.Boolean,
+  });
+
+async function keyserverAuthResponder(
+  viewer: Viewer,
+  request: KeyserverAuthRequest,
+): Promise<LogInResponse> {
+  const {
+    userID,
+    deviceID,
+    deviceTokenUpdateRequest,
+    platformDetails,
+    initialContentEncryptedMessage,
+    initialNotificationsEncryptedMessage,
+    doNotRegister,
+  } = request;
+  const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
+
+  // 1. Check if there's already a user for this userID. Simultaneously, get
+  //    info for identity service auth.
+  const [existingUsername, authDeviceID, identityInfo, rustAPI] =
+    await Promise.all([
+      fetchUsername(userID),
+      getContentSigningKey(),
+      fetchIdentityInfo(),
+      getRustAPI(),
+    ]);
+  if (!existingUsername && doNotRegister) {
+    throw new ServerError('account_does_not_exist');
+  }
+  if (!identityInfo) {
+    throw new ServerError('account_not_registered_on_identity_service');
+  }
+
+  // 2. Get user's keys from identity service.
+  let inboundKeysForUser;
+  try {
+    inboundKeysForUser = await rustAPI.getInboundKeysForUserDevice(
+      identityInfo.userId,
+      authDeviceID,
+      identityInfo.accessToken,
+      userID,
+      deviceID,
+    );
+  } catch (e) {
+    throw new ServerError('failed_to_retrieve_inbound_keys');
+  }
+
+  const username = inboundKeysForUser.username
+    ? inboundKeysForUser.username
+    : inboundKeysForUser.walletAddress;
+
+  if (!username) {
+    throw new ServerError('user_identifier_missing');
+  }
+
+  const identityKeys: IdentityKeysBlob = JSON.parse(inboundKeysForUser.payload);
+  if (!identityKeysBlobValidator.is(identityKeys)) {
+    throw new ServerError('invalid_identity_keys_blob');
+  }
+
+  // 3. Create content olm session. (The notif session is not required for auth
+  //    and will be created later in `processSuccessfulLogin(...)`.)
+  const pickledContentOlmSession = await createOlmSession(
+    initialContentEncryptedMessage,
+    'content',
+    identityKeys.primaryIdentityPublicKeys.curve25519,
+  );
+
+  // 4. Create account with call to `processOLMAccountCreation(...)`
+  //    if username does not correspond to an existing user. If we successfully
+  //    create a new account, we set `cookieHasBeenSet` to true to avoid
+  //    creating a new cookie again in `processSuccessfulLogin`.
+  const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+    payload: inboundKeysForUser.payload,
+    signature: inboundKeysForUser.payloadSignature,
+  };
+  let cookieHasBeenSet = false;
+  if (!existingUsername) {
+    const olmAccountCreationRequest = {
+      userID,
+      identifier: {
+        username: username,
+        walletAddress: inboundKeysForUser.walletAddress,
+      },
+      signedIdentityKeysBlob,
+      calendarQuery,
+      deviceTokenUpdateRequest,
+      platformDetails,
+    };
+    await processOLMAccountCreation(viewer, olmAccountCreationRequest);
+    cookieHasBeenSet = true;
+  }
+
+  // 5. Complete login with call to `processSuccessfulLogin(...)`.
+  return await processSuccessfulLogin({
+    viewer,
+    input: request,
+    userID,
+    calendarQuery,
+    signedIdentityKeysBlob,
+    initialNotificationsEncryptedMessage,
+    pickledContentOlmSession,
+    cookieHasBeenSet,
+  });
+}
+
 export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordRequest> =
   tShape<UpdatePasswordRequest>({
     code: t.String,
@@ -781,4 +930,5 @@ export {
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
   claimUsernameResponder,
+  keyserverAuthResponder,
 };
