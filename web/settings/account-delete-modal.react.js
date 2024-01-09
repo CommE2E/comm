@@ -17,7 +17,6 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import css from './account-delete-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
-import { IdentityServiceClientWrapper } from '../grpc/identity-service-client-wrapper.js';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -40,17 +39,6 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const inputDisabled =
       isDeleteKeyserverAccountLoading || isDeleteIdentityAccountLoading;
 
-    const deviceID = useSelector(
-      state => state.cryptoStore?.primaryIdentityKeys.ed25519,
-    );
-
-    const identityServiceClientWrapperRef =
-      React.useRef<?IdentityServiceClientWrapper>(null);
-    if (!identityServiceClientWrapperRef.current) {
-      identityServiceClientWrapperRef.current =
-        new IdentityServiceClientWrapper();
-    }
-    const identityServiceClient = identityServiceClientWrapperRef.current;
     const callDeleteIdentityAccount = useDeleteIdentityAccount();
     const callDeleteKeyserverAccount = useDeleteKeyserverAccount();
 
@@ -98,10 +86,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const deleteIdentityAction = React.useCallback(async () => {
       try {
         setIdentityErrorMessage('');
-        const response = await callDeleteIdentityAccount(
-          identityServiceClient,
-          deviceID,
-        );
+        const response = await callDeleteIdentityAccount();
         popModal();
         return response;
       } catch (e) {
@@ -110,7 +95,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
         );
         throw e;
       }
-    }, [callDeleteIdentityAccount, deviceID, identityServiceClient, popModal]);
+    }, [callDeleteIdentityAccount, popModal]);
 
     const onDelete = React.useCallback(
       (event: SyntheticEvent<HTMLButtonElement>) => {
