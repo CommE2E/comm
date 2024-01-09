@@ -1,4 +1,19 @@
+.panelContainer {
+  flex: 1;
+}
+
 .container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+}
+
+.searchContainer {
+  padding: 8px;
+}
+
+.userListContainer {
   overflow: auto;
   flex-grow: 1;
   flex-basis: 120px;
