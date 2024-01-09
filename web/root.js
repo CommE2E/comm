@@ -21,6 +21,7 @@ import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
 import { localforageConfig } from './database/utils/constants.js';
 import ErrorBoundary from './error-boundary.react.js';
+import IdentityServiceContextProvider from './grpc/identity-service-context-provider.react.js';
 import { defaultWebState } from './redux/default-state.js';
 import InitialReduxStateGate from './redux/initial-state-gate.js';
 import { persistConfig } from './redux/persist.js';
@@ -43,14 +44,16 @@ const RootProvider = (): React.Node => (
     <ErrorBoundary>
       <InitialReduxStateGate persistor={persistor}>
         <GetOrCreateCryptoStoreProvider>
-          <WebNotificationsSessionCreatorProvider>
-            <Router history={history.getHistoryObject()}>
-              <Route path="*" component={App} />
-            </Router>
-            <KeyserverConnectionsHandler socketComponent={Socket} />
-            <SQLiteDataHandler />
-            <IntegrityHandler />
-          </WebNotificationsSessionCreatorProvider>
+          <IdentityServiceContextProvider>
+            <WebNotificationsSessionCreatorProvider>
+              <Router history={history.getHistoryObject()}>
+                <Route path="*" component={App} />
+              </Router>
+              <KeyserverConnectionsHandler socketComponent={Socket} />
+              <SQLiteDataHandler />
+              <IntegrityHandler />
+            </WebNotificationsSessionCreatorProvider>
+          </IdentityServiceContextProvider>
         </GetOrCreateCryptoStoreProvider>
       </InitialReduxStateGate>
     </ErrorBoundary>
