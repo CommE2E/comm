@@ -4,8 +4,8 @@ import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
+import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
-import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
 import type { Action } from './redux-setup.js';
 

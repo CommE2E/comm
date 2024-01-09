@@ -7,6 +7,7 @@ import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
+import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
   type ThreadStoreOperation,
   threadStoreOpsHandlers,
@@ -35,7 +36,6 @@ import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
-import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

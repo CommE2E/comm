@@ -1,9 +1,9 @@
 // @flow
 
 import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
+import type { DispatchRecoveryAttempt } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { InitialNotifMessageOptions } from 'lib/shared/crypto-utils.js';
 import type { LogInActionSource } from 'lib/types/account-types.js';
-import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils.js';
 import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 
