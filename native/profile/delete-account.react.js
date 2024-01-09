@@ -21,12 +21,10 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
-import { commRustModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 const keyserverLoadingStatusSelector = createLoadingStatusSelector(
   deleteKeyserverAccountActionTypes,
@@ -87,8 +85,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
 
     const deleteIdentityAction = React.useCallback(async () => {
       try {
-        const deviceID = await getContentSigningKey();
-        return await callDeleteIdentityAccount(commRustModule, deviceID);
+        return await callDeleteIdentityAccount();
       } catch (e) {
         Alert.alert(
           'Unknown error deleting account',
