@@ -20,10 +20,14 @@ const loginMethodValidator = t.enums.of(['form', 'qr-code']);
 
 export type NavigationSettingsSection =
   | 'account'
+  | 'friend-list'
+  | 'block-list'
   | 'keyservers'
   | 'danger-zone';
 const navigationSettingsSectionValidator = t.enums.of([
   'account',
+  'friend-list',
+  'block-list',
   'keyservers',
   'danger-zone',
 ]);
