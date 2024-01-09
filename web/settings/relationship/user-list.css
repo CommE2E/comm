@@ -29,3 +29,9 @@
   row-gap: 8px;
   height: 625px;
 }
+
+.emptyList {
+  text-align: center;
+  margin-top: 8px;
+  color: var(--text-background-tertiary-default);
+}
