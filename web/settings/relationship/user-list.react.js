@@ -62,6 +62,14 @@ export function UserList(props: UserListProps): React.Node {
   const usersWithENSNames = useENSNames<AccountUserInfo>(users);
 
   const userRows = React.useMemo(() => {
+    if (usersWithENSNames.length === 0 && searchText.length > 0) {
+      return (
+        <div className={css.emptyList}>
+          No results. Please try searching a different username.
+        </div>
+      );
+    }
+
     const UserRow = userRowComponent;
     return usersWithENSNames.map(user => (
       <UserRow
@@ -70,7 +78,12 @@ export function UserList(props: UserListProps): React.Node {
         onMenuVisibilityChange={onMenuVisibilityChange}
       />
     ));
-  }, [userRowComponent, usersWithENSNames, onMenuVisibilityChange]);
+  }, [
+    usersWithENSNames,
+    searchText.length,
+    userRowComponent,
+    onMenuVisibilityChange,
+  ]);
 
   const containerClasses = classNames(css.userListContainer, {
     [css.noScroll]: isMenuVisible,
