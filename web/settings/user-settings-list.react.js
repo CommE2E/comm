@@ -23,6 +23,20 @@ function UserSettingsList(): React.Node {
     });
   }, [dispatch]);
 
+  const onClickFriendList = React.useCallback(() => {
+    dispatch({
+      type: updateNavInfoActionType,
+      payload: { tab: 'settings', settingsSection: 'friend-list' },
+    });
+  }, [dispatch]);
+
+  const onClickBlockList = React.useCallback(() => {
+    dispatch({
+      type: updateNavInfoActionType,
+      payload: { tab: 'settings', settingsSection: 'block-list' },
+    });
+  }, [dispatch]);
+
   const onClickKeyservers = React.useCallback(() => {
     dispatch({
       type: updateNavInfoActionType,
@@ -59,6 +73,16 @@ function UserSettingsList(): React.Node {
           name="My account"
           onClick={onClickAccountSettings}
         />
+        <UserSettingsListItem
+          id="friend-list"
+          name="Friend list"
+          onClick={onClickFriendList}
+        />
+        <UserSettingsListItem
+          id="block-list"
+          name="Block list"
+          onClick={onClickBlockList}
+        />
         {keyserverSettingsListItem}
         <UserSettingsListItem
           id="danger-zone"
@@ -67,7 +91,13 @@ function UserSettingsList(): React.Node {
         />
       </div>
     ),
-    [keyserverSettingsListItem, onClickAccountSettings, onClickDangerZone],
+    [
+      keyserverSettingsListItem,
+      onClickAccountSettings,
+      onClickBlockList,
+      onClickDangerZone,
+      onClickFriendList,
+    ],
   );
 
   const panelData: $ReadOnlyArray<PanelData> = React.useMemo(
