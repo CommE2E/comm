@@ -18,6 +18,7 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { resetUserStateActionType } from 'lib/actions/user-actions.js';
+import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import {
   cookieSelector,
   urlPrefixSelector,
@@ -26,7 +27,6 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { resolveKeyserverSessionInvalidation } from 'lib/utils/action-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
