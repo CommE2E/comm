@@ -11,9 +11,9 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import type { CallServerEndpointResultInfoInterface } from 'lib/utils/call-server-endpoint.js';
 import { cloneError } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Alert from '../modals/alert.react.js';
 import { useSelector } from '../redux/redux-utils.js';

@@ -6,7 +6,7 @@ import {
   useSendMessageReport,
   sendMessageReportActionTypes,
 } from 'lib/actions/message-report-actions.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import type { TooltipRoute } from '../tooltip/tooltip.react.js';

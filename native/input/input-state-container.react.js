@@ -83,11 +83,7 @@ import {
   type NewThreadResult,
   type ThreadInfo,
 } from 'lib/types/thread-types.js';
-import {
-  type DispatchActionPromise,
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import type {
   CallServerEndpointOptions,
   CallServerEndpointResponse,
@@ -95,6 +91,10 @@ import type {
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   generateReportID,

@@ -5,10 +5,8 @@ import * as React from 'react';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { registerActionTypes, register } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 

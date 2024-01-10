@@ -38,14 +38,14 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ConnectionStatus } from 'lib/types/socket-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
-import {
   dateString,
   prettyDate,
   dateFromString,
 } from 'lib/utils/date-utils.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

@@ -10,10 +10,8 @@ import {
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';

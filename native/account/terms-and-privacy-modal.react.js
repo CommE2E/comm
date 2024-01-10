@@ -17,11 +17,9 @@ import {
 } from 'lib/actions/user-actions.js';
 import { type PolicyType, policyTypes } from 'lib/facts/policies.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utlis.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';

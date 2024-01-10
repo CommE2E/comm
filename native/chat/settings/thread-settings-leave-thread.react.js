@@ -15,9 +15,9 @@ import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { LeaveThreadPayload, ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { clearThreadsActionType } from '../../navigation/action-types.js';

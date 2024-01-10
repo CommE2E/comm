@@ -12,8 +12,8 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './change-member-role-modal.css';
 import UserAvatar from '../../../avatars/user-avatar.react.js';

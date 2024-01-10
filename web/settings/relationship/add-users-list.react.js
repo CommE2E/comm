@@ -18,11 +18,9 @@ import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
 } from 'lib/types/user-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';

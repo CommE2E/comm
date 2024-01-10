@@ -14,7 +14,7 @@ import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityCreationContentContainer from './community-creation-content-container.react.js';
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';

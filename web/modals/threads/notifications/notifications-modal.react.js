@@ -9,7 +9,7 @@ import {
 import { canPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsSidebar } from 'lib/shared/thread-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';

@@ -37,13 +37,13 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

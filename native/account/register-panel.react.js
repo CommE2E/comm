@@ -32,11 +32,11 @@ import type {
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+} from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { TextInput } from './modal-components.react.js';

@@ -17,9 +17,9 @@ import {
   userSettingsTypes,
 } from 'lib/types/account-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import Action from '../components/action-row.react.js';

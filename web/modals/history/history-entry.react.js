@@ -22,11 +22,11 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import css from './history.css';
 import LoadingIndicator from '../../loading-indicator.react.js';

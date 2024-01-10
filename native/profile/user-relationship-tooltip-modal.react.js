@@ -9,10 +9,8 @@ import {
 } from 'lib/actions/relationship-actions.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeUserInfo } from 'lib/types/user-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import PencilIcon from '../components/pencil-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';

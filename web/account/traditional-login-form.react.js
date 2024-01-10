@@ -16,7 +16,7 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';

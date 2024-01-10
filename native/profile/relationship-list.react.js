@@ -22,11 +22,9 @@ import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
 } from 'lib/types/user-types.js';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RelationshipListItem from './relationship-list-item.react.js';

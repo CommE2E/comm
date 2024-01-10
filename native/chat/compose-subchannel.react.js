@@ -19,7 +19,7 @@ import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';

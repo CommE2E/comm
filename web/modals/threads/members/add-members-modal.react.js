@@ -11,7 +11,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';

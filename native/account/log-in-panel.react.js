@@ -30,7 +30,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+} from 'lib/utils/redux-promise-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import {
