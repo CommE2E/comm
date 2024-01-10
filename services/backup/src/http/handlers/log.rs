@@ -17,23 +17,17 @@ use comm_lib::{
   },
   database::{self, blob::BlobOrDBContent},
 };
-use std::{
-  sync::Arc,
-  time::{Duration, Instant},
-};
+use std::time::{Duration, Instant};
 use tracing::{error, info, instrument, warn};
 
 pub async fn handle_ws(
-  path: web::Path<String>,
   req: HttpRequest,
   stream: web::Payload,
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> Result<HttpResponse, Error> {
-  let backup_id = path.into_inner();
   ws::WsResponseBuilder::new(
     LogWSActor {
-      info: Arc::new(ConnectionInfo { backup_id }),
       blob_client: blob_client.as_ref().clone(),
       db_client: db_client.as_ref().clone(),
       last_msg_time: Instant::now(),
@@ -46,10 +40,6 @@ pub async fn handle_ws(
   .start()
 }
 
-struct ConnectionInfo {
-  backup_id: String,
-}
-
 #[derive(
   Debug, derive_more::From, derive_more::Display, derive_more::Error,
 )]
@@ -60,7 +50,6 @@ enum LogWSError {
 }
 
 struct LogWSActor {
-  info: Arc<ConnectionInfo>,
   blob_client: BlobServiceClient,
   db_client: DatabaseClient,
 
@@ -78,7 +67,6 @@ impl LogWSActor {
     bytes: Bytes,
   ) {
     let fut = Self::handle_msg(
-      self.info.clone(),
       self.blob_client.clone(),
       self.db_client.clone(),
       bytes.into(),
@@ -113,7 +101,6 @@ impl LogWSActor {
   }
 
   async fn handle_msg(
-    info: Arc<ConnectionInfo>,
     blob_client: BlobServiceClient,
     db_client: DatabaseClient,
     bytes: Bytes,
@@ -122,6 +109,7 @@ impl LogWSActor {
 
     match request {
       LogWSRequest::UploadLog(UploadLogRequest {
+        backup_id,
         log_id,
         content,
         attachments,
@@ -136,7 +124,7 @@ impl LogWSActor {
         }
 
         let mut log_item = LogItem {
-          backup_id: info.backup_id.clone(),
+          backup_id: backup_id.clone(),
           log_id,
           content: BlobOrDBContent::new(content),
           attachments: attachment_blob_infos,
@@ -145,11 +133,14 @@ impl LogWSActor {
         log_item.ensure_size_constraints(&blob_client).await?;
         db_client.put_log_item(log_item).await?;
 
-        Ok(vec![LogWSResponse::LogUploaded { log_id }])
+        Ok(vec![LogWSResponse::LogUploaded { backup_id, log_id }])
       }
-      LogWSRequest::DownloadLogs(DownloadLogsRequest { from_id }) => {
+      LogWSRequest::DownloadLogs(DownloadLogsRequest {
+        backup_id,
+        from_id,
+      }) => {
         let (log_items, last_id) =
-          db_client.fetch_log_items(&info.backup_id, from_id).await?;
+          db_client.fetch_log_items(&backup_id, from_id).await?;
 
         let mut messages = vec![];
 
@@ -210,7 +201,7 @@ impl LogWSActor {
 impl Actor for LogWSActor {
   type Context = ws::WebsocketContext<Self>;
 
-  #[instrument(skip_all, fields(backup_id = self.info.backup_id))]
+  #[instrument(skip_all)]
   fn started(&mut self, ctx: &mut Self::Context) {
     info!("Socket opened");
     ctx.run_interval(Self::HEARTBEAT_INTERVAL, |actor, ctx| {
@@ -226,14 +217,14 @@ impl Actor for LogWSActor {
     });
   }
 
-  #[instrument(skip_all, fields(backup_id = self.info.backup_id))]
+  #[instrument(skip_all)]
   fn stopped(&mut self, _: &mut Self::Context) {
     info!("Socket closed");
   }
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for LogWSActor {
-  #[instrument(skip_all, fields(backup_id = self.info.backup_id))]
+  #[instrument(skip_all)]
   fn handle(
     &mut self,
     msg: Result<ws::Message, ws::ProtocolError>,

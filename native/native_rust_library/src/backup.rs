@@ -6,8 +6,8 @@ use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
   BackupClient, BackupData, BackupDescriptor, DownloadLogsRequest,
-  LatestBackupIDResponse, LogWSResponse, RequestedData, SinkExt, StreamExt,
-  UploadLogRequest, UserIdentity,
+  LatestBackupIDResponse, LogUploadConfirmation, LogWSResponse, RequestedData,
+  SinkExt, StreamExt, UploadLogRequest, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -85,21 +85,27 @@ pub async fn create_backup(
     .upload_backup(&user_identity, backup_data)
     .await?;
 
-  let (tx, rx) = backup_client
-    .upload_logs(&user_identity, &backup_id)
-    .await?;
+  let (tx, rx) = backup_client.upload_logs(&user_identity).await?;
 
   tokio::pin!(tx);
   tokio::pin!(rx);
 
   let log_data = UploadLogRequest {
+    backup_id: backup_id.clone(),
     log_id: 1,
     content: (1..100).collect(),
     attachments: None,
   };
   tx.send(log_data.clone()).await?;
   match rx.next().await {
-    Some(Ok(1)) => (),
+    Some(Ok(LogUploadConfirmation {
+      backup_id: response_backup_id,
+      log_id: 1,
+    }))
+      if backup_id == response_backup_id =>
+    {
+      // Correctly uploaded
+    }
     response => {
       return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
     }
@@ -149,14 +155,16 @@ pub async fn restore_backup(
 
   let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
 
-  let (tx, rx) = backup_client
-    .download_logs(&user_identity, &backup_id)
-    .await?;
+  let (tx, rx) = backup_client.download_logs(&user_identity).await?;
 
   tokio::pin!(tx);
   tokio::pin!(rx);
 
-  tx.send(DownloadLogsRequest { from_id: None }).await?;
+  tx.send(DownloadLogsRequest {
+    backup_id: backup_id.clone(),
+    from_id: None,
+  })
+  .await?;
 
   match rx.next().await {
     Some(Ok(LogWSResponse::LogDownload {
