@@ -270,6 +270,24 @@ impl DatabaseClient {
       .await
   }
 
+  pub async fn get_username_for_user_id(
+    &self,
+    user_id: &str,
+  ) -> Result<String, Error> {
+    let mut user_info = self
+      .get_item_from_users_table(user_id)
+      .await?
+      .item
+      .ok_or(Error::MissingItem)?;
+
+    let username = String::try_from_attr(
+      USERS_TABLE_USERNAME_ATTRIBUTE,
+      user_info.remove(USERS_TABLE_USERNAME_ATTRIBUTE),
+    );
+
+    username.map_err(|e| Error::Attribute(e))
+  }
+
   pub async fn get_keyserver_keys_for_user(
     &self,
     user_id: &str,

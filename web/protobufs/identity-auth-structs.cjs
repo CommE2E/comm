@@ -1165,7 +1165,8 @@ proto.identity.auth.KeyserverKeysResponse.prototype.toObject = function(opt_incl
  */
 proto.identity.auth.KeyserverKeysResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    keyserverInfo: (f = msg.getKeyserverInfo()) && proto.identity.auth.OutboundKeyInfo.toObject(includeInstance, f)
+    keyserverInfo: (f = msg.getKeyserverInfo()) && proto.identity.auth.OutboundKeyInfo.toObject(includeInstance, f),
+    username: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -1207,6 +1208,10 @@ proto.identity.auth.KeyserverKeysResponse.deserializeBinaryFromReader = function
       reader.readMessage(value,proto.identity.auth.OutboundKeyInfo.deserializeBinaryFromReader);
       msg.setKeyserverInfo(value);
       break;
+    case 2:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1242,6 +1247,13 @@ proto.identity.auth.KeyserverKeysResponse.serializeBinaryToWriter = function(mes
       1,
       f,
       proto.identity.auth.OutboundKeyInfo.serializeBinaryToWriter
+    );
+  }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      2,
+      f
     );
   }
 };
@@ -1281,6 +1293,24 @@ proto.identity.auth.KeyserverKeysResponse.prototype.clearKeyserverInfo = functio
  */
 proto.identity.auth.KeyserverKeysResponse.prototype.hasKeyserverInfo = function() {
   return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional string username = 2;
+ * @return {string}
+ */
+proto.identity.auth.KeyserverKeysResponse.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.auth.KeyserverKeysResponse} returns this
+ */
+proto.identity.auth.KeyserverKeysResponse.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
