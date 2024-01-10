@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
@@ -18,7 +19,6 @@ import {
   logInActionSources,
   type LogInActionSource,
 } from 'lib/types/account-types.js';
-import { resolveKeyserverSessionInvalidation } from 'lib/utils/action-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
