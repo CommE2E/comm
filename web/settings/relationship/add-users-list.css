@@ -33,11 +33,6 @@
   text-overflow: ellipsis;
 }
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
 .confirmButtonContainer {
   display: flex;
   flex-direction: column;
