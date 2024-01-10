@@ -39,20 +39,27 @@ impl LogItem {
     );
     self.content.move_to_blob(blob_client).await
   }
+
+  pub fn item_key(
+    backup_id: impl Into<String>,
+    log_id: usize,
+  ) -> HashMap<String, AttributeValue> {
+    HashMap::from([
+      (
+        attr::BACKUP_ID.to_string(),
+        AttributeValue::S(backup_id.into()),
+      ),
+      (
+        attr::LOG_ID.to_string(),
+        AttributeValue::N(log_id.to_string()),
+      ),
+    ])
+  }
 }
 
 impl From<LogItem> for HashMap<String, AttributeValue> {
   fn from(value: LogItem) -> Self {
-    let mut attrs = HashMap::from([
-      (
-        attr::BACKUP_ID.to_string(),
-        AttributeValue::S(value.backup_id),
-      ),
-      (
-        attr::LOG_ID.to_string(),
-        AttributeValue::N(value.log_id.to_string()),
-      ),
-    ]);
+    let mut attrs = LogItem::item_key(value.backup_id, value.log_id);
 
     let (content_attr_name, content_attr) = value
       .content
