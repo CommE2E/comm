@@ -9,6 +9,54 @@ import {
 
 import * as identityStructs from './identity-unauth-structs.cjs';
 
+declare export class EthereumIdentity extends Message {
+  getWalletAddress(): string;
+  setWalletAddress(value: string): EthereumIdentity;
+
+  getSocialProof(): string;
+  setSocialProof(value: string): EthereumIdentity;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): EthereumIdentityObject;
+  static toObject(includeInstance: boolean, msg: EthereumIdentity): EthereumIdentityObject;
+  static serializeBinaryToWriter(message: EthereumIdentity, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): EthereumIdentity;
+  static deserializeBinaryFromReader(message: EthereumIdentity, reader: BinaryReader): EthereumIdentity;
+}
+
+export type EthereumIdentityObject = {
+  walletAddress: string,
+  socialProof: string,
+}
+
+export type IdentityInfoCase = 0 | 1 | 2;
+
+declare export class Identity extends Message {
+  getUsername(): string | void;
+  setUsername(value: string): Identity;
+  hasUsername(): boolean;
+  clearUsername(): Identity;
+
+  getEthIdentity(): EthereumIdentity | void;
+  setEthIdentity(value?: EthereumIdentity): Identity;
+  hasEthIdentity(): boolean;
+  clearEthIdentity(): Identity;
+
+  getIdentityInfoCase(): IdentityInfoCase;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): IdentityObject;
+  static toObject(includeInstance: boolean, msg: Identity): IdentityObject;
+  static serializeBinaryToWriter(message: Identity, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): Identity;
+  static deserializeBinaryFromReader(message: Identity, reader: BinaryReader): Identity;
+}
+
+export type IdentityObject = {
+  username?: string,
+  ethIdentity?: EthereumIdentityObject,
+}
+
 declare export class UploadOneTimeKeysRequest extends Message {
   getContentOneTimePrekeysList(): Array<string>;
   setContentOneTimePrekeysList(value: Array<string>): UploadOneTimeKeysRequest;
@@ -183,6 +231,11 @@ declare export class InboundKeysForUserResponse extends Message {
   getDevicesMap(): ProtoMap<string, InboundKeyInfo>;
   clearDevicesMap(): InboundKeysForUserResponse;
 
+  getIdentity(): Identity | void;
+  setIdentity(value?: Identity): InboundKeysForUserResponse;
+  hasIdentity(): boolean;
+  clearIdentity(): InboundKeysForUserResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): InboundKeysForUserResponseObject;
   static toObject(includeInstance: boolean, msg: InboundKeysForUserResponse): InboundKeysForUserResponseObject;
@@ -193,6 +246,7 @@ declare export class InboundKeysForUserResponse extends Message {
 
 export type InboundKeysForUserResponseObject = {
   devicesMap: Array<[string, InboundKeyInfoObject]>,
+  identity?: IdentityObject,
 }
 
 declare export class InboundKeysForUserRequest extends Message {
@@ -360,4 +414,3 @@ declare export class GetDeviceListResponse extends Message {
 export type GetDeviceListResponseObject = {
   deviceListUpdatesList: Array<string>,
 }
-
