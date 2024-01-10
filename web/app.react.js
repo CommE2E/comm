@@ -29,7 +29,7 @@ import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { registerConfig } from 'lib/utils/config.js';
+import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
@@ -42,6 +42,7 @@ import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { initOpaque } from './crypto/opaque-utils.js';
+import { getDatabaseModule } from './database/database-module-provider.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import InviteLinkHandler from './invite-links/invite-link-handler.react.js';
@@ -100,6 +101,17 @@ registerConfig({
     ...desktopDetails,
   },
 });
+
+const versionBroadcast = new BroadcastChannel('comm_version');
+versionBroadcast.postMessage(getConfig().platformDetails.codeVersion);
+versionBroadcast.onmessage = (event: MessageEvent) => {
+  if (event.data && event.data !== getConfig().platformDetails.codeVersion) {
+    location.reload();
+  }
+};
+
+// Start initializing the database immediately
+void getDatabaseModule();
 
 type BaseProps = {
   +location: {
