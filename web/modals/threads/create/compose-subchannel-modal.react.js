@@ -9,8 +9,8 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { trimText } from 'lib/utils/text-utils.js';
 

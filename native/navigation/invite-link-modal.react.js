@@ -10,7 +10,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { nonThreadCalendarQuery } from './nav-selectors.js';
 import { NavContext } from './navigation-context.js';

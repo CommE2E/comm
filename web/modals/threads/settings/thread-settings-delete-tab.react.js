@@ -11,7 +11,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import ThreadDeleteConfirmationModal from './thread-settings-delete-confirmation-modal.react.js';

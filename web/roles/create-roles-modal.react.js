@@ -20,8 +20,8 @@ import type {
   RoleModificationRequest,
   ThreadInfo,
 } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './create-roles-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';

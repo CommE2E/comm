@@ -24,10 +24,8 @@ import {
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-settings-relationship-tab.css';
 import Button, { buttonThemes } from '../../../components/button.react.js';

@@ -10,7 +10,7 @@ import {
 } from 'lib/actions/message-actions.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import MessageResult from './message-result.react.js';
 import Button from '../components/button.react.js';

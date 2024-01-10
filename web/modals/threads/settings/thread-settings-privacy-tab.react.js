@@ -12,7 +12,7 @@ import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges, type ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';

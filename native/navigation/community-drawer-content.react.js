@@ -16,12 +16,12 @@ import {
   communityThreadSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   createRecursiveDrawerItemsData,
   useAppendCommunitySuffix,
 } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import CommunityDrawerItem from './community-drawer-item.react.js';
 import { CommunityCreationRouteName } from './route-names.js';

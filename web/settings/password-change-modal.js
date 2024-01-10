@@ -11,11 +11,11 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type PasswordUpdate } from 'lib/types/user-types.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import css from './password-change-modal.css';
 import Button from '../components/button.react.js';

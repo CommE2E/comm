@@ -30,11 +30,11 @@ import type {
   ThreadInfo,
   ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+} from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { clearThreadsActionType } from '../../navigation/action-types.js';

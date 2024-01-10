@@ -21,9 +21,9 @@ import type {
   ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 

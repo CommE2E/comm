@@ -11,7 +11,7 @@ import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type ThreadChanges, type ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 

@@ -7,7 +7,7 @@ import {
   useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 

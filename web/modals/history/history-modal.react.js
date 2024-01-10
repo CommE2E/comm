@@ -30,11 +30,11 @@ import type {
   HistoryRevisionInfo,
 } from 'lib/types/history-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
 import { prettyDateWithoutDay } from 'lib/utils/date-utils.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import HistoryEntry from './history-entry.react.js';
 import HistoryRevision from './history-revision.react.js';
