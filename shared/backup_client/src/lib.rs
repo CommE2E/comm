@@ -119,15 +119,14 @@ impl BackupClient {
   pub async fn upload_logs(
     &self,
     user_identity: &UserIdentity,
-    backup_id: &str,
   ) -> Result<
     (
       impl Sink<UploadLogRequest, Error = WSError>,
-      impl Stream<Item = Result<usize, WSError>>,
+      impl Stream<Item = Result<LogUploadConfirmation, WSError>>,
     ),
     Error,
   > {
-    let request = self.create_ws_request(user_identity, backup_id)?;
+    let request = self.create_ws_request(user_identity)?;
     let (stream, response) = connect_async(request).await?;
 
     if response.status().is_client_error() {
@@ -150,7 +149,9 @@ impl BackupClient {
       };
 
       match response {
-        LogWSResponse::LogUploaded { log_id } => Some(Ok(log_id)),
+        LogWSResponse::LogUploaded { backup_id, log_id } => {
+          Some(Ok(LogUploadConfirmation { backup_id, log_id }))
+        }
         LogWSResponse::LogDownload { .. }
         | LogWSResponse::LogDownloadFinished { .. } => {
           Some(Err(WSError::InvalidBackupMessage))
@@ -165,7 +166,6 @@ impl BackupClient {
   pub async fn download_logs(
     &self,
     user_identity: &UserIdentity,
-    backup_id: &str,
   ) -> Result<
     (
       impl Sink<DownloadLogsRequest, Error = WSError>,
@@ -173,7 +173,7 @@ impl BackupClient {
     ),
     Error,
   > {
-    let request = self.create_ws_request(user_identity, backup_id)?;
+    let request = self.create_ws_request(user_identity)?;
     let (stream, response) = connect_async(request).await?;
 
     if response.status().is_client_error() {
@@ -211,7 +211,6 @@ impl BackupClient {
   fn create_ws_request(
     &self,
     user_identity: &UserIdentity,
-    backup_id: &str,
   ) -> Result<Request<()>, Error> {
     let mut url = self.url.clone();
 
@@ -220,7 +219,7 @@ impl BackupClient {
       "https" => url.set_scheme("wss")?,
       _ => (),
     };
-    let url = url.join("logs/")?.join(backup_id)?;
+    let url = url.join("logs")?;
 
     let mut request = url.into_client_request().unwrap();
 
@@ -257,6 +256,12 @@ pub enum RequestedData {
   BackupID,
   UserKeys,
   UserData,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct LogUploadConfirmation {
+  pub backup_id: String,
+  pub log_id: usize,
 }
 
 #[derive(
