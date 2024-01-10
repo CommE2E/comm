@@ -11,6 +11,7 @@ import thunk from 'redux-thunk';
 
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
+import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
 import {
@@ -42,20 +43,22 @@ const persistor = persistStore(store);
 const RootProvider = (): React.Node => (
   <Provider store={store}>
     <ErrorBoundary>
-      <InitialReduxStateGate persistor={persistor}>
-        <GetOrCreateCryptoStoreProvider>
-          <IdentityServiceContextProvider>
-            <WebNotificationsSessionCreatorProvider>
-              <Router history={history.getHistoryObject()}>
-                <Route path="*" component={App} />
-              </Router>
-              <KeyserverConnectionsHandler socketComponent={Socket} />
-              <SQLiteDataHandler />
-              <IntegrityHandler />
-            </WebNotificationsSessionCreatorProvider>
-          </IdentityServiceContextProvider>
-        </GetOrCreateCryptoStoreProvider>
-      </InitialReduxStateGate>
+      <CallKeyserverEndpointProvider>
+        <InitialReduxStateGate persistor={persistor}>
+          <GetOrCreateCryptoStoreProvider>
+            <IdentityServiceContextProvider>
+              <WebNotificationsSessionCreatorProvider>
+                <Router history={history.getHistoryObject()}>
+                  <Route path="*" component={App} />
+                </Router>
+                <KeyserverConnectionsHandler socketComponent={Socket} />
+                <SQLiteDataHandler />
+                <IntegrityHandler />
+              </WebNotificationsSessionCreatorProvider>
+            </IdentityServiceContextProvider>
+          </GetOrCreateCryptoStoreProvider>
+        </InitialReduxStateGate>
+      </CallKeyserverEndpointProvider>
     </ErrorBoundary>
   </Provider>
 );
