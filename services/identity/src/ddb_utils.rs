@@ -1,17 +1,12 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use comm_lib::{
   aws::ddb::types::{AttributeValue, PutRequest, WriteRequest},
-  database::{AttributeExtractor, AttributeMap, Value},
+  database::Value,
 };
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
 use comm_lib::database::{DBItemAttributeError, DBItemError};
-
-use crate::constants::{
-  USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
-};
 
 #[derive(Copy, Clone, Debug)]
 pub enum OlmAccountType {
@@ -96,43 +91,5 @@ impl DateTimeExt for DateTime<Utc> {
   fn from_utc_timestamp_millis(timestamp: i64) -> Option<Self> {
     let naive = NaiveDateTime::from_timestamp_millis(timestamp)?;
     Some(Self::from_utc(naive, Utc))
-  }
-}
-
-pub enum Identifier {
-  Username(String),
-  WalletAddress(EthereumIdentity),
-}
-
-pub struct EthereumIdentity {
-  pub wallet_address: String,
-  pub social_proof: String,
-}
-
-impl TryFrom<AttributeMap> for Identifier {
-  type Error = crate::error::Error;
-
-  fn try_from(mut value: AttributeMap) -> Result<Self, Self::Error> {
-    let username_result = value.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE);
-
-    if let Ok(username) = username_result {
-      return Ok(Identifier::Username(username));
-    }
-
-    let wallet_address_result =
-      value.take_attr(USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE);
-    let social_proof_result =
-      value.take_attr(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME);
-
-    if let (Ok(wallet_address), Ok(social_proof)) =
-      (wallet_address_result, social_proof_result)
-    {
-      Ok(Identifier::WalletAddress(EthereumIdentity {
-        wallet_address,
-        social_proof,
-      }))
-    } else {
-      Err(Self::Error::MalformedItem)
-    }
   }
 }

@@ -1,6 +1,4 @@
-use grpc_clients::identity::protos::authenticated::{
-  identity::IdentityInfo, EthereumIdentity, Identity, InboundKeysForUserRequest,
-};
+use grpc_clients::identity::protos::authenticated::InboundKeysForUserRequest;
 
 use super::*;
 
@@ -29,38 +27,12 @@ pub async fn get_inbound_keys_for_user_device(
     .map_err(|e| Error::new(Status::GenericFailure, e.to_string()))?
     .into_inner();
 
-  let device_inbound_key_info = DeviceInboundKeyInfo::try_from(
+  let inbound_key_info = InboundKeyInfoResponse::try_from(
     response
       .devices
       .remove(&device_id)
       .ok_or(Error::from_status(Status::GenericFailure))?,
   )?;
 
-  let (username, wallet_address) = match response.identity {
-    Some(Identity {
-      identity_info: Some(IdentityInfo::Username(u)),
-    }) => (Some(u), None),
-    Some(Identity {
-      identity_info:
-        Some(IdentityInfo::EthIdentity(EthereumIdentity {
-          wallet_address: w,
-          .. // We ignore the social proof for now
-        })),
-    }) => (None, Some(w)),
-    _ => (None, None),
-  };
-
-  let inbound_key_info_response = InboundKeyInfoResponse {
-    payload: device_inbound_key_info.payload,
-    payload_signature: device_inbound_key_info.payload_signature,
-    social_proof: device_inbound_key_info.social_proof,
-    content_prekey: device_inbound_key_info.content_prekey,
-    content_prekey_signature: device_inbound_key_info.content_prekey_signature,
-    notif_prekey: device_inbound_key_info.notif_prekey,
-    notif_prekey_signature: device_inbound_key_info.notif_prekey_signature,
-    username,
-    wallet_address,
-  };
-
-  Ok(inbound_key_info_response)
+  Ok(inbound_key_info)
 }

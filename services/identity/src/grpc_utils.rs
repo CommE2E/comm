@@ -15,11 +15,8 @@ use crate::{
     USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   },
   database::DeviceKeys,
-  ddb_utils::Identifier as DBIdentifier,
   grpc_services::protos::{
-    auth::{
-      identity::IdentityInfo, EthereumIdentity, InboundKeyInfo, OutboundKeyInfo,
-    },
+    auth::{InboundKeyInfo, OutboundKeyInfo},
     unauth::{
       DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, Prekey,
       RegistrationStartRequest, ReservedRegistrationStartRequest,
@@ -257,21 +254,5 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .and_then(|upload| upload.device_key_info.as_ref())
       .map(|info| info.social_proof.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
-  }
-}
-
-impl TryFrom<DBIdentifier> for IdentityInfo {
-  type Error = Status;
-
-  fn try_from(value: DBIdentifier) -> Result<Self, Self::Error> {
-    match value {
-      DBIdentifier::Username(username) => Ok(IdentityInfo::Username(username)),
-      DBIdentifier::WalletAddress(eth_identity) => {
-        Ok(IdentityInfo::EthIdentity(EthereumIdentity {
-          wallet_address: eth_identity.wallet_address,
-          social_proof: eth_identity.social_proof,
-        }))
-      }
-    }
   }
 }

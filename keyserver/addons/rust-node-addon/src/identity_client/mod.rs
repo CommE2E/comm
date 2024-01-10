@@ -140,7 +140,8 @@ pub struct UserLoginInfo {
   pub access_token: String,
 }
 
-pub struct DeviceInboundKeyInfo {
+#[napi(object)]
+pub struct InboundKeyInfoResponse {
   pub payload: String,
   pub payload_signature: String,
   pub social_proof: Option<String>,
@@ -150,7 +151,7 @@ pub struct DeviceInboundKeyInfo {
   pub notif_prekey_signature: String,
 }
 
-impl TryFrom<InboundKeyInfo> for DeviceInboundKeyInfo {
+impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
   type Error = Error;
 
   fn try_from(key_info: InboundKeyInfo) -> Result<Self> {
@@ -192,19 +193,6 @@ impl TryFrom<InboundKeyInfo> for DeviceInboundKeyInfo {
       notif_prekey_signature,
     })
   }
-}
-
-#[napi(object)]
-pub struct InboundKeyInfoResponse {
-  pub payload: String,
-  pub payload_signature: String,
-  pub social_proof: Option<String>,
-  pub content_prekey: String,
-  pub content_prekey_signature: String,
-  pub notif_prekey: String,
-  pub notif_prekey_signature: String,
-  pub username: Option<String>,
-  pub wallet_address: Option<String>,
 }
 
 pub fn handle_grpc_error(error: tonic::Status) -> napi::Error {

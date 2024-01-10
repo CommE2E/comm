@@ -21,8 +21,6 @@ pub enum Error {
   MissingItem,
   #[display(...)]
   DeviceList(DeviceListError),
-  #[display(...)]
-  MalformedItem,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]

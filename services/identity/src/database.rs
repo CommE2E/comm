@@ -17,8 +17,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use crate::ddb_utils::{
-  create_one_time_key_partition_key, into_one_time_put_requests,
-  EthereumIdentity, Identifier, OlmAccountType,
+  create_one_time_key_partition_key, into_one_time_put_requests, OlmAccountType,
 };
 use crate::error::{consume_error, Error};
 use chrono::{DateTime, Utc};
@@ -968,7 +967,9 @@ impl DatabaseClient {
     user_id: &str,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
-    let Some(user) = self.get_item_from_users_table(user_id).await?.item else {
+    let Some(user) =
+      self.get_item_from_users_table(user_id).await?.item
+    else {
       return Ok(None);
     };
 
@@ -1095,22 +1096,6 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
-  }
-
-  pub async fn get_user_identifier(
-    &self,
-    user_id: &str,
-  ) -> Result<Identifier, Error> {
-    let user_info = self
-      .get_item_from_users_table(user_id)
-      .await?
-      .item
-      .ok_or(Error::MissingItem)?;
-
-    Identifier::try_from(user_info).map_err(|e| {
-      error!(user_id, "Database item is missing an identifier");
-      e
-    })
   }
 
   async fn get_all_usernames(&self) -> Result<Vec<String>, Error> {
