@@ -87,8 +87,7 @@ pub async fn create_backup(
 
   let (tx, rx) = backup_client
     .upload_logs(&user_identity, &backup_id)
-    .await
-    .unwrap();
+    .await?;
 
   tokio::pin!(tx);
   tokio::pin!(rx);
@@ -152,15 +151,12 @@ pub async fn restore_backup(
 
   let (tx, rx) = backup_client
     .download_logs(&user_identity, &backup_id)
-    .await
-    .unwrap();
+    .await?;
 
   tokio::pin!(tx);
   tokio::pin!(rx);
 
-  tx.send(DownloadLogsRequest { from_id: None })
-    .await
-    .unwrap();
+  tx.send(DownloadLogsRequest { from_id: None }).await?;
 
   match rx.next().await {
     Some(Ok(LogWSResponse::LogDownload {
