@@ -11,6 +11,7 @@ import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
   logInActionTypes,
+  keyserverAuthActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -147,6 +148,12 @@ function reducer(state: AppState = defaultState, action: Action) {
       invalidSessionRecovery(
         state,
         action.payload.currentUserInfo,
+        action.payload.logInActionSource,
+      )) ||
+    (action.type === keyserverAuthActionTypes.success &&
+      invalidSessionRecovery(
+        state,
+        action.payload.preRequestUserInfo,
         action.payload.logInActionSource,
       ))
   ) {
