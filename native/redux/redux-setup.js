@@ -12,6 +12,7 @@ import {
   deleteKeyserverAccountActionTypes,
   logInActionTypes,
 } from 'lib/actions/user-actions.js';
+import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
@@ -25,7 +26,6 @@ import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
-import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
