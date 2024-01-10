@@ -137,15 +137,15 @@ async fn backup_integration_test() -> Result<(), Error> {
     .collect();
   assert_eq!(downloaded_logs, expected_logs);
 
-  // Test cleanup
-  let (cleaned_up_backup, _) = &backup_datas[0];
-  let first_backup_descriptor = BackupDescriptor::BackupID {
-    backup_id: cleaned_up_backup.backup_id.clone(),
+  // Test backup cleanup
+  let (removed_backup, _) = &backup_datas[0];
+  let removed_backup_descriptor = BackupDescriptor::BackupID {
+    backup_id: removed_backup.backup_id.clone(),
     user_identity: user_identity.clone(),
   };
 
   let response = backup_client
-    .download_backup_data(&first_backup_descriptor, RequestedData::UserKeys)
+    .download_backup_data(&removed_backup_descriptor, RequestedData::UserKeys)
     .await;
 
   let Err(BackupClientError::ReqwestError(error)) = response else {
@@ -157,6 +157,29 @@ async fn backup_integration_test() -> Result<(), Error> {
     Some(StatusCode::NOT_FOUND),
     "Expected status 'not found'"
   );
+
+  // Test log cleanup
+  let (tx, rx) = backup_client
+    .download_logs(&user_identity, &removed_backup.backup_id)
+    .await
+    .unwrap();
+
+  tokio::pin!(tx);
+  tokio::pin!(rx);
+
+  tx.send(DownloadLogsRequest { from_id: None })
+    .await
+    .unwrap();
+
+  match rx.next().await.unwrap().unwrap() {
+    LogWSResponse::LogDownloadFinished { last_log_id: None } => (),
+    msg => {
+      panic!(
+        "Logs for first backup should have been removed, \
+        instead got response: {msg:?}"
+      )
+    }
+  };
 
   Ok(())
 }
