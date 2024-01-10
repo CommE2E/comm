@@ -15,7 +15,7 @@ import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';

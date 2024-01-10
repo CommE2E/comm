@@ -23,9 +23,9 @@ import {
   type ThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import SaveSettingButton from './save-setting-button.react.js';
 import {

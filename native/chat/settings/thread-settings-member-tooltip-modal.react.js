@@ -6,7 +6,7 @@ import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 import type { AppNavigationProp } from '../../navigation/app-navigator.react';

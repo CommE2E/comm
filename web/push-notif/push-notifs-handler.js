@@ -8,12 +8,12 @@ import {
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
   recordNotifPermissionAlertActionType,
 } from 'lib/utils/push-alerts.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

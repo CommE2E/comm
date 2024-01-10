@@ -12,7 +12,7 @@ import {
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';

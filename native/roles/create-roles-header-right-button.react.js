@@ -9,8 +9,8 @@ import {
   useModifyCommunityRole,
   modifyCommunityRoleActionTypes,
 } from 'lib/actions/thread-actions.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors.js';

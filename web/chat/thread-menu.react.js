@@ -18,7 +18,7 @@ import {
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-menu.css';
 import MenuItem from '../components/menu-item.react.js';

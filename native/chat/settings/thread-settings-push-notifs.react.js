@@ -15,8 +15,10 @@ import type {
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import SingleLine from '../../components/single-line.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';

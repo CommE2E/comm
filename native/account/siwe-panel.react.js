@@ -14,9 +14,9 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import {
   useServerCall,
-  useDispatchActionPromise,
   type BindServerCallsParams,
 } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';

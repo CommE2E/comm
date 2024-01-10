@@ -33,10 +33,6 @@ import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
-import {
   convertNotificationMessageInfoToNewIDSchema,
   convertNonPendingIDToNewSchema,
 } from 'lib/utils/migration-utils.js';
@@ -45,6 +41,10 @@ import {
   recordNotifPermissionAlertActionType,
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';

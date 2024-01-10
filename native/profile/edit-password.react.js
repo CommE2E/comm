@@ -18,11 +18,11 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+} from 'lib/utils/redux-promise-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { setNativeCredentials } from '../account/native-credentials.js';

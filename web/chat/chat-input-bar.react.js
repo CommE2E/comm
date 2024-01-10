@@ -43,9 +43,9 @@ import {
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import css from './chat-input-bar.css';
 import TypeaheadTooltip from './typeahead-tooltip.react.js';

@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { commRustModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';

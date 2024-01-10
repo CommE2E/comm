@@ -11,7 +11,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';

@@ -22,9 +22,9 @@ import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';

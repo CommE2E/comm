@@ -19,15 +19,15 @@ import {
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types.js';
 import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
-import {
   getDate,
   dateString,
   startDateForYearAndMonth,
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils.js';
+import {
+  useDispatchActionPromise,
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import css from './calendar.css';
 import Day from './day.react.js';

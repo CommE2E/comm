@@ -8,10 +8,8 @@ import {
 } from 'lib/actions/link-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import AcceptInviteModal from './accept-invite-modal.react.js';

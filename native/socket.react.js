@@ -16,10 +16,8 @@ import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import { setConnectionIssueActionType } from 'lib/types/socket-types.js';
-import {
-  useDispatchActionPromise,
-  resolveKeyserverSessionInvalidation,
-} from 'lib/utils/action-utils.js';
+import { resolveKeyserverSessionInvalidation } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

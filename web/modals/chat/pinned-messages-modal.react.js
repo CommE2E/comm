@@ -19,8 +19,8 @@ import {
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './pinned-messages-modal.css';
 import MessageResult from '../../components/message-result.react.js';

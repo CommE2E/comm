@@ -25,9 +25,9 @@ import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
 import type { PreRequestUserState } from 'lib/types/session-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 import {
   generateReportID,
   useIsReportEnabled,

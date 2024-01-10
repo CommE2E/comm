@@ -11,7 +11,7 @@ import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './accept-invite-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';

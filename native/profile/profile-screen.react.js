@@ -10,9 +10,9 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils.js';
+  type DispatchActionPromise,
+} from 'lib/utils/redux-promise-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';

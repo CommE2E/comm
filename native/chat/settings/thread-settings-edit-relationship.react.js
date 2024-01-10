@@ -19,10 +19,8 @@ import {
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';

@@ -10,7 +10,7 @@ import {
   useChangeThreadMemberRoles,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { NavigationRoute } from '../navigation/route-names';
 import { useColors } from '../themes/colors.js';

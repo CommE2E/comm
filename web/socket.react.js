@@ -14,7 +14,7 @@ import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 

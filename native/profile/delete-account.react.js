@@ -15,7 +15,7 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors.js';
-import { useDispatchActionPromise } from 'lib/utils/action-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';

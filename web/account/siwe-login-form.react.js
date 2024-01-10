@@ -23,11 +23,9 @@ import type {
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import {
   createSIWEMessage,
