@@ -2,56 +2,29 @@
 
 import * as React from 'react';
 
-import {
-  updateRelationships,
-  updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
-import type {
-  UserRelationshipStatus,
-  RelationshipAction,
-} from 'lib/types/relationship-types.js';
+import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
 } from 'lib/types/user-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
-import Button from '../../components/button.react.js';
-import type { ButtonColor } from '../../components/button.react.js';
 import Label from '../../components/label.react.js';
-import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-
-const loadingStatusSelector = createLoadingStatusSelector(
-  updateRelationshipsActionTypes,
-);
 
 type Props = {
   +searchText: string,
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
-  +closeModal: () => void,
-  +confirmButtonContent: React.Node,
-  +confirmButtonColor?: ButtonColor,
-  +relationshipAction: RelationshipAction,
+  +errorMessage: string,
 };
 
 function AddUsersList(props: Props): React.Node {
-  const {
-    searchText,
-    excludedStatuses = new Set(),
-    closeModal,
-    confirmButtonContent,
-    confirmButtonColor,
-    relationshipAction,
-  } = props;
+  const { searchText, excludedStatuses = new Set(), errorMessage } = props;
 
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   const userInfos = useSelector(state => state.userStore.userInfos);
@@ -186,43 +159,6 @@ function AddUsersList(props: Props): React.Node {
     [filteredUsersWithENSNames, selectUser],
   );
 
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const callUpdateRelationships =
-    useLegacyAshoatKeyserverCall(updateRelationships);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const updateRelationshipsPromiseCreator = React.useCallback(async () => {
-    try {
-      setErrorMessage('');
-      const result = await callUpdateRelationships({
-        action: relationshipAction,
-        userIDs: Array.from(pendingUserIDs),
-      });
-      closeModal();
-      return result;
-    } catch (e) {
-      setErrorMessage('unknown error');
-      throw e;
-    }
-  }, [callUpdateRelationships, closeModal, pendingUserIDs, relationshipAction]);
-  const confirmSelection = React.useCallback(
-    () =>
-      dispatchActionPromise(
-        updateRelationshipsActionTypes,
-        updateRelationshipsPromiseCreator(),
-      ),
-    [dispatchActionPromise, updateRelationshipsPromiseCreator],
-  );
-  const loadingStatus = useSelector(loadingStatusSelector);
-  let buttonContent = confirmButtonContent;
-  if (loadingStatus === 'loading') {
-    buttonContent = (
-      <>
-        <div className={css.hidden}>{confirmButtonContent}</div>
-        <LoadingIndicator status="loading" />
-      </>
-    );
-  }
-
   let errors;
   if (errorMessage) {
     errors = <div className={css.error}>{errorMessage}</div>;
@@ -233,19 +169,6 @@ function AddUsersList(props: Props): React.Node {
       {userTags}
       <div className={css.userRowsContainer}>{userRows}</div>
       {errors}
-      <div className={css.buttons}>
-        <Button variant="outline" onClick={closeModal}>
-          Cancel
-        </Button>
-        <Button
-          onClick={confirmSelection}
-          disabled={pendingUserIDs.size === 0 || loadingStatus === 'loading'}
-          variant="filled"
-          buttonColor={confirmButtonColor}
-        >
-          <div className={css.confirmButtonContainer}>{buttonContent}</div>
-        </Button>
-      </div>
     </div>
   );
 }
