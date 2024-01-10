@@ -10,12 +10,10 @@ import {
   getSIWENonceActionTypes,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
+import type { BindServerCallsParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
-import {
-  useServerCall,
-  type BindServerCallsParams,
-} from 'lib/utils/action-utils.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
