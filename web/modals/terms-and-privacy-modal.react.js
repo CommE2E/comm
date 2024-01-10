@@ -9,7 +9,7 @@ import {
 import { policyTypes } from 'lib/facts/policies.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
-import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utlis.js';
+import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Modal from './modal.react.js';
