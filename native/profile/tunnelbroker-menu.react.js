@@ -73,6 +73,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
       if (!currentUserID) {
         return;
       }
+      await commCoreModule.initializeCryptoAccount();
       const encrypted = await commCoreModule.encrypt(
         `Encrypted message to ${recipient}`,
         recipient,
