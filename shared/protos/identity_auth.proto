@@ -87,6 +87,7 @@ message OutboundKeyInfo {
 
 message KeyserverKeysResponse {
   optional OutboundKeyInfo keyserver_info = 1;
+  string username = 2;
 }
 
 // GetOutboundKeysForUser

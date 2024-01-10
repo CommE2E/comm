@@ -200,7 +200,7 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<Response<KeyserverKeysResponse>, Status> {
     let message = request.into_inner();
 
-    let inner_response = self
+    let keyserver_info = self
       .db_client
       .get_keyserver_keys_for_user(&message.user_id)
       .await
@@ -223,8 +223,15 @@ impl IdentityClientService for AuthenticatedService {
         one_time_notif_prekey: db_keys.notif_one_time_key,
       });
 
+    let username = self
+      .db_client
+      .get_username_for_user_id(&message.user_id)
+      .await
+      .map_err(handle_db_error)?;
+
     let response = Response::new(KeyserverKeysResponse {
-      keyserver_info: inner_response,
+      keyserver_info,
+      username,
     });
 
     return Ok(response);
