@@ -8,6 +8,7 @@ pub struct LatestBackupIDResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UploadLogRequest {
+  pub backup_id: String,
   pub log_id: usize,
   pub content: Vec<u8>,
   pub attachments: Option<Vec<String>>,
@@ -15,6 +16,7 @@ pub struct UploadLogRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DownloadLogsRequest {
+  pub backup_id: String,
   pub from_id: Option<usize>,
 }
 
@@ -27,6 +29,7 @@ pub enum LogWSRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LogWSResponse {
   LogUploaded {
+    backup_id: String,
     log_id: usize,
   },
   LogDownload {

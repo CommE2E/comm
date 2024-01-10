@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use backup_client::{
   BackupClient, BackupData, BackupDescriptor, Error as BackupClientError,
-  RequestedData, SinkExt, StreamExt, TryStreamExt,
+  LogUploadConfirmation, RequestedData, SinkExt, StreamExt, TryStreamExt,
 };
 use bytesize::ByteSize;
 use comm_lib::{
@@ -37,10 +37,7 @@ async fn backup_integration_test() -> Result<(), Error> {
       .upload_backup(&user_identity, backup_data.clone())
       .await?;
 
-    let (tx, rx) = backup_client
-      .upload_logs(&user_identity, &backup_data.backup_id)
-      .await
-      .unwrap();
+    let (tx, rx) = backup_client.upload_logs(&user_identity).await.unwrap();
 
     tokio::pin!(tx);
     tokio::pin!(rx);
@@ -49,9 +46,16 @@ async fn backup_integration_test() -> Result<(), Error> {
       tx.send(log_data.clone()).await.unwrap();
     }
 
-    let result: HashSet<usize> =
+    let result: HashSet<LogUploadConfirmation> =
       rx.take(log_datas.len()).try_collect().await.unwrap();
-    let expected = log_datas.iter().map(|data| data.log_id).collect();
+    let expected = log_datas
+      .iter()
+      .map(|data| LogUploadConfirmation {
+        backup_id: data.backup_id.clone(),
+        log_id: data.log_id,
+      })
+      .collect();
+
     assert_eq!(result, expected);
   }
 
@@ -92,17 +96,17 @@ async fn backup_integration_test() -> Result<(), Error> {
   assert_eq!(user_keys, backup_data.user_keys);
 
   // Test log download
-  let (tx, rx) = backup_client
-    .download_logs(&user_identity, &backup_data.backup_id)
-    .await
-    .unwrap();
+  let (tx, rx) = backup_client.download_logs(&user_identity).await.unwrap();
 
   tokio::pin!(tx);
   tokio::pin!(rx);
 
-  tx.send(DownloadLogsRequest { from_id: None })
-    .await
-    .unwrap();
+  tx.send(DownloadLogsRequest {
+    backup_id: backup_data.backup_id.clone(),
+    from_id: None,
+  })
+  .await
+  .unwrap();
 
   let mut downloaded_logs = HashMap::new();
   'download: loop {
@@ -118,6 +122,7 @@ async fn backup_integration_test() -> Result<(), Error> {
         LogWSResponse::LogDownloadFinished { last_log_id } => {
           if let Some(last_log_id) = last_log_id {
             tx.send(DownloadLogsRequest {
+              backup_id: backup_data.backup_id.clone(),
               from_id: Some(last_log_id),
             })
             .await
@@ -159,17 +164,17 @@ async fn backup_integration_test() -> Result<(), Error> {
   );
 
   // Test log cleanup
-  let (tx, rx) = backup_client
-    .download_logs(&user_identity, &removed_backup.backup_id)
-    .await
-    .unwrap();
+  let (tx, rx) = backup_client.download_logs(&user_identity).await.unwrap();
 
   tokio::pin!(tx);
   tokio::pin!(rx);
 
-  tx.send(DownloadLogsRequest { from_id: None })
-    .await
-    .unwrap();
+  tx.send(DownloadLogsRequest {
+    backup_id: removed_backup.backup_id.clone(),
+    from_id: None,
+  })
+  .await
+  .unwrap();
 
   match rx.next().await.unwrap().unwrap() {
     LogWSResponse::LogDownloadFinished { last_log_id: None } => (),
@@ -199,7 +204,7 @@ fn generate_backup_data() -> [(BackupData, Vec<UploadLogRequest>); 2] {
         ),
         attachments: vec![],
       },
-      generate_log_data(b'a'),
+      generate_log_data("b1", b'a'),
     ),
     (
       BackupData {
@@ -214,12 +219,12 @@ fn generate_backup_data() -> [(BackupData, Vec<UploadLogRequest>); 2] {
         ),
         attachments: vec![],
       },
-      generate_log_data(b'b'),
+      generate_log_data("b2", b'b'),
     ),
   ]
 }
 
-fn generate_log_data(value: u8) -> Vec<UploadLogRequest> {
+fn generate_log_data(backup_id: &str, value: u8) -> Vec<UploadLogRequest> {
   const IN_DB_SIZE: usize = ByteSize::kib(4).as_u64() as usize;
   const IN_BLOB_SIZE: usize = ByteSize::kib(400).as_u64() as usize;
 
@@ -240,6 +245,7 @@ fn generate_log_data(value: u8) -> Vec<UploadLogRequest> {
       content.extend(unique_suffix.as_bytes());
 
       UploadLogRequest {
+        backup_id: backup_id.to_string(),
         log_id,
         content,
         attachments,
