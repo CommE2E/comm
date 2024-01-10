@@ -212,9 +212,11 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: Request<OutboundKeysForUserRequest>,
   ) -> Result<Response<KeyserverKeysResponse>, Status> {
+    use identity::IdentityInfo;
+
     let message = request.into_inner();
 
-    let inner_response = self
+    let keyserver_info = self
       .db_client
       .get_keyserver_keys_for_user(&message.user_id)
       .await
@@ -237,8 +239,21 @@ impl IdentityClientService for AuthenticatedService {
         one_time_notif_prekey: db_keys.notif_one_time_key,
       });
 
+    let identifier = self
+      .db_client
+      .get_user_identifier(&message.user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let identity_info = IdentityInfo::try_from(identifier)?;
+
+    let identity = Some(Identity {
+      identity_info: Some(identity_info),
+    });
+
     let response = Response::new(KeyserverKeysResponse {
-      keyserver_info: inner_response,
+      keyserver_info,
+      identity,
     });
 
     return Ok(response);
