@@ -8,9 +8,11 @@ use self::{
 use crate::constants::{backup_table, log_table, LOG_DEFAULT_PAGE_SIZE};
 use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
-  types::{AttributeValue, ReturnValue},
+  types::{AttributeValue, DeleteRequest, ReturnValue, WriteRequest},
 };
-use comm_lib::database::{parse_int_attribute, Error};
+use comm_lib::database::{
+  self, batch_operations::ExponentialBackoffConfig, parse_int_attribute, Error,
+};
 use tracing::{error, trace, warn};
 
 #[derive(Clone)]
@@ -132,11 +134,15 @@ impl DatabaseClient {
         Error::AwsSdk(e.into())
       })?;
 
-    response
+    let result = response
       .attributes
       .map(BackupItem::try_from)
       .transpose()
-      .map_err(Error::from)
+      .map_err(Error::from)?;
+
+    self.remove_log_items_for_backup(backup_id).await?;
+
+    Ok(result)
   }
 
   /// For the purposes of the initial backup version this function
@@ -280,5 +286,40 @@ impl DatabaseClient {
       .collect::<Result<Vec<_>, _>>()?;
 
     Ok((items, last_id))
+  }
+
+  pub async fn remove_log_items_for_backup(
+    &self,
+    backup_id: &str,
+  ) -> Result<(), Error> {
+    let (mut items, mut last_id) =
+      self.fetch_log_items(backup_id, None).await?;
+    while last_id.is_some() {
+      let (mut new_items, new_last_id) =
+        self.fetch_log_items(backup_id, last_id).await?;
+
+      items.append(&mut new_items);
+      last_id = new_last_id;
+    }
+
+    let write_requests = items
+      .into_iter()
+      .map(|key| {
+        DeleteRequest::builder()
+          .set_key(Some(LogItem::item_key(key.backup_id, key.log_id)))
+          .build()
+      })
+      .map(|request| WriteRequest::builder().delete_request(request).build())
+      .collect::<Vec<_>>();
+
+    database::batch_operations::batch_write(
+      &self.client,
+      log_table::TABLE_NAME,
+      write_requests,
+      ExponentialBackoffConfig::default(),
+    )
+    .await?;
+
+    Ok(())
   }
 }
