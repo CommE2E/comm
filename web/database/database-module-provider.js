@@ -3,6 +3,8 @@
 import invariant from 'invariant';
 import localforage from 'localforage';
 
+import { getConfig } from 'lib/utils/config.js';
+
 import {
   DATABASE_WORKER_PATH,
   WORKERS_MODULES_DIR_PATH,
@@ -68,7 +70,10 @@ class DatabaseModule {
         });
       }
 
-      this.worker = new SharedWorker(DATABASE_WORKER_PATH);
+      const codeVersion = getConfig().platformDetails.codeVersion ?? '';
+      const workerName = `comm-app-database-${codeVersion}`;
+
+      this.worker = new SharedWorker(DATABASE_WORKER_PATH, workerName);
       this.worker.onerror = console.error;
       this.workerProxy = new WorkerConnectionProxy(
         this.worker.port,
@@ -153,7 +158,5 @@ async function getDatabaseModule(): Promise<DatabaseModule> {
   await newModule.init({ clearDatabase: false });
   return newModule;
 }
-// Start initializing the database immediately
-void getDatabaseModule();
 
 export { getDatabaseModule };
