@@ -50,6 +50,7 @@ async function nativeInboundContentSessionCreator(
     throw new Error('CommServicesAuthMetadata is missing');
   }
 
+  await commCoreModule.initializeCryptoAccount();
   const keysResponse = await commRustModule.getInboundKeysForUser(
     userID,
     deviceID,
@@ -112,6 +113,7 @@ async function createOlmSessionsWithOwnDevices(
     throw new Error('CommServicesAuthMetadata is missing');
   }
 
+  await commCoreModule.initializeCryptoAccount();
   const keysResponse = await commRustModule.getOutboundKeysForUser(
     userID,
     deviceID,

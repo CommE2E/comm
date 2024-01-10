@@ -27,6 +27,7 @@ async function peerToPeerMessageHandler(
     }
   } else if (message.type === peerToPeerMessageTypes.ENCRYPTED_MESSAGE) {
     try {
+      await commCoreModule.initializeCryptoAccount();
       const decrypted = await commCoreModule.decrypt(
         message.encryptedContent,
         message.senderInfo.deviceID,
@@ -42,6 +43,7 @@ async function peerToPeerMessageHandler(
       );
     }
   } else if (message.type === peerToPeerMessageTypes.REFRESH_KEY_REQUEST) {
+    await commCoreModule.initializeCryptoAccount();
     const [
       { userID, deviceID, accessToken },
       notificationsOneTimeKeys,
