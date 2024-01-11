@@ -64,7 +64,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return {
       deleteUser: async () => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
-        return commRustModule.deleteUser(userID, deviceID, accessToken);
+        return await commRustModule.deleteUser(userID, deviceID, accessToken);
       },
       getKeyserverKeys: async (keyserverID: string) => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
@@ -86,6 +86,15 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           throw new Error('Invalid response from Identity service');
         }
         return resultObject;
+      },
+      changePassword: async (newPassword: string) => {
+        const { deviceID, userID, accessToken } = await getAuthMetadata();
+        return await commRustModule.updatePassword(
+          userID,
+          deviceID,
+          accessToken,
+          newPassword,
+        );
       },
     };
   }, [getAuthMetadata]);
