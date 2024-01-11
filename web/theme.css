@@ -352,6 +352,9 @@
   --tab-label-secondary-default: var(--shades-black-50);
   --tab-label-secondary-active: var(--shades-white-100);
   --tab-label-secondary-hover: var(--shades-white-80);
+
+  /* List Item */
+  --listItem-background-primary-hover: var(--shades-black-90);
 }
 
 /* Light theme */
@@ -456,4 +459,8 @@
   --tab-label-secondary-default: var(--shades-black-60);
   --tab-label-secondary-active: var(--shades-black-95);
   --tab-label-secondary-hover: var(--shades-black-85);
+
+  /* List Item */
+  /* @GINSU: TODO double check these values after redesign is finished */
+  --listItem-background-primary-hover: var(--shades-white-70);
 }
