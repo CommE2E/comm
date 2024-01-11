@@ -16,21 +16,35 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin-bottom: 8px;
 }
 
-.addUserButton {
-  justify-content: space-between;
-  padding: 16px;
+.userListItemContainer {
+  display: flex;
   color: var(--relationship-modal-color);
   font-size: var(--l-font-18);
   line-height: var(--line-height-display);
+  padding: 8px;
 }
 
-.addUserButtonUsername {
+.userListItemContainer:hover {
+  cursor: pointer;
+  background-color: var(--listItem-background-primary-hover);
+  border-radius: 8px;
+}
+
+.avatarContainer {
+  margin: 0 8px 0 16px;
+}
+
+.username {
+  color: var(--text-background-secondary-default);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.selectedUsername {
+  color: var(--text-background-primary-default);
 }
 
 .confirmButtonContainer {

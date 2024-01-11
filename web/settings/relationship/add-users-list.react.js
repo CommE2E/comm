@@ -153,7 +153,8 @@ function AddUsersList(props: Props): React.Node {
         <AddUsersListItem
           userInfo={userInfo}
           key={userInfo.id}
-          selectUser={selectUser}
+          onToggleUser={selectUser}
+          userSelected={true} // TODO: check if userID is in pending users set
         />
       )),
     [filteredUsersWithENSNames, selectUser],
