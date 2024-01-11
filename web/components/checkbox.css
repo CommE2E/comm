@@ -2,12 +2,17 @@
   appearance: none;
   background-color: transparent;
   width: 24px;
+  min-width: 24px;
   height: 24px;
   border: 1px solid var(--enumOption-input-primary-default);
   border-radius: 3.6px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.checkbox:hover {
+  cursor: pointer;
 }
 
 .checkbox::before {
