@@ -47,6 +47,24 @@ public:
     return method(cls, backupID, isAttachments)->toStdString();
   }
 
+  static std::string getBackupLogFilePath(
+      std::string backupID,
+      std::string logID,
+      bool isAttachments) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString(std::string, std::string, bool)>(
+            "getBackupLogFilePath");
+    return method(cls, backupID, logID, isAttachments)->toStdString();
+  }
+
+  static std::string getBackupUserKeysFilePath(std::string backupID) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString(std::string)>("getBackupUserKeysFilePath");
+    return method(cls, backupID)->toStdString();
+  }
+
   static void removeBackupDirectory() {
     static const auto cls = javaClassStatic();
     static auto method = cls->getStaticMethod<void()>("removeBackupDirectory");
@@ -91,6 +109,28 @@ std::string PlatformSpecificTools::getBackupFilePath(
   NativeAndroidAccessProvider::runTask([&path, backupID, isAttachments]() {
     path = PlatformSpecificToolsJavaClass::getBackupFilePath(
         backupID, isAttachments);
+  });
+  return path;
+}
+
+std::string PlatformSpecificTools::getBackupLogFilePath(
+    std::string backupID,
+    std::string logID,
+    bool isAttachments) {
+  std::string path;
+  NativeAndroidAccessProvider::runTask(
+      [&path, backupID, logID, isAttachments]() {
+        path = PlatformSpecificToolsJavaClass::getBackupLogFilePath(
+            backupID, logID, isAttachments);
+      });
+  return path;
+}
+
+std::string
+PlatformSpecificTools::getBackupUserKeysFilePath(std::string backupID) {
+  std::string path;
+  NativeAndroidAccessProvider::runTask([&path, backupID]() {
+    path = PlatformSpecificToolsJavaClass::getBackupUserKeysFilePath(backupID);
   });
   return path;
 }

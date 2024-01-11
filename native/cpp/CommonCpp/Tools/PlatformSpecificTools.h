@@ -12,6 +12,11 @@ public:
   static std::string getBackupDirectoryPath();
   static std::string
   getBackupFilePath(std::string backupID, bool isAttachments);
+  static std::string getBackupLogFilePath(
+    std::string backupID, 
+    std::string logID, 
+    bool isAttachments);
+  static std::string getBackupUserKeysFilePath(std::string backupID);
   static void removeBackupDirectory();
 };
 
