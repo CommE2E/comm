@@ -10,7 +10,6 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -29,7 +28,6 @@ const deleteIdentityAccountLoadingStatusSelector = createLoadingStatusSelector(
 
 const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
   function AccountDeleteModal(): React.Node {
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
     const isDeleteKeyserverAccountLoading = useSelector(
       state => deleteKeyserverAccountLoadingStatusSelector(state) === 'loading',
     );
@@ -69,7 +67,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
     const deleteKeyserverAction = React.useCallback(async () => {
       try {
         setKeyserverErrorMessage('');
-        const response = await callDeleteKeyserverAccount(preRequestUserState);
+        const response = await callDeleteKeyserverAccount();
         // This check ensures that we don't call `popModal()` twice
         if (!usingCommServicesAccessToken) {
           popModal();
@@ -81,7 +79,7 @@ const AccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
         );
         throw e;
       }
-    }, [callDeleteKeyserverAccount, preRequestUserState, popModal]);
+    }, [callDeleteKeyserverAccount, popModal]);
 
     const deleteIdentityAction = React.useCallback(async () => {
       try {
