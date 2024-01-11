@@ -1,13 +1,17 @@
 // @flow
 
+import { Registration } from '@commapp/opaque-ke-wasm';
+
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import type {
   IdentityServiceAuthLayer,
   IdentityServiceClient,
   OutboundKeyInfoResponse,
 } from 'lib/types/identity-service-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
+import { initOpaque } from '../crypto/opaque-utils.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
 import * as IdentityAuthStructs from '../protobufs/identity-auth-structs.cjs';
 import { Empty } from '../protobufs/identity-unauth-structs.cjs';
@@ -78,6 +82,62 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
     await this.authClient.deleteUser(new Empty());
   };
+
+  changePassword: (newPassword: string) => Promise<void> =
+    async newPassword => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
+      await initOpaque();
+      const opaqueRegistration = new Registration();
+      const startRequestBytes = opaqueRegistration.start(newPassword);
+
+      const updatePasswordStartRequest =
+        new IdentityAuthStructs.UpdateUserPasswordStartRequest();
+      updatePasswordStartRequest.setOpaqueRegistrationRequest(
+        startRequestBytes,
+      );
+
+      let updatePasswordStartResponse;
+      try {
+        updatePasswordStartResponse = await client.updateUserPasswordStart(
+          updatePasswordStartRequest,
+        );
+      } catch (e) {
+        console.log('Error calling updateUserPasswordStart:', e);
+        throw new Error(
+          `updateUserPasswordStart RPC failed: ${
+            getMessageForException(e) ?? 'unknown'
+          }`,
+        );
+      }
+
+      const finishRequestBytes = opaqueRegistration.finish(
+        newPassword,
+        updatePasswordStartResponse.getOpaqueRegistrationResponse_asU8(),
+      );
+
+      const updatePasswordFinishRequest =
+        new IdentityAuthStructs.UpdateUserPasswordFinishRequest();
+      updatePasswordFinishRequest.setSessionId(
+        updatePasswordStartResponse.getSessionId(),
+      );
+      updatePasswordFinishRequest.setOpaqueRegistrationUpload(
+        finishRequestBytes,
+      );
+
+      try {
+        await client.updateUserPasswordFinish(updatePasswordFinishRequest);
+      } catch (e) {
+        console.log('Error calling updateUserPasswordFinish:', e);
+        throw new Error(
+          `updateUserPasswordFinish RPC failed: ${
+            getMessageForException(e) ?? 'unknown'
+          }`,
+        );
+      }
+    };
 
   getKeyserverKeys: (keyserverID: string) => Promise<?OutboundKeyInfoResponse> =
     async (keyserverID: string) => {
