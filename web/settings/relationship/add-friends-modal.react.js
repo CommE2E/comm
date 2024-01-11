@@ -17,16 +17,9 @@ const excludedStatuses = new Set([
   userRelationshipStatus.REQUEST_RECEIVED,
 ]);
 
-type Props = {
-  +onClose: () => void,
-};
-
-function AddFriendsModal(props: Props): React.Node {
-  const { onClose } = props;
-
+function AddFriendsModal(): React.Node {
   return (
     <AddUsersListModal
-      closeModal={onClose}
       name="Add Friends"
       excludedStatuses={excludedStatuses}
       confirmButtonContent="Send Friend Requests"
