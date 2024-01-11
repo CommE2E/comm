@@ -4,7 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "folly/Optional.h"
 #include "olm/olm.h"
 
 #include "Persist.h"
@@ -28,6 +27,7 @@ class CryptoModule {
   void generateOneTimeKeys(size_t oneTimeKeysAmount);
   // returns number of published keys
   size_t publishOneTimeKeys();
+  bool prekeyExistsAndOlderThan(uint64_t threshold);
 
 public:
   const std::string id;
@@ -49,7 +49,7 @@ public:
   std::uint8_t getNumPrekeys();
   std::string getPrekey();
   std::string getPrekeySignature();
-  folly::Optional<std::string> getUnpublishedPrekey();
+  std::optional<std::string> getUnpublishedPrekey();
   std::string generateAndGetPrekey();
   void markPrekeyAsPublished();
   void forgetOldPrekey();
@@ -82,6 +82,7 @@ public:
       const std::string &publicKey,
       const std::string &message,
       const std::string &signature);
+  std::optional<std::string> validatePrekey();
 };
 
 } // namespace crypto
