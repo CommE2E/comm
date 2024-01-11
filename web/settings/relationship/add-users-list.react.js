@@ -14,7 +14,6 @@ import { values } from 'lib/utils/objects.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
-import Label from '../../components/label.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
 type Props = {
@@ -84,80 +83,37 @@ function AddUsersList(props: Props): React.Node {
   );
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlyArray<GlobalAccountUserInfo>,
-  >([]);
-  const selectUser = React.useCallback(
+    $ReadOnlySet<string>,
+  >(new Set());
+
+  const toggleUser = React.useCallback(
     (userID: string) => {
       setPendingUsersToAdd(pendingUsers => {
-        const username = mergedUserInfos[userID]?.username;
-        if (!username || pendingUsers.some(user => user.id === userID)) {
-          return pendingUsers;
+        const newPendingUsers = new Set(pendingUsers);
+
+        if (!newPendingUsers.delete(userID)) {
+          newPendingUsers.add(userID);
         }
 
-        const newPendingUser = {
-          id: userID,
-          username,
-        };
-        let targetIndex = 0;
-        while (
-          targetIndex < pendingUsers.length &&
-          newPendingUser.username.localeCompare(
-            pendingUsers[targetIndex].username,
-          ) > 0
-        ) {
-          targetIndex++;
-        }
-        return [
-          ...pendingUsers.slice(0, targetIndex),
-          newPendingUser,
-          ...pendingUsers.slice(targetIndex),
-        ];
+        return newPendingUsers;
       });
     },
-    [mergedUserInfos],
-  );
-  const deselectUser = React.useCallback(
-    (userID: string) =>
-      setPendingUsersToAdd(pendingUsers =>
-        pendingUsers.filter(userInfo => userInfo.id !== userID),
-      ),
-    [],
-  );
-  const pendingUserIDs = React.useMemo(
-    () => new Set(pendingUsersToAdd.map(userInfo => userInfo.id)),
-    [pendingUsersToAdd],
+    [setPendingUsersToAdd],
   );
 
-  const pendingUsersWithENSNames = useENSNames(pendingUsersToAdd);
-  const userTags = React.useMemo(() => {
-    if (pendingUsersWithENSNames.length === 0) {
-      return null;
-    }
-    const tags = pendingUsersWithENSNames.map(userInfo => (
-      <Label key={userInfo.id} onClose={() => deselectUser(userInfo.id)}>
-        {userInfo.username}
-      </Label>
-    ));
-    return <div className={css.userTagsContainer}>{tags}</div>;
-  }, [deselectUser, pendingUsersWithENSNames]);
-
-  const filteredUsers = React.useMemo(
-    () => sortedUsers.filter(userInfo => !pendingUserIDs.has(userInfo.id)),
-    [pendingUserIDs, sortedUsers],
-  );
-  const filteredUsersWithENSNames = useENSNames(filteredUsers);
+  const sortedUsersWithENSNames = useENSNames(sortedUsers);
 
   const userRows = React.useMemo(
     () =>
-      filteredUsersWithENSNames.map(userInfo => (
+      sortedUsersWithENSNames.map(userInfo => (
         <AddUsersListItem
           userInfo={userInfo}
           key={userInfo.id}
-          onToggleUser={selectUser}
-          userSelected={true} // TODO: check if userID is in pending users set
+          onToggleUser={toggleUser}
+          userSelected={pendingUsersToAdd.has(userInfo.id)}
         />
       )),
-    [filteredUsersWithENSNames, selectUser],
+    [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
 
   let errors;
@@ -167,7 +123,6 @@ function AddUsersList(props: Props): React.Node {
 
   return (
     <div className={css.container}>
-      {userTags}
       <div className={css.userRowsContainer}>{userRows}</div>
       {errors}
     </div>
