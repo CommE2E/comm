@@ -47,6 +47,23 @@ public:
     return method(cls, backupID, isAttachments)->toStdString();
   }
 
+  static std::string getBackupLogFilePath(
+      std::string backupID, 
+      std::string logID,
+      bool isAttachments) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString(std::string, bool)>("getBackupFilePath");
+    return method(cls, backupID, isAttachments)->toStdString();
+  }
+
+  static std::string getBackupUserKeysFilePath(std::string backupID) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<JString(std::string, bool)>(
+        "getBackupUserKeysFilePath");
+    return method(cls, backupID, isAttachments)->toStdString();
+  }
+
   static void removeBackupDirectory() {
     static const auto cls = javaClassStatic();
     static auto method = cls->getStaticMethod<void()>("removeBackupDirectory");
