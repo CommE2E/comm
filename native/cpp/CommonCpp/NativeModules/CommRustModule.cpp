@@ -19,7 +19,7 @@ jsi::Value CommRustModule::generateNonce(jsi::Runtime &rt) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityGenerateNonce(currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -61,7 +61,7 @@ jsi::Value CommRustModule::registerUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityRegisterUser(
               usernameRust,
               passwordRust,
@@ -114,7 +114,7 @@ jsi::Value CommRustModule::loginPasswordUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityLoginPasswordUser(
               usernameRust,
               passwordRust,
@@ -169,7 +169,7 @@ jsi::Value CommRustModule::loginWalletUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityLoginWalletUser(
               siweMessageRust,
               siweSignatureRust,
@@ -209,7 +209,7 @@ jsi::Value CommRustModule::updatePassword(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityUpdateUserPassword(
               userIDRust,
               deviceIDRust,
@@ -240,7 +240,7 @@ jsi::Value CommRustModule::deleteUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityDeleteUser(
               userIDRust, deviceIDRust, accessTokenRust, currentID);
         } catch (const std::exception &e) {
@@ -269,7 +269,7 @@ jsi::Value CommRustModule::getOutboundKeysForUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityGetOutboundKeysForUser(
               authUserIDRust,
               authDeviceIDRust,
@@ -302,7 +302,7 @@ jsi::Value CommRustModule::getInboundKeysForUser(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityGetInboundKeysForUser(
               authUserIDRust,
               authDeviceIDRust,
@@ -325,7 +325,7 @@ jsi::Value CommRustModule::versionSupported(jsi::Runtime &rt) {
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityVersionSupported(currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -357,7 +357,7 @@ jsi::Value CommRustModule::uploadOneTimeKeys(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityUploadOneTimeKeys(
               authUserIDRust,
               authDeviceIDRust,
@@ -391,7 +391,7 @@ jsi::Value CommRustModule::getKeyserverKeys(
         std::string error;
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
-              promise, this->jsInvoker_, innerRt);
+              {promise, this->jsInvoker_, innerRt});
           identityGetKeyserverKeys(
               authUserIDRust,
               authDeviceIDRust,
