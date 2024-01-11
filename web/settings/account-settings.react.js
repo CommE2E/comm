@@ -37,13 +37,13 @@ function AccountSettings(): React.Node {
   );
 
   const openFriendList = React.useCallback(
-    () => pushModal(<FriendListModal onClose={popModal} />),
-    [popModal, pushModal],
+    () => pushModal(<FriendListModal />),
+    [pushModal],
   );
 
   const openBlockList = React.useCallback(
-    () => pushModal(<BlockListModal onClose={popModal} />),
-    [popModal, pushModal],
+    () => pushModal(<BlockListModal />),
+    [pushModal],
   );
 
   const isAccountWithPassword = useSelector(state =>
