@@ -1,33 +1,24 @@
 .container {
   flex: 1;
-  background-color: var(--frame-background-primary-default);
 }
 
 .contentContainer {
-  padding: 40px;
-  width: 343px;
-}
-
-.header {
-  color: var(--text-background-primary-default);
-  font-weight: var(--semi-bold);
-  line-height: var(--line-height-display);
-  padding-bottom: 40px;
+  padding: 16px;
 }
 
 .subheading {
-  color: var(--text-background-secondary-default);
-  font-size: var(--xl-font-20);
+  color: var(--text-background-primary-default);
+  font-size: var(--m-font-16);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
-  padding-bottom: 40px;
+  margin-bottom: 16px;
 }
 
 .button {
-  width: 100%;
+  width: 192px;
 }
 
 .explanation {
-  padding-top: 8px;
+  margin-top: 16px;
   color: var(--text-background-tertiary-default);
 }
