@@ -30,11 +30,11 @@ function usersComparator(user1: AccountUserInfo, user2: AccountUserInfo) {
 function BlockListPanel(): React.Node {
   const [searchText, setSearchText] = React.useState('');
 
-  const { pushModal, popModal } = useModalContext();
+  const { pushModal } = useModalContext();
 
   const onClickAddBlockedUsersButton = React.useCallback(
-    () => pushModal(<BlockUsersModal onClose={popModal} />),
-    [popModal, pushModal],
+    () => pushModal(<BlockUsersModal />),
+    [pushModal],
   );
 
   const blockList = React.useMemo(
