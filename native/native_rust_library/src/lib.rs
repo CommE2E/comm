@@ -4,8 +4,9 @@ use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::authenticated::{
   InboundKeyInfo, InboundKeysForUserRequest, KeyserverKeysResponse,
-  OutboundKeyInfo, OutboundKeysForUserRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UploadOneTimeKeysRequest,
+  OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPrekeysRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
@@ -131,6 +132,18 @@ mod ffi {
       auth_device_id: String,
       auth_access_token: String,
       user_id: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityRefreshUserPrekeys"]
+    fn refresh_user_prekeys(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
       promise_id: u32,
     );
 
@@ -1100,6 +1113,57 @@ async fn get_inbound_keys_for_user_helper(
     .collect::<Result<Vec<_>, _>>()?;
 
   Ok(serde_json::to_string(&inbound_key_info)?)
+}
+
+fn refresh_user_prekeys(
+  auth_user_id: String,
+  auth_device_id: String,
+  auth_access_token: String,
+  content_prekey: String,
+  content_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let refresh_request = RefreshUserPrekeysRequest {
+      new_content_prekeys: Some(Prekey {
+        prekey: content_prekey,
+        prekey_signature: content_prekey_signature,
+      }),
+      new_notif_prekeys: Some(Prekey {
+        prekey: notif_prekey,
+        prekey_signature: notif_prekey_signature,
+      }),
+    };
+
+    let auth_info = AuthInfo {
+      access_token: auth_access_token,
+      user_id: auth_user_id,
+      device_id: auth_device_id,
+    };
+    let result = refresh_user_prekeys_helper(refresh_request, auth_info).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn refresh_user_prekeys_helper(
+  refresh_request: RefreshUserPrekeysRequest,
+  auth_info: AuthInfo,
+) -> Result<(), Error> {
+  get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?
+  .refresh_user_prekeys(refresh_request)
+  .await?;
+
+  Ok(())
 }
 
 #[instrument]
