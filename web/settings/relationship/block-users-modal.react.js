@@ -17,13 +17,7 @@ const excludedStatuses = new Set([
   userRelationshipStatus.BLOCKED_BY_VIEWER,
 ]);
 
-type Props = {
-  +onClose: () => void,
-};
-
-function BlockUsersModal(props: Props): React.Node {
-  const { onClose } = props;
-
+function BlockUsersModal(): React.Node {
   const buttonContent = (
     <div>
       <FontAwesomeIcon icon={faUserShield} />
@@ -33,7 +27,6 @@ function BlockUsersModal(props: Props): React.Node {
 
   return (
     <AddUsersListModal
-      closeModal={onClose}
       name="Block Users"
       excludedStatuses={excludedStatuses}
       confirmButtonContent={buttonContent}

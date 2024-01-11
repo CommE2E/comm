@@ -30,21 +30,15 @@ function usersComparator(user1: AccountUserInfo, user2: AccountUserInfo) {
   );
 }
 
-type Props = {
-  +onClose: () => void,
-};
-
-function FriendListModal(props: Props): React.Node {
-  const { onClose } = props;
-
+function FriendListModal(): React.Node {
   const { pushModal } = useModalContext();
+
   const openNewFriendsModal = React.useCallback(() => {
-    pushModal(<AddFriendsModal onClose={onClose} />);
-  }, [onClose, pushModal]);
+    pushModal(<AddFriendsModal />);
+  }, [pushModal]);
 
   return (
     <UserListModal
-      onClose={onClose}
       name="Friend List"
       userRowComponent={FriendListRow}
       filterUser={filterUser}

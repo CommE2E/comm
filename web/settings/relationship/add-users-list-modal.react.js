@@ -6,6 +6,7 @@ import {
   updateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   UserRelationshipStatus,
@@ -27,7 +28,6 @@ const loadingStatusSelector = createLoadingStatusSelector(
 );
 
 type Props = {
-  +closeModal: () => void,
   +name: string,
   +excludedStatuses: $ReadOnlySet<UserRelationshipStatus>,
   +confirmButtonContent: React.Node,
@@ -37,13 +37,14 @@ type Props = {
 
 function AddUsersListModal(props: Props): React.Node {
   const {
-    closeModal,
     name,
     excludedStatuses,
     confirmButtonContent,
     confirmButtonColor,
     relationshipAction,
   } = props;
+
+  const { popModal } = useModalContext();
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
     $ReadOnlySet<string>,
@@ -76,7 +77,7 @@ function AddUsersListModal(props: Props): React.Node {
         action: relationshipAction,
         userIDs: Array.from(pendingUsersToAdd),
       });
-      closeModal();
+      popModal();
       return result;
     } catch (e) {
       setErrorMessage('unknown error');
@@ -84,9 +85,9 @@ function AddUsersListModal(props: Props): React.Node {
     }
   }, [
     callUpdateRelationships,
+    popModal,
     relationshipAction,
     pendingUsersToAdd,
-    closeModal,
   ]);
 
   const confirmSelection = React.useCallback(
@@ -133,7 +134,7 @@ function AddUsersListModal(props: Props): React.Node {
   return (
     <SearchModal
       name={name}
-      onClose={closeModal}
+      onClose={popModal}
       size="large"
       searchPlaceholder="Search by name"
       primaryButton={primaryButton}
