@@ -37,11 +37,11 @@ function usersComparator(user1: AccountUserInfo, user2: AccountUserInfo) {
 function FriendListPanel(): React.Node {
   const [searchText, setSearchText] = React.useState('');
 
-  const { pushModal, popModal } = useModalContext();
+  const { pushModal } = useModalContext();
 
   const onClickAddFriendsButton = React.useCallback(
-    () => pushModal(<AddFriendsModal onClose={popModal} />),
-    [popModal, pushModal],
+    () => pushModal(<AddFriendsModal />),
+    [pushModal],
   );
 
   const friendList = React.useMemo(
