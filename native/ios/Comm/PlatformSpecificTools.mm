@@ -83,9 +83,9 @@ std::string PlatformSpecificTools::getBackupFilePath(
   NSString *filename;
   if (isAttachments) {
     filename = [@[ @"backup", backupIDObjC, @"attachments" ]
-        componentsJoinedByString:@"_"];
+        componentsJoinedByString:@"-"];
   } else {
-    filename = [@[ @"backup", backupIDObjC ] componentsJoinedByString:@"_"];
+    filename = [@[ @"backup", backupIDObjC ] componentsJoinedByString:@"-"];
   }
   return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
 }
