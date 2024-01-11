@@ -10,6 +10,10 @@
   justify-content: center;
 }
 
+.checkbox:hover {
+  cursor: pointer;
+}
+
 .checkbox::before {
   content: '';
   width: 16px;
