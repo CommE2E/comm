@@ -67,6 +67,26 @@ public class PlatformSpecificTools {
     return String.join(File.separator, backupDirPath, filename);
   }
 
+  public static String
+  getBackupLogFilePath(String backupID, String logID, boolean isAttachments) {
+    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
+
+    String filename;
+    if (isAttachments) {
+      filename =
+          String.join("-", "backup", backupID, "log", logID, "attachments");
+    } else {
+      filename = String.join("-", "backup", backupID, "log", logID);
+    }
+    return String.join(File.separator, backupDirPath, filename);
+  }
+
+  public static String getBackupUserKeysFilePath(String backupID) {
+    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
+    String filename = String.join("-", "backup", backupID, "userkeys");
+    return String.join(File.separator, backupDirPath, filename);
+  }
+
   public static void removeBackupDirectory() {
     String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
     try {
