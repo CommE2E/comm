@@ -1,20 +1,29 @@
 #include "RustPromiseManager.h"
+#include <exception>
 
 namespace comm {
 
 RustPromiseManager RustPromiseManager::instance;
 
-RustPromiseManager::RustPromiseManager(){};
+RustPromiseManager::RustPromiseManager() {
+}
 
-uint32_t RustPromiseManager::addPromise(
-    std::shared_ptr<facebook::react::Promise> promise,
-    std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
-    facebook::jsi::Runtime &rt) {
+uint32_t RustPromiseManager::addPromise(JSIPromiseInfo info) {
+  if (!info.jsInvoker) {
+    throw std::invalid_argument("jsInvoker is missing");
+  }
+
   uint32_t id = getNextID();
-  PromiseInfo info = {promise, jsInvoker, rt};
   // Acquire a lock for writing
   std::unique_lock<std::shared_mutex> lock(mutex);
-  promises.insert({id, info});
+  promises.insert({id, std::move(info)});
+  return id;
+}
+
+uint32_t RustPromiseManager::addPromise(CPPPromiseInfo info) {
+  auto id = getNextID();
+  std::unique_lock<std::shared_mutex> lock(mutex);
+  promises.insert({id, std::move(info)});
   return id;
 }
 
@@ -33,13 +42,14 @@ void RustPromiseManager::resolvePromise(uint32_t id, folly::dynamic ret) {
   }
   // Release the shared lock
   lock.unlock();
-  auto promiseInfo = it->second;
-  if (promiseInfo.jsInvoker) {
-    promiseInfo.jsInvoker->invokeAsync([promiseInfo, ret]() {
+
+  if (auto jsiPtr = std::get_if<JSIPromiseInfo>(&it->second)) {
+    jsiPtr->jsInvoker->invokeAsync([promiseInfo = *jsiPtr, ret]() {
       promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
     });
-  } else {
-    promiseInfo.promise->resolve(valueFromDynamic(promiseInfo.rt, ret));
+
+  } else if (auto cppPtr = std::get_if<CPPPromiseInfo>(&it->second)) {
+    cppPtr->promise.set_value(ret);
   }
   removePromise(id);
 }
@@ -53,11 +63,14 @@ void RustPromiseManager::rejectPromise(uint32_t id, const std::string &error) {
   }
   // Release the shared lock
   lock.unlock();
-  if (it->second.jsInvoker) {
-    it->second.jsInvoker->invokeAsync(
-        [promise = it->second.promise, error]() { promise->reject(error); });
-  } else {
-    it->second.promise->reject(error);
+
+  if (auto jsiPtr = std::get_if<JSIPromiseInfo>(&it->second)) {
+    jsiPtr->jsInvoker->invokeAsync(
+        [promise = jsiPtr->promise, error]() { promise->reject(error); });
+
+  } else if (auto cppPtr = std::get_if<CPPPromiseInfo>(&it->second)) {
+    cppPtr->promise.set_exception(
+        std::make_exception_ptr(std::runtime_error(error)));
   }
   removePromise(id);
 }
