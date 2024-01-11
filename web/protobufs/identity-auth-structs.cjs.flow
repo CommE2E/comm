@@ -151,6 +151,11 @@ declare export class KeyserverKeysResponse extends Message {
   hasKeyserverInfo(): boolean;
   clearKeyserverInfo(): KeyserverKeysResponse;
 
+  getIdentity(): Identity | void;
+  setIdentity(value?: Identity): KeyserverKeysResponse;
+  hasIdentity(): boolean;
+  clearIdentity(): KeyserverKeysResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): KeyserverKeysResponseObject;
   static toObject(includeInstance: boolean, msg: KeyserverKeysResponse): KeyserverKeysResponseObject;
@@ -161,6 +166,7 @@ declare export class KeyserverKeysResponse extends Message {
 
 export type KeyserverKeysResponseObject = {
   keyserverInfo?: OutboundKeyInfoObject,
+  identity: ?IdentityObject,
 };
 
 declare export class OutboundKeysForUserResponse extends Message {

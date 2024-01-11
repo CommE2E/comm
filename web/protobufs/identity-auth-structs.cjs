@@ -1595,7 +1595,8 @@ proto.identity.auth.KeyserverKeysResponse.prototype.toObject = function(opt_incl
  */
 proto.identity.auth.KeyserverKeysResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    keyserverInfo: (f = msg.getKeyserverInfo()) && proto.identity.auth.OutboundKeyInfo.toObject(includeInstance, f)
+    keyserverInfo: (f = msg.getKeyserverInfo()) && proto.identity.auth.OutboundKeyInfo.toObject(includeInstance, f),
+    identity: (f = msg.getIdentity()) && proto.identity.auth.Identity.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1637,6 +1638,11 @@ proto.identity.auth.KeyserverKeysResponse.deserializeBinaryFromReader = function
       reader.readMessage(value,proto.identity.auth.OutboundKeyInfo.deserializeBinaryFromReader);
       msg.setKeyserverInfo(value);
       break;
+    case 2:
+      var value = new proto.identity.auth.Identity;
+      reader.readMessage(value,proto.identity.auth.Identity.deserializeBinaryFromReader);
+      msg.setIdentity(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -1672,6 +1678,14 @@ proto.identity.auth.KeyserverKeysResponse.serializeBinaryToWriter = function(mes
       1,
       f,
       proto.identity.auth.OutboundKeyInfo.serializeBinaryToWriter
+    );
+  }
+  f = message.getIdentity();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      proto.identity.auth.Identity.serializeBinaryToWriter
     );
   }
 };
@@ -1711,6 +1725,43 @@ proto.identity.auth.KeyserverKeysResponse.prototype.clearKeyserverInfo = functio
  */
 proto.identity.auth.KeyserverKeysResponse.prototype.hasKeyserverInfo = function() {
   return jspb.Message.getField(this, 1) != null;
+};
+
+
+/**
+ * optional Identity identity = 2;
+ * @return {?proto.identity.auth.Identity}
+ */
+proto.identity.auth.KeyserverKeysResponse.prototype.getIdentity = function() {
+  return /** @type{?proto.identity.auth.Identity} */ (
+    jspb.Message.getWrapperField(this, proto.identity.auth.Identity, 2));
+};
+
+
+/**
+ * @param {?proto.identity.auth.Identity|undefined} value
+ * @return {!proto.identity.auth.KeyserverKeysResponse} returns this
+*/
+proto.identity.auth.KeyserverKeysResponse.prototype.setIdentity = function(value) {
+  return jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.identity.auth.KeyserverKeysResponse} returns this
+ */
+proto.identity.auth.KeyserverKeysResponse.prototype.clearIdentity = function() {
+  return this.setIdentity(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.auth.KeyserverKeysResponse.prototype.hasIdentity = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
