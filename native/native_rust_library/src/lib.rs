@@ -266,9 +266,21 @@ mod ffi {
     #[allow(unused)]
     #[cxx_name = "getBackupFilePath"]
     fn get_backup_file_path(
-      backup_id: String,
+      backup_id: &str,
       is_attachments: bool,
     ) -> Result<String>;
+
+    #[allow(unused)]
+    #[cxx_name = "getBackupLogFilePath"]
+    fn get_backup_log_file_path(
+      backup_id: &str,
+      log_id: &str,
+      is_attachments: bool,
+    ) -> Result<String>;
+
+    #[allow(unused)]
+    #[cxx_name = "getBackupUserKeysFilePath"]
+    fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
   }
 }
 
