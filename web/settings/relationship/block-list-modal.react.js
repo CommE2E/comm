@@ -21,21 +21,14 @@ function usersComparator(user1: AccountUserInfo, user2: AccountUserInfo) {
   return user1.username.localeCompare(user2.username);
 }
 
-type Props = {
-  +onClose: () => void,
-};
-
-function BlockListModal(props: Props): React.Node {
-  const { onClose } = props;
-
+function BlockListModal(): React.Node {
   const { pushModal } = useModalContext();
   const openBlockUsersModal = React.useCallback(() => {
-    pushModal(<BlockUsersModal onClose={onClose} />);
-  }, [onClose, pushModal]);
+    pushModal(<BlockUsersModal />);
+  }, [pushModal]);
 
   return (
     <UserListModal
-      onClose={onClose}
       name="Block List"
       userRowComponent={BlockListRow}
       filterUser={filterUser}
