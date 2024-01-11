@@ -10,7 +10,7 @@ import {
   getSIWENonceActionTypes,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
-import type { BindServerCallsParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
+import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
@@ -45,7 +45,7 @@ type Props = {
   +onSuccessfulWalletSignature: SIWEResult => mixed,
   +closing: boolean,
   +setLoading: boolean => mixed,
-  +keyserverCallParamOverride?: Partial<BindServerCallsParams>,
+  +keyserverCallParamOverride?: Partial<ServerCallSelectorParams>,
 };
 function SIWEPanel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
