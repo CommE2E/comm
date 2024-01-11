@@ -12,8 +12,8 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
-  changeUserPasswordActionTypes,
-  changeUserPassword,
+  changeKeyserverUserPasswordActionTypes,
+  changeKeyserverUserPassword,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -103,7 +103,9 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
+  +changeKeyserverUserPassword: (
+    passwordUpdate: PasswordUpdate,
+  ) => Promise<void>,
 };
 type State = {
   +currentPassword: string,
@@ -275,7 +277,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       this.goBackOnce();
     } else {
       void this.props.dispatchActionPromise(
-        changeUserPasswordActionTypes,
+        changeKeyserverUserPasswordActionTypes,
         this.savePassword(),
       );
     }
@@ -287,7 +289,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       return;
     }
     try {
-      await this.props.changeUserPassword({
+      await this.props.changeKeyserverUserPassword({
         updatedFields: {
           password: this.state.newPassword,
         },
@@ -337,7 +339,7 @@ class EditPassword extends React.PureComponent<Props, State> {
 }
 
 const loadingStatusSelector = createLoadingStatusSelector(
-  changeUserPasswordActionTypes,
+  changeKeyserverUserPasswordActionTypes,
 );
 
 const ConnectedEditPassword: React.ComponentType<BaseProps> =
@@ -353,7 +355,9 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeUserPassword = useServerCall(changeUserPassword);
+    const callChangeKeyserverUserPassword = useServerCall(
+      changeKeyserverUserPassword,
+    );
 
     return (
       <EditPassword
@@ -363,7 +367,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
         colors={colors}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
-        changeUserPassword={callChangeUserPassword}
+        changeKeyserverUserPassword={callChangeKeyserverUserPassword}
       />
     );
   });

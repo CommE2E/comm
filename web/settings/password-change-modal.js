@@ -4,8 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  changeUserPasswordActionTypes,
-  changeUserPassword,
+  changeKeyserverUserPasswordActionTypes,
+  changeKeyserverUserPassword,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -26,7 +26,9 @@ import { useSelector } from '../redux/redux-utils.js';
 type Props = {
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
-  +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
+  +changeKeyserverUserPassword: (
+    passwordUpdate: PasswordUpdate,
+  ) => Promise<void>,
   +popModal: () => void,
   +stringForUser: ?string,
 };
@@ -183,14 +185,14 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
     }
 
     void this.props.dispatchActionPromise(
-      changeUserPasswordActionTypes,
+      changeKeyserverUserPasswordActionTypes,
       this.changeUserSettingsAction(),
     );
   };
 
   async changeUserSettingsAction(): Promise<void> {
     try {
-      await this.props.changeUserPassword({
+      await this.props.changeKeyserverUserPassword({
         updatedFields: {
           password: this.state.newPassword,
         },
@@ -231,15 +233,17 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
   }
 }
 
-const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
-  changeUserPasswordActionTypes,
-);
+const changeKeyserverUserPasswordLoadingStatusSelector =
+  createLoadingStatusSelector(changeKeyserverUserPasswordActionTypes);
 const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedPasswordChangeModal(): React.Node {
     const inputDisabled = useSelector(
-      state => changeUserPasswordLoadingStatusSelector(state) === 'loading',
+      state =>
+        changeKeyserverUserPasswordLoadingStatusSelector(state) === 'loading',
     );
-    const callChangeUserPassword = useServerCall(changeUserPassword);
+    const callChangeKeyserverUserPassword = useServerCall(
+      changeKeyserverUserPassword,
+    );
     const dispatchActionPromise = useDispatchActionPromise();
 
     const modalContext = useModalContext();
@@ -250,7 +254,7 @@ const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
     return (
       <PasswordChangeModal
         inputDisabled={inputDisabled}
-        changeUserPassword={callChangeUserPassword}
+        changeKeyserverUserPassword={callChangeKeyserverUserPassword}
         dispatchActionPromise={dispatchActionPromise}
         popModal={modalContext.popModal}
         stringForUser={stringForUser}
