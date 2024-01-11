@@ -45,6 +45,10 @@ function AddUsersListModal(props: Props): React.Node {
     relationshipAction,
   } = props;
 
+  const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
+    $ReadOnlySet<string>,
+  >(new Set());
+
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const addUsersListChildGenerator = React.useCallback(
@@ -52,10 +56,12 @@ function AddUsersListModal(props: Props): React.Node {
       <AddUsersList
         searchText={searchText}
         excludedStatuses={excludedStatuses}
+        pendingUsersToAdd={pendingUsersToAdd}
+        setPendingUsersToAdd={setPendingUsersToAdd}
         errorMessage={errorMessage}
       />
     ),
-    [excludedStatuses, errorMessage],
+    [excludedStatuses, pendingUsersToAdd, errorMessage],
   );
 
   const callUpdateRelationships =
@@ -68,7 +74,7 @@ function AddUsersListModal(props: Props): React.Node {
       setErrorMessage('');
       const result = await callUpdateRelationships({
         action: relationshipAction,
-        userIDs: [], // TODO: re-add pending users
+        userIDs: Array.from(pendingUsersToAdd),
       });
       closeModal();
       return result;
@@ -76,7 +82,12 @@ function AddUsersListModal(props: Props): React.Node {
       setErrorMessage('unknown error');
       throw e;
     }
-  }, [callUpdateRelationships, closeModal, relationshipAction]);
+  }, [
+    callUpdateRelationships,
+    relationshipAction,
+    pendingUsersToAdd,
+    closeModal,
+  ]);
 
   const confirmSelection = React.useCallback(
     () =>
@@ -104,8 +115,7 @@ function AddUsersListModal(props: Props): React.Node {
     return (
       <Button
         onClick={confirmSelection}
-        // TODO: re-add 0 users check
-        disabled={true || loadingStatus === 'loading'}
+        disabled={pendingUsersToAdd.size === 0 || loadingStatus === 'loading'}
         variant="filled"
         buttonColor={confirmButtonColor}
       >
@@ -117,6 +127,7 @@ function AddUsersListModal(props: Props): React.Node {
     confirmButtonContent,
     confirmSelection,
     loadingStatus,
+    pendingUsersToAdd.size,
   ]);
 
   return (
