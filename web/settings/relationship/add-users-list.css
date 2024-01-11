@@ -4,13 +4,6 @@
   flex-direction: column;
 }
 
-.userTagsContainer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px;
-}
-
 .userRowsContainer {
   overflow: auto;
   display: flex;
