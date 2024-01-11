@@ -40,6 +40,7 @@ public:
   virtual jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
+  virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) = 0;
@@ -243,6 +244,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::generateAndGetPrekeys, jsInvoker_, instance_);
+    }
+    jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::validateAndUploadPrekeys) == 1,
+          "Expected validateAndUploadPrekeys(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::validateAndUploadPrekeys, jsInvoker_, instance_);
     }
     jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) override {
       static_assert(

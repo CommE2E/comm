@@ -4,6 +4,7 @@
 #include "olm/account.hh"
 #include "olm/session.hh"
 
+#include <ctime>
 #include <stdexcept>
 
 namespace comm {
@@ -102,6 +103,18 @@ size_t CryptoModule::publishOneTimeKeys() {
   return ::olm_account_mark_keys_as_published(this->getOlmAccount());
 }
 
+bool CryptoModule::prekeyExistsAndOlderThan(uint64_t threshold) {
+  if (this->getUnpublishedPrekey().has_value()) {
+    return false;
+  }
+
+  uint64_t currentTime = std::time(nullptr);
+  uint64_t lastPrekeyPublishTime =
+      ::olm_account_get_last_prekey_publish_time(this->getOlmAccount());
+
+  return currentTime - lastPrekeyPublishTime >= threshold;
+}
+
 Keys CryptoModule::keysFromStrings(
     const std::string &identityKeys,
     const std::string &oneTimeKeys) {
@@ -167,7 +180,7 @@ std::string CryptoModule::getPrekeySignature() {
   return std::string{signatureBuffer.begin(), signatureBuffer.end()};
 }
 
-folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
+std::optional<std::string> CryptoModule::getUnpublishedPrekey() {
   OlmBuffer prekey;
   prekey.resize(::olm_account_prekey_length(this->getOlmAccount()));
 
@@ -175,7 +188,7 @@ folly::Optional<std::string> CryptoModule::getUnpublishedPrekey() {
       this->getOlmAccount(), prekey.data(), prekey.size());
 
   if (0 == retval) {
-    return folly::none;
+    return std::nullopt;
   } else if (-1 == retval) {
     throw std::runtime_error{
         "error getUnpublishedPrekey => " +
@@ -445,6 +458,25 @@ void CryptoModule::verifySignature(
     throw std::runtime_error{
         "olm error: " + std::string{::olm_utility_last_error(olmUtility)}};
   }
+}
+
+std::optional<std::string> CryptoModule::validatePrekey() {
+  static const uint64_t maxPrekeyPublishTime = 10 * 60;
+  static const uint64_t maxOldPrekeyAge = 2 * 60;
+  std::optional<std::string> maybeNewPrekey;
+
+  bool shouldRotatePrekey =
+      this->prekeyExistsAndOlderThan(maxPrekeyPublishTime);
+  if (shouldRotatePrekey) {
+    maybeNewPrekey = this->generateAndGetPrekey();
+  }
+
+  bool shouldForgetPrekey = this->prekeyExistsAndOlderThan(maxOldPrekeyAge);
+  if (shouldForgetPrekey) {
+    this->forgetOldPrekey();
+  }
+
+  return maybeNewPrekey;
 }
 
 } // namespace crypto

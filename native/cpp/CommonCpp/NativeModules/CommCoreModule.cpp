@@ -654,6 +654,78 @@ jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::validateAndUploadPrekeys(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::optional<std::string> maybePrekeyToUpload;
+
+          try {
+            maybePrekeyToUpload = this->cryptoModule->validatePrekey();
+            if (maybePrekeyToUpload.has_value()) {
+              this->persistCryptoModule();
+            } else {
+              maybePrekeyToUpload = this->cryptoModule->getUnpublishedPrekey();
+            }
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          if (error.size()) {
+            this->jsInvoker_->invokeAsync(
+                [=, &innerRt]() { promise->reject(error); });
+            return;
+          } else if (!maybePrekeyToUpload.has_value()) {
+            this->jsInvoker_->invokeAsync(
+                [=]() { promise->resolve(jsi::Value::undefined()); });
+            return;
+          }
+
+          std::string prekeyToUpload = maybePrekeyToUpload.value();
+          std::string prekeyUploadError;
+
+          try {
+            std::string prekeySignature =
+                this->cryptoModule->getPrekeySignature();
+            // TODO: Implement notifs prekey rotation.
+            // Notifications prekey is not rotated at this moment. It
+            // is fetched with signatireto match identity service API.
+            std::string notificationsPrekey =
+                NotificationsCryptoModule::getNotificationsPrekey("Comm");
+            std::string notificationsPrekeySignature =
+                NotificationsCryptoModule::getNotificationsPrekeySignature(
+                    "Comm");
+            try {
+              // TODO: upload prekey to identity service
+            } catch (const std::exception &e) {
+              prekeyUploadError = e.what();
+            }
+
+            if (!prekeyUploadError.size()) {
+              this->cryptoModule->markPrekeyAsPublished();
+              this->persistCryptoModule();
+            }
+          } catch (std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            if (prekeyUploadError.size()) {
+              promise->reject(prekeyUploadError);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
