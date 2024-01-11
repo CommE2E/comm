@@ -10,7 +10,6 @@ import {
   useDeleteIdentityAccount,
   useDeleteKeyserverAccount,
 } from 'lib/actions/user-actions.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -47,7 +46,6 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
       keyserverLoadingStatus,
       identityLoadingStatus,
     );
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
 
     const styles = useStyles(unboundStyles);
 
@@ -71,7 +69,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     const deleteKeyserverAction = React.useCallback(async () => {
       try {
         await deleteNativeCredentialsFor();
-        return await callDeleteKeyserverAccount(preRequestUserState);
+        return await callDeleteKeyserverAccount();
       } catch (e) {
         Alert.alert(
           'Unknown error deleting keyserver account',
@@ -83,7 +81,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
         );
         throw e;
       }
-    }, [callDeleteKeyserverAccount, preRequestUserState]);
+    }, [callDeleteKeyserverAccount]);
 
     const deleteIdentityAction = React.useCallback(async () => {
       try {

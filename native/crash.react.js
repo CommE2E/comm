@@ -19,10 +19,8 @@ import {
   sendReport,
 } from 'lib/actions/report-actions.js';
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
-import type { LogOutResult } from 'lib/types/account-types.js';
+import type { KeyserverLogOutResult } from 'lib/types/account-types.js';
 import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
-import type { PreRequestUserState } from 'lib/types/session-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import {
   type DispatchActionPromise,
@@ -42,7 +40,6 @@ import Button from './components/button.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { commCoreModule } from './native-modules.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
-import { useSelector } from './redux/redux-utils.js';
 import { wipeAndExit } from './utils/crash-utils.js';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
@@ -52,12 +49,10 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
-  +preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +logOut: () => Promise<KeyserverLogOutResult>,
   +crashReportingEnabled: boolean,
 };
 type State = {
@@ -200,7 +195,7 @@ class Crash extends React.PureComponent<Props, State> {
 
   async logOutAndExit() {
     try {
-      await this.props.logOut(this.props.preRequestUserState);
+      await this.props.logOut();
     } catch (e) {}
     await wipeAndExit();
   }
@@ -284,15 +279,12 @@ const styles = StyleSheet.create({
 
 const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedCrash(props: BaseProps) {
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
-
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useLogOut();
     const crashReportingEnabled = useIsReportEnabled('crashReports');
     return (
       <Crash
         {...props}
-        preRequestUserState={preRequestUserState}
         dispatchActionPromise={dispatchActionPromise}
         logOut={callLogOut}
         crashReportingEnabled={crashReportingEnabled}
