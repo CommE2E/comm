@@ -203,6 +203,17 @@ std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
   return identityKeys;
 }
 
+std::string NotificationsCryptoModule::getNotificationsPrekey(
+    const std::string &callingProcessName) {
+  std::string prekey;
+  auto caller =
+      [&prekey](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
+        prekey = cryptoModule->getPrekey();
+      };
+  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+  return prekey;
+}
+
 std::string NotificationsCryptoModule::generateAndGetNotificationsPrekey(
     const std::string &callingProcessName) {
   std::string prekey;
