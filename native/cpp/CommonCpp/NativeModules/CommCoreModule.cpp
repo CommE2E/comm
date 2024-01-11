@@ -1276,7 +1276,7 @@ jsi::Value CommCoreModule::createNewBackup(
 
           if (!error.size()) {
             auto currentID = RustPromiseManager::instance.addPromise(
-                promise, this->jsInvoker_, innerRt);
+                {promise, this->jsInvoker_, innerRt});
             ::createBackup(
                 rust::string(backupID),
                 rust::string(backupSecretStr),
@@ -1298,7 +1298,7 @@ CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
-            promise, this->jsInvoker_, innerRt);
+            {promise, this->jsInvoker_, innerRt});
         ::restoreBackup(rust::string(backupSecretStr), currentID);
       });
 }
