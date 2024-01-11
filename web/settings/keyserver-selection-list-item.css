@@ -3,7 +3,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 16px;
 }
 
 .container:not(:last-child) {
@@ -12,4 +12,6 @@
 
 .container:hover {
   cursor: pointer;
+  background-color: var(--listItem-background-primary-hover);
+  border-radius: 8px;
 }
