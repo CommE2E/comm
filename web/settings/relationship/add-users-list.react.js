@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   GlobalAccountUserInfo,
@@ -19,11 +20,19 @@ import { useSelector } from '../../redux/redux-utils.js';
 type Props = {
   +searchText: string,
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
+  +pendingUsersToAdd: $ReadOnlySet<string>,
+  +setPendingUsersToAdd: SetState<$ReadOnlySet<string>>,
   +errorMessage: string,
 };
 
 function AddUsersList(props: Props): React.Node {
-  const { searchText, excludedStatuses = new Set(), errorMessage } = props;
+  const {
+    searchText,
+    excludedStatuses = new Set(),
+    pendingUsersToAdd,
+    setPendingUsersToAdd,
+    errorMessage,
+  } = props;
 
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   const userInfos = useSelector(state => state.userStore.userInfos);
@@ -81,10 +90,6 @@ function AddUsersList(props: Props): React.Node {
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
     [excludedStatuses, mergedUserInfos, viewerID],
   );
-
-  const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlySet<string>,
-  >(new Set());
 
   const toggleUser = React.useCallback(
     (userID: string) => {
