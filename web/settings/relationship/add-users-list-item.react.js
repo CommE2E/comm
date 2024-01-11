@@ -1,29 +1,52 @@
 // @flow
 
+import classnames from 'classnames';
 import * as React from 'react';
 
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import css from './add-users-list.css';
-import Button from '../../components/button.react.js';
+import UserAvatar from '../../avatars/user-avatar.react.js';
+import Checkbox from '../../components/checkbox.react.js';
 
 type Props = {
   +userInfo: AccountUserInfo,
-  +selectUser: (userID: string) => mixed,
+  +userSelected: boolean,
+  +onToggleUser: (userID: string) => mixed,
 };
 
 function AddUsersListItem(props: Props): React.Node {
-  const { userInfo, selectUser } = props;
-  const addUser = React.useCallback(
-    () => selectUser(userInfo.id),
-    [selectUser, userInfo.id],
+  const { userInfo, userSelected, onToggleUser } = props;
+
+  const toggleUser = React.useCallback(
+    () => onToggleUser(userInfo.id),
+    [onToggleUser, userInfo.id],
   );
-  return (
-    <Button className={css.addUserButton} onClick={addUser}>
-      <div className={css.addUserButtonUsername}>{userInfo.username}</div>
-      Add
-    </Button>
+
+  const usernameClassname = classnames(css.username, {
+    [css.selectedUsername]: userSelected,
+  });
+
+  const addUsersListItem = React.useMemo(
+    () => (
+      <div className={css.userListItemContainer} onClick={toggleUser}>
+        <Checkbox checked={userSelected} />
+        <div className={css.avatarContainer}>
+          <UserAvatar userID={userInfo.id} size="S" />
+        </div>
+        <div className={usernameClassname}>{userInfo.username}</div>
+      </div>
+    ),
+    [
+      toggleUser,
+      userSelected,
+      userInfo.id,
+      userInfo.username,
+      usernameClassname,
+    ],
   );
+
+  return addUsersListItem;
 }
 
 export default AddUsersListItem;
