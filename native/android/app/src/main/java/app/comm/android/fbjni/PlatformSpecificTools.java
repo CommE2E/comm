@@ -60,9 +60,9 @@ public class PlatformSpecificTools {
 
     String filename;
     if (isAttachments) {
-      filename = String.join("_", "backup", backupID, "attachments");
+      filename = String.join("-", "backup", backupID, "attachments");
     } else {
-      filename = String.join("_", "backup", backupID);
+      filename = String.join("-", "backup", backupID);
     }
     return String.join(File.separator, backupDirPath, filename);
   }
