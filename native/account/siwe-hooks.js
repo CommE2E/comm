@@ -8,7 +8,7 @@ import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import type { CallSingleKeyserverEndpointOptions } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -26,7 +26,7 @@ function useSIWEServerCall(): (
   SIWEServerCallParams,
   ?CallSingleKeyserverEndpointOptions,
 ) => Promise<void> {
-  const siweAuthCall = useServerCall(siweAuth);
+  const siweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
 
   const callSIWE = React.useCallback(
     (

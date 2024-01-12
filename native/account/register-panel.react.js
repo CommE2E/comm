@@ -32,7 +32,7 @@ import type {
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -484,7 +484,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callRegister = useServerCall(keyserverRegister);
+    const callRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(
         nativeNotificationsSessionCreator,

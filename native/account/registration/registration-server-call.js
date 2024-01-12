@@ -10,7 +10,7 @@ import {
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -66,7 +66,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callKeyserverRegister = useServerCall(keyserverRegister);
+  const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
   const callIdentityRegister = useIdentityRegister();
 
   const identityRegisterUsernameAccount = React.useCallback(

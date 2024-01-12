@@ -10,7 +10,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './ethereum-utils.js';
@@ -138,7 +138,7 @@ function ConnectEthereum(props: Props): React.Node {
     [keyserverURL],
   );
 
-  const exactSearchUserCall = useServerCall(
+  const exactSearchUserCall = useLegacyAshoatKeyserverCall(
     exactSearchUser,
     serverCallParamOverride,
   );

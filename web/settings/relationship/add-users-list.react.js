@@ -18,7 +18,7 @@ import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
 } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -187,7 +187,8 @@ function AddUsersList(props: Props): React.Node {
   );
 
   const [errorMessage, setErrorMessage] = React.useState('');
-  const callUpdateRelationships = useServerCall(updateRelationships);
+  const callUpdateRelationships =
+    useLegacyAshoatKeyserverCall(updateRelationships);
   const dispatchActionPromise = useDispatchActionPromise();
   const updateRelationshipsPromiseCreator = React.useCallback(async () => {
     try {
