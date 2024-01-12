@@ -7,7 +7,7 @@ import {
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { encryptFile } from '../media/encryption-utils.js';
@@ -18,7 +18,7 @@ import { validateFile } from '../media/media-utils.js';
 const useBlobServiceUploads = false;
 
 function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
-  const callUploadMultimedia = useServerCall(uploadMultimedia);
+  const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
     async (file: File): Promise<UpdateUserAvatarRequest> => {

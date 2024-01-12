@@ -22,7 +22,7 @@ import type {
   AccountUserInfo,
   GlobalAccountUserInfo,
 } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -331,7 +331,8 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
-    const boundUpdateRelationships = useServerCall(updateRelationships);
+    const boundUpdateRelationships =
+      useLegacyAshoatKeyserverCall(updateRelationships);
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
 

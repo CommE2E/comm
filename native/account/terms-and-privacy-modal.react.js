@@ -17,7 +17,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { type PolicyType, policyTypes } from 'lib/facts/policies.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -44,7 +44,8 @@ const loadingStatusSelector = createLoadingStatusSelector(
 function TermsAndPrivacyModal(props: Props): React.Node {
   const loadingStatus = useSelector(loadingStatusSelector);
   const [acknowledgmentError, setAcknowledgmentError] = React.useState('');
-  const sendAcknowledgmentRequest = useServerCall(policyAcknowledgment);
+  const sendAcknowledgmentRequest =
+    useLegacyAshoatKeyserverCall(policyAcknowledgment);
   const dispatchActionPromise = useDispatchActionPromise();
 
   const policyType = props.route.params.policyType;

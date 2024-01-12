@@ -83,7 +83,7 @@ import {
   type NewThreadResult,
   type ThreadInfo,
 } from 'lib/types/thread-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import type {
   CallSingleKeyserverEndpointOptions,
   CallSingleKeyserverEndpointResponse,
@@ -1714,7 +1714,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     );
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
-    const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage = useSendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
