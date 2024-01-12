@@ -1,7 +1,14 @@
+use super::file_info::BackupFileInfo;
 use super::get_user_identity_from_secure_store;
 use crate::constants::BACKUP_SERVICE_CONNECTION_RETRY_DELAY;
+use crate::ffi::{
+  get_backup_directory_path, get_backup_file_path,
+  get_backup_user_keys_file_path,
+};
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
+use backup_client::BackupData;
+use backup_client::UserIdentity;
 use backup_client::{
   BackupClient, Error as BackupError, LogUploadConfirmation, Stream, StreamExt,
   WSError,
@@ -9,7 +16,10 @@ use backup_client::{
 use lazy_static::lazy_static;
 use std::convert::Infallible;
 use std::error::Error;
-use std::future::{self, Future};
+use std::future::Future;
+use std::io::BufRead;
+use std::io::ErrorKind;
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use tokio::sync::Notify;
@@ -19,6 +29,9 @@ lazy_static! {
   pub static ref UPLOAD_HANDLER: Arc<Mutex<Option<JoinHandle<Infallible>>>> =
     Arc::new(Mutex::new(None));
   static ref TRIGGER_BACKUP_FILE_UPLOAD: Arc<Notify> = Arc::new(Notify::new());
+  static ref BACKUP_FOLDER_PATH: PathBuf = PathBuf::from(
+    get_backup_directory_path().expect("Getting backup directory path failed")
+  );
 }
 
 pub mod ffi {
@@ -74,12 +87,21 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
       let mut _tx = Box::pin(tx);
       let mut rx = Box::pin(rx);
 
-      let err = tokio::select! {
-        Err(err) = watch_and_upload_files() => err,
-        Err(err) = delete_confirmed_logs(&mut rx) => err,
-      };
+      loop {
+        let err = tokio::select! {
+          Err(err) = watch_and_upload_files(&backup_client, &user_identity) => err,
+          Err(err) = delete_confirmed_logs(&mut rx) => err,
+        };
 
-      println!("Backup handler error: '{err:?}'");
+        println!("Backup handler error: '{err:?}'");
+        match err {
+          BackupHandlerError::BackupError(_)
+          | BackupHandlerError::BackupWSError(_)
+          | BackupHandlerError::WSClosed => break,
+          BackupHandlerError::IoError(_)
+          | BackupHandlerError::CxxException(_) => continue,
+        }
+      }
 
       tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
       println!("Retrying backup log upload");
@@ -87,9 +109,48 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
   })
 }
 
-async fn watch_and_upload_files() -> Result<Infallible, BackupHandlerError> {
+async fn watch_and_upload_files(
+  backup_client: &BackupClient,
+  user_identity: &UserIdentity,
+) -> Result<Infallible, BackupHandlerError> {
   loop {
-    let () = future::pending().await;
+    let mut file_stream = match tokio::fs::read_dir(&*BACKUP_FOLDER_PATH).await
+    {
+      Ok(file_stream) => file_stream,
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
+        continue;
+      }
+      Err(err) => return Err(err.into()),
+    };
+
+    while let Some(file) = file_stream.next_entry().await? {
+      let path = file.path();
+
+      let Ok(BackupFileInfo {
+        backup_id,
+        log_id,
+        additional_data,
+      }) = path.try_into()
+      else {
+        continue;
+      };
+
+      // Skip additional data files (attachments, user keys). They will be
+      // handled when we iterate over the corresponding files with the
+      // main content
+      if additional_data.is_some() {
+        continue;
+      }
+
+      if let Some(_) = log_id {
+      } else {
+        compaction::upload_files(backup_client, user_identity, backup_id)
+          .await?;
+      }
+    }
+
+    TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
   }
 }
 
@@ -101,11 +162,70 @@ async fn delete_confirmed_logs(
   Err(BackupHandlerError::WSClosed)
 }
 
+mod compaction {
+  use super::*;
+
+  pub async fn upload_files(
+    backup_client: &BackupClient,
+    user_identity: &UserIdentity,
+    backup_id: String,
+  ) -> Result<(), BackupHandlerError> {
+    let user_data_path = get_backup_file_path(&backup_id, false)?;
+    let user_data = tokio::fs::read(&user_data_path).await?;
+
+    let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
+    let user_keys = tokio::fs::read(&user_keys_path).await?;
+
+    let attachments_path = get_backup_file_path(&backup_id, true)?;
+    let attachments = match tokio::fs::read(&attachments_path).await {
+      Ok(data) => data.lines().collect::<Result<_, _>>()?,
+      Err(err) if err.kind() == ErrorKind::NotFound => Vec::new(),
+      Err(err) => return Err(err.into()),
+    };
+
+    let backup_data = BackupData {
+      backup_id: backup_id.clone(),
+      user_data,
+      user_keys,
+      attachments,
+    };
+
+    backup_client
+      .upload_backup(user_identity, backup_data)
+      .await?;
+
+    tokio::spawn(cleanup_files(backup_id));
+
+    Ok(())
+  }
+
+  pub async fn cleanup_files(backup_id: String) {
+    let backup_files_cleanup = async {
+      let user_data_path = get_backup_file_path(&backup_id, false)?;
+      tokio::fs::remove_file(&user_data_path).await?;
+      let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
+      tokio::fs::remove_file(&user_keys_path).await?;
+      let attachments_path = get_backup_file_path(&backup_id, true)?;
+      match tokio::fs::remove_file(&attachments_path).await {
+        Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
+        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err.into()),
+      }
+    };
+
+    if let Err(err) = backup_files_cleanup.await {
+      println!("{err:?}");
+    }
+  }
+}
+
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
-enum BackupHandlerError {
+pub enum BackupHandlerError {
   BackupError(BackupError),
   BackupWSError(WSError),
   WSClosed,
+  IoError(std::io::Error),
+  CxxException(cxx::Exception),
 }
