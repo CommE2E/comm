@@ -1,6 +1,5 @@
+mod file_info;
 mod upload_handler;
-
-use std::error::Error;
 
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
@@ -15,6 +14,7 @@ use backup_client::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::error::Error;
 
 pub mod ffi {
   use super::*;
