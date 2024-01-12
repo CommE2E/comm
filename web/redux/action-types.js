@@ -1,9 +1,9 @@
 // @flow
 
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
-import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
