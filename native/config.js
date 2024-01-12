@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 import { registerConfig } from 'lib/utils/config.js';
 
-import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './account/resolve-invalidated-cookie.js';
+import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './account/legacy-recover-keyserver-session.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 
 registerConfig({
