@@ -81,7 +81,7 @@ import {
   type NewThreadResult,
   type ThreadInfo,
 } from 'lib/types/thread-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   makeBlobServiceEndpointURL,
   isBlobServiceURI,
@@ -1651,7 +1651,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
       pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();

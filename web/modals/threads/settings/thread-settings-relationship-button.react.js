@@ -24,7 +24,7 @@ import {
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-settings-relationship-tab.css';
@@ -104,7 +104,8 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   }, [relationshipButton]);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callUpdateRelationships = useServerCall(updateRelationships);
+  const callUpdateRelationships =
+    useLegacyAshoatKeyserverCall(updateRelationships);
 
   const updateRelationshipsActionPromise = React.useCallback(async () => {
     try {

@@ -11,7 +11,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type PasswordUpdate } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -241,7 +241,7 @@ const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
       state =>
         changeKeyserverUserPasswordLoadingStatusSelector(state) === 'loading',
     );
-    const callChangeKeyserverUserPassword = useServerCall(
+    const callChangeKeyserverUserPassword = useLegacyAshoatKeyserverCall(
       changeKeyserverUserPassword,
     );
     const dispatchActionPromise = useDispatchActionPromise();

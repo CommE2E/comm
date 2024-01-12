@@ -18,7 +18,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -355,7 +355,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeKeyserverUserPassword = useServerCall(
+    const callChangeKeyserverUserPassword = useLegacyAshoatKeyserverCall(
       changeKeyserverUserPassword,
     );
 

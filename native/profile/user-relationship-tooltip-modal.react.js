@@ -9,7 +9,7 @@ import {
 } from 'lib/actions/relationship-actions.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeUserInfo } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import PencilIcon from '../components/pencil-icon.react.js';
@@ -38,7 +38,8 @@ type OnRemoveUserProps = {
   +action: Action,
 };
 function useRelationshipAction(input: OnRemoveUserProps) {
-  const boundRemoveRelationships = useServerCall(updateRelationships);
+  const boundRemoveRelationships =
+    useLegacyAshoatKeyserverCall(updateRelationships);
   const dispatchActionPromise = useDispatchActionPromise();
   const userText = stringForUser(input.relativeUserInfo);
 

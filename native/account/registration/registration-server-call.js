@@ -8,7 +8,7 @@ import {
   keyserverRegister,
 } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
@@ -59,7 +59,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callRegister = useServerCall(keyserverRegister);
+  const callRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
 
   const registerUsernameAccount = React.useCallback(
     async (

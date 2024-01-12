@@ -27,7 +27,7 @@ import type {
   MediaLibrarySelection,
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import CommIcon from '../components/comm-icon.react.js';
@@ -55,7 +55,7 @@ function displayAvatarUpdateFailureAlert(): void {
 }
 
 function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
-  const callUploadMultimedia = useServerCall(uploadMultimedia);
+  const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadProcessedMultimedia: MediaResult => Promise<?AvatarDBContent> =
     React.useCallback(

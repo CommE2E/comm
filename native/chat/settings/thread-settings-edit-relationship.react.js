@@ -19,7 +19,7 @@ import {
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
@@ -48,7 +48,9 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
 
     const [otherUserInfo] = useENSNames([otherUserInfoFromRedux]);
 
-    const callUpdateRelationships = useServerCall(serverUpdateRelationships);
+    const callUpdateRelationships = useLegacyAshoatKeyserverCall(
+      serverUpdateRelationships,
+    );
     const updateRelationship = React.useCallback(
       async (action: RelationshipAction) => {
         try {

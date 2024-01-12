@@ -23,7 +23,7 @@ import type {
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -56,12 +56,12 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
   const dispatchActionPromise = useDispatchActionPromise();
-  const getSIWENonceCall = useServerCall(getSIWENonce);
+  const getSIWENonceCall = useLegacyAshoatKeyserverCall(getSIWENonce);
   const getSIWENonceCallLoadingStatus = useSelector(
     getSIWENonceLoadingStatusSelector,
   );
   const siweAuthLoadingStatus = useSelector(siweAuthLoadingStatusSelector);
-  const siweAuthCall = useServerCall(siweAuth);
+  const siweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
   const logInExtraInfo = useSelector(logInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);

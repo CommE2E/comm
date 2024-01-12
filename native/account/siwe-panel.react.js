@@ -13,7 +13,7 @@ import {
 import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
@@ -49,7 +49,7 @@ type Props = {
 };
 function SIWEPanel(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
-  const getSIWENonceCall = useServerCall(
+  const getSIWENonceCall = useLegacyAshoatKeyserverCall(
     getSIWENonce,
     props.keyserverCallParamOverride,
   );
