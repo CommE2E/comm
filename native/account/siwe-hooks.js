@@ -9,7 +9,7 @@ import type {
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
-import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
+import type { CallSingleKeyserverEndpointOptions } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
@@ -24,7 +24,7 @@ type SIWEServerCallParams = {
 };
 function useSIWEServerCall(): (
   SIWEServerCallParams,
-  ?CallServerEndpointOptions,
+  ?CallSingleKeyserverEndpointOptions,
 ) => Promise<void> {
   const siweAuthCall = useServerCall(siweAuth);
 
@@ -33,7 +33,7 @@ function useSIWEServerCall(): (
       message: string,
       signature: string,
       extraInfo: $ReadOnly<{ ...LogInExtraInfo, +doNotRegister?: boolean }>,
-      callServerEndpointOptions: ?CallServerEndpointOptions,
+      callSingleKeyserverEndpointOptions: ?CallSingleKeyserverEndpointOptions,
     ) =>
       siweAuthCall(
         {
@@ -41,7 +41,7 @@ function useSIWEServerCall(): (
           signature,
           ...extraInfo,
         },
-        callServerEndpointOptions,
+        callSingleKeyserverEndpointOptions,
       ),
     [siweAuthCall],
   );
@@ -55,12 +55,12 @@ function useSIWEServerCall(): (
   return React.useCallback(
     async (
       { message, signature, doNotRegister },
-      callServerEndpointOptions,
+      callSingleKeyserverEndpointOptions,
     ) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await getInitialNotificationsEncryptedMessage({
-          callServerEndpointOptions,
+          callSingleKeyserverEndpointOptions,
         });
 
       const siwePromise = callSIWE(
@@ -71,7 +71,7 @@ function useSIWEServerCall(): (
           initialNotificationsEncryptedMessage,
           doNotRegister,
         },
-        callServerEndpointOptions,
+        callSingleKeyserverEndpointOptions,
       );
 
       void dispatchActionPromise(
