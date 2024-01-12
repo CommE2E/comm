@@ -3,9 +3,8 @@ pub use comm_lib::backup::{
   DownloadLogsRequest, LatestBackupIDResponse, LogWSRequest, LogWSResponse,
   UploadLogRequest,
 };
-pub use futures_util::{SinkExt, StreamExt, TryStreamExt};
+pub use futures_util::{Sink, SinkExt, Stream, StreamExt, TryStreamExt};
 
-use futures_util::{Sink, Stream};
 use hex::ToHex;
 use reqwest::{
   header::InvalidHeaderValue,

@@ -1242,12 +1242,26 @@ jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::createNewBackup(
-    jsi::Runtime &rt,
-    jsi::String backupSecret,
-    jsi::String userData) {
+void CommCoreModule::startBackupHandler(jsi::Runtime &rt) {
+  try {
+    ::startBackupHandler();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
+jsi::Value CommCoreModule::stopBackupHandler(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto currentID = RustPromiseManager::instance.addPromise(
+            promise, this->jsInvoker_, innerRt);
+        ::stopBackupHandler(currentID);
+      });
+}
+
+jsi::Value
+CommCoreModule::createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) {
   std::string backupSecretStr = backupSecret.utf8(rt);
-  std::string userDataStr = userData.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         this->cryptoThread->scheduleTask([=, &innerRt]() {
@@ -1282,7 +1296,6 @@ jsi::Value CommCoreModule::createNewBackup(
                 rust::string(backupSecretStr),
                 rust::string(pickleKey),
                 rust::string(pickledAccount),
-                rust::string(userDataStr),
                 currentID);
           } else {
             this->jsInvoker_->invokeAsync(

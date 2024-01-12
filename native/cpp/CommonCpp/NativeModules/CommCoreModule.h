@@ -123,10 +123,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String accessToken) override;
   virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) override;
-  virtual jsi::Value createNewBackup(
-      jsi::Runtime &rt,
-      jsi::String backupSecret,
-      jsi::String userData) override;
+  virtual void startBackupHandler(jsi::Runtime &rt) override;
+  virtual jsi::Value stopBackupHandler(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
   virtual jsi::Value
   restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
 
