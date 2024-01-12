@@ -85,9 +85,9 @@ import {
 } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 import type {
-  CallServerEndpointOptions,
-  CallServerEndpointResponse,
-} from 'lib/utils/call-server-endpoint.js';
+  CallSingleKeyserverEndpointOptions,
+  CallSingleKeyserverEndpointResponse,
+} from 'lib/utils/call-single-keyserver-endpoint.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -1180,8 +1180,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     cookie: ?string,
     sessionID: ?string,
     input: { +[key: string]: mixed },
-    options?: ?CallServerEndpointOptions,
-  ): Promise<CallServerEndpointResponse> => {
+    options?: ?CallSingleKeyserverEndpointOptions,
+  ): Promise<CallSingleKeyserverEndpointResponse> => {
     invariant(
       cookie &&
         input.multimedia &&

@@ -11,7 +11,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
-import type { CallServerEndpointResultInfoInterface } from 'lib/utils/call-server-endpoint.js';
+import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { cloneError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -62,7 +62,7 @@ function useSendReaction(
           });
           const serverID: string = result.id;
           const time: number = result.time;
-          const interfaceInfo: CallServerEndpointResultInfoInterface =
+          const interfaceInfo: CallSingleKeyserverEndpointResultInfoInterface =
             result.interface;
           return {
             localID,
