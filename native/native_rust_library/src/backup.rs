@@ -2,7 +2,10 @@ use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{
   aes, secure_store, BACKUP_SERVICE_CONNECTION_RETRY_DELAY,
 };
-use crate::ffi::secure_store_get;
+use crate::ffi::{
+  get_backup_directory_path, get_backup_file_path,
+  get_backup_user_keys_file_path, secure_store_get,
+};
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use crate::{handle_string_result_as_callback, handle_void_result_as_callback};
@@ -13,11 +16,14 @@ use backup_client::{
   UserIdentity, WSError,
 };
 use lazy_static::lazy_static;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::convert::Infallible;
 use std::error::Error;
-use std::future::{self, Future};
+use std::future::Future;
+use std::io::{BufRead, ErrorKind};
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
 use tokio::sync::Notify;
@@ -87,6 +93,12 @@ pub mod ffi {
 lazy_static! {
   static ref UPLOAD_HANDLER: Arc<Mutex<Option<JoinHandle<Infallible>>>> =
     Arc::new(Mutex::new(None));
+  static ref BACKUP_FOLDER_PATH: PathBuf =
+    PathBuf::from(get_backup_directory_path().expect("Getting backup directory path failed"));
+  static ref BACKUP_DATA_FILE_REGEX: Regex = Regex::new(
+      r"^backup-(?<backup_id>[^-]*)(?:-log-(?<log_id>\d*))?(?<additional_data>-userkeys|-attachments)?$"
+    )
+    .expect("Regex compilation failed");
   static ref TRIGGER_BACKUP_FILE_UPLOAD: Arc<Notify> = Arc::new(Notify::new());
 }
 
@@ -111,12 +123,21 @@ fn backup_upload_handler(
       let mut _tx = Box::pin(tx);
       let mut rx = Box::pin(rx);
 
-      let err = tokio::select! {
-        Err(err) = backup_data_sender() => err,
-        Err(err) = backup_confirmation_receiver(&mut rx) => err,
-      };
+      loop {
+        let err = tokio::select! {
+          Err(err) = backup_data_sender(&backup_client, &user_identity) => err,
+          Err(err) = backup_confirmation_receiver(&mut rx) => err,
+        };
 
-      println!("Backup handler error: '{err:?}'");
+        println!("Backup handler error: '{err:?}'");
+        match err {
+          BackupHandlerError::BackupError(_)
+          | BackupHandlerError::BackupWSError(_)
+          | BackupHandlerError::WSClosed => break,
+          BackupHandlerError::IoError(_)
+          | BackupHandlerError::CxxException(_) => continue,
+        }
+      }
 
       tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
       println!("Retrying backup log upload");
@@ -124,9 +145,48 @@ fn backup_upload_handler(
   })
 }
 
-async fn backup_data_sender() -> Result<Infallible, BackupHandlerError> {
+async fn backup_data_sender(
+  backup_client: &BackupClient,
+  user_identity: &UserIdentity,
+) -> Result<Infallible, BackupHandlerError> {
   loop {
-    let () = future::pending().await;
+    let mut file_stream = match tokio::fs::read_dir(&*BACKUP_FOLDER_PATH).await
+    {
+      Ok(file_stream) => file_stream,
+      Err(err) if err.kind() == ErrorKind::NotFound => {
+        TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
+        continue;
+      }
+      Err(err) => return Err(err.into()),
+    };
+
+    while let Some(file) = file_stream.next_entry().await? {
+      let path = file.path();
+
+      let Ok(BackupDataFileInfo {
+        backup_id,
+        log_id,
+        additional_data,
+      }) = path.try_into()
+      else {
+        continue;
+      };
+
+      // Skip additional data files (attachments, user keys). They will be
+      // handled when we iterate over the corresponding files with the
+      // main content
+      if additional_data.is_some() {
+        continue;
+      }
+
+      if let Some(_) = log_id {
+      } else {
+        upload_backup_compaction_file(backup_client, user_identity, backup_id)
+          .await?;
+      }
+    }
+
+    TRIGGER_BACKUP_FILE_UPLOAD.notified().await;
   }
 }
 
@@ -138,6 +198,103 @@ async fn backup_confirmation_receiver(
   Err(BackupHandlerError::WSClosed)
 }
 
+#[derive(Debug)]
+struct BackupDataFileInfo {
+  backup_id: String,
+  log_id: Option<usize>,
+  additional_data: Option<String>,
+}
+
+impl TryFrom<PathBuf> for BackupDataFileInfo {
+  type Error = ();
+
+  fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
+    let Some(file_name) = value.file_name() else {
+      return Err(());
+    };
+    let file_name = file_name.to_string_lossy();
+
+    let Some(captures) = BACKUP_DATA_FILE_REGEX.captures(&file_name) else {
+      return Err(());
+    };
+
+    let Some(backup_id) = captures
+      .name("backup_id")
+      .map(|re_match| re_match.as_str().to_string())
+    else {
+      // Should never happen happen because regex matched the filename
+      println!(
+        "Couldn't parse 'backup_id' from backup filename: {file_name:?}"
+      );
+      return Err(());
+    };
+
+    let log_id = match captures
+      .name("log_id")
+      .map(|re_match| re_match.as_str().parse::<usize>())
+    {
+      None => None,
+      Some(Ok(log_id)) => Some(log_id),
+      Some(Err(err)) => {
+        // Should never happen happen because regex matched the filename
+        println!(
+          "Couldn't parse 'log_id' from backup filename: {file_name:?}. \
+          Error: {err:?}"
+        );
+        return Err(());
+      }
+    };
+
+    let additional_data = captures
+      .name("additional_data")
+      .map(|m| m.as_str().to_string());
+
+    Ok(Self {
+      backup_id,
+      log_id,
+      additional_data,
+    })
+  }
+}
+
+async fn upload_backup_compaction_file(
+  backup_client: &BackupClient,
+  user_identity: &UserIdentity,
+  backup_id: String,
+) -> Result<(), BackupHandlerError> {
+  let user_data_path = get_backup_file_path(&backup_id, false)?;
+  let user_data = tokio::fs::read(&user_data_path).await?;
+
+  let user_keys_path = get_backup_user_keys_file_path(&backup_id)?;
+  let user_keys = tokio::fs::read(&user_keys_path).await?;
+
+  let attachments_path = get_backup_file_path(&backup_id, true)?;
+  let attachments = match tokio::fs::read(&attachments_path).await {
+    Ok(data) => data.lines().collect::<Result<_, _>>()?,
+    Err(err) if err.kind() == ErrorKind::NotFound => Vec::new(),
+    Err(err) => return Err(err.into()),
+  };
+
+  let backup_data = BackupData {
+    backup_id,
+    user_data,
+    user_keys,
+    attachments,
+  };
+
+  backup_client
+    .upload_backup(user_identity, backup_data)
+    .await?;
+
+  tokio::fs::remove_file(&user_data_path).await?;
+  tokio::fs::remove_file(&user_keys_path).await?;
+  match tokio::fs::remove_file(&attachments_path).await {
+    Ok(()) => Ok(()),
+    Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+    Err(err) => Err(err.into()),
+  }
+}
+
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
@@ -145,6 +302,8 @@ enum BackupHandlerError {
   BackupError(BackupError),
   BackupWSError(WSError),
   WSClosed,
+  IoError(std::io::Error),
+  CxxException(cxx::Exception),
 }
 
 pub async fn create_backup(
