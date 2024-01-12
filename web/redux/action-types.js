@@ -20,7 +20,9 @@ export const updateWindowDimensionsActionType = 'UPDATE_WINDOW_DIMENSIONS';
 export const updateWindowActiveActionType = 'UPDATE_WINDOW_ACTIVE';
 export const setInitialReduxState = 'SET_INITIAL_REDUX_STATE';
 
-const getInitialReduxStateCallServerEndpointOptions = { timeout: 300000 };
+const getInitialReduxStateCallSingleKeyserverEndpointOptions = {
+  timeout: 300000,
+};
 
 type GetInitialReduxStateInput = {
   +urlInfo: URLInfo,
@@ -76,7 +78,7 @@ const getInitialReduxState =
       await callKeyserverEndpoint(
         'get_initial_redux_state',
         requests,
-        getInitialReduxStateCallServerEndpointOptions,
+        getInitialReduxStateCallSingleKeyserverEndpointOptions,
       );
 
     const {

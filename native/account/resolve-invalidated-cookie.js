@@ -4,7 +4,7 @@ import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
 import type { DispatchRecoveryAttempt } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { InitialNotifMessageOptions } from 'lib/shared/crypto-utils.js';
 import type { LogInActionSource } from 'lib/types/account-types.js';
-import type { CallServerEndpoint } from 'lib/utils/call-server-endpoint.js';
+import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
 import type { CallKeyserverEndpoint } from 'lib/utils/keyserver-call.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
@@ -12,7 +12,7 @@ import { store } from '../redux/redux-setup.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
 async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
-  callServerEndpoint: CallServerEndpoint,
+  callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
   callKeyserverEndpoint: CallKeyserverEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
   logInActionSource: LogInActionSource,
@@ -29,7 +29,9 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
 
   if (getInitialNotificationsEncryptedMessage) {
     const initialNotificationsEncryptedMessage =
-      await getInitialNotificationsEncryptedMessage({ callServerEndpoint });
+      await getInitialNotificationsEncryptedMessage({
+        callSingleKeyserverEndpoint,
+      });
     extraInfo = { ...extraInfo, initialNotificationsEncryptedMessage };
   }
 
