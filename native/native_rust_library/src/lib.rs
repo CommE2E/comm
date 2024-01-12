@@ -232,6 +232,9 @@ mod ffi {
     #[cxx_name = "stopBackupHandler"]
     fn stop_backup_handler_sync(promise_id: u32);
 
+    #[cxx_name = "triggerBackupFileUpload"]
+    fn trigger_backup_file_upload();
+
     #[cxx_name = "createBackup"]
     fn create_backup_sync(
       backup_id: String,
