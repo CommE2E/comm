@@ -12,11 +12,13 @@ use std::error::Error;
 use std::future::{self, Future};
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
+use tokio::sync::Notify;
 use tokio::task::JoinHandle;
 
 lazy_static! {
   pub static ref UPLOAD_HANDLER: Arc<Mutex<Option<JoinHandle<Infallible>>>> =
     Arc::new(Mutex::new(None));
+  static ref TRIGGER_BACKUP_FILE_UPLOAD: Arc<Notify> = Arc::new(Notify::new());
 }
 
 pub mod ffi {
@@ -45,6 +47,10 @@ pub mod ffi {
 
     handler.abort();
     Ok(())
+  }
+
+  pub fn trigger_backup_file_upload() {
+    TRIGGER_BACKUP_FILE_UPLOAD.notify_one();
   }
 }
 
