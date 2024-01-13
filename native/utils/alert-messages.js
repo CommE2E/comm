@@ -18,3 +18,15 @@ export const AppOutOfDateAlertDetails: AlertDetails = {
     'Your app version is pretty old, and the server doesn’t know how ' +
     `to speak to it anymore. Please use the ${platformStore} to update!`,
 };
+
+export const UsernameReservedAlertDetails: AlertDetails = {
+  title: 'Username reserved',
+  message:
+    'This username is currently reserved. Please contact support@' +
+    'comm.app if you would like to claim this account.',
+};
+
+export const UsernameTakenAlertDetails: AlertDetails = {
+  title: 'Username taken',
+  message: 'An account with that username already exists',
+};

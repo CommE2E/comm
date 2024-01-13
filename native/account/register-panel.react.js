@@ -46,7 +46,11 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
-import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
+import {
+  AppOutOfDateAlertDetails,
+  UsernameReservedAlertDetails,
+  UsernameTakenAlertDetails,
+} from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { type StateContainer } from '../utils/state-container.js';
@@ -365,16 +369,15 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     } catch (e) {
       if (e.message === 'username_reserved') {
         Alert.alert(
-          'Username reserved',
-          'This username is currently reserved. Please contact support@' +
-            'comm.app if you would like to claim this account.',
+          UsernameReservedAlertDetails.title,
+          UsernameReservedAlertDetails.message,
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'username_taken') {
         Alert.alert(
-          'Username taken',
-          'An account with that username already exists',
+          UsernameTakenAlertDetails.title,
+          UsernameTakenAlertDetails.message,
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );

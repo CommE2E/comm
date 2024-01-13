@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 
+import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
   IdentityServiceClient,
   OutboundKeyInfoResponse,
   UserLoginResponse,
 } from 'lib/types/identity-service-types.js';
+import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
 import { commCoreModule, commRustModule } from '../native-modules.js';
@@ -86,6 +88,42 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           throw new Error('Invalid response from Identity service');
         }
         return resultObject;
+      },
+      registerUser: async (username: string, password: string) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          {
+            notificationIdentityPublicKeys,
+            primaryIdentityPublicKeys,
+            signature,
+          },
+          notificationsOneTimeKeys,
+          primaryOneTimeKeys,
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.generateAndGetPrekeys(),
+        ]);
+        const keyPayload = JSON.stringify({
+          notificationIdentityPublicKeys,
+          primaryIdentityPublicKeys,
+        });
+        const registrationResult = await commRustModule.registerUser(
+          username,
+          password,
+          keyPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyArray(primaryOneTimeKeys),
+          getOneTimeKeyArray(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken } = JSON.parse(registrationResult);
+        return { accessToken, userID, username };
       },
     };
   }, [getAuthMetadata]);
