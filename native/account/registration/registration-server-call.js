@@ -6,11 +6,14 @@ import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js'
 import {
   keyserverRegisterActionTypes,
   keyserverRegister,
+  useIdentityRegister,
+  identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
 import type {
@@ -59,17 +62,63 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callRegister = useServerCall(keyserverRegister);
+  const callKeyserverRegister = useServerCall(keyserverRegister);
+  const callIdentityRegister = useIdentityRegister();
 
-  const registerUsernameAccount = React.useCallback(
+  const identityRegisterUsernameAccount = React.useCallback(
+    async (accountSelection: UsernameAccountSelection) => {
+      const identityRegisterPromise = (async () => {
+        try {
+          const result = await callIdentityRegister(
+            accountSelection.username,
+            accountSelection.password,
+          );
+          await setNativeCredentials({
+            username: accountSelection.username,
+            password: accountSelection.password,
+          });
+          return result;
+        } catch (e) {
+          if (e.message === 'username reserved') {
+            Alert.alert(
+              'Username reserved',
+              'This username is currently reserved. Please contact support@' +
+                'comm.app if you would like to claim this account.',
+            );
+          } else if (e.message === 'username already exists') {
+            Alert.alert(
+              'Username taken',
+              'An account with that username already exists',
+            );
+          } else if (e.message === 'Unsupported version') {
+            Alert.alert(
+              AppOutOfDateAlertDetails.title,
+              AppOutOfDateAlertDetails.message,
+            );
+          } else {
+            Alert.alert('Unknown error', 'Uhh... try again?');
+          }
+          throw e;
+        }
+      })();
+      void dispatchActionPromise(
+        identityRegisterActionTypes,
+        identityRegisterPromise,
+      );
+      await identityRegisterPromise;
+    },
+    [callIdentityRegister, dispatchActionPromise],
+  );
+
+  const keyserverRegisterUsernameAccount = React.useCallback(
     async (
       accountSelection: UsernameAccountSelection,
       keyserverURL: string,
     ) => {
       const extraInfo = await logInExtraInfo();
-      const registerPromise = (async () => {
+      const keyserverRegisterPromise = (async () => {
         try {
-          const result = await callRegister(
+          const result = await callKeyserverRegister(
             {
               ...extraInfo,
               username: accountSelection.username,
@@ -109,13 +158,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       })();
       void dispatchActionPromise(
         keyserverRegisterActionTypes,
-        registerPromise,
+        keyserverRegisterPromise,
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
-      await registerPromise;
+      await keyserverRegisterPromise;
     },
-    [logInExtraInfo, callRegister, dispatchActionPromise],
+    [logInExtraInfo, callKeyserverRegister, dispatchActionPromise],
   );
 
   const siweServerCall = useSIWEServerCall();
@@ -130,8 +179,16 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               return;
             }
             const { accountSelection, avatarData, keyserverURL } = input;
-            if (accountSelection.accountType === 'username') {
-              await registerUsernameAccount(accountSelection, keyserverURL);
+            if (
+              accountSelection.accountType === 'username' &&
+              !usingCommServicesAccessToken
+            ) {
+              await keyserverRegisterUsernameAccount(
+                accountSelection,
+                keyserverURL,
+              );
+            } else if (accountSelection.accountType === 'username') {
+              await identityRegisterUsernameAccount(accountSelection);
             } else {
               try {
                 await siweServerCall(accountSelection, {
@@ -157,7 +214,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           }
         },
       ),
-    [currentStep, registerUsernameAccount, siweServerCall, dispatch],
+    [
+      currentStep,
+      keyserverRegisterUsernameAccount,
+      identityRegisterUsernameAccount,
+      siweServerCall,
+      dispatch,
+    ],
   );
 
   // STEP 2: SETTING AVATAR
