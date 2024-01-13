@@ -14,6 +14,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   changeKeyserverUserPasswordActionTypes,
   changeKeyserverUserPassword,
+  useChangeIdentityUserPassword,
+  changeIdentityUserPasswordActionTypes,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -23,6 +25,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { setNativeCredentials } from '../account/native-credentials.js';
@@ -106,6 +109,7 @@ type Props = {
   +changeKeyserverUserPassword: (
     passwordUpdate: PasswordUpdate,
   ) => Promise<void>,
+  +changeIdentityUserPassword: (newPassword: string) => Promise<void>,
 };
 type State = {
   +currentPassword: string,
@@ -275,6 +279,11 @@ class EditPassword extends React.PureComponent<Props, State> {
       );
     } else if (this.state.newPassword === this.state.currentPassword) {
       this.goBackOnce();
+    } else if (usingCommServicesAccessToken) {
+      void this.props.dispatchActionPromise(
+        changeIdentityUserPasswordActionTypes,
+        this.savePassword(),
+      );
     } else {
       void this.props.dispatchActionPromise(
         changeKeyserverUserPasswordActionTypes,
@@ -289,12 +298,16 @@ class EditPassword extends React.PureComponent<Props, State> {
       return;
     }
     try {
-      await this.props.changeKeyserverUserPassword({
-        updatedFields: {
-          password: this.state.newPassword,
-        },
-        currentPassword: this.state.currentPassword,
-      });
+      if (usingCommServicesAccessToken) {
+        await this.props.changeIdentityUserPassword(this.state.newPassword);
+      } else {
+        await this.props.changeKeyserverUserPassword({
+          updatedFields: {
+            password: this.state.newPassword,
+          },
+          currentPassword: this.state.currentPassword,
+        });
+      }
       await setNativeCredentials({
         username,
         password: this.state.newPassword,
@@ -338,9 +351,9 @@ class EditPassword extends React.PureComponent<Props, State> {
   };
 }
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  changeKeyserverUserPasswordActionTypes,
-);
+const loadingStatusSelector = usingCommServicesAccessToken
+  ? createLoadingStatusSelector(changeIdentityUserPasswordActionTypes)
+  : createLoadingStatusSelector(changeKeyserverUserPasswordActionTypes);
 
 const ConnectedEditPassword: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedEditPassword(props: BaseProps) {
@@ -358,6 +371,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
     const callChangeKeyserverUserPassword = useServerCall(
       changeKeyserverUserPassword,
     );
+    const callChangeIdentityUserPassword = useChangeIdentityUserPassword();
 
     return (
       <EditPassword
@@ -368,6 +382,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> =
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
         changeKeyserverUserPassword={callChangeKeyserverUserPassword}
+        changeIdentityUserPassword={callChangeIdentityUserPassword}
       />
     );
   });
