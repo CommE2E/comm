@@ -8,7 +8,7 @@ import type {
   ResetPasswordRequest,
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
-  LogInResponse,
+  ServerLogInResponse,
 } from 'lib/types/account-types.js';
 import type {
   ClientAvatar,
@@ -98,7 +98,7 @@ async function checkAndSendPasswordResetEmail(
 async function updatePassword(
   viewer: Viewer,
   request: UpdatePasswordRequest,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   /* eslint-enable no-unused-vars */
   // We have no way to handle this request anymore
   throw new ServerError('deprecated');
