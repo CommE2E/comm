@@ -20,7 +20,7 @@ import type {
   LogOutResponse,
   RegisterResponse,
   RegisterRequest,
-  LogInResponse,
+  ServerLogInResponse,
   LogInRequest,
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
@@ -307,7 +307,7 @@ type ProcessSuccessfulLoginParams = {
 
 async function processSuccessfulLogin(
   params: ProcessSuccessfulLoginParams,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   const {
     viewer,
     input,
@@ -424,7 +424,7 @@ async function processSuccessfulLogin(
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const response: LogInResponse = {
+  const response: ServerLogInResponse = {
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
@@ -461,8 +461,8 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
     initialNotificationsEncryptedMessage: t.maybe(t.String),
   });
 
-export const logInResponseValidator: TInterface<LogInResponse> =
-  tShape<LogInResponse>({
+export const logInResponseValidator: TInterface<ServerLogInResponse> =
+  tShape<ServerLogInResponse>({
     currentUserInfo: loggedInUserInfoValidator,
     rawMessageInfos: t.list(rawMessageInfoValidator),
     truncationStatuses: messageTruncationStatusesValidator,
@@ -479,7 +479,7 @@ export const logInResponseValidator: TInterface<LogInResponse> =
 async function logInResponder(
   viewer: Viewer,
   request: LogInRequest,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   let identityKeys: ?IdentityKeysBlob;
   const { signedIdentityKeysBlob, initialNotificationsEncryptedMessage } =
     request;
@@ -568,7 +568,7 @@ export const siweAuthRequestInputValidator: TInterface<SIWEAuthRequest> =
 async function siweAuthResponder(
   viewer: Viewer,
   request: SIWEAuthRequest,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   const {
     message,
     signature,
@@ -715,7 +715,7 @@ export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest
 async function keyserverAuthResponder(
   viewer: Viewer,
   request: KeyserverAuthRequest,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   const {
     userID,
     deviceID,
@@ -833,7 +833,7 @@ export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordReque
 async function oldPasswordUpdateResponder(
   viewer: Viewer,
   request: UpdatePasswordRequest,
-): Promise<LogInResponse> {
+): Promise<ServerLogInResponse> {
   if (request.calendarQuery) {
     request.calendarQuery = normalizeCalendarQuery(request.calendarQuery);
   }
