@@ -8,7 +8,7 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
-import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyRawThreadInfo } from 'lib/types/thread-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
@@ -101,7 +101,7 @@ function InitialReduxStateGate(props: Props): React.Node {
             ).map(
               ([id, threadInfo]: [
                 string,
-                LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+                LegacyRawThreadInfo | RawThreadInfo,
               ]) => ({
                 type: 'replace',
                 payload: {
