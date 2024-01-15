@@ -240,6 +240,11 @@ mod ffi {
 
   // Backup
   extern "Rust" {
+    #[cxx_name = "startBackupHandler"]
+    fn start_backup_handler() -> Result<()>;
+    #[cxx_name = "stopBackupHandler"]
+    fn stop_backup_handler() -> Result<()>;
+
     #[cxx_name = "createBackup"]
     fn create_backup_sync(
       backup_id: String,
