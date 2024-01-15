@@ -76,7 +76,7 @@ import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
-  RawThreadInfos,
+  MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -994,8 +994,8 @@ const migrations = {
     ),
   [61]: (state: AppState) => {
     const minimallyEncodeThreadInfosFunc = (
-      threadStoreInfos: RawThreadInfos,
-    ): RawThreadInfos =>
+      threadStoreInfos: MixedRawThreadInfos,
+    ): MixedRawThreadInfos =>
       Object.keys(threadStoreInfos).reduce(
         (
           acc: {
