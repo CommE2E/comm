@@ -11,7 +11,7 @@ import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissio
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
-  RawThreadInfos,
+  MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -31,7 +31,7 @@ import { commCoreModule } from '../native-modules.js';
 
 function updateClientDBThreadStoreThreadInfos(
   state: AppState,
-  migrationFunc: RawThreadInfos => RawThreadInfos,
+  migrationFunc: MixedRawThreadInfos => MixedRawThreadInfos,
 ): AppState {
   // Get threads from SQLite `threads` table.
   const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
@@ -63,7 +63,7 @@ function updateClientDBThreadStoreThreadInfos(
 
 function createUpdateDBOpsForThreadStoreThreadInfos(
   clientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo>,
-  migrationFunc: RawThreadInfos => RawThreadInfos,
+  migrationFunc: MixedRawThreadInfos => MixedRawThreadInfos,
 ): $ReadOnlyArray<ClientDBThreadStoreOperation> {
   // Translate `ClientDBThreadInfo`s to `RawThreadInfo`s.
   const rawThreadInfos = clientDBThreadInfos.map(
