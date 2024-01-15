@@ -1,12 +1,11 @@
 // @flow
-import t from 'tcomb';
 import type { TInterface } from 'tcomb';
+import t from 'tcomb';
 
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type BaseNavInfo } from 'lib/types/nav-types.js';
-import {
-  legacyThreadInfoValidator,
-  type ThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { legacyThreadInfoValidator } from 'lib/types/thread-types.js';
 import {
   type AccountUserInfo,
   accountUserInfoValidator,
@@ -39,7 +38,7 @@ export type NavInfo = {
   ...$Exact<BaseNavInfo>,
   +tab: NavigationTab,
   +activeChatThreadID: ?string,
-  +pendingThread?: ThreadInfo,
+  +pendingThread?: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +settingsSection?: NavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,

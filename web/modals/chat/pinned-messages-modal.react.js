@@ -8,8 +8,8 @@ import {
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import {
-  messageListData,
   type ChatMessageInfoItem,
+  messageListData,
 } from 'lib/selectors/chat-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
@@ -18,7 +18,8 @@ import {
   modifyItemForResultScreen,
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -29,7 +30,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import Modal from '../modal.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(

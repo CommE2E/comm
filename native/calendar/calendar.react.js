@@ -11,49 +11,50 @@ import _sum from 'lodash/fp/sum.js';
 import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
 import {
-  View,
-  Text,
-  FlatList,
   AppState as NativeAppState,
-  Platform,
+  FlatList,
   LayoutAnimation,
+  Platform,
+  Text,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 
+import type { UpdateCalendarQueryInput } from 'lib/actions/entry-actions.js';
 import {
   updateCalendarQueryActionTypes,
   useUpdateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
-import type { UpdateCalendarQueryInput } from 'lib/actions/entry-actions.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import type {
-  EntryInfo,
   CalendarQuery,
   CalendarQueryUpdateResult,
+  EntryInfo,
 } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ConnectionStatus } from 'lib/types/socket-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
+  dateFromString,
   dateString,
   prettyDate,
-  dateFromString,
 } from 'lib/utils/date-utils.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import CalendarInputBar from './calendar-input-bar.react.js';
 import {
+  dummyNodeForEntryHeightMeasurement,
   Entry,
   InternalEntry,
-  dummyNodeForEntryHeightMeasurement,
 } from './entry.react.js';
 import SectionFooter from './section-footer.react.js';
 import ContentLoading from '../components/content-loading.react.js';
@@ -61,46 +62,46 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js'
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
 import {
-  addKeyboardShowListener,
   addKeyboardDismissListener,
+  addKeyboardShowListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard.js';
 import DisconnectedBar from '../navigation/disconnected-bar.react.js';
 import {
-  createIsForegroundSelector,
   createActiveTabSelector,
+  createIsForegroundSelector,
 } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
 } from '../navigation/route-names.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { calendarListData } from '../selectors/calendar-selectors.js';
 import type {
   CalendarItem,
-  SectionHeaderItem,
-  SectionFooterItem,
   LoaderItem,
+  SectionFooterItem,
+  SectionHeaderItem,
 } from '../selectors/calendar-selectors.js';
+import { calendarListData } from '../selectors/calendar-selectors.js';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors.js';
 import {
-  useColors,
-  useStyles,
-  useIndicatorStyle,
   type Colors,
   type IndicatorStyle,
+  useColors,
+  useIndicatorStyle,
+  useStyles,
 } from '../themes/colors.js';
 import type {
   EventSubscription,
+  KeyboardEvent,
   ScrollEvent,
   ViewableItemsChange,
-  KeyboardEvent,
 } from '../types/react-native.js';
 
 export type EntryInfoWithHeight = {
@@ -114,7 +115,7 @@ type CalendarItemWithHeight =
   | {
       itemType: 'entryInfo',
       entryInfo: EntryInfoWithHeight,
-      threadInfo: ThreadInfo,
+      threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
     };
 type ExtraData = {
   +activeEntries: { +[key: string]: boolean },

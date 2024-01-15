@@ -5,8 +5,9 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-roles-modal.css';
 import CreateRolesModal from './create-roles-modal.react.js';
@@ -16,18 +17,19 @@ import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type CommunityRolesModalProps = {
-  +community: ThreadInfo,
+  +community: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function CommunityRolesModal(props: CommunityRolesModalProps): React.Node {
   const { popModal, pushModal } = useModalContext();
   const { community } = props;
 
-  const [threadInfo, setThreadInfo] = React.useState<ThreadInfo>(community);
+  const [threadInfo, setThreadInfo] = React.useState<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  >(community);
   const threadID = threadInfo.id;
-  const reduxThreadInfo: ?ThreadInfo = useSelector(
-    state => threadInfoSelector(state)[threadID],
-  );
+  const reduxThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
+    useSelector(state => threadInfoSelector(state)[threadID]);
 
   React.useEffect(() => {
     if (reduxThreadInfo) {

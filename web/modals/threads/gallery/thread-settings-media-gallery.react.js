@@ -10,7 +10,8 @@ import {
   encryptedVideoThumbnailBlobURI,
 } from 'lib/media/media-utils.js';
 import type { Media } from 'lib/types/media-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import GalleryItem from './thread-settings-media-gallery-item.react.js';
 import css from './thread-settings-media-gallery.css';
@@ -37,7 +38,7 @@ const tabsData: $ReadOnlyArray<TabData<MediaGalleryTab>> = [
 
 type ThreadSettingsMediaGalleryModalProps = {
   +onClose: () => void,
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +limit: number,
   +activeTab: MediaGalleryTab,
 };

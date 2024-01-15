@@ -3,8 +3,8 @@
 import * as React from 'react';
 
 import {
-  useLeaveThread,
   leaveThreadActionTypes,
+  useLeaveThread,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -12,12 +12,13 @@ import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
   threadHasPermission,
-  viewerIsMember,
   threadIsChannel,
+  viewerIsMember,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-menu.css';
@@ -35,7 +36,7 @@ import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.re
 import { useSelector } from '../redux/redux-utils.js';
 
 type ThreadMenuProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function ThreadMenu(props: ThreadMenuProps): React.Node {

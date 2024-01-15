@@ -8,14 +8,15 @@ import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import ColorSelector from '../../components/color-selector.react.js';
@@ -23,13 +24,13 @@ import Modal from '../../components/modal.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 
 export type ColorSelectorModalParams = {
   +presentedFrom: string,
   +color: string,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +setColor: (color: string) => void,
 };
 

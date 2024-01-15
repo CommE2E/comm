@@ -10,9 +10,10 @@ import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
-  ThreadInfo,
+  LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';
 import type { GetENSNames } from 'lib/utils/ens-helpers.js';
@@ -29,7 +30,7 @@ type GetUnresolvedSidebarThreadInfoInput = {
 };
 function getUnresolvedSidebarThreadInfo(
   input: GetUnresolvedSidebarThreadInfoInput,
-): ?ThreadInfo {
+): ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo {
   const { sourceMessage, loggedInUserInfo, chatMentionCandidates } = input;
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
   if (threadCreatedFromMessage) {
@@ -56,7 +57,7 @@ type GetSidebarThreadInfoInput = {
 };
 async function getSidebarThreadInfo(
   input: GetSidebarThreadInfoInput,
-): Promise<?ThreadInfo> {
+): Promise<?LegacyThreadInfo | ?MinimallyEncodedThreadInfo> {
   const {
     sourceMessage,
     loggedInUserInfo,
