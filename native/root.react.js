@@ -41,6 +41,7 @@ import MessageEditingContextProvider from './chat/message-editing-context-provid
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import IdentityHandler from './components/identity-handler.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
+import PrekeysHandler from './components/prekeys-handler.react.js';
 import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
@@ -335,6 +336,7 @@ function Root() {
                                             />
                                             <VersionSupportedChecker />
                                             <IdentityHandler />
+                                            <PrekeysHandler />
                                           </PersistedStateGate>
                                           {navigation}
                                         </RegistrationContextProvider>
