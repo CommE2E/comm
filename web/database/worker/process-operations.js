@@ -37,6 +37,9 @@ function processDraftStoreOperations(
     try {
       if (operation.type === 'remove_all') {
         sqliteQueryExecutor.removeAllDrafts();
+      } else if (operation.type === 'remove') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeDrafts(ids);
       } else if (operation.type === 'update') {
         const { key, text } = operation.payload;
         sqliteQueryExecutor.updateDraft(key, text);
