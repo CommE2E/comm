@@ -1,9 +1,13 @@
+mod upload_handler;
+
+use std::error::Error;
+
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
 use crate::ffi::secure_store_get;
-use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
+use crate::{handle_string_result_as_callback, handle_void_result_as_callback};
 use backup_client::{
   BackupClient, BackupData, BackupDescriptor, DownloadLogsRequest,
   LatestBackupIDResponse, LogUploadConfirmation, LogWSResponse, RequestedData,
@@ -11,12 +15,11 @@ use backup_client::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::error::Error;
 
 pub mod ffi {
-  use crate::handle_void_result_as_callback;
-
   use super::*;
+
+  pub use upload_handler::ffi::*;
 
   pub fn create_backup_sync(
     backup_id: String,
