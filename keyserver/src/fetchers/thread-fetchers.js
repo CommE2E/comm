@@ -16,7 +16,7 @@ import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissio
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ServerThreadInfo,
-  type RawThreadInfos,
+  type MixedRawThreadInfos,
   type LegacyRawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -246,7 +246,7 @@ async function fetchServerThreadInfos(
 }
 
 export type FetchThreadInfosResult = {
-  +threadInfos: RawThreadInfos,
+  +threadInfos: MixedRawThreadInfos,
 };
 
 async function fetchThreadInfos(
