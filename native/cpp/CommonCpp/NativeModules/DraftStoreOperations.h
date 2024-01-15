@@ -50,4 +50,23 @@ public:
   }
 };
 
+class RemoveDraftsOperation : public DraftStoreOperationBase {
+public:
+  RemoveDraftsOperation(jsi::Runtime &rt, const jsi::Object &payload)
+      : idsToRemove{} {
+    auto payload_ids = payload.getProperty(rt, "ids").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < payload_ids.size(rt); idx++) {
+      this->idsToRemove.push_back(
+          payload_ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt));
+    }
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeDrafts(this->idsToRemove);
+  }
+
+private:
+  std::vector<std::string> idsToRemove;
+};
+
 } // namespace comm
