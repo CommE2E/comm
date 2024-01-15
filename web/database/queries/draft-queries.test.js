@@ -104,4 +104,10 @@ describe('Draft Store queries', () => {
     const newKeyDraft = drafts.find(d => d.key === newKey);
     expect(newKeyDraft?.text).toBe(draftText);
   });
+
+  it('should remove drafts with specified keys', () => {
+    queryExecutor.removeDrafts(['thread_a']);
+    const drafts = queryExecutor.getAllDrafts();
+    expect(drafts).toEqual([{ key: 'thread_b', text: 'draft b' }]);
+  });
 });
