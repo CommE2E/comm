@@ -54,7 +54,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         deleteThreadLoadingStatusSelector(state) === 'loading' ||
         changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     );
-    const threadInfo: ?LegacyThreadInfo | ?ThreadInfo = useSelector(
+    const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
@@ -70,10 +70,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       if (threadInfo.name === null || threadInfo.name === undefined) {
         return threadInfo;
       }
-      // Branching on `minimallyEncoded` to appease `flow`.
-      const withNoName = threadInfo.minimallyEncoded
-        ? { ...threadInfo, name: undefined }
-        : { ...threadInfo, name: undefined };
+      const withNoName = { ...threadInfo, name: undefined };
       return {
         ...withNoName,
         uiName: threadUIName(withNoName),
