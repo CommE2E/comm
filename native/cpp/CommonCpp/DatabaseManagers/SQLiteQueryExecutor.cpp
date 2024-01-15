@@ -1091,6 +1091,12 @@ void SQLiteQueryExecutor::removeAllDrafts() const {
   SQLiteQueryExecutor::getStorage().remove_all<Draft>();
 }
 
+void SQLiteQueryExecutor::removeDrafts(
+    const std::vector<std::string> &ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Draft>(
+      where(in(&Draft::key, ids)));
+}
+
 void SQLiteQueryExecutor::removeAllMessages() const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>();
 }
