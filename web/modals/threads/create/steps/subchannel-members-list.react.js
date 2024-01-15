@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LegacyThreadInfo,
   RelativeMemberInfo,
@@ -17,8 +17,8 @@ import AddMembersList from '../../../components/add-members-list.react.js';
 type Props = {
   +searchText: string,
   +searchResult: $ReadOnlySet<string>,
-  +communityThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +communityThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
   +selectedUsers: $ReadOnlySet<string>,
   +toggleUserSelection: (userID: string) => void,
 };

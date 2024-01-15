@@ -14,7 +14,7 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { MessageInfo, MessageStore } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
@@ -30,12 +30,12 @@ const activeChatThreadItem: (state: AppState) => ?ChatThreadItem =
     sidebarInfoSelector,
     (
       threadInfos: {
-        +[id: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+        +[id: string]: LegacyThreadInfo | ThreadInfo,
       },
       messageStore: MessageStore,
       messageInfos: { +[id: string]: ?MessageInfo },
       activeChatThreadID: ?string,
-      pendingThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+      pendingThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
       sidebarInfos: { +[id: string]: $ReadOnlyArray<SidebarInfo> },
     ): ?ChatThreadItem => {
       if (!activeChatThreadID) {
@@ -59,7 +59,7 @@ const activeChatThreadItem: (state: AppState) => ?ChatThreadItem =
   );
 
 function useChatThreadItem(
-  threadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  threadInfo: ?LegacyThreadInfo | ?ThreadInfo,
 ): ?ChatThreadItem {
   const messageInfos = useSelector(messageInfoSelector);
   const sidebarInfos = useSelector(sidebarInfoSelector);

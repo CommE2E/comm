@@ -9,7 +9,7 @@ import { messageID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
 import { assertComposableRawMessage } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
@@ -47,7 +47,7 @@ type Props = {
   +rawMessageInfo: ?RawComposableMessageInfo,
   +styles: $ReadOnly<typeof unboundStyles>,
   +inputState: ?InputState,
-  +parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;

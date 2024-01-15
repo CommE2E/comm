@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
@@ -13,7 +13,7 @@ import { useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 
 export type FullScreenThreadMediaGalleryParams = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 
 const Tabs = {

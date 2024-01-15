@@ -9,7 +9,7 @@ import {
   type MediaType,
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
   LegacyThreadInfo,
@@ -64,25 +64,25 @@ export type BaseInputState = {
   +draft: string,
   +textCursorPosition: number,
   +appendFiles: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
     files: $ReadOnlyArray<File>,
   ) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
   ) => mixed,
   +createMultimediaMessage: (
     localID: number,
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
   ) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
   ) => void,
   +addReply: (text: string) => void,
   +addReplyListener: ((message: string) => void) => void,

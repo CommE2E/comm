@@ -25,7 +25,7 @@ import {
   identifyInvalidatedThreads,
 } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LeaveThreadPayload,
   LegacyThreadInfo,
@@ -50,7 +50,7 @@ import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 
 const unboundStyles = {

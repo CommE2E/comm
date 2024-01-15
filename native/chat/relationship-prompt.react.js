@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -16,7 +16,7 @@ import Alert from '../utils/alert.js';
 
 type Props = {
   +pendingPersonalThreadUserInfo: ?UserInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 
 const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(

@@ -6,7 +6,7 @@ import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   type EntityText,
@@ -27,7 +27,7 @@ import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profil
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,
   threadID: string,
-  sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  sidebarInfo: ?LegacyThreadInfo | ?ThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (
