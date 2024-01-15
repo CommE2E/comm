@@ -1,22 +1,49 @@
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
-use crate::constants::{aes, secure_store};
+use crate::constants::{
+  aes, secure_store, BACKUP_SERVICE_CONNECTION_RETRY_DELAY,
+};
 use crate::ffi::secure_store_get;
-use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
+use crate::{handle_string_result_as_callback, handle_void_result_as_callback};
 use backup_client::{
   BackupClient, BackupData, BackupDescriptor, DownloadLogsRequest,
-  LatestBackupIDResponse, LogUploadConfirmation, LogWSResponse, RequestedData,
-  SinkExt, StreamExt, UploadLogRequest, UserIdentity,
+  Error as BackupError, LatestBackupIDResponse, LogUploadConfirmation,
+  LogWSResponse, RequestedData, SinkExt, Stream, StreamExt, UploadLogRequest,
+  UserIdentity, WSError,
 };
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::convert::Infallible;
 use std::error::Error;
+use std::future::{self, Future};
+use std::pin::Pin;
+use std::sync::{Arc, Mutex};
+use tokio::task::JoinHandle;
 
 pub mod ffi {
-  use crate::handle_void_result_as_callback;
-
   use super::*;
+
+  pub fn start_backup_handler() -> Result<(), Box<dyn Error>> {
+    let mut handle = UPLOAD_HANDLER.lock()?;
+    match handle.take() {
+      // Don't start backup handler if it's already running
+      Some(handle) if !handle.is_finished() => (),
+      _ => {
+        *handle = Some(RUNTIME.spawn(backup_upload_handler()?));
+      }
+    }
+
+    Ok(())
+  }
+
+  pub fn stop_backup_handler_sync(promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let result = stop_backup_handler().await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
 
   pub fn create_backup_sync(
     backup_id: String,
@@ -45,6 +72,77 @@ pub mod ffi {
       handle_string_result_as_callback(result, promise_id);
     });
   }
+}
+
+lazy_static! {
+  static ref UPLOAD_HANDLER: Arc<Mutex<Option<JoinHandle<Infallible>>>> =
+    Arc::new(Mutex::new(None));
+}
+
+async fn stop_backup_handler() -> Result<(), Box<dyn Error>> {
+  let Some(handler) = UPLOAD_HANDLER.lock()?.take() else {
+    return Ok(());
+  };
+  if handler.is_finished() {
+    return Ok(());
+  }
+
+  handler.abort();
+  Ok(())
+}
+
+fn backup_upload_handler(
+) -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+  let user_identity = get_user_identity_from_secure_store()?;
+
+  Ok(async move {
+    loop {
+      let (tx, rx) = match backup_client.upload_logs(&user_identity).await {
+        Ok(ws) => ws,
+        Err(err) => {
+          println!("Backup handler error: '{err:?}'");
+          tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
+          continue;
+        }
+      };
+
+      let mut _tx = Box::pin(tx);
+      let mut rx = Box::pin(rx);
+
+      let err = tokio::select! {
+        Err(err) = backup_data_sender() => err,
+        Err(err) = backup_confirmation_receiver(&mut rx) => err,
+      };
+
+      println!("Backup handler error: '{err:?}'");
+
+      tokio::time::sleep(BACKUP_SERVICE_CONNECTION_RETRY_DELAY).await;
+    }
+  })
+}
+
+async fn backup_data_sender() -> Result<Infallible, BackupHandlerError> {
+  loop {
+    let () = future::pending().await;
+  }
+}
+
+async fn backup_confirmation_receiver(
+  rx: &mut Pin<Box<impl Stream<Item = Result<LogUploadConfirmation, WSError>>>>,
+) -> Result<Infallible, BackupHandlerError> {
+  while let Some(_) = rx.next().await.transpose()? {}
+
+  Err(BackupHandlerError::WSClosed)
+}
+
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
+enum BackupHandlerError {
+  BackupError(BackupError),
+  BackupWSError(WSError),
+  WSClosed,
 }
 
 pub async fn create_backup(

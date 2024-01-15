@@ -61,6 +61,8 @@ public:
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
   virtual jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) = 0;
   virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) = 0;
+  virtual void startBackupHandler(jsi::Runtime &rt) = 0;
+  virtual jsi::Value stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String userData) = 0;
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
 
