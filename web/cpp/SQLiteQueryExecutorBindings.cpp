@@ -67,6 +67,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
+      .function("removeDrafts", &SQLiteQueryExecutor::removeDrafts)
       .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
       .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
       .function("getMetadata", &SQLiteQueryExecutor::getMetadata)

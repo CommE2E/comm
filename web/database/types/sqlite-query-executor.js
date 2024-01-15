@@ -14,6 +14,7 @@ declare export class SQLiteQueryExecutor {
   moveDraft(oldKey: string, newKey: string): boolean;
   getAllDrafts(): ClientDBDraftInfo[];
   removeAllDrafts(): void;
+  removeDrafts(ids: $ReadOnlyArray<string>): void;
 
   setMetadata(entryName: string, data: string): void;
   clearMetadata(entryName: string): void;
