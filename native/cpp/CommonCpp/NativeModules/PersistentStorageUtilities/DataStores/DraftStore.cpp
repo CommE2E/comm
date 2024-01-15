@@ -8,6 +8,7 @@ namespace comm {
 OperationType DraftStore::UPDATE_DRAFT_OPERATION = "update";
 OperationType DraftStore::MOVE_DRAFT_OPERATION = "move";
 OperationType DraftStore::REMOVE_ALL_DRAFTS_OPERATION = "remove_all";
+OperationType DraftStore::REMOVE_DRAFTS_OPERATION = "remove";
 
 DraftStore::DraftStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : BaseDataStore(jsInvoker) {
@@ -55,6 +56,9 @@ DraftStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
     } else if (op_type == MOVE_DRAFT_OPERATION) {
       draftStoreOps.push_back(
           std::make_unique<MoveDraftOperation>(rt, payload_obj));
+    } else if (op_type == REMOVE_DRAFTS_OPERATION) {
+      draftStoreOps.push_back(
+          std::make_unique<RemoveDraftsOperation>(rt, payload_obj));
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
     }
