@@ -7,17 +7,14 @@ import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type {
-  LegacyRawThreadInfo,
-  ThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import EditThreadAvatarMenu from './edit-thread-avatar-menu.react.js';
 import css from './edit-thread-avatar.css';
 import ThreadAvatar from './thread-avatar.react.js';
 
 type Props = {
-  +threadInfo: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo | ThreadInfo,
+  +threadInfo: MinimallyEncodedRawThreadInfo | ThreadInfo,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {
