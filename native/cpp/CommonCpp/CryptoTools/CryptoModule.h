@@ -28,6 +28,7 @@ class CryptoModule {
   void generateOneTimeKeys(size_t oneTimeKeysAmount);
   // returns number of published keys
   size_t publishOneTimeKeys();
+  bool verifyPrekeyPublishTime(uint64_t threshold);
 
 public:
   const std::string id;
@@ -82,6 +83,7 @@ public:
       const std::string &publicKey,
       const std::string &message,
       const std::string &signature);
+  std::optional<std::string> validateAndPublishPrekey();
 };
 
 } // namespace crypto

@@ -4,6 +4,7 @@
 #include "olm/account.hh"
 #include "olm/session.hh"
 
+#include <ctime>
 #include <stdexcept>
 
 namespace comm {
@@ -100,6 +101,18 @@ size_t CryptoModule::publishOneTimeKeys() {
         std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
   return ::olm_account_mark_keys_as_published(this->getOlmAccount());
+}
+
+bool CryptoModule::verifyPrekeyPublishTime(uint64_t threshold) {
+  if (this->getUnpublishedPrekey().hasValue()) {
+    return false;
+  }
+
+  uint64_t currentTime = std::time(nullptr);
+  uint64_t lastPrekeyPublishTime =
+      ::olm_account_get_last_prekey_publish_time(this->getOlmAccount());
+
+  return currentTime - lastPrekeyPublishTime >= threshold;
 }
 
 Keys CryptoModule::keysFromStrings(
@@ -445,6 +458,25 @@ void CryptoModule::verifySignature(
     throw std::runtime_error{
         "olm error: " + std::string{::olm_utility_last_error(olmUtility)}};
   }
+}
+
+std::optional<std::string> CryptoModule::validateAndPublishPrekey() {
+  static const uint64_t maxPrekeyPublishTime = 10 * 60;
+  static const uint64_t maxOldPrekeyAge = 2 * 60;
+  std::optional<std::string> maybeNewPrekey;
+
+  bool shouldRotatePrekey = this->verifyPrekeyPublishTime(maxPrekeyPublishTime);
+  if (shouldRotatePrekey) {
+    maybeNewPrekey = this->generateAndGetPrekey();
+    this->markPrekeyAsPublished();
+  }
+
+  bool shouldForgetPrekey = this->verifyPrekeyPublishTime(maxOldPrekeyAge);
+  if (shouldForgetPrekey) {
+    this->forgetOldPrekey();
+  }
+
+  return maybeNewPrekey;
 }
 
 } // namespace crypto
