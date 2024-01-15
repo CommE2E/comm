@@ -6,7 +6,7 @@ import * as React from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
-import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
@@ -23,7 +23,7 @@ import {
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: MinimallyEncodedRawThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {
