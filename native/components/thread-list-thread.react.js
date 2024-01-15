@@ -2,14 +2,18 @@
 
 import * as React from 'react';
 
-import type { ResolvedThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  LegacyThreadInfo,
+  ResolvedThreadInfo,
+} from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import Button from './button.react.js';
 import SingleLine from './single-line.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
-import { type Colors, useStyles, useColors } from '../themes/colors.js';
-import type { ViewStyle, TextStyle } from '../types/styles.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { TextStyle, ViewStyle } from '../types/styles.js';
 
 const unboundStyles = {
   button: {
@@ -33,7 +37,7 @@ type SharedProps = {
 };
 type BaseProps = {
   ...SharedProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...SharedProps,

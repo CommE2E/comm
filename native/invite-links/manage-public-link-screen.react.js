@@ -10,7 +10,8 @@ import {
   defaultErrorMessage,
   inviteLinkErrorMessages,
 } from 'lib/shared/invite-links.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
@@ -21,7 +22,7 @@ import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
 export type ManagePublicLinkScreenParams = {
-  +community: ThreadInfo,
+  +community: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

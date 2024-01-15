@@ -6,15 +6,15 @@ import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
+import type {
+  FetchMessagesBeforeCursorInput,
+  FetchMostRecentMessagesInput,
+} from 'lib/actions/message-actions.js';
 import {
   fetchMessagesBeforeCursorActionTypes,
-  useFetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
+  useFetchMessagesBeforeCursor,
   useFetchMostRecentMessages,
-} from 'lib/actions/message-actions.js';
-import type {
-  FetchMostRecentMessagesInput,
-  FetchMessagesBeforeCursorInput,
 } from 'lib/actions/message-actions.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
@@ -26,14 +26,15 @@ import {
 import { messageKey } from 'lib/shared/message-utils.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
-import { editBoxHeight, defaultMaxTextAreaHeight } from './chat-constants.js';
+import { defaultMaxTextAreaHeight, editBoxHeight } from './chat-constants.js';
 import css from './chat-message-list.css';
 import type { ScrollToMessageCallback } from './edit-message-provider.js';
 import { useEditModalContext } from './edit-message-provider.js';
@@ -55,7 +56,7 @@ const supportsReverseFlex =
 const editBoxTopMargin = 10;
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

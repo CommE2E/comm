@@ -2,21 +2,25 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
+import type { LeaveThreadInput } from 'lib/actions/thread-actions.js';
 import {
   leaveThreadActionTypes,
   useLeaveThread,
 } from 'lib/actions/thread-actions.js';
-import type { LeaveThreadInput } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { LeaveThreadPayload, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  LeaveThreadPayload,
+  LegacyThreadInfo,
+} from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
@@ -48,7 +52,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
 };
 type Props = {

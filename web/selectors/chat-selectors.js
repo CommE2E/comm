@@ -4,17 +4,18 @@ import * as React from 'react';
 import { createSelector } from 'reselect';
 
 import {
-  messageInfoSelector,
   type ChatThreadItem,
   createChatThreadItem,
+  messageInfoSelector,
 } from 'lib/selectors/chat-selectors.js';
 import {
-  threadInfoSelector,
   sidebarInfoSelector,
+  threadInfoSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
-import type { MessageStore, MessageInfo } from 'lib/types/message-types.js';
-import type { SidebarInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MessageInfo, MessageStore } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -28,11 +29,13 @@ const activeChatThreadItem: (state: AppState) => ?ChatThreadItem =
     (state: AppState) => state.navInfo.pendingThread,
     sidebarInfoSelector,
     (
-      threadInfos: { +[id: string]: ThreadInfo },
+      threadInfos: {
+        +[id: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      },
       messageStore: MessageStore,
       messageInfos: { +[id: string]: ?MessageInfo },
       activeChatThreadID: ?string,
-      pendingThreadInfo: ?ThreadInfo,
+      pendingThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
       sidebarInfos: { +[id: string]: $ReadOnlyArray<SidebarInfo> },
     ): ?ChatThreadItem => {
       if (!activeChatThreadID) {
@@ -55,7 +58,9 @@ const activeChatThreadItem: (state: AppState) => ?ChatThreadItem =
     },
   );
 
-function useChatThreadItem(threadInfo: ?ThreadInfo): ?ChatThreadItem {
+function useChatThreadItem(
+  threadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+): ?ChatThreadItem {
   const messageInfos = useSelector(messageInfoSelector);
   const sidebarInfos = useSelector(sidebarInfoSelector);
   const messageStore = useSelector(state => state.messageStore);

@@ -3,44 +3,45 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  Text,
-  View,
-  TextInput as BaseTextInput,
   ActivityIndicator,
+  Text,
+  TextInput as BaseTextInput,
+  View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import type { DeleteThreadInput } from 'lib/actions/thread-actions.js';
 import {
   deleteThreadActionTypes,
   useDeleteThread,
 } from 'lib/actions/thread-actions.js';
-import type { DeleteThreadInput } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
-  threadInfoSelector,
   containedThreadInfos,
+  threadInfoSelector,
 } from 'lib/selectors/thread-selectors.js';
 import {
-  identifyInvalidatedThreads,
   getThreadsToDeleteText,
+  identifyInvalidatedThreads,
 } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LeaveThreadPayload,
-  ThreadInfo,
+  LegacyThreadInfo,
   ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { clearThreadsActionType } from '../../navigation/action-types.js';
 import {
-  NavContext,
   type NavAction,
+  NavContext,
 } from '../../navigation/navigation-context.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -49,7 +50,7 @@ import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const unboundStyles = {

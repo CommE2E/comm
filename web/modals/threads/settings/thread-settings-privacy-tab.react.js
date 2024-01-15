@@ -3,15 +3,19 @@
 import * as React from 'react';
 
 import {
-  useChangeThreadSettings,
   changeThreadSettingsActionTypes,
+  useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadChanges, type ThreadInfo } from 'lib/types/thread-types.js';
+import {
+  type ThreadChanges,
+  type LegacyThreadInfo,
+} from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import SubmitSection from './submit-section.react.js';
@@ -38,7 +42,7 @@ const secretStatements = [
 
 type ThreadSettingsPrivacyTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
   +setErrorMessage: SetState<?string>,

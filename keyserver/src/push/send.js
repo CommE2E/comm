@@ -1,7 +1,7 @@
 // @flow
 
-import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
+import apn from '@parse/node-apn';
 import invariant from 'invariant';
 import _cloneDeep from 'lodash/fp/cloneDeep.js';
 import _flow from 'lodash/fp/flow.js';
@@ -16,8 +16,8 @@ import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
   createMessageInfo,
-  sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
+  sortMessageInfoList,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
@@ -29,49 +29,53 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  type RawMessageInfo,
   type MessageData,
+  type RawMessageInfo,
+  rawMessageInfoValidator,
 } from 'lib/types/message-types.js';
-import { rawMessageInfoValidator } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ResolvedNotifTexts } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
-import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  LegacyThreadInfo,
+  ServerThreadInfo,
+} from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import {
-  prepareEncryptedAPNsNotifications,
   prepareEncryptedAndroidNotifications,
+  prepareEncryptedAPNsNotifications,
   prepareEncryptedWebNotifications,
   prepareEncryptedWNSNotifications,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import type {
+  AndroidNotification,
   NotificationTargetDevice,
-  TargetedAPNsNotification,
   TargetedAndroidNotification,
+  TargetedAPNsNotification,
   TargetedWebNotification,
   TargetedWNSNotification,
-  AndroidNotification,
 } from './types.js';
 import {
+  apnMaxNotificationPayloadByteSize,
   apnPush,
+  fcmMaxNotificationPayloadByteSize,
   fcmPush,
   getUnreadCounts,
-  apnMaxNotificationPayloadByteSize,
-  fcmMaxNotificationPayloadByteSize,
-  wnsMaxNotificationPayloadByteSize,
   webPush,
-  wnsPush,
   type WebPushError,
+  wnsMaxNotificationPayloadByteSize,
+  wnsPush,
   type WNSPushError,
 } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
-import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import { dbQuery, mergeOrConditions, SQL } from '../database/database.js';
 import type { CollapsableNotifInfo } from '../fetchers/message-fetchers.js';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
@@ -189,7 +193,9 @@ async function preparePushNotif(input: {
   userID: string,
   pushUserInfo: PushUserInfo,
   unreadCount: number,
-  threadInfos: { +[threadID: string]: ThreadInfo },
+  threadInfos: {
+    +[threadID: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  },
   userInfos: { +[userID: string]: GlobalUserInfo },
   dbIDs: string[], // mutable
   rowsToSave: Map<string, NotificationRow>, // mutable

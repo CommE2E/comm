@@ -10,32 +10,32 @@ import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
-import {
-  createLocalMessageActionType,
-  sendMultimediaMessageActionTypes,
-  useLegacySendMultimediaMessage,
-  sendTextMessageActionTypes,
-  useSendTextMessage,
-} from 'lib/actions/message-actions.js';
 import type {
   LegacySendMultimediaMessageInput,
   SendTextMessageInput,
 } from 'lib/actions/message-actions.js';
+import {
+  createLocalMessageActionType,
+  sendMultimediaMessageActionTypes,
+  sendTextMessageActionTypes,
+  useLegacySendMultimediaMessage,
+  useSendTextMessage,
+} from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThread } from 'lib/actions/thread-actions.js';
 import {
-  uploadMultimedia,
-  updateMultimediaMessageMediaActionType,
-  useDeleteUpload,
-  useBlobServiceUpload,
-  type MultimediaUploadCallbacks,
-  type MultimediaUploadExtras,
   type BlobServiceUploadAction,
   type DeleteUploadInput,
+  type MultimediaUploadCallbacks,
+  type MultimediaUploadExtras,
+  updateMultimediaMessageMediaActionType,
+  uploadMultimedia,
+  useBlobServiceUpload,
+  useDeleteUpload,
 } from 'lib/actions/upload-actions.js';
 import {
-  useModalContext,
   type PushModal,
+  useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
@@ -50,66 +50,67 @@ import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.j
 import {
   createRealThreadFromPendingThread,
   draftKeyFromThreadID,
-  threadIsPending,
-  threadIsPendingSidebar,
   patchThreadInfoToIncludeMentionedMembersOfParent,
   threadInfoInsideCommunity,
+  threadIsPending,
+  threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
-  UploadMultimediaResult,
-  MediaMissionStep,
+  MediaMission,
   MediaMissionFailure,
   MediaMissionResult,
-  MediaMission,
+  MediaMissionStep,
+  UploadMultimediaResult,
 } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
-  type SendMessageResult,
   type SendMessagePayload,
+  type SendMessageResult,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThreadRequest,
   type NewThreadResult,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 import {
-  makeBlobServiceEndpointURL,
-  isBlobServiceURI,
   blobHashFromBlobServiceURI,
+  isBlobServiceURI,
+  makeBlobServiceEndpointURL,
 } from 'lib/utils/blob-service.js';
 import { getConfig } from 'lib/utils/config.js';
-import { getMessageForException, cloneError } from 'lib/utils/errors.js';
+import { cloneError, getMessageForException } from 'lib/utils/errors.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
 
 import {
-  type PendingMultimediaUpload,
-  type TypeaheadState,
-  InputStateContext,
   type BaseInputState,
-  type TypeaheadInputState,
   type InputState,
+  InputStateContext,
+  type PendingMultimediaUpload,
+  type TypeaheadInputState,
+  type TypeaheadState,
 } from './input-state.js';
 import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
 import {
+  preloadImage,
   preloadMediaResource,
   validateFile,
-  preloadImage,
 } from '../media/media-utils.js';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -419,7 +420,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return rawMessageInfo;
   }
 
-  shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
+  shouldEncryptMedia(
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ): boolean {
     return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
   }
 
@@ -565,7 +568,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
+  startThreadCreation(
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ): Promise<string> {
     if (!threadIsPending(threadInfo.id)) {
       return Promise.resolve(threadInfo.id);
     }
@@ -626,20 +631,20 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             draft: draft ?? '',
             textCursorPosition: textCursorPosition ?? 0,
             appendFiles: (
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
               files: $ReadOnlyArray<File>,
             ) => this.appendFiles(threadInfo, files),
             cancelPendingUpload: (localUploadID: string) =>
               this.cancelPendingUpload(threadID, localUploadID),
             sendTextMessage: (
               messageInfo: RawTextMessageInfo,
-              threadInfo: ThreadInfo,
-              parentThreadInfo: ?ThreadInfo,
+              threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+              parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
             ) =>
               this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
             createMultimediaMessage: (
               localID: number,
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
             ) => this.createMultimediaMessage(localID, threadInfo),
             setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
             setTextCursorPosition: (newPosition: number) =>
@@ -648,7 +653,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               this.messageHasUploadFailure(assignedUploads[localMessageID]),
             retryMultimediaMessage: (
               localMessageID: string,
-              threadInfo: ThreadInfo,
+              threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
             ) =>
               this.retryMultimediaMessage(
                 localMessageID,
@@ -687,7 +692,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFiles(
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
     const selectionTime = Date.now();
@@ -744,7 +749,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   async appendFile(
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
     file: File,
     selectTime: number,
   ): Promise<{
@@ -1241,8 +1246,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    inputThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
@@ -1339,8 +1344,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessageAction(
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
       await this.props.textMessageCreationSideEffectsFunc(
@@ -1379,7 +1384,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
+  createMultimediaMessage(
+    localID: number,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
     const localMessageID = `${localIDPrefix}${localID}`;
@@ -1500,7 +1508,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   retryMultimediaMessage(
     localMessageID: string,
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
     pendingUploads: ?$ReadOnlyArray<PendingMultimediaUpload>,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());

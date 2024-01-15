@@ -3,16 +3,17 @@
 import * as React from 'react';
 
 import {
-  type MediaType,
-  type EncryptedMediaType,
   type Dimensions,
+  type EncryptedMediaType,
   type MediaMissionStep,
+  type MediaType,
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
+  LegacyThreadInfo,
   RelativeMemberInfo,
-  ThreadInfo,
 } from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
@@ -63,22 +64,25 @@ export type BaseInputState = {
   +draft: string,
   +textCursorPosition: number,
   +appendFiles: (
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
     files: $ReadOnlyArray<File>,
   ) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ) => mixed,
-  +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
+  +createMultimediaMessage: (
+    localID: number,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
-    threadInfo: ThreadInfo,
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   ) => void,
   +addReply: (text: string) => void,
   +addReplyListener: ((message: string) => void) => void,

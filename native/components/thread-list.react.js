@@ -6,16 +6,17 @@ import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Search from './search.react.js';
 import ThreadListThread from './thread-list-thread.react.js';
 import {
   type IndicatorStyle,
-  useStyles,
   useIndicatorStyle,
+  useStyles,
 } from '../themes/colors.js';
-import type { ViewStyle, TextStyle } from '../types/styles.js';
+import type { TextStyle, ViewStyle } from '../types/styles.js';
 import { waitForModalInputFocus } from '../utils/timers.js';
 
 const unboundStyles = {
@@ -25,7 +26,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfos: $ReadOnlyArray<ThreadInfo>,
+  +threadInfos: $ReadOnlyArray<LegacyThreadInfo | MinimallyEncodedThreadInfo>,
   +onSelect: (threadID: string) => void,
   +itemStyle?: ViewStyle,
   +itemTextStyle?: TextStyle,
@@ -49,26 +50,31 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
-  listDataSelector: PropsAndState => $ReadOnlyArray<ThreadInfo> =
-    createSelector(
-      (propsAndState: PropsAndState) => propsAndState.threadInfos,
-      (propsAndState: PropsAndState) => propsAndState.searchText,
-      (propsAndState: PropsAndState) => propsAndState.searchResults,
-      (propsAndState: PropsAndState) => propsAndState.itemStyle,
-      (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
-      (
-        threadInfos: $ReadOnlyArray<ThreadInfo>,
-        text: string,
-        searchResults: Set<string>,
-      ): $ReadOnlyArray<ThreadInfo> =>
-        text
-          ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-          : // We spread to make sure the result of this selector updates when
-            // any input param (namely itemStyle or itemTextStyle) changes
-            [...threadInfos],
-    );
+  listDataSelector: PropsAndState => $ReadOnlyArray<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  > = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.threadInfos,
+    (propsAndState: PropsAndState) => propsAndState.searchText,
+    (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (propsAndState: PropsAndState) => propsAndState.itemStyle,
+    (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
+    (
+      threadInfos: $ReadOnlyArray<
+        LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      >,
+      text: string,
+      searchResults: Set<string>,
+    ): $ReadOnlyArray<LegacyThreadInfo | MinimallyEncodedThreadInfo> =>
+      text
+        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+        : // We spread to make sure the result of this selector updates when
+          // any input param (namely itemStyle or itemTextStyle) changes
+          [...threadInfos],
+  );
 
-  get listData(): $ReadOnlyArray<ThreadInfo> {
+  get listData(): $ReadOnlyArray<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  > {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
@@ -101,11 +107,16 @@ class ThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  static keyExtractor = (threadInfo: ThreadInfo): string => {
+  static keyExtractor = (
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ): string => {
     return threadInfo.id;
   };
 
-  renderItem = (row: { +item: ThreadInfo, ... }): React.Node => {
+  renderItem = (row: {
+    +item: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    ...
+  }): React.Node => {
     return (
       <ThreadListThread
         threadInfo={row.item}
@@ -117,7 +128,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<ThreadInfo>,
+    data: ?$ReadOnlyArray<LegacyThreadInfo | MinimallyEncodedThreadInfo>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };
