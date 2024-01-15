@@ -12,7 +12,7 @@ import type {
   LegacyRawThreadInfo,
   ThreadStoreThreadInfos,
   LegacyMemberInfo,
-  RawThreadInfos,
+  MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -52,8 +52,8 @@ type MemberToThreadPermissionsFromParent = {
 
 // This migration utility can only be used with LegacyRawThreadInfos
 function legacyUpdateRolesAndPermissions(
-  threadStoreInfos: RawThreadInfos,
-): RawThreadInfos {
+  threadStoreInfos: MixedRawThreadInfos,
+): MixedRawThreadInfos {
   const updatedThreadStoreInfos = assertAllThreadInfosAreLegacy({
     ...threadStoreInfos,
   });
