@@ -6,7 +6,8 @@ import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from './button.react.js';
 import CommunityPill from './community-pill.react.js';
@@ -16,7 +17,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function ThreadAncestors(props: Props): React.Node {
@@ -24,9 +25,9 @@ function ThreadAncestors(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
-    ancestorThreadInfos(threadInfo.id),
-  );
+  const ancestorThreads: $ReadOnlyArray<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  > = useSelector(ancestorThreadInfos(threadInfo.id));
 
   const rightArrow = React.useMemo(
     () => (

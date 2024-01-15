@@ -6,8 +6,11 @@ import * as React from 'react';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { savedEmojiAvatarSelectorForThread } from 'lib/selectors/thread-selectors.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
-import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  MinimallyEncodedThreadInfo,
+  RawThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useNativeSetThreadAvatar } from '../../avatars/avatar-hooks.js';
 import EmojiAvatarCreation from '../../avatars/emoji-avatar-creation.react.js';
@@ -17,7 +20,7 @@ import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
 export type EmojiThreadAvatarCreationParams = {
-  +threadInfo: RawThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

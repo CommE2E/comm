@@ -3,7 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, Platform, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,7 +12,11 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  LegacyThreadInfo,
+  RelativeMemberInfo,
+} from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import ChangeRolesHeaderRightButton from './change-roles-header-right-button.react.js';
@@ -24,7 +28,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type ChangeRolesScreenParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +memberInfo: RelativeMemberInfo,
   +role: ?string,
 };

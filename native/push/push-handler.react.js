@@ -3,7 +3,7 @@
 import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, LogBox } from 'react-native';
+import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 
 import type {
@@ -17,24 +17,25 @@ import {
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import {
-  updatesCurrentAsOfSelector,
   connectionSelector,
   deviceTokensSelector,
+  updatesCurrentAsOfSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
-  unreadCount,
   threadInfoSelector,
+  unreadCount,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
-  convertNotificationMessageInfoToNewIDSchema,
   convertNonPendingIDToNewSchema,
+  convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import {
   type NotifPermissionAlertInfo,
@@ -42,20 +43,20 @@ import {
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
-  parseAndroidMessage,
-  androidNotificationChannelID,
-  handleAndroidMessage,
-  getCommAndroidNotificationsEventEmitter,
   type AndroidMessage,
+  androidNotificationChannelID,
   CommAndroidNotifications,
+  getCommAndroidNotificationsEventEmitter,
+  handleAndroidMessage,
+  parseAndroidMessage,
 } from './android.js';
 import {
   CommIOSNotification,
@@ -64,11 +65,11 @@ import {
 } from './comm-ios-notification.js';
 import InAppNotif from './in-app-notif.react.js';
 import {
-  requestIOSPushPermissions,
-  iosPushPermissionResponseReceived,
   CommIOSNotifications,
-  getCommIOSNotificationsEventEmitter,
   type CoreIOSNotificationBackgroundData,
+  getCommIOSNotificationsEventEmitter,
+  iosPushPermissionResponseReceived,
+  requestIOSPushPermissions,
 } from './ios.js';
 import {
   type MessageListParams,
@@ -104,7 +105,9 @@ type Props = {
   +deviceTokens: {
     +[keyserverID: string]: ?string,
   },
-  +threadInfos: { +[id: string]: ThreadInfo },
+  +threadInfos: {
+    +[id: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
   +updatesCurrentAsOf: number,
@@ -521,7 +524,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
+  navigateToThread(
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    clearChatRoutes: boolean,
+  ) {
     if (clearChatRoutes) {
       this.props.navigation.dispatch({
         type: replaceWithThreadActionType,

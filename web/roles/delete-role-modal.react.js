@@ -3,14 +3,15 @@
 import * as React from 'react';
 
 import {
-  useDeleteCommunityRole,
   deleteCommunityRoleActionTypes,
+  useDeleteCommunityRole,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useRoleMemberCountsForCommunity } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { constructRoleDeletionMessagePrompt } from 'lib/utils/role-utils.js';
 
@@ -24,7 +25,7 @@ const deleteRoleLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 type DeleteRoleModalProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +defaultRoleID: string,
   +roleID: string,
 };

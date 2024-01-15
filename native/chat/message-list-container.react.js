@@ -4,7 +4,7 @@ import Icon from '@expo/vector-icons/FontAwesome5.js';
 import { useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import genesis from 'lib/facts/genesis.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -14,10 +14,11 @@ import {
   useSearchUsers,
 } from 'lib/shared/search-utils.js';
 import {
-  useExistingThreadInfoFinder,
   pendingThreadType,
+  useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
@@ -40,8 +41,8 @@ import {
 } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
-  ThreadSettingsRouteName,
   MessageResultsScreenRouteName,
+  ThreadSettingsRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -86,8 +87,8 @@ type Props = {
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
-  +threadInfo: ThreadInfo,
-  +genesisThreadInfo: ?ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +genesisThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,

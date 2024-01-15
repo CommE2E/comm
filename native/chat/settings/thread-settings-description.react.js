@@ -3,8 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  Text,
   ActivityIndicator,
+  Text,
   TextInput as BaseTextInput,
   View,
 } from 'react-native';
@@ -16,31 +16,32 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import SaveSettingButton from './save-setting-button.react.js';
 import {
-  ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
+  ThreadSettingsCategoryHeader,
 } from './thread-settings-category.react.js';
 import Button from '../../components/button.react.js';
 import EditSettingButton from '../../components/edit-setting-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type {
-  LayoutEvent,
   ContentSizeChangeEvent,
+  LayoutEvent,
 } from '../../types/react-native.js';
 import Alert from '../../utils/alert.js';
 
@@ -87,7 +88,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +descriptionEditValue: ?string,
   +setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
   +descriptionTextHeight: ?number,

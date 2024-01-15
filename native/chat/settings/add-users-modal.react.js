@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
@@ -13,15 +13,16 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';
 import {
-  createTagInput,
   type BaseTagInput,
+  createTagInput,
 } from '../../components/tag-input.react.js';
 import UserList from '../../components/user-list.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
@@ -42,7 +43,7 @@ const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
 export type AddUsersModalParams = {
   +presentedFrom: string,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {

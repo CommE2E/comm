@@ -4,14 +4,15 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { getThreadsToDeleteText } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types';
 
 import css from './thread-settings-delete-confirmation-modal.css';
 import Button from '../../../components/button.react.js';
 import Modal from '../../modal.react.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +onConfirmation: () => mixed,
 };
 

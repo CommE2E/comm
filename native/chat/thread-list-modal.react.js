@@ -3,17 +3,18 @@
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import {
+  FlatList,
   Text,
   TextInput,
-  FlatList,
-  View,
   TouchableOpacity,
+  View,
 } from 'react-native';
 
 import type { ThreadSearchState } from 'lib/hooks/search-threads.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { SidebarInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
 import Modal from '../components/modal.react.js';
@@ -34,9 +35,11 @@ function getItemLayout(
 }
 
 type Props<U> = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +createRenderItem: (
-    onPressItem: (threadInfo: ThreadInfo) => void,
+    onPressItem: (
+      threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    ) => void,
   ) => (row: { +item: U, +index: number, ... }) => React.Node,
   +listData: $ReadOnlyArray<U>,
   +searchState: ThreadSearchState,
@@ -77,7 +80,7 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
 
   const navigateToThread = useNavigateToThread();
   const onPressItem = React.useCallback(
-    (threadInfo: ThreadInfo) => {
+    (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) => {
       setSearchState({
         text: '',
         results: new Set(),

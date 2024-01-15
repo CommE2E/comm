@@ -3,27 +3,28 @@
 import invariant from 'invariant';
 import _find from 'lodash/fp/find.js';
 import * as React from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import { TouchableWithoutFeedback, View } from 'react-native';
 import { createSelector } from 'reselect';
 
 import {
   fetchMessagesBeforeCursorActionTypes,
-  useFetchMessagesBeforeCursor,
-  fetchMostRecentMessagesActionTypes,
-  useFetchMostRecentMessages,
-  type FetchMostRecentMessagesInput,
   type FetchMessagesBeforeCursorInput,
+  fetchMostRecentMessagesActionTypes,
+  type FetchMostRecentMessagesInput,
+  useFetchMessagesBeforeCursor,
+  useFetchMostRecentMessages,
 } from 'lib/actions/message-actions.js';
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import ChatList from './chat-list.react.js';
@@ -32,8 +33,8 @@ import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {
-  type KeyboardState,
   KeyboardContext,
+  type KeyboardState,
 } from '../keyboard/keyboard-state.js';
 import { defaultStackScreenOptions } from '../navigation/options.js';
 import {
@@ -43,9 +44,9 @@ import {
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
-  useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
+  useStyles,
 } from '../themes/colors.js';
 import type {
   ChatMessageInfoItemWithHeight,
@@ -68,7 +69,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
