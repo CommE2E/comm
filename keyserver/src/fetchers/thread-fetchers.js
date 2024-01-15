@@ -12,11 +12,12 @@ import {
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
+import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ServerThreadInfo,
   type RawThreadInfos,
-  type RawThreadInfo,
+  LegacyRawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -282,7 +283,9 @@ function rawThreadInfosFromServerThreadInfos(
     { native: 301, web: 56 },
   );
 
-  const threadInfos: { [string]: RawThreadInfo } = {};
+  const threadInfos: {
+    [string]: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+  } = {};
   for (const threadID in serverResult.threadInfos) {
     const serverThreadInfo = serverResult.threadInfos[threadID];
     const threadInfo = rawThreadInfoFromServerThreadInfo(
