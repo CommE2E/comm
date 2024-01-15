@@ -12,6 +12,7 @@
 #include <folly/json.h>
 #include <future>
 
+#include "JSIRust.h"
 #include "lib.rs.h"
 #include <string>
 
@@ -654,7 +655,14 @@ jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::validateAndUploadPrekeys(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::validateAndUploadPrekeys(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -697,7 +705,23 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(jsi::Runtime &rt) {
                 NotificationsCryptoModule::getNotificationsPrekeySignature(
                     "Comm");
             try {
-              // TODO: upload prekey to identity service
+              std::promise<folly::dynamic> prekeyPromise;
+              std::future<folly::dynamic> prekeyFuture =
+                  prekeyPromise.get_future();
+              RustPromiseManager::CPPPromiseInfo promiseInfo = {
+                  std::move(prekeyPromise)};
+              auto currentID = RustPromiseManager::instance.addPromise(
+                  std::move(promiseInfo));
+              ::identityRefreshUserPrekeys(
+                  authUserIDRust,
+                  authDeviceIDRust,
+                  authAccessTokenRust,
+                  rust::string(prekeyToUpload),
+                  rust::string(prekeySignature),
+                  rust::string(notificationsPrekey),
+                  rust::string(notificationsPrekeySignature),
+                  currentID);
+              prekeyFuture.get();
             } catch (const std::exception &e) {
               prekeyUploadError = e.what();
             }
