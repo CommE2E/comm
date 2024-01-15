@@ -13,6 +13,7 @@ private:
   static OperationType UPDATE_DRAFT_OPERATION;
   static OperationType MOVE_DRAFT_OPERATION;
   static OperationType REMOVE_ALL_DRAFTS_OPERATION;
+  static OperationType REMOVE_DRAFTS_OPERATION;
 
 public:
   DraftStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
