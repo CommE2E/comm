@@ -4,14 +4,15 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { SetState } from 'lib/types/hook-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { NativeChatMessageItem } from './message-data.react.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 
 export type MessagesMeasurer = (
   ?$ReadOnlyArray<NativeChatMessageItem>,
-  ?ThreadInfo,
+  ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
 ) => void;
 

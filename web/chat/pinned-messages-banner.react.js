@@ -4,7 +4,8 @@ import * as React from 'react';
 import { ChevronRight } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
 import css from './pinned-messages-banner.css';
@@ -12,7 +13,7 @@ import { InputStateContext } from '../input/input-state.js';
 import PinnedMessagesModal from '../modals/chat/pinned-messages-modal.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function PinnedMessagesBanner(props: Props): React.Node {

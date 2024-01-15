@@ -3,23 +3,27 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  View,
-  Text,
-  Platform,
   ActivityIndicator,
+  Platform,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
 
 import {
-  removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
+  removeUsersFromThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { getAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { RelativeMemberInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  LegacyThreadInfo,
+  RelativeMemberInfo,
+} from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
@@ -27,8 +31,8 @@ import UserAvatar from '../../avatars/user-avatar.react.js';
 import PencilIcon from '../../components/pencil-icon.react.js';
 import SingleLine from '../../components/single-line.react.js';
 import {
-  type KeyboardState,
   KeyboardContext,
+  type KeyboardState,
 } from '../../keyboard/keyboard-state.js';
 import {
   OverlayContext,
@@ -87,7 +91,7 @@ const unboundStyles = {
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
   +firstListItem: boolean,

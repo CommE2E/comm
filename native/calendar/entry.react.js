@@ -6,25 +6,25 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import _omit from 'lodash/fp/omit.js';
 import * as React from 'react';
 import {
-  View,
+  Keyboard,
+  LayoutAnimation,
+  Platform,
   Text,
   TextInput as BaseTextInput,
-  Platform,
   TouchableWithoutFeedback,
-  LayoutAnimation,
-  Keyboard,
+  View,
 } from 'react-native';
 import shallowequal from 'shallowequal';
 import tinycolor from 'tinycolor2';
 
 import {
-  createEntryActionTypes,
-  useCreateEntry,
-  saveEntryActionTypes,
-  useSaveEntry,
-  deleteEntryActionTypes,
-  useDeleteEntry,
   concurrentModificationResetActionType,
+  createEntryActionTypes,
+  deleteEntryActionTypes,
+  saveEntryActionTypes,
+  useCreateEntry,
+  useDeleteEntry,
+  useSaveEntry,
 } from 'lib/actions/entry-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
@@ -32,25 +32,29 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type {
+  CalendarQuery,
   CreateEntryInfo,
-  SaveEntryInfo,
-  SaveEntryResult,
-  SaveEntryPayload,
   CreateEntryPayload,
   DeleteEntryInfo,
   DeleteEntryResult,
-  CalendarQuery,
+  SaveEntryInfo,
+  SaveEntryPayload,
+  SaveEntryResult,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { ResolvedThreadInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type {
+  LegacyThreadInfo,
+  ResolvedThreadInfo,
+} from 'lib/types/thread-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
@@ -187,7 +191,7 @@ type SharedProps = {
 };
 type BaseProps = {
   ...SharedProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...SharedProps,

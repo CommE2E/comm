@@ -3,12 +3,13 @@
 import * as React from 'react';
 
 import {
-  useNewThread,
   newThreadActionTypes,
+  useNewThread,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -16,8 +17,8 @@ import { trimText } from 'lib/utils/text-utils.js';
 
 import css from './compose-subchannel-modal.css';
 import SubchannelMembers from './steps/subchannel-members.react.js';
-import SubchannelSettings from './steps/subchannel-settings.react.js';
 import type { VisibilityType } from './steps/subchannel-settings.react.js';
+import SubchannelSettings from './steps/subchannel-settings.react.js';
 import Stepper from '../../../components/stepper.react.js';
 import { updateNavInfoActionType } from '../../../redux/action-types.js';
 import { useSelector } from '../../../redux/redux-utils.js';
@@ -26,7 +27,7 @@ import Modal from '../../modal.react.js';
 
 type Props = {
   +onClose: () => void,
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 const getThreadType = (visibility: VisibilityType, announcement: boolean) => {

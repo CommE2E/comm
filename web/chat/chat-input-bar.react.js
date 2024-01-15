@@ -6,8 +6,8 @@ import * as React from 'react';
 
 import {
   joinThreadActionTypes,
-  useJoinThread,
   newThreadActionTypes,
+  useJoinThread,
 } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
@@ -18,33 +18,34 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   getTypeaheadRegexMatches,
-  useUserMentionsCandidates,
-  useMentionTypeaheadChatSuggestions,
   type MentionTypeaheadSuggestionItem,
   type TypeaheadMatchedStrings,
+  useMentionTypeaheadChatSuggestions,
   useMentionTypeaheadUserSuggestions,
+  useUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
 import {
+  checkIfDefaultMembersAreVoiced,
+  threadActualMembers,
+  threadFrozenDueToViewerBlock,
   threadHasPermission,
   viewerIsMember,
-  threadFrozenDueToViewerBlock,
-  threadActualMembers,
-  checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-  type ThreadInfo,
+  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import css from './chat-input-bar.css';
@@ -60,13 +61,13 @@ import Multimedia from '../media/multimedia.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 import {
-  webMentionTypeaheadRegex,
   getMentionTypeaheadTooltipActions,
   getMentionTypeaheadTooltipButtons,
+  webMentionTypeaheadRegex,
 } from '../utils/typeahead-utils.js';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +inputState: InputState,
 };
 type Props = {
@@ -82,7 +83,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +parentThreadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {

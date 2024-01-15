@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Switch, TouchableOpacity, Platform } from 'react-native';
+import { Platform, Switch, TouchableOpacity, View } from 'react-native';
 import Linking from 'react-native/Libraries/Linking/Linking.js';
 
 import {
@@ -10,14 +10,15 @@ import {
 } from 'lib/actions/user-actions.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { deviceTokenSelector } from 'lib/selectors/keyserver-selectors.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import SingleLine from '../../components/single-line.react.js';
@@ -53,7 +54,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,

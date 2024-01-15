@@ -1,10 +1,11 @@
 // @flow
 
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { useKeyserverAdmin } from 'lib/shared/user-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import CommIcon from './comm-icon.react.js';
 import Pill from './pill.react.js';
@@ -14,7 +15,7 @@ import { useColors } from '../themes/colors.js';
 const threadPillRoundCorners = { left: false, right: true };
 
 type Props = {
-  +community: ThreadInfo,
+  +community: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 function CommunityPill(props: Props): React.Node {
   const { community } = props;

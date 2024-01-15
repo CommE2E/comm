@@ -10,15 +10,16 @@ import {
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions.js';
 import {
-  useModalContext,
   type PushModal,
+  useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import type { EntryInfo } from 'lib/types/entry-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
-import { dateString, dateFromString } from 'lib/utils/date-utils.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
+import { dateFromString, dateString } from 'lib/utils/date-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './calendar.css';
@@ -38,7 +39,9 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
+  +onScreenThreadInfos: $ReadOnlyArray<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  >,
   +viewerID: ?string,
   +loggedIn: boolean,
   +nextLocalID: number,

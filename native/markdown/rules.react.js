@@ -2,14 +2,15 @@
 
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import * as SimpleMarkdown from 'simple-markdown';
 
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import { chatMentionRegex } from 'lib/shared/mention-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
-  ThreadInfo,
+  LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 
 import MarkdownChatMention from './markdown-chat-mention.react.js';
@@ -348,7 +349,7 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 });
 
 function useTextMessageRulesFunc(
-  threadInfo: ThreadInfo,
+  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   chatMentionCandidates: ChatMentionCandidates,
 ): (useDarkStyle: boolean) => MarkdownRules {
   const { members } = threadInfo;

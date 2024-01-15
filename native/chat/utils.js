@@ -9,14 +9,15 @@ import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js'
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { viewerIsMember } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { clusterEndHeight } from './chat-constants.js';
 import { ChatContext, useHeightMeasurer } from './chat-context.js';
 import { failedSendHeight } from './failed-send.react.js';
 import {
-  useNativeMessageListData,
   type NativeChatMessageItem,
+  useNativeMessageListData,
 } from './message-data.react.js';
 import { authorNameHeight } from './message-header.react.js';
 import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
@@ -100,7 +101,7 @@ function useMessageTargetParameters(
   messageListVerticalBounds: VerticalBounds,
   currentInputBarHeight: number,
   targetInputBarHeight: number,
-  sidebarThreadInfo: ?ThreadInfo,
+  sidebarThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
 ): {
   +position: number,
   +color: string,

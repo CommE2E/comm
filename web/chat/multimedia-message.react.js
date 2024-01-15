@@ -9,16 +9,18 @@ import {
 } from 'lib/media/media-utils.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react.js';
 import sendFailed from './multimedia-message-send-failed.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import Multimedia from '../media/multimedia.react.js';
+
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
 type Props = {

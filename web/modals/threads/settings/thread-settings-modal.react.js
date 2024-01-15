@@ -4,22 +4,26 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  deleteThreadActionTypes,
   changeThreadSettingsActionTypes,
+  deleteThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
-  threadHasPermission,
   getSingleOtherUser,
+  threadHasPermission,
   threadUIName,
 } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadChanges, type ThreadInfo } from 'lib/types/thread-types.js';
+import {
+  type ThreadChanges,
+  type LegacyThreadInfo,
+} from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
@@ -50,9 +54,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         deleteThreadLoadingStatusSelector(state) === 'loading' ||
         changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     );
-    const threadInfo: ?ThreadInfo = useSelector(
-      state => threadInfoSelector(state)[props.threadID],
-    );
+    const threadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
+      useSelector(state => threadInfoSelector(state)[props.threadID]);
     const modalContext = useModalContext();
     const [errorMessage, setErrorMessage] = React.useState<?string>('');
     const [currentTabType, setCurrentTabType] =
@@ -100,7 +103,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const hasPermissionForTab = React.useCallback(
       // ESLint doesn't recognize that invariant always throws
       // eslint-disable-next-line consistent-return
-      (thread: ThreadInfo, tab: TabType) => {
+      (thread: LegacyThreadInfo | MinimallyEncodedThreadInfo, tab: TabType) => {
         if (tab === 'general') {
           return (
             threadHasPermission(thread, threadPermissions.EDIT_THREAD_NAME) ||
