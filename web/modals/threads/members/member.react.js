@@ -11,7 +11,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LegacyThreadInfo,
   RelativeMemberInfo,
@@ -32,7 +32,7 @@ const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
   +memberInfo: RelativeMemberInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +setOpenMenu: SetState<?string>,
 };
 

@@ -35,7 +35,7 @@ import {
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ClientThreadJoinRequest,
@@ -67,7 +67,7 @@ import {
 } from '../utils/typeahead-utils.js';
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +inputState: InputState,
 };
 type Props = {
@@ -83,7 +83,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {

@@ -14,7 +14,7 @@ import {
   getRelationshipDispatchAction,
 } from 'lib/shared/relationship-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type RelationshipAction,
   type RelationshipButton,
@@ -30,7 +30,7 @@ import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +buttonStyle: ViewStyle,
   +relationshipButton: RelationshipButton,
 };

@@ -9,7 +9,7 @@ import {
   useToggleMessagePin,
 } from 'lib/actions/message-actions.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -23,7 +23,7 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 
 export type TogglePinModalParams = {
   +item: ChatMessageInfoItemWithHeight,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 
 type TogglePinModalProps = {

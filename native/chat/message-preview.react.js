@@ -7,7 +7,7 @@ import { Text } from 'react-native';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import SingleLine from '../components/single-line.react.js';
@@ -16,7 +16,7 @@ import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +messageInfo: MessageInfo,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
   const { messageInfo, threadInfo } = props;

@@ -17,7 +17,7 @@ import {
   pendingThreadType,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
@@ -87,8 +87,8 @@ type Props = {
   +updateTagInput: (items: $ReadOnlyArray<AccountUserInfo>) => void,
   +resolveToUser: (user: AccountUserInfo) => void,
   +userSearchResults: $ReadOnlyArray<UserListItem>,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  +genesisThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +genesisThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
   +messageListData: ?$ReadOnlyArray<NativeChatMessageItem>,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
