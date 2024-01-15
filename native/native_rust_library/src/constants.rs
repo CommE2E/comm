@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 pub mod aes {
   pub const KEY_SIZE: usize = 32; // bytes
   pub const IV_LENGTH: usize = 12; // bytes - unique Initialization Vector (nonce)
@@ -10,3 +12,6 @@ pub mod secure_store {
   pub const USER_ID: &str = "userID";
   pub const DEVICE_ID: &str = "deviceID";
 }
+
+pub const BACKUP_SERVICE_CONNECTION_RETRY_DELAY: Duration =
+  Duration::from_secs(5);

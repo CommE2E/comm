@@ -1242,6 +1242,22 @@ jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
       });
 }
 
+void CommCoreModule::startBackupHandler(jsi::Runtime &rt) {
+  try {
+    ::startBackupHandler();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
+void CommCoreModule::stopBackupHandler(jsi::Runtime &rt) {
+  try {
+    ::stopBackupHandler();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
 jsi::Value CommCoreModule::createNewBackup(
     jsi::Runtime &rt,
     jsi::String backupSecret,
