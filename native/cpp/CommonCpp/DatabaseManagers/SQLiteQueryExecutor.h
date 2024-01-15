@@ -34,6 +34,7 @@ public:
   bool moveDraft(std::string oldKey, std::string newKey) const override;
   std::vector<Draft> getAllDrafts() const override;
   void removeAllDrafts() const override;
+  void removeDrafts(const std::vector<std::string> &ids) const override;
   void removeAllMessages() const override;
   std::vector<std::pair<Message, std::vector<Media>>>
   getAllMessages() const override;
