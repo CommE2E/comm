@@ -2,10 +2,11 @@
 
 import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
+import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
 import {
-  type RawThreadInfo,
   type RawThreadInfos,
+  type LegacyRawThreadInfo,
 } from 'lib/types/thread-types.js';
 import { hash, combineUnorderedHashes, values } from 'lib/utils/objects.js';
 
@@ -17,7 +18,7 @@ import { validateOutput } from '../../utils/validation-utils.js';
 export const threadsStateSyncSpec: ServerStateSyncSpec<
   RawThreadInfos,
   RawThreadInfos,
-  RawThreadInfo,
+  LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
   $ReadOnlyArray<ClientThreadInconsistencyReportCreationRequest>,
 > = Object.freeze({
   fetch,
@@ -44,6 +45,8 @@ function getServerInfosHash(infos: RawThreadInfos) {
   return combineUnorderedHashes(values(infos).map(getServerInfoHash));
 }
 
-function getServerInfoHash(info: RawThreadInfo) {
+function getServerInfoHash(
+  info: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+) {
   return hash(validateOutput(null, rawThreadInfoValidator, info));
 }
