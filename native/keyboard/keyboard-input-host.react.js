@@ -6,9 +6,10 @@ import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
 import type { MediaLibrarySelection } from 'lib/types/media-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
-import { type KeyboardState, KeyboardContext } from './keyboard-state.js';
+import { KeyboardContext, type KeyboardState } from './keyboard-state.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
@@ -75,7 +76,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     keyboardName: string,
     result: {
       +selections: $ReadOnlyArray<MediaLibrarySelection>,
-      +threadInfo: ?ThreadInfo,
+      +threadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
     },
   ) => {
     const { keyboardState } = this.props;

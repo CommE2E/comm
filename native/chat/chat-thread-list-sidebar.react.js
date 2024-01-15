@@ -3,9 +3,10 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import type { SidebarInfo, ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
-import { SidebarItem, sidebarHeight } from './sidebar-item.react.js';
+import { sidebarHeight, SidebarItem } from './sidebar-item.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
 import Button from '../components/button.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
@@ -15,8 +16,12 @@ import Arrow from '../vectors/arrow.react.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
-  +onPressItem: (threadInfo: ThreadInfo) => void,
-  +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
+  +onPressItem: (
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ) => void,
+  +onSwipeableWillOpen: (
+    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  ) => void,
   +currentlyOpenedSwipeableId: string,
   +extendArrow: boolean,
 };

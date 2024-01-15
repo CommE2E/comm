@@ -5,7 +5,7 @@ import _filter from 'lodash/fp/filter.js';
 import _flow from 'lodash/fp/flow.js';
 import _sortBy from 'lodash/fp/sortBy.js';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import {
   newThreadActionTypes,
@@ -16,8 +16,9 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -26,8 +27,8 @@ import { useNavigateToThread } from './message-list-types.js';
 import ParentThreadHeader from './parent-thread-header.react.js';
 import LinkButton from '../components/link-button.react.js';
 import {
-  createTagInput,
   type BaseTagInput,
+  createTagInput,
 } from '../components/tag-input.react.js';
 import ThreadList from '../components/thread-list.react.js';
 import UserList from '../components/user-list.react.js';
@@ -49,7 +50,7 @@ const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
 export type ComposeSubchannelParams = {
   +threadType: ThreadType,
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 type Props = {
@@ -204,13 +205,15 @@ function ComposeSubchannel(props: Props): React.Node {
     threadType,
   });
 
-  const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {
+  const existingThreads: $ReadOnlyArray<
+    LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  > = React.useMemo(() => {
     if (userInfoInputIDs.length === 0) {
       return [];
     }
     return _flow(
       _filter(
-        (threadInfo: ThreadInfo) =>
+        (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) =>
           threadInFilterList(threadInfo) &&
           threadInfo.parentThreadID === parentThreadInfo.id &&
           userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
@@ -218,8 +221,14 @@ function ComposeSubchannel(props: Props): React.Node {
       _sortBy(
         ([
           'members.length',
-          (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
-        ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
+          (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) =>
+            threadInfo.name ? 1 : 0,
+        ]: $ReadOnlyArray<
+          | string
+          | ((
+              threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+            ) => mixed),
+        >),
       ),
     )(threadInfos);
   }, [userInfoInputIDs, threadInfos, parentThreadInfo]);

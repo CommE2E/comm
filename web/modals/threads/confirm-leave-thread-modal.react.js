@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 
-import { type ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './confirm-leave-thread-modal.css';
@@ -10,7 +11,7 @@ import Button, { buttonThemes } from '../../components/button.react.js';
 import Modal from '../modal.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +onClose: () => void,
   +onConfirm: () => void,
 };

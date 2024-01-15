@@ -6,12 +6,13 @@ import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
-  entityTextToReact,
-  entityTextToRawString,
-  useENSNamesForEntityText,
   type EntityText,
+  entityTextToRawString,
+  entityTextToReact,
+  useENSNamesForEntityText,
 } from 'lib/utils/entity-text.js';
 
 import { DummyInlineEngagementNode } from './inline-engagement.react.js';
@@ -26,7 +27,7 @@ import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profil
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,
   threadID: string,
-  sidebarInfo: ?ThreadInfo,
+  sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (

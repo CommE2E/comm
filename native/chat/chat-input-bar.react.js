@@ -6,14 +6,14 @@ import invariant from 'invariant';
 import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
 import {
-  View,
-  TextInput,
-  TouchableOpacity,
+  ActivityIndicator,
+  NativeAppEventEmitter,
   Platform,
   Text,
-  ActivityIndicator,
+  TextInput,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  NativeAppEventEmitter,
+  View,
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, {
@@ -28,8 +28,8 @@ import {
 } from 'lib/actions/draft-actions.js';
 import {
   joinThreadActionTypes,
-  useJoinThread,
   newThreadActionTypes,
+  useJoinThread,
 } from 'lib/actions/thread-actions.js';
 import {
   useChatMentionContext,
@@ -40,29 +40,29 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import {
-  useMentionTypeaheadUserSuggestions,
-  useMentionTypeaheadChatSuggestions,
   getTypeaheadRegexMatches,
-  type Selection,
-  useUserMentionsCandidates,
   type MentionTypeaheadSuggestionItem,
+  type Selection,
   type TypeaheadMatchedStrings,
+  useMentionTypeaheadChatSuggestions,
+  useMentionTypeaheadUserSuggestions,
+  useUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
 import {
-  useNextLocalID,
-  trimMessage,
-  useMessagePreview,
   messageKey,
   type MessagePreviewResult,
+  trimMessage,
+  useMessagePreview,
+  useNextLocalID,
 } from 'lib/shared/message-utils.js';
 import SentencePrefixSearchIndex from 'lib/shared/sentence-prefix-search-index.js';
 import {
-  threadHasPermission,
-  viewerIsMember,
-  threadFrozenDueToViewerBlock,
-  threadActualMembers,
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
+  threadActualMembers,
+  threadFrozenDueToViewerBlock,
+  threadHasPermission,
+  viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -70,22 +70,23 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type {
-  SendEditMessageResponse,
   MessageInfo,
+  SendEditMessageResponse,
 } from 'lib/types/message-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
-  ClientThreadJoinRequest,
-  ThreadJoinPayload,
   ChatMentionCandidates,
+  ClientThreadJoinRequest,
+  LegacyThreadInfo,
   RelativeMemberInfo,
-  ThreadInfo,
+  ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -107,43 +108,43 @@ import SelectableTextInput from '../components/selectable-text-input.react';
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
+  type EditInputBarMessageParameters,
   type InputState,
   InputStateContext,
-  type EditInputBarMessageParameters,
 } from '../input/input-state.js';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
 import {
-  type KeyboardState,
   KeyboardContext,
+  type KeyboardState,
 } from '../keyboard/keyboard-state.js';
 import { getKeyboardHeight } from '../keyboard/keyboard.js';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 import {
-  nonThreadCalendarQuery,
   activeThreadSelector,
+  nonThreadCalendarQuery,
 } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
-import { OverlayContext } from '../navigation/overlay-context.js';
 import type { OverlayContextType } from '../navigation/overlay-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import {
-  type NavigationRoute,
   ChatCameraModalRouteName,
   ImagePasteModalRouteName,
+  type NavigationRoute,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { type Colors, useStyles, useColors } from '../themes/colors.js';
-import type { LayoutEvent, ImagePasteEvent } from '../types/react-native.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { ImagePasteEvent, LayoutEvent } from '../types/react-native.js';
 import {
-  type AnimatedViewStyle,
   AnimatedView,
+  type AnimatedViewStyle,
   type ViewStyle,
 } from '../types/styles.js';
 import Alert from '../utils/alert.js';
 import { runTiming } from '../utils/animation-utils.js';
 import { exitEditAlert } from '../utils/edit-messages-utils.js';
 import {
-  nativeMentionTypeaheadRegex,
   mentionTypeaheadTooltipActions,
+  nativeMentionTypeaheadRegex,
 } from '../utils/typeahead-utils.js';
 
 const { Value, Clock, block, set, cond, neq, sub, interpolateNode, stopClock } =
@@ -273,7 +274,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 type Props = {
   ...BaseProps,
@@ -297,7 +298,7 @@ type Props = {
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
-  +parentThreadInfo: ?ThreadInfo,
+  +parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (

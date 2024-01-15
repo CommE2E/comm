@@ -14,22 +14,23 @@ import {
   getRelationshipDispatchAction,
 } from 'lib/shared/relationship-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type RelationshipAction,
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { useStyles, useColors } from '../../themes/colors.js';
+import { useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
   +relationshipButton: RelationshipButton,
 };

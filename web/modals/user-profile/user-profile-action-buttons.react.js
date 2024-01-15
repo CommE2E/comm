@@ -4,8 +4,9 @@ import { faUserMinus, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { LegacyThreadInfo } from 'lib/types/thread-types';
 
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import css from './user-profile.css';
@@ -13,7 +14,7 @@ import RelationshipPromptButton from '../../chat/relationship-prompt/relationshi
 import { buttonThemes } from '../../components/button.react.js';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 function UserProfileActionButtons(props: Props): React.Node {

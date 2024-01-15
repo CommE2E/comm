@@ -1,12 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useComposedMessageMaxWidth } from './composed-message-width.js';
 import { DummyInlineEngagementNode } from './inline-engagement.react.js';
@@ -23,7 +24,7 @@ import {
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
 import Markdown from '../markdown/markdown.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useColors, colors } from '../themes/colors.js';
+import { colors, useColors } from '../themes/colors.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 const { Node } = Animated;
@@ -31,7 +32,7 @@ const { Node } = Animated;
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,
   editedLabel?: ?string,
-  sidebarInfo: ?ThreadInfo,
+  sidebarInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (

@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Text, ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from '../../components/button.react.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
@@ -30,7 +31,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +buttonStyle: ViewStyle,
 };
 type Props = {

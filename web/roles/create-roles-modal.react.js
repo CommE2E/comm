@@ -5,20 +5,21 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  useModifyCommunityRole,
   modifyCommunityRoleActionTypes,
+  useModifyCommunityRole,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
   type UserSurfacedPermission,
   type UserSurfacedPermissionOption,
   userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
 import type {
+  LegacyThreadInfo,
   RoleModificationRequest,
-  ThreadInfo,
 } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -37,7 +38,7 @@ const createRolesLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 type CreateRolesModalProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
   +action: 'create_role' | 'edit_role',
   +existingRoleID?: string,
   +roleName: string,

@@ -1,59 +1,60 @@
 // @flow
 
 import type {
-  TabNavigationState,
-  BottomTabOptions,
   BottomTabNavigationEventMap,
+  BottomTabOptions,
+  TabNavigationState,
 } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
 
 import {
+  changeThreadMemberRolesActionTypes,
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
   removeUsersFromThreadActionTypes,
-  changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
-  threadInfoSelector,
   childThreadInfos,
+  threadInfoSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
-  threadHasPermission,
-  viewerIsMember,
-  threadInChatList,
   getSingleOtherUser,
+  threadHasPermission,
+  threadInChatList,
   threadIsChannel,
+  viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
+import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
+  LegacyThreadInfo,
   RelativeMemberInfo,
-  ThreadInfo,
   ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
-  useResolvedThreadInfo,
   useResolvedOptionalThreadInfo,
   useResolvedOptionalThreadInfos,
+  useResolvedThreadInfo,
 } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsAvatar from './thread-settings-avatar.react.js';
 import type { CategoryType } from './thread-settings-category.react.js';
 import {
-  ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryActionHeader,
   ThreadSettingsCategoryFooter,
+  ThreadSettingsCategoryHeader,
 } from './thread-settings-category.react.js';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react.js';
 import ThreadSettingsColor from './thread-settings-color.react.js';
@@ -63,9 +64,9 @@ import ThreadSettingsEditRelationship from './thread-settings-edit-relationship.
 import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react.js';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react.js';
 import {
-  ThreadSettingsSeeMore,
   ThreadSettingsAddMember,
   ThreadSettingsAddSubchannel,
+  ThreadSettingsSeeMore,
 } from './thread-settings-list-action.react.js';
 import ThreadSettingsMediaGallery from './thread-settings-media-gallery.react.js';
 import ThreadSettingsMember from './thread-settings-member.react.js';
@@ -76,8 +77,8 @@ import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react.js';
 import ThreadSettingsVisibility from './thread-settings-visibility.react.js';
 import ThreadAncestors from '../../components/thread-ancestors.react.js';
 import {
-  type KeyboardState,
   KeyboardContext,
+  type KeyboardState,
 } from '../../keyboard/keyboard-state.js';
 import { defaultStackScreenOptions } from '../../navigation/options.js';
 import {
@@ -88,16 +89,16 @@ import {
   AddUsersModalRouteName,
   ComposeSubchannelModalRouteName,
   FullScreenThreadMediaGalleryRouteName,
-  type ScreenParamList,
   type NavigationRoute,
+  type ScreenParamList,
 } from '../../navigation/route-names.js';
 import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import type { AppState } from '../../redux/state-types.js';
 import {
-  useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
+  useStyles,
 } from '../../themes/colors.js';
 import type { VerticalBounds } from '../../types/layout-types.js';
 import type { ViewStyle } from '../../types/styles.js';
@@ -106,7 +107,7 @@ import type { ChatNavigationProp } from '../chat.react.js';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
 };
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -219,7 +220,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'mediaGallery',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
       +limit: number,
       +verticalBounds: ?VerticalBounds,
     }
@@ -698,7 +699,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.threadInfo,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
-      (threadInfo: ThreadInfo, verticalBounds: ?VerticalBounds) => {
+      (
+        threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+        verticalBounds: ?VerticalBounds,
+      ) => {
         const listData: ChatSettingsItem[] = [];
         const limit = 6;
 
@@ -1152,9 +1156,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     );
     const threadID = props.route.params.threadInfo.id;
 
-    const reduxThreadInfo: ?ThreadInfo = useSelector(
-      state => threadInfoSelector(state)[threadID],
-    );
+    const reduxThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
+      useSelector(state => threadInfoSelector(state)[threadID]);
     React.useEffect(() => {
       invariant(
         reduxThreadInfo,
@@ -1169,7 +1172,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: ThreadInfo =
+    const threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
@@ -1184,9 +1187,10 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     }, [threadInfo]);
 
     const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
+    const parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
+      useSelector(state =>
+        parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+      );
     const resolvedParentThreadInfo =
       useResolvedOptionalThreadInfo(parentThreadInfo);
     const threadMembers = threadInfo.members;
