@@ -32,6 +32,7 @@ import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
+import { NotificationsSessionCreatorProvider } from './account/account-hooks.js';
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import BackupHandler from './backup/backup-handler.js';
@@ -297,62 +298,64 @@ function Root() {
   return (
     <GestureHandlerRootView style={styles.app}>
       <StaffContextProvider>
-        <IdentityServiceContextProvider>
-          <TunnelbrokerProvider
-            initMessage={tunnelbrokerInitMessage}
-            peerToPeerMessageHandler={peerToPeerMessageHandler}
-          >
-            <FeatureFlagsProvider>
-              <NavContext.Provider value={navContext}>
-                <RootContext.Provider value={rootContext}>
-                  <InputStateContainer>
-                    <MessageEditingContextProvider>
-                      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                        <ActionSheetProvider>
-                          <ENSCacheProvider provider={provider}>
-                            <MediaCacheProvider
-                              persistence={filesystemMediaCache}
-                            >
-                              <EditUserAvatarProvider>
-                                <NativeEditThreadAvatarProvider>
-                                  <MarkdownContextProvider>
-                                    <MessageSearchProvider>
-                                      <BottomSheetProvider>
-                                        <RegistrationContextProvider>
-                                          <SQLiteDataHandler />
-                                          <ConnectedStatusBar />
-                                          <ReduxPersistGate
-                                            persistor={getPersistor()}
-                                          >
-                                            {gated}
-                                          </ReduxPersistGate>
-                                          <PersistedStateGate>
-                                            <KeyserverConnectionsHandler
-                                              socketComponent={Socket}
-                                              detectUnsupervisedBackgroundRef={
-                                                detectUnsupervisedBackgroundRef
-                                              }
-                                            />
-                                            <VersionSupportedChecker />
-                                          </PersistedStateGate>
-                                          {navigation}
-                                        </RegistrationContextProvider>
-                                      </BottomSheetProvider>
-                                    </MessageSearchProvider>
-                                  </MarkdownContextProvider>
-                                </NativeEditThreadAvatarProvider>
-                              </EditUserAvatarProvider>
-                            </MediaCacheProvider>
-                          </ENSCacheProvider>
-                        </ActionSheetProvider>
-                      </SafeAreaProvider>
-                    </MessageEditingContextProvider>
-                  </InputStateContainer>
-                </RootContext.Provider>
-              </NavContext.Provider>
-            </FeatureFlagsProvider>
-          </TunnelbrokerProvider>
-        </IdentityServiceContextProvider>
+        <NotificationsSessionCreatorProvider>
+          <IdentityServiceContextProvider>
+            <TunnelbrokerProvider
+              initMessage={tunnelbrokerInitMessage}
+              peerToPeerMessageHandler={peerToPeerMessageHandler}
+            >
+              <FeatureFlagsProvider>
+                <NavContext.Provider value={navContext}>
+                  <RootContext.Provider value={rootContext}>
+                    <InputStateContainer>
+                      <MessageEditingContextProvider>
+                        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                          <ActionSheetProvider>
+                            <ENSCacheProvider provider={provider}>
+                              <MediaCacheProvider
+                                persistence={filesystemMediaCache}
+                              >
+                                <EditUserAvatarProvider>
+                                  <NativeEditThreadAvatarProvider>
+                                    <MarkdownContextProvider>
+                                      <MessageSearchProvider>
+                                        <BottomSheetProvider>
+                                          <RegistrationContextProvider>
+                                            <SQLiteDataHandler />
+                                            <ConnectedStatusBar />
+                                            <ReduxPersistGate
+                                              persistor={getPersistor()}
+                                            >
+                                              {gated}
+                                            </ReduxPersistGate>
+                                            <PersistedStateGate>
+                                              <KeyserverConnectionsHandler
+                                                socketComponent={Socket}
+                                                detectUnsupervisedBackgroundRef={
+                                                  detectUnsupervisedBackgroundRef
+                                                }
+                                              />
+                                              <VersionSupportedChecker />
+                                            </PersistedStateGate>
+                                            {navigation}
+                                          </RegistrationContextProvider>
+                                        </BottomSheetProvider>
+                                      </MessageSearchProvider>
+                                    </MarkdownContextProvider>
+                                  </NativeEditThreadAvatarProvider>
+                                </EditUserAvatarProvider>
+                              </MediaCacheProvider>
+                            </ENSCacheProvider>
+                          </ActionSheetProvider>
+                        </SafeAreaProvider>
+                      </MessageEditingContextProvider>
+                    </InputStateContainer>
+                  </RootContext.Provider>
+                </NavContext.Provider>
+              </FeatureFlagsProvider>
+            </TunnelbrokerProvider>
+          </IdentityServiceContextProvider>
+        </NotificationsSessionCreatorProvider>
       </StaffContextProvider>
     </GestureHandlerRootView>
   );
