@@ -659,7 +659,8 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::String identityKeys,
     jsi::String prekey,
     jsi::String prekeySignature,
-    jsi::String oneTimeKeys) {
+    jsi::String oneTimeKeys,
+    jsi::String keyserverID) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
