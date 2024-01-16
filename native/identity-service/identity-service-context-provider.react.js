@@ -62,8 +62,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return { deviceID, userID, accessToken };
   }, []);
 
-  const client = React.useMemo<?IdentityServiceClient>(() => {
-    return {
+  const client = React.useMemo<IdentityServiceClient>(
+    () => ({
       deleteUser: async () => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         return commRustModule.deleteUser(userID, deviceID, accessToken);
@@ -117,8 +117,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { userID, accessToken } = JSON.parse(registrationResult);
         return { accessToken, userID, username };
       },
-    };
-  }, [getAuthMetadata]);
+    }),
+    [getAuthMetadata],
+  );
 
   const value = React.useMemo(
     () => ({
