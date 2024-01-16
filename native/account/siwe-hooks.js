@@ -11,6 +11,7 @@ import type {
 import { useServerCall } from 'lib/utils/action-utils.js';
 import type { CallServerEndpointOptions } from 'lib/utils/call-server-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -59,7 +60,7 @@ function useSIWEServerCall(): (
     ) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await getInitialNotificationsEncryptedMessage({
+        await getInitialNotificationsEncryptedMessage(ashoatKeyserverID, {
           callServerEndpointOptions,
         });
 
