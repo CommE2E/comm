@@ -305,12 +305,12 @@ impl<T: TryFromAttribute> TryFromAttribute for Vec<T> {
           .collect::<Result<Vec<T>, _>>()?,
       ),
       Some(_) => Err(DBItemError::new(
-        attribute_name.into(),
+        attribute_name,
         Value::AttributeValue(attribute),
         DBItemAttributeError::IncorrectType,
       )),
       None => Err(DBItemError::new(
-        attribute_name.into(),
+        attribute_name,
         Value::AttributeValue(attribute),
         DBItemAttributeError::Missing,
       )),

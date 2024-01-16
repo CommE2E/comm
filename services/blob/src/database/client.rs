@@ -205,7 +205,9 @@ impl DatabaseClient {
         DBError::AwsSdk(err.into())
       })?;
 
-    let Some(items) = response.items else { return Ok(vec![]); };
+    let Some(items) = response.items else {
+      return Ok(vec![]);
+    };
     items
       .into_iter()
       .filter_map(|mut row| {
@@ -272,7 +274,9 @@ impl DatabaseClient {
         DBError::AwsSdk(err.into())
       })?;
 
-    let Some(items) = response.items else { return Ok(vec![]); };
+    let Some(items) = response.items else {
+      return Ok(vec![]);
+    };
     items
       .into_iter()
       .map(PrimaryKey::try_from)

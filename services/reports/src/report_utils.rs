@@ -23,23 +23,28 @@ pub fn find_inconsistent_object_keys(
 }
 
 pub fn inconsistent_thread_ids(content: &ReportContent) -> HashSet<String> {
-  let Some(push_result) = content
-    .get("pushResult")
-    .and_then(Value::as_object) else { return HashSet::new(); };
-  let Some(before_action) = content
-    .get("beforeAction")
-    .and_then(Value::as_object) else { return HashSet::new(); };
+  let Some(push_result) = content.get("pushResult").and_then(Value::as_object)
+  else {
+    return HashSet::new();
+  };
+  let Some(before_action) =
+    content.get("beforeAction").and_then(Value::as_object)
+  else {
+    return HashSet::new();
+  };
 
   find_inconsistent_object_keys(push_result, before_action)
 }
 
 pub fn inconsistent_user_ids(content: &ReportContent) -> HashSet<String> {
-  let Some(before) = content
-    .get("beforeStateCheck")
-    .and_then(Value::as_object) else { return HashSet::new(); };
-  let Some(after) = content
-    .get("afterStateCheck")
-    .and_then(Value::as_object) else { return HashSet::new(); };
+  let Some(before) = content.get("beforeStateCheck").and_then(Value::as_object)
+  else {
+    return HashSet::new();
+  };
+  let Some(after) = content.get("afterStateCheck").and_then(Value::as_object)
+  else {
+    return HashSet::new();
+  };
 
   find_inconsistent_object_keys(before, after)
 }

@@ -1042,15 +1042,15 @@ mod migration {
     }
 
     // swap primary device with the first one
-    let Some(primary_device_idx) = list
-      .iter()
-      .position(|id| id == &primary_device.device_id) else {
-        error!(
-          "Primary device not found in device list (userID={})",
-          user_id
-        );
-        return;
-      };
+    let Some(primary_device_idx) =
+      list.iter().position(|id| id == &primary_device.device_id)
+    else {
+      error!(
+        "Primary device not found in device list (userID={})",
+        user_id
+      );
+      return;
+    };
     list.swap(0, primary_device_idx);
     info!("Reordered device list for user (userID={})", user_id);
   }

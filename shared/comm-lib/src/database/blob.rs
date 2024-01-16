@@ -50,7 +50,7 @@ impl BlobOrDBContent {
       return Ok(Self::Blob(blob_info));
     }
 
-    let content_data = attrs.take_attr(in_db_attr.into())?;
+    let content_data = attrs.take_attr(in_db_attr)?;
     Ok(Self::Database(content_data))
   }
 
@@ -61,7 +61,9 @@ impl BlobOrDBContent {
     &mut self,
     blob_client: &BlobServiceClient,
   ) -> Result<(), BlobServiceError> {
-    let Self::Database(ref mut contents) = self else { return Ok(()); };
+    let Self::Database(ref mut contents) = self else {
+      return Ok(());
+    };
     let data = std::mem::take(contents);
 
     let new_blob_info = BlobInfo::from_bytes(&data);

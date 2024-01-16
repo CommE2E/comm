@@ -274,8 +274,8 @@ pub async fn get_latest_backup_id(
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)
     .await
-    .map_err(BackupError::from)? else
-  {
+    .map_err(BackupError::from)?
+  else {
     return Err(BackupError::NoBackup.into());
   };
 
@@ -299,8 +299,8 @@ pub async fn download_latest_backup_keys(
   let Some(backup_item) = db_client
     .find_last_backup_item(&user_id)
     .await
-    .map_err(BackupError::from)? else
-  {
+    .map_err(BackupError::from)?
+  else {
     return Err(BackupError::NoBackup.into());
   };
 

@@ -12,7 +12,7 @@ pub struct BlobInfo {
 impl BlobInfo {
   pub fn from_bytes(data: &[u8]) -> Self {
     Self {
-      blob_hash: Sha256::digest(&data).encode_hex(),
+      blob_hash: Sha256::digest(data).encode_hex(),
       holder: uuid::Uuid::new_v4().to_string(),
     }
   }

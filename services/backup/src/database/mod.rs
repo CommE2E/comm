@@ -70,8 +70,9 @@ impl DatabaseClient {
 
     let GetItemOutput {
       item: Some(item), ..
-    } = output else {
-      return Ok(None)
+    } = output
+    else {
+      return Ok(None);
     };
 
     let backup_item = item.try_into()?;

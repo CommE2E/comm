@@ -318,7 +318,8 @@ impl BlobServiceClient {
       return Ok(false);
     }
     trace!("Uploading blob data...");
-    let Err(upload_error) = self.upload_blob(blob_hash, data_stream).await else {
+    let Err(upload_error) = self.upload_blob(blob_hash, data_stream).await
+    else {
       return Ok(true);
     };
 
