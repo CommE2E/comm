@@ -5,17 +5,17 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  createEntryActionTypes,
-  useCreateEntry,
-  saveEntryActionTypes,
-  useSaveEntry,
-  deleteEntryActionTypes,
-  useDeleteEntry,
   concurrentModificationResetActionType,
+  createEntryActionTypes,
+  deleteEntryActionTypes,
+  saveEntryActionTypes,
+  useCreateEntry,
+  useDeleteEntry,
+  useSaveEntry,
 } from 'lib/actions/entry-actions.js';
 import {
-  useModalContext,
   type PushModal,
+  useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -23,26 +23,27 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import {
-  type EntryInfo,
+  type CalendarQuery,
   type CreateEntryInfo,
-  type SaveEntryInfo,
-  type SaveEntryResult,
-  type SaveEntryPayload,
   type CreateEntryPayload,
   type DeleteEntryInfo,
   type DeleteEntryResult,
-  type CalendarQuery,
+  type EntryInfo,
+  type SaveEntryInfo,
+  type SaveEntryPayload,
+  type SaveEntryResult,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -54,7 +55,7 @@ import ConcurrentModificationModal from '../modals/concurrent-modification-modal
 import HistoryModal from '../modals/history/history-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
-import { HistoryVector, DeleteVector } from '../vectors.react.js';
+import { DeleteVector, HistoryVector } from '../vectors.react.js';
 
 type BaseProps = {
   +innerRef: (key: string, me: Entry) => void,
@@ -64,7 +65,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
