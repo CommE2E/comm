@@ -60,7 +60,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return { deviceID, userID, accessToken };
   }, []);
 
-  const client = React.useMemo<?IdentityServiceClient>(() => {
+  const client = React.useMemo<IdentityServiceClient>(() => {
     return {
       deleteUser: async () => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
