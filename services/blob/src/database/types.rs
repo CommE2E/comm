@@ -186,14 +186,11 @@ impl TryFrom<RawAttributes> for PrimaryKey {
 
 // useful for convenient calls:
 // ddb.get_item().set_key(Some(partition_key.into()))
-impl Into<RawAttributes> for PrimaryKey {
-  fn into(self) -> RawAttributes {
+impl From<PrimaryKey> for RawAttributes {
+  fn from(val: PrimaryKey) -> Self {
     HashMap::from([
-      (
-        ATTR_BLOB_HASH.to_string(),
-        AttributeValue::S(self.blob_hash),
-      ),
-      (ATTR_HOLDER.to_string(), AttributeValue::S(self.holder)),
+      (ATTR_BLOB_HASH.to_string(), AttributeValue::S(val.blob_hash)),
+      (ATTR_HOLDER.to_string(), AttributeValue::S(val.holder)),
     ])
   }
 }
@@ -213,9 +210,9 @@ impl UncheckedKind {
   }
 }
 
-impl Into<AttributeValue> for UncheckedKind {
-  fn into(self) -> AttributeValue {
-    AttributeValue::S(self.str_value().to_string())
+impl From<UncheckedKind> for AttributeValue {
+  fn from(val: UncheckedKind) -> Self {
+    AttributeValue::S(val.str_value().to_string())
   }
 }
 

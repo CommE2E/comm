@@ -199,9 +199,9 @@ impl BackupClient {
         LogWSResponse::LogDownloadFinished { .. }
         | LogWSResponse::LogDownload { .. } => Some(Ok(response)),
         LogWSResponse::LogUploaded { .. } => {
-          return Some(Err(WSError::InvalidBackupMessage))
+          Some(Err(WSError::InvalidBackupMessage))
         }
-        LogWSResponse::ServerError => return Some(Err(WSError::ServerError)),
+        LogWSResponse::ServerError => Some(Err(WSError::ServerError)),
       }
     });
 

@@ -388,7 +388,7 @@ async fn get_keyserver_keys_helper(
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  let mut response = identity_client
+  let response = identity_client
     .get_keyserver_keys(get_keyserver_keys_request)
     .await?
     .into_inner();

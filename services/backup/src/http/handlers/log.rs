@@ -54,9 +54,9 @@ struct ConnectionInfo {
   Debug, derive_more::From, derive_more::Display, derive_more::Error,
 )]
 enum LogWSError {
-  BincodeError(bincode::Error),
-  BlobError(BlobServiceError),
-  DBError(database::Error),
+  Bincode(bincode::Error),
+  Blob(BlobServiceError),
+  DB(database::Error),
 }
 
 struct LogWSActor {
@@ -81,7 +81,7 @@ impl LogWSActor {
       self.info.clone(),
       self.blob_client.clone(),
       self.db_client.clone(),
-      bytes.into(),
+      bytes,
     );
 
     let fut = actix::fut::wrap_future(fut).map(

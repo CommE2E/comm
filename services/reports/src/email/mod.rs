@@ -52,8 +52,13 @@ pub async fn send_emails(
   let requests: SendEmailBatchRequest = emails
     .into_iter()
     .filter_map(|item| {
-      let Some(recipient) = email_config.recipient_for_report_type(&item.report_type) else {
-        warn!("Recipient E-mail for {:?} not configured. Skipping", &item.report_type);
+      let Some(recipient) =
+        email_config.recipient_for_report_type(&item.report_type)
+      else {
+        warn!(
+          "Recipient E-mail for {:?} not configured. Skipping",
+          &item.report_type
+        );
         return None;
       };
 

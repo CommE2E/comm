@@ -21,14 +21,13 @@ use tracing::{debug, error};
 
 use super::protos::auth::{
   find_user_id_request, identity,
-  identity_client_service_server::IdentityClientService, EthereumIdentity,
-  FindUserIdRequest, FindUserIdResponse, GetDeviceListRequest,
-  GetDeviceListResponse, Identity, InboundKeyInfo, InboundKeysForUserRequest,
-  InboundKeysForUserResponse, KeyserverKeysResponse, OutboundKeyInfo,
-  OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPrekeysRequest, UpdateUserPasswordFinishRequest,
-  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest,
+  identity_client_service_server::IdentityClientService, FindUserIdRequest,
+  FindUserIdResponse, GetDeviceListRequest, GetDeviceListResponse, Identity,
+  InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
+  KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
+  OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
+  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
 };
 use super::protos::unauth::{Empty, IdentityKeyInfo, Prekey};
 

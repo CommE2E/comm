@@ -22,7 +22,7 @@ pub struct AppConfig {
 
 /// Stores configuration parsed from command-line arguments
 /// and environment variables
-pub static CONFIG: Lazy<AppConfig> = Lazy::new(|| AppConfig::parse());
+pub static CONFIG: Lazy<AppConfig> = Lazy::new(AppConfig::parse);
 
 /// Processes the command-line arguments and environment variables.
 /// Should be called at the beginning of the `main()` function.

@@ -2,7 +2,7 @@ use rand::{distributions::DistString, CryptoRng, Rng};
 
 // colon is valid because it is used as a separator
 // in some backup service identifiers
-const VALID_IDENTIFIER_CHARS: &'static [char] = &['_', '-', '=', ':'];
+const VALID_IDENTIFIER_CHARS: &[char] = &['_', '-', '=', ':'];
 
 /// Checks if the given string is a valid identifier for an entity
 /// (e.g. backup ID, blob hash, blob holder).

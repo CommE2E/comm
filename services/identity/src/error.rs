@@ -2,7 +2,6 @@ use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::aws::DynamoDBError;
 use comm_lib::database::{DBItemAttributeError, DBItemError, Value};
 use std::collections::hash_map::HashMap;
-use std::fmt::{Display, Formatter, Result as FmtResult};
 use tracing::error;
 
 #[derive(

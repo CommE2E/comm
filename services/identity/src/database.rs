@@ -17,8 +17,8 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 use crate::ddb_utils::{
-  create_one_time_key_partition_key, into_one_time_put_requests,
-  EthereumIdentity, Identifier, OlmAccountType,
+  create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
+  OlmAccountType,
 };
 use crate::error::{consume_error, Error};
 use chrono::{DateTime, Utc};

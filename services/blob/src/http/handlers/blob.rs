@@ -142,7 +142,8 @@ pub async fn upload_blob_handler(
 ) -> actix_web::Result<HttpResponse> {
   info!("Upload blob request");
 
-  let Some((name, blob_hash)) = multipart::get_text_field(&mut payload).await? else {
+  let Some((name, blob_hash)) = multipart::get_text_field(&mut payload).await?
+  else {
     warn!("Malformed request: expected a field.");
     return Err(ErrorBadRequest("Bad request"));
   };

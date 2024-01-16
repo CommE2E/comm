@@ -1,7 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use comm_lib::{
   aws::ddb::types::{AttributeValue, PutRequest, WriteRequest},
-  database::{AttributeExtractor, AttributeMap, Value},
+  database::{AttributeExtractor, AttributeMap},
 };
 use std::collections::HashMap;
 use std::iter::IntoIterator;
