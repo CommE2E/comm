@@ -68,6 +68,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
           cookie,
           notificationsIdentityKeys,
           notificationsInitializationInfo,
+          ashoatKeyserverID,
         ),
       [webNotificationsSessionCreator, cookie],
     );
