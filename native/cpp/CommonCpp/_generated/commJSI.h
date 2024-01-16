@@ -40,7 +40,7 @@ public:
   virtual jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
-  virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) = 0;
+  virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) = 0;
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String encryptedMessage, jsi::String deviceID) = 0;
@@ -244,13 +244,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::generateAndGetPrekeys, jsInvoker_, instance_);
     }
-    jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys) override {
+    jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String deviceID) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeNotificationsSession) == 5,
-          "Expected initializeNotificationsSession(...) to have 5 parameters");
+          bridging::getParameterCount(&T::initializeNotificationsSession) == 6,
+          "Expected initializeNotificationsSession(...) to have 6 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKeys));
+          rt, &T::initializeNotificationsSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKeys), std::move(deviceID));
     }
     jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) override {
       static_assert(

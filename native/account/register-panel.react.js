@@ -38,6 +38,7 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import { setNativeCredentials } from './native-credentials.js';
@@ -69,7 +70,9 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: (
+    deviceID: string,
+  ) => Promise<string>,
 };
 type State = {
   +confirmPasswordFocused: boolean,
@@ -303,7 +306,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       Keyboard.dismiss();
       const extraInfo = await this.props.logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await this.props.getInitialNotificationsEncryptedMessage();
+        await this.props.getInitialNotificationsEncryptedMessage(
+          ashoatKeyserverID,
+        );
       void this.props.dispatchActionPromise(
         registerActionTypes,
         this.registerAction({

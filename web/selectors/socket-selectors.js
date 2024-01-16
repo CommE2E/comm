@@ -45,7 +45,9 @@ const sessionIdentificationSelector: (
 type WebGetClientResponsesSelectorInputType = {
   +state: AppState,
   +getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: (
+    deviceID: string,
+  ) => Promise<string>,
 };
 
 const webGetClientResponsesSelector: (
@@ -66,12 +68,16 @@ const webGetClientResponsesSelector: (
       calendarActive: boolean,
       oneTimeKeyGenerator: ?OneTimeKeyGenerator,
       getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-      getInitialNotificationsEncryptedMessage: () => Promise<string>,
+      getInitialNotificationsEncryptedMessage: (
+        deviceID: string,
+      ) => Promise<string>,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
     getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
     calendarActive: boolean,
-    getInitialNotificationsEncryptedMessage: () => Promise<string>,
+    getInitialNotificationsEncryptedMessage: (
+      deviceID: string,
+    ) => Promise<string>,
   ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
