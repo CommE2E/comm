@@ -13,19 +13,20 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import {
+  type CalendarQuery,
   type EntryInfo,
   type RestoreEntryInfo,
-  type RestoreEntryResult,
-  type CalendarQuery,
   type RestoreEntryPayload,
+  type RestoreEntryResult,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 
 import css from './history.css';
@@ -40,7 +41,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
