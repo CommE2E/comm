@@ -27,6 +27,7 @@ import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
@@ -193,8 +194,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     };
   } else if (
     action.type === logOutActionTypes.started ||
-    action.type === logOutActionTypes.success ||
-    action.type === deleteKeyserverAccountActionTypes.success
+    action.type === logOutActionTypes.success
   ) {
     state = {
       ...state,
@@ -202,6 +202,15 @@ function reducer(state: AppState = defaultState, action: Action) {
         isBackupEnabled: false,
       },
     };
+  } else if (action.type === deleteKeyserverAccountActionTypes.success) {
+    if (!usingCommServicesAccessToken) {
+      state = {
+        ...state,
+        localSettings: {
+          isBackupEnabled: false,
+        },
+      };
+    }
   }
 
   if (action.type === setNewSessionActionType) {
