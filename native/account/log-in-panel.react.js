@@ -31,6 +31,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import {
@@ -63,7 +64,9 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: (
+    keyserverID: string,
+  ) => Promise<string>,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -238,7 +241,9 @@ class LogInPanel extends React.PureComponent<Props> {
     Keyboard.dismiss();
     const extraInfo = await this.props.logInExtraInfo();
     const initialNotificationsEncryptedMessage =
-      await this.props.getInitialNotificationsEncryptedMessage();
+      await this.props.getInitialNotificationsEncryptedMessage(
+        ashoatKeyserverID,
+      );
 
     void this.props.dispatchActionPromise(
       logInActionTypes,
