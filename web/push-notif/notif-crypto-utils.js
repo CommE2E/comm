@@ -330,7 +330,11 @@ async function getNotifsOlmSessionDBKeys(): Promise<{
   return olmDBKeys;
 }
 
-function getOlmDataContentKeyForCookie(cookie: ?string): string {
+function getOlmDataContentKeyForCookie(
+  cookie: ?string,
+  // eslint-disable-next-line no-unused-vars
+  keyserverID: string,
+): string {
   if (!cookie) {
     return NOTIFICATIONS_OLM_DATA_CONTENT;
   }

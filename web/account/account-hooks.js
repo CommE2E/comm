@@ -186,6 +186,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
       cookie: ?string,
       notificationsIdentityKeys: OLMIdentityKeys,
       notificationsInitializationInfo: OlmSessionInitializationInfo,
+      keyserverID: string,
     ) => {
       const [{ notificationAccount }, encryptionKey] = await Promise.all([
         getOrCreateCryptoStore(),
@@ -231,7 +232,10 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
 
       const notifsOlmDataEncryptionKeyDBLabel =
         getOlmEncryptionKeyDBLabelForCookie(cookie);
-      const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
+      const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
+        cookie,
+        keyserverID,
+      );
 
       const persistEncryptionKeyPromise = (async () => {
         let cryptoKeyPersistentForm;
@@ -265,6 +269,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
       cookie: ?string,
       notificationsIdentityKeys: OLMIdentityKeys,
       notificationsInitializationInfo: OlmSessionInitializationInfo,
+      keyserverID: string,
     ) => {
       if (notificationsSessionPromise.current) {
         return notificationsSessionPromise.current;
@@ -276,6 +281,7 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
             cookie,
             notificationsIdentityKeys,
             notificationsInitializationInfo,
+            keyserverID,
           );
         } catch (e) {
           notificationsSessionPromise.current = undefined;
@@ -314,6 +320,7 @@ function useWebNotificationsSessionCreator(): (
   cookie: ?string,
   notificationsIdentityKeys: OLMIdentityKeys,
   notificationsInitializationInfo: OlmSessionInitializationInfo,
+  keyserverID: string,
 ) => Promise<string> {
   const context = React.useContext(WebNotificationsSessionCreatorContext);
   invariant(context, 'WebNotificationsSessionCreator not found.');
