@@ -6,6 +6,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { Action } from './redux-setup.js';
 
@@ -20,7 +21,9 @@ function reduceCryptoStore(state: ?CryptoStore, action: Action): ?CryptoStore {
     (action.type === setNewSessionActionType &&
       action.payload.sessionChange.cookieInvalidated)
   ) {
-    return null;
+    if (!usingCommServicesAccessToken) {
+      return null;
+    }
   }
   return state;
 }
