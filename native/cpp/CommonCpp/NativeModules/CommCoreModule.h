@@ -77,7 +77,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String identityKeys,
       jsi::String prekey,
       jsi::String prekeySignature,
-      jsi::String oneTimeKeys) override;
+      jsi::String oneTimeKeys,
+      jsi::String keyserverID) override;
   virtual jsi::Value
   isNotificationsSessionInitialized(jsi::Runtime &rt) override;
   virtual jsi::Value initializeContentOutboundSession(

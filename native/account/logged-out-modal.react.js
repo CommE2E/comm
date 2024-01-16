@@ -253,7 +253,9 @@ type Props = {
   // Redux dispatch functions
   +dispatch: Dispatch,
   // Keyserver olm sessions functions
-  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: (
+    keyserverID: string,
+  ) => Promise<string>,
 };
 type State = {
   +mode: LoggedOutMode,
