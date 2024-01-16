@@ -11,13 +11,13 @@ import {
   getOneTimeKeyValuesFromBlob,
   getPrekeyValueFromBlob,
 } from 'lib/shared/crypto-utils.js';
+import { NotificationsSessionCreatorContext } from 'lib/shared/notifications-session-creator-context.js';
 import type {
   SignedIdentityKeysBlob,
   CryptoStore,
   IdentityKeysBlob,
   CryptoStoreContextType,
   OLMIdentityKeys,
-  NotificationsSessionCreatorContextType,
   NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
@@ -38,9 +38,6 @@ import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 const CryptoStoreContext: React.Context<?CryptoStoreContextType> =
-  React.createContext(null);
-
-const WebNotificationsSessionCreatorContext: React.Context<?NotificationsSessionCreatorContextType> =
   React.createContext(null);
 
 type Props = {
@@ -177,7 +174,7 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
   }, [getOrCreateCryptoStore]);
 }
 
-function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
+function NotificationsSessionCreatorProvider(props: Props): React.Node {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
   const currentCryptoStore = useSelector(state => state.cryptoStore);
 
@@ -310,9 +307,9 @@ function WebNotificationsSessionCreatorProvider(props: Props): React.Node {
   );
 
   return (
-    <WebNotificationsSessionCreatorContext.Provider value={contextValue}>
+    <NotificationsSessionCreatorContext.Provider value={contextValue}>
       {props.children}
-    </WebNotificationsSessionCreatorContext.Provider>
+    </NotificationsSessionCreatorContext.Provider>
   );
 }
 
@@ -322,7 +319,7 @@ function useWebNotificationsSessionCreator(): (
   notificationsInitializationInfo: OlmSessionInitializationInfo,
   deviceID: string,
 ) => Promise<string> {
-  const context = React.useContext(WebNotificationsSessionCreatorContext);
+  const context = React.useContext(NotificationsSessionCreatorContext);
   invariant(context, 'WebNotificationsSessionCreator not found.');
 
   return context.notificationsSessionCreator;
@@ -331,7 +328,7 @@ function useWebNotificationsSessionCreator(): (
 export {
   useGetSignedIdentityKeysBlob,
   useGetOrCreateCryptoStore,
-  WebNotificationsSessionCreatorProvider,
+  NotificationsSessionCreatorProvider,
   useWebNotificationsSessionCreator,
   GetOrCreateCryptoStoreProvider,
 };
