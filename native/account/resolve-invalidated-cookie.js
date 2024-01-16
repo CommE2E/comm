@@ -18,6 +18,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   logInActionSource: LogInActionSource,
   keyserverID: string,
   getInitialNotificationsEncryptedMessage?: (
+    deviceID: string,
     ?InitialNotifMessageOptions,
   ) => Promise<string>,
 ) {
@@ -29,7 +30,9 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
 
   if (getInitialNotificationsEncryptedMessage) {
     const initialNotificationsEncryptedMessage =
-      await getInitialNotificationsEncryptedMessage({ callServerEndpoint });
+      await getInitialNotificationsEncryptedMessage(keyserverID, {
+        callServerEndpoint,
+      });
     extraInfo = { ...extraInfo, initialNotificationsEncryptedMessage };
   }
 

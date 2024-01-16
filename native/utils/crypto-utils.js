@@ -20,6 +20,7 @@ import { commCoreModule, commRustModule } from '../native-modules.js';
 function nativeNotificationsSessionCreator(
   notificationsIdentityKeys: OLMIdentityKeys,
   notificationsInitializationInfo: OlmSessionInitializationInfo,
+  deviceID: string,
 ): Promise<string> {
   const { prekey, prekeySignature, oneTimeKey } =
     notificationsInitializationInfo;
@@ -28,6 +29,7 @@ function nativeNotificationsSessionCreator(
     prekey,
     prekeySignature,
     oneTimeKey,
+    deviceID,
   );
 }
 
