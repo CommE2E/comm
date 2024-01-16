@@ -3,8 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import {
-  Text,
   ActivityIndicator,
+  Text,
   TextInput as BaseTextInput,
   View,
 } from 'react-native';
@@ -15,14 +15,15 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChangeThreadSettingsPayload,
+  LegacyResolvedThreadInfo,
   UpdateThreadRequest,
-  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
-  useDispatchActionPromise,
   type DispatchActionPromise,
+  useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
@@ -32,7 +33,7 @@ import EditSettingButton from '../../components/edit-setting-button.react.js';
 import SingleLine from '../../components/single-line.react.js';
 import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
 
 const unboundStyles = {
@@ -61,7 +62,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +nameEditValue: ?string,
   +setNameEditValue: (value: ?string, callback?: () => void) => void,
   +canChangeSettings: boolean,
