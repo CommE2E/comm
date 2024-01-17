@@ -14,10 +14,7 @@ import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LeaveThreadPayload,
-  LegacyThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { LeaveThreadPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -52,7 +49,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +buttonStyle: ViewStyle,
 };
 type Props = {

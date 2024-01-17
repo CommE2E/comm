@@ -4,13 +4,12 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadVisibility from '../../components/thread-visibility.react.js';
 import { useColors, useStyles } from '../../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function ThreadSettingsVisibility(props: Props): React.Node {
   const styles = useStyles(unboundStyles);

@@ -14,7 +14,6 @@ import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selector
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -43,7 +42,7 @@ const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
 export type AddUsersModalParams = {
   +presentedFrom: string,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 type Props = {

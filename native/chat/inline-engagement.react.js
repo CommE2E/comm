@@ -14,7 +14,6 @@ import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-uti
 import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   avatarOffset,
@@ -33,7 +32,7 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 function dummyNodeForInlineEngagementHeightMeasurement(
-  sidebarInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  sidebarInfo: ?ThreadInfo,
   reactions: ReactionInfo,
 ): React.Element<typeof View> {
   return (
@@ -49,7 +48,7 @@ function dummyNodeForInlineEngagementHeightMeasurement(
 type DummyInlineEngagementNodeProps = {
   ...React.ElementConfig<typeof View>,
   +editedLabel?: ?string,
-  +sidebarInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +sidebarInfo: ?ThreadInfo,
   +reactions: ReactionInfo,
 };
 function DummyInlineEngagementNode(

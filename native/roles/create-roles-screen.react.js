@@ -13,7 +13,6 @@ import {
   type UserSurfacedPermissionOption,
   userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import CreateRolesHeaderRightButton from './create-roles-header-right-button.react.js';
 import type { RolesNavigationProp } from './roles-navigator.react.js';
@@ -25,7 +24,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 export type CreateRolesScreenParams = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
   +existingRoleID?: string,
   +roleName: string,
