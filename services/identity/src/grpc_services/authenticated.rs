@@ -29,7 +29,7 @@ use super::protos::auth::{
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
   UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
 };
-use super::protos::unauth::{Empty, IdentityKeyInfo, Prekey};
+use super::protos::unauth::Empty;
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
@@ -109,13 +109,11 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .set_prekey(
+      .update_device_prekeys(
         user_id,
         device_id,
-        content_keys.prekey,
-        content_keys.prekey_signature,
-        notif_keys.prekey,
-        notif_keys.prekey_signature,
+        content_keys.into(),
+        notif_keys.into(),
       )
       .await
       .map_err(handle_db_error)?;
@@ -132,7 +130,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let devices_map = self
       .db_client
-      .get_keys_for_user_id(&message.user_id, true)
+      .get_keys_for_user(&message.user_id, true)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
@@ -169,7 +167,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let devices_map = self
       .db_client
-      .get_keys_for_user_id(&message.user_id, false)
+      .get_keys_for_user(&message.user_id, false)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
@@ -220,23 +218,7 @@ impl IdentityClientService for AuthenticatedService {
       .get_keyserver_keys_for_user(&message.user_id)
       .await
       .map_err(handle_db_error)?
-      .map(|db_keys| OutboundKeyInfo {
-        identity_info: Some(IdentityKeyInfo {
-          payload: db_keys.key_payload,
-          payload_signature: db_keys.key_payload_signature,
-          social_proof: db_keys.social_proof,
-        }),
-        content_prekey: Some(Prekey {
-          prekey: db_keys.content_prekey.prekey,
-          prekey_signature: db_keys.content_prekey.prekey_signature,
-        }),
-        notif_prekey: Some(Prekey {
-          prekey: db_keys.notif_prekey.prekey,
-          prekey_signature: db_keys.notif_prekey.prekey_signature,
-        }),
-        one_time_content_prekey: db_keys.content_one_time_key,
-        one_time_notif_prekey: db_keys.notif_one_time_key,
-      });
+      .map(OutboundKeyInfo::from);
 
     let identifier = self
       .db_client
@@ -378,7 +360,7 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .remove_device_from_users_table(user_id.clone(), device_id.clone())
+      .remove_device(user_id.clone(), device_id.clone())
       .await
       .map_err(handle_db_error)?;
 
