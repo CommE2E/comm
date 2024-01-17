@@ -12,8 +12,8 @@ use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
-  BackupClient, BackupDescriptor, DownloadLogsRequest, LatestBackupIDResponse,
-  LogWSResponse, RequestedData, SinkExt, StreamExt, UserIdentity,
+  BackupClient, BackupDescriptor, LatestBackupIDResponse, RequestedData,
+  UserIdentity,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -138,36 +138,6 @@ pub async fn restore_backup(
 
   let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
 
-  let (tx, rx) = backup_client.download_logs(&user_identity).await?;
-
-  tokio::pin!(tx);
-  tokio::pin!(rx);
-
-  tx.send(DownloadLogsRequest {
-    backup_id: backup_id.clone(),
-    from_id: None,
-  })
-  .await?;
-
-  match rx.next().await {
-    Some(Ok(LogWSResponse::LogDownload {
-      log_id: 1,
-      content,
-      attachments: None,
-    }))
-      if content == (1..100).collect::<Vec<u8>>() => {}
-    response => {
-      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
-    }
-  };
-
-  match rx.next().await {
-    Some(Ok(LogWSResponse::LogDownloadFinished { last_log_id: None })) => {}
-    response => {
-      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
-    }
-  };
-
   Ok(
     json!({
         "userData": user_data,
@@ -226,7 +196,3 @@ fn decrypt(key: &mut [u8], data: &mut [u8]) -> Result<Vec<u8>, Box<dyn Error>> {
 
   Ok(decrypted)
 }
-
-#[derive(Debug, derive_more::Display)]
-struct InvalidWSLogResponse(String);
-impl Error for InvalidWSLogResponse {}
