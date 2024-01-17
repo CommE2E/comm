@@ -6,7 +6,6 @@ import * as React from 'react';
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types';
 
 import UserProfileMessageButton from './user-profile-message-button.react.js';
 import css from './user-profile.css';
@@ -14,7 +13,7 @@ import RelationshipPromptButton from '../../chat/relationship-prompt/relationshi
 import { buttonThemes } from '../../components/button.react.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function UserProfileActionButtons(props: Props): React.Node {
