@@ -10,7 +10,6 @@ import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import {
@@ -24,7 +23,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +community: LegacyThreadInfo | ThreadInfo,
+  +community: ThreadInfo,
 };
 
 function CommunityActionsButton(props: Props): React.Node {

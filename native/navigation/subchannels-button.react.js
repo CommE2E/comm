@@ -6,13 +6,12 @@ import * as React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { SubchannelsListModalRouteName } from './route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function SubchnnelsButton(props: Props): React.Node {
