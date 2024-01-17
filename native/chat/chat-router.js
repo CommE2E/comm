@@ -12,7 +12,6 @@ import type {
 import { CommonActions, StackRouter } from '@react-navigation/native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { createNavigateToThreadAction } from './message-list-types.js';
 import {
@@ -40,7 +39,7 @@ type ClearScreensAction = {
 type ReplaceWithThreadAction = {
   +type: 'REPLACE_WITH_THREAD',
   +payload: {
-    +threadInfo: LegacyThreadInfo | ThreadInfo,
+    +threadInfo: ThreadInfo,
   },
 };
 type ClearThreadsAction = {
@@ -52,7 +51,7 @@ type ClearThreadsAction = {
 type PushNewThreadAction = {
   +type: 'PUSH_NEW_THREAD',
   +payload: {
-    +threadInfo: LegacyThreadInfo | ThreadInfo,
+    +threadInfo: ThreadInfo,
   },
 };
 export type ChatRouterNavigationAction =
@@ -64,9 +63,9 @@ export type ChatRouterNavigationAction =
 
 export type ChatRouterNavigationHelpers = {
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
-  +replaceWithThread: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
+  +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
-  +pushNewThread: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
+  +pushNewThread: (threadInfo: ThreadInfo) => void,
 };
 
 function ChatRouter(
@@ -160,7 +159,7 @@ function ChatRouter(
           routeNames,
         },
       }),
-      replaceWithThread: (threadInfo: LegacyThreadInfo | ThreadInfo) =>
+      replaceWithThread: (threadInfo: ThreadInfo) =>
         ({
           type: replaceWithThreadActionType,
           payload: { threadInfo },
@@ -169,7 +168,7 @@ function ChatRouter(
         type: clearThreadsActionType,
         payload: { threadIDs },
       }),
-      pushNewThread: (threadInfo: LegacyThreadInfo | ThreadInfo) =>
+      pushNewThread: (threadInfo: ThreadInfo) =>
         ({
           type: pushNewThreadActionType,
           payload: { threadInfo },

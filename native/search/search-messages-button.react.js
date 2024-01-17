@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ChatNavigationProp } from '../chat/chat.react.js';
 import Button from '../components/button.react.js';
@@ -12,7 +11,7 @@ import { MessageSearchRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
 };
 

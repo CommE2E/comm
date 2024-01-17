@@ -7,7 +7,6 @@ import { Text } from 'react-native';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Button from '../../components/button.react.js';
 import Modal from '../../components/modal.react.js';
@@ -19,7 +18,7 @@ import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 
 export type ComposeSubchannelModalParams = {
   +presentedFrom: string,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 const unboundStyles = {

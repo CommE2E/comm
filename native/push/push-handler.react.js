@@ -32,7 +32,6 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
@@ -106,7 +105,7 @@ type Props = {
     +[keyserverID: string]: ?string,
   },
   +threadInfos: {
-    +[id: string]: LegacyThreadInfo | ThreadInfo,
+    +[id: string]: ThreadInfo,
   },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
@@ -524,10 +523,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 
-  navigateToThread(
-    threadInfo: LegacyThreadInfo | ThreadInfo,
-    clearChatRoutes: boolean,
-  ) {
+  navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
       this.props.navigation.dispatch({
         type: replaceWithThreadActionType,
