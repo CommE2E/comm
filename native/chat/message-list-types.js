@@ -7,7 +7,6 @@ import * as React from 'react';
 
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { type UserInfo } from 'lib/types/user-types.js';
 
 import { ChatContext } from './chat-context.js';
@@ -20,7 +19,7 @@ import {
 } from '../navigation/route-names.js';
 
 export type MessageListParams = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
   +removeEditMode?: ?RemoveEditMode,
@@ -37,7 +36,7 @@ export type MessageListContextType = {
 const MessageListContext: React.Context<?MessageListContextType> =
   React.createContext<?MessageListContextType>();
 
-function useMessageListContext(threadInfo: LegacyThreadInfo | ThreadInfo) {
+function useMessageListContext(threadInfo: ThreadInfo) {
   const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
   const getTextMessageMarkdownRules = useTextMessageRulesFunc(
     threadInfo,
@@ -53,7 +52,7 @@ function useMessageListContext(threadInfo: LegacyThreadInfo | ThreadInfo) {
 
 type Props = {
   +children: React.Node,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function MessageListContextProvider(props: Props): React.Node {
   const context = useMessageListContext(props.threadInfo);
@@ -96,7 +95,7 @@ function useTextMessageMarkdownRules(useDarkStyle: boolean): MarkdownRules {
 }
 
 function useNavigateToThreadWithFadeAnimation(
-  threadInfo: LegacyThreadInfo | ThreadInfo,
+  threadInfo: ThreadInfo,
   messageKey: ?string,
 ): () => mixed {
   const chatContext = React.useContext(ChatContext);

@@ -7,7 +7,6 @@ import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import Search from './search.react.js';
 import ThreadListThread from './thread-list-thread.react.js';
@@ -26,7 +25,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfos: $ReadOnlyArray<LegacyThreadInfo | ThreadInfo>,
+  +threadInfos: $ReadOnlyArray<ThreadInfo>,
   +onSelect: (threadID: string) => void,
   +itemStyle?: ViewStyle,
   +itemTextStyle?: TextStyle,
@@ -50,27 +49,26 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
-  listDataSelector: PropsAndState => $ReadOnlyArray<
-    LegacyThreadInfo | ThreadInfo,
-  > = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.threadInfos,
-    (propsAndState: PropsAndState) => propsAndState.searchText,
-    (propsAndState: PropsAndState) => propsAndState.searchResults,
-    (propsAndState: PropsAndState) => propsAndState.itemStyle,
-    (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
-    (
-      threadInfos: $ReadOnlyArray<LegacyThreadInfo | ThreadInfo>,
-      text: string,
-      searchResults: Set<string>,
-    ): $ReadOnlyArray<LegacyThreadInfo | ThreadInfo> =>
-      text
-        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-        : // We spread to make sure the result of this selector updates when
-          // any input param (namely itemStyle or itemTextStyle) changes
-          [...threadInfos],
-  );
+  listDataSelector: PropsAndState => $ReadOnlyArray<ThreadInfo> =
+    createSelector(
+      (propsAndState: PropsAndState) => propsAndState.threadInfos,
+      (propsAndState: PropsAndState) => propsAndState.searchText,
+      (propsAndState: PropsAndState) => propsAndState.searchResults,
+      (propsAndState: PropsAndState) => propsAndState.itemStyle,
+      (propsAndState: PropsAndState) => propsAndState.itemTextStyle,
+      (
+        threadInfos: $ReadOnlyArray<ThreadInfo>,
+        text: string,
+        searchResults: Set<string>,
+      ): $ReadOnlyArray<ThreadInfo> =>
+        text
+          ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+          : // We spread to make sure the result of this selector updates when
+            // any input param (namely itemStyle or itemTextStyle) changes
+            [...threadInfos],
+    );
 
-  get listData(): $ReadOnlyArray<LegacyThreadInfo | ThreadInfo> {
+  get listData(): $ReadOnlyArray<ThreadInfo> {
     return this.listDataSelector({ ...this.props, ...this.state });
   }
 
@@ -103,14 +101,11 @@ class ThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  static keyExtractor = (threadInfo: LegacyThreadInfo | ThreadInfo): string => {
+  static keyExtractor = (threadInfo: ThreadInfo): string => {
     return threadInfo.id;
   };
 
-  renderItem = (row: {
-    +item: LegacyThreadInfo | ThreadInfo,
-    ...
-  }): React.Node => {
+  renderItem = (row: { +item: ThreadInfo, ... }): React.Node => {
     return (
       <ThreadListThread
         threadInfo={row.item}
@@ -122,7 +117,7 @@ class ThreadList extends React.PureComponent<Props, State> {
   };
 
   static getItemLayout = (
-    data: ?$ReadOnlyArray<LegacyThreadInfo | ThreadInfo>,
+    data: ?$ReadOnlyArray<ThreadInfo>,
     index: number,
   ): { length: number, offset: number, index: number } => {
     return { length: 24, offset: 24 * index, index };
