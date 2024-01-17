@@ -130,7 +130,7 @@ interface Spec extends TurboModule {
   +clearCommServicesAccessToken: () => Promise<void>;
   +startBackupHandler: () => void;
   +stopBackupHandler: () => void;
-  +createNewBackup: (backupSecret: string, userData: string) => Promise<void>;
+  +createNewBackup: (backupSecret: string) => Promise<void>;
   +restoreBackup: (backupSecret: string) => Promise<string>;
 }
 

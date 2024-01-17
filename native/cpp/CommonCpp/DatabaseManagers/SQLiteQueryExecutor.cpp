@@ -23,6 +23,7 @@ std::string SQLiteQueryExecutor::sqliteFilePath;
 std::string SQLiteQueryExecutor::encryptionKey;
 std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
+/// Should match constant defined in `native_rust_library/src/constants.rs`
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
 
