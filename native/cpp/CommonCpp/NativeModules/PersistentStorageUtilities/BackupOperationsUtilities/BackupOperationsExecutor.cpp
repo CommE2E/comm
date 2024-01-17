@@ -3,15 +3,18 @@
 #include "GlobalDBSingleton.h"
 #include "Logger.h"
 #include "WorkerThread.h"
+#include "lib.rs.h"
 
 namespace comm {
 void BackupOperationsExecutor::createMainCompaction(std::string backupID) {
   taskType job = [backupID]() {
     try {
       DatabaseManager::getQueryExecutor().createMainCompaction(backupID);
+      ::onBackupCompactionCreationFinished(
+          rust::String(backupID), rust::String());
     } catch (const std::exception &e) {
-      // TODO: Inform Rust networking about main
-      // compaction creation failure
+      ::onBackupCompactionCreationFinished(
+          rust::String(backupID), rust::String(e.what()));
       Logger::log(
           "Main compaction creation failed. Details: " + std::string(e.what()));
     }

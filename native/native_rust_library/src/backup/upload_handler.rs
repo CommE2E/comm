@@ -1,5 +1,6 @@
 use super::file_info::BackupFileInfo;
 use super::get_user_identity_from_secure_store;
+use crate::backup::COMPACTION_UPLOAD_PROMISES;
 use crate::constants::BACKUP_SERVICE_CONNECTION_RETRY_DELAY;
 use crate::ffi::{
   get_backup_directory_path, get_backup_file_path, get_backup_log_file_path,
@@ -65,6 +66,19 @@ pub mod ffi {
 
   pub fn trigger_backup_file_upload() {
     TRIGGER_BACKUP_FILE_UPLOAD.notify_one();
+  }
+
+  pub fn on_backup_compaction_creation_finished(
+    backup_id: String,
+    err: String,
+  ) {
+    if err.is_empty() {
+      trigger_backup_file_upload();
+      return;
+    }
+
+    COMPACTION_UPLOAD_PROMISES.reject(&backup_id, err);
+    RUNTIME.spawn(compaction::cleanup_files(backup_id));
   }
 }
 
@@ -217,6 +231,7 @@ mod compaction {
       .upload_backup(user_identity, backup_data)
       .await?;
 
+    COMPACTION_UPLOAD_PROMISES.resolve(&backup_id);
     tokio::spawn(cleanup_files(backup_id));
 
     Ok(())
