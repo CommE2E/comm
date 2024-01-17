@@ -40,7 +40,6 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
 import {
@@ -67,7 +66,7 @@ import {
 } from '../utils/typeahead-utils.js';
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +inputState: InputState,
 };
 type Props = {
@@ -83,7 +82,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
-  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {

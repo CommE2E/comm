@@ -18,7 +18,6 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-menu.css';
@@ -36,7 +35,7 @@ import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.re
 import { useSelector } from '../redux/redux-utils.js';
 
 type ThreadMenuProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function ThreadMenu(props: ThreadMenuProps): React.Node {

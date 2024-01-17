@@ -6,7 +6,6 @@ import * as React from 'react';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types';
 
 import { EditTextMessage } from './edit-text-message.react.js';
 
@@ -19,7 +18,7 @@ export type ModalPosition = {
 
 export type EditState = {
   +messageInfo: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +editedMessageDraft: ?string,
   +isError: boolean,
   +position?: ModalPosition,

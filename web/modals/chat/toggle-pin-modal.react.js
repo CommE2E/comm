@@ -12,7 +12,6 @@ import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { modifyItemForResultScreen } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './toggle-pin-modal.css';
@@ -22,7 +21,7 @@ import Modal from '../modal.react.js';
 
 type TogglePinModalProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function TogglePinModal(props: TogglePinModalProps): React.Node {

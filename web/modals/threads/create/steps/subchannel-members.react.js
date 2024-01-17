@@ -5,14 +5,13 @@ import * as React from 'react';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
 import Search from '../../../../components/search.react.js';
 
 type SubchannelMembersProps = {
-  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +parentThreadInfo: ThreadInfo,
   +selectedUsers: $ReadOnlySet<string>,
   +searchText: string,
   +setSearchText: string => void,

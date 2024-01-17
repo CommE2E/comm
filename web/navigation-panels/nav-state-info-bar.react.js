@@ -4,14 +4,13 @@ import classnames from 'classnames';
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAncestors from './chat-thread-ancestors.react.js';
 import css from './nav-state-info-bar.css';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 
 type NavStateInfoBarProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
   const { threadInfo } = props;
@@ -27,7 +26,7 @@ function NavStateInfoBar(props: NavStateInfoBarProps): React.Node {
 }
 
 type PossiblyEmptyNavStateInfoBarProps = {
-  +threadInfoInput: ?LegacyThreadInfo | ?ThreadInfo,
+  +threadInfoInput: ?ThreadInfo,
 };
 function PossiblyEmptyNavStateInfoBar(
   props: PossiblyEmptyNavStateInfoBarProps,

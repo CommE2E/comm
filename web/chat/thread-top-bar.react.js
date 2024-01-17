@@ -6,7 +6,6 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import PinnedMessagesBanner from './pinned-messages-banner.react.js';
@@ -18,7 +17,7 @@ import { InputStateContext } from '../input/input-state.js';
 import MessageSearchModal from '../modals/search/message-search-modal.react.js';
 
 type ThreadTopBarProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function ThreadTopBar(props: ThreadTopBarProps): React.Node {
   const { threadInfo } = props;
