@@ -32,7 +32,7 @@ use crate::{
   },
   ddb_utils::AttributesOptionExt,
   error::{DeviceListError, Error, FromAttributeValue},
-  grpc_services::protos::unauth::DeviceType,
+  grpc_services::protos::{self, unauth::DeviceType},
 };
 
 use super::DatabaseClient;
@@ -324,6 +324,24 @@ impl From<PreKey> for AttributeValue {
   }
 }
 
+impl From<PreKey> for protos::unauth::Prekey {
+  fn from(value: PreKey) -> Self {
+    Self {
+      prekey: value.pre_key,
+      prekey_signature: value.pre_key_signature,
+    }
+  }
+}
+
+impl From<protos::unauth::Prekey> for PreKey {
+  fn from(value: protos::unauth::Prekey) -> Self {
+    Self {
+      pre_key: value.prekey,
+      pre_key_signature: value.prekey_signature,
+    }
+  }
+}
+
 impl TryFrom<AttributeMap> for PreKey {
   type Error = DBItemError;
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
@@ -536,20 +554,9 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_id: impl Into<String>,
-    content_prekey: String,
-    content_prekey_signature: String,
-    notif_prekey: String,
-    notif_prekey_signature: String,
+    content_prekey: PreKey,
+    notif_prekey: PreKey,
   ) -> Result<(), Error> {
-    let content_prekey = PreKey {
-      pre_key: content_prekey,
-      pre_key_signature: content_prekey_signature,
-    };
-    let notif_prekey = PreKey {
-      pre_key: notif_prekey,
-      pre_key_signature: notif_prekey_signature,
-    };
-
     self
       .client
       .update_item()
