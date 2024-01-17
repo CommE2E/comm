@@ -16,7 +16,7 @@ type UserData = {
 };
 
 type ClientBackup = {
-  +uploadBackupProtocol: (userData: UserData) => Promise<void>,
+  +uploadBackupProtocol: () => Promise<void>,
   +restoreBackupProtocol: (
     expectedUserData: UserData,
   ) => Promise<{ +dataIntegritySuccess: boolean }>,
@@ -37,30 +37,24 @@ function useClientBackup(): ClientBackup {
   );
   const loggedIn = useSelector(isLoggedIn);
 
-  const uploadBackupProtocol = React.useCallback(
-    async (userData: UserData) => {
-      if (!loggedIn || !currentUserID) {
-        throw new Error('Attempt to upload backup for not logged in user.');
-      }
-      console.info('Start uploading backup...');
+  const uploadBackupProtocol = React.useCallback(async () => {
+    if (!loggedIn || !currentUserID) {
+      throw new Error('Attempt to upload backup for not logged in user.');
+    }
+    console.info('Start uploading backup...');
 
-      const ed25519 = await getContentSigningKey();
-      await commCoreModule.setCommServicesAuthMetadata(
-        currentUserID,
-        ed25519,
-        accessToken ? accessToken : '',
-      );
+    const ed25519 = await getContentSigningKey();
+    await commCoreModule.setCommServicesAuthMetadata(
+      currentUserID,
+      ed25519,
+      accessToken ? accessToken : '',
+    );
 
-      const backupSecret = await getBackupSecret();
-      await commCoreModule.createNewBackup(
-        backupSecret,
-        JSON.stringify(userData),
-      );
+    const backupSecret = await getBackupSecret();
+    await commCoreModule.createNewBackup(backupSecret);
 
-      console.info('Backup uploaded.');
-    },
-    [accessToken, currentUserID, loggedIn],
-  );
+    console.info('Backup uploaded.');
+  }, [accessToken, currentUserID, loggedIn]);
 
   const restoreBackupProtocol = React.useCallback(
     async (expectedUserData: UserData) => {
