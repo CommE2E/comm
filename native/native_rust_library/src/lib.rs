@@ -272,12 +272,11 @@ mod ffi {
     fn trigger_backup_file_upload();
 
     #[cxx_name = "createBackup"]
-    fn create_backup_sync(
+    fn create_backup(
       backup_id: String,
       backup_secret: String,
       pickle_key: String,
       pickled_account: String,
-      user_data: String,
       promise_id: u32,
     );
 
@@ -303,18 +302,15 @@ mod ffi {
   unsafe extern "C++" {
     include!("RustBackupExecutor.h");
 
-    #[allow(unused)]
     #[cxx_name = "getBackupDirectoryPath"]
     fn get_backup_directory_path() -> Result<String>;
 
-    #[allow(unused)]
     #[cxx_name = "getBackupFilePath"]
     fn get_backup_file_path(
       backup_id: &str,
       is_attachments: bool,
     ) -> Result<String>;
 
-    #[allow(unused)]
     #[cxx_name = "getBackupLogFilePath"]
     fn get_backup_log_file_path(
       backup_id: &str,
@@ -322,7 +318,6 @@ mod ffi {
       is_attachments: bool,
     ) -> Result<String>;
 
-    #[allow(unused)]
     #[cxx_name = "getBackupUserKeysFilePath"]
     fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
 

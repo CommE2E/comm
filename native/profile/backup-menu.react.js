@@ -31,7 +31,18 @@ function BackupMenu(props: Props): React.Node {
     state => state.localSettings.isBackupEnabled,
   );
 
-  const { restoreBackupProtocol } = useClientBackup();
+  const { uploadBackupProtocol, restoreBackupProtocol } = useClientBackup();
+
+  const uploadBackup = React.useCallback(async () => {
+    let message = 'success';
+    try {
+      await uploadBackupProtocol();
+    } catch (e) {
+      message = `Backup upload error: ${String(getMessageForException(e))}`;
+      console.error(message);
+    }
+    Alert.alert('Upload protocol result', message);
+  }, [uploadBackupProtocol]);
 
   const testRestore = React.useCallback(async () => {
     let message;
@@ -71,6 +82,17 @@ function BackupMenu(props: Props): React.Node {
       </View>
 
       <Text style={styles.header}>ACTIONS</Text>
+      <View style={styles.section}>
+        <Button
+          onPress={uploadBackup}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>Test backup upload protocol</Text>
+        </Button>
+      </View>
       <View style={styles.section}>
         <Button
           onPress={testRestore}
