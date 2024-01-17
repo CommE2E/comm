@@ -4,14 +4,16 @@ mod upload_handler;
 
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
-use crate::ffi::secure_store_get;
+use crate::ffi::{
+  create_main_compaction, get_backup_user_keys_file_path, secure_store_get,
+};
+use crate::future_manager;
+use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
-use crate::{handle_string_result_as_callback, handle_void_result_as_callback};
 use backup_client::{
-  BackupClient, BackupData, BackupDescriptor, DownloadLogsRequest,
-  LatestBackupIDResponse, LogUploadConfirmation, LogWSResponse, RequestedData,
-  SinkExt, StreamExt, UploadLogRequest, UserIdentity,
+  BackupClient, BackupDescriptor, DownloadLogsRequest, LatestBackupIDResponse,
+  LogWSResponse, RequestedData, SinkExt, StreamExt, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -22,24 +24,41 @@ pub mod ffi {
 
   pub use upload_handler::ffi::*;
 
-  pub fn create_backup_sync(
+  pub fn create_backup(
     backup_id: String,
     backup_secret: String,
     pickle_key: String,
     pickled_account: String,
-    user_data: String,
     promise_id: u32,
   ) {
+    compaction_upload_promises::insert(backup_id.clone(), promise_id);
+
     RUNTIME.spawn(async move {
-      let result = create_backup(
-        backup_id,
+      let result = create_userkeys_compaction(
+        backup_id.clone(),
         backup_secret,
         pickle_key,
         pickled_account,
-        user_data,
       )
-      .await;
-      handle_void_result_as_callback(result, promise_id);
+      .await
+      .map_err(|err| err.to_string());
+
+      if let Err(err) = result {
+        compaction_upload_promises::resolve(&backup_id, Err(err));
+        return;
+      }
+
+      let (future_id, future) = future_manager::new_future::<()>().await;
+      create_main_compaction(&backup_id, future_id);
+      if let Err(err) = future.await {
+        compaction_upload_promises::resolve(&backup_id, Err(err));
+        tokio::spawn(upload_handler::compaction::cleanup_files(backup_id));
+        return;
+      }
+
+      trigger_backup_file_upload();
+
+      // The promise will be resolved when the backup is uploaded
     });
   }
 
@@ -51,21 +70,17 @@ pub mod ffi {
   }
 }
 
-pub async fn create_backup(
+pub async fn create_userkeys_compaction(
   backup_id: String,
   backup_secret: String,
   pickle_key: String,
   pickled_account: String,
-  user_data: String,
 ) -> Result<(), Box<dyn Error>> {
   let mut backup_key =
     compute_backup_key(backup_secret.as_bytes(), backup_id.as_bytes())?;
 
-  let mut user_data = user_data.into_bytes();
-
-  let mut backup_data_key = [0; aes::KEY_SIZE];
-  crate::ffi::generate_key(&mut backup_data_key)?;
-  let encrypted_user_data = encrypt(&mut backup_data_key, &mut user_data)?;
+  let backup_data_key =
+    secure_store_get(secure_store::SECURE_STORE_ENCRYPTION_KEY_ID)?;
 
   let user_keys = UserKeys {
     backup_data_key,
@@ -74,46 +89,8 @@ pub async fn create_backup(
   };
   let encrypted_user_keys = user_keys.encrypt(&mut backup_key)?;
 
-  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
-
-  let user_identity = get_user_identity_from_secure_store()?;
-
-  let backup_data = BackupData {
-    backup_id: backup_id.clone(),
-    user_data: encrypted_user_data,
-    user_keys: encrypted_user_keys,
-    attachments: Vec::new(),
-  };
-
-  backup_client
-    .upload_backup(&user_identity, backup_data)
-    .await?;
-
-  let (tx, rx) = backup_client.upload_logs(&user_identity).await?;
-
-  tokio::pin!(tx);
-  tokio::pin!(rx);
-
-  let log_data = UploadLogRequest {
-    backup_id: backup_id.clone(),
-    log_id: 1,
-    content: (1..100).collect(),
-    attachments: None,
-  };
-  tx.send(log_data.clone()).await?;
-  match rx.next().await {
-    Some(Ok(LogUploadConfirmation {
-      backup_id: response_backup_id,
-      log_id: 1,
-    }))
-      if backup_id == response_backup_id =>
-    {
-      // Correctly uploaded
-    }
-    response => {
-      return Err(Box::new(InvalidWSLogResponse(format!("{response:?}"))))
-    }
-  };
+  let user_keys_file = get_backup_user_keys_file_path(&backup_id)?;
+  tokio::fs::write(user_keys_file, encrypted_user_keys).await?;
 
   Ok(())
 }
@@ -142,7 +119,7 @@ pub async fn restore_backup(
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
     .await?;
 
-  let mut user_keys =
+  let user_keys =
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
   let backup_data_descriptor = BackupDescriptor::BackupID {
@@ -154,8 +131,10 @@ pub async fn restore_backup(
     .download_backup_data(&backup_data_descriptor, RequestedData::UserData)
     .await?;
 
-  let user_data =
-    decrypt(&mut user_keys.backup_data_key, &mut encrypted_user_data)?;
+  let user_data = decrypt(
+    &mut user_keys.backup_data_key.as_bytes().to_vec(),
+    &mut encrypted_user_data,
+  )?;
 
   let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
 
@@ -210,7 +189,7 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
 
 #[derive(Debug, Serialize, Deserialize)]
 struct UserKeys {
-  backup_data_key: [u8; 32],
+  backup_data_key: String,
   pickle_key: String,
   pickled_account: String,
 }

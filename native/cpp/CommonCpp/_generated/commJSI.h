@@ -65,7 +65,7 @@ public:
   virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) = 0;
   virtual void startBackupHandler(jsi::Runtime &rt) = 0;
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
-  virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String userData) = 0;
+  virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
 
 };
@@ -448,13 +448,13 @@ private:
       return bridging::callFromJs<void>(
           rt, &T::stopBackupHandler, jsInvoker_, instance_);
     }
-    jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String userData) override {
+    jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) override {
       static_assert(
-          bridging::getParameterCount(&T::createNewBackup) == 3,
-          "Expected createNewBackup(...) to have 3 parameters");
+          bridging::getParameterCount(&T::createNewBackup) == 2,
+          "Expected createNewBackup(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::createNewBackup, jsInvoker_, instance_, std::move(backupSecret), std::move(userData));
+          rt, &T::createNewBackup, jsInvoker_, instance_, std::move(backupSecret));
     }
     jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) override {
       static_assert(
