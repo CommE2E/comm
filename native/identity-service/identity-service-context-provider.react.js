@@ -3,10 +3,11 @@
 import * as React from 'react';
 
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import type {
-  IdentityServiceClient,
-  OutboundKeyInfoResponse,
-  UserLoginResponse,
+import {
+  type IdentityServiceClient,
+  type UserLoginResponse,
+  type KeyserverKeys,
+  keyserverKeysValidator,
 } from 'lib/types/identity-service-types.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
@@ -66,7 +67,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         return commRustModule.deleteUser(userID, deviceID, accessToken);
       },
-      getKeyserverKeys: async (keyserverID: string) => {
+      getKeyserverKeys: async (keyserverID: string): Promise<KeyserverKeys> => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         const result = await commRustModule.getKeyserverKeys(
           userID,
@@ -74,18 +75,29 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           accessToken,
           keyserverID,
         );
-        const resultObject: OutboundKeyInfoResponse = JSON.parse(result);
-        if (
-          !resultObject.payload ||
-          !resultObject.payloadSignature ||
-          !resultObject.contentPrekey ||
-          !resultObject.contentPrekeySignature ||
-          !resultObject.notifPrekey ||
-          !resultObject.notifPrekeySignature
-        ) {
+        const resultObject = JSON.parse(result);
+        const payload = resultObject?.payload;
+
+        const keyserverKeys = {
+          identityKeysBlob: payload ? JSON.parse(payload) : null,
+          contentInitializationInfo: {
+            prekey: resultObject?.contentPrekey,
+            prekeySignature: resultObject?.contentPrekeySignature,
+            oneTimeKey: resultObject?.oneTimeContentPrekey,
+          },
+          notifInitializationInfo: {
+            prekey: resultObject?.notifPrekey,
+            prekeySignature: resultObject?.notifPrekeySignature,
+            oneTimeKey: resultObject?.oneTimeNotifPrekey,
+          },
+          payloadSignature: resultObject?.payloadSignature,
+          socialProof: resultObject?.socialProof,
+        };
+
+        if (!keyserverKeysValidator.is(keyserverKeys)) {
           throw new Error('Invalid response from Identity service');
         }
-        return resultObject;
+        return (keyserverKeys: any);
       },
     };
   }, [getAuthMetadata]);
