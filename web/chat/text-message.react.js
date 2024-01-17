@@ -9,7 +9,6 @@ import { colorIsDark } from 'lib/shared/color-utils.js';
 import { onlyEmojiRegex } from 'lib/shared/emojis.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react.js';
@@ -19,7 +18,7 @@ import Markdown from '../markdown/markdown.react.js';
 
 type Props = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
 function TextMessage(props: Props): React.Node {

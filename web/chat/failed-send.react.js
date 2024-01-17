@@ -12,7 +12,6 @@ import {
   type RawComposableMessageInfo,
 } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed.js';
@@ -23,13 +22,13 @@ import { useSelector } from '../redux/redux-utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...BaseProps,
   +rawMessageInfo: RawComposableMessageInfo,
   +inputState: ?InputState,
-  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;

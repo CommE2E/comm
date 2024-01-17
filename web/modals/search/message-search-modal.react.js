@@ -5,7 +5,6 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './message-search-modal.css';
@@ -19,7 +18,7 @@ import { useTooltipContext } from '../../tooltips/tooltip-provider.js';
 import Modal from '../modal.react.js';
 
 type ContentProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function MessageSearchModal(props: ContentProps): React.Node {
