@@ -19,7 +19,6 @@ import {
   type RelationshipAction,
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -30,7 +29,7 @@ import type { ViewStyle } from '../../types/styles.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +buttonStyle: ViewStyle,
   +relationshipButton: RelationshipButton,
 };

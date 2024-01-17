@@ -21,7 +21,6 @@ import { useWatchThread } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -69,7 +68,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,

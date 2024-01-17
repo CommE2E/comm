@@ -7,10 +7,9 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import type {
-  ThreadInfo,
   RawThreadInfo,
+  ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   useNativeSetThreadAvatar,
@@ -26,7 +25,7 @@ import {
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: RawThreadInfo | LegacyThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {

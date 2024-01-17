@@ -15,7 +15,6 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
 } from 'lib/types/subscription-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -54,7 +53,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...BaseProps,

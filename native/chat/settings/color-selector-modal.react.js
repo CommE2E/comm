@@ -12,7 +12,6 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import {
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -30,7 +29,7 @@ import Alert from '../../utils/alert.js';
 export type ColorSelectorModalParams = {
   +presentedFrom: string,
   +color: string,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +setColor: (color: string) => void,
 };
 

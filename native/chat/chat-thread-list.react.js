@@ -33,7 +33,6 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
@@ -77,7 +76,7 @@ type BaseProps = {
   +route:
     | NavigationRoute<'HomeChatThreadList'>
     | NavigationRoute<'BackgroundChatThreadList'>,
-  +filterThreads: (threadItem: LegacyThreadInfo | ThreadInfo) => boolean,
+  +filterThreads: (threadItem: ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{}>,
 };
 export type SearchStatus = 'inactive' | 'activating' | 'active';
@@ -127,8 +126,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onSwipeableWillOpen = React.useCallback(
-    (threadInfo: LegacyThreadInfo | ThreadInfo) =>
-      setOpenedSwipeableID(threadInfo.id),
+    (threadInfo: ThreadInfo) => setOpenedSwipeableID(threadInfo.id),
     [],
   );
 
@@ -188,7 +186,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onPressSeeMoreSidebars = React.useCallback(
-    (threadInfo: LegacyThreadInfo | ThreadInfo) => {
+    (threadInfo: ThreadInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();
