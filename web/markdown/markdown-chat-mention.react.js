@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import css from './markdown.css';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type MarkdownChatMentionProps = {
-  +threadInfo: MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +hasAccessToChat: boolean,
   +text: string,
 };
