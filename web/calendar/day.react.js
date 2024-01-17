@@ -18,7 +18,6 @@ import { entryKey } from 'lib/shared/entry-utils.js';
 import type { EntryInfo } from 'lib/types/entry-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { dateFromString, dateString } from 'lib/utils/date-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -39,7 +38,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +onScreenThreadInfos: $ReadOnlyArray<LegacyThreadInfo | ThreadInfo>,
+  +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   +viewerID: ?string,
   +loggedIn: boolean,
   +nextLocalID: number,

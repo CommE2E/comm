@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
 import { useCommunityIsPickedCalendar } from '../selectors/calendar-selectors.js';
@@ -15,7 +14,7 @@ import type { NavigationTab } from '../types/nav-types.js';
 
 export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 function ChatDrawerItemHandler(props: HandlerProps): React.Node {

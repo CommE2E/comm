@@ -10,14 +10,13 @@ import type {
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import EditThreadAvatarMenu from './edit-thread-avatar-menu.react.js';
 import css from './edit-thread-avatar.css';
 import ThreadAvatar from './thread-avatar.react.js';
 
 type Props = {
-  +threadInfo: RawThreadInfo | LegacyThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo,
   +disabled?: boolean,
 };
 function EditThreadAvatar(props: Props): React.Node {

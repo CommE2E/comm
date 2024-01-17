@@ -17,10 +17,7 @@ import {
   type UserSurfacedPermissionOption,
   userSurfacedPermissionOptions,
 } from 'lib/types/thread-permission-types.js';
-import type {
-  LegacyThreadInfo,
-  RoleModificationRequest,
-} from 'lib/types/thread-types.js';
+import type { RoleModificationRequest } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -38,7 +35,7 @@ const createRolesLoadingStatusSelector = createLoadingStatusSelector(
 );
 
 type CreateRolesModalProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +action: 'create_role' | 'edit_role',
   +existingRoleID?: string,
   +roleName: string,
