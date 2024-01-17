@@ -1235,12 +1235,13 @@ async fn upload_one_time_keys_helper(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
 pub enum Error {
-  #[display(...)]
+  #[display(fmt = "{}", "_0.message()")]
   TonicGRPC(Status),
-  #[display(...)]
+  #[display(fmt = "{}", "_0")]
   SerdeJson(serde_json::Error),
-  #[display(...)]
+  #[display(fmt = "Missing response data")]
   MissingResponseData,
+  #[display(fmt = "{}", "_0")]
   GRPClient(grpc_clients::error::Error),
 }
 
