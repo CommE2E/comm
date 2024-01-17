@@ -170,6 +170,7 @@ dependencies = [
  "reqwest",
  "serde_json",
  "sha2",
+ "tokio",
  "tokio-tungstenite",
  "url",
 ]
