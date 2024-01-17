@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import Button from '../../components/button.react.js';
@@ -12,7 +12,7 @@ import { useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
 
 type Props = {
-  +threadInfo: MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +navigate: ThreadSettingsNavigate,
   +buttonStyle: ViewStyle,
 };
