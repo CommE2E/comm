@@ -8,14 +8,13 @@ import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js'
 import { useMessagePreview } from 'lib/shared/message-utils.js';
 import { type MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-thread-list.css';
 import { getDefaultTextMessageRules } from '../markdown/rules.react.js';
 
 type Props = {
   +messageInfo: ?MessageInfo,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
   const { messageInfo, threadInfo } = props;

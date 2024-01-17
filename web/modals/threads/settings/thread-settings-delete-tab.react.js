@@ -11,7 +11,6 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { containedThreadInfos } from 'lib/selectors/thread-selectors.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import SubmitSection from './submit-section.react.js';
@@ -22,7 +21,7 @@ import { useSelector } from '../../../redux/redux-utils.js';
 
 type ThreadSettingsDeleteTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +setErrorMessage: SetState<?string>,
   +errorMessage?: ?string,
 };
