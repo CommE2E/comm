@@ -1,3 +1,4 @@
+mod compaction_upload_promises;
 mod file_info;
 mod upload_handler;
 
