@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
@@ -13,7 +12,7 @@ import { useStyles } from '../../themes/colors.js';
 import { useNavigateToThread } from '../message-list-types.js';
 
 type ParentButtonProps = {
-  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +parentThreadInfo: ThreadInfo,
 };
 function ParentButton(props: ParentButtonProps): React.Node {
   const styles = useStyles(unboundStyles);
@@ -35,8 +34,8 @@ function ParentButton(props: ParentButtonProps): React.Node {
 }
 
 type ThreadSettingsParentProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
-  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +threadInfo: ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
 };
 function ThreadSettingsParent(props: ThreadSettingsParentProps): React.Node {
   const { threadInfo, parentThreadInfo } = props;
