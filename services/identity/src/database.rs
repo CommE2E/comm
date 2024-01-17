@@ -38,22 +38,12 @@ use crate::constants::{
   NOTIF_ONE_TIME_KEY, RESERVED_USERNAMES_TABLE,
   RESERVED_USERNAMES_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
-  USERS_TABLE_DEVICES_ATTRIBUTE,
-  USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-  USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
-use crate::error::{AttributeValueFromHashMap, FromAttributeValue};
+use crate::error::AttributeValueFromHashMap;
 use crate::id::generate_uuid;
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
@@ -376,146 +366,56 @@ impl DatabaseClient {
     // DynamoDB doesn't have a way to "pop" a value from a list, so we must
     // first read in user info, then update one_time_keys with value we
     // gave to requester
-    let user_info = self
+    let mut user_info = self
       .get_item_from_users_table(user_id)
       .await?
       .item
       .ok_or(Error::MissingItem)?;
 
-    let user_id = user_info
-      .get(USERS_TABLE_PARTITION_KEY)
-      .ok_or(Error::MissingItem)?
-      .to_string(USERS_TABLE_PARTITION_KEY)?;
-    let devices = user_info
-      .get(USERS_TABLE_DEVICES_ATTRIBUTE)
-      .ok_or(Error::MissingItem)?
-      .to_hashmap(USERS_TABLE_DEVICES_ATTRIBUTE)?;
-
+    let user_id: String = user_info.take_attr(USERS_TABLE_PARTITION_KEY)?;
     let user_devices = self.get_current_devices(user_id).await?;
     let maybe_keyserver_device = user_devices
       .into_iter()
       .find(|device| device.device_type == GrpcDeviceType::Keyserver);
 
-    if let Some(keyserver) = maybe_keyserver_device {
-      debug!(
-        "Found keyserver in devices table (ID={})",
-        &keyserver.device_id
-      );
-      let notif_one_time_key: Option<String> = self
-        .get_one_time_key(&keyserver.device_id, OlmAccountType::Notification)
-        .await?;
-      let content_one_time_key: Option<String> = self
-        .get_one_time_key(&keyserver.device_id, OlmAccountType::Content)
-        .await?;
-
-      debug!(
-        "Able to get notif one-time key for keyserver {}: {}",
-        &keyserver.device_id,
-        notif_one_time_key.is_some()
-      );
-      debug!(
-        "Able to get content one-time key for keyserver {}: {}",
-        &keyserver.device_id,
-        content_one_time_key.is_some()
-      );
-
-      let outbound_payload = OutboundKeys {
-        key_payload: keyserver.device_key_info.key_payload,
-        key_payload_signature: keyserver.device_key_info.key_payload_signature,
-        social_proof: keyserver.device_key_info.social_proof,
-        content_prekey: PreKey {
-          prekey: keyserver.content_prekey.pre_key,
-          prekey_signature: keyserver.content_prekey.pre_key_signature,
-        },
-        notif_prekey: PreKey {
-          prekey: keyserver.notif_prekey.pre_key,
-          prekey_signature: keyserver.notif_prekey.pre_key_signature,
-        },
-        content_one_time_key,
-        notif_one_time_key,
-      };
-      return Ok(Some(outbound_payload));
-    }
-
-    let mut maybe_keyserver_id = None;
-    for (device_id, device_info) in devices {
-      let device_type = device_info
-        .to_hashmap("device_id")?
-        .get(USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME)
-        .ok_or(Error::MissingItem)?
-        .to_string(USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME)?;
-
-      if device_type == "keyserver" {
-        maybe_keyserver_id = Some(device_id);
-        break;
-      }
-    }
-
-    // Assert that the user has a keyserver, if they don't return None
-    let keyserver_id = match maybe_keyserver_id {
-      None => return Ok(None),
-      Some(id) => id,
+    let Some(keyserver) = maybe_keyserver_device else {
+      return Ok(None);
     };
+    debug!(
+      "Found keyserver in devices table (ID={})",
+      &keyserver.device_id
+    );
 
-    let keyserver = devices.get_map(keyserver_id)?;
     let notif_one_time_key: Option<String> = self
-      .get_one_time_key(keyserver_id, OlmAccountType::Notification)
+      .get_one_time_key(&keyserver.device_id, OlmAccountType::Notification)
       .await?;
     let content_one_time_key: Option<String> = self
-      .get_one_time_key(keyserver_id, OlmAccountType::Content)
+      .get_one_time_key(&keyserver.device_id, OlmAccountType::Content)
       .await?;
 
     debug!(
       "Able to get notif one-time key for keyserver {}: {}",
-      keyserver_id,
+      &keyserver.device_id,
       notif_one_time_key.is_some()
     );
     debug!(
       "Able to get content one-time key for keyserver {}: {}",
-      keyserver_id,
+      &keyserver.device_id,
       content_one_time_key.is_some()
     );
 
-    let content_prekey = keyserver
-      .get_string(USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME)?;
-    let content_prekey_signature = keyserver.get_string(
-      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    )?;
-    let notif_prekey = keyserver
-      .get_string(USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME)?;
-    let notif_prekey_signature = keyserver.get_string(
-      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    )?;
-    let key_payload = keyserver
-      .get_string(USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME)?
-      .to_string();
-    let key_payload_signature = keyserver
-      .get_string(USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME)?
-      .to_string();
-    let social_proof = keyserver
-      .get(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME)
-      .and_then(|s| {
-        s.to_string(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME)
-          .ok()
-      })
-      .map(|s| s.to_owned());
-
-    let full_content_prekey = PreKey {
-      prekey: content_prekey.to_string(),
-      prekey_signature: content_prekey_signature.to_string(),
-    };
-
-    let full_notif_prekey = PreKey {
-      prekey: notif_prekey.to_string(),
-      prekey_signature: notif_prekey_signature.to_string(),
-    };
-
     let outbound_payload = OutboundKeys {
-      key_payload,
-      key_payload_signature,
-      social_proof,
-      content_prekey: full_content_prekey,
-      notif_prekey: full_notif_prekey,
+      key_payload: keyserver.device_key_info.key_payload,
+      key_payload_signature: keyserver.device_key_info.key_payload_signature,
+      social_proof: keyserver.device_key_info.social_proof,
+      content_prekey: PreKey {
+        prekey: keyserver.content_prekey.pre_key,
+        prekey_signature: keyserver.content_prekey.pre_key_signature,
+      },
+      notif_prekey: PreKey {
+        prekey: keyserver.notif_prekey.pre_key,
+        prekey_signature: keyserver.notif_prekey.pre_key_signature,
+      },
       content_one_time_key,
       notif_one_time_key,
     };
@@ -643,61 +543,16 @@ impl DatabaseClient {
     notif_prekey: String,
     notif_prekey_signature: String,
   ) -> Result<(), Error> {
-    // update new device list too
     self
       .update_device_prekeys(
-        user_id.clone(),
-        device_id.clone(),
-        content_prekey.clone(),
-        content_prekey_signature.clone(),
-        notif_prekey.clone(),
-        notif_prekey_signature.clone(),
+        user_id,
+        device_id,
+        content_prekey,
+        content_prekey_signature,
+        notif_prekey,
+        notif_prekey_signature,
       )
-      .await?;
-
-    let notif_prekey_av = AttributeValue::S(notif_prekey);
-    let notif_prekey_signature_av = AttributeValue::S(notif_prekey_signature);
-    let content_prekey_av = AttributeValue::S(content_prekey);
-    let content_prekey_signature_av =
-      AttributeValue::S(content_prekey_signature);
-
-    let update_expression =
-      format!("SET {0}.#{1}.{2} = :n, {0}.#{1}.{3} = :p, {0}.#{1}.{4} = :c, {0}.#{1}.{5} = :d",
-        USERS_TABLE_DEVICES_ATTRIBUTE,
-        "deviceID",
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-      );
-    let expression_attribute_names = HashMap::from([
-      (format!("#{}", "deviceID"), device_id),
-      (
-        "#user_id".to_string(),
-        USERS_TABLE_PARTITION_KEY.to_string(),
-      ),
-    ]);
-    let expression_attribute_values = HashMap::from([
-      (":n".to_string(), notif_prekey_av),
-      (":p".to_string(), notif_prekey_signature_av),
-      (":c".to_string(), content_prekey_av),
-      (":d".to_string(), content_prekey_signature_av),
-    ]);
-
-    self
-      .client
-      .update_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
-      .condition_expression("attribute_exists(#user_id)")
-      .set_expression_attribute_names(Some(expression_attribute_names))
-      .set_expression_attribute_values(Some(expression_attribute_values))
-      .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
-
-    Ok(())
   }
 
   pub async fn append_one_time_prekeys(
@@ -739,27 +594,7 @@ impl DatabaseClient {
     user_id: String,
     device_id_key: String,
   ) -> Result<(), Error> {
-    // delete from new device list too
-    self.remove_device(&user_id, &device_id_key).await?;
-
-    let update_expression =
-      format!("REMOVE {}.{}", USERS_TABLE_DEVICES_ATTRIBUTE, "#deviceID");
-
-    let expression_attribute_names =
-      HashMap::from([("#deviceID".to_string(), device_id_key)]);
-
-    self
-      .client
-      .update_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
-      .set_expression_attribute_names(Some(expression_attribute_names))
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
-
-    Ok(())
+    self.remove_device(&user_id, &device_id_key).await
   }
 
   pub async fn update_user_password(
@@ -1099,57 +934,25 @@ impl DatabaseClient {
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
     let user_id: String = user.take_attr(USERS_TABLE_PARTITION_KEY)?;
-    let devices: AttributeMap =
-      user.take_attr(USERS_TABLE_DEVICES_ATTRIBUTE)?;
-
     let mut devices_response = self.get_keys_for_user_devices(user_id).await?;
-    for (device_id_key, device_info) in devices {
-      let device_info_map =
-        AttributeMap::try_from_attr(&device_id_key, Some(device_info))?;
 
-      let mut device_info_string_map = HashMap::new();
-      for (attribute_name, attribute_value) in device_info_map {
-        // Excluding one-time keys since we're moving them to a separate table
-        if attribute_name
-          == USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME
-          || attribute_name
-            == USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME
-        {
-          continue;
-        }
-
-        // Excluding info already taken from device list response
-        if devices_response
-          .get(&device_id_key)
-          .map(|device| device.contains_key(&attribute_name))
-          .unwrap_or(false)
-        {
-          continue;
-        }
-
-        let attribute_value_str =
-          String::try_from_attr(&attribute_name, Some(attribute_value))?;
-        device_info_string_map.insert(attribute_name, attribute_value_str);
-      }
-
-      if get_one_time_keys {
+    if get_one_time_keys {
+      for (device_id_key, device_info_map) in devices_response.iter_mut() {
         if let Some(notif_one_time_key) = self
-          .get_one_time_key(&device_id_key, OlmAccountType::Notification)
+          .get_one_time_key(device_id_key, OlmAccountType::Notification)
           .await?
         {
-          device_info_string_map
+          device_info_map
             .insert(NOTIF_ONE_TIME_KEY.to_string(), notif_one_time_key);
         }
         if let Some(content_one_time_key) = self
-          .get_one_time_key(&device_id_key, OlmAccountType::Content)
+          .get_one_time_key(device_id_key, OlmAccountType::Content)
           .await?
         {
-          device_info_string_map
+          device_info_map
             .insert(CONTENT_ONE_TIME_KEY.to_string(), content_one_time_key);
         }
       }
-
-      devices_response.insert(device_id_key, device_info_string_map);
     }
 
     Ok(Some(devices_response))
@@ -1538,42 +1341,6 @@ fn parse_registration_data_attribute(
       attribute.into(),
       DBItemAttributeError::Missing,
     )),
-  }
-}
-
-#[deprecated(note = "Use `comm_lib` counterpart instead")]
-#[allow(dead_code)]
-fn parse_map_attribute(
-  attribute_name: &str,
-  attribute_value: Option<AttributeValue>,
-) -> Result<AttributeMap, DBItemError> {
-  match attribute_value {
-    Some(AttributeValue::M(map)) => Ok(map),
-    Some(_) => {
-      error!(
-          attribute = attribute_name,
-          value = ?attribute_value,
-          error_type = "IncorrectType",
-          "Unexpected attribute type when parsing map attribute"
-      );
-      Err(DBItemError::new(
-        attribute_name.to_string(),
-        attribute_value.into(),
-        DBItemAttributeError::IncorrectType,
-      ))
-    }
-    None => {
-      error!(
-        attribute = attribute_name,
-        error_type = "Missing",
-        "Attribute is missing"
-      );
-      Err(DBItemError::new(
-        attribute_name.to_string(),
-        attribute_value.into(),
-        DBItemAttributeError::Missing,
-      ))
-    }
   }
 }
 
