@@ -7,7 +7,6 @@ import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors.j
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   entityTextToReact,
   useENSNamesForEntityText,
@@ -101,7 +100,7 @@ type BaseInnerThreadEntityProps = {
 };
 type InnerThreadEntityProps = {
   ...BaseInnerThreadEntityProps,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +dispatch: Dispatch,
 };
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {

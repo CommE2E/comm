@@ -10,7 +10,6 @@ import type {
   ThreadInfo,
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -26,7 +25,7 @@ const editIcon = (
 );
 
 type Props = {
-  +threadInfo: RawThreadInfo | LegacyThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo,
 };
 function EditThreadAvatarMenu(props: Props): React.Node {
   const { threadInfo } = props;
