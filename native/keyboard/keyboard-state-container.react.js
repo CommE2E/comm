@@ -5,7 +5,6 @@ import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import sleep from 'lib/utils/sleep.js';
 
 import KeyboardInputHost from './keyboard-input-host.react.js';
@@ -24,7 +23,7 @@ type Props = {
 type State = {
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
-  +mediaGalleryThread: ?LegacyThreadInfo | ?ThreadInfo,
+  +mediaGalleryThread: ?ThreadInfo,
   +renderKeyboardInputHost: boolean,
 };
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
@@ -94,9 +93,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  showMediaGallery: (thread: LegacyThreadInfo | ThreadInfo) => void = (
-    thread: LegacyThreadInfo | ThreadInfo,
-  ) => {
+  showMediaGallery: (thread: ThreadInfo) => void = (thread: ThreadInfo) => {
     this.setState({
       mediaGalleryOpen: true,
       mediaGalleryThread: thread,
@@ -111,7 +108,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     });
   };
 
-  getMediaGalleryThread: () => ?LegacyThreadInfo | ?ThreadInfo = () =>
+  getMediaGalleryThread: () => ?ThreadInfo = () =>
     this.state.mediaGalleryThread;
 
   render(): React.Node {

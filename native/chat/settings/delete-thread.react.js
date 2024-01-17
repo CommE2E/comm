@@ -29,10 +29,7 @@ import type {
   ResolvedThreadInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LeaveThreadPayload,
-  LegacyThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { LeaveThreadPayload } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
   type DispatchActionPromise,
@@ -52,7 +49,7 @@ import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
 export type DeleteThreadParams = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 const unboundStyles = {

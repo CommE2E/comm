@@ -7,7 +7,6 @@ import { changeThreadSettingsActionTypes } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 import ColorSplotch from '../../components/color-splotch.react.js';
@@ -39,7 +38,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +colorEditValue: string,
   +setColorEditValue: (color: string) => void,
   +canChangeSettings: boolean,

@@ -21,7 +21,6 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-  type LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -88,7 +87,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +descriptionEditValue: ?string,
   +setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
   +descriptionTextHeight: ?number,

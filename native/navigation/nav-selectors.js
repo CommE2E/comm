@@ -17,7 +17,6 @@ import type {
 } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import type { NavContextType } from './navigation-context.js';
 import { NavContext } from './navigation-context.js';
@@ -404,7 +403,7 @@ function useCurrentLeafRouteName(): ?string {
 }
 
 function useCanEditMessageNative(
-  threadInfo: LegacyThreadInfo | ThreadInfo,
+  threadInfo: ThreadInfo,
   targetMessageInfo: ComposableMessageInfo | RobotextMessageInfo,
 ): boolean {
   const route = useRoute();

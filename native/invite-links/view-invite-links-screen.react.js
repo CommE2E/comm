@@ -11,7 +11,6 @@ import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import SingleLine from '../components/single-line.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -25,7 +24,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 export type ViewInviteLinksScreenParams = {
-  +community: LegacyThreadInfo | ThreadInfo,
+  +community: ThreadInfo,
 };
 
 type Props = {
