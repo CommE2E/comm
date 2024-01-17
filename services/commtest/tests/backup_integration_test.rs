@@ -1,22 +1,19 @@
-use std::collections::{HashMap, HashSet};
-
 use backup_client::{
-  BackupClient, BackupData, BackupDescriptor, Error as BackupClientError,
-  LogUploadConfirmation, RequestedData, SinkExt, StreamExt, TryStreamExt,
+  BackupClient, BackupData, BackupDescriptor, DownloadedLog,
+  Error as BackupClientError, LogUploadConfirmation, RequestedData, SinkExt,
+  StreamExt, TryStreamExt,
 };
 use bytesize::ByteSize;
 use comm_lib::{
   auth::UserIdentity,
-  backup::{
-    DownloadLogsRequest, LatestBackupIDResponse, LogWSResponse,
-    UploadLogRequest,
-  },
+  backup::{LatestBackupIDResponse, UploadLogRequest},
 };
 use commtest::{
   service_addr,
   tools::{generate_stable_nbytes, Error},
 };
 use reqwest::StatusCode;
+use std::collections::HashSet;
 use uuid::Uuid;
 
 #[tokio::test]
@@ -37,17 +34,17 @@ async fn backup_integration_test() -> Result<(), Error> {
       .upload_backup(&user_identity, backup_data.clone())
       .await?;
 
-    let (tx, rx) = backup_client.upload_logs(&user_identity).await.unwrap();
+    let (tx, rx) = backup_client.upload_logs(&user_identity).await?;
 
     tokio::pin!(tx);
     tokio::pin!(rx);
 
     for log_data in log_datas {
-      tx.send(log_data.clone()).await.unwrap();
+      tx.send(log_data.clone()).await?;
     }
 
     let result: HashSet<LogUploadConfirmation> =
-      rx.take(log_datas.len()).try_collect().await.unwrap();
+      rx.take(log_datas.len()).try_collect().await?;
     let expected = log_datas
       .iter()
       .map(|data| LogUploadConfirmation {
@@ -96,49 +93,18 @@ async fn backup_integration_test() -> Result<(), Error> {
   assert_eq!(user_keys, backup_data.user_keys);
 
   // Test log download
-  let (tx, rx) = backup_client.download_logs(&user_identity).await.unwrap();
+  let log_stream = backup_client
+    .download_logs(&user_identity, &backup_data.backup_id)
+    .await;
 
-  tokio::pin!(tx);
-  tokio::pin!(rx);
+  let downloaded_logs: Vec<DownloadedLog> = log_stream.try_collect().await?;
 
-  tx.send(DownloadLogsRequest {
-    backup_id: backup_data.backup_id.clone(),
-    from_id: None,
-  })
-  .await
-  .unwrap();
-
-  let mut downloaded_logs = HashMap::new();
-  'download: loop {
-    loop {
-      match rx.next().await.unwrap().unwrap() {
-        LogWSResponse::LogDownload {
-          log_id,
-          content,
-          attachments,
-        } => {
-          downloaded_logs.insert(log_id, (content, attachments));
-        }
-        LogWSResponse::LogDownloadFinished { last_log_id } => {
-          if let Some(last_log_id) = last_log_id {
-            tx.send(DownloadLogsRequest {
-              backup_id: backup_data.backup_id.clone(),
-              from_id: Some(last_log_id),
-            })
-            .await
-            .unwrap();
-          } else {
-            break 'download;
-          }
-        }
-        msg => panic!("Got response: {msg:?}"),
-      };
-    }
-  }
-  let expected_logs = log_datas
+  let expected_logs: Vec<DownloadedLog> = log_datas
     .iter()
-    .cloned()
-    .map(|data| (data.log_id, (data.content, data.attachments)))
+    .map(|data| DownloadedLog {
+      content: data.content.clone(),
+      attachments: data.attachments.clone(),
+    })
     .collect();
   assert_eq!(downloaded_logs, expected_logs);
 
@@ -164,27 +130,18 @@ async fn backup_integration_test() -> Result<(), Error> {
   );
 
   // Test log cleanup
-  let (tx, rx) = backup_client.download_logs(&user_identity).await.unwrap();
+  let log_stream = backup_client
+    .download_logs(&user_identity, &removed_backup.backup_id)
+    .await;
 
-  tokio::pin!(tx);
-  tokio::pin!(rx);
+  let downloaded_logs: Vec<DownloadedLog> = log_stream.try_collect().await?;
 
-  tx.send(DownloadLogsRequest {
-    backup_id: removed_backup.backup_id.clone(),
-    from_id: None,
-  })
-  .await
-  .unwrap();
-
-  match rx.next().await.unwrap().unwrap() {
-    LogWSResponse::LogDownloadFinished { last_log_id: None } => (),
-    msg => {
-      panic!(
-        "Logs for first backup should have been removed, \
-        instead got response: {msg:?}"
-      )
-    }
-  };
+  if !downloaded_logs.is_empty() {
+    panic!(
+      "Logs for first backup should have been removed, \
+      instead got: {downloaded_logs:?}"
+    )
+  }
 
   Ok(())
 }
