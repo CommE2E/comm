@@ -2,6 +2,7 @@ use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use ffi::{bool_callback, string_callback, void_callback};
+use future_manager::ffi::*;
 use grpc_clients::identity::protos::authenticated::{
   InboundKeyInfo, InboundKeysForUserRequest, KeyserverKeysResponse,
   OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPrekeysRequest,
@@ -27,6 +28,7 @@ use tracing::instrument;
 mod argon2_tools;
 mod backup;
 mod constants;
+mod future_manager;
 
 use argon2_tools::compute_backup_key_str;
 
@@ -303,7 +305,7 @@ mod ffi {
     fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
 
     #[cxx_name = "createMainCompaction"]
-    fn create_main_compaction(backup_id: String) -> Result<()>;
+    fn create_main_compaction(backup_id: &str, future_id: usize);
 
     #[allow(unused)]
     #[cxx_name = "restoreFromMainCompaction"]
@@ -311,6 +313,15 @@ mod ffi {
       main_compaction_path: String,
       main_compaction_encryption_key: String,
     ) -> Result<()>;
+  }
+
+  // Future handling from C++
+  extern "Rust" {
+    #[cxx_name = "resolveUnitFuture"]
+    fn resolve_unit_future(future_id: usize);
+
+    #[cxx_name = "rejectFuture"]
+    fn reject_future(future_id: usize, error: String);
   }
 }
 
