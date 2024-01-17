@@ -111,6 +111,7 @@ mkShell {
     CoreFoundation
     CoreServices
     Security
+    # required until https://github.com/seanmonstar/reqwest/issues/2006 is resolved
     SystemConfiguration
     libiconv  # identity service
   ]);
