@@ -3,6 +3,7 @@ use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use exact_user_search::find_user_id_for_wallet_address;
 use ffi::{bool_callback, string_callback, void_callback};
+use future_manager::ffi::*;
 use grpc_clients::identity::protos::auth::{
   GetDeviceListRequest, UpdateDeviceListRequest,
 };
@@ -34,6 +35,7 @@ mod argon2_tools;
 mod backup;
 mod constants;
 mod exact_user_search;
+mod future_manager;
 mod wallet_registration;
 
 use argon2_tools::compute_backup_key_str;
@@ -363,7 +365,7 @@ mod ffi {
     fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
 
     #[cxx_name = "createMainCompaction"]
-    fn create_main_compaction(backup_id: String) -> Result<()>;
+    fn create_main_compaction(backup_id: &str, future_id: usize);
 
     #[allow(unused)]
     #[cxx_name = "restoreFromMainCompaction"]
@@ -375,6 +377,15 @@ mod ffi {
     #[allow(unused)]
     #[cxx_name = "restoreFromBackupLog"]
     fn restore_from_backup_log(backup_log: Vec<u8>) -> Result<()>;
+  }
+
+  // Future handling from C++
+  extern "Rust" {
+    #[cxx_name = "resolveUnitFuture"]
+    fn resolve_unit_future(future_id: usize);
+
+    #[cxx_name = "rejectFuture"]
+    fn reject_future(future_id: usize, error: String);
   }
 }
 
