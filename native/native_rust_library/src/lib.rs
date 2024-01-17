@@ -248,6 +248,9 @@ mod ffi {
     #[cxx_name = "triggerBackupFileUpload"]
     fn trigger_backup_file_upload();
 
+    #[cxx_name = "onBackupCompactionCreationFinished"]
+    fn on_backup_compaction_creation_finished(backup_id: String, err: String);
+
     #[cxx_name = "createBackup"]
     fn create_backup_sync(
       backup_id: String,

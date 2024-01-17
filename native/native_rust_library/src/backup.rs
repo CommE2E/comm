@@ -1,7 +1,9 @@
+mod compaction_upload_promises;
 mod file_info;
 mod upload_handler;
 
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
+use crate::backup::compaction_upload_promises::CompactionUploadPromises;
 use crate::constants::{aes, secure_store};
 use crate::ffi::secure_store_get;
 use crate::BACKUP_SOCKET_ADDR;
@@ -12,9 +14,15 @@ use backup_client::{
   LatestBackupIDResponse, LogUploadConfirmation, LogWSResponse, RequestedData,
   SinkExt, StreamExt, UploadLogRequest, UserIdentity,
 };
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::error::Error;
+
+lazy_static! {
+  static ref COMPACTION_UPLOAD_PROMISES: CompactionUploadPromises =
+    Default::default();
+}
 
 pub mod ffi {
   use super::*;
