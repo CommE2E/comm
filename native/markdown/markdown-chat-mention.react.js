@@ -3,14 +3,14 @@
 import * as React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
-import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import { useMarkdownOnPressUtils } from './markdown-utils.js';
 import { useNavigateToThreadWithFadeAnimation } from '../chat/message-list-types.js';
 
 type TextProps = React.ElementConfig<typeof Text>;
 type Props = {
-  +threadInfo: MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +children: React.Node,
   ...TextProps,
 };
