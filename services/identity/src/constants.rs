@@ -45,7 +45,6 @@ pub const USERS_TABLE: &str = "identity-users";
 pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
 pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "opaqueRegistrationData";
 pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
-pub const USERS_TABLE_DEVICES_ATTRIBUTE: &str = "devices";
 pub const USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME: &str =
   "deviceType";
 pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME: &str =

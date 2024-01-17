@@ -16,30 +16,12 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::{
-  constants::USERS_TABLE_DEVICES_ATTRIBUTE,
-  ddb_utils::{
-    create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
-    OlmAccountType,
-  },
+use crate::ddb_utils::{
+  create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
+  OlmAccountType,
 };
-use crate::{
-  constants::{
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  },
-  reserved_users::UserDetail,
-};
-use crate::{
-  constants::{
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-  },
-  error::{consume_error, Error},
-};
+use crate::error::{consume_error, Error};
+use crate::reserved_users::UserDetail;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -227,22 +209,10 @@ impl DatabaseClient {
     user_id: Option<String>,
   ) -> Result<String, Error> {
     let user_id = user_id.unwrap_or_else(generate_uuid);
-    let device_info =
-      create_device_info(flattened_device_key_upload.clone(), social_proof);
-    let devices = HashMap::from([(
-      flattened_device_key_upload.device_id_key.clone(),
-      AttributeValue::M(device_info),
+    let mut user = HashMap::from([(
+      USERS_TABLE_PARTITION_KEY.to_string(),
+      AttributeValue::S(user_id.clone()),
     )]);
-    let mut user = HashMap::from([
-      (
-        USERS_TABLE_PARTITION_KEY.to_string(),
-        AttributeValue::S(user_id.clone()),
-      ),
-      (
-        USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
-        AttributeValue::M(devices),
-      ),
-    ]);
 
     if let Some((username, password_file)) = username_and_password_file {
       user.insert(
@@ -292,16 +262,12 @@ impl DatabaseClient {
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
-    // add device to the legacy device list
-    self
-      .add_device_to_users_table(
-        user_id.clone(),
-        flattened_device_key_upload.clone(),
-        None,
-      )
-      .await?;
+    let content_one_time_keys =
+      flattened_device_key_upload.content_one_time_keys.clone();
+    let notif_one_time_keys =
+      flattened_device_key_upload.notif_one_time_keys.clone();
 
-    // add device to the new device list if not exists
+    // add device to the device list if not exists
     let device_id = flattened_device_key_upload.device_id_key.clone();
     let device_exists = self
       .device_exists(user_id.clone(), device_id.clone())
@@ -326,7 +292,17 @@ impl DatabaseClient {
         code_version,
         access_token_creation_time,
       )
-      .await
+      .await?;
+
+    self
+      .append_one_time_prekeys(
+        device_id,
+        content_one_time_keys,
+        notif_one_time_keys,
+      )
+      .await?;
+
+    Ok(())
   }
 
   pub async fn add_wallet_user_device_to_users_table(
@@ -337,16 +313,12 @@ impl DatabaseClient {
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
-    // add device to the legacy device list
-    self
-      .add_device_to_users_table(
-        user_id.clone(),
-        flattened_device_key_upload.clone(),
-        Some(social_proof.clone()),
-      )
-      .await?;
+    let content_one_time_keys =
+      flattened_device_key_upload.content_one_time_keys.clone();
+    let notif_one_time_keys =
+      flattened_device_key_upload.notif_one_time_keys.clone();
 
-    // add device to the new device list if not exists
+    // add device to the device list if not exists
     let device_id = flattened_device_key_upload.device_id_key.clone();
     let device_exists = self
       .device_exists(user_id.clone(), device_id.clone())
@@ -372,7 +344,17 @@ impl DatabaseClient {
         code_version,
         access_token_creation_time,
       )
-      .await
+      .await?;
+
+    self
+      .append_one_time_prekeys(
+        device_id,
+        content_one_time_keys,
+        notif_one_time_keys,
+      )
+      .await?;
+
+    Ok(())
   }
 
   pub async fn get_keyserver_keys_for_user(
@@ -603,51 +585,6 @@ impl DatabaseClient {
         .await
         .map_err(|e| Error::AwsSdk(e.into()))?;
     }
-
-    Ok(())
-  }
-
-  async fn add_device_to_users_table(
-    &self,
-    user_id: String,
-    flattened_device_key_upload: FlattenedDeviceKeyUpload,
-    social_proof: Option<String>,
-  ) -> Result<(), Error> {
-    // Avoid borrowing from lifetime of flattened_device_key_upload
-    let device_id = flattened_device_key_upload.device_id_key.clone();
-    let content_one_time_keys =
-      flattened_device_key_upload.content_one_time_keys.clone();
-    let notif_one_time_keys =
-      flattened_device_key_upload.notif_one_time_keys.clone();
-
-    let device_info =
-      create_device_info(flattened_device_key_upload, social_proof);
-    let update_expression =
-      format!("SET {}.#{} = :v", USERS_TABLE_DEVICES_ATTRIBUTE, "deviceID",);
-    let expression_attribute_names =
-      HashMap::from([(format!("#{}", "deviceID"), device_id.clone())]);
-    let expression_attribute_values =
-      HashMap::from([(":v".to_string(), AttributeValue::M(device_info))]);
-
-    self
-      .client
-      .update_item()
-      .table_name(USERS_TABLE)
-      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
-      .set_expression_attribute_names(Some(expression_attribute_names))
-      .set_expression_attribute_values(Some(expression_attribute_values))
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
-
-    self
-      .append_one_time_prekeys(
-        device_id,
-        content_one_time_keys,
-        notif_one_time_keys,
-      )
-      .await?;
 
     Ok(())
   }
@@ -1441,52 +1378,6 @@ fn parse_map_attribute(
       ))
     }
   }
-}
-
-fn create_device_info(
-  flattened_device_key_upload: FlattenedDeviceKeyUpload,
-  social_proof: Option<String>,
-) -> AttributeMap {
-  let mut device_info = HashMap::from([
-    (
-      USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.device_type.to_string()),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.key_payload),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.key_payload_signature),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.content_prekey),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-        .to_string(),
-      AttributeValue::S(flattened_device_key_upload.content_prekey_signature),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.notif_prekey),
-    ),
-    (
-      USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(flattened_device_key_upload.notif_prekey_signature),
-    ),
-  ]);
-
-  if let Some(social_proof) = social_proof {
-    device_info.insert(
-      USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
-      AttributeValue::S(social_proof),
-    );
-  }
-
-  device_info
 }
 
 #[cfg(test)]
