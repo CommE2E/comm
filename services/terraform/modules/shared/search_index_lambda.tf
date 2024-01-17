@@ -8,6 +8,13 @@ variable "lambda_zip_dir" {
   default = "../../search-index-lambda/target/lambda/search-index-lambda"
 }
 
+check "lambda_zip_check" {
+  assert {
+    condition     = fileexists("${var.lambda_zip_dir}/bootstrap.zip")
+    error_message = "Lambda boostrap.zip not found at path. Please run 'terraform-init.sh' in remote or 'run.sh' in dev"
+  }
+}
+
 resource "aws_lambda_function" "search_index_lambda" {
   function_name    = "search-index-lambda-function"
   filename         = "${var.lambda_zip_dir}/bootstrap.zip"
