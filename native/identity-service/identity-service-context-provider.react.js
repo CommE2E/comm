@@ -4,12 +4,14 @@ import * as React from 'react';
 
 import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
-import type {
-  IdentityServiceClient,
-  OutboundKeyInfoResponse,
-  UserLoginResponse,
+import {
+  type IdentityServiceClient,
+  type UserLoginResponse,
+  type KeyserverKeys,
+  keyserverKeysValidator,
 } from 'lib/types/identity-service-types.js';
 import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
 import { commCoreModule, commRustModule } from '../native-modules.js';
@@ -68,7 +70,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         return commRustModule.deleteUser(userID, deviceID, accessToken);
       },
-      getKeyserverKeys: async (keyserverID: string) => {
+      getKeyserverKeys: async (keyserverID: string): Promise<KeyserverKeys> => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         const result = await commRustModule.getKeyserverKeys(
           userID,
@@ -76,18 +78,33 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           accessToken,
           keyserverID,
         );
-        const resultObject: OutboundKeyInfoResponse = JSON.parse(result);
-        if (
-          !resultObject.payload ||
-          !resultObject.payloadSignature ||
-          !resultObject.contentPrekey ||
-          !resultObject.contentPrekeySignature ||
-          !resultObject.notifPrekey ||
-          !resultObject.notifPrekeySignature
-        ) {
-          throw new Error('Invalid response from Identity service');
+        const resultObject = JSON.parse(result);
+        const payload = resultObject?.payload;
+
+        const keyserverKeys = {
+          identityKeysBlob: payload ? JSON.parse(payload) : null,
+          contentInitializationInfo: {
+            prekey: resultObject?.contentPrekey,
+            prekeySignature: resultObject?.contentPrekeySignature,
+            oneTimeKey: resultObject?.oneTimeContentPrekey,
+          },
+          notifInitializationInfo: {
+            prekey: resultObject?.notifPrekey,
+            prekeySignature: resultObject?.notifPrekeySignature,
+            oneTimeKey: resultObject?.oneTimeNotifPrekey,
+          },
+          payloadSignature: resultObject?.payloadSignature,
+          socialProof: resultObject?.socialProof,
+        };
+
+        if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
+          throw new Error('Missing content one time key');
         }
-        return resultObject;
+        if (!keyserverKeys.notifInitializationInfo.oneTimeKey) {
+          throw new Error('Missing notif one time key');
+        }
+
+        return assertWithValidator(keyserverKeys, keyserverKeysValidator);
       },
       registerUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
