@@ -9,7 +9,7 @@ import {
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import type {
-  MinimallyEncodedResolvedThreadInfo,
+  ResolvedThreadInfo,
   RawThreadInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -24,7 +24,7 @@ type Props = {
     | RawThreadInfo
     | LegacyThreadInfo
     | ThreadInfo
-    | MinimallyEncodedResolvedThreadInfo,
+    | ResolvedThreadInfo,
   +size: AvatarSize,
 };
 

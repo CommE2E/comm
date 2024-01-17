@@ -43,7 +43,7 @@ import type {
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
-  MinimallyEncodedResolvedThreadInfo,
+  ResolvedThreadInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -194,7 +194,7 @@ type BaseProps = {
 };
 type Props = {
   ...SharedProps,
-  +threadInfo: MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   // Redux state
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
