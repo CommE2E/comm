@@ -7,7 +7,6 @@ import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types';
 
 import { userProfileActionButtonHeight } from './user-profile-constants.js';
@@ -20,7 +19,7 @@ const onErrorCallback = () => {
 };
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +setUserProfileRelationshipButtonHeight: SetState<number>,
 };
