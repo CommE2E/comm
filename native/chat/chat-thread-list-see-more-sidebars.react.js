@@ -5,16 +5,15 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { sidebarHeight } from './sidebar-item.react.js';
 import Button from '../components/button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +unread: boolean,
-  +onPress: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
+  +onPress: (threadInfo: ThreadInfo) => void,
 };
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { onPress, threadInfo, unread } = props;

@@ -40,11 +40,7 @@ import type {
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type {
-  LegacyResolvedThreadInfo,
-  LegacyThreadInfo,
-  RelativeMemberInfo,
-} from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedOptionalThreadInfo,
@@ -110,7 +106,7 @@ import type { ChatNavigationProp } from '../chat.react.js';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -140,26 +136,20 @@ type ChatSettingsItem =
   | {
       +itemType: 'avatar',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'name',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +nameEditValue: ?string,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'color',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +colorEditValue: string,
       +canChangeSettings: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -168,9 +158,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'description',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +descriptionEditValue: ?string,
       +descriptionTextHeight: ?number,
       +canChangeSettings: boolean,
@@ -178,34 +166,23 @@ type ChatSettingsItem =
   | {
       +itemType: 'parent',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
-      +parentThreadInfo: ?(
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo
-      ),
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
+      +parentThreadInfo: ?MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'visibility',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'pushNotifs',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'homeNotifs',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
     }
   | {
       +itemType: 'seeMore',
@@ -215,9 +192,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'childThread',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +firstListItem: boolean,
       +lastListItem: boolean,
     }
@@ -229,9 +204,7 @@ type ChatSettingsItem =
       +itemType: 'member',
       +key: string,
       +memberInfo: RelativeMemberInfo,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
       +firstListItem: boolean,
@@ -246,25 +219,21 @@ type ChatSettingsItem =
   | {
       +itemType: 'mediaGallery',
       +key: string,
-      +threadInfo: LegacyThreadInfo | ThreadInfo,
+      +threadInfo: ThreadInfo,
       +limit: number,
       +verticalBounds: ?VerticalBounds,
     }
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
     }
   | {
       +itemType: 'editRelationship',
       +key: string,
-      +threadInfo:
-        | LegacyResolvedThreadInfo
-        | MinimallyEncodedResolvedThreadInfo,
+      +threadInfo: MinimallyEncodedResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
       +relationshipButton: RelationshipButton,
@@ -296,14 +265,9 @@ type Props = {
   // Redux state
   +userInfos: UserInfos,
   +viewerID: ?string,
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-  +parentThreadInfo: ?(
-    | LegacyResolvedThreadInfo
-    | MinimallyEncodedResolvedThreadInfo
-  ),
-  +childThreadInfos: ?$ReadOnlyArray<
-    LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-  >,
+  +threadInfo: MinimallyEncodedResolvedThreadInfo,
+  +parentThreadInfo: ?MinimallyEncodedResolvedThreadInfo,
+  +childThreadInfos: ?$ReadOnlyArray<MinimallyEncodedResolvedThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
@@ -381,13 +345,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
       (propsAndState: PropsAndState) => propsAndState.route.key,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
-        parentThreadInfo: ?(
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo
-        ),
+        threadInfo: MinimallyEncodedResolvedThreadInfo,
+        parentThreadInfo: ?MinimallyEncodedResolvedThreadInfo,
         nameEditValue: ?string,
         colorEditValue: string,
         descriptionEditValue: ?string,
@@ -542,13 +501,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
       (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
+        threadInfo: MinimallyEncodedResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
-        childThreads: ?$ReadOnlyArray<
-          LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-        >,
+        childThreads: ?$ReadOnlyArray<MinimallyEncodedResolvedThreadInfo>,
         numSubchannelsShowing: number,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -613,9 +568,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
       (
         navigate: ThreadSettingsNavigate,
-        childThreads: ?$ReadOnlyArray<
-          LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
-        >,
+        childThreads: ?$ReadOnlyArray<MinimallyEncodedResolvedThreadInfo>,
         numSidebarsShowing: number,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -674,9 +627,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
+        threadInfo: MinimallyEncodedResolvedThreadInfo,
         canStartEditing: boolean,
         navigate: ThreadSettingsNavigate,
         routeKey: string,
@@ -747,10 +698,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.threadInfo,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
-      (
-        threadInfo: LegacyThreadInfo | ThreadInfo,
-        verticalBounds: ?VerticalBounds,
-      ) => {
+      (threadInfo: ThreadInfo, verticalBounds: ?VerticalBounds) => {
         const listData: ChatSettingsItem[] = [];
         const limit = 6;
 
@@ -789,13 +737,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.userInfos,
       (propsAndState: PropsAndState) => propsAndState.viewerID,
       (
-        threadInfo:
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo,
-        parentThreadInfo: ?(
-          | LegacyResolvedThreadInfo
-          | MinimallyEncodedResolvedThreadInfo
-        ),
+        threadInfo: MinimallyEncodedResolvedThreadInfo,
+        parentThreadInfo: ?MinimallyEncodedResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
         styles: $ReadOnly<typeof unboundStyles>,
         userInfos: UserInfos,
@@ -1209,7 +1152,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     );
     const threadID = props.route.params.threadInfo.id;
 
-    const reduxThreadInfo: ?LegacyThreadInfo | ?ThreadInfo = useSelector(
+    const reduxThreadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
     React.useEffect(() => {
@@ -1226,7 +1169,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: LegacyThreadInfo | ThreadInfo =
+    const threadInfo: ThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
@@ -1241,9 +1184,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     }, [threadInfo]);
 
     const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo = useSelector(
-      state =>
-        parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
     const resolvedParentThreadInfo =
       useResolvedOptionalThreadInfo(parentThreadInfo);

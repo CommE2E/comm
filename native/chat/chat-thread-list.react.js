@@ -177,10 +177,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   const searchInputRef = React.useRef<?React.ElementRef<typeof TextInput>>();
 
   const onPressItem = React.useCallback(
-    (
-      threadInfo: LegacyThreadInfo | ThreadInfo,
-      pendingPersonalThreadUserInfo?: UserInfo,
-    ) => {
+    (threadInfo: ThreadInfo, pendingPersonalThreadUserInfo?: UserInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();
