@@ -1,5 +1,6 @@
 use super::file_info::BackupFileInfo;
 use super::get_user_identity_from_secure_store;
+use crate::backup::compaction_upload_promises;
 use crate::constants::BACKUP_SERVICE_CONNECTION_RETRY_DELAY;
 use crate::ffi::{
   get_backup_directory_path, get_backup_file_path, get_backup_log_file_path,
@@ -185,7 +186,7 @@ async fn delete_confirmed_logs(
   Err(BackupHandlerError::WSClosed)
 }
 
-mod compaction {
+pub mod compaction {
   use super::*;
 
   pub async fn upload_files(
@@ -217,6 +218,7 @@ mod compaction {
       .upload_backup(user_identity, backup_data)
       .await?;
 
+    compaction_upload_promises::resolve(&backup_id, Ok(()));
     tokio::spawn(cleanup_files(backup_id));
 
     Ok(())
