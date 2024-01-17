@@ -20,10 +20,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  type ThreadChanges,
-  type LegacyThreadInfo,
-} from 'lib/types/thread-types.js';
+import { type ThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
@@ -101,7 +98,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const hasPermissionForTab = React.useCallback(
       // ESLint doesn't recognize that invariant always throws
       // eslint-disable-next-line consistent-return
-      (thread: LegacyThreadInfo | ThreadInfo, tab: TabType) => {
+      (thread: ThreadInfo, tab: TabType) => {
         if (tab === 'general') {
           return (
             threadHasPermission(thread, threadPermissions.EDIT_THREAD_NAME) ||

@@ -8,7 +8,6 @@ import * as React from 'react';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './message-tooltip.css';
 import {
@@ -33,7 +32,7 @@ type MessageTooltipProps = {
   +tooltipPositionStyle: TooltipPositionStyle,
   +tooltipSize: TooltipSize,
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 function MessageTooltip(props: MessageTooltipProps): React.Node {
   const {

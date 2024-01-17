@@ -12,10 +12,7 @@ import {
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LegacyThreadInfo,
-  RelativeMemberInfo,
-} from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
@@ -32,7 +29,7 @@ const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
   +memberInfo: RelativeMemberInfo,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +setOpenMenu: SetState<?string>,
 };
 
