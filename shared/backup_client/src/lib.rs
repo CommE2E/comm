@@ -1,3 +1,6 @@
+use std::time::Duration;
+
+use async_stream::{stream, try_stream};
 pub use comm_lib::auth::UserIdentity;
 pub use comm_lib::backup::{
   DownloadLogsRequest, LatestBackupIDResponse, LogWSRequest, LogWSResponse,
@@ -21,6 +24,9 @@ use tokio_tungstenite::{
     Message::{Binary, Ping},
   },
 };
+
+const LOG_DOWNLOAD_RETRY_DELAY: Duration = Duration::from_secs(5);
+const LOG_DOWNLOAD_MAX_RETRY: usize = 3;
 
 #[derive(Debug, Clone)]
 pub struct BackupClient {
@@ -130,36 +136,112 @@ impl BackupClient {
       LogWSResponse::LogUploaded { backup_id, log_id } => {
         Ok(LogUploadConfirmation { backup_id, log_id })
       }
-      LogWSResponse::LogDownload { .. }
-      | LogWSResponse::LogDownloadFinished { .. } => {
-        Err(Error::InvalidBackupMessage)
-      }
       LogWSResponse::ServerError => Err(Error::ServerError),
+      msg => Err(Error::InvalidBackupMessage(msg)),
     });
 
     Ok((tx, rx))
   }
 
-  pub async fn download_logs(
-    &self,
-    user_identity: &UserIdentity,
-  ) -> Result<
-    (
-      impl Sink<DownloadLogsRequest, Error = Error>,
-      impl Stream<Item = Result<LogWSResponse, Error>>,
-    ),
-    Error,
-  > {
-    let (tx, rx) = self.create_log_ws_connection(user_identity).await?;
+  /// Handles complete log download.
+  /// It will try and retry download a few times, but if the issues persist
+  /// the next item returned will be the last received error and the stream
+  /// will be closed.
+  pub async fn download_logs<'this>(
+    &'this self,
+    user_identity: &'this UserIdentity,
+    backup_id: &'this str,
+  ) -> impl Stream<Item = Result<DownloadedLog, Error>> + 'this {
+    stream! {
+      let mut last_downloaded_log = None;
+      let mut fail_count = 0;
 
-    let rx = rx.map(|response| match response? {
-      msg @ (LogWSResponse::LogDownloadFinished { .. }
-      | LogWSResponse::LogDownload { .. }) => Ok(msg),
-      LogWSResponse::LogUploaded { .. } => Err(Error::InvalidBackupMessage),
-      LogWSResponse::ServerError => Err(Error::ServerError),
-    });
+      'retry: loop {
+        let stream = self.log_download_stream(user_identity, backup_id, &mut last_downloaded_log).await;
+        let mut stream = Box::pin(stream);
 
-    Ok((tx, rx))
+        while let Some(item) = stream.next().await {
+          match item {
+            Ok(log) => yield Ok(log),
+            Err(err) => {
+              println!("Error when downloading logs: {err:?}");
+
+              fail_count += 1;
+              if fail_count >= LOG_DOWNLOAD_MAX_RETRY {
+                yield Err(err);
+                break 'retry;
+              }
+
+              tokio::time::sleep(LOG_DOWNLOAD_RETRY_DELAY).await;
+              continue 'retry;
+            }
+          }
+        }
+
+        // Everything downloaded
+        return;
+      }
+
+      println!("Log download failed!");
+    }
+  }
+
+  /// Handles singular connection websocket connection. Returns error in case
+  /// anything goes wrong e.g. missing log or connection error.
+  async fn log_download_stream<'stream>(
+    &'stream self,
+    user_identity: &'stream UserIdentity,
+    backup_id: &'stream str,
+    last_downloaded_log: &'stream mut Option<usize>,
+  ) -> impl Stream<Item = Result<DownloadedLog, Error>> + 'stream {
+    try_stream! {
+      let (tx, rx) = self.create_log_ws_connection(user_identity).await?;
+
+      let mut tx = Box::pin(tx);
+      let mut rx = Box::pin(rx);
+
+      tx.send(DownloadLogsRequest {
+        backup_id: backup_id.to_string(),
+        from_id: *last_downloaded_log,
+      })
+      .await?;
+
+      while let Some(response) = rx.try_next().await? {
+        let expected_log_id = last_downloaded_log.unwrap_or(0);
+        match response {
+          LogWSResponse::LogDownload {
+            content,
+            attachments,
+            log_id,
+          } if log_id == expected_log_id + 1 => {
+            *last_downloaded_log = Some(log_id);
+            yield DownloadedLog {
+              content,
+              attachments,
+            };
+          }
+          LogWSResponse::LogDownload { .. } => {
+            Err(Error::LogMissing)?;
+          }
+          LogWSResponse::LogDownloadFinished {
+            last_log_id: Some(log_id),
+          } if log_id == expected_log_id => {
+            tx.send(DownloadLogsRequest {
+              backup_id: backup_id.to_string(),
+              from_id: *last_downloaded_log,
+            })
+            .await?
+          }
+          LogWSResponse::LogDownloadFinished { last_log_id: None } => return,
+          LogWSResponse::LogDownloadFinished { .. } => {
+            Err(Error::LogMissing)?;
+          }
+          msg => Err(Error::InvalidBackupMessage(msg))?,
+        }
+      }
+
+      Err(Error::WSClosed)?;
+    }
   }
 
   async fn create_log_ws_connection<Request: Into<LogWSRequest>>(
@@ -261,9 +343,13 @@ pub struct LogUploadConfirmation {
   pub log_id: usize,
 }
 
-#[derive(
-  Debug, derive_more::Display, derive_more::Error, derive_more::From,
-)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct DownloadedLog {
+  pub content: Vec<u8>,
+  pub attachments: Option<Vec<String>>,
+}
+
+#[derive(Debug, derive_more::Display, derive_more::From)]
 pub enum Error {
   InvalidAuthorizationHeader,
   UrlSchemaError,
@@ -273,9 +359,13 @@ pub enum Error {
   JsonError(serde_json::Error),
   BincodeError(bincode::Error),
   InvalidWSMessage,
-  InvalidBackupMessage,
+  #[display(fmt = "Error::InvalidBackupMessage({:?})", _0)]
+  InvalidBackupMessage(LogWSResponse),
   ServerError,
+  LogMissing,
+  WSClosed,
 }
+impl std::error::Error for Error {}
 
 impl From<InvalidHeaderValue> for Error {
   fn from(_: InvalidHeaderValue) -> Self {
