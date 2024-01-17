@@ -16,12 +16,15 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::ddb_utils::{
-  create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
-  OlmAccountType,
-};
 use crate::error::{consume_error, Error};
 use crate::reserved_users::UserDetail;
+use crate::{
+  ddb_utils::{
+    create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
+    OlmAccountType,
+  },
+  grpc_services::protos,
+};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
@@ -51,6 +54,8 @@ pub use grpc_clients::identity::DeviceType;
 
 mod device_list;
 pub use device_list::DeviceListRow;
+
+use self::device_list::PreKey;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
@@ -94,12 +99,6 @@ impl TryFrom<DBDeviceTypeInt> for DeviceType {
   }
 }
 
-// This is very similar to the protobuf definitions, however,
-// coupling the protobuf schema to the database API should be avoided.
-pub struct PreKey {
-  pub prekey: String,
-  pub prekey_signature: String,
-}
 pub struct OutboundKeys {
   pub key_payload: String,
   pub key_payload_signature: String,
@@ -108,6 +107,23 @@ pub struct OutboundKeys {
   pub notif_prekey: PreKey,
   pub content_one_time_key: Option<String>,
   pub notif_one_time_key: Option<String>,
+}
+
+impl From<OutboundKeys> for protos::auth::OutboundKeyInfo {
+  fn from(db_keys: OutboundKeys) -> Self {
+    use protos::unauth::IdentityKeyInfo;
+    Self {
+      identity_info: Some(IdentityKeyInfo {
+        payload: db_keys.key_payload,
+        payload_signature: db_keys.key_payload_signature,
+        social_proof: db_keys.social_proof,
+      }),
+      content_prekey: Some(db_keys.content_prekey.into()),
+      notif_prekey: Some(db_keys.notif_prekey.into()),
+      one_time_content_prekey: db_keys.content_one_time_key,
+      one_time_notif_prekey: db_keys.notif_one_time_key,
+    }
+  }
 }
 
 #[derive(Clone)]
@@ -149,7 +165,6 @@ impl DatabaseClient {
         device_key_upload.clone(),
         Some((registration_state.username, Blob::new(password_file))),
         None,
-        None,
         registration_state.user_id,
       )
       .await?;
@@ -182,7 +197,6 @@ impl DatabaseClient {
         flattened_device_key_upload.clone(),
         None,
         Some(wallet_address),
-        social_proof.clone(),
         user_id,
       )
       .await?;
@@ -205,7 +219,6 @@ impl DatabaseClient {
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     username_and_password_file: Option<(String, Blob)>,
     wallet_address: Option<String>,
-    social_proof: Option<String>,
     user_id: Option<String>,
   ) -> Result<String, Error> {
     let user_id = user_id.unwrap_or_else(generate_uuid);
@@ -255,61 +268,11 @@ impl DatabaseClient {
     Ok(user_id)
   }
 
-  pub async fn add_password_user_device_to_users_table(
+  pub async fn add_user_device(
     &self,
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
-    access_token_creation_time: DateTime<Utc>,
-  ) -> Result<(), Error> {
-    let content_one_time_keys =
-      flattened_device_key_upload.content_one_time_keys.clone();
-    let notif_one_time_keys =
-      flattened_device_key_upload.notif_one_time_keys.clone();
-
-    // add device to the device list if not exists
-    let device_id = flattened_device_key_upload.device_id_key.clone();
-    let device_exists = self
-      .device_exists(user_id.clone(), device_id.clone())
-      .await?;
-
-    if device_exists {
-      self
-        .update_device_login_time(
-          user_id.clone(),
-          device_id,
-          access_token_creation_time,
-        )
-        .await?;
-      return Ok(());
-    }
-
-    self
-      .add_device(
-        user_id,
-        flattened_device_key_upload,
-        None,
-        code_version,
-        access_token_creation_time,
-      )
-      .await?;
-
-    self
-      .append_one_time_prekeys(
-        device_id,
-        content_one_time_keys,
-        notif_one_time_keys,
-      )
-      .await?;
-
-    Ok(())
-  }
-
-  pub async fn add_wallet_user_device_to_users_table(
-    &self,
-    user_id: String,
-    flattened_device_key_upload: FlattenedDeviceKeyUpload,
-    social_proof: String,
+    social_proof: Option<String>,
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
@@ -340,7 +303,7 @@ impl DatabaseClient {
       .add_device(
         user_id,
         flattened_device_key_upload,
-        Some(social_proof),
+        social_proof,
         code_version,
         access_token_creation_time,
       )
@@ -408,14 +371,8 @@ impl DatabaseClient {
       key_payload: keyserver.device_key_info.key_payload,
       key_payload_signature: keyserver.device_key_info.key_payload_signature,
       social_proof: keyserver.device_key_info.social_proof,
-      content_prekey: PreKey {
-        prekey: keyserver.content_prekey.pre_key,
-        prekey_signature: keyserver.content_prekey.pre_key_signature,
-      },
-      notif_prekey: PreKey {
-        prekey: keyserver.notif_prekey.pre_key,
-        prekey_signature: keyserver.notif_prekey.pre_key_signature,
-      },
+      content_prekey: keyserver.content_prekey,
+      notif_prekey: keyserver.notif_prekey,
       content_one_time_key,
       notif_one_time_key,
     };
@@ -534,27 +491,6 @@ impl DatabaseClient {
       })
   }
 
-  pub async fn set_prekey(
-    &self,
-    user_id: String,
-    device_id: String,
-    content_prekey: String,
-    content_prekey_signature: String,
-    notif_prekey: String,
-    notif_prekey_signature: String,
-  ) -> Result<(), Error> {
-    self
-      .update_device_prekeys(
-        user_id,
-        device_id,
-        content_prekey,
-        content_prekey_signature,
-        notif_prekey,
-        notif_prekey_signature,
-      )
-      .await
-  }
-
   pub async fn append_one_time_prekeys(
     &self,
     device_id: String,
@@ -587,14 +523,6 @@ impl DatabaseClient {
     }
 
     Ok(())
-  }
-
-  pub async fn remove_device_from_users_table(
-    &self,
-    user_id: String,
-    device_id_key: String,
-  ) -> Result<(), Error> {
-    self.remove_device(&user_id, &device_id_key).await
   }
 
   pub async fn update_user_password(
@@ -916,25 +844,16 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_keys_for_user_id(
+  pub async fn get_keys_for_user(
     &self,
     user_id: &str,
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
-    let Some(user) = self.get_item_from_users_table(user_id).await?.item else {
-      return Ok(None);
-    };
-
-    self.get_keys_for_user(user, get_one_time_keys).await
-  }
-
-  async fn get_keys_for_user(
-    &self,
-    mut user: AttributeMap,
-    get_one_time_keys: bool,
-  ) -> Result<Option<Devices>, Error> {
-    let user_id: String = user.take_attr(USERS_TABLE_PARTITION_KEY)?;
     let mut devices_response = self.get_keys_for_user_devices(user_id).await?;
+    if devices_response.is_empty() {
+      debug!("No devices found for user {}", user_id);
+      return Ok(None);
+    }
 
     if get_one_time_keys {
       for (device_id_key, device_info_map) in devices_response.iter_mut() {

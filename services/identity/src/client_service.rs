@@ -335,9 +335,10 @@ impl IdentityClientService for ClientService {
       let login_time = chrono::Utc::now();
       self
         .client
-        .add_password_user_device_to_users_table(
+        .add_user_device(
           state.user_id.clone(),
           state.flattened_device_key_upload.clone(),
+          None,
           code_version,
           login_time,
         )
@@ -417,10 +418,10 @@ impl IdentityClientService for ClientService {
         // User already exists, so we should update the DDB item
         self
           .client
-          .add_wallet_user_device_to_users_table(
+          .add_user_device(
             id.clone(),
             flattened_device_key_upload.clone(),
-            social_proof,
+            Some(social_proof),
             code_version,
             chrono::Utc::now(),
           )
