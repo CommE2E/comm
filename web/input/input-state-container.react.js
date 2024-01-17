@@ -636,8 +636,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               this.cancelPendingUpload(threadID, localUploadID),
             sendTextMessage: (
               messageInfo: RawTextMessageInfo,
-              threadInfo: LegacyThreadInfo | ThreadInfo,
-              parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+              threadInfo: ThreadInfo,
+              parentThreadInfo: ?ThreadInfo,
             ) =>
               this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
             createMultimediaMessage: (
@@ -1244,8 +1244,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
-    inputThreadInfo: LegacyThreadInfo | ThreadInfo,
-    parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+    inputThreadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 

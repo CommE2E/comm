@@ -28,7 +28,6 @@ import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -56,7 +55,7 @@ const supportsReverseFlex =
 const editBoxTopMargin = 10;
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 type Props = {

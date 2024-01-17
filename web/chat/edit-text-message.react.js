@@ -9,7 +9,6 @@ import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { useEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { trimMessage } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { editBoxBottomRowHeight } from './chat-constants.js';
 import ChatInputTextArea from './chat-input-text-area.react.js';
@@ -21,7 +20,7 @@ import Button from '../components/button.react.js';
 
 type Props = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
   +background: boolean,
 };
 

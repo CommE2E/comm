@@ -9,7 +9,6 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -27,7 +26,7 @@ import Modal from '../../modal.react.js';
 
 type Props = {
   +onClose: () => void,
-  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +parentThreadInfo: ThreadInfo,
 };
 
 const getThreadType = (visibility: VisibilityType, announcement: boolean) => {
