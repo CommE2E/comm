@@ -18,7 +18,6 @@ import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type ThreadType, threadTypes } from 'lib/types/thread-types-enum.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -50,7 +49,7 @@ const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
 
 export type ComposeSubchannelParams = {
   +threadType: ThreadType,
-  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +parentThreadInfo: ThreadInfo,
 };
 
 type Props = {
@@ -205,29 +204,25 @@ function ComposeSubchannel(props: Props): React.Node {
     threadType,
   });
 
-  const existingThreads: $ReadOnlyArray<LegacyThreadInfo | ThreadInfo> =
-    React.useMemo(() => {
-      if (userInfoInputIDs.length === 0) {
-        return [];
-      }
-      return _flow(
-        _filter(
-          (threadInfo: LegacyThreadInfo | ThreadInfo) =>
-            threadInFilterList(threadInfo) &&
-            threadInfo.parentThreadID === parentThreadInfo.id &&
-            userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
-        ),
-        _sortBy(
-          ([
-            'members.length',
-            (threadInfo: LegacyThreadInfo | ThreadInfo) =>
-              threadInfo.name ? 1 : 0,
-          ]: $ReadOnlyArray<
-            string | ((threadInfo: LegacyThreadInfo | ThreadInfo) => mixed),
-          >),
-        ),
-      )(threadInfos);
-    }, [userInfoInputIDs, threadInfos, parentThreadInfo]);
+  const existingThreads: $ReadOnlyArray<ThreadInfo> = React.useMemo(() => {
+    if (userInfoInputIDs.length === 0) {
+      return [];
+    }
+    return _flow(
+      _filter(
+        (threadInfo: ThreadInfo) =>
+          threadInFilterList(threadInfo) &&
+          threadInfo.parentThreadID === parentThreadInfo.id &&
+          userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
+      ),
+      _sortBy(
+        ([
+          'members.length',
+          (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
+        ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
+      ),
+    )(threadInfos);
+  }, [userInfoInputIDs, threadInfos, parentThreadInfo]);
 
   const navigateToThread = useNavigateToThread();
   const onSelectExistingThread = React.useCallback(

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
 
 import { sidebarHeight, SidebarItem } from './sidebar-item.react.js';
 import SwipeableThread from './swipeable-thread.react.js';
@@ -16,8 +16,8 @@ import Arrow from '../vectors/arrow.react.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
-  +onPressItem: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
-  +onSwipeableWillOpen: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
+  +onPressItem: (threadInfo: ThreadInfo) => void,
+  +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
   +extendArrow: boolean,
 };

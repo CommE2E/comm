@@ -37,7 +37,6 @@ import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ConnectionStatus } from 'lib/types/socket-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import {
   dateFromString,
   dateString,
@@ -115,7 +114,7 @@ type CalendarItemWithHeight =
   | {
       itemType: 'entryInfo',
       entryInfo: EntryInfoWithHeight,
-      threadInfo: LegacyThreadInfo | ThreadInfo,
+      threadInfo: ThreadInfo,
     };
 type ExtraData = {
   +activeEntries: { +[key: string]: boolean },

@@ -25,8 +25,9 @@ function ThreadAncestors(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
-  const ancestorThreads: $ReadOnlyArray<LegacyThreadInfo | ThreadInfo> =
-    useSelector(ancestorThreadInfos(threadInfo.id));
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
+    ancestorThreadInfos(threadInfo.id),
+  );
 
   const rightArrow = React.useMemo(
     () => (

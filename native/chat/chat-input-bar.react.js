@@ -79,7 +79,6 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ChatMentionCandidates,
   ClientThreadJoinRequest,
-  LegacyThreadInfo,
   RelativeMemberInfo,
   ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
@@ -274,7 +273,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 type Props = {
   ...BaseProps,
@@ -298,7 +297,7 @@ type Props = {
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
-  +parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (
