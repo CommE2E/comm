@@ -21,7 +21,6 @@ import {
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
@@ -41,7 +40,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
