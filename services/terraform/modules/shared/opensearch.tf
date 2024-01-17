@@ -29,7 +29,7 @@ resource "aws_opensearch_domain" "identity-search" {
   engine_version = "OpenSearch_1.0"
 
   cluster_config {
-    instance_type = "t3.medium.search"
+    instance_type = "t3.small.search"
   }
 
   vpc_options {
