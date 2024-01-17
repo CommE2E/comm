@@ -19,7 +19,6 @@ import {
 } from 'lib/shared/message-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -30,7 +29,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import Modal from '../modal.react.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
+  +threadInfo: ThreadInfo,
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(

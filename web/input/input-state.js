@@ -70,8 +70,8 @@ export type BaseInputState = {
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
-    threadInfo: LegacyThreadInfo | ThreadInfo,
-    parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+    threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) => mixed,
   +createMultimediaMessage: (
     localID: number,
