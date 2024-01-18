@@ -16,4 +16,4 @@ tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 serde_derive = "1.0.193"
 serde = "1.0.193"
 aws-smithy-types = "1.1.1"
-anyhow = "1.0.75"
+derive_more = "0.99.17"

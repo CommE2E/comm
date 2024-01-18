@@ -1,109 +1,27 @@
-use anyhow::{anyhow, Result};
-use lambda_runtime::{service_fn, Error, LambdaEvent};
+use lambda_runtime::{service_fn, LambdaEvent};
 use reqwest::Response;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde_derive::Serialize;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
 
 mod constants;
+mod error;
+mod payload;
+mod query;
 
-#[derive(Deserialize, Serialize, Debug)]
-struct User {
+use error::{Error, RecordError};
+use payload::{AttributeValue, EventPayload, OperationType, StreamRecord};
+use query::{Match, Query, Script, Term, UpdateByQuery};
+
+#[derive(Serialize, Debug)]
+pub struct User {
   #[serde(rename = "userID")]
-  user_id: String,
-  username: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct UpdateByQuery {
-  query: Query,
-
-  #[serde(skip_serializing_if = "Option::is_none")]
-  script: Option<Script>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Script {
-  source: String,
-  lang: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Query {
-  #[serde(skip_serializing_if = "Option::is_none")]
-  r#match: Option<Match>,
-
-  #[serde(skip_serializing_if = "Option::is_none")]
-  term: Option<Term>,
-}
-
-#[derive(Deserialize, Serialize)]
-struct Match {
-  #[serde(rename = "userID")]
-  user_id: String,
-}
-
-#[derive(Deserialize, Serialize)]
-struct Term {
-  #[serde(rename = "userID")]
-  user_id: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-enum EventName {
-  Insert,
-  Modify,
-  Remove,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct StreamRecord {
-  new_image: Option<HashMap<String, AttributeValue>>,
-  old_image: Option<HashMap<String, AttributeValue>>,
-}
-
-#[derive(Deserialize)]
-enum AttributeValue {
-  B(String),
-  Bool(bool),
-  BS(Vec<String>),
-  L(Vec<AttributeValue>),
-  M(HashMap<String, AttributeValue>),
-  N(String),
-  Ns(Vec<String>),
-  Null(bool),
-  S(String),
-  Ss(Vec<String>),
-  #[non_exhaustive]
-  Unknown,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-enum OperationType {
-  Insert,
-  Modify,
-  Remove,
-}
-
-#[derive(Deserialize)]
-struct Record {
-  #[serde(rename = "eventName")]
-  event_name: Option<OperationType>,
-  dynamodb: Option<StreamRecord>,
-}
-
-#[derive(Deserialize)]
-struct EventPayload {
-  #[serde(rename = "Records")]
-  records: Vec<Record>,
+  pub user_id: String,
+  pub username: String,
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn main() -> Result<(), lambda_runtime::Error> {
   let filter = EnvFilter::builder()
     .with_default_directive(Level::INFO.into())
     .with_env_var(constants::LOG_LEVEL_ENV_VAR)
@@ -116,7 +34,7 @@ async fn main() -> Result<(), Error> {
     .finish();
 
   tracing::subscriber::set_global_default(subscriber)
-    .expect("Unable to configure tracing");
+    .map_err(|e| Error::TracingError(e))?;
 
   let func = service_fn(func);
   lambda_runtime::run(func).await?;
@@ -124,11 +42,11 @@ async fn main() -> Result<(), Error> {
   Ok(())
 }
 
-async fn func(event: LambdaEvent<EventPayload>) -> Result<()> {
+async fn func(event: LambdaEvent<EventPayload>) -> Result<(), error::Error> {
   tracing::debug!("Running in debug mode");
 
-  let endpoint =  std::env::var("OPENSEARCH_ENDPOINT")
-  .expect("An OPENSEARCH_ENDPOINT must be set in this app's Lambda environment variables.");
+  let endpoint = std::env::var("OPENSEARCH_ENDPOINT")
+    .map_err(|e| Error::MissingOpenSearchEndpoint(e))?;
 
   tracing::info!("endpoint: {:?}", endpoint);
 
@@ -136,16 +54,18 @@ async fn func(event: LambdaEvent<EventPayload>) -> Result<()> {
   println!("records: {}", &payload.records.len());
 
   for record in payload.records {
-    let event_name = record.event_name.expect("failed to get event name");
-    let dynamodb = record
-      .dynamodb
-      .expect("failed to get dynamodb StreamRecord");
+    let event_name = record
+      .event_name
+      .ok_or(Error::PayloadError(RecordError::MissingEventName))?;
+    let dynamodb = record.dynamodb.ok_or(Error::PayloadError(
+      RecordError::MissingDynamoDBStreamRecord,
+    ))?;
 
     let res = match event_name {
-      OperationType::Insert => handle_insert(&dynamodb, &endpoint).await?,
-      OperationType::Modify => handle_modify(&dynamodb, &endpoint).await?,
-      OperationType::Remove => handle_remove(&dynamodb, &endpoint).await?,
-    };
+      OperationType::Insert => handle_insert(&dynamodb, &endpoint).await,
+      OperationType::Modify => handle_modify(&dynamodb, &endpoint).await,
+      OperationType::Remove => handle_remove(&dynamodb, &endpoint).await,
+    }?;
 
     match res.status() {
       reqwest::StatusCode::OK | reqwest::StatusCode::CREATED => {
@@ -157,10 +77,7 @@ async fn func(event: LambdaEvent<EventPayload>) -> Result<()> {
           res.status()
         );
 
-        return Err(anyhow!(
-          "failed to update identity-search index, status: {}",
-          res.status()
-        ));
+        return Err(Error::UpdateIndexError(res.status()));
       }
     }
   }
@@ -168,10 +85,10 @@ async fn func(event: LambdaEvent<EventPayload>) -> Result<()> {
   Ok(())
 }
 
-async fn send_request(
+async fn update_index(
   url: String,
   json_body: String,
-) -> Result<Response, anyhow::Error> {
+) -> Result<Response, error::Error> {
   let client = reqwest::Client::new();
 
   client
@@ -180,37 +97,35 @@ async fn send_request(
     .body(json_body)
     .send()
     .await
-    .map_err(|err| {
-      anyhow!("failed to update identity-search index, err: {}", err)
+    .map_err(|e| {
+      tracing::error!("Reqwest Error: {:?}", e);
+      Error::ReqwestError(e)
     })
 }
 
 async fn handle_insert(
   dynamodb: &StreamRecord,
   endpoint: &str,
-) -> Result<Response, anyhow::Error> {
+) -> Result<Response, error::Error> {
   tracing::info!("Handle INSERT event");
   let new_image = dynamodb
     .new_image
     .as_ref()
-    .expect("failed to get new image");
+    .ok_or(Error::PayloadError(RecordError::MissingNewImage))?;
 
   let user_id_attribute = new_image
     .get(constants::DYNAMODB_USER_ID_KEY)
-    .expect("failed to get userid");
+    .ok_or(Error::PayloadError(RecordError::MissingUserId))?;
+
   let username_attribute = new_image
     .get(constants::DYNAMODB_USERNAME_KEY)
-    .expect("failed to get username");
+    .ok_or(Error::PayloadError(RecordError::MissingUsername))?;
 
   let (user_id, username) = match (user_id_attribute, username_attribute) {
     (AttributeValue::S(user_id), AttributeValue::S(username)) => {
       (user_id, username)
     }
-    _ => {
-      return Err(anyhow!(
-        "failed to get user_id and username from AttributeValue"
-      ))
-    }
+    _ => return Err(Error::PayloadError(RecordError::InvalidAttributeType)),
   };
 
   let user_body = User {
@@ -218,40 +133,39 @@ async fn handle_insert(
     username: username.clone(),
   };
 
-  let json_body =
-    serde_json::to_string(&user_body).expect("failed to serialize user body");
+  let json_body = serde_json::to_string(&user_body).map_err(|e| {
+    tracing::error!("Serialization Error: {:?}", e);
+    Error::SerializationError(e)
+  })?;
 
   let url = format!("https://{}/users/_doc/{}", endpoint, user_body.user_id);
 
-  send_request(url, json_body).await
+  update_index(url, json_body).await
 }
 
 async fn handle_modify(
   dynamodb: &StreamRecord,
   endpoint: &str,
-) -> Result<Response, anyhow::Error> {
+) -> Result<Response, error::Error> {
   tracing::info!("Handle MODIFY event");
   let new_image = dynamodb
     .new_image
     .as_ref()
-    .expect("failed to get new image");
+    .ok_or(Error::PayloadError(RecordError::MissingNewImage))?;
 
   let user_id_attribute = new_image
     .get(constants::DYNAMODB_USER_ID_KEY)
-    .expect("failed to get userid");
+    .ok_or(Error::PayloadError(RecordError::MissingUserId))?;
+
   let username_attribute = new_image
     .get(constants::DYNAMODB_USERNAME_KEY)
-    .expect("failed to get username");
+    .ok_or(Error::PayloadError(RecordError::MissingUsername))?;
 
   let (user_id, username) = match (user_id_attribute, username_attribute) {
     (AttributeValue::S(user_id), AttributeValue::S(username)) => {
       (user_id, username)
     }
-    _ => {
-      return Err(anyhow!(
-        "failed to get user_id and username from AttributeValue",
-      ))
-    }
+    _ => return Err(Error::PayloadError(RecordError::InvalidAttributeType)),
   };
 
   let update_by_query = UpdateByQuery {
@@ -267,29 +181,32 @@ async fn handle_modify(
     }),
   };
 
-  let json_body = serde_json::to_string(&update_by_query)
-    .expect("failed to serialize user body");
+  let json_body = serde_json::to_string(&update_by_query).map_err(|e| {
+    tracing::error!("Serialization Error: {:?}", e);
+    Error::SerializationError(e)
+  })?;
+
   let url = format!("https://{}/users/_update_by_query/", endpoint);
 
-  send_request(url, json_body).await
+  update_index(url, json_body).await
 }
 
 async fn handle_remove(
   dynamodb: &StreamRecord,
   endpoint: &str,
-) -> Result<Response, anyhow::Error> {
+) -> Result<Response, error::Error> {
   tracing::info!("Handle REMOVE event");
   let old_image = dynamodb
     .old_image
     .as_ref()
-    .expect("failed to get old image");
+    .ok_or(Error::PayloadError(RecordError::MissingOldImage))?;
 
   let user_id_attribute = old_image
     .get(constants::DYNAMODB_USER_ID_KEY)
-    .expect("failed to get userid");
+    .ok_or(Error::PayloadError(RecordError::MissingUserId))?;
   let user_id = match user_id_attribute {
     AttributeValue::S(user_id) => user_id,
-    _ => return Err(anyhow!("failed to get user_id from AttributeValue")),
+    _ => return Err(Error::PayloadError(RecordError::InvalidAttributeType)),
   };
 
   let update_by_query = UpdateByQuery {
@@ -302,9 +219,11 @@ async fn handle_remove(
     script: None,
   };
 
-  let json_body = serde_json::to_string(&update_by_query)
-    .expect("failed to serialize user body");
+  let json_body = serde_json::to_string(&update_by_query).map_err(|e| {
+    tracing::error!("Serialization Error: {:?}", e);
+    Error::SerializationError(e)
+  })?;
   let url = format!("https://{}/users/_delete_by_query/", endpoint);
 
-  send_request(url, json_body).await
+  update_index(url, json_body).await
 }
