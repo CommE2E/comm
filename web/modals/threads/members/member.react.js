@@ -15,7 +15,6 @@ import type {
   MinimallyEncodedRelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
@@ -31,7 +30,7 @@ import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.j
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo,
   +setOpenMenu: SetState<?string>,
 };
