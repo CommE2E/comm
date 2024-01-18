@@ -36,10 +36,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ResolvedNotifTexts } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
-import type {
-  LegacyThreadInfo,
-  ServerThreadInfo,
-} from 'lib/types/thread-types.js';
+import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -194,7 +191,7 @@ async function preparePushNotif(input: {
   pushUserInfo: PushUserInfo,
   unreadCount: number,
   threadInfos: {
-    +[threadID: string]: LegacyThreadInfo | ThreadInfo,
+    +[threadID: string]: ThreadInfo,
   },
   userInfos: { +[userID: string]: GlobalUserInfo },
   dbIDs: string[], // mutable
