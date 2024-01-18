@@ -27,8 +27,7 @@ std::unique_ptr<T> getEntityByPrimaryKey(
     std::string primaryKey) {
   SQLiteStatementWrapper preparedSQL(
       db, getEntityByPrimaryKeySQL, "Failed to fetch row by primary key.");
-  int bindResult =
-      sqlite3_bind_text(preparedSQL, 1, primaryKey.c_str(), -1, SQLITE_STATIC);
+  int bindResult = bindStringToSQL(primaryKey, preparedSQL, 1);
   if (bindResult != SQLITE_OK) {
     std::stringstream error_message;
     error_message << "Failed to bind primary key to SQL statement. Details: "
@@ -50,6 +49,34 @@ std::unique_ptr<T> getEntityByPrimaryKey(
 
   T entity = T::fromSQLResult(preparedSQL, 0);
   return std::make_unique<T>(std::move(entity));
+}
+
+template <typename T>
+void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
+  SQLiteStatementWrapper preparedSQL(
+      db, replaceEntitySQL, "Failed to replace entity.");
+  // "REPLACE INTO ..." query is assumed since
+  // it was used by orm previously
+  int bindResult = entity.bindToSQL(preparedSQL, 1);
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind entity to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+
+  sqlite3_step(preparedSQL);
+}
+
+void executeQuery(sqlite3 *db, std::string querySQL) {
+  char *err;
+  sqlite3_exec(db, querySQL.c_str(), nullptr, nullptr, &err);
+  if (err) {
+    std::stringstream error_message;
+    error_message << "Failed to execute query. Details: " << err << std::endl;
+    sqlite3_free(err);
+    throw std::runtime_error(error_message.str());
+  }
 }
 
 } // namespace comm
