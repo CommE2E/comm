@@ -5,7 +5,36 @@ import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 
-import { type WebClientDBThreadInfo } from './entities.js';
+import {
+  type WebClientDBThreadInfo,
+  type NullableString,
+  type NullableInt,
+} from './entities.js';
+
+type WebMessage = {
+  +id: string,
+  +localID: NullableString,
+  +thread: string,
+  +user: string,
+  +type: number,
+  +futureType: NullableInt,
+  +content: NullableString,
+  +time: string,
+};
+
+type Media = {
+  +id: string,
+  +container: string,
+  +thread: string,
+  +uri: string,
+  +type: string,
+  +extras: string,
+};
+
+type OlmPersistSession = {
+  +targetUserID: string,
+  +sessionData: string,
+};
 
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string): void;
@@ -15,6 +44,32 @@ declare export class SQLiteQueryExecutor {
   getAllDrafts(): ClientDBDraftInfo[];
   removeAllDrafts(): void;
   removeDrafts(ids: $ReadOnlyArray<string>): void;
+
+  getAllMessagesWeb(): $ReadOnlyArray<{
+    +message: WebMessage,
+    +medias: $ReadOnlyArray<Media>,
+  }>;
+  removeAllMessages(): void;
+  removeMessages(ids: $ReadOnlyArray<string>): void;
+  removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
+  replaceMessageWeb(message: WebMessage): void;
+  rekeyMessage(from: string, to: string): void;
+  removeAllMedia(): void;
+  removeMediaForThreads(threadIDs: $ReadOnlyArray<string>): void;
+  removeMediaForMessages(msgIDs: $ReadOnlyArray<string>): void;
+  removeMediaForMessage(msgID: string): void;
+  replaceMedia(media: Media): void;
+  rekeyMediaContainers(from: string, to: string): void;
+
+  replaceMessageStoreThreads(
+    threads: $ReadOnlyArray<{ +id: string, +startReached: number }>,
+  ): void;
+  removeMessageStoreThreads($ReadOnlyArray<string>): void;
+  getAllMessageStoreThreads(): $ReadOnlyArray<{
+    +id: string,
+    +startReached: number,
+  }>;
+  removeAllMessageStoreThreads(): void;
 
   setMetadata(entryName: string, data: string): void;
   clearMetadata(entryName: string): void;
@@ -29,7 +84,7 @@ declare export class SQLiteQueryExecutor {
   removePersistStorageItem(key: string): void;
   getPersistStorageItem(key: string): string;
 
-  replaceUser(user_info: ClientDBUserInfo): void;
+  replaceUser(userInfo: ClientDBUserInfo): void;
   removeUsers(ids: $ReadOnlyArray<string>): void;
   removeAllUsers(): void;
   getAllUsers(): ClientDBUserInfo[];
@@ -47,6 +102,12 @@ declare export class SQLiteQueryExecutor {
   beginTransaction(): void;
   commitTransaction(): void;
   rollbackTransaction(): void;
+
+  getOlmPersistAccountDataWeb(): NullableString;
+  getOlmPersistSessionsData(): $ReadOnlyArray<OlmPersistSession>;
+  storeOlmPersistAccount(accountData: string): void;
+  storeOlmPersistSession(session: OlmPersistSession): void;
+
   restoreFromMainCompaction(
     mainCompactionPath: string,
     mainCompactionEncryptionKey: string,
