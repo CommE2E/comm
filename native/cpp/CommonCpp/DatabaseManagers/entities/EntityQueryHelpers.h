@@ -107,6 +107,45 @@ void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
       preparedSQL, stepResult, "Failed to replace entity.");
 }
 
+void removeAllEntities(sqlite3 *db, std::string removeAllEntitiesSQL) {
+  sqlite3_stmt *preparedSQL = getPreparedSQL(db, removeAllEntitiesSQL);
+  int stepResult = sqlite3_step(preparedSQL);
+  finalizePreparedStatement(
+      preparedSQL, stepResult, "Failed to remove all entities.");
+}
+
+void removeEntitiesByKeys(
+    sqlite3 *db,
+    std::string removeEntitiesByKeysSQL,
+    const std::vector<std::string> &keys) {
+  sqlite3_stmt *preparedSQL = getPreparedSQL(db, removeEntitiesByKeysSQL);
+  for (int i = 0; i < keys.size(); i++) {
+    int bindResult = sqlite3_bind_text(
+        preparedSQL, i + 1, keys[i].c_str(), -1, SQLITE_STATIC);
+    if (bindResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to bind key to SQL statement. Details: "
+                    << sqlite3_errstr(bindResult) << std::endl;
+      sqlite3_finalize(preparedSQL);
+      throw std::runtime_error(error_message.str());
+    }
+  }
+
+  int stepResult = sqlite3_step(preparedSQL);
+  finalizePreparedStatement(
+      preparedSQL, stepResult, "Failed to remove entities by keys.");
+}
+
+std::string getSQLStatementArray(int length) {
+  std::stringstream array;
+  array << "(";
+  for (int i = 0; i < length - 1; i++) {
+    array << "?, ";
+  }
+  array << "?);";
+  return array.str();
+}
+
 void executeQuery(sqlite3 *db, std::string querySQL) {
   char *err;
   sqlite3_exec(db, querySQL.c_str(), nullptr, nullptr, &err);
