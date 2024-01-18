@@ -15,6 +15,11 @@ struct MessageStoreThread {
         sqlite3_column_int(sqlRow, idx + 1),
     };
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    sqlite3_bind_text(sql, idx, id.c_str(), -1, SQLITE_STATIC);
+    return sqlite3_bind_int(sql, idx + 1, start_reached);
+  }
 };
 
 } // namespace comm
