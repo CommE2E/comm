@@ -7,7 +7,7 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
 import type { UserCredentials } from '../user/checks.js';
-import { fetchIdentityInfo } from '../user/identity.js';
+import { verifyUserLoggedIn } from '../user/login.js';
 import { keyserverCodeVersion } from '../version.js';
 
 export const versionResponseValidator: TInterface<VersionResponse> =
@@ -23,7 +23,7 @@ async function versionResponder(): Promise<VersionResponse> {
     name: 'user_credentials',
   });
 
-  const identityInfoPromise = fetchIdentityInfo();
+  const identityInfoPromise = verifyUserLoggedIn();
 
   const [userInfo, identityInfo] = await Promise.all([
     userInfoPromise,
