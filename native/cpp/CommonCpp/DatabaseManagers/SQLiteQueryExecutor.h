@@ -4,6 +4,7 @@
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
 #include "entities/UserInfo.h"
+#include "sqlite_orm.h"
 
 #include <mutex>
 #include <string>
@@ -13,10 +14,13 @@ namespace comm {
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
   static auto &getStorage();
+  static sqlite3 *getConnection();
+  static void closeConnection();
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
   static std::string secureStoreEncryptionKeyID;
+  static sqlite3 *dbConnection;
 
 #ifndef EMSCRIPTEN
   static void assign_encryption_key();
@@ -27,6 +31,7 @@ public:
   static std::string encryptionKey;
 
   SQLiteQueryExecutor();
+  ~SQLiteQueryExecutor();
   SQLiteQueryExecutor(std::string sqliteFilePath);
   std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
