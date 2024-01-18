@@ -88,4 +88,33 @@ std::unique_ptr<T> getEntityByPrimaryKey(
   return std::make_unique<T>(std::move(entity));
 }
 
+template <typename T>
+void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
+  sqlite3_stmt *preparedSQL = getPreparedSQL(db, replaceEntitySQL);
+  // "REPLACE INTO ..." query is assumed since
+  // it was used by orm previously
+  int bindResult = entity.bindToSQL(preparedSQL, 1);
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind entity to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    sqlite3_finalize(preparedSQL);
+    throw std::runtime_error(error_message.str());
+  }
+
+  int stepResult = sqlite3_step(preparedSQL);
+  finalizePreparedStatement(
+      preparedSQL, stepResult, "Failed to replace entity.");
+}
+
+void executeQuery(sqlite3 *db, std::string querySQL) {
+  char *err;
+  sqlite3_exec(db, querySQL.c_str(), nullptr, nullptr, &err);
+  if (err) {
+    std::stringstream error_message;
+    error_message << "Failed to execute query. Details: " << err << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+}
+
 } // namespace comm
