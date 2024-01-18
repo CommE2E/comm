@@ -12,7 +12,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -27,7 +27,7 @@ import Modal from '../../modal.react.js';
 import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
 type ChangeMemberRoleModalProps = {
-  +memberInfo: MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
 };
 

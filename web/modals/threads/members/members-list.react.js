@@ -8,7 +8,7 @@ import * as React from 'react';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
@@ -17,7 +17,7 @@ import css from './members-modal.css';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +threadMembers: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>,
+  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
 
 function ThreadMembersList(props: Props): React.Node {
@@ -42,7 +42,7 @@ function ThreadMembersList(props: Props): React.Node {
         .map(([letter, users]) => {
           const userList = users
             .sort((a, b) => stringForUser(a).localeCompare(stringForUser(b)))
-            .map((user: MinimallyEncodedRelativeMemberInfo) => (
+            .map((user: RelativeMemberInfo) => (
               <ThreadMember
                 key={user.id}
                 memberInfo={user}
