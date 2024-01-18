@@ -73,13 +73,16 @@ import type {
   MessageInfo,
   SendEditMessageResponse,
 } from 'lib/types/message-types.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ChatMentionCandidates,
   ClientThreadJoinRequest,
-  RelativeMemberInfo,
+  LegacyRelativeMemberInfo,
   ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
@@ -294,7 +297,9 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
-  +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +userMentionsCandidates: $ReadOnlyArray<
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
