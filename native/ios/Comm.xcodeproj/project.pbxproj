@@ -152,7 +152,6 @@
 		71BE84422636A944002849D2 /* SQLiteQueryExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQLiteQueryExecutor.h; sourceTree = "<group>"; };
 		71BE84432636A944002849D2 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManager.h; sourceTree = "<group>"; };
 		71BE84452636A944002849D2 /* Draft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draft.h; sourceTree = "<group>"; };
-		71BE84482636A944002849D2 /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
 		71BF5B6F26B3FF0900EDE27D /* Session.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Session.cpp; sourceTree = "<group>"; };
 		71BF5B7026B3FF0900EDE27D /* Session.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Session.h; sourceTree = "<group>"; };
 		71BF5B7226B3FFBC00EDE27D /* Persist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Persist.h; sourceTree = "<group>"; };
@@ -410,7 +409,6 @@
 			isa = PBXGroup;
 			children = (
 				71BE84372636A944002849D2 /* CommonCpp */,
-				71BE84462636A944002849D2 /* third-party */,
 			);
 			name = cpp;
 			path = ../cpp;
@@ -503,22 +501,6 @@
 				2DDA0A22FECC9DAA5C19C35D /* Metadata.h */,
 			);
 			path = entities;
-			sourceTree = "<group>";
-		};
-		71BE84462636A944002849D2 /* third-party */ = {
-			isa = PBXGroup;
-			children = (
-				71BE84472636A944002849D2 /* sqlite_orm */,
-			);
-			path = "third-party";
-			sourceTree = "<group>";
-		};
-		71BE84472636A944002849D2 /* sqlite_orm */ = {
-			isa = PBXGroup;
-			children = (
-				71BE84482636A944002849D2 /* sqlite_orm.h */,
-			);
-			path = sqlite_orm;
 			sourceTree = "<group>";
 		};
 		71BF5B6A26B3FCFF00EDE27D /* CryptoTools */ = {
