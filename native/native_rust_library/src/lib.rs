@@ -38,7 +38,9 @@ mod generated {
 }
 
 pub use generated::CODE_VERSION;
-pub use generated::{BACKUP_SOCKET_ADDR, IDENTITY_SOCKET_ADDR};
+pub use generated::{
+  BACKUP_SOCKET_ADDR, IDENTITY_SOCKET_ADDR, SEARCH_SOCKET_ADDR,
+};
 
 #[cfg(not(target_os = "android"))]
 pub const DEVICE_TYPE: DeviceType = DeviceType::Ios;
@@ -1257,6 +1259,7 @@ mod tests {
   #[test]
   fn test_identity_socket_addr_exists() {
     assert!(IDENTITY_SOCKET_ADDR.len() > 0);
+    assert!(SEARCH_SOCKET_ADDR.len() > 0);
     assert!(BACKUP_SOCKET_ADDR.len() > 0);
   }
 }
