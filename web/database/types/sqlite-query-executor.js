@@ -4,7 +4,24 @@ import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 
-import { type WebClientDBThreadInfo } from './entities.js';
+import { type WebClientDBThreadInfo, type NullableString } from './entities.js';
+
+type WebMessage = {
+  +id: string,
+  +local_id: NullableString,
+  +thread: string,
+  +user: string,
+  +content: NullableString,
+};
+
+type Media = {
+  +id: string,
+  +container: string,
+  +thread: string,
+  +uri: string,
+  +type: string,
+  +extras: string,
+};
 
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string): void;
@@ -13,6 +30,32 @@ declare export class SQLiteQueryExecutor {
   moveDraft(oldKey: string, newKey: string): boolean;
   getAllDrafts(): ClientDBDraftInfo[];
   removeAllDrafts(): void;
+
+  getAllMessagesWeb(): $ReadOnlyArray<{
+    +message: WebMessage,
+    +medias: $ReadOnlyArray<Media>,
+  }>;
+  removeAllMessages(): void;
+  removeMessages(ids: $ReadOnlyArray<string>): void;
+  removeMessagesForThreads(thread_ids: $ReadOnlyArray<string>): void;
+  replaceMessageWeb(message: WebMessage): void;
+  rekeyMessage(from: string, to: string): void;
+  removeAllMedia(): void;
+  removeMediaForThreads(thread_ids: $ReadOnlyArray<string>): void;
+  removeMediaForMessages(msg_ids: $ReadOnlyArray<string>): void;
+  removeMediaForMessage(msg_id: string): void;
+  replaceMedia(media: Media): void;
+  rekeyMediaContainers(from: string, to: string): void;
+
+  replaceMessageStoreThreads(
+    threads: $ReadOnlyArray<{ +id: string, +start_reached: number }>,
+  ): void;
+  removeMessageStoreThreads($ReadOnlyArray<string>): void;
+  getAllMessageStoreThreads(): $ReadOnlyArray<{
+    +id: string,
+    +start_reached: number,
+  }>;
+  removeAllMessageStoreThreads(): void;
 
   setMetadata(entryName: string, data: string): void;
   clearMetadata(entryName: string): void;

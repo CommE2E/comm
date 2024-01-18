@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nullable.h"
 #include <sqlite3.h>
 #include <memory>
 #include <string>
@@ -66,6 +67,37 @@ struct Message {
     }
 
     return sqlite3_bind_int64(sql, idx + 7, time);
+  }
+};
+
+struct WebMessage {
+  std::string id;
+  NullableString local_id;
+  std::string thread;
+  std::string user;
+  NullableString content;
+
+  WebMessage() = default;
+
+  WebMessage(const Message &message) {
+    id = message.id;
+    local_id = NullableString(message.local_id);
+    thread = message.thread;
+    user = message.user;
+    content = NullableString(message.content);
+  }
+
+  Message toMessage() const {
+    Message message;
+    message.id = id;
+    message.local_id = local_id.resetValue();
+    message.thread = thread;
+    message.user = user;
+    message.type = 0;
+    message.future_type = nullptr;
+    message.content = content.resetValue();
+    message.time = 0;
+    return message;
   }
 };
 

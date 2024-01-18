@@ -15,6 +15,12 @@
 #include <string>
 
 namespace comm {
+#ifdef EMSCRIPTEN
+struct MessageWithMedias {
+  WebMessage message;
+  std::vector<Media> medias;
+};
+#endif
 
 /**
  * if any initialization/cleaning up steps are required for specific
@@ -87,6 +93,8 @@ public:
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
+  virtual std::vector<MessageWithMedias> getAllMessagesWeb() const = 0;
+  virtual void replaceMessageWeb(const WebMessage &message) const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
 #endif

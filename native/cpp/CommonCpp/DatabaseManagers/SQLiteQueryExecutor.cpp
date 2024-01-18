@@ -1514,6 +1514,21 @@ std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
 void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
   this->replaceThread(thread.toThread());
 };
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
+  auto allMessages = this->getAllMessages();
+
+  std::vector<MessageWithMedias> allMessageWithMedias;
+  for (auto &messageWitMedia : allMessages) {
+    allMessageWithMedias.push_back(
+        {std::move(messageWitMedia.first), messageWitMedia.second});
+  }
+
+  return allMessageWithMedias;
+}
+void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
+  this->replaceMessage(message.toMessage());
+};
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::closeConnection();
