@@ -3,7 +3,6 @@
 #include "../CryptoTools/Persist.h"
 #include "entities/Draft.h"
 #include "entities/KeyserverInfo.h"
-#include "entities/Media.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
@@ -78,6 +77,9 @@ public:
   virtual void rollbackTransaction() const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
   virtual std::optional<std::string> getOlmPersistAccountData() const = 0;
+  virtual void storeOlmPersistAccount(const std::string &accountData) const = 0;
+  virtual void
+  storeOlmPersistSession(const OlmPersistSession &session) const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
   virtual void setNotifyToken(std::string token) const = 0;
   virtual void clearNotifyToken() const = 0;
@@ -93,6 +95,9 @@ public:
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
+  virtual std::vector<MessageWithMedias> getAllMessagesWeb() const = 0;
+  virtual void replaceMessageWeb(const WebMessage &message) const = 0;
+  virtual NullableString getOlmPersistAccountDataWeb() const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
 #endif
