@@ -65,6 +65,69 @@ struct Thread {
         sqlite3_column_int(sqlRow, idx + 15),
     };
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    sqlite3_bind_text(sql, idx, id.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(sql, idx + 1, type);
+
+    if (name == nullptr) {
+      sqlite3_bind_null(sql, idx + 2);
+    } else {
+
+      sqlite3_bind_text(sql, idx + 2, name->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    if (description == nullptr) {
+      sqlite3_bind_null(sql, idx + 3);
+    } else {
+      sqlite3_bind_text(
+          sql, idx + 3, description->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    sqlite3_bind_text(sql, idx + 4, color.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int64(sql, idx + 5, reinterpret_cast<sqlite3_int64>(time));
+
+    if (parent_thread_id == nullptr) {
+      sqlite3_bind_null(sql, idx + 6);
+    } else {
+      sqlite3_bind_text(
+          sql, idx + 6, parent_thread_id->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    if (containing_thread_id == nullptr) {
+      sqlite3_bind_null(sql, idx + 7);
+    } else {
+      sqlite3_bind_text(
+          sql, idx + 7, containing_thread_id->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    if (community == nullptr) {
+      sqlite3_bind_null(sql, idx + 8);
+    } else {
+      sqlite3_bind_text(sql, idx + 8, community->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    sqlite3_bind_text(sql, idx + 9, members.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(sql, idx + 10, roles.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(sql, idx + 11, current_user.c_str(), -1, SQLITE_STATIC);
+
+    if (source_message_id == nullptr) {
+      sqlite3_bind_null(sql, idx + 12);
+    } else {
+      sqlite3_bind_text(
+          sql, idx + 12, source_message_id->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    sqlite3_bind_int(sql, idx + 13, replies_count);
+
+    if (avatar == nullptr) {
+      sqlite3_bind_null(sql, idx + 14);
+    } else {
+      sqlite3_bind_text(sql, idx + 15, avatar->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    return sqlite3_bind_int(sql, idx + 15, pinned_count);
+  }
 };
 
 struct WebThread {

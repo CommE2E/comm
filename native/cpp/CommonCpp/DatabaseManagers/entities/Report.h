@@ -14,6 +14,11 @@ struct Report {
         reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx)),
         reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 1))};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    sqlite3_bind_text(sql, idx, id.c_str(), -1, SQLITE_STATIC);
+    return sqlite3_bind_text(sql, idx + 1, report.c_str(), -1, SQLITE_STATIC);
+  }
 };
 
 } // namespace comm
