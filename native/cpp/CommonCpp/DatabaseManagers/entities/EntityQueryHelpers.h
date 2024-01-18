@@ -95,6 +95,27 @@ void removeEntitiesByKeys(
   sqlite3_step(preparedSQL);
 }
 
+void rekeyAllEntities(
+    sqlite3 *db,
+    std::string rekeyAllEntitiesSQL,
+    std::string from,
+    std::string to) {
+  SQLiteStatementWrapper preparedSQL(
+      db, rekeyAllEntitiesSQL, "Failed to rekey all entities.");
+
+  bindStringToSQL(to, preparedSQL, 1);
+  int bindResult = bindStringToSQL(from, preparedSQL, 2);
+
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind key to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+
+  sqlite3_step(preparedSQL);
+}
+
 std::string getSQLStatementArray(int length) {
   std::stringstream array;
   array << "(";

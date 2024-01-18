@@ -1149,14 +1149,16 @@ void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
 
 bool SQLiteQueryExecutor::moveDraft(std::string oldKey, std::string newKey)
     const {
-  std::unique_ptr<Draft> draft =
-      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(oldKey);
-  if (draft == nullptr) {
+  std::string draftText = this->getDraft(oldKey);
+  if (!draftText.size()) {
     return false;
   }
-  draft->key = newKey;
-  SQLiteQueryExecutor::getStorage().replace(*draft);
-  SQLiteQueryExecutor::getStorage().remove<Draft>(oldKey);
+  static std::string rekeyDraftSQL =
+      "UPDATE OR REPLACE drafts "
+      "SET key = ? "
+      "WHERE key = ?;";
+  rekeyAllEntities(
+      SQLiteQueryExecutor::getConnection(), rekeyDraftSQL, oldKey, newKey);
   return true;
 }
 
@@ -1273,10 +1275,12 @@ void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
 }
 
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
-  auto msg = SQLiteQueryExecutor::getStorage().get<Message>(from);
-  msg.id = to;
-  SQLiteQueryExecutor::getStorage().replace(msg);
-  SQLiteQueryExecutor::getStorage().remove<Message>(from);
+  static std::string rekeyMessageSQL =
+      "UPDATE OR REPLACE messages "
+      "SET id = ? "
+      "WHERE id = ?";
+  rekeyAllEntities(
+      SQLiteQueryExecutor::getConnection(), rekeyMessageSQL, from, to);
 }
 
 void SQLiteQueryExecutor::removeAllMedia() const {
@@ -1338,8 +1342,10 @@ void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
 
 void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
     const {
-  SQLiteQueryExecutor::getStorage().update_all(
-      set(c(&Media::container) = to), where(c(&Media::container) == from));
+  static std::string rekeyMediaContainersSQL =
+      "UPDATE media SET container = ? WHERE container = ?;";
+  rekeyAllEntities(
+      SQLiteQueryExecutor::getConnection(), rekeyMediaContainersSQL, from, to);
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
