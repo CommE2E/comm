@@ -281,6 +281,7 @@
 		CBCF57AB2B05096F00EC4BC0 /* AESCryptoModuleObjCCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AESCryptoModuleObjCCompat.h; path = Comm/CommAESCryptoUtils/AESCryptoModuleObjCCompat.h; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
+		CBF9DAE22B595934000EE771 /* EntityQueryHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityQueryHelpers.h; sourceTree = "<group>"; };
 		CBFBEEB82B4ED90600729F1D /* RustBackupExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RustBackupExecutor.cpp; sourceTree = "<group>"; };
 		CBFBEEB92B4ED90600729F1D /* RustBackupExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustBackupExecutor.h; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
@@ -477,6 +478,7 @@
 		71BE84442636A944002849D2 /* entities */ = {
 			isa = PBXGroup;
 			children = (
+				CBF9DAE22B595934000EE771 /* EntityQueryHelpers.h */,
 				B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */,
 				B7906F6B27209091009BBBF5 /* OlmPersistSession.h */,
 				B7906F6C27209091009BBBF5 /* Thread.h */,
