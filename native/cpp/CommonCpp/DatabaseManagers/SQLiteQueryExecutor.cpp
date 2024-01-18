@@ -1,6 +1,5 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
-#include "sqlite_orm.h"
 
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
@@ -25,6 +24,7 @@ std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
+sqlite3 *SQLiteQueryExecutor::dbConnection = nullptr;
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
@@ -866,10 +866,12 @@ MigrationResult applyMigrationWithoutTransaction(
 }
 
 bool set_up_database(sqlite3 *db) {
+#ifndef EMSCRIPTEN
   auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
   if (!write_ahead_enabled) {
     return false;
   }
+#endif
 
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
   auto db_version = get_database_version(db);
@@ -1052,6 +1054,34 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
   SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
   SQLiteQueryExecutor::migrate();
+}
+
+sqlite3 *SQLiteQueryExecutor::getConnection() {
+  if (!SQLiteQueryExecutor::dbConnection) {
+    int connectResult = sqlite3_open(
+        SQLiteQueryExecutor::sqliteFilePath.c_str(),
+        &SQLiteQueryExecutor::dbConnection);
+    if (connectResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to open database connection. Details: "
+                    << sqlite3_errstr(connectResult) << std::endl;
+      throw std::runtime_error(error_message.str());
+    }
+    default_on_db_open_callback(SQLiteQueryExecutor::dbConnection);
+  }
+  return SQLiteQueryExecutor::dbConnection;
+}
+
+void SQLiteQueryExecutor::closeConnection() {
+  if (!SQLiteQueryExecutor::dbConnection) {
+    return;
+  }
+  sqlite3_close(SQLiteQueryExecutor::dbConnection);
+  SQLiteQueryExecutor::dbConnection = nullptr;
+}
+
+SQLiteQueryExecutor::~SQLiteQueryExecutor() {
+  SQLiteQueryExecutor::closeConnection();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
