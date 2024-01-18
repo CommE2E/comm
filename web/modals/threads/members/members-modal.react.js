@@ -114,10 +114,8 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   const threadMembersModalContent = React.useMemo(
     () => (
       <div className={css.modalContentContainer}>
-        <div className={css.membersListTabs}>
-          {tabs}
-          {tabContent}
-        </div>
+        {tabs}
+        <div className={css.membersListTabsContent}>{tabContent}</div>
         {addMembersButton}
       </div>
     ),

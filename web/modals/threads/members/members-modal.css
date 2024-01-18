@@ -6,7 +6,7 @@ div.modalContentContainer {
   row-gap: 16px;
 }
 
-div.membersListTabs {
+div.membersListTabsContent {
   flex: 1;
   overflow: hidden;
 }
@@ -16,8 +16,8 @@ div.addNewMembers button {
 }
 
 div.membersList {
-  overflow: auto;
-  padding: 8px 0;
+  height: 100%;
+  overflow-y: scroll;
   color: var(--members-modal-member-text);
 }
 
