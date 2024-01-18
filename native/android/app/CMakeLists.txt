@@ -187,9 +187,6 @@ target_include_directories(
   # SQLCipher amalgamation
   ${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src
 
-  # SQLite ORM
-  ../../cpp/third-party/sqlite_orm
-
   # symlinked React Native headers
   ../headers
 
