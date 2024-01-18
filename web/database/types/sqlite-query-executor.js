@@ -14,6 +14,16 @@ declare export class SQLiteQueryExecutor {
   getAllDrafts(): ClientDBDraftInfo[];
   removeAllDrafts(): void;
 
+  replaceMessageStoreThreads(
+    threads: $ReadOnlyArray<{ +id: string, +start_reached: number }>,
+  ): void;
+  removeMessageStoreThreads($ReadOnlyArray<string>): void;
+  getAllMessageStoreThreads(): $ReadOnlyArray<{
+    +id: string,
+    +start_reached: number,
+  }>;
+  removeAllMessageStoreThreads(): void;
+
   setMetadata(entryName: string, data: string): void;
   clearMetadata(entryName: string): void;
   getMetadata(entryName: string): string;

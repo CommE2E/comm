@@ -39,6 +39,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<UserInfo>("UserInfo")
       .field("id", &UserInfo::id)
       .field("userInfo", &UserInfo::user_info);
+  value_object<MessageStoreThread>("MessageStoreThreads")
+      .field("id", &MessageStoreThread::id)
+      .field("start_reached", &MessageStoreThread::start_reached);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -64,6 +67,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
+      .function(
+          "replaceMessageStoreThreads",
+          &SQLiteQueryExecutor::replaceMessageStoreThreads)
+      .function(
+          "removeMessageStoreThreads",
+          &SQLiteQueryExecutor::removeMessageStoreThreads)
+      .function(
+          "getAllMessageStoreThreads",
+          &SQLiteQueryExecutor::getAllMessageStoreThreads)
+      .function(
+          "removeAllMessageStoreThreads",
+          &SQLiteQueryExecutor::removeAllMessageStoreThreads)
       .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
       .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
       .function("getMetadata", &SQLiteQueryExecutor::getMetadata)
