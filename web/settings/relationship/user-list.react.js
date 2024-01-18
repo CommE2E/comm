@@ -72,7 +72,7 @@ export function UserList(props: UserListProps): React.Node {
     ));
   }, [userRowComponent, usersWithENSNames, onMenuVisibilityChange]);
 
-  const containerClasses = classNames(css.container, {
+  const containerClasses = classNames(css.userListContainer, {
     [css.noScroll]: isMenuVisible,
   });
 
