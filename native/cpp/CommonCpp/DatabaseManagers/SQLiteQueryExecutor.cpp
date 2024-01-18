@@ -1,6 +1,5 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
-#include "sqlite_orm.h"
 
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
@@ -25,6 +24,7 @@ std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
+sqlite3 *SQLiteQueryExecutor::dbConnection = nullptr;
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
@@ -467,6 +467,26 @@ bool create_users_table(sqlite3 *db) {
   return create_table(db, query, "users");
 }
 
+bool disable_write_ahead_logging_mode_web(sqlite3 *db) {
+#ifdef EMSCRIPTEN
+  char *error;
+  sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::stringstream error_message;
+  error_message << "Error disabling write-ahead logging mode: " << error;
+  Logger::log(error_message.str());
+  sqlite3_free(error);
+  return false;
+
+#else
+  return true;
+#endif
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -810,7 +830,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {29, {create_reports_table, true}},
      {30, {create_persist_storage_table, true}},
      {31, {recreate_message_store_threads_table, true}},
-     {32, {create_users_table, true}}}};
+     {32, {create_users_table, true}},
+     {33, {disable_write_ahead_logging_mode_web, false}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -866,10 +887,12 @@ MigrationResult applyMigrationWithoutTransaction(
 }
 
 bool set_up_database(sqlite3 *db) {
+#ifndef EMSCRIPTEN
   auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
   if (!write_ahead_enabled) {
     return false;
   }
+#endif
 
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
   auto db_version = get_database_version(db);
@@ -1052,6 +1075,38 @@ SQLiteQueryExecutor::SQLiteQueryExecutor() {
 SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
   SQLiteQueryExecutor::sqliteFilePath = sqliteFilePath;
   SQLiteQueryExecutor::migrate();
+}
+
+sqlite3 *SQLiteQueryExecutor::getConnection() {
+  if (SQLiteQueryExecutor::dbConnection) {
+    return SQLiteQueryExecutor::dbConnection;
+  }
+
+  int connectResult = sqlite3_open(
+      SQLiteQueryExecutor::sqliteFilePath.c_str(),
+      &SQLiteQueryExecutor::dbConnection);
+
+  if (connectResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to open database connection. Details: "
+                  << sqlite3_errstr(connectResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+
+  default_on_db_open_callback(SQLiteQueryExecutor::dbConnection);
+  return SQLiteQueryExecutor::dbConnection;
+}
+
+void SQLiteQueryExecutor::closeConnection() {
+  if (!SQLiteQueryExecutor::dbConnection) {
+    return;
+  }
+  sqlite3_close(SQLiteQueryExecutor::dbConnection);
+  SQLiteQueryExecutor::dbConnection = nullptr;
+}
+
+SQLiteQueryExecutor::~SQLiteQueryExecutor() {
+  SQLiteQueryExecutor::closeConnection();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
@@ -1406,6 +1461,7 @@ void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
 };
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
+  SQLiteQueryExecutor::closeConnection();
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
@@ -1594,6 +1650,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   attempt_delete_file(
       plaintextBackupPath,
       "Failed to delete plaintext compaction file after successful restore.");
+  SQLiteQueryExecutor::getStorage().pragma.journal_mode(journal_mode::DELETE);
 #endif
 
   attempt_delete_file(
