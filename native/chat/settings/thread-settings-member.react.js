@@ -23,7 +23,6 @@ import type {
   MinimallyEncodedRelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import type { ThreadSettingsNavigate } from './thread-settings.react.js';
@@ -90,7 +89,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo,
   +canEdit: boolean,
   +navigate: ThreadSettingsNavigate,
