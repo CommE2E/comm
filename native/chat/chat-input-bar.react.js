@@ -82,7 +82,6 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ChatMentionCandidates,
   ClientThreadJoinRequest,
-  LegacyRelativeMemberInfo,
   ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
 import { type UserInfos } from 'lib/types/user-types.js';
@@ -297,9 +296,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
-  +userMentionsCandidates: $ReadOnlyArray<
-    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
-  >,
+  +userMentionsCandidates: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>,
   +chatMentionSearchIndex: SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
