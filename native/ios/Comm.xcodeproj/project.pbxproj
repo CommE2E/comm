@@ -266,6 +266,7 @@
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB6C157B2B51419600421D1C /* EntityQueryHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityQueryHelpers.h; sourceTree = "<group>"; };
 		CB74AB1B2B2AFF6E00CBB494 /* CommServicesAuthMetadataEmitter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommServicesAuthMetadataEmitter.mm; path = Comm/CommServicesAuthMetadataEmitter.mm; sourceTree = "<group>"; };
 		CB74AB1E2B2B0C0900CBB494 /* RustCSAMetadataEmitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RustCSAMetadataEmitter.cpp; sourceTree = "<group>"; };
 		CB74AB1F2B2B0C0900CBB494 /* RustCSAMetadataEmitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustCSAMetadataEmitter.h; sourceTree = "<group>"; };
@@ -477,6 +478,7 @@
 		71BE84442636A944002849D2 /* entities */ = {
 			isa = PBXGroup;
 			children = (
+				CB6C157B2B51419600421D1C /* EntityQueryHelpers.h */,
 				B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */,
 				B7906F6B27209091009BBBF5 /* OlmPersistSession.h */,
 				B7906F6C27209091009BBBF5 /* Thread.h */,

@@ -1,7 +1,7 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
-#include "sqlite_orm.h"
 
+#include "entities/EntityQueryHelpers.h"
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
 #include <fstream>
@@ -17,14 +17,13 @@
 
 namespace comm {
 
-using namespace sqlite_orm;
-
 std::string SQLiteQueryExecutor::sqliteFilePath;
 std::string SQLiteQueryExecutor::encryptionKey;
 std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
+sqlite3 *SQLiteQueryExecutor::dbConnection = nullptr;
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
@@ -866,10 +865,12 @@ MigrationResult applyMigrationWithoutTransaction(
 }
 
 bool set_up_database(sqlite3 *db) {
+#ifndef EMSCRIPTEN
   auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
   if (!write_ahead_enabled) {
     return false;
   }
+#endif
 
   sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
   auto db_version = get_database_version(db);
@@ -885,92 +886,6 @@ bool set_up_database(sqlite3 *db) {
   }
   sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
   return true;
-}
-
-auto getEncryptedStorageAtPath(
-    const std::string &databasePath,
-    std::function<void(sqlite3 *)> on_open_callback =
-        default_on_db_open_callback) {
-  auto storage = make_storage(
-      databasePath,
-      make_index("messages_idx_thread_time", &Message::thread, &Message::time),
-      make_index("media_idx_container", &Media::container),
-      make_table(
-          "drafts",
-          make_column("key", &Draft::key, unique(), primary_key()),
-          make_column("text", &Draft::text)),
-      make_table(
-          "messages",
-          make_column("id", &Message::id, unique(), primary_key()),
-          make_column("local_id", &Message::local_id),
-          make_column("thread", &Message::thread),
-          make_column("user", &Message::user),
-          make_column("type", &Message::type),
-          make_column("future_type", &Message::future_type),
-          make_column("content", &Message::content),
-          make_column("time", &Message::time)),
-      make_table(
-          "olm_persist_account",
-          make_column("id", &OlmPersistAccount::id, unique(), primary_key()),
-          make_column("account_data", &OlmPersistAccount::account_data)),
-      make_table(
-          "olm_persist_sessions",
-          make_column(
-              "target_user_id",
-              &OlmPersistSession::target_user_id,
-              unique(),
-              primary_key()),
-          make_column("session_data", &OlmPersistSession::session_data)),
-      make_table(
-          "media",
-          make_column("id", &Media::id, unique(), primary_key()),
-          make_column("container", &Media::container),
-          make_column("thread", &Media::thread),
-          make_column("uri", &Media::uri),
-          make_column("type", &Media::type),
-          make_column("extras", &Media::extras)),
-      make_table(
-          "threads",
-          make_column("id", &Thread::id, unique(), primary_key()),
-          make_column("type", &Thread::type),
-          make_column("name", &Thread::name),
-          make_column("description", &Thread::description),
-          make_column("color", &Thread::color),
-          make_column("creation_time", &Thread::creation_time),
-          make_column("parent_thread_id", &Thread::parent_thread_id),
-          make_column("containing_thread_id", &Thread::containing_thread_id),
-          make_column("community", &Thread::community),
-          make_column("members", &Thread::members),
-          make_column("roles", &Thread::roles),
-          make_column("current_user", &Thread::current_user),
-          make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count),
-          make_column("avatar", &Thread::avatar),
-          make_column("pinned_count", &Thread::pinned_count, default_value(0))),
-      make_table(
-          "metadata",
-          make_column("name", &Metadata::name, unique(), primary_key()),
-          make_column("data", &Metadata::data)),
-      make_table(
-          "message_store_threads",
-          make_column("id", &MessageStoreThread::id, unique(), primary_key()),
-          make_column("start_reached", &MessageStoreThread::start_reached)),
-      make_table(
-          "reports",
-          make_column("id", &Report::id, unique(), primary_key()),
-          make_column("report", &Report::report)),
-      make_table(
-          "persist_storage",
-          make_column("key", &PersistItem::key, unique(), primary_key()),
-          make_column("item", &PersistItem::item)),
-      make_table(
-          "users",
-          make_column("id", &UserInfo::id, unique(), primary_key()),
-          make_column("user_info", &UserInfo::user_info))
-
-  );
-  storage.on_open = on_open_callback;
-  return storage;
 }
 
 void SQLiteQueryExecutor::migrate() {
@@ -1039,12 +954,6 @@ void SQLiteQueryExecutor::migrate() {
   sqlite3_close(db);
 }
 
-auto &SQLiteQueryExecutor::getStorage() {
-  static auto storage =
-      getEncryptedStorageAtPath(SQLiteQueryExecutor::sqliteFilePath);
-  return storage;
-}
-
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
 }
@@ -1054,285 +963,463 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
   SQLiteQueryExecutor::migrate();
 }
 
+sqlite3 *SQLiteQueryExecutor::getConnection() {
+  if (!SQLiteQueryExecutor::dbConnection) {
+    int connectResult = sqlite3_open(
+        SQLiteQueryExecutor::sqliteFilePath.c_str(),
+        &SQLiteQueryExecutor::dbConnection);
+    if (connectResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to open database connection. Details: "
+                    << sqlite3_errstr(connectResult) << std::endl;
+      throw std::runtime_error(error_message.str());
+    }
+    default_on_db_open_callback(SQLiteQueryExecutor::dbConnection);
+  }
+  return SQLiteQueryExecutor::dbConnection;
+}
+
+void SQLiteQueryExecutor::closeConnection() {
+  if (!SQLiteQueryExecutor::dbConnection) {
+    return;
+  }
+  sqlite3_close(SQLiteQueryExecutor::dbConnection);
+  SQLiteQueryExecutor::dbConnection = nullptr;
+}
+
+SQLiteQueryExecutor::~SQLiteQueryExecutor() {
+  SQLiteQueryExecutor::closeConnection();
+}
+
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
-  std::unique_ptr<Draft> draft =
-      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(key);
+  static std::string getDraftByPrimaryKeySQL =
+      "SELECT * FROM drafts WHERE key = ?;";
+  std::unique_ptr<Draft> draft = getEntityByPrimaryKey<Draft>(
+      SQLiteQueryExecutor::getConnection(), getDraftByPrimaryKeySQL, key);
   return (draft == nullptr) ? "" : draft->text;
 }
 
 std::unique_ptr<Thread>
 SQLiteQueryExecutor::getThread(std::string threadID) const {
-  return SQLiteQueryExecutor::getStorage().get_pointer<Thread>(threadID);
+  static std::string getThreadByPrimaryKeySQL =
+      "SELECT * FROM threads WHERE id = ?;";
+  return getEntityByPrimaryKey<Thread>(
+      SQLiteQueryExecutor::getConnection(), getThreadByPrimaryKeySQL, threadID);
 }
 
 void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
+  static std::string replaceDraftSQL =
+      "REPLACE INTO drafts (key, text) VALUES (?, ?);";
   Draft draft = {key, text};
-  SQLiteQueryExecutor::getStorage().replace(draft);
+  replaceEntity<Draft>(
+      SQLiteQueryExecutor::getConnection(), replaceDraftSQL, draft);
 }
 
 bool SQLiteQueryExecutor::moveDraft(std::string oldKey, std::string newKey)
     const {
-  std::unique_ptr<Draft> draft =
-      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(oldKey);
-  if (draft == nullptr) {
+  static std::string removeDraftByKeySQL =
+      "DELETE FROM drafts WHERE key IN (?);";
+  std::string draftText = this->getDraft(oldKey);
+  if (!draftText.size()) {
     return false;
   }
-  draft->key = newKey;
-  SQLiteQueryExecutor::getStorage().replace(*draft);
-  SQLiteQueryExecutor::getStorage().remove<Draft>(oldKey);
+
+  this->updateDraft(newKey, draftText);
+  std::vector<std::string> keys = {oldKey};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeDraftByKeySQL, keys);
   return true;
 }
 
 std::vector<Draft> SQLiteQueryExecutor::getAllDrafts() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Draft>();
+  static std::string getAllDraftsSQL = "SELECT * FROM drafts;";
+  auto allDrafts = getAllEntities<Draft>(
+      SQLiteQueryExecutor::getConnection(), getAllDraftsSQL);
+  return allDrafts;
 }
 
 void SQLiteQueryExecutor::removeAllDrafts() const {
-  SQLiteQueryExecutor::getStorage().remove_all<Draft>();
+  static std::string removeAllDraftsSQL = "DELETE FROM drafts;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllDraftsSQL);
 }
 
 void SQLiteQueryExecutor::removeAllMessages() const {
-  SQLiteQueryExecutor::getStorage().remove_all<Message>();
+  static std::string removeAllMessagesSQL = "DELETE FROM messages;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllMessagesSQL);
 }
 
 std::vector<std::pair<Message, std::vector<Media>>>
 SQLiteQueryExecutor::getAllMessages() const {
+  static std::string getAllMessagesSQL =
+      "SELECT * FROM messages LEFT JOIN media ON messages.id = media.container "
+      "ORDER BY messages.id;";
+  sqlite3_stmt *preparedSQL =
+      getPreparedSQL(SQLiteQueryExecutor::getConnection(), getAllMessagesSQL);
 
-  auto rows = SQLiteQueryExecutor::getStorage().select(
-      columns(
-          &Message::id,
-          &Message::local_id,
-          &Message::thread,
-          &Message::user,
-          &Message::type,
-          &Message::future_type,
-          &Message::content,
-          &Message::time,
-          &Media::id,
-          &Media::container,
-          &Media::thread,
-          &Media::uri,
-          &Media::type,
-          &Media::extras),
-      left_join<Media>(on(c(&Message::id) == &Media::container)),
-      order_by(&Message::id));
-
+  int stepResult;
+  std::string prevMsgIdx{};
   std::vector<std::pair<Message, std::vector<Media>>> allMessages;
-  allMessages.reserve(rows.size());
 
-  std::string prev_msg_idx{};
-  for (auto &row : rows) {
-    auto msg_id = std::get<0>(row);
-    if (msg_id == prev_msg_idx) {
-      allMessages.back().second.push_back(Media{
-          std::get<8>(row),
-          std::move(std::get<9>(row)),
-          std::move(std::get<10>(row)),
-          std::move(std::get<11>(row)),
-          std::move(std::get<12>(row)),
-          std::move(std::get<13>(row)),
-      });
+  while ((stepResult = sqlite3_step(preparedSQL)) == SQLITE_ROW) {
+    Message message = Message::fromSQLResult(preparedSQL, 0);
+    if (message.id == prevMsgIdx) {
+      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
     } else {
+      prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
-      if (!std::get<8>(row).empty()) {
-        mediaForMsg.push_back(Media{
-            std::get<8>(row),
-            std::move(std::get<9>(row)),
-            std::move(std::get<10>(row)),
-            std::move(std::get<11>(row)),
-            std::move(std::get<12>(row)),
-            std::move(std::get<13>(row)),
-        });
+      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
       }
-      allMessages.push_back(std::make_pair(
-          Message{
-              msg_id,
-              std::move(std::get<1>(row)),
-              std::move(std::get<2>(row)),
-              std::move(std::get<3>(row)),
-              std::get<4>(row),
-              std::move(std::get<5>(row)),
-              std::move(std::get<6>(row)),
-              std::get<7>(row)},
-          mediaForMsg));
-
-      prev_msg_idx = msg_id;
+      allMessages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
   }
 
+  finalizePreparedStatement(
+      preparedSQL, stepResult, "Failed to retrieve all messages.");
   return allMessages;
 }
 
 void SQLiteQueryExecutor::removeMessages(
     const std::vector<std::string> &ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Message>(
-      where(in(&Message::id, ids)));
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeMessagesByKeysSQLStream;
+  removeMessagesByKeysSQLStream << "DELETE FROM messages WHERE id IN "
+                                << getSQLStatementArray(ids.size());
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeMessagesByKeysSQLStream.str(),
+      ids);
 }
 
 void SQLiteQueryExecutor::removeMessagesForThreads(
     const std::vector<std::string> &threadIDs) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Message>(
-      where(in(&Message::thread, threadIDs)));
+  if (!threadIDs.size()) {
+    return;
+  }
+
+  std::stringstream removeMessagesByKeysSQLStream;
+  removeMessagesByKeysSQLStream << "DELETE FROM messages WHERE thread IN "
+                                << getSQLStatementArray(threadIDs.size());
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeMessagesByKeysSQLStream.str(),
+      threadIDs);
 }
 
 void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
-  SQLiteQueryExecutor::getStorage().replace(message);
+  static std::string replaceMessageSQL =
+      "REPLACE INTO messages "
+      "(id, local_id, thread, user, type, future_type, content, time) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+
+  replaceEntity<Message>(
+      SQLiteQueryExecutor::getConnection(), replaceMessageSQL, message);
 }
 
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
-  auto msg = SQLiteQueryExecutor::getStorage().get<Message>(from);
-  msg.id = to;
-  SQLiteQueryExecutor::getStorage().replace(msg);
-  SQLiteQueryExecutor::getStorage().remove<Message>(from);
+  static std::string getMessageByPrimaryKeySQL =
+      "SELECT * FROM messages WHERE id = ?;";
+  static std::string removeMessageByKeySQL =
+      "DELETE FROM messages WHERE id IN (?);";
+
+  std::unique_ptr<Message> msg = getEntityByPrimaryKey<Message>(
+      SQLiteQueryExecutor::getConnection(), getMessageByPrimaryKeySQL, from);
+  if (!msg) {
+    return;
+  }
+
+  msg->id = to;
+  this->replaceMessage(*msg);
+
+  std::vector<std::string> keys = {from};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeMessageByKeySQL, keys);
 }
 
 void SQLiteQueryExecutor::removeAllMedia() const {
-  SQLiteQueryExecutor::getStorage().remove_all<Media>();
+  static std::string removeAllMediaSQL = "DELETE FROM media;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllMediaSQL);
 }
 
 void SQLiteQueryExecutor::removeMediaForMessages(
     const std::vector<std::string> &msg_ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Media>(
-      where(in(&Media::container, msg_ids)));
+  if (!msg_ids.size()) {
+    return;
+  }
+
+  std::stringstream removeMediaByKeysSQLStream;
+  removeMediaByKeysSQLStream << "DELETE FROM media WHERE container IN "
+                             << getSQLStatementArray(msg_ids.size());
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeMediaByKeysSQLStream.str(),
+      msg_ids);
 }
 
 void SQLiteQueryExecutor::removeMediaForMessage(std::string msg_id) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Media>(
-      where(c(&Media::container) == msg_id));
+  static std::string removeMediaByKeySQL =
+      "DELETE FROM media WHERE container IN (?);";
+  std::vector<std::string> keys = {msg_id};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeMediaByKeySQL, keys);
 }
 
 void SQLiteQueryExecutor::removeMediaForThreads(
     const std::vector<std::string> &thread_ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Media>(
-      where(in(&Media::thread, thread_ids)));
+  if (!thread_ids.size()) {
+    return;
+  }
+
+  std::stringstream removeMediaByKeysSQLStream;
+  removeMediaByKeysSQLStream << "DELETE FROM media WHERE thread IN "
+                             << getSQLStatementArray(thread_ids.size());
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeMediaByKeysSQLStream.str(),
+      thread_ids);
 }
 
 void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
-  SQLiteQueryExecutor::getStorage().replace(media);
+  static std::string replaceMediaSQL =
+      "REPLACE INTO media "
+      "(id, container, thread, uri, type, extras) "
+      "VALUES (?, ?, ?, ?, ?, ?)";
+  replaceEntity<Media>(
+      SQLiteQueryExecutor::getConnection(), replaceMediaSQL, media);
 }
 
 void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
     const {
-  SQLiteQueryExecutor::getStorage().update_all(
-      set(c(&Media::container) = to), where(c(&Media::container) == from));
+  static std::string rekeyMediaContainersSQL =
+      "UPDATE media SET container = ? WHERE container = ?;";
+  rekeyAllEntities(
+      SQLiteQueryExecutor::getConnection(), rekeyMediaContainersSQL, from, to);
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
     const std::vector<MessageStoreThread> &threads) const {
+  static std::string replaceMessageStoreThreadSQL =
+      "REPLACE INTO message_store_threads "
+      "(id, start_reached) "
+      "VALUES (?, ?);";
+
   for (auto &thread : threads) {
-    SQLiteQueryExecutor::getStorage().replace(thread);
+    replaceEntity<MessageStoreThread>(
+        SQLiteQueryExecutor::getConnection(),
+        replaceMessageStoreThreadSQL,
+        thread);
   }
 }
 
 void SQLiteQueryExecutor::removeAllMessageStoreThreads() const {
-  SQLiteQueryExecutor::getStorage().remove_all<MessageStoreThread>();
+  static std::string removeAllMessageStoreThreadsSQL =
+      "DELETE FROM message_store_threads;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllMessageStoreThreadsSQL);
 }
 
 void SQLiteQueryExecutor::removeMessageStoreThreads(
     const std::vector<std::string> &ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<MessageStoreThread>(
-      where(in(&MessageStoreThread::id, ids)));
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeMessageStoreThreadsByKeysSQLStream;
+  removeMessageStoreThreadsByKeysSQLStream
+      << "DELETE FROM message_store_threads WHERE id IN "
+      << getSQLStatementArray(ids.size());
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeMessageStoreThreadsByKeysSQLStream.str(),
+      ids);
 }
 
 std::vector<MessageStoreThread>
 SQLiteQueryExecutor::getAllMessageStoreThreads() const {
-  return SQLiteQueryExecutor::getStorage().get_all<MessageStoreThread>();
+  static std::string getAllMessageStoreThreadsSQL =
+      "SELECT * FROM message_store_threads;";
+  auto allMessageStoreThreads = getAllEntities<MessageStoreThread>(
+      SQLiteQueryExecutor::getConnection(), getAllMessageStoreThreadsSQL);
+  return allMessageStoreThreads;
 }
 
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  static std::string getAllThreadsSQL = "SELECT * FROM threads;";
+  auto allThreads = getAllEntities<Thread>(
+      SQLiteQueryExecutor::getConnection(), getAllThreadsSQL);
+  return allThreads;
 };
 
 void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Thread>(
-      where(in(&Thread::id, ids)));
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeThreadsByKeysSQLStream;
+  removeThreadsByKeysSQLStream << "DELETE FROM threads WHERE id IN "
+                               << getSQLStatementArray(ids.size());
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeThreadsByKeysSQLStream.str(),
+      ids);
 };
 
 void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
-  SQLiteQueryExecutor::getStorage().replace(thread);
+  static std::string replaceThreadSQL =
+      "REPLACE INTO threads ("
+      " id, type, name, description, color, creation_time, parent_thread_id,"
+      " containing_thread_id, community, members, roles, current_user,"
+      " source_message_id, replies_count, avatar, pinned_count) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+  replaceEntity<Thread>(
+      SQLiteQueryExecutor::getConnection(), replaceThreadSQL, thread);
 };
 
 void SQLiteQueryExecutor::removeAllThreads() const {
-  SQLiteQueryExecutor::getStorage().remove_all<Thread>();
+  static std::string removeAllThreadsSQL = "DELETE FROM threads;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllThreadsSQL);
 };
 
 void SQLiteQueryExecutor::replaceReport(const Report &report) const {
-  SQLiteQueryExecutor::getStorage().replace(report);
+  static std::string replaceReportSQL =
+      "REPLACE INTO reports (id, report) VALUES (?, ?);";
+
+  replaceEntity<Report>(
+      SQLiteQueryExecutor::getConnection(), replaceReportSQL, report);
 }
 
 void SQLiteQueryExecutor::removeAllReports() const {
-  SQLiteQueryExecutor::getStorage().remove_all<Report>();
+  static std::string removeAllReportsSQL = "DELETE FROM reports;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllReportsSQL);
 }
 
 void SQLiteQueryExecutor::removeReports(
     const std::vector<std::string> &ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<Report>(
-      where(in(&Report::id, ids)));
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeReportsByKeysSQLStream;
+  removeReportsByKeysSQLStream << "DELETE FROM reports WHERE id IN "
+                               << getSQLStatementArray(ids.size());
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeReportsByKeysSQLStream.str(),
+      ids);
 }
 
 std::vector<Report> SQLiteQueryExecutor::getAllReports() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Report>();
+  static std::string getAllReportsSQL = "SELECT * FROM reports;";
+  auto allReports = getAllEntities<Report>(
+      SQLiteQueryExecutor::getConnection(), getAllReportsSQL);
+  return allReports;
 }
 
 void SQLiteQueryExecutor::setPersistStorageItem(
     std::string key,
     std::string item) const {
+  static std::string replacePersistStorageItemSQL =
+      "REPLACE INTO persist_storage (key, item) VALUES (?, ?);";
   PersistItem entry{
       key,
       item,
   };
-  SQLiteQueryExecutor::getStorage().replace(entry);
+  replaceEntity<PersistItem>(
+      SQLiteQueryExecutor::getConnection(),
+      replacePersistStorageItemSQL,
+      entry);
 }
 
 void SQLiteQueryExecutor::removePersistStorageItem(std::string key) const {
-  SQLiteQueryExecutor::getStorage().remove<PersistItem>(key);
+  static std::string removePersistStorageItemByKeySQL =
+      "DELETE FROM persist_storage WHERE key IN (?);";
+  std::vector<std::string> keys = {key};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removePersistStorageItemByKeySQL,
+      keys);
 }
 
 std::string SQLiteQueryExecutor::getPersistStorageItem(std::string key) const {
-  std::unique_ptr<PersistItem> entry =
-      SQLiteQueryExecutor::getStorage().get_pointer<PersistItem>(key);
+  static std::string getPersistStorageItemByPrimaryKeySQL =
+      "SELECT * FROM persist_storage WHERE key = ?;";
+  std::unique_ptr<PersistItem> entry = getEntityByPrimaryKey<PersistItem>(
+      SQLiteQueryExecutor::getConnection(),
+      getPersistStorageItemByPrimaryKeySQL,
+      key);
   return (entry == nullptr) ? "" : entry->item;
 }
 
 void SQLiteQueryExecutor::replaceUser(const UserInfo &user_info) const {
-  SQLiteQueryExecutor::getStorage().replace(user_info);
+  static std::string replaceUserSQL =
+      "REPLACE INTO users (id, user_info) VALUES (?, ?);";
+  replaceEntity<UserInfo>(
+      SQLiteQueryExecutor::getConnection(), replaceUserSQL, user_info);
 }
 
 void SQLiteQueryExecutor::removeAllUsers() const {
-  SQLiteQueryExecutor::getStorage().remove_all<UserInfo>();
+  static std::string removeAllUsersSQL = "DELETE FROM users;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllUsersSQL);
 }
 
 void SQLiteQueryExecutor::removeUsers(
     const std::vector<std::string> &ids) const {
-  SQLiteQueryExecutor::getStorage().remove_all<UserInfo>(
-      where(in(&UserInfo::id, ids)));
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeUsersByKeysSQLStream;
+  removeUsersByKeysSQLStream << "DELETE FROM users WHERE id IN "
+                             << getSQLStatementArray(ids.size());
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeUsersByKeysSQLStream.str(),
+      ids);
 }
 
 std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
-  return SQLiteQueryExecutor::getStorage().get_all<UserInfo>();
+  static std::string getAllUsersSQL = "SELECT * FROM users;";
+  auto allUsers = getAllEntities<UserInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllUsersSQL);
+  return allUsers;
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
-  SQLiteQueryExecutor::getStorage().begin_transaction();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "BEGIN TRANSACTION;");
 }
 
 void SQLiteQueryExecutor::commitTransaction() const {
-  SQLiteQueryExecutor::getStorage().commit();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "COMMIT;");
 }
 
 void SQLiteQueryExecutor::rollbackTransaction() const {
-  SQLiteQueryExecutor::getStorage().rollback();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "ROLLBACK;");
 }
 
 std::vector<OlmPersistSession>
 SQLiteQueryExecutor::getOlmPersistSessionsData() const {
-  return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();
+  static std::string getAllOlmPersistSessionsSQL =
+      "SELECT * FROM olm_persist_sessions;";
+  return getAllEntities<OlmPersistSession>(
+      SQLiteQueryExecutor::getConnection(), getAllOlmPersistSessionsSQL);
 }
 
 std::optional<std::string>
 SQLiteQueryExecutor::getOlmPersistAccountData() const {
-  std::vector<OlmPersistAccount> result =
-      SQLiteQueryExecutor::getStorage().get_all<OlmPersistAccount>();
+  static std::string getAllOlmPersistAccountSQL =
+      "SELECT * FROM olm_persist_account;";
+  std::vector<OlmPersistAccount> result = getAllEntities<OlmPersistAccount>(
+      SQLiteQueryExecutor::getConnection(), getAllOlmPersistAccountSQL);
+
   if (result.size() > 1) {
     throw std::system_error(
         ECANCELED,
@@ -1345,13 +1432,26 @@ SQLiteQueryExecutor::getOlmPersistAccountData() const {
 }
 
 void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+  static std::string replaceOlmPersistAccountSQL =
+      "REPLACE INTO olm_persist_account (id, account_data) VALUES (?, ?);";
+  static std::string replaceOlmPersistSessionSQL =
+      "REPLACE INTO olm_persist_sessions "
+      "(target_user_id, session_data) VALUES (?, ?);";
+
   OlmPersistAccount persistAccount = {
       ACCOUNT_ID, std::string(persist.account.begin(), persist.account.end())};
-  SQLiteQueryExecutor::getStorage().replace(persistAccount);
+  replaceEntity<OlmPersistAccount>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceOlmPersistAccountSQL,
+      persistAccount);
+
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
         it->first, std::string(it->second.begin(), it->second.end())};
-    SQLiteQueryExecutor::getStorage().replace(persistSession);
+    replaceEntity<OlmPersistSession>(
+        SQLiteQueryExecutor::getConnection(),
+        replaceOlmPersistSessionSQL,
+        persistSession);
   }
 }
 
@@ -1373,26 +1473,37 @@ std::string SQLiteQueryExecutor::getCurrentUserID() const {
 
 void SQLiteQueryExecutor::setMetadata(std::string entry_name, std::string data)
     const {
+  std::string replaceMetadataSQL =
+      "REPLACE INTO metadata (name, data) VALUES (?, ?);";
   Metadata entry{
       entry_name,
       data,
   };
-  SQLiteQueryExecutor::getStorage().replace(entry);
+  replaceEntity<Metadata>(
+      SQLiteQueryExecutor::getConnection(), replaceMetadataSQL, entry);
 }
 
 void SQLiteQueryExecutor::clearMetadata(std::string entry_name) const {
-  SQLiteQueryExecutor::getStorage().remove<Metadata>(entry_name);
+  static std::string removeMetadataByKeySQL =
+      "DELETE FROM metadata WHERE name IN (?);";
+  std::vector<std::string> keys = {entry_name};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeMetadataByKeySQL, keys);
 }
 
 std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
-  std::unique_ptr<Metadata> entry =
-      SQLiteQueryExecutor::getStorage().get_pointer<Metadata>(entry_name);
+  std::string getMetadataByPrimaryKeySQL =
+      "SELECT * FROM metadata WHERE name = ?;";
+  std::unique_ptr<Metadata> entry = getEntityByPrimaryKey<Metadata>(
+      SQLiteQueryExecutor::getConnection(),
+      getMetadataByPrimaryKeySQL,
+      entry_name);
   return (entry == nullptr) ? "" : entry->data;
 }
 
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
-  auto threads = SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  auto threads = this->getAllThreads();
   std::vector<WebThread> webThreads;
   webThreads.reserve(threads.size());
   for (const auto &thread : threads) {
@@ -1402,10 +1513,11 @@ std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
 };
 
 void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
-  SQLiteQueryExecutor::getStorage().replace(thread.toThread());
+  this->replaceThread(thread.toThread());
 };
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
+  SQLiteQueryExecutor::closeConnection();
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
@@ -1459,22 +1571,35 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
   }
 
-  auto backupStorage = getEncryptedStorageAtPath(
-      tempBackupPath, [](sqlite3 *db) { set_encryption_key(db); });
-  auto backupObj =
-      SQLiteQueryExecutor::getStorage().make_backup_to(backupStorage);
-  int backupResult = backupObj.step(-1);
+  sqlite3 *backupDB;
+  sqlite3_open(tempBackupPath.c_str(), &backupDB);
+  set_encryption_key(backupDB);
 
+  sqlite3_backup *backupObj = sqlite3_backup_init(
+      backupDB, "main", SQLiteQueryExecutor::getConnection(), "main");
+  if (!backupObj) {
+    std::stringstream error_message;
+    error_message << "Failed to init backup for main compaction. Details: "
+                  << sqlite3_errmsg(backupDB) << std::endl;
+    sqlite3_close(backupDB);
+    throw std::runtime_error(error_message.str());
+  }
+
+  int backupResult = sqlite3_backup_step(backupObj, -1);
+  sqlite3_backup_finish(backupObj);
   if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
+    sqlite3_close(backupDB);
     throw std::runtime_error(
         "Programmer error. Database in transaction during backup attempt.");
   } else if (backupResult != SQLITE_DONE) {
+    sqlite3_close(backupDB);
     std::stringstream error_message;
     error_message << "Failed to create database backup. Details: "
                   << sqlite3_errstr(backupResult);
     throw std::runtime_error(error_message.str());
   }
-  backupStorage.vacuum();
+  executeQuery(backupDB, "VACUUM;");
+  sqlite3_close(backupDB);
 
   attempt_rename_file(
       tempBackupPath,
@@ -1487,11 +1612,13 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "Unable to create attachments file for backup id: " + backupID);
   }
 
-  auto blobServiceURIRows = SQLiteQueryExecutor::getStorage().select(
-      columns(&Media::uri), where(like(&Media::uri, "comm-blob-service://%")));
+  std::string getAllBlobServiceMediaSQL =
+      "SELECT * FROM media WHERE uri LIKE 'comm-blob-service://%';";
+  std::vector<Media> blobServiceMedia = getAllEntities<Media>(
+      SQLiteQueryExecutor::getConnection(), getAllBlobServiceMediaSQL);
 
-  for (const auto &blobServiceURIRow : blobServiceURIRows) {
-    std::string blobServiceURI = std::get<0>(blobServiceURIRow);
+  for (const auto &media : blobServiceMedia) {
+    std::string blobServiceURI = media.uri;
     std::string blobHash = blob_hash_from_blob_service_uri(blobServiceURI);
     tempAttachmentsFile << blobHash << "\n";
   }
@@ -1521,9 +1648,9 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     throw std::runtime_error("Restore attempt but backup file does not exist.");
   }
 
-  sqlite3 *backup_db;
+  sqlite3 *backupDB;
   if (!is_database_queryable(
-          backup_db, true, mainCompactionPath, mainCompactionEncryptionKey)) {
+          backupDB, true, mainCompactionPath, mainCompactionEncryptionKey)) {
     throw std::runtime_error("Backup file or encryption key corrupted.");
   }
 
@@ -1547,16 +1674,16 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
       "SELECT sqlcipher_export('plaintext');"
       "DETACH DATABASE plaintext;";
 
-  sqlite3_open(mainCompactionPath.c_str(), &backup_db);
+  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
 
   char *plaintextMigrationErr;
   sqlite3_exec(
-      backup_db,
+      backupDB,
       plaintextMigrationDBQuery.c_str(),
       nullptr,
       nullptr,
       &plaintextMigrationErr);
-  sqlite3_close(backup_db);
+  sqlite3_close(backupDB);
 
   if (plaintextMigrationErr) {
     std::stringstream error_message;
@@ -1568,18 +1695,27 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
 
     throw std::runtime_error(error_message_str);
   }
-  auto backupStorage = getEncryptedStorageAtPath(plaintextBackupPath);
+
+  sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
 #else
-  auto backupStorage = getEncryptedStorageAtPath(
-      mainCompactionPath, [mainCompactionEncryptionKey](sqlite3 *db) {
-        set_encryption_key(db, mainCompactionEncryptionKey);
-      });
+  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
+  set_encryption_key(backupDB, mainCompactionEncryptionKey);
 #endif
 
-  auto backupObject =
-      SQLiteQueryExecutor::getStorage().make_backup_from(backupStorage);
-  int backupResult = backupObject.step(-1);
+  sqlite3_backup *backupObj = sqlite3_backup_init(
+      SQLiteQueryExecutor::getConnection(), "main", backupDB, "main");
+  if (!backupObj) {
+    std::stringstream error_message;
+    error_message << "Failed to init backup for main compaction. Details: "
+                  << sqlite3_errmsg(SQLiteQueryExecutor::getConnection())
+                  << std::endl;
+    sqlite3_close(backupDB);
+    throw std::runtime_error(error_message.str());
+  }
 
+  int backupResult = sqlite3_backup_step(backupObj, -1);
+  sqlite3_backup_finish(backupObj);
+  sqlite3_close(backupDB);
   if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
     throw std::runtime_error(
         "Programmer error. Database in transaction during restore attempt.");
