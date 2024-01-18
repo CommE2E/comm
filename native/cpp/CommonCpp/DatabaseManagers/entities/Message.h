@@ -39,6 +39,34 @@ struct Message {
         content ? std::make_unique<std::string>(content) : nullptr,
         sqlite3_column_int64(sqlRow, idx + 7)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    sqlite3_bind_text(sql, idx, id.c_str(), -1, SQLITE_STATIC);
+
+    if (local_id == nullptr) {
+      sqlite3_bind_null(sql, idx + 1);
+    } else {
+      sqlite3_bind_text(sql, idx + 1, local_id->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    sqlite3_bind_text(sql, idx + 2, thread.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(sql, idx + 3, user.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(sql, idx + 4, type);
+
+    if (future_type == nullptr) {
+      sqlite3_bind_null(sql, idx + 5);
+    } else {
+      sqlite3_bind_int(sql, idx + 5, *future_type);
+    }
+
+    if (content == nullptr) {
+      sqlite3_bind_null(sql, idx + 6);
+    } else {
+      sqlite3_bind_text(sql, idx + 6, content->c_str(), -1, SQLITE_TRANSIENT);
+    }
+
+    return sqlite3_bind_int64(sql, idx + 7, time);
+  }
 };
 
 } // namespace comm
