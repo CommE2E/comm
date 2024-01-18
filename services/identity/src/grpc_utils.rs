@@ -1,139 +1,68 @@
-use std::collections::HashMap;
-
 use tonic::Status;
-use tracing::error;
 
 use crate::{
-  constants::{
-    CONTENT_ONE_TIME_KEY, NOTIF_ONE_TIME_KEY,
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  },
-  database::DeviceKeys,
+  database::DeviceRow,
   ddb_utils::Identifier as DBIdentifier,
   grpc_services::protos::{
     auth::{
       identity::IdentityInfo, EthereumIdentity, InboundKeyInfo, OutboundKeyInfo,
     },
     unauth::{
-      DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginStartRequest, Prekey,
-      RegistrationStartRequest, ReservedRegistrationStartRequest,
-      ReservedWalletLoginRequest, WalletLoginRequest,
+      DeviceKeyUpload, OpaqueLoginStartRequest, RegistrationStartRequest,
+      ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+      WalletLoginRequest,
     },
   },
-  token::AuthType,
 };
 
-pub struct DeviceInfoWithAuth<'a> {
-  pub device_info: HashMap<String, String>,
-  pub auth_type: Option<&'a AuthType>,
+pub struct DeviceKeysInfo {
+  pub device_info: DeviceRow,
+  pub content_one_time_key: Option<String>,
+  pub notif_one_time_key: Option<String>,
 }
 
-impl TryFrom<DeviceInfoWithAuth<'_>> for InboundKeyInfo {
-  type Error = Status;
-
-  fn try_from(data: DeviceInfoWithAuth) -> Result<Self, Self::Error> {
-    let mut device_info = data.device_info;
-
-    let identity_info =
-      extract_identity_info(&mut device_info, data.auth_type)?;
-
-    Ok(InboundKeyInfo {
-      identity_info: Some(identity_info),
-      content_prekey: Some(create_prekey(
-        &mut device_info,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-      )?),
-      notif_prekey: Some(create_prekey(
-        &mut device_info,
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-      )?),
-    })
+impl DeviceKeysInfo {
+  pub fn social_proof_present(&self) -> bool {
+    self.device_info.device_key_info.social_proof.is_some()
   }
 }
 
-impl TryFrom<DeviceInfoWithAuth<'_>> for OutboundKeyInfo {
-  type Error = Status;
+impl From<DeviceRow> for DeviceKeysInfo {
+  fn from(device_info: DeviceRow) -> Self {
+    Self {
+      device_info,
+      content_one_time_key: None,
+      notif_one_time_key: None,
+    }
+  }
+}
 
-  fn try_from(data: DeviceInfoWithAuth) -> Result<Self, Self::Error> {
-    let mut device_info = data.device_info;
+impl From<DeviceKeysInfo> for InboundKeyInfo {
+  fn from(info: DeviceKeysInfo) -> Self {
+    let DeviceKeysInfo { device_info, .. } = info;
+    InboundKeyInfo {
+      identity_info: Some(device_info.device_key_info.into()),
+      content_prekey: Some(device_info.content_prekey.into()),
+      notif_prekey: Some(device_info.notif_prekey.into()),
+    }
+  }
+}
 
-    let identity_info =
-      extract_identity_info(&mut device_info, data.auth_type)?;
-
-    let content_one_time_key = device_info.remove(CONTENT_ONE_TIME_KEY);
-    let notif_one_time_key = device_info.remove(NOTIF_ONE_TIME_KEY);
-
-    Ok(OutboundKeyInfo {
-      identity_info: Some(identity_info),
-      content_prekey: Some(create_prekey(
-        &mut device_info,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-      )?),
-      notif_prekey: Some(create_prekey(
-        &mut device_info,
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-        USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-      )?),
+impl From<DeviceKeysInfo> for OutboundKeyInfo {
+  fn from(info: DeviceKeysInfo) -> Self {
+    let DeviceKeysInfo {
+      device_info,
+      content_one_time_key,
+      notif_one_time_key,
+    } = info;
+    OutboundKeyInfo {
+      identity_info: Some(device_info.device_key_info.into()),
+      content_prekey: Some(device_info.content_prekey.into()),
+      notif_prekey: Some(device_info.notif_prekey.into()),
       one_time_content_prekey: content_one_time_key,
       one_time_notif_prekey: notif_one_time_key,
-    })
+    }
   }
-}
-
-fn extract_key(
-  device_info: &mut DeviceKeys,
-  key: &str,
-) -> Result<String, Status> {
-  device_info.remove(key).ok_or_else(|| {
-    error!("{} missing from device info", key);
-    Status::failed_precondition("Database item malformed")
-  })
-}
-
-fn extract_identity_info(
-  device_info: &mut HashMap<String, String>,
-  auth_type: Option<&AuthType>,
-) -> Result<IdentityKeyInfo, Status> {
-  let payload = extract_key(
-    device_info,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
-  )?;
-  let payload_signature = extract_key(
-    device_info,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-  )?;
-  let social_proof =
-    device_info.remove(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME);
-  if social_proof.is_none() && auth_type == Some(&AuthType::Wallet) {
-    error!("Social proof missing for wallet user");
-    return Err(Status::failed_precondition("Database item malformed"));
-  }
-
-  Ok(IdentityKeyInfo {
-    payload,
-    payload_signature,
-    social_proof,
-  })
-}
-
-fn create_prekey(
-  device_info: &mut HashMap<String, String>,
-  key_attr: &str,
-  signature_attr: &str,
-) -> Result<Prekey, Status> {
-  Ok(Prekey {
-    prekey: extract_key(device_info, key_attr)?,
-    prekey_signature: extract_key(device_info, signature_attr)?,
-  })
 }
 
 pub trait DeviceKeyUploadData {

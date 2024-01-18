@@ -15,7 +15,6 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::error::{consume_error, Error};
 use crate::reserved_users::UserDetail;
 use crate::{
   ddb_utils::{
@@ -23,6 +22,10 @@ use crate::{
     OlmAccountType,
   },
   grpc_services::protos,
+};
+use crate::{
+  error::{consume_error, Error},
+  grpc_utils::DeviceKeysInfo,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -34,11 +37,10 @@ use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
-  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, CONTENT_ONE_TIME_KEY, NONCE_TABLE,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, NONCE_TABLE,
   NONCE_TABLE_CREATED_ATTRIBUTE, NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
-  NOTIF_ONE_TIME_KEY, RESERVED_USERNAMES_TABLE,
-  RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+  RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
   USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
@@ -52,7 +54,7 @@ use crate::token::{AccessTokenData, AuthType};
 pub use grpc_clients::identity::DeviceType;
 
 mod device_list;
-pub use device_list::DeviceListRow;
+pub use device_list::{DeviceListRow, DeviceRow};
 
 use self::device_list::PreKey;
 
@@ -849,23 +851,19 @@ impl DatabaseClient {
     get_one_time_keys: bool,
   ) -> Result<Option<Devices>, Error> {
     let mut devices_response = self.get_keys_for_user_devices(user_id).await?;
+    if devices_response.is_empty() {
+      debug!("No devices found for user {}", user_id);
+      return Ok(None);
+    }
 
     if get_one_time_keys {
-      for (device_id_key, device_info_map) in devices_response.iter_mut() {
-        if let Some(notif_one_time_key) = self
+      for (device_id_key, device_keys) in devices_response.iter_mut() {
+        device_keys.notif_one_time_key = self
           .get_one_time_key(device_id_key, OlmAccountType::Notification)
-          .await?
-        {
-          device_info_map
-            .insert(NOTIF_ONE_TIME_KEY.to_string(), notif_one_time_key);
-        }
-        if let Some(content_one_time_key) = self
+          .await?;
+        device_keys.content_one_time_key = self
           .get_one_time_key(device_id_key, OlmAccountType::Content)
-          .await?
-        {
-          device_info_map
-            .insert(CONTENT_ONE_TIME_KEY.to_string(), content_one_time_key);
-        }
+          .await?;
       }
     }
 
@@ -1162,8 +1160,7 @@ impl DatabaseClient {
 }
 
 type AttributeName = String;
-pub type DeviceKeys = HashMap<String, String>;
-type Devices = HashMap<String, DeviceKeys>;
+type Devices = HashMap<String, DeviceKeysInfo>;
 
 fn create_simple_primary_key(
   partition_key: (AttributeName, String),

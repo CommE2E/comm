@@ -21,18 +21,12 @@ use crate::{
   constants::{
     devices_table::{self, *},
     USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME,
-    USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
     USERS_TABLE_PARTITION_KEY,
   },
   ddb_utils::AttributesOptionExt,
   error::{DeviceListError, Error, FromAttributeValue},
   grpc_services::protos::{self, unauth::DeviceType},
+  grpc_utils::DeviceKeysInfo,
 };
 
 use super::DatabaseClient;
@@ -270,6 +264,16 @@ impl From<DeviceRow> for AttributeMap {
   }
 }
 
+impl From<IdentityKeyInfo> for protos::unauth::IdentityKeyInfo {
+  fn from(value: IdentityKeyInfo) -> Self {
+    Self {
+      payload: value.key_payload,
+      payload_signature: value.key_payload_signature,
+      social_proof: value.social_proof,
+    }
+  }
+}
+
 impl From<IdentityKeyInfo> for AttributeValue {
   fn from(value: IdentityKeyInfo) -> Self {
     let mut attrs = HashMap::from([
@@ -501,52 +505,10 @@ impl DatabaseClient {
     user_id: impl Into<String>,
   ) -> Result<super::Devices, Error> {
     let user_devices = self.get_current_devices(user_id).await?;
-
-    let user_devices_keys: super::Devices = user_devices
+    let user_devices_keys = user_devices
       .into_iter()
-      .map(|device| {
-        // convert this to the map type returned by DatabaseClient::get_keys_for_user
-        let mut device_keys: super::DeviceKeys = HashMap::from([
-          (
-            USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME.to_string(),
-            device.device_key_info.key_payload,
-          ),
-          (
-            USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME
-              .to_string(),
-            device.device_key_info.key_payload_signature,
-          ),
-          (
-            USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME.to_string(),
-            device.content_prekey.pre_key,
-          ),
-          (
-            USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-              .to_string(),
-            device.content_prekey.pre_key_signature,
-          ),
-          (
-            USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME.to_string(),
-            device.notif_prekey.pre_key,
-          ),
-          (
-            USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME
-              .to_string(),
-            device.notif_prekey.pre_key_signature,
-          ),
-        ]);
-
-        if let Some(social_proof) = device.device_key_info.social_proof {
-          device_keys.insert(
-            USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
-            social_proof,
-          );
-        }
-
-        (device.device_id, device_keys)
-      })
+      .map(|device| (device.device_id.clone(), DeviceKeysInfo::from(device)))
       .collect();
-
     Ok(user_devices_keys)
   }
 
