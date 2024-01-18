@@ -29,4 +29,36 @@ std::unique_ptr<int> getIntPtrFromSQLRow(sqlite3_stmt *sqlRow, int idx) {
 int64_t getInt64FromSQLRow(sqlite3_stmt *sqlRow, int idx) {
   return sqlite3_column_int64(sqlRow, idx);
 }
+
+int bindStringToSQL(const std::string &data, sqlite3_stmt *sql, int idx) {
+  return sqlite3_bind_text(sql, idx, data.c_str(), -1, SQLITE_TRANSIENT);
+}
+
+int bindStringPtrToSQL(
+    const std::unique_ptr<std::string> &data,
+    sqlite3_stmt *sql,
+    int idx) {
+  if (data == nullptr) {
+    return sqlite3_bind_null(sql, idx);
+  }
+  return sqlite3_bind_text(sql, idx, data->c_str(), -1, SQLITE_TRANSIENT);
+}
+
+int bindIntToSQL(int data, sqlite3_stmt *sql, int idx) {
+  return sqlite3_bind_int(sql, idx, data);
+}
+
+int bindIntPtrToSQL(
+    const std::unique_ptr<int> &data,
+    sqlite3_stmt *sql,
+    int idx) {
+  if (data == nullptr) {
+    return sqlite3_bind_null(sql, idx);
+  }
+  return sqlite3_bind_int(sql, idx, *data);
+}
+
+int bindInt64ToSQL(int64_t data, sqlite3_stmt *sql, int idx) {
+  return sqlite3_bind_int64(sql, idx, data);
+}
 } // namespace comm

@@ -23,6 +23,15 @@ struct Media {
         getStringFromSQLRow(sqlRow, idx + 4),
         getStringFromSQLRow(sqlRow, idx + 5)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(id, sql, idx);
+    bindStringToSQL(container, sql, idx + 1);
+    bindStringToSQL(thread, sql, idx + 2);
+    bindStringToSQL(uri, sql, idx + 3);
+    bindStringToSQL(type, sql, idx + 4);
+    return bindStringToSQL(extras, sql, idx + 5);
+  }
 };
 
 } // namespace comm

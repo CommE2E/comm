@@ -14,6 +14,11 @@ struct OlmPersistSession {
     return OlmPersistSession{
         getStringFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(target_user_id, sql, idx);
+    return bindStringToSQL(session_data, sql, idx + 1);
+  }
 };
 
 } // namespace comm
