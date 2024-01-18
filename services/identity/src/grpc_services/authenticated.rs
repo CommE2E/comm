@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::config::CONFIG;
 use crate::database::DeviceListRow;
-use crate::grpc_utils::DeviceInfoWithAuth;
+use crate::ddb_utils::Identifier;
 use crate::{
   client_service::{
     handle_db_error, CacheExt, UpdateState, WorkflowInProgress,
@@ -127,29 +127,18 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<OutboundKeysForUserRequest>,
   ) -> Result<tonic::Response<OutboundKeysForUserResponse>, tonic::Status> {
     let message = request.into_inner();
+    let user_id = &message.user_id;
 
     let devices_map = self
       .db_client
-      .get_keys_for_user(&message.user_id, true)
+      .get_keys_for_user(user_id, true)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let transformed_devices = devices_map
       .into_iter()
-      .filter_map(|(key, device_info)| {
-        let device_info_with_auth = DeviceInfoWithAuth {
-          device_info,
-          auth_type: None,
-        };
-        match OutboundKeyInfo::try_from(device_info_with_auth) {
-          Ok(key_info) => Some((key, key_info)),
-          Err(_) => {
-            error!("Failed to transform device info for key {}", key);
-            None
-          }
-        }
-      })
+      .map(|(key, device_info)| (key, OutboundKeyInfo::from(device_info)))
       .collect::<HashMap<_, _>>();
 
     Ok(tonic::Response::new(OutboundKeysForUserResponse {
@@ -164,34 +153,23 @@ impl IdentityClientService for AuthenticatedService {
     use identity::IdentityInfo;
 
     let message = request.into_inner();
+    let user_id = &message.user_id;
 
     let devices_map = self
       .db_client
-      .get_keys_for_user(&message.user_id, false)
+      .get_keys_for_user(user_id, false)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let transformed_devices = devices_map
       .into_iter()
-      .filter_map(|(key, device_info)| {
-        let device_info_with_auth = DeviceInfoWithAuth {
-          device_info,
-          auth_type: None,
-        };
-        match InboundKeyInfo::try_from(device_info_with_auth) {
-          Ok(key_info) => Some((key, key_info)),
-          Err(_) => {
-            error!("Failed to transform device info for key {}", key);
-            None
-          }
-        }
-      })
+      .map(|(key, device_info)| (key, InboundKeyInfo::from(device_info)))
       .collect::<HashMap<_, _>>();
 
     let identifier = self
       .db_client
-      .get_user_identifier(&message.user_id)
+      .get_user_identifier(user_id)
       .await
       .map_err(handle_db_error)?;
 

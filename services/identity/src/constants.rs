@@ -47,21 +47,6 @@ pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "opaqueRegistrationData";
 pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
 pub const USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME: &str =
   "deviceType";
-pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_ATTRIBUTE_NAME: &str =
-  "keyPayload";
-pub const USERS_TABLE_DEVICES_MAP_KEY_PAYLOAD_SIGNATURE_ATTRIBUTE_NAME: &str =
-  "keyPayloadSignature";
-pub const USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_ATTRIBUTE_NAME: &str =
-  "identityPreKey";
-pub const USERS_TABLE_DEVICES_MAP_CONTENT_PREKEY_SIGNATURE_ATTRIBUTE_NAME:
-  &str = "identityPreKeySignature";
-pub const USERS_TABLE_DEVICES_MAP_CONTENT_ONE_TIME_KEYS_ATTRIBUTE_NAME: &str =
-  "identityOneTimeKeys";
-pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_ATTRIBUTE_NAME: &str = "preKey";
-pub const USERS_TABLE_DEVICES_MAP_NOTIF_PREKEY_SIGNATURE_ATTRIBUTE_NAME: &str =
-  "preKeySignature";
-pub const USERS_TABLE_DEVICES_MAP_NOTIF_ONE_TIME_KEYS_ATTRIBUTE_NAME: &str =
-  "notifOneTimeKeys";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
 pub const USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME: &str =
   "socialProof";
