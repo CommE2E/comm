@@ -39,6 +39,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<UserInfo>("UserInfo")
       .field("id", &UserInfo::id)
       .field("userInfo", &UserInfo::user_info);
+  value_object<MessageStoreThread>("MessageStoreThreads")
+      .field("id", &MessageStoreThread::id)
+      .field("start_reached", &MessageStoreThread::start_reached);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -58,12 +61,66 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("avatar", &WebThread::avatar)
       .field("pinnedCount", &WebThread::pinned_count);
 
+  value_object<WebMessage>("WebMessage")
+      .field("id", &WebMessage::id)
+      .field("local_id", &WebMessage::local_id)
+      .field("thread", &WebMessage::thread)
+      .field("user", &WebMessage::user)
+      .field("content", &WebMessage::content);
+
+  value_object<Media>("Media")
+      .field("id", &Media::id)
+      .field("container", &Media::container)
+      .field("thread", &Media::thread)
+      .field("uri", &Media::uri)
+      .field("type", &Media::type)
+      .field("extras", &Media::extras);
+
+  value_object<MessageWithMedias>("MessageWithMedias")
+      .field("message", &MessageWithMedias::message)
+      .field("medias", &MessageWithMedias::medias);
+
+  value_object<OlmPersistSession>("OlmPersistSession")
+      .field("target_user_id", &OlmPersistSession::target_user_id)
+      .field("session_data", &OlmPersistSession::session_data);
+
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
       .function("moveDraft", &SQLiteQueryExecutor::moveDraft)
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
+      .function("getAllMessagesWeb", &SQLiteQueryExecutor::getAllMessagesWeb)
+      .function("removeAllMessages", &SQLiteQueryExecutor::removeAllMessages)
+      .function("removeMessages", &SQLiteQueryExecutor::removeMessages)
+      .function(
+          "removeMessagesForThreads",
+          &SQLiteQueryExecutor::removeMessagesForThreads)
+      .function("replaceMessageWeb", &SQLiteQueryExecutor::replaceMessageWeb)
+      .function("rekeyMessage", &SQLiteQueryExecutor::rekeyMessage)
+      .function("removeAllMedia", &SQLiteQueryExecutor::removeAllMedia)
+      .function(
+          "removeMediaForThreads", &SQLiteQueryExecutor::removeMediaForThreads)
+      .function(
+          "removeMediaForMessage", &SQLiteQueryExecutor::removeMediaForMessage)
+      .function(
+          "removeMediaForMessages",
+          &SQLiteQueryExecutor::removeMediaForMessages)
+      .function("replaceMedia", &SQLiteQueryExecutor::replaceMedia)
+      .function(
+          "rekeyMediaContainers", &SQLiteQueryExecutor::rekeyMediaContainers)
+      .function(
+          "replaceMessageStoreThreads",
+          &SQLiteQueryExecutor::replaceMessageStoreThreads)
+      .function(
+          "removeMessageStoreThreads",
+          &SQLiteQueryExecutor::removeMessageStoreThreads)
+      .function(
+          "getAllMessageStoreThreads",
+          &SQLiteQueryExecutor::getAllMessageStoreThreads)
+      .function(
+          "removeAllMessageStoreThreads",
+          &SQLiteQueryExecutor::removeAllMessageStoreThreads)
       .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
       .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
       .function("getMetadata", &SQLiteQueryExecutor::getMetadata)
@@ -88,6 +145,15 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("removeThreads", &SQLiteQueryExecutor::removeThreads)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
+      .function(
+          "getOlmPersistSessionsData",
+          &SQLiteQueryExecutor::getOlmPersistSessionsData)
+      .function(
+          "getOlmPersistAccountDataWeb",
+          &SQLiteQueryExecutor::getOlmPersistAccountDataWeb)
+      .function(
+          "storeOlmPersistDataWeb",
+          &SQLiteQueryExecutor::storeOlmPersistDataWeb)
       .function(
           "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction)
       .function(

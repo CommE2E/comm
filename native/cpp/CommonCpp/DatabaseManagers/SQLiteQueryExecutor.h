@@ -94,6 +94,12 @@ public:
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
   void replaceThreadWeb(const WebThread &thread) const override;
+  std::vector<MessageWithMedias> getAllMessagesWeb() const override;
+  void replaceMessageWeb(const WebMessage &message) const override;
+  void storeOlmPersistDataWeb(
+      const std::string &accountData,
+      const std::vector<OlmPersistSession> &sessions) const override;
+  NullableString getOlmPersistAccountDataWeb() const override;
 #else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);

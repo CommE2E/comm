@@ -1539,6 +1539,44 @@ std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
 void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
   this->replaceThread(thread.toThread());
 };
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
+  auto allMessages = this->getAllMessages();
+
+  std::vector<MessageWithMedias> allMessageWithMedias;
+  for (auto &messageWitMedia : allMessages) {
+    allMessageWithMedias.push_back(
+        {std::move(messageWitMedia.first), messageWitMedia.second});
+  }
+
+  return allMessageWithMedias;
+}
+void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
+  this->replaceMessage(message.toMessage());
+};
+
+void SQLiteQueryExecutor::storeOlmPersistDataWeb(
+    const std::string &accountData,
+    const std::vector<OlmPersistSession> &sessions) const {
+  std::unordered_map<std::string, crypto::OlmBuffer> persistSessions;
+  for (const auto &session : sessions) {
+    persistSessions.insert(std::make_pair(
+        session.target_user_id,
+        std::vector<uint8_t>(
+            session.session_data.begin(), session.session_data.end())));
+  }
+  this->storeOlmPersistData(
+      {std::vector<uint8_t>(accountData.begin(), accountData.end()),
+       persistSessions});
+}
+
+NullableString SQLiteQueryExecutor::getOlmPersistAccountDataWeb() const {
+  std::optional<std::string> accountData = this->getOlmPersistAccountData();
+  if (!accountData.has_value()) {
+    return NullableString();
+  }
+  return std::make_unique<std::string>(accountData.value());
+}
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::closeConnection();
