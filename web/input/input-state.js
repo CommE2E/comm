@@ -13,10 +13,7 @@ import type {
   MinimallyEncodedRelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  ChatMentionCandidates,
-  LegacyRelativeMemberInfo,
-} from 'lib/types/thread-types.js';
+import type { ChatMentionCandidates } from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
   +localID: string,
@@ -50,9 +47,7 @@ export type PendingMultimediaUpload = {
 export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
-  +frozenUserMentionsCandidates: $ReadOnlyArray<
-    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
-  >,
+  +frozenUserMentionsCandidates: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>,
   +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
