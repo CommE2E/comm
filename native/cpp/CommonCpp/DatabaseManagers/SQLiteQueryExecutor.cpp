@@ -1315,8 +1315,10 @@ void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
 
 void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
     const {
-  SQLiteQueryExecutor::getStorage().update_all(
-      set(c(&Media::container) = to), where(c(&Media::container) == from));
+  static std::string rekeyMediaContainersSQL =
+      "UPDATE media SET container = ? WHERE container = ?;";
+  rekeyAllEntities(
+      SQLiteQueryExecutor::getConnection(), rekeyMediaContainersSQL, from, to);
 }
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
