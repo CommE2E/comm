@@ -105,7 +105,7 @@ mkShell {
     fmt # needed for folly
     boost # needed for folly
     olm # needed for CryptoTools
-    sqlite # needed for sqlite_orm
+    sqlite # needed for sqlite database
     openssl # needed for grpc
   ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
     CoreFoundation
