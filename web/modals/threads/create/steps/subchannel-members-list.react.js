@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserListItem } from 'lib/types/user-types.js';
@@ -42,7 +42,7 @@ function SubchannelMembersList(props: Props): React.Node {
   );
 
   const filterOutParentMembersWithENSNames = React.useCallback(
-    (members: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>) =>
+    (members: $ReadOnlyArray<RelativeMemberInfo>) =>
       members
         .filter(
           user =>
@@ -63,7 +63,7 @@ function SubchannelMembersList(props: Props): React.Node {
   );
 
   const filterOutOtherMembersWithENSNames = React.useCallback(
-    (members: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>) =>
+    (members: $ReadOnlyArray<RelativeMemberInfo>) =>
       members
         .filter(
           user =>
