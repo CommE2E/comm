@@ -140,7 +140,6 @@ EMCC_FLAGS=(
 CFLAGS=(
   -I "$INPUT_DIR"
   -I "$SQLITE_DIR"
-  -I "${NATIVE_CPP_DIR}third-party/sqlite_orm/"
   -I "${NATIVE_CPP_DIR}CommonCpp/Tools/"
 )
 
