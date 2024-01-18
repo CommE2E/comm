@@ -18,7 +18,7 @@ import {
   fetchCallUpdateOlmAccount,
   fetchOlmAccount,
 } from '../updaters/olm-account-updater.js';
-import { fetchIdentityInfo } from '../user/identity.js';
+import { verifyUserLoggedIn } from '../user/login.js';
 
 type PickledOlmAccount = {
   +picklingKey: string,
@@ -151,7 +151,7 @@ function validateAccountPrekey(account: OlmAccount) {
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
   const [rustAPI, identityInfo, deviceID] = await Promise.all([
     getRustAPI(),
-    fetchIdentityInfo(),
+    verifyUserLoggedIn(),
     getContentSigningKey(),
   ]);
 
@@ -225,7 +225,7 @@ async function publishPrekeysToIdentity(
   notifAccount: OlmAccount,
 ): Promise<void> {
   const rustAPIPromise = getRustAPI();
-  const fetchIdentityInfoPromise = fetchIdentityInfo();
+  const verifyUserLoggedInPromise = verifyUserLoggedIn();
   const deviceID = JSON.parse(contentAccount.identity_keys()).ed25519;
 
   const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
@@ -240,7 +240,7 @@ async function publishPrekeysToIdentity(
 
   const [rustAPI, identityInfo] = await Promise.all([
     rustAPIPromise,
-    fetchIdentityInfoPromise,
+    verifyUserLoggedInPromise,
   ]);
 
   if (!identityInfo) {

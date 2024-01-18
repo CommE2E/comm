@@ -140,7 +140,7 @@ import {
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { fetchIdentityInfo } from '../user/identity.js';
+import { verifyUserLoggedIn } from '../user/login.js';
 import { getOlmUtility, getContentSigningKey } from '../utils/olm-utils.js';
 
 export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpdateRequest> =
@@ -733,7 +733,7 @@ async function keyserverAuthResponder(
     await Promise.all([
       fetchUsername(userID),
       getContentSigningKey(),
-      fetchIdentityInfo(),
+      verifyUserLoggedIn(),
       getRustAPI(),
     ]);
   if (!existingUsername && doNotRegister) {
