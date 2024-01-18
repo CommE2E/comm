@@ -131,10 +131,16 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         const rawThreadInfo = rawThreadInfoFromServerThreadInfo(
           serverThreadInfo,
           userID,
+          { minimallyEncodePermissions: true },
         );
         if (!rawThreadInfo) {
           return null;
         }
+        invariant(
+          rawThreadInfo.minimallyEncoded,
+          'rawThreadInfo from rawThreadInfoFromServerThreadInfo must be ' +
+            'minimallyEncoded when minimallyEncodePermissions option is set',
+        );
         return threadInfoFromRawThreadInfo(rawThreadInfo, userID, userInfos);
       }),
       _pickBy(threadInfo => threadInfo),
