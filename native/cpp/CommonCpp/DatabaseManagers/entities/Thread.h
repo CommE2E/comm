@@ -1,9 +1,11 @@
 #pragma once
 
+#include <sqlite3.h>
 #include <memory>
 #include <string>
 
 #include "Nullable.h"
+#include "SQLiteDataConverters.h"
 
 namespace comm {
 
@@ -24,6 +26,27 @@ struct Thread {
   int replies_count;
   std::unique_ptr<std::string> avatar;
   int pinned_count;
+
+  static Thread fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
+    return Thread{
+        getStringFromSQLRow(sqlRow, idx),
+        getIntFromSQLRow(sqlRow, idx + 1),
+        getStringPtrFromSQLRow(sqlRow, idx + 2),
+        getStringPtrFromSQLRow(sqlRow, idx + 3),
+        getStringFromSQLRow(sqlRow, idx + 4),
+        getInt64FromSQLRow(sqlRow, idx + 5),
+        getStringPtrFromSQLRow(sqlRow, idx + 6),
+        getStringPtrFromSQLRow(sqlRow, idx + 7),
+        getStringPtrFromSQLRow(sqlRow, idx + 8),
+        getStringFromSQLRow(sqlRow, idx + 9),
+        getStringFromSQLRow(sqlRow, idx + 10),
+        getStringFromSQLRow(sqlRow, idx + 11),
+        getStringPtrFromSQLRow(sqlRow, idx + 12),
+        getIntFromSQLRow(sqlRow, idx + 13),
+        getStringPtrFromSQLRow(sqlRow, idx + 14),
+        getIntFromSQLRow(sqlRow, idx + 15),
+    };
+  }
 };
 
 struct WebThread {

@@ -1,6 +1,7 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
 
+#include "entities/EntityQueryHelpers.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
@@ -1159,7 +1160,11 @@ bool SQLiteQueryExecutor::moveDraft(std::string oldKey, std::string newKey)
 }
 
 std::vector<Draft> SQLiteQueryExecutor::getAllDrafts() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Draft>();
+  static std::string getAllDraftsSQL =
+      "SELECT * "
+      "FROM drafts;";
+  return getAllEntities<Draft>(
+      SQLiteQueryExecutor::getConnection(), getAllDraftsSQL);
 }
 
 void SQLiteQueryExecutor::removeAllDrafts() const {
@@ -1178,69 +1183,34 @@ void SQLiteQueryExecutor::removeAllMessages() const {
 
 std::vector<std::pair<Message, std::vector<Media>>>
 SQLiteQueryExecutor::getAllMessages() const {
+  static std::string getAllMessagesSQL =
+      "SELECT * "
+      "FROM messages "
+      "LEFT JOIN media "
+      "   ON messages.id = media.container "
+      "ORDER BY messages.id;";
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      getAllMessagesSQL,
+      "Failed to retrieve all messages.");
 
-  auto rows = SQLiteQueryExecutor::getStorage().select(
-      columns(
-          &Message::id,
-          &Message::local_id,
-          &Message::thread,
-          &Message::user,
-          &Message::type,
-          &Message::future_type,
-          &Message::content,
-          &Message::time,
-          &Media::id,
-          &Media::container,
-          &Media::thread,
-          &Media::uri,
-          &Media::type,
-          &Media::extras),
-      left_join<Media>(on(c(&Message::id) == &Media::container)),
-      order_by(&Message::id));
-
+  std::string prevMsgIdx{};
   std::vector<std::pair<Message, std::vector<Media>>> allMessages;
-  allMessages.reserve(rows.size());
 
-  std::string prev_msg_idx{};
-  for (auto &row : rows) {
-    auto msg_id = std::get<0>(row);
-    if (msg_id == prev_msg_idx) {
-      allMessages.back().second.push_back(Media{
-          std::get<8>(row),
-          std::move(std::get<9>(row)),
-          std::move(std::get<10>(row)),
-          std::move(std::get<11>(row)),
-          std::move(std::get<12>(row)),
-          std::move(std::get<13>(row)),
-      });
+  for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
+       stepResult = sqlite3_step(preparedSQL)) {
+    Message message = Message::fromSQLResult(preparedSQL, 0);
+    if (message.id == prevMsgIdx) {
+      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
     } else {
+      prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
-      if (!std::get<8>(row).empty()) {
-        mediaForMsg.push_back(Media{
-            std::get<8>(row),
-            std::move(std::get<9>(row)),
-            std::move(std::get<10>(row)),
-            std::move(std::get<11>(row)),
-            std::move(std::get<12>(row)),
-            std::move(std::get<13>(row)),
-        });
+      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
       }
-      allMessages.push_back(std::make_pair(
-          Message{
-              msg_id,
-              std::move(std::get<1>(row)),
-              std::move(std::get<2>(row)),
-              std::move(std::get<3>(row)),
-              std::get<4>(row),
-              std::move(std::get<5>(row)),
-              std::move(std::get<6>(row)),
-              std::get<7>(row)},
-          mediaForMsg));
-
-      prev_msg_idx = msg_id;
+      allMessages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
   }
-
   return allMessages;
 }
 
@@ -1317,11 +1287,19 @@ void SQLiteQueryExecutor::removeMessageStoreThreads(
 
 std::vector<MessageStoreThread>
 SQLiteQueryExecutor::getAllMessageStoreThreads() const {
-  return SQLiteQueryExecutor::getStorage().get_all<MessageStoreThread>();
+  static std::string getAllMessageStoreThreadsSQL =
+      "SELECT * "
+      "FROM message_store_threads;";
+  return getAllEntities<MessageStoreThread>(
+      SQLiteQueryExecutor::getConnection(), getAllMessageStoreThreadsSQL);
 }
 
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  static std::string getAllThreadsSQL =
+      "SELECT * "
+      "FROM threads;";
+  return getAllEntities<Thread>(
+      SQLiteQueryExecutor::getConnection(), getAllThreadsSQL);
 };
 
 void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
@@ -1352,7 +1330,11 @@ void SQLiteQueryExecutor::removeReports(
 }
 
 std::vector<Report> SQLiteQueryExecutor::getAllReports() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Report>();
+  static std::string getAllReportsSQL =
+      "SELECT * "
+      "FROM reports;";
+  return getAllEntities<Report>(
+      SQLiteQueryExecutor::getConnection(), getAllReportsSQL);
 }
 
 void SQLiteQueryExecutor::setPersistStorageItem(
@@ -1405,11 +1387,19 @@ void SQLiteQueryExecutor::removeKeyservers(
 }
 
 std::vector<KeyserverInfo> SQLiteQueryExecutor::getAllKeyservers() const {
-  return SQLiteQueryExecutor::getStorage().get_all<KeyserverInfo>();
+  static std::string getAllKeyserversSQL =
+      "SELECT * "
+      "FROM keyservers;";
+  return getAllEntities<KeyserverInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllKeyserversSQL);
 }
 
 std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
-  return SQLiteQueryExecutor::getStorage().get_all<UserInfo>();
+  static std::string getAllUsersSQL =
+      "SELECT * "
+      "FROM users;";
+  return getAllEntities<UserInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllUsersSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
@@ -1426,13 +1416,20 @@ void SQLiteQueryExecutor::rollbackTransaction() const {
 
 std::vector<OlmPersistSession>
 SQLiteQueryExecutor::getOlmPersistSessionsData() const {
-  return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();
+  static std::string getAllOlmPersistSessionsSQL =
+      "SELECT * "
+      "FROM olm_persist_sessions;";
+  return getAllEntities<OlmPersistSession>(
+      SQLiteQueryExecutor::getConnection(), getAllOlmPersistSessionsSQL);
 }
 
 std::optional<std::string>
 SQLiteQueryExecutor::getOlmPersistAccountData() const {
-  std::vector<OlmPersistAccount> result =
-      SQLiteQueryExecutor::getStorage().get_all<OlmPersistAccount>();
+  static std::string getAllOlmPersistAccountSQL =
+      "SELECT * "
+      "FROM olm_persist_account;";
+  std::vector<OlmPersistAccount> result = getAllEntities<OlmPersistAccount>(
+      SQLiteQueryExecutor::getConnection(), getAllOlmPersistAccountSQL);
   if (result.size() > 1) {
     throw std::system_error(
         ECANCELED,
@@ -1492,7 +1489,7 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
 
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
-  auto threads = SQLiteQueryExecutor::getStorage().get_all<Thread>();
+  auto threads = this->getAllThreads();
   std::vector<WebThread> webThreads;
   webThreads.reserve(threads.size());
   for (const auto &thread : threads) {
