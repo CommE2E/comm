@@ -1131,14 +1131,23 @@ SQLiteQueryExecutor::~SQLiteQueryExecutor() {
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
-  std::unique_ptr<Draft> draft =
-      SQLiteQueryExecutor::getStorage().get_pointer<Draft>(key);
+  static std::string getDraftByPrimaryKeySQL =
+      "SELECT * "
+      "FROM drafts "
+      "WHERE key = ?;";
+  std::unique_ptr<Draft> draft = getEntityByPrimaryKey<Draft>(
+      SQLiteQueryExecutor::getConnection(), getDraftByPrimaryKeySQL, key);
   return (draft == nullptr) ? "" : draft->text;
 }
 
 std::unique_ptr<Thread>
 SQLiteQueryExecutor::getThread(std::string threadID) const {
-  return SQLiteQueryExecutor::getStorage().get_pointer<Thread>(threadID);
+  static std::string getThreadByPrimaryKeySQL =
+      "SELECT * "
+      "FROM threads "
+      "WHERE id = ?;";
+  return getEntityByPrimaryKey<Thread>(
+      SQLiteQueryExecutor::getConnection(), getThreadByPrimaryKeySQL, threadID);
 }
 
 void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
@@ -1352,8 +1361,14 @@ void SQLiteQueryExecutor::removePersistStorageItem(std::string key) const {
 }
 
 std::string SQLiteQueryExecutor::getPersistStorageItem(std::string key) const {
-  std::unique_ptr<PersistItem> entry =
-      SQLiteQueryExecutor::getStorage().get_pointer<PersistItem>(key);
+  static std::string getPersistStorageItemByPrimaryKeySQL =
+      "SELECT * "
+      "FROM persist_storage "
+      "WHERE key = ?;";
+  std::unique_ptr<PersistItem> entry = getEntityByPrimaryKey<PersistItem>(
+      SQLiteQueryExecutor::getConnection(),
+      getPersistStorageItemByPrimaryKeySQL,
+      key);
   return (entry == nullptr) ? "" : entry->item;
 }
 
@@ -1482,8 +1497,14 @@ void SQLiteQueryExecutor::clearMetadata(std::string entry_name) const {
 }
 
 std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
-  std::unique_ptr<Metadata> entry =
-      SQLiteQueryExecutor::getStorage().get_pointer<Metadata>(entry_name);
+  std::string getMetadataByPrimaryKeySQL =
+      "SELECT * "
+      "FROM metadata "
+      "WHERE name = ?;";
+  std::unique_ptr<Metadata> entry = getEntityByPrimaryKey<Metadata>(
+      SQLiteQueryExecutor::getConnection(),
+      getMetadataByPrimaryKeySQL,
+      entry_name);
   return (entry == nullptr) ? "" : entry->data;
 }
 
