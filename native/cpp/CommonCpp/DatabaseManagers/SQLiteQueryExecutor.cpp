@@ -18,8 +18,6 @@
 
 namespace comm {
 
-using namespace sqlite_orm;
-
 std::string SQLiteQueryExecutor::sqliteFilePath;
 std::string SQLiteQueryExecutor::encryptionKey;
 std::once_flag SQLiteQueryExecutor::initialized;
@@ -915,96 +913,6 @@ bool set_up_database(sqlite3 *db) {
   return true;
 }
 
-auto getEncryptedStorageAtPath(
-    const std::string &databasePath,
-    std::function<void(sqlite3 *)> on_open_callback =
-        default_on_db_open_callback) {
-  auto storage = make_storage(
-      databasePath,
-      make_index("messages_idx_thread_time", &Message::thread, &Message::time),
-      make_index("media_idx_container", &Media::container),
-      make_table(
-          "drafts",
-          make_column("key", &Draft::key, unique(), primary_key()),
-          make_column("text", &Draft::text)),
-      make_table(
-          "messages",
-          make_column("id", &Message::id, unique(), primary_key()),
-          make_column("local_id", &Message::local_id),
-          make_column("thread", &Message::thread),
-          make_column("user", &Message::user),
-          make_column("type", &Message::type),
-          make_column("future_type", &Message::future_type),
-          make_column("content", &Message::content),
-          make_column("time", &Message::time)),
-      make_table(
-          "olm_persist_account",
-          make_column("id", &OlmPersistAccount::id, unique(), primary_key()),
-          make_column("account_data", &OlmPersistAccount::account_data)),
-      make_table(
-          "olm_persist_sessions",
-          make_column(
-              "target_user_id",
-              &OlmPersistSession::target_user_id,
-              unique(),
-              primary_key()),
-          make_column("session_data", &OlmPersistSession::session_data)),
-      make_table(
-          "media",
-          make_column("id", &Media::id, unique(), primary_key()),
-          make_column("container", &Media::container),
-          make_column("thread", &Media::thread),
-          make_column("uri", &Media::uri),
-          make_column("type", &Media::type),
-          make_column("extras", &Media::extras)),
-      make_table(
-          "threads",
-          make_column("id", &Thread::id, unique(), primary_key()),
-          make_column("type", &Thread::type),
-          make_column("name", &Thread::name),
-          make_column("description", &Thread::description),
-          make_column("color", &Thread::color),
-          make_column("creation_time", &Thread::creation_time),
-          make_column("parent_thread_id", &Thread::parent_thread_id),
-          make_column("containing_thread_id", &Thread::containing_thread_id),
-          make_column("community", &Thread::community),
-          make_column("members", &Thread::members),
-          make_column("roles", &Thread::roles),
-          make_column("current_user", &Thread::current_user),
-          make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count),
-          make_column("avatar", &Thread::avatar),
-          make_column("pinned_count", &Thread::pinned_count, default_value(0))),
-      make_table(
-          "metadata",
-          make_column("name", &Metadata::name, unique(), primary_key()),
-          make_column("data", &Metadata::data)),
-      make_table(
-          "message_store_threads",
-          make_column("id", &MessageStoreThread::id, unique(), primary_key()),
-          make_column("start_reached", &MessageStoreThread::start_reached)),
-      make_table(
-          "reports",
-          make_column("id", &Report::id, unique(), primary_key()),
-          make_column("report", &Report::report)),
-      make_table(
-          "persist_storage",
-          make_column("key", &PersistItem::key, unique(), primary_key()),
-          make_column("item", &PersistItem::item)),
-      make_table(
-          "users",
-          make_column("id", &UserInfo::id, unique(), primary_key()),
-          make_column("user_info", &UserInfo::user_info)),
-      make_table(
-          "keyservers",
-          make_column("id", &KeyserverInfo::id, unique(), primary_key()),
-          make_column("keyserver_info", &KeyserverInfo::keyserver_info))
-
-  );
-  storage.on_open = on_open_callback;
-  return storage;
-}
-
 void SQLiteQueryExecutor::migrate() {
 // We don't want to run `PRAGMA key = ...;`
 // on main web database. The context is here:
@@ -1069,12 +977,6 @@ void SQLiteQueryExecutor::migrate() {
   }
 
   sqlite3_close(db);
-}
-
-auto &SQLiteQueryExecutor::getStorage() {
-  static auto storage =
-      getEncryptedStorageAtPath(SQLiteQueryExecutor::sqliteFilePath);
-  return storage;
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
@@ -1765,14 +1667,12 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
     attempt_delete_file(
         tempBackupPath,
-        "Failed to delete temporary backup file from previous backup "
-        "attempt.");
+        "Failed to delete temporary backup file from previous backup attempt.");
   }
 
   if (file_exists(tempAttachmentsPath)) {
     Logger::log(
-        "Attempting to delete temporary attachments file from previous "
-        "backup "
+        "Attempting to delete temporary attachments file from previous backup "
         "attempt.");
     attempt_delete_file(
         tempAttachmentsPath,
@@ -1780,28 +1680,40 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
   }
 
-  auto backupStorage = getEncryptedStorageAtPath(
-      tempBackupPath, [](sqlite3 *db) { set_encryption_key(db); });
-  auto backupObj =
-      SQLiteQueryExecutor::getStorage().make_backup_to(backupStorage);
-  int backupResult = backupObj.step(-1);
+  sqlite3 *backupDB;
+  sqlite3_open(tempBackupPath.c_str(), &backupDB);
+  set_encryption_key(backupDB);
 
+  sqlite3_backup *backupObj = sqlite3_backup_init(
+      backupDB, "main", SQLiteQueryExecutor::getConnection(), "main");
+  if (!backupObj) {
+    std::stringstream error_message;
+    error_message << "Failed to init backup for main compaction. Details: "
+                  << sqlite3_errmsg(backupDB) << std::endl;
+    sqlite3_close(backupDB);
+    throw std::runtime_error(error_message.str());
+  }
+
+  int backupResult = sqlite3_backup_step(backupObj, -1);
+  sqlite3_backup_finish(backupObj);
   if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
+    sqlite3_close(backupDB);
     throw std::runtime_error(
         "Programmer error. Database in transaction during backup attempt.");
   } else if (backupResult != SQLITE_DONE) {
+    sqlite3_close(backupDB);
     std::stringstream error_message;
     error_message << "Failed to create database backup. Details: "
                   << sqlite3_errstr(backupResult);
     throw std::runtime_error(error_message.str());
   }
-  backupStorage.vacuum();
+  executeQuery(backupDB, "VACUUM;");
+  sqlite3_close(backupDB);
 
   attempt_rename_file(
       tempBackupPath,
       finalBackupPath,
-      "Failed to rename complete temporary backup file to final backup "
-      "file.");
+      "Failed to rename complete temporary backup file to final backup file.");
 
   std::ofstream tempAttachmentsFile(tempAttachmentsPath);
   if (!tempAttachmentsFile.is_open()) {
@@ -1809,11 +1721,13 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "Unable to create attachments file for backup id: " + backupID);
   }
 
-  auto blobServiceURIRows = SQLiteQueryExecutor::getStorage().select(
-      columns(&Media::uri), where(like(&Media::uri, "comm-blob-service://%")));
+  std::string getAllBlobServiceMediaSQL =
+      "SELECT * FROM media WHERE uri LIKE 'comm-blob-service://%';";
+  std::vector<Media> blobServiceMedia = getAllEntities<Media>(
+      SQLiteQueryExecutor::getConnection(), getAllBlobServiceMediaSQL);
 
-  for (const auto &blobServiceURIRow : blobServiceURIRows) {
-    std::string blobServiceURI = std::get<0>(blobServiceURIRow);
+  for (const auto &media : blobServiceMedia) {
+    std::string blobServiceURI = media.uri;
     std::string blobHash = blob_hash_from_blob_service_uri(blobServiceURI);
     tempAttachmentsFile << blobHash << "\n";
   }
@@ -1843,9 +1757,9 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
     throw std::runtime_error("Restore attempt but backup file does not exist.");
   }
 
-  sqlite3 *backup_db;
+  sqlite3 *backupDB;
   if (!is_database_queryable(
-          backup_db, true, mainCompactionPath, mainCompactionEncryptionKey)) {
+          backupDB, true, mainCompactionPath, mainCompactionEncryptionKey)) {
     throw std::runtime_error("Backup file or encryption key corrupted.");
   }
 
@@ -1857,8 +1771,7 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   if (file_exists(plaintextBackupPath)) {
     attempt_delete_file(
         plaintextBackupPath,
-        "Failed to delete plaintext backup file from previous backup "
-        "attempt.");
+        "Failed to delete plaintext backup file from previous backup attempt.");
   }
 
   std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +
@@ -1870,16 +1783,16 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
       "SELECT sqlcipher_export('plaintext');"
       "DETACH DATABASE plaintext;";
 
-  sqlite3_open(mainCompactionPath.c_str(), &backup_db);
+  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
 
   char *plaintextMigrationErr;
   sqlite3_exec(
-      backup_db,
+      backupDB,
       plaintextMigrationDBQuery.c_str(),
       nullptr,
       nullptr,
       &plaintextMigrationErr);
-  sqlite3_close(backup_db);
+  sqlite3_close(backupDB);
 
   if (plaintextMigrationErr) {
     std::stringstream error_message;
@@ -1891,18 +1804,27 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
 
     throw std::runtime_error(error_message_str);
   }
-  auto backupStorage = getEncryptedStorageAtPath(plaintextBackupPath);
+
+  sqlite3_open(plaintextBackupPath.c_str(), &backupDB);
 #else
-  auto backupStorage = getEncryptedStorageAtPath(
-      mainCompactionPath, [mainCompactionEncryptionKey](sqlite3 *db) {
-        set_encryption_key(db, mainCompactionEncryptionKey);
-      });
+  sqlite3_open(mainCompactionPath.c_str(), &backupDB);
+  set_encryption_key(backupDB, mainCompactionEncryptionKey);
 #endif
 
-  auto backupObject =
-      SQLiteQueryExecutor::getStorage().make_backup_from(backupStorage);
-  int backupResult = backupObject.step(-1);
+  sqlite3_backup *backupObj = sqlite3_backup_init(
+      SQLiteQueryExecutor::getConnection(), "main", backupDB, "main");
+  if (!backupObj) {
+    std::stringstream error_message;
+    error_message << "Failed to init backup for main compaction. Details: "
+                  << sqlite3_errmsg(SQLiteQueryExecutor::getConnection())
+                  << std::endl;
+    sqlite3_close(backupDB);
+    throw std::runtime_error(error_message.str());
+  }
 
+  int backupResult = sqlite3_backup_step(backupObj, -1);
+  sqlite3_backup_finish(backupObj);
+  sqlite3_close(backupDB);
   if (backupResult == SQLITE_BUSY || backupResult == SQLITE_LOCKED) {
     throw std::runtime_error(
         "Programmer error. Database in transaction during restore attempt.");
