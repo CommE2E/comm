@@ -1139,8 +1139,12 @@ SQLiteQueryExecutor::getThread(std::string threadID) const {
 }
 
 void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
+  static std::string replaceDraftSQL =
+      "REPLACE INTO drafts (key, text) "
+      "VALUES (?, ?);";
   Draft draft = {key, text};
-  SQLiteQueryExecutor::getStorage().replace(draft);
+  replaceEntity<Draft>(
+      SQLiteQueryExecutor::getConnection(), replaceDraftSQL, draft);
 }
 
 bool SQLiteQueryExecutor::moveDraft(std::string oldKey, std::string newKey)
@@ -1224,7 +1228,13 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
 }
 
 void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
-  SQLiteQueryExecutor::getStorage().replace(message);
+  static std::string replaceMessageSQL =
+      "REPLACE INTO messages "
+      "(id, local_id, thread, user, type, future_type, content, time) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+
+  replaceEntity<Message>(
+      SQLiteQueryExecutor::getConnection(), replaceMessageSQL, message);
 }
 
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
@@ -1256,7 +1266,12 @@ void SQLiteQueryExecutor::removeMediaForThreads(
 }
 
 void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
-  SQLiteQueryExecutor::getStorage().replace(media);
+  static std::string replaceMediaSQL =
+      "REPLACE INTO media "
+      "(id, container, thread, uri, type, extras) "
+      "VALUES (?, ?, ?, ?, ?, ?)";
+  replaceEntity<Media>(
+      SQLiteQueryExecutor::getConnection(), replaceMediaSQL, media);
 }
 
 void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
@@ -1267,8 +1282,16 @@ void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
 
 void SQLiteQueryExecutor::replaceMessageStoreThreads(
     const std::vector<MessageStoreThread> &threads) const {
+  static std::string replaceMessageStoreThreadSQL =
+      "REPLACE INTO message_store_threads "
+      "(id, start_reached) "
+      "VALUES (?, ?);";
+
   for (auto &thread : threads) {
-    SQLiteQueryExecutor::getStorage().replace(thread);
+    replaceEntity<MessageStoreThread>(
+        SQLiteQueryExecutor::getConnection(),
+        replaceMessageStoreThreadSQL,
+        thread);
   }
 }
 
@@ -1305,7 +1328,15 @@ void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
 };
 
 void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
-  SQLiteQueryExecutor::getStorage().replace(thread);
+  static std::string replaceThreadSQL =
+      "REPLACE INTO threads ("
+      " id, type, name, description, color, creation_time, parent_thread_id,"
+      " containing_thread_id, community, members, roles, current_user,"
+      " source_message_id, replies_count, avatar, pinned_count) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+
+  replaceEntity<Thread>(
+      SQLiteQueryExecutor::getConnection(), replaceThreadSQL, thread);
 };
 
 void SQLiteQueryExecutor::removeAllThreads() const {
@@ -1313,7 +1344,12 @@ void SQLiteQueryExecutor::removeAllThreads() const {
 };
 
 void SQLiteQueryExecutor::replaceReport(const Report &report) const {
-  SQLiteQueryExecutor::getStorage().replace(report);
+  static std::string replaceReportSQL =
+      "REPLACE INTO reports (id, report) "
+      "VALUES (?, ?);";
+
+  replaceEntity<Report>(
+      SQLiteQueryExecutor::getConnection(), replaceReportSQL, report);
 }
 
 void SQLiteQueryExecutor::removeAllReports() const {
@@ -1337,11 +1373,17 @@ std::vector<Report> SQLiteQueryExecutor::getAllReports() const {
 void SQLiteQueryExecutor::setPersistStorageItem(
     std::string key,
     std::string item) const {
+  static std::string replacePersistStorageItemSQL =
+      "REPLACE INTO persist_storage (key, item) "
+      "VALUES (?, ?);";
   PersistItem entry{
       key,
       item,
   };
-  SQLiteQueryExecutor::getStorage().replace(entry);
+  replaceEntity<PersistItem>(
+      SQLiteQueryExecutor::getConnection(),
+      replacePersistStorageItemSQL,
+      entry);
 }
 
 void SQLiteQueryExecutor::removePersistStorageItem(std::string key) const {
@@ -1361,7 +1403,11 @@ std::string SQLiteQueryExecutor::getPersistStorageItem(std::string key) const {
 }
 
 void SQLiteQueryExecutor::replaceUser(const UserInfo &user_info) const {
-  SQLiteQueryExecutor::getStorage().replace(user_info);
+  static std::string replaceUserSQL =
+      "REPLACE INTO users (id, user_info) "
+      "VALUES (?, ?);";
+  replaceEntity<UserInfo>(
+      SQLiteQueryExecutor::getConnection(), replaceUserSQL, user_info);
 }
 
 void SQLiteQueryExecutor::removeAllUsers() const {
@@ -1376,7 +1422,13 @@ void SQLiteQueryExecutor::removeUsers(
 
 void SQLiteQueryExecutor::replaceKeyserver(
     const KeyserverInfo &keyserver_info) const {
-  SQLiteQueryExecutor::getStorage().replace(keyserver_info);
+  static std::string replaceKeyserverSQL =
+      "REPLACE INTO keyservers (id, keyserver_info) "
+      "VALUES (?, ?);";
+  replaceEntity<KeyserverInfo>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceKeyserverSQL,
+      keyserver_info);
 }
 
 void SQLiteQueryExecutor::removeAllKeyservers() const {
@@ -1406,15 +1458,15 @@ std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
-  SQLiteQueryExecutor::getStorage().begin_transaction();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "BEGIN TRANSACTION;");
 }
 
 void SQLiteQueryExecutor::commitTransaction() const {
-  SQLiteQueryExecutor::getStorage().commit();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "COMMIT;");
 }
 
 void SQLiteQueryExecutor::rollbackTransaction() const {
-  SQLiteQueryExecutor::getStorage().rollback();
+  executeQuery(SQLiteQueryExecutor::getConnection(), "ROLLBACK;");
 }
 
 std::vector<OlmPersistSession>
@@ -1445,13 +1497,27 @@ SQLiteQueryExecutor::getOlmPersistAccountData() const {
 }
 
 void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+  static std::string replaceOlmPersistAccountSQL =
+      "REPLACE INTO olm_persist_account (id, account_data) "
+      "VALUES (?, ?);";
+  static std::string replaceOlmPersistSessionSQL =
+      "REPLACE INTO olm_persist_sessions (target_user_id, session_data) "
+      "VALUES (?, ?);";
+
   OlmPersistAccount persistAccount = {
       ACCOUNT_ID, std::string(persist.account.begin(), persist.account.end())};
-  SQLiteQueryExecutor::getStorage().replace(persistAccount);
+  replaceEntity<OlmPersistAccount>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceOlmPersistAccountSQL,
+      persistAccount);
+
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
         it->first, std::string(it->second.begin(), it->second.end())};
-    SQLiteQueryExecutor::getStorage().replace(persistSession);
+    replaceEntity<OlmPersistSession>(
+        SQLiteQueryExecutor::getConnection(),
+        replaceOlmPersistSessionSQL,
+        persistSession);
   }
 }
 
@@ -1473,11 +1539,15 @@ std::string SQLiteQueryExecutor::getCurrentUserID() const {
 
 void SQLiteQueryExecutor::setMetadata(std::string entry_name, std::string data)
     const {
+  std::string replaceMetadataSQL =
+      "REPLACE INTO metadata (name, data) "
+      "VALUES (?, ?);";
   Metadata entry{
       entry_name,
       data,
   };
-  SQLiteQueryExecutor::getStorage().replace(entry);
+  replaceEntity<Metadata>(
+      SQLiteQueryExecutor::getConnection(), replaceMetadataSQL, entry);
 }
 
 void SQLiteQueryExecutor::clearMetadata(std::string entry_name) const {
@@ -1508,7 +1578,7 @@ std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
 };
 
 void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
-  SQLiteQueryExecutor::getStorage().replace(thread.toThread());
+  this->replaceThread(thread.toThread());
 };
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
@@ -1553,12 +1623,14 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
     attempt_delete_file(
         tempBackupPath,
-        "Failed to delete temporary backup file from previous backup attempt.");
+        "Failed to delete temporary backup file from previous backup "
+        "attempt.");
   }
 
   if (file_exists(tempAttachmentsPath)) {
     Logger::log(
-        "Attempting to delete temporary attachments file from previous backup "
+        "Attempting to delete temporary attachments file from previous "
+        "backup "
         "attempt.");
     attempt_delete_file(
         tempAttachmentsPath,
@@ -1586,7 +1658,8 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   attempt_rename_file(
       tempBackupPath,
       finalBackupPath,
-      "Failed to rename complete temporary backup file to final backup file.");
+      "Failed to rename complete temporary backup file to final backup "
+      "file.");
 
   std::ofstream tempAttachmentsFile(tempAttachmentsPath);
   if (!tempAttachmentsFile.is_open()) {
@@ -1642,7 +1715,8 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   if (file_exists(plaintextBackupPath)) {
     attempt_delete_file(
         plaintextBackupPath,
-        "Failed to delete plaintext backup file from previous backup attempt.");
+        "Failed to delete plaintext backup file from previous backup "
+        "attempt.");
   }
 
   std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +

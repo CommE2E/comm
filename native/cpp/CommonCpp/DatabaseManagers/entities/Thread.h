@@ -47,6 +47,25 @@ struct Thread {
         getIntFromSQLRow(sqlRow, idx + 15),
     };
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(id, sql, idx);
+    bindIntToSQL(type, sql, idx + 1);
+    bindStringPtrToSQL(name, sql, idx + 2);
+    bindStringPtrToSQL(description, sql, idx + 3);
+    bindStringToSQL(color, sql, idx + 4);
+    bindInt64ToSQL(reinterpret_cast<sqlite3_int64>(time), sql, idx + 5);
+    bindStringPtrToSQL(parent_thread_id, sql, idx + 6);
+    bindStringPtrToSQL(containing_thread_id, sql, idx + 7);
+    bindStringPtrToSQL(community, sql, idx + 8);
+    bindStringToSQL(members, sql, idx + 9);
+    bindStringToSQL(roles, sql, idx + 10);
+    bindStringToSQL(current_user, sql, idx + 11);
+    bindStringPtrToSQL(source_message_id, sql, idx + 12);
+    bindIntToSQL(replies_count, sql, idx + 13);
+    bindStringPtrToSQL(avatar, sql, idx + 14);
+    return bindIntToSQL(pinned_count, sql, idx + 15);
+  }
 };
 
 struct WebThread {
