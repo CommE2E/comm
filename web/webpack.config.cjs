@@ -194,7 +194,13 @@ module.exports = async function (env) {
   const identitySocketAddr = JSON.stringify(
     identityServiceConfig?.identitySocketAddr,
   );
-  const envVars = { IDENTITY_SOCKET_ADDR: identitySocketAddr };
+  const searchSocketAddr = JSON.stringify(
+    identityServiceConfig?.searchSocketAddr,
+  );
+  const envVars = {
+    IDENTITY_SOCKET_ADDR: identitySocketAddr,
+    SEARCH_SOCKET_ADDR: searchSocketAddr,
+  };
   const browserConfigPromise = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig, envVars)
     : createDevBrowserConfig(baseDevBrowserConfig, babelConfig, envVars);

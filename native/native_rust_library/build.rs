@@ -35,6 +35,7 @@ trait ServiceConfig: for<'a> Deserialize<'a> {
 #[serde(rename_all = "camelCase")]
 struct IdentityServiceConfig {
   identity_socket_addr: String,
+  search_socket_addr: String,
 }
 
 impl ServiceConfig for IdentityServiceConfig {
@@ -44,6 +45,8 @@ impl ServiceConfig for IdentityServiceConfig {
     Self {
       identity_socket_addr:
         "https://identity.staging.commtechnologies.org:50054".to_string(),
+      search_socket_addr: "ws://identity.staging.commtechnologies.org:51004"
+        .to_string(),
     }
   }
 
@@ -51,13 +54,16 @@ impl ServiceConfig for IdentityServiceConfig {
     Self {
       identity_socket_addr: "https://identity.commtechnologies.org:50054"
         .to_string(),
+      search_socket_addr: "ws://identity.commtechnologies.org:51004"
+        .to_string(),
     }
   }
 
   fn generated_code(&self) -> String {
     format!(
-      r#"pub const IDENTITY_SOCKET_ADDR: &str = "{}";"#,
-      self.identity_socket_addr
+      r#"pub const IDENTITY_SOCKET_ADDR: &str = "{}";
+pub const SEARCH_SOCKET_ADDR: &str = "{}";"#,
+      self.identity_socket_addr, self.search_socket_addr
     )
   }
 }
