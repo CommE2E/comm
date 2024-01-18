@@ -4,7 +4,6 @@
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
 #include "entities/UserInfo.h"
-#include "sqlite_orm.h"
 
 #include <mutex>
 #include <string>
@@ -13,7 +12,6 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void migrate();
-  static auto &getStorage();
   static sqlite3 *getConnection();
   static void closeConnection();
 
