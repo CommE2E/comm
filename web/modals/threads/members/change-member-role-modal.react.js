@@ -11,8 +11,11 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -25,7 +28,7 @@ import Modal from '../../modal.react.js';
 import UnsavedChangesModal from '../../unsaved-changes-modal.react.js';
 
 type ChangeMemberRoleModalProps = {
-  +memberInfo: RelativeMemberInfo,
+  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo,
 };
 
