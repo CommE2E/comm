@@ -1,5 +1,6 @@
 #pragma once
 
+#include <sqlite3.h>
 #include <memory>
 #include <string>
 
@@ -24,6 +25,46 @@ struct Thread {
   int replies_count;
   std::unique_ptr<std::string> avatar;
   int pinned_count;
+
+  static Thread fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
+    const char *name =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 2));
+    const char *description =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 3));
+    const char *parent_thread_id =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 6));
+    const char *containing_thread_id =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 7));
+    const char *community =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 8));
+    const char *source_message_id =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 12));
+    const char *avatar =
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 14));
+
+    return Thread{
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx)),
+        sqlite3_column_int(sqlRow, idx + 1),
+        name ? std::make_unique<std::string>(name) : nullptr,
+        description ? std::make_unique<std::string>(description) : nullptr,
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 4)),
+        sqlite3_column_int64(sqlRow, idx + 5),
+        parent_thread_id ? std::make_unique<std::string>(parent_thread_id)
+                         : nullptr,
+        containing_thread_id
+            ? std::make_unique<std::string>(containing_thread_id)
+            : nullptr,
+        community ? std::make_unique<std::string>(community) : nullptr,
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 9)),
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 10)),
+        reinterpret_cast<const char *>(sqlite3_column_text(sqlRow, idx + 11)),
+        source_message_id ? std::make_unique<std::string>(source_message_id)
+                          : nullptr,
+        sqlite3_column_int(sqlRow, idx + 13),
+        avatar ? std::make_unique<std::string>(avatar) : nullptr,
+        sqlite3_column_int(sqlRow, idx + 15),
+    };
+  }
 };
 
 struct WebThread {
