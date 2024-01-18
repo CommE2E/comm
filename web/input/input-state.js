@@ -9,10 +9,13 @@ import {
   type MediaType,
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
-  RelativeMemberInfo,
+  LegacyRelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
@@ -47,7 +50,9 @@ export type PendingMultimediaUpload = {
 export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
-  +frozenUserMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
+  +frozenUserMentionsCandidates: $ReadOnlyArray<
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
   +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
