@@ -9,7 +9,6 @@ import type {
   MinimallyEncodedRelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
@@ -25,7 +24,7 @@ import {
 import Alert from '../../utils/alert.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
-  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: MinimallyEncodedRelativeMemberInfo,
   +threadInfo: ThreadInfo,
 }>;
 
