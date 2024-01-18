@@ -14,6 +14,11 @@ struct UserInfo {
     return UserInfo{
         getStringFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   };
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(id, sql, idx);
+    return bindStringToSQL(user_info, sql, idx + 1);
+  }
 };
 
 } // namespace comm

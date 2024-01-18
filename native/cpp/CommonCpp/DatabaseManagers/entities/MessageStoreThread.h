@@ -16,6 +16,11 @@ struct MessageStoreThread {
         getIntFromSQLRow(sqlRow, idx + 1),
     };
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(id, sql, idx);
+    return bindIntToSQL(start_reached, sql, idx + 1);
+  }
 };
 
 } // namespace comm

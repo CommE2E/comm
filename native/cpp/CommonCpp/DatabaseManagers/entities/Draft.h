@@ -14,6 +14,11 @@ struct Draft {
     return Draft{
         getStringFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(key, sql, idx);
+    return bindStringToSQL(text, sql, idx + 1);
+  }
 };
 
 } // namespace comm

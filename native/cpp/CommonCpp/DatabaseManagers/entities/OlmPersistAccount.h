@@ -14,6 +14,11 @@ struct OlmPersistAccount {
     return OlmPersistAccount{
         getIntFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindIntToSQL(id, sql, idx);
+    return bindStringToSQL(account_data, sql, idx + 1);
+  }
 };
 
 } // namespace comm
