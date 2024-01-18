@@ -5,7 +5,8 @@ use crate::database::DeviceListRow;
 use crate::grpc_utils::DeviceInfoWithAuth;
 use crate::{
   client_service::{
-    handle_db_error, CacheExt, UpdateState, WorkflowInProgress,
+    handle_db_error, CacheExt, PasswordUserVerificationState,
+    UpdateContinueState, WorkflowInProgress,
   },
   constants::request_metadata,
   database::DatabaseClient,
@@ -21,13 +22,16 @@ use tracing::{debug, error};
 
 use super::protos::auth::{
   find_user_id_request, identity,
-  identity_client_service_server::IdentityClientService, FindUserIdRequest,
-  FindUserIdResponse, GetDeviceListRequest, GetDeviceListResponse, Identity,
-  InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
-  KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
-  OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  identity_client_service_server::IdentityClientService,
+  DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
+  DeletePasswordUserStartResponse, FindUserIdRequest, FindUserIdResponse,
+  GetDeviceListRequest, GetDeviceListResponse, Identity, InboundKeyInfo,
+  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  RefreshUserPrekeysRequest, UpdateUserPasswordContinueRequest,
+  UpdateUserPasswordContinueResponse, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest,
 };
 use super::protos::unauth::{Empty, IdentityKeyInfo, Prekey};
 
@@ -316,26 +320,64 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<UpdateUserPasswordStartRequest>,
   ) -> Result<tonic::Response<UpdateUserPasswordStartResponse>, tonic::Status>
   {
-    let (user_id, _) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
+    let response = self
+      .password_verification_start(
+        message,
+        PasswordVerificationWorkflow::Update,
+      )
+      .await?;
+
+    match response {
+      PasswordVerificationResponse::Update(update_response) => {
+        Ok(Response::new(update_response))
+      }
+      _ => Err(tonic::Status::internal("unexpected_response_type")),
+    }
+  }
+
+  async fn update_user_password_continue(
+    &self,
+    request: tonic::Request<UpdateUserPasswordContinueRequest>,
+  ) -> Result<tonic::Response<UpdateUserPasswordContinueResponse>, tonic::Status>
+  {
+    let message = request.into_inner();
+    let session_id = message.session_id();
+
+    // Step 1: Finish password verification and get cached state
+    let state = self
+      .password_verification_finish(
+        &message,
+        PasswordVerificationWorkflow::Update,
+      )
+      .await?;
+
+    // Step 2: Start OPAQUE registration
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
         &CONFIG.server_setup,
         &message.opaque_registration_request,
-        user_id.as_bytes(),
+        state.username.as_bytes(),
       )
       .map_err(protocol_error_to_grpc_status)?;
 
-    let update_state = UpdateState { user_id };
-    let session_id = self
+    // Step 3: Store user ID (used in `update_user_password_finish` request)
+    // keyed on session ID sent by client
+    let update_continue_state = UpdateContinueState {
+      user_id: state.user_id,
+    };
+    self
       .cache
-      .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
+      .insert(
+        session_id.to_string(),
+        WorkflowInProgress::UpdateContinue(update_continue_state),
+      )
       .await;
 
-    let response = UpdateUserPasswordStartResponse {
-      session_id,
+    // Step 4: Send response to client
+    let response = UpdateUserPasswordContinueResponse {
       opaque_registration_response: server_message,
     };
     Ok(Response::new(response))
@@ -347,25 +389,29 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    let Some(WorkflowInProgress::Update(state)) =
+    // Step 1: Get state stored in `update_user_password_continue`
+    let Some(WorkflowInProgress::UpdateContinue(state)) =
       self.cache.get(&message.session_id)
     else {
-      return Err(tonic::Status::not_found("session not found"));
+      return Err(tonic::Status::not_found("session_not_found"));
     };
 
     self.cache.invalidate(&message.session_id).await;
 
+    // Step 2: Finish OPAQUE registration
     let server_registration = comm_opaque2::server::Registration::new();
     let password_file = server_registration
       .finish(&message.opaque_registration_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
+    // Step 3: Update DynamoDB with new password file
     self
       .db_client
       .update_user_password(state.user_id, password_file)
       .await
       .map_err(handle_db_error)?;
 
+    // Step 4: Return `Empty` response
     let response = Empty {};
     Ok(Response::new(response))
   }
@@ -392,11 +438,72 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
-  async fn delete_user(
+  async fn delete_password_user_start(
+    &self,
+    request: tonic::Request<DeletePasswordUserStartRequest>,
+  ) -> Result<tonic::Response<DeletePasswordUserStartResponse>, tonic::Status>
+  {
+    let message = request.into_inner();
+
+    let response = self
+      .password_verification_start(
+        message,
+        PasswordVerificationWorkflow::Delete,
+      )
+      .await?;
+
+    match response {
+      PasswordVerificationResponse::Delete(delete_response) => {
+        Ok(Response::new(delete_response))
+      }
+      _ => Err(tonic::Status::internal("unexpected_response_type")),
+    }
+  }
+
+  async fn delete_password_user_finish(
+    &self,
+    request: tonic::Request<DeletePasswordUserFinishRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    // Step 1: Finish password verification and get cached state
+    let state = self
+      .password_verification_finish(
+        &message,
+        PasswordVerificationWorkflow::Delete,
+      )
+      .await?;
+
+    // Step 2: Delete user from DynamoDB
+    self
+      .db_client
+      .delete_user(state.user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    // Step 3: Return `Empty` response
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
+
+  async fn delete_wallet_user(
     &self,
     request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    use crate::ddb_utils::Identifier;
+
     let (user_id, _) = get_user_and_device_id(&request)?;
+
+    // Ensure that user is not registered with a password
+    let identifier = self
+      .db_client
+      .get_user_identifier(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let Identifier::WalletAddress(_) = identifier else {
+      return Err(tonic::Status::failed_precondition("invalid_identifier"));
+    };
 
     self
       .db_client
@@ -451,6 +558,171 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(GetDeviceListResponse {
       device_list_updates: stringified_updates,
     }))
+  }
+}
+
+impl AuthenticatedService {
+  async fn password_verification_start(
+    &self,
+    request: impl PasswordVerificationStart,
+    workflow_type: PasswordVerificationWorkflow,
+  ) -> Result<PasswordVerificationResponse, tonic::Status> {
+    // Step 1: Get OPAQUE password file and user ID
+    let user_id_and_password_file = self
+      .db_client
+      .get_user_id_and_password_file_from_username(&request.username())
+      .await
+      .map_err(handle_db_error)?;
+
+    let (user_id, password_file_bytes) =
+      if let Some(data) = user_id_and_password_file {
+        data
+      } else {
+        return Err(tonic::Status::not_found("user_not_found"));
+      };
+
+    // Step 2: Begin server side of OPAQUE login
+    let mut server_login = comm_opaque2::server::Login::new();
+    let server_response = server_login
+      .start(
+        &CONFIG.server_setup,
+        &password_file_bytes,
+        &request.opaque_login_request(),
+        &request.username().as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    // Step 3: Store login state, user ID, and username
+    let start_state = PasswordUserVerificationState {
+      user_id,
+      opaque_server_login: server_login,
+      username: request.username().to_string(),
+    };
+
+    let session_id = match workflow_type {
+      PasswordVerificationWorkflow::Update => {
+        self
+          .cache
+          .insert_with_uuid_key(WorkflowInProgress::UpdateStart(start_state))
+          .await
+      }
+      PasswordVerificationWorkflow::Delete => {
+        self
+          .cache
+          .insert_with_uuid_key(WorkflowInProgress::Delete(start_state))
+          .await
+      }
+    };
+
+    // Step 4: Send response to client
+    let response = match workflow_type {
+      PasswordVerificationWorkflow::Update => {
+        PasswordVerificationResponse::Update(UpdateUserPasswordStartResponse {
+          session_id,
+          opaque_login_response: server_response,
+        })
+      }
+      PasswordVerificationWorkflow::Delete => {
+        PasswordVerificationResponse::Delete(DeletePasswordUserStartResponse {
+          session_id,
+          opaque_login_response: server_response,
+        })
+      }
+    };
+
+    Ok(response)
+  }
+
+  async fn password_verification_finish(
+    &self,
+    request: &impl PasswordVerificationFinish,
+    workflow_type: PasswordVerificationWorkflow,
+  ) -> Result<PasswordUserVerificationState, tonic::Status> {
+    // Step 1: Get login state
+    let session_id = request.session_id();
+
+    let state_opt = match (workflow_type, self.cache.get(session_id)) {
+      (
+        PasswordVerificationWorkflow::Delete,
+        Some(WorkflowInProgress::Delete(state)),
+      ) => {
+        self.cache.invalidate(session_id).await;
+        Some(state)
+      }
+      (
+        PasswordVerificationWorkflow::Update,
+        Some(WorkflowInProgress::UpdateStart(state)),
+      ) => {
+        self.cache.invalidate(session_id).await;
+        Some(state)
+      }
+      _ => None,
+    };
+
+    // Step 2: Finish OPAQUE login and return state
+    let Some(state) = state_opt else {
+      return Err(tonic::Status::not_found("session_not_found"));
+    };
+
+    Ok(state)
+  }
+}
+
+enum PasswordVerificationWorkflow {
+  Update,
+  Delete,
+}
+
+enum PasswordVerificationResponse {
+  Update(UpdateUserPasswordStartResponse),
+  Delete(DeletePasswordUserStartResponse),
+}
+
+trait PasswordVerificationStart {
+  fn username(&self) -> &str;
+  fn opaque_login_request(&self) -> &Vec<u8>;
+}
+
+impl PasswordVerificationStart for UpdateUserPasswordStartRequest {
+  fn username(&self) -> &str {
+    &self.username
+  }
+  fn opaque_login_request(&self) -> &Vec<u8> {
+    &self.opaque_login_request
+  }
+}
+
+impl PasswordVerificationStart for DeletePasswordUserStartRequest {
+  fn username(&self) -> &str {
+    &self.username
+  }
+  fn opaque_login_request(&self) -> &Vec<u8> {
+    &self.opaque_login_request
+  }
+}
+
+trait PasswordVerificationFinish {
+  fn session_id(&self) -> &str;
+  fn opaque_login_upload(&self) -> &Vec<u8>;
+}
+
+impl PasswordVerificationFinish for DeletePasswordUserFinishRequest {
+  fn session_id(&self) -> &str {
+    &self.session_id
+  }
+
+  fn opaque_login_upload(&self) -> &Vec<u8> {
+    &self.opaque_login_upload
+  }
+}
+
+impl PasswordVerificationFinish for UpdateUserPasswordContinueRequest {
+  fn session_id(&self) -> &str {
+    &self.session_id
+  }
+
+  fn opaque_login_upload(&self) -> &Vec<u8> {
+    &self.opaque_login_upload
   }
 }
 

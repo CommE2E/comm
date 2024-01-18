@@ -47,7 +47,9 @@ pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
 pub enum WorkflowInProgress {
   Registration(Box<UserRegistrationInfo>),
   Login(Box<UserLoginInfo>),
-  Update(UpdateState),
+  UpdateStart(PasswordUserVerificationState),
+  UpdateContinue(UpdateContinueState),
+  Delete(PasswordUserVerificationState),
 }
 
 #[derive(Clone)]
@@ -65,7 +67,14 @@ pub struct UserLoginInfo {
 }
 
 #[derive(Clone)]
-pub struct UpdateState {
+pub struct PasswordUserVerificationState {
+  pub user_id: String,
+  pub username: String,
+  pub opaque_server_login: comm_opaque2::server::Login,
+}
+
+#[derive(Clone)]
+pub struct UpdateContinueState {
   pub user_id: String,
 }
 
