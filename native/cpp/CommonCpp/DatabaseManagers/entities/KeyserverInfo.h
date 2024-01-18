@@ -14,6 +14,11 @@ struct KeyserverInfo {
     return KeyserverInfo{
         getStringFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(id, sql, idx);
+    return bindStringToSQL(keyserver_info, sql, idx + 1);
+  }
 };
 
 } // namespace comm

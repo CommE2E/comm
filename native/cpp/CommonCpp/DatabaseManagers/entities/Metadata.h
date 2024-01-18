@@ -14,6 +14,11 @@ struct Metadata {
     return Metadata{
         getStringFromSQLRow(sqlRow, idx), getStringFromSQLRow(sqlRow, idx + 1)};
   }
+
+  int bindToSQL(sqlite3_stmt *sql, int idx) const {
+    bindStringToSQL(name, sql, idx);
+    return bindStringToSQL(data, sql, idx + 1);
+  }
 };
 
 } // namespace comm
