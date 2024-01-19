@@ -69,8 +69,8 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityLoginPasswordUser"]
-    fn login_password_user(
+    #[cxx_name = "identityLogInPasswordUser"]
+    fn log_in_password_user(
       username: String,
       password: String,
       key_payload: String,
@@ -84,8 +84,8 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityLoginWalletUser"]
-    fn login_wallet_user(
+    #[cxx_name = "identityLogInWalletUser"]
+    fn log_in_wallet_user(
       siwe_message: String,
       siwe_signature: String,
       key_payload: String,
@@ -575,7 +575,7 @@ async fn register_user_helper(
 }
 
 #[instrument]
-fn login_password_user(
+fn log_in_password_user(
   username: String,
   password: String,
   key_payload: String,
@@ -601,12 +601,12 @@ fn login_password_user(
       content_one_time_keys,
       notif_one_time_keys,
     };
-    let result = login_password_user_helper(password_user_info).await;
+    let result = log_in_password_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
   });
 }
 
-async fn login_password_user_helper(
+async fn log_in_password_user_helper(
   password_user_info: PasswordUserInfo,
 ) -> Result<String, Error> {
   let mut client_login = Login::new();
@@ -701,7 +701,7 @@ struct WalletUserInfo {
 }
 
 #[instrument]
-fn login_wallet_user(
+fn log_in_wallet_user(
   siwe_message: String,
   siwe_signature: String,
   key_payload: String,
@@ -729,12 +729,12 @@ fn login_wallet_user(
       notif_one_time_keys,
       social_proof,
     };
-    let result = login_wallet_user_helper(wallet_user_info).await;
+    let result = log_in_wallet_user_helper(wallet_user_info).await;
     handle_string_result_as_callback(result, promise_id);
   });
 }
 
-async fn login_wallet_user_helper(
+async fn log_in_wallet_user_helper(
   wallet_user_info: WalletUserInfo,
 ) -> Result<String, Error> {
   let login_request = WalletLoginRequest {
