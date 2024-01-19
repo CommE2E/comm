@@ -19,7 +19,7 @@ export interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
-  +loginPasswordUser: (
+  +logInPasswordUser: (
     username: string,
     password: string,
     keyPayload: string,
@@ -31,7 +31,7 @@ export interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
-  +loginWalletUser: (
+  +logInWalletUser: (
     siweMessage: string,
     siweSignature: string,
     keyPayload: string,

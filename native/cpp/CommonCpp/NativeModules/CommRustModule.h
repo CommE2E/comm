@@ -24,7 +24,7 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys) override;
-  virtual jsi::Value loginPasswordUser(
+  virtual jsi::Value logInPasswordUser(
       jsi::Runtime &rt,
       jsi::String username,
       jsi::String password,
@@ -36,7 +36,7 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys) override;
-  virtual jsi::Value loginWalletUser(
+  virtual jsi::Value logInWalletUser(
       jsi::Runtime &rt,
       jsi::String siweMessage,
       jsi::String siweSignature,
