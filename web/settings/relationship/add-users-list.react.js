@@ -121,6 +121,20 @@ function AddUsersList(props: Props): React.Node {
     [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
 
+  const listHeader = React.useMemo(() => {
+    let selectionText = 'Select users';
+    if (pendingUsersToAdd.size > 0) {
+      selectionText = `${pendingUsersToAdd.size} selected`;
+    }
+
+    return (
+      <div className={css.listHeaderContainer}>
+        <div className={css.selectionText}>{selectionText}</div>
+        {/* {TODO: Add clear all button here} */}
+      </div>
+    );
+  }, [pendingUsersToAdd.size]);
+
   let errors;
   if (errorMessage) {
     errors = <div className={css.error}>{errorMessage}</div>;
@@ -128,6 +142,7 @@ function AddUsersList(props: Props): React.Node {
 
   return (
     <div className={css.container}>
+      {listHeader}
       <div className={css.userRowsContainer}>{userRows}</div>
       {errors}
     </div>
