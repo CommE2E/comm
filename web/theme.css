@@ -293,6 +293,8 @@
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
   --link-background-primary-disabled: var(--shades-black-50);
+  --link-background-secondary-default: var(--violet-light-100);
+  --link-background-secondary-disabled: var(--shades-black-75);
 
   /* Separator */
   --separator-background-primary-default: var(--shades-black-75);
@@ -398,6 +400,9 @@
   /* Link */
   --link-background-primary-default: var(--violet-dark-100);
   --link-background-primary-disabled: var(--shades-black-50);
+  /* @GINSU: TODO double check the secondary values after redesign is finished */
+  --link-background-secondary-default: var(--violet-dark-100);
+  --link-background-secondary-disabled: var(--shades-white-60);
 
   /* Separator */
   --separator-background-primary-default: var(--shades-white-60);
