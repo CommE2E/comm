@@ -59,3 +59,13 @@
   padding-left: 6px;
   font-style: italic;
 }
+
+.listHeaderContainer {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px 8px 8px;
+}
+
+.selectionText {
+  color: var(--text-background-secondary-default);
+}
