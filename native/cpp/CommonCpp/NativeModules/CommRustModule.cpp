@@ -84,7 +84,7 @@ jsi::Value CommRustModule::registerUser(
       });
 }
 
-jsi::Value CommRustModule::loginPasswordUser(
+jsi::Value CommRustModule::logInPasswordUser(
     jsi::Runtime &rt,
     jsi::String username,
     jsi::String password,
@@ -115,7 +115,7 @@ jsi::Value CommRustModule::loginPasswordUser(
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
-          identityLoginPasswordUser(
+          identityLogInPasswordUser(
               usernameRust,
               passwordRust,
               keyPayloadRust,
@@ -137,7 +137,7 @@ jsi::Value CommRustModule::loginPasswordUser(
       });
 }
 
-jsi::Value CommRustModule::loginWalletUser(
+jsi::Value CommRustModule::logInWalletUser(
     jsi::Runtime &rt,
     jsi::String siweMessage,
     jsi::String siweSignature,
@@ -170,7 +170,7 @@ jsi::Value CommRustModule::loginWalletUser(
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
-          identityLoginWalletUser(
+          identityLogInWalletUser(
               siweMessageRust,
               siweSignatureRust,
               keyPayloadRust,
