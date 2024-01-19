@@ -15,6 +15,7 @@ import { values } from 'lib/utils/objects.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
+import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
 type Props = {
@@ -121,6 +122,17 @@ function AddUsersList(props: Props): React.Node {
     [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
 
+  const onClickClearAll = React.useCallback(() => {
+    setPendingUsersToAdd(new Set());
+  }, [setPendingUsersToAdd]);
+
+  const clearAllButtonColor = React.useMemo(() => {
+    if (pendingUsersToAdd.size === 0) {
+      return { color: 'var(--link-background-secondary-disabled)' };
+    }
+    return { color: 'var(--link-background-secondary-default)' };
+  }, [pendingUsersToAdd.size]);
+
   const listHeader = React.useMemo(() => {
     let selectionText = 'Select users';
     if (pendingUsersToAdd.size > 0) {
@@ -130,10 +142,17 @@ function AddUsersList(props: Props): React.Node {
     return (
       <div className={css.listHeaderContainer}>
         <div className={css.selectionText}>{selectionText}</div>
-        {/* {TODO: Add clear all button here} */}
+        <Button
+          variant="text"
+          buttonColor={clearAllButtonColor}
+          onClick={onClickClearAll}
+          disabled={pendingUsersToAdd.size === 0}
+        >
+          Clear all
+        </Button>
       </div>
     );
-  }, [pendingUsersToAdd.size]);
+  }, [clearAllButtonColor, onClickClearAll, pendingUsersToAdd.size]);
 
   let errors;
   if (errorMessage) {
