@@ -41,6 +41,7 @@ import {
   getCommunity,
   assertAllThreadInfosAreLegacy,
 } from 'lib/shared/thread-utils.js';
+import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import {
   DEPRECATED_unshimMessageStore,
   unshimFunc,
@@ -48,10 +49,7 @@ import {
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
-import type {
-  KeyserverStore,
-  KeyserverInfo,
-} from 'lib/types/keyserver-types.js';
+import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import {
   messageTypes,
   type MessageType,
@@ -68,10 +66,7 @@ import type {
   ReportStore,
   ClientReportCreationRequest,
 } from 'lib/types/report-types.js';
-import {
-  defaultConnectionInfo,
-  type ConnectionInfo,
-} from 'lib/types/socket-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type {
   ClientDBThreadInfo,
@@ -1076,41 +1071,6 @@ const reportStoreTransform: Transform = createTransform(
     return { ...state, queuedReports: [] };
   },
   { whitelist: ['reportStore'] },
-);
-
-type PersistedKeyserverInfo = $Diff<
-  KeyserverInfo,
-  { +connection: ConnectionInfo },
->;
-type PersistedKeyserverStore = {
-  +keyserverInfos: { +[key: string]: PersistedKeyserverInfo },
-};
-const keyserverStoreTransform: Transform = createTransform(
-  (state: KeyserverStore): PersistedKeyserverStore => {
-    const keyserverInfos: { [string]: PersistedKeyserverInfo } = {};
-    for (const key in state.keyserverInfos) {
-      const { connection, ...rest } = state.keyserverInfos[key];
-      keyserverInfos[key] = rest;
-    }
-    return {
-      ...state,
-      keyserverInfos,
-    };
-  },
-  (state: PersistedKeyserverStore): KeyserverStore => {
-    const keyserverInfos: { [string]: KeyserverInfo } = {};
-    for (const key in state.keyserverInfos) {
-      keyserverInfos[key] = {
-        ...state.keyserverInfos[key],
-        connection: { ...defaultConnectionInfo },
-      };
-    }
-    return {
-      ...state,
-      keyserverInfos,
-    };
-  },
-  { whitelist: ['keyserverStore'] },
 );
 
 const persistConfig = {
