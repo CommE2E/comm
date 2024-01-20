@@ -1,28 +1,18 @@
 // @flow
 
 import invariant from 'invariant';
-import {
-  getStoredState,
-  purgeStoredState,
-  createTransform,
-} from 'redux-persist';
+import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
-import type { Transform } from 'redux-persist/es/types.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
-import type {
-  KeyserverInfo,
-  KeyserverStore,
-} from 'lib/types/keyserver-types.js';
+import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
+import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
-import {
-  defaultConnectionInfo,
-  type ConnectionInfo,
-} from 'lib/types/socket-types.js';
+import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
@@ -246,46 +236,6 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
 
   return newStorage;
 };
-
-type PersistedKeyserverInfo = $Diff<
-  KeyserverInfo,
-  {
-    +connection: ConnectionInfo,
-    +sessionID?: ?string,
-  },
->;
-type PersistedKeyserverStore = {
-  +keyserverInfos: { +[key: string]: PersistedKeyserverInfo },
-};
-const keyserverStoreTransform: Transform = createTransform(
-  (state: KeyserverStore): PersistedKeyserverStore => {
-    const keyserverInfos: { [string]: PersistedKeyserverInfo } = {};
-    for (const key in state.keyserverInfos) {
-      const { connection, sessionID, ...rest } = state.keyserverInfos[key];
-      keyserverInfos[key] = rest;
-    }
-    return {
-      ...state,
-      keyserverInfos,
-    };
-  },
-  (state: PersistedKeyserverStore): KeyserverStore => {
-    const keyserverInfos: { [string]: KeyserverInfo } = {};
-    for (const key in state.keyserverInfos) {
-      keyserverInfos[key] = {
-        ...state.keyserverInfos[key],
-        connection: { ...defaultConnectionInfo },
-        sessionID: null,
-        updatesCurrentAsOf: state.keyserverInfos[key].updatesCurrentAsOf ?? 0,
-      };
-    }
-    return {
-      ...state,
-      keyserverInfos,
-    };
-  },
-  { whitelist: ['keyserverStore'] },
-);
 
 const persistConfig: PersistConfig = {
   key: rootKey,
