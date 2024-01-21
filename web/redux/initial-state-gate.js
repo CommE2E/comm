@@ -112,6 +112,7 @@ function InitialReduxStateGate(props: Props): React.Node {
                 messageStoreOperations: [],
                 reportStoreOperations: [],
                 userStoreOperations: [],
+                keyserverStoreOperations: [],
               },
               currentLoggedInUserID,
             );
