@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
+#include "entities/KeyserverInfo.h"
 #include "entities/UserInfo.h"
 
 #include <mutex>
@@ -71,6 +72,10 @@ public:
   void removeUsers(const std::vector<std::string> &ids) const override;
   void removeAllUsers() const override;
   std::vector<UserInfo> getAllUsers() const override;
+  void replaceKeyserver(const KeyserverInfo &keyserver_info) const override;
+  void removeKeyservers(const std::vector<std::string> &ids) const override;
+  void removeAllKeyservers() const override;
+  std::vector<KeyserverInfo> getAllKeyservers() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
