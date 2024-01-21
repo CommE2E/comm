@@ -2,6 +2,7 @@
 
 import { useSelector as reactReduxUseSelector } from 'react-redux';
 
+import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -28,6 +29,7 @@ async function processDBStoreOperations(
     messageStoreOperations,
     reportStoreOperations,
     userStoreOperations,
+    keyserverStoreOperations,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
@@ -38,6 +40,8 @@ async function processDBStoreOperations(
     reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
   const convertedUserStoreOperations =
     userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+  const convertedKeyserverStoreOperations =
+    keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
 
   try {
     const promises = [];
@@ -70,6 +74,13 @@ async function processDBStoreOperations(
     if (convertedUserStoreOperations.length > 0) {
       promises.push(
         commCoreModule.processUserStoreOperations(convertedUserStoreOperations),
+      );
+    }
+    if (convertedKeyserverStoreOperations.length > 0) {
+      promises.push(
+        commCoreModule.processKeyserverStoreOperations(
+          convertedKeyserverStoreOperations,
+        ),
       );
     }
     await Promise.all(promises);
