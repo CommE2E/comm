@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { NotificationsSessionCreatorContext } from 'lib/shared/notifications-session-creator-context.js';
+import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
@@ -29,13 +29,13 @@ const contextValue = {
   notificationsSessionCreator,
 };
 
-function NotificationsSessionCreatorProvider(props: Props): React.Node {
+function OlmSessionCreatorProvider(props: Props): React.Node {
   const { children } = props;
   return (
-    <NotificationsSessionCreatorContext.Provider value={contextValue}>
+    <OlmSessionCreatorContext.Provider value={contextValue}>
       {children}
-    </NotificationsSessionCreatorContext.Provider>
+    </OlmSessionCreatorContext.Provider>
   );
 }
 
-export { NotificationsSessionCreatorProvider };
+export { OlmSessionCreatorProvider };
