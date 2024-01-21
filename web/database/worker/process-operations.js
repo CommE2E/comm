@@ -173,6 +173,7 @@ function getClientStore(
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
     users: [],
+    keyservers: [],
   };
 }
 
