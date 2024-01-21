@@ -260,6 +260,44 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
     [getOrCreateCryptoStore],
   );
 
+  const createNewContentSession = React.useCallback(
+    async (
+      contentIdentityKeys: OLMIdentityKeys,
+      contentInitializationInfo: OlmSessionInitializationInfo,
+    ) => {
+      const [{ primaryAccount }] = await Promise.all([
+        getOrCreateCryptoStore(),
+        initOlm(),
+      ]);
+
+      const account = new olm.Account();
+      const { picklingKey, pickledAccount } = primaryAccount;
+      account.unpickle(picklingKey, pickledAccount);
+
+      const contentPrekey = getPrekeyValueFromBlob(
+        contentInitializationInfo.prekey,
+      );
+      const [contentOneTimeKey] = getOneTimeKeyValuesFromBlob(
+        contentInitializationInfo.oneTimeKey,
+      );
+
+      const session = new olm.Session();
+      session.create_outbound(
+        account,
+        contentIdentityKeys.curve25519,
+        contentIdentityKeys.ed25519,
+        contentPrekey,
+        contentInitializationInfo.prekeySignature,
+        contentOneTimeKey,
+      );
+      const { body: initialContentEncryptedMessage } = session.encrypt(
+        JSON.stringify(initialEncryptedMessageContent),
+      );
+      return initialContentEncryptedMessage;
+    },
+    [getOrCreateCryptoStore],
+  );
+
   const notificationsSessionPromise = React.useRef<?Promise<string>>(null);
   const createNotificationsSession = React.useCallback(
     async (
@@ -302,8 +340,9 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
   const contextValue = React.useMemo(
     () => ({
       notificationsSessionCreator: createNotificationsSession,
+      contentSessionCreator: createNewContentSession,
     }),
-    [createNotificationsSession],
+    [createNewContentSession, createNotificationsSession],
   );
 
   return (
