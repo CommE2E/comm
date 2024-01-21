@@ -1,5 +1,6 @@
 // @flow
 
+import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
@@ -54,8 +55,12 @@ async function processDBStoreOperations(
   storeOperations: StoreOperations,
   userID: null | string,
 ): Promise<void> {
-  const { draftStoreOperations, threadStoreOperations, reportStoreOperations } =
-    storeOperations;
+  const {
+    draftStoreOperations,
+    threadStoreOperations,
+    reportStoreOperations,
+    keyserverStoreOperations,
+  } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
 
@@ -64,11 +69,14 @@ async function processDBStoreOperations(
     : [];
   const convertedReportStoreOperations =
     reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+  const convertedKeyserverStoreOperations =
+    keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
     convertedReportStoreOperations.length === 0 &&
-    draftStoreOperations.length === 0
+    draftStoreOperations.length === 0 &&
+    convertedKeyserverStoreOperations.length === 0
   ) {
     return;
   }
@@ -85,6 +93,7 @@ async function processDBStoreOperations(
         draftStoreOperations,
         reportStoreOperations: convertedReportStoreOperations,
         threadStoreOperations: convertedThreadStoreOperations,
+        keyserverStoreOperations: convertedKeyserverStoreOperations,
       },
     });
   } catch (e) {
