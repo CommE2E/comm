@@ -22,6 +22,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     messageStoreThreads: null,
     reports: null,
     users: null,
+    keyserverInfos: null,
   };
   const data = await databaseModule.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -46,6 +47,14 @@ async function getClientDBStore(): Promise<ClientStore> {
           data.store.threads,
         ),
       },
+    };
+  }
+  if (data?.store?.keyservers) {
+    result = {
+      ...result,
+      keyserverInfos: keyserverStoreOpsHandlers.translateClientDBData(
+        data.store.keyservers,
+      ),
     };
   }
   return result;
