@@ -11,7 +11,7 @@ import {
   getOneTimeKeyValuesFromBlob,
   getPrekeyValueFromBlob,
 } from 'lib/shared/crypto-utils.js';
-import { NotificationsSessionCreatorContext } from 'lib/shared/notifications-session-creator-context.js';
+import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
 import type {
   SignedIdentityKeysBlob,
   CryptoStore,
@@ -174,7 +174,7 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
   }, [getOrCreateCryptoStore]);
 }
 
-function NotificationsSessionCreatorProvider(props: Props): React.Node {
+function OlmSessionCreatorProvider(props: Props): React.Node {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
   const currentCryptoStore = useSelector(state => state.cryptoStore);
 
@@ -307,9 +307,9 @@ function NotificationsSessionCreatorProvider(props: Props): React.Node {
   );
 
   return (
-    <NotificationsSessionCreatorContext.Provider value={contextValue}>
+    <OlmSessionCreatorContext.Provider value={contextValue}>
       {props.children}
-    </NotificationsSessionCreatorContext.Provider>
+    </OlmSessionCreatorContext.Provider>
   );
 }
 
@@ -319,7 +319,7 @@ function useWebNotificationsSessionCreator(): (
   notificationsInitializationInfo: OlmSessionInitializationInfo,
   keyserverID: string,
 ) => Promise<string> {
-  const context = React.useContext(NotificationsSessionCreatorContext);
+  const context = React.useContext(OlmSessionCreatorContext);
   invariant(context, 'WebNotificationsSessionCreator not found.');
 
   return context.notificationsSessionCreator;
@@ -328,7 +328,7 @@ function useWebNotificationsSessionCreator(): (
 export {
   useGetSignedIdentityKeysBlob,
   useGetOrCreateCryptoStore,
-  NotificationsSessionCreatorProvider,
+  OlmSessionCreatorProvider,
   useWebNotificationsSessionCreator,
   GetOrCreateCryptoStoreProvider,
 };

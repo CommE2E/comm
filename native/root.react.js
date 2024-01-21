@@ -33,7 +33,7 @@ import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
-import { NotificationsSessionCreatorProvider } from './account/account-hooks.js';
+import { OlmSessionCreatorProvider } from './account/account-hooks.js';
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import BackupHandler from './backup/backup-handler.js';
@@ -302,7 +302,7 @@ function Root() {
       <CallKeyserverEndpointProvider>
         <StaffContextProvider>
           <IdentityServiceContextProvider>
-            <NotificationsSessionCreatorProvider>
+            <OlmSessionCreatorProvider>
               <TunnelbrokerProvider
                 initMessage={tunnelbrokerInitMessage}
                 peerToPeerMessageHandler={peerToPeerMessageHandler}
@@ -360,7 +360,7 @@ function Root() {
                   </NavContext.Provider>
                 </FeatureFlagsProvider>
               </TunnelbrokerProvider>
-            </NotificationsSessionCreatorProvider>
+            </OlmSessionCreatorProvider>
           </IdentityServiceContextProvider>
         </StaffContextProvider>
       </CallKeyserverEndpointProvider>
