@@ -120,6 +120,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     messageStoreOperations: [],
     reportStoreOperations: [],
     userStoreOperations: [],
+    keyserverStoreOperations: [],
   };
 
   if (action.type === setInitialReduxState) {
