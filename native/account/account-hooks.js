@@ -6,7 +6,10 @@ import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
+import {
+  nativeNotificationsSessionCreator,
+  nativeOutboundContentSessionCreator,
+} from '../utils/crypto-utils.js';
 
 type Props = {
   +children: React.Node,
@@ -25,8 +28,20 @@ function notificationsSessionCreator(
   );
 }
 
+function contentSessionCreator(
+  contentIdentityKeys: OLMIdentityKeys,
+  contentInitializationInfo: OlmSessionInitializationInfo,
+) {
+  return nativeOutboundContentSessionCreator(
+    contentIdentityKeys,
+    contentInitializationInfo,
+    contentIdentityKeys.ed25519,
+  );
+}
+
 const contextValue = {
   notificationsSessionCreator,
+  contentSessionCreator,
 };
 
 function OlmSessionCreatorProvider(props: Props): React.Node {
