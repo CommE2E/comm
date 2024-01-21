@@ -17,7 +17,15 @@ KeyserverStore::KeyserverStore(
 jsi::Array KeyserverStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<KeyserverInfo>> keyserversVectorPtr) const {
-  jsi::Array jsiKeyservers = jsi::Array(rt, 0);
+  size_t numKeyservers = keyserversVectorPtr->size();
+  jsi::Array jsiKeyservers = jsi::Array(rt, numKeyservers);
+  size_t writeIdx = 0;
+  for (const KeyserverInfo &keyserver : *keyserversVectorPtr) {
+    jsi::Object jsiKeyserver = jsi::Object(rt);
+    jsiKeyserver.setProperty(rt, "id", keyserver.id);
+    jsiKeyserver.setProperty(rt, "keyserverInfo", keyserver.keyserver_info);
+    jsiKeyservers.setValueAtIndex(rt, writeIdx++, jsiKeyserver);
+  }
   return jsiKeyservers;
 }
 
