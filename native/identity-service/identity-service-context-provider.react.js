@@ -7,8 +7,8 @@ import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityServiceClient,
   type UserLoginResponse,
-  type KeyserverKeys,
-  keyserverKeysValidator,
+  type DeviceOlmOutboundKeys,
+  deviceOlmOutboundKeysValidator,
 } from 'lib/types/identity-service-types.js';
 import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -70,7 +70,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         return commRustModule.deleteUser(userID, deviceID, accessToken);
       },
-      getKeyserverKeys: async (keyserverID: string): Promise<KeyserverKeys> => {
+      getKeyserverKeys: async (
+        keyserverID: string,
+      ): Promise<DeviceOlmOutboundKeys> => {
         const { deviceID, userID, accessToken } = await getAuthMetadata();
         const result = await commRustModule.getKeyserverKeys(
           userID,
@@ -104,7 +106,10 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           throw new Error('Missing notif one time key');
         }
 
-        return assertWithValidator(keyserverKeys, keyserverKeysValidator);
+        return assertWithValidator(
+          keyserverKeys,
+          deviceOlmOutboundKeysValidator,
+        );
       },
       registerUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
