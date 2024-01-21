@@ -16,6 +16,11 @@ import {
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
 import {
+  type ClientDBKeyserverStoreOperation,
+  keyserverStoreOpsHandlers,
+  type ReplaceKeyserverOperation,
+} from 'lib/ops/keyserver-store-ops.js';
+import {
   type ClientDBMessageStoreOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
@@ -83,6 +88,7 @@ import {
   convertMessageStoreThreadsToNewIDSchema,
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { entries } from 'lib/utils/objects.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import {
@@ -1044,6 +1050,33 @@ const migrations = {
       handleReduxMigrationFailure,
     );
   },
+  [62]: async (state: AppState) => {
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo,
+      },
+    }));
+
+    const dbOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_keyservers' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processKeyserverStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1111,7 +1144,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 61,
+  version: 62,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

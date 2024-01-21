@@ -6,6 +6,11 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
+  type ClientDBKeyserverStoreOperation,
+  keyserverStoreOpsHandlers,
+  type ReplaceKeyserverOperation,
+} from 'lib/ops/keyserver-store-ops.js';
+import {
   createAsyncMigrate,
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
@@ -21,6 +26,7 @@ import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { entries } from 'lib/utils/objects.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -44,7 +50,6 @@ const persistWhitelist = [
   'customServer',
 ];
 
-// eslint-disable-next-line no-unused-vars
 function handleReduxMigrationFailure(oldState: AppState): AppState {
   const persistedNonUserSpecificFields = nonUserSpecificFieldsWeb.filter(
     field => persistWhitelist.includes(field) || field === '_persist',
@@ -221,6 +226,40 @@ const migrations = {
         keyserverInfos: newKeyserverInfos,
       },
     };
+  },
+  [11]: async (state: AppState) => {
+    const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo,
+      },
+    }));
+
+    const keyserverStoreOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_keyservers' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await databaseModule.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { keyserverStoreOperations },
+      });
+      return state;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(state);
+    }
   },
 };
 
