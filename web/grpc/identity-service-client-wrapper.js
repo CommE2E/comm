@@ -4,8 +4,8 @@ import identityServiceConfig from 'lib/facts/identity-service.js';
 import {
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
-  type KeyserverKeys,
-  keyserverKeysValidator,
+  type DeviceOlmOutboundKeys,
+  deviceOlmOutboundKeysValidator,
 } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -81,49 +81,48 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     await this.authClient.deleteUser(new Empty());
   };
 
-  getKeyserverKeys: (keyserverID: string) => Promise<KeyserverKeys> = async (
-    keyserverID: string,
-  ) => {
-    const client = this.authClient;
-    if (!client) {
-      throw new Error('Identity service client is not initialized');
-    }
+  getKeyserverKeys: (keyserverID: string) => Promise<DeviceOlmOutboundKeys> =
+    async (keyserverID: string) => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
 
-    const request = new IdentityAuthStructs.OutboundKeysForUserRequest();
-    request.setUserId(keyserverID);
-    const response = await client.getKeyserverKeys(request);
+      const request = new IdentityAuthStructs.OutboundKeysForUserRequest();
+      request.setUserId(keyserverID);
+      const response = await client.getKeyserverKeys(request);
 
-    const keyserverInfo = response.getKeyserverInfo();
-    const identityInfo = keyserverInfo?.getIdentityInfo();
-    const contentPreKey = keyserverInfo?.getContentPrekey();
-    const notifPreKey = keyserverInfo?.getNotifPrekey();
-    const payload = identityInfo?.getPayload();
+      const keyserverInfo = response.getKeyserverInfo();
+      const identityInfo = keyserverInfo?.getIdentityInfo();
+      const contentPreKey = keyserverInfo?.getContentPrekey();
+      const notifPreKey = keyserverInfo?.getNotifPrekey();
+      const payload = identityInfo?.getPayload();
 
-    const keyserverKeys = {
-      identityKeysBlob: payload ? JSON.parse(payload) : null,
-      contentInitializationInfo: {
-        prekey: contentPreKey?.getPrekey(),
-        prekeySignature: contentPreKey?.getPrekeySignature(),
-        oneTimeKey: keyserverInfo?.getOneTimeContentPrekey(),
-      },
-      notifInitializationInfo: {
-        prekey: notifPreKey?.getPrekey(),
-        prekeySignature: notifPreKey?.getPrekeySignature(),
-        oneTimeKey: keyserverInfo?.getOneTimeNotifPrekey(),
-      },
-      payloadSignature: identityInfo?.getPayloadSignature(),
-      socialProof: identityInfo?.getSocialProof(),
+      const keyserverKeys = {
+        identityKeysBlob: payload ? JSON.parse(payload) : null,
+        contentInitializationInfo: {
+          prekey: contentPreKey?.getPrekey(),
+          prekeySignature: contentPreKey?.getPrekeySignature(),
+          oneTimeKey: keyserverInfo?.getOneTimeContentPrekey(),
+        },
+        notifInitializationInfo: {
+          prekey: notifPreKey?.getPrekey(),
+          prekeySignature: notifPreKey?.getPrekeySignature(),
+          oneTimeKey: keyserverInfo?.getOneTimeNotifPrekey(),
+        },
+        payloadSignature: identityInfo?.getPayloadSignature(),
+        socialProof: identityInfo?.getSocialProof(),
+      };
+
+      if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
+        throw new Error('Missing content one time key');
+      }
+      if (!keyserverKeys.notifInitializationInfo.oneTimeKey) {
+        throw new Error('Missing notif one time key');
+      }
+
+      return assertWithValidator(keyserverKeys, deviceOlmOutboundKeysValidator);
     };
-
-    if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
-      throw new Error('Missing content one time key');
-    }
-    if (!keyserverKeys.notifInitializationInfo.oneTimeKey) {
-      throw new Error('Missing notif one time key');
-    }
-
-    return assertWithValidator(keyserverKeys, keyserverKeysValidator);
-  };
 }
 
 export { IdentityServiceClientWrapper };
