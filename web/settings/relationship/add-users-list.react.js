@@ -133,26 +133,43 @@ function AddUsersList(props: Props): React.Node {
     return { color: 'var(--link-background-secondary-default)' };
   }, [pendingUsersToAdd.size]);
 
+  const clearAllButton = React.useMemo(() => {
+    if (searchText.length > 0) {
+      return null;
+    }
+
+    return (
+      <Button
+        variant="text"
+        buttonColor={clearAllButtonColor}
+        onClick={onClickClearAll}
+        disabled={pendingUsersToAdd.size === 0}
+      >
+        Clear all
+      </Button>
+    );
+  }, [
+    clearAllButtonColor,
+    onClickClearAll,
+    pendingUsersToAdd.size,
+    searchText.length,
+  ]);
+
   const listHeader = React.useMemo(() => {
     let selectionText = 'Select users';
-    if (pendingUsersToAdd.size > 0) {
+    if (searchText.length > 0) {
+      selectionText = 'Search results:';
+    } else if (pendingUsersToAdd.size > 0) {
       selectionText = `${pendingUsersToAdd.size} selected`;
     }
 
     return (
       <div className={css.listHeaderContainer}>
         <div className={css.selectionText}>{selectionText}</div>
-        <Button
-          variant="text"
-          buttonColor={clearAllButtonColor}
-          onClick={onClickClearAll}
-          disabled={pendingUsersToAdd.size === 0}
-        >
-          Clear all
-        </Button>
+        {clearAllButton}
       </div>
     );
-  }, [clearAllButtonColor, onClickClearAll, pendingUsersToAdd.size]);
+  }, [clearAllButton, pendingUsersToAdd.size, searchText.length]);
 
   let errors;
   if (errorMessage) {
