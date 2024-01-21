@@ -141,6 +141,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     messageStoreOperations: [],
     reportStoreOperations: [],
     userStoreOperations: [],
+    keyserverStoreOperations: [],
   };
 
   if (action.type === setInitialReduxState) {
@@ -173,7 +174,13 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         },
         initialStateLoaded: true,
       },
-      storeOperations,
+      {
+        ...storeOperations,
+        keyserverStoreOperations: [
+          ...storeOperations.keyserverStoreOperations,
+          ...replaceOperations,
+        ],
+      },
     );
   } else if (action.type === updateWindowDimensionsActionType) {
     return validateStateAndProcessDBOperations(
@@ -239,6 +246,13 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         ),
       },
     };
+    storeOperations = {
+      ...storeOperations,
+      keyserverStoreOperations: [
+        ...storeOperations.keyserverStoreOperations,
+        replaceOperation,
+      ],
+    };
   } else if (
     action.type === deleteKeyserverAccountActionTypes.success &&
     invalidSessionDowngrade(
@@ -289,7 +303,13 @@ function reducer(oldState: AppState | void, action: Action): AppState {
   ) {
     const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
-    storeOperations = baseReducerResult.storeOperations;
+    storeOperations = {
+      ...baseReducerResult.storeOperations,
+      keyserverStoreOperations: [
+        ...storeOperations.keyserverStoreOperations,
+        ...baseReducerResult.storeOperations.keyserverStoreOperations,
+      ],
+    };
   }
 
   const communityPickerStore = reduceCommunityPickerStore(
