@@ -5,12 +5,13 @@ import * as React from 'react';
 import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
-  type IdentityServiceClient,
-  type UserLoginResponse,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
+  type IdentityServiceClient,
+  ONE_TIME_KEYS_NUMBER,
+  type UserDevicesOlmOutboundKeys,
+  type UserLoginResponse,
 } from 'lib/types/identity-service-types.js';
-import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
@@ -110,6 +111,65 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           keyserverKeys,
           deviceOlmOutboundKeysValidator,
         );
+      },
+      getOutboundKeysForUser: async (
+        targetUserID: string,
+      ): Promise<UserDevicesOlmOutboundKeys[]> => {
+        const { deviceID, userID, accessToken } = await getAuthMetadata();
+        const result = await commRustModule.getOutboundKeysForUser(
+          userID,
+          deviceID,
+          accessToken,
+          targetUserID,
+        );
+        const resultArray = JSON.parse(result);
+
+        return resultArray.map(outboundKeysInfo => {
+          if (
+            !outboundKeysInfo.oneTimeContentPrekey ||
+            !outboundKeysInfo.oneTimeNotifPrekey
+          ) {
+            console.log(`Missing one time key for device ${deviceID}`);
+            return {
+              deviceID,
+              keys: null,
+            };
+          }
+
+          const payload = outboundKeysInfo?.payload;
+          const deviceKeys = {
+            identityKeysBlob: payload ? JSON.parse(payload) : null,
+            contentInitializationInfo: {
+              prekey: outboundKeysInfo?.contentPrekey,
+              prekeySignature: outboundKeysInfo?.contentPrekeySignature,
+              oneTimeKey: outboundKeysInfo?.oneTimeContentPrekey,
+            },
+            notifInitializationInfo: {
+              prekey: outboundKeysInfo?.notifPrekey,
+              prekeySignature: outboundKeysInfo?.notifPrekeySignature,
+              oneTimeKey: outboundKeysInfo?.oneTimeNotifPrekey,
+            },
+            payloadSignature: outboundKeysInfo?.payloadSignature,
+            socialProof: outboundKeysInfo?.socialProof,
+          };
+
+          try {
+            const validatedKeys = assertWithValidator(
+              deviceKeys,
+              deviceOlmOutboundKeysValidator,
+            );
+            return {
+              deviceID,
+              keys: validatedKeys,
+            };
+          } catch (e) {
+            console.log(e);
+            return {
+              deviceID,
+              keys: null,
+            };
+          }
+        });
       },
       registerUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
