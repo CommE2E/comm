@@ -16,7 +16,7 @@ import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
 import {
   GetOrCreateCryptoStoreProvider,
-  NotificationsSessionCreatorProvider,
+  OlmSessionCreatorProvider,
 } from './account/account-hooks.js';
 import App from './app.react.js';
 import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
@@ -47,14 +47,14 @@ const RootProvider = (): React.Node => (
         <InitialReduxStateGate persistor={persistor}>
           <GetOrCreateCryptoStoreProvider>
             <IdentityServiceContextProvider>
-              <NotificationsSessionCreatorProvider>
+              <OlmSessionCreatorProvider>
                 <Router history={history.getHistoryObject()}>
                   <Route path="*" component={App} />
                 </Router>
                 <KeyserverConnectionsHandler socketComponent={Socket} />
                 <SQLiteDataHandler />
                 <IntegrityHandler />
-              </NotificationsSessionCreatorProvider>
+              </OlmSessionCreatorProvider>
             </IdentityServiceContextProvider>
           </GetOrCreateCryptoStoreProvider>
         </InitialReduxStateGate>
