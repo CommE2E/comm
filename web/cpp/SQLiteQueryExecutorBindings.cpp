@@ -39,6 +39,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<UserInfo>("UserInfo")
       .field("id", &UserInfo::id)
       .field("userInfo", &UserInfo::user_info);
+  value_object<KeyserverInfo>("KeyserverInfo")
+      .field("id", &KeyserverInfo::id)
+      .field("keyserverInfo", &KeyserverInfo::keyserver_info);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -86,6 +89,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("getAllThreadsWeb", &SQLiteQueryExecutor::getAllThreadsWeb)
       .function("removeAllThreads", &SQLiteQueryExecutor::removeAllThreads)
       .function("removeThreads", &SQLiteQueryExecutor::removeThreads)
+      .function("replaceKeyserver", &SQLiteQueryExecutor::replaceKeyserver)
+      .function("removeKeyservers", &SQLiteQueryExecutor::removeKeyservers)
+      .function(
+          "removeAllKeyservers", &SQLiteQueryExecutor::removeAllKeyservers)
+      .function("getAllKeyservers", &SQLiteQueryExecutor::getAllKeyservers)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(

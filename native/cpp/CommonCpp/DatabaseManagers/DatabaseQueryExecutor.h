@@ -2,6 +2,7 @@
 
 #include "../CryptoTools/Persist.h"
 #include "entities/Draft.h"
+#include "entities/KeyserverInfo.h"
 #include "entities/Media.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
@@ -67,6 +68,10 @@ public:
   virtual void removeUsers(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllUsers() const = 0;
   virtual std::vector<UserInfo> getAllUsers() const = 0;
+  virtual void replaceKeyserver(const KeyserverInfo &keyserver_info) const = 0;
+  virtual void removeKeyservers(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllKeyservers() const = 0;
+  virtual std::vector<KeyserverInfo> getAllKeyservers() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;

@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
@@ -36,6 +37,11 @@ declare export class SQLiteQueryExecutor {
   removeThreads(ids: $ReadOnlyArray<string>): void;
   removeAllThreads(): void;
   getAllThreadsWeb(): WebClientDBThreadInfo[];
+
+  replaceKeyserver(user_info: ClientDBKeyserverInfo): void;
+  removeKeyservers(ids: $ReadOnlyArray<string>): void;
+  removeAllKeyservers(): void;
+  getAllKeyservers(): ClientDBKeyserverInfo[];
 
   beginTransaction(): void;
   commitTransaction(): void;
