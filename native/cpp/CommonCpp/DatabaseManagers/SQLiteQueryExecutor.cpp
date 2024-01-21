@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "sqlite_orm.h"
 
+#include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
 #include <fstream>
@@ -981,7 +982,11 @@ auto getEncryptedStorageAtPath(
       make_table(
           "users",
           make_column("id", &UserInfo::id, unique(), primary_key()),
-          make_column("user_info", &UserInfo::user_info))
+          make_column("user_info", &UserInfo::user_info)),
+      make_table(
+          "keyservers",
+          make_column("id", &KeyserverInfo::id, unique(), primary_key()),
+          make_column("keyserver_info", &KeyserverInfo::keyserver_info))
 
   );
   storage.on_open = on_open_callback;
@@ -1321,6 +1326,24 @@ void SQLiteQueryExecutor::removeUsers(
     const std::vector<std::string> &ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<UserInfo>(
       where(in(&UserInfo::id, ids)));
+}
+
+void SQLiteQueryExecutor::replaceKeyserver(
+    const KeyserverInfo &keyserver_info) const {
+  SQLiteQueryExecutor::getStorage().replace(keyserver_info);
+}
+
+void SQLiteQueryExecutor::removeAllKeyservers() const {
+  SQLiteQueryExecutor::getStorage().remove_all<KeyserverInfo>();
+}
+
+void SQLiteQueryExecutor::removeKeyservers(const std::vector<std::string> &ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<KeyserverInfo>(
+        where(in(&KeyserverInfo::id, ids)));
+}
+
+std::vector<KeyserverInfo> SQLiteQueryExecutor::getAllKeyservers() const {
+  return SQLiteQueryExecutor::getStorage().get_all<KeyserverInfo>();
 }
 
 std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
