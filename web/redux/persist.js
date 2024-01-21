@@ -6,6 +6,11 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
+  type ClientDBKeyserverStoreOperation,
+  keyserverStoreOpsHandlers,
+  type ReplaceKeyserverOperation,
+} from 'lib/ops/keyserver-store-ops.js';
+import {
   createAsyncMigrate,
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
@@ -20,6 +25,7 @@ import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { entries } from 'lib/utils/objects.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
@@ -192,6 +198,35 @@ const migrations = {
       },
     };
   },
+  [11]: async (state: AppState) => {
+    const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo,
+      },
+    }));
+
+    const keyserverStoreOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_keyservers' },
+        ...replaceOps,
+      ]);
+
+    await databaseModule.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { keyserverStoreOperations },
+    });
+    return state;
+  },
 };
 
 const persistWhitelist = [
@@ -248,7 +283,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 10,
+  version: 11,
   transforms: [keyserverStoreTransform],
 };
 
