@@ -45,6 +45,7 @@
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8BC9568429FC49B00060AE4A /* JSIRust.cpp */; };
+		8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */; };
 		8E3994552B039A7C00D5E950 /* UserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E3994532B039A7C00D5E950 /* UserStore.cpp */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
 		8E86A6D329537EBB000BBE7D /* DatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E86A6D229537EBB000BBE7D /* DatabaseManager.cpp */; };
@@ -204,6 +205,9 @@
 		8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lib.rs.cc; sourceTree = "<group>"; };
 		8BC9568329FC49920060AE4A /* JSIRust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIRust.h; sourceTree = "<group>"; };
 		8BC9568429FC49B00060AE4A /* JSIRust.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSIRust.cpp; sourceTree = "<group>"; };
+		8E2CC2562B5C999A000C94D6 /* KeyserverStoreOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyserverStoreOperations.h; sourceTree = "<group>"; };
+		8E2CC2572B5C99B0000C94D6 /* KeyserverStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyserverStore.h; path = PersistentStorageUtilities/DataStores/KeyserverStore.h; sourceTree = "<group>"; };
+		8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = KeyserverStore.cpp; path = PersistentStorageUtilities/DataStores/KeyserverStore.cpp; sourceTree = "<group>"; };
 		8E3994532B039A7C00D5E950 /* UserStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UserStore.cpp; path = PersistentStorageUtilities/DataStores/UserStore.cpp; sourceTree = "<group>"; };
 		8E3994542B039A7C00D5E950 /* UserStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UserStore.h; path = PersistentStorageUtilities/DataStores/UserStore.h; sourceTree = "<group>"; };
 		8E3994562B039A9300D5E950 /* UserStoreOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserStoreOperations.h; sourceTree = "<group>"; };
@@ -438,6 +442,7 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
+				8E2CC2562B5C999A000C94D6 /* KeyserverStoreOperations.h */,
 				CBA784382B28AC4300E9F419 /* CommServicesAuthMetadataEmitter.h */,
 				8E3994562B039A9300D5E950 /* UserStoreOperations.h */,
 				8EA59BD22A6E800100EB4F53 /* NativeModuleUtils.h */,
@@ -620,6 +625,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */,
+				8E2CC2572B5C99B0000C94D6 /* KeyserverStore.h */,
 				8E3994532B039A7C00D5E950 /* UserStore.cpp */,
 				8E3994542B039A7C00D5E950 /* UserStore.h */,
 				8EF7756F2A751B780046A385 /* ReportStore.cpp */,
@@ -1122,6 +1129,7 @@
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				8EF7756E2A7513F40046A385 /* MessageStore.cpp in Sources */,
+				8E2CC2592B5C99B0000C94D6 /* KeyserverStore.cpp in Sources */,
 				DFD5E77C2B05181400C32B6A /* RustSecureStore.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,

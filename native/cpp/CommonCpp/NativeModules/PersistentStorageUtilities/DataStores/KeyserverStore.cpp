@@ -1,0 +1,67 @@
+#include "KeyserverStore.h"
+
+#include <ReactCommon/TurboModuleUtils.h>
+#include <jsi/jsi.h>
+
+namespace comm {
+
+OperationType KeyserverStore::REMOVE_OPERATION = "remove_keyservers";
+OperationType KeyserverStore::REMOVE_ALL_OPERATION = "remove_all_keyservers";
+OperationType KeyserverStore::REPLACE_OPERATION = "replace_keyserver";
+
+KeyserverStore::KeyserverStore(
+    std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
+    : BaseDataStore(jsInvoker) {
+}
+
+jsi::Array KeyserverStore::parseDBDataStore(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<KeyserverInfo>> keyserversVectorPtr) const {
+  jsi::Array jsiKeyservers = jsi::Array(rt, 0);
+  return jsiKeyservers;
+}
+
+std::vector<std::unique_ptr<KeyserverStoreOperationBase>>
+KeyserverStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
+    const {
+  std::vector<std::unique_ptr<KeyserverStoreOperationBase>> keyserverStoreOps;
+
+  for (size_t idx = 0; idx < operations.size(rt); idx++) {
+    jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);
+    std::string opType = op.getProperty(rt, "type").asString(rt).utf8(rt);
+
+    if (opType == REMOVE_OPERATION) {
+      std::vector<std::string> keyserverIDsToRemove;
+      jsi::Object payloadObj = op.getProperty(rt, "payload").asObject(rt);
+      jsi::Array keyserverIDs =
+          payloadObj.getProperty(rt, "ids").asObject(rt).asArray(rt);
+      for (int keyserverIdx = 0; keyserverIdx < keyserverIDs.size(rt);
+           keyserverIdx++) {
+        keyserverIDsToRemove.push_back(
+            keyserverIDs.getValueAtIndex(rt, keyserverIdx)
+                .asString(rt)
+                .utf8(rt));
+      }
+      keyserverStoreOps.push_back(std::make_unique<RemoveKeyserversOperation>(
+          std::move(keyserverIDsToRemove)));
+    } else if (opType == REMOVE_ALL_OPERATION) {
+      keyserverStoreOps.push_back(
+          std::make_unique<RemoveAllKeyserversOperation>());
+    } else if (opType == REPLACE_OPERATION) {
+      jsi::Object payloadObj = op.getProperty(rt, "payload").asObject(rt);
+      std::string id = payloadObj.getProperty(rt, "id").asString(rt).utf8(rt);
+      std::string keyserver_info =
+          payloadObj.getProperty(rt, "keyserverInfo").asString(rt).utf8(rt);
+
+      KeyserverInfo keyserver{id, keyserver_info};
+
+      keyserverStoreOps.push_back(
+          std::make_unique<ReplaceKeyserverOperation>(std::move(keyserver)));
+    } else {
+      throw std::runtime_error("unsupported operation: " + opType);
+    }
+  };
+  return keyserverStoreOps;
+}
+
+} // namespace comm

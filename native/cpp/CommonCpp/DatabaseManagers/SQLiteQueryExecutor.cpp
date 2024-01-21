@@ -1337,9 +1337,10 @@ void SQLiteQueryExecutor::removeAllKeyservers() const {
   SQLiteQueryExecutor::getStorage().remove_all<KeyserverInfo>();
 }
 
-void SQLiteQueryExecutor::removeKeyservers(const std::vector<std::string> &ids) const {
+void SQLiteQueryExecutor::removeKeyservers(
+    const std::vector<std::string> &ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<KeyserverInfo>(
-        where(in(&KeyserverInfo::id, ids)));
+      where(in(&KeyserverInfo::id, ids)));
 }
 
 std::vector<KeyserverInfo> SQLiteQueryExecutor::getAllKeyservers() const {
