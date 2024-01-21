@@ -6,6 +6,7 @@ import {
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
+  type UserDevicesOlmOutboundKeys,
 } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -123,6 +124,84 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
       return assertWithValidator(keyserverKeys, deviceOlmOutboundKeysValidator);
     };
+
+  getOutboundKeysForUser: (
+    userID: string,
+  ) => Promise<UserDevicesOlmOutboundKeys[]> = async (userID: string) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const request = new IdentityAuthStructs.OutboundKeysForUserRequest();
+    request.setUserId(userID);
+    const response = await client.getOutboundKeysForUser(request);
+    const devicesMap = response.toObject()?.devicesMap;
+
+    if (!devicesMap || !Array.isArray(devicesMap)) {
+      throw new Error('Invalid devicesMap');
+    }
+
+    const devicesKeys: (?UserDevicesOlmOutboundKeys)[] = devicesMap.map(
+      ([deviceID, outboundKeysInfo]) => {
+        const identityInfo = outboundKeysInfo?.identityInfo;
+        const payload = identityInfo?.payload;
+        const contentPreKey = outboundKeysInfo?.contentPrekey;
+        const notifPreKey = outboundKeysInfo?.notifPrekey;
+
+        if (!(typeof deviceID === 'string')) {
+          console.log(`Invalid deviceID in devicesMap: ${deviceID}`);
+          return null;
+        }
+
+        if (
+          !outboundKeysInfo.oneTimeContentPrekey ||
+          !outboundKeysInfo.oneTimeNotifPrekey
+        ) {
+          console.log(`Missing one time key for device ${deviceID}`);
+          return {
+            deviceID,
+            keys: null,
+          };
+        }
+
+        const deviceKeys = {
+          identityKeysBlob: payload ? JSON.parse(payload) : null,
+          contentInitializationInfo: {
+            prekey: contentPreKey?.prekey,
+            prekeySignature: contentPreKey?.prekeySignature,
+            oneTimeKey: outboundKeysInfo.oneTimeContentPrekey,
+          },
+          notifInitializationInfo: {
+            prekey: notifPreKey?.prekey,
+            prekeySignature: notifPreKey?.prekeySignature,
+            oneTimeKey: outboundKeysInfo.oneTimeNotifPrekey,
+          },
+          payloadSignature: identityInfo?.payloadSignature,
+          socialProof: identityInfo?.socialProof,
+        };
+
+        try {
+          const validatedKeys = assertWithValidator(
+            deviceKeys,
+            deviceOlmOutboundKeysValidator,
+          );
+          return {
+            deviceID,
+            keys: validatedKeys,
+          };
+        } catch (e) {
+          console.log(e);
+          return {
+            deviceID,
+            keys: null,
+          };
+        }
+      },
+    );
+
+    return devicesKeys.filter(Boolean);
+  };
 }
 
 export { IdentityServiceClientWrapper };
