@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type {
@@ -122,13 +123,48 @@ function processThreadStoreOperations(
   }
 }
 
+function processKeyserverStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBKeyserverStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBKeyserverStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_keyservers') {
+        sqliteQueryExecutor.removeAllKeyservers();
+      } else if (operation.type === 'remove_keyservers') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeKeyservers(ids);
+      } else if (operation.type === 'replace_keyserver') {
+        const { id, keyserverInfo } = operation.payload;
+        sqliteQueryExecutor.replaceKeyserver({ id, keyserverInfo });
+      } else {
+        throw new Error('Unsupported keyserver operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } keyserver operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
   module: EmscriptenModule,
 ) {
-  const { draftStoreOperations, reportStoreOperations, threadStoreOperations } =
-    storeOperations;
+  const {
+    draftStoreOperations,
+    reportStoreOperations,
+    threadStoreOperations,
+    keyserverStoreOperations,
+  } = storeOperations;
 
   try {
     sqliteQueryExecutor.beginTransaction();
@@ -153,6 +189,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (keyserverStoreOperations && keyserverStoreOperations.length > 0) {
+      processKeyserverStoreOperations(
+        sqliteQueryExecutor,
+        keyserverStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -173,7 +216,7 @@ function getClientStoreFromQueryExecutor(
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
     users: [],
-    keyservers: [],
+    keyservers: sqliteQueryExecutor.getAllKeyservers(),
   };
 }
 
