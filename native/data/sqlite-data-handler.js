@@ -7,6 +7,7 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { useStaffContext } from 'lib/components/staff-provider.react.js';
 import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
+import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
@@ -177,12 +178,15 @@ function SQLiteDataHandler(): React.Node {
           messageStoreThreads,
           reports,
           users,
+          keyservers,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
-        const reportsFromDb =
+        const reportsFromDB =
           reportStoreOpsHandlers.translateClientDBData(reports);
-        const usersFromDb = userStoreOpsHandlers.translateClientDBData(users);
+        const usersFromDB = userStoreOpsHandlers.translateClientDBData(users);
+        const keyserverInfosFromDB =
+          keyserverStoreOpsHandlers.translateClientDBData(keyservers);
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -192,8 +196,9 @@ function SQLiteDataHandler(): React.Node {
             threadStore: { threadInfos: threadInfosFromDB },
             currentUserID: currentLoggedInUserID,
             messageStoreThreads,
-            reports: reportsFromDb,
-            users: usersFromDb,
+            reports: reportsFromDB,
+            users: usersFromDB,
+            keyserverInfos: keyserverInfosFromDB,
           },
         });
       } catch (setStoreException) {
