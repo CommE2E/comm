@@ -177,4 +177,5 @@ export {
   nativeNotificationsSessionCreator,
   nativeInboundContentSessionCreator,
   createOlmSessionsWithOwnDevices,
+  nativeOutboundContentSessionCreator,
 };
