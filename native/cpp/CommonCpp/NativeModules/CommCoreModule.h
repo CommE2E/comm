@@ -5,6 +5,7 @@
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
+#include "PersistentStorageUtilities/DataStores/KeyserverStore.h"
 #include "PersistentStorageUtilities/DataStores/MessageStore.h"
 #include "PersistentStorageUtilities/DataStores/ReportStore.h"
 #include "PersistentStorageUtilities/DataStores/ThreadStore.h"
@@ -30,6 +31,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   MessageStore messageStore;
   ReportStore reportStore;
   UserStore userStore;
+  KeyserverStore keyserverStore;
 
   void persistCryptoModule();
 
@@ -64,6 +66,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Array operations) override;
   virtual jsi::Value
   processUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
+  virtual jsi::Value processKeyserverStoreOperations(
+      jsi::Runtime &rt,
+      jsi::Array operations) override;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value
