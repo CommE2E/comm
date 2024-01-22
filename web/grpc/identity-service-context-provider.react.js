@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import {
+  IdentityClientContext,
+  type AuthMetadata,
+} from 'lib/shared/identity-client-context.js';
 
 import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -31,11 +34,21 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return new IdentityServiceClientWrapper(authLayer);
   }, [accessToken, deviceID, userID]);
 
+  const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
+    async () => ({
+      userID,
+      deviceID,
+      accessToken,
+    }),
+    [accessToken, deviceID, userID],
+  );
+
   const value = React.useMemo(
     () => ({
       identityClient: client,
+      getAuthMetadata,
     }),
-    [client],
+    [client, getAuthMetadata],
   );
 
   return (
