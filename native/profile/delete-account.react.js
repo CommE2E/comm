@@ -5,17 +5,11 @@ import { Text, View, ActivityIndicator } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
-  deleteIdentityAccountActionTypes,
-  deleteKeyserverAccountActionTypes,
-  useDeleteIdentityAccount,
-  useDeleteKeyserverAccount,
+  deleteAccountActionTypes,
+  useDeleteAccount,
 } from 'lib/actions/user-actions.js';
-import {
-  createLoadingStatusSelector,
-  combineLoadingStatuses,
-} from 'lib/selectors/loading-selectors.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -25,11 +19,8 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
-const keyserverLoadingStatusSelector = createLoadingStatusSelector(
-  deleteKeyserverAccountActionTypes,
-);
-const identityLoadingStatusSelector = createLoadingStatusSelector(
-  deleteIdentityAccountActionTypes,
+const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
+  deleteAccountActionTypes,
 );
 
 type Props = {
@@ -38,20 +29,16 @@ type Props = {
 };
 const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
   function DeleteAccount() {
-    const keyserverLoadingStatus = useSelector(keyserverLoadingStatusSelector);
-    const identityLoadingStatus = useSelector(identityLoadingStatusSelector);
-    const combinedLoadingStatuses = combineLoadingStatuses(
-      keyserverLoadingStatus,
-      identityLoadingStatus,
+    const deleteAccountLoadingStatus = useSelector(
+      deleteAccountLoadingStatusSelector,
     );
 
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callDeleteKeyserverAccount = useDeleteKeyserverAccount();
-    const callDeleteIdentityAccount = useDeleteIdentityAccount();
+    const callDeleteAccount = useDeleteAccount();
 
-    const isButtonDisabled = combinedLoadingStatuses === 'loading';
+    const isButtonDisabled = deleteAccountLoadingStatus === 'loading';
 
     const buttonContent = isButtonDisabled ? (
       <ActivityIndicator size="small" color="white" />
@@ -64,26 +51,10 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
       [styles.warningText, styles.lastWarningText],
     );
 
-    const deleteKeyserverAction = React.useCallback(async () => {
+    const deleteAccountAction = React.useCallback(async () => {
       try {
         await deleteNativeCredentialsFor();
-        return await callDeleteKeyserverAccount();
-      } catch (e) {
-        Alert.alert(
-          'Unknown error deleting keyserver account',
-          'Uhh... try again?',
-          [{ text: 'OK' }],
-          {
-            cancelable: false,
-          },
-        );
-        throw e;
-      }
-    }, [callDeleteKeyserverAccount]);
-
-    const deleteIdentityAction = React.useCallback(async () => {
-      try {
-        return await callDeleteIdentityAccount();
+        return await callDeleteAccount();
       } catch (e) {
         Alert.alert(
           'Unknown error deleting account',
@@ -95,20 +66,14 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
         );
         throw e;
       }
-    }, [callDeleteIdentityAccount]);
+    }, [callDeleteAccount]);
 
     const onDelete = React.useCallback(() => {
       void dispatchActionPromise(
-        deleteKeyserverAccountActionTypes,
-        deleteKeyserverAction(),
+        deleteAccountActionTypes,
+        deleteAccountAction(),
       );
-      if (usingCommServicesAccessToken) {
-        void dispatchActionPromise(
-          deleteIdentityAccountActionTypes,
-          deleteIdentityAction(),
-        );
-      }
-    }, [dispatchActionPromise, deleteKeyserverAction, deleteIdentityAction]);
+    }, [dispatchActionPromise, deleteAccountAction]);
 
     return (
       <ScrollView
