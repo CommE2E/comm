@@ -34,6 +34,7 @@ pub struct DeviceInfo {
   pub device_type: DeviceTypes,
   pub device_app_version: Option<String>,
   pub device_os: Option<String>,
+  pub is_authenticated: bool,
 }
 
 pub struct WebsocketSession<S> {
@@ -72,6 +73,7 @@ pub async fn handle_first_message_from_device(
         device_type: session_info.device_type,
         device_app_version: session_info.device_app_version.take(),
         device_os: session_info.device_os.take(),
+        is_authenticated: true,
       };
 
       // Authenticate device
@@ -100,6 +102,21 @@ pub async fn handle_first_message_from_device(
         }
       }
 
+      Ok(device_info)
+    }
+    Messages::AnonymousInitializationMessage(session_info) => {
+      debug!(
+        "Starting unauthenticated session with device: {}",
+        &session_info.device_id
+      );
+      let device_info = DeviceInfo {
+        device_id: session_info.device_id,
+        device_type: session_info.device_type,
+        device_app_version: session_info.device_app_version,
+        device_os: session_info.device_os,
+        is_authenticated: false,
+        notify_token: None,
+      };
       Ok(device_info)
     }
     _ => {
@@ -262,6 +279,14 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         None
       }
       Messages::MessageToDeviceRequest(message_request) => {
+        // unauthenticated clients cannot send messages
+        if !self.device_info.is_authenticated {
+          debug!(
+            "Unauthenticated device {} tried to send text message. Aborting.",
+            self.device_info.device_id
+          );
+          return Option::from(MessageSentStatus::Unauthenticated);
+        }
         debug!("Received message for {}", message_request.device_id);
 
         let result = self.handle_message_to_device(&message_request).await;
