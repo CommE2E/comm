@@ -338,7 +338,6 @@ impl IdentityClientService for ClientService {
         .add_user_device(
           state.user_id.clone(),
           state.flattened_device_key_upload.clone(),
-          None,
           code_version,
           login_time,
         )
@@ -421,7 +420,6 @@ impl IdentityClientService for ClientService {
           .add_user_device(
             id.clone(),
             flattened_device_key_upload.clone(),
-            Some(social_proof),
             code_version,
             chrono::Utc::now(),
           )

@@ -97,7 +97,6 @@ pub mod devices_table {
   // IdentityKeyInfo constants
   pub const ATTR_KEY_PAYLOAD: &str = "keyPayload";
   pub const ATTR_KEY_PAYLOAD_SIGNATURE: &str = "keyPayloadSignature";
-  pub const ATTR_SOCIAL_PROOF: &str = "socialProof";
 
   // PreKey constants
   pub const ATTR_PREKEY: &str = "preKey";
