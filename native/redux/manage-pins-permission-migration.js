@@ -3,7 +3,7 @@
 import type {
   LegacyRawThreadInfo,
   LegacyMemberInfo,
-  ThreadCurrentUserInfo,
+  LegacyThreadCurrentUserInfo,
   LegacyRoleInfo,
   LegacyRawThreadInfos,
 } from 'lib/types/thread-types.js';
@@ -13,7 +13,7 @@ type ThreadStoreThreadInfos = LegacyRawThreadInfos;
 const adminRoleName = 'Admins';
 
 function addManagePinsThreadPermissionToUser<
-  TargetMemberInfo: LegacyMemberInfo | ThreadCurrentUserInfo,
+  TargetMemberInfo: LegacyMemberInfo | LegacyThreadCurrentUserInfo,
 >(
   threadInfo: LegacyRawThreadInfo,
   member: TargetMemberInfo,
