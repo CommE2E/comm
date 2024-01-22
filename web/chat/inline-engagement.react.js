@@ -8,7 +8,6 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './inline-engagement.css';
 import ReactionPill from './reaction-pill.react.js';
@@ -17,8 +16,8 @@ import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
   +messageInfo: MessageInfo,
-  +threadInfo: LegacyThreadInfo | ThreadInfo,
-  +sidebarThreadInfo: ?LegacyThreadInfo | ?ThreadInfo,
+  +threadInfo: ThreadInfo,
+  +sidebarThreadInfo: ?ThreadInfo,
   +reactions: ReactionInfo,
   +positioning: 'left' | 'center' | 'right',
   +label?: ?string,

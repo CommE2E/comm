@@ -12,7 +12,6 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ChatMentionCandidates,
-  LegacyThreadInfo,
   RelativeMemberInfo,
 } from 'lib/types/thread-types.js';
 
@@ -64,7 +63,7 @@ export type BaseInputState = {
   +draft: string,
   +textCursorPosition: number,
   +appendFiles: (
-    threadInfo: LegacyThreadInfo | ThreadInfo,
+    threadInfo: ThreadInfo,
     files: $ReadOnlyArray<File>,
   ) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
@@ -73,16 +72,13 @@ export type BaseInputState = {
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) => mixed,
-  +createMultimediaMessage: (
-    localID: number,
-    threadInfo: LegacyThreadInfo | ThreadInfo,
-  ) => void,
+  +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
-    threadInfo: LegacyThreadInfo | ThreadInfo,
+    threadInfo: ThreadInfo,
   ) => void,
   +addReply: (text: string) => void,
   +addReplyListener: ((message: string) => void) => void,

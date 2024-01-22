@@ -12,7 +12,6 @@ import {
 } from 'lib/shared/invite-links.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './manage-invite-links-modal.css';
 import Button from '../../components/button.react.js';
@@ -23,7 +22,7 @@ type Props = {
   +inviteLink: ?InviteLink,
   +enterViewMode: () => mixed,
   +enterDisableMode: () => mixed,
-  +community: LegacyThreadInfo | ThreadInfo,
+  +community: ThreadInfo,
 };
 
 const disableButtonColor = {

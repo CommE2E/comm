@@ -5,10 +5,7 @@ import * as React from 'react';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  LegacyThreadInfo,
-  RelativeMemberInfo,
-} from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 import type { UserListItem } from 'lib/types/user-types.js';
 
 import { useSelector } from '../../../../redux/redux-utils.js';
@@ -17,8 +14,8 @@ import AddMembersList from '../../../components/add-members-list.react.js';
 type Props = {
   +searchText: string,
   +searchResult: $ReadOnlySet<string>,
-  +communityThreadInfo: LegacyThreadInfo | ThreadInfo,
-  +parentThreadInfo: LegacyThreadInfo | ThreadInfo,
+  +communityThreadInfo: ThreadInfo,
+  +parentThreadInfo: ThreadInfo,
   +selectedUsers: $ReadOnlySet<string>,
   +toggleUserSelection: (userID: string) => void,
 };

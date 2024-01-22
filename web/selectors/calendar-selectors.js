@@ -10,7 +10,6 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type SearchIndex from 'lib/shared/search-index.js';
 import type { FilterThreadInfo } from 'lib/types/filter-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { filterThreadIDsBelongingToCommunity } from 'lib/utils/drawer-utils.react.js';
 
 import type { AppState } from '../redux/redux-setup.js';
@@ -34,7 +33,7 @@ const filterThreadIDsBelongingToCommunitySelector: (
   (
     calendarPickedCommunityID: ?string,
     threadInfos: {
-      +[id: string]: LegacyThreadInfo | ThreadInfo,
+      +[id: string]: ThreadInfo,
     },
   ) => {
     if (!calendarPickedCommunityID) {
