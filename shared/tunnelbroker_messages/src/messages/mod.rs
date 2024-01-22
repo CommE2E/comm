@@ -33,6 +33,7 @@ use serde::{Deserialize, Serialize};
 pub enum Messages {
   ConnectionInitializationMessage(ConnectionInitializationMessage),
   ConnectionInitializationResponse(ConnectionInitializationResponse),
+  AnonymousInitializationMessage(AnonymousInitializationMessage),
   // MessageToDeviceRequestStatus must be placed before MessageToDeviceRequest.
   // This is due to serde's pattern matching behavior where it prioritizes
   // the first matching pattern it encounters.
