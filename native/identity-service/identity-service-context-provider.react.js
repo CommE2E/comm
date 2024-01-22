@@ -207,8 +207,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   const value = React.useMemo(
     () => ({
       identityClient: client,
+      getAuthMetadata,
     }),
-    [client],
+    [client, getAuthMetadata],
   );
 
   return (
