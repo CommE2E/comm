@@ -56,7 +56,6 @@ pub struct DeviceListRow {
 pub struct IdentityKeyInfo {
   pub key_payload: String,
   pub key_payload_signature: String,
-  pub social_proof: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -69,7 +68,6 @@ impl DeviceRow {
   pub fn from_device_key_upload(
     user_id: impl Into<String>,
     upload: FlattenedDeviceKeyUpload,
-    social_proof: Option<String>,
     code_version: u64,
     login_time: DateTime<Utc>,
   ) -> Self {
@@ -81,7 +79,6 @@ impl DeviceRow {
       device_key_info: IdentityKeyInfo {
         key_payload: upload.key_payload,
         key_payload_signature: upload.key_payload_signature,
-        social_proof,
       },
       content_prekey: PreKey {
         pre_key: upload.content_prekey,
@@ -259,14 +256,16 @@ impl From<IdentityKeyInfo> for protos::unauth::IdentityKeyInfo {
     Self {
       payload: value.key_payload,
       payload_signature: value.key_payload_signature,
-      social_proof: value.social_proof,
+      // social proof isn't stored in the devices table
+      // it cannot be retrieved here
+      social_proof: None,
     }
   }
 }
 
 impl From<IdentityKeyInfo> for AttributeValue {
   fn from(value: IdentityKeyInfo) -> Self {
-    let mut attrs = HashMap::from([
+    let attrs = HashMap::from([
       (
         ATTR_KEY_PAYLOAD.to_string(),
         AttributeValue::S(value.key_payload),
@@ -276,12 +275,6 @@ impl From<IdentityKeyInfo> for AttributeValue {
         AttributeValue::S(value.key_payload_signature),
       ),
     ]);
-    if let Some(social_proof) = value.social_proof {
-      attrs.insert(
-        ATTR_SOCIAL_PROOF.to_string(),
-        AttributeValue::S(social_proof),
-      );
-    }
     AttributeValue::M(attrs)
   }
 }
@@ -291,13 +284,10 @@ impl TryFrom<AttributeMap> for IdentityKeyInfo {
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
     let key_payload = attrs.take_attr(ATTR_KEY_PAYLOAD)?;
     let key_payload_signature = attrs.take_attr(ATTR_KEY_PAYLOAD_SIGNATURE)?;
-    // social proof is optional
-    let social_proof: Option<String> = attrs.take_attr(ATTR_SOCIAL_PROOF)?;
 
     Ok(Self {
       key_payload,
       key_payload_signature,
-      social_proof,
     })
   }
 }
@@ -630,7 +620,6 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
-    social_proof: Option<String>,
     code_version: u64,
     login_time: DateTime<Utc>,
   ) -> Result<(), Error> {
@@ -640,7 +629,6 @@ impl DatabaseClient {
         let new_device = DeviceRow::from_device_key_upload(
           &user_id,
           device_key_upload,
-          social_proof,
           code_version,
           login_time,
         );
@@ -1239,7 +1227,6 @@ mod migration {
         device_key_info: IdentityKeyInfo {
           key_payload: "".into(),
           key_payload_signature: "".into(),
-          social_proof: None,
         },
         content_prekey: PreKey {
           pre_key: "".into(),
