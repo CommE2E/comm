@@ -21,6 +21,8 @@ pub enum MessageSentStatus {
   /// The request was invalid (e.g., Bytes instead of Text).
   /// In this case, the ID cannot be retrieved.
   InvalidRequest,
+  /// Unauthenticated client tried to send a message.
+  Unauthenticated,
   /// The JSON could not be serialized, which is why the entire message is
   /// returned back.
   /// It becomes impossible to retrieve the message ID in such circumstances.
