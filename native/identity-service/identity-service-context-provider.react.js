@@ -3,7 +3,10 @@
 import * as React from 'react';
 
 import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import {
+  IdentityClientContext,
+  type AuthMetadata,
+} from 'lib/shared/identity-client-context.js';
 import {
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
@@ -49,11 +52,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   }, []);
 
   const getAuthMetadata = React.useCallback<
-    () => Promise<{
-      +deviceID: string,
-      +userID: string,
-      +accessToken: string,
-    }>,
+    () => Promise<AuthMetadata>,
   >(async () => {
     const deviceID = await getContentSigningKey();
     const authMetadata = await authMetadataPromiseRef.current;
@@ -207,8 +206,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   const value = React.useMemo(
     () => ({
       identityClient: client,
+      getAuthMetadata,
     }),
-    [client],
+    [client, getAuthMetadata],
   );
 
   return (
