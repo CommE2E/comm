@@ -6,8 +6,6 @@ use comm_lib::{
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
-use comm_lib::database::{DBItemAttributeError, DBItemError};
-
 use crate::constants::{
   USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
@@ -68,26 +66,6 @@ where
     .collect()
 }
 
-pub trait AttributesOptionExt<T> {
-  fn ok_or_missing(
-    self,
-    attr_name: impl Into<String>,
-  ) -> Result<T, DBItemError>;
-}
-
-impl<T> AttributesOptionExt<T> for Option<T> {
-  fn ok_or_missing(
-    self,
-    attr_name: impl Into<String>,
-  ) -> Result<T, DBItemError> {
-    self.ok_or_else(|| DBItemError {
-      attribute_name: attr_name.into(),
-      attribute_value: None.into(),
-      attribute_error: DBItemAttributeError::Missing,
-    })
-  }
-}
-
 pub trait DateTimeExt {
   fn from_utc_timestamp_millis(timestamp: i64) -> Option<DateTime<Utc>>;
 }
@@ -95,7 +73,7 @@ pub trait DateTimeExt {
 impl DateTimeExt for DateTime<Utc> {
   fn from_utc_timestamp_millis(timestamp: i64) -> Option<Self> {
     let naive = NaiveDateTime::from_timestamp_millis(timestamp)?;
-    Some(Self::from_utc(naive, Utc))
+    Some(Self::from_naive_utc_and_offset(naive, Utc))
   }
 }
 

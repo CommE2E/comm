@@ -23,8 +23,7 @@ use crate::{
     USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
     USERS_TABLE_PARTITION_KEY,
   },
-  ddb_utils::AttributesOptionExt,
-  error::{DeviceListError, Error, FromAttributeValue},
+  error::{DeviceListError, Error},
   grpc_services::protos::{self, unauth::DeviceType},
   grpc_utils::DeviceKeysInfo,
 };
@@ -192,24 +191,15 @@ impl TryFrom<AttributeMap> for DeviceRow {
       })?;
 
     let device_key_info = attrs
-      .remove(ATTR_DEVICE_KEY_INFO)
-      .ok_or_missing(ATTR_DEVICE_KEY_INFO)?
-      .to_hashmap(ATTR_DEVICE_KEY_INFO)
-      .cloned()
+      .take_attr::<AttributeMap>(ATTR_DEVICE_KEY_INFO)
       .and_then(IdentityKeyInfo::try_from)?;
 
     let content_prekey = attrs
-      .remove(ATTR_CONTENT_PREKEY)
-      .ok_or_missing(ATTR_CONTENT_PREKEY)?
-      .to_hashmap(ATTR_CONTENT_PREKEY)
-      .cloned()
+      .take_attr::<AttributeMap>(ATTR_CONTENT_PREKEY)
       .and_then(PreKey::try_from)?;
 
     let notif_prekey = attrs
-      .remove(ATTR_NOTIF_PREKEY)
-      .ok_or_missing(ATTR_NOTIF_PREKEY)?
-      .to_hashmap(ATTR_NOTIF_PREKEY)
-      .cloned()
+      .take_attr::<AttributeMap>(ATTR_NOTIF_PREKEY)
       .and_then(PreKey::try_from)?;
 
     let code_version = attrs
@@ -302,10 +292,7 @@ impl TryFrom<AttributeMap> for IdentityKeyInfo {
     let key_payload = attrs.take_attr(ATTR_KEY_PAYLOAD)?;
     let key_payload_signature = attrs.take_attr(ATTR_KEY_PAYLOAD_SIGNATURE)?;
     // social proof is optional
-    let social_proof = attrs
-      .remove(ATTR_SOCIAL_PROOF)
-      .map(|attr| attr.to_string(ATTR_SOCIAL_PROOF).cloned())
-      .transpose()?;
+    let social_proof: Option<String> = attrs.take_attr(ATTR_SOCIAL_PROOF)?;
 
     Ok(Self {
       key_payload,

@@ -48,7 +48,6 @@ use crate::constants::{
   USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
-use crate::error::AttributeValueFromHashMap;
 use crate::id::generate_uuid;
 use crate::nonce::NonceData;
 use crate::token::{AccessTokenData, AuthType};
@@ -423,17 +422,14 @@ impl DatabaseClient {
     // Attempt to delete the one-time keys individually, a successful delete
     // mints the one-time key to the requester
     for item in item_vec {
-      let pk = item.get_string(otk_table::PARTITION_KEY)?;
-      let otk = item.get_string(otk_table::SORT_KEY)?;
+      let pk: String = item.get_attr(otk_table::PARTITION_KEY)?;
+      let otk: String = item.get_attr(otk_table::SORT_KEY)?;
 
       let composite_key = HashMap::from([
-        (
-          otk_table::PARTITION_KEY.to_string(),
-          AttributeValue::S(pk.to_string()),
-        ),
+        (otk_table::PARTITION_KEY.to_string(), AttributeValue::S(pk)),
         (
           otk_table::SORT_KEY.to_string(),
-          AttributeValue::S(otk.to_string()),
+          AttributeValue::S(otk.clone()),
         ),
       ]);
 
@@ -447,7 +443,7 @@ impl DatabaseClient {
         .await
       {
         Ok(_) => {
-          result = Some(otk.to_string());
+          result = Some(otk);
           break;
         }
         // This err should only happen if a delete occurred between the read
