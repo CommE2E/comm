@@ -14,8 +14,8 @@ import {
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions.js';
 import {
-  useModalContext,
   type PushModal,
+  useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -34,9 +34,10 @@ import {
   type CalendarQuery,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -64,7 +65,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
