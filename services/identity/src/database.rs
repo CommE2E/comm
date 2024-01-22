@@ -177,7 +177,6 @@ impl DatabaseClient {
       .add_device(
         &user_id,
         device_key_upload,
-        None,
         code_version,
         access_token_creation_time,
       )
@@ -197,7 +196,7 @@ impl DatabaseClient {
   ) -> Result<String, Error> {
     let wallet_identity = EthereumIdentity {
       wallet_address,
-      social_proof: social_proof.clone(),
+      social_proof,
     };
     let user_id = self
       .add_user_to_users_table(
@@ -212,7 +211,6 @@ impl DatabaseClient {
       .add_device(
         &user_id,
         flattened_device_key_upload,
-        Some(social_proof),
         code_version,
         access_token_creation_time,
       )
@@ -283,7 +281,6 @@ impl DatabaseClient {
     &self,
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
-    social_proof: Option<String>,
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
@@ -314,7 +311,6 @@ impl DatabaseClient {
       .add_device(
         user_id,
         flattened_device_key_upload,
-        social_proof,
         code_version,
         access_token_creation_time,
       )
@@ -347,6 +343,8 @@ impl DatabaseClient {
       .ok_or(Error::MissingItem)?;
 
     let user_id: String = user_info.take_attr(USERS_TABLE_PARTITION_KEY)?;
+    let social_proof: Option<String> =
+      user_info.take_attr(USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME)?;
     let user_devices = self.get_current_devices(user_id).await?;
     let maybe_keyserver_device = user_devices
       .into_iter()
@@ -381,7 +379,7 @@ impl DatabaseClient {
     let outbound_payload = OutboundKeys {
       key_payload: keyserver.device_key_info.key_payload,
       key_payload_signature: keyserver.device_key_info.key_payload_signature,
-      social_proof: keyserver.device_key_info.social_proof,
+      social_proof,
       content_prekey: keyserver.content_prekey,
       notif_prekey: keyserver.notif_prekey,
       content_one_time_key,
