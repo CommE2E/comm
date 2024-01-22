@@ -1,105 +1,22 @@
 use anyhow::{anyhow, Result};
 use lambda_runtime::{service_fn, Error, LambdaEvent};
 use reqwest::Response;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use serde::Serialize;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
 
 mod constants;
+mod payload;
+mod query;
 
-#[derive(Deserialize, Serialize, Debug)]
-struct User {
+use payload::{AttributeValue, EventPayload, OperationType, StreamRecord};
+use query::{Match, Query, Script, Term, UpdateByQuery};
+
+#[derive(Serialize, Debug)]
+pub struct User {
   #[serde(rename = "userID")]
-  user_id: String,
-  username: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct UpdateByQuery {
-  query: Query,
-
-  #[serde(skip_serializing_if = "Option::is_none")]
-  script: Option<Script>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Script {
-  source: String,
-  lang: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Query {
-  #[serde(skip_serializing_if = "Option::is_none")]
-  r#match: Option<Match>,
-
-  #[serde(skip_serializing_if = "Option::is_none")]
-  term: Option<Term>,
-}
-
-#[derive(Deserialize, Serialize)]
-struct Match {
-  #[serde(rename = "userID")]
-  user_id: String,
-}
-
-#[derive(Deserialize, Serialize)]
-struct Term {
-  #[serde(rename = "userID")]
-  user_id: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-enum EventName {
-  Insert,
-  Modify,
-  Remove,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct StreamRecord {
-  new_image: Option<HashMap<String, AttributeValue>>,
-  old_image: Option<HashMap<String, AttributeValue>>,
-}
-
-#[derive(Deserialize)]
-enum AttributeValue {
-  B(String),
-  Bool(bool),
-  BS(Vec<String>),
-  L(Vec<AttributeValue>),
-  M(HashMap<String, AttributeValue>),
-  N(String),
-  Ns(Vec<String>),
-  Null(bool),
-  S(String),
-  Ss(Vec<String>),
-  #[non_exhaustive]
-  Unknown,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "UPPERCASE")]
-enum OperationType {
-  Insert,
-  Modify,
-  Remove,
-}
-
-#[derive(Deserialize)]
-struct Record {
-  #[serde(rename = "eventName")]
-  event_name: Option<OperationType>,
-  dynamodb: Option<StreamRecord>,
-}
-
-#[derive(Deserialize)]
-struct EventPayload {
-  #[serde(rename = "Records")]
-  records: Vec<Record>,
+  pub user_id: String,
+  pub username: String,
 }
 
 #[tokio::main]
