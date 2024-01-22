@@ -12,13 +12,13 @@ import type {
   ClientAvatar,
   ClientEmojiAvatar,
 } from 'lib/types/avatar-types.js';
-import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import EmojiAvatarSelectionModal from './emoji-avatar-selection-modal.react.js';
 
 type Props = {
-  +threadInfo: MinimallyEncodedRawThreadInfo | ThreadInfo,
+  +threadInfo: RawThreadInfo | ThreadInfo,
 };
 
 function ThreadEmojiAvatarSelectionModal(props: Props): React.Node {

@@ -7,7 +7,7 @@ import type {
   ClientDBMessageInfo,
   ClientDBThreadMessageInfo,
 } from 'lib/types/message-types.js';
-import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
@@ -73,8 +73,8 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
   // Convert `rawThreadInfo`s to a map of `threadID` => `threadInfo`.
   const threadIDToThreadInfo = rawThreadInfos.reduce(
     (
-      acc: { [string]: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo },
-      threadInfo: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+      acc: { [string]: LegacyRawThreadInfo | RawThreadInfo },
+      threadInfo: LegacyRawThreadInfo | RawThreadInfo,
     ) => {
       acc[threadInfo.id] = threadInfo;
       return acc;
@@ -87,7 +87,7 @@ function createUpdateDBOpsForThreadStoreThreadInfos(
 
   // Convert the updated `threadInfo`s back into an array.
   const updatedRawThreadInfos: $ReadOnlyArray<
-    LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+    LegacyRawThreadInfo | RawThreadInfo,
   > = values(updatedThreadIDToThreadInfo);
 
   // Translate `RawThreadInfo`s to `ClientDBThreadInfo`s.
