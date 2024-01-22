@@ -63,7 +63,7 @@ import {
   type RawMessageInfo,
 } from 'lib/types/message-types.js';
 import { minimallyEncodeRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { MinimallyEncodedRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ReportStore,
   ClientReportCreationRequest,
@@ -384,7 +384,7 @@ const migrations = {
     }
 
     const threadInfos: {
-      [string]: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+      [string]: LegacyRawThreadInfo | RawThreadInfo,
     } = {};
     const stack = [...rootIDs];
     while (stack.length > 0) {
@@ -999,7 +999,7 @@ const migrations = {
       Object.keys(threadStoreInfos).reduce(
         (
           acc: {
-            [string]: LegacyRawThreadInfo | MinimallyEncodedRawThreadInfo,
+            [string]: LegacyRawThreadInfo | RawThreadInfo,
           },
           key: string,
         ) => {
