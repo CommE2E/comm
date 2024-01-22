@@ -7,8 +7,8 @@ use std::collections::HashMap;
 use std::iter::IntoIterator;
 
 use crate::constants::{
-  USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
+  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -100,7 +100,7 @@ impl TryFrom<AttributeMap> for Identifier {
     let wallet_address_result =
       value.take_attr(USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE);
     let social_proof_result =
-      value.take_attr(USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME);
+      value.take_attr(USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME);
 
     if let (Ok(wallet_address), Ok(social_proof)) =
       (wallet_address_result, social_proof_result)

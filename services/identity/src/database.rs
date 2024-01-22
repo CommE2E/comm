@@ -16,7 +16,10 @@ use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::reserved_users::UserDetail;
+use crate::{
+  constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
+  ddb_utils::EthereumIdentity, reserved_users::UserDetail,
+};
 use crate::{
   ddb_utils::{
     create_one_time_key_partition_key, into_one_time_put_requests, Identifier,
@@ -192,12 +195,15 @@ impl DatabaseClient {
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<String, Error> {
-    let social_proof = Some(social_proof);
+    let wallet_identity = EthereumIdentity {
+      wallet_address,
+      social_proof: social_proof.clone(),
+    };
     let user_id = self
       .add_user_to_users_table(
         flattened_device_key_upload.clone(),
         None,
-        Some(wallet_address),
+        Some(wallet_identity),
         user_id,
       )
       .await?;
@@ -206,7 +212,7 @@ impl DatabaseClient {
       .add_device(
         &user_id,
         flattened_device_key_upload,
-        social_proof,
+        Some(social_proof),
         code_version,
         access_token_creation_time,
       )
@@ -219,7 +225,7 @@ impl DatabaseClient {
     &self,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     username_and_password_file: Option<(String, Blob)>,
-    wallet_address: Option<String>,
+    wallet_identity: Option<EthereumIdentity>,
     user_id: Option<String>,
   ) -> Result<String, Error> {
     let user_id = user_id.unwrap_or_else(generate_uuid);
@@ -239,10 +245,14 @@ impl DatabaseClient {
       );
     }
 
-    if let Some(address) = wallet_address {
+    if let Some(eth_identity) = wallet_identity {
       user.insert(
         USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE.to_string(),
-        AttributeValue::S(address),
+        AttributeValue::S(eth_identity.wallet_address),
+      );
+      user.insert(
+        USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(eth_identity.social_proof),
       );
     }
 
