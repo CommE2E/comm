@@ -48,8 +48,7 @@ pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
 pub const USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME: &str =
   "deviceType";
 pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
-pub const USERS_TABLE_DEVICES_MAP_SOCIAL_PROOF_ATTRIBUTE_NAME: &str =
-  "socialProof";
+pub const USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME: &str = "socialProof";
 pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
   "deviceListTimestamp";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
