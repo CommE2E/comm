@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -17,7 +17,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import Modal, { type ModalOverridableProps } from '../modal.react.js';
 
 type OptionProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +createNewEntry: (threadID: string) => void,
   +onCloseModal: () => void,
 };

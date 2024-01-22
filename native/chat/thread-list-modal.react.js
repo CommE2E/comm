@@ -13,7 +13,7 @@ import {
 import type { ThreadSearchState } from 'lib/hooks/search-threads.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import type { SetState } from 'lib/types/hook-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
 import { useNavigateToThread } from './message-list-types.js';
@@ -35,11 +35,9 @@ function getItemLayout(
 }
 
 type Props<U> = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +createRenderItem: (
-    onPressItem: (
-      threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-    ) => void,
+    onPressItem: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
   ) => (row: { +item: U, +index: number, ... }) => React.Node,
   +listData: $ReadOnlyArray<U>,
   +searchState: ThreadSearchState,
@@ -80,7 +78,7 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
 
   const navigateToThread = useNavigateToThread();
   const onPressItem = React.useCallback(
-    (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) => {
+    (threadInfo: LegacyThreadInfo | ThreadInfo) => {
       setSearchState({
         text: '',
         results: new Set(),

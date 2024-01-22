@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
@@ -24,15 +24,11 @@ import { useColors, useStyles } from '../themes/colors.js';
 type Props = {
   +data: ChatThreadItem,
   +onPressItem: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
     pendingPersonalThreadUserInfo?: UserInfo,
   ) => void,
-  +onPressSeeMoreSidebars: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => void,
-  +onSwipeableWillOpen: (
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => void,
+  +onPressSeeMoreSidebars: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
+  +onSwipeableWillOpen: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
 };
 function ChatThreadListItem({

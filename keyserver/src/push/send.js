@@ -33,7 +33,7 @@ import {
   type RawMessageInfo,
   rawMessageInfoValidator,
 } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ResolvedNotifTexts } from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type {
@@ -194,7 +194,7 @@ async function preparePushNotif(input: {
   pushUserInfo: PushUserInfo,
   unreadCount: number,
   threadInfos: {
-    +[threadID: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    +[threadID: string]: LegacyThreadInfo | ThreadInfo,
   },
   userInfos: { +[userID: string]: GlobalUserInfo },
   dbIDs: string[], // mutable

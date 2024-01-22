@@ -9,7 +9,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   type ThreadChanges,
@@ -28,7 +28,7 @@ import ColorSelector from '../color-selector.react.js';
 
 type ThreadSettingsGeneralTabProps = {
   +threadSettingsOperationInProgress: boolean,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,

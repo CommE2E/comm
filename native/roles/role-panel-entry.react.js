@@ -6,7 +6,7 @@ import * as React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
@@ -20,7 +20,7 @@ import { useStyles } from '../themes/colors.js';
 
 type RolePanelEntryProps = {
   +navigation: RolesNavigationProp<'CommunityRolesScreen'>,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +roleName: string,
   +rolePermissions: $ReadOnlySet<UserSurfacedPermission>,
   +memberCount: number,

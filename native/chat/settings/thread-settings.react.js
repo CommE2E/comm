@@ -33,7 +33,7 @@ import {
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -107,7 +107,7 @@ import type { ChatNavigationProp } from '../chat.react.js';
 const itemPageLength = 5;
 
 export type ThreadSettingsParams = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 
 export type ThreadSettingsNavigate = $PropertyType<
@@ -220,7 +220,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'mediaGallery',
       +key: string,
-      +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      +threadInfo: LegacyThreadInfo | ThreadInfo,
       +limit: number,
       +verticalBounds: ?VerticalBounds,
     }
@@ -700,7 +700,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.threadInfo,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
       (
-        threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+        threadInfo: LegacyThreadInfo | ThreadInfo,
         verticalBounds: ?VerticalBounds,
       ) => {
         const listData: ChatSettingsItem[] = [];
@@ -1156,8 +1156,9 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     );
     const threadID = props.route.params.threadInfo.id;
 
-    const reduxThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
-      useSelector(state => threadInfoSelector(state)[threadID]);
+    const reduxThreadInfo: ?LegacyThreadInfo | ?ThreadInfo = useSelector(
+      state => threadInfoSelector(state)[threadID],
+    );
     React.useEffect(() => {
       invariant(
         reduxThreadInfo,
@@ -1172,7 +1173,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo =
+    const threadInfo: LegacyThreadInfo | ThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
@@ -1187,10 +1188,10 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     }, [threadInfo]);
 
     const parentThreadID = threadInfo.parentThreadID;
-    const parentThreadInfo: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo =
-      useSelector(state =>
+    const parentThreadInfo: ?LegacyThreadInfo | ?ThreadInfo = useSelector(
+      state =>
         parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-      );
+    );
     const resolvedParentThreadInfo =
       useResolvedOptionalThreadInfo(parentThreadInfo);
     const threadMembers = threadInfo.members;

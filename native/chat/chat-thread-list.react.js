@@ -31,7 +31,7 @@ import {
   getThreadListSearchResults,
   useThreadListSearch,
 } from 'lib/shared/thread-utils.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
@@ -77,9 +77,7 @@ type BaseProps = {
   +route:
     | NavigationRoute<'HomeChatThreadList'>
     | NavigationRoute<'BackgroundChatThreadList'>,
-  +filterThreads: (
-    threadItem: LegacyThreadInfo | MinimallyEncodedThreadInfo,
-  ) => boolean,
+  +filterThreads: (threadItem: LegacyThreadInfo | ThreadInfo) => boolean,
   +emptyItem?: React.ComponentType<{}>,
 };
 export type SearchStatus = 'inactive' | 'activating' | 'active';
@@ -129,7 +127,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onSwipeableWillOpen = React.useCallback(
-    (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) =>
+    (threadInfo: LegacyThreadInfo | ThreadInfo) =>
       setOpenedSwipeableID(threadInfo.id),
     [],
   );
@@ -180,7 +178,7 @@ function ChatThreadList(props: BaseProps): React.Node {
 
   const onPressItem = React.useCallback(
     (
-      threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      threadInfo: LegacyThreadInfo | ThreadInfo,
       pendingPersonalThreadUserInfo?: UserInfo,
     ) => {
       onChangeSearchText('');
@@ -193,7 +191,7 @@ function ChatThreadList(props: BaseProps): React.Node {
   );
 
   const onPressSeeMoreSidebars = React.useCallback(
-    (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) => {
+    (threadInfo: LegacyThreadInfo | ThreadInfo) => {
       onChangeSearchText('');
       if (searchInputRef.current) {
         searchInputRef.current.blur();

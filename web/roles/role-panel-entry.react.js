@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import RoleActionsMenu from './role-actions-menu.react.js';
@@ -10,7 +10,7 @@ import css from './role-panel-entry.css';
 import CommIcon from '../CommIcon.react.js';
 
 type RolePanelEntryProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +roleName: string,
   +memberCount: number,
 };

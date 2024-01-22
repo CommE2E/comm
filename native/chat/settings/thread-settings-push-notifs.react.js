@@ -10,7 +10,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { deviceTokenSelector } from 'lib/selectors/keyserver-selectors.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResult,
@@ -54,7 +54,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 type Props = {
   ...BaseProps,

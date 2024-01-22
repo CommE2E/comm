@@ -5,14 +5,14 @@ import * as React from 'react';
 import { ChevronRight } from 'react-feather';
 
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import css from './chat-thread-ancestors.css';
 
 type ThreadAncestorsProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
 };
 function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
   const { threadInfo } = props;

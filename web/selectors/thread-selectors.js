@@ -15,7 +15,7 @@ import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LegacyThreadInfo,
   RawThreadInfos,
@@ -29,7 +29,7 @@ import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 function useOnClickThread(
-  thread: ?LegacyThreadInfo | ?MinimallyEncodedThreadInfo,
+  thread: ?LegacyThreadInfo | ?ThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   return React.useCallback(
@@ -69,7 +69,7 @@ function useThreadIsActive(threadID: string): boolean {
 
 function useOnClickPendingSidebar(
   messageInfo: ComposableMessageInfo | RobotextMessageInfo,
-  threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  threadInfo: LegacyThreadInfo | ThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => mixed {
   const dispatch = useDispatch();
   const loggedInUserInfo = useLoggedInUserInfo();

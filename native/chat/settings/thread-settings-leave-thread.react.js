@@ -13,7 +13,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LeaveThreadPayload,
   LegacyThreadInfo,
@@ -52,7 +52,7 @@ const unboundStyles = {
 };
 
 type BaseProps = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +buttonStyle: ViewStyle,
 };
 type Props = {
