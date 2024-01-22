@@ -43,6 +43,20 @@ pub struct ConnectionInitializationMessage {
   pub device_os: Option<String>,
 }
 
+/// Message sent by a client to Tunnelbroker to initiate unauthenticated
+/// websocket session. In contrast to [`ConnectionInitializationMessage`],
+/// Tunnelbroker won't validate access token, but session capabilities
+/// will be limited.
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub struct AnonymousInitializationMessage {
+  #[serde(rename = "deviceID")]
+  pub device_id: String,
+  pub device_type: DeviceTypes,
+  pub device_app_version: Option<String>,
+  pub device_os: Option<String>,
+}
+
 #[cfg(test)]
 mod session_tests {
   use super::*;
