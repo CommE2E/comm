@@ -6,6 +6,7 @@ import type { PersistState } from 'redux-persist/es/types.js';
 import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
+  deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
@@ -213,6 +214,13 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     (action.type === deleteKeyserverAccountActionTypes.success &&
       invalidSessionDowngrade(
         oldState,
+        action.payload.currentUserInfo,
+        action.payload.preRequestUserState,
+        ashoatKeyserverID,
+      )) ||
+    (action.type === deleteAccountActionTypes.success &&
+      invalidSessionDowngrade(
+        state,
         action.payload.currentUserInfo,
         action.payload.preRequestUserState,
         ashoatKeyserverID,
