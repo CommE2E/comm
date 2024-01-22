@@ -9,7 +9,7 @@ import {
 } from 'lib/media/media-utils.js';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './chat-message-list.css';
@@ -20,7 +20,7 @@ import Multimedia from '../media/multimedia.react.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +shouldDisplayPinIndicator: boolean,
 };
 type Props = {

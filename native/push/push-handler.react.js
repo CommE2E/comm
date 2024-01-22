@@ -28,7 +28,7 @@ import {
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
@@ -106,7 +106,7 @@ type Props = {
     +[keyserverID: string]: ?string,
   },
   +threadInfos: {
-    +[id: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    +[id: string]: LegacyThreadInfo | ThreadInfo,
   },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
   +connection: ConnectionInfo,
@@ -525,7 +525,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   navigateToThread(
-    threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+    threadInfo: LegacyThreadInfo | ThreadInfo,
     clearChatRoutes: boolean,
   ) {
     if (clearChatRoutes) {

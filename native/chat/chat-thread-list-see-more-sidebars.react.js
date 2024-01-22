@@ -4,7 +4,7 @@ import Icon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 
 import { sidebarHeight } from './sidebar-item.react.js';
@@ -12,9 +12,9 @@ import Button from '../components/button.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+  +threadInfo: LegacyThreadInfo | ThreadInfo,
   +unread: boolean,
-  +onPress: (threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo) => void,
+  +onPress: (threadInfo: LegacyThreadInfo | ThreadInfo) => void,
 };
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { onPress, threadInfo, unread } = props;

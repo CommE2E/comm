@@ -8,7 +8,7 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { EntryInfo } from 'lib/types/entry-types.js';
-import type { MinimallyEncodedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyThreadInfo } from 'lib/types/thread-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 
@@ -33,7 +33,7 @@ export type CalendarItem =
   | {
       itemType: 'entryInfo',
       entryInfo: EntryInfo,
-      threadInfo: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      threadInfo: LegacyThreadInfo | ThreadInfo,
     };
 
 const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
@@ -44,7 +44,7 @@ const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
     loggedIn: boolean,
     daysToEntries: { +[dayString: string]: EntryInfo[] },
     threadInfos: {
-      +[id: string]: LegacyThreadInfo | MinimallyEncodedThreadInfo,
+      +[id: string]: LegacyThreadInfo | ThreadInfo,
     },
   ) => {
     if (!loggedIn || daysToEntries[dateString(new Date())] === undefined) {
