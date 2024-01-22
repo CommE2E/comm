@@ -122,7 +122,7 @@ function AccountSettings(): React.Node {
   if (staffCanSee) {
     tunnelbroker = (
       <div className={css.preferencesContainer}>
-        <h4 className={css.preferencesHeader}>Tunnerlbroker menu</h4>
+        <h4 className={css.preferencesHeader}>Tunnelbroker menu</h4>
         <div className={css.content}>
           <ul>
             <li>
