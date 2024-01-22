@@ -157,6 +157,30 @@ impl AttributeExtractor for AttributeMap {
   }
 }
 
+// this allows us to get optional attributes
+impl<T> TryFromAttribute for Option<T>
+where
+  T: TryFromAttribute,
+{
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    if attribute.is_none() {
+      return Ok(None);
+    }
+
+    match T::try_from_attr(attribute_name, attribute) {
+      Ok(value) => Ok(Some(value)),
+      Err(DBItemError {
+        attribute_error: DBItemAttributeError::Missing,
+        ..
+      }) => Ok(None),
+      Err(error) => Err(error),
+    }
+  }
+}
+
 impl TryFromAttribute for String {
   fn try_from_attr(
     attribute_name: impl Into<String>,
@@ -816,5 +840,21 @@ mod tests {
       parsed_timestamp.unwrap_err().attribute_error,
       DBItemAttributeError::TimestampOutOfRange
     ));
+  }
+
+  #[test]
+  fn test_optional_attribute() {
+    let mut attrs = AttributeMap::from([(
+      "foo".to_string(),
+      AttributeValue::S("bar".to_string()),
+    )]);
+
+    let foo: Option<String> =
+      attrs.take_attr("foo").expect("failed to parse arg 'foo'");
+    let bar: Option<String> =
+      attrs.take_attr("bar").expect("failed to parse arg 'bar'");
+
+    assert!(foo.is_some());
+    assert!(bar.is_none());
   }
 }
