@@ -42,12 +42,15 @@ import type {
   SaveEntryResult,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  MinimallyEncodedResolvedThreadInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
+  LegacyResolvedThreadInfo,
   LegacyThreadInfo,
-  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -195,7 +198,7 @@ type BaseProps = {
 };
 type Props = {
   ...SharedProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   // Redux state
   +calendarQuery: () => CalendarQuery,
   +online: boolean,

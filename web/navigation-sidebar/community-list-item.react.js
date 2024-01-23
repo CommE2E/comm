@@ -3,7 +3,8 @@
 import * as React from 'react';
 
 import { unreadCountSelectorForCommunity } from 'lib/selectors/thread-selectors.js';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 
 import css from './community-list-item.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
@@ -14,7 +15,7 @@ import { useLabelTooltip } from '../tooltips/tooltip-action-utils.js';
 import { tooltipPositions } from '../tooltips/tooltip-utils.js';
 
 type Props = {
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
 };
 
 function CommunityListItem(props: Props): React.Node {

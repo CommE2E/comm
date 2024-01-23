@@ -20,7 +20,8 @@ import {
   type RestoreEntryPayload,
 } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import type { MinimallyEncodedResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyResolvedThreadInfo } from 'lib/types/thread-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import {
@@ -40,7 +41,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +loggedIn: boolean,
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
