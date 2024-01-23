@@ -59,7 +59,7 @@ pub use grpc_clients::identity::DeviceType;
 mod device_list;
 pub use device_list::{DeviceListRow, DeviceRow};
 
-use self::device_list::PreKey;
+use self::device_list::Prekey;
 
 #[derive(Serialize, Deserialize)]
 pub struct OlmKeys {
@@ -107,8 +107,8 @@ pub struct OutboundKeys {
   pub key_payload: String,
   pub key_payload_signature: String,
   pub social_proof: Option<String>,
-  pub content_prekey: PreKey,
-  pub notif_prekey: PreKey,
+  pub content_prekey: Prekey,
+  pub notif_prekey: Prekey,
   pub content_one_time_key: Option<String>,
   pub notif_one_time_key: Option<String>,
 }
