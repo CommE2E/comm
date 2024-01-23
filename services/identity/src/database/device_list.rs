@@ -36,8 +36,8 @@ pub struct DeviceRow {
   pub device_id: String,
   pub device_type: DeviceType,
   pub device_key_info: IdentityKeyInfo,
-  pub content_prekey: PreKey,
-  pub notif_prekey: PreKey,
+  pub content_prekey: Prekey,
+  pub notif_prekey: Prekey,
 
   // migration-related data
   pub code_version: u64,
@@ -59,9 +59,9 @@ pub struct IdentityKeyInfo {
 }
 
 #[derive(Clone, Debug)]
-pub struct PreKey {
-  pub pre_key: String,
-  pub pre_key_signature: String,
+pub struct Prekey {
+  pub prekey: String,
+  pub prekey_signature: String,
 }
 
 impl DeviceRow {
@@ -80,13 +80,13 @@ impl DeviceRow {
         key_payload: upload.key_payload,
         key_payload_signature: upload.key_payload_signature,
       },
-      content_prekey: PreKey {
-        pre_key: upload.content_prekey,
-        pre_key_signature: upload.content_prekey_signature,
+      content_prekey: Prekey {
+        prekey: upload.content_prekey,
+        prekey_signature: upload.content_prekey_signature,
       },
-      notif_prekey: PreKey {
-        pre_key: upload.notif_prekey,
-        pre_key_signature: upload.notif_prekey_signature,
+      notif_prekey: Prekey {
+        prekey: upload.notif_prekey,
+        prekey_signature: upload.notif_prekey_signature,
       },
       code_version,
       login_time,
@@ -193,11 +193,11 @@ impl TryFrom<AttributeMap> for DeviceRow {
 
     let content_prekey = attrs
       .take_attr::<AttributeMap>(ATTR_CONTENT_PREKEY)
-      .and_then(PreKey::try_from)?;
+      .and_then(Prekey::try_from)?;
 
     let notif_prekey = attrs
       .take_attr::<AttributeMap>(ATTR_NOTIF_PREKEY)
-      .and_then(PreKey::try_from)?;
+      .and_then(Prekey::try_from)?;
 
     let code_version = attrs
       .remove(ATTR_CODE_VERSION)
@@ -292,45 +292,45 @@ impl TryFrom<AttributeMap> for IdentityKeyInfo {
   }
 }
 
-impl From<PreKey> for AttributeValue {
-  fn from(value: PreKey) -> Self {
+impl From<Prekey> for AttributeValue {
+  fn from(value: Prekey) -> Self {
     let attrs = HashMap::from([
-      (ATTR_PREKEY.to_string(), AttributeValue::S(value.pre_key)),
+      (ATTR_PREKEY.to_string(), AttributeValue::S(value.prekey)),
       (
         ATTR_PREKEY_SIGNATURE.to_string(),
-        AttributeValue::S(value.pre_key_signature),
+        AttributeValue::S(value.prekey_signature),
       ),
     ]);
     AttributeValue::M(attrs)
   }
 }
 
-impl From<PreKey> for protos::unauth::Prekey {
-  fn from(value: PreKey) -> Self {
+impl From<Prekey> for protos::unauth::Prekey {
+  fn from(value: Prekey) -> Self {
     Self {
-      prekey: value.pre_key,
-      prekey_signature: value.pre_key_signature,
+      prekey: value.prekey,
+      prekey_signature: value.prekey_signature,
     }
   }
 }
 
-impl From<protos::unauth::Prekey> for PreKey {
+impl From<protos::unauth::Prekey> for Prekey {
   fn from(value: protos::unauth::Prekey) -> Self {
     Self {
-      pre_key: value.prekey,
-      pre_key_signature: value.prekey_signature,
+      prekey: value.prekey,
+      prekey_signature: value.prekey_signature,
     }
   }
 }
 
-impl TryFrom<AttributeMap> for PreKey {
+impl TryFrom<AttributeMap> for Prekey {
   type Error = DBItemError;
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let pre_key = attrs.take_attr(ATTR_PREKEY)?;
-    let pre_key_signature = attrs.take_attr(ATTR_PREKEY_SIGNATURE)?;
+    let prekey = attrs.take_attr(ATTR_PREKEY)?;
+    let prekey_signature = attrs.take_attr(ATTR_PREKEY_SIGNATURE)?;
     Ok(Self {
-      pre_key,
-      pre_key_signature,
+      prekey,
+      prekey_signature,
     })
   }
 }
@@ -493,8 +493,8 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_id: impl Into<String>,
-    content_prekey: PreKey,
-    notif_prekey: PreKey,
+    content_prekey: Prekey,
+    notif_prekey: Prekey,
   ) -> Result<(), Error> {
     self
       .client
@@ -1228,13 +1228,13 @@ mod migration {
           key_payload: "".into(),
           key_payload_signature: "".into(),
         },
-        content_prekey: PreKey {
-          pre_key: "".into(),
-          pre_key_signature: "".into(),
+        content_prekey: Prekey {
+          prekey: "".into(),
+          prekey_signature: "".into(),
         },
-        notif_prekey: PreKey {
-          pre_key: "".into(),
-          pre_key_signature: "".into(),
+        notif_prekey: Prekey {
+          prekey: "".into(),
+          prekey_signature: "".into(),
         },
         code_version,
         login_time,
