@@ -31,7 +31,6 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   LeaveThreadPayload,
-  LegacyResolvedThreadInfo,
   LegacyThreadInfo,
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -118,7 +117,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
+  +threadInfo: MinimallyEncodedResolvedThreadInfo,
   +shouldUseDeleteConfirmationAlert: boolean,
   +loadingStatus: LoadingStatus,
   +colors: Colors,
