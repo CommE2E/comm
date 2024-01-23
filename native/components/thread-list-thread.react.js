@@ -2,10 +2,13 @@
 
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
+  MinimallyEncodedResolvedThreadInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  LegacyResolvedThreadInfo,
   LegacyThreadInfo,
-  ResolvedThreadInfo,
 } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -41,7 +44,7 @@ type BaseProps = {
 };
 type Props = {
   ...SharedProps,
-  +threadInfo: ResolvedThreadInfo,
+  +threadInfo: LegacyResolvedThreadInfo | MinimallyEncodedResolvedThreadInfo,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
 };
