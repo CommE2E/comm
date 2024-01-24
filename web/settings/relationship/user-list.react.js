@@ -70,11 +70,24 @@ export function UserList(props: UserListProps): React.Node {
         onMenuVisibilityChange={onMenuVisibilityChange}
       />
     ));
-  }, [userRowComponent, usersWithENSNames, onMenuVisibilityChange]);
+  }, [usersWithENSNames, userRowComponent, onMenuVisibilityChange]);
+
+  const noResultsMessage = React.useMemo(() => {
+    if (searchText.length === 0 || usersWithENSNames.length > 0) {
+      return null;
+    }
+
+    return <div className={css.emptyList}>No results</div>;
+  }, [searchText.length, usersWithENSNames.length]);
 
   const containerClasses = classNames(css.userListContainer, {
     [css.noScroll]: isMenuVisible,
   });
 
-  return <div className={containerClasses}>{userRows}</div>;
+  return (
+    <div className={containerClasses}>
+      {userRows}
+      {noResultsMessage}
+    </div>
+  );
 }
