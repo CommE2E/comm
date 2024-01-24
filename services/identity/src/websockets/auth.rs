@@ -3,21 +3,11 @@ use grpc_clients::identity;
 use grpc_clients::tonic::Request;
 use identity::get_unauthenticated_client;
 use identity::protos::unauthenticated as client_proto;
-use serde::{Deserialize, Serialize};
+use identity_search_messages::AuthMessage;
 use tracing::{debug, error};
 
 use crate::constants::DEFAULT_IDENTITY_ENDPOINT;
 use crate::websockets::errors::WebsocketError;
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "type", rename_all = "camelCase")]
-pub struct AuthMessage {
-  #[serde(rename = "userID")]
-  pub user_id: String,
-  #[serde(rename = "deviceID")]
-  pub device_id: String,
-  pub access_token: String,
-}
 
 const PLACEHOLDER_CODE_VERSION: u64 = 0;
 const DEVICE_TYPE: &str = "service";

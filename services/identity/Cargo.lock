@@ -2078,6 +2078,7 @@ dependencies = [
  "http 0.2.11",
  "hyper 0.14.28",
  "hyper-tungstenite",
+ "identity_search_messages",
  "moka",
  "once_cell",
  "prost",
@@ -2096,6 +2097,15 @@ dependencies = [
  "tracing-subscriber",
  "tunnelbroker_messages",
  "uuid 1.6.1",
+]
+
+[[package]]
+name = "identity_search_messages"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "websocket_messages",
 ]
 
 [[package]]
