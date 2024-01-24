@@ -1,7 +1,5 @@
 //! Messages sent between Tunnelbroker and a device.
 
-pub mod connection_initialization_response;
-pub mod heartbeat;
 pub mod keys;
 pub mod message_receive_confirmation;
 pub mod message_to_device;
@@ -9,14 +7,15 @@ pub mod message_to_device_request;
 pub mod message_to_device_request_status;
 pub mod session;
 
-pub use connection_initialization_response::*;
-pub use heartbeat::*;
 pub use keys::*;
 pub use message_receive_confirmation::*;
 pub use message_to_device::*;
 pub use message_to_device_request::*;
 pub use message_to_device_request_status::*;
 pub use session::*;
+pub use websocket_messages::{
+  ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
+};
 
 use serde::{Deserialize, Serialize};
 
