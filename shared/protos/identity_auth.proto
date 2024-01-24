@@ -57,6 +57,9 @@ service IdentityClientService {
   // Returns device list history
   rpc GetDeviceListForUser(GetDeviceListRequest) returns
     (GetDeviceListResponse) {}
+
+  rpc UpdateDeviceListForUser(UpdateDeviceListRequest) returns
+    (UpdateDeviceListResponse) {}
 }
 
 // Helper types
@@ -196,4 +199,25 @@ message GetDeviceListResponse {
   //   })
   // }
   repeated string device_list_updates = 1;
+}
+
+// UpdateDeviceListForUser
+
+message UpdateDeviceListRequest {
+  // A stringified JSON object of the following format:
+  // {
+  //   "devices": [<device_id: string>, ...]
+  // }
+  string new_device_list = 1;
+}
+
+message UpdateDeviceListResponse {
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<device_id: string>, ...]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   })
+  // }
+  string signed_device_list = 1;
 }

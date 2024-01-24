@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::config::CONFIG;
-use crate::database::DeviceListRow;
+use crate::database::{DeviceListRow, DeviceListUpdate};
 use crate::ddb_utils::Identifier;
 use crate::{
   client_service::{
@@ -26,6 +26,7 @@ use super::protos::auth::{
   InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
   KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
   OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
+  UpdateDeviceListRequest, UpdateDeviceListResponse,
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
   UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
 };
@@ -412,6 +413,13 @@ impl IdentityClientService for AuthenticatedService {
       device_list_updates: stringified_updates,
     }))
   }
+
+  async fn update_device_list_for_user(
+    &self,
+    _request: tonic::Request<UpdateDeviceListRequest>,
+  ) -> Result<Response<UpdateDeviceListResponse>, tonic::Status> {
+    Err(tonic::Status::unimplemented("not implemented"))
+  }
 }
 
 // raw device list that can be serialized to JSON (and then signed in the future)
@@ -448,6 +456,31 @@ impl SignedDeviceList {
     Ok(Self {
       raw_device_list: stringified_list,
     })
+  }
+}
+
+impl TryFrom<UpdateDeviceListRequest> for DeviceListUpdate {
+  type Error = tonic::Status;
+  fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
+    serde_json::from_str(&request.new_device_list).map_err(|err| {
+      error!("Failed to deserialize device list update: {}", err);
+      tonic::Status::failed_precondition("unexpected error")
+    })
+  }
+}
+
+impl TryFrom<SignedDeviceList> for UpdateDeviceListResponse {
+  type Error = tonic::Status;
+  fn try_from(signed_list: SignedDeviceList) -> Result<Self, Self::Error> {
+    let stringified_response_payload = serde_json::to_string(&signed_list)
+      .map_err(|err| {
+        error!("Failed to serialize device list response: {}", err);
+        tonic::Status::failed_precondition("unexpected error")
+      })?;
+    let response = UpdateDeviceListResponse {
+      signed_device_list: stringified_response_payload,
+    };
+    Ok(response)
   }
 }
 

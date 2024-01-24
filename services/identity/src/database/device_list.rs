@@ -66,6 +66,13 @@ pub struct PreKey {
   pub pre_key_signature: String,
 }
 
+/// A struct representing device list update request
+/// payload; issued by the primary device
+#[derive(serde::Deserialize)]
+pub struct DeviceListUpdate {
+  devices: Vec<String>,
+}
+
 impl DeviceRow {
   pub fn from_device_key_upload(
     user_id: impl Into<String>,
