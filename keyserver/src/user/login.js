@@ -61,12 +61,12 @@ async function verifyUserLoggedIn(): Promise<IdentityInfo> {
     return result;
   }
 
-  const identityInfo = await registerOrLogin();
+  const identityInfo = await registerOrLogIn();
   await saveIdentityInfo(identityInfo);
   return identityInfo;
 }
 
-async function registerOrLogin(): Promise<IdentityInfo> {
+async function registerOrLogIn(): Promise<IdentityInfo> {
   const rustAPIPromise = getRustAPI();
 
   const userInfo = await getCommConfig<UserCredentials>({
