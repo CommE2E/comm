@@ -57,7 +57,7 @@ use crate::token::{AccessTokenData, AuthType};
 pub use grpc_clients::identity::DeviceType;
 
 mod device_list;
-pub use device_list::{DeviceListRow, DeviceRow};
+pub use device_list::{DeviceListRow, DeviceListUpdate, DeviceRow};
 
 use self::device_list::Prekey;
 

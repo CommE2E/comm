@@ -418,3 +418,35 @@ declare export class GetDeviceListResponse extends Message {
 export type GetDeviceListResponseObject = {
   deviceListUpdatesList: Array<string>,
 }
+
+declare export class UpdateDeviceListRequest extends Message {
+  getNewDeviceList(): string;
+  setNewDeviceList(value: string): UpdateDeviceListRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateDeviceListRequestObject;
+  static toObject(includeInstance: boolean, msg: UpdateDeviceListRequest): UpdateDeviceListRequestObject;
+  static serializeBinaryToWriter(message: UpdateDeviceListRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateDeviceListRequest;
+  static deserializeBinaryFromReader(message: UpdateDeviceListRequest, reader: BinaryReader): UpdateDeviceListRequest;
+}
+
+export type UpdateDeviceListRequestObject = {
+  newDeviceList: string,
+}
+
+declare export class UpdateDeviceListResponse extends Message {
+  getSignedDeviceList(): string;
+  setSignedDeviceList(value: string): UpdateDeviceListResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateDeviceListResponseObject;
+  static toObject(includeInstance: boolean, msg: UpdateDeviceListResponse): UpdateDeviceListResponseObject;
+  static serializeBinaryToWriter(message: UpdateDeviceListResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateDeviceListResponse;
+  static deserializeBinaryFromReader(message: UpdateDeviceListResponse, reader: BinaryReader): UpdateDeviceListResponse;
+}
+
+export type UpdateDeviceListResponseObject = {
+  signedDeviceList: string,
+}
