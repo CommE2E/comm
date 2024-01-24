@@ -315,6 +315,8 @@ class App extends React.PureComponent<Props> {
         mainContent = null;
       } else if (settingsSection === 'keyservers') {
         mainContent = <KeyserverSelectionList />;
+      } else if (settingsSection === 'build-info') {
+        mainContent = null;
       } else if (settingsSection === 'danger-zone') {
         mainContent = <DangerZone />;
       }
