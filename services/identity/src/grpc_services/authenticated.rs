@@ -26,8 +26,9 @@ use super::protos::auth::{
   InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
   KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
   OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest,
 };
 use super::protos::unauth::Empty;
 
@@ -412,10 +413,17 @@ impl IdentityClientService for AuthenticatedService {
       device_list_updates: stringified_updates,
     }))
   }
+
+  async fn update_device_list_for_user(
+    &self,
+    _request: tonic::Request<UpdateDeviceListRequest>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    Err(tonic::Status::unimplemented("not implemented"))
+  }
 }
 
 // raw device list that can be serialized to JSON (and then signed in the future)
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 struct RawDeviceList {
   devices: Vec<String>,
   timestamp: i64,
@@ -430,7 +438,7 @@ impl From<DeviceListRow> for RawDeviceList {
   }
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SignedDeviceList {
   /// JSON-stringified [`RawDeviceList`]
@@ -447,6 +455,16 @@ impl SignedDeviceList {
 
     Ok(Self {
       raw_device_list: stringified_list,
+    })
+  }
+}
+
+impl TryFrom<UpdateDeviceListRequest> for SignedDeviceList {
+  type Error = tonic::Status;
+  fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
+    serde_json::from_str(&request.new_device_list).map_err(|err| {
+      error!("Failed to deserialize device list update: {}", err);
+      tonic::Status::failed_precondition("unexpected error")
     })
   }
 }
