@@ -660,9 +660,11 @@ impl DatabaseClient {
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
-        Ok(put_device_operation)
+        Ok(Some(put_device_operation))
       })
-      .await
+      .await?;
+
+    Ok(())
   }
 
   /// Removes device from user's device list. If the device doesn't exist, the
@@ -709,15 +711,18 @@ impl DatabaseClient {
         let operation =
           TransactWriteItem::builder().delete(delete_device).build();
 
-        Ok(operation)
+        Ok(Some(operation))
       })
-      .await
+      .await?;
+
+    Ok(())
   }
 
   /// Performs a transactional update of the device list for the user. Afterwards
   /// generates a new device list and updates the timestamp in the users table.
   /// This is done in a transaction. Operation fails if the device list has been
   /// updated concurrently (timestamp mismatch).
+  /// Returns the new device list row that has been saved to database.
   async fn transact_update_devicelist(
     &self,
     user_id: &str,
@@ -730,8 +735,8 @@ impl DatabaseClient {
     action: impl FnOnce(
       &mut Vec<String>,
       Vec<DeviceRow>,
-    ) -> Result<TransactWriteItem, Error>,
-  ) -> Result<(), Error> {
+    ) -> Result<Option<TransactWriteItem>, Error>,
+  ) -> Result<DeviceListRow, Error> {
     let previous_timestamp =
       get_current_devicelist_timestamp(self, user_id).await?;
     let current_devices_data = self.get_current_devices(user_id).await?;
@@ -755,7 +760,7 @@ impl DatabaseClient {
     // Put updated device list (a new version)
     let put_device_list = Put::builder()
       .table_name(devices_table::NAME)
-      .set_item(Some(new_device_list.into()))
+      .set_item(Some(new_device_list.clone().into()))
       .condition_expression(
         "attribute_not_exists(#user_id) AND attribute_not_exists(#item_id)",
       )
@@ -765,12 +770,20 @@ impl DatabaseClient {
     let put_device_list_operation =
       TransactWriteItem::builder().put(put_device_list).build();
 
+    let operations = if let Some(operation) = operation {
+      vec![
+        operation,
+        put_device_list_operation,
+        timestamp_update_operation,
+      ]
+    } else {
+      vec![put_device_list_operation, timestamp_update_operation]
+    };
+
     self
       .client
       .transact_write_items()
-      .transact_items(operation)
-      .transact_items(put_device_list_operation)
-      .transact_items(timestamp_update_operation)
+      .set_transact_items(Some(operations))
       .send()
       .await
       .map_err(|e| match DynamoDBError::from(e) {
@@ -791,7 +804,7 @@ impl DatabaseClient {
         }
       })?;
 
-    Ok(())
+    Ok(new_device_list)
   }
 
   /// Deletes all user data from devices table
@@ -1016,8 +1029,9 @@ mod migration {
 
     let device_list_set = list.iter().collect::<HashSet<_>>();
 
-    if let Some(corrupt_device_id) =
-      device_list_set.difference(&actual_device_ids).next()
+    if let Some(corrupt_device_id) = device_list_set
+      .symmetric_difference(&actual_device_ids)
+      .next()
     {
       error!(
         "Device list is corrupt (unknown deviceID={})",
