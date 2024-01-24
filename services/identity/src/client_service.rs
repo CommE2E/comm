@@ -16,7 +16,7 @@ use crate::constants::request_metadata;
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
 };
-use crate::error::Error as DBError;
+use crate::error::{DeviceListError, Error as DBError};
 use crate::grpc_services::protos::unauth::{
   AddReservedUsernamesRequest, Empty, GenerateNonceResponse,
   OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
@@ -747,6 +747,9 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
     ))
     | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
       tonic::Status::unavailable("please retry")
+    }
+    DBError::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
+      tonic::Status::invalid_argument("invalid device list update")
     }
     e => {
       error!("Encountered an unexpected error: {}", e);

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, Utc};
 use comm_lib::{
@@ -14,7 +14,7 @@ use comm_lib::{
     DynamoDBError, TryFromAttribute,
   },
 };
-use tracing::{error, warn};
+use tracing::{debug, error, warn};
 
 use crate::{
   client_service::FlattenedDeviceKeyUpload,
@@ -62,6 +62,14 @@ pub struct IdentityKeyInfo {
 pub struct Prekey {
   pub prekey: String,
   pub prekey_signature: String,
+}
+
+/// A struct representing device list update request
+/// payload; issued by the primary device
+#[derive(derive_more::Constructor)]
+pub struct DeviceListUpdate {
+  pub devices: Vec<String>,
+  pub timestamp: DateTime<Utc>,
 }
 
 impl DeviceRow {
@@ -716,6 +724,39 @@ impl DatabaseClient {
       .await?;
 
     Ok(())
+  }
+
+  /// applies updated device list received from primary device
+  pub async fn apply_devicelist_update(
+    &self,
+    user_id: &str,
+    update: DeviceListUpdate,
+  ) -> Result<DeviceListRow, Error> {
+    let DeviceListUpdate {
+      devices: new_list, ..
+    } = update;
+    self
+      .transact_update_devicelist(user_id, |current_list, _| {
+        // TODO: Add proper validation according to the whitepaper
+        // currently only adding new device is supported (new.len - old.len = 1)
+
+        let new_set: HashSet<_> = new_list.iter().collect();
+        let current_set: HashSet<_> = current_list.iter().collect();
+        // difference is A - B (only new devices)
+        let difference: HashSet<_> = new_set.difference(&current_set).collect();
+        if difference.len() != 1 {
+          warn!("Received invalid device list update");
+          return Err(Error::DeviceList(
+            DeviceListError::InvalidDeviceListUpdate,
+          ));
+        }
+
+        debug!("Applying device list update. Difference: {:?}", difference);
+        *current_list = new_list;
+
+        Ok(None)
+      })
+      .await
   }
 
   /// Performs a transactional update of the device list for the user. Afterwards

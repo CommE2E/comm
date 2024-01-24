@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use crate::config::CONFIG;
-use crate::database::DeviceListRow;
-use crate::ddb_utils::Identifier;
+use crate::database::{DeviceListRow, DeviceListUpdate};
 use crate::{
   client_service::{
     handle_db_error, CacheExt, UpdateState, WorkflowInProgress,
@@ -17,7 +16,7 @@ use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use tonic::{Request, Response, Status};
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 
 use super::protos::auth::{
   find_user_id_request, identity,
@@ -416,9 +415,21 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn update_device_list_for_user(
     &self,
-    _request: tonic::Request<UpdateDeviceListRequest>,
+    request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
-    Err(tonic::Status::unimplemented("not implemented"))
+    let (user_id, _device_id) = get_user_and_device_id(&request)?;
+    // TODO: when we stop doing "primary device rotation" (migration procedure)
+    // we should verify if this RPC is called by primary device only
+
+    let new_list = SignedDeviceList::try_from(request.into_inner())?;
+    let update = DeviceListUpdate::try_from(new_list)?;
+    self
+      .db_client
+      .apply_devicelist_update(&user_id, update)
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(Response::new(Empty {}))
   }
 }
 
@@ -457,15 +468,41 @@ impl SignedDeviceList {
       raw_device_list: stringified_list,
     })
   }
+
+  fn as_raw(&self) -> Result<RawDeviceList, tonic::Status> {
+    // The device list payload is sent as an escaped JSON payload.
+    // Escaped double quotes need to be trimmed before attempting to deserialize
+    serde_json::from_str(&self.raw_device_list.replace(r#"\""#, r#"""#))
+      .map_err(|err| {
+        warn!("Failed to deserialize raw device list: {}", err);
+        tonic::Status::invalid_argument("invalid device list payload")
+      })
+  }
 }
 
 impl TryFrom<UpdateDeviceListRequest> for SignedDeviceList {
   type Error = tonic::Status;
   fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
     serde_json::from_str(&request.new_device_list).map_err(|err| {
-      error!("Failed to deserialize device list update: {}", err);
-      tonic::Status::failed_precondition("unexpected error")
+      warn!("Failed to deserialize device list update: {}", err);
+      tonic::Status::invalid_argument("invalid device list payload")
     })
+  }
+}
+
+impl TryFrom<SignedDeviceList> for DeviceListUpdate {
+  type Error = tonic::Status;
+  fn try_from(signed_list: SignedDeviceList) -> Result<Self, Self::Error> {
+    let RawDeviceList {
+      devices,
+      timestamp: raw_timestamp,
+    } = signed_list.as_raw()?;
+    let timestamp = DateTime::<Utc>::from_utc_timestamp_millis(raw_timestamp)
+      .ok_or_else(|| {
+      error!("Failed to parse RawDeviceList timestamp!");
+      tonic::Status::invalid_argument("invalid timestamp")
+    })?;
+    Ok(DeviceListUpdate::new(devices, timestamp))
   }
 }
 
@@ -510,5 +547,27 @@ mod tests {
 
     assert_eq!(stringified_updates[0], expected_stringified_list1);
     assert_eq!(stringified_updates[1], expected_stringified_list2);
+  }
+
+  #[test]
+  fn deserialize_device_list_update() {
+    let raw_payload = r#"{"rawDeviceList":"{\"devices\":[\"device1\",\"device2\"],\"timestamp\":123456789}"}"#;
+    let request = UpdateDeviceListRequest {
+      new_device_list: raw_payload.to_string(),
+    };
+
+    let signed_list = SignedDeviceList::try_from(request)
+      .expect("Failed to parse SignedDeviceList");
+    let update = DeviceListUpdate::try_from(signed_list)
+      .expect("Failed to parse DeviceListUpdate from signed list");
+
+    let expected_timestamp =
+      DateTime::<Utc>::from_utc_timestamp_millis(123456789).unwrap();
+
+    assert_eq!(update.timestamp, expected_timestamp);
+    assert_eq!(
+      update.devices,
+      vec!["device1".to_string(), "device2".to_string()]
+    );
   }
 }
