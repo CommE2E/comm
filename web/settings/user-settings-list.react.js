@@ -44,6 +44,13 @@ function UserSettingsList(): React.Node {
     });
   }, [dispatch]);
 
+  const onClickBuildInfo = React.useCallback(() => {
+    dispatch({
+      type: updateNavInfoActionType,
+      payload: { tab: 'settings', settingsSection: 'build-info' },
+    });
+  }, [dispatch]);
+
   const onClickDangerZone = React.useCallback(() => {
     dispatch({
       type: updateNavInfoActionType,
@@ -85,6 +92,11 @@ function UserSettingsList(): React.Node {
         />
         {keyserverSettingsListItem}
         <UserSettingsListItem
+          id="build-info"
+          name="Build info"
+          onClick={onClickBuildInfo}
+        />
+        <UserSettingsListItem
           id="danger-zone"
           name="Danger zone"
           onClick={onClickDangerZone}
@@ -95,6 +107,7 @@ function UserSettingsList(): React.Node {
       keyserverSettingsListItem,
       onClickAccountSettings,
       onClickBlockList,
+      onClickBuildInfo,
       onClickDangerZone,
       onClickFriendList,
     ],

@@ -22,12 +22,14 @@ export type NavigationSettingsSection =
   | 'friend-list'
   | 'block-list'
   | 'keyservers'
+  | 'build-info'
   | 'danger-zone';
 const navigationSettingsSectionValidator = t.enums.of([
   'account',
   'friend-list',
   'block-list',
   'keyservers',
+  'build-info',
   'danger-zone',
 ]);
 
