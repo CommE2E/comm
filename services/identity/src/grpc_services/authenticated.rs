@@ -416,9 +416,24 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn update_device_list_for_user(
     &self,
-    _request: tonic::Request<UpdateDeviceListRequest>,
+    request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<UpdateDeviceListResponse>, tonic::Status> {
-    Err(tonic::Status::unimplemented("not implemented"))
+    let (user_id, _device_id) = get_user_and_device_id(&request)?;
+    // TODO: when we stop doing "primary device rotation" (migration procedure)
+    // we should verify if this RPC is called by primary device only
+
+    let update = DeviceListUpdate::try_from(request.into_inner())?;
+    let result = self
+      .db_client
+      .apply_devicelist_update(&user_id, update)
+      .await
+      .map_err(handle_db_error)?;
+
+    // prepare response
+    let raw_list = RawDeviceList::from(result);
+    let signed_list = SignedDeviceList::try_from_raw(raw_list)?;
+    let response = UpdateDeviceListResponse::try_from(signed_list)?;
+    Ok(Response::new(response))
   }
 }
 

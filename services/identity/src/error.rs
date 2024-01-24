@@ -29,6 +29,7 @@ pub enum DeviceListError {
   DeviceAlreadyExists,
   DeviceNotFound,
   ConcurrentUpdateError,
+  InvalidDeviceListUpdate,
 }
 
 #[deprecated(note = "Use comm-lib traits instead")]
