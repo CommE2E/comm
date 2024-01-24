@@ -27,6 +27,7 @@ pub enum DeviceListError {
   DeviceAlreadyExists,
   DeviceNotFound,
   ConcurrentUpdateError,
+  InvalidDeviceListUpdate,
 }
 
 pub fn consume_error<T>(result: Result<T, Error>) {
