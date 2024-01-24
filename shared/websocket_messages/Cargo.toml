@@ -1,5 +1,5 @@
 [package]
-name = "tunnelbroker_messages"
+name = "websocket_messages"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0.160", features = [ "derive" ] }
 serde_json = "1.0.96"
-websocket_messages = { path = "../websocket_messages" }
