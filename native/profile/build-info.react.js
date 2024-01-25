@@ -4,12 +4,12 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { useStaffContext } from 'lib/components/staff-provider.react.js';
 import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { persistConfig, codeVersion } from '../redux/persist.js';
-import { useStaffContext } from '../staff/staff-context.provider.react.js';
 import { useStyles } from '../themes/colors.js';
 import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils.js';
 
