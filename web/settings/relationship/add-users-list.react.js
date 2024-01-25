@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
@@ -117,20 +118,30 @@ function AddUsersList(props: Props): React.Node {
       setPendingUsersToAdd(pendingUsers => {
         const newPendingUsers = new Map(pendingUsers);
 
-        if (!newPendingUsers.delete(userID)) {
-          const newPendingUser: GlobalAccountUserInfo = {
-            id: userID,
-            username: mergedUserInfos[userID].username,
-            avatar: mergedUserInfos[userID].avatar,
-          };
+        if (newPendingUsers.delete(userID)) {
+          return newPendingUsers;
+        }
+
+        if (vipPendingUsers.has(userID)) {
+          const newPendingUser = vipPendingUsers.get(userID);
+          invariant(newPendingUser, 'newPendingUser should be set');
 
           newPendingUsers.set(userID, newPendingUser);
+          return newPendingUsers;
         }
+
+        const newPendingUser: GlobalAccountUserInfo = {
+          id: userID,
+          username: mergedUserInfos[userID].username,
+          avatar: mergedUserInfos[userID].avatar,
+        };
+
+        newPendingUsers.set(userID, newPendingUser);
 
         return newPendingUsers;
       });
     },
-    [mergedUserInfos, setPendingUsersToAdd],
+    [mergedUserInfos, setPendingUsersToAdd, vipPendingUsers],
   );
 
   const sortedUsersWithENSNames = useENSNames(sortedUsers);
