@@ -78,6 +78,17 @@ function AddUsersList(props: Props): React.Node {
     userStoreSearchResults,
   ]);
 
+  const [vipPendingUsers, setVipPendingUsers] = React.useState<
+    $ReadOnlyMap<string, GlobalAccountUserInfo>,
+  >(new Map());
+
+  React.useEffect(() => {
+    setVipPendingUsers(pendingUsersToAdd);
+
+    // We want this effect to run ONLY when searchText changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
+
   const sortedUsers = React.useMemo(
     () =>
       Object.keys(mergedUserInfos)
@@ -86,10 +97,11 @@ function AddUsersList(props: Props): React.Node {
           user =>
             user.id !== viewerID &&
             (!user.relationshipStatus ||
-              !excludedStatuses.has(user.relationshipStatus)),
+              !excludedStatuses.has(user.relationshipStatus)) &&
+            !vipPendingUsers.has(user.id),
         )
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
-    [excludedStatuses, mergedUserInfos, viewerID],
+    [excludedStatuses, mergedUserInfos, viewerID, vipPendingUsers],
   );
 
   const toggleUser = React.useCallback(
