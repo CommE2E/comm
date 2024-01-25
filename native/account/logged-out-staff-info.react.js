@@ -4,13 +4,13 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { StaffContext } from '../staff/staff-context.js';
+import { useStaffContext } from '../staff/staff-context.provider.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils.js';
 
 function LoggedOutStaffInfo(): React.Node {
   const staffCanSee = useStaffCanSee();
-  const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
+  const { staffUserHasBeenLoggedIn } = useStaffContext();
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 

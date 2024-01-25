@@ -4,7 +4,14 @@ import * as React from 'react';
 
 import { useIsCurrentUserStaff } from 'lib/shared/staff-utils.js';
 
-import { StaffContext, type StaffContextType } from './staff-context.js';
+export type StaffContextType = {
+  +staffUserHasBeenLoggedIn: boolean,
+};
+
+const StaffContext: React.Context<StaffContextType> =
+  React.createContext<StaffContextType>({
+    staffUserHasBeenLoggedIn: false,
+  });
 
 type Props = {
   +children: React.Node,
@@ -33,4 +40,10 @@ function StaffContextProvider(props: Props): React.Node {
   );
 }
 
-export { StaffContextProvider };
+function useStaffContext(): StaffContextType {
+  const context = React.useContext(StaffContext);
+
+  return context;
+}
+
+export { StaffContextProvider, useStaffContext };
