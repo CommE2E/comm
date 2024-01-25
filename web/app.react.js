@@ -20,6 +20,7 @@ import {
   ModalProvider,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
+import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -189,8 +190,10 @@ class App extends React.PureComponent<Props> {
         <>
           <WebEditThreadAvatarProvider>
             <EditUserAvatarProvider>
-              {this.renderMainContent()}
-              {this.props.modals}
+              <StaffContextProvider>
+                {this.renderMainContent()}
+                {this.props.modals}
+              </StaffContextProvider>
             </EditUserAvatarProvider>
           </WebEditThreadAvatarProvider>
         </>
