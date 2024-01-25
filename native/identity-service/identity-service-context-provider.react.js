@@ -14,8 +14,6 @@ import {
   type IdentityServiceClient,
   type UserDevicesOlmOutboundKeys,
   type UserLoginResponse,
-} from 'lib/types/identity-service-types.js';
-import {
   ONE_TIME_KEYS_NUMBER,
   identityAuthResultValidator,
 } from 'lib/types/identity-service-types.js';
@@ -226,7 +224,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(notificationsOneTimeKeys),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
-        return { accessToken: token, userID, username };
+        const identityAuthResult = { accessToken: token, userID, username };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
       },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
