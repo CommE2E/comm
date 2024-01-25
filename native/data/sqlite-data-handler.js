@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { useStaffContext } from 'lib/components/staff-provider.react.js';
 import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -27,7 +28,6 @@ import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useStaffContext } from '../staff/staff-context.provider.react.js';
 import Alert from '../utils/alert.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';

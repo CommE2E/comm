@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useStaffContext } from 'lib/components/staff-provider.react.js';
+
 import SWMansionIcon from '../components/swmansion-icon.react.js';
-import { useStaffContext } from '../staff/staff-context.provider.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils.js';
 
