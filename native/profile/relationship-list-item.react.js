@@ -50,6 +50,7 @@ import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 import { useNavigateToUserProfileBottomSheet } from '../user-profile/user-profile-utils.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const unboundStyles = {
@@ -310,9 +311,14 @@ class RelationshipListItem extends React.PureComponent<Props> {
         userIDs: [this.props.userInfo.id],
       });
     } catch (e) {
-      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-        cancelable: true,
-      });
+      Alert.alert(
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
+        [{ text: 'OK' }],
+        {
+          cancelable: true,
+        },
+      );
       throw e;
     }
   }

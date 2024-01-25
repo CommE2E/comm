@@ -27,6 +27,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const CheckIcon = () => (
@@ -110,8 +111,8 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
         [{ text: 'OK', onPress: () => {} }],
         { cancelable: false },
       );

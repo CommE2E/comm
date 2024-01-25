@@ -19,6 +19,7 @@ import {
   AccountDoesNotExistRouteName,
   RegistrationRouteName,
 } from '../navigation/route-names.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -82,8 +83,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
           return;
         }
         Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: goBackToPrompt }],
           { cancelable: false },
         );
