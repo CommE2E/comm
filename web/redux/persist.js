@@ -10,6 +10,7 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { Transform } from 'redux-persist/es/types.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
@@ -18,18 +19,24 @@ import type {
   KeyserverInfo,
   KeyserverStore,
 } from 'lib/types/keyserver-types.js';
+import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import {
   defaultConnectionInfo,
   type ConnectionInfo,
 } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import {
+  convertClientDBThreadInfoToRawThreadInfo,
+  convertRawThreadInfoToClientDBThreadInfo,
+} from 'lib/utils/thread-ops-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
@@ -202,6 +209,54 @@ const migrations = {
       },
     };
   },
+  [11]: async (state: AppState) => {
+    // 1. Check if `databaseModule` is supported and early-exit if not.
+    const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    // 2. Get existing `stores` from SQLite.
+    const stores = await databaseModule.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+    invariant(stores?.store, 'Stores should exist');
+    const threads: $ReadOnlyArray<ClientDBThreadInfo> = stores.store.threads;
+
+    // 3. Convert existing `ClientDBThreadInfo`s to `RawThreadInfo`s.
+    //    `convertClientDBThreadInfoToRawThreadInfo` will ensure that
+    //    the `RawThreadInfo`s we get back will be minimally encoded
+    //    regardless of how the `ClientDBThreadInfo`s are encoded.
+    const rawThreadInfos: $ReadOnlyArray<RawThreadInfo> = threads.map(
+      convertClientDBThreadInfoToRawThreadInfo,
+    );
+
+    // 4. Convert `RawThreadInfo`s back to `ClientDBThreadInfo`s which
+    //    will now all be minimally encoded.
+    const minimallyEncodedClientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo> =
+      rawThreadInfos.map(convertRawThreadInfoToClientDBThreadInfo);
+
+    // 5. Construct operations to remove existing threads and replace
+    //    them with minimally encoded `ClientDBThreadInfo`s.
+    const threadStoreOperations: ClientDBThreadStoreOperation[] = [];
+    threadStoreOperations.push({ type: 'remove_all' });
+    for (const clientDBThreadInfo: ClientDBThreadInfo of minimallyEncodedClientDBThreadInfos) {
+      threadStoreOperations.push({
+        type: 'replace',
+        payload: clientDBThreadInfo,
+      });
+    }
+
+    // 6. Process the constructed `threadStoreOperations`.
+    await databaseModule.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { threadStoreOperations },
+    });
+
+    return state;
+  },
 };
 
 const persistWhitelist = [
@@ -298,7 +353,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 10,
+  version: 11,
   transforms: [keyserverStoreTransform],
 };
 
