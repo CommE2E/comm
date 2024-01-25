@@ -14,6 +14,8 @@ private:
       std::string logID,
       std::uint8_t *changesetPtr,
       int changesetSize);
+  std::vector<std::string>
+  getAttachmentsFromLog(std::uint8_t *changesetPtr, int changesetSize);
 
 public:
   NativeConnectionManager();
