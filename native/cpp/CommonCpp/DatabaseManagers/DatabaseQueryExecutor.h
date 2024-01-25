@@ -100,6 +100,7 @@ public:
   virtual NullableString getOlmPersistAccountDataWeb() const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
+  virtual void captureBackupLogs() const = 0;
 #endif
 };
 
