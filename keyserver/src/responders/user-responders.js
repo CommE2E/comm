@@ -12,7 +12,7 @@ import {
   policies,
   policyTypeValidator,
 } from 'lib/facts/policies.js';
-import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   KeyserverAuthRequest,
@@ -261,7 +261,7 @@ export const registerResponseValidator: TInterface<RegisterResponse> =
     rawMessageInfos: t.list(rawMessageInfoValidator),
     currentUserInfo: loggedInUserInfoValidator,
     cookieChange: tShape({
-      threadInfos: t.dict(tID, rawThreadInfoValidator),
+      threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
   });
@@ -470,7 +470,7 @@ export const logInResponseValidator: TInterface<ServerLogInResponse> =
     rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
     serverTime: t.Number,
     cookieChange: tShape({
-      threadInfos: t.dict(tID, rawThreadInfoValidator),
+      threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
       userInfos: t.list(userInfoValidator),
     }),
     notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
