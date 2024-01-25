@@ -3,7 +3,12 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { useLogIn, logInActionTypes } from 'lib/actions/user-actions.js';
+import {
+  useLogIn,
+  logInActionTypes,
+  useIdentityPasswordLogIn,
+  identityLogInActionTypes,
+} from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -17,6 +22,7 @@ import type {
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
@@ -32,6 +38,8 @@ function TraditionalLoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(logInExtraInfoSelector);
   const callLegacyLogIn = useLogIn();
+  const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
+
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
@@ -105,6 +113,24 @@ function TraditionalLoginForm(): React.Node {
     ],
   );
 
+  const identityPasswordLogInAction = React.useCallback(async () => {
+    try {
+      const result = await callIdentityPasswordLogIn(username, password);
+      modalContext.popModal();
+      return result;
+    } catch (e) {
+      setUsername('');
+      setPassword('');
+      if (e.message === 'user not found') {
+        setErrorMessage('incorrect username or password');
+      } else {
+        setErrorMessage('unknown error');
+      }
+      usernameInputRef.current?.focus();
+      throw e;
+    }
+  }, [callIdentityPasswordLogIn, modalContext, password, username]);
+
   const onSubmit = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
@@ -124,15 +150,25 @@ function TraditionalLoginForm(): React.Node {
         usernameInputRef.current?.focus();
         return;
       }
-      void dispatchActionPromise(
-        logInActionTypes,
-        legacyLogInAction(loginExtraInfo),
-        undefined,
-        ({ calendarQuery: loginExtraInfo.calendarQuery }: LogInStartingPayload),
-      );
+      if (usingCommServicesAccessToken) {
+        void dispatchActionPromise(
+          identityLogInActionTypes,
+          identityPasswordLogInAction(),
+        );
+      } else {
+        void dispatchActionPromise(
+          logInActionTypes,
+          legacyLogInAction(loginExtraInfo),
+          undefined,
+          ({
+            calendarQuery: loginExtraInfo.calendarQuery,
+          }: LogInStartingPayload),
+        );
+      }
     },
     [
       dispatchActionPromise,
+      identityPasswordLogInAction,
       legacyLogInAction,
       loginExtraInfo,
       username,
