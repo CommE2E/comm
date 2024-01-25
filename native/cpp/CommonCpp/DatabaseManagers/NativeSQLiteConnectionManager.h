@@ -14,6 +14,8 @@ private:
       std::string logID,
       std::uint8_t *patchsetPtr,
       int patchsetSize);
+  std::vector<std::string>
+  getAttachmentsFromLog(std::uint8_t *patchsetPtr, int patchsetSize);
 
 public:
   NativeSQLiteConnectionManager();
