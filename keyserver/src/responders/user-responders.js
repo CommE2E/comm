@@ -710,6 +710,7 @@ export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest
     initialContentEncryptedMessage: t.String,
     initialNotificationsEncryptedMessage: t.String,
     doNotRegister: t.Boolean,
+    source: t.maybe(t.enums.of(values(logInActionSources))),
   });
 
 async function keyserverAuthResponder(
