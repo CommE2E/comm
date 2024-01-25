@@ -21,8 +21,8 @@ import { useSelector } from '../../redux/redux-utils.js';
 type Props = {
   +searchText: string,
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
-  +pendingUsersToAdd: $ReadOnlySet<string>,
-  +setPendingUsersToAdd: SetState<$ReadOnlySet<string>>,
+  +pendingUsersToAdd: $ReadOnlyMap<string, GlobalAccountUserInfo>,
+  +setPendingUsersToAdd: SetState<$ReadOnlyMap<string, GlobalAccountUserInfo>>,
   +errorMessage: string,
 };
 
@@ -95,16 +95,22 @@ function AddUsersList(props: Props): React.Node {
   const toggleUser = React.useCallback(
     (userID: string) => {
       setPendingUsersToAdd(pendingUsers => {
-        const newPendingUsers = new Set(pendingUsers);
+        const newPendingUsers = new Map(pendingUsers);
 
         if (!newPendingUsers.delete(userID)) {
-          newPendingUsers.add(userID);
+          const newPendingUser: GlobalAccountUserInfo = {
+            id: userID,
+            username: mergedUserInfos[userID].username,
+            avatar: mergedUserInfos[userID].avatar,
+          };
+
+          newPendingUsers.set(userID, newPendingUser);
         }
 
         return newPendingUsers;
       });
     },
-    [setPendingUsersToAdd],
+    [mergedUserInfos, setPendingUsersToAdd],
   );
 
   const sortedUsersWithENSNames = useENSNames(sortedUsers);
@@ -123,7 +129,7 @@ function AddUsersList(props: Props): React.Node {
   );
 
   const onClickClearAll = React.useCallback(() => {
-    setPendingUsersToAdd(new Set());
+    setPendingUsersToAdd(new Map());
   }, [setPendingUsersToAdd]);
 
   const clearAllButtonColor = React.useMemo(() => {
