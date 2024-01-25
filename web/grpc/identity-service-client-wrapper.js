@@ -288,11 +288,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         await client.logInPasswordUserStart(loginStartRequest);
     } catch (e) {
       console.log('Error calling logInPasswordUserStart:', e);
-      throw new Error(
-        `logInPasswordUserStart RPC failed: ${
-          getMessageForException(e) ?? 'unknown'
-        }`,
-      );
+      throw new Error(getMessageForException(e) ?? 'unknown');
     }
     const finishRequestBytes = opaqueLogin.finish(
       loginStartResponse.getOpaqueLoginResponse_asU8(),
@@ -308,11 +304,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         await client.logInPasswordUserFinish(loginFinishRequest);
     } catch (e) {
       console.log('Error calling logInPasswordUserFinish:', e);
-      throw new Error(
-        `logInPasswordUserFinish RPC failed: ${
-          getMessageForException(e) ?? 'unknown'
-        }`,
-      );
+      throw new Error(getMessageForException(e) ?? 'unknown');
     }
 
     const userID = loginFinishResponse.getUserId();
