@@ -1471,10 +1471,10 @@
   resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.3.tgz#789b7351e593932461858658c61da5c2de51dc03"
   integrity sha512-K88XPRnwKmpRCQqU26R7w1Syflp9IB1Ets1UPXTB3roumLweiHG8Y7UA+LrlpzCYd+8d8Tukp7i+/h4OFfovUw==
 
-"@commapp/sqlcipher-amalgamation@^4.5.5-b":
-  version "4.5.5-b"
-  resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.5.5-b.tgz#8afec045848c092a877c63ee6d4ac887074b74f4"
-  integrity sha512-gXqbW9aupJ6GNdKncX5bIaHeSzZVCwQmgcnK/iJnCfLEx/bg6XnSKc9y1zEQ87EmaS6WF/AWhF/ZBcV5x6JKoA==
+"@commapp/sqlcipher-amalgamation@^4.5.5-c":
+  version "4.5.5-c"
+  resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.5.5-c.tgz#a0421940239fad4b09efe3aa43ddf8977955415c"
+  integrity sha512-J9Hcbk0yQI/7ugQHcCbQ4rLltVlByjcsrmoX7FvgsDp3MD9DaL2wDeitiTfYVePO8zWemXrkWti8UJT1jj1WOw==
 
 "@commapp/windowspush@file:desktop/addons/windows-pushnotifications":
   version "0.0.1"
