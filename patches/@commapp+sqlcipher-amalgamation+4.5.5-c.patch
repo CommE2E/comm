@@ -1,0 +1,29 @@
+diff --git a/node_modules/@commapp/sqlcipher-amalgamation/SQLCipher-Amalgamation.podspec.json b/node_modules/@commapp/sqlcipher-amalgamation/SQLCipher-Amalgamation.podspec.json
+index 392f1cb..845ea56 100644
+--- a/node_modules/@commapp/sqlcipher-amalgamation/SQLCipher-Amalgamation.podspec.json
++++ b/node_modules/@commapp/sqlcipher-amalgamation/SQLCipher-Amalgamation.podspec.json
+@@ -27,15 +27,21 @@
+             "compiler_flags": [
+                 "-DNDEBUG",
+                 "-DSQLITE_HAS_CODEC",
+-                "-DSQLITE_TEMP_STORE=2"
++                "-DSQLITE_TEMP_STORE=2",
++                "-DSQLITE_ENABLE_SESSION",
++                "-DSQLITE_ENABLE_PREUPDATE_HOOK"
+             ],
+             "name": "common",
+             "source_files": "src/sqlite3.{h,c}",
+             "header_dir": "src",
++            "public_header_files": "src/sqlite3.h",
+             "xcconfig": {
+-                    "USE_HEADERMAP": "NO",
++                    "USE_HEADERMAP": "YES",
+                     "GCC_PREPROCESSOR_DEFINITIONS": "$(inherited) SQLITE_HAS_CODEC=1 SQLITE_TEMP_STORE=2",
+-                    "OTHER_CFLAGS": "$(inherited) -DSQLITE_HAS_CODEC -DSQLITE_TEMP_STORE=2 -DSQLCIPHER_CRYPTO_OPENSSL"
++                    "OTHER_CFLAGS": "$(inherited) -DSQLITE_HAS_CODEC -DSQLITE_TEMP_STORE=2 -DSQLCIPHER_CRYPTO_OPENSSL -DSQLITE_ENABLE_SESSION -DSQLITE_ENABLE_PREUPDATE_HOOK"
++            },
++            "user_target_xcconfig" :{
++                    "HEADER_SEARCH_PATHS": "$(SRCROOT)/../node_modules/@commapp/sqlcipher-amalgamation/src"
+             }
+         },
+         {
