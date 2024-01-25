@@ -23,7 +23,12 @@ std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
-sqlite3 *SQLiteQueryExecutor::dbConnection = nullptr;
+
+#ifndef EMSCRIPTEN
+SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
+#else
+sqlite3 *SQLiteQueryExecutor::dbConnection;
+#endif
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
@@ -640,28 +645,6 @@ bool set_database_version(sqlite3 *db, int db_version) {
   return false;
 }
 
-void trace_queries(sqlite3 *db) {
-  int error_code = sqlite3_trace_v2(
-      db,
-      SQLITE_TRACE_PROFILE,
-      [](unsigned, void *, void *preparedStatement, void *) {
-        sqlite3_stmt *statement = (sqlite3_stmt *)preparedStatement;
-        char *sql = sqlite3_expanded_sql(statement);
-        if (sql != nullptr) {
-          std::string sqlStr(sql);
-          // TODO: send logs to backup here
-        }
-        return 0;
-      },
-      NULL);
-  if (error_code != SQLITE_OK) {
-    std::ostringstream error_message;
-    error_message << "Failed to set trace callback, error code: " << error_code;
-    throw std::system_error(
-        ECANCELED, std::generic_category(), error_message.str());
-  }
-}
-
 // We don't want to run `PRAGMA key = ...;`
 // on main web database. The context is here:
 // https://linear.app/comm/issue/ENG-6398/issues-with-sqlcipher-on-web
@@ -669,7 +652,6 @@ void default_on_db_open_callback(sqlite3 *db) {
 #ifndef EMSCRIPTEN
   set_encryption_key(db);
 #endif
-  trace_queries(db);
 }
 
 // This is a temporary solution. In future we want to keep
@@ -985,6 +967,14 @@ SQLiteQueryExecutor::SQLiteQueryExecutor(std::string sqliteFilePath) {
 }
 
 sqlite3 *SQLiteQueryExecutor::getConnection() {
+#ifndef EMSCRIPTEN
+  if (SQLiteQueryExecutor::connectionManager.getConnection()) {
+    return SQLiteQueryExecutor::connectionManager.getConnection();
+  }
+  SQLiteQueryExecutor::connectionManager.initializeConnection(
+      SQLiteQueryExecutor::sqliteFilePath, default_on_db_open_callback);
+  return SQLiteQueryExecutor::connectionManager.getConnection();
+#else
   if (SQLiteQueryExecutor::dbConnection) {
     return SQLiteQueryExecutor::dbConnection;
   }
@@ -1002,14 +992,19 @@ sqlite3 *SQLiteQueryExecutor::getConnection() {
 
   default_on_db_open_callback(SQLiteQueryExecutor::dbConnection);
   return SQLiteQueryExecutor::dbConnection;
+#endif
 }
 
 void SQLiteQueryExecutor::closeConnection() {
+#ifndef EMSCRIPTEN
+  SQLiteQueryExecutor::connectionManager.closeConnection();
+#else
   if (!SQLiteQueryExecutor::dbConnection) {
     return;
   }
   sqlite3_close(SQLiteQueryExecutor::dbConnection);
   SQLiteQueryExecutor::dbConnection = nullptr;
+#endif
 }
 
 SQLiteQueryExecutor::~SQLiteQueryExecutor() {
@@ -1691,6 +1686,9 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
       finalAttachmentsPath,
       "Failed to rename complete temporary attachments file to final "
       "attachments file.");
+
+  this->setMetadata("backupID", backupID);
+  this->clearMetadata("logID");
 }
 
 void SQLiteQueryExecutor::assign_encryption_key() {
@@ -1699,6 +1697,30 @@ void SQLiteQueryExecutor::assign_encryption_key() {
   CommSecureStore::set(
       SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
+}
+
+void SQLiteQueryExecutor::captureBackupLogs() const {
+  std::string backupID = this->getMetadata("backupID");
+  if (!backupID.size()) {
+    return;
+  }
+
+  std::string logID = this->getMetadata("logID");
+  if (!logID.size()) {
+    logID = "0";
+  }
+
+  if (SQLiteQueryExecutor::connectionManager.shouldIncrementLogID(
+          backupID, logID)) {
+    logID = std::to_string(std::stoi(logID) + 1);
+    this->setMetadata("logID", logID);
+  }
+
+  bool shouldIncrementLogID =
+      SQLiteQueryExecutor::connectionManager.captureLogs(backupID, logID);
+  if (shouldIncrementLogID) {
+    this->setMetadata("logID", std::to_string(std::stoi(logID) + 1));
+  }
 }
 #endif
 
@@ -1794,7 +1816,8 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
       "Failed to delete plaintext compaction file after successful restore.");
   // Database file from native uses WAL mode so we must
   // disable it during restore.
-  executeQuery(SQLiteQueryExecutor::getConnection(), "PRAGMA journal_mode=DELETE;");
+  executeQuery(
+      SQLiteQueryExecutor::getConnection(), "PRAGMA journal_mode=DELETE;");
 #endif
 
   attempt_delete_file(
