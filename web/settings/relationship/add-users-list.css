@@ -69,3 +69,9 @@
 .selectionText {
   color: var(--text-background-secondary-default);
 }
+
+.vipUsersContainer {
+  border-bottom: 1px solid var(--separator-background-primary-default);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}

@@ -1,8 +1,8 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -15,6 +15,7 @@ import { values } from 'lib/utils/objects.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
+import { useSortedENSResolvedUsers } from './user-list-hooks.js';
 import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
@@ -89,7 +90,7 @@ function AddUsersList(props: Props): React.Node {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
-  const sortedUsers = React.useMemo(
+  const filteredUsers = React.useMemo(
     () =>
       Object.keys(mergedUserInfos)
         .map(userID => mergedUserInfos[userID])
@@ -99,9 +100,13 @@ function AddUsersList(props: Props): React.Node {
             (!user.relationshipStatus ||
               !excludedStatuses.has(user.relationshipStatus)) &&
             !vipPendingUsers.has(user.id),
-        )
-        .sort((user1, user2) => user1.username.localeCompare(user2.username)),
+        ),
     [excludedStatuses, mergedUserInfos, viewerID, vipPendingUsers],
+  );
+
+  const vipUsers = React.useMemo(
+    () => Array.from(vipPendingUsers.values()),
+    [vipPendingUsers],
   );
 
   const toggleUser = React.useCallback(
@@ -109,23 +114,33 @@ function AddUsersList(props: Props): React.Node {
       setPendingUsersToAdd(pendingUsers => {
         const newPendingUsers = new Map(pendingUsers);
 
-        if (!newPendingUsers.delete(userID)) {
-          const newPendingUser: GlobalAccountUserInfo = {
-            id: userID,
-            username: mergedUserInfos[userID].username,
-            avatar: mergedUserInfos[userID].avatar,
-          };
+        if (newPendingUsers.delete(userID)) {
+          return newPendingUsers;
+        }
+
+        if (vipPendingUsers.has(userID)) {
+          const newPendingUser = vipPendingUsers.get(userID);
+          invariant(newPendingUser, 'newPendingUser should be set');
 
           newPendingUsers.set(userID, newPendingUser);
+          return newPendingUsers;
         }
+
+        const newPendingUser: GlobalAccountUserInfo = {
+          id: userID,
+          username: mergedUserInfos[userID].username,
+          avatar: mergedUserInfos[userID].avatar,
+        };
+
+        newPendingUsers.set(userID, newPendingUser);
 
         return newPendingUsers;
       });
     },
-    [mergedUserInfos, setPendingUsersToAdd],
+    [mergedUserInfos, setPendingUsersToAdd, vipPendingUsers],
   );
 
-  const sortedUsersWithENSNames = useENSNames(sortedUsers);
+  const sortedUsersWithENSNames = useSortedENSResolvedUsers(filteredUsers);
 
   const userRows = React.useMemo(
     () =>
@@ -139,6 +154,31 @@ function AddUsersList(props: Props): React.Node {
       )),
     [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
+
+  const sortedVIPUsersWithENSNames = useSortedENSResolvedUsers(vipUsers);
+
+  const vipUserRows = React.useMemo(() => {
+    if (searchText.length > 0 || vipPendingUsers.size === 0) {
+      return null;
+    }
+
+    const sortedVIPUserRows = sortedVIPUsersWithENSNames.map(userInfo => (
+      <AddUsersListItem
+        userInfo={userInfo}
+        key={userInfo.id}
+        onToggleUser={toggleUser}
+        userSelected={pendingUsersToAdd.has(userInfo.id)}
+      />
+    ));
+
+    return <div className={css.vipUsersContainer}>{sortedVIPUserRows}</div>;
+  }, [
+    searchText.length,
+    vipPendingUsers.size,
+    sortedVIPUsersWithENSNames,
+    toggleUser,
+    pendingUsersToAdd,
+  ]);
 
   const onClickClearAll = React.useCallback(() => {
     setPendingUsersToAdd(new Map());
@@ -194,13 +234,21 @@ function AddUsersList(props: Props): React.Node {
     errors = <div className={css.error}>{errorMessage}</div>;
   }
 
-  return (
-    <div className={css.container}>
-      {listHeader}
-      <div className={css.userRowsContainer}>{userRows}</div>
-      {errors}
-    </div>
+  const addUsersList = React.useMemo(
+    () => (
+      <div className={css.container}>
+        {listHeader}
+        <div className={css.scrollContainer}>
+          {vipUserRows}
+          {userRows}
+        </div>
+        {errors}
+      </div>
+    ),
+    [errors, listHeader, userRows, vipUserRows],
   );
+
+  return addUsersList;
 }
 
 export default AddUsersList;
