@@ -135,7 +135,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyArray(notificationsOneTimeKeys),
         );
         const { userID, accessToken } = JSON.parse(registrationResult);
-        return { accessToken, userID, username };
+        const identityAuthResult = { accessToken, userID, username };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
       },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
