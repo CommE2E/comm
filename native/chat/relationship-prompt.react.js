@@ -11,6 +11,7 @@ import type { UserInfo } from 'lib/types/user-types.js';
 
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -24,7 +25,11 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     threadInfo,
   }: Props) {
     const onErrorCallback = React.useCallback(() => {
-      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }]);
+      Alert.alert(
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
+        [{ text: 'OK' }],
+      );
     }, []);
     const {
       otherUserInfo,

@@ -45,6 +45,7 @@ import {
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
@@ -228,9 +229,14 @@ class DeleteThread extends React.PureComponent<Props> {
           { cancelable: false },
         );
       } else {
-        Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-          cancelable: false,
-        });
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
       }
       throw e;
     }
