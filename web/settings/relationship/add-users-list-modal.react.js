@@ -12,6 +12,7 @@ import type {
   UserRelationshipStatus,
   RelationshipAction,
 } from 'lib/types/relationship-types.js';
+import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -47,8 +48,8 @@ function AddUsersListModal(props: Props): React.Node {
   const { popModal } = useModalContext();
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlySet<string>,
-  >(new Set());
+    $ReadOnlyMap<string, GlobalAccountUserInfo>,
+  >(new Map());
 
   const [errorMessage, setErrorMessage] = React.useState('');
 
@@ -75,7 +76,7 @@ function AddUsersListModal(props: Props): React.Node {
       setErrorMessage('');
       const result = await callUpdateRelationships({
         action: relationshipAction,
-        userIDs: Array.from(pendingUsersToAdd),
+        userIDs: Array.from(pendingUsersToAdd.keys()),
       });
       popModal();
       return result;
