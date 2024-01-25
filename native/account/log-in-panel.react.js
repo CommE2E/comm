@@ -9,6 +9,8 @@ import {
   logInActionTypes,
   useLogIn,
   getOlmSessionInitializationDataActionTypes,
+  useIdentityPasswordLogIn,
+  identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
 import {
   createLoadingStatusSelector,
@@ -26,11 +28,13 @@ import {
   type LogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
+import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
@@ -68,6 +72,10 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +legacyLogIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +identityPasswordLogIn: (
+    username: string,
+    password: string,
+  ) => Promise<IdentityAuthResult>,
   +getInitialNotificationsEncryptedMessage: (
     keyserverID: string,
   ) => Promise<string>,
@@ -249,15 +257,22 @@ class LogInPanel extends React.PureComponent<Props> {
         ashoatKeyserverID,
       );
 
-    void this.props.dispatchActionPromise(
-      logInActionTypes,
-      this.legacyLogInAction({
-        ...extraInfo,
-        initialNotificationsEncryptedMessage,
-      }),
-      undefined,
-      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
-    );
+    if (usingCommServicesAccessToken) {
+      void this.props.dispatchActionPromise(
+        identityLogInActionTypes,
+        this.identityPasswordLogInAction(),
+      );
+    } else {
+      void this.props.dispatchActionPromise(
+        logInActionTypes,
+        this.legacyLogInAction({
+          ...extraInfo,
+          initialNotificationsEncryptedMessage,
+        }),
+        undefined,
+        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+      );
+    }
   };
 
   async legacyLogInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
@@ -283,6 +298,45 @@ class LogInPanel extends React.PureComponent<Props> {
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
+        Alert.alert(
+          AppOutOfDateAlertDetails.title,
+          AppOutOfDateAlertDetails.message,
+          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
+          { cancelable: false },
+        );
+      } else {
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
+          { cancelable: false },
+        );
+      }
+      throw e;
+    }
+  }
+
+  async identityPasswordLogInAction(): Promise<IdentityAuthResult> {
+    try {
+      const result = await this.props.identityPasswordLogIn(
+        this.usernameInputText,
+        this.passwordInputText,
+      );
+      this.props.setActiveAlert(false);
+      await setNativeCredentials({
+        username: this.usernameInputText,
+        password: this.passwordInputText,
+      });
+      return result;
+    } catch (e) {
+      if (e.message === 'user not found') {
+        Alert.alert(
+          UserNotFoundAlertDetails.title,
+          UserNotFoundAlertDetails.message,
+          [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
+          { cancelable: false },
+        );
+      } else if (e.message === 'Unsupported version') {
         Alert.alert(
           AppOutOfDateAlertDetails.title,
           AppOutOfDateAlertDetails.message,
@@ -388,6 +442,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLegacyLogIn = useLogIn();
+    const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(
         nativeNotificationsSessionCreator,
@@ -400,6 +455,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         legacyLogIn={callLegacyLogIn}
+        identityPasswordLogIn={callIdentityPasswordLogIn}
         getInitialNotificationsEncryptedMessage={
           getInitialNotificationsEncryptedMessage
         }
