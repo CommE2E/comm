@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { useSearchUsers } from 'lib/shared/search-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -15,6 +14,7 @@ import { values } from 'lib/utils/objects.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
+import { useSortedENSResolvedUsers } from './user-list-hooks.js';
 import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
@@ -90,7 +90,7 @@ function AddUsersList(props: Props): React.Node {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchModeActive]);
 
-  const sortedUsers = React.useMemo(
+  const filteredUsers = React.useMemo(
     () =>
       Object.keys(mergedUserInfos)
         .map(userID => mergedUserInfos[userID])
@@ -100,9 +100,13 @@ function AddUsersList(props: Props): React.Node {
             (!user.relationshipStatus ||
               !excludedStatuses.has(user.relationshipStatus)) &&
             !previouslySelectedUsers.has(user.id),
-        )
-        .sort((user1, user2) => user1.username.localeCompare(user2.username)),
+        ),
     [excludedStatuses, mergedUserInfos, viewerID, previouslySelectedUsers],
+  );
+
+  const previouslySelectedUsersList = React.useMemo(
+    () => Array.from(previouslySelectedUsers.values()),
+    [previouslySelectedUsers],
   );
 
   const toggleUser = React.useCallback(
@@ -126,7 +130,7 @@ function AddUsersList(props: Props): React.Node {
     [mergedUserInfos, setPendingUsersToAdd],
   );
 
-  const sortedUsersWithENSNames = useENSNames(sortedUsers);
+  const sortedUsersWithENSNames = useSortedENSResolvedUsers(filteredUsers);
 
   const userRows = React.useMemo(
     () =>
@@ -140,6 +144,38 @@ function AddUsersList(props: Props): React.Node {
       )),
     [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
+
+  const sortedPreviouslySelectedUsersWithENSNames = useSortedENSResolvedUsers(
+    previouslySelectedUsersList,
+  );
+
+  const previouslySelectedUsersRows = React.useMemo(() => {
+    if (searchModeActive || previouslySelectedUsers.size === 0) {
+      return null;
+    }
+
+    const sortedPreviouslySelectedUsersRows =
+      sortedPreviouslySelectedUsersWithENSNames.map(userInfo => (
+        <AddUsersListItem
+          userInfo={userInfo}
+          key={userInfo.id}
+          onToggleUser={toggleUser}
+          userSelected={pendingUsersToAdd.has(userInfo.id)}
+        />
+      ));
+
+    return (
+      <div className={css.previouslySelectedUsersContainer}>
+        {sortedPreviouslySelectedUsersRows}
+      </div>
+    );
+  }, [
+    searchModeActive,
+    previouslySelectedUsers.size,
+    sortedPreviouslySelectedUsersWithENSNames,
+    toggleUser,
+    pendingUsersToAdd,
+  ]);
 
   const onClickClearAll = React.useCallback(() => {
     setPendingUsersToAdd(new Map());
@@ -195,13 +231,21 @@ function AddUsersList(props: Props): React.Node {
     errors = <div className={css.error}>{errorMessage}</div>;
   }
 
-  return (
-    <div className={css.container}>
-      {listHeader}
-      <div className={css.userRowsContainer}>{userRows}</div>
-      {errors}
-    </div>
+  const addUsersList = React.useMemo(
+    () => (
+      <div className={css.container}>
+        {listHeader}
+        <div className={css.scrollContainer}>
+          {previouslySelectedUsersRows}
+          {userRows}
+        </div>
+        {errors}
+      </div>
+    ),
+    [errors, listHeader, userRows, previouslySelectedUsersRows],
   );
+
+  return addUsersList;
 }
 
 export default AddUsersList;
