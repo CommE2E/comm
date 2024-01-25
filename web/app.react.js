@@ -55,9 +55,9 @@ import Topbar from './navigation-panels/topbar.react.js';
 import useBadgeHandler from './push-notif/badge-handler.react.js';
 import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
-import { DisconnectedBarVisibilityHandler } from './redux/disconnected-bar-visibility-handler.js';
 import DisconnectedBar from './redux/disconnected-bar.js';
 import FocusHandler from './redux/focus-handler.react.js';
+import { KeyserverReachabilityHandler } from './redux/keyserver-reachability-handler.js';
 import { persistConfig } from './redux/persist.js';
 import PolicyAcknowledgmentHandler from './redux/policy-acknowledgment-handler.js';
 import { useSelector } from './redux/redux-utils.js';
@@ -265,7 +265,7 @@ class App extends React.PureComponent<Props> {
 
     return (
       <div className={css.layout}>
-        <DisconnectedBarVisibilityHandler />
+        <KeyserverReachabilityHandler />
         <DisconnectedBar />
         <UpdateModalHandler />
         <header

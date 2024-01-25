@@ -56,8 +56,8 @@ import MarkdownContextProvider from './markdown/markdown-context-provider.react.
 import { filesystemMediaCache } from './media/media-cache.js';
 import { DeepLinksContextProvider } from './navigation/deep-links-context-provider.react.js';
 import { defaultNavigationState } from './navigation/default-state.js';
-import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react.js';
 import { setGlobalNavContext } from './navigation/icky-global.js';
+import KeyserverReachabilityHandler from './navigation/keyserver-reachability-handler.js';
 import {
   NavContext,
   type NavContextType,
@@ -267,7 +267,7 @@ function Root() {
   const gated: React.Node = (
     <>
       <LifecycleHandler />
-      <DisconnectedBarVisibilityHandler />
+      <KeyserverReachabilityHandler />
       <DimensionsUpdater />
       <ConnectivityUpdater />
       <ThemeHandler />
