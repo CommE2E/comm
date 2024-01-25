@@ -51,7 +51,8 @@ function AddUsersList(props: Props): React.Node {
 
   const serverSearchResults = useSearchUsers(searchText);
 
-  const searchTextPresent = searchText.length > 0;
+  const searchModeActive = searchText.length > 0;
+
   const mergedUserInfos = React.useMemo(() => {
     const mergedInfos: { [string]: GlobalAccountUserInfo | AccountUserInfo } =
       {};
@@ -60,7 +61,7 @@ function AddUsersList(props: Props): React.Node {
       mergedInfos[userInfo.id] = userInfo;
     }
 
-    const userStoreUserIDs = searchTextPresent
+    const userStoreUserIDs = searchModeActive
       ? userStoreSearchResults
       : Object.keys(userInfos);
     for (const id of userStoreUserIDs) {
@@ -72,11 +73,22 @@ function AddUsersList(props: Props): React.Node {
 
     return mergedInfos;
   }, [
-    searchTextPresent,
+    searchModeActive,
     serverSearchResults,
     userInfos,
     userStoreSearchResults,
   ]);
+
+  const [previouslySelectedUsers, setPreviouslySelectedUsers] = React.useState<
+    $ReadOnlyMap<string, GlobalAccountUserInfo>,
+  >(new Map());
+
+  React.useEffect(() => {
+    setPreviouslySelectedUsers(pendingUsersToAdd);
+
+    // We want this effect to run ONLY when searchModeActive changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchModeActive]);
 
   const sortedUsers = React.useMemo(
     () =>
@@ -86,10 +98,11 @@ function AddUsersList(props: Props): React.Node {
           user =>
             user.id !== viewerID &&
             (!user.relationshipStatus ||
-              !excludedStatuses.has(user.relationshipStatus)),
+              !excludedStatuses.has(user.relationshipStatus)) &&
+            !previouslySelectedUsers.has(user.id),
         )
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
-    [excludedStatuses, mergedUserInfos, viewerID],
+    [excludedStatuses, mergedUserInfos, viewerID, previouslySelectedUsers],
   );
 
   const toggleUser = React.useCallback(
@@ -140,7 +153,7 @@ function AddUsersList(props: Props): React.Node {
   }, [pendingUsersToAdd.size]);
 
   const clearAllButton = React.useMemo(() => {
-    if (searchText.length > 0) {
+    if (searchModeActive) {
       return null;
     }
 
@@ -158,12 +171,12 @@ function AddUsersList(props: Props): React.Node {
     clearAllButtonColor,
     onClickClearAll,
     pendingUsersToAdd.size,
-    searchText.length,
+    searchModeActive,
   ]);
 
   const listHeader = React.useMemo(() => {
     let selectionText = 'Select users';
-    if (searchText.length > 0) {
+    if (searchModeActive) {
       selectionText = 'Search results:';
     } else if (pendingUsersToAdd.size > 0) {
       selectionText = `${pendingUsersToAdd.size} selected`;
@@ -175,7 +188,7 @@ function AddUsersList(props: Props): React.Node {
         {clearAllButton}
       </div>
     );
-  }, [clearAllButton, pendingUsersToAdd.size, searchText.length]);
+  }, [clearAllButton, pendingUsersToAdd.size, searchModeActive]);
 
   let errors;
   if (errorMessage) {
