@@ -10,6 +10,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import Button from '../../components/button.react.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
+import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 const unboundStyles = {
@@ -83,9 +84,14 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
 }
 
 const onError = () => {
-  Alert.alert('Unknown error', 'Uhh... try again?', undefined, {
-    cancelable: true,
-  });
+  Alert.alert(
+    UnknownErrorAlertDetails.title,
+    UnknownErrorAlertDetails.message,
+    undefined,
+    {
+      cancelable: true,
+    },
+  );
 };
 
 const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> =

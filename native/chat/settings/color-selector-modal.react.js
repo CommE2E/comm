@@ -24,6 +24,7 @@ import type { RootNavigationProp } from '../../navigation/root-navigator.react.j
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 export type ColorSelectorModalParams = {
@@ -104,8 +105,8 @@ function ColorSelectorModal(props: Props): React.Node {
         });
       } catch (e) {
         Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: onErrorAcknowledged }],
           { cancelable: false },
         );

@@ -51,6 +51,7 @@ import {
   AppOutOfDateAlertDetails,
   UsernameReservedAlertDetails,
   UsernameTakenAlertDetails,
+  UnknownErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
@@ -395,8 +396,8 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         );
       } else {
         Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );

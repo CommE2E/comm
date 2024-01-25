@@ -12,10 +12,15 @@ import type { UserInfo } from 'lib/types/user-types';
 import { userProfileActionButtonHeight } from './user-profile-constants.js';
 import RelationshipButton from '../components/relationship-button.react.js';
 import { useStyles } from '../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const onErrorCallback = () => {
-  Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }]);
+  Alert.alert(
+    UnknownErrorAlertDetails.title,
+    UnknownErrorAlertDetails.message,
+    [{ text: 'OK' }],
+  );
 };
 
 type Props = {
