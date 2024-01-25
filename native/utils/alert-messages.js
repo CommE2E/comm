@@ -30,3 +30,13 @@ export const UsernameTakenAlertDetails: AlertDetails = {
   title: 'Username taken',
   message: 'An account with that username already exists',
 };
+
+export const UserNotFoundAlertDetails: AlertDetails = {
+  title: 'Incorrect username or password',
+  message: "Either that user doesn't exist, or the password is incorrect",
+};
+
+export const UnknownErrorAlertDetails: AlertDetails = {
+  title: 'Unknown error',
+  message: 'Uhh... try again?',
+};
