@@ -4,6 +4,7 @@ import type { Account as OlmAccount } from '@commapp/olm';
 import { getRustAPI } from 'rust-node-addon';
 
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
+import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -40,8 +41,8 @@ function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
 
   let oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
 
-  if (oneTimeKeys.length < 10) {
-    account.generate_one_time_keys(10);
+  if (oneTimeKeys.length < ONE_TIME_KEYS_NUMBER) {
+    account.generate_one_time_keys(ONE_TIME_KEYS_NUMBER);
     oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
   }
 
