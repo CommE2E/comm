@@ -67,7 +67,7 @@ type Props = {
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
-  +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +legacyLogIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
   +getInitialNotificationsEncryptedMessage: (
     keyserverID: string,
   ) => Promise<string>,
@@ -251,15 +251,18 @@ class LogInPanel extends React.PureComponent<Props> {
 
     void this.props.dispatchActionPromise(
       logInActionTypes,
-      this.logInAction({ ...extraInfo, initialNotificationsEncryptedMessage }),
+      this.legacyLogInAction({
+        ...extraInfo,
+        initialNotificationsEncryptedMessage,
+      }),
       undefined,
       ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
     );
   };
 
-  async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
+  async legacyLogInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
     try {
-      const result = await this.props.logIn({
+      const result = await this.props.legacyLogIn({
         ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
@@ -384,7 +387,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
     const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogIn = useLogIn();
+    const callLegacyLogIn = useLogIn();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(
         nativeNotificationsSessionCreator,
@@ -396,7 +399,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
         loadingStatus={loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
-        logIn={callLogIn}
+        legacyLogIn={callLegacyLogIn}
         getInitialNotificationsEncryptedMessage={
           getInitialNotificationsEncryptedMessage
         }
