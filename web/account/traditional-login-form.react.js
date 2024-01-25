@@ -31,7 +31,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(logInExtraInfoSelector);
-  const callLogIn = useLogIn();
+  const callLegacyLogIn = useLogIn();
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
@@ -66,7 +66,7 @@ function TraditionalLoginForm(): React.Node {
 
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
-  const logInAction = React.useCallback(
+  const legacyLogInAction = React.useCallback(
     async (extraInfo: LogInExtraInfo) => {
       const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
       try {
@@ -75,7 +75,7 @@ function TraditionalLoginForm(): React.Node {
           'signedIdentityKeysBlob must be set in logInAction',
         );
 
-        const result = await callLogIn({
+        const result = await callLegacyLogIn({
           ...extraInfo,
           username,
           password,
@@ -96,7 +96,13 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [callLogIn, modalContext, password, getSignedIdentityKeysBlob, username],
+    [
+      callLegacyLogIn,
+      modalContext,
+      password,
+      getSignedIdentityKeysBlob,
+      username,
+    ],
   );
 
   const onSubmit = React.useCallback(
@@ -120,12 +126,18 @@ function TraditionalLoginForm(): React.Node {
       }
       void dispatchActionPromise(
         logInActionTypes,
-        logInAction(loginExtraInfo),
+        legacyLogInAction(loginExtraInfo),
         undefined,
         ({ calendarQuery: loginExtraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [dispatchActionPromise, logInAction, loginExtraInfo, username, password],
+    [
+      dispatchActionPromise,
+      legacyLogInAction,
+      loginExtraInfo,
+      username,
+      password,
+    ],
   );
 
   const loginButtonContent = React.useMemo(() => {
