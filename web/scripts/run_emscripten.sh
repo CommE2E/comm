@@ -144,6 +144,7 @@ CFLAGS=(
 )
 
 INPUT_FILES=(
+  "${INPUT_DIR}SQLiteConnectionManager.cpp"
   "${WEB_CPP_DIR}SQLiteQueryExecutorBindings.cpp"
   "${WEB_CPP_DIR}Logger.cpp"
   "${ENTITIES_DIR}SQLiteDataConverters.cpp"
