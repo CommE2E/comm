@@ -3,8 +3,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useNetworkConnected } from './disconnected-bar-visibility-handler.js';
 import css from './disconnected-bar.css';
+import { useNetworkConnected } from './keyserver-reachability-handler.js';
 
 function DisconnectedBar(): React.Node {
   const isNetworkConnected = useNetworkConnected();

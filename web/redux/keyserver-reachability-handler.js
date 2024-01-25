@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { useDisconnectedBarVisibilityHandler } from 'lib/hooks/disconnected-bar.js';
+import { useKeyserverReachabilityHandler } from 'lib/hooks/keyserver-reachability.js';
 
 function useNetworkConnected(): boolean {
   const [networkConnected, setNetworkConnected] = React.useState(true);
@@ -24,10 +24,10 @@ function useNetworkConnected(): boolean {
   return networkConnected;
 }
 
-function DisconnectedBarVisibilityHandler(): null {
+function KeyserverReachabilityHandler(): null {
   const networkConnected = useNetworkConnected();
-  useDisconnectedBarVisibilityHandler(networkConnected);
+  useKeyserverReachabilityHandler(networkConnected);
   return null;
 }
 
-export { useNetworkConnected, DisconnectedBarVisibilityHandler };
+export { useNetworkConnected, KeyserverReachabilityHandler };
