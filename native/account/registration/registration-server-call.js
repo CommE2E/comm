@@ -31,6 +31,7 @@ import {
   AppOutOfDateAlertDetails,
   UsernameReservedAlertDetails,
   UsernameTakenAlertDetails,
+  UnknownErrorAlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { setNativeCredentials } from '../native-credentials.js';
@@ -99,7 +100,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               AppOutOfDateAlertDetails.message,
             );
           } else {
-            Alert.alert('Unknown error', 'Uhh... try again?');
+            Alert.alert(
+              UnknownErrorAlertDetails.title,
+              UnknownErrorAlertDetails.message,
+            );
           }
           throw e;
         }
@@ -153,7 +157,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               AppOutOfDateAlertDetails.message,
             );
           } else {
-            Alert.alert('Unknown error', 'Uhh... try again?');
+            Alert.alert(
+              UnknownErrorAlertDetails.title,
+              UnknownErrorAlertDetails.message,
+            );
           }
           throw e;
         }
@@ -197,7 +204,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   urlPrefixOverride: keyserverURL,
                 });
               } catch (e) {
-                Alert.alert('Unknown error', 'Uhh... try again?');
+                Alert.alert(
+                  UnknownErrorAlertDetails.title,
+                  UnknownErrorAlertDetails.message,
+                );
                 throw e;
               }
             }

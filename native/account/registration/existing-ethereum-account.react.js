@@ -18,6 +18,7 @@ import type { RegistrationNavigationProp } from './registration-navigator.react.
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { useSIWEServerCall } from '../siwe-hooks.js';
 
@@ -39,9 +40,14 @@ function ExistingEthereumAccount(props: Props): React.Node {
     try {
       await siweServerCall({ ...params, doNotRegister: true });
     } catch (e) {
-      Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-        cancelable: false,
-      });
+      Alert.alert(
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
+        [{ text: 'OK' }],
+        {
+          cancelable: false,
+        },
+      );
       throw e;
     }
     dispatch({

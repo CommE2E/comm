@@ -26,6 +26,7 @@ import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
+import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
@@ -59,9 +60,14 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
             userIDs: [otherUserInfo.id],
           });
         } catch (e) {
-          Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-            cancelable: true,
-          });
+          Alert.alert(
+            UnknownErrorAlertDetails.title,
+            UnknownErrorAlertDetails.message,
+            [{ text: 'OK' }],
+            {
+              cancelable: true,
+            },
+          );
           throw e;
         }
       },
