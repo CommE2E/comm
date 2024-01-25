@@ -520,16 +520,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       time: Date.now(),
     };
 
-    // Branching to appease `flow`.
-    const newThreadInfo = threadInfo.minimallyEncoded
-      ? {
-          ...threadInfo,
-          id: newThreadID,
-        }
-      : {
-          ...threadInfo,
-          id: newThreadID,
-        };
+    const newThreadInfo = {
+      ...threadInfo,
+      id: newThreadID,
+    };
 
     void this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
