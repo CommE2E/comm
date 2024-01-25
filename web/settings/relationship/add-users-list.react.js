@@ -104,6 +104,14 @@ function AddUsersList(props: Props): React.Node {
     [excludedStatuses, mergedUserInfos, viewerID, vipPendingUsers],
   );
 
+  const sortedVIPUsers = React.useMemo(
+    () =>
+      Array.from(vipPendingUsers.values()).sort((userInfo1, userInfo2) =>
+        userInfo1.username.localeCompare(userInfo2.username),
+      ),
+    [vipPendingUsers],
+  );
+
   const toggleUser = React.useCallback(
     (userID: string) => {
       setPendingUsersToAdd(pendingUsers => {
@@ -139,6 +147,31 @@ function AddUsersList(props: Props): React.Node {
       )),
     [sortedUsersWithENSNames, toggleUser, pendingUsersToAdd],
   );
+
+  const sortedVIPUsersWithENSNames = useENSNames(sortedVIPUsers);
+
+  const vipUserRows = React.useMemo(() => {
+    if (searchText.length > 0 || vipPendingUsers.size === 0) {
+      return null;
+    }
+
+    const sortedVIPUserRows = sortedVIPUsersWithENSNames.map(userInfo => (
+      <AddUsersListItem
+        userInfo={userInfo}
+        key={userInfo.id}
+        onToggleUser={toggleUser}
+        userSelected={pendingUsersToAdd.has(userInfo.id)}
+      />
+    ));
+
+    return <div className={css.vipUsersContainer}>{sortedVIPUserRows}</div>;
+  }, [
+    searchText.length,
+    vipPendingUsers.size,
+    sortedVIPUsersWithENSNames,
+    toggleUser,
+    pendingUsersToAdd,
+  ]);
 
   const onClickClearAll = React.useCallback(() => {
     setPendingUsersToAdd(new Map());
@@ -197,6 +230,7 @@ function AddUsersList(props: Props): React.Node {
   return (
     <div className={css.container}>
       {listHeader}
+      {vipUserRows}
       <div className={css.userRowsContainer}>{userRows}</div>
       {errors}
     </div>
