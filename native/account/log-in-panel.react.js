@@ -44,7 +44,11 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
-import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
+import {
+  AppOutOfDateAlertDetails,
+  UnknownErrorAlertDetails,
+  UserNotFoundAlertDetails,
+} from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
@@ -270,8 +274,8 @@ class LogInPanel extends React.PureComponent<Props> {
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         Alert.alert(
-          'Incorrect username or password',
-          "Either that user doesn't exist, or the password is incorrect",
+          UserNotFoundAlertDetails.title,
+          UserNotFoundAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
           { cancelable: false },
         );
@@ -284,8 +288,8 @@ class LogInPanel extends React.PureComponent<Props> {
         );
       } else {
         Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );

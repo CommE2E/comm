@@ -40,6 +40,7 @@ import {
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useIndicatorStyle } from '../themes/colors.js';
 import type { VerticalBounds } from '../types/layout-types.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
@@ -217,8 +218,8 @@ function RelationshipList(props: Props): React.Node {
       return result;
     } catch (e) {
       Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
         [{ text: 'OK', onPress: onUnknownErrorAlertAcknowledged }],
         { cancelable: true, onDismiss: onUnknownErrorAlertAcknowledged },
       );

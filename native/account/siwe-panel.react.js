@@ -19,6 +19,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
@@ -78,8 +79,8 @@ function SIWEPanel(props: Props): React.Node {
             setNonce(response);
           } catch (e) {
             Alert.alert(
-              'Unknown error',
-              'Uhh... try again?',
+              UnknownErrorAlertDetails.title,
+              UnknownErrorAlertDetails.message,
               [{ text: 'OK', onPress: onClosing }],
               { cancelable: false },
             );

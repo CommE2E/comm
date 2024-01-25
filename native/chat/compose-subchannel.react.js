@@ -35,6 +35,7 @@ import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
@@ -100,8 +101,8 @@ function ComposeSubchannel(props: Props): React.Node {
     } catch (e) {
       setCreateButtonEnabled(true);
       Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
         [{ text: 'OK', onPress: onUnknownErrorAlertAcknowledged }],
         { cancelable: false },
       );
