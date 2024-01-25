@@ -4,7 +4,7 @@ import _keyBy from 'lodash/fp/keyBy.js';
 import t, { type TInterface } from 'tcomb';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
-import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
@@ -81,7 +81,7 @@ const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
 
 export const threadStoreValidator: TInterface<ThreadStore> =
   tShape<ThreadStore>({
-    threadInfos: t.dict(tID, rawThreadInfoValidator),
+    threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
   });
 
 export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
