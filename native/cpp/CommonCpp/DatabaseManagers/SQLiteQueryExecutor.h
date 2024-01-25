@@ -2,6 +2,7 @@
 
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
+#include "NativeConnectionManager.h"
 #include "entities/Draft.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/UserInfo.h"
@@ -19,10 +20,12 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
   static std::string secureStoreEncryptionKeyID;
-  static sqlite3 *dbConnection;
 
 #ifndef EMSCRIPTEN
+  static NativeConnectionManager connectionManager;
   static void assign_encryption_key();
+#else
+  static SQLiteConnectionManager connectionManager;
 #endif
 
 public:
@@ -109,6 +112,7 @@ public:
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
   void createMainCompaction(std::string backupID) const override;
+  void captureBackupLogs() const override;
 #endif
 };
 
