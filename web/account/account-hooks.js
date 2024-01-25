@@ -20,6 +20,10 @@ import type {
   OLMIdentityKeys,
   NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
+import {
+  ONE_TIME_KEYS_NUMBER,
+  type IdentityDeviceKeyUpload,
+} from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -172,6 +176,65 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
 
     return signedIdentityKeysBlob;
   }, [getOrCreateCryptoStore]);
+}
+
+function useGetDeviceKeyUpload(): () => Promise<IdentityDeviceKeyUpload> {
+  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
+  // `getSignedIdentityKeysBlob()` will initialize OLM, so no need to do it
+  // again
+  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
+
+  return React.useCallback(async () => {
+    const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
+    const { primaryAccount, notificationAccount } =
+      await getOrCreateCryptoStore();
+
+    const primaryOLMAccount = new olm.Account();
+    const notificationOLMAccount = new olm.Account();
+    primaryOLMAccount.unpickle(
+      primaryAccount.picklingKey,
+      primaryAccount.pickledAccount,
+    );
+    notificationOLMAccount.unpickle(
+      notificationAccount.picklingKey,
+      notificationAccount.pickledAccount,
+    );
+
+    const contentPrekey = primaryOLMAccount.prekey();
+    const contentPrekeySignature = primaryOLMAccount.prekey_signature();
+
+    if (!contentPrekeySignature) {
+      throw new Error('invalid_prekey');
+    }
+
+    const notifPrekey = notificationOLMAccount.prekey();
+    const notifPrekeySignature = notificationOLMAccount.prekey_signature();
+
+    if (!notifPrekeySignature) {
+      throw new Error('invalid_prekey');
+    }
+
+    primaryOLMAccount.generate_one_time_keys(ONE_TIME_KEYS_NUMBER);
+    const contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
+      primaryOLMAccount.one_time_keys(),
+    );
+
+    notificationOLMAccount.generate_one_time_keys(ONE_TIME_KEYS_NUMBER);
+    const notifOneTimeKeys = getOneTimeKeyValuesFromBlob(
+      notificationOLMAccount.one_time_keys(),
+    );
+
+    return {
+      keyPayload: signedIdentityKeysBlob.payload,
+      keyPayloadSignature: signedIdentityKeysBlob.signature,
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+      contentOneTimeKeys,
+      notifOneTimeKeys,
+    };
+  }, [getOrCreateCryptoStore, getSignedIdentityKeysBlob]);
 }
 
 function NotificationsSessionCreatorProvider(props: Props): React.Node {
@@ -331,4 +394,5 @@ export {
   NotificationsSessionCreatorProvider,
   useWebNotificationsSessionCreator,
   GetOrCreateCryptoStoreProvider,
+  useGetDeviceKeyUpload,
 };
