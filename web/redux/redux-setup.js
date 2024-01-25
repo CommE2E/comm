@@ -312,36 +312,19 @@ function validateStateAndProcessDBOperations(
   ) {
     // Makes sure a currently focused thread is never unread
     const activeThreadInfo = state.threadStore.threadInfos[activeThread];
-    // TODO (atul): Try to get rid of this ridiculous branching.
-    if (activeThreadInfo.minimallyEncoded) {
-      updateActiveThreadOps.push({
-        type: 'replace',
-        payload: {
-          id: activeThread,
-          threadInfo: {
-            ...activeThreadInfo,
-            currentUser: {
-              ...activeThreadInfo.currentUser,
-              unread: false,
-            },
+    updateActiveThreadOps.push({
+      type: 'replace',
+      payload: {
+        id: activeThread,
+        threadInfo: {
+          ...activeThreadInfo,
+          currentUser: {
+            ...activeThreadInfo.currentUser,
+            unread: false,
           },
         },
-      });
-    } else {
-      updateActiveThreadOps.push({
-        type: 'replace',
-        payload: {
-          id: activeThread,
-          threadInfo: {
-            ...activeThreadInfo,
-            currentUser: {
-              ...activeThreadInfo.currentUser,
-              unread: false,
-            },
-          },
-        },
-      });
-    }
+      },
+    });
   }
 
   const oldActiveThread = activeThreadSelector(oldState);
