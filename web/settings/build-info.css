@@ -1,0 +1,23 @@
+.container {
+  flex: 1;
+}
+
+.contentContainer {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.labelText {
+  color: var(--text-background-tertiary-default);
+}
+
+.valueText {
+  color: var(--text-background-secondary-default);
+}
