@@ -3,7 +3,7 @@
 import type { TInterface } from 'tcomb';
 import t from 'tcomb';
 
-import { minimallyEncodedThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { threadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { type BaseNavInfo } from 'lib/types/nav-types.js';
 import {
@@ -51,7 +51,7 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   endDate: t.String,
   tab: navigationTabValidator,
   activeChatThreadID: t.maybe(tID),
-  pendingThread: t.maybe(minimallyEncodedThreadInfoValidator),
+  pendingThread: t.maybe(threadInfoValidator),
   settingsSection: t.maybe(navigationSettingsSectionValidator),
   selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
   chatMode: t.maybe(navigationChatModeValidator),
