@@ -20,9 +20,9 @@ const excludedStatuses = new Set([
 function AddFriendsModal(): React.Node {
   return (
     <AddUsersListModal
-      name="Add Friends"
+      name="Add friends"
       excludedStatuses={excludedStatuses}
-      confirmButtonContent="Send Friend Requests"
+      confirmButtonContent="Send friend requests"
       relationshipAction={relationshipActions.FRIEND}
     />
   );
