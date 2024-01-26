@@ -4,7 +4,7 @@
 
 namespace comm {
 
-void AESCrypto::generateKey(rust::Slice<uint8_t> buffer) {
+template <typename T> void AESCrypto<T>::generateKey(T buffer) {
   NSError *keyGenerationError = nil;
   [AESCryptoModuleObjCCompat generateKey:buffer.data()
                        destinationLength:buffer.size()
@@ -15,10 +15,8 @@ void AESCrypto::generateKey(rust::Slice<uint8_t> buffer) {
   }
 }
 
-void AESCrypto::encrypt(
-    rust::Slice<uint8_t> key,
-    rust::Slice<uint8_t> plaintext,
-    rust::Slice<uint8_t> sealedData) {
+template <typename T>
+void AESCrypto<T>::encrypt(T key, T plaintext, T sealedData) {
   NSData *keyBuffer = [NSData dataWithBytesNoCopy:key.data()
                                            length:key.size()
                                      freeWhenDone:NO];
@@ -37,10 +35,8 @@ void AESCrypto::encrypt(
   }
 }
 
-void AESCrypto::decrypt(
-    rust::Slice<uint8_t> key,
-    rust::Slice<uint8_t> sealedData,
-    rust::Slice<uint8_t> plaintext) {
+template <typename T>
+void AESCrypto<T>::decrypt(T key, T sealedData, T plaintext) {
   NSData *keyBuffer = [NSData dataWithBytesNoCopy:key.data()
                                            length:key.size()
                                      freeWhenDone:NO];
@@ -58,5 +54,8 @@ void AESCrypto::decrypt(
     throw std::runtime_error([[decryptError localizedDescription] UTF8String]);
   }
 }
+
+template class AESCrypto<rust::Slice<uint8_t>>;
+template class AESCrypto<std::vector<std::uint8_t> &>;
 
 } // namespace comm

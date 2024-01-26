@@ -4,17 +4,11 @@
 
 namespace comm {
 
-class AESCrypto {
+template <typename T> class AESCrypto {
 public:
-  static void generateKey(rust::Slice<uint8_t> buffer);
-  static void encrypt(
-      rust::Slice<uint8_t> key,
-      rust::Slice<uint8_t> plaintext,
-      rust::Slice<uint8_t> sealedData);
-  static void decrypt(
-      rust::Slice<uint8_t> key,
-      rust::Slice<uint8_t> sealedData,
-      rust::Slice<uint8_t> plaintext);
+  static void generateKey(T buffer);
+  static void encrypt(T key, T plaintext, T sealedData);
+  static void decrypt(T key, T sealedData, T plaintext);
 };
 
 } // namespace comm
