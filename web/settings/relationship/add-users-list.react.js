@@ -241,8 +241,10 @@ function AddUsersList(props: Props): React.Node {
   return (
     <div className={css.container}>
       {listHeader}
-      {vipUserRows}
-      <div className={css.userRowsContainer}>{userRows}</div>
+      <div className={css.scrollContainer}>
+        {vipUserRows}
+        {userRows}
+      </div>
       {errors}
     </div>
   );

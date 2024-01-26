@@ -1,11 +1,11 @@
 .container {
-  height: 625px;
+  height: 60vh;
   display: flex;
   flex-direction: column;
 }
 
-.userRowsContainer {
-  overflow: auto;
+.scrollContainer {
+  overflow-y: scroll;
   display: flex;
   flex-direction: column;
   flex: 1;
