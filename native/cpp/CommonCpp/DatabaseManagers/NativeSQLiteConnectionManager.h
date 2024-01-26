@@ -13,7 +13,8 @@ private:
       std::string backupID,
       std::string logID,
       std::uint8_t *patchsetPtr,
-      int patchsetSize);
+      int patchsetSize,
+      std::string encryptionKey);
   std::vector<std::string>
   getAttachmentsFromLog(std::uint8_t *patchsetPtr, int patchsetSize);
 
@@ -25,6 +26,9 @@ public:
       std::function<void(sqlite3 *)> on_db_open_callback) override;
   void closeConnection() override;
   ~NativeSQLiteConnectionManager();
-  bool captureLogs(std::string backupID, std::string logID);
+  bool captureLogs(
+      std::string backupID,
+      std::string logID,
+      std::string encryptionKey);
 };
 } // namespace comm
