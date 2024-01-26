@@ -1,4 +1,5 @@
 #include "SQLiteConnectionManager.h"
+#include "AESCrypto.h"
 #include "PlatformSpecificTools.h"
 
 #include <fstream>
@@ -11,6 +12,9 @@ namespace comm {
 
 const int MAX_LOGS_BUFFER_SIZE = 5;
 const std::string BLOB_SERVICE_PREFIX = "comm-blob-service://";
+
+const int IV_LENGTH = 12;
+const int TAG_LENGTH = 16;
 
 void SQLiteConnectionManager::attachSession() {
   int sessionCreationResult =
@@ -35,7 +39,8 @@ void SQLiteConnectionManager::persistLog(
     std::string backupID,
     std::string logID,
     std::uint8_t *changesetPtr,
-    int changesetSize) {
+    int changesetSize,
+    std::string encryptionKey) {
   std::string finalFilePath =
       PlatformSpecificTools::getBackupLogFilePath(backupID, logID, false);
   std::string tempFilePath = finalFilePath + "_tmp";
@@ -46,8 +51,22 @@ void SQLiteConnectionManager::persistLog(
   if (!tempFile.is_open()) {
     throw std::runtime_error("Failed to open temporary log file.");
   }
-  tempFile << std::string(changesetPtr, changesetPtr + changesetSize);
+
+  std::vector<std::uint8_t> logBytes(
+      changesetPtr, changesetPtr + changesetSize);
+
+  std::vector<std::uint8_t> encryptedLog;
+  encryptedLog.resize(logBytes.size() + IV_LENGTH + TAG_LENGTH);
+
+  std::vector<std::uint8_t> encryptionKeyBytes(
+      encryptionKey.begin(), encryptionKey.end());
+
+  AESCrypto<std::vector<std::uint8_t> &>::encrypt(
+      encryptionKeyBytes, logBytes, encryptedLog);
+
+  tempFile << std::string(encryptedLog.begin(), encryptedLog.end());
   tempFile.close();
+
   if (std::rename(tempFilePath.c_str(), finalFilePath.c_str())) {
     throw std::runtime_error(
         "Failed to rename complete log file from temporary path to target "
@@ -238,7 +257,8 @@ bool SQLiteConnectionManager::shouldIncrementLogID(
 
 bool SQLiteConnectionManager::captureLogs(
     std::string backupID,
-    std::string logID) {
+    std::string logID,
+    std::string encryptionKey) {
   int changesetSize;
   std::uint8_t *changesetPtr;
   int getChangesetResult = sqlite3session_patchset(
@@ -250,11 +270,11 @@ bool SQLiteConnectionManager::captureLogs(
         std::string(sqlite3_errstr(getChangesetResult)));
   }
 
-  if (changesetSize == 0 && !changesetPtr) {
+  if (changesetSize == 0 || !changesetPtr) {
     return false;
   }
 
-  persistLog(backupID, logID, changesetPtr, changesetSize);
+  persistLog(backupID, logID, changesetPtr, changesetSize, encryptionKey);
   sqlite3_free(changesetPtr);
 
   logsCount++;

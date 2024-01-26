@@ -20,7 +20,8 @@ private:
       std::string backupID,
       std::string logID,
       std::uint8_t *changesetPtr,
-      int changesetSize);
+      int changesetSize,
+      std::string encryptionKey);
   std::vector<std::string>
   getAttachmentsFromLog(std::uint8_t *changesetPtr, int changesetSize);
 
@@ -33,6 +34,9 @@ public:
   void closeConnection();
   ~SQLiteConnectionManager();
   bool shouldIncrementLogID(std::string backupID, std::string logID);
-  bool captureLogs(std::string backupID, std::string logID);
+  bool captureLogs(
+      std::string backupID,
+      std::string logID,
+      std::string encryptionKey);
 };
 } // namespace comm
