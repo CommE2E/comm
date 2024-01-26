@@ -158,8 +158,13 @@ function KeyserverSelectionModal(props: Props): React.Node {
     ]);
 
   return (
-    <Modal size="large" onClose={popModal} name="Keyserver details">
-      <div className={css.container}>
+    <Modal
+      size="large"
+      onClose={popModal}
+      name="Keyserver details"
+      primaryButton={keyserverRemoveButton}
+    >
+      <>
         <div className={css.keyserverDetailsContainer}>
           <div className={css.keyserverDetailsHeaderContainer}>
             <KeyserverPill
@@ -172,8 +177,7 @@ function KeyserverSelectionModal(props: Props): React.Node {
         <div className={css.keyserverRemoveTextContainer}>
           {keyerverRemoveInfoText}
         </div>
-      </div>
-      <div className={css.buttonContainer}>{keyserverRemoveButton}</div>
+      </>
     </Modal>
   );
 }
