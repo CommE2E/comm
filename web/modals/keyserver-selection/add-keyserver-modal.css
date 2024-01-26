@@ -1,15 +1,10 @@
 .container {
-  padding: 32px;
+  padding: 16px 0;
 }
 
 .inputTitle {
   color: var(--text-background-primary-default);
   margin-bottom: 8px;
-}
-
-.buttonContainer {
-  background-color: var(--modal-background-secondary-default);
-  padding: 16px 32px;
 }
 
 .button {
