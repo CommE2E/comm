@@ -27,6 +27,24 @@ import type { DeviceCameraInfo } from '../types/camera.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
 import type { LocalSettings } from '../types/local-settings-types.js';
 
+const nonUserSpecificFieldsNative = [
+  'storeLoaded',
+  'loadingStatuses',
+  'dataLoaded',
+  'customServer',
+  'notifPermissionAlertInfo',
+  'lifecycleState',
+  'nextLocalID',
+  'dimensions',
+  'connectivity',
+  'deviceCameraInfo',
+  'deviceOrientation',
+  'frozen',
+  'userPolicies',
+  'keyserverStore',
+  '_persist',
+];
+
 export type AppState = {
   +navInfo: NavInfo,
   +currentUserInfo: ?CurrentUserInfo,
@@ -62,3 +80,5 @@ export type AppState = {
   +localSettings: LocalSettings,
   +integrityStore: IntegrityStore,
 };
+
+export { nonUserSpecificFieldsNative };
