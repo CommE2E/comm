@@ -25,6 +25,10 @@ std::once_flag SQLiteQueryExecutor::initialized;
 int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
 std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
     "comm.encryptionKey";
+int SQLiteQueryExecutor::backupLogsEncryptionKeySize = 32;
+std::string SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID =
+    "comm.backupLogsEncryptionKey";
+std::string SQLiteQueryExecutor::backupLogsEncryptionKey;
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -1654,9 +1658,15 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     SQLiteQueryExecutor::sqliteFilePath = databasePath;
     folly::Optional<std::string> maybeEncryptionKey =
         CommSecureStore::get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
+    folly::Optional<std::string> maybeBackupLogsEncryptionKey =
+        CommSecureStore::get(
+            SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID);
 
-    if (file_exists(databasePath) && maybeEncryptionKey) {
+    if (file_exists(databasePath) && maybeEncryptionKey &&
+        maybeBackupLogsEncryptionKey) {
       SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+      SQLiteQueryExecutor::backupLogsEncryptionKey =
+          maybeBackupLogsEncryptionKey.value();
       return;
     }
     SQLiteQueryExecutor::assign_encryption_key();
@@ -1760,9 +1770,16 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
 void SQLiteQueryExecutor::assign_encryption_key() {
   std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
       SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  std::string backupLogsEncryptionKey =
+      comm::crypto::Tools::generateRandomHexString(
+          SQLiteQueryExecutor::backupLogsEncryptionKeySize);
   CommSecureStore::set(
       SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  CommSecureStore::set(
+      SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID,
+      backupLogsEncryptionKey);
   SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  SQLiteQueryExecutor::backupLogsEncryptionKey = backupLogsEncryptionKey;
 }
 
 void SQLiteQueryExecutor::captureBackupLogs() const {
@@ -1776,7 +1793,8 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
     logID = "0";
   }
 
-  SQLiteQueryExecutor::connectionManager.captureLogs(backupID, logID);
+  SQLiteQueryExecutor::connectionManager.captureLogs(
+      backupID, logID, SQLiteQueryExecutor::backupLogsEncryptionKey);
   this->setMetadata("logID", std::to_string(std::stoi(logID) + 1));
 }
 #endif
