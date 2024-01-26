@@ -1,4 +1,4 @@
-use crate::constants::log_table::attr;
+use crate::constants::{log_table::attr, LOG_BACKUP_ID_SEPARATOR};
 use aws_sdk_dynamodb::types::AttributeValue;
 use comm_lib::{
   blob::{
@@ -8,7 +8,8 @@ use comm_lib::{
   constants::DDB_ITEM_SIZE_LIMIT,
   database::{
     blob::BlobOrDBContent, calculate_size_in_db, parse_int_attribute,
-    AttributeExtractor, AttributeTryInto, DBItemError,
+    AttributeExtractor, AttributeTryInto, DBItemAttributeError, DBItemError,
+    Value,
   },
 };
 use std::collections::HashMap;
@@ -16,6 +17,7 @@ use tracing::debug;
 
 #[derive(Clone, Debug)]
 pub struct LogItem {
+  pub user_id: String,
   pub backup_id: String,
   pub log_id: usize,
   pub content: BlobOrDBContent,
@@ -40,14 +42,27 @@ impl LogItem {
     self.content.move_to_blob(blob_client).await
   }
 
+  pub fn partition_key(
+    user_id: impl Into<String>,
+    backup_id: impl Into<String>,
+  ) -> String {
+    format!(
+      "{}{}{}",
+      user_id.into(),
+      LOG_BACKUP_ID_SEPARATOR,
+      backup_id.into(),
+    )
+  }
+
   pub fn item_key(
+    user_id: impl Into<String>,
     backup_id: impl Into<String>,
     log_id: usize,
   ) -> HashMap<String, AttributeValue> {
     HashMap::from([
       (
         attr::BACKUP_ID.to_string(),
-        AttributeValue::S(backup_id.into()),
+        AttributeValue::S(Self::partition_key(user_id, backup_id)),
       ),
       (
         attr::LOG_ID.to_string(),
@@ -59,7 +74,8 @@ impl LogItem {
 
 impl From<LogItem> for HashMap<String, AttributeValue> {
   fn from(value: LogItem) -> Self {
-    let mut attrs = LogItem::item_key(value.backup_id, value.log_id);
+    let mut attrs =
+      LogItem::item_key(value.user_id, value.backup_id, value.log_id);
 
     let (content_attr_name, content_attr) = value
       .content
@@ -89,7 +105,18 @@ impl TryFrom<HashMap<String, AttributeValue>> for LogItem {
   fn try_from(
     mut value: HashMap<String, AttributeValue>,
   ) -> Result<Self, Self::Error> {
-    let backup_id = value.take_attr(attr::BACKUP_ID)?;
+    let id: String = value.take_attr(attr::BACKUP_ID)?;
+    let (user_id, backup_id) =
+      match &id.split(LOG_BACKUP_ID_SEPARATOR).collect::<Vec<_>>()[..] {
+        &[user_id, backup_id] => (user_id.to_string(), backup_id.to_string()),
+        _ => {
+          return Err(DBItemError::new(
+            attr::BACKUP_ID.to_string(),
+            Value::String(id),
+            DBItemAttributeError::InvalidValue,
+          ))
+        }
+      };
     let log_id = parse_int_attribute(attr::LOG_ID, value.remove(attr::LOG_ID))?;
     let content = BlobOrDBContent::parse_from_attrs(
       &mut value,
@@ -105,6 +132,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for LogItem {
     };
 
     Ok(LogItem {
+      user_id,
       backup_id,
       log_id,
       content,

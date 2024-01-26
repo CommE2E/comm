@@ -140,7 +140,7 @@ impl DatabaseClient {
       .transpose()
       .map_err(Error::from)?;
 
-    self.remove_log_items_for_backup(backup_id).await?;
+    self.remove_log_items_for_backup(user_id, backup_id).await?;
 
     Ok(result)
   }
@@ -236,9 +236,11 @@ impl DatabaseClient {
 
   pub async fn fetch_log_items(
     &self,
+    user_id: &str,
     backup_id: &str,
     from_id: Option<usize>,
   ) -> Result<(Vec<LogItem>, Option<usize>), Error> {
+    let id = LogItem::partition_key(user_id, backup_id);
     let mut query = self
       .client
       .query()
@@ -247,16 +249,13 @@ impl DatabaseClient {
       .expression_attribute_names("#backupID", log_table::attr::BACKUP_ID)
       .expression_attribute_values(
         ":valueToMatch",
-        AttributeValue::S(backup_id.to_string()),
+        AttributeValue::S(id.clone()),
       )
       .limit(LOG_DEFAULT_PAGE_SIZE);
 
     if let Some(from_id) = from_id {
       query = query
-        .exclusive_start_key(
-          log_table::attr::BACKUP_ID,
-          AttributeValue::S(backup_id.to_string()),
-        )
+        .exclusive_start_key(log_table::attr::BACKUP_ID, AttributeValue::S(id))
         .exclusive_start_key(
           log_table::attr::LOG_ID,
           AttributeValue::N(from_id.to_string()),
@@ -290,13 +289,14 @@ impl DatabaseClient {
 
   pub async fn remove_log_items_for_backup(
     &self,
+    user_id: &str,
     backup_id: &str,
   ) -> Result<(), Error> {
     let (mut items, mut last_id) =
-      self.fetch_log_items(backup_id, None).await?;
+      self.fetch_log_items(user_id, backup_id, None).await?;
     while last_id.is_some() {
       let (mut new_items, new_last_id) =
-        self.fetch_log_items(backup_id, last_id).await?;
+        self.fetch_log_items(user_id, backup_id, last_id).await?;
 
       items.append(&mut new_items);
       last_id = new_last_id;
@@ -306,7 +306,7 @@ impl DatabaseClient {
       .into_iter()
       .map(|key| {
         DeleteRequest::builder()
-          .set_key(Some(LogItem::item_key(key.backup_id, key.log_id)))
+          .set_key(Some(LogItem::item_key(user_id, key.backup_id, key.log_id)))
           .build()
       })
       .map(|request| WriteRequest::builder().delete_request(request).build())
