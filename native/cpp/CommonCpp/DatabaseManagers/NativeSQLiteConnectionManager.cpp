@@ -1,4 +1,5 @@
 #include "NativeSQLiteConnectionManager.h"
+#include "AESCrypto.h"
 #include "PlatformSpecificTools.h"
 
 #include <fstream>
@@ -10,6 +11,9 @@
 namespace comm {
 
 const std::string BLOB_SERVICE_PREFIX = "comm-blob-service://";
+
+const int IV_LENGTH = 12;
+const int TAG_LENGTH = 16;
 
 void NativeSQLiteConnectionManager::attachSession() {
   int sessionCreationResult =
@@ -47,7 +51,8 @@ void NativeSQLiteConnectionManager::persistLog(
     std::string backupID,
     std::string logID,
     std::uint8_t *patchsetPtr,
-    int patchsetSize) {
+    int patchsetSize,
+    std::string encryptionKey) {
   std::string finalFilePath =
       PlatformSpecificTools::getBackupLogFilePath(backupID, logID, false);
   std::string tempFilePath = finalFilePath + "_tmp";
@@ -58,8 +63,22 @@ void NativeSQLiteConnectionManager::persistLog(
   if (!tempFile.is_open()) {
     throw std::runtime_error("Failed to open temporary log file.");
   }
-  tempFile.write(reinterpret_cast<const char *>(patchsetPtr), patchsetSize);
+
+  std::vector<std::uint8_t> logBytes(patchsetPtr, patchsetPtr + patchsetSize);
+
+  std::vector<std::uint8_t> encryptedLog;
+  encryptedLog.resize(logBytes.size() + IV_LENGTH + TAG_LENGTH);
+
+  std::vector<std::uint8_t> encryptionKeyBytes(
+      encryptionKey.begin(), encryptionKey.end());
+
+  AESCrypto<std::vector<std::uint8_t> &>::encrypt(
+      encryptionKeyBytes, logBytes, encryptedLog);
+
+  tempFile.write(
+      reinterpret_cast<const char *>(encryptedLog.data()), encryptedLog.size());
   tempFile.close();
+
   if (std::rename(tempFilePath.c_str(), finalFilePath.c_str())) {
     throw std::runtime_error(
         "Failed to rename complete log file from temporary path to target "
@@ -68,7 +87,7 @@ void NativeSQLiteConnectionManager::persistLog(
 
   std::vector<std::string> attachments =
       getAttachmentsFromLog(patchsetPtr, patchsetSize);
-  if (!attachments.size()) {
+  if (attachments.empty()) {
     return;
   }
 
@@ -185,7 +204,8 @@ NativeSQLiteConnectionManager::~NativeSQLiteConnectionManager() {
 
 bool NativeSQLiteConnectionManager::captureLogs(
     std::string backupID,
-    std::string logID) {
+    std::string logID,
+    std::string encryptionKey) {
   int patchsetSize;
   std::uint8_t *patchsetPtr;
   int getPatchsetResult = sqlite3session_patchset(
@@ -201,7 +221,7 @@ bool NativeSQLiteConnectionManager::captureLogs(
     return false;
   }
 
-  persistLog(backupID, logID, patchsetPtr, patchsetSize);
+  persistLog(backupID, logID, patchsetPtr, patchsetSize, encryptionKey);
   sqlite3_free(patchsetPtr);
 
   // The session is not "zeroed" after capturing log.
