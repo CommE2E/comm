@@ -84,9 +84,29 @@ function AddKeyserverModal(): React.Node {
     );
   }, [showErrorMessage]);
 
+  const addKeyserverButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        buttonColor={buttonThemes.primary}
+        className={css.button}
+        onClick={onClickAddKeyserver}
+        disabled={!keyserverURL}
+      >
+        Add keyserver
+      </Button>
+    ),
+    [keyserverURL, onClickAddKeyserver],
+  );
+
   const addKeyserverModal = React.useMemo(
     () => (
-      <Modal size="large" onClose={popModal} name="Add keyserver">
+      <Modal
+        size="large"
+        onClose={popModal}
+        name="Add keyserver"
+        primaryButton={addKeyserverButton}
+      >
         <div className={css.container}>
           <div className={css.inputTitle}>Keyserver URL</div>
           <Input
@@ -97,24 +117,13 @@ function AddKeyserverModal(): React.Node {
           />
           {errorMessage}
         </div>
-        <div className={css.buttonContainer}>
-          <Button
-            variant="filled"
-            buttonColor={buttonThemes.primary}
-            className={css.button}
-            onClick={onClickAddKeyserver}
-            disabled={!keyserverURL}
-          >
-            Add keyserver
-          </Button>
-        </div>
       </Modal>
     ),
     [
+      addKeyserverButton,
       errorMessage,
       keyserverURL,
       onChangeKeyserverURL,
-      onClickAddKeyserver,
       popModal,
     ],
   );
