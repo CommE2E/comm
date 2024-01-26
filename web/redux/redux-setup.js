@@ -63,6 +63,19 @@ export type CommunityPickerStore = {
   +calendar: ?string,
 };
 
+const nonUserSpecificFieldsWeb = [
+  'loadingStatuses',
+  'windowDimensions',
+  'lifecycleState',
+  'nextLocalID',
+  'windowActive',
+  'pushApiPublicKey',
+  'keyserverStore',
+  'initialStateLoaded',
+  '_persist',
+  'customServer',
+];
+
 export type AppState = {
   +navInfo: WebNavInfo,
   +currentUserInfo: ?CurrentUserInfo,
@@ -112,7 +125,7 @@ export type Action =
   | { +type: 'SET_CRYPTO_STORE', payload: CryptoStore }
   | { +type: 'SET_INITIAL_REDUX_STATE', payload: InitialReduxState };
 
-export function reducer(oldState: AppState | void, action: Action): AppState {
+function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
   let storeOperations: StoreOperations = {
@@ -378,3 +391,5 @@ function validateStateAndProcessDBOperations(
 
   return state;
 }
+
+export { nonUserSpecificFieldsWeb, reducer };
