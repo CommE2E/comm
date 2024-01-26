@@ -7,6 +7,7 @@ use actix_web::{
   Error, HttpRequest, HttpResponse,
 };
 use actix_web_actors::ws::{self, WebsocketContext};
+use comm_lib::auth::UserIdentity;
 use comm_lib::{
   backup::{
     DownloadLogsRequest, LogWSRequest, LogWSResponse, UploadLogRequest,
@@ -22,12 +23,14 @@ use tracing::{error, info, instrument, warn};
 
 pub async fn handle_ws(
   req: HttpRequest,
+  user: UserIdentity,
   stream: web::Payload,
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> Result<HttpResponse, Error> {
   ws::WsResponseBuilder::new(
     LogWSActor {
+      user,
       blob_client: blob_client.as_ref().clone(),
       db_client: db_client.as_ref().clone(),
       last_msg_time: Instant::now(),
@@ -50,6 +53,7 @@ enum LogWSError {
 }
 
 struct LogWSActor {
+  user: UserIdentity,
   blob_client: BlobServiceClient,
   db_client: DatabaseClient,
 
@@ -66,8 +70,12 @@ impl LogWSActor {
     ctx: &mut WebsocketContext<LogWSActor>,
     bytes: Bytes,
   ) {
-    let fut =
-      Self::handle_msg(self.blob_client.clone(), self.db_client.clone(), bytes);
+    let fut = Self::handle_msg(
+      self.user.user_id.clone(),
+      self.blob_client.clone(),
+      self.db_client.clone(),
+      bytes,
+    );
 
     let fut = actix::fut::wrap_future(fut).map(
       |responses,
@@ -98,6 +106,7 @@ impl LogWSActor {
   }
 
   async fn handle_msg(
+    user_id: String,
     blob_client: BlobServiceClient,
     db_client: DatabaseClient,
     bytes: Bytes,
@@ -121,6 +130,7 @@ impl LogWSActor {
         }
 
         let mut log_item = LogItem {
+          user_id,
           backup_id: backup_id.clone(),
           log_id,
           content: BlobOrDBContent::new(content),
@@ -136,8 +146,9 @@ impl LogWSActor {
         backup_id,
         from_id,
       }) => {
-        let (log_items, last_id) =
-          db_client.fetch_log_items(&backup_id, from_id).await?;
+        let (log_items, last_id) = db_client
+          .fetch_log_items(&user_id, &backup_id, from_id)
+          .await?;
 
         let mut messages = vec![];
 
