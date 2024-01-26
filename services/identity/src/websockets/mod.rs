@@ -11,6 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus,
+  SearchResult, User,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -37,13 +38,6 @@ struct Prefix {
 
 #[derive(Serialize, Deserialize)]
 struct Username {
-  username: String,
-}
-
-#[derive(Serialize, Deserialize)]
-struct User {
-  #[serde(rename = "userID")]
-  user_id: String,
   username: String,
 }
 
@@ -282,12 +276,10 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
             }
           };
 
-        let usernames: Vec<&User> = search_response.documents().collect();
+        let usernames: Vec<User> = search_response.into_documents().collect();
 
-        let response_msg = serde_json::json!({
-          "action": "searchResults",
-          "results": usernames
-        });
+        let response_msg =
+          serde_json::json!(SearchResult { payload: usernames });
 
         if let Err(e) = outgoing
           .lock()
