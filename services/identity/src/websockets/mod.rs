@@ -9,6 +9,9 @@ use futures_util::{SinkExt, StreamExt};
 use hyper::{Body, Request, Response, StatusCode};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
+use identity_search_messages::{
+  ConnectionInitializationResponse, ConnectionInitializationStatus,
+};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info};
@@ -18,7 +21,7 @@ mod send;
 
 use crate::config::CONFIG;
 use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
-use send::{send_error_response, WebsocketSink};
+use send::{send_error_response, send_message, WebsocketSink};
 
 pub mod errors;
 
@@ -166,9 +169,28 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
     match auth_message {
       Message::Text(text) => {
         if let Err(auth_error) = auth::handle_auth_message(&text).await {
-          send_error_response(auth_error, outgoing.clone()).await;
+          let error_response = ConnectionInitializationResponse {
+            status: ConnectionInitializationStatus::Error(
+              auth_error.to_string(),
+            ),
+          };
+          let serialized_response = serde_json::to_string(&error_response)
+            .expect("Error serializing auth error response");
+
+          send_message(Message::Text(serialized_response), outgoing.clone())
+            .await;
+
           close_connection(outgoing).await;
           return;
+        } else {
+          let success_response = ConnectionInitializationResponse {
+            status: ConnectionInitializationStatus::Success,
+          };
+          let serialized_response = serde_json::to_string(&success_response)
+            .expect("Error serializing auth success response");
+
+          send_message(Message::Text(serialized_response), outgoing.clone())
+            .await;
         }
       }
       _ => {
