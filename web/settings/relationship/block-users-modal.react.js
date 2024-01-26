@@ -21,13 +21,13 @@ function BlockUsersModal(): React.Node {
   const buttonContent = (
     <div>
       <FontAwesomeIcon icon={faUserShield} />
-      {' Block Users'}
+      {' Block users'}
     </div>
   );
 
   return (
     <AddUsersListModal
-      name="Block Users"
+      name="Block users"
       excludedStatuses={excludedStatuses}
       confirmButtonContent={buttonContent}
       confirmButtonColor={buttonThemes.danger}
