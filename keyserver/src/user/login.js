@@ -3,10 +3,9 @@
 import type { Account as OlmAccount } from '@commapp/olm';
 import { getRustAPI } from 'rust-node-addon';
 
-import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
-import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
+import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
 import {
   saveIdentityInfo,
@@ -15,39 +14,8 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-import {
-  getAccountPrekeysSet,
-  validateAccountPrekey,
-} from '../utils/olm-utils.js';
 
 type UserCredentials = { +username: string, +password: string };
-
-export type AccountKeysSet = {
-  +identityKeys: string,
-  +prekey: string,
-  +prekeySignature: string,
-  +oneTimeKeys: $ReadOnlyArray<string>,
-};
-
-function retrieveAccountKeysSet(account: OlmAccount): AccountKeysSet {
-  const identityKeys = account.identity_keys();
-
-  validateAccountPrekey(account);
-  const { prekey, prekeySignature } = getAccountPrekeysSet(account);
-
-  if (!prekeySignature || !prekey) {
-    throw new ServerError('invalid_prekey');
-  }
-
-  let oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
-
-  if (oneTimeKeys.length < ONE_TIME_KEYS_NUMBER) {
-    account.generate_one_time_keys(ONE_TIME_KEYS_NUMBER);
-    oneTimeKeys = getOneTimeKeyValuesFromBlob(account.one_time_keys());
-  }
-
-  return { identityKeys, oneTimeKeys, prekey, prekeySignature };
-}
 
 // After register or login is successful
 function markKeysAsPublished(account: OlmAccount) {

@@ -43,7 +43,12 @@ async function fetchCallUpdateOlmAccount<T>(
       picklingKey,
       pickledAccount,
     });
-    const result = await callback(account, picklingKey);
+    let result;
+    try {
+      result = await callback(account, picklingKey);
+    } catch (e) {
+      throw new ServerError(e.message);
+    }
     const updatedAccount = account.pickle(picklingKey);
 
     const [transactionResult] = await dbQuery(
