@@ -35,6 +35,7 @@
     "webpack": "^5.76.0"
   },
   "dependencies": {
+    "@commapp/olm": "0.1.0",
     "@rainbow-me/rainbowkit": "^1.1.1",
     "dateformat": "^3.0.3",
     "emoji-regex": "^10.2.1",

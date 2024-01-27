@@ -12,7 +12,11 @@ import uuid from 'uuid';
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { values } from 'lib/utils/objects.js';
+import {
+  getAccountPrekeysSet,
+  shouldForgetPrekey,
+  shouldRotatePrekey,
+} from 'lib/utils/olm-utils.js';
 
 import {
   fetchCallUpdateOlmAccount,
@@ -24,49 +28,6 @@ type PickledOlmAccount = {
   +picklingKey: string,
   +pickledAccount: string,
 };
-
-const maxPublishedPrekeyAge = 30 * 24 * 60 * 60 * 1000;
-const maxOldPrekeyAge = 24 * 60 * 60 * 1000;
-
-function getLastPrekeyPublishTime(account: OlmAccount): Date {
-  const olmLastPrekeyPublishTime = account.last_prekey_publish_time();
-
-  // Olm uses seconds, while in Node we need milliseconds.
-  return new Date(olmLastPrekeyPublishTime * 1000);
-}
-
-function shouldRotatePrekey(account: OlmAccount): boolean {
-  // Our fork of Olm only remembers two prekeys at a time.
-  // If the new one hasn't been published, then the old one is still active.
-  // In that scenario, we need to avoid rotating the prekey because it will
-  // result in the old active prekey being discarded.
-  if (account.unpublished_prekey()) {
-    return false;
-  }
-
-  const currentDate = new Date();
-  const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
-
-  return (
-    currentDate.getTime() - lastPrekeyPublishDate.getTime() >=
-    maxPublishedPrekeyAge
-  );
-}
-
-function shouldForgetPrekey(account: OlmAccount): boolean {
-  // Our fork of Olm only remembers two prekeys at a time.
-  // We have to hold onto the old one until the new one is published.
-  if (account.unpublished_prekey()) {
-    return false;
-  }
-
-  const currentDate = new Date();
-  const lastPrekeyPublishDate = getLastPrekeyPublishTime(account);
-
-  return (
-    currentDate.getTime() - lastPrekeyPublishDate.getTime() >= maxOldPrekeyAge
-  );
-}
 
 async function createPickledOlmAccount(): Promise<PickledOlmAccount> {
   await olm.init();
@@ -139,15 +100,6 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
-function validateAccountPrekey(account: OlmAccount) {
-  if (shouldRotatePrekey(account)) {
-    account.generate_prekey();
-  }
-  if (shouldForgetPrekey(account)) {
-    account.forget_old_prekey();
-  }
-}
-
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
   const [rustAPI, identityInfo, deviceID] = await Promise.all([
     getRustAPI(),
@@ -190,16 +142,6 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
 async function getContentSigningKey(): Promise<string> {
   const accountInfo = await fetchOlmAccount('content');
   return JSON.parse(accountInfo.account.identity_keys()).ed25519;
-}
-
-function getAccountPrekeysSet(account: OlmAccount): {
-  +prekey: string,
-  +prekeySignature: ?string,
-} {
-  const prekeyMap = JSON.parse(account.prekey()).curve25519;
-  const [prekey] = values(prekeyMap);
-  const prekeySignature = account.prekey_signature();
-  return { prekey, prekeySignature };
 }
 
 async function validateAndUploadAccountPrekeys(
@@ -267,10 +209,8 @@ export {
   getOlmUtility,
   unpickleOlmAccount,
   unpickleOlmSession,
-  validateAccountPrekey,
   uploadNewOneTimeKeys,
   getContentSigningKey,
-  getAccountPrekeysSet,
   validateAndUploadAccountPrekeys,
   publishPrekeysToIdentity,
 };
