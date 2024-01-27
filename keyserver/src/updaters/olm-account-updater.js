@@ -2,7 +2,7 @@
 
 import type { Account as OlmAccount } from '@commapp/olm';
 
-import { ServerError } from 'lib/utils/errors.js';
+import { ServerError, getMessageForException } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
 import { SQL, dbQuery } from '../database/database.js';
@@ -43,7 +43,12 @@ async function fetchCallUpdateOlmAccount<T>(
       picklingKey,
       pickledAccount,
     });
-    const result = await callback(account, picklingKey);
+    let result;
+    try {
+      result = await callback(account, picklingKey);
+    } catch (e) {
+      throw new ServerError(getMessageForException(e) ?? 'unknown_error');
+    }
     const updatedAccount = account.pickle(picklingKey);
 
     const [transactionResult] = await dbQuery(
