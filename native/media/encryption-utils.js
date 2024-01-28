@@ -13,6 +13,7 @@ import {
 import type {
   MediaMissionFailure,
   MediaMissionStep,
+  DecryptFileMediaMissionStep,
   EncryptFileMediaMissionStep,
 } from 'lib/types/media-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -244,48 +245,6 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
   };
 }
 
-type DecryptFileStep =
-  | {
-      +step: 'fetch_file',
-      +file: string,
-      +time: number,
-      +success: boolean,
-      +exceptionMessage: ?string,
-    }
-  | {
-      +step: 'decrypt_data',
-      +dataSize: number,
-      +time: number,
-      +isPadded: boolean,
-      +success: boolean,
-      +exceptionMessage: ?string,
-    }
-  | {
-      +step: 'write_file',
-      +file: string,
-      +mimeType: string,
-      +time: number,
-      +success: boolean,
-      +exceptionMessage: ?string,
-    }
-  | {
-      +step: 'create_data_uri',
-      +mimeType: string,
-      +time: number,
-      +success: boolean,
-      +exceptionMessage: ?string,
-    };
-type DecryptionFailure =
-  | MediaMissionFailure
-  | {
-      +success: false,
-      +reason:
-        | 'fetch_file_failed'
-        | 'decrypt_data_failed'
-        | 'write_file_failed',
-      +exceptionMessage: ?string,
-    };
-
 async function decryptMedia(
   blobURI: string,
   encryptionKey: string,
@@ -294,12 +253,12 @@ async function decryptMedia(
     +destinationDirectory?: string,
   },
 ): Promise<{
-  steps: $ReadOnlyArray<DecryptFileStep>,
-  result: DecryptionFailure | { success: true, uri: string },
+  steps: $ReadOnlyArray<DecryptFileMediaMissionStep>,
+  result: MediaMissionFailure | { success: true, uri: string },
 }> {
   let success = true,
     exceptionMessage;
-  const steps: DecryptFileStep[] = [];
+  const steps: DecryptFileMediaMissionStep[] = [];
 
   // Step 1. Fetch the file and convert it to a Uint8Array
   const fetchStartTime = Date.now();
