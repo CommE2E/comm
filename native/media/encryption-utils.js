@@ -289,7 +289,10 @@ type DecryptionFailure =
 async function decryptMedia(
   blobURI: string,
   encryptionKey: string,
-  options: { +destination: 'file' | 'data_uri' },
+  options: {
+    +destination: 'file' | 'data_uri',
+    +destinationDirectory?: string,
+  },
 ): Promise<{
   steps: $ReadOnlyArray<DecryptFileStep>,
   result: DecryptionFailure | { success: true, uri: string },
@@ -378,7 +381,8 @@ async function decryptMedia(
     // blobURI is a URL, we use the last part of the path as the filename
     const uriSuffix = blobURI.substring(blobURI.lastIndexOf('/') + 1);
     const filename = readableFilename(uriSuffix, mime) || uriSuffix;
-    const targetPath = `${temporaryDirectoryPath}${Date.now()}-${filename}`;
+    const directory = options.destinationDirectory ?? temporaryDirectoryPath;
+    const targetPath = `${directory}${Date.now()}-${filename}`;
     try {
       await commUtilsModule.writeBufferToFile(targetPath, decryptedData.buffer);
     } catch (e) {
