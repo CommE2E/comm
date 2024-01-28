@@ -43,14 +43,17 @@ function ImageModal(props: Props): React.Node {
 
   const onPressSave = React.useCallback(() => {
     invariant(
-      mediaInfo.type === 'photo' || mediaInfo.type === 'video',
+      mediaInfo.type === 'photo' ||
+        mediaInfo.type === 'video' ||
+        mediaInfo.type === 'encrypted_photo' ||
+        mediaInfo.type === 'encrypted_video',
       'saving media of type ' + mediaInfo.type + ' is not supported',
     );
 
-    const { id: uploadID, uri } = mediaInfo;
+    const { id: uploadID } = mediaInfo;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };
-    return intentionalSaveMedia(uri, ids);
+    return intentionalSaveMedia(mediaInfo, ids);
   }, [intentionalSaveMedia, item.messageInfo, mediaInfo]);
 
   const onPressCopy = React.useCallback(() => {

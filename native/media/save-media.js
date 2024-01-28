@@ -13,6 +13,7 @@ import type {
   MediaMissionStep,
   MediaMissionResult,
   MediaMissionFailure,
+  MediaInfo,
 } from 'lib/types/media-types.js';
 import {
   reportTypes,
@@ -27,6 +28,7 @@ import {
 } from 'lib/utils/report-utils.js';
 
 import { fetchBlob } from './blob-utils.js';
+import { decryptMedia } from './encryption-utils.js';
 import {
   fetchAssetInfo,
   fetchFileInfo,
@@ -43,7 +45,7 @@ import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { requestAndroidPermission } from '../utils/android-permissions.js';
 
 export type IntentionalSaveMedia = (
-  uri: string,
+  mediaInfo: MediaInfo,
   ids: {
     uploadID: string,
     messageServerID: ?string,
@@ -56,7 +58,7 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
   const mediaReportsEnabled = useIsReportEnabled('mediaReports');
   return React.useCallback(
     async (
-      uri: string,
+      mediaInfo: MediaInfo,
       ids: {
         uploadID: string,
         messageServerID: ?string,
@@ -64,11 +66,19 @@ function useIntentionalSaveMedia(): IntentionalSaveMedia {
       },
     ) => {
       const start = Date.now();
+      const { uri: mediaURI, blobURI, holder, encryptionKey } = mediaInfo;
+      const uri = mediaURI ?? blobURI ?? holder;
+      invariant(uri, 'mediaInfo should have a uri or a blobURI');
+
       const steps: Array<MediaMissionStep> = [
         { step: 'save_media', uri, time: start },
       ];
 
-      const { resultPromise, reportPromise } = saveMedia(uri, 'request');
+      const { resultPromise, reportPromise } = saveMedia(
+        uri,
+        encryptionKey,
+        'request',
+      );
       const result = await resultPromise;
       const userTime = Date.now() - start;
 
@@ -130,6 +140,7 @@ type Permissions = 'check' | 'request';
 
 function saveMedia(
   uri: string,
+  encryptionKey?: ?string,
   permissions?: Permissions = 'check',
 ): {
   resultPromise: Promise<MediaMissionResult>,
@@ -142,7 +153,12 @@ function saveMedia(
     }
   };
 
-  const reportPromise = innerSaveMedia(uri, permissions, sendResult);
+  const reportPromise = innerSaveMedia(
+    uri,
+    encryptionKey,
+    permissions,
+    sendResult,
+  );
   const resultPromise = new Promise<MediaMissionResult>(resolve => {
     resolveResult = resolve;
   });
@@ -152,13 +168,14 @@ function saveMedia(
 
 async function innerSaveMedia(
   uri: string,
+  encryptionKey?: ?string,
   permissions: Permissions,
   sendResult: (result: MediaMissionResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   if (Platform.OS === 'android') {
-    return await saveMediaAndroid(uri, permissions, sendResult);
+    return await saveMediaAndroid(uri, encryptionKey, permissions, sendResult);
   } else if (Platform.OS === 'ios') {
-    return await saveMediaIOS(uri, sendResult);
+    return await saveMediaIOS(uri, encryptionKey, sendResult);
   } else {
     sendResult({ success: false, reason: 'save_unsupported' });
     return [];
@@ -172,6 +189,7 @@ const androidSavePermission =
 // Pictures directory, and then trigger the media scanner to pick it up
 async function saveMediaAndroid(
   inputURI: string,
+  encryptionKey?: ?string,
   permissions: Permissions,
   sendResult: (result: MediaMissionResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
@@ -221,7 +239,11 @@ async function saveMediaAndroid(
     promises.push(
       (async () => {
         const { result: tempSaveResult, steps: tempSaveSteps } =
-          await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
+          await saveRemoteMediaToDisk(
+            uri,
+            encryptionKey,
+            temporaryDirectoryPath,
+          );
         steps.push(...tempSaveSteps);
         if (!tempSaveResult.success) {
           success = false;
@@ -277,6 +299,7 @@ async function saveMediaAndroid(
 // On iOS, we save the media to the camera roll
 async function saveMediaIOS(
   inputURI: string,
+  encryptionKey?: ?string,
   sendResult: (result: MediaMissionResult) => void,
 ): Promise<$ReadOnlyArray<MediaMissionStep>> {
   const steps: Array<MediaMissionStep> = [];
@@ -285,7 +308,7 @@ async function saveMediaIOS(
   let tempFile;
   if (uri.startsWith('http')) {
     const { result: tempSaveResult, steps: tempSaveSteps } =
-      await saveRemoteMediaToDisk(uri, temporaryDirectoryPath);
+      await saveRemoteMediaToDisk(uri, encryptionKey, temporaryDirectoryPath);
     steps.push(...tempSaveSteps);
     if (!tempSaveResult.success) {
       sendResult(tempSaveResult);
@@ -348,9 +371,54 @@ type IntermediateSaveResult = {
 
 async function saveRemoteMediaToDisk(
   inputURI: string,
+  encryptionKey?: ?string,
   directory: string, // should end with a /
 ): Promise<IntermediateSaveResult> {
   const steps: Array<MediaMissionStep> = [];
+  if (encryptionKey) {
+    const { steps: decryptionSteps, result: decryptionResult } =
+      await decryptMedia(inputURI, encryptionKey, {
+        destination: 'file',
+        destinationDirectory: directory,
+      });
+    steps.push(...decryptionSteps);
+    if (!decryptionResult.success) {
+      return { result: decryptionResult, steps };
+    }
+    const { uri } = decryptionResult;
+    const path = pathFromURI(uri);
+    if (!path) {
+      return {
+        result: { success: false, reason: 'resolve_failed', uri },
+        steps,
+      };
+    }
+
+    const { steps: fetchFileInfoSteps, result: fetchFileInfoResult } =
+      await fetchFileInfo(uri, undefined, {
+        mime: true,
+      });
+    steps.push(...fetchFileInfoSteps);
+    if (!fetchFileInfoResult.success) {
+      return { result: fetchFileInfoResult, steps };
+    }
+    const { mime } = fetchFileInfoResult;
+    if (!mime) {
+      return {
+        steps,
+        result: {
+          success: false,
+          reason: 'media_type_fetch_failed',
+          detectedMIME: mime,
+        },
+      };
+    }
+
+    return {
+      result: { success: true, path, mime },
+      steps,
+    };
+  }
 
   const { result: fetchBlobResult, steps: fetchBlobSteps } =
     await fetchBlob(inputURI);
