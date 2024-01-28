@@ -1,7 +1,6 @@
 // @flow
 
 import Clipboard from '@react-native-clipboard/clipboard';
-import invariant from 'invariant';
 import * as React from 'react';
 
 import type { MediaInfo, Dimensions } from 'lib/types/media-types.js';
@@ -42,15 +41,10 @@ function ImageModal(props: Props): React.Node {
   const intentionalSaveMedia = useIntentionalSaveMedia();
 
   const onPressSave = React.useCallback(() => {
-    invariant(
-      mediaInfo.type === 'photo' || mediaInfo.type === 'video',
-      'saving media of type ' + mediaInfo.type + ' is not supported',
-    );
-
-    const { id: uploadID, uri } = mediaInfo;
+    const uploadID = mediaInfo.id;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };
-    return intentionalSaveMedia(uri, ids);
+    return intentionalSaveMedia(mediaInfo, ids);
   }, [intentionalSaveMedia, item.messageInfo, mediaInfo]);
 
   const onPressCopy = React.useCallback(() => {
