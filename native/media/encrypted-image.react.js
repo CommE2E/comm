@@ -7,7 +7,7 @@ import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js'
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
-import { decryptBase64, decryptMedia } from './encryption-utils.js';
+import { decryptBase64, fetchAndDecryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageSource } from '../types/react-native.js';
@@ -77,7 +77,7 @@ function EncryptedImage(props: Props): React.Node {
         return;
       }
 
-      const { result } = await decryptMedia(blobURI, encryptionKey, {
+      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey, {
         destination: 'data_uri',
       });
 

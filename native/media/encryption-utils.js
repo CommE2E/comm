@@ -245,7 +245,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
   };
 }
 
-async function decryptMedia(
+async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
   options: {
@@ -407,4 +407,4 @@ function decryptBase64(encrypted: string, keyHex: string): string {
   return commUtilsModule.base64EncodeBuffer(decryptedData.buffer);
 }
 
-export { encryptMedia, decryptMedia, encryptBase64, decryptBase64 };
+export { encryptMedia, fetchAndDecryptMedia, encryptBase64, decryptBase64 };

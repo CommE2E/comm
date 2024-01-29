@@ -29,7 +29,7 @@ import {
 } from 'lib/utils/report-utils.js';
 
 import { fetchBlob } from './blob-utils.js';
-import { decryptMedia } from './encryption-utils.js';
+import { fetchAndDecryptMedia } from './encryption-utils.js';
 import {
   fetchAssetInfo,
   fetchFileInfo,
@@ -378,7 +378,7 @@ async function saveRemoteMediaToDisk(
   const steps: Array<MediaMissionStep> = [];
   if (encryptionKey) {
     const { steps: decryptionSteps, result: decryptionResult } =
-      await decryptMedia(inputURI, encryptionKey, {
+      await fetchAndDecryptMedia(inputURI, encryptionKey, {
         destination: 'file',
         destinationDirectory: directory,
       });
