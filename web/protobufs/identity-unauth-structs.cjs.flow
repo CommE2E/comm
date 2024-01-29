@@ -408,6 +408,51 @@ export type WalletLoginResponseObject = {
   accessToken: string,
 };
 
+declare export class SecondaryDeviceKeysUploadRequest extends Message {
+  getUserId(): string;
+  setUserId(value: string): SecondaryDeviceKeysUploadRequest;
+
+  getChallengeResponse(): string;
+  setChallengeResponse(value: string): SecondaryDeviceKeysUploadRequest;
+
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): SecondaryDeviceKeysUploadRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): SecondaryDeviceKeysUploadRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SecondaryDeviceKeysUploadRequestObject;
+  static toObject(includeInstance: boolean, msg: SecondaryDeviceKeysUploadRequest): SecondaryDeviceKeysUploadRequestObject;
+  static serializeBinaryToWriter(message: SecondaryDeviceKeysUploadRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SecondaryDeviceKeysUploadRequest;
+  static deserializeBinaryFromReader(message: SecondaryDeviceKeysUploadRequest, reader: BinaryReader): SecondaryDeviceKeysUploadRequest;
+}
+
+export type SecondaryDeviceKeysUploadRequestObject = {
+  userId: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+}
+
+declare export class SecondaryDeviceLoginResponse extends Message {
+  getUserId(): string;
+  setUserId(value: string): SecondaryDeviceLoginResponse;
+
+  getAccessToken(): string;
+  setAccessToken(value: string): SecondaryDeviceLoginResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SecondaryDeviceLoginResponseObject;
+  static toObject(includeInstance: boolean, msg: SecondaryDeviceLoginResponse): SecondaryDeviceLoginResponseObject;
+  static serializeBinaryToWriter(message: SecondaryDeviceLoginResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SecondaryDeviceLoginResponse;
+  static deserializeBinaryFromReader(message: SecondaryDeviceLoginResponse, reader: BinaryReader): SecondaryDeviceLoginResponse;
+}
+
+export type SecondaryDeviceLoginResponseObject = {
+  userId: string,
+  accessToken: string,
+}
+
 declare export class GenerateNonceResponse extends Message {
   getNonce(): string;
   setNonce(value: string): GenerateNonceResponse;
