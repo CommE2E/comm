@@ -13,8 +13,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
 import PasswordChangeModal from './password-change-modal.js';
-import BlockListModal from './relationship/block-list-modal.react.js';
-import FriendListModal from './relationship/friend-list-modal.react.js';
 import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
 import TunnelbrokerTestScreen from './tunnelbroker-test.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
@@ -33,16 +31,6 @@ function AccountSettings(): React.Node {
   const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
     () => pushModal(<PasswordChangeModal />),
-    [pushModal],
-  );
-
-  const openFriendList = React.useCallback(
-    () => pushModal(<FriendListModal />),
-    [pushModal],
-  );
-
-  const openBlockList = React.useCallback(
-    () => pushModal(<BlockListModal />),
     [pushModal],
   );
 
@@ -149,38 +137,25 @@ function AccountSettings(): React.Node {
 
   return (
     <div className={css.container}>
-      <div className={css.contentContainer}>
-        <h4 className={css.header}>My Account</h4>
+      <div className={css.editUserAvatarContainer}>
         <EditUserAvatar userID={currentUserInfo.id} />
-        <div className={css.content}>
-          <ul>
-            <li>
-              <p className={css.logoutContainer}>
-                <span className={css.logoutLabel}>{'Logged in as '}</span>
-                <span className={css.username}>{stringForUser}</span>
-              </p>
-              <Button variant="text" onClick={logOutUser}>
-                <p className={css.buttonText}>Log out</p>
-              </Button>
-            </li>
-            {changePasswordSection}
-            <li>
-              <span>Friend List</span>
-              <Button variant="text" onClick={openFriendList}>
-                <p className={css.buttonText}>See List</p>
-              </Button>
-            </li>
-            <li>
-              <span>Block List</span>
-              <Button variant="text" onClick={openBlockList}>
-                <p className={css.buttonText}>See List</p>
-              </Button>
-            </li>
-          </ul>
-        </div>
-        {preferences}
-        {tunnelbroker}
       </div>
+      <div className={css.content}>
+        <ul>
+          <li>
+            <p className={css.logoutContainer}>
+              <span className={css.logoutLabel}>{'Logged in as '}</span>
+              <span className={css.username}>{stringForUser}</span>
+            </p>
+            <Button variant="text" onClick={logOutUser}>
+              <p className={css.buttonText}>Log out</p>
+            </Button>
+          </li>
+          {changePasswordSection}
+        </ul>
+      </div>
+      {preferences}
+      {tunnelbroker}
     </div>
   );
 }
