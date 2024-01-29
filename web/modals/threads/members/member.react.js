@@ -12,7 +12,7 @@ import {
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -30,7 +30,7 @@ import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.j
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
 
 type Props = {
-  +memberInfo: MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
   +setOpenMenu: SetState<?string>,
 };

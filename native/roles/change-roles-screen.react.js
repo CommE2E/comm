@@ -13,7 +13,7 @@ import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -28,7 +28,7 @@ import { useStyles } from '../themes/colors.js';
 
 export type ChangeRolesScreenParams = {
   +threadInfo: ThreadInfo,
-  +memberInfo: MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +role: ?string,
 };
 
