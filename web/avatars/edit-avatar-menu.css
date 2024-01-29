@@ -11,7 +11,7 @@
   background-color: var(--button-background-primary-default);
   /* We want the border color of the edit avatar badge to always 
   match the panel background color */
-  border: 2px solid var(--frame-background-primary-default);
+  border: 2px solid var(--panel-background-primary-default);
   border-radius: 50%;
   cursor: pointer;
   transition-duration: 200ms;
