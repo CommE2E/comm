@@ -137,7 +137,7 @@ type DecryptionFailure =
  *
  * The returned object URL should be revoked when the media is no longer needed.
  */
-async function decryptMedia(
+async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
 ): Promise<{
@@ -251,4 +251,4 @@ async function decryptThumbhashToDataURL(
   return thumbHashToDataURL(thumbhashBytes);
 }
 
-export { encryptFile, decryptMedia, decryptThumbhashToDataURL };
+export { encryptFile, fetchAndDecryptMedia, decryptThumbhashToDataURL };

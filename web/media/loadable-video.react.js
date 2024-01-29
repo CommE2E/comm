@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { decryptMedia } from './encryption-utils.js';
+import { fetchAndDecryptMedia } from './encryption-utils.js';
 import { preloadImage } from './media-utils.js';
 import type { CSSStyle } from '../types/styles';
 
@@ -54,7 +54,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
         thumbnailBlobURI && thumbnailEncryptionKey,
         'invalid encrypted thumbnail source',
       );
-      const { result } = await decryptMedia(
+      const { result } = await fetchAndDecryptMedia(
         thumbnailBlobURI,
         thumbnailEncryptionKey,
       );
