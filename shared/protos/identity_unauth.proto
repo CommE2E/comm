@@ -26,6 +26,9 @@ service IdentityClientService {
   rpc RegisterReservedWalletUser(ReservedWalletRegistrationRequest) returns
     (AuthResponse) {}
 
+  rpc UploadKeysForRegisteredDeviceAndLogIn(SecondaryDeviceKeysUploadRequest)
+    returns (AuthResponse) {}
+
   // Sign-In with Ethereum actions
 
   // Called by clients to get a nonce for a Sign-In with Ethereum message
@@ -196,6 +199,16 @@ message ReservedWalletRegistrationRequest {
   string keyserver_message = 4;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
   string keyserver_signature = 5;
+}
+
+// UploadKeysForRegisteredDeviceAndLogIn
+
+message SecondaryDeviceKeysUploadRequest {
+  string user_id = 1;
+  string challenge_response = 2;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  DeviceKeyUpload device_key_upload = 3;
 }
 
 // GenerateNonce

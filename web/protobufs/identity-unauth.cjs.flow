@@ -58,6 +58,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.AuthResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
+  uploadKeysForRegisteredDeviceAndLogIn(
+    request: identityStructs.SecondaryDeviceKeysUploadRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
+
   generateNonce(
     request: identityStructs.Empty,
     metadata: grpcWeb.Metadata | void,
@@ -116,8 +123,7 @@ declare export class IdentityClientServicePromiseClient {
     request: identityStructs.ReservedRegistrationStartRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.RegistrationStartResponse>;
-
-  registerPasswordUserFinish(
+registerPasswordUserFinish(
     request: identityStructs.RegistrationFinishRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.AuthResponse>;
@@ -139,6 +145,11 @@ declare export class IdentityClientServicePromiseClient {
 
   registerReservedWalletUser(
     request: identityStructs.ReservedWalletRegistrationRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.AuthResponse>;
+
+  uploadKeysForRegisteredDeviceAndLogIn(
+    request: identityStructs.SecondaryDeviceKeysUploadRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.AuthResponse>;
 
