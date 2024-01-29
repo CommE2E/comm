@@ -473,4 +473,58 @@ jsi::Value CommRustModule::updateDeviceList(
       });
 }
 
+jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String challengeResponse,
+    jsi::String keyPayload,
+    jsi::String keyPayloadSignature,
+    jsi::String contentPrekey,
+    jsi::String contentPrekeySignature,
+    jsi::String notifPrekey,
+    jsi::String notifPrekeySignature,
+    jsi::Array contentOneTimeKeys,
+    jsi::Array notifOneTimeKeys) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto challengeResponseRust = jsiStringToRustString(challengeResponse, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityUploadSecondaryDeviceKeysAndLogIn(
+              userIDRust,
+              challengeResponseRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+  return jsi::Value::undefined();
+}
+
 } // namespace comm
