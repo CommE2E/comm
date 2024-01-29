@@ -11,7 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus,
-  SearchResult, User,
+  SearchQuery, SearchResult, User,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -23,7 +23,6 @@ mod send;
 use crate::config::CONFIG;
 use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
 use send::{send_error_response, send_message, WebsocketSink};
-
 pub mod errors;
 
 #[derive(Serialize, Deserialize)]
@@ -141,6 +140,35 @@ async fn close_connection(outgoing: WebsocketSink) {
   }
 }
 
+fn create_json_query(
+  request_message: &str,
+) -> Result<String, errors::WebsocketError> {
+  let search_request: SearchQuery = match serde_json::from_str(request_message)
+  {
+    Ok(search_request) => search_request,
+    Err(_) => {
+      return Err(errors::WebsocketError::InvalidSearchQuery);
+    }
+  };
+
+  match search_request {
+    SearchQuery::Prefix(prefix_request) => {
+      let prefix_query = Query {
+        query: Prefix {
+          prefix: Username {
+            username: prefix_request.prefix.trim().to_string(),
+          },
+        },
+      };
+
+      return serde_json::to_string(&prefix_query).map_err(|e| {
+        error!("Error serializing prefix query: {}", e);
+        errors::WebsocketError::SerializationError
+      });
+    }
+  }
+}
+
 async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   debug!("Incoming WebSocket connection from {}", addr);
 
@@ -215,23 +243,11 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
         }
       }
       Ok(Message::Text(text)) => {
-        let prefix_query = Query {
-          query: Prefix {
-            prefix: Username {
-              username: text.trim().to_string(),
-            },
-          },
-        };
-
-        let json_body = match serde_json::to_string(&prefix_query) {
+        let json_body = match create_json_query(&text) {
           Ok(json_body) => json_body,
           Err(e) => {
-            error!("Error serializing prefix query: {}", e);
-            send_error_response(
-              errors::WebsocketError::SerializationError,
-              outgoing.clone(),
-            )
-            .await;
+            error!("Error creating query: {}", e);
+            send_error_response(e, outgoing.clone()).await;
             continue;
           }
         };
