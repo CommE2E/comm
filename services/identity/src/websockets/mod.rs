@@ -11,7 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus,
-  SearchResult, User,
+  SearchQuery, SearchResult, User,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -23,7 +23,6 @@ mod send;
 use crate::config::CONFIG;
 use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
 use send::{send_error_response, send_message, WebsocketSink};
-
 pub mod errors;
 
 #[derive(Serialize, Deserialize)]
@@ -141,6 +140,48 @@ async fn close_connection(outgoing: WebsocketSink) {
   }
 }
 
+async fn handle_prefix_search(
+  prefix: &str,
+) -> Result<String, errors::WebsocketError> {
+  let prefix_query = Query {
+    query: Prefix {
+      prefix: Username {
+        username: prefix.trim().to_string(),
+      },
+    },
+  };
+
+  let json_body = match serde_json::to_string(&prefix_query) {
+    Ok(json_body) => json_body,
+    Err(_) => {
+      return Err(errors::WebsocketError::SerializationError);
+    }
+  };
+
+  let opensearch_url =
+    format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
+
+  let response = send_search_request(&opensearch_url, json_body).await;
+
+  let response_text = response
+    .map_err(|_| errors::WebsocketError::SearchError)?
+    .text()
+    .await
+    .map_err(|_| errors::WebsocketError::SearchError)?;
+
+  let search_response: SearchResponse<User> =
+    serde_json::from_str(&response_text)
+      .map_err(|_| errors::WebsocketError::SerializationError)?;
+
+  let usernames: Vec<User> = search_response.into_documents().collect();
+
+  let search_result =
+    serde_json::to_string(&SearchResult { hits: usernames })
+      .map_err(|_| errors::WebsocketError::SerializationError);
+
+  search_result
+}
+
 async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   debug!("Incoming WebSocket connection from {}", addr);
 
@@ -155,9 +196,6 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   let (outgoing, mut incoming) = ws_stream.split();
 
   let outgoing = Arc::new(Mutex::new(outgoing));
-
-  let opensearch_url =
-    format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
 
   if let Some(Ok(auth_message)) = incoming.next().await {
     match auth_message {
@@ -215,20 +253,11 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
         }
       }
       Ok(Message::Text(text)) => {
-        let prefix_query = Query {
-          query: Prefix {
-            prefix: Username {
-              username: text.trim().to_string(),
-            },
-          },
-        };
-
-        let json_body = match serde_json::to_string(&prefix_query) {
-          Ok(json_body) => json_body,
-          Err(e) => {
-            error!("Error serializing prefix query: {}", e);
+        let search_request: SearchQuery = match serde_json::from_str(&text) {
+          Ok(search_request) => search_request,
+          Err(_) => {
             send_error_response(
-              errors::WebsocketError::SerializationError,
+              errors::WebsocketError::InvalidSearchQuery,
               outgoing.clone(),
             )
             .await;
@@ -236,49 +265,19 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
           }
         };
 
-        let response = send_search_request(&opensearch_url, json_body).await;
-
-        let response_text = match response {
-          Ok(response) => match response.text().await {
-            Ok(text) => text,
-            Err(e) => {
-              error!("Error getting response text: {}", e);
-              send_error_response(
-                errors::WebsocketError::SearchError,
-                outgoing.clone(),
-              )
-              .await;
-              continue;
-            }
-          },
-          Err(e) => {
-            error!("Error getting search response: {}", e);
-            send_error_response(
-              errors::WebsocketError::SearchError,
-              outgoing.clone(),
-            )
-            .await;
-            continue;
+        let search_result = match search_request {
+          SearchQuery::Prefix(prefix_request) => {
+            handle_prefix_search(&prefix_request.prefix).await
           }
         };
 
-        let search_response: SearchResponse<User> =
-          match serde_json::from_str(&response_text) {
-            Ok(search_response) => search_response,
-            Err(e) => {
-              error!("Error deserializing search response: {}", e);
-              send_error_response(
-                errors::WebsocketError::SerializationError,
-                outgoing.clone(),
-              )
-              .await;
-              continue;
-            }
-          };
-
-        let usernames: Vec<User> = search_response.into_documents().collect();
-
-        let response_msg = serde_json::json!(SearchResult { hits: usernames });
+        let response_msg = match search_result {
+          Ok(response_msg) => response_msg,
+          Err(e) => {
+            send_error_response(e, outgoing.clone()).await;
+            continue;
+          }
+        };
 
         if let Err(e) = outgoing
           .lock()
