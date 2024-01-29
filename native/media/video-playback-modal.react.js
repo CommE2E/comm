@@ -19,7 +19,7 @@ import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js'
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
-import { decryptMedia } from './encryption-utils.js';
+import { fetchAndDecryptMedia } from './encryption-utils.js';
 import { formatDuration } from './video-utils.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -116,7 +116,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         return;
       }
 
-      const { result } = await decryptMedia(blobURI, encryptionKey, {
+      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey, {
         destination: 'file',
       });
       if (result.success) {
