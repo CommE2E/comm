@@ -217,17 +217,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       localSettings: { ...state.localSettings, ...action.payload },
     };
-  } else if (
-    action.type === logOutActionTypes.started ||
-    action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success
-  ) {
-    state = {
-      ...state,
-      localSettings: {
-        isBackupEnabled: false,
-      },
-    };
   }
 
   if (action.type === setNewSessionActionType) {
