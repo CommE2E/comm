@@ -1,0 +1,15 @@
+.container {
+  padding: 0 8px 16px;
+  overflow-y: scroll;
+}
+
+.roleNameText {
+  color: var(--text-background-tertiary-default);
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+  margin: 16px 0 8px 8px;
+}
+
+div.noScroll {
+  overflow: hidden;
+}
