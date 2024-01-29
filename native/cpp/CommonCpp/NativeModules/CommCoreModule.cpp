@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "BaseDataStore.h"
+#include "CommServicesAuthMetadataEmitter.h"
 #include "DatabaseManager.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/RustPromiseManager.h"
@@ -1218,6 +1219,8 @@ jsi::Value CommCoreModule::setCommServicesAuthMetadata(
                 CommSecureStore::set(CommSecureStore::deviceID, deviceIDStr);
                 CommSecureStore::set(
                     CommSecureStore::commServicesAccessToken, accessTokenStr);
+                CommServicesAuthMetadataEmitter::sendAuthMetadataToJS(
+                    accessTokenStr, userIDStr);
               } catch (const std::exception &e) {
                 error = e.what();
               }
