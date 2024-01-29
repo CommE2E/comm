@@ -37,7 +37,7 @@ regex = "1"
 tower-http = { version = "0.4", features = ["cors"] }
 http = "0.2"
 elastic = "0.21.0-pre.5"
-reqwest = "0.11"
+reqwest = { version = "0.11", features = ["json"] }
 futures = "0.3.30"
 
 [build-dependencies]
