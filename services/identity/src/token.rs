@@ -4,12 +4,21 @@ use rand::{
   CryptoRng, Rng,
 };
 
-use crate::constants::ACCESS_TOKEN_LENGTH;
+use crate::{constants::ACCESS_TOKEN_LENGTH, ddb_utils::Identifier};
 
 #[derive(Clone, Eq, PartialEq)]
 pub enum AuthType {
   Password,
   Wallet,
+}
+
+impl From<Identifier> for AuthType {
+  fn from(id: Identifier) -> Self {
+    match id {
+      Identifier::Username(_) => AuthType::Password,
+      Identifier::WalletAddress(_) => AuthType::Wallet,
+    }
+  }
 }
 
 #[derive(Clone)]

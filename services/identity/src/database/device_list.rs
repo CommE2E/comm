@@ -622,6 +622,51 @@ impl DatabaseClient {
       .map_err(Error::from)
   }
 
+  /// Adds device data to devices table. If the device already exists, its
+  /// data is overwritten. This does not update the device list; the device ID
+  /// should already be present in the device list.
+  pub async fn put_device_data(
+    &self,
+    user_id: impl Into<String>,
+    device_key_upload: FlattenedDeviceKeyUpload,
+    code_version: u64,
+    login_time: DateTime<Utc>,
+  ) -> Result<(), Error> {
+    let content_one_time_keys = device_key_upload.content_one_time_keys.clone();
+    let notif_one_time_keys = device_key_upload.notif_one_time_keys.clone();
+    let new_device = DeviceRow::from_device_key_upload(
+      user_id,
+      device_key_upload,
+      code_version,
+      login_time,
+    );
+    let device_id = new_device.device_id.clone();
+
+    self
+      .client
+      .put_item()
+      .table_name(devices_table::NAME)
+      .set_item(Some(new_device.into()))
+      .expression_attribute_names("#user_id", ATTR_USER_ID)
+      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to put device data: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    self
+      .append_one_time_prekeys(
+        device_id,
+        content_one_time_keys,
+        notif_one_time_keys,
+      )
+      .await?;
+
+    Ok(())
+  }
+
   /// Adds new device to user's device list. If the device already exists, the
   /// operation fails. Transactionally generates new device list version.
   pub async fn add_device(
