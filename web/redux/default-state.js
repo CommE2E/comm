@@ -4,20 +4,24 @@ import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { thisMonthDates } from 'lib/utils/date-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { AppState } from './redux-setup.js';
+import type { NavInfo } from '../types/nav-types.js';
 
 declare var keyserverURL: string;
 
+const defaultNavInfo: NavInfo = {
+  activeChatThreadID: null,
+  startDate: thisMonthDates().startDate,
+  endDate: thisMonthDates().endDate,
+  tab: 'chat',
+};
+
 const defaultWebState: AppState = Object.freeze({
-  navInfo: {
-    activeChatThreadID: null,
-    startDate: '',
-    endDate: '',
-    tab: 'chat',
-  },
+  navInfo: defaultNavInfo,
   currentUserInfo: null,
   draftStore: { drafts: {} },
   entryStore: {
