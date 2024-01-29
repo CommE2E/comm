@@ -81,6 +81,13 @@ export interface Spec extends TurboModule {
     authAccessToken: string,
     keyserverID: string,
   ) => Promise<string>;
+  +getDeviceListForUser: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    userID: string,
+    sinceTimestamp: ?number,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
