@@ -33,6 +33,7 @@ public:
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
+  virtual jsi::Value logInSecondaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
 
 };
 
@@ -157,6 +158,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDeviceList, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(updatePayload));
+    }
+    jsi::Value logInSecondaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) override {
+      static_assert(
+          bridging::getParameterCount(&T::logInSecondaryDevice) == 10,
+          "Expected logInSecondaryDevice(...) to have 10 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::logInSecondaryDevice, jsInvoker_, instance_, std::move(userID), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
     }
 
   private:

@@ -94,6 +94,17 @@ export interface Spec extends TurboModule {
     authAccessToken: string,
     updatePayload: string,
   ) => Promise<string>;
+  +logInSecondaryDevice: (
+    userID: string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
