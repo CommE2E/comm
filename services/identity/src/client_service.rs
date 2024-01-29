@@ -583,7 +583,69 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<SecondaryDeviceLoginRequest>,
   ) -> Result<tonic::Response<SecondaryDeviceLoginResponse>, tonic::Status> {
-    Err(tonic::Status::unimplemented("unimplemented"))
+    let code_version = get_code_version(&request);
+    let message = request.into_inner();
+
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+    let user_id = message.user_id;
+    let device_id = flattened_device_key_upload.device_id_key.clone();
+
+    let Some(device_list) = self
+      .client
+      .get_current_device_list(&user_id)
+      .await
+      .map_err(handle_db_error)?
+    else {
+      warn!("User {} does not have valid device list. Secondary device auth impossible.", user_id);
+      return Err(tonic::Status::aborted("device list error"));
+    };
+
+    if !device_list.device_ids.contains(&device_id) {
+      return Err(tonic::Status::permission_denied(
+        "device not in device list",
+      ));
+    }
+
+    let login_time = chrono::Utc::now();
+
+    // generate access token
+    let user_identifier = self
+      .client
+      .get_user_identifier(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+    let token = AccessTokenData::with_created_time(
+      user_id.clone(),
+      device_id,
+      login_time,
+      user_identifier.into(),
+      &mut OsRng,
+    );
+    let access_token = token.access_token.clone();
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    // put device data (device key upload)
+    self
+      .client
+      .put_device_data(
+        &user_id,
+        flattened_device_key_upload,
+        code_version,
+        login_time,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = SecondaryDeviceLoginResponse {
+      user_id,
+      access_token,
+    };
+    Ok(Response::new(response))
   }
 
   async fn generate_nonce(
