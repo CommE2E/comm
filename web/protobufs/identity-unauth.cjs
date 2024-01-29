@@ -506,6 +506,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInReserved
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.SecondaryDeviceLoginRequest,
+ *   !proto.identity.unauth.SecondaryDeviceLoginResponse>}
+ */
+const methodDescriptor_IdentityClientService_LogInSecondaryDevice = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInSecondaryDevice',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.SecondaryDeviceLoginRequest,
+  proto.identity.unauth.SecondaryDeviceLoginResponse,
+  /**
+   * @param {!proto.identity.unauth.SecondaryDeviceLoginRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.SecondaryDeviceLoginResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.SecondaryDeviceLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.SecondaryDeviceLoginResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.SecondaryDeviceLoginResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInSecondaryDevice =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/LogInSecondaryDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogInSecondaryDevice,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.SecondaryDeviceLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.SecondaryDeviceLoginResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInSecondaryDevice =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/LogInSecondaryDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogInSecondaryDevice);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.Empty,
  *   !proto.identity.unauth.GenerateNonceResponse>}
  */

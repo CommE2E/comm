@@ -24,6 +24,7 @@ use crate::grpc_services::protos::unauth::{
   RegistrationFinishResponse, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+  SecondaryDeviceLoginRequest, SecondaryDeviceLoginResponse,
   VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
   WalletLoginRequest, WalletLoginResponse,
 };
@@ -576,6 +577,13 @@ impl IdentityClientService for ClientService {
     };
 
     Ok(Response::new(response))
+  }
+
+  async fn log_in_secondary_device(
+    &self,
+    request: tonic::Request<SecondaryDeviceLoginRequest>,
+  ) -> Result<tonic::Response<SecondaryDeviceLoginResponse>, tonic::Status> {
+    Err(tonic::Status::unimplemented("unimplemented"))
   }
 
   async fn generate_nonce(
