@@ -13,6 +13,7 @@ import {
   logInActionTypes,
   keyserverAuthActionTypes,
   deleteKeyserverAccountActionTypes,
+  identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -28,6 +29,7 @@ import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
+import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
@@ -46,6 +48,7 @@ import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { onStateDifference } from './redux-debug-utils.js';
 import { processDBStoreOperations } from './redux-utils.js';
+import { nonUserSpecificFieldsNative } from './state-types.js';
 import type { AppState } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
@@ -116,21 +119,7 @@ function reducer(state: AppState = defaultState, action: Action) {
         action.payload.preRequestUserState,
         action.payload.keyserverID,
       )) ||
-    (action.type === logOutActionTypes.success &&
-      invalidSessionDowngrade(
-        state,
-        action.payload.currentUserInfo,
-        action.payload.preRequestUserState,
-        ashoatKeyserverID,
-      )) ||
     (action.type === deleteKeyserverAccountActionTypes.success &&
-      invalidSessionDowngrade(
-        state,
-        action.payload.currentUserInfo,
-        action.payload.preRequestUserState,
-        ashoatKeyserverID,
-      )) ||
-    (action.type === deleteAccountActionTypes.success &&
       invalidSessionDowngrade(
         state,
         action.payload.currentUserInfo,
@@ -142,6 +131,35 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
     };
+  } else if (
+    action.type === logOutActionTypes.success ||
+    action.type === deleteAccountActionTypes.success
+  ) {
+    if (
+      invalidSessionDowngrade(
+        state,
+        action.payload.currentUserInfo,
+        action.payload.preRequestUserState,
+        ashoatKeyserverID,
+      )
+    ) {
+      return {
+        ...state,
+        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+      };
+    }
+
+    state = resetUserSpecificStateOnIdentityActions(
+      state,
+      defaultState,
+      nonUserSpecificFieldsNative,
+    );
+  } else if (action.type === identityRegisterActionTypes.success) {
+    state = resetUserSpecificStateOnIdentityActions(
+      state,
+      defaultState,
+      nonUserSpecificFieldsNative,
+    );
   }
   if (
     (action.type === setNewSessionActionType &&
