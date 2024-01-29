@@ -14,7 +14,8 @@ use grpc_clients::identity::protos::authenticated::{
 use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
-  RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
+  RegistrationFinishRequest, RegistrationStartRequest,
+  SecondaryDeviceLoginRequest, WalletLoginRequest,
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client, REQUEST_METADATA_COOKIE_KEY,
@@ -191,6 +192,20 @@ mod ffi {
       auth_device_id: String,
       auth_access_token: String,
       update_payload: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityLogInSecondaryDevice"]
+    fn log_in_secondary_device(
+      user_id: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
 
@@ -1353,6 +1368,72 @@ async fn update_device_list_helper(
     .into_inner();
 
   Ok(response.signed_device_list)
+}
+
+fn log_in_secondary_device(
+  user_id: String,
+  key_payload: String,
+  key_payload_signature: String,
+  content_prekey: String,
+  content_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let device_key_upload = DeviceKeyUpload {
+      device_key_info: Some(IdentityKeyInfo {
+        payload: key_payload,
+        payload_signature: key_payload_signature,
+        social_proof: None,
+      }),
+      content_upload: Some(Prekey {
+        prekey: content_prekey,
+        prekey_signature: content_prekey_signature,
+      }),
+      notif_upload: Some(Prekey {
+        prekey: notif_prekey,
+        prekey_signature: notif_prekey_signature,
+      }),
+      one_time_content_prekeys: content_one_time_keys,
+      one_time_notif_prekeys: notif_one_time_keys,
+      device_type: DEVICE_TYPE.into(),
+    };
+
+    let result =
+      log_in_secondary_device_helper(user_id, device_key_upload).await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn log_in_secondary_device_helper(
+  user_id: String,
+  device_key_upload: DeviceKeyUpload,
+) -> Result<String, Error> {
+  let mut identity_client = get_unauthenticated_client(
+    IDENTITY_SOCKET_ADDR,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let request = SecondaryDeviceLoginRequest {
+    user_id,
+    device_key_upload: Some(device_key_upload),
+  };
+
+  let response = identity_client
+    .log_in_secondary_device(request)
+    .await?
+    .into_inner();
+
+  let user_id_and_access_token = UserIDAndDeviceAccessToken {
+    user_id: response.user_id,
+    access_token: response.access_token,
+  };
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
 }
 
 #[derive(
