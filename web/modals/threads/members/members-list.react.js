@@ -7,15 +7,20 @@ import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 
 import ThreadMember from './member.react.js';
 import css from './members-modal.css';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
+  +threadMembers: $ReadOnlyArray<
+    LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
+  >,
 };
 
 function ThreadMembersList(props: Props): React.Node {
@@ -40,14 +45,20 @@ function ThreadMembersList(props: Props): React.Node {
         .map(([letter, users]) => {
           const userList = users
             .sort((a, b) => stringForUser(a).localeCompare(stringForUser(b)))
-            .map((user: RelativeMemberInfo) => (
-              <ThreadMember
-                key={user.id}
-                memberInfo={user}
-                threadInfo={threadInfo}
-                setOpenMenu={setOpenMenu}
-              />
-            ));
+            .map(
+              (
+                user:
+                  | LegacyRelativeMemberInfo
+                  | MinimallyEncodedRelativeMemberInfo,
+              ) => (
+                <ThreadMember
+                  key={user.id}
+                  memberInfo={user}
+                  threadInfo={threadInfo}
+                  setOpenMenu={setOpenMenu}
+                />
+              ),
+            );
           const letterHeader = (
             <h5 className={css.memberletterHeader} key={letter}>
               {letter.toUpperCase()}
