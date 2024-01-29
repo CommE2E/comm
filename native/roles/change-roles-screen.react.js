@@ -12,8 +12,11 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import type {
+  MinimallyEncodedRelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { LegacyRelativeMemberInfo } from 'lib/types/thread-types.js';
 import { values } from 'lib/utils/objects.js';
 
 import ChangeRolesHeaderRightButton from './change-roles-header-right-button.react.js';
@@ -26,7 +29,7 @@ import { useStyles } from '../themes/colors.js';
 
 export type ChangeRolesScreenParams = {
   +threadInfo: ThreadInfo,
-  +memberInfo: RelativeMemberInfo,
+  +memberInfo: LegacyRelativeMemberInfo | MinimallyEncodedRelativeMemberInfo,
   +role: ?string,
 };
 
