@@ -87,6 +87,12 @@ export interface Spec extends TurboModule {
     userID: string,
     sinceTimestamp: ?number,
   ) => Promise<string>;
+  +updateDeviceList: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    updatePayload: string,
+  ) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
