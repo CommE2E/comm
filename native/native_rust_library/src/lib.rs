@@ -2,6 +2,9 @@ use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use ffi::{bool_callback, string_callback, void_callback};
+use grpc_clients::identity::protos::auth::{
+  GetDeviceListRequest, UpdateDeviceListRequest,
+};
 use grpc_clients::identity::protos::authenticated::{
   InboundKeyInfo, InboundKeysForUserRequest, KeyserverKeysResponse,
   OutboundKeyInfo, OutboundKeysForUserRequest, RefreshUserPrekeysRequest,
@@ -168,6 +171,16 @@ mod ffi {
       device_id: String,
       access_token: String,
       keyserver_id: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityGetDeviceListForUser"]
+    fn get_device_list_for_user(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      user_id: String,
+      since_timestamp: i64,
       promise_id: u32,
     );
 
@@ -1233,6 +1246,55 @@ async fn upload_one_time_keys_helper(
   identity_client.upload_one_time_keys(upload_request).await?;
 
   Ok(())
+}
+
+fn get_device_list_for_user(
+  auth_user_id: String,
+  auth_device_id: String,
+  auth_access_token: String,
+  user_id: String,
+  since_timestamp: i64,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let auth_info = AuthInfo {
+      access_token: auth_access_token,
+      user_id: auth_user_id,
+      device_id: auth_device_id,
+    };
+    let since_timestamp = Option::from(since_timestamp).filter(|&t| t > 0);
+    let result =
+      get_device_list_for_user_helper(auth_info, user_id, since_timestamp)
+        .await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn get_device_list_for_user_helper(
+  auth_info: AuthInfo,
+  user_id: String,
+  since_timestamp: Option<i64>,
+) -> Result<String, Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let response = identity_client
+    .get_device_list_for_user(GetDeviceListRequest {
+      user_id,
+      since_timestamp,
+    })
+    .await?
+    .into_inner();
+
+  let payload = serde_json::to_string(&response.device_list_updates)?;
+  Ok(payload)
 }
 
 #[derive(
