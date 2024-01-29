@@ -7,7 +7,7 @@ import { AlertCircle as AlertCircleIcon } from 'react-feather';
 
 import type { EncryptedMediaType } from 'lib/types/media-types.js';
 
-import { decryptMedia } from './encryption-utils.js';
+import { fetchAndDecryptMedia } from './encryption-utils.js';
 import LoadableVideo from './loadable-video.react.js';
 import css from './media.css';
 import LoadingIndicator from '../loading-indicator.react.js';
@@ -49,7 +49,7 @@ function EncryptedMultimedia(props: Props): React.Node {
     setSource(null);
 
     const loadDecrypted = async () => {
-      const { result } = await decryptMedia(blobURI, encryptionKey);
+      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey);
       if (!isMounted) {
         return;
       }
