@@ -1,20 +1,17 @@
-.container {
+.panelContainer {
   flex: 1;
-  background-color: var(--frame-background-primary-default);
-  overflow: auto;
 }
 
-.contentContainer {
-  padding: 40px;
-  width: 456px;
-  overflow-y: auto;
+.container {
+  padding: 16px;
+  overflow-y: scroll;
+  flex-grow: 1;
+  flex-basis: 0;
 }
 
-.header {
-  color: var(--text-background-primary-default);
-  font-weight: var(--semi-bold);
-  line-height: var(--line-height-display);
-  padding-bottom: 55px;
+.editUserAvatarContainer {
+  display: flex;
+  justify-content: center;
 }
 
 .content {
