@@ -12,14 +12,15 @@ import {
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
-  ONE_TIME_KEYS_NUMBER,
   type UserDevicesOlmOutboundKeys,
   type UserLoginResponse,
 } from 'lib/types/identity-service-types.js';
+import { ONE_TIME_KEYS_NUMBER } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
 import { commCoreModule, commRustModule } from '../native-modules.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type Props = {
@@ -28,13 +29,11 @@ type Props = {
 function IdentityServiceContextProvider(props: Props): React.Node {
   const { children } = props;
 
-  const authMetadataPromiseRef =
-    React.useRef<?Promise<{ +userID: ?string, +accessToken: ?string }>>();
-  if (!authMetadataPromiseRef.current) {
-    authMetadataPromiseRef.current = (async () => {
-      const { userID, accessToken } =
-        await commCoreModule.getCommServicesAuthMetadata();
-      return { userID, accessToken };
+  const userIDPromiseRef = React.useRef<?Promise<?string>>();
+  if (!userIDPromiseRef.current) {
+    userIDPromiseRef.current = (async () => {
+      const { userID } = await commCoreModule.getCommServicesAuthMetadata();
+      return userID;
     })();
   }
 
@@ -43,14 +42,13 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
       (authMetadata: UserLoginResponse) => {
-        authMetadataPromiseRef.current = Promise.resolve({
-          userID: authMetadata.userId,
-          accessToken: authMetadata.accessToken,
-        });
+        userIDPromiseRef.current = Promise.resolve(authMetadata.userId);
       },
     );
     return () => subscription.remove();
   }, []);
+
+  const accessToken = useSelector(state => state.commServicesAccessToken);
 
   const getAuthMetadata = React.useCallback<
     () => Promise<{
@@ -60,29 +58,35 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     }>,
   >(async () => {
     const deviceID = await getContentSigningKey();
-    const authMetadata = await authMetadataPromiseRef.current;
-    const userID = authMetadata?.userID;
-    const accessToken = authMetadata?.accessToken;
+    const userID = await userIDPromiseRef.current;
     if (!deviceID || !userID || !accessToken) {
       throw new Error('Identity service client is not initialized');
     }
     return { deviceID, userID, accessToken };
-  }, []);
+  }, [accessToken]);
 
   const client = React.useMemo<IdentityServiceClient>(
     () => ({
       deleteUser: async () => {
-        const { deviceID, userID, accessToken } = await getAuthMetadata();
-        return commRustModule.deleteUser(userID, deviceID, accessToken);
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        return commRustModule.deleteUser(userID, deviceID, token);
       },
       getKeyserverKeys: async (
         keyserverID: string,
       ): Promise<DeviceOlmOutboundKeys> => {
-        const { deviceID, userID, accessToken } = await getAuthMetadata();
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
         const result = await commRustModule.getKeyserverKeys(
           userID,
           deviceID,
-          accessToken,
+          token,
           keyserverID,
         );
         const resultObject = JSON.parse(result);
@@ -122,12 +126,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const {
           deviceID: authDeviceID,
           userID,
-          accessToken,
+          accessToken: token,
         } = await getAuthMetadata();
         const result = await commRustModule.getOutboundKeysForUser(
           userID,
           authDeviceID,
-          accessToken,
+          token,
           targetUserID,
         );
         const resultArray = JSON.parse(result);
@@ -218,8 +222,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyArray(primaryOneTimeKeys),
           getOneTimeKeyArray(notificationsOneTimeKeys),
         );
-        const { userID, accessToken } = JSON.parse(registrationResult);
-        return { accessToken, userID, username };
+        const { userID, accessToken: token } = JSON.parse(registrationResult);
+        return { accessToken: token, userID, username };
       },
     }),
     [getAuthMetadata],
