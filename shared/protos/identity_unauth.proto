@@ -26,6 +26,9 @@ service IdentityClientService {
   rpc LogInReservedWalletUser(ReservedWalletLoginRequest) returns
     (WalletLoginResponse) {}
 
+  rpc LogInSecondaryDevice(SecondaryDeviceLoginRequest) returns
+    (SecondaryDeviceLoginResponse) {}
+
   // Sign-In with Ethereum actions
 
   // Called by clients to get a nonce for a Sign-In with Ethereum message
@@ -205,6 +208,21 @@ message ReservedWalletLoginRequest {
 
 message WalletLoginResponse {
   string user_id = 1;
+  string access_token = 2;
+}
+
+// LogInSecondaryDevice
+
+message SecondaryDeviceLoginRequest {
+  string user_id = 1;
+  // Information specific to a user's device needed to open a new channel of
+  // communication with this user
+  DeviceKeyUpload device_key_upload = 2;
+}
+
+message SecondaryDeviceLoginResponse {
+  string user_id = 1;
+  // Mint and return a new access token upon successful login
   string access_token = 2;
 }
 
