@@ -408,4 +408,40 @@ jsi::Value CommRustModule::getKeyserverKeys(
       });
 }
 
+jsi::Value CommRustModule::getDeviceListForUser(
+    jsi::Runtime &rt,
+    jsi::String authUserID,
+    jsi::String authDeviceID,
+    jsi::String authAccessToken,
+    jsi::String userID,
+    std::optional<double> sinceTimestamp) {
+  auto authUserIDRust = jsiStringToRustString(authUserID, rt);
+  auto authDeviceIDRust = jsiStringToRustString(authDeviceID, rt);
+  auto authAccessTokenRust = jsiStringToRustString(authAccessToken, rt);
+  auto userIDRust = jsiStringToRustString(userID, rt);
+
+  auto timestampI64 = static_cast<int64_t>(sinceTimestamp.value_or(0));
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityGetDeviceListForUser(
+              authUserIDRust,
+              authDeviceIDRust,
+              authAccessTokenRust,
+              userIDRust,
+              timestampI64,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 } // namespace comm
