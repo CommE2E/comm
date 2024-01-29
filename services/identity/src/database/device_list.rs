@@ -631,12 +631,15 @@ impl DatabaseClient {
     code_version: u64,
     login_time: DateTime<Utc>,
   ) -> Result<(), Error> {
+    let content_one_time_keys = device_key_upload.content_one_time_keys.clone();
+    let notif_one_time_keys = device_key_upload.notif_one_time_keys.clone();
     let new_device = DeviceRow::from_device_key_upload(
       user_id,
       device_key_upload,
       code_version,
       login_time,
     );
+    let device_id = new_device.device_id.clone();
 
     self
       .client
@@ -651,6 +654,14 @@ impl DatabaseClient {
         error!("Failed to put device data: {:?}", e);
         Error::AwsSdk(e.into())
       })?;
+
+    self
+      .append_one_time_prekeys(
+        device_id,
+        content_one_time_keys,
+        notif_one_time_keys,
+      )
+      .await?;
 
     Ok(())
   }
