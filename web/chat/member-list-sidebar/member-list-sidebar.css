@@ -1,0 +1,8 @@
+.container {
+  padding: 0 8px 16px;
+  overflow-y: scroll;
+}
+
+div.noScroll {
+  overflow: hidden;
+}
