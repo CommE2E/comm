@@ -232,9 +232,7 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
       }
       Ok(Message::Ping(msg)) => {
         debug!("Received Ping message from {}", addr);
-        if let Err(e) = outgoing.lock().await.send(Message::Pong(msg)).await {
-          error!("Error sending message: {}", e);
-        }
+        send_message(Message::Pong(msg), outgoing.clone()).await;
       }
       Ok(Message::Text(text)) => {
         let Ok(search_request) = serde_json::from_str(&text) else {
@@ -260,20 +258,11 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
           }
         };
 
-        if let Err(e) = outgoing
-          .lock()
-          .await
-          .send(Message::Text(format!("{}", response_msg.to_string())))
-          .await
-        {
-          error!("Error sending message: {}", e);
-          send_error_response(
-            errors::WebsocketError::SendError,
-            outgoing.clone(),
-          )
-          .await;
-          continue;
-        }
+        send_message(
+          Message::Text(format!("{}", response_msg.to_string())),
+          outgoing.clone(),
+        )
+        .await;
       }
       Err(e) => {
         error!("Error in WebSocket message: {}", e);
