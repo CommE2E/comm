@@ -10,7 +10,7 @@ import {
 } from 'lib/types/media-types.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ChatMentionCandidates } from 'lib/types/thread-types.js';
@@ -47,7 +47,7 @@ export type PendingMultimediaUpload = {
 export type TypeaheadState = {
   +canBeVisible: boolean,
   +keepUpdatingThreadMembers: boolean,
-  +frozenUserMentionsCandidates: $ReadOnlyArray<MinimallyEncodedRelativeMemberInfo>,
+  +frozenUserMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +frozenChatMentionsCandidates: ChatMentionCandidates,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,

@@ -6,7 +6,7 @@ import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
-  MinimallyEncodedRelativeMemberInfo,
+  RelativeMemberInfo,
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -24,7 +24,7 @@ import {
 import Alert from '../../utils/alert.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
-  +memberInfo: MinimallyEncodedRelativeMemberInfo,
+  +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
 }>;
 
