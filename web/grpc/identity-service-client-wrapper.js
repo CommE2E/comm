@@ -2,6 +2,8 @@
 
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import {
+  type RawDeviceListPayload,
+  type SignedDeviceList,
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
@@ -201,6 +203,36 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     );
 
     return devicesKeys.filter(Boolean);
+  };
+
+  getDeviceListHistoryForUser: (
+    userID: string,
+    sinceTimestamp?: number,
+  ) => Promise<$ReadOnlyArray<SignedDeviceList>> = async (
+    userID,
+    sinceTimestamp,
+  ) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    const request = new IdentityAuthStructs.GetDeviceListRequest();
+    request.setUserId(userID);
+    if (sinceTimestamp) {
+      request.setSinceTimestamp(sinceTimestamp);
+    }
+    const response = await client.getDeviceListForUser(request);
+    const rawPayloads = response.getDeviceListUpdatesList();
+    const deviceListUpdates: SignedDeviceList[] = rawPayloads.map(payload =>
+      JSON.parse(payload),
+    );
+    return deviceListUpdates;
+  };
+
+  updateDeviceList: (
+    newDeviceList: RawDeviceListPayload,
+  ) => Promise<SignedDeviceList> = () => {
+    return Promise.reject('Updating device list is unsupported on web');
   };
 }
 

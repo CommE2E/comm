@@ -9,6 +9,8 @@ import {
   identityKeysBlobValidator,
 } from 'lib/types/crypto-types.js';
 import {
+  type RawDeviceListPayload,
+  type SignedDeviceList,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
@@ -220,6 +222,44 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         );
         const { userID, accessToken } = JSON.parse(registrationResult);
         return { accessToken, userID, username };
+      },
+      getDeviceListHistoryForUser: async (
+        userID: string,
+        sinceTimestamp?: number,
+      ) => {
+        const {
+          deviceID: authDeviceID,
+          userID: authUserID,
+          accessToken,
+        } = await getAuthMetadata();
+        const result = await commRustModule.getDeviceListForUser(
+          authUserID,
+          authDeviceID,
+          accessToken,
+          userID,
+          sinceTimestamp,
+        );
+        const rawPayloads: string[] = JSON.parse(result);
+        const deviceLists: SignedDeviceList[] = rawPayloads.map(payload =>
+          JSON.parse(payload),
+        );
+        return deviceLists;
+      },
+      updateDeviceList: async (newDeviceList: RawDeviceListPayload) => {
+        const {
+          deviceID: authDeviceID,
+          userID,
+          accessToken,
+        } = await getAuthMetadata();
+        const payload = JSON.stringify(newDeviceList);
+        const response = await commRustModule.updateDeviceList(
+          userID,
+          authDeviceID,
+          accessToken,
+          payload,
+        );
+        const signedDeviceList: SignedDeviceList = JSON.parse(response);
+        return signedDeviceList;
       },
     }),
     [getAuthMetadata],
