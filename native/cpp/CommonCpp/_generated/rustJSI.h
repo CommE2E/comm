@@ -31,6 +31,7 @@ public:
   virtual jsi::Value versionSupported(jsi::Runtime &rt) = 0;
   virtual jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) = 0;
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
+  virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
 
 };
 
@@ -139,6 +140,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getKeyserverKeys, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(keyserverID));
+    }
+    jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) override {
+      static_assert(
+          bridging::getParameterCount(&T::getDeviceListForUser) == 6,
+          "Expected getDeviceListForUser(...) to have 6 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getDeviceListForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID), std::move(sinceTimestamp));
     }
 
   private:
