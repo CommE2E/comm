@@ -408,6 +408,48 @@ export type WalletLoginResponseObject = {
   accessToken: string,
 };
 
+declare export class SecondaryDeviceLoginRequest extends Message {
+  getUserId(): string;
+  setUserId(value: string): SecondaryDeviceLoginRequest;
+
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): SecondaryDeviceLoginRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): SecondaryDeviceLoginRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SecondaryDeviceLoginRequestObject;
+  static toObject(includeInstance: boolean, msg: SecondaryDeviceLoginRequest): SecondaryDeviceLoginRequestObject;
+  static serializeBinaryToWriter(message: SecondaryDeviceLoginRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SecondaryDeviceLoginRequest;
+  static deserializeBinaryFromReader(message: SecondaryDeviceLoginRequest, reader: BinaryReader): SecondaryDeviceLoginRequest;
+}
+
+export type SecondaryDeviceLoginRequestObject = {
+  userId: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+}
+
+declare export class SecondaryDeviceLoginResponse extends Message {
+  getUserId(): string;
+  setUserId(value: string): SecondaryDeviceLoginResponse;
+
+  getAccessToken(): string;
+  setAccessToken(value: string): SecondaryDeviceLoginResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SecondaryDeviceLoginResponseObject;
+  static toObject(includeInstance: boolean, msg: SecondaryDeviceLoginResponse): SecondaryDeviceLoginResponseObject;
+  static serializeBinaryToWriter(message: SecondaryDeviceLoginResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SecondaryDeviceLoginResponse;
+  static deserializeBinaryFromReader(message: SecondaryDeviceLoginResponse, reader: BinaryReader): SecondaryDeviceLoginResponse;
+}
+
+export type SecondaryDeviceLoginResponseObject = {
+  userId: string,
+  accessToken: string,
+}
+
 declare export class GenerateNonceResponse extends Message {
   getNonce(): string;
   setNonce(value: string): GenerateNonceResponse;
