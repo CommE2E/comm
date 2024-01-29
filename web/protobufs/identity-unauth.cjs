@@ -506,6 +506,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerReser
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.SecondaryDeviceKeysUploadRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_UploadKeysForRegisteredDeviceAndLogIn = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/UploadKeysForRegisteredDeviceAndLogIn',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.SecondaryDeviceKeysUploadRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.uploadKeysForRegisteredDeviceAndLogIn =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/UploadKeysForRegisteredDeviceAndLogIn',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UploadKeysForRegisteredDeviceAndLogIn,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.uploadKeysForRegisteredDeviceAndLogIn =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/UploadKeysForRegisteredDeviceAndLogIn',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_UploadKeysForRegisteredDeviceAndLogIn);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.Empty,
  *   !proto.identity.unauth.GenerateNonceResponse>}
  */
@@ -870,3 +931,4 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.findUserID =
 
 
 module.exports = proto.identity.unauth;
+

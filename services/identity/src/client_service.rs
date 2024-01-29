@@ -25,8 +25,8 @@ use crate::grpc_services::protos::unauth::{
   RegistrationFinishRequest, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
-  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-  WalletLoginRequest,
+  SecondaryDeviceKeysUploadRequest, VerifyUserAccessTokenRequest,
+  VerifyUserAccessTokenResponse, WalletLoginRequest,
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::DeviceKeyUploadActions;
@@ -588,6 +588,13 @@ impl IdentityClientService for ClientService {
     };
 
     Ok(Response::new(response))
+  }
+
+  async fn upload_keys_for_registered_device_and_log_in(
+    &self,
+    request: tonic::Request<SecondaryDeviceKeysUploadRequest>,
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
+    Err(tonic::Status::unimplemented("unimplemented"))
   }
 
   async fn generate_nonce(
