@@ -1,3 +1,5 @@
+use tokio::time::Duration;
+
 // Secrets
 
 pub const SECRETS_DIRECTORY: &str = "secrets";
@@ -149,6 +151,8 @@ pub const NOTIF_ONE_TIME_KEY: &str = "notifOneTimeKey";
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
 pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50054";
 pub const IDENTITY_SERVICE_WEBSOCKET_ADDR: &str = "[::]:51004";
+
+pub const SOCKET_HEARTBEAT_TIMEOUT: Duration = Duration::from_secs(3);
 
 // Token
 
