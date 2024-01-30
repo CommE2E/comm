@@ -66,14 +66,13 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
     let addr = self.addr;
 
     let future = async move {
-      tracing::info!(
+      tracing::debug!(
         "Incoming HTTP request on WebSocket port: {} {}",
         req.method(),
         req.uri().path()
       );
       if hyper_tungstenite::is_upgrade_request(&req) {
         let (response, websocket) = hyper_tungstenite::upgrade(&mut req, None)?;
-        debug!("Upgraded WebSocket connection from {}", addr);
 
         tokio::spawn(async move {
           accept_connection(websocket, addr).await;
@@ -104,7 +103,7 @@ pub async fn run_server() -> Result<(), errors::BoxedError> {
   let addr: SocketAddr = IDENTITY_SERVICE_WEBSOCKET_ADDR.parse()?;
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
 
-  info!("WebSocket Listening on {}", addr);
+  info!("Listening to WebSocket traffic on {}", addr);
 
   let mut http = hyper::server::conn::Http::new();
   http.http1_only(true);
