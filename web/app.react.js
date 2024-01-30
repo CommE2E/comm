@@ -42,6 +42,7 @@ import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provid
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
+import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { initOpaque } from './crypto/opaque-utils.js';
 import { getDatabaseModule } from './database/database-module-provider.js';
@@ -336,7 +337,11 @@ class App extends React.PureComponent<Props> {
     if (tab === 'calendar') {
       mainContent = <Calendar url={this.props.location.pathname} />;
     } else if (tab === 'chat') {
-      mainContent = <Chat />;
+      mainContent = (
+        <MemberListSidebarProvider>
+          <Chat />
+        </MemberListSidebarProvider>
+      );
     }
 
     const mainContentClass = classnames(
