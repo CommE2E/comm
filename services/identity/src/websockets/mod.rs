@@ -10,8 +10,8 @@ use hyper::{Body, Request, Response, StatusCode};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
-  ConnectionInitializationResponse, ConnectionInitializationStatus,
-  SearchQuery, SearchResult, User,
+  ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
+  Messages, SearchQuery, SearchResult, User,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -21,7 +21,9 @@ mod auth;
 mod send;
 
 use crate::config::CONFIG;
-use crate::constants::IDENTITY_SERVICE_WEBSOCKET_ADDR;
+use crate::constants::{
+  IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
+};
 use send::{send_error_response, send_message, WebsocketSink};
 pub mod errors;
 
@@ -166,6 +168,38 @@ async fn handle_prefix_search(
   search_result
 }
 
+async fn handle_websocket_frame(
+  text: String,
+  outgoing: WebsocketSink,
+) -> Result<(), errors::WebsocketError> {
+  let Ok(serialized_message) = serde_json::from_str::<Messages>(&text) else {
+    return Err(errors::WebsocketError::SerializationError);
+  };
+
+  match serialized_message {
+    Messages::Heartbeat(Heartbeat {}) => {
+      debug!("Received heartbeat");
+      Ok(())
+    }
+    Messages::SearchQuery(search_request) => {
+      let search_result = match search_request {
+        SearchQuery::Prefix(prefix_request) => {
+          handle_prefix_search(&prefix_request.prefix).await
+        }
+      }?;
+
+      send_message(
+        Message::Text(format!("{}", search_result.to_string())),
+        outgoing.clone(),
+      )
+      .await;
+
+      Ok(())
+    }
+    _ => Err(errors::WebsocketError::InvalidMessage),
+  }
+}
+
 async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   debug!("Incoming WebSocket connection from {}", addr);
 
@@ -221,61 +255,65 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
     return;
   }
 
-  while let Some(message) = incoming.next().await {
-    match message {
-      Ok(Message::Close(_)) => {
-        debug!("Connection to {} closed.", addr);
+  let mut ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+  let mut got_heartbeat_response = true;
+
+  loop {
+    tokio::select! {
+      client_message = incoming.next() => {
+        let message: Message = match client_message {
+          Some(Ok(msg)) => msg,
+          _ => {
+            debug!("Connection to {} closed remotely.", addr);
+            break;
+          }
+        };
+
+        match message {
+          Message::Close(_) => {
+            debug!("Connection to {} closed.", addr);
+            break;
+          }
+         Message::Pong(_) => {
+            debug!("Received Pong message from {}", addr);
+          }
+          Message::Ping(msg) => {
+            debug!("Received Ping message from {}", addr);
+            send_message(Message::Pong(msg), outgoing.clone()).await;
+          }
+          Message::Text(text) => {
+            got_heartbeat_response = true;
+            ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+
+            if let Err(e) = handle_websocket_frame(text, outgoing.clone()).await {
+              send_error_response(e, outgoing.clone()).await;
+              continue;
+            };
+          }
+          _ => {
+            error!("Client sent invalid message type");
+            break;
+          }
+        }
+      }
+      _ = &mut ping_timeout => {
+        if !got_heartbeat_response {
+          error!("Connection to {} died.", addr);
+          break;
+        }
+        let serialized = serde_json::to_string(&Heartbeat {}).unwrap();
+        send_message(Message::text(serialized), outgoing.clone()).await;
+
+        got_heartbeat_response = false;
+        ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
+      }
+      else => {
+        debug!("Unhealthy connection for: {}", addr);
         break;
       }
-      Ok(Message::Pong(_)) => {
-        debug!("Received Pong message from {}", addr);
-      }
-      Ok(Message::Ping(msg)) => {
-        debug!("Received Ping message from {}", addr);
-        send_message(Message::Pong(msg), outgoing.clone()).await;
-      }
-      Ok(Message::Text(text)) => {
-        let Ok(search_request) = serde_json::from_str(&text) else {
-          send_error_response(
-            errors::WebsocketError::InvalidSearchQuery,
-            outgoing.clone(),
-          )
-          .await;
-          continue;
-        };
-
-        let search_result = match search_request {
-          SearchQuery::Prefix(prefix_request) => {
-            handle_prefix_search(&prefix_request.prefix).await
-          }
-        };
-
-        let response_msg = match search_result {
-          Ok(response_msg) => response_msg,
-          Err(e) => {
-            send_error_response(e, outgoing.clone()).await;
-            continue;
-          }
-        };
-
-        send_message(
-          Message::Text(format!("{}", response_msg.to_string())),
-          outgoing.clone(),
-        )
-        .await;
-      }
-      Err(e) => {
-        error!("Error in WebSocket message: {}", e);
-        send_error_response(
-          errors::WebsocketError::InvalidMessage,
-          outgoing.clone(),
-        )
-        .await;
-        continue;
-      }
-      _ => {}
     }
   }
 
+  info!("unregistering connection to: {}", addr);
   close_connection(outgoing).await;
 }
