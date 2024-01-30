@@ -3,7 +3,7 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
-import { rawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import { mediaValidator } from 'lib/types/media-types.js';
 import {
   rawMessageInfoValidator,
@@ -289,7 +289,7 @@ export const roleModificationRequestInputValidator: TUnion<RoleModificationReque
 
 export const roleModificationResultValidator: TInterface<RoleModificationResult> =
   tShape<RoleModificationResult>({
-    threadInfo: t.maybe(rawThreadInfoValidator),
+    threadInfo: t.maybe(mixedRawThreadInfoValidator),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
@@ -310,7 +310,7 @@ export const roleDeletionRequestInputValidator: TInterface<RoleDeletionRequest> 
 
 export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
   tShape<RoleDeletionResult>({
-    threadInfo: t.maybe(rawThreadInfoValidator),
+    threadInfo: t.maybe(mixedRawThreadInfoValidator),
     updatesResult: tShape({
       newUpdates: t.list(serverUpdateInfoValidator),
     }),
