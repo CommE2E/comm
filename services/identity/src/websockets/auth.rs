@@ -51,8 +51,8 @@ async fn verify_user_access_token(
   let request = Request::new(message);
   let response = match grpc_client.verify_user_access_token(request).await {
     Ok(response) => response,
-    Err(e) => {
-      error!("Failed to verify user access token: {}", e);
+    Err(_) => {
+      error!("Failed to verify user access token");
       return Err(WebsocketError::AuthError);
     }
   };
@@ -61,13 +61,12 @@ async fn verify_user_access_token(
 }
 
 pub async fn handle_auth_message(message: &str) -> Result<(), WebsocketError> {
-  error!("Handling auth message: {}", message);
   let auth_message = serde_json::from_str(message.trim());
 
   let auth_message: AuthMessage = match auth_message {
     Ok(auth_message) => auth_message,
-    Err(e) => {
-      error!("Failed to parse auth message: {}", e);
+    Err(_) => {
+      error!("Failed to parse auth message");
       return Err(WebsocketError::InvalidMessage);
     }
   };
