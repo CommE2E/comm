@@ -5,7 +5,6 @@ import WebSocket from 'ws';
 
 import { tunnelbrokerHeartbeatTimeout } from 'lib/shared/timeouts.js';
 import type { ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { Heartbeat } from 'lib/types/tunnelbroker/heartbeat-types.js';
 import type { MessageReceiveConfirmation } from 'lib/types/tunnelbroker/message-receive-confirmation-types.js';
 import type { MessageSentStatus } from 'lib/types/tunnelbroker/message-to-device-request-status-types.js';
 import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
@@ -19,6 +18,7 @@ import {
   refreshKeysRequestValidator,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import type { ConnectionInitializationMessage } from 'lib/types/tunnelbroker/session-types.js';
+import type { Heartbeat } from 'lib/types/websocket/heartbeat-types.js';
 
 import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
 
