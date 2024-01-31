@@ -10,11 +10,16 @@ import {
   getSIWENonceActionTypes,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
+import {
+  identityGenerateNonceActionTypes,
+  useIdentityGenerateNonce,
+} from 'lib/actions/user-actions.js';
 import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -28,6 +33,9 @@ const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
+);
+const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
+  identityGenerateNonceActionTypes,
 );
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
@@ -54,14 +62,18 @@ function SIWEPanel(props: Props): React.Node {
     getSIWENonce,
     props.keyserverCallParamOverride,
   );
+  const identityGenerateNonce = useIdentityGenerateNonce();
 
-  const getSIWENonceCallFailed = useSelector(
+  const legacyGetSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
+  );
+  const identityGenerateNonceFailed = useSelector(
+    state => identityGenerateNonceLoadingStatusSelector(state) === 'error',
   );
 
   const { onClosing } = props;
   React.useEffect(() => {
-    if (getSIWENonceCallFailed) {
+    if (legacyGetSIWENonceCallFailed || identityGenerateNonceFailed) {
       Alert.alert(
         UnknownErrorAlertDetails.title,
         UnknownErrorAlertDetails.message,
@@ -69,7 +81,7 @@ function SIWEPanel(props: Props): React.Node {
         { cancelable: false },
       );
     }
-  }, [getSIWENonceCallFailed, onClosing]);
+  }, [legacyGetSIWENonceCallFailed, identityGenerateNonceFailed, onClosing]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
@@ -81,17 +93,27 @@ function SIWEPanel(props: Props): React.Node {
 
   React.useEffect(() => {
     void (async () => {
-      void dispatchActionPromise(
-        getSIWENonceActionTypes,
-        (async () => {
-          const response = await getSIWENonceCall();
-          setNonce(response);
-        })(),
-      );
+      if (usingCommServicesAccessToken) {
+        void dispatchActionPromise(
+          identityGenerateNonceActionTypes,
+          (async () => {
+            const response = await identityGenerateNonce();
+            setNonce(response);
+          })(),
+        );
+      } else {
+        void dispatchActionPromise(
+          getSIWENonceActionTypes,
+          (async () => {
+            const response = await getSIWENonceCall();
+            setNonce(response);
+          })(),
+        );
+      }
       const ed25519 = await getContentSigningKey();
       setPrimaryIdentityPublicKey(ed25519);
     })();
-  }, [dispatchActionPromise, getSIWENonceCall]);
+  }, [dispatchActionPromise, getSIWENonceCall, identityGenerateNonce]);
 
   const [isLoading, setLoading] = React.useState(true);
   const [walletConnectModalHeight, setWalletConnectModalHeight] =
@@ -216,7 +238,10 @@ function SIWEPanel(props: Props): React.Node {
   }
 
   const setLoadingProp = props.setLoading;
-  const loading = !getSIWENonceCallFailed && (isLoading || siweAuthCallLoading);
+  const loading =
+    !legacyGetSIWENonceCallFailed &&
+    !identityGenerateNonceFailed &&
+    (isLoading || siweAuthCallLoading);
   React.useEffect(() => {
     setLoadingProp(loading);
   }, [setLoadingProp, loading]);
