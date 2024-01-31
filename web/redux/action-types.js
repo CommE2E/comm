@@ -10,7 +10,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import type {
   ExcludedData,
   InitialReduxState,
-  InitialReduxStateResponse,
+  InitialWebReduxStateResponse,
   InitialKeyserverInfo,
   InitialReduxStateRequest,
 } from '../types/redux-types.js';
@@ -74,7 +74,7 @@ const getInitialReduxState =
       }
     }
 
-    const responses: { +[string]: InitialReduxStateResponse } =
+    const responses: { +[string]: InitialWebReduxStateResponse } =
       await callKeyserverEndpoint(
         'get_initial_redux_state',
         requests,

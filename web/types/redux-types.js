@@ -8,7 +8,7 @@ import type { LegacyThreadStore, ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserInfos } from 'lib/types/user-types.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 
-export type InitialReduxStateResponse = {
+export type InitialWebReduxStateResponse = {
   +navInfo: WebNavInfo,
   +currentUserInfo: CurrentUserInfo,
   +entryStore: EntryStore,
