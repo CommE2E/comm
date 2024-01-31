@@ -18,7 +18,7 @@ export type WebInitialReduxStateResponse = {
   +pushApiPublicKey: ?string,
   +commServicesAccessToken: null,
   +inviteLinksStore: InviteLinksStore,
-  +keyserverInfo: InitialKeyserverInfo,
+  +keyserverInfo: WebInitialKeyserverInfo,
 };
 
 export type InitialReduxState = {
@@ -33,10 +33,10 @@ export type InitialReduxState = {
   +inviteLinksStore: InviteLinksStore,
   +dataLoaded: boolean,
   +actualizedCalendarQuery: CalendarQuery,
-  +keyserverInfos: { +[keyserverID: string]: InitialKeyserverInfo },
+  +keyserverInfos: { +[keyserverID: string]: WebInitialKeyserverInfo },
 };
 
-export type InitialKeyserverInfo = {
+export type WebInitialKeyserverInfo = {
   +sessionID: ?string,
   +updatesCurrentAsOf: number,
 };
