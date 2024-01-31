@@ -17,13 +17,13 @@ const webNavigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
 export type WebLoginMethod = 'form' | 'qr-code';
 const webLoginMethodValidator = t.enums.of(['form', 'qr-code']);
 
-export type NavigationSettingsSection =
+export type WebNavigationSettingsSection =
   | 'account'
   | 'friend-list'
   | 'block-list'
   | 'keyservers'
   | 'danger-zone';
-const navigationSettingsSectionValidator = t.enums.of([
+const webNavigationSettingsSectionValidator = t.enums.of([
   'account',
   'friend-list',
   'block-list',
@@ -39,7 +39,7 @@ export type NavInfo = {
   +tab: WebNavigationTab,
   +activeChatThreadID: ?string,
   +pendingThread?: ThreadInfo,
-  +settingsSection?: NavigationSettingsSection,
+  +settingsSection?: WebNavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,
   +inviteSecret?: ?string,
@@ -52,7 +52,7 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   tab: webNavigationTabValidator,
   activeChatThreadID: t.maybe(tID),
   pendingThread: t.maybe(threadInfoValidator),
-  settingsSection: t.maybe(navigationSettingsSectionValidator),
+  settingsSection: t.maybe(webNavigationSettingsSectionValidator),
   selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
   chatMode: t.maybe(navigationChatModeValidator),
   inviteSecret: t.maybe(t.String),

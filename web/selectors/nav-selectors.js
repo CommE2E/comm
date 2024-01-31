@@ -11,7 +11,7 @@ import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { AppState } from '../redux/redux-setup.js';
 import {
   type WebNavigationTab,
-  type NavigationSettingsSection,
+  type WebNavigationSettingsSection,
 } from '../types/nav-types.js';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
@@ -123,7 +123,7 @@ function navTabSelector(state: AppState): WebNavigationTab {
 
 function navSettingsSectionSelector(
   state: AppState,
-): ?NavigationSettingsSection {
+): ?WebNavigationSettingsSection {
   return state.navInfo.settingsSection;
 }
 
