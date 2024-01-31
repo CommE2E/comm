@@ -260,6 +260,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           identityAuthResultValidator,
         );
       },
+      generateNonce: commRustModule.generateNonce,
     }),
     [getAuthMetadata],
   );
