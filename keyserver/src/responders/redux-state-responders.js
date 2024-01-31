@@ -42,7 +42,7 @@ import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
 import type {
-  InitialReduxStateResponse,
+  WebInitialReduxStateResponse,
   InitialKeyserverInfo,
   InitialReduxStateRequest,
   ExcludedData,
@@ -84,8 +84,8 @@ export const threadStoreValidator: TInterface<ThreadStore> =
     threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
   });
 
-export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
-  tShape<InitialReduxStateResponse>({
+export const initialReduxStateValidator: TInterface<WebInitialReduxStateResponse> =
+  tShape<WebInitialReduxStateResponse>({
     navInfo: webNavInfoValidator,
     currentUserInfo: currentUserInfoValidator,
     entryStore: entryStoreValidator,
@@ -101,7 +101,7 @@ export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
 async function getInitialReduxStateResponder(
   viewer: Viewer,
   request: InitialReduxStateRequest,
-): Promise<InitialReduxStateResponse> {
+): Promise<WebInitialReduxStateResponse> {
   const { urlInfo, excludedData, clientUpdatesCurrentAsOf } = request;
   const useDatabase = viewer.loggedIn && canUseDatabaseOnWeb(viewer.userID);
 
@@ -354,7 +354,7 @@ async function getInitialReduxStateResponder(
     };
   })();
 
-  const initialReduxState: InitialReduxStateResponse = await promiseAll({
+  const initialReduxState: WebInitialReduxStateResponse = await promiseAll({
     navInfo: navInfoPromise,
     currentUserInfo: currentUserInfoPromise,
     entryStore: entryStorePromise,
