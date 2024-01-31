@@ -103,7 +103,6 @@ pub trait DeviceKeyUploadActions {
   fn one_time_content_prekeys(&self) -> Result<Vec<String>, Status>;
   fn one_time_notif_prekeys(&self) -> Result<Vec<String>, Status>;
   fn device_type(&self) -> Result<i32, Status>;
-  fn social_proof(&self) -> Result<Option<String>, Status>;
 }
 
 impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
@@ -172,13 +171,6 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
     self
       .device_key_upload()
       .map(|upload| upload.device_type)
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
-  }
-  fn social_proof(&self) -> Result<Option<String>, Status> {
-    self
-      .device_key_upload()
-      .and_then(|upload| upload.device_key_info.as_ref())
-      .map(|info| info.social_proof.clone())
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
   }
 }
