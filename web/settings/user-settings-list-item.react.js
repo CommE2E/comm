@@ -6,10 +6,10 @@ import * as React from 'react';
 import css from './user-settings-list-item.css';
 import { useSelector } from '../redux/redux-utils.js';
 import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
-import type { NavigationSettingsSection } from '../types/nav-types.js';
+import type { WebNavigationSettingsSection } from '../types/nav-types.js';
 
 type Props = {
-  +id: NavigationSettingsSection,
+  +id: WebNavigationSettingsSection,
   +name: string,
   +onClick: () => mixed,
 };
