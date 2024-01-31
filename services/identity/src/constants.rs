@@ -145,7 +145,7 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 // Nonce
 
 pub const NONCE_LENGTH: usize = 17;
-pub const NONCE_TTL_DURATION: i64 = 30;
+pub const NONCE_TTL_DURATION: i64 = 120; // seconds
 
 // Identity
 

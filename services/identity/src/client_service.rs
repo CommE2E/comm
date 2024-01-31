@@ -390,6 +390,11 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?
     {
       None => return Err(tonic::Status::invalid_argument("invalid nonce")),
+      Some(nonce) if nonce.is_expired() => {
+        // we don't need to remove the nonce from the table here
+        // because the DynamoDB TTL will take care of it
+        return Err(tonic::Status::invalid_argument("nonce expired"));
+      }
       Some(_) => self
         .client
         .remove_nonce_from_nonces_table(&parsed_message.nonce)
