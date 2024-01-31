@@ -47,8 +47,7 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekey,
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys,
-      jsi::String socialProof) override;
+      jsi::Array notifOneTimeKeys) override;
   virtual jsi::Value updatePassword(
       jsi::Runtime &rt,
       jsi::String userID,
