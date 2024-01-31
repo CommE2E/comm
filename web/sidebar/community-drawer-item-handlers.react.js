@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { WebNavigationTab } from 'lib/types/nav-types.js';
 
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react.js';
 import { useCommunityIsPickedCalendar } from '../selectors/calendar-selectors.js';
@@ -10,7 +11,6 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors.js';
-import type { WebNavigationTab } from '../types/nav-types.js';
 
 export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,

@@ -7,12 +7,12 @@ import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
+import type {
+  WebNavigationSettingsSection,
+  WebNavigationTab,
+} from 'lib/types/nav-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
-import {
-  type WebNavigationTab,
-  type WebNavigationSettingsSection,
-} from '../types/nav-types.js';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 

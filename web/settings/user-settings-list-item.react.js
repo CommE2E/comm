@@ -3,10 +3,11 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { WebNavigationSettingsSection } from 'lib/types/nav-types.js';
+
 import css from './user-settings-list-item.css';
 import { useSelector } from '../redux/redux-utils.js';
 import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
-import type { WebNavigationSettingsSection } from '../types/nav-types.js';
 
 type Props = {
   +id: WebNavigationSettingsSection,
