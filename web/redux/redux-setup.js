@@ -52,7 +52,7 @@ import { onStateDifference } from './redux-debug-utils.js';
 import { getVisibility } from './visibility.js';
 import { processDBStoreOperations } from '../database/utils/store.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
-import { type NavInfo } from '../types/nav-types.js';
+import { type WebNavInfo } from '../types/nav-types.js';
 import type { InitialReduxState } from '../types/redux-types.js';
 
 export type WindowDimensions = { width: number, height: number };
@@ -63,7 +63,7 @@ export type CommunityPickerStore = {
 };
 
 export type AppState = {
-  +navInfo: NavInfo,
+  +navInfo: WebNavInfo,
   +currentUserInfo: ?CurrentUserInfo,
   +draftStore: DraftStore,
   +entryStore: EntryStore,
@@ -99,7 +99,7 @@ export type AppState = {
 
 export type Action =
   | BaseAction
-  | { type: 'UPDATE_NAV_INFO', payload: Partial<NavInfo> }
+  | { type: 'UPDATE_NAV_INFO', payload: Partial<WebNavInfo> }
   | {
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,

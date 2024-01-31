@@ -38,7 +38,7 @@ import {
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors.js';
-import type { NavInfo } from '../types/nav-types.js';
+import type { WebNavInfo } from '../types/nav-types.js';
 import { canonicalURLFromReduxState } from '../url-utils.js';
 
 type StartAndEndDates = {
@@ -54,7 +54,7 @@ type Props = {
   +year: number,
   +month: number,
   +daysToEntries: { +[dayString: string]: EntryInfo[] },
-  +navInfo: NavInfo,
+  +navInfo: WebNavInfo,
   +currentCalendarQuery: () => CalendarQuery,
   +loggedIn: boolean,
   +dispatchActionPromise: DispatchActionPromise,
