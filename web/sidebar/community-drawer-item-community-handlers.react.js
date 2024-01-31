@@ -17,7 +17,7 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors.js';
-import type { NavigationTab } from '../types/nav-types.js';
+import type { WebNavigationTab } from '../types/nav-types.js';
 
 export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemCommunityHandler) => void,
@@ -99,14 +99,14 @@ function CalendarDrawerItemCommunityHandler(props: HandlerProps): React.Node {
 }
 
 const communityDrawerItemCommunityHandlers: {
-  +[tab: NavigationTab]: React.ComponentType<HandlerProps>,
+  +[tab: WebNavigationTab]: React.ComponentType<HandlerProps>,
 } = Object.freeze({
   chat: ChatDrawerItemCommunityHandler,
   calendar: CalendarDrawerItemCommunityHandler,
 });
 
 function getCommunityDrawerItemCommunityHandler(
-  tab: NavigationTab,
+  tab: WebNavigationTab,
 ): React.ComponentType<HandlerProps> {
   return (
     communityDrawerItemCommunityHandlers[tab] ?? ChatDrawerItemCommunityHandler

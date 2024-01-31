@@ -9,7 +9,7 @@ import css from './community-drawer-item.css';
 import CommunityDrawerItemChat from './community-drawer-item.react.js';
 import { ExpandButton } from './expand-buttons.react.js';
 import SubchannelsButton from './subchannels-button.react.js';
-import type { NavigationTab } from '../types/nav-types.js';
+import type { WebNavigationTab } from '../types/nav-types.js';
 
 const indentation = 14;
 const subchannelsButtonIndentation = 24;
@@ -29,7 +29,7 @@ function getChildren({
   paddingLeft: number,
   threadInfo: ThreadInfo,
   expandable: boolean,
-  handlerType: NavigationTab,
+  handlerType: WebNavigationTab,
 }): React.Node {
   if (!expanded) {
     return null;
