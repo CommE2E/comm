@@ -264,6 +264,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           identityAuthResultValidator,
         );
       },
+      generateNonce: async () => {
+        return commRustModule.generateNonce();
+      },
     }),
     [getAuthMetadata],
   );

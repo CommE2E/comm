@@ -313,6 +313,14 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
+
+  generateNonce: () => Promise<string> = async () => {
+    if (!this.unauthClient) {
+      throw new Error('Identity service client is not initialized');
+    }
+    const result = await this.unauthClient.generateNonce(new Empty());
+    return result.getNonce();
+  };
 }
 
 export { IdentityServiceClientWrapper };
