@@ -15,13 +15,13 @@ import {
   getExpandButton,
 } from './community-drawer-utils.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
-import type { NavigationTab } from '../types/nav-types.js';
+import type { WebNavigationTab } from '../types/nav-types.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,
   +paddingLeft: number,
   +expandable?: boolean,
-  +handlerType: NavigationTab,
+  +handlerType: WebNavigationTab,
 };
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {

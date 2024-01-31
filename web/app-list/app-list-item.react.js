@@ -10,10 +10,10 @@ import SWMansionIcon, {
 import css from './app-list-item.css';
 import { useSelector } from '../redux/redux-utils.js';
 import { navTabSelector } from '../selectors/nav-selectors.js';
-import type { NavigationTab } from '../types/nav-types.js';
+import type { WebNavigationTab } from '../types/nav-types.js';
 
 type Props = {
-  +id: NavigationTab,
+  +id: WebNavigationTab,
   +name: string,
   +icon: Icon,
   +onClick: () => mixed,

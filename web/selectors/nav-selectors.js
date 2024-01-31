@@ -10,7 +10,7 @@ import type { CalendarFilter } from 'lib/types/filter-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
 import {
-  type NavigationTab,
+  type WebNavigationTab,
   type NavigationSettingsSection,
 } from '../types/nav-types.js';
 
@@ -117,7 +117,7 @@ const nonThreadCalendarQuery: (state: AppState) => () => CalendarQuery =
     },
   );
 
-function navTabSelector(state: AppState): NavigationTab {
+function navTabSelector(state: AppState): WebNavigationTab {
   return state.navInfo.tab;
 }
 
