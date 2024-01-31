@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import _keyBy from 'lodash/fp/keyBy.js';
 
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 import {
   startDateForYearAndMonth,
@@ -11,7 +12,6 @@ import {
 import { infoFromURL, type URLInfo } from 'lib/utils/url-utils.js';
 
 import { yearExtractor, monthExtractor } from './selectors/nav-selectors.js';
-import type { WebNavInfo } from './types/nav-types.js';
 
 function canonicalURLFromReduxState(
   navInfo: WebNavInfo,
