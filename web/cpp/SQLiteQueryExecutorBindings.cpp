@@ -176,7 +176,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction)
       .function(
           "restoreFromMainCompaction",
-          &SQLiteQueryExecutor::restoreFromMainCompaction);
+          &SQLiteQueryExecutor::restoreFromMainCompaction)
+      .function(
+          "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog);
 }
 
 } // namespace comm

@@ -232,4 +232,11 @@ void NativeConnectionManager::captureLogs(
   detachSession();
   attachSession();
 }
+
+void NativeConnectionManager::restoreFromBackupLog(
+    const std::vector<std::uint8_t> &backupLog) {
+  sqlite3session_enable(backupLogsSession, 0);
+  SQLiteConnectionManager::restoreFromBackupLog(backupLog);
+  sqlite3session_enable(backupLogsSession, 1);
+}
 } // namespace comm
