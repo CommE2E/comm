@@ -96,7 +96,6 @@ mod ffi {
       notif_prekey_signature: String,
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
-      social_proof: String,
       promise_id: u32,
     );
 
@@ -705,7 +704,6 @@ struct WalletUserInfo {
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
-  social_proof: String,
 }
 
 #[instrument]
@@ -720,7 +718,6 @@ fn log_in_wallet_user(
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
-  social_proof: String,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
@@ -735,7 +732,6 @@ fn log_in_wallet_user(
       notif_prekey_signature,
       content_one_time_keys,
       notif_one_time_keys,
-      social_proof,
     };
     let result = log_in_wallet_user_helper(wallet_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -752,7 +748,7 @@ async fn log_in_wallet_user_helper(
       device_key_info: Some(IdentityKeyInfo {
         payload: wallet_user_info.key_payload,
         payload_signature: wallet_user_info.key_payload_signature,
-        social_proof: Some(wallet_user_info.social_proof),
+        social_proof: None, // The SIWE message and signature are the social proof
       }),
       content_upload: Some(Prekey {
         prekey: wallet_user_info.content_prekey,

@@ -148,8 +148,7 @@ jsi::Value CommRustModule::logInWalletUser(
     jsi::String notifPrekey,
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
-    jsi::Array notifOneTimeKeys,
-    jsi::String socialProof) {
+    jsi::Array notifOneTimeKeys) {
   auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
   auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -162,7 +161,6 @@ jsi::Value CommRustModule::logInWalletUser(
       jsiStringToRustString(notifPrekeySignature, rt);
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
-  auto socialProofRust = jsiStringToRustString(socialProof, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -181,7 +179,6 @@ jsi::Value CommRustModule::logInWalletUser(
               notifPrekeySignatureRust,
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
-              socialProofRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
