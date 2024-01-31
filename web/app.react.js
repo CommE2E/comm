@@ -73,7 +73,7 @@ import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
-import { type NavInfo } from './types/nav-types.js';
+import { type WebNavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 
 void initOpaque();
@@ -122,7 +122,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +navInfo: NavInfo,
+  +navInfo: WebNavInfo,
   +entriesLoadingStatus: LoadingStatus,
   +loggedIn: boolean,
   +activeThreadCurrentlyUnread: boolean,

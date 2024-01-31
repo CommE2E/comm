@@ -6,13 +6,13 @@ import type { RawThreadInfos } from 'lib/types/thread-types.js';
 
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import type { Action } from '../redux/redux-setup.js';
-import { type NavInfo } from '../types/nav-types.js';
+import { type WebNavInfo } from '../types/nav-types.js';
 
 export default function reduceNavInfo(
-  oldState: NavInfo,
+  oldState: WebNavInfo,
   action: Action,
   newThreadInfos: RawThreadInfos,
-): NavInfo {
+): WebNavInfo {
   let state = oldState;
   if (action.type === updateNavInfoActionType) {
     state = {
