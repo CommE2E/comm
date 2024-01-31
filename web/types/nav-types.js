@@ -14,8 +14,8 @@ import { tID, tShape } from 'lib/utils/validation-utils.js';
 
 export type WebNavigationTab = 'calendar' | 'chat' | 'settings';
 const webNavigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
-export type LoginMethod = 'form' | 'qr-code';
-const loginMethodValidator = t.enums.of(['form', 'qr-code']);
+export type WebLoginMethod = 'form' | 'qr-code';
+const webLoginMethodValidator = t.enums.of(['form', 'qr-code']);
 
 export type NavigationSettingsSection =
   | 'account'
@@ -43,7 +43,7 @@ export type NavInfo = {
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
   +chatMode?: NavigationChatMode,
   +inviteSecret?: ?string,
-  +loginMethod?: LoginMethod,
+  +loginMethod?: WebLoginMethod,
 };
 
 export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
@@ -56,5 +56,5 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
   chatMode: t.maybe(navigationChatModeValidator),
   inviteSecret: t.maybe(t.String),
-  loginMethod: t.maybe(loginMethodValidator),
+  loginMethod: t.maybe(webLoginMethodValidator),
 });
