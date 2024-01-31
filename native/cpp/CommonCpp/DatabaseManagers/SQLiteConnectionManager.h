@@ -26,5 +26,6 @@ public:
       std::function<void(sqlite3 *)> on_db_open_callback);
   virtual void closeConnection();
   virtual ~SQLiteConnectionManager();
+  virtual void restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog);
 };
 } // namespace comm

@@ -311,6 +311,10 @@ mod ffi {
       main_compaction_path: String,
       main_compaction_encryption_key: String,
     ) -> Result<()>;
+
+    #[allow(unused)]
+    #[cxx_name = "restoreFromBackupLog"]
+    fn restore_from_backup_log(backup_log: Vec<u8>) -> Result<()>;
   }
 }
 

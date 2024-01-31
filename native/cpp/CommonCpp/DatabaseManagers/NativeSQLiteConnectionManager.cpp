@@ -184,6 +184,13 @@ void NativeSQLiteConnectionManager::setLogsMonitoring(bool enabled) {
   sqlite3session_enable(backupLogsSession, enabled);
 }
 
+bool NativeSQLiteConnectionManager::getLogsMonitoring() {
+  if (!backupLogsSession) {
+    return false;
+  }
+  return sqlite3session_enable(backupLogsSession, -1);
+}
+
 void NativeSQLiteConnectionManager::initializeConnection(
     std::string sqliteFilePath,
     std::function<void(sqlite3 *)> on_db_open_callback) {
@@ -231,5 +238,13 @@ bool NativeSQLiteConnectionManager::captureLogs(
   detachSession();
   attachSession();
   return true;
+}
+
+void NativeSQLiteConnectionManager::restoreFromBackupLog(
+    const std::vector<std::uint8_t> &backupLog) {
+  bool initialEnabledValue = getLogsMonitoring();
+  setLogsMonitoring(false);
+  SQLiteConnectionManager::restoreFromBackupLog(backupLog);
+  setLogsMonitoring(initialEnabledValue);
 }
 } // namespace comm

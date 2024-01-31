@@ -36,4 +36,19 @@ void BackupOperationsExecutor::restoreFromMainCompaction(
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
 }
+
+void BackupOperationsExecutor::restoreFromBackupLog(
+    const std::vector<std::uint8_t> &backupLog) {
+  taskType job = [backupLog]() {
+    try {
+      DatabaseManager::getQueryExecutor().restoreFromBackupLog(backupLog);
+    } catch (const std::exception &e) {
+      // TODO: Inform Rust networking about failure
+      // of restoration from backup log.
+      Logger::log(
+          "Restore from backup log failed. Details: " + std::string(e.what()));
+    }
+  };
+  GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
+}
 } // namespace comm
