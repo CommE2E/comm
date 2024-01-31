@@ -3,6 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import type { WebNavigationTab } from 'lib/types/nav-types.js';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -15,7 +16,6 @@ import {
   getExpandButton,
 } from './community-drawer-utils.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
-import type { WebNavigationTab } from '../types/nav-types.js';
 
 export type DrawerItemProps = {
   +itemData: CommunityDrawerItemData<string>,

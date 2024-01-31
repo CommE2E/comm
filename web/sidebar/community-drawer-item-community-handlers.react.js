@@ -8,6 +8,7 @@ import {
   updateChatCommunityFilter,
 } from 'lib/actions/community-actions.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { WebNavigationTab } from 'lib/types/nav-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { CommunityDrawerItemCommunityHandler } from './community-drawer-item-handler.react.js';
@@ -17,7 +18,6 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors.js';
-import type { WebNavigationTab } from '../types/nav-types.js';
 
 export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemCommunityHandler) => void,

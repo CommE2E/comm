@@ -5,34 +5,22 @@ import t from 'tcomb';
 
 import { threadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { type BaseNavInfo } from 'lib/types/nav-types.js';
+import {
+  type BaseNavInfo,
+  type WebLoginMethod,
+  type WebNavigationChatMode,
+  type WebNavigationSettingsSection,
+  type WebNavigationTab,
+  webLoginMethodValidator,
+  webNavigationChatModeValidator,
+  webNavigationSettingsSectionValidator,
+  webNavigationTabValidator,
+} from 'lib/types/nav-types.js';
 import {
   type AccountUserInfo,
   accountUserInfoValidator,
 } from 'lib/types/user-types.js';
 import { tID, tShape } from 'lib/utils/validation-utils.js';
-
-export type WebNavigationTab = 'calendar' | 'chat' | 'settings';
-const webNavigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
-export type WebLoginMethod = 'form' | 'qr-code';
-const webLoginMethodValidator = t.enums.of(['form', 'qr-code']);
-
-export type WebNavigationSettingsSection =
-  | 'account'
-  | 'friend-list'
-  | 'block-list'
-  | 'keyservers'
-  | 'danger-zone';
-const webNavigationSettingsSectionValidator = t.enums.of([
-  'account',
-  'friend-list',
-  'block-list',
-  'keyservers',
-  'danger-zone',
-]);
-
-export type WebNavigationChatMode = 'view' | 'create';
-const webNavigationChatModeValidator = t.enums.of(['view', 'create']);
 
 export type WebNavInfo = {
   ...$Exact<BaseNavInfo>,

@@ -6,11 +6,11 @@ import * as React from 'react';
 import SWMansionIcon, {
   type Icon,
 } from 'lib/components/SWMansionIcon.react.js';
+import type { WebNavigationTab } from 'lib/types/nav-types.js';
 
 import css from './app-list-item.css';
 import { useSelector } from '../redux/redux-utils.js';
 import { navTabSelector } from '../selectors/nav-selectors.js';
-import type { WebNavigationTab } from '../types/nav-types.js';
 
 type Props = {
   +id: WebNavigationTab,
