@@ -10,11 +10,16 @@ import {
   getSIWENonceActionTypes,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
+import {
+  identityGenerateNonceTypes,
+  useIdentityGenerateNonce,
+} from 'lib/actions/user-actions.js';
 import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -54,6 +59,7 @@ function SIWEPanel(props: Props): React.Node {
     getSIWENonce,
     props.keyserverCallParamOverride,
   );
+  const identityGenerateNonce = useIdentityGenerateNonce();
 
   const getSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
@@ -81,17 +87,27 @@ function SIWEPanel(props: Props): React.Node {
 
   React.useEffect(() => {
     void (async () => {
-      void dispatchActionPromise(
-        getSIWENonceActionTypes,
-        (async () => {
-          const response = await getSIWENonceCall();
-          setNonce(response);
-        })(),
-      );
+      let response;
+      if (usingCommServicesAccessToken) {
+        void dispatchActionPromise(
+          identityGenerateNonceTypes,
+          (async () => {
+            response = await identityGenerateNonce();
+          })(),
+        );
+      } else {
+        void dispatchActionPromise(
+          getSIWENonceActionTypes,
+          (async () => {
+            response = await getSIWENonceCall();
+          })(),
+        );
+      }
+      setNonce(response);
       const ed25519 = await getContentSigningKey();
       setPrimaryIdentityPublicKey(ed25519);
     })();
-  }, [dispatchActionPromise, getSIWENonceCall]);
+  }, [dispatchActionPromise, getSIWENonceCall, identityGenerateNonce]);
 
   const [isLoading, setLoading] = React.useState(true);
   const [walletConnectModalHeight, setWalletConnectModalHeight] =
