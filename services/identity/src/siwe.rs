@@ -1,5 +1,6 @@
 use chrono::Utc;
 use regex::Regex;
+use serde::Serialize;
 use siwe::Message;
 use tonic::Status;
 use tracing::error;
@@ -37,6 +38,12 @@ pub fn parse_and_verify_siwe_message(
 pub fn is_valid_ethereum_address(candidate: &str) -> bool {
   let ethereum_address_regex = Regex::new(r"^0x[a-fA-F0-9]{40}$").unwrap();
   ethereum_address_regex.is_match(candidate)
+}
+
+#[derive(derive_more::Constructor, Serialize)]
+pub struct SocialProof {
+  message: String,
+  signature: String,
 }
 
 #[cfg(test)]

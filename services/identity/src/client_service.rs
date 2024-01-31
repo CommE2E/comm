@@ -36,7 +36,9 @@ use crate::reserved_users::{
   validate_add_reserved_usernames_message,
   validate_remove_reserved_username_message,
 };
-use crate::siwe::{is_valid_ethereum_address, parse_and_verify_siwe_message};
+use crate::siwe::{
+  is_valid_ethereum_address, parse_and_verify_siwe_message, SocialProof,
+};
 use crate::token::{AccessTokenData, AuthType};
 
 pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
@@ -402,10 +404,6 @@ impl IdentityClientService for ClientService {
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
 
-    let social_proof = message
-      .social_proof()?
-      .ok_or_else(|| tonic::Status::invalid_argument("malformed payload"))?;
-
     let login_time = chrono::Utc::now();
     let user_id = match self
       .client
@@ -445,6 +443,13 @@ impl IdentityClientService for ClientService {
           ));
         }
 
+        let social_proof =
+          SocialProof::new(message.siwe_message, message.siwe_signature);
+        let serialized_social_proof = serde_json::to_string(&social_proof)
+          .map_err(|_| {
+            tonic::Status::invalid_argument("invalid_social_proof")
+          })?;
+
         // User doesn't exist yet and wallet address isn't reserved, so we
         // should add a new user in DDB
         self
@@ -452,7 +457,7 @@ impl IdentityClientService for ClientService {
           .add_wallet_user_to_users_table(
             flattened_device_key_upload.clone(),
             wallet_address,
-            social_proof,
+            serialized_social_proof,
             None,
             code_version,
             login_time,
@@ -536,9 +541,10 @@ impl IdentityClientService for ClientService {
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
 
-    let social_proof = message
-      .social_proof()?
-      .ok_or_else(|| tonic::Status::invalid_argument("malformed payload"))?;
+    let social_proof =
+      SocialProof::new(message.siwe_message, message.siwe_signature);
+    let serialized_social_proof = serde_json::to_string(&social_proof)
+      .map_err(|_| tonic::Status::invalid_argument("invalid_social_proof"))?;
 
     let login_time = chrono::Utc::now();
     self
@@ -546,7 +552,7 @@ impl IdentityClientService for ClientService {
       .add_wallet_user_to_users_table(
         flattened_device_key_upload.clone(),
         wallet_address,
-        social_proof,
+        serialized_social_proof,
         Some(user_id.clone()),
         code_version,
         login_time,
