@@ -30,7 +30,7 @@ import {
 import { webNavInfoValidator } from 'lib/types/nav-types.js';
 import type {
   WebInitialKeyserverInfo,
-  WebInitialReduxStateResponse,
+  ServerWebInitialReduxStateResponse,
 } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -86,8 +86,8 @@ export const threadStoreValidator: TInterface<ThreadStore> =
     threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
   });
 
-export const initialReduxStateValidator: TInterface<WebInitialReduxStateResponse> =
-  tShape<WebInitialReduxStateResponse>({
+export const initialReduxStateValidator: TInterface<ServerWebInitialReduxStateResponse> =
+  tShape<ServerWebInitialReduxStateResponse>({
     navInfo: webNavInfoValidator,
     currentUserInfo: currentUserInfoValidator,
     entryStore: entryStoreValidator,
@@ -103,7 +103,7 @@ export const initialReduxStateValidator: TInterface<WebInitialReduxStateResponse
 async function getInitialReduxStateResponder(
   viewer: Viewer,
   request: InitialReduxStateRequest,
-): Promise<WebInitialReduxStateResponse> {
+): Promise<ServerWebInitialReduxStateResponse> {
   const { urlInfo, excludedData, clientUpdatesCurrentAsOf } = request;
   const useDatabase = viewer.loggedIn && canUseDatabaseOnWeb(viewer.userID);
 
@@ -356,18 +356,19 @@ async function getInitialReduxStateResponder(
     };
   })();
 
-  const initialReduxState: WebInitialReduxStateResponse = await promiseAll({
-    navInfo: navInfoPromise,
-    currentUserInfo: currentUserInfoPromise,
-    entryStore: entryStorePromise,
-    threadStore: threadStorePromise,
-    userInfos: userInfosPromise,
-    messageStore: messageStorePromise,
-    pushApiPublicKey: pushApiPublicKeyPromise,
-    commServicesAccessToken: null,
-    inviteLinksStore: inviteLinksStorePromise,
-    keyserverInfo: keyserverInfoPromise,
-  });
+  const initialReduxState: ServerWebInitialReduxStateResponse =
+    await promiseAll({
+      navInfo: navInfoPromise,
+      currentUserInfo: currentUserInfoPromise,
+      entryStore: entryStorePromise,
+      threadStore: threadStorePromise,
+      userInfos: userInfosPromise,
+      messageStore: messageStorePromise,
+      pushApiPublicKey: pushApiPublicKeyPromise,
+      commServicesAccessToken: null,
+      inviteLinksStore: inviteLinksStorePromise,
+      keyserverInfo: keyserverInfoPromise,
+    });
 
   return initialReduxState;
 }
