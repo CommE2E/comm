@@ -114,7 +114,11 @@ function AddUsersList(props: Props): React.Node {
       setPendingUsersToAdd(pendingUsers => {
         const newPendingUsers = new Map(pendingUsers);
 
-        if (!newPendingUsers.delete(userID)) {
+        if (newPendingUsers.delete(userID)) {
+          return newPendingUsers;
+        }
+
+        if (!previouslySelectedUsers.has(userID)) {
           const newPendingUser: GlobalAccountUserInfo = {
             id: userID,
             username: mergedUserInfos[userID].username,
@@ -124,10 +128,15 @@ function AddUsersList(props: Props): React.Node {
           newPendingUsers.set(userID, newPendingUser);
         }
 
+        const newPendingUser = previouslySelectedUsers.get(userID);
+        if (newPendingUser) {
+          newPendingUsers.set(userID, newPendingUser);
+        }
+
         return newPendingUsers;
       });
     },
-    [mergedUserInfos, setPendingUsersToAdd],
+    [mergedUserInfos, setPendingUsersToAdd, previouslySelectedUsers],
   );
 
   const sortedUsersWithENSNames = useSortedENSResolvedUsers(filteredUsers);
