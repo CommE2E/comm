@@ -59,16 +59,6 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const { onClosing } = props;
-  React.useEffect(() => {
-    if (getSIWENonceCallFailed) {
-      Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
-        [{ text: 'OK', onPress: onClosing }],
-        { cancelable: false },
-      );
-    }
-  }, [getSIWENonceCallFailed, onClosing]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
@@ -83,14 +73,24 @@ function SIWEPanel(props: Props): React.Node {
       void dispatchActionPromise(
         getSIWENonceActionTypes,
         (async () => {
-          const response = await getSIWENonceCall();
-          setNonce(response);
+          try {
+            const response = await getSIWENonceCall();
+            setNonce(response);
+          } catch (e) {
+            Alert.alert(
+              'Unknown error',
+              'Uhh... try again?',
+              [{ text: 'OK', onPress: onClosing }],
+              { cancelable: false },
+            );
+            throw e;
+          }
         })(),
       );
       const ed25519 = await getContentSigningKey();
       setPrimaryIdentityPublicKey(ed25519);
     })();
-  }, [dispatchActionPromise, getSIWENonceCall]);
+  }, [dispatchActionPromise, getSIWENonceCall, onClosing]);
 
   const [isLoading, setLoading] = React.useState(true);
   const [walletConnectModalHeight, setWalletConnectModalHeight] =
