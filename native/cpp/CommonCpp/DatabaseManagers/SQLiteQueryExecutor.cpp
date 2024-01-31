@@ -1899,4 +1899,9 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
       "Failed to delete main compaction file after successful restore.");
 }
 
+void SQLiteQueryExecutor::restoreFromBackupLog(
+    const std::vector<std::uint8_t> &backupLog) const {
+  SQLiteQueryExecutor::connectionManager.restoreFromBackupLog(backupLog);
+}
+
 } // namespace comm

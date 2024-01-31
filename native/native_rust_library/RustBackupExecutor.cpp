@@ -37,4 +37,9 @@ void restoreFromMainCompaction(
       std::string(mainCompactionPath),
       std::string(mainCompactionEncryptionKey));
 }
+
+void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog) {
+  BackupOperationsExecutor::restoreFromBackupLog(
+      std::move(std::vector<std::uint8_t>(backupLog.begin(), backupLog.end())));
+}
 } // namespace comm
