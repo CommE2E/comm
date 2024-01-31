@@ -40,7 +40,7 @@ import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
-import { navInfoValidator } from 'web/types/nav-types.js';
+import { webNavInfoValidator } from 'web/types/nav-types.js';
 import type {
   InitialReduxStateResponse,
   InitialKeyserverInfo,
@@ -86,7 +86,7 @@ export const threadStoreValidator: TInterface<ThreadStore> =
 
 export const initialReduxStateValidator: TInterface<InitialReduxStateResponse> =
   tShape<InitialReduxStateResponse>({
-    navInfo: navInfoValidator,
+    navInfo: webNavInfoValidator,
     currentUserInfo: currentUserInfoValidator,
     entryStore: entryStoreValidator,
     threadStore: threadStoreValidator,

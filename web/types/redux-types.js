@@ -7,10 +7,10 @@ import type { LegacyThreadStore, ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserInfos } from 'lib/types/user-types.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 
-import type { NavInfo } from '../types/nav-types.js';
+import type { WebNavInfo } from '../types/nav-types.js';
 
 export type InitialReduxStateResponse = {
-  +navInfo: NavInfo,
+  +navInfo: WebNavInfo,
   +currentUserInfo: CurrentUserInfo,
   +entryStore: EntryStore,
   +threadStore: LegacyThreadStore,
@@ -23,7 +23,7 @@ export type InitialReduxStateResponse = {
 };
 
 export type InitialReduxState = {
-  +navInfo: NavInfo,
+  +navInfo: WebNavInfo,
   +currentUserInfo: CurrentUserInfo,
   +entryStore: EntryStore,
   +threadStore: ThreadStore,

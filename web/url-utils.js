@@ -11,10 +11,10 @@ import {
 import { infoFromURL, type URLInfo } from 'lib/utils/url-utils.js';
 
 import { yearExtractor, monthExtractor } from './selectors/nav-selectors.js';
-import type { NavInfo } from './types/nav-types.js';
+import type { WebNavInfo } from './types/nav-types.js';
 
 function canonicalURLFromReduxState(
-  navInfo: NavInfo,
+  navInfo: WebNavInfo,
   currentURL: string,
   loggedIn: boolean,
 ): string {
@@ -84,9 +84,9 @@ function navInfoFromURL(
   backupInfo: {
     +now?: Date,
     +userInfos?: { +[id: string]: AccountUserInfo },
-    +navInfo?: NavInfo,
+    +navInfo?: WebNavInfo,
   },
-): NavInfo {
+): WebNavInfo {
   const { navInfo } = backupInfo;
   const now = backupInfo.now ? backupInfo.now : new Date();
 
@@ -125,7 +125,7 @@ function navInfoFromURL(
       ? 'create'
       : 'view';
 
-  const newNavInfo: NavInfo = {
+  const newNavInfo: WebNavInfo = {
     tab,
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
