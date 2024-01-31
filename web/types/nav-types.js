@@ -34,7 +34,7 @@ const webNavigationSettingsSectionValidator = t.enums.of([
 export type WebNavigationChatMode = 'view' | 'create';
 const navigationChatModeValidator = t.enums.of(['view', 'create']);
 
-export type NavInfo = {
+export type WebNavInfo = {
   ...$Exact<BaseNavInfo>,
   +tab: WebNavigationTab,
   +activeChatThreadID: ?string,
@@ -46,7 +46,9 @@ export type NavInfo = {
   +loginMethod?: WebLoginMethod,
 };
 
-export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
+export const webNavInfoValidator: TInterface<WebNavInfo> = tShape<
+  $Exact<WebNavInfo>,
+>({
   startDate: t.String,
   endDate: t.String,
   tab: navigationTabValidator,
