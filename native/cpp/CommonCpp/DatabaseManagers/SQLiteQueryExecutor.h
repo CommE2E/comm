@@ -104,6 +104,8 @@ public:
   void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey) const override;
+  void restoreFromBackupLog(
+      const std::vector<std::uint8_t> &backupLog) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;

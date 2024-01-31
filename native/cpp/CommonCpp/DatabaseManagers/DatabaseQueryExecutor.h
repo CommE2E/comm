@@ -91,6 +91,8 @@ public:
   virtual void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey) const = 0;
+  virtual void
+  restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
