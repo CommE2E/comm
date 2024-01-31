@@ -31,8 +31,8 @@ const webNavigationSettingsSectionValidator = t.enums.of([
   'danger-zone',
 ]);
 
-export type NavigationChatMode = 'view' | 'create';
-const navigationChatModeValidator = t.enums.of(['view', 'create']);
+export type WebNavigationChatMode = 'view' | 'create';
+const webNavigationChatModeValidator = t.enums.of(['view', 'create']);
 
 export type NavInfo = {
   ...$Exact<BaseNavInfo>,
@@ -41,7 +41,7 @@ export type NavInfo = {
   +pendingThread?: ThreadInfo,
   +settingsSection?: WebNavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
-  +chatMode?: NavigationChatMode,
+  +chatMode?: WebNavigationChatMode,
   +inviteSecret?: ?string,
   +loginMethod?: WebLoginMethod,
 };
@@ -54,7 +54,7 @@ export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   pendingThread: t.maybe(threadInfoValidator),
   settingsSection: t.maybe(webNavigationSettingsSectionValidator),
   selectedUserList: t.maybe(t.list(accountUserInfoValidator)),
-  chatMode: t.maybe(navigationChatModeValidator),
+  chatMode: t.maybe(webNavigationChatModeValidator),
   inviteSecret: t.maybe(t.String),
   loginMethod: t.maybe(webLoginMethodValidator),
 });
