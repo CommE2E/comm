@@ -31,7 +31,7 @@ const webNavigationSettingsSectionValidator = t.enums.of([
   'danger-zone',
 ]);
 
-export type NavigationChatMode = 'view' | 'create';
+export type WebNavigationChatMode = 'view' | 'create';
 const navigationChatModeValidator = t.enums.of(['view', 'create']);
 
 export type NavInfo = {
@@ -41,7 +41,7 @@ export type NavInfo = {
   +pendingThread?: ThreadInfo,
   +settingsSection?: WebNavigationSettingsSection,
   +selectedUserList?: $ReadOnlyArray<AccountUserInfo>,
-  +chatMode?: NavigationChatMode,
+  +chatMode?: WebNavigationChatMode,
   +inviteSecret?: ?string,
   +loginMethod?: WebLoginMethod,
 };
