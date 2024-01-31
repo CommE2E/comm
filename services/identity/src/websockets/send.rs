@@ -15,7 +15,7 @@ pub type WebsocketSink =
 
 pub async fn send_error_response(
   error: errors::WebsocketError,
-  outgoing: Arc<Mutex<SplitSink<WebSocketStream<Upgraded>, Message>>>,
+  outgoing: WebsocketSink,
 ) {
   let response_msg = serde_json::json!({
     "action": "errorMessage",
@@ -35,10 +35,7 @@ pub async fn send_error_response(
   }
 }
 
-pub async fn send_message(
-  message: Message,
-  outgoing: Arc<Mutex<SplitSink<WebSocketStream<Upgraded>, Message>>>,
-) {
+pub async fn send_message(message: Message, outgoing: WebsocketSink) {
   if let Err(e) = outgoing.lock().await.send(message).await {
     error!("Failed to send message to device: {}", e);
   }
