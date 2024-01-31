@@ -29,5 +29,7 @@ public:
       std::string backupID,
       std::string logID,
       std::string encryptionKey);
+  void
+  restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) override;
 };
 } // namespace comm
