@@ -2,11 +2,11 @@
 
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { RawThreadInfos } from 'lib/types/thread-types.js';
 
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import type { Action } from '../redux/redux-setup.js';
-import { type WebNavInfo } from '../types/nav-types.js';
 
 export default function reduceNavInfo(
   oldState: WebNavInfo,

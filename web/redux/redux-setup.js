@@ -29,6 +29,7 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
@@ -53,7 +54,6 @@ import { onStateDifference } from './redux-debug-utils.js';
 import { getVisibility } from './visibility.js';
 import { processDBStoreOperations } from '../database/utils/store.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
-import { type WebNavInfo } from '../types/nav-types.js';
 import type { InitialReduxState } from '../types/redux-types.js';
 
 export type WindowDimensions = { width: number, height: number };
