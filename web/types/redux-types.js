@@ -3,11 +3,10 @@
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { LegacyThreadStore, ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserInfos } from 'lib/types/user-types.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
-
-import type { WebNavInfo } from '../types/nav-types.js';
 
 export type InitialReduxStateResponse = {
   +navInfo: WebNavInfo,
