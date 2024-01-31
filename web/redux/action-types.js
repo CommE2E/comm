@@ -5,7 +5,7 @@ import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-ty
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type {
   WebInitialKeyserverInfo,
-  WebInitialReduxStateResponse,
+  ClientWebInitialReduxStateResponse,
 } from 'lib/types/redux-types.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
@@ -76,7 +76,7 @@ const getInitialReduxState =
       }
     }
 
-    const responses: { +[string]: WebInitialReduxStateResponse } =
+    const responses: { +[string]: ClientWebInitialReduxStateResponse } =
       await callKeyserverEndpoint(
         'get_initial_redux_state',
         requests,
