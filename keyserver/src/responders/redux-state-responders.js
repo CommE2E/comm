@@ -28,6 +28,10 @@ import {
   type MessageStore,
 } from 'lib/types/message-types.js';
 import { webNavInfoValidator } from 'lib/types/nav-types.js';
+import type {
+  WebInitialKeyserverInfo,
+  WebInitialReduxStateResponse,
+} from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadStore } from 'lib/types/thread-types.js';
@@ -42,8 +46,6 @@ import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
 import type {
-  WebInitialReduxStateResponse,
-  WebInitialKeyserverInfo,
   InitialReduxStateRequest,
   ExcludedData,
 } from 'web/types/redux-types.js';
