@@ -12,8 +12,8 @@ import {
 } from 'lib/types/user-types.js';
 import { tID, tShape } from 'lib/utils/validation-utils.js';
 
-export type NavigationTab = 'calendar' | 'chat' | 'settings';
-const navigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
+export type WebNavigationTab = 'calendar' | 'chat' | 'settings';
+const webNavigationTabValidator = t.enums.of(['calendar', 'chat', 'settings']);
 export type LoginMethod = 'form' | 'qr-code';
 const loginMethodValidator = t.enums.of(['form', 'qr-code']);
 
@@ -36,7 +36,7 @@ const navigationChatModeValidator = t.enums.of(['view', 'create']);
 
 export type NavInfo = {
   ...$Exact<BaseNavInfo>,
-  +tab: NavigationTab,
+  +tab: WebNavigationTab,
   +activeChatThreadID: ?string,
   +pendingThread?: ThreadInfo,
   +settingsSection?: NavigationSettingsSection,
@@ -49,7 +49,7 @@ export type NavInfo = {
 export const navInfoValidator: TInterface<NavInfo> = tShape<$Exact<NavInfo>>({
   startDate: t.String,
   endDate: t.String,
-  tab: navigationTabValidator,
+  tab: webNavigationTabValidator,
   activeChatThreadID: t.maybe(tID),
   pendingThread: t.maybe(threadInfoValidator),
   settingsSection: t.maybe(navigationSettingsSectionValidator),
