@@ -18,6 +18,7 @@ import {
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
 } from 'lib/types/entry-types.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import {
   getDate,
   dateString,
@@ -38,7 +39,6 @@ import {
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors.js';
-import type { WebNavInfo } from '../types/nav-types.js';
 import { canonicalURLFromReduxState } from '../url-utils.js';
 
 type StartAndEndDates = {

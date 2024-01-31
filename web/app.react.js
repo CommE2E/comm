@@ -28,6 +28,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -73,7 +74,6 @@ import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
-import { type WebNavInfo } from './types/nav-types.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 
 void initOpaque();
