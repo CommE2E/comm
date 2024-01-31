@@ -43,7 +43,7 @@ import { urlInfoValidator } from 'lib/utils/url-utils.js';
 import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
 import type {
   WebInitialReduxStateResponse,
-  InitialKeyserverInfo,
+  WebInitialKeyserverInfo,
   InitialReduxStateRequest,
   ExcludedData,
 } from 'web/types/redux-types.js';
@@ -74,7 +74,7 @@ export const initialReduxStateRequestValidator: TInterface<InitialReduxStateRequ
     clientUpdatesCurrentAsOf: t.Number,
   });
 
-const initialKeyserverInfoValidator = tShape<InitialKeyserverInfo>({
+const initialKeyserverInfoValidator = tShape<WebInitialKeyserverInfo>({
   sessionID: t.maybe(t.String),
   updatesCurrentAsOf: t.Number,
 });

@@ -11,7 +11,7 @@ import type {
   ExcludedData,
   InitialReduxState,
   WebInitialReduxStateResponse,
-  InitialKeyserverInfo,
+  WebInitialKeyserverInfo,
   InitialReduxStateRequest,
 } from '../types/redux-types.js';
 
@@ -113,7 +113,7 @@ const getInitialReduxState =
     const inviteLinksStore = {
       links: {},
     };
-    let keyserverInfos: { [keyserverID: string]: InitialKeyserverInfo } = {};
+    let keyserverInfos: { [keyserverID: string]: WebInitialKeyserverInfo } = {};
 
     for (const keyserverID in responses) {
       entryStore.daysToEntries = {
