@@ -1,11 +1,13 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import {
   uploadMultimedia,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -18,6 +20,10 @@ import { validateFile } from '../media/media-utils.js';
 const useBlobServiceUploads = false;
 
 function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
@@ -56,6 +62,7 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
         ? thumbHashResult.thumbHash
         : null;
 
+      const authMetadata = await getAuthMetadata();
       const { id } = await callBlobServiceUpload({
         uploadInput: {
           blobInput: {
@@ -68,13 +75,14 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
           loop: false,
           thumbHash,
         },
+        authMetadata,
         keyserverOrThreadID: ashoatKeyserverID,
         callbacks: {},
       });
 
       return { type: 'encrypted_image', uploadID: id };
     },
-    [callBlobServiceUpload, callUploadMultimedia],
+    [callBlobServiceUpload, callUploadMultimedia, getAuthMetadata],
   );
   return uploadAvatarMedia;
 }

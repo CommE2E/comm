@@ -41,6 +41,8 @@ import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
   createMediaMessageInfo,
   localIDPrefix,
@@ -95,6 +97,7 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 import {
   type BaseInputState,
@@ -151,6 +154,7 @@ type Props = {
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +identityContext: ?IdentityClientContextType,
 };
 type WritableState = {
   pendingUploads: {
@@ -867,6 +871,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const steps = [...upload.steps];
     let userTime;
 
+    const { identityContext } = this.props;
+    invariant(identityContext, 'Identity context should be set');
+
     const sendReport = (missionResult: MediaMissionResult) => {
       const newThreadID = this.getRealizedOrPendingThreadID(threadID);
       const latestUpload = this.state.pendingUploads[newThreadID][localID];
@@ -907,6 +914,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           encryptionKey && blobHash && dimensions,
           'incomplete encrypted upload',
         );
+
+        const authMetadata = await identityContext.getAuthMetadata();
         uploadResult = await this.props.blobServiceUpload({
           uploadInput: {
             blobInput: {
@@ -920,6 +929,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             thumbHash,
           },
           keyserverOrThreadID: threadID,
+          authMetadata,
           callbacks,
         });
       } else {
@@ -1011,7 +1021,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
 
     if (encryptionKey) {
-      const { steps: preloadSteps } = await preloadMediaResource(result.uri);
+      const { steps: preloadSteps } = await preloadMediaResource(
+        result.uri,
+        authMetadata,
+      );
       steps.push(...preloadSteps);
     } else {
       const { steps: preloadSteps } = await preloadImage(result.uri);
@@ -1202,6 +1215,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             keyserverOrThreadID: threadID,
           });
           if (isBlobServiceURI(pendingUpload.uri)) {
+            const identityContext = this.props.identityContext;
+            invariant(identityContext, 'Identity context should be set');
             invariant(
               pendingUpload.blobHolder,
               'blob service upload has no holder',
@@ -1209,16 +1224,22 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             const endpoint = blobService.httpEndpoints.DELETE_BLOB;
             const holder = pendingUpload.blobHolder;
             const blobHash = blobHashFromBlobServiceURI(pendingUpload.uri);
-            void fetch(makeBlobServiceEndpointURL(endpoint), {
-              method: endpoint.method,
-              body: JSON.stringify({
-                holder,
-                blob_hash: blobHash,
-              }),
-              headers: {
-                'content-type': 'application/json',
-              },
-            });
+            void (async () => {
+              const authMetadata = await identityContext.getAuthMetadata();
+              const defaultHeaders =
+                createDefaultHTTPRequestHeaders(authMetadata);
+              await fetch(makeBlobServiceEndpointURL(endpoint), {
+                method: endpoint.method,
+                body: JSON.stringify({
+                  holder,
+                  blob_hash: blobHash,
+                }),
+                headers: {
+                  ...defaultHeaders,
+                  'content-type': 'application/json',
+                },
+              });
+            })();
           }
         }
         const newPendingUploads = _omit([localUploadID])(currentPendingUploads);
@@ -1656,6 +1677,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
+    const identityContext = React.useContext(IdentityClientContext);
 
     const [sendCallbacks, setSendCallbacks] = React.useState<
       $ReadOnlyArray<() => mixed>,
@@ -1696,6 +1718,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         registerSendCallback={registerSendCallback}
         unregisterSendCallback={unregisterSendCallback}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        identityContext={identityContext}
       />
     );
   });
