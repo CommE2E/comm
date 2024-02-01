@@ -11,6 +11,10 @@ import {
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
+  type ReplaceKeyserverOperation,
+  keyserverStoreOpsHandlers,
+} from 'lib/ops/keyserver-store-ops.js';
+import {
   type ThreadStoreOperation,
   threadStoreOpsHandlers,
 } from 'lib/ops/thread-store-ops.js';
@@ -141,12 +145,18 @@ function reducer(oldState: AppState | void, action: Action): AppState {
 
   if (action.type === setInitialReduxState) {
     const { userInfos, keyserverInfos, ...rest } = action.payload;
-    const newKeyserverInfos = { ...state.keyserverStore.keyserverInfos };
+    const replaceOperations: ReplaceKeyserverOperation[] = [];
     for (const keyserverID in keyserverInfos) {
-      newKeyserverInfos[keyserverID] = {
-        ...newKeyserverInfos[keyserverID],
-        ...keyserverInfos[keyserverID],
-      };
+      replaceOperations.push({
+        type: 'replace_keyserver',
+        payload: {
+          id: keyserverID,
+          keyserverInfo: {
+            ...state.keyserverStore.keyserverInfos[keyserverID],
+            ...keyserverInfos[keyserverID],
+          },
+        },
+      });
     }
     return validateStateAndProcessDBOperations(
       oldState,
@@ -156,7 +166,10 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         userStore: { userInfos },
         keyserverStore: {
           ...state.keyserverStore,
-          keyserverInfos: newKeyserverInfos,
+          keyserverInfos: keyserverStoreOpsHandlers.processStoreOperations(
+            state.keyserverStore.keyserverInfos,
+            replaceOperations,
+          ),
         },
         initialStateLoaded: true,
       },
