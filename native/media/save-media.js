@@ -19,6 +19,7 @@ import {
   reportTypes,
   type ClientMediaMissionReportCreationRequest,
 } from 'lib/types/report-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -235,7 +236,7 @@ async function saveMediaAndroid(
 
   let uri = inputURI;
   let tempFile, mime;
-  if (uri.startsWith('http')) {
+  if (uri.startsWith('http') || isBlobServiceURI(uri)) {
     promises.push(
       (async () => {
         const { result: tempSaveResult, steps: tempSaveSteps } =
@@ -306,7 +307,7 @@ async function saveMediaIOS(
 
   let uri = inputURI;
   let tempFile;
-  if (uri.startsWith('http')) {
+  if (uri.startsWith('http') || isBlobServiceURI(uri)) {
     const { result: tempSaveResult, steps: tempSaveSteps } =
       await saveRemoteMediaToDisk(uri, encryptionKey, temporaryDirectoryPath);
     steps.push(...tempSaveSteps);
