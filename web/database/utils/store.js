@@ -11,7 +11,7 @@ import type {
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../database-module-provider.js';
 
-async function getClientStore(): Promise<ClientStore> {
+async function getClientDBStore(): Promise<ClientStore> {
   const databaseModule = await getDatabaseModule();
   let result: ClientStore = {
     currentUserID: null,
@@ -99,4 +99,4 @@ async function processDBStoreOperations(
   }
 }
 
-export { getClientStore, processDBStoreOperations };
+export { getClientDBStore, processDBStoreOperations };

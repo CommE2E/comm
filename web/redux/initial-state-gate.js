@@ -22,7 +22,7 @@ import {
 } from './action-types.js';
 import { useSelector } from './redux-utils.js';
 import {
-  getClientStore,
+  getClientDBStore,
   processDBStoreOperations,
 } from '../database/utils/store.js';
 import Loading from '../loading.react.js';
@@ -62,7 +62,7 @@ function InitialReduxStateGate(props: Props): React.Node {
             thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
           };
         }
-        const clientDBStore = await getClientStore();
+        const clientDBStore = await getClientDBStore();
         dispatch({
           type: setClientDBStoreActionType,
           payload: clientDBStore,
