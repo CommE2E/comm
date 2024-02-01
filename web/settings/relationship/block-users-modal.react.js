@@ -10,6 +10,7 @@ import {
 } from 'lib/types/relationship-types.js';
 
 import AddUsersListModal from './add-users-list-modal.react.js';
+import { AddUsersListProvider } from './add-users-list-provider.react.js';
 import { buttonThemes } from '../../components/button.react.js';
 
 const excludedStatuses = new Set([
@@ -18,22 +19,32 @@ const excludedStatuses = new Set([
 ]);
 
 function BlockUsersModal(): React.Node {
-  const buttonContent = (
-    <div>
-      <FontAwesomeIcon icon={faUserShield} />
-      {' Block users'}
-    </div>
+  const buttonContent = React.useMemo(
+    () => (
+      <div>
+        <FontAwesomeIcon icon={faUserShield} />
+        {' Block users'}
+      </div>
+    ),
+    [],
   );
 
-  return (
-    <AddUsersListModal
-      name="Block users"
-      excludedStatuses={excludedStatuses}
-      confirmButtonContent={buttonContent}
-      confirmButtonColor={buttonThemes.danger}
-      relationshipAction={relationshipActions.BLOCK}
-    />
+  const blockUsersModal = React.useMemo(
+    () => (
+      <AddUsersListProvider>
+        <AddUsersListModal
+          name="Block users"
+          excludedStatuses={excludedStatuses}
+          confirmButtonContent={buttonContent}
+          confirmButtonColor={buttonThemes.danger}
+          relationshipAction={relationshipActions.BLOCK}
+        />
+      </AddUsersListProvider>
+    ),
+    [buttonContent],
   );
+
+  return blockUsersModal;
 }
 
 export default BlockUsersModal;
