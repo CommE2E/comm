@@ -42,7 +42,6 @@ export interface Spec extends TurboModule {
     notifPrekeySignature: string,
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
-    socialProof: string,
   ) => Promise<string>;
   +updatePassword: (
     userID: string,
