@@ -10,14 +10,17 @@ import {
   readableFilename,
   pathFromURI,
 } from 'lib/media/file-utils.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   MediaMissionFailure,
   MediaMissionStep,
   DecryptFileMediaMissionStep,
   EncryptFileMediaMissionStep,
 } from 'lib/types/media-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
@@ -248,6 +251,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
 async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
+  authMetadata: AuthMetadata,
   options: {
     +destination: 'file' | 'data_uri',
     +destinationDirectory?: string,
@@ -261,10 +265,15 @@ async function fetchAndDecryptMedia(
   const steps: DecryptFileMediaMissionStep[] = [];
 
   // Step 1. Fetch the file and convert it to a Uint8Array
+  let headers;
+  if (isBlobServiceURI(blobURI)) {
+    headers = createDefaultHTTPRequestHeaders(authMetadata);
+  }
+
   const fetchStartTime = Date.now();
   let data;
   try {
-    const response = await fetch(getFetchableURI(blobURI));
+    const response = await fetch(getFetchableURI(blobURI), { headers });
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
