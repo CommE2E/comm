@@ -5,6 +5,7 @@ import * as React from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { AlertCircle as AlertCircleIcon } from 'react-feather';
 
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { EncryptedMediaType } from 'lib/types/media-types.js';
 
 import { fetchAndDecryptMedia } from './encryption-utils.js';
@@ -43,13 +44,22 @@ function EncryptedMultimedia(props: Props): React.Node {
   const [source, setSource] = React.useState<?Source>(null);
   const videoRef = React.useRef<?HTMLVideoElement>(null);
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   React.useEffect(() => {
     let isMounted = true,
       uriToDispose;
     setSource(null);
 
     const loadDecrypted = async () => {
-      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey);
+      const authMedatata = await getAuthMetadata();
+      const { result } = await fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMedatata,
+      );
       if (!isMounted) {
         return;
       }
@@ -71,7 +81,7 @@ function EncryptedMultimedia(props: Props): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [blobURI, encryptionKey]);
+  }, [blobURI, encryptionKey, getAuthMetadata]);
 
   // we need to update the video source when the source changes
   // because re-rendering the <source> element wouldn't reload parent <video>
