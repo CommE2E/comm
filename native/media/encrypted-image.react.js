@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -34,6 +35,7 @@ function EncryptedImage(props: Props): React.Node {
     thumbHash: encryptedThumbHash,
   } = props;
 
+  const authMetadata = useCommServicesAuthMetadata();
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState<?ImageSource>(null);
 
@@ -77,9 +79,14 @@ function EncryptedImage(props: Props): React.Node {
         return;
       }
 
-      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey, {
-        destination: 'data_uri',
-      });
+      const { result } = await fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+        {
+          destination: 'data_uri',
+        },
+      );
 
       if (isMounted) {
         if (result.success) {
@@ -96,7 +103,7 @@ function EncryptedImage(props: Props): React.Node {
     return () => {
       isMounted = false;
     };
-  }, [attempt, blobURI, encryptionKey, mediaCache]);
+  }, [attempt, blobURI, encryptionKey, mediaCache, authMetadata]);
 
   const onLoad = React.useCallback(() => {
     onLoadProp && onLoadProp(blobURI);
