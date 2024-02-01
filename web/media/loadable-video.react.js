@@ -3,6 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+
 import { fetchAndDecryptMedia } from './encryption-utils.js';
 import { preloadImage } from './media-utils.js';
 import type { CSSStyle } from '../types/styles';
@@ -36,6 +38,10 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
 
   const [thumbnailImage, setThumbnailImage] = React.useState<?string>(null);
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   React.useEffect(() => {
     let isMounted = true,
       uriToDispose;
@@ -54,9 +60,11 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
         thumbnailBlobURI && thumbnailEncryptionKey,
         'invalid encrypted thumbnail source',
       );
+      const authMedatata = await getAuthMetadata();
       const { result } = await fetchAndDecryptMedia(
         thumbnailBlobURI,
         thumbnailEncryptionKey,
+        authMedatata,
       );
       if (isMounted && result.success) {
         setThumbnailImage(result.uri);
@@ -70,7 +78,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey]);
+  }, [thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey, getAuthMetadata]);
 
   let videoSource;
   if (uri) {
