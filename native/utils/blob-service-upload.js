@@ -6,11 +6,13 @@ import { Platform } from 'react-native';
 import { pathFromURI } from 'lib/media/file-utils.js';
 import type { BlobServiceUploadHandler } from 'lib/utils/blob-service-upload.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 const blobServiceUploadHandler: BlobServiceUploadHandler = async (
   url,
   method,
   input,
+  authMetadata,
   options,
 ) => {
   if (input.blobInput.type !== 'uri') {
@@ -23,6 +25,7 @@ const blobServiceUploadHandler: BlobServiceUploadHandler = async (
       path = resolvedPath;
     }
   }
+  const headers = authMetadata && createDefaultHTTPRequestHeaders(authMetadata);
   const uploadTask = FileSystem.createUploadTask(
     url,
     path,
@@ -31,6 +34,7 @@ const blobServiceUploadHandler: BlobServiceUploadHandler = async (
       fieldName: 'blob_data',
       httpMethod: method,
       parameters: { blob_hash: input.blobHash },
+      headers,
     },
     uploadProgress => {
       if (options?.onProgress) {

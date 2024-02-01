@@ -18,6 +18,7 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
   AvatarDBContent,
   UpdateUserAvatarRequest,
@@ -55,6 +56,10 @@ function displayAvatarUpdateFailureAlert(): void {
 }
 
 function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadProcessedMultimedia: MediaResult => Promise<?AvatarDBContent> =
@@ -94,6 +99,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
           dimensions,
           thumbHash,
         } = encryptionResult;
+        const authMetadata = await getAuthMetadata();
         const { id } = await callBlobServiceUpload({
           uploadInput: {
             blobInput: {
@@ -108,6 +114,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
             thumbHash,
             loop: false,
           },
+          authMetadata,
           keyserverOrThreadID: ashoatKeyserverID,
           callbacks: { blobServiceUploadHandler },
         });
@@ -116,7 +123,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
         }
         return { type: 'encrypted_image', uploadID: id };
       },
-      [callUploadMultimedia, callBlobServiceUpload],
+      [callUploadMultimedia, callBlobServiceUpload, getAuthMetadata],
     );
   return uploadProcessedMultimedia;
 }

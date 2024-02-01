@@ -39,6 +39,8 @@ import {
   combineLoadingStatuses,
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
   createMediaMessageInfo,
   useMessageCreationSideEffectsFunc,
@@ -158,6 +160,7 @@ type Props = {
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +identityContext: ?IdentityClientContextType,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -820,7 +823,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const { uploadURI, filename, mime } = processedMedia;
 
-    const { hasWiFi } = this.props;
+    const { hasWiFi, identityContext } = this.props;
 
     const uploadStart = Date.now();
     let uploadExceptionMessage,
@@ -833,41 +836,52 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         (processedMedia.mediaType === 'encrypted_photo' ||
           processedMedia.mediaType === 'encrypted_video')
       ) {
-        const uploadPromise = this.props.blobServiceUpload({
-          uploadInput: {
-            blobInput: {
-              type: 'uri',
-              uri: uploadURI,
-              filename: filename,
-              mimeType: mime,
+        invariant(identityContext, 'Identity context should be set');
+        const uploadPromise = (async () => {
+          invariant(
+            processedMedia.mediaType === 'encrypted_photo' ||
+              processedMedia.mediaType === 'encrypted_video',
+            'encryptionKey should be set',
+          );
+          const authMetadata = await identityContext.getAuthMetadata();
+          return await this.props.blobServiceUpload({
+            uploadInput: {
+              blobInput: {
+                type: 'uri',
+                uri: uploadURI,
+                filename: filename,
+                mimeType: mime,
+              },
+              blobHash: processedMedia.blobHash,
+              encryptionKey: processedMedia.encryptionKey,
+              dimensions: processedMedia.dimensions,
+              thumbHash:
+                processedMedia.mediaType === 'encrypted_photo'
+                  ? processedMedia.thumbHash
+                  : null,
             },
-            blobHash: processedMedia.blobHash,
-            encryptionKey: processedMedia.encryptionKey,
-            dimensions: processedMedia.dimensions,
-            thumbHash:
-              processedMedia.mediaType === 'encrypted_photo'
-                ? processedMedia.thumbHash
-                : null,
-          },
-          keyserverOrThreadID: threadInfo.id,
-          callbacks: {
-            blobServiceUploadHandler,
-            onProgress: (percent: number) => {
-              this.setProgress(
-                localMessageID,
-                localMediaID,
-                'uploading',
-                percent,
-              );
+            authMetadata,
+            keyserverOrThreadID: threadInfo.id,
+            callbacks: {
+              blobServiceUploadHandler,
+              onProgress: (percent: number) => {
+                this.setProgress(
+                  localMessageID,
+                  localMediaID,
+                  'uploading',
+                  percent,
+                );
+              },
             },
-          },
-        });
+          });
+        })();
 
         const uploadThumbnailPromise: Promise<?BlobServiceUploadResult> =
           (async () => {
             if (processedMedia.mediaType !== 'encrypted_video') {
               return undefined;
             }
+            const authMetadata = await identityContext.getAuthMetadata();
             return await this.props.blobServiceUpload({
               uploadInput: {
                 blobInput: {
@@ -882,6 +896,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 dimensions: processedMedia.dimensions,
                 thumbHash: processedMedia.thumbHash,
               },
+              authMetadata,
               keyserverOrThreadID: threadInfo.id,
               callbacks: {
                 blobServiceUploadHandler,
@@ -956,6 +971,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
+      console.log('CO JEST KURWA', e);
       onUploadFailed(localMediaID, 'upload failed');
       mediaMissionResult = {
         success: false,
@@ -1720,6 +1736,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
+    const identityContext = React.useContext(IdentityClientContext);
 
     return (
       <InputStateContainer
@@ -1740,6 +1757,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatch={dispatch}
         staffCanSee={staffCanSee}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        identityContext={identityContext}
       />
     );
   });

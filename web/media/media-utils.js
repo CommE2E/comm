@@ -5,13 +5,16 @@ import * as React from 'react';
 import { thumbHashToDataURL } from 'thumbhash';
 
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   MediaType,
   Dimensions,
   MediaMissionStep,
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 import { probeFile } from './blob-utils.js';
 import { decryptThumbhashToDataURL } from './encryption-utils.js';
@@ -64,15 +67,23 @@ async function preloadImage(uri: string): Promise<{
  * @returns Steps and the result of the preload. The preload is successful
  * if the HTTP response is OK (20x).
  */
-async function preloadMediaResource(uri: string): Promise<{
+async function preloadMediaResource(
+  uri: string,
+  authMetadata: AuthMetadata,
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: { +success: boolean },
 }> {
+  let headers;
+  if (isBlobServiceURI(uri)) {
+    headers = createDefaultHTTPRequestHeaders(authMetadata);
+  }
+
   const start = Date.now();
   const mediaURI = fetchableMediaURI(uri);
   let success, exceptionMessage;
   try {
-    const response = await fetch(mediaURI);
+    const response = await fetch(mediaURI, { headers });
     // we need to read the blob to make sure the browser caches it
     await response.blob();
     success = response.ok;
