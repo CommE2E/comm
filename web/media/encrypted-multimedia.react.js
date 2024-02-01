@@ -7,7 +7,7 @@ import { AlertCircle as AlertCircleIcon } from 'react-feather';
 
 import type { EncryptedMediaType } from 'lib/types/media-types.js';
 
-import { fetchAndDecryptMedia } from './encryption-utils.js';
+import { useFetchAndDecryptMedia } from './encryption-utils.js';
 import LoadableVideo from './loadable-video.react.js';
 import css from './media.css';
 import LoadingIndicator from '../loading-indicator.react.js';
@@ -43,6 +43,8 @@ function EncryptedMultimedia(props: Props): React.Node {
   const [source, setSource] = React.useState<?Source>(null);
   const videoRef = React.useRef<?HTMLVideoElement>(null);
 
+  const fetchAndDecryptMedia = useFetchAndDecryptMedia();
+
   React.useEffect(() => {
     let isMounted = true,
       uriToDispose;
@@ -71,7 +73,7 @@ function EncryptedMultimedia(props: Props): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [blobURI, encryptionKey]);
+  }, [blobURI, encryptionKey, fetchAndDecryptMedia]);
 
   // we need to update the video source when the source changes
   // because re-rendering the <source> element wouldn't reload parent <video>
