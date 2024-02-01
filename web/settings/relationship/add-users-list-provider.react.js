@@ -4,15 +4,14 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { SetState } from 'lib/types/hook-types.js';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
+
+import type { BaseAddUserInfo } from './add-users-list-item.react.js';
 
 export type AddUsersListContextType = {
-  +pendingUsersToAdd: $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  +setPendingUsersToAdd: SetState<$ReadOnlyMap<string, GlobalAccountUserInfo>>,
-  +previouslySelectedUsers: $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  +setPreviouslySelectedUsers: SetState<
-    $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  >,
+  +pendingUsersToAdd: $ReadOnlyMap<string, BaseAddUserInfo>,
+  +setPendingUsersToAdd: SetState<$ReadOnlyMap<string, BaseAddUserInfo>>,
+  +previouslySelectedUsers: $ReadOnlyMap<string, BaseAddUserInfo>,
+  +setPreviouslySelectedUsers: SetState<$ReadOnlyMap<string, BaseAddUserInfo>>,
   +errorMessage: string,
   +setErrorMessage: SetState<string>,
 };
@@ -27,10 +26,10 @@ function AddUsersListProvider(props: Props): React.Node {
   const { children } = props;
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlyMap<string, GlobalAccountUserInfo>,
+    $ReadOnlyMap<string, BaseAddUserInfo>,
   >(new Map());
   const [previouslySelectedUsers, setPreviouslySelectedUsers] = React.useState<
-    $ReadOnlyMap<string, GlobalAccountUserInfo>,
+    $ReadOnlyMap<string, BaseAddUserInfo>,
   >(new Map());
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
