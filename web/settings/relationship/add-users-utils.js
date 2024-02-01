@@ -11,13 +11,13 @@ import type {
 } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 
+import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import { useSortedENSResolvedUsers } from './user-list-hooks.js';
 import { useSelector } from '../../redux/redux-utils.js';
 
 type UseUserRelationshipUserInfosParams = {
   +searchText: string,
   +excludedStatuses: $ReadOnlySet<UserRelationshipStatus>,
-  +previouslySelectedUsers: $ReadOnlyMap<string, GlobalAccountUserInfo>,
 };
 
 function useUserRelationshipUserInfos(
@@ -30,7 +30,9 @@ function useUserRelationshipUserInfos(
     GlobalAccountUserInfo | AccountUserInfo,
   >,
 } {
-  const { searchText, excludedStatuses, previouslySelectedUsers } = params;
+  const { searchText, excludedStatuses } = params;
+
+  const { previouslySelectedUsers } = useAddUsersListContext();
 
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   const userInfos = useSelector(state => state.userStore.userInfos);

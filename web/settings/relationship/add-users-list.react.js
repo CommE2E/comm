@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
-import type { SetState } from 'lib/types/hook-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
+import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import css from './add-users-list.css';
 import { useUserRelationshipUserInfos } from './add-users-utils.js';
 import { useSortedENSResolvedUsers } from './user-list-hooks.js';
@@ -15,25 +15,20 @@ import Button from '../../components/button.react.js';
 type Props = {
   +searchText: string,
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
-  +pendingUsersToAdd: $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  +setPendingUsersToAdd: SetState<$ReadOnlyMap<string, GlobalAccountUserInfo>>,
-  +errorMessage: string,
 };
 
 function AddUsersList(props: Props): React.Node {
+  const { searchText, excludedStatuses = new Set() } = props;
+
   const {
-    searchText,
-    excludedStatuses = new Set(),
     pendingUsersToAdd,
     setPendingUsersToAdd,
+    previouslySelectedUsers,
+    setPreviouslySelectedUsers,
     errorMessage,
-  } = props;
+  } = useAddUsersListContext();
 
   const searchModeActive = searchText.length > 0;
-
-  const [previouslySelectedUsers, setPreviouslySelectedUsers] = React.useState<
-    $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  >(new Map());
 
   React.useEffect(() => {
     setPreviouslySelectedUsers(pendingUsersToAdd);
@@ -46,7 +41,6 @@ function AddUsersList(props: Props): React.Node {
     useUserRelationshipUserInfos({
       searchText,
       excludedStatuses,
-      previouslySelectedUsers,
     });
 
   const previouslySelectedUsersList = React.useMemo(
