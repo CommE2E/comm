@@ -3,22 +3,25 @@
 import * as React from 'react';
 
 import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
-import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
 
-import AddUsersListItem from './add-users-list-item.react.js';
+import AddUsersListItem, {
+  type BaseAddUserInfo,
+} from './add-users-list-item.react.js';
 import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import css from './add-users-list.css';
-import { useUserRelationshipUserInfos } from './add-users-utils.js';
 import Button from '../../components/button.react.js';
 
-type Props = {
-  +searchText: string,
-  +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
+type Props<T: BaseAddUserInfo> = {
+  +searchModeActive: boolean,
+  +userInfos: {
+    [string]: T,
+  },
+  +sortedUsersWithENSNames: $ReadOnlyArray<T>,
 };
 
-function AddUsersList(props: Props): React.Node {
-  const { searchText, excludedStatuses = new Set() } = props;
+function AddUsersList<T: BaseAddUserInfo>(props: Props<T>): React.Node {
+  const { searchModeActive, userInfos, sortedUsersWithENSNames } = props;
 
   const {
     pendingUsersToAdd,
@@ -28,20 +31,12 @@ function AddUsersList(props: Props): React.Node {
     errorMessage,
   } = useAddUsersListContext();
 
-  const searchModeActive = searchText.length > 0;
-
   React.useEffect(() => {
     setPreviouslySelectedUsers(pendingUsersToAdd);
 
     // We want this effect to run ONLY when searchModeActive changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchModeActive]);
-
-  const { mergedUserInfos, sortedUsersWithENSNames } =
-    useUserRelationshipUserInfos({
-      searchText,
-      excludedStatuses,
-    });
 
   const previouslySelectedUsersList = React.useMemo(
     () => Array.from(previouslySelectedUsers.values()),
@@ -58,10 +53,9 @@ function AddUsersList(props: Props): React.Node {
         }
 
         if (!previouslySelectedUsers.has(userID)) {
-          const newPendingUser: GlobalAccountUserInfo = {
+          const newPendingUser: BaseAddUserInfo = {
             id: userID,
-            username: mergedUserInfos[userID].username,
-            avatar: mergedUserInfos[userID].avatar,
+            username: stringForUser(userInfos[userID]),
           };
 
           newPendingUsers.set(userID, newPendingUser);
@@ -75,7 +69,7 @@ function AddUsersList(props: Props): React.Node {
         return newPendingUsers;
       });
     },
-    [mergedUserInfos, setPendingUsersToAdd, previouslySelectedUsers],
+    [userInfos, setPendingUsersToAdd, previouslySelectedUsers],
   );
 
   const userRows = React.useMemo(
