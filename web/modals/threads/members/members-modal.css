@@ -29,7 +29,7 @@ div.memberContainer {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 8px;
 }
 
 div.memberContainer:hover {
@@ -39,14 +39,27 @@ div.memberContainer:hover {
 }
 
 div.memberInfo {
-  font-size: var(--l-font-18);
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow: hidden;
+}
+
+.username {
+  color: var(--text-background-secondary-default);
+  font-size: var(--s-font-14);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editIcon {
+  color: var(--button-label-tertiary-default);
 }
 
 div.memberAction {
   position: relative;
+  margin-left: 8px;
 }
 
 h5.memberletterHeader {

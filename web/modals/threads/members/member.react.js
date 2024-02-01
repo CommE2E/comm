@@ -16,18 +16,20 @@ import type {
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
 import UserAvatar from '../../../avatars/user-avatar.react.js';
 import CommIcon from '../../../CommIcon.react.js';
-import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
 import { usePushUserProfileModal } from '../../user-profile/user-profile-utils.js';
 
 const commIconComponent = <CommIcon size={18} icon="user-edit" />;
+
+const editIconComponent = (
+  <SWMansionIcon icon="edit-1" size={18} className={css.editIcon} />
+);
 
 type Props = {
   +memberInfo: RelativeMemberInfo,
@@ -39,9 +41,6 @@ function ThreadMember(props: Props): React.Node {
   const { memberInfo, threadInfo, setOpenMenu } = props;
   const { pushModal } = useModalContext();
   const userName = stringForUser(memberInfo);
-
-  const roles = useRolesFromCommunityThreadInfo(threadInfo, [memberInfo]);
-  const roleName = roles.get(memberInfo.id)?.name;
 
   const onMenuChange = React.useCallback(
     (menuOpen: boolean) => {
@@ -103,28 +102,17 @@ function ThreadMember(props: Props): React.Node {
     [memberInfo, onClickRemoveUser, onClickChangeRole, threadInfo],
   );
 
-  const userSettingsIcon = React.useMemo(
-    () => <SWMansionIcon icon="edit-1" size={17} />,
-    [],
-  );
-
-  const label = React.useMemo(
-    () => <Label variant="grey">{roleName}</Label>,
-    [roleName],
-  );
-
   const pushUserProfileModal = usePushUserProfileModal(memberInfo.id);
 
   return (
     <div className={css.memberContainer} onClick={pushUserProfileModal}>
       <div className={css.memberInfo}>
         <UserAvatar size="S" userID={memberInfo.id} />
-        {userName}
-        {label}
+        <div className={css.username}>{userName}</div>
       </div>
       <div className={css.memberAction}>
         <Menu
-          icon={userSettingsIcon}
+          icon={editIconComponent}
           variant="member-actions"
           onChange={onMenuChange}
         >
