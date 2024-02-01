@@ -3,6 +3,8 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
+
 import { fetchAndDecryptMedia } from './encryption-utils.js';
 import { preloadImage } from './media-utils.js';
 import type { CSSStyle } from '../types/styles';
@@ -35,6 +37,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
     thumbnailSource;
 
   const [thumbnailImage, setThumbnailImage] = React.useState<?string>(null);
+  const authMedatata = useCommServicesAuthMetadata();
 
   React.useEffect(() => {
     let isMounted = true,
@@ -57,6 +60,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
       const { result } = await fetchAndDecryptMedia(
         thumbnailBlobURI,
         thumbnailEncryptionKey,
+        authMedatata,
       );
       if (isMounted && result.success) {
         setThumbnailImage(result.uri);
@@ -70,7 +74,7 @@ function LoadableVideo(props: Props, videoRef: React.Ref<'video'>): React.Node {
         URL.revokeObjectURL(uriToDispose);
       }
     };
-  }, [thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey]);
+  }, [thumbnailURI, thumbnailBlobURI, thumbnailEncryptionKey, authMedatata]);
 
   let videoSource;
   if (uri) {

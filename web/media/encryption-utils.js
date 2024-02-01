@@ -7,12 +7,18 @@ import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { fileInfoFromData } from 'lib/media/file-utils.js';
 import { fetchableMediaURI } from 'lib/media/media-utils.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   MediaMissionFailure,
   MediaMissionStep,
 } from 'lib/types/media-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { calculatePaddedLength, pad, unpad } from 'lib/utils/pkcs7-padding.js';
+import {
+  createDefaultHTTPRequestHeaders,
+  usingCommServicesAccessToken,
+} from 'lib/utils/services-utils.js';
 
 import { base64DecodeBuffer } from '../utils/base64-utils.js';
 
@@ -140,6 +146,7 @@ type DecryptionFailure =
 async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
+  authMetadata: ?AuthMetadata,
 ): Promise<{
   steps: $ReadOnlyArray<DecryptFileStep>,
   result: { success: true, uri: string } | DecryptionFailure,
@@ -149,11 +156,20 @@ async function fetchAndDecryptMedia(
   const steps: DecryptFileStep[] = [];
 
   // Step 1 - Fetch the encrypted media and convert it to a Uint8Array
+  let headers;
+  if (isBlobServiceURI(blobURI)) {
+    if (authMetadata) {
+      headers = createDefaultHTTPRequestHeaders(authMetadata);
+    } else if (usingCommServicesAccessToken && !authMetadata) {
+      return { steps, result: { success: false, reason: 'missing_auth' } };
+    }
+  }
+
   let data;
   const fetchStartTime = Date.now();
   const url = fetchableMediaURI(blobURI);
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers });
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
