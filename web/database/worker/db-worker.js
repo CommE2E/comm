@@ -3,7 +3,7 @@
 import localforage from 'localforage';
 
 import {
-  getClientStore,
+  getClientStoreFromQueryExecutor,
   processDBStoreOperations,
 } from './process-operations.js';
 import {
@@ -178,7 +178,7 @@ async function processAppRequest(
   if (message.type === workerRequestMessageTypes.GET_CLIENT_STORE) {
     return {
       type: workerResponseMessageTypes.CLIENT_STORE,
-      store: getClientStore(sqliteQueryExecutor),
+      store: getClientStoreFromQueryExecutor(sqliteQueryExecutor),
     };
   } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
     return {
