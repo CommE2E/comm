@@ -39,8 +39,10 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import {
   createMediaMessageInfo,
   localIDPrefix,
@@ -95,6 +97,7 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { generateReportID } from 'lib/utils/report-utils.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 import {
   type BaseInputState,
@@ -151,6 +154,7 @@ type Props = {
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +authMetadata: ?AuthMetadata,
 };
 type WritableState = {
   pendingUploads: {
@@ -902,6 +906,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         (upload.mediaType === 'encrypted_photo' ||
           upload.mediaType === 'encrypted_video')
       ) {
+        const { authMetadata } = this.props;
         const { blobHash, dimensions, thumbHash } = upload;
         invariant(
           encryptionKey && blobHash && dimensions,
@@ -920,6 +925,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             thumbHash,
           },
           keyserverOrThreadID: threadID,
+          authMetadata,
           callbacks,
         });
       } else {
@@ -1209,6 +1215,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             const endpoint = blobService.httpEndpoints.DELETE_BLOB;
             const holder = pendingUpload.blobHolder;
             const blobHash = blobHashFromBlobServiceURI(pendingUpload.uri);
+            const authMetadata = this.props.authMetadata;
+            const defaultHeaders = authMetadata
+              ? createDefaultHTTPRequestHeaders(authMetadata)
+              : {};
             void fetch(makeBlobServiceEndpointURL(endpoint), {
               method: endpoint.method,
               body: JSON.stringify({
@@ -1216,6 +1226,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 blob_hash: blobHash,
               }),
               headers: {
+                ...defaultHeaders,
                 'content-type': 'application/json',
               },
             });
@@ -1656,6 +1667,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
+    const authMetadata = useCommServicesAuthMetadata();
 
     const [sendCallbacks, setSendCallbacks] = React.useState<
       $ReadOnlyArray<() => mixed>,
@@ -1696,6 +1708,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         registerSendCallback={registerSendCallback}
         unregisterSendCallback={unregisterSendCallback}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        authMetadata={authMetadata}
       />
     );
   });

@@ -6,6 +6,7 @@ import {
   uploadMultimedia,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
@@ -18,6 +19,7 @@ import { validateFile } from '../media/media-utils.js';
 const useBlobServiceUploads = false;
 
 function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
+  const authMetadata = useCommServicesAuthMetadata();
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
@@ -68,13 +70,14 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
           loop: false,
           thumbHash,
         },
+        authMetadata,
         keyserverOrThreadID: ashoatKeyserverID,
         callbacks: {},
       });
 
       return { type: 'encrypted_image', uploadID: id };
     },
-    [callBlobServiceUpload, callUploadMultimedia],
+    [callBlobServiceUpload, callUploadMultimedia, authMetadata],
   );
   return uploadAvatarMedia;
 }

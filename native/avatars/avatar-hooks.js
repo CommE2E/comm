@@ -14,6 +14,7 @@ import {
 } from 'lib/actions/upload-actions.js';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
@@ -55,6 +56,7 @@ function displayAvatarUpdateFailureAlert(): void {
 }
 
 function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
+  const authMetadata = useCommServicesAuthMetadata();
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadProcessedMultimedia: MediaResult => Promise<?AvatarDBContent> =
@@ -108,6 +110,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
             thumbHash,
             loop: false,
           },
+          authMetadata,
           keyserverOrThreadID: ashoatKeyserverID,
           callbacks: { blobServiceUploadHandler },
         });
@@ -116,7 +119,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
         }
         return { type: 'encrypted_image', uploadID: id };
       },
-      [callUploadMultimedia, callBlobServiceUpload],
+      [callUploadMultimedia, callBlobServiceUpload, authMetadata],
     );
   return uploadProcessedMultimedia;
 }

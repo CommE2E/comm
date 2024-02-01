@@ -29,6 +29,7 @@ import {
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useCommServicesAuthMetadata } from 'lib/hooks/account-hooks.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
 import {
   getNextLocalUploadID,
@@ -39,6 +40,7 @@ import {
   combineLoadingStatuses,
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import {
   createMediaMessageInfo,
   useMessageCreationSideEffectsFunc,
@@ -115,6 +117,7 @@ import { processMedia } from '../media/media-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { base64EncodeString } from '../utils/base64-utils.js';
 import blobServiceUploadHandler from '../utils/blob-service-upload.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
@@ -158,6 +161,7 @@ type Props = {
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +authMetadata: ?AuthMetadata,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -820,7 +824,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const { uploadURI, filename, mime } = processedMedia;
 
-    const { hasWiFi } = this.props;
+    const { hasWiFi, authMetadata } = this.props;
 
     const uploadStart = Date.now();
     let uploadExceptionMessage,
@@ -849,8 +853,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 ? processedMedia.thumbHash
                 : null,
           },
+          authMetadata,
           keyserverOrThreadID: threadInfo.id,
           callbacks: {
+            base64EncodeString,
             blobServiceUploadHandler,
             onProgress: (percent: number) => {
               this.setProgress(
@@ -882,8 +888,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 dimensions: processedMedia.dimensions,
                 thumbHash: processedMedia.thumbHash,
               },
+              authMetadata,
               keyserverOrThreadID: threadInfo.id,
               callbacks: {
+                base64EncodeString,
                 blobServiceUploadHandler,
               },
             });
@@ -1720,6 +1728,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
+    const authMetadata = useCommServicesAuthMetadata();
 
     return (
       <InputStateContainer
@@ -1740,6 +1749,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatch={dispatch}
         staffCanSee={staffCanSee}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        authMetadata={authMetadata}
       />
     );
   });
