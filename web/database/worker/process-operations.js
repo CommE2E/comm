@@ -161,7 +161,7 @@ function processDBStoreOperations(
   }
 }
 
-function getClientStore(
+function getClientStoreFromQueryExecutor(
   sqliteQueryExecutor: SQLiteQueryExecutor,
 ): ClientDBStore {
   return {
@@ -177,4 +177,4 @@ function getClientStore(
   };
 }
 
-export { processDBStoreOperations, getClientStore };
+export { processDBStoreOperations, getClientStoreFromQueryExecutor };
