@@ -18,6 +18,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import css from './add-users-list.css';
 import AddUsersList from './add-users-list.react.js';
+import { useUserRelationshipUserInfos } from './add-users-utils.js';
 import type { ButtonColor } from '../../components/button.react.js';
 import Button from '../../components/button.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
@@ -27,6 +28,31 @@ import { useSelector } from '../../redux/redux-utils.js';
 const loadingStatusSelector = createLoadingStatusSelector(
   updateRelationshipsActionTypes,
 );
+
+type AddUsersListModalContentProps = {
+  +searchText: string,
+  +excludedStatuses: $ReadOnlySet<UserRelationshipStatus>,
+};
+
+function AddUsersListModalContent(
+  props: AddUsersListModalContentProps,
+): React.Node {
+  const { searchText, excludedStatuses } = props;
+
+  const { mergedUserInfos, sortedUsersWithENSNames } =
+    useUserRelationshipUserInfos({
+      searchText,
+      excludedStatuses,
+    });
+
+  return (
+    <AddUsersList
+      searchModeActive={searchText.length > 0}
+      userInfos={mergedUserInfos}
+      sortedUsersWithENSNames={sortedUsersWithENSNames}
+    />
+  );
+}
 
 type Props = {
   +name: string,
@@ -51,7 +77,7 @@ function AddUsersListModal(props: Props): React.Node {
 
   const addUsersListChildGenerator = React.useCallback(
     (searchText: string) => (
-      <AddUsersList
+      <AddUsersListModalContent
         searchText={searchText}
         excludedStatuses={excludedStatuses}
       />
