@@ -19,7 +19,7 @@ import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js'
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
-import { fetchAndDecryptMedia } from './encryption-utils.js';
+import { useFetchAndDecryptMedia } from './encryption-utils.js';
 import { formatDuration } from './video-utils.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -98,6 +98,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   );
 
   const mediaCache = React.useContext(MediaCacheContext);
+  const fetchAndDecryptMedia = useFetchAndDecryptMedia();
 
   React.useEffect(() => {
     // skip for unencrypted videos
@@ -142,7 +143,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [blobURI, encryptionKey, mediaCache]);
+  }, [blobURI, encryptionKey, mediaCache, fetchAndDecryptMedia]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);
