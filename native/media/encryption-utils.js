@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
 
 import { uintArrayToHexString, hexToUintArray } from 'lib/media/data-utils.js';
 import {
@@ -10,14 +11,18 @@ import {
   readableFilename,
   pathFromURI,
 } from 'lib/media/file-utils.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type {
   MediaMissionFailure,
   MediaMissionStep,
   DecryptFileMediaMissionStep,
   EncryptFileMediaMissionStep,
 } from 'lib/types/media-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
+import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
@@ -245,26 +250,36 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
   };
 }
 
+type FetchAndDecryptMediaOptions = {
+  +destination: 'file' | 'data_uri',
+  +destinationDirectory?: string,
+};
+
+type FetchAndDecryptMediaOutput = {
+  steps: $ReadOnlyArray<DecryptFileMediaMissionStep>,
+  result: MediaMissionFailure | { success: true, uri: string },
+};
+
 async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
-  options: {
-    +destination: 'file' | 'data_uri',
-    +destinationDirectory?: string,
-  },
-): Promise<{
-  steps: $ReadOnlyArray<DecryptFileMediaMissionStep>,
-  result: MediaMissionFailure | { success: true, uri: string },
-}> {
+  authMetadata: AuthMetadata,
+  options: FetchAndDecryptMediaOptions,
+): Promise<FetchAndDecryptMediaOutput> {
   let success = true,
     exceptionMessage;
   const steps: DecryptFileMediaMissionStep[] = [];
 
   // Step 1. Fetch the file and convert it to a Uint8Array
+  let headers;
+  if (isBlobServiceURI(blobURI)) {
+    headers = createDefaultHTTPRequestHeaders(authMetadata);
+  }
+
   const fetchStartTime = Date.now();
   let data;
   try {
-    const response = await fetch(getFetchableURI(blobURI));
+    const response = await fetch(getFetchableURI(blobURI), { headers });
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
@@ -385,6 +400,29 @@ async function fetchAndDecryptMedia(
   };
 }
 
+function useFetchAndDecryptMedia(): (
+  blobURI: string,
+  encryptionKey: string,
+  options: FetchAndDecryptMediaOptions,
+) => Promise<FetchAndDecryptMediaOutput> {
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
+  return React.useCallback(
+    async (blobURI, encryptionKey, options) => {
+      const authMetadata = await getAuthMetadata();
+      return fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+        options,
+      );
+    },
+    [getAuthMetadata],
+  );
+}
+
 function encryptBase64(
   base64: string,
   keyBytes?: Uint8Array,
@@ -407,4 +445,10 @@ function decryptBase64(encrypted: string, keyHex: string): string {
   return commUtilsModule.base64EncodeBuffer(decryptedData.buffer);
 }
 
-export { encryptMedia, fetchAndDecryptMedia, encryptBase64, decryptBase64 };
+export {
+  encryptMedia,
+  fetchAndDecryptMedia,
+  useFetchAndDecryptMedia,
+  encryptBase64,
+  decryptBase64,
+};
