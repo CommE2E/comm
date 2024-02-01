@@ -3,19 +3,24 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import type { AccountUserInfo } from 'lib/types/user-types.js';
-
 import css from './add-users-list.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
 import Checkbox from '../../components/checkbox.react.js';
 
-type Props = {
-  +userInfo: AccountUserInfo,
+export type BaseAddUserInfo = {
+  +id: string,
+  +username?: ?string,
+  +isViewer?: ?boolean,
+  ...
+};
+
+type Props<T: BaseAddUserInfo> = {
+  +userInfo: T,
   +userSelected: boolean,
   +onToggleUser: (userID: string) => mixed,
 };
 
-function AddUsersListItem(props: Props): React.Node {
+function AddUsersListItem<T: BaseAddUserInfo>(props: Props<T>): React.Node {
   const { userInfo, userSelected, onToggleUser } = props;
 
   const toggleUser = React.useCallback(
