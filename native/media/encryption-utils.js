@@ -10,20 +10,27 @@ import {
   readableFilename,
   pathFromURI,
 } from 'lib/media/file-utils.js';
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   MediaMissionFailure,
   MediaMissionStep,
   DecryptFileMediaMissionStep,
   EncryptFileMediaMissionStep,
 } from 'lib/types/media-types.js';
+import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
+import {
+  usingCommServicesAccessToken,
+  createDefaultHTTPRequestHeaders,
+} from 'lib/utils/services-utils.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
 import type { MediaResult } from './media-utils.js';
 import { commUtilsModule } from '../native-modules.js';
 import * as AES from '../utils/aes-crypto-module.js';
+import { base64EncodeString } from '../utils/base64-utils.js';
 import { arrayBufferFromBlob } from '../utils/blob-utils-module.js';
 
 const PADDING_THRESHOLD = 5000000; // we don't pad files larger than this
@@ -248,6 +255,7 @@ async function encryptMedia(preprocessedMedia: MediaResult): Promise<{
 async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
+  authMetadata: ?AuthMetadata,
   options: {
     +destination: 'file' | 'data_uri',
     +destinationDirectory?: string,
@@ -261,10 +269,22 @@ async function fetchAndDecryptMedia(
   const steps: DecryptFileMediaMissionStep[] = [];
 
   // Step 1. Fetch the file and convert it to a Uint8Array
+  let headers;
+  if (isBlobServiceURI(blobURI)) {
+    if (authMetadata) {
+      headers = createDefaultHTTPRequestHeaders(
+        authMetadata,
+        base64EncodeString,
+      );
+    } else if (usingCommServicesAccessToken && !authMetadata) {
+      return { steps, result: { success: false, reason: 'missing_auth' } };
+    }
+  }
+
   const fetchStartTime = Date.now();
   let data;
   try {
-    const response = await fetch(getFetchableURI(blobURI));
+    const response = await fetch(getFetchableURI(blobURI), { headers });
     if (!response.ok) {
       throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
     }
