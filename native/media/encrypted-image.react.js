@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { decryptBase64, fetchAndDecryptMedia } from './encryption-utils.js';
@@ -33,6 +34,10 @@ function EncryptedImage(props: Props): React.Node {
     onLoad: onLoadProp,
     thumbHash: encryptedThumbHash,
   } = props;
+
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
 
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState<?ImageSource>(null);
@@ -77,9 +82,15 @@ function EncryptedImage(props: Props): React.Node {
         return;
       }
 
-      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey, {
-        destination: 'data_uri',
-      });
+      const authMetadata = await getAuthMetadata();
+      const { result } = await fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+        {
+          destination: 'data_uri',
+        },
+      );
 
       if (isMounted) {
         if (result.success) {
@@ -96,7 +107,7 @@ function EncryptedImage(props: Props): React.Node {
     return () => {
       isMounted = false;
     };
-  }, [attempt, blobURI, encryptionKey, mediaCache]);
+  }, [attempt, blobURI, encryptionKey, mediaCache, getAuthMetadata]);
 
   const onLoad = React.useCallback(() => {
     onLoadProp && onLoadProp(blobURI);

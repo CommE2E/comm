@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
@@ -99,6 +100,10 @@ function VideoPlaybackModal(props: Props): React.Node {
 
   const mediaCache = React.useContext(MediaCacheContext);
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   React.useEffect(() => {
     // skip for unencrypted videos
     if (!blobURI || !encryptionKey) {
@@ -116,9 +121,15 @@ function VideoPlaybackModal(props: Props): React.Node {
         return;
       }
 
-      const { result } = await fetchAndDecryptMedia(blobURI, encryptionKey, {
-        destination: 'file',
-      });
+      const authMetadata = await getAuthMetadata();
+      const { result } = await fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+        {
+          destination: 'file',
+        },
+      );
       if (result.success) {
         const { uri } = result;
         const cacheSetPromise = mediaCache?.set(blobURI, uri);
@@ -142,7 +153,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [blobURI, encryptionKey, mediaCache]);
+  }, [blobURI, encryptionKey, mediaCache, getAuthMetadata]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);

@@ -42,6 +42,7 @@ import {
   type FetchFileInfoResult,
 } from './file-utils.js';
 import { getMediaLibraryIdentifier } from './identifier-utils.js';
+import { commCoreModule } from '../native-modules.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { requestAndroidPermission } from '../utils/android-permissions.js';
 
@@ -377,8 +378,10 @@ async function saveRemoteMediaToDisk(
 ): Promise<IntermediateSaveResult> {
   const steps: Array<MediaMissionStep> = [];
   if (encryptionKey) {
+    const authMetadata = await commCoreModule.getCommServicesAuthMetadata();
+
     const { steps: decryptionSteps, result: decryptionResult } =
-      await fetchAndDecryptMedia(inputURI, encryptionKey, {
+      await fetchAndDecryptMedia(inputURI, encryptionKey, authMetadata, {
         destination: 'file',
         destinationDirectory: directory,
       });
