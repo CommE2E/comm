@@ -12,10 +12,10 @@ import type {
   UserRelationshipStatus,
   RelationshipAction,
 } from 'lib/types/relationship-types.js';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
+import { useAddUsersListContext } from './add-users-list-provider.react.js';
 import css from './add-users-list.css';
 import AddUsersList from './add-users-list.react.js';
 import type { ButtonColor } from '../../components/button.react.js';
@@ -47,23 +47,16 @@ function AddUsersListModal(props: Props): React.Node {
 
   const { popModal } = useModalContext();
 
-  const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlyMap<string, GlobalAccountUserInfo>,
-  >(new Map());
-
-  const [errorMessage, setErrorMessage] = React.useState('');
+  const { pendingUsersToAdd, setErrorMessage } = useAddUsersListContext();
 
   const addUsersListChildGenerator = React.useCallback(
     (searchText: string) => (
       <AddUsersList
         searchText={searchText}
         excludedStatuses={excludedStatuses}
-        pendingUsersToAdd={pendingUsersToAdd}
-        setPendingUsersToAdd={setPendingUsersToAdd}
-        errorMessage={errorMessage}
       />
     ),
-    [excludedStatuses, pendingUsersToAdd, errorMessage],
+    [excludedStatuses],
   );
 
   const callUpdateRelationships =
@@ -85,10 +78,11 @@ function AddUsersListModal(props: Props): React.Node {
       throw e;
     }
   }, [
+    setErrorMessage,
     callUpdateRelationships,
-    popModal,
     relationshipAction,
     pendingUsersToAdd,
+    popModal,
   ]);
 
   const confirmSelection = React.useCallback(
