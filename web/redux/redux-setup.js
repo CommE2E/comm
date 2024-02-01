@@ -219,17 +219,24 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       };
     }
 
+    const replaceOperation: ReplaceKeyserverOperation = {
+      type: 'replace_keyserver',
+      payload: {
+        id: keyserverID,
+        keyserverInfo: {
+          ...state.keyserverStore.keyserverInfos[keyserverID],
+          sessionID: sessionChange.sessionID,
+        },
+      },
+    };
     state = {
       ...state,
       keyserverStore: {
         ...state.keyserverStore,
-        keyserverInfos: {
-          ...state.keyserverStore.keyserverInfos,
-          [keyserverID]: {
-            ...state.keyserverStore.keyserverInfos[keyserverID],
-            sessionID: sessionChange.sessionID,
-          },
-        },
+        keyserverInfos: keyserverStoreOpsHandlers.processStoreOperations(
+          state.keyserverStore.keyserverInfos,
+          [replaceOperation],
+        ),
       },
     };
   } else if (
