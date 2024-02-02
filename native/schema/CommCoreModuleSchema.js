@@ -86,6 +86,7 @@ interface Spec extends TurboModule {
     oneTimeKeysAmount: number,
   ) => Promise<OLMOneTimeKeys>;
   +generateAndGetPrekeys: () => Promise<SignedPrekeys>;
+  +validateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +validateAndUploadPrekeys: (
     authUserID: string,
     authDeviceID: string,
