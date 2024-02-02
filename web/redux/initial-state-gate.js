@@ -48,86 +48,87 @@ function InitialReduxStateGate(props: Props): React.Node {
 
   const prevIsRehydrated = React.useRef(false);
   React.useEffect(() => {
-    if (!prevIsRehydrated.current && isRehydrated) {
-      prevIsRehydrated.current = isRehydrated;
-      void (async () => {
-        try {
-          let urlInfo = infoFromURL(decodeURI(window.location.href));
-          // Handle older links
-          if (urlInfo.thread) {
-            urlInfo = {
-              ...urlInfo,
-              thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
-            };
-          }
-          const clientDBStore = await getClientStore();
-
-          const payload = await callGetInitialReduxState({
-            urlInfo,
-            excludedData: {
-              threadStore: !!clientDBStore.threadStore,
-            },
-            allUpdatesCurrentAsOf,
-          });
-
-          const currentLoggedInUserID = payload.currentUserInfo?.anonymous
-            ? null
-            : payload.currentUserInfo?.id;
-          const useDatabase = canUseDatabaseOnWeb(currentLoggedInUserID);
-
-          if (!currentLoggedInUserID || !useDatabase) {
-            dispatch({ type: setInitialReduxState, payload });
-            return;
-          }
-
-          if (clientDBStore.threadStore) {
-            // If there is data in the DB, populate the store
-            dispatch({
-              type: setClientDBStoreActionType,
-              payload: clientDBStore,
-            });
-            const { threadStore, ...rest } = payload;
-            dispatch({ type: setInitialReduxState, payload: rest });
-            return;
-          } else {
-            // When there is no data in the DB, it's necessary to migrate data
-            // from the keyserver payload to the DB
-            const {
-              threadStore: { threadInfos },
-            } = payload;
-
-            const threadStoreOperations: ThreadStoreOperation[] = entries(
-              threadInfos,
-            ).map(
-              ([id, threadInfo]: [
-                string,
-                LegacyRawThreadInfo | RawThreadInfo,
-              ]) => ({
-                type: 'replace',
-                payload: {
-                  id,
-                  threadInfo,
-                },
-              }),
-            );
-
-            await processDBStoreOperations(
-              {
-                threadStoreOperations,
-                draftStoreOperations: [],
-                messageStoreOperations: [],
-                reportStoreOperations: [],
-                userStoreOperations: [],
-              },
-              currentLoggedInUserID,
-            );
-          }
-          dispatch({ type: setInitialReduxState, payload });
-        } catch (err) {
-          setInitError(err);
-        }
-      })();
+    if (prevIsRehydrated.current || !isRehydrated) {
+      return;
     }
+    prevIsRehydrated.current = isRehydrated;
+    void (async () => {
+      try {
+        let urlInfo = infoFromURL(decodeURI(window.location.href));
+        // Handle older links
+        if (urlInfo.thread) {
+          urlInfo = {
+            ...urlInfo,
+            thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
+          };
+        }
+        const clientDBStore = await getClientStore();
+        dispatch({
+          type: setClientDBStoreActionType,
+          payload: clientDBStore,
+        });
+
+        const payload = await callGetInitialReduxState({
+          urlInfo,
+          excludedData: {
+            threadStore: !!clientDBStore.threadStore,
+          },
+          allUpdatesCurrentAsOf,
+        });
+
+        const currentLoggedInUserID = payload.currentUserInfo?.anonymous
+          ? null
+          : payload.currentUserInfo?.id;
+        const useDatabase = canUseDatabaseOnWeb(currentLoggedInUserID);
+
+        if (!currentLoggedInUserID || !useDatabase) {
+          dispatch({ type: setInitialReduxState, payload });
+          return;
+        }
+
+        if (clientDBStore.threadStore) {
+          const { threadStore, ...rest } = payload;
+          dispatch({ type: setInitialReduxState, payload: rest });
+          return;
+        }
+
+        // When there is no data in the DB, it's necessary to migrate data
+        // from the keyserver payload to the DB
+        const {
+          threadStore: { threadInfos },
+        } = payload;
+
+        const threadStoreOperations: ThreadStoreOperation[] = entries(
+          threadInfos,
+        ).map(
+          ([id, threadInfo]: [
+            string,
+            LegacyRawThreadInfo | RawThreadInfo,
+          ]) => ({
+            type: 'replace',
+            payload: {
+              id,
+              threadInfo,
+            },
+          }),
+        );
+
+        await processDBStoreOperations(
+          {
+            threadStoreOperations,
+            draftStoreOperations: [],
+            messageStoreOperations: [],
+            reportStoreOperations: [],
+            userStoreOperations: [],
+          },
+          currentLoggedInUserID,
+        );
+
+        dispatch({ type: setInitialReduxState, payload });
+      } catch (err) {
+        setInitError(err);
+      }
+    })();
   }, [callGetInitialReduxState, dispatch, isRehydrated, allUpdatesCurrentAsOf]);
 
   const initialStateLoaded = useSelector(state => state.initialStateLoaded);
