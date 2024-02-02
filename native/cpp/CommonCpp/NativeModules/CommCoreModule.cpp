@@ -675,6 +675,18 @@ jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
       });
 }
 
+std::pair<std::string, std::string> getNotificationsPrekeyAndSignature() {
+  // TODO: Implement notifs prekey rotation.
+  // Notifications prekey is not rotated at this moment. It
+  // is fetched with signature to match identity service API.
+  std::string notificationsPrekey =
+      NotificationsCryptoModule::getNotificationsPrekey("Comm");
+  std::string notificationsPrekeySignature =
+      NotificationsCryptoModule::getNotificationsPrekeySignature("Comm");
+
+  return std::make_pair(notificationsPrekey, notificationsPrekeySignature);
+}
+
 jsi::Value CommCoreModule::validateAndUploadPrekeys(
     jsi::Runtime &rt,
     jsi::String authUserID,
@@ -689,11 +701,17 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
           std::string error;
           std::optional<std::string> maybePrekeyToUpload;
 
+          if (this->cryptoModule == nullptr) {
+            this->jsInvoker_->invokeAsync([=, &innerRt]() {
+              promise->reject("user has not been initialized");
+            });
+            return;
+          }
+
           try {
             maybePrekeyToUpload = this->cryptoModule->validatePrekey();
-            if (maybePrekeyToUpload.has_value()) {
-              this->persistCryptoModule();
-            } else {
+            this->persistCryptoModule();
+            if (!maybePrekeyToUpload.has_value()) {
               maybePrekeyToUpload = this->cryptoModule->getUnpublishedPrekey();
             }
           } catch (const std::exception &e) {
@@ -716,14 +734,10 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
           try {
             std::string prekeySignature =
                 this->cryptoModule->getPrekeySignature();
-            // TODO: Implement notifs prekey rotation.
-            // Notifications prekey is not rotated at this moment. It
-            // is fetched with signature to match identity service API.
-            std::string notificationsPrekey =
-                NotificationsCryptoModule::getNotificationsPrekey("Comm");
-            std::string notificationsPrekeySignature =
-                NotificationsCryptoModule::getNotificationsPrekeySignature(
-                    "Comm");
+            std::string notificationsPrekey, notificationsPrekeySignature;
+            std::tie(notificationsPrekey, notificationsPrekeySignature) =
+                getNotificationsPrekeyAndSignature();
+
             try {
               std::promise<folly::dynamic> prekeyPromise;
               std::future<folly::dynamic> prekeyFuture =
@@ -766,6 +780,71 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
             promise->resolve(jsi::Value::undefined());
           });
         };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string contentPrekeySignature, notifPrekey, notifPrekeySignature;
+          std::optional<std::string> contentPrekey;
+
+          if (this->cryptoModule == nullptr) {
+            this->jsInvoker_->invokeAsync([=, &innerRt]() {
+              promise->reject("user has not been initialized");
+            });
+            return;
+          }
+          try {
+            contentPrekey = this->cryptoModule->validatePrekey();
+            if (!contentPrekey) {
+              contentPrekey = this->cryptoModule->getUnpublishedPrekey();
+            }
+            if (!contentPrekey) {
+              contentPrekey = this->cryptoModule->getPrekey();
+            }
+            this->persistCryptoModule();
+
+            contentPrekeySignature = this->cryptoModule->getPrekeySignature();
+
+            std::tie(notifPrekey, notifPrekeySignature) =
+                getNotificationsPrekeyAndSignature();
+
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            auto contentPrekeyJSI =
+                jsi::String::createFromUtf8(innerRt, contentPrekey.value());
+            auto contentPrekeySignatureJSI =
+                jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
+            auto notifPrekeyJSI =
+                jsi::String::createFromUtf8(innerRt, notifPrekey);
+            auto notifPrekeySignatureJSI =
+                jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
+
+            auto signedPrekeysJSI = jsi::Object(innerRt);
+            signedPrekeysJSI.setProperty(
+                innerRt, "contentPrekey", contentPrekeyJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "contentPrekeySignature", contentPrekeySignatureJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "notifPrekey", notifPrekeyJSI);
+            signedPrekeysJSI.setProperty(
+                innerRt, "notifPrekeySignature", notifPrekeySignatureJSI);
+
+            promise->resolve(std::move(signedPrekeysJSI));
+          });
+        };
+
         this->cryptoThread->scheduleTask(job);
       });
 }
