@@ -61,6 +61,10 @@ function InitialReduxStateGate(props: Props): React.Node {
             };
           }
           const clientDBStore = await getClientStore();
+          dispatch({
+            type: setClientDBStoreActionType,
+            payload: clientDBStore,
+          });
 
           const payload = await callGetInitialReduxState({
             urlInfo,
@@ -81,11 +85,6 @@ function InitialReduxStateGate(props: Props): React.Node {
           }
 
           if (clientDBStore.threadStore) {
-            // If there is data in the DB, populate the store
-            dispatch({
-              type: setClientDBStoreActionType,
-              payload: clientDBStore,
-            });
             const { threadStore, ...rest } = payload;
             dispatch({ type: setInitialReduxState, payload: rest });
             return;
