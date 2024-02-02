@@ -79,6 +79,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String authUserID,
       jsi::String authDeviceID,
       jsi::String authAccessToken) override;
+  virtual jsi::Value validateAndGetPrekeys(jsi::Runtime &rt) override;
   virtual jsi::Value initializeNotificationsSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
