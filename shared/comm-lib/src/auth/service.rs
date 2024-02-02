@@ -109,7 +109,7 @@ async fn get_services_token_version(
   let result = client
     .get_secret_value()
     .secret_id(SECRET_NAME)
-    .version_id(version)
+    .version_stage(version)
     .send()
     .await?;
 
