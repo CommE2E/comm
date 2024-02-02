@@ -19,6 +19,10 @@ import {
   sendReport,
 } from 'lib/actions/report-actions.js';
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
+import {
+  IdentityClientContext,
+  type IdentityClientContextType,
+} from 'lib/shared/identity-client-context.js';
 import type { KeyserverLogOutResult } from 'lib/types/account-types.js';
 import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -54,6 +58,7 @@ type Props = {
   // async functions that hit server APIs
   +logOut: () => Promise<KeyserverLogOutResult>,
   +crashReportingEnabled: boolean,
+  +identityContext: ?IdentityClientContextType,
 };
 type State = {
   +errorReportID: ?string,
@@ -155,21 +160,25 @@ class Crash extends React.PureComponent<Props, State> {
       actions: actionLogger.actions,
     }: any);
     const sanitizedReduxReport = sanitizeReduxReport(rawReduxReport);
-    const result = await sendReport({
-      type: reportTypes.ERROR,
-      platformDetails: {
-        platform: Platform.OS,
-        codeVersion,
-        stateVersion: persistConfig.version,
+    const authMetadata = await this.props.identityContext?.getAuthMetadata();
+    const result = await sendReport(
+      {
+        type: reportTypes.ERROR,
+        platformDetails: {
+          platform: Platform.OS,
+          codeVersion,
+          stateVersion: persistConfig.version,
+        },
+        errors: this.props.errorData.map(data => ({
+          errorMessage: data.error.message,
+          stack: data.error.stack,
+          componentStack: data.info && data.info.componentStack,
+        })),
+        ...sanitizedReduxReport,
+        id: generateReportID(),
       },
-      errors: this.props.errorData.map(data => ({
-        errorMessage: data.error.message,
-        stack: data.error.stack,
-        componentStack: data.info && data.info.componentStack,
-      })),
-      ...sanitizedReduxReport,
-      id: generateReportID(),
-    });
+      authMetadata,
+    );
     this.setState({
       errorReportID: result.id,
       doneWaiting: true,
@@ -282,12 +291,14 @@ const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogOut = useLogOut();
     const crashReportingEnabled = useIsReportEnabled('crashReports');
+    const identityContext = React.useContext(IdentityClientContext);
     return (
       <Crash
         {...props}
         dispatchActionPromise={dispatchActionPromise}
         logOut={callLogOut}
         crashReportingEnabled={crashReportingEnabled}
+        identityContext={identityContext}
       />
     );
   },
