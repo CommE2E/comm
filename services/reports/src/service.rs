@@ -203,10 +203,9 @@ impl FromRequest for ReportsService {
   #[inline]
   fn from_request(
     req: &actix_web::HttpRequest,
-    _payload: &mut actix_web::dev::Payload,
+    payload: &mut actix_web::dev::Payload,
   ) -> Self::Future {
     use actix_web::error::{ErrorForbidden, ErrorInternalServerError};
-    use actix_web::HttpMessage;
 
     let base_service =
       req.app_data::<ReportsService>().cloned().ok_or_else(|| {
@@ -227,14 +226,16 @@ impl FromRequest for ReportsService {
       });
 
     let request_auth_value =
-      req.extensions().get::<AuthorizationCredential>().cloned();
+      AuthorizationCredential::from_request(req, payload);
 
     Box::pin(async move {
       let auth_service = auth_service?;
       let base_service = base_service?;
 
-      // This is Some for endpoints hidden behind auth validation middleware
-      let auth_token = match request_auth_value {
+      let credential = request_auth_value.await.ok();
+
+      // This is Some if the request contains valid Authorization header
+      let auth_token = match credential {
         Some(token @ AuthorizationCredential::UserToken(_)) => token,
         Some(_) => {
           // Reports service shouldn't be called by other services
