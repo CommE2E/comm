@@ -73,7 +73,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value
   getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override;
-  virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override;
   virtual jsi::Value validateAndUploadPrekeys(
       jsi::Runtime &rt,
       jsi::String authUserID,

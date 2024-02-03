@@ -39,7 +39,6 @@ public:
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
-  virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value validateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String keyserverID) = 0;
@@ -239,14 +238,6 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
-    }
-    jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override {
-      static_assert(
-          bridging::getParameterCount(&T::generateAndGetPrekeys) == 1,
-          "Expected generateAndGetPrekeys(...) to have 1 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::generateAndGetPrekeys, jsInvoker_, instance_);
     }
     jsi::Value validateAndGetPrekeys(jsi::Runtime &rt) override {
       static_assert(
