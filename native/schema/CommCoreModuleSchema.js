@@ -85,7 +85,6 @@ interface Spec extends TurboModule {
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
-  +generateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +validateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +validateAndUploadPrekeys: (
     authUserID: string,
