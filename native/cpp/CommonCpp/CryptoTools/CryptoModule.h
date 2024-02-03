@@ -25,6 +25,7 @@ class CryptoModule {
   void createAccount();
   void exposePublicIdentityKeys();
   void generateOneTimeKeys(size_t oneTimeKeysAmount);
+  std::string generateAndGetPrekey();
   // returns number of published keys
   size_t publishOneTimeKeys();
   bool prekeyExistsAndOlderThan(uint64_t threshold);
@@ -50,7 +51,6 @@ public:
   std::string getPrekey();
   std::string getPrekeySignature();
   std::optional<std::string> getUnpublishedPrekey();
-  std::string generateAndGetPrekey();
   void markPrekeyAsPublished();
   void forgetOldPrekey();
 

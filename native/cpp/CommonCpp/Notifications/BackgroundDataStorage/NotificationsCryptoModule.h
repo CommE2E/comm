@@ -35,8 +35,6 @@ public:
   static std::string
   getNotificationsPrekey(const std::string &callingProcessName);
   static std::string
-  generateAndGetNotificationsPrekey(const std::string &callingProcessName);
-  static std::string
   getNotificationsPrekeySignature(const std::string &callingProcessName);
   static std::string getNotificationsOneTimeKeys(
       const size_t oneTimeKeysAmount,
