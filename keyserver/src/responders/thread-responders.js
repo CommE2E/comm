@@ -3,7 +3,7 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { mediaValidator } from 'lib/types/media-types.js';
 import {
   rawMessageInfoValidator,
