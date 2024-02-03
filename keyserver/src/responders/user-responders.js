@@ -12,7 +12,7 @@ import {
   policies,
   policyTypeValidator,
 } from 'lib/facts/policies.js';
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   KeyserverAuthRequest,

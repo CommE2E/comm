@@ -1,6 +1,6 @@
 // @flow
 
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-thread-permissions-validators.js';
+import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { threadsStateSyncSpec as libSpec } from 'lib/shared/state-sync/threads-state-sync-spec.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ClientThreadInconsistencyReportCreationRequest } from 'lib/types/report-types.js';
