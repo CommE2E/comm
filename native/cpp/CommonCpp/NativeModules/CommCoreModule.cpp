@@ -617,64 +617,6 @@ jsi::Value CommCoreModule::getNotificationsOneTimeKeys(
       });
 }
 
-jsi::Value CommCoreModule::generateAndGetPrekeys(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::string contentPrekey, contentPrekeySignature, notifPrekey,
-              notifPrekeySignature;
-
-          if (this->cryptoModule == nullptr) {
-            error = "user has not been initialized";
-          } else {
-            try {
-              contentPrekey = this->cryptoModule->generateAndGetPrekey();
-              contentPrekeySignature = this->cryptoModule->getPrekeySignature();
-              this->persistCryptoModule();
-              notifPrekey =
-                  NotificationsCryptoModule::generateAndGetNotificationsPrekey(
-                      "Comm");
-              notifPrekeySignature =
-                  NotificationsCryptoModule::getNotificationsPrekeySignature(
-                      "Comm");
-            } catch (const std::exception &e) {
-              error = e.what();
-            }
-          }
-
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            auto contentPrekeyJSI =
-                jsi::String::createFromUtf8(innerRt, contentPrekey);
-            auto contentPrekeySignatureJSI =
-                jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
-            auto notifPrekeyJSI =
-                jsi::String::createFromUtf8(innerRt, notifPrekey);
-            auto notifPrekeySignatureJSI =
-                jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
-
-            auto signedPrekeysJSI = jsi::Object(innerRt);
-            signedPrekeysJSI.setProperty(
-                innerRt, "contentPrekey", contentPrekeyJSI);
-            signedPrekeysJSI.setProperty(
-                innerRt, "contentPrekeySignature", contentPrekeySignatureJSI);
-            signedPrekeysJSI.setProperty(
-                innerRt, "notifPrekey", notifPrekeyJSI);
-            signedPrekeysJSI.setProperty(
-                innerRt, "notifPrekeySignature", notifPrekeySignatureJSI);
-
-            promise->resolve(std::move(signedPrekeysJSI));
-          });
-        };
-
-        this->cryptoThread->scheduleTask(job);
-      });
-}
-
 std::pair<std::string, std::string> getNotificationsPrekeyAndSignature() {
   // TODO: Implement notifs prekey rotation.
   // Notifications prekey is not rotated at this moment. It
