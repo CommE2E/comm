@@ -75,9 +75,6 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTim
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getNotificationsOneTimeKeys(rt, args[0].asNumber());
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateAndGetPrekeys(rt);
-}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_validateAndGetPrekeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->validateAndGetPrekeys(rt);
 }
@@ -186,7 +183,6 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getPrimaryOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys};
   methodMap_["getNotificationsOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys};
-  methodMap_["generateAndGetPrekeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys};
   methodMap_["validateAndGetPrekeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_validateAndGetPrekeys};
   methodMap_["validateAndUploadPrekeys"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_validateAndUploadPrekeys};
   methodMap_["initializeNotificationsSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsSession};

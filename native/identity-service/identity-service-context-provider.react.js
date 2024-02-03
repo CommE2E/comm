@@ -208,7 +208,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getUserPublicKey(),
           commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER),
-          commCoreModule.generateAndGetPrekeys(),
+          commCoreModule.validateAndGetPrekeys(),
         ]);
         const registrationResult = await commRustModule.registerUser(
           username,
