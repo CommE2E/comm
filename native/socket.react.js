@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { setConnectionIssueActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
@@ -17,7 +18,6 @@ import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
-import { setConnectionIssueActionType } from 'lib/types/socket-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
