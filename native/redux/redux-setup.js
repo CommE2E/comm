@@ -57,7 +57,9 @@ import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
 import { getDevServerHostname } from '../utils/url-utils.js';
 
-function reducer(state: AppState = defaultState, action: Action) {
+function reducer(state: AppState = defaultState, inputAction: Action) {
+  let action = inputAction;
+
   if (action.type === setReduxStateActionType) {
     return action.payload.state;
   }
@@ -112,24 +114,46 @@ function reducer(state: AppState = defaultState, action: Action) {
   }
 
   if (
-    (action.type === setNewSessionActionType &&
-      invalidSessionDowngrade(
-        state,
-        action.payload.sessionChange.currentUserInfo,
-        action.payload.preRequestUserState,
-        action.payload.keyserverID,
-      )) ||
-    (action.type === deleteKeyserverAccountActionTypes.success &&
-      invalidSessionDowngrade(
-        state,
-        action.payload.currentUserInfo,
-        action.payload.preRequestUserState,
-        ashoatKeyserverID,
-      ))
+    action.type === setNewSessionActionType &&
+    invalidSessionDowngrade(
+      state,
+      action.payload.sessionChange.currentUserInfo,
+      action.payload.preRequestUserState,
+      action.payload.keyserverID,
+    )
   ) {
     return {
       ...state,
       loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+    };
+  } else if (action.type === deleteKeyserverAccountActionTypes.success) {
+    const { currentUserInfo, preRequestUserState } = action.payload;
+    const newKeyserverIDs = [];
+    for (const keyserverID of action.payload.keyserverIDs) {
+      if (
+        invalidSessionDowngrade(
+          state,
+          currentUserInfo,
+          preRequestUserState,
+          keyserverID,
+        )
+      ) {
+        continue;
+      }
+      newKeyserverIDs.push(keyserverID);
+    }
+    if (newKeyserverIDs.length === 0) {
+      return {
+        ...state,
+        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+      };
+    }
+    action = {
+      ...action,
+      payload: {
+        ...action.payload,
+        keyserverIDs: newKeyserverIDs,
+      },
     };
   } else if (
     action.type === logOutActionTypes.success ||
