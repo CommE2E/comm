@@ -47,7 +47,7 @@ import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
+import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 
 import {
   updateWindowActiveActionType,
@@ -282,13 +282,13 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       };
     }
 
-    state = resetUserSpecificStateOnIdentityActions(
+    state = resetUserSpecificState(
       state,
       defaultWebState,
       nonUserSpecificFieldsWeb,
     );
   } else if (action.type === identityRegisterActionTypes.success) {
-    state = resetUserSpecificStateOnIdentityActions(
+    state = resetUserSpecificState(
       state,
       defaultWebState,
       nonUserSpecificFieldsWeb,
