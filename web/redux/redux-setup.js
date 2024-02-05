@@ -22,7 +22,10 @@ import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { invalidSessionDowngrade } from 'lib/shared/session-utils.js';
+import {
+  invalidSessionDowngrade,
+  identityInvalidSessionDowngrade,
+} from 'lib/shared/session-utils.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
@@ -45,6 +48,7 @@ import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
@@ -272,13 +276,21 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     action.type === logOutActionTypes.success ||
     action.type === deleteAccountActionTypes.success
   ) {
+    const { currentUserInfo, preRequestUserState } = action.payload;
     if (
-      invalidSessionDowngrade(
-        oldState,
-        action.payload.currentUserInfo,
-        action.payload.preRequestUserState,
-        ashoatKeyserverID,
-      )
+      (usingCommServicesAccessToken &&
+        identityInvalidSessionDowngrade(
+          oldState,
+          currentUserInfo,
+          preRequestUserState,
+        )) ||
+      (!usingCommServicesAccessToken &&
+        invalidSessionDowngrade(
+          state,
+          currentUserInfo,
+          preRequestUserState,
+          ashoatKeyserverID,
+        ))
     ) {
       return {
         ...oldState,
