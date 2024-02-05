@@ -19,14 +19,9 @@ function AddMembersListContent(props: Props): React.Node {
   const { userListItems, pendingUsersToAdd, switchUser, hasParentThread } =
     props;
 
-  const usersAvailableToAdd = React.useMemo(
-    () => userListItems.filter(user => !user.alert),
-    [userListItems],
-  );
-
   const groupedAvailableUsersList = React.useMemo(
-    () => _groupBy(userInfo => userInfo.notice)(usersAvailableToAdd),
-    [usersAvailableToAdd],
+    () => _groupBy(userInfo => userInfo.notice)(userListItems),
+    [userListItems],
   );
 
   const membersInParentThread = React.useMemo(() => {
