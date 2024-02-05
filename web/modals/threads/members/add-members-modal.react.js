@@ -6,17 +6,15 @@ import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
-import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
-import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
+import { AddUsersListProvider } from '../../../settings/relationship/add-users-list-provider.react.js';
+import { useAddMembersListUserInfos } from '../../../settings/relationship/add-users-utils.js';
 import SearchModal from '../../search-modal.react.js';
 
 type ContentProps = {
@@ -33,31 +31,11 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   >(new Set());
 
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const { parentThreadID, community } = threadInfo;
-  const parentThreadInfo = useSelector(state =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-  const communityThreadInfo = useSelector(state =>
-    community ? threadInfoSelector(state)[community] : null,
-  );
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const excludeUserIDs = React.useMemo(
-    () =>
-      threadActualMembers(threadInfo.members).concat(
-        Array.from(pendingUsersToAdd),
-      ),
-    [pendingUsersToAdd, threadInfo.members],
-  );
 
-  const userSearchResults = usePotentialMemberItems({
-    text: searchText,
-    userInfos: otherUserInfos,
-    excludeUserIDs,
-    inputParentThreadInfo: parentThreadInfo,
-    inputCommunityThreadInfo: communityThreadInfo,
-    threadType: threadInfo.type,
+  const { sortedUsersWithENSNames } = useAddMembersListUserInfos({
+    threadID,
+    searchText,
   });
-  const userSearchResultsWithENSNames = useENSNames(userSearchResults);
 
   const onSwitchUser = React.useCallback(
     (userID: string) =>
@@ -97,7 +75,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     <div className={css.addMembersContent}>
       <div className={css.addMembersListContainer}>
         <AddMembersListContent
-          userListItems={userSearchResultsWithENSNames}
+          userListItems={sortedUsersWithENSNames}
           switchUser={onSwitchUser}
           pendingUsersToAdd={pendingUsersToAdd}
           hasParentThread={!!threadInfo.parentThreadID}
@@ -150,4 +128,14 @@ function AddMembersModal(props: Props): React.Node {
   );
 }
 
-export { AddMembersModal, AddMembersModalContent };
+function AddMembersModalWrapper(props: Props): React.Node {
+  const { threadID, onClose } = props;
+
+  return (
+    <AddUsersListProvider>
+      <AddMembersModal threadID={threadID} onClose={onClose} />
+    </AddUsersListProvider>
+  );
+}
+
+export { AddMembersModalWrapper, AddMembersModalContent };
