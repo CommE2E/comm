@@ -3,11 +3,18 @@
 import * as React from 'react';
 
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { useSearchUsers } from 'lib/shared/search-utils.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import {
+  useSearchUsers,
+  usePotentialMemberItems,
+} from 'lib/shared/search-utils.js';
+import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
+  UserListItem,
 } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 
@@ -100,4 +107,66 @@ function useUserRelationshipUserInfos(
   };
 }
 
-export { useUserRelationshipUserInfos };
+type UseAddMembersListUserInfosParams = {
+  +threadID: string,
+  +searchText: string,
+};
+
+function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
+  +userInfos: {
+    [string]: UserListItem,
+  },
+  +sortedUsersWithENSNames: $ReadOnlyArray<UserListItem>,
+} {
+  const { threadID, searchText } = params;
+
+  const { previouslySelectedUsers } = useAddUsersListContext();
+
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const { parentThreadID, community } = threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const excludeUserIDs = React.useMemo(
+    () =>
+      threadActualMembers(threadInfo.members).concat(
+        Array.from(previouslySelectedUsers.keys()),
+      ),
+    [previouslySelectedUsers, threadInfo.members],
+  );
+
+  const userSearchResults = usePotentialMemberItems({
+    text: searchText,
+    userInfos: otherUserInfos,
+    excludeUserIDs,
+    inputParentThreadInfo: parentThreadInfo,
+    inputCommunityThreadInfo: communityThreadInfo,
+    threadType: threadInfo.type,
+  });
+
+  const userInfos = React.useMemo(() => {
+    const mergedInfos: { [string]: UserListItem } = {};
+
+    for (const userInfo of userSearchResults) {
+      mergedInfos[userInfo.id] = userInfo;
+    }
+
+    return mergedInfos;
+  }, [userSearchResults]);
+
+  const usersAvailableToAdd = React.useMemo(
+    () => userSearchResults.filter(user => !user.alert),
+    [userSearchResults],
+  );
+
+  const sortedUsersWithENSNames =
+    useSortedENSResolvedUsers(usersAvailableToAdd);
+
+  return { userInfos, sortedUsersWithENSNames };
+}
+
+export { useUserRelationshipUserInfos, useAddMembersListUserInfos };
