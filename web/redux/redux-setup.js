@@ -239,18 +239,34 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         ),
       },
     };
-  } else if (
-    action.type === deleteKeyserverAccountActionTypes.success &&
-    invalidSessionDowngrade(
-      oldState,
-      action.payload.currentUserInfo,
-      action.payload.preRequestUserState,
-      ashoatKeyserverID,
-    )
-  ) {
-    return {
-      ...oldState,
-      loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+  } else if (action.type === deleteKeyserverAccountActionTypes.success) {
+    const { currentUserInfo, preRequestUserState } = action.payload;
+    const newKeyserverIDs = [];
+    for (const keyserverID of action.payload.keyserverIDs) {
+      if (
+        invalidSessionDowngrade(
+          state,
+          currentUserInfo,
+          preRequestUserState,
+          keyserverID,
+        )
+      ) {
+        continue;
+      }
+      newKeyserverIDs.push(keyserverID);
+    }
+    if (newKeyserverIDs.length === 0) {
+      return {
+        ...state,
+        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+      };
+    }
+    action = {
+      ...action,
+      payload: {
+        ...action.payload,
+        keyserverIDs: newKeyserverIDs,
+      },
     };
   } else if (
     action.type === logOutActionTypes.success ||
