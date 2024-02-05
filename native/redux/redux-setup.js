@@ -23,6 +23,7 @@ import baseReducer from 'lib/reducers/master-reducer.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
+  identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
@@ -30,7 +31,6 @@ import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateDimensionsActiveType,
@@ -159,12 +159,12 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     action.type === logOutActionTypes.success ||
     action.type === deleteAccountActionTypes.success
   ) {
+    const { currentUserInfo, preRequestUserState } = action.payload;
     if (
-      invalidSessionDowngrade(
+      identityInvalidSessionDowngrade(
         state,
-        action.payload.currentUserInfo,
-        action.payload.preRequestUserState,
-        ashoatKeyserverID,
+        currentUserInfo,
+        preRequestUserState,
       )
     ) {
       return {

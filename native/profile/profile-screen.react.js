@@ -7,7 +7,7 @@ import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
-import type { KeyserverLogOutResult } from 'lib/types/account-types.js';
+import type { LogOutResult } from 'lib/types/account-types.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import {
   useDispatchActionPromise,
@@ -152,7 +152,7 @@ type Props = {
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
-  +logOut: () => Promise<KeyserverLogOutResult>,
+  +logOut: () => Promise<LogOutResult>,
   +staffCanSee: boolean,
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,

@@ -19,7 +19,7 @@ import {
   sendReport,
 } from 'lib/actions/report-actions.js';
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
-import type { KeyserverLogOutResult } from 'lib/types/account-types.js';
+import type { LogOutResult } from 'lib/types/account-types.js';
 import { type ErrorData, reportTypes } from 'lib/types/report-types.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 import {
@@ -52,7 +52,7 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +logOut: () => Promise<KeyserverLogOutResult>,
+  +logOut: () => Promise<LogOutResult>,
   +crashReportingEnabled: boolean,
 };
 type State = {
