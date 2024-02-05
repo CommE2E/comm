@@ -297,7 +297,7 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
-  +chatMentionSearchIndex: SentencePrefixSearchIndex,
+  +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
