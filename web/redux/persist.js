@@ -16,19 +16,37 @@ import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { removeCookiesFromKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
+import { defaultWebState } from './default-state.js';
 import type { AppState } from './redux-setup.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var keyserverURL: string;
+
+// eslint-disable-next-line no-unused-vars
+function handleReduxMigrationFailure(oldState: AppState): AppState {
+  const stateAfterReset = resetUserSpecificStateOnIdentityActions(
+    oldState,
+    defaultWebState,
+    ['keyserverStore', '_persist', 'customServer'],
+  );
+  return {
+    ...stateAfterReset,
+    keyserverStore: removeCookiesFromKeyserverStore(
+      stateAfterReset.keyserverStore,
+    ),
+  };
+}
 
 const migrations = {
   [1]: async (state: any) => {

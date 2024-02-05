@@ -73,6 +73,7 @@ import type {
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { removeCookiesFromKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -83,6 +84,7 @@ import {
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
+import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
 import {
   deprecatedConvertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -107,6 +109,28 @@ import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
+
+function handleReduxMigrationFailure(oldState: AppState): AppState {
+  const stateAfterReset = resetUserSpecificStateOnIdentityActions(
+    oldState,
+    defaultState,
+    [
+      'storeLoaded',
+      'customServer',
+      'nextLocalID',
+      'deviceCameraInfo',
+      'frozen',
+      'keyserverStore',
+      '_persist',
+    ],
+  );
+  return {
+    ...stateAfterReset,
+    keyserverStore: removeCookiesFromKeyserverStore(
+      stateAfterReset.keyserverStore,
+    ),
+  };
+}
 
 const migrations = {
   [1]: (state: AppState) => ({
@@ -829,7 +853,7 @@ const migrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return handleReduxMigrationFailure(state);
     }
 
     const { inconsistencyReports, ...newUserStore } = state.userStore;
@@ -934,7 +958,7 @@ const migrations = {
       if (isTaskCancelledError(exception)) {
         return state;
       }
-      return { ...state, cookie: null };
+      return handleReduxMigrationFailure(state);
     }
     return state;
   },
@@ -977,7 +1001,7 @@ const migrations = {
       commCoreModule.processThreadStoreOperationsSync(operations);
     } catch (exception) {
       console.log(exception);
-      return { ...state, cookie: null };
+      return handleReduxMigrationFailure(state);
     }
 
     return state;
