@@ -11,7 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Failure,
-  Heartbeat, Messages, SearchMethod, SearchQuery, SearchResponse, SearchResult,
+  Heartbeat, MessagesToServer, SearchMethod, SearchResponse, SearchResult,
   User,
 };
 use serde::{Deserialize, Serialize};
@@ -176,16 +176,17 @@ async fn handle_websocket_frame(
   text: String,
   outgoing: WebsocketSink,
 ) -> Result<(), errors::WebsocketError> {
-  let Ok(serialized_message) = serde_json::from_str::<Messages>(&text) else {
+  let Ok(serialized_message) = serde_json::from_str::<MessagesToServer>(&text)
+  else {
     return Err(errors::WebsocketError::SerializationError);
   };
 
   match serialized_message {
-    Messages::Heartbeat(Heartbeat {}) => {
+    MessagesToServer::Heartbeat(Heartbeat {}) => {
       debug!("Received heartbeat");
       Ok(())
     }
-    Messages::SearchQuery(search_query) => {
+    MessagesToServer::SearchQuery(search_query) => {
       let handler_result = match search_query.search_method {
         SearchMethod::Prefix(prefix_query) => {
           handle_prefix_search(&search_query.id, prefix_query).await
