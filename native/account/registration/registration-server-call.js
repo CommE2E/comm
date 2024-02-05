@@ -35,7 +35,7 @@ import {
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { setNativeCredentials } from '../native-credentials.js';
-import { useSIWEServerCall } from '../siwe-hooks.js';
+import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
 // We can't just do everything in one async callback, since the server calls
 // would get bound to Redux state from before the registration. The registration
@@ -176,7 +176,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     [logInExtraInfo, callKeyserverRegister, dispatchActionPromise],
   );
 
-  const siweServerCall = useSIWEServerCall();
+  const legacySiweServerCall = useLegacySIWEServerCall();
   const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
@@ -200,7 +200,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               await identityRegisterUsernameAccount(accountSelection);
             } else {
               try {
-                await siweServerCall(accountSelection, {
+                await legacySiweServerCall(accountSelection, {
                   urlPrefixOverride: keyserverURL,
                 });
               } catch (e) {
@@ -230,7 +230,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       currentStep,
       keyserverRegisterUsernameAccount,
       identityRegisterUsernameAccount,
-      siweServerCall,
+      legacySiweServerCall,
       dispatch,
     ],
   );
