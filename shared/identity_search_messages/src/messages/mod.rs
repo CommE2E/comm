@@ -1,4 +1,4 @@
-//! Messages sent from client to Identity Search Server
+//! Messages sent between Client and Identity Search Server
 
 pub mod auth_messages;
 pub mod search_query;
@@ -15,10 +15,16 @@ pub use websocket_messages::{
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum Messages {
+pub enum MessagesToClient {
+  ConnectionInitializationResponse(ConnectionInitializationResponse),
+  IdentitySearchResponse(IdentitySearchResponse),
+  Heartbeat(Heartbeat),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum MessagesToServer {
   IdentitySearchAuthMessage(IdentitySearchAuthMessage),
   IdentitySearchQuery(IdentitySearchQuery),
   Heartbeat(Heartbeat),
-  ConnectionInitializationResponse(ConnectionInitializationResponse),
-  IdentitySearchResponse(IdentitySearchResponse),
 }
