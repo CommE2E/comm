@@ -13,6 +13,7 @@ import type {
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { removeCookiesFromKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -47,14 +48,9 @@ function updateClientDBThreadStoreThreadInfos(
     commCoreModule.processThreadStoreOperationsSync(operations);
   } catch (exception) {
     console.log(exception);
-    const keyserverInfos = { ...state.keyserverStore.keyserverInfos };
-    for (const key in keyserverInfos) {
-      keyserverInfos[key] = { ...keyserverInfos[key], cookie: null };
-    }
-    const keyserverStore = { ...state.keyserverStore, keyserverInfos };
     return {
       ...state,
-      keyserverStore,
+      keyserverStore: removeCookiesFromKeyserverStore(state.keyserverStore),
     };
   }
 

@@ -29,7 +29,7 @@ import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
-import { resetUserSpecificStateOnIdentityActions } from 'lib/utils/reducers-utils.js';
+import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
@@ -149,13 +149,13 @@ function reducer(state: AppState = defaultState, action: Action) {
       };
     }
 
-    state = resetUserSpecificStateOnIdentityActions(
+    state = resetUserSpecificState(
       state,
       defaultState,
       nonUserSpecificFieldsNative,
     );
   } else if (action.type === identityRegisterActionTypes.success) {
-    state = resetUserSpecificStateOnIdentityActions(
+    state = resetUserSpecificState(
       state,
       defaultState,
       nonUserSpecificFieldsNative,
