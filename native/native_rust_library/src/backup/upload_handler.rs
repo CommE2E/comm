@@ -11,7 +11,6 @@ use crate::RUNTIME;
 use backup_client::UserIdentity;
 use backup_client::{
   BackupClient, Error as BackupError, LogUploadConfirmation, Stream, StreamExt,
-  WSError,
 };
 use backup_client::{BackupData, Sink, UploadLogRequest};
 use lazy_static::lazy_static;
@@ -100,7 +99,6 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
         println!("Backup handler error: '{err:?}'");
         match err {
           BackupHandlerError::BackupError(_)
-          | BackupHandlerError::BackupWSError(_)
           | BackupHandlerError::WSClosed
           | BackupHandlerError::LockError => break,
           BackupHandlerError::IoError(_)
@@ -117,7 +115,7 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
 async fn watch_and_upload_files(
   backup_client: &BackupClient,
   user_identity: &UserIdentity,
-  tx: &mut Pin<Box<impl Sink<UploadLogRequest, Error = WSError>>>,
+  tx: &mut Pin<Box<impl Sink<UploadLogRequest, Error = BackupError>>>,
   logs_waiting_for_confirmation: &Mutex<HashSet<PathBuf>>,
 ) -> Result<Infallible, BackupHandlerError> {
   loop {
@@ -168,7 +166,9 @@ async fn watch_and_upload_files(
 }
 
 async fn delete_confirmed_logs(
-  rx: &mut Pin<Box<impl Stream<Item = Result<LogUploadConfirmation, WSError>>>>,
+  rx: &mut Pin<
+    Box<impl Stream<Item = Result<LogUploadConfirmation, BackupError>>>,
+  >,
   logs_waiting_for_confirmation: &Mutex<HashSet<PathBuf>>,
 ) -> Result<Infallible, BackupHandlerError> {
   while let Some(LogUploadConfirmation { backup_id, log_id }) =
@@ -250,7 +250,7 @@ mod log {
   use super::*;
 
   pub async fn upload_files(
-    tx: &mut Pin<Box<impl Sink<UploadLogRequest, Error = WSError>>>,
+    tx: &mut Pin<Box<impl Sink<UploadLogRequest, Error = BackupError>>>,
     backup_id: String,
     log_id: usize,
   ) -> Result<(), BackupHandlerError> {
@@ -305,7 +305,6 @@ mod log {
 )]
 pub enum BackupHandlerError {
   BackupError(BackupError),
-  BackupWSError(WSError),
   WSClosed,
   IoError(std::io::Error),
   CxxException(cxx::Exception),
