@@ -120,8 +120,8 @@ impl BackupClient {
     user_identity: &UserIdentity,
   ) -> Result<
     (
-      impl Sink<UploadLogRequest, Error = WSError>,
-      impl Stream<Item = Result<LogUploadConfirmation, WSError>>,
+      impl Sink<UploadLogRequest, Error = Error>,
+      impl Stream<Item = Result<LogUploadConfirmation, Error>>,
     ),
     Error,
   > {
@@ -129,7 +129,7 @@ impl BackupClient {
     let (stream, response) = connect_async(request).await?;
 
     if response.status().is_client_error() {
-      return Err(Error::WSInitError(TungsteniteError::Http(response)));
+      return Err(Error::TungsteniteError(TungsteniteError::Http(response)));
     }
 
     let (tx, rx) = stream.split();
@@ -153,9 +153,9 @@ impl BackupClient {
         }
         LogWSResponse::LogDownload { .. }
         | LogWSResponse::LogDownloadFinished { .. } => {
-          Some(Err(WSError::InvalidBackupMessage))
+          Some(Err(Error::InvalidBackupMessage))
         }
-        LogWSResponse::ServerError => Some(Err(WSError::ServerError)),
+        LogWSResponse::ServerError => Some(Err(Error::ServerError)),
       }
     });
 
@@ -167,8 +167,8 @@ impl BackupClient {
     user_identity: &UserIdentity,
   ) -> Result<
     (
-      impl Sink<DownloadLogsRequest, Error = WSError>,
-      impl Stream<Item = Result<LogWSResponse, WSError>>,
+      impl Sink<DownloadLogsRequest, Error = Error>,
+      impl Stream<Item = Result<LogWSResponse, Error>>,
     ),
     Error,
   > {
@@ -176,7 +176,7 @@ impl BackupClient {
     let (stream, response) = connect_async(request).await?;
 
     if response.status().is_client_error() {
-      return Err(Error::WSInitError(TungsteniteError::Http(response)));
+      return Err(Error::TungsteniteError(TungsteniteError::Http(response)));
     }
 
     let (tx, rx) = stream.split();
@@ -198,9 +198,9 @@ impl BackupClient {
         LogWSResponse::LogDownloadFinished { .. }
         | LogWSResponse::LogDownload { .. } => Some(Ok(response)),
         LogWSResponse::LogUploaded { .. } => {
-          Some(Err(WSError::InvalidBackupMessage))
+          Some(Err(Error::InvalidBackupMessage))
         }
-        LogWSResponse::ServerError => Some(Err(WSError::ServerError)),
+        LogWSResponse::ServerError => Some(Err(Error::ServerError)),
       }
     });
 
@@ -214,8 +214,8 @@ impl BackupClient {
     let mut url = self.url.clone();
 
     match url.scheme() {
-      "http" => url.set_scheme("ws")?,
-      "https" => url.set_scheme("wss")?,
+      "http" => url.set_scheme("ws").map_err(|_| Error::UrlSchemaError)?,
+      "https" => url.set_scheme("wss").map_err(|_| Error::UrlSchemaError)?,
       _ => (),
     };
     let url = url.join("logs")?;
@@ -268,10 +268,15 @@ pub struct LogUploadConfirmation {
 )]
 pub enum Error {
   InvalidAuthorizationHeader,
+  UrlSchemaError,
   UrlError(url::ParseError),
   ReqwestError(reqwest::Error),
-  WSInitError(TungsteniteError),
+  TungsteniteError(TungsteniteError),
   JsonError(serde_json::Error),
+  BincodeError(bincode::Error),
+  InvalidWSMessage,
+  InvalidBackupMessage,
+  ServerError,
 }
 
 impl From<InvalidHeaderValue> for Error {
@@ -280,25 +285,14 @@ impl From<InvalidHeaderValue> for Error {
   }
 }
 
-#[derive(
-  Debug, derive_more::Display, derive_more::Error, derive_more::From,
-)]
-pub enum WSError {
-  BincodeError(bincode::Error),
-  TungsteniteError(TungsteniteError),
-  InvalidWSMessage,
-  InvalidBackupMessage,
-  ServerError,
-}
-
 fn get_log_ws_response(
   msg: Result<Message, TungsteniteError>,
-) -> Option<Result<LogWSResponse, WSError>> {
+) -> Option<Result<LogWSResponse, Error>> {
   let bytes = match msg {
     Ok(Binary(bytes)) => bytes,
     // Handled by tungstenite
     Ok(Ping(_)) => return None,
-    Ok(_) => return Some(Err(WSError::InvalidWSMessage)),
+    Ok(_) => return Some(Err(Error::InvalidWSMessage)),
     Err(err) => return Some(Err(err.into())),
   };
 
