@@ -20,7 +20,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
-import { useSIWEServerCall } from '../siwe-hooks.js';
+import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
@@ -32,13 +32,13 @@ type Props = {
   +route: NavigationRoute<'ExistingEthereumAccount'>,
 };
 function ExistingEthereumAccount(props: Props): React.Node {
-  const siweServerCall = useSIWEServerCall();
+  const legacySiweServerCall = useLegacySIWEServerCall();
 
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
     try {
-      await siweServerCall({ ...params, doNotRegister: true });
+      await legacySiweServerCall({ ...params, doNotRegister: true });
     } catch (e) {
       Alert.alert(
         UnknownErrorAlertDetails.title,
@@ -56,7 +56,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
         dataLoaded: true,
       },
     });
-  }, [siweServerCall, params, dispatch]);
+  }, [legacySiweServerCall, params, dispatch]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
