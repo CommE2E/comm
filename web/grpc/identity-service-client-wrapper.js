@@ -28,6 +28,7 @@ import {
   OpaqueLoginFinishRequest,
   OpaqueLoginStartRequest,
   Prekey,
+  WalletLoginRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
@@ -278,6 +279,38 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const userID = loginFinishResponse.getUserId();
     const accessToken = loginFinishResponse.getAccessToken();
     const identityAuthResult = { accessToken, userID, username };
+
+    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
+  };
+
+  logInWalletUser: (
+    walletAddress: string,
+    siweMessage: string,
+    siweSignature: string,
+  ) => Promise<IdentityAuthResult> = async (
+    walletAddress: string,
+    siweMessage: string,
+    siweSignature: string,
+  ) => {
+    const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
+    const deviceKeyUpload = grpcDeviceKeyUpload(identityDeviceKeyUpload);
+
+    const loginRequest = new WalletLoginRequest();
+    loginRequest.setSiweMessage(siweMessage);
+    loginRequest.setSiweSignature(siweSignature);
+    loginRequest.setDeviceKeyUpload(deviceKeyUpload);
+
+    let loginResponse;
+    try {
+      loginResponse = await this.unauthClient.logInWalletUser(loginRequest);
+    } catch (e) {
+      console.log('Error calling logInWalletUser:', e);
+      throw new Error(getMessageForException(e) ?? 'unknown');
+    }
+
+    const userID = loginResponse.getUserId();
+    const accessToken = loginResponse.getAccessToken();
+    const identityAuthResult = { accessToken, userID, username: walletAddress };
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
