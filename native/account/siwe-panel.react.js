@@ -37,7 +37,7 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
   identityGenerateNonceActionTypes,
 );
-const siweAuthLoadingStatusSelector =
+const legacySiweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 
 type WebViewMessageEvent = {
@@ -73,8 +73,8 @@ function SIWEPanel(props: Props): React.Node {
 
   const { onClosing } = props;
 
-  const siweAuthCallLoading = useSelector(
-    state => siweAuthLoadingStatusSelector(state) === 'loading',
+  const legacySiweAuthCallLoading = useSelector(
+    state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
   );
 
   const [nonce, setNonce] = React.useState<?string>(null);
@@ -246,7 +246,7 @@ function SIWEPanel(props: Props): React.Node {
   const loading =
     !legacyGetSIWENonceCallFailed &&
     !identityGenerateNonceFailed &&
-    (isLoading || siweAuthCallLoading);
+    (isLoading || legacySiweAuthCallLoading);
   React.useEffect(() => {
     setLoadingProp(loading);
   }, [setLoadingProp, loading]);
