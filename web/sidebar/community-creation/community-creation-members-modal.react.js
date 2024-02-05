@@ -30,11 +30,7 @@ function CommunityCreationMembersModal(props: Props): React.Node {
           searchText={searchText}
           placeholder="Search members"
         />
-        <AddMembersModalContent
-          searchText={searchText}
-          threadID={threadID}
-          onClose={onClose}
-        />
+        <AddMembersModalContent searchText={searchText} threadID={threadID} />
       </div>
     </Modal>
   );

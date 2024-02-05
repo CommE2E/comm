@@ -21,18 +21,38 @@ import SearchModal from '../../search-modal.react.js';
 type ContentProps = {
   +searchText: string,
   +threadID: string,
-  +onClose: () => void,
 };
 
 function AddMembersModalContent(props: ContentProps): React.Node {
-  const { searchText, threadID, onClose } = props;
-
-  const { pendingUsersToAdd } = useAddUsersListContext();
+  const { searchText, threadID } = props;
 
   const { userInfos, sortedUsersWithENSNames } = useAddMembersListUserInfos({
     threadID,
     searchText,
   });
+
+  return (
+    <div className={css.addMembersContent}>
+      <div className={css.addMembersListContainer}>
+        <AddUsersList
+          searchModeActive={searchText.length > 0}
+          userInfos={userInfos}
+          sortedUsersWithENSNames={sortedUsersWithENSNames}
+        />
+      </div>
+    </div>
+  );
+}
+
+type Props = {
+  +threadID: string,
+  +onClose: () => void,
+};
+
+function AddMembersModal(props: Props): React.Node {
+  const { threadID, onClose } = props;
+
+  const { pendingUsersToAdd } = useAddUsersListContext();
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadSettings = useChangeThreadSettings();
@@ -54,48 +74,24 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     threadID,
   ]);
 
-  return (
-    <div className={css.addMembersContent}>
-      <div className={css.addMembersListContainer}>
-        <AddUsersList
-          searchModeActive={searchText.length > 0}
-          userInfos={userInfos}
-          sortedUsersWithENSNames={sortedUsersWithENSNames}
-        />
-      </div>
-      <div className={css.addMembersFooter}>
-        <Button onClick={onClose} variant="outline">
-          Cancel
-        </Button>
-        <Button
-          disabled={!pendingUsersToAdd.size}
-          variant="filled"
-          onClick={addUsers}
-        >
-          Add selected members
-        </Button>
-      </div>
-    </div>
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        disabled={!pendingUsersToAdd.size}
+        variant="filled"
+        onClick={addUsers}
+      >
+        Add selected members
+      </Button>
+    ),
+    [addUsers, pendingUsersToAdd.size],
   );
-}
-
-type Props = {
-  +threadID: string,
-  +onClose: () => void,
-};
-
-function AddMembersModal(props: Props): React.Node {
-  const { threadID, onClose } = props;
 
   const addMembersModalContent = React.useCallback(
     (searchText: string) => (
-      <AddMembersModalContent
-        searchText={searchText}
-        threadID={threadID}
-        onClose={onClose}
-      />
+      <AddMembersModalContent searchText={searchText} threadID={threadID} />
     ),
-    [onClose, threadID],
+    [threadID],
   );
 
   return (
@@ -104,6 +100,7 @@ function AddMembersModal(props: Props): React.Node {
       searchPlaceholder="Search members"
       onClose={onClose}
       size="fit-content"
+      primaryButton={primaryButton}
     >
       {addMembersModalContent}
     </SearchModal>
