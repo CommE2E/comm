@@ -93,10 +93,3 @@ div.addMembersListContainer {
   overflow: auto;
   flex: 1;
 }
-
-div.addMembersFooter {
-  display: flex;
-  justify-content: end;
-  column-gap: 16px;
-  margin-top: 16px;
-}
