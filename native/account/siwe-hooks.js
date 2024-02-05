@@ -23,7 +23,7 @@ type SIWEServerCallParams = {
   +doNotRegister?: boolean,
   ...
 };
-function useSIWEServerCall(): (
+function useLegacySIWEServerCall(): (
   SIWEServerCallParams,
   ?CallSingleKeyserverEndpointOptions,
 ) => Promise<void> {
@@ -93,4 +93,4 @@ function useSIWEServerCall(): (
   );
 }
 
-export { useSIWEServerCall };
+export { useLegacySIWEServerCall };

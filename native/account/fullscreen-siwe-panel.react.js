@@ -13,7 +13,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
 import { enableNewRegistrationMode } from './registration/registration-types.js';
-import { useSIWEServerCall } from './siwe-hooks.js';
+import { useLegacySIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import {
   AccountDoesNotExistRouteName,
@@ -63,14 +63,14 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     ],
   );
 
-  const siweServerCall = useSIWEServerCall();
+  const legacySiweServerCall = useLegacySIWEServerCall();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
       try {
-        await siweServerCall({
+        await legacySiweServerCall({
           ...result,
           doNotRegister: enableNewRegistrationMode,
         });
@@ -97,7 +97,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         },
       });
     },
-    [siweServerCall, dispatch, goBackToPrompt, onAccountDoesNotExist],
+    [legacySiweServerCall, dispatch, goBackToPrompt, onAccountDoesNotExist],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {
