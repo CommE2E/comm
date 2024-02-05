@@ -6,14 +6,15 @@ import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
-import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
-import { useSelector } from '../../../redux/redux-utils.js';
-import { AddUsersListProvider } from '../../../settings/relationship/add-users-list-provider.react.js';
+import {
+  AddUsersListProvider,
+  useAddUsersListContext,
+} from '../../../settings/relationship/add-users-list-provider.react.js';
+import AddUsersList from '../../../settings/relationship/add-users-list.react.js';
 import { useAddMembersListUserInfos } from '../../../settings/relationship/add-users-utils.js';
 import SearchModal from '../../search-modal.react.js';
 
@@ -26,30 +27,12 @@ type ContentProps = {
 function AddMembersModalContent(props: ContentProps): React.Node {
   const { searchText, threadID, onClose } = props;
 
-  const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
-    $ReadOnlySet<string>,
-  >(new Set());
+  const { pendingUsersToAdd } = useAddUsersListContext();
 
-  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-
-  const { sortedUsersWithENSNames } = useAddMembersListUserInfos({
+  const { userInfos, sortedUsersWithENSNames } = useAddMembersListUserInfos({
     threadID,
     searchText,
   });
-
-  const onSwitchUser = React.useCallback(
-    (userID: string) =>
-      setPendingUsersToAdd(users => {
-        const newUsers = new Set(users);
-        if (newUsers.has(userID)) {
-          newUsers.delete(userID);
-        } else {
-          newUsers.add(userID);
-        }
-        return newUsers;
-      }),
-    [],
-  );
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadSettings = useChangeThreadSettings();
@@ -59,7 +42,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
       changeThreadSettingsActionTypes,
       callChangeThreadSettings({
         threadID,
-        changes: { newMemberIDs: Array.from(pendingUsersToAdd) },
+        changes: { newMemberIDs: Array.from(pendingUsersToAdd.keys()) },
       }),
     );
     onClose();
@@ -74,11 +57,10 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   return (
     <div className={css.addMembersContent}>
       <div className={css.addMembersListContainer}>
-        <AddMembersListContent
-          userListItems={sortedUsersWithENSNames}
-          switchUser={onSwitchUser}
-          pendingUsersToAdd={pendingUsersToAdd}
-          hasParentThread={!!threadInfo.parentThreadID}
+        <AddUsersList
+          searchModeActive={searchText.length > 0}
+          userInfos={userInfos}
+          sortedUsersWithENSNames={sortedUsersWithENSNames}
         />
       </div>
       <div className={css.addMembersFooter}>
