@@ -20,7 +20,7 @@ pub struct DownloadLogsRequest {
   pub from_id: Option<usize>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, derive_more::From)]
 pub enum LogWSRequest {
   UploadLog(UploadLogRequest),
   DownloadLogs(DownloadLogsRequest),
