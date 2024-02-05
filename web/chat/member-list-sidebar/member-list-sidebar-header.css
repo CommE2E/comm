@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  height: 100%;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+}
+
+.headerLabel {
+  color: var(--text-background-primary-default);
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+}
+
+.closeButton {
+  display: flex;
+  color: var(--button-label-tertiary-default);
+}
+.closeButton:hover {
+  cursor: pointer;
+  color: var(--button-label-tertiary-hover);
+}
