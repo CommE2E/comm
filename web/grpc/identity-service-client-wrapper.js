@@ -240,42 +240,10 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       initOpaque(),
     ]);
 
-    const {
-      keyPayload,
-      keyPayloadSignature,
-      contentPrekey,
-      contentPrekeySignature,
-      notifPrekey,
-      notifPrekeySignature,
-      contentOneTimeKeys,
-      notifOneTimeKeys,
-    } = identityDeviceKeyUpload;
-
-    const contentOneTimeKeysArray = [...contentOneTimeKeys];
-    const notifOneTimeKeysArray = [...notifOneTimeKeys];
-
     const opaqueLogin = new Login();
     const startRequestBytes = opaqueLogin.start(password);
 
-    const identityKeyInfo = new IdentityKeyInfo();
-    identityKeyInfo.setPayload(keyPayload);
-    identityKeyInfo.setPayloadSignature(keyPayloadSignature);
-
-    const contentPrekeyUpload = new Prekey();
-    contentPrekeyUpload.setPrekey(contentPrekey);
-    contentPrekeyUpload.setPrekeySignature(contentPrekeySignature);
-
-    const notifPrekeyUpload = new Prekey();
-    notifPrekeyUpload.setPrekey(notifPrekey);
-    notifPrekeyUpload.setPrekeySignature(notifPrekeySignature);
-
-    const deviceKeyUpload = new DeviceKeyUpload();
-    deviceKeyUpload.setDeviceKeyInfo(identityKeyInfo);
-    deviceKeyUpload.setContentUpload(contentPrekeyUpload);
-    deviceKeyUpload.setNotifUpload(notifPrekeyUpload);
-    deviceKeyUpload.setOneTimeContentPrekeysList(contentOneTimeKeysArray);
-    deviceKeyUpload.setOneTimeNotifPrekeysList(notifOneTimeKeysArray);
-    deviceKeyUpload.setDeviceType(identityDeviceTypes.WEB);
+    const deviceKeyUpload = grpcDeviceKeyUpload(identityDeviceKeyUpload);
 
     const loginStartRequest = new OpaqueLoginStartRequest();
     loginStartRequest.setUsername(username);
@@ -318,6 +286,46 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const result = await this.unauthClient.generateNonce(new Empty());
     return result.getNonce();
   };
+}
+
+function grpcDeviceKeyUpload(
+  uploadData: IdentityDeviceKeyUpload,
+): DeviceKeyUpload {
+  const {
+    keyPayload,
+    keyPayloadSignature,
+    contentPrekey,
+    contentPrekeySignature,
+    notifPrekey,
+    notifPrekeySignature,
+    contentOneTimeKeys,
+    notifOneTimeKeys,
+  } = uploadData;
+
+  const contentOneTimeKeysArray = [...contentOneTimeKeys];
+  const notifOneTimeKeysArray = [...notifOneTimeKeys];
+
+  const identityKeyInfo = new IdentityKeyInfo();
+  identityKeyInfo.setPayload(keyPayload);
+  identityKeyInfo.setPayloadSignature(keyPayloadSignature);
+
+  const contentPrekeyUpload = new Prekey();
+  contentPrekeyUpload.setPrekey(contentPrekey);
+  contentPrekeyUpload.setPrekeySignature(contentPrekeySignature);
+
+  const notifPrekeyUpload = new Prekey();
+  notifPrekeyUpload.setPrekey(notifPrekey);
+  notifPrekeyUpload.setPrekeySignature(notifPrekeySignature);
+
+  const deviceKeyUpload = new DeviceKeyUpload();
+  deviceKeyUpload.setDeviceKeyInfo(identityKeyInfo);
+  deviceKeyUpload.setContentUpload(contentPrekeyUpload);
+  deviceKeyUpload.setNotifUpload(notifPrekeyUpload);
+  deviceKeyUpload.setOneTimeContentPrekeysList(contentOneTimeKeysArray);
+  deviceKeyUpload.setOneTimeNotifPrekeysList(notifOneTimeKeysArray);
+  deviceKeyUpload.setDeviceType(identityDeviceTypes.WEB);
+
+  return deviceKeyUpload;
 }
 
 export { IdentityServiceClientWrapper };
