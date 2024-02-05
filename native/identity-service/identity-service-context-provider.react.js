@@ -264,6 +264,47 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           identityAuthResultValidator,
         );
       },
+      logInWalletUser: async (
+        walletAddress: string,
+        siweMessage: string,
+        siweSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature },
+          notificationsOneTimeKeys,
+          primaryOneTimeKeys,
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER), // TODO: replace this with new method that only generates keys if needed
+          commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER), // TODO: replace this with new method that only generates keys if needed
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const loginResult = await commRustModule.logInWalletUser(
+          siweMessage,
+          siweSignature,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(primaryOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken: token } = JSON.parse(loginResult);
+        const identityAuthResult = {
+          accessToken: token,
+          userID,
+          username: walletAddress,
+        };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
+      },
       generateNonce: commRustModule.generateNonce,
     }),
     [getAuthMetadata],

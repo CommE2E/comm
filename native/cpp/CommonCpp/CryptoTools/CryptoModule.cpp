@@ -133,7 +133,7 @@ std::string CryptoModule::getIdentityKeys() {
       this->keys.identityKeys.begin(), this->keys.identityKeys.end()};
 }
 
-std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
+std::string CryptoModule::generateAndGetOneTimeKeys(size_t oneTimeKeysAmount) {
   this->generateOneTimeKeys(oneTimeKeysAmount);
   size_t publishedOneTimeKeys = this->publishOneTimeKeys();
   if (publishedOneTimeKeys != oneTimeKeysAmount) {
@@ -144,6 +144,14 @@ std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
         std::to_string(publishedOneTimeKeys)};
   }
 
+  return std::string{
+      this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};
+}
+
+std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
+  // check how many unpublished one time keys we have
+  // generate enough to meet the threshold
+  // call publish method (this method also handles writing the otks to a buffer)
   return std::string{
       this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};
 }
