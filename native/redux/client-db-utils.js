@@ -32,6 +32,7 @@ import { commCoreModule } from '../native-modules.js';
 function updateClientDBThreadStoreThreadInfos(
   state: AppState,
   migrationFunc: MixedRawThreadInfos => MixedRawThreadInfos,
+  handleMigrationFailure?: AppState => AppState,
 ): AppState {
   // Get threads from SQLite `threads` table.
   const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
@@ -47,15 +48,10 @@ function updateClientDBThreadStoreThreadInfos(
     commCoreModule.processThreadStoreOperationsSync(operations);
   } catch (exception) {
     console.log(exception);
-    const keyserverInfos = { ...state.keyserverStore.keyserverInfos };
-    for (const key in keyserverInfos) {
-      keyserverInfos[key] = { ...keyserverInfos[key], cookie: null };
+    if (handleMigrationFailure) {
+      return handleMigrationFailure(state);
     }
-    const keyserverStore = { ...state.keyserverStore, keyserverInfos };
-    return {
-      ...state,
-      keyserverStore,
-    };
+    return ({ ...state, cookie: null }: any);
   }
 
   return state;
