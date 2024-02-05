@@ -16,7 +16,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
-import Label from '../../../components/label.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import SearchModal from '../../search-modal.react.js';
 
@@ -94,36 +93,8 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     threadID,
   ]);
 
-  const pendingUserInfos = React.useMemo(
-    () =>
-      Array.from(pendingUsersToAdd)
-        .map(userID => ({
-          id: userID,
-          username: otherUserInfos[userID].username,
-        }))
-        .sort((a, b) => a.username.localeCompare(b.username)),
-    [otherUserInfos, pendingUsersToAdd],
-  );
-  const pendingUserInfosWithENSNames = useENSNames(pendingUserInfos);
-
-  const labelItems = React.useMemo(() => {
-    if (!pendingUserInfosWithENSNames.length) {
-      return null;
-    }
-    return (
-      <div className={css.addMembersPendingList}>
-        {pendingUserInfosWithENSNames.map(userInfo => (
-          <Label key={userInfo.id} onClose={() => onSwitchUser(userInfo.id)}>
-            {userInfo.username}
-          </Label>
-        ))}
-      </div>
-    );
-  }, [onSwitchUser, pendingUserInfosWithENSNames]);
-
   return (
     <div className={css.addMembersContent}>
-      {labelItems}
       <div className={css.addMembersListContainer}>
         <AddMembersListContent
           userListItems={userSearchResultsWithENSNames}
