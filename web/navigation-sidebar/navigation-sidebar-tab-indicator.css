@@ -1,0 +1,12 @@
+.container {
+  width: 4px;
+  height: 32px;
+  border-radius: 0px 4px 4px 0px;
+  position: absolute;
+  left: 0;
+  margin-top: -4px;
+}
+
+.activeContainer {
+  background-color: var(--tab-indicator-primary-active);
+}
