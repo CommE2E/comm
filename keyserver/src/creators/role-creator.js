@@ -15,7 +15,7 @@ import {
   type ThreadType,
 } from 'lib/types/thread-types-enum.js';
 import type {
-  LegacyRoleInfo,
+  ClientLegacyRoleInfo,
   RoleModificationRequest,
   RoleModificationResult,
 } from 'lib/types/thread-types.js';
@@ -34,8 +34,8 @@ import type { Viewer } from '../session/viewer.js';
 import { updateRole } from '../updaters/thread-updaters.js';
 
 type InitialRoles = {
-  +default: LegacyRoleInfo,
-  +creator: LegacyRoleInfo,
+  +default: ClientLegacyRoleInfo,
+  +creator: ClientLegacyRoleInfo,
 };
 async function createInitialRolesForNewThread(
   threadID: string,

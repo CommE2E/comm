@@ -3,7 +3,7 @@
 import type {
   LegacyRawThreadInfos,
   LegacyRawThreadInfo,
-  LegacyRoleInfo,
+  ClientLegacyRoleInfo,
 } from 'lib/types/thread-types.js';
 import { permissionsToRemoveInMigration } from 'lib/utils/migration-utils.js';
 
@@ -22,7 +22,7 @@ function persistMigrationToRemoveSelectRolePermissions(
     const threadInfo = rawThreadInfos[threadID];
     const { roles } = threadInfo;
 
-    const updatedRoles: { [string]: LegacyRoleInfo } = {};
+    const updatedRoles: { [string]: ClientLegacyRoleInfo } = {};
     for (const roleID in roles) {
       const role = roles[roleID];
       const { permissions: rolePermissions } = role;

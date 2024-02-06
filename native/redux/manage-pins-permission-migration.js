@@ -4,7 +4,7 @@ import type {
   LegacyRawThreadInfo,
   LegacyMemberInfo,
   LegacyThreadCurrentUserInfo,
-  LegacyRoleInfo,
+  ClientLegacyRoleInfo,
   LegacyRawThreadInfos,
 } from 'lib/types/thread-types.js';
 
@@ -38,8 +38,8 @@ function addManagePinsThreadPermissionToUser<
 }
 
 function addManagePinsThreadPermissionToRole(
-  role: LegacyRoleInfo,
-): LegacyRoleInfo {
+  role: ClientLegacyRoleInfo,
+): ClientLegacyRoleInfo {
   const isAdminRole = role.name === adminRoleName;
   let updatedPermissions;
 
@@ -72,7 +72,7 @@ function persistMigrationForManagePinsThreadPermission(
       threadID,
     );
 
-    const updatedRoles: { [string]: LegacyRoleInfo } = {};
+    const updatedRoles: { [string]: ClientLegacyRoleInfo } = {};
     for (const roleID in threadInfo.roles) {
       updatedRoles[roleID] = addManagePinsThreadPermissionToRole(
         threadInfo.roles[roleID],
