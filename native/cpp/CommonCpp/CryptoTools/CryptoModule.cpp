@@ -266,8 +266,7 @@ void CryptoModule::initializeOutboundForSendingSession(
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
-    const OlmBuffer &oneTimeKeys,
-    size_t keyIndex) {
+    const OlmBuffer &oneTimeKey) {
   if (this->hasSessionFor(targetDeviceId)) {
     Logger::log(
         "olm session overwritten for the device with id: " + targetDeviceId);
@@ -279,8 +278,7 @@ void CryptoModule::initializeOutboundForSendingSession(
       idKeys,
       preKeys,
       preKeySignature,
-      oneTimeKeys,
-      keyIndex);
+      oneTimeKey);
   this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
 }
 

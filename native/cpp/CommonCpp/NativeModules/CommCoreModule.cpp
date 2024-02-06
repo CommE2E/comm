@@ -775,12 +775,12 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::String identityKeys,
     jsi::String prekey,
     jsi::String prekeySignature,
-    jsi::String oneTimeKeys,
+    jsi::String oneTimeKey,
     jsi::String keyserverID) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
-  auto oneTimeKeysCpp{oneTimeKeys.utf8(rt)};
+  auto oneTimeKeyCpp{oneTimeKey.utf8(rt)};
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -791,7 +791,7 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
                 identityKeysCpp,
                 prekeyCpp,
                 prekeySignatureCpp,
-                oneTimeKeysCpp,
+                oneTimeKeyCpp,
                 "Comm");
           } catch (const std::exception &e) {
             error = e.what();
@@ -840,12 +840,12 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::String identityKeys,
     jsi::String prekey,
     jsi::String prekeySignature,
-    jsi::String oneTimeKeys,
+    jsi::String oneTimeKey,
     jsi::String deviceID) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
-  auto oneTimeKeysCpp{oneTimeKeys.utf8(rt)};
+  auto oneTimeKeyCpp{oneTimeKey.utf8(rt)};
   auto deviceIDCpp{deviceID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -861,7 +861,7 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
                 std::vector<uint8_t>(
                     prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
                 std::vector<uint8_t>(
-                    oneTimeKeysCpp.begin(), oneTimeKeysCpp.end()));
+                    oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
 
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedMessage =

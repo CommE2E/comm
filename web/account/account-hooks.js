@@ -8,7 +8,6 @@ import uuid from 'uuid';
 
 import {
   initialEncryptedMessageContent,
-  getOneTimeKeyValuesFromBlob,
   getPrekeyValueFromBlob,
 } from 'lib/shared/crypto-utils.js';
 import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
@@ -262,9 +261,6 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       const notificationsPrekey = getPrekeyValueFromBlob(
         notificationsInitializationInfo.prekey,
       );
-      const [notificationsOneTimeKey] = getOneTimeKeyValuesFromBlob(
-        notificationsInitializationInfo.oneTimeKey,
-      );
 
       const session = new olm.Session();
       session.create_outbound(
@@ -273,7 +269,7 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
         notificationsIdentityKeys.ed25519,
         notificationsPrekey,
         notificationsInitializationInfo.prekeySignature,
-        notificationsOneTimeKey,
+        notificationsInitializationInfo.oneTimeKey,
       );
       const { body: initialNotificationsEncryptedMessage } = session.encrypt(
         JSON.stringify(initialEncryptedMessageContent),
@@ -341,9 +337,6 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       const contentPrekey = getPrekeyValueFromBlob(
         contentInitializationInfo.prekey,
       );
-      const [contentOneTimeKey] = getOneTimeKeyValuesFromBlob(
-        contentInitializationInfo.oneTimeKey,
-      );
 
       const session = new olm.Session();
       session.create_outbound(
@@ -352,7 +345,7 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
         contentIdentityKeys.ed25519,
         contentPrekey,
         contentInitializationInfo.prekeySignature,
-        contentOneTimeKey,
+        contentInitializationInfo.oneTimeKey,
       );
       const { body: initialContentEncryptedMessage } = session.encrypt(
         JSON.stringify(initialEncryptedMessageContent),

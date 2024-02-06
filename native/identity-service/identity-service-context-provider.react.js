@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
+import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
@@ -219,8 +219,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyArray(primaryOneTimeKeys),
-          getOneTimeKeyArray(notificationsOneTimeKeys),
+          getOneTimeKeyValues(primaryOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         return { accessToken: token, userID, username };

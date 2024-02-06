@@ -16,8 +16,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
-    const OlmBuffer &oneTimeKeys,
-    size_t keyIndex) {
+    const OlmBuffer &oneTimeKey) {
   std::unique_ptr<Session> session(new Session(account, ownerIdentityKeys));
 
   session->olmSessionBuffer.resize(::olm_session_size());
@@ -40,8 +39,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
           KEYSIZE,
           preKeySignature.data(),
           SIGNATURESIZE,
-          oneTimeKeys.data() + ONE_TIME_KEYS_PREFIX_OFFSET +
-              (KEYSIZE + ONE_TIME_KEYS_MIDDLE_OFFSET) * keyIndex,
+          oneTimeKey.data(),
           KEYSIZE,
           randomBuffer.data(),
           randomBuffer.size())) {
@@ -75,7 +73,7 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
 
   if (-1 == ::olm_remove_one_time_keys(account, session->getOlmSession())) {
     throw std::runtime_error(
-        "error createInbound (remove oneTimeKeys) => " +
+        "error createInbound (remove oneTimeKey) => " +
         std::string{::olm_session_last_error(session->getOlmSession())});
   }
   return session;

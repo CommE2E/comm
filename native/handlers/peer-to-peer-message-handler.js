@@ -1,6 +1,6 @@
 // @flow
 
-import { getOneTimeKeyArray } from 'lib/shared/crypto-utils.js';
+import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
 import {
   type PeerToPeerMessage,
   peerToPeerMessageTypes,
@@ -66,8 +66,8 @@ async function peerToPeerMessageHandler(
         userID,
         deviceID,
         accessToken,
-        getOneTimeKeyArray(primaryOneTimeKeys),
-        getOneTimeKeyArray(notificationsOneTimeKeys),
+        getOneTimeKeyValues(primaryOneTimeKeys),
+        getOneTimeKeyValues(notificationsOneTimeKeys),
       );
     } catch (e) {
       console.log(`Error uploading one-time keys: ${e.message}`);
