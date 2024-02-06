@@ -201,13 +201,11 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         await commCoreModule.initializeCryptoAccount();
         const [
           { blobPayload, signature },
-          notificationsOneTimeKeys,
-          primaryOneTimeKeys,
+          { contentOneTimeKeys, notificationsOneTimeKeys },
           prekeys,
         ] = await Promise.all([
           commCoreModule.getUserPublicKey(),
-          commCoreModule.getNotificationsOneTimeKeys(ONE_TIME_KEYS_NUMBER),
-          commCoreModule.getPrimaryOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.generateAndGetPrekeys(),
         ]);
         const registrationResult = await commRustModule.registerUser(
@@ -219,7 +217,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.contentPrekeySignature,
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
-          getOneTimeKeyArray(primaryOneTimeKeys),
+          getOneTimeKeyArray(contentOneTimeKeys),
           getOneTimeKeyArray(notificationsOneTimeKeys),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);

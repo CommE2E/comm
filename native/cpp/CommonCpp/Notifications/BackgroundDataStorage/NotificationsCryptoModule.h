@@ -38,7 +38,7 @@ public:
   generateAndGetNotificationsPrekey(const std::string &callingProcessName);
   static std::string
   getNotificationsPrekeySignature(const std::string &callingProcessName);
-  static std::string getNotificationsOneTimeKeys(
+  static std::string getNotificationsOneTimeKeysForPublishing(
       const size_t oneTimeKeysAmount,
       const std::string &callingProcessName);
   static crypto::EncryptedData initializeNotificationsSession(

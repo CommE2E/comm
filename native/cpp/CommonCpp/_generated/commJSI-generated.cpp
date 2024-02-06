@@ -69,11 +69,8 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCrypto
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserPublicKey(rt);
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getPrimaryOneTimeKeys(rt, args[0].asNumber());
-}
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getNotificationsOneTimeKeys(rt, args[0].asNumber());
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getOneTimeKeys(rt, args[0].asNumber());
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->generateAndGetPrekeys(rt);
@@ -181,8 +178,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["processKeyserverStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processKeyserverStoreOperations};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
-  methodMap_["getPrimaryOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getPrimaryOneTimeKeys};
-  methodMap_["getNotificationsOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getNotificationsOneTimeKeys};
+  methodMap_["getOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOneTimeKeys};
   methodMap_["generateAndGetPrekeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_generateAndGetPrekeys};
   methodMap_["validateAndUploadPrekeys"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_validateAndUploadPrekeys};
   methodMap_["initializeNotificationsSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsSession};

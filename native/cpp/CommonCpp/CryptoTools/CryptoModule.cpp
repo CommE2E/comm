@@ -4,6 +4,8 @@
 #include "olm/account.hh"
 #include "olm/session.hh"
 
+#include <folly/dynamic.h>
+#include <folly/json.h>
 #include <ctime>
 #include <stdexcept>
 
@@ -67,13 +69,12 @@ void CryptoModule::exposePublicIdentityKeys() {
 }
 
 void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
-  size_t oneTimeKeysSize = ::olm_account_generate_one_time_keys_random_length(
-      this->getOlmAccount(), oneTimeKeysAmount);
-  if (this->keys.oneTimeKeys.size() == oneTimeKeysSize) {
-    return;
-  }
+  size_t numRandomBytesRequired =
+      ::olm_account_generate_one_time_keys_random_length(
+          this->getOlmAccount(), oneTimeKeysAmount);
   OlmBuffer random;
-  PlatformSpecificTools::generateSecureRandomBytes(random, oneTimeKeysSize);
+  PlatformSpecificTools::generateSecureRandomBytes(
+      random, numRandomBytesRequired);
 
   if (-1 ==
       ::olm_account_generate_one_time_keys(
@@ -133,16 +134,33 @@ std::string CryptoModule::getIdentityKeys() {
       this->keys.identityKeys.begin(), this->keys.identityKeys.end()};
 }
 
-std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
-  this->generateOneTimeKeys(oneTimeKeysAmount);
-  size_t publishedOneTimeKeys = this->publishOneTimeKeys();
-  if (publishedOneTimeKeys != oneTimeKeysAmount) {
+std::string
+CryptoModule::getOneTimeKeysForPublishing(size_t oneTimeKeysAmount) {
+  OlmBuffer unpublishedOneTimeKeys;
+  unpublishedOneTimeKeys.resize(
+      ::olm_account_one_time_keys_length(this->getOlmAccount()));
+  if (-1 ==
+      ::olm_account_one_time_keys(
+          this->getOlmAccount(),
+          unpublishedOneTimeKeys.data(),
+          unpublishedOneTimeKeys.size())) {
     throw std::runtime_error{
-        "error generateKeys => invalid amount of one-time keys published. "
-        "Expected " +
-        std::to_string(oneTimeKeysAmount) + ", got " +
-        std::to_string(publishedOneTimeKeys)};
+        "error getOneTimeKeysForPublishing => " +
+        std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
+  std::string unpublishedKeysString =
+      std::string{unpublishedOneTimeKeys.begin(), unpublishedOneTimeKeys.end()};
+
+  folly::dynamic parsedUnpublishedKeys =
+      folly::parseJson(unpublishedKeysString);
+
+  size_t numUnpublishedKeys = parsedUnpublishedKeys["curve25519"].size();
+
+  if (numUnpublishedKeys < oneTimeKeysAmount) {
+    this->generateOneTimeKeys(oneTimeKeysAmount - numUnpublishedKeys);
+  }
+
+  this->publishOneTimeKeys();
 
   return std::string{
       this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};

@@ -236,13 +236,13 @@ std::string NotificationsCryptoModule::getNotificationsPrekeySignature(
   return prekeySignature;
 }
 
-std::string NotificationsCryptoModule::getNotificationsOneTimeKeys(
+std::string NotificationsCryptoModule::getNotificationsOneTimeKeysForPublishing(
     const size_t oneTimeKeysAmount,
     const std::string &callingProcessName) {
   std::string oneTimeKeys;
   auto caller = [&oneTimeKeys, oneTimeKeysAmount](
                     const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    oneTimeKeys = cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
+    oneTimeKeys = cryptoModule->getOneTimeKeysForPublishing(oneTimeKeysAmount);
   };
   NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
   return oneTimeKeys;
