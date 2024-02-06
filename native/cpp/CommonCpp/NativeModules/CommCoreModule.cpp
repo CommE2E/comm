@@ -565,52 +565,50 @@ jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
   return jsiOneTimeKeys;
 }
 
-jsi::Value CommCoreModule::getPrimaryOneTimeKeys(
+jsi::Object parseOneTimeKeysResult(
     jsi::Runtime &rt,
-    double oneTimeKeysAmount) {
+    std::string contentOneTimeKeysBlob,
+    std::string notifOneTimeKeysBlob) {
+  auto contentOneTimeKeys = parseOLMOneTimeKeys(rt, contentOneTimeKeysBlob);
+  auto notifOneTimeKeys = parseOLMOneTimeKeys(rt, notifOneTimeKeysBlob);
+  auto jsiOneTimeKeysResult = jsi::Object(rt);
+  jsiOneTimeKeysResult.setProperty(
+      rt, "contentOneTimeKeys", contentOneTimeKeys);
+  jsiOneTimeKeysResult.setProperty(
+      rt, "notificationsOneTimeKeys", notifOneTimeKeys);
+
+  return jsiOneTimeKeysResult;
+}
+
+jsi::Value
+CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string result;
+          std::string contentResult;
+          std::string notifResult;
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            result = this->cryptoModule->getOneTimeKeys(oneTimeKeysAmount);
-            this->persistCryptoModule();
+            try {
+              contentResult = this->cryptoModule->getOneTimeKeysForPublishing(
+                  oneTimeKeysAmount);
+              this->persistCryptoModule();
+              notifResult =
+                  NotificationsCryptoModule::getNotificationsOneTimeKeys(
+                      oneTimeKeysAmount, "Comm");
+            } catch (const std::exception &e) {
+              error = e.what();
+            }
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
               return;
             }
-            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
-          });
-        };
-        this->cryptoThread->scheduleTask(job);
-      });
-}
-
-jsi::Value CommCoreModule::getNotificationsOneTimeKeys(
-    jsi::Runtime &rt,
-    double oneTimeKeysAmount) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::string result;
-          try {
-            result = NotificationsCryptoModule::getNotificationsOneTimeKeys(
-                oneTimeKeysAmount, "Comm");
-          } catch (const std::exception &e) {
-            error = e.what();
-          }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            promise->resolve(parseOLMOneTimeKeys(innerRt, result));
+            promise->resolve(
+                parseOneTimeKeysResult(innerRt, contentResult, notifResult));
           });
         };
         this->cryptoThread->scheduleTask(job);

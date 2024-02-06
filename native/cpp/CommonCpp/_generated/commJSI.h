@@ -38,8 +38,7 @@ public:
   virtual jsi::Value processKeyserverStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
-  virtual jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
-  virtual jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
+  virtual jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) = 0;
   virtual jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) = 0;
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKeys, jsi::String keyserverID) = 0;
@@ -232,21 +231,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getUserPublicKey, jsInvoker_, instance_);
     }
-    jsi::Value getPrimaryOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override {
+    jsi::Value getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override {
       static_assert(
-          bridging::getParameterCount(&T::getPrimaryOneTimeKeys) == 2,
-          "Expected getPrimaryOneTimeKeys(...) to have 2 parameters");
+          bridging::getParameterCount(&T::getOneTimeKeys) == 2,
+          "Expected getOneTimeKeys(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getPrimaryOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
-    }
-    jsi::Value getNotificationsOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) override {
-      static_assert(
-          bridging::getParameterCount(&T::getNotificationsOneTimeKeys) == 2,
-          "Expected getNotificationsOneTimeKeys(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::getNotificationsOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
+          rt, &T::getOneTimeKeys, jsInvoker_, instance_, std::move(oneTimeKeysAmount));
     }
     jsi::Value generateAndGetPrekeys(jsi::Runtime &rt) override {
       static_assert(

@@ -46,12 +46,10 @@ async function peerToPeerMessageHandler(
     await commCoreModule.initializeCryptoAccount();
     const [
       { userID, deviceID, accessToken },
-      notificationsOneTimeKeys,
-      primaryOneTimeKeys,
+      { contentOneTimeKeys, notificationsOneTimeKeys },
     ] = await Promise.all([
       commCoreModule.getCommServicesAuthMetadata(),
-      commCoreModule.getNotificationsOneTimeKeys(message.numberOfKeys),
-      commCoreModule.getPrimaryOneTimeKeys(message.numberOfKeys),
+      commCoreModule.getOneTimeKeys(message.numberOfKeys),
     ]);
 
     if (!userID || !deviceID || !accessToken) {
@@ -66,7 +64,7 @@ async function peerToPeerMessageHandler(
         userID,
         deviceID,
         accessToken,
-        getOneTimeKeyArray(primaryOneTimeKeys),
+        getOneTimeKeyArray(contentOneTimeKeys),
         getOneTimeKeyArray(notificationsOneTimeKeys),
       );
     } catch (e) {

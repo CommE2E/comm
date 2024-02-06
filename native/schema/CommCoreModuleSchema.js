@@ -42,6 +42,11 @@ type CommServicesAuthMetadata = {
   +accessToken?: ?string,
 };
 
+type OneTimeKeysResult = {
+  contentOneTimeKeys: OLMOneTimeKeys,
+  notificationsOneTimeKeys: OLMOneTimeKeys,
+};
+
 interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
@@ -79,12 +84,7 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
-  +getPrimaryOneTimeKeys: (
-    oneTimeKeysAmount: number,
-  ) => Promise<OLMOneTimeKeys>;
-  +getNotificationsOneTimeKeys: (
-    oneTimeKeysAmount: number,
-  ) => Promise<OLMOneTimeKeys>;
+  +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
   +generateAndGetPrekeys: () => Promise<SignedPrekeys>;
   +validateAndUploadPrekeys: (
     authUserID: string,

@@ -43,7 +43,7 @@ public:
       const std::string &oneTimeKeys);
 
   std::string getIdentityKeys();
-  std::string getOneTimeKeys(size_t oneTimeKeysAmount = 50);
+  std::string getOneTimeKeysForPublishing(size_t oneTimeKeysAmount = 10);
 
   // Prekey rotation methods for X3DH
   std::uint8_t getNumPrekeys();
