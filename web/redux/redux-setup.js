@@ -164,13 +164,10 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         ...state,
         ...rest,
         userStore: { userInfos },
-        keyserverStore: {
-          ...state.keyserverStore,
-          keyserverInfos: keyserverStoreOpsHandlers.processStoreOperations(
-            state.keyserverStore.keyserverInfos,
-            replaceOperations,
-          ),
-        },
+        keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+          state.keyserverStore,
+          replaceOperations,
+        ),
         initialStateLoaded: true,
       },
       storeOperations,
@@ -231,13 +228,10 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     };
     state = {
       ...state,
-      keyserverStore: {
-        ...state.keyserverStore,
-        keyserverInfos: keyserverStoreOpsHandlers.processStoreOperations(
-          state.keyserverStore.keyserverInfos,
-          [replaceOperation],
-        ),
-      },
+      keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+        state.keyserverStore,
+        [replaceOperation],
+      ),
     };
   } else if (
     action.type === deleteKeyserverAccountActionTypes.success &&
