@@ -6,6 +6,7 @@ import _isEqual from 'lodash/fp/isEqual.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import type { ServerLegacyRoleInfo } from 'lib/types/thread-types.js';
 
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -17,7 +18,8 @@ async function updateRoles(
   threadID: string,
   threadType: ThreadType,
 ): Promise<void> {
-  const currentRoles = await fetchRoles(threadID);
+  const currentRoles: $ReadOnlyArray<ServerLegacyRoleInfo> =
+    await fetchRoles(threadID);
 
   const currentRolePermissions: { [string]: ThreadRolePermissionsBlob } = {};
   const currentRoleIDs: { [string]: string } = {};
