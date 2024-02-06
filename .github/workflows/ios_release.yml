@@ -5,13 +5,10 @@ on:
     tags:
       - mobile-**
 
-env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.app/Contents/Developer
-
 jobs:
   build:
     name: Build, archive, and upload iOS app
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Checkout
