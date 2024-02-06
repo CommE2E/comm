@@ -241,7 +241,7 @@ crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
     const std::string &identityKeys,
     const std::string &prekey,
     const std::string &prekeySignature,
-    const std::string &oneTimeKeys,
+    const std::string &oneTimeKey,
     const std::string &callingProcessName) {
   crypto::EncryptedData initialEncryptedMessage;
   auto caller = [&](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
@@ -250,7 +250,7 @@ crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
         std::vector<uint8_t>(identityKeys.begin(), identityKeys.end()),
         std::vector<uint8_t>(prekey.begin(), prekey.end()),
         std::vector<uint8_t>(prekeySignature.begin(), prekeySignature.end()),
-        std::vector<uint8_t>(oneTimeKeys.begin(), oneTimeKeys.end()));
+        std::vector<uint8_t>(oneTimeKey.begin(), oneTimeKey.end()));
     initialEncryptedMessage = cryptoModule->encrypt(
         NotificationsCryptoModule::keyserverHostedNotificationsID,
         NotificationsCryptoModule::initialEncryptedMessageContent);
