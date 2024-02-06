@@ -18,6 +18,7 @@ import {
   type ServerThreadInfo,
   type MixedRawThreadInfos,
   type LegacyRawThreadInfo,
+  ServerLegacyRoleInfo,
 } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
@@ -100,7 +101,7 @@ async function fetchServerThreadInfos(
   const whereClause = filter ? constructWhereClause(filter) : '';
 
   const rolesQuery = SQL`
-    SELECT t.id, r.id AS role, r.name, r.permissions,
+    SELECT t.id, r.id AS role, r.name, r.permissions, r.special_role,
       r.special_role = ${specialRoles.DEFAULT_ROLE} AS is_default
   `
     .append(primaryFetchClause)
@@ -233,12 +234,14 @@ async function fetchServerThreadInfos(
     }
     const role = rolesRow.role.toString();
     if (!threadInfos[threadID].roles[role]) {
-      threadInfos[threadID].roles[role] = {
+      const roleInfo: ServerLegacyRoleInfo = {
         id: role,
         name: rolesRow.name,
         permissions: JSON.parse(rolesRow.permissions),
         isDefault: Boolean(rolesRow.is_default),
+        specialRole: rolesRow.special_role,
       };
+      threadInfos[threadID].roles[role] = roleInfo;
     }
   }
 
