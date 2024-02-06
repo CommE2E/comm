@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   background-color: var(--frame-background-secondary-default);
+  position: relative;
 }
 
 .footer {
