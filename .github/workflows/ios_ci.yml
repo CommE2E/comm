@@ -12,13 +12,10 @@ on:
       - 'keyserver/**'
       - 'desktop/**'
 
-env:
-  DEVELOPER_DIR: /Applications/Xcode_15.0.app/Contents/Developer
-
 jobs:
   build:
     name: Build and archive iOS app
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Checkout
