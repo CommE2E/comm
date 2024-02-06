@@ -3,20 +3,18 @@
 import * as React from 'react';
 
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import type {
-  AccountUserInfo,
-  GlobalAccountUserInfo,
-} from 'lib/types/user-types';
+import { stringForUser } from 'lib/shared/user-utils.js';
 
-function useSortedENSResolvedUsers(
-  userInfos: $ReadOnlyArray<GlobalAccountUserInfo | AccountUserInfo>,
-): $ReadOnlyArray<GlobalAccountUserInfo | AccountUserInfo> {
+type BaseENSResolvedUser = { +username?: ?string, +isViewer?: ?boolean, ... };
+function useSortedENSResolvedUsers<T: BaseENSResolvedUser>(
+  userInfos: $ReadOnlyArray<T>,
+): $ReadOnlyArray<T> {
   const ensResolvedUsers = useENSNames(userInfos);
 
   return React.useMemo(
     () =>
       ensResolvedUsers.sort((userInfo1, userInfo2) =>
-        userInfo1.username.localeCompare(userInfo2.username),
+        stringForUser(userInfo1).localeCompare(stringForUser(userInfo2)),
       ),
     [ensResolvedUsers],
   );
