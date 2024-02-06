@@ -1,10 +1,10 @@
 .container {
   padding-top: 24px;
   border-bottom: 1px solid var(--separator-background-primary-default);
-  position: relative;
 }
 
 .buttonContainer {
+  position: relative;
   color: var(--button-label-primary-default);
   margin-bottom: 16px;
 }
@@ -16,5 +16,5 @@
 .unreadBadgeContainer {
   position: absolute;
   right: -8px;
-  top: 16px;
+  bottom: 16px;
 }

@@ -7,6 +7,7 @@ import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-perm
 
 import css from './community-list-item.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
+import NavigationSidebarTabIndicator from './navigation-sidebar-tab-indicator.react.js';
 import ThreadAvatar from '../avatars/thread-avatar.react.js';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,13 +44,16 @@ function CommunityListItem(props: Props): React.Node {
   });
 
   return (
-    <div
-      className={css.container}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      <ThreadAvatar size="S" threadInfo={threadInfo} />
-      {unreadBadge}
+    <div>
+      <NavigationSidebarTabIndicator isActive={false} />
+      <div
+        className={css.container}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <ThreadAvatar size="S" threadInfo={threadInfo} />
+        {unreadBadge}
+      </div>
     </div>
   );
 }

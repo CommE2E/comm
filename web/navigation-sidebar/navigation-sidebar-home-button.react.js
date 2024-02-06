@@ -7,6 +7,7 @@ import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';
 import css from './navigation-sidebar-home-button.css';
+import NavigationSidebarTabIndicator from './navigation-sidebar-tab-indicator.react.js';
 import UnreadBadge from '../components/unread-badge.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useLabelTooltip } from '../tooltips/tooltip-action-utils.js';
@@ -34,13 +35,14 @@ function NavigationSidebarHomeButton(): React.Node {
 
   return (
     <div className={css.container}>
+      <NavigationSidebarTabIndicator isActive={true} />
       <div
         className={css.buttonContainer}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {unreadBadge}
         <SWMansionIcon icon="home-1" size={24} />
+        {unreadBadge}
       </div>
     </div>
   );
