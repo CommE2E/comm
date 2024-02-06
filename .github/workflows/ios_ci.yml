@@ -63,7 +63,3 @@ jobs:
           AUTH_KEY_ID: ${{secrets.AUTH_KEY_ID}}
           AUTH_KEY_ISSUER_ID: ${{secrets.AUTH_KEY_ISSUER_ID}}
         run: xcodebuild archive -workspace Comm.xcworkspace -scheme Comm -configuration Release -archivePath archives/Comm.xcarchive -destination generic/platform=iOS -allowProvisioningUpdates -authenticationKeyIssuerID "$AUTH_KEY_ISSUER_ID" -authenticationKeyID "$AUTH_KEY_ID" -authenticationKeyPath $PWD/AUTH_KEY.p8
-
-      - name: Set up tmate session
-        if: failure() && startsWith(github.ref, 'refs/heads/debugci/')
-        uses: mxschmitt/action-tmate@v3
