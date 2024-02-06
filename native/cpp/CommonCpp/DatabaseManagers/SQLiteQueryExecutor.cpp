@@ -1535,28 +1535,40 @@ SQLiteQueryExecutor::getOlmPersistAccountData() const {
       : std::optional<std::string>(result[0].account_data);
 }
 
-void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+void SQLiteQueryExecutor::storeOlmPersistAccount(
+    const std::string &accountData) const {
   static std::string replaceOlmPersistAccountSQL =
       "REPLACE INTO olm_persist_account (id, account_data) "
       "VALUES (?, ?);";
-  static std::string replaceOlmPersistSessionSQL =
-      "REPLACE INTO olm_persist_sessions (target_user_id, session_data) "
-      "VALUES (?, ?);";
 
-  OlmPersistAccount persistAccount = {
-      ACCOUNT_ID, std::string(persist.account.begin(), persist.account.end())};
+  OlmPersistAccount persistAccount = {ACCOUNT_ID, accountData};
+
   replaceEntity<OlmPersistAccount>(
       SQLiteQueryExecutor::getConnection(),
       replaceOlmPersistAccountSQL,
       persistAccount);
+}
+
+void SQLiteQueryExecutor::storeOlmPersistSession(
+    const OlmPersistSession &session) const {
+  static std::string replaceOlmPersistSessionSQL =
+      "REPLACE INTO olm_persist_sessions (target_user_id, session_data) "
+      "VALUES (?, ?);";
+
+  replaceEntity<OlmPersistSession>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceOlmPersistSessionSQL,
+      session);
+}
+
+void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+  std::string accountData =
+      std::string(persist.account.begin(), persist.account.end());
 
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
         it->first, std::string(it->second.begin(), it->second.end())};
-    replaceEntity<OlmPersistSession>(
-        SQLiteQueryExecutor::getConnection(),
-        replaceOlmPersistSessionSQL,
-        persistSession);
+    this->storeOlmPersistSession(persistSession);
   }
 }
 
@@ -1624,6 +1636,30 @@ std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
 void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
   this->replaceThread(thread.toThread());
 };
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
+  auto allMessages = this->getAllMessages();
+
+  std::vector<MessageWithMedias> allMessageWithMedias;
+  for (auto &messageWitMedia : allMessages) {
+    allMessageWithMedias.push_back(
+        {std::move(messageWitMedia.first), messageWitMedia.second});
+  }
+
+  return allMessageWithMedias;
+}
+
+void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
+  this->replaceMessage(message.toMessage());
+};
+
+NullableString SQLiteQueryExecutor::getOlmPersistAccountDataWeb() const {
+  std::optional<std::string> accountData = this->getOlmPersistAccountData();
+  if (!accountData.has_value()) {
+    return NullableString();
+  }
+  return std::make_unique<std::string>(accountData.value());
+}
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
   SQLiteQueryExecutor::closeConnection();
