@@ -26,6 +26,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<NullableString>("NullableString")
       .field("value", &NullableString::value)
       .field("isNull", &NullableString::isNull);
+  value_object<NullableInt>("NullableInt")
+      .field("value", &NullableInt::value)
+      .field("isNull", &NullableInt::isNull);
 
   value_object<Draft>("Draft")
       .field("key", &Draft::key)
@@ -42,6 +45,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<KeyserverInfo>("KeyserverInfo")
       .field("id", &KeyserverInfo::id)
       .field("keyserverInfo", &KeyserverInfo::keyserver_info);
+  value_object<MessageStoreThread>("MessageStoreThreads")
+      .field("id", &MessageStoreThread::id)
+      .field("startReached", &MessageStoreThread::start_reached);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -61,6 +67,32 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("avatar", &WebThread::avatar)
       .field("pinnedCount", &WebThread::pinned_count);
 
+  value_object<WebMessage>("WebMessage")
+      .field("id", &WebMessage::id)
+      .field("localID", &WebMessage::local_id)
+      .field("thread", &WebMessage::thread)
+      .field("user", &WebMessage::user)
+      .field("type", &WebMessage::type)
+      .field("futureType", &WebMessage::future_type)
+      .field("content", &WebMessage::content)
+      .field("time", &WebMessage::time);
+
+  value_object<Media>("Media")
+      .field("id", &Media::id)
+      .field("container", &Media::container)
+      .field("thread", &Media::thread)
+      .field("uri", &Media::uri)
+      .field("type", &Media::type)
+      .field("extras", &Media::extras);
+
+  value_object<MessageWithMedias>("MessageWithMedias")
+      .field("message", &MessageWithMedias::message)
+      .field("medias", &MessageWithMedias::medias);
+
+  value_object<OlmPersistSession>("OlmPersistSession")
+      .field("targetUserID", &OlmPersistSession::target_user_id)
+      .field("sessionData", &OlmPersistSession::session_data);
+
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
       .function("updateDraft", &SQLiteQueryExecutor::updateDraft)
@@ -68,6 +100,37 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
       .function("removeDrafts", &SQLiteQueryExecutor::removeDrafts)
+      .function("getAllMessagesWeb", &SQLiteQueryExecutor::getAllMessagesWeb)
+      .function("removeAllMessages", &SQLiteQueryExecutor::removeAllMessages)
+      .function("removeMessages", &SQLiteQueryExecutor::removeMessages)
+      .function(
+          "removeMessagesForThreads",
+          &SQLiteQueryExecutor::removeMessagesForThreads)
+      .function("replaceMessageWeb", &SQLiteQueryExecutor::replaceMessageWeb)
+      .function("rekeyMessage", &SQLiteQueryExecutor::rekeyMessage)
+      .function("removeAllMedia", &SQLiteQueryExecutor::removeAllMedia)
+      .function(
+          "removeMediaForThreads", &SQLiteQueryExecutor::removeMediaForThreads)
+      .function(
+          "removeMediaForMessage", &SQLiteQueryExecutor::removeMediaForMessage)
+      .function(
+          "removeMediaForMessages",
+          &SQLiteQueryExecutor::removeMediaForMessages)
+      .function("replaceMedia", &SQLiteQueryExecutor::replaceMedia)
+      .function(
+          "rekeyMediaContainers", &SQLiteQueryExecutor::rekeyMediaContainers)
+      .function(
+          "replaceMessageStoreThreads",
+          &SQLiteQueryExecutor::replaceMessageStoreThreads)
+      .function(
+          "removeMessageStoreThreads",
+          &SQLiteQueryExecutor::removeMessageStoreThreads)
+      .function(
+          "getAllMessageStoreThreads",
+          &SQLiteQueryExecutor::getAllMessageStoreThreads)
+      .function(
+          "removeAllMessageStoreThreads",
+          &SQLiteQueryExecutor::removeAllMessageStoreThreads)
       .function("setMetadata", &SQLiteQueryExecutor::setMetadata)
       .function("clearMetadata", &SQLiteQueryExecutor::clearMetadata)
       .function("getMetadata", &SQLiteQueryExecutor::getMetadata)
@@ -97,6 +160,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("getAllKeyservers", &SQLiteQueryExecutor::getAllKeyservers)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
+      .function(
+          "getOlmPersistSessionsData",
+          &SQLiteQueryExecutor::getOlmPersistSessionsData)
+      .function(
+          "getOlmPersistAccountDataWeb",
+          &SQLiteQueryExecutor::getOlmPersistAccountDataWeb)
+      .function(
+          "storeOlmPersistSession",
+          &SQLiteQueryExecutor::storeOlmPersistSession)
+      .function(
+          "storeOlmPersistAccount",
+          &SQLiteQueryExecutor::storeOlmPersistAccount)
       .function(
           "rollbackTransaction", &SQLiteQueryExecutor::rollbackTransaction)
       .function(
