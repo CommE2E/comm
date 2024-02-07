@@ -11,7 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
-  IdentitySearchQuery, IdentitySearchResult, IdentitySearchUser, Messages,
+  IdentitySearchMethod, IdentitySearchResult, IdentitySearchUser, Messages,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -183,8 +183,8 @@ async fn handle_websocket_frame(
       Ok(())
     }
     Messages::IdentitySearchQuery(search_request) => {
-      let search_result = match search_request {
-        IdentitySearchQuery::IdentitySearchPrefix(prefix_request) => {
+      let search_result = match search_request.search_method {
+        IdentitySearchMethod::IdentitySearchPrefix(prefix_request) => {
           handle_prefix_search(&prefix_request.prefix).await
         }
       }?;
