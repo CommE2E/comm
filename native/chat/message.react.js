@@ -28,12 +28,12 @@ type Props = {
   +navigation:
     | ChatNavigationProp<'MessageList'>
     | AppNavigationProp<'TogglePinModal'>
-    | ChatNavigationProp<'MessageResultsScreen'>
+    | ChatNavigationProp<'PinnedMessagesScreen'>
     | ChatNavigationProp<'MessageSearch'>,
   +route:
     | NavigationRoute<'MessageList'>
     | NavigationRoute<'TogglePinModal'>
-    | NavigationRoute<'MessageResultsScreen'>
+    | NavigationRoute<'PinnedMessagesScreen'>
     | NavigationRoute<'MessageSearch'>,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
