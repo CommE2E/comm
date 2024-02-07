@@ -19,8 +19,8 @@ import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thre
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
 import type { MessageReactionsModalParams } from '../chat/message-reactions-modal.react.js';
-import type { MessageResultsScreenParams } from '../chat/message-results-screen.react.js';
 import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-message-tooltip-modal.react.js';
+import type { PinnedMessagesScreenParams } from '../chat/pinned-messages-screen.react.js';
 import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react.js';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react.js';
 import type { ColorSelectorModalParams } from '../chat/settings/color-selector-modal.react.js';
@@ -89,7 +89,7 @@ export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const ManagePublicLinkRouteName = 'ManagePublicLink';
 export const MessageListRouteName = 'MessageList';
 export const MessageReactionsModalRouteName = 'MessageReactionsModal';
-export const MessageResultsScreenRouteName = 'MessageResultsScreen';
+export const PinnedMessagesScreenRouteName = 'PinnedMessagesScreen';
 export const MultimediaMessageTooltipModalRouteName =
   'MultimediaMessageTooltipModal';
 export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
@@ -216,7 +216,7 @@ export type ChatParamList = {
   +EmojiThreadAvatarCreation: EmojiThreadAvatarCreationParams,
   +DeleteThread: DeleteThreadParams,
   +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
-  +MessageResultsScreen: MessageResultsScreenParams,
+  +PinnedMessagesScreen: PinnedMessagesScreenParams,
   +MessageSearch: MessageSearchParams,
   +ChangeRolesScreen: ChangeRolesScreenParams,
 };
@@ -334,7 +334,7 @@ export const threadRoutes = [
   DeleteThreadRouteName,
   ComposeSubchannelRouteName,
   FullScreenThreadMediaGalleryRouteName,
-  MessageResultsScreenRouteName,
+  PinnedMessagesScreenRouteName,
   MessageSearchRouteName,
   EmojiThreadAvatarCreationRouteName,
   CommunityRolesScreenRouteName,
