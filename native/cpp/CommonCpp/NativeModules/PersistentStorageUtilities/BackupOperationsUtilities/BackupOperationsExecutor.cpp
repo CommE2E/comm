@@ -43,15 +43,16 @@ void BackupOperationsExecutor::restoreFromMainCompaction(
 }
 
 void BackupOperationsExecutor::restoreFromBackupLog(
-    const std::vector<std::uint8_t> &backupLog) {
-  taskType job = [backupLog]() {
+    const std::vector<std::uint8_t> &backupLog,
+    size_t futureID) {
+  taskType job = [backupLog, futureID]() {
     try {
       DatabaseManager::getQueryExecutor().restoreFromBackupLog(backupLog);
+      ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
-      // TODO: Inform Rust networking about failure
-      // of restoration from backup log.
-      Logger::log(
-          "Restore from backup log failed. Details: " + std::string(e.what()));
+      std::string errorDetails = std::string(e.what());
+      Logger::log("Restore from backup log failed. Details: " + errorDetails);
+      ::rejectFuture(futureID, errorDetails);
     }
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
