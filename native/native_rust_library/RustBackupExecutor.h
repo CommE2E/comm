@@ -11,7 +11,8 @@ getBackupLogFilePath(rust::Str backupID, rust::Str logID, bool isAttachments);
 rust::String getBackupUserKeysFilePath(rust::Str backupID);
 void createMainCompaction(rust::Str backupID, size_t futureID);
 void restoreFromMainCompaction(
-    rust::String mainCompactionPath,
-    rust::String mainCompactionEncryptionKey);
+    rust::Str mainCompactionPath,
+    rust::Str mainCompactionEncryptionKey,
+    size_t futureID);
 
 } // namespace comm

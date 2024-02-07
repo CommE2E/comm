@@ -8,6 +8,7 @@ public:
   static void createMainCompaction(std::string backupID, size_t futureID);
   static void restoreFromMainCompaction(
       std::string mainCompactionPath,
-      std::string mainCompactionEncryptionKey);
+      std::string mainCompactionEncryptionKey,
+      size_t futureID);
 };
 } // namespace comm
