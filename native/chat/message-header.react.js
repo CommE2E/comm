@@ -55,11 +55,19 @@ function MessageHeader(props: Props): React.Node {
     }
 
     return (
-      <TouchableOpacity onPress={onPressAuthorName}>
+      <TouchableOpacity
+        style={styles.authorNameContainer}
+        onPress={onPressAuthorName}
+      >
         <SingleLine style={authorNameStyle}>{stringForUser}</SingleLine>
       </TouchableOpacity>
     );
-  }, [authorNameStyle, onPressAuthorName, stringForUser]);
+  }, [
+    authorNameStyle,
+    onPressAuthorName,
+    stringForUser,
+    styles.authorNameContainer,
+  ]);
 
   // We only want to render the top-placed timestamp for a message if it's
   // rendered in the message list, and not any separate screens (i.e.
@@ -118,15 +126,18 @@ function MessageHeader(props: Props): React.Node {
 const authorNameHeight = 25;
 
 const unboundStyles = {
-  authorName: {
+  authorNameContainer: {
     bottom: 0,
-    color: 'listBackgroundSecondaryLabel',
-    fontSize: 14,
-    height: authorNameHeight,
     marginRight: 7,
     paddingHorizontal: 12,
     paddingVertical: 4,
     marginLeft: 12 + avatarOffset,
+    alignSelf: 'baseline',
+  },
+  authorName: {
+    color: 'listBackgroundSecondaryLabel',
+    fontSize: 14,
+    height: authorNameHeight,
   },
   modal: {
     // high contrast framed against OverlayNavigator-dimmed background
