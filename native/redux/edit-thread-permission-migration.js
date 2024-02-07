@@ -4,7 +4,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type {
   LegacyMemberInfo,
   LegacyRawThreadInfo,
-  LegacyRoleInfo,
+  ClientLegacyRoleInfo,
   LegacyRawThreadInfos,
   LegacyThreadCurrentUserInfo,
 } from 'lib/types/thread-types.js';
@@ -36,9 +36,9 @@ function addDetailedThreadEditPermissionsToUser<
 }
 
 function addDetailedThreadEditPermissionsToRole(
-  role: LegacyRoleInfo,
+  role: ClientLegacyRoleInfo,
   threadType: number,
-): LegacyRoleInfo {
+): ClientLegacyRoleInfo {
   let updatedPermissions = null;
   if (role.permissions['edit_thread']) {
     updatedPermissions = {
@@ -74,7 +74,7 @@ function migrateThreadStoreForEditThreadPermissions(threadInfos: {
       threadID,
     );
 
-    const updatedRoles: { [string]: LegacyRoleInfo } = {};
+    const updatedRoles: { [string]: ClientLegacyRoleInfo } = {};
     for (const roleID in threadInfo.roles) {
       updatedRoles[roleID] = addDetailedThreadEditPermissionsToRole(
         threadInfo.roles[roleID],
