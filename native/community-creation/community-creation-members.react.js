@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import {
   useChangeThreadSettings,
@@ -168,19 +168,29 @@ function CommunityCreationMembers(props: Props): React.Node {
     <RegistrationContainer>
       <CommunityCreationContentContainer>
         <CommunityCreationKeyserverLabel />
-        <TagInput
-          value={selectedUsers}
-          onChange={setSelectedUsers}
-          text={usernameInputText}
-          onChangeText={setUsernameInputText}
-          labelExtractor={tagDataLabelExtractor}
-          inputProps={tagInputProps}
-          ref={tagInputRef}
-        />
-        <UserList userInfos={userSearchResults} onSelect={onSelectUser} />
+        <View style={styles.addMembersContainer}>
+          <TagInput
+            value={selectedUsers}
+            onChange={setSelectedUsers}
+            text={usernameInputText}
+            onChangeText={setUsernameInputText}
+            labelExtractor={tagDataLabelExtractor}
+            inputProps={tagInputProps}
+            ref={tagInputRef}
+          />
+          <UserList userInfos={userSearchResults} onSelect={onSelectUser} />
+        </View>
       </CommunityCreationContentContainer>
     </RegistrationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  addMembersContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+  },
+});
 
 export default CommunityCreationMembers;
