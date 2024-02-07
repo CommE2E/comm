@@ -44,8 +44,8 @@ import HomeChatThreadList from './home-chat-thread-list.react.js';
 import { MessageEditingContext } from './message-editing-context.react.js';
 import MessageListContainer from './message-list-container.react.js';
 import MessageListHeaderTitle from './message-list-header-title.react.js';
-import MessageResultsScreen from './message-results-screen.react.js';
 import MessageStorePruner from './message-store-pruner.react.js';
+import PinnedMessagesScreen from './pinned-messages-screen.react.js';
 import DeleteThread from './settings/delete-thread.react.js';
 import EmojiThreadAvatarCreation from './settings/emoji-thread-avatar-creation.react.js';
 import ThreadSettings from './settings/thread-settings.react.js';
@@ -64,7 +64,7 @@ import {
   ThreadSettingsRouteName,
   EmojiThreadAvatarCreationRouteName,
   FullScreenThreadMediaGalleryRouteName,
-  MessageResultsScreenRouteName,
+  PinnedMessagesScreenRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
@@ -315,7 +315,7 @@ const messageSearchOptions = {
     width: '100%',
   },
 };
-const messageResultsScreenOptions = {
+const pinnedMessagesScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
 };
@@ -449,9 +449,9 @@ export default function ChatComponent(props: Props): React.Node {
             options={deleteThreadOptions}
           />
           <Chat.Screen
-            name={MessageResultsScreenRouteName}
-            component={MessageResultsScreen}
-            options={messageResultsScreenOptions}
+            name={PinnedMessagesScreenRouteName}
+            component={PinnedMessagesScreen}
+            options={pinnedMessagesScreenOptions}
           />
           <Chat.Screen
             name={MessageSearchRouteName}

@@ -63,7 +63,7 @@ function MessageHeader(props: Props): React.Node {
 
   // We only want to render the top-placed timestamp for a message if it's
   // rendered in the message list, and not any separate screens (i.e.
-  // the MessageResultsScreen).
+  // the PinnedMessagesScreen).
   const presentedFromMessageList =
     typeof route.params?.presentedFrom === 'string' &&
     route.params.presentedFrom.startsWith(MessageListRouteName);

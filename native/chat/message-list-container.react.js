@@ -40,7 +40,7 @@ import {
 } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
-  MessageResultsScreenRouteName,
+  PinnedMessagesScreenRouteName,
   ThreadSettingsRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -367,12 +367,12 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
       pinnedMessageCountText(threadInfo.pinnedCount);
 
     const navigateToMessageResults = React.useCallback(() => {
-      props.navigation.navigate<'MessageResultsScreen'>({
-        name: MessageResultsScreenRouteName,
+      props.navigation.navigate<'PinnedMessagesScreen'>({
+        name: PinnedMessagesScreenRouteName,
         params: {
           threadInfo,
         },
-        key: `MessageResultsScreen${threadInfo.id}`,
+        key: `PinnedMessagesScreen${threadInfo.id}`,
       });
     }, [props.navigation, threadInfo]);
 
