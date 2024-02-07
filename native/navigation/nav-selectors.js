@@ -34,7 +34,7 @@ import {
   ChatRouteName,
   CommunityDrawerNavigatorRouteName,
   MessageListRouteName,
-  MessageResultsScreenRouteName,
+  PinnedMessagesScreenRouteName,
   MessageSearchRouteName,
   scrollBlockingModals,
   TabNavigatorRouteName,
@@ -414,7 +414,7 @@ function useCanEditMessageNative(
 
   const canEditInThisScreen =
     !screenKey.startsWith(MessageSearchRouteName) &&
-    !screenKey.startsWith(MessageResultsScreenRouteName) &&
+    !screenKey.startsWith(PinnedMessagesScreenRouteName) &&
     messageCreationTime >= threadCreationTime;
 
   return (

@@ -41,12 +41,12 @@ type BaseProps = {
   +navigation:
     | ChatNavigationProp<'MessageList'>
     | AppNavigationProp<'TogglePinModal'>
-    | ChatNavigationProp<'MessageResultsScreen'>
+    | ChatNavigationProp<'PinnedMessagesScreen'>
     | ChatNavigationProp<'MessageSearch'>,
   +route:
     | NavigationRoute<'MessageList'>
     | NavigationRoute<'TogglePinModal'>
-    | NavigationRoute<'MessageResultsScreen'>
+    | NavigationRoute<'PinnedMessagesScreen'>
     | NavigationRoute<'MessageSearch'>,
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,

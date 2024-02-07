@@ -27,16 +27,16 @@ import { useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
 
-export type MessageResultsScreenParams = {
+export type PinnedMessagesScreenParams = {
   +threadInfo: ThreadInfo,
 };
 
-type MessageResultsScreenProps = {
-  +navigation: ChatNavigationProp<'MessageResultsScreen'>,
-  +route: NavigationRoute<'MessageResultsScreen'>,
+type Props = {
+  +navigation: ChatNavigationProp<'PinnedMessagesScreen'>,
+  +route: NavigationRoute<'PinnedMessagesScreen'>,
 };
 
-function MessageResultsScreen(props: MessageResultsScreenProps): React.Node {
+function PinnedMessagesScreen(props: Props): React.Node {
   const { navigation, route } = props;
   const { threadInfo } = route.params;
   const styles = useStyles(unboundStyles);
@@ -192,4 +192,4 @@ const unboundStyles = {
   },
 };
 
-export default MessageResultsScreen;
+export default PinnedMessagesScreen;
