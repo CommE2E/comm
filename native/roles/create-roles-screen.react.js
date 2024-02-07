@@ -188,36 +188,61 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
     ],
   );
 
-  return (
-    <View>
-      <View style={styles.roleNameContainer}>
-        <Text style={styles.roleNameText}>ROLE NAME</Text>
-        <View style={styles.roleInput}>
-          <TextInput
-            style={styles.roleInputComponent}
-            value={customRoleName}
-            onChangeText={onChangeRoleNameInput}
-            editable={true}
-          />
-          <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
+  const createRolesScreen = React.useMemo(
+    () => (
+      <View>
+        <View style={styles.roleNameContainer}>
+          <Text style={styles.roleNameText}>ROLE NAME</Text>
+          <View style={styles.roleInput}>
+            <TextInput
+              style={styles.roleInputComponent}
+              value={customRoleName}
+              onChangeText={onChangeRoleNameInput}
+              editable={true}
+            />
+            <SWMansionIcon name="edit-1" size={20} style={styles.pencilIcon} />
+          </View>
+          <View style={errorStyles}>
+            <Text style={styles.errorText}>
+              There is already a role with this name in the community
+            </Text>
+          </View>
         </View>
-        <View style={errorStyles}>
-          <Text style={styles.errorText}>
-            There is already a role with this name in the community
-          </Text>
+        <View style={styles.permissionsContainer}>
+          <View style={styles.permissionsHeader}>
+            <Text style={styles.permissionsText}>PERMISSIONS</Text>
+            {clearPermissionsText}
+          </View>
+          <ScrollView
+            style={styles.permissionsListContainer}
+            contentContainerStyle={styles.permissionsListContentContainer}
+          >
+            {permissionsList}
+          </ScrollView>
         </View>
       </View>
-      <View style={styles.permissionsContainer}>
-        <View style={styles.permissionsHeader}>
-          <Text style={styles.permissionsText}>PERMISSIONS</Text>
-          {clearPermissionsText}
-        </View>
-        <ScrollView style={styles.permissionsListContainer}>
-          {permissionsList}
-        </ScrollView>
-      </View>
-    </View>
+    ),
+    [
+      clearPermissionsText,
+      customRoleName,
+      errorStyles,
+      onChangeRoleNameInput,
+      permissionsList,
+      styles.errorText,
+      styles.pencilIcon,
+      styles.permissionsContainer,
+      styles.permissionsHeader,
+      styles.permissionsListContainer,
+      styles.permissionsListContentContainer,
+      styles.permissionsText,
+      styles.roleInput,
+      styles.roleInputComponent,
+      styles.roleNameContainer,
+      styles.roleNameText,
+    ],
   );
+
+  return createRolesScreen;
 }
 
 const unboundStyles = {
@@ -281,6 +306,9 @@ const unboundStyles = {
   permissionsListContainer: {
     backgroundColor: 'panelForeground',
     marginTop: 10,
+  },
+  permissionsListContentContainer: {
+    paddingBottom: 48,
   },
   activityIndicator: {
     paddingRight: 15,
