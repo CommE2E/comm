@@ -5,7 +5,6 @@ import { Alert, Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { getMessageForException } from 'lib/utils/errors.js';
-import { entries } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -26,7 +25,6 @@ function BackupMenu(props: Props): React.Node {
   const dispatch = useDispatch();
   const colors = useColors();
 
-  const userStore = useSelector(state => state.userStore);
   const isBackupEnabled = useSelector(
     state => state.localSettings.isBackupEnabled,
   );
@@ -45,18 +43,15 @@ function BackupMenu(props: Props): React.Node {
   }, [uploadBackupProtocol]);
 
   const testRestore = React.useCallback(async () => {
-    let message;
+    let message = 'success';
     try {
-      const result = await restoreBackupProtocol({ userStore });
-      message = entries(result)
-        .map(([key, value]) => `${key}: ${String(value)}`)
-        .join('\n');
+      await restoreBackupProtocol();
     } catch (e) {
       message = `Backup restore error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
     Alert.alert('Restore protocol result', message);
-  }, [restoreBackupProtocol, userStore]);
+  }, [restoreBackupProtocol]);
 
   const onBackupToggled = React.useCallback(
     (value: boolean) => {

@@ -2,6 +2,7 @@
 #include "DatabaseManager.h"
 #include "GlobalDBSingleton.h"
 #include "Logger.h"
+#include "RustPromiseManager.h"
 #include "WorkerThread.h"
 #include "lib.rs.h"
 
@@ -24,17 +25,18 @@ void BackupOperationsExecutor::createMainCompaction(
 
 void BackupOperationsExecutor::restoreFromMainCompaction(
     std::string mainCompactionPath,
-    std::string mainCompactionEncryptionKey) {
-  taskType job = [mainCompactionPath, mainCompactionEncryptionKey]() {
+    std::string mainCompactionEncryptionKey,
+    size_t futureID) {
+  taskType job = [mainCompactionPath, mainCompactionEncryptionKey, futureID]() {
     try {
       DatabaseManager::getQueryExecutor().restoreFromMainCompaction(
           mainCompactionPath, mainCompactionEncryptionKey);
+      ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
-      // TODO: Inform Rust networking about failure
-      // of restoration from main compaction.
+      std::string errorDetails = std::string(e.what());
       Logger::log(
-          "Restore from main compaction failed. Details: " +
-          std::string(e.what()));
+          "Restore from main compaction failed. Details: " + errorDetails);
+      ::rejectFuture(futureID, errorDetails);
     }
   };
   GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
