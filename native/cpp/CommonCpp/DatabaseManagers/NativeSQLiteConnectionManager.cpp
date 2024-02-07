@@ -1,6 +1,7 @@
 #include "NativeSQLiteConnectionManager.h"
 #include "AESCrypto.h"
 #include "PlatformSpecificTools.h"
+#include "lib.rs.h"
 
 #include <fstream>
 #include <sstream>
@@ -230,6 +231,8 @@ bool NativeSQLiteConnectionManager::captureLogs(
 
   persistLog(backupID, logID, patchsetPtr, patchsetSize, encryptionKey);
   sqlite3_free(patchsetPtr);
+
+  ::triggerBackupFileUpload();
 
   // The session is not "zeroed" after capturing log.
   // See: https://www.sqlite.org/sessionintro.html
