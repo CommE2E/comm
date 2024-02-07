@@ -9,6 +9,12 @@ pub struct Prefix {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum SearchQuery {
+pub enum SearchMethod {
   Prefix(Prefix),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub struct SearchQuery {
+  pub search_method: SearchMethod,
 }
