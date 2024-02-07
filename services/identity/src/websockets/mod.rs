@@ -3,15 +3,16 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use elastic::client::responses::SearchResponse;
+use elastic::client::responses::SearchResponse as ElasticSearchResponse;
 use futures::lock::Mutex;
 use futures_util::{SinkExt, StreamExt};
 use hyper::{Body, Request, Response, StatusCode};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
-  ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
-  IdentitySearchUser, Messages, SearchQuery, SearchResult,
+  ConnectionInitializationResponse, ConnectionInitializationStatus, Failure,
+  Heartbeat, IdentitySearchUser, Messages, SearchMethod, SearchQuery,
+  SearchResponse, SearchResult,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -142,12 +143,13 @@ async fn close_connection(outgoing: WebsocketSink) {
 }
 
 async fn handle_prefix_search(
-  prefix: &str,
-) -> Result<String, errors::WebsocketError> {
+  request_id: &str,
+  prefix_request: identity_search_messages::Prefix,
+) -> Result<SearchResult, errors::WebsocketError> {
   let prefix_query = Query {
     query: Prefix {
       prefix: Username {
-        username: prefix.trim().to_string(),
+        username: prefix_request.prefix.trim().to_string(),
       },
     },
   };
@@ -157,13 +159,16 @@ async fn handle_prefix_search(
 
   let search_response = send_search_request(&opensearch_url, prefix_query)
     .await?
-    .json::<SearchResponse<IdentitySearchUser>>()
+    .json::<ElasticSearchResponse<IdentitySearchUser>>()
     .await?;
 
   let usernames: Vec<IdentitySearchUser> =
     search_response.into_documents().collect();
 
-  let search_result = serde_json::to_string(&SearchResult { hits: usernames })?;
+  let search_result = SearchResult {
+    id: request_id.to_string(),
+    hits: usernames,
+  };
 
   Ok(search_result)
 }
@@ -181,18 +186,24 @@ async fn handle_websocket_frame(
       debug!("Received heartbeat");
       Ok(())
     }
-    Messages::SearchQuery(search_request) => {
-      let search_result = match search_request.search_method {
-        SearchMethod::Prefix(prefix_request) => {
-          handle_prefix_search(&prefix_request.prefix).await
+    Messages::SearchQuery(search_query) => {
+      let handler_result = match search_query.search_method {
+        SearchMethod::Prefix(prefix_query) => {
+          handle_prefix_search(&search_query.id, prefix_query).await
         }
-      }?;
+      };
 
-      send_message(
-        Message::Text(format!("{}", search_result.to_string())),
-        outgoing.clone(),
-      )
-      .await;
+      let search_response = match handler_result {
+        Ok(search_result) => SearchResponse::Success(search_result),
+        Err(e) => SearchResponse::Error(Failure {
+          id: search_query.id,
+          error: e.to_string(),
+        }),
+      };
+
+      let serialized_message = serde_json::to_string(&search_response)?;
+
+      send_message(Message::Text(serialized_message), outgoing.clone()).await;
 
       Ok(())
     }
