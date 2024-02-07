@@ -5,10 +5,11 @@ mod upload_handler;
 use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
 use crate::ffi::{
-  create_main_compaction, get_backup_user_keys_file_path, secure_store_get,
+  create_main_compaction, get_backup_directory_path,
+  get_backup_user_keys_file_path, restore_from_main_compaction,
+  secure_store_get, void_callback,
 };
 use crate::future_manager;
-use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
@@ -16,8 +17,8 @@ use backup_client::{
   UserIdentity,
 };
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::error::Error;
+use std::path::PathBuf;
 
 pub mod ffi {
   use super::*;
@@ -62,10 +63,33 @@ pub mod ffi {
     });
   }
 
-  pub fn restore_backup_sync(backup_secret: String, promise_id: u32) {
+  pub fn restore_backup(backup_secret: String, promise_id: u32) {
     RUNTIME.spawn(async move {
-      let result = restore_backup(backup_secret).await;
-      handle_string_result_as_callback(result, promise_id);
+      let result = download_backup(backup_secret)
+        .await
+        .map_err(|err| err.to_string());
+
+      let result = match result {
+        Ok(result) => result,
+        Err(error) => {
+          void_callback(error, promise_id);
+          return;
+        }
+      };
+
+      let (future_id, future) = future_manager::new_future::<()>().await;
+      restore_from_main_compaction(
+        &result.backup_restoration_path.to_string_lossy(),
+        &result.backup_data_key,
+        future_id,
+      );
+
+      if let Err(error) = future.await {
+        void_callback(error, promise_id);
+        return;
+      }
+
+      void_callback(String::new(), promise_id);
     });
   }
 }
@@ -95,9 +119,9 @@ pub async fn create_userkeys_compaction(
   Ok(())
 }
 
-pub async fn restore_backup(
+async fn download_backup(
   backup_secret: String,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<CompactionDownloadResult, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
 
   let user_identity = get_user_identity_from_secure_store()?;
@@ -127,25 +151,20 @@ pub async fn restore_backup(
     user_identity: user_identity.clone(),
   };
 
-  let mut encrypted_user_data = backup_client
+  let encrypted_user_data = backup_client
     .download_backup_data(&backup_data_descriptor, RequestedData::UserData)
     .await?;
 
-  let user_data = decrypt(
-    &mut user_keys.backup_data_key.as_bytes().to_vec(),
-    &mut encrypted_user_data,
-  )?;
+  let backup_restoration_path =
+    PathBuf::from(get_backup_directory_path()?).join("restore_compaction");
 
-  let user_data: serde_json::Value = serde_json::from_slice(&user_data)?;
+  tokio::fs::write(&backup_restoration_path, encrypted_user_data).await?;
 
-  Ok(
-    json!({
-        "userData": user_data,
-        "pickleKey": user_keys.pickle_key,
-        "pickledAccount": user_keys.pickled_account,
-    })
-    .to_string(),
-  )
+  Ok(CompactionDownloadResult {
+    backup_id,
+    backup_restoration_path,
+    backup_data_key: user_keys.backup_data_key,
+  })
 }
 
 fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
@@ -155,6 +174,12 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
     access_token: secure_store_get(secure_store::COMM_SERVICES_ACCESS_TOKEN)?,
     device_id: secure_store_get(secure_store::DEVICE_ID)?,
   })
+}
+
+struct CompactionDownloadResult {
+  backup_id: String,
+  backup_restoration_path: PathBuf,
+  backup_data_key: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
