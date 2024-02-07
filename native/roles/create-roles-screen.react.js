@@ -212,7 +212,10 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
           <Text style={styles.permissionsText}>PERMISSIONS</Text>
           {clearPermissionsText}
         </View>
-        <ScrollView style={styles.permissionsListContainer}>
+        <ScrollView
+          style={styles.permissionsListContainer}
+          contentContainerStyle={styles.permissionsListContentContainer}
+        >
           {permissionsList}
         </ScrollView>
       </View>
@@ -281,6 +284,9 @@ const unboundStyles = {
   permissionsListContainer: {
     backgroundColor: 'panelForeground',
     marginTop: 10,
+  },
+  permissionsListContentContainer: {
+    paddingBottom: 48,
   },
   activityIndicator: {
     paddingRight: 15,
