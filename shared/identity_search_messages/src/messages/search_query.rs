@@ -16,5 +16,6 @@ pub enum IdentitySearchMethod {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct IdentitySearchQuery {
+  pub id: String,
   pub search_method: IdentitySearchMethod,
 }
