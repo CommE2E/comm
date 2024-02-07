@@ -331,9 +331,8 @@ mod ffi {
       future_id: usize,
     );
 
-    #[allow(unused)]
     #[cxx_name = "restoreFromBackupLog"]
-    fn restore_from_backup_log(backup_log: Vec<u8>) -> Result<()>;
+    fn restore_from_backup_log(backup_log: Vec<u8>, future_id: usize);
   }
 
   // Future handling from C++
