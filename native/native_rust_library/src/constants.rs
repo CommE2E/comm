@@ -14,6 +14,8 @@ pub mod secure_store {
   pub const DEVICE_ID: &str = "deviceID";
   /// Should match constant defined in `SQLiteQueryExecutor.h`
   pub const SECURE_STORE_ENCRYPTION_KEY_ID: &str = "comm.encryptionKey";
+  pub const SECURE_STORE_BACKUP_LOGS_ENCRYPTION_KEY_ID: &str =
+    "comm.backupLogsEncryptionKey";
 }
 
 pub const BACKUP_SERVICE_CONNECTION_RETRY_DELAY: Duration =
