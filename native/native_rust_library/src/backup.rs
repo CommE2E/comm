@@ -6,15 +6,15 @@ use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
 use crate::ffi::{
   create_main_compaction, get_backup_directory_path,
-  get_backup_user_keys_file_path, restore_from_main_compaction,
-  secure_store_get, void_callback,
+  get_backup_user_keys_file_path, restore_from_backup_log,
+  restore_from_main_compaction, secure_store_get, void_callback,
 };
 use crate::future_manager;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
   BackupClient, BackupDescriptor, LatestBackupIDResponse, RequestedData,
-  UserIdentity,
+  TryStreamExt, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
 use std::error::Error;
@@ -89,6 +89,14 @@ pub mod ffi {
         return;
       }
 
+      if let Err(error) =
+        download_and_apply_logs(&result.backup_id, result.backup_log_data_key)
+          .await
+      {
+        void_callback(error.to_string(), promise_id);
+        return;
+      }
+
       void_callback(String::new(), promise_id);
     });
   }
@@ -106,8 +114,12 @@ pub async fn create_userkeys_compaction(
   let backup_data_key =
     secure_store_get(secure_store::SECURE_STORE_ENCRYPTION_KEY_ID)?;
 
+  let backup_log_data_key =
+    secure_store_get(secure_store::SECURE_STORE_BACKUP_LOGS_ENCRYPTION_KEY_ID)?;
+
   let user_keys = UserKeys {
     backup_data_key,
+    backup_log_data_key,
     pickle_key,
     pickled_account,
   };
@@ -164,7 +176,34 @@ async fn download_backup(
     backup_id,
     backup_restoration_path,
     backup_data_key: user_keys.backup_data_key,
+    backup_log_data_key: user_keys.backup_log_data_key,
   })
+}
+
+async fn download_and_apply_logs(
+  backup_id: &str,
+  backup_log_data_key: String,
+) -> Result<(), Box<dyn Error>> {
+  let mut backup_log_data_key = backup_log_data_key.into_bytes();
+
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+  let user_identity = get_user_identity_from_secure_store()?;
+
+  let stream = backup_client.download_logs(&user_identity, backup_id).await;
+  let mut stream = Box::pin(stream);
+
+  while let Some(mut log) = stream.try_next().await? {
+    let data = decrypt(
+      backup_log_data_key.as_mut_slice(),
+      log.content.as_mut_slice(),
+    )?;
+
+    let (future_id, future) = future_manager::new_future::<()>().await;
+    restore_from_backup_log(data, future_id);
+    future.await?;
+  }
+
+  Ok(())
 }
 
 fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
@@ -180,11 +219,13 @@ struct CompactionDownloadResult {
   backup_id: String,
   backup_restoration_path: PathBuf,
   backup_data_key: String,
+  backup_log_data_key: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 struct UserKeys {
   backup_data_key: String,
+  backup_log_data_key: String,
   pickle_key: String,
   pickled_account: String,
 }

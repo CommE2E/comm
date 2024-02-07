@@ -4,6 +4,7 @@
 #include "GlobalDBSingleton.h"
 #include "NativeModuleUtils.h"
 #include "WorkerThread.h"
+#include "lib.rs.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
@@ -66,6 +67,10 @@ public:
               }
             }
 
+            if (!error.size()) {
+              ::triggerBackupFileUpload();
+            }
+
             this->jsInvoker->invokeAsync([=]() {
               if (error.size()) {
                 promise->reject(error);
@@ -89,6 +94,8 @@ public:
     }
 
     NativeModuleUtils::runSyncOrThrowJSError<void>(rt, [&storeOps]() {
+      std::string error;
+
       try {
         DatabaseManager::getQueryExecutor().beginTransaction();
         for (const auto &operation : storeOps) {
@@ -97,8 +104,14 @@ public:
         DatabaseManager::getQueryExecutor().captureBackupLogs();
         DatabaseManager::getQueryExecutor().commitTransaction();
       } catch (const std::exception &e) {
+        error = e.what();
         DatabaseManager::getQueryExecutor().rollbackTransaction();
-        throw e;
+      }
+
+      if (error.size()) {
+        throw std::runtime_error(error);
+      } else if (!error.size()) {
+        ::triggerBackupFileUpload();
       }
     });
   }
