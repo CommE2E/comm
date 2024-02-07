@@ -319,7 +319,7 @@ mod ffi {
     );
 
     #[cxx_name = "restoreBackup"]
-    fn restore_backup_sync(backup_secret: String, promise_id: u32);
+    fn restore_backup(backup_secret: String, promise_id: u32);
   }
 
   // Secure store
@@ -362,12 +362,12 @@ mod ffi {
     #[cxx_name = "createMainCompaction"]
     fn create_main_compaction(backup_id: &str, future_id: usize);
 
-    #[allow(unused)]
     #[cxx_name = "restoreFromMainCompaction"]
     fn restore_from_main_compaction(
-      main_compaction_path: String,
-      main_compaction_encryption_key: String,
-    ) -> Result<()>;
+      main_compaction_path: &str,
+      main_compaction_encryption_key: &str,
+      future_id: usize,
+    );
 
     #[allow(unused)]
     #[cxx_name = "restoreFromBackupLog"]
