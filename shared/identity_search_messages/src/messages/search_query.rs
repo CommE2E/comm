@@ -9,6 +9,12 @@ pub struct IdentitySearchPrefix {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum IdentitySearchQuery {
+pub enum IdentitySearchMethod {
   IdentitySearchPrefix(IdentitySearchPrefix),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub struct IdentitySearchQuery {
+  pub search_method: IdentitySearchMethod,
 }
