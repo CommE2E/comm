@@ -14,6 +14,6 @@ void restoreFromMainCompaction(
     rust::Str mainCompactionPath,
     rust::Str mainCompactionEncryptionKey,
     size_t futureID);
-void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog);
+void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog, size_t futureID);
 
 } // namespace comm

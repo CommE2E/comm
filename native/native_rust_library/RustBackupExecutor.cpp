@@ -41,8 +41,9 @@ void restoreFromMainCompaction(
       futureID);
 }
 
-void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog) {
+void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog, size_t futureID) {
   BackupOperationsExecutor::restoreFromBackupLog(
-      std::move(std::vector<std::uint8_t>(backupLog.begin(), backupLog.end())));
+      std::move(std::vector<std::uint8_t>(backupLog.begin(), backupLog.end())),
+      futureID);
 }
 } // namespace comm

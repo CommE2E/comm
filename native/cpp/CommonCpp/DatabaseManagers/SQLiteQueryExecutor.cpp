@@ -1792,7 +1792,7 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
 
   std::string logID = this->getMetadata("logID");
   if (!logID.size()) {
-    logID = "0";
+    logID = "1";
   }
 
   bool newLogCreated = SQLiteQueryExecutor::connectionManager.captureLogs(
