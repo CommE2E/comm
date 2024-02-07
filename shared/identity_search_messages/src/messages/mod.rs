@@ -2,11 +2,11 @@
 
 pub mod auth_messages;
 pub mod search_query;
-pub mod search_result;
+pub mod search_response;
 
 pub use auth_messages::*;
 pub use search_query::*;
-pub use search_result::*;
+pub use search_response::*;
 
 use serde::{Deserialize, Serialize};
 pub use websocket_messages::{
@@ -20,5 +20,5 @@ pub enum Messages {
   SearchQuery(SearchQuery),
   Heartbeat(Heartbeat),
   ConnectionInitializationResponse(ConnectionInitializationResponse),
-  SearchResult(SearchResult),
+  SearchResponse(SearchResponse),
 }
