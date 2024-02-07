@@ -182,8 +182,8 @@ async fn handle_websocket_frame(
       Ok(())
     }
     Messages::SearchQuery(search_request) => {
-      let search_result = match search_request {
-        SearchQuery::Prefix(prefix_request) => {
+      let search_result = match search_request.search_method {
+        SearchMethod::Prefix(prefix_request) => {
           handle_prefix_search(&prefix_request.prefix).await
         }
       }?;
