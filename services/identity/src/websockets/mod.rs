@@ -25,7 +25,7 @@ use crate::config::CONFIG;
 use crate::constants::{
   IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
-use send::{send_error_response, send_message, WebsocketSink};
+use send::{send_message, WebsocketSink};
 pub mod errors;
 
 #[derive(Serialize, Deserialize)]
@@ -298,7 +298,7 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
             ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
 
             if let Err(e) = handle_websocket_frame(text, outgoing.clone()).await {
-              send_error_response(e, outgoing.clone()).await;
+              error!("Error handling WebSocket frame: {}", e);
               continue;
             };
           }
