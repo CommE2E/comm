@@ -32,11 +32,13 @@ void createMainCompaction(rust::Str backupID, size_t futureID) {
 }
 
 void restoreFromMainCompaction(
-    rust::String mainCompactionPath,
-    rust::String mainCompactionEncryptionKey) {
+    rust::Str mainCompactionPath,
+    rust::Str mainCompactionEncryptionKey,
+    size_t futureID) {
   BackupOperationsExecutor::restoreFromMainCompaction(
       std::string(mainCompactionPath),
-      std::string(mainCompactionEncryptionKey));
+      std::string(mainCompactionEncryptionKey),
+      futureID);
 }
 
 void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog) {
