@@ -1,6 +1,12 @@
 // @flow
 
-import type { StackOptions } from '@react-navigation/core';
+import type {
+  StackOptions,
+  StackCardInterpolationProps,
+  TransitionPreset,
+  StackCardInterpolatedStyle,
+} from '@react-navigation/core';
+import { TransitionPresets } from '@react-navigation/stack';
 import { Platform } from 'react-native';
 
 const defaultStackScreenOptions: StackOptions = {
@@ -11,4 +17,30 @@ const defaultStackScreenOptions: StackOptions = {
     Platform.OS !== 'macos',
 };
 
-export { defaultStackScreenOptions };
+const baseTransitionPreset: TransitionPreset = Platform.select({
+  ios: TransitionPresets.ModalSlideFromBottomIOS,
+  default: TransitionPresets.FadeFromBottomAndroid,
+});
+const transitionPreset = {
+  ...baseTransitionPreset,
+  cardStyleInterpolator: (
+    interpolatorProps: StackCardInterpolationProps,
+  ): StackCardInterpolatedStyle => {
+    const baseCardStyleInterpolator =
+      baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
+    const overlayOpacity = interpolatorProps.current.progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: ([0, 0.7]: number[]), // Flow...
+      extrapolate: 'clamp',
+    });
+    return {
+      ...baseCardStyleInterpolator,
+      overlayStyle: [
+        baseCardStyleInterpolator.overlayStyle,
+        { opacity: overlayOpacity },
+      ],
+    };
+  },
+};
+
+export { defaultStackScreenOptions, transitionPreset };
