@@ -6,7 +6,6 @@ import * as React from 'react';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
-  urlPrefixSelector,
   connectionSelector,
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
@@ -39,8 +38,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const { keyserverID } = props;
 
     const cookie = useSelector(cookieSelector(keyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(keyserverID));
-    invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(connectionSelector(keyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const active = useSelector(
@@ -104,6 +101,12 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
       lastCommunicatedPlatformDetailsSelector(keyserverID),
     );
 
+    const activeSessionRecovery = useSelector(
+      state =>
+        state.keyserverStore.keyserverInfos[keyserverID]?.connection
+          .activeSessionRecovery,
+    );
+
     return (
       <Socket
         {...props}
@@ -114,7 +117,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         sessionStateFunc={sessionStateFunc}
         sessionIdentification={sessionIdentification}
         cookie={cookie}
-        urlPrefix={urlPrefix}
         connection={connection}
         currentCalendarQuery={currentCalendarQuery}
         frozen={false}
@@ -123,6 +125,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         dispatchActionPromise={dispatchActionPromise}
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
+        activeSessionRecovery={activeSessionRecovery}
       />
     );
   });
