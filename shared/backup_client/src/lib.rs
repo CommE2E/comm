@@ -18,8 +18,6 @@ use sha2::{Digest, Sha256};
 use tokio_tungstenite::{
   connect_async,
   tungstenite::{
-    client::IntoClientRequest,
-    http::{header, Request},
     Error as TungsteniteError,
     Message::{Binary, Ping},
   },
@@ -254,14 +252,19 @@ impl BackupClient {
     ),
     Error,
   > {
-    let request = self.create_ws_request(user_identity)?;
-    let (stream, response) = connect_async(request).await?;
+    let url = self.create_ws_url()?;
+    let (stream, response) = connect_async(url).await?;
 
     if response.status().is_client_error() {
       return Err(Error::TungsteniteError(TungsteniteError::Http(response)));
     }
 
-    let (tx, rx) = stream.split();
+    let (mut tx, rx) = stream.split();
+
+    tx.send(Binary(bincode::serialize(&LogWSRequest::Authenticate(
+      user_identity.clone(),
+    ))?))
+    .await?;
 
     let tx = tx.with(|request: Request| async {
       let request: LogWSRequest = request.into();
@@ -287,10 +290,7 @@ impl BackupClient {
     Ok((tx, rx))
   }
 
-  fn create_ws_request(
-    &self,
-    user_identity: &UserIdentity,
-  ) -> Result<Request<()>, Error> {
+  fn create_ws_url(&self) -> Result<reqwest::Url, Error> {
     let mut url = self.url.clone();
 
     match url.scheme() {
@@ -300,14 +300,7 @@ impl BackupClient {
     };
     let url = url.join("logs")?;
 
-    let mut request = url.into_client_request().unwrap();
-
-    let token = user_identity.as_authorization_token()?;
-    request
-      .headers_mut()
-      .insert(header::AUTHORIZATION, format!("Bearer {token}").parse()?);
-
-    Ok(request)
+    Ok(url)
   }
 }
 
