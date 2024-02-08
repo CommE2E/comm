@@ -34,6 +34,7 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
 
 import QrCodeLogin from './account/qr-code-login.react.js';
@@ -102,6 +103,8 @@ registerConfig({
     stateVersion: persistConfig.version,
     ...desktopDetails,
   },
+  authoritativeKeyserverID:
+    process.env.AUTHORITATIVE_KEYSERVER_ID ?? ashoatKeyserverID,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
