@@ -15,7 +15,7 @@ COPY services/tunnelbroker .
 
 COPY shared ../../shared/
 
-RUN cargo install --path .
+RUN cargo install --locked --path .
 
 FROM debian:bullseye-slim as runner
 
