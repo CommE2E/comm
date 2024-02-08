@@ -10,7 +10,7 @@ For how Nix package management works, please refer to the official [how Nix work
 
 # Supported workflows
 
-Some workflows require additional steps after the Nix installation. These steps are documented in [Workflow prerequisites](#workflow-prerequisites).
+Some workflows require additional steps after the Nix installation. These steps are documented in [Workflow prerequisites](#workflow-specific-prerequisites).
 
 | Workflow                        | macOS supported |
 | ------------------------------- | --------------- |
@@ -76,7 +76,7 @@ nix develop
 yarn cleaninstall
 ```
 
-## Workflow specific prerequisites
+## Workflow-specific prerequisites
 
 On macOS, [installing Xcode](#xcode) is a prerequisite for all workflows.
 
