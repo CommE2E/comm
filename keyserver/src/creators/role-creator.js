@@ -1,6 +1,9 @@
 // @flow
 
-import { defaultSpecialRoles } from 'lib/permissions/special-roles.js';
+import {
+  defaultSpecialRoles,
+  specialRoles,
+} from 'lib/permissions/special-roles.js';
 import {
   getRolePermissionBlobs,
   getThreadPermissionBlobFromUserSurfacedPermissions,
@@ -15,9 +18,9 @@ import {
   type ThreadType,
 } from 'lib/types/thread-types-enum.js';
 import type {
-  ClientLegacyRoleInfo,
   RoleModificationRequest,
   RoleModificationResult,
+  ServerLegacyRoleInfo,
 } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -34,8 +37,8 @@ import type { Viewer } from '../session/viewer.js';
 import { updateRole } from '../updaters/thread-updaters.js';
 
 type InitialRoles = {
-  +default: ClientLegacyRoleInfo,
-  +creator: ClientLegacyRoleInfo,
+  +default: ServerLegacyRoleInfo,
+  +creator: ServerLegacyRoleInfo,
 };
 async function createInitialRolesForNewThread(
   threadID: string,
@@ -67,6 +70,7 @@ async function createInitialRolesForNewThread(
     name: 'Members',
     permissions: rolePermissions.Members,
     isDefault: true,
+    specialRole: specialRoles.DEFAULT_ROLE,
   };
   if (!rolePermissions.Admins) {
     return {
@@ -80,6 +84,7 @@ async function createInitialRolesForNewThread(
     name: 'Admins',
     permissions: rolePermissions.Admins,
     isDefault: false,
+    specialRole: specialRoles.ADMIN_ROLE,
   };
   return {
     default: defaultRoleInfo,
