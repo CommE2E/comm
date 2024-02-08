@@ -1,6 +1,9 @@
+.container {
+  height: 70vh;
+}
+
 .roleModalDescription {
   color: var(--change-member-role-modal-description-text);
-  padding: 16px 32px 0 32px;
   font-size: medium;
   line-height: 1.5;
 }
@@ -28,16 +31,6 @@
   flex-direction: column;
   align-items: center;
   padding: 20px 20px 0 20px;
-}
-
-.roleModalActionButtons {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-self: center;
-  align-items: stretch;
-  margin: 16px 200px 16px 0;
 }
 
 .roleModalSaveButton {
