@@ -21,7 +21,7 @@ import {
   createNavigatorFactory,
   useNavigationBuilder,
 } from '@react-navigation/native';
-import { StackView } from '@react-navigation/stack';
+import { CardStyleInterpolators, StackView } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View, useWindowDimensions } from 'react-native';
@@ -330,6 +330,7 @@ const changeRolesScreenOptions = ({
   ),
   headerTitle: 'Change Role',
   presentation: 'modal',
+  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
 });
 
 export type ChatNavigationProp<
