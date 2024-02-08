@@ -110,8 +110,42 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
     threadInfo.id,
   ]);
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        className={css.roleModalSaveButton}
+        buttonColor={buttonThemes.primary}
+        onClick={onSave}
+        disabled={!!disabledRoleChangeMessage}
+      >
+        Save
+      </Button>
+    ),
+    [disabledRoleChangeMessage, onSave],
+  );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="outline"
+        className={css.roleModalBackButton}
+        onClick={onCloseModal}
+      >
+        Back
+      </Button>
+    ),
+    [onCloseModal],
+  );
+
   return (
-    <Modal name="Change Role" onClose={onCloseModal} size="large">
+    <Modal
+      name="Change Role"
+      onClose={onCloseModal}
+      size="large"
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
+    >
       <div className={css.roleModalDescription}>
         Members can only be assigned to one role at a time. Changing a
         member&rsquo;s role will replace their previously assigned role.
@@ -131,24 +165,6 @@ function ChangeMemberRoleModal(props: ChangeMemberRoleModalProps): React.Node {
         />
       </div>
       {disabledRoleChangeMessage}
-      <div className={css.roleModalActionButtons}>
-        <Button
-          variant="outline"
-          className={css.roleModalBackButton}
-          onClick={onCloseModal}
-        >
-          Back
-        </Button>
-        <Button
-          variant="filled"
-          className={css.roleModalSaveButton}
-          buttonColor={buttonThemes.primary}
-          onClick={onSave}
-          disabled={!!disabledRoleChangeMessage}
-        >
-          Save
-        </Button>
-      </div>
     </Modal>
   );
 }
