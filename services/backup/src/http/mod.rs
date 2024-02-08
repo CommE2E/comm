@@ -63,7 +63,6 @@ pub async fn run_http_server(
       )
       .service(
         web::scope("/logs")
-          .wrap(get_comm_authentication_middleware())
           .service(web::resource("").route(web::get().to(handle_ws))),
       )
   })
