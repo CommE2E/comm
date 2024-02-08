@@ -20,7 +20,6 @@ import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { InputStateContext } from './input/input-state.js';
 import {
@@ -44,27 +43,29 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const inputState = React.useContext(InputStateContext);
     const navContext = React.useContext(NavContext);
 
-    const cookie = useSelector(cookieSelector(ashoatKeyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+    const { keyserverID } = props;
+
+    const cookie = useSelector(cookieSelector(keyserverID));
+    const urlPrefix = useSelector(urlPrefixSelector(keyserverID));
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(connectionSelector(keyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const frozen = useSelector(state => state.frozen);
     const active = useSelector(
       state => isLoggedIn(state) && state.lifecycleState !== 'background',
     );
     const noDataAfterPolicyAcknowledgment = useSelector(
-      noDataAfterPolicyAcknowledgmentSelector(ashoatKeyserverID),
+      noDataAfterPolicyAcknowledgmentSelector(keyserverID),
     );
     const currentUserInfo = useSelector(state => state.currentUserInfo);
 
-    const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
+    const openSocket = useSelector(openSocketSelector(keyserverID));
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(
-      sessionIdentificationSelector(ashoatKeyserverID),
+      sessionIdentificationSelector(keyserverID),
     );
     const preRequestUserState = useSelector(
-      preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
+      preRequestUserStateForSingleKeyserverSelector(keyserverID),
     );
 
     const getInitialNotificationsEncryptedMessage =
@@ -80,7 +81,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       }),
     );
     const sessionStateFunc = useSelector(state =>
-      nativeSessionStateFuncSelector(ashoatKeyserverID)({
+      nativeSessionStateFuncSelector(keyserverID)({
         redux: state,
         navContext,
       }),
@@ -107,7 +108,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     }, [active, navContext]);
 
     const lastCommunicatedPlatformDetails = useSelector(
-      lastCommunicatedPlatformDetailsSelector(ashoatKeyserverID),
+      lastCommunicatedPlatformDetailsSelector(keyserverID),
     );
 
     const dispatch = useDispatch();
@@ -118,7 +119,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         void dispatch({
           type: setConnectionIssueActionType,
           payload: {
-            keyserverID: ashoatKeyserverID,
+            keyserverID,
             connectionIssue: 'policy_acknowledgement_socket_crash_loop',
           },
         });
@@ -135,7 +136,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         cookie,
         urlPrefix,
         logInActionSources.refetchUserDataAfterAcknowledgment,
-        ashoatKeyserverID,
+        keyserverID,
         getInitialNotificationsEncryptedMessage,
       );
     }, [
@@ -144,6 +145,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       dispatch,
       urlPrefix,
       getInitialNotificationsEncryptedMessage,
+      keyserverID,
     ]);
 
     return (
