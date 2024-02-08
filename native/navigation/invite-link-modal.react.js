@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
 import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
+import type { KeyserverOverride } from 'lib/shared/invite-links';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 
 import { nonThreadCalendarQuery } from './nav-selectors.js';
@@ -18,6 +19,7 @@ import { useStyles } from '../themes/colors.js';
 export type InviteLinkModalParams = {
   +invitationDetails: InviteLinkVerificationResponse,
   +secret: string,
+  +keyserverOverride?: ?KeyserverOverride,
 };
 
 type Props = {
@@ -27,7 +29,7 @@ type Props = {
 
 function InviteLinkModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const { invitationDetails, secret } = props.route.params;
+  const { invitationDetails, secret, keyserverOverride } = props.route.params;
 
   const navContext = React.useContext(NavContext);
   const calendarQuery = useSelector(state =>
@@ -49,6 +51,7 @@ function InviteLinkModal(props: Props): React.Node {
   const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
     verificationResponse: invitationDetails,
     inviteSecret: secret,
+    keyserverOverride,
     calendarQuery,
     onFinish: props.navigation.goBack,
     onInvalidLinkDetected,

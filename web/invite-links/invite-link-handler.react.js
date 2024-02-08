@@ -89,6 +89,7 @@ function InviteLinkHandler(): null {
         <AcceptInviteModal
           verificationResponse={result}
           inviteSecret={secret}
+          keyserverOverride={keyserverOverride}
         />,
       );
     })();
