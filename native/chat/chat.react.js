@@ -57,7 +57,10 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
-import { defaultStackScreenOptions } from '../navigation/options.js';
+import {
+  defaultStackScreenOptions,
+  transitionPreset,
+} from '../navigation/options.js';
 import {
   ComposeSubchannelRouteName,
   DeleteThreadRouteName,
@@ -330,6 +333,7 @@ const changeRolesScreenOptions = ({
   ),
   headerTitle: 'Change Role',
   presentation: 'modal',
+  ...transitionPreset,
 });
 
 export type ChatNavigationProp<
