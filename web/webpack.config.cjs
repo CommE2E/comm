@@ -13,7 +13,7 @@ const babelConfig = require('./.babelrc.cjs');
 
 async function getConfig(configName) {
   const { getCommConfig } = await import(
-    '../keyserver/dist/lib/utils/comm-config.js'
+    'keyserver/dist/lib/utils/comm-config.js'
   );
   return await getCommConfig(configName);
 }
@@ -194,7 +194,18 @@ module.exports = async function (env) {
   const identitySocketAddr = JSON.stringify(
     identityServiceConfig?.identitySocketAddr,
   );
-  const envVars = { IDENTITY_SOCKET_ADDR: identitySocketAddr };
+  const authoritativeKeyserverIDConfig = await getConfig({
+    folder: 'facts',
+    name: 'authoritative_keyserver',
+  });
+  const authoritativeKeyserverID = JSON.stringify(
+    authoritativeKeyserverIDConfig?.authoritativeKeyserverID,
+  );
+
+  const envVars = {
+    IDENTITY_SOCKET_ADDR: identitySocketAddr,
+    AUTHORITATIVE_KEYSERVER_ID: authoritativeKeyserverID,
+  };
   const browserConfigPromise = env.prod
     ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig, envVars)
     : createDevBrowserConfig(baseDevBrowserConfig, babelConfig, envVars);
