@@ -140,6 +140,12 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       keyserverID,
     ]);
 
+    const activeSessionRecovery = useSelector(
+      state =>
+        state.keyserverStore.keyserverInfos[keyserverID]?.connection
+          .activeSessionRecovery,
+    );
+
     return (
       <Socket
         {...props}
@@ -150,7 +156,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         sessionStateFunc={sessionStateFunc}
         sessionIdentification={sessionIdentification}
         cookie={cookie}
-        urlPrefix={urlPrefix}
         connection={connection}
         currentCalendarQuery={currentCalendarQuery}
         frozen={frozen}
@@ -159,11 +164,9 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         dispatchActionPromise={dispatchActionPromise}
         noDataAfterPolicyAcknowledgment={noDataAfterPolicyAcknowledgment}
         socketCrashLoopRecovery={socketCrashLoopRecovery}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
+        activeSessionRecovery={activeSessionRecovery}
       />
     );
   });
