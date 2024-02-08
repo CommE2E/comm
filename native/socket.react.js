@@ -3,12 +3,11 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { setConnectionIssueActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
-import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
+import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
+import { canResolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
-  urlPrefixSelector,
   connectionSelector,
   lastCommunicatedPlatformDetailsSelector,
 } from 'lib/selectors/keyserver-selectors.js';
@@ -20,6 +19,7 @@ import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { recoveryActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import {
   activeMessageListSelector,
@@ -44,8 +44,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const { keyserverID } = props;
 
     const cookie = useSelector(cookieSelector(keyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(keyserverID));
-    invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
     const connection = useSelector(connectionSelector(keyserverID));
     invariant(connection, 'keyserver missing from keyserverStore');
     const frozen = useSelector(state => state.frozen);
@@ -106,39 +104,28 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
 
-    const socketCrashLoopRecovery = React.useCallback(async () => {
-      if (!accountHasPassword(currentUserInfo)) {
-        void dispatch({
-          type: setConnectionIssueActionType,
-          payload: {
-            keyserverID,
-            connectionIssue: 'policy_acknowledgement_socket_crash_loop',
-          },
-        });
+    const hasPassword = accountHasPassword(currentUserInfo);
+    const socketCrashLoopRecovery = React.useCallback(() => {
+      if (
+        !canResolveKeyserverSessionInvalidation() ||
+        (!hasPassword && !usingCommServicesAccessToken)
+      ) {
         Alert.alert(
           'Log in needed',
-          'After acknowledging the policies, we need you to log in to your account again',
+          'After acknowledging the policies, we need you to log in to your ' +
+            'account again',
           [{ text: 'OK' }],
         );
-        return;
       }
-
-      await resolveKeyserverSessionInvalidation(
-        dispatch,
-        cookie,
-        urlPrefix,
-        recoveryActionSources.refetchUserDataAfterAcknowledgment,
-        keyserverID,
-        getInitialNotificationsEncryptedMessage,
-      );
-    }, [
-      cookie,
-      currentUserInfo,
-      dispatch,
-      urlPrefix,
-      getInitialNotificationsEncryptedMessage,
-      keyserverID,
-    ]);
+      dispatch({
+        type: setActiveSessionRecoveryActionType,
+        payload: {
+          activeSessionRecovery:
+            recoveryActionSources.refetchUserDataAfterAcknowledgment,
+          keyserverID,
+        },
+      });
+    }, [hasPassword, dispatch, keyserverID]);
 
     const activeSessionRecovery = useSelector(
       state =>
