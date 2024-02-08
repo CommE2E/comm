@@ -1,4 +1,4 @@
-FROM rust:1.70-bullseye as builder
+FROM rust:1.75-bullseye as builder
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
@@ -38,4 +38,3 @@ USER comm
 ENV RUST_LOG=info
 
 CMD ["blob", "server"]
-
