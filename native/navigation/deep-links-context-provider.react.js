@@ -161,6 +161,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
         params: {
           invitationDetails: result,
           secret,
+          keyserverOverride,
         },
       });
     })();
