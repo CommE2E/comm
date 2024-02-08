@@ -1,17 +1,11 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  useJoinThread,
-  joinThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './accept-invite-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
@@ -28,51 +22,20 @@ function AcceptInviteModal(props: Props): React.Node {
   const [isLinkValid, setIsLinkValid] = React.useState(
     verificationResponse.status === 'valid',
   );
+  const onInvalidLinkDetected = React.useCallback(
+    () => setIsLinkValid(false),
+    [],
+  );
   const { popModal } = useModalContext();
-
-  React.useEffect(() => {
-    if (verificationResponse.status === 'already_joined') {
-      popModal();
-    }
-  }, [popModal, verificationResponse.status]);
-
-  const callJoinThread = useJoinThread();
   const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const communityID = verificationResponse.community?.id;
-  const createJoinCommunityAction = React.useCallback(async () => {
-    invariant(
-      communityID,
-      'CommunityID should be present while calling this function',
-    );
-    const query = calendarQuery();
-    try {
-      const result = await callJoinThread({
-        threadID: communityID,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [communityID] },
-          ],
-        },
-        inviteLinkSecret: inviteSecret,
-      });
-      popModal();
-      return result;
-    } catch (e) {
-      setIsLinkValid(false);
-      throw e;
-    }
-  }, [calendarQuery, callJoinThread, communityID, inviteSecret, popModal]);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const joinCommunity = React.useCallback(() => {
-    void dispatchActionPromise(
-      joinThreadActionTypes,
-      createJoinCommunityAction(),
-    );
-  }, [createJoinCommunityAction, dispatchActionPromise]);
-  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+
+  const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
+    verificationResponse,
+    inviteSecret,
+    calendarQuery,
+    onFinish: popModal,
+    onInvalidLinkDetected,
+  });
 
   let content;
   if (verificationResponse.status === 'valid' && isLinkValid) {
@@ -125,9 +88,5 @@ function AcceptInviteModal(props: Props): React.Node {
     </ModalOverlay>
   );
 }
-
-const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
-  joinThreadActionTypes,
-);
 
 export default AcceptInviteModal;
