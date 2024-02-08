@@ -1,5 +1,6 @@
 use crate::constants::WS_FRAME_SIZE;
 use crate::database::{log_item::LogItem, DatabaseClient};
+use actix::fut::ready;
 use actix::{Actor, ActorContext, ActorFutureExt, AsyncContext, StreamHandler};
 use actix_http::ws::{CloseCode, Item};
 use actix_web::{
@@ -18,19 +19,19 @@ use comm_lib::{
   },
   database::{self, blob::BlobOrDBContent},
 };
+use std::future::Future;
 use std::time::{Duration, Instant};
 use tracing::{error, info, instrument, warn};
 
 pub async fn handle_ws(
   req: HttpRequest,
-  user: UserIdentity,
   stream: web::Payload,
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> Result<HttpResponse, Error> {
   ws::WsResponseBuilder::new(
     LogWSActor {
-      user,
+      user: None,
       blob_client: blob_client.as_ref().clone(),
       db_client: db_client.as_ref().clone(),
       last_msg_time: Instant::now(),
@@ -53,7 +54,7 @@ enum LogWSError {
 }
 
 struct LogWSActor {
-  user: UserIdentity,
+  user: Option<UserIdentity>,
   blob_client: BlobServiceClient,
   db_client: DatabaseClient,
 
@@ -66,18 +67,51 @@ impl LogWSActor {
   const CONNECTION_TIMEOUT: Duration = Duration::from_secs(10);
 
   fn handle_msg_sync(
-    &self,
+    &mut self,
     ctx: &mut WebsocketContext<LogWSActor>,
     bytes: Bytes,
   ) {
-    let fut = Self::handle_msg(
-      self.user.user_id.clone(),
-      self.blob_client.clone(),
-      self.db_client.clone(),
-      bytes,
-    );
+    match bincode::deserialize(&bytes) {
+      Ok(request) => {
+        if let LogWSRequest::Authenticate(user) = request {
+          self.user.replace(user);
+          return;
+        }
 
-    let fut = actix::fut::wrap_future(fut).map(
+        let Some(user) = &self.user else {
+          Self::spawn_response_future(
+            ctx,
+            ready(Ok(vec![LogWSResponse::Unauthenticated])),
+          );
+          return;
+        };
+
+        Self::spawn_response_future(
+          ctx,
+          Self::handle_msg(
+            user.user_id.clone(),
+            self.blob_client.clone(),
+            self.db_client.clone(),
+            request,
+          ),
+        );
+      }
+      Err(err) => {
+        error!("Error: {err:?}");
+
+        Self::spawn_response_future(
+          ctx,
+          ready(Ok(vec![LogWSResponse::ServerError])),
+        );
+      }
+    };
+  }
+
+  fn spawn_response_future(
+    ctx: &mut WebsocketContext<LogWSActor>,
+    future: impl Future<Output = Result<Vec<LogWSResponse>, LogWSError>> + 'static,
+  ) {
+    let fut = actix::fut::wrap_future(future).map(
       |responses,
        _: &mut LogWSActor,
        ctx: &mut WebsocketContext<LogWSActor>| {
@@ -109,10 +143,8 @@ impl LogWSActor {
     user_id: String,
     blob_client: BlobServiceClient,
     db_client: DatabaseClient,
-    bytes: Bytes,
+    request: LogWSRequest,
   ) -> Result<Vec<LogWSResponse>, LogWSError> {
-    let request = bincode::deserialize(&bytes)?;
-
     match request {
       LogWSRequest::UploadLog(UploadLogRequest {
         backup_id,
@@ -179,6 +211,10 @@ impl LogWSActor {
         });
 
         Ok(messages)
+      }
+      LogWSRequest::Authenticate(_) => {
+        warn!("LogWSRequest::Authenticate should have been handled earlier.");
+        Ok(Vec::new())
       }
     }
   }

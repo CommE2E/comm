@@ -1,3 +1,4 @@
+use crate::auth::UserIdentity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,6 +23,7 @@ pub struct DownloadLogsRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize, derive_more::From)]
 pub enum LogWSRequest {
+  Authenticate(UserIdentity),
   UploadLog(UploadLogRequest),
   DownloadLogs(DownloadLogsRequest),
 }
@@ -41,4 +43,5 @@ pub enum LogWSResponse {
     last_log_id: Option<usize>,
   },
   ServerError,
+  Unauthenticated,
 }
