@@ -11,21 +11,19 @@ import type {
   StackNavigationProp,
   StackRouterOptions,
   RouteProp,
-  StackCardInterpolationProps,
-  TransitionPreset,
 } from '@react-navigation/core';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
 } from '@react-navigation/native';
-import { StackView, TransitionPresets } from '@react-navigation/stack';
+import { StackView } from '@react-navigation/stack';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
 import AppNavigator from './app-navigator.react.js';
 import InviteLinkModal from './invite-link-modal.react.js';
-import { defaultStackScreenOptions } from './options.js';
+import { defaultStackScreenOptions, transitionPreset } from './options.js';
 import { RootNavigatorContext } from './root-navigator-context.js';
 import RootRouter, {
   type RootRouterExtraNavigationHelpers,
@@ -151,30 +149,6 @@ const createRootNavigator = createNavigatorFactory<
   RootNavigationHelpers<>,
   ExtraStackNavigatorProps,
 >(RootNavigator);
-
-const baseTransitionPreset: TransitionPreset = Platform.select({
-  ios: TransitionPresets.ModalSlideFromBottomIOS,
-  default: TransitionPresets.FadeFromBottomAndroid,
-});
-const transitionPreset = {
-  ...baseTransitionPreset,
-  cardStyleInterpolator: (interpolatorProps: StackCardInterpolationProps) => {
-    const baseCardStyleInterpolator =
-      baseTransitionPreset.cardStyleInterpolator(interpolatorProps);
-    const overlayOpacity = interpolatorProps.current.progress.interpolate({
-      inputRange: [0, 1],
-      outputRange: ([0, 0.7]: number[]), // Flow...
-      extrapolate: 'clamp',
-    });
-    return {
-      ...baseCardStyleInterpolator,
-      overlayStyle: [
-        baseCardStyleInterpolator.overlayStyle,
-        { opacity: overlayOpacity },
-      ],
-    };
-  },
-};
 
 const defaultScreenOptions = {
   ...defaultStackScreenOptions,
