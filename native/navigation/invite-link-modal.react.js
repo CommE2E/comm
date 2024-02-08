@@ -1,16 +1,10 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
-import {
-  useJoinThread,
-  joinThreadActionTypes,
-} from 'lib/actions/thread-actions.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { nonThreadCalendarQuery } from './nav-selectors.js';
 import { NavContext } from './navigation-context.js';
@@ -35,11 +29,30 @@ function InviteLinkModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { invitationDetails, secret } = props.route.params;
 
-  React.useEffect(() => {
-    if (invitationDetails.status === 'already_joined') {
-      props.navigation.goBack();
-    }
-  }, [invitationDetails.status, props.navigation]);
+  const navContext = React.useContext(NavContext);
+  const calendarQuery = useSelector(state =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+  const onInvalidLinkDetected = React.useCallback(
+    () =>
+      props.navigation.setParams({
+        invitationDetails: {
+          status: 'invalid',
+        },
+        secret,
+      }),
+    [props.navigation, secret],
+  );
+  const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
+    verificationResponse: invitationDetails,
+    inviteSecret: secret,
+    calendarQuery,
+    onFinish: props.navigation.goBack,
+    onInvalidLinkDetected,
+  });
 
   const header = React.useMemo(() => {
     if (invitationDetails.status === 'valid') {
@@ -68,55 +81,6 @@ function InviteLinkModal(props: Props): React.Node {
     styles.invalidInviteTitle,
     styles.invitation,
   ]);
-
-  const callJoinThread = useJoinThread();
-  const navContext = React.useContext(NavContext);
-  const calendarQuery = useSelector(state =>
-    nonThreadCalendarQuery({
-      redux: state,
-      navContext,
-    }),
-  );
-  const communityID = invitationDetails.community?.id;
-  const createJoinCommunityAction = React.useCallback(async () => {
-    invariant(
-      communityID,
-      'CommunityID should be present while calling this function',
-    );
-    const query = calendarQuery();
-    try {
-      const result = await callJoinThread({
-        threadID: communityID,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [communityID] },
-          ],
-        },
-        inviteLinkSecret: secret,
-      });
-      props.navigation.goBack();
-      return result;
-    } catch (e) {
-      props.navigation.setParams({
-        invitationDetails: {
-          status: 'invalid',
-        },
-        secret,
-      });
-      throw e;
-    }
-  }, [calendarQuery, callJoinThread, communityID, props.navigation, secret]);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const joinCommunity = React.useCallback(() => {
-    void dispatchActionPromise(
-      joinThreadActionTypes,
-      createJoinCommunityAction(),
-    );
-  }, [createJoinCommunityAction, dispatchActionPromise]);
-  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
 
   const buttons = React.useMemo(() => {
     if (invitationDetails.status === 'valid') {
@@ -177,10 +141,6 @@ function InviteLinkModal(props: Props): React.Node {
     </Modal>
   );
 }
-
-const joinThreadLoadingStatusSelector = createLoadingStatusSelector(
-  joinThreadActionTypes,
-);
 
 const unboundStyles = {
   modal: {
