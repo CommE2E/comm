@@ -38,6 +38,7 @@ import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
 
 import QrCodeLogin from './account/qr-code-login.react.js';
 import AppThemeWrapper from './app-theme-wrapper.react.js';
+import { authoritativeKeyserverID } from './authoritative-keyserver.js';
 import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provider.react.js';
 import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
@@ -102,6 +103,7 @@ registerConfig({
     stateVersion: persistConfig.version,
     ...desktopDetails,
   },
+  authoritativeKeyserverID,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
