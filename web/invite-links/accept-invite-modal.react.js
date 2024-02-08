@@ -5,6 +5,7 @@ import * as React from 'react';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
+import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 
 import css from './accept-invite-modal.css';
@@ -15,10 +16,11 @@ import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 type Props = {
   +verificationResponse: InviteLinkVerificationResponse,
   +inviteSecret: string,
+  +keyserverOverride?: ?KeyserverOverride,
 };
 
 function AcceptInviteModal(props: Props): React.Node {
-  const { verificationResponse, inviteSecret } = props;
+  const { verificationResponse, inviteSecret, keyserverOverride } = props;
   const [isLinkValid, setIsLinkValid] = React.useState(
     verificationResponse.status === 'valid',
   );
@@ -32,6 +34,7 @@ function AcceptInviteModal(props: Props): React.Node {
   const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
     verificationResponse,
     inviteSecret,
+    keyserverOverride,
     calendarQuery,
     onFinish: popModal,
     onInvalidLinkDetected,
