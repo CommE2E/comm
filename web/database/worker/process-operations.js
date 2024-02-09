@@ -261,4 +261,8 @@ function getClientStoreFromQueryExecutor(
   };
 }
 
-export { processDBStoreOperations, getClientStoreFromQueryExecutor };
+export {
+  processDBStoreOperations,
+  getProcessingStoreOpsExceptionMessage,
+  getClientStoreFromQueryExecutor,
+};
