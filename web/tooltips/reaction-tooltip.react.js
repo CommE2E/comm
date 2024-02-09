@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useENSNames } from 'lib/hooks/ens-cache.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 
 import css from './reaction-tooltip.css';
@@ -15,16 +14,14 @@ import {
 } from './tooltip-constants.js';
 import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
 
-const useENSNamesOptions = { allAtOnce: true };
-
 type Props = {
   +reactions: ReactionInfo,
-  +reaction: string,
+  +usernames: $ReadOnlyArray<string>,
+  +showSeeMoreText: boolean,
 };
 
 function ReactionTooltip(props: Props): React.Node {
-  const { reactions, reaction } = props;
-  const { users } = reactions[reaction];
+  const { reactions, usernames, showSeeMoreText } = props;
 
   const { pushModal, popModal } = useModalContext();
 
@@ -39,23 +36,24 @@ function ReactionTooltip(props: Props): React.Node {
     [popModal, pushModal, reactions],
   );
 
-  const resolvedUsers = useENSNames(users, useENSNamesOptions);
-
-  const usernames = React.useMemo(() => {
-    return resolvedUsers.map(user => (
+  const usernameList = React.useMemo(() => {
+    return usernames.map(username => (
       <p
-        key={user.id}
+        key={username}
         className={css.usernameText}
         style={{ height: tooltipLabelStyle.height }}
       >
-        {user.username}
+        {username}
       </p>
     ));
-  }, [resolvedUsers]);
+  }, [usernames]);
 
-  let seeMoreText;
-  if (usernames && usernames.length > 5) {
-    seeMoreText = (
+  const seeMoreText = React.useMemo(() => {
+    if (!showSeeMoreText) {
+      return null;
+    }
+
+    return (
       <p
         className={css.seeMoreText}
         style={{ height: reactionSeeMoreLabelStyle.height }}
@@ -63,18 +61,23 @@ function ReactionTooltip(props: Props): React.Node {
         {reactionSeeMoreLabel}
       </p>
     );
-  }
+  }, [showSeeMoreText]);
 
-  return (
-    <div
-      className={css.container}
-      onClick={onClickReactionTooltip}
-      style={reactionTooltipStyle}
-    >
-      {usernames}
-      {seeMoreText}
-    </div>
+  const reactionTooltip = React.useMemo(
+    () => (
+      <div
+        className={css.container}
+        onClick={onClickReactionTooltip}
+        style={reactionTooltipStyle}
+      >
+        {usernameList}
+        {seeMoreText}
+      </div>
+    ),
+    [onClickReactionTooltip, seeMoreText, usernameList],
   );
+
+  return reactionTooltip;
 }
 
 export default ReactionTooltip;

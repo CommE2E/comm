@@ -457,19 +457,30 @@ function useReactionTooltip({
 
   const resolvedUsers = useENSNames(users, useENSNamesOptions);
 
+  const showSeeMoreText = resolvedUsers.length > 5;
+
+  const usernamesToShow = resolvedUsers
+    .map(user => user.username)
+    .filter(Boolean)
+    .slice(0, 5);
+
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {
       return undefinedTooltipSize;
     }
 
-    const usernames = resolvedUsers.map(user => user.username).filter(Boolean);
-
-    return calculateReactionTooltipSize(usernames);
-  }, [resolvedUsers]);
+    return calculateReactionTooltipSize(usernamesToShow, showSeeMoreText);
+  }, [showSeeMoreText, usernamesToShow]);
 
   const createReactionTooltip = React.useCallback(
-    () => <ReactionTooltip reactions={reactions} reaction={reaction} />,
-    [reaction, reactions],
+    () => (
+      <ReactionTooltip
+        reactions={reactions}
+        usernames={usernamesToShow}
+        showSeeMoreText={showSeeMoreText}
+      />
+    ),
+    [reactions, showSeeMoreText, usernamesToShow],
   );
 
   const { onMouseEnter, onMouseLeave } = useTooltip({
