@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { canResolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
@@ -16,7 +15,6 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
-import { recoveryActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -105,27 +103,22 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     const dispatchActionPromise = useDispatchActionPromise();
 
     const hasPassword = accountHasPassword(currentUserInfo);
-    const socketCrashLoopRecovery = React.useCallback(() => {
+    const showSocketCrashLoopAlert = React.useCallback(() => {
       if (
-        !canResolveKeyserverSessionInvalidation() ||
-        (!hasPassword && !usingCommServicesAccessToken)
+        canResolveKeyserverSessionInvalidation() &&
+        (hasPassword || usingCommServicesAccessToken)
       ) {
-        Alert.alert(
-          'Log in needed',
-          'After acknowledging the policies, we need you to log in to your ' +
-            'account again',
-          [{ text: 'OK' }],
-        );
+        // In this case, we expect that the socket crash loop recovery
+        // will be invisible to the user, so we don't show an alert
+        return;
       }
-      dispatch({
-        type: setActiveSessionRecoveryActionType,
-        payload: {
-          activeSessionRecovery:
-            recoveryActionSources.refetchUserDataAfterAcknowledgment,
-          keyserverID,
-        },
-      });
-    }, [hasPassword, dispatch, keyserverID]);
+      Alert.alert(
+        'Log in needed',
+        'After acknowledging the policies, we need you to log in to your ' +
+          'account again',
+        [{ text: 'OK' }],
+      );
+    }, [hasPassword]);
 
     const activeSessionRecovery = useSelector(
       state =>
@@ -150,7 +143,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         noDataAfterPolicyAcknowledgment={noDataAfterPolicyAcknowledgment}
-        socketCrashLoopRecovery={socketCrashLoopRecovery}
+        showSocketCrashLoopAlert={showSocketCrashLoopAlert}
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
         activeSessionRecovery={activeSessionRecovery}
