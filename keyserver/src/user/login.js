@@ -7,6 +7,7 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
+import type { UserCredentials } from './checks.js';
 import {
   saveIdentityInfo,
   fetchIdentityInfo,
@@ -14,8 +15,6 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-
-type UserCredentials = { +username: string, +password: string };
 
 // After register or login is successful
 function markKeysAsPublished(account: OlmAccount) {
@@ -109,6 +108,9 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
       fetchCallUpdateOlmAccount('content', markKeysAsPublished),
       fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
     ]);
+    if (userInfo.id && userInfo.id !== identity_info.userId) {
+      throw new Error('User id inconsistent with environment config');
+    }
     return identity_info;
   } catch (e) {
     console.warn('Failed to login user: ' + getMessageForException(e));
@@ -128,6 +130,9 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
         fetchCallUpdateOlmAccount('content', markKeysAsPublished),
         fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
       ]);
+      if (userInfo.id && userInfo.id !== identity_info.userId) {
+        throw new Error('User id inconsistent with environment config');
+      }
       return identity_info;
     } catch (err) {
       console.warn('Failed to register user: ' + getMessageForException(err));

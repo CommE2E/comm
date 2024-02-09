@@ -309,7 +309,7 @@ async function prepareIOSNotification(
   platformDetails: PlatformDetails,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
-  threadID = validateOutput(platformDetails, tID, threadID);
+  threadID = await validateOutput(platformDetails, tID, threadID);
   const { codeVersion } = platformDetails;
 
   const notification = new apn.Notification();
@@ -356,7 +356,7 @@ async function prepareAndroidNotification(
   platformDetails: PlatformDetails,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
-  threadID = validateOutput(platformDetails, tID, threadID);
+  threadID = await validateOutput(platformDetails, tID, threadID);
   const { codeVersion } = platformDetails;
 
   const notification = {

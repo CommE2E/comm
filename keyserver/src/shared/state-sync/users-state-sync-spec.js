@@ -24,7 +24,7 @@ export const usersStateSyncSpec: ServerStateSyncSpec<
   },
   async fetchServerInfosHash(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const infos = await fetch(viewer, ids);
-    return getServerInfosHash(infos);
+    return await getServerInfosHash(infos);
   },
   getServerInfosHash,
   getServerInfoHash,
@@ -39,10 +39,12 @@ function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   return fetchKnownUserInfos(viewer);
 }
 
-function getServerInfosHash(infos: UserInfos) {
-  return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+async function getServerInfosHash(infos: UserInfos) {
+  const results = await Promise.all(values(infos).map(getServerInfoHash));
+  return combineUnorderedHashes(results);
 }
 
-function getServerInfoHash(info: UserInfo) {
-  return hash(validateOutput(null, userInfoValidator, info));
+async function getServerInfoHash(info: UserInfo) {
+  const output = await validateOutput(null, userInfoValidator, info);
+  return hash(output);
 }
