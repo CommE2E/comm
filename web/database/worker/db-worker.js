@@ -254,6 +254,7 @@ async function processAppRequest(
       message.authMetadata,
       message.backupID,
       message.backupDataKey,
+      message.backupLogDataKey,
     );
   }
 
