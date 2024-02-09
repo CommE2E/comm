@@ -9,11 +9,15 @@ import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js'
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
 import { enableNewRegistrationMode } from './registration/registration-types.js';
-import { useLegacySIWEServerCall } from './siwe-hooks.js';
+import {
+  useLegacySIWEServerCall,
+  useIdentitySIWEServerCall,
+} from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import {
   AccountDoesNotExistRouteName,
@@ -64,40 +68,61 @@ function FullscreenSIWEPanel(props: Props): React.Node {
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
+  const identitySiweServerCall = useIdentitySIWEServerCall();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
   const onSuccess = React.useCallback(
     async (result: SIWEResult) => {
       successRef.current = true;
-      try {
-        await legacySiweServerCall({
-          ...result,
-          doNotRegister: enableNewRegistrationMode,
-        });
-      } catch (e) {
-        if (
-          e instanceof ServerError &&
-          e.message === 'account_does_not_exist'
-        ) {
-          await onAccountDoesNotExist(result);
-          return;
+      if (usingCommServicesAccessToken) {
+        try {
+          await identitySiweServerCall(result);
+        } catch (e) {
+          Alert.alert(
+            UnknownErrorAlertDetails.title,
+            UnknownErrorAlertDetails.message,
+            [{ text: 'OK', onPress: goBackToPrompt }],
+            { cancelable: false },
+          );
+          throw e;
         }
-        Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
-          [{ text: 'OK', onPress: goBackToPrompt }],
-          { cancelable: false },
-        );
-        throw e;
+      } else {
+        try {
+          await legacySiweServerCall({
+            ...result,
+            doNotRegister: enableNewRegistrationMode,
+          });
+        } catch (e) {
+          if (
+            e instanceof ServerError &&
+            e.message === 'account_does_not_exist'
+          ) {
+            await onAccountDoesNotExist(result);
+            return;
+          }
+          Alert.alert(
+            UnknownErrorAlertDetails.title,
+            UnknownErrorAlertDetails.message,
+            [{ text: 'OK', onPress: goBackToPrompt }],
+            { cancelable: false },
+          );
+          throw e;
+        }
+        dispatch({
+          type: setDataLoadedActionType,
+          payload: {
+            dataLoaded: true,
+          },
+        });
       }
-      dispatch({
-        type: setDataLoadedActionType,
-        payload: {
-          dataLoaded: true,
-        },
-      });
     },
-    [legacySiweServerCall, dispatch, goBackToPrompt, onAccountDoesNotExist],
+    [
+      identitySiweServerCall,
+      goBackToPrompt,
+      dispatch,
+      legacySiweServerCall,
+      onAccountDoesNotExist,
+    ],
   );
 
   const ifBeforeSuccessGoBackToPrompt = React.useCallback(() => {
