@@ -90,6 +90,7 @@ export type BackupRestoreRequestMessage = {
   +authMetadata: AuthMetadata,
   +backupID: string,
   +backupDataKey: string,
+  +backupLogDataKey: string,
 };
 
 export type WorkerRequestMessage =

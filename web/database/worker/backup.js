@@ -3,6 +3,7 @@
 import { BackupClient, RequestedData } from 'backup-client-wasm';
 
 import backupService from 'lib/facts/backup-service.js';
+import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 
 import { completeRootKey } from '../../redux/persist-constants.js';
@@ -17,7 +18,9 @@ async function restoreBackup(
   authMetadata: AuthMetadata,
   backupID: string,
   backupDataKey: string,
+  backupLogDataKey: string,
 ) {
+  const decryptionKey = new TextEncoder().encode(backupLogDataKey);
   const { userID, deviceID, accessToken } = authMetadata;
   if (!userID || !deviceID || !accessToken) {
     throw new Error('Backup restore requires full authMetadata');
@@ -49,6 +52,11 @@ async function restoreBackup(
   );
 
   sqliteQueryExecutor.setPersistStorageItem(completeRootKey, reduxPersistData);
+
+  await client.downloadLogs(userIdentity, backupID, async log => {
+    const content = await decryptCommon(crypto, decryptionKey, log);
+    sqliteQueryExecutor.restoreFromBackupLog(content);
+  });
 }
 
 export { restoreBackup };
