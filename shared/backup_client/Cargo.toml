@@ -3,6 +3,9 @@ name = "backup_client"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib", "lib"]
+
 [dependencies]
 comm-lib = { path = "../comm-lib" }
 reqwest = { version = "0.11", default-features = false, features = [
@@ -15,10 +18,19 @@ serde_json = { version = "1.0" }
 async-stream = "0.3.2"
 sha2 = "0.10"
 hex = "0.4.3"
-tokio-tungstenite = "0.18.0"
+tokio-tungstenite = "0.20.1"
 futures-util = "0.3"
 bincode = "1.3.3"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tokio = "1.24"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+comm-lib = { path = "../comm-lib", features = ["web"] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4.39"
+serde-wasm-bindgen = "0.6.3"
+web-sys = { version = "0.3.68", features = ["Window"] }
 
 [features]
 default = ["native-tls"]
