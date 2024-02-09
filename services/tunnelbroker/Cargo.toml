@@ -10,7 +10,10 @@ links = "tunnelbroker"
 [dependencies]
 anyhow = "1.0"
 clap = { version = "4.2", features = ["derive", "env"] }
-comm-lib = { path = "../../shared/comm-lib", features = ["aws"] }
+comm-lib = { path = "../../shared/comm-lib", features = [
+  "aws",
+  "grpc_clients",
+] }
 futures-util = "0.3"
 grpc_clients = { path = "../../shared/grpc_clients" }
 hyper = "0.14"

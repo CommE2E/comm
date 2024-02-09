@@ -23,6 +23,8 @@ http = [
 ]
 crypto = ["dep:aead", "dep:aes-gcm", "dep:bytes"]
 aws = ["dep:aws-config", "dep:aws-sdk-dynamodb", "dep:aws-sdk-secretsmanager"]
+grpc_clients = ["dep:grpc_clients"]
+web = ["uuid/js"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -31,7 +33,7 @@ base64 = "0.21"
 chrono = "0.4.31"
 constant_time_eq = "0.3"
 derive_more = "0.99"
-grpc_clients = { path = "../grpc_clients" }
+grpc_clients = { path = "../grpc_clients", optional = true }
 rand = "0.8"
 tokio = "1.32"
 tracing = "0.1"
