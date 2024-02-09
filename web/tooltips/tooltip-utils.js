@@ -366,8 +366,8 @@ function calculateMessageTooltipSize({
 
 function calculateReactionTooltipSize(
   usernames: $ReadOnlyArray<string>,
+  showSeeMoreText: boolean,
 ): TooltipSize {
-  const showMoreTextIsShown = usernames.length > 5;
   const {
     maxWidth,
     maxHeight,
@@ -385,7 +385,7 @@ function calculateReactionTooltipSize(
   const seeMoreTextWidth = calculateMaxTextWidth([reactionSeeMoreLabel], 12);
 
   let textWidth = usernamesTextWidth;
-  if (showMoreTextIsShown) {
+  if (showSeeMoreText) {
     textWidth = Math.max(usernamesTextWidth, seeMoreTextWidth);
   }
 
@@ -396,7 +396,7 @@ function calculateReactionTooltipSize(
     usernames.length * tooltipLabelStyle.height +
     (usernames.length - 1) * rowGap;
 
-  if (showMoreTextIsShown) {
+  if (showSeeMoreText) {
     height = maxTooltipContentHeight;
   }
 
