@@ -34,9 +34,10 @@ export type PingWorkerRequestMessage = {
 
 export type InitWorkerRequestMessage = {
   +type: 1,
-  +databaseModuleFilePath: string,
+  +webworkerModulesFilePath: string,
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
+  +backupClientFilename?: ?string,
 };
 
 export type GenerateDatabaseEncryptionKeyRequestMessage = {

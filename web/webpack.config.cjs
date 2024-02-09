@@ -152,6 +152,14 @@ const devWebWorkersPlugins = [
       },
     ],
   }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'backup-client-wasm/wasm/backup-client-wasm_bg.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
 ];
 
 const prodWebWorkersPlugins = [
@@ -177,6 +185,19 @@ const prodWebWorkersPlugins = [
           'dist',
           'webworkers',
           'olm.[contenthash:12].wasm',
+        ),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: 'backup-client-wasm/wasm/backup-client-wasm_bg.wasm',
+        to: path.join(
+          __dirname,
+          'dist',
+          'webworkers',
+          'backup-client.[contenthash:12].wasm',
         ),
       },
     ],

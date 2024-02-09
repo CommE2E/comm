@@ -6,7 +6,7 @@ import { DEFAULT_COMM_QUERY_EXECUTOR_FILENAME } from './utils/constants.js';
 
 function getDatabaseModule(
   databaseModuleFilename?: ?string,
-  databaseModuleFilePath?: string,
+  webworkerModulesFilePath?: string,
 ): EmscriptenModule {
   const fileName = databaseModuleFilename
     ? databaseModuleFilename
@@ -14,8 +14,8 @@ function getDatabaseModule(
 
   return Module({
     locateFile: (path: string, prefix?: string) => {
-      if (databaseModuleFilePath) {
-        return `${databaseModuleFilePath}/${fileName}`;
+      if (webworkerModulesFilePath) {
+        return `${webworkerModulesFilePath}/${fileName}`;
       }
       return `${prefix ?? ''}${fileName}`;
     },
