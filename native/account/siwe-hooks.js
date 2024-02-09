@@ -3,11 +3,18 @@
 import * as React from 'react';
 
 import { siweAuth, siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import {
+  identityLogInActionTypes,
+  useIdentityWalletLogIn,
+  identityRegisterActionTypes,
+  useIdentityWalletRegister,
+} from 'lib/actions/user-actions.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
+import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import type { CallSingleKeyserverEndpointOptions } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -93,4 +100,36 @@ function useLegacySIWEServerCall(): (
   );
 }
 
-export { useLegacySIWEServerCall };
+function useIdentityWalletLogInCall(): SIWEResult => Promise<void> {
+  const identityWalletLogIn = useIdentityWalletLogIn();
+  const dispatchActionPromise = useDispatchActionPromise();
+  return React.useCallback(
+    async ({ address, message, signature }) => {
+      const siwePromise = identityWalletLogIn(address, message, signature);
+      void dispatchActionPromise(identityLogInActionTypes, siwePromise);
+
+      await siwePromise;
+    },
+    [dispatchActionPromise, identityWalletLogIn],
+  );
+}
+
+function useIdentityWalletRegisterCall(): SIWEResult => Promise<void> {
+  const identityWalletRegister = useIdentityWalletRegister();
+  const dispatchActionPromise = useDispatchActionPromise();
+  return React.useCallback(
+    async ({ address, message, signature }) => {
+      const siwePromise = identityWalletRegister(address, message, signature);
+      void dispatchActionPromise(identityRegisterActionTypes, siwePromise);
+
+      await siwePromise;
+    },
+    [dispatchActionPromise, identityWalletRegister],
+  );
+}
+
+export {
+  useLegacySIWEServerCall,
+  useIdentityWalletLogInCall,
+  useIdentityWalletRegisterCall,
+};
