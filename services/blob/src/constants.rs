@@ -39,3 +39,5 @@ pub const LOG_LEVEL_ENV_VAR: &str =
 pub const S3_BUCKET_ENV_VAR: &str = "BLOB_S3_BUCKET_NAME";
 pub const DEFAULT_S3_BUCKET_NAME: &str = "commapp-blob";
 pub const S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE: u64 = 5 * 1024 * 1024;
+
+pub const INVITE_LINK_BLOB_HASH_PREFIX: &str = "invite_";
