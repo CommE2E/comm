@@ -938,6 +938,7 @@ dependencies = [
  "once_cell",
  "prost",
  "serde",
+ "serde_json",
  "tokio",
  "tokio-stream",
  "tonic 0.8.2",

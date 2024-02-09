@@ -11,8 +11,10 @@ use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
 use tracing::{debug, error, info, trace, warn};
 
-use crate::config::CONFIG;
-use crate::constants::S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE;
+use crate::config::{CONFIG, OFFENSIVE_INVITE_LINKS, RESERVED_INVITE_LINKS};
+use crate::constants::{
+  INVITE_LINK_BLOB_HASH_PREFIX, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
+};
 use crate::database::types::{
   BlobItemInput, BlobItemRow, PrimaryKey, UncheckedKind,
 };
@@ -24,6 +26,14 @@ use crate::{constants::BLOB_DOWNLOAD_CHUNK_SIZE, database::DatabaseClient};
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
+pub enum InviteLinkError {
+  Reserved,
+  Offensive,
+}
+
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
 pub enum BlobServiceError {
   BlobNotFound,
   BlobAlreadyExists,
@@ -31,6 +41,7 @@ pub enum BlobServiceError {
   DB(DBError),
   S3(S3Error),
   InputError(#[error(ignore)] BoxedError),
+  InviteLinkError(InviteLinkError),
 }
 
 type BlobServiceResult<T> = Result<T, BlobServiceError>;
@@ -125,9 +136,26 @@ impl BlobService {
     let blob_hash: String = blob_hash.into();
     let blob_item = BlobItemInput::new(&blob_hash);
 
-    if self.db.get_blob_item(blob_hash).await?.is_some() {
+    if self.db.get_blob_item(&blob_hash).await?.is_some() {
       debug!("Blob already exists");
       return Err(BlobServiceError::BlobAlreadyExists);
+    }
+
+    if let Some(invite_secret) =
+      blob_hash.strip_prefix(INVITE_LINK_BLOB_HASH_PREFIX)
+    {
+      if (RESERVED_INVITE_LINKS.contains(invite_secret)) {
+        debug!("Reserved invite link");
+        return Err(BlobServiceError::InviteLinkError(
+          InviteLinkError::Reserved,
+        ));
+      }
+      if (OFFENSIVE_INVITE_LINKS.contains(invite_secret)) {
+        debug!("Offensive invite link");
+        return Err(BlobServiceError::InviteLinkError(
+          InviteLinkError::Offensive,
+        ));
+      }
     }
 
     let mut upload_session =

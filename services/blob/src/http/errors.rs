@@ -52,6 +52,10 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       debug!("Received request input error: {0:?} - {0}", err);
       ErrorBadRequest("bad request")
     }
+    BlobServiceError::InviteLinkError(invite_link_error) => {
+      debug!("Received invite link error: {0}", invite_link_error);
+      ErrorBadRequest("bad request")
+    }
     err => {
       error!("Received an unexpected error: {0:?} - {0}", err);
       ErrorInternalServerError("server error")
