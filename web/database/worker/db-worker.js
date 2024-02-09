@@ -6,6 +6,7 @@ import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
 } from './process-operations.js';
+import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
   decryptData,
   encryptData,
@@ -31,6 +32,7 @@ import {
   localforageConfig,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
+  DEFAULT_BACKUP_CLIENT_FILENAME,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -49,7 +51,7 @@ let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
 async function initDatabase(
-  databaseModuleFilePath: string,
+  webworkerModulesFilePath: string,
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
@@ -60,7 +62,7 @@ async function initDatabase(
 
   const newModule = dbModule
     ? dbModule
-    : getDatabaseModule(commQueryExecutorFilename, databaseModuleFilePath);
+    : getDatabaseModule(commQueryExecutorFilename, webworkerModulesFilePath);
   if (!dbModule) {
     dbModule = newModule;
   }
@@ -100,6 +102,19 @@ async function initDatabase(
   sqliteQueryExecutor = new newModule.SQLiteQueryExecutor(
     COMM_SQLITE_DATABASE_PATH,
   );
+}
+
+async function initBackupClient(
+  webworkerModulesFilePath: string,
+  backupClientFilename: ?string,
+) {
+  let modulePath;
+  if (backupClientFilename) {
+    modulePath = `${webworkerModulesFilePath}/${backupClientFilename}`;
+  } else {
+    modulePath = `${webworkerModulesFilePath}/${DEFAULT_BACKUP_CLIENT_FILENAME}`;
+  }
+  await initBackupClientModule(modulePath);
 }
 
 async function persist() {
@@ -148,11 +163,22 @@ async function processAppRequest(
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
-    await initDatabase(
-      message.databaseModuleFilePath,
-      message.commQueryExecutorFilename,
-      message.encryptionKey,
-    );
+    const promises = [
+      initDatabase(
+        message.webworkerModulesFilePath,
+        message.commQueryExecutorFilename,
+        message.encryptionKey,
+      ),
+    ];
+    if (message.backupClientFilename !== undefined) {
+      promises.push(
+        initBackupClient(
+          message.webworkerModulesFilePath,
+          message.backupClientFilename,
+        ),
+      );
+    }
+    await Promise.all(promises);
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
     encryptionKey = null;
