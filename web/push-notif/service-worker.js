@@ -6,8 +6,8 @@ import type {
   PlainTextWebNotification,
   WebNotification,
 } from 'lib/types/notif-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   decryptWebNotification,
@@ -150,7 +150,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
       if (!event.notification.data.isError) {
         threadID = convertNonPendingIDToNewSchema(
           event.notification.data.threadID,
-          ashoatKeyserverID,
+          authoritativeKeyserverID,
         );
       }
 
