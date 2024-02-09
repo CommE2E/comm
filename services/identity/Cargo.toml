@@ -12,7 +12,10 @@ tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 ed25519-dalek = "1"
 clap = { version = "4.4", features = ["derive", "env"] }
 derive_more = "0.99"
-comm-lib = { path = "../../shared/comm-lib", features = ["aws"] }
+comm-lib = { path = "../../shared/comm-lib", features = [
+  "aws",
+  "grpc_clients",
+] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 chrono = "0.4.31"
