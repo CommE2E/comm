@@ -12,6 +12,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
@@ -21,6 +22,7 @@ import RegistrationContentContainer from './registration-content-container.react
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
@@ -149,12 +151,19 @@ function ConnectEthereum(props: Props): React.Node {
 
   const onSuccessfulWalletSignature = React.useCallback(
     async (result: SIWEResult) => {
-      const searchPromise = exactSearchUserCall(result.address);
-      void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+      let userAlreadyExists;
+      if (usingCommServicesAccessToken) {
+        const findUserIDResponse =
+          await commRustModule.findUserIDForWalletAddress(result.address);
+        userAlreadyExists = JSON.parse(findUserIDResponse).userID !== null;
+      } else {
+        const searchPromise = exactSearchUserCall(result.address);
+        void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+        const { userInfo } = await searchPromise;
+        userAlreadyExists = userInfo !== null;
+      }
 
-      const { userInfo } = await searchPromise;
-
-      if (userInfo) {
+      if (userAlreadyExists) {
         navigate<'ExistingEthereumAccount'>({
           name: ExistingEthereumAccountRouteName,
           params: result,
