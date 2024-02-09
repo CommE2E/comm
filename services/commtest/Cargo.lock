@@ -168,17 +168,11 @@ dependencies = [
  "futures-util",
  "hex",
  "reqwest",
- "serde",
- "serde-wasm-bindgen",
  "serde_json",
  "sha2",
  "tokio",
  "tokio-tungstenite 0.20.1",
- "tokio-tungstenite-wasm",
  "url",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]
@@ -698,10 +692,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427"
 dependencies = [
  "cfg-if",
- "js-sys",
  "libc",
  "wasi",
- "wasm-bindgen",
 ]
 
 [[package]]
@@ -1630,17 +1622,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde-wasm-bindgen"
-version = "0.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9b713f70513ae1f8d92665bbbbda5c295c2cf1da5542881ae5eefe20c9af132"
-dependencies = [
- "js-sys",
- "serde",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "serde_derive"
 version = "1.0.194"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1931,24 +1912,6 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tungstenite 0.20.1",
-]
-
-[[package]]
-name = "tokio-tungstenite-wasm"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ec8c7cf09b20184f946f114e3d8c0deca34368912c90100812861c14bb63b66"
-dependencies = [
- "futures-channel",
- "futures-util",
- "http",
- "httparse",
- "js-sys",
- "thiserror",
- "tokio",
- "tokio-tungstenite 0.20.1",
- "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
@@ -2279,7 +2242,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
 dependencies = [
  "getrandom",
- "wasm-bindgen",
 ]
 
 [[package]]
