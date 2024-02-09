@@ -5,10 +5,10 @@ import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { decryptBase64, useFetchAndDecryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
@@ -39,7 +39,7 @@ function EncryptedImage(props: Props): React.Node {
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState<?ImageSource>(null);
 
-  const connection = useSelector(connectionSelector(ashoatKeyserverID));
+  const connection = useSelector(connectionSelector(authoritativeKeyserverID));
   invariant(connection, 'keyserver missing from keyserverStore');
   const connectionStatus = connection.status;
   const prevConnectionStatusRef = React.useRef(connectionStatus);

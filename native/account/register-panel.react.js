@@ -38,11 +38,11 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import { setNativeCredentials } from './native-credentials.js';
 import { PanelButton, Panel } from './panel-components.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -312,7 +312,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       const extraInfo = await this.props.logInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await this.props.getInitialNotificationsEncryptedMessage(
-          ashoatKeyserverID,
+          authoritativeKeyserverID,
         );
       void this.props.dispatchActionPromise(
         keyserverRegisterActionTypes,

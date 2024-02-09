@@ -35,7 +35,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import {
@@ -44,6 +43,7 @@ import {
 } from './native-credentials.js';
 import { PanelButton, Panel } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -254,7 +254,7 @@ class LogInPanel extends React.PureComponent<Props> {
     const extraInfo = await this.props.logInExtraInfo();
     const initialNotificationsEncryptedMessage =
       await this.props.getInitialNotificationsEncryptedMessage(
-        ashoatKeyserverID,
+        authoritativeKeyserverID,
       );
 
     if (usingCommServicesAccessToken) {
