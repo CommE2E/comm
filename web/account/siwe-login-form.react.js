@@ -13,6 +13,10 @@ import {
   siweAuth,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
+import {
+  identityGenerateNonceActionTypes,
+  useIdentityGenerateNonce,
+} from 'lib/actions/user-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import stores from 'lib/facts/stores.js';
@@ -27,6 +31,7 @@ import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import {
   createSIWEMessage,
   getSIWEStatementForPublicKey,
@@ -50,6 +55,9 @@ type SIWELoginFormProps = {
 const legacyGetSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
+const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
+  identityGenerateNonceActionTypes,
+);
 const legacySiweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
@@ -60,6 +68,10 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const legacyGetSIWENonceCallLoadingStatus = useSelector(
     legacyGetSIWENonceLoadingStatusSelector,
   );
+  const identityGenerateNonce = useIdentityGenerateNonce();
+  const identityGenerateNonceLoadingStatus = useSelector(
+    identityGenerateNonceLoadingStatusSelector,
+  );
   const siweAuthLoadingStatus = useSelector(
     legacySiweAuthLoadingStatusSelector,
   );
@@ -69,20 +81,37 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
   const siweNonceShouldBeFetched =
-    !siweNonce && legacyGetSIWENonceCallLoadingStatus !== 'loading';
+    !siweNonce &&
+    legacyGetSIWENonceCallLoadingStatus !== 'loading' &&
+    identityGenerateNonceLoadingStatus !== 'loading';
 
   React.useEffect(() => {
     if (!siweNonceShouldBeFetched) {
       return;
     }
-    void dispatchActionPromise(
-      getSIWENonceActionTypes,
-      (async () => {
-        const response = await legacyGetSIWENonceCall();
-        setSIWENonce(response);
-      })(),
-    );
-  }, [dispatchActionPromise, legacyGetSIWENonceCall, siweNonceShouldBeFetched]);
+    if (usingCommServicesAccessToken) {
+      void dispatchActionPromise(
+        identityGenerateNonceActionTypes,
+        (async () => {
+          const response = await identityGenerateNonce();
+          setSIWENonce(response);
+        })(),
+      );
+    } else {
+      void dispatchActionPromise(
+        getSIWENonceActionTypes,
+        (async () => {
+          const response = await legacyGetSIWENonceCall();
+          setSIWENonce(response);
+        })(),
+      );
+    }
+  }, [
+    dispatchActionPromise,
+    identityGenerateNonce,
+    legacyGetSIWENonceCall,
+    siweNonceShouldBeFetched,
+  ]);
 
   const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
     state => state.cryptoStore?.primaryIdentityKeys,
