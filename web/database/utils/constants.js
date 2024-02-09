@@ -16,6 +16,8 @@ export const DEFAULT_BACKUP_CLIENT_FILENAME = 'backup-client.wasm';
 export const DEFAULT_OLM_FILENAME = 'olm.wasm';
 
 export const COMM_SQLITE_DATABASE_PATH = 'comm.sqlite';
+export const COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH =
+  'comm_backup_restore.sqlite';
 
 export const NOTIFICATIONS_OLM_DATA_CONTENT = 'notificationsOlmDataContent';
 
