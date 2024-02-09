@@ -29,7 +29,6 @@ import { logInActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
@@ -39,6 +38,7 @@ import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
 import RegisterPanel from './register-panel.react.js';
 import type { RegisterState } from './register-panel.react.js';
 import { enableNewRegistrationMode } from './registration/registration-types.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
 import {
@@ -439,7 +439,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         cookie,
         urlPrefix,
         actionSource,
-        ashoatKeyserverID,
+        authoritativeKeyserverID,
         this.props.getInitialNotificationsEncryptedMessage,
       );
       if (
@@ -816,8 +816,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       state => !!(state._persist && state._persist.rehydrated && navContext),
     );
     const persistedStateLoaded = usePersistedStateLoaded();
-    const cookie = useSelector(cookieSelector(ashoatKeyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+    const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
+    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);

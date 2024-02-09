@@ -7,7 +7,8 @@ import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
 const { CommIOSNotifications } = NativeModules;
 
@@ -53,7 +54,7 @@ export class CommIOSNotification {
       ...notification,
       threadID: convertNonPendingIDToNewSchema(
         notification.threadID,
-        ashoatKeyserverID,
+        authoritativeKeyserverID,
       ),
       messageInfos: convertNotificationMessageInfoToNewIDSchema(
         notification.messageInfos,
