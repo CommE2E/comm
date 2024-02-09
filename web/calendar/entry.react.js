@@ -37,6 +37,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -45,7 +46,6 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import css from './calendar.css';
 import LoadingIndicator from '../loading-indicator.react.js';
@@ -472,7 +472,9 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const callCreateEntry = useCreateEntry();
