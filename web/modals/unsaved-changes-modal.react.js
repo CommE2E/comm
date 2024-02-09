@@ -9,7 +9,6 @@ import css from './unsaved-changes-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
 
 function UnsavedChangesModal(): React.Node {
-  const modalName = '';
   const { popModal } = useModalContext();
 
   const onCloseModalClick = React.useCallback(() => {
@@ -18,36 +17,52 @@ function UnsavedChangesModal(): React.Node {
     popModal();
   }, [popModal]);
 
-  return (
-    <Modal
-      name={modalName}
-      onClose={popModal}
-      withCloseButton={false}
-      size="large"
-    >
-      <div className={css.unsavedChangesModalText}>
-        You have unsaved changes, are you sure you want to close the modal? You
-        will lose all your progress.
-      </div>
-      <div className={css.unsavedChangesModalButtons}>
-        <Button
-          variant="outline"
-          className={css.unsavedChangesBackButton}
-          onClick={popModal}
-        >
-          Back
-        </Button>
-        <Button
-          variant="filled"
-          className={css.unsavedChangesCloseModalButton}
-          buttonColor={buttonThemes.danger}
-          onClick={onCloseModalClick}
-        >
-          Close Modal
-        </Button>
-      </div>
-    </Modal>
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        className={css.unsavedChangesCloseModalButton}
+        buttonColor={buttonThemes.danger}
+        onClick={onCloseModalClick}
+      >
+        Close Modal
+      </Button>
+    ),
+    [onCloseModalClick],
   );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="outline"
+        className={css.unsavedChangesBackButton}
+        onClick={popModal}
+      >
+        Back
+      </Button>
+    ),
+    [popModal],
+  );
+
+  const unsavedChangesModal = React.useMemo(
+    () => (
+      <Modal
+        onClose={popModal}
+        withCloseButton={false}
+        size="large"
+        primaryButton={primaryButton}
+        secondaryButton={secondaryButton}
+      >
+        <div className={css.unsavedChangesModalText}>
+          You have unsaved changes, are you sure you want to close the modal?
+          You will lose all your progress.
+        </div>
+      </Modal>
+    ),
+    [popModal, primaryButton, secondaryButton],
+  );
+
+  return unsavedChangesModal;
 }
 
 export default UnsavedChangesModal;
