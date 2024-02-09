@@ -31,6 +31,7 @@ import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import { defaultWebState } from './default-state.js';
+import { rootKey, rootKeyPrefix } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
 import { nonUserSpecificFieldsWeb } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -263,8 +264,6 @@ const migrations = {
   },
 };
 
-const rootKey = 'root';
-
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   const databaseModule = await getDatabaseModule();
   const isSupported = await databaseModule.isDatabaseSupported();
@@ -297,6 +296,7 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
 };
 
 const persistConfig: PersistConfig = {
+  keyPrefix: rootKeyPrefix,
   key: rootKey,
   storage: commReduxStorageEngine,
   whitelist: isSQLiteSupported()
