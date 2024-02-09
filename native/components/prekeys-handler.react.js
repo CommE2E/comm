@@ -22,9 +22,6 @@ function PrekeysHandler(): null {
       const authMetadata = await commCoreModule.getCommServicesAuthMetadata();
       const { userID, deviceID, accessToken } = authMetadata;
       if (!userID || !deviceID || !accessToken) {
-        console.log(
-          'CommServicesAuthMetadata is missing while validating prekeys',
-        );
         return;
       }
 
