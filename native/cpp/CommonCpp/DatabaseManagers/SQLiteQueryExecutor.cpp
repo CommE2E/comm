@@ -1728,6 +1728,12 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
                   << sqlite3_errstr(backupResult);
     throw std::runtime_error(error_message.str());
   }
+
+  std::string removeExpendableDataSQL =
+      "DELETE FROM olm_persist_account;"
+      "DELETE FROM olm_persist_sessions;"
+      "DELETE FROM metadata;";
+  executeQuery(backupDB, removeExpendableDataSQL);
   executeQuery(backupDB, "VACUUM;");
   sqlite3_close(backupDB);
 
