@@ -18,6 +18,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
   "http",
   "crypto",
   "aws",
+  "grpc_clients",
 ] }
 derive_more = "0.99"
 http = "0.2"
