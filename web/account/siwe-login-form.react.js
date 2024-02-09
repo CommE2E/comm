@@ -47,27 +47,29 @@ type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
 };
 
-const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
+const legacyGetSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
-const siweAuthLoadingStatusSelector =
+const legacySiweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
   const dispatchActionPromise = useDispatchActionPromise();
-  const getSIWENonceCall = useLegacyAshoatKeyserverCall(getSIWENonce);
-  const getSIWENonceCallLoadingStatus = useSelector(
-    getSIWENonceLoadingStatusSelector,
+  const legacyGetSIWENonceCall = useLegacyAshoatKeyserverCall(getSIWENonce);
+  const legacyGetSIWENonceCallLoadingStatus = useSelector(
+    legacyGetSIWENonceLoadingStatusSelector,
   );
-  const siweAuthLoadingStatus = useSelector(siweAuthLoadingStatusSelector);
-  const siweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
+  const siweAuthLoadingStatus = useSelector(
+    legacySiweAuthLoadingStatusSelector,
+  );
+  const legacySiweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
   const logInExtraInfo = useSelector(logInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
   const siweNonceShouldBeFetched =
-    !siweNonce && getSIWENonceCallLoadingStatus !== 'loading';
+    !siweNonce && legacyGetSIWENonceCallLoadingStatus !== 'loading';
 
   React.useEffect(() => {
     if (!siweNonceShouldBeFetched) {
@@ -76,11 +78,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     void dispatchActionPromise(
       getSIWENonceActionTypes,
       (async () => {
-        const response = await getSIWENonceCall();
+        const response = await legacyGetSIWENonceCall();
         setSIWENonce(response);
       })(),
     );
-  }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
+  }, [dispatchActionPromise, legacyGetSIWENonceCall, siweNonceShouldBeFetched]);
 
   const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
     state => state.cryptoStore?.primaryIdentityKeys,
@@ -88,7 +90,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
 
   const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
-  const callSIWEAuthEndpoint = React.useCallback(
+  const callLegacySIWEAuthEndpoint = React.useCallback(
     async (message: string, signature: string, extraInfo: LogInExtraInfo) => {
       const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
       invariant(
@@ -96,7 +98,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         'signedIdentityKeysBlob must be set in attemptSIWEAuth',
       );
       try {
-        return await siweAuthCall({
+        return await legacySiweAuthCall({
           message,
           signature,
           signedIdentityKeysBlob,
@@ -113,19 +115,19 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         throw e;
       }
     },
-    [getSignedIdentityKeysBlob, siweAuthCall],
+    [getSignedIdentityKeysBlob, legacySiweAuthCall],
   );
 
-  const attemptSIWEAuth = React.useCallback(
+  const attemptLegacySIWEAuth = React.useCallback(
     (message: string, signature: string) => {
       return dispatchActionPromise(
         siweAuthActionTypes,
-        callSIWEAuthEndpoint(message, signature, logInExtraInfo),
+        callLegacySIWEAuthEndpoint(message, signature, logInExtraInfo),
         undefined,
         ({ calendarQuery: logInExtraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [callSIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
+    [callLegacySIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
   );
 
   const dispatch = useDispatch();
@@ -141,7 +143,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage({ message });
-    await attemptSIWEAuth(message, signature);
+    await attemptLegacySIWEAuth(message, signature);
     dispatch({
       type: setDataLoadedActionType,
       payload: {
@@ -150,7 +152,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     });
   }, [
     address,
-    attemptSIWEAuth,
+    attemptLegacySIWEAuth,
     primaryIdentityPublicKeys,
     signer,
     siweNonce,
