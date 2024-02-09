@@ -119,7 +119,7 @@ async function changeRole(
     FROM threads t
     INNER JOIN memberships pm ON pm.thread = t.parent_thread_id
     WHERE t.id = ${threadID} AND
-      (pm.user IN (${userIDs}) OR t.parent_thread_id != ${genesis.id})
+      (pm.user IN (${userIDs}) OR t.parent_thread_id != ${genesis().id})
   `;
   const containingMembershipQuery = SQL`
     SELECT cm.user, cm.role AS containing_role
@@ -196,13 +196,13 @@ async function changeRole(
 
   const relationshipChangeset = new RelationshipChangeset();
   const existingMemberIDs = [...existingMembershipInfo.keys()];
-  if (threadID !== genesis.id) {
+  if (threadID !== genesis().id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
   const parentMemberIDs = parentMembershipResults.map(row =>
     row.user.toString(),
   );
-  if (parentThreadID && parentThreadID !== genesis.id) {
+  if (parentThreadID && parentThreadID !== genesis().id) {
     relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
   }
 
@@ -302,7 +302,7 @@ async function changeRole(
       });
     }
 
-    if (permissions && !existingMembership && threadID !== genesis.id) {
+    if (permissions && !existingMembership && threadID !== genesis().id) {
       relationshipChangeset.setRelationshipsNeeded(userID, existingMemberIDs);
     }
 
@@ -452,7 +452,7 @@ async function updateDescendantPermissions(
       const existingMemberIDs = existingMembers
         .filter(([, { curRole }]) => curRole)
         .map(([userID]) => userID);
-      if (threadID !== genesis.id) {
+      if (threadID !== genesis().id) {
         relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
       }
 
@@ -529,7 +529,7 @@ async function updateDescendantPermissions(
           });
         }
 
-        if (permissions && !existingMembership && threadID !== genesis.id) {
+        if (permissions && !existingMembership && threadID !== genesis().id) {
           // If there was no membership row before, and we are creating one,
           // we'll need to make sure the new member has a relationship row with
           // each existing member. We expect that whoever called us already
@@ -803,13 +803,13 @@ async function recalculateThreadPermissions(
 
   const relationshipChangeset = new RelationshipChangeset();
   const existingMemberIDs = membershipResults.map(row => row.user.toString());
-  if (threadID !== genesis.id) {
+  if (threadID !== genesis().id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
   const parentMemberIDs = parentMembershipResults.map(row =>
     row.user.toString(),
   );
-  if (parentThreadID && parentThreadID !== genesis.id) {
+  if (parentThreadID && parentThreadID !== genesis().id) {
     relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
   }
 
@@ -870,7 +870,7 @@ async function recalculateThreadPermissions(
       });
     }
 
-    if (permissions && !existingMembership && threadID !== genesis.id) {
+    if (permissions && !existingMembership && threadID !== genesis().id) {
       // If there was no membership row before, and we are creating one,
       // we'll need to make sure the new member has a relationship row with
       // each existing member. We handle guaranteeing that new members have
@@ -1160,7 +1160,7 @@ async function commitMembershipChangeset(
     savedUsers.push(userID);
   }
   for (const [threadID, savedUsers] of threadsToSavedUsers) {
-    if (threadID !== genesis.id) {
+    if (threadID !== genesis().id) {
       relationshipChangeset.setAllRelationshipsNeeded(savedUsers);
     }
   }

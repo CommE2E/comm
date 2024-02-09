@@ -597,15 +597,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         LEFT JOIN (
           SELECT m.thread, MAX(m.id) AS message FROM messages m
           WHERE m.type != ${messageTypes.CREATE_SUB_THREAD} 
-            AND m.thread = ${genesis.id}
+            AND m.thread = ${genesis().id}
           GROUP BY m.thread 
         ) all_users_query ON mm.thread = all_users_query.thread
         LEFT JOIN (
           SELECT m.thread, stm.user, MAX(m.id) AS message FROM messages m
-          LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+          LEFT JOIN memberships stm ON m.type = ${
+            messageTypes.CREATE_SUB_THREAD
+          }
             AND stm.thread = m.content
           WHERE JSON_EXTRACT(stm.permissions, ${visibleExtractString}) IS TRUE
-            AND m.thread = ${genesis.id}
+            AND m.thread = ${genesis().id}
           GROUP BY m.thread, stm.user
         ) last_subthread_message_for_user_query 
         ON mm.thread = last_subthread_message_for_user_query.thread 
@@ -613,7 +615,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         SET
           mm.last_message = GREATEST(COALESCE(all_users_query.message, 0), 
             COALESCE(last_subthread_message_for_user_query.message, 0))
-        WHERE mm.thread = ${genesis.id};
+        WHERE mm.thread = ${genesis().id};
       `;
       await dbQuery(query);
     },
