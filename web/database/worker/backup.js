@@ -1,6 +1,7 @@
 // @flow
 
 import backupService from 'lib/facts/backup-service.js';
+import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
@@ -20,7 +21,9 @@ async function restoreBackup(
   authMetadata: AuthMetadata,
   backupID: string,
   backupDataKey: string,
+  backupLogDataKey: string,
 ) {
+  const decryptionKey = new TextEncoder().encode(backupLogDataKey);
   const { userID, deviceID, accessToken } = authMetadata;
   if (!userID || !deviceID || !accessToken) {
     throw new Error('Backup restore requires full authMetadata');
@@ -59,6 +62,15 @@ async function restoreBackup(
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
+
+  await client.downloadLogs(userIdentity, backupID, async log => {
+    const content = await decryptCommon(crypto, decryptionKey, log);
+    try {
+      sqliteQueryExecutor.restoreFromBackupLog(content);
+    } catch (err) {
+      throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
+    }
+  });
 }
 
 export { restoreBackup };
