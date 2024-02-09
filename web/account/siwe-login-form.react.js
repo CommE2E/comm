@@ -16,6 +16,8 @@ import {
 import {
   identityGenerateNonceActionTypes,
   useIdentityGenerateNonce,
+  identityLogInActionTypes,
+  useIdentityWalletLogIn,
 } from 'lib/actions/user-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
@@ -77,6 +79,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   );
   const legacySiweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
   const logInExtraInfo = useSelector(logInExtraInfoSelector);
+
+  const identityWalletLogIn = useIdentityWalletLogIn();
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
@@ -159,6 +163,16 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [callLegacySIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
   );
 
+  const attemptIdentityWalletLogIn = React.useCallback(
+    (walletAddress: string, siweMessage: string, siweSignature: string) => {
+      return dispatchActionPromise(
+        identityLogInActionTypes,
+        identityWalletLogIn(walletAddress, siweMessage, siweSignature),
+      );
+    },
+    [dispatchActionPromise, identityWalletLogIn],
+  );
+
   const dispatch = useDispatch();
   const onSignInButtonClick = React.useCallback(async () => {
     invariant(signer, 'signer must be present during SIWE attempt');
@@ -172,16 +186,21 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage({ message });
-    await attemptLegacySIWEAuth(message, signature);
-    dispatch({
-      type: setDataLoadedActionType,
-      payload: {
-        dataLoaded: true,
-      },
-    });
+    if (usingCommServicesAccessToken) {
+      await attemptIdentityWalletLogIn(address, message, signature);
+    } else {
+      await attemptLegacySIWEAuth(message, signature);
+      dispatch({
+        type: setDataLoadedActionType,
+        payload: {
+          dataLoaded: true,
+        },
+      });
+    }
   }, [
     address,
     attemptLegacySIWEAuth,
+    attemptIdentityWalletLogIn,
     primaryIdentityPublicKeys,
     signer,
     siweNonce,
