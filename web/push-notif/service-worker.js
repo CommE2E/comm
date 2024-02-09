@@ -7,7 +7,6 @@ import type {
   WebNotification,
 } from 'lib/types/notif-types.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   decryptWebNotification,
@@ -15,6 +14,7 @@ import {
   type WebNotifsServiceUtilsData,
   type WebNotifDecryptionError,
 } from './notif-crypto-utils.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { localforageConfig } from '../database/utils/constants.js';
 
 declare class PushMessageData {
@@ -150,7 +150,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
       if (!event.notification.data.isError) {
         threadID = convertNonPendingIDToNewSchema(
           event.notification.data.threadID,
-          ashoatKeyserverID,
+          authoritativeKeyserverID,
         );
       }
 
