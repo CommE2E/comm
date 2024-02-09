@@ -57,10 +57,10 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { EntryInfoWithHeight } from './calendar.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import {
   type MessageListParams,
   useNavigateToThread,
@@ -783,7 +783,9 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         navContext,
       }),
     );
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const styles = useStyles(unboundStyles);

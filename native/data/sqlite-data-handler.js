@@ -23,8 +23,8 @@ import {
 } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { filesystemMediaCache } from '../media/media-cache.js';
 import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
@@ -50,8 +50,8 @@ function SQLiteDataHandler(): React.Node {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
-  const cookie = useSelector(cookieSelector(ashoatKeyserverID));
-  const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
+  const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
   invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
   const staffCanSee = useStaffCanSee();
   const { staffUserHasBeenLoggedIn } = useStaffContext();
@@ -71,7 +71,7 @@ function SQLiteDataHandler(): React.Node {
           cookie,
           urlPrefix,
           source,
-          ashoatKeyserverID,
+          authoritativeKeyserverID,
           getInitialNotificationsEncryptedMessage,
         );
         dispatch({ type: setStoreLoadedActionType });

@@ -8,7 +8,8 @@ import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
 type CommAndroidNotificationsConstants = {
   +NOTIFICATIONS_IMPORTANCE_HIGH: number,
@@ -53,7 +54,7 @@ function parseAndroidMessage(message: AndroidMessage): ParsedAndroidMessage {
     ...message,
     threadID: convertNonPendingIDToNewSchema(
       message.threadID,
-      ashoatKeyserverID,
+      authoritativeKeyserverID,
     ),
     messageInfos: convertNotificationMessageInfoToNewIDSchema(
       message.messageInfos,
