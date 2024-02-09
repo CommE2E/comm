@@ -8,6 +8,7 @@ web/flow-typed
 web/node_modules
 web/opaque-ke-wasm/pkg
 web/database/_generated
+web/backup-client-wasm/_generated/backup-client-wasm.js
 keyserver/app_compiled
 keyserver/landing_compiled
 keyserver/dist

@@ -11,6 +11,7 @@ web/node_modules
 web/dist
 web/database/sqlite
 web/database/_generated/comm-query-executor.js.bak
+web/backup-client-wasm/target
 
 keyserver/dist
 keyserver/node_modules
