@@ -12,6 +12,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
@@ -154,7 +155,7 @@ function ConnectEthereum(props: Props): React.Node {
 
       const { userInfo } = await searchPromise;
 
-      if (userInfo) {
+      if (userInfo && !usingCommServicesAccessToken) {
         navigate<'ExistingEthereumAccount'>({
           name: ExistingEthereumAccountRouteName,
           params: result,
