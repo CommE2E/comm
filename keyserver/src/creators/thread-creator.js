@@ -147,7 +147,7 @@ async function createThread(
   // keyserver, so we set them to the have the Genesis community as their
   // parent thread.
   if (!parentThreadID && !threadTypeIsCommunityRoot(threadType)) {
-    parentThreadID = genesis.id;
+    parentThreadID = genesis().id;
   }
 
   const determineThreadAncestryPromise = determineThreadAncestry(
@@ -464,7 +464,7 @@ async function createThread(
   if (
     parentThreadID &&
     threadType !== threadTypes.SIDEBAR &&
-    (parentThreadID !== genesis.id ||
+    (parentThreadID !== genesis().id ||
       threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
       threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD)
   ) {
