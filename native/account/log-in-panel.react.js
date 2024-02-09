@@ -30,12 +30,12 @@ import {
 } from 'lib/types/account-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { TextInput } from './modal-components.react.js';
 import {
@@ -254,7 +254,7 @@ class LogInPanel extends React.PureComponent<Props> {
     const extraInfo = await this.props.logInExtraInfo();
     const initialNotificationsEncryptedMessage =
       await this.props.getInitialNotificationsEncryptedMessage(
-        ashoatKeyserverID,
+        authoritativeKeyserverID,
       );
 
     if (usingCommServicesAccessToken) {

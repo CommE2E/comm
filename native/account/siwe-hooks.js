@@ -9,9 +9,9 @@ import type {
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import type { CallSingleKeyserverEndpointOptions } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
@@ -60,9 +60,12 @@ function useLegacySIWEServerCall(): (
     ) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await getInitialNotificationsEncryptedMessage(ashoatKeyserverID, {
-          callSingleKeyserverEndpointOptions,
-        });
+        await getInitialNotificationsEncryptedMessage(
+          authoritativeKeyserverID,
+          {
+            callSingleKeyserverEndpointOptions,
+          },
+        );
 
       const siwePromise = callSIWE(
         message,
