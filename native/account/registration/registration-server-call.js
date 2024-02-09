@@ -35,7 +35,10 @@ import {
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { setNativeCredentials } from '../native-credentials.js';
-import { useLegacySIWEServerCall } from '../siwe-hooks.js';
+import {
+  useLegacySIWEServerCall,
+  useIdentityWalletRegisterCall,
+} from '../siwe-hooks.js';
 
 // We can't just do everything in one async callback, since the server calls
 // would get bound to Redux state from before the registration. The registration
@@ -177,6 +180,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
+  const identityWalletRegisterCall = useIdentityWalletRegisterCall();
   const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
@@ -198,10 +202,24 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               );
             } else if (accountSelection.accountType === 'username') {
               await identityRegisterUsernameAccount(accountSelection);
-            } else {
+            } else if (!usingCommServicesAccessToken) {
               try {
                 await legacySiweServerCall(accountSelection, {
                   urlPrefixOverride: keyserverURL,
+                });
+              } catch (e) {
+                Alert.alert(
+                  UnknownErrorAlertDetails.title,
+                  UnknownErrorAlertDetails.message,
+                );
+                throw e;
+              }
+            } else {
+              try {
+                await identityWalletRegisterCall({
+                  address: accountSelection.address,
+                  message: accountSelection.message,
+                  signature: accountSelection.signature,
                 });
               } catch (e) {
                 Alert.alert(
@@ -232,6 +250,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       identityRegisterUsernameAccount,
       legacySiweServerCall,
       dispatch,
+      identityWalletRegisterCall,
     ],
   );
 
