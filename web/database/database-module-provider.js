@@ -24,6 +24,8 @@ import {
 
 declare var baseURL: string;
 declare var commQueryExecutorFilename: string;
+declare var backupClientFilename: string;
+
 const databaseStatuses = Object.freeze({
   notRunning: 'NOT_RUNNING',
   initSuccess: 'INIT_SUCCESS',
@@ -90,9 +92,10 @@ class DatabaseModule {
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
-          databaseModuleFilePath: `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`,
+          webworkerModulesFilePath: `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`,
           encryptionKey,
           commQueryExecutorFilename,
+          backupClientFilename,
         });
         this.status = { type: databaseStatuses.initSuccess };
         console.info('Database initialization success');
