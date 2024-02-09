@@ -20,7 +20,7 @@ export type ServerStateSyncSpec<
     viewer: Viewer,
     ids?: $ReadOnlySet<string>,
   ) => Promise<number>,
-  +getServerInfosHash: (infos: Infos) => number,
-  +getServerInfoHash: (info: Info) => number,
+  +getServerInfosHash: (infos: Infos) => Promise<number>,
+  +getServerInfoHash: (info: Info) => Promise<number>,
   ...StateSyncSpec<Infos, Info, Inconsistencies>,
 };
