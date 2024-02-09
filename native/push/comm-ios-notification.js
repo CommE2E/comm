@@ -3,11 +3,11 @@
 import { NativeModules } from 'react-native';
 
 import type { RawMessageInfo } from 'lib/types/message-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 const { CommIOSNotifications } = NativeModules;
 
@@ -53,7 +53,7 @@ export class CommIOSNotification {
       ...notification,
       threadID: convertNonPendingIDToNewSchema(
         notification.threadID,
-        ashoatKeyserverID,
+        authoritativeKeyserverID,
       ),
       messageInfos: convertNotificationMessageInfoToNewIDSchema(
         notification.messageInfos,
