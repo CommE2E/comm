@@ -8,6 +8,7 @@ import {
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
@@ -15,7 +16,6 @@ import {
 } from 'lib/utils/push-alerts.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { decryptDesktopNotification } from './notif-crypto-utils.js';
 import {
@@ -73,7 +73,7 @@ function useCreateDesktopPushSubscription() {
         ({ threadID }: { +threadID: string }) => {
           const convertedThreadID = convertNonPendingIDToNewSchema(
             threadID,
-            ashoatKeyserverID,
+            authoritativeKeyserverID,
           );
 
           const payload = {
