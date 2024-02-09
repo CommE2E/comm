@@ -16,18 +16,19 @@ function Alert(props: AlertProps): React.Node {
   const { title, children } = props;
   const { popModal } = useModalContext();
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button onClick={popModal} type="submit" variant="filled">
+        OK
+      </Button>
+    ),
+    [popModal],
+  );
+
   return (
-    <Modal name={title} onClose={popModal}>
+    <Modal name={title} onClose={popModal} primaryButton={primaryButton}>
       <div className={css.modal_body}>
         <p>{children}</p>
-        <Button
-          onClick={popModal}
-          type="submit"
-          variant="filled"
-          className={css.ok_button}
-        >
-          OK
-        </Button>
       </div>
     </Modal>
   );
