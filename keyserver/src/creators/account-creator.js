@@ -138,7 +138,7 @@ async function createAccount(
     updateThread(
       createScriptViewer(ashoat.id),
       {
-        threadID: genesis.id,
+        threadID: genesis().id,
         changes: { newMemberIDs: [id] },
       },
       { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
@@ -312,7 +312,7 @@ async function processAccountCreationCommon(viewer: Viewer) {
     updateThread(
       createScriptViewer(ashoat.id),
       {
-        threadID: genesis.id,
+        threadID: genesis().id,
         changes: { newMemberIDs: [viewer.userID] },
       },
       { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },

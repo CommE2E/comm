@@ -103,7 +103,7 @@ function ChatThreadList(): React.Node {
     );
   }, [popModal, pushModal, communityThreadInfo]);
 
-  const isChatCreation = !communityID || communityID === genesis.id;
+  const isChatCreation = !communityID || communityID === genesis().id;
 
   const onClickCreate = isChatCreation
     ? onClickNewThread
