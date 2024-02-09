@@ -1,5 +1,6 @@
 // @flow
 
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -18,6 +19,7 @@ export const workerRequestMessageTypes = Object.freeze({
   SET_PERSIST_STORAGE_ITEM: 8,
   REMOVE_PERSIST_STORAGE_ITEM: 9,
   CLEAR_SENSITIVE_DATA: 10,
+  BACKUP_RESTORE: 11,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -25,6 +27,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.SET_CURRENT_USER_ID,
   workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
+  workerRequestMessageTypes.BACKUP_RESTORE,
 ];
 
 export type PingWorkerRequestMessage = {
@@ -82,6 +85,13 @@ export type ClearSensitiveDataRequestMessage = {
   +type: 10,
 };
 
+export type BackupRestoreRequestMessage = {
+  +type: 11,
+  +authMetadata: AuthMetadata,
+  +backupID: string,
+  +backupDataKey: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -93,7 +103,8 @@ export type WorkerRequestMessage =
   | GetPersistStorageItemRequestMessage
   | SetPersistStorageItemRequestMessage
   | RemovePersistStorageItemRequestMessage
-  | ClearSensitiveDataRequestMessage;
+  | ClearSensitiveDataRequestMessage
+  | BackupRestoreRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
