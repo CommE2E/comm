@@ -126,6 +126,7 @@ COPY --chown=comm native/expo-modules/comm-expo-package/package.json \
   native/expo-modules/comm-expo-package/
 COPY --chown=comm services/electron-update-server/package.json \
   services/electron-update-server/
+COPY --chown=comm web/backup-client-wasm/package.json web/backup-client-wasm/
 
 # Create empty Rust library and copy in Cargo.toml file
 RUN cargo init keyserver/addons/rust-node-addon --lib
