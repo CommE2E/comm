@@ -3,6 +3,7 @@
 import initBackupClientModule from 'backup-client-wasm';
 import localforage from 'localforage';
 
+import { restoreBackup } from './backup.js';
 import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
@@ -243,6 +244,14 @@ async function processAppRequest(
     message.type === workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM
   ) {
     sqliteQueryExecutor.removePersistStorageItem(message.key);
+  } else if (message.type === workerRequestMessageTypes.BACKUP_RESTORE) {
+    await restoreBackup(
+      sqliteQueryExecutor,
+      dbModule,
+      message.authMetadata,
+      message.backupID,
+      message.backupDataKey,
+    );
   }
 
   persistNeeded = true;
