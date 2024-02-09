@@ -15,9 +15,9 @@ import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   useGetSignedIdentityKeysBlob,
@@ -37,10 +37,12 @@ import { decompressMessage } from './utils/decompress.js';
 
 const WebSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function WebSocket(props) {
-    const cookie = useSelector(cookieSelector(ashoatKeyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+    const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
+    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
     invariant(urlPrefix, 'missing urlPrefix for given keyserver id');
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const active = useSelector(
       state =>
@@ -49,13 +51,15 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         state.lifecycleState !== 'background',
     );
 
-    const openSocket = useSelector(openSocketSelector(ashoatKeyserverID));
+    const openSocket = useSelector(
+      openSocketSelector(authoritativeKeyserverID),
+    );
     invariant(openSocket, 'openSocket failed to be created');
     const sessionIdentification = useSelector(
-      sessionIdentificationSelector(ashoatKeyserverID),
+      sessionIdentificationSelector(authoritativeKeyserverID),
     );
     const preRequestUserState = useSelector(
-      preRequestUserStateForSingleKeyserverSelector(ashoatKeyserverID),
+      preRequestUserStateForSingleKeyserverSelector(authoritativeKeyserverID),
     );
     const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
     const webNotificationsSessionCreator = useWebNotificationsSessionCreator();
@@ -68,7 +72,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
           cookie,
           notificationsIdentityKeys,
           notificationsInitializationInfo,
-          ashoatKeyserverID,
+          authoritativeKeyserverID,
         ),
       [webNotificationsSessionCreator, cookie],
     );
@@ -82,7 +86,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
       }),
     );
     const sessionStateFunc = useSelector(
-      webSessionStateFuncSelector(ashoatKeyserverID),
+      webSessionStateFuncSelector(authoritativeKeyserverID),
     );
     const currentCalendarQuery = useSelector(webCalendarQuery);
 
@@ -99,7 +103,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const dispatchActionPromise = useDispatchActionPromise();
 
     const lastCommunicatedPlatformDetails = useSelector(
-      lastCommunicatedPlatformDetailsSelector(ashoatKeyserverID),
+      lastCommunicatedPlatformDetailsSelector(authoritativeKeyserverID),
     );
 
     return (

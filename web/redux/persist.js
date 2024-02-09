@@ -14,6 +14,7 @@ import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
@@ -22,7 +23,6 @@ import {
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import { defaultWebState } from './default-state.js';
@@ -119,8 +119,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             lastCommunicatedPlatformDetails,
           },
         },
@@ -178,8 +178,8 @@ const migrations = {
         ...state.keyserverStore,
         keyserverInfos: {
           ...state.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...state.keyserverStore.keyserverInfos[authoritativeKeyserverID],
             cookie,
           },
         },
@@ -196,8 +196,8 @@ const migrations = {
       ...state.keyserverStore,
       keyserverInfos: {
         ...state.keyserverStore.keyserverInfos,
-        [ashoatKeyserverID]: {
-          ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+        [authoritativeKeyserverID]: {
+          ...state.keyserverStore.keyserverInfos[authoritativeKeyserverID],
           urlPrefix: keyserverURL,
         },
       },

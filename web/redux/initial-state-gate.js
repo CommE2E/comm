@@ -10,11 +10,11 @@ import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyRawThreadInfo } from 'lib/types/thread-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   setInitialReduxState,
@@ -59,7 +59,10 @@ function InitialReduxStateGate(props: Props): React.Node {
         if (urlInfo.thread) {
           urlInfo = {
             ...urlInfo,
-            thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
+            thread: convertIDToNewSchema(
+              urlInfo.thread,
+              authoritativeKeyserverID,
+            ),
           };
         }
         const clientDBStore = await getClientDBStore();

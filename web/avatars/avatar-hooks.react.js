@@ -8,7 +8,7 @@ import {
 } from 'lib/actions/upload-actions.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 
 import { encryptFile } from '../media/encryption-utils.js';
 import { generateThumbHash } from '../media/image-utils.js';
@@ -68,7 +68,7 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
           loop: false,
           thumbHash,
         },
-        keyserverOrThreadID: ashoatKeyserverID,
+        keyserverOrThreadID: authoritativeKeyserverID,
         callbacks: {},
       });
 
