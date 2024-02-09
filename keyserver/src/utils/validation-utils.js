@@ -20,12 +20,12 @@ import {
   tPlatform,
   tPlatformDetails,
   assertWithValidator,
-  ashoatKeyserverID,
 } from 'lib/utils/validation-utils.js';
 
 import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { verifyClientSupported } from '../session/version.js';
 import type { Viewer } from '../session/viewer.js';
+import { thisKeyserverID } from '../user/login.js';
 
 async function validateInput<T>(
   viewer: Viewer,
@@ -37,6 +37,8 @@ async function validateInput<T>(
   }
   const convertedInput = checkInputValidator(inputValidator, input);
 
+  const keyserverID = await thisKeyserverID();
+
   if (
     hasMinStateVersion(viewer.platformDetails, {
       native: 43,
@@ -45,7 +47,7 @@ async function validateInput<T>(
   ) {
     try {
       return convertClientIDsToServerIDs(
-        ashoatKeyserverID,
+        keyserverID,
         inputValidator,
         convertedInput,
       );
@@ -57,11 +59,11 @@ async function validateInput<T>(
   return convertedInput;
 }
 
-function validateOutput<T>(
+async function validateOutput<T>(
   platformDetails: ?PlatformDetails,
   outputValidator: TType<T>,
   data: T,
-): T {
+): Promise<T> {
   if (!outputValidator.is(data)) {
     console.trace(
       'Output validation failed, validator is:',
@@ -70,17 +72,15 @@ function validateOutput<T>(
     return data;
   }
 
+  const keyserverID = await thisKeyserverID();
+
   if (
     hasMinStateVersion(platformDetails, {
       native: 43,
       web: 3,
     })
   ) {
-    return convertServerIDsToClientIDs(
-      ashoatKeyserverID,
-      outputValidator,
-      data,
-    );
+    return convertServerIDsToClientIDs(keyserverID, outputValidator, data);
   }
 
   return data;

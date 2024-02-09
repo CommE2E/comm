@@ -6,6 +6,7 @@ import { getRustAPI } from 'rust-node-addon';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   saveIdentityInfo,
@@ -33,6 +34,22 @@ async function verifyUserLoggedIn(): Promise<IdentityInfo> {
   const identityInfo = await registerOrLogIn();
   await saveIdentityInfo(identityInfo);
   return identityInfo;
+}
+
+let fetchedThisKeyserverID: ?string;
+
+async function thisKeyserverID(): Promise<string> {
+  if (fetchedThisKeyserverID) {
+    return fetchedThisKeyserverID;
+  }
+  try {
+    const result = await verifyUserLoggedIn();
+    fetchedThisKeyserverID = result?.userId;
+  } catch {
+    console.warn('Identity login failed. Using 256 as own id');
+    fetchedThisKeyserverID = ashoatKeyserverID;
+  }
+  return fetchedThisKeyserverID;
 }
 
 async function registerOrLogIn(): Promise<IdentityInfo> {
@@ -136,4 +153,4 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
   }
 }
 
-export { verifyUserLoggedIn };
+export { verifyUserLoggedIn, thisKeyserverID };
