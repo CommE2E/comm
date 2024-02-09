@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -13,6 +12,7 @@ import { useIsAppLoggedIn } from './nav-selectors.js';
 import { NavContext, type NavAction } from './navigation-context.js';
 import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.js';
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import DevTools from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
@@ -61,7 +61,7 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 
   const hasCurrentUserInfo = useSelector(isLoggedIn);
 
-  const cookie = useSelector(cookieSelector(ashoatKeyserverID));
+  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
   const hasUserCookie = !!(cookie && cookie.startsWith('user='));
 
   const loggedIn = hasCurrentUserInfo && hasUserCookie;

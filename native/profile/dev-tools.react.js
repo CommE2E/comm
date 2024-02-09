@@ -9,9 +9,9 @@ import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { commCoreModule } from '../native-modules.js';
@@ -237,7 +237,7 @@ class DevTools extends React.PureComponent<Props> {
 
 const ConnectedDevTools: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedDevTools(props: BaseProps) {
-    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const customServer = useSelector(state => state.customServer);
     const colors = useColors();
