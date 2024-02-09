@@ -14,13 +14,13 @@ import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   setInitialReduxState,
   useGetInitialReduxState,
 } from './action-types.js';
 import { useSelector } from './redux-utils.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import {
   getClientDBStore,
   processDBStoreOperations,
@@ -59,7 +59,10 @@ function InitialReduxStateGate(props: Props): React.Node {
         if (urlInfo.thread) {
           urlInfo = {
             ...urlInfo,
-            thread: convertIDToNewSchema(urlInfo.thread, ashoatKeyserverID),
+            thread: convertIDToNewSchema(
+              urlInfo.thread,
+              authoritativeKeyserverID,
+            ),
           };
         }
         const clientDBStore = await getClientDBStore();
