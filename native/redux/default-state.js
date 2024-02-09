@@ -8,8 +8,8 @@ import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { defaultDimensionsInfo } from './dimensions-updater.react.js';
 import type { AppState } from './state-types.js';
@@ -37,7 +37,7 @@ const defaultState = ({
     messages: {},
     threads: {},
     local: {},
-    currentAsOf: { [ashoatKeyserverID]: 0 },
+    currentAsOf: { [authoritativeKeyserverID]: 0 },
   },
   storeLoaded: false,
   loadingStatuses: {},
@@ -72,7 +72,7 @@ const defaultState = ({
   },
   keyserverStore: {
     keyserverInfos: {
-      [ashoatKeyserverID]: defaultKeyserverInfo(defaultURLPrefix),
+      [authoritativeKeyserverID]: defaultKeyserverInfo(defaultURLPrefix),
     },
   },
   localSettings: {

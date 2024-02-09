@@ -48,6 +48,7 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -57,7 +58,6 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { EntryInfoWithHeight } from './calendar.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
@@ -783,7 +783,9 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         navContext,
       }),
     );
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const styles = useStyles(unboundStyles);

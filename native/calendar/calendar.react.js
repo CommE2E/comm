@@ -37,6 +37,7 @@ import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ConnectionStatus } from 'lib/types/socket-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import {
   dateFromString,
   dateString,
@@ -47,7 +48,6 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import CalendarInputBar from './calendar-input-bar.react.js';
 import {
@@ -1081,7 +1081,9 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const calendarFilters = useSelector(state => state.calendarFilters);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const loadingStatus = useSelector(loadingStatusSelector);
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const connectionStatus = connection.status;
     const colors = useColors();
