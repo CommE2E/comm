@@ -15,9 +15,9 @@ import {
 } from 'lib/utils/push-alerts.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import { decryptDesktopNotification } from './notif-crypto-utils.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import {
   WORKERS_MODULES_DIR_PATH,
   DEFAULT_OLM_FILENAME,
@@ -73,7 +73,7 @@ function useCreateDesktopPushSubscription() {
         ({ threadID }: { +threadID: string }) => {
           const convertedThreadID = convertNonPendingIDToNewSchema(
             threadID,
-            ashoatKeyserverID,
+            authoritativeKeyserverID,
           );
 
           const payload = {

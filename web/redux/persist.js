@@ -28,12 +28,12 @@ import {
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import { defaultWebState } from './default-state.js';
 import type { AppState } from './redux-setup.js';
 import { nonUserSpecificFieldsWeb } from './redux-setup.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getDatabaseModule } from '../database/database-module-provider.js';
 import { isSQLiteSupported } from '../database/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
@@ -124,8 +124,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             lastCommunicatedPlatformDetails,
           },
         },
@@ -183,8 +183,8 @@ const migrations = {
         ...state.keyserverStore,
         keyserverInfos: {
           ...state.keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...state.keyserverStore.keyserverInfos[authoritativeKeyserverID],
             cookie,
           },
         },
@@ -201,8 +201,8 @@ const migrations = {
       ...state.keyserverStore,
       keyserverInfos: {
         ...state.keyserverStore.keyserverInfos,
-        [ashoatKeyserverID]: {
-          ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+        [authoritativeKeyserverID]: {
+          ...state.keyserverStore.keyserverInfos[authoritativeKeyserverID],
           urlPrefix: keyserverURL,
         },
       },

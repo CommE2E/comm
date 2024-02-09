@@ -5,9 +5,9 @@ import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import type { AppState } from './redux-setup.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
 declare var keyserverURL: string;
 
@@ -35,7 +35,7 @@ const defaultWebState: AppState = Object.freeze({
     messages: {},
     threads: {},
     local: {},
-    currentAsOf: { [ashoatKeyserverID]: 0 },
+    currentAsOf: { [authoritativeKeyserverID]: 0 },
   },
   windowActive: true,
   pushApiPublicKey: null,
@@ -71,7 +71,7 @@ const defaultWebState: AppState = Object.freeze({
   communityPickerStore: { chat: null, calendar: null },
   keyserverStore: {
     keyserverInfos: {
-      [ashoatKeyserverID]: defaultKeyserverInfo(keyserverURL),
+      [authoritativeKeyserverID]: defaultKeyserverInfo(keyserverURL),
     },
   },
   threadActivityStore: {},

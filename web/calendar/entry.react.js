@@ -45,9 +45,9 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import css from './calendar.css';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react.js';
@@ -472,7 +472,9 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const callCreateEntry = useCreateEntry();

@@ -9,8 +9,8 @@ import type {
 } from 'lib/types/redux-types.js';
 import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import type {
   ExcludedData,
   InitialReduxState,
@@ -54,7 +54,7 @@ const getInitialReduxState =
       // for adding a new keyserver more extensive. However, for the time being
       // we need to add this check below so that we aren't trying to make calls
       // to nonexistant keyservers that are in our keyserver store.
-      if (keyserverID !== ashoatKeyserverID) {
+      if (keyserverID !== authoritativeKeyserverID) {
         continue;
       }
       const clientUpdatesCurrentAsOf = allUpdatesCurrentAsOf[keyserverID];
@@ -89,7 +89,7 @@ const getInitialReduxState =
       pushApiPublicKey,
       commServicesAccessToken,
       navInfo,
-    } = responses[ashoatKeyserverID];
+    } = responses[authoritativeKeyserverID];
 
     const dataLoaded = currentUserInfo && !currentUserInfo.anonymous;
     const actualizedCalendarQuery = {
