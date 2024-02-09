@@ -32,6 +32,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
@@ -47,7 +48,6 @@ import {
 } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   type AndroidMessage,
@@ -654,7 +654,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   androidNotificationOpened = async (threadID: string) => {
     const convertedThreadID = convertNonPendingIDToNewSchema(
       threadID,
-      ashoatKeyserverID,
+      authoritativeKeyserverID,
     );
     this.onPushNotifBootsApp();
     this.onPressNotificationForThread(convertedThreadID, true);
@@ -705,10 +705,12 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
     );
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const updatesCurrentAsOf = useSelector(
-      updatesCurrentAsOfSelector(ashoatKeyserverID),
+      updatesCurrentAsOfSelector(authoritativeKeyserverID),
     );
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);

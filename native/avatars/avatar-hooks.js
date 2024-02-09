@@ -28,7 +28,7 @@ import type {
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
@@ -108,7 +108,7 @@ function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
             thumbHash,
             loop: false,
           },
-          keyserverOrThreadID: ashoatKeyserverID,
+          keyserverOrThreadID: authoritativeKeyserverID,
           callbacks: { blobServiceUploadHandler },
         });
         if (!id) {

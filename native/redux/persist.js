@@ -78,6 +78,7 @@ import type {
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
@@ -96,7 +97,6 @@ import {
   convertRawThreadInfoToClientDBThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 import { getUUID } from 'lib/utils/uuid.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
   updateClientDBThreadStoreThreadInfos,
@@ -722,7 +722,7 @@ const migrations = {
       ),
       connection: convertConnectionInfoToNewIDSchema(state.connection),
       watchedThreadIDs: state.watchedThreadIDs.map(
-        id => `${ashoatKeyserverID}|${id}`,
+        id => `${authoritativeKeyserverID}|${id}`,
       ),
       inviteLinksStore: convertInviteLinksStoreToNewIDSchema(inviteLinksStore),
     };
@@ -732,7 +732,9 @@ const migrations = {
 
     return {
       ...rest,
-      keyserverStore: { keyserverInfos: { [ashoatKeyserverID]: { cookie } } },
+      keyserverStore: {
+        keyserverInfos: { [authoritativeKeyserverID]: { cookie } },
+      },
     };
   },
   [45]: async (state: any) => {
@@ -744,8 +746,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             updatesCurrentAsOf,
           },
         },
@@ -759,7 +761,7 @@ const migrations = {
       ...state,
       messageStore: {
         ...state.messageStore,
-        currentAsOf: { [ashoatKeyserverID]: currentAsOf },
+        currentAsOf: { [authoritativeKeyserverID]: currentAsOf },
       },
     };
   },
@@ -772,8 +774,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             urlPrefix,
           },
         },
@@ -789,8 +791,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             connection,
           },
         },
@@ -801,7 +803,7 @@ const migrations = {
     const { keyserverStore, ...rest } = state;
 
     const { connection, ...keyserverRest } =
-      keyserverStore.keyserverInfos[ashoatKeyserverID];
+      keyserverStore.keyserverInfos[authoritativeKeyserverID];
 
     return {
       ...rest,
@@ -809,7 +811,7 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
+          [authoritativeKeyserverID]: {
             ...keyserverRest,
           },
         },
@@ -836,8 +838,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             lastCommunicatedPlatformDetails,
           },
         },
@@ -911,8 +913,10 @@ const migrations = {
             ...state.keyserverStore,
             keyserverInfos: {
               ...state.keyserverStore.keyserverInfos,
-              [ashoatKeyserverID]: {
-                ...state.keyserverStore.keyserverInfos[ashoatKeyserverID],
+              [authoritativeKeyserverID]: {
+                ...state.keyserverStore.keyserverInfos[
+                  authoritativeKeyserverID
+                ],
                 urlPrefix: defaultURLPrefix,
               },
             },
@@ -928,8 +932,8 @@ const migrations = {
         ...keyserverStore,
         keyserverInfos: {
           ...keyserverStore.keyserverInfos,
-          [ashoatKeyserverID]: {
-            ...keyserverStore.keyserverInfos[ashoatKeyserverID],
+          [authoritativeKeyserverID]: {
+            ...keyserverStore.keyserverInfos[authoritativeKeyserverID],
             deviceToken,
           },
         },
