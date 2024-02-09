@@ -1,5 +1,5 @@
 .container {
-  padding: 0 32px 32px;
+  padding: 0 8px 8px 8px;
   width: 552px;
   max-width: 80vw;
 }
@@ -21,7 +21,7 @@
 
 .usernameText {
   font-size: var(--xxl-font-24);
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   font-weight: 500;
 }
 
@@ -53,6 +53,6 @@
 }
 
 .incomingFriendRequestText {
-  color: var(--fg);
+  color: var(--text-background-primary-default);
   margin: 24px 0 8px 0;
 }
