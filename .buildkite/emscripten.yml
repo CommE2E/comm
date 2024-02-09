@@ -1,11 +1,19 @@
 steps:
-  - label: 'Emscripten build'
+  - label: 'WASM build'
     command:
+      - 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
+      - 'source /root/.cargo/env'
       - 'apt update && apt install -y autoconf libtool build-essential cmake git'
       - 'cd web'
+
       - 'BEFORE_HASH=$(sha256sum ./database/_generated/comm_query_executor.wasm)'
       - './scripts/run_emscripten.sh'
       - 'AFTER_HASH=$(sha256sum ./database/_generated/comm_query_executor.wasm)'
+      - '[[ "$BEFORE_HASH" == "$AFTER_HASH" ]] || exit 1'
+
+      - 'BEFORE_HASH=$(sha256sum ./backup-client-wasm/_generated/backup-client-wasm_bg.wasm)'
+      - 'yarn build-backup-client-wasm'
+      - 'AFTER_HASH=$(sha256sum ./backup-client-wasm/_generated/backup-client-wasm_bg.wasm)'
       - '[[ "$BEFORE_HASH" == "$AFTER_HASH" ]] || exit 1'
     retry:
       automatic: true

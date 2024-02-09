@@ -11,6 +11,8 @@
     "test": "jest",
     "build-db-wasm": "./scripts/run_emscripten.sh",
     "clean-db-wasm": "rm -rf database/_generated/ && rm -rf database/sqlite/",
+    "build-backup-client-wasm": "wasm-pack build backup-client-wasm --target web --no-typescript --no-pack --out-dir _generated --out-name backup-client-wasm && rm backup-client-wasm/_generated/.gitignore",
+    "clean-backup-client-wasm": "rm -rf backup-client-wasm/_generated && rm -rf backup-client-wasm/target",
     "codegen-identity-grpc": "./scripts/codegen-identity-grpc.sh"
   },
   "devDependencies": {
