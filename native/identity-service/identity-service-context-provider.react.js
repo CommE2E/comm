@@ -201,7 +201,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       registerPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
         const [
-          { blobPayload, signature },
+          { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
           prekeys,
         ] = await Promise.all([
@@ -224,15 +224,23 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = { accessToken: token, userID, username };
 
-        return assertWithValidator(
+        const validatedResult = assertWithValidator(
           identityAuthResult,
           identityAuthResultValidator,
         );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
       },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
         const [
-          { blobPayload, signature },
+          { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
           prekeys,
         ] = await Promise.all([
@@ -255,10 +263,18 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const { userID, accessToken: token } = JSON.parse(loginResult);
         const identityAuthResult = { accessToken: token, userID, username };
 
-        return assertWithValidator(
+        const validatedResult = assertWithValidator(
           identityAuthResult,
           identityAuthResultValidator,
         );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
       },
       registerWalletUser: async (
         walletAddress: string,
@@ -306,7 +322,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
-          { blobPayload, signature },
+          { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
           prekeys,
         ] = await Promise.all([
@@ -333,10 +349,18 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           username: walletAddress,
         };
 
-        return assertWithValidator(
+        const validatedResult = assertWithValidator(
           identityAuthResult,
           identityAuthResultValidator,
         );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
       },
       generateNonce: commRustModule.generateNonce,
     }),
