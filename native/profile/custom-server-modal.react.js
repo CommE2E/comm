@@ -9,8 +9,8 @@ import { urlPrefixSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
 import TextInput from '../components/text-input.react.js';
@@ -120,7 +120,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
 
 const ConnectedCustomServerModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedCustomServerModal(props: BaseProps) {
-    const urlPrefix = useSelector(urlPrefixSelector(ashoatKeyserverID));
+    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
     invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const customServer = useSelector(state => state.customServer);
     const styles = useStyles(unboundStyles);

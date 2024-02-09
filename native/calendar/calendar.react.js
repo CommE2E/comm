@@ -47,7 +47,6 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
 import sleep from 'lib/utils/sleep.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import CalendarInputBar from './calendar-input-bar.react.js';
 import {
@@ -56,6 +55,7 @@ import {
   InternalEntry,
 } from './entry.react.js';
 import SectionFooter from './section-footer.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import ContentLoading from '../components/content-loading.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
@@ -1081,7 +1081,9 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const calendarFilters = useSelector(state => state.calendarFilters);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const loadingStatus = useSelector(loadingStatusSelector);
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
+    const connection = useSelector(
+      connectionSelector(authoritativeKeyserverID),
+    );
     invariant(connection, 'keyserver missing from keyserverStore');
     const connectionStatus = connection.status;
     const colors = useColors();
