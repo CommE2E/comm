@@ -359,7 +359,7 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
     const measureMessages = useHeightMeasurer();
 
     const genesisThreadInfo = useSelector(
-      state => threadInfoSelector(state)[genesis.id],
+      state => threadInfoSelector(state)[genesis().id],
     );
 
     const bannerText =

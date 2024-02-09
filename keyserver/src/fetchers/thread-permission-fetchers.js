@@ -305,7 +305,7 @@ async function validateCandidateMembers(
       ignoreMembers.add(memberID);
       continue;
     }
-    const isParentThreadGenesis = params.parentThreadID === genesis.id;
+    const isParentThreadGenesis = params.parentThreadID === genesis().id;
     if (
       (memberOfContainingThread.get(memberID) === 'no-containing-thread' ||
         isParentThreadGenesis) &&
