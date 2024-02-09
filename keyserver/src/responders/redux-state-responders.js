@@ -44,7 +44,7 @@ import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
-import { tShape, ashoatKeyserverID, tID } from 'lib/utils/validation-utils.js';
+import { tShape, tID } from 'lib/utils/validation-utils.js';
 import type {
   InitialReduxStateRequest,
   ExcludedData,
@@ -64,6 +64,7 @@ import {
 import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
+import { thisKeyserverID } from '../user/identity.js';
 
 const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
   threadStore: t.maybe(t.Bool),
@@ -190,24 +191,26 @@ async function getInitialReduxStateResponder(
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
       hasNotAcknowledgedPolicies,
+      keyserverID,
     ] = await Promise.all([
       threadInfoPromise,
       messageInfoPromise,
       hasNotAcknowledgedPoliciesPromise,
+      thisKeyserverID(),
     ]);
     if (hasNotAcknowledgedPolicies) {
       return {
         messages: {},
         threads: {},
         local: {},
-        currentAsOf: { [ashoatKeyserverID]: 0 },
+        currentAsOf: { [keyserverID]: 0 },
       };
     }
     const { messageStore: freshStore } = freshMessageStore(
       rawMessageInfos,
       truncationStatuses,
       {
-        [ashoatKeyserverID]: mostRecentMessageTimestamp(
+        [keyserverID]: mostRecentMessageTimestamp(
           rawMessageInfos,
           serverUpdatesCurrentAsOf,
         ),

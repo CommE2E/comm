@@ -379,7 +379,7 @@ class Socket {
     }
 
     const { viewer } = this;
-    const validatedMessage = validateOutput(
+    const validatedMessage = await validateOutput(
       viewer?.platformDetails,
       serverServerSocketMessageValidator,
       message,
@@ -411,7 +411,7 @@ class Socket {
       payload: compressionResult.result,
     };
 
-    const validatedCompressedMessage = validateOutput(
+    const validatedCompressedMessage = await validateOutput(
       viewer?.platformDetails,
       serverServerSocketMessageValidator,
       compressedMessage,
