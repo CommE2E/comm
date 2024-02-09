@@ -27,3 +27,4 @@ desktop/out
 desktop/dist
 services/electron-update-server/flow-typed
 target
+backup_client
