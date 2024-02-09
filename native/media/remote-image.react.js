@@ -5,9 +5,9 @@ import * as React from 'react';
 
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { type ConnectionStatus } from 'lib/types/socket-types.js';
-import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import LoadableImage from './loadable-image.react.js';
+import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
@@ -69,7 +69,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
 }
 
 function ConnectedRemoteImage(props: BaseProps): React.Node {
-  const connection = useSelector(connectionSelector(ashoatKeyserverID));
+  const connection = useSelector(connectionSelector(authoritativeKeyserverID));
   invariant(connection, 'keyserver missing from keyserverStore');
   const connectionStatus = connection.status;
 
