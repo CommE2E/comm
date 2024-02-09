@@ -43,6 +43,7 @@
     "@babel/runtime": "^7.23.7",
     "@commapp/olm": "0.1.0",
     "@commapp/opaque-ke-wasm": "npm:@commapp/opaque-ke-wasm@^0.0.3",
+    "backup-client-wasm": "0.1.0",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@fortawesome/fontawesome-svg-core": "1.2.25",

@@ -37,6 +37,7 @@ export type InitWorkerRequestMessage = {
   +databaseModuleFilePath: string,
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
+  +backupClientFilename?: ?string,
 };
 
 export type GenerateDatabaseEncryptionKeyRequestMessage = {

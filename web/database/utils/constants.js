@@ -11,6 +11,7 @@ export const DATABASE_WORKER_PATH = 'worker/database';
 export const WORKERS_MODULES_DIR_PATH = '/compiled/webworkers';
 
 export const DEFAULT_COMM_QUERY_EXECUTOR_FILENAME = 'comm_query_executor.wasm';
+export const DEFAULT_BACKUP_CLIENT_FILENAME = 'backup-client.wasm';
 
 export const DEFAULT_OLM_FILENAME = 'olm.wasm';
 

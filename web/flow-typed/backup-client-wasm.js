@@ -1,0 +1,38 @@
+// @flow
+
+declare module 'backup-client-wasm' {
+  declare export default (string | URL) => mixed;
+
+  declare export var RequestedData: {
+    +BackupID: 0,
+    +UserKeys: 1,
+    +UserData: 2,
+  };
+
+  declare type UserIdentity = {
+    +userID: string,
+    +accessToken: string,
+    +deviceID: string,
+  };
+
+  declare type BackupDescriptor = {
+    +type: "BackupID", +backupID: string, +userIdentity: UserIdentity,
+  } | {+type: "Latest", +username: string};
+
+  declare export class BackupClient {
+    constructor(url: string): void;
+
+    downloadBackupData(
+      backupDescriptor: BackupDescriptor,
+      requestedData: $Values<typeof RequestedData>,
+    ): Promise<Uint8Array>;
+
+    downloadLogs(
+      userIdentity: UserIdentity,
+      backupID: string,
+      f: (Uint8Array) => mixed,
+    ): Promise<void>;
+
+    free(): void;
+  }
+}

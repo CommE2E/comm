@@ -1,5 +1,6 @@
 // @flow
 
+import initBackupClientModule from 'backup-client-wasm';
 import localforage from 'localforage';
 
 import {
@@ -31,6 +32,7 @@ import {
   localforageConfig,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
+  DEFAULT_BACKUP_CLIENT_FILENAME,
 } from '../utils/constants.js';
 import {
   clearSensitiveData,
@@ -102,6 +104,19 @@ async function initDatabase(
   );
 }
 
+async function initBackupClient(
+  databaseModuleFilePath: string,
+  backupClientFilename: ?string,
+) {
+  let modulePath;
+  if (backupClientFilename) {
+    modulePath = `${databaseModuleFilePath}/${backupClientFilename}`;
+  } else {
+    modulePath = `http://localhost:8080/${DEFAULT_BACKUP_CLIENT_FILENAME}`;
+  }
+  await initBackupClientModule(modulePath);
+}
+
 async function persist() {
   persistInProgress = true;
   const module = dbModule;
@@ -148,11 +163,19 @@ async function processAppRequest(
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
-    await initDatabase(
+    const databasePromise = initDatabase(
       message.databaseModuleFilePath,
       message.commQueryExecutorFilename,
       message.encryptionKey,
     );
+    let backupClientPromise = new Promise(resolve => resolve());
+    if (!(message.backupClientFilename === undefined)) {
+      backupClientPromise = initBackupClient(
+        message.databaseModuleFilePath,
+        message.backupClientFilename,
+      );
+    }
+    await Promise.all([databasePromise, backupClientPromise]);
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
     encryptionKey = null;
