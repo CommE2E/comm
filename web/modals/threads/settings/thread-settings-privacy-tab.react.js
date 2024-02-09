@@ -2,21 +2,16 @@
 
 import * as React from 'react';
 
-import {
-  changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
-} from 'lib/actions/thread-actions.js';
-import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';
+import { useOnSavePrivacyThreadSettings } from './thread-settings-utils.js';
 import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -57,48 +52,17 @@ function ThreadSettingsPrivacyTab(
     errorMessage,
   } = props;
 
-  const modalContext = useModalContext();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useChangeThreadSettings();
-
   const changeQueued: boolean = React.useMemo(
     () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
     [queuedChanges],
   );
 
-  const changeThreadSettingsAction = React.useCallback(async () => {
-    try {
-      setErrorMessage('');
-      const response = await callChangeThreadSettings({
-        threadID: threadInfo.id,
-        changes: queuedChanges,
-      });
-      modalContext.popModal();
-      return response;
-    } catch (e) {
-      setErrorMessage('unknown_error');
-      setQueuedChanges(Object.freeze({}));
-      throw e;
-    }
-  }, [
-    callChangeThreadSettings,
-    modalContext,
+  const onSavePrivacyThreadSettings = useOnSavePrivacyThreadSettings({
+    threadInfo,
     queuedChanges,
-    setErrorMessage,
     setQueuedChanges,
-    threadInfo.id,
-  ]);
-
-  const onSubmit = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      event.preventDefault();
-      void dispatchActionPromise(
-        changeThreadSettingsActionTypes,
-        changeThreadSettingsAction(),
-      );
-    },
-    [changeThreadSettingsAction, dispatchActionPromise],
-  );
+    setErrorMessage,
+  });
 
   const onOpenSelected = React.useCallback(() => {
     setQueuedChanges(prevQueuedChanges =>
@@ -161,7 +125,7 @@ function ThreadSettingsPrivacyTab(
 
       <SubmitSection
         variant="filled"
-        onClick={onSubmit}
+        onClick={onSavePrivacyThreadSettings}
         disabled={threadSettingsOperationInProgress || !changeQueued}
         errorMessage={errorMessage}
       >
