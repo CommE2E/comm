@@ -447,7 +447,7 @@ async function createThreads() {
   const insertIDsPromise = dbQuery(SQL`
     INSERT INTO ids (id, table_name)
     VALUES
-      (${genesis.id}, 'threads'),
+      (${genesis().id}, 'threads'),
       (${bots.commbot.staffThreadID}, 'threads')
   `);
 
@@ -455,10 +455,10 @@ async function createThreads() {
   const createGenesisPromise = createThread(
     ashoatViewer,
     {
-      id: genesis.id,
+      id: genesis().id,
       type: threadTypes.GENESIS,
-      name: genesis.name,
-      description: genesis.description,
+      name: genesis().name,
+      description: genesis().description,
       initialMemberIDs: [bots.commbot.userID],
     },
     createThreadOptions,
