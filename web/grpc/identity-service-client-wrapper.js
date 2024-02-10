@@ -2,6 +2,7 @@
 
 import { Login } from '@commapp/opaque-ke-wasm';
 
+import { setAccessTokenActionType } from 'lib/actions/user-actions.js';
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import {
   type IdentityServiceAuthLayer,
@@ -14,6 +15,7 @@ import {
   identityDeviceTypes,
   identityAuthResultValidator,
 } from 'lib/types/identity-service-types.js';
+import { type Dispatch } from 'lib/types/redux-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -36,10 +38,12 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
+  dispatch: Dispatch;
 
   constructor(
     authLayer: ?IdentityServiceAuthLayer,
     getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
+    dispatch: Dispatch,
   ) {
     if (authLayer) {
       this.authClient =
@@ -47,6 +51,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
     this.unauthClient = IdentityServiceClientWrapper.createUnauthClient();
     this.getDeviceKeyUpload = getDeviceKeyUpload;
+    this.dispatch = dispatch;
   }
 
   static determineSocketAddr(): string {
@@ -280,7 +285,17 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const accessToken = loginFinishResponse.getAccessToken();
     const identityAuthResult = { accessToken, userID, username };
 
-    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
+    const validatedResult = assertWithValidator(
+      identityAuthResult,
+      identityAuthResultValidator,
+    );
+
+    this.dispatch({
+      type: setAccessTokenActionType,
+      payload: validatedResult.accessToken,
+    });
+
+    return validatedResult;
   };
 
   logInWalletUser: (
@@ -312,7 +327,17 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const accessToken = loginResponse.getAccessToken();
     const identityAuthResult = { accessToken, userID, username: walletAddress };
 
-    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
+    const validatedResult = assertWithValidator(
+      identityAuthResult,
+      identityAuthResultValidator,
+    );
+
+    this.dispatch({
+      type: setAccessTokenActionType,
+      payload: validatedResult.accessToken,
+    });
+
+    return validatedResult;
   };
 
   generateNonce: () => Promise<string> = async () => {

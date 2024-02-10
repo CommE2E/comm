@@ -6,6 +6,7 @@ import {
   IdentityClientContext,
   type AuthMetadata,
 } from 'lib/shared/identity-client-context.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
 import { useGetDeviceKeyUpload } from '../account/account-hooks.js';
@@ -23,6 +24,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     state => state.cryptoStore?.primaryIdentityKeys.ed25519,
   );
   const getDeviceKeyUpload = useGetDeviceKeyUpload();
+  const dispatch = useDispatch();
 
   const client = React.useMemo(() => {
     let authLayer = null;
@@ -33,8 +35,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         commServicesAccessToken: accessToken,
       };
     }
-    return new IdentityServiceClientWrapper(authLayer, getDeviceKeyUpload);
-  }, [accessToken, deviceID, getDeviceKeyUpload, userID]);
+    return new IdentityServiceClientWrapper(
+      authLayer,
+      getDeviceKeyUpload,
+      dispatch,
+    );
+  }, [accessToken, deviceID, dispatch, getDeviceKeyUpload, userID]);
 
   const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
     async () => ({
