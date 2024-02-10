@@ -31,7 +31,6 @@ import { commCoreModule } from '../native-modules.js';
 import { setStoreLoadedActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import Alert from '../utils/alert.js';
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
@@ -62,7 +61,7 @@ function SQLiteDataHandler(): React.Node {
   );
   const mediaCacheContext = React.useContext(MediaCacheContext);
   const getInitialNotificationsEncryptedMessage =
-    useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
+    useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
     async (source: RecoveryActionSource) => {

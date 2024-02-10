@@ -12,15 +12,10 @@ import {
 import { openSocketSelector } from 'lib/selectors/socket-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
-import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
-import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import {
-  useGetSignedIdentityKeysBlob,
-  useWebNotificationsSessionCreator,
-} from './account/account-hooks.js';
+import { useGetSignedIdentityKeysBlob } from './account/account-hooks.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
@@ -56,22 +51,8 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
       preRequestUserStateForSingleKeyserverSelector(keyserverID),
     );
     const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
-    const webNotificationsSessionCreator = useWebNotificationsSessionCreator();
-    const webNotifsSessionCreatorForCookie = React.useCallback(
-      async (
-        notificationsIdentityKeys: OLMIdentityKeys,
-        notificationsInitializationInfo: OlmSessionInitializationInfo,
-      ) =>
-        webNotificationsSessionCreator(
-          cookie,
-          notificationsIdentityKeys,
-          notificationsInitializationInfo,
-          keyserverID,
-        ),
-      [webNotificationsSessionCreator, cookie, keyserverID],
-    );
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(webNotifsSessionCreatorForCookie);
+      useInitialNotificationsEncryptedMessage(keyserverID);
     const getClientResponses = useSelector(state =>
       webGetClientResponsesSelector({
         state,
