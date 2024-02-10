@@ -54,7 +54,6 @@ import {
   UnknownErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import { type StateContainer } from '../utils/state-container.js';
 
 type WritableRegisterState = {
@@ -75,9 +74,7 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-  +getInitialNotificationsEncryptedMessage: (
-    keyserverID: string,
-  ) => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
   +confirmPasswordFocused: boolean,
@@ -311,9 +308,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       Keyboard.dismiss();
       const extraInfo = await this.props.logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await this.props.getInitialNotificationsEncryptedMessage(
-          authoritativeKeyserverID,
-        );
+        await this.props.getInitialNotificationsEncryptedMessage();
       void this.props.dispatchActionPromise(
         keyserverRegisterActionTypes,
         this.registerAction({
@@ -492,9 +487,7 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(
-        nativeNotificationsSessionCreator,
-      );
+      useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
     return (
       <RegisterPanel

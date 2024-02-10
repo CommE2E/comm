@@ -409,23 +409,10 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
   );
 }
 
-function useWebNotificationsSessionCreator(): (
-  cookie: ?string,
-  notificationsIdentityKeys: OLMIdentityKeys,
-  notificationsInitializationInfo: OlmSessionInitializationInfo,
-  keyserverID: string,
-) => Promise<string> {
-  const context = React.useContext(OlmSessionCreatorContext);
-  invariant(context, 'WebNotificationsSessionCreator not found.');
-
-  return context.notificationsSessionCreator;
-}
-
 export {
   useGetSignedIdentityKeysBlob,
   useGetOrCreateCryptoStore,
   OlmSessionCreatorProvider,
-  useWebNotificationsSessionCreator,
   GetOrCreateCryptoStoreProvider,
   useGetDeviceKeyUpload,
 };

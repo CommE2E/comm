@@ -54,7 +54,6 @@ import {
   UserNotFoundAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import type { StateContainer } from '../utils/state-container.js';
 
 export type LogInState = {
@@ -76,9 +75,7 @@ type Props = {
     username: string,
     password: string,
   ) => Promise<IdentityAuthResult>,
-  +getInitialNotificationsEncryptedMessage: (
-    keyserverID: string,
-  ) => Promise<string>,
+  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -253,9 +250,7 @@ class LogInPanel extends React.PureComponent<Props> {
     Keyboard.dismiss();
     const extraInfo = await this.props.logInExtraInfo();
     const initialNotificationsEncryptedMessage =
-      await this.props.getInitialNotificationsEncryptedMessage(
-        authoritativeKeyserverID,
-      );
+      await this.props.getInitialNotificationsEncryptedMessage();
 
     if (usingCommServicesAccessToken) {
       void this.props.dispatchActionPromise(
@@ -444,9 +439,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
     const callLegacyLogIn = useLogIn();
     const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(
-        nativeNotificationsSessionCreator,
-      );
+      useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
     return (
       <LogInPanel

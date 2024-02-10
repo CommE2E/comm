@@ -49,10 +49,8 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
 
 type NativeGetClientResponsesSelectorInputType = $ReadOnly<{
   ...NavPlusRedux,
-  getInitialNotificationsEncryptedMessage: (
-    keyserverID: string,
-  ) => Promise<string>,
-  keyserverID: string,
+  +getInitialNotificationsEncryptedMessage: () => Promise<string>,
+  +keyserverID: string,
 }>;
 
 const nativeGetClientResponsesSelector: (
@@ -70,15 +68,11 @@ const nativeGetClientResponsesSelector: (
     getClientResponsesFunc: (
       calendarActive: boolean,
       getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
-      getInitialNotificationsEncryptedMessage: ?(
-        keyserverID: string,
-      ) => Promise<string>,
+      getInitialNotificationsEncryptedMessage: () => Promise<string>,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
     calendarActive: boolean,
-    getInitialNotificationsEncryptedMessage: (
-      keyserverID: string,
-    ) => Promise<string>,
+    getInitialNotificationsEncryptedMessage: () => Promise<string>,
   ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
