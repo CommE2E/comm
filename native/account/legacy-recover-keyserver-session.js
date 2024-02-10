@@ -19,7 +19,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
   recoveryActionSource: RecoveryActionSource,
   keyserverID: string,
-  getInitialNotificationsEncryptedMessage?: (
+  getInitialNotificationsEncryptedMessage: (
     ?InitialNotifMessageOptions,
   ) => Promise<string>,
 ) {
@@ -27,15 +27,15 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   if (!keychainCredentials) {
     return;
   }
-  let extraInfo = await nativeLogInExtraInfoSelector(store.getState())();
 
-  if (getInitialNotificationsEncryptedMessage) {
-    const initialNotificationsEncryptedMessage =
-      await getInitialNotificationsEncryptedMessage({
+  const [baseExtraInfo, initialNotificationsEncryptedMessage] =
+    await Promise.all([
+      nativeLogInExtraInfoSelector(store.getState())(),
+      getInitialNotificationsEncryptedMessage({
         callSingleKeyserverEndpoint,
-      });
-    extraInfo = { ...extraInfo, initialNotificationsEncryptedMessage };
-  }
+      }),
+    ]);
+  const extraInfo = { ...baseExtraInfo, initialNotificationsEncryptedMessage };
 
   const { calendarQuery } = extraInfo;
   await dispatchRecoveryAttempt(
