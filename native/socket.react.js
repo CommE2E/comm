@@ -32,7 +32,6 @@ import {
   nativeSessionStateFuncSelector,
 } from './selectors/socket-selectors.js';
 import Alert from './utils/alert.js';
-import { nativeNotificationsSessionCreator } from './utils/crypto-utils.js';
 import { decompressMessage } from './utils/decompress.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =
@@ -63,9 +62,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
     );
 
     const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(
-        nativeNotificationsSessionCreator,
-      );
+      useInitialNotificationsEncryptedMessage(keyserverID);
 
     const getClientResponses = useSelector(state =>
       nativeGetClientResponsesSelector({

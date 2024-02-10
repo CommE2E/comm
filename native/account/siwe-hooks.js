@@ -22,7 +22,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 
 type SIWEServerCallParams = {
   +message: string,
@@ -57,7 +56,7 @@ function useLegacySIWEServerCall(): (
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const getInitialNotificationsEncryptedMessage =
-    useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
+    useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
@@ -67,12 +66,9 @@ function useLegacySIWEServerCall(): (
     ) => {
       const extraInfo = await logInExtraInfo();
       const initialNotificationsEncryptedMessage =
-        await getInitialNotificationsEncryptedMessage(
-          authoritativeKeyserverID,
-          {
-            callSingleKeyserverEndpointOptions,
-          },
-        );
+        await getInitialNotificationsEncryptedMessage({
+          callSingleKeyserverEndpointOptions,
+        });
 
       const siwePromise = callSIWE(
         message,
