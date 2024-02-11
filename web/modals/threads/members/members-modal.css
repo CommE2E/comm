@@ -60,14 +60,6 @@ div.noUsers {
   text-align: center;
 }
 
-div.addMembersContent {
-  display: flex;
-  flex-direction: column;
-  overflow: auto;
-  color: var(--fg);
-  height: 617px;
-}
-
 div.addMembersPendingList {
   display: flex;
   flex-direction: row;
@@ -77,6 +69,9 @@ div.addMembersPendingList {
 }
 
 div.addMembersListContainer {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-background-primary-default);
   overflow: auto;
   flex: 1;
 }
