@@ -13,7 +13,7 @@ import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-perm
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
-import { AddMembersModalWrapper } from './add-members-modal.react.js';
+import { AddMembersModal } from './add-members-modal.react.js';
 import ThreadMembersList from './members-list.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
@@ -90,9 +90,7 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   const { pushModal, popModal } = useModalContext();
 
   const onClickAddMembers = React.useCallback(() => {
-    pushModal(
-      <AddMembersModalWrapper onClose={popModal} threadID={threadID} />,
-    );
+    pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
   }, [popModal, pushModal, threadID]);
 
   const canAddMembers = threadHasPermission(
