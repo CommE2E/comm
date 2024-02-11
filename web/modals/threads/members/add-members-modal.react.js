@@ -23,7 +23,7 @@ type ContentProps = {
   +threadID: string,
 };
 
-function AddMembersModalContent(props: ContentProps): React.Node {
+function AddMembersList(props: ContentProps): React.Node {
   const { searchText, threadID } = props;
 
   const { userInfos, sortedUsersWithENSNames } = useAddMembersListUserInfos({
@@ -31,8 +31,8 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     searchText,
   });
 
-  return (
-    <div className={css.addMembersContent}>
+  const addMembersList = React.useMemo(
+    () => (
       <div className={css.addMembersListContainer}>
         <AddUsersList
           searchModeActive={searchText.length > 0}
@@ -40,8 +40,11 @@ function AddMembersModalContent(props: ContentProps): React.Node {
           sortedUsersWithENSNames={sortedUsersWithENSNames}
         />
       </div>
-    </div>
+    ),
+    [searchText.length, sortedUsersWithENSNames, userInfos],
   );
+
+  return addMembersList;
 }
 
 type Props = {
@@ -49,7 +52,7 @@ type Props = {
   +onClose: () => void,
 };
 
-function AddMembersModal(props: Props): React.Node {
+function AddMembersModalContent(props: Props): React.Node {
   const { threadID, onClose } = props;
 
   const { pendingUsersToAdd } = useAddUsersListContext();
@@ -87,9 +90,9 @@ function AddMembersModal(props: Props): React.Node {
     [addUsers, pendingUsersToAdd.size],
   );
 
-  const addMembersModalContent = React.useCallback(
+  const addMembersList = React.useCallback(
     (searchText: string) => (
-      <AddMembersModalContent searchText={searchText} threadID={threadID} />
+      <AddMembersList searchText={searchText} threadID={threadID} />
     ),
     [threadID],
   );
@@ -99,22 +102,22 @@ function AddMembersModal(props: Props): React.Node {
       name="Add members"
       searchPlaceholder="Search members"
       onClose={onClose}
-      size="fit-content"
+      size="large"
       primaryButton={primaryButton}
     >
-      {addMembersModalContent}
+      {addMembersList}
     </SearchModal>
   );
 }
 
-function AddMembersModalWrapper(props: Props): React.Node {
+function AddMembersModal(props: Props): React.Node {
   const { threadID, onClose } = props;
 
   return (
     <AddUsersListProvider>
-      <AddMembersModal threadID={threadID} onClose={onClose} />
+      <AddMembersModalContent threadID={threadID} onClose={onClose} />
     </AddUsersListProvider>
   );
 }
 
-export { AddMembersModalWrapper, AddMembersModalContent };
+export { AddMembersModal, AddMembersList };
