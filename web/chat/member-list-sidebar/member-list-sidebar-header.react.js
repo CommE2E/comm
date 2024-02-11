@@ -8,7 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import css from './member-list-sidebar-header.css';
 import { useMemberListSidebarContext } from './member-list-sidebar-provider.react.js';
 import AddButton from '../../components/add-button.react.js';
-import { AddMembersModalWrapper } from '../../modals/threads/members/add-members-modal.react.js';
+import { AddMembersModal } from '../../modals/threads/members/add-members-modal.react.js';
 
 type Props = {
   +threadID: string,
@@ -20,9 +20,7 @@ function MemberListSidebarHeader(props: Props): React.Node {
   const { pushModal, popModal } = useModalContext();
 
   const onClickAddButton = React.useCallback(() => {
-    pushModal(
-      <AddMembersModalWrapper threadID={threadID} onClose={popModal} />,
-    );
+    pushModal(<AddMembersModal threadID={threadID} onClose={popModal} />);
   }, [popModal, pushModal, threadID]);
 
   const { setShowMemberListSidebar } = useMemberListSidebarContext();
