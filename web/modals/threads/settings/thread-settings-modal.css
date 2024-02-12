@@ -26,3 +26,10 @@ div.modal_form_error {
 .relationshipPrimaryButtonPlaceholder {
   height: 44.5px;
 }
+
+.errorMessage {
+  color: var(--text-background-danger-default);
+  font-style: italic;
+  margin-top: 8px;
+  text-align: center;
+}
