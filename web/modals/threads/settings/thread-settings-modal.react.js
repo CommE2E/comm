@@ -241,6 +241,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         return null;
       }
 
+      if (currentTabType === 'relationship') {
+        return <div className={css.relationshipPrimaryButtonPlaceholder} />;
+      }
+
       return (
         <ThreadSettingsDeleteButton
           threadInfo={threadInfo}
@@ -248,7 +252,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
           setErrorMessage={setErrorMessage}
         />
       );
-    }, [changeInProgress, threadInfo]);
+    }, [changeInProgress, currentTabType, threadInfo]);
 
     if (!threadInfo) {
       return (
