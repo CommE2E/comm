@@ -123,6 +123,7 @@ pub async fn create_userkeys_compaction(
     pickle_key,
     pickled_account,
   };
+  println!("{backup_id:?}\n{user_keys:#?}");
   let encrypted_user_keys = user_keys.encrypt(&mut backup_key)?;
 
   let user_keys_file = get_backup_user_keys_file_path(&backup_id)?;

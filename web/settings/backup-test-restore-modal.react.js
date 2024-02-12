@@ -42,7 +42,7 @@ function BackupTestRestoreModal(props: Props): React.Node {
           const databaseModule = await getDatabaseModule();
           await databaseModule.schedule({
             type: workerRequestMessageTypes.BACKUP_RESTORE,
-            authMetadata,
+            authMetadata: { ...authMetadata, accessToken: 'dummy' },
             backupID,
             backupDataKey,
             backupLogDataKey,
