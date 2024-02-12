@@ -11,11 +11,8 @@ import { type ThreadChanges } from 'lib/types/thread-types.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 
-import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-general-tab.css';
-import { useOnSaveGeneralThreadSettings } from './thread-settings-utils.js';
 import EditThreadAvatar from '../../../avatars/edit-thread-avatar.react.js';
-import LoadingIndicator from '../../../loading-indicator.react.js';
 import Input from '../../input.react.js';
 import ColorSelector from '../color-selector.react.js';
 
@@ -25,8 +22,6 @@ type ThreadSettingsGeneralTabProps = {
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
-  +setErrorMessage: SetState<?string>,
-  +errorMessage?: ?string,
 };
 function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
@@ -37,8 +32,6 @@ function ThreadSettingsGeneralTab(
     threadNamePlaceholder,
     queuedChanges,
     setQueuedChanges,
-    setErrorMessage,
-    errorMessage,
   } = props;
 
   const nameInputRef = React.useRef<?HTMLInputElement>();
@@ -46,11 +39,6 @@ function ThreadSettingsGeneralTab(
   React.useEffect(() => {
     nameInputRef.current?.focus();
   }, [threadSettingsOperationInProgress]);
-
-  const changeQueued: boolean = React.useMemo(
-    () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
-    [queuedChanges],
-  );
 
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
@@ -92,27 +80,13 @@ function ThreadSettingsGeneralTab(
     [setQueuedChanges, threadInfo.color],
   );
 
-  const onSaveGeneralThreadSettings = useOnSaveGeneralThreadSettings({
-    threadInfo,
-    queuedChanges,
-    setQueuedChanges,
-    setErrorMessage,
-  });
-
   const threadNameInputDisabled = !threadHasPermission(
     threadInfo,
     threadPermissions.EDIT_THREAD_NAME,
   );
 
-  const saveButtonContent = React.useMemo(() => {
-    if (threadSettingsOperationInProgress) {
-      return <LoadingIndicator status="loading" />;
-    }
-    return 'Save';
-  }, [threadSettingsOperationInProgress]);
-
   return (
-    <form method="POST" className={css.container}>
+    <div className={css.container}>
       <div>
         <div className={css.editAvatarContainer}>
           <EditThreadAvatar threadInfo={threadInfo} />
@@ -153,15 +127,7 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
-      <SubmitSection
-        variant="filled"
-        errorMessage={errorMessage}
-        onClick={onSaveGeneralThreadSettings}
-        disabled={threadSettingsOperationInProgress || !changeQueued}
-      >
-        {saveButtonContent}
-      </SubmitSection>
-    </form>
+    </div>
   );
 }
 

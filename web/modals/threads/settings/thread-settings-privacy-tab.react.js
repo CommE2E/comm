@@ -9,9 +9,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
 
-import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';
-import { useOnSavePrivacyThreadSettings } from './thread-settings-utils.js';
 import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -33,36 +31,14 @@ const secretStatements = [
 ];
 
 type ThreadSettingsPrivacyTabProps = {
-  +threadSettingsOperationInProgress: boolean,
   +threadInfo: ThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
-  +setErrorMessage: SetState<?string>,
-  +errorMessage?: ?string,
 };
 function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,
 ): React.Node {
-  const {
-    threadSettingsOperationInProgress,
-    threadInfo,
-    queuedChanges,
-    setQueuedChanges,
-    setErrorMessage,
-    errorMessage,
-  } = props;
-
-  const changeQueued: boolean = React.useMemo(
-    () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
-    [queuedChanges],
-  );
-
-  const onSavePrivacyThreadSettings = useOnSavePrivacyThreadSettings({
-    threadInfo,
-    queuedChanges,
-    setQueuedChanges,
-    setErrorMessage,
-  });
+  const { threadInfo, queuedChanges, setQueuedChanges } = props;
 
   const onOpenSelected = React.useCallback(() => {
     setQueuedChanges(prevQueuedChanges =>
@@ -99,7 +75,7 @@ function ThreadSettingsPrivacyTab(
   );
 
   return (
-    <form method="POST" className={css.container}>
+    <div className={css.container}>
       <div className={css.form_title}>Chat type</div>
       <div className={css.enum_container}>
         <EnumSettingsOption
@@ -122,16 +98,7 @@ function ThreadSettingsPrivacyTab(
           statements={secretStatements}
         />
       </div>
-
-      <SubmitSection
-        variant="filled"
-        onClick={onSavePrivacyThreadSettings}
-        disabled={threadSettingsOperationInProgress || !changeQueued}
-        errorMessage={errorMessage}
-      >
-        Save
-      </SubmitSection>
-    </form>
+    </div>
   );
 }
 
