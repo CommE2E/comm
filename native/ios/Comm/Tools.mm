@@ -2,6 +2,10 @@
 #import <Foundation/Foundation.h>
 #import <stdexcept>
 
+@interface Tools ()
++ (NSURL *)getAppGroupDirectoryURL;
+@end
+
 @implementation Tools
 
 + (NSString *)getSQLiteFilePath {
@@ -22,13 +26,23 @@
   return [documentsUrl URLByAppendingPathComponent:@"comm.sqlite"].path;
 }
 
-+ (NSString *)getAppGroupSQLiteFilePath {
++ (NSURL *)getAppGroupDirectoryURL {
   NSURL *groupUrl = [NSFileManager.defaultManager
       containerURLForSecurityApplicationGroupIdentifier:@"group.app.comm"];
   if (groupUrl == nil) {
     throw std::runtime_error(
-        "Failed to resolve database path - could not find groupUrl");
+        "Failed to resolve app group path - could not find groupUrl");
   }
+  return groupUrl;
+}
+
++ (NSString *)getAppGroupDirectoryPath {
+  NSURL *groupUrl = [Tools getAppGroupDirectoryURL];
+  return groupUrl.path;
+}
+
++ (NSString *)getAppGroupSQLiteFilePath {
+  NSURL *groupUrl = [Tools getAppGroupDirectoryURL];
   return [groupUrl URLByAppendingPathComponent:@"comm.sqlite"].path;
 }
 
