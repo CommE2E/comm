@@ -66,6 +66,7 @@ public:
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String userData) = 0;
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
 
 };
 
@@ -454,6 +455,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::restoreBackup, jsInvoker_, instance_, std::move(backupSecret));
+    }
+    jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) override {
+      static_assert(
+          bridging::getParameterCount(&T::signMessage) == 2,
+          "Expected signMessage(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::signMessage, jsInvoker_, instance_, std::move(message));
     }
 
   private:

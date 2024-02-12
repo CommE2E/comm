@@ -1460,4 +1460,37 @@ CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
       });
 }
 
+jsi::Value CommCoreModule::signMessage(jsi::Runtime &rt, jsi::String message) {
+  std::string messageStr = message.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          if (this->cryptoModule == nullptr) {
+            error = "user has not been initialized";
+          }
+
+          std::string signature;
+          if (!error.size()) {
+            try {
+              signature = this->cryptoModule->signMessage(messageStr);
+            } catch (const std::exception &e) {
+              error = "signing message failed with: " + std::string(e.what());
+            }
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            auto jsiSignature{
+                jsi::String::createFromUtf8(innerRt, signature)};
+            promise->resolve(std::move(jsiSignature));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
 } // namespace comm
