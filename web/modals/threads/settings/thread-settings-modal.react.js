@@ -57,7 +57,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
-    // eslint-disable-next-line no-unused-vars
     const [errorMessage, setErrorMessage] = React.useState<?string>('');
     const [currentTabType, setCurrentTabType] =
       React.useState<TabType>('general');
@@ -284,6 +283,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       >
         <div className={css.modal_body}>
           <div className={css.tab_body}>{tabContent}</div>
+          <div className={css.errorMessage}>{errorMessage}</div>
         </div>
       </Modal>
     );
