@@ -113,14 +113,9 @@ resource "aws_dynamodb_table" "identity-users" {
     type = "S"
   }
 
-  # walletAddress not defined in prod
-  dynamic "attribute" {
-    # Create a dummy list to iterate over if is_dev is true
-    for_each = var.is_dev ? [1] : []
-    content {
-      name = "walletAddress"
-      type = "S"
-    }
+  attribute {
+    name = "walletAddress"
+    type = "S"
   }
 
   global_secondary_index {
@@ -129,15 +124,10 @@ resource "aws_dynamodb_table" "identity-users" {
     projection_type = "KEYS_ONLY"
   }
 
-  # walletAddress not defined in prod
-  dynamic "global_secondary_index" {
-    # Create a dummy list to iterate over if is_dev is true
-    for_each = var.is_dev ? [1] : []
-    content {
-      name            = "walletAddress-index"
-      hash_key        = "walletAddress"
-      projection_type = "KEYS_ONLY"
-    }
+  global_secondary_index {
+    name            = "walletAddress-index"
+    hash_key        = "walletAddress"
+    projection_type = "KEYS_ONLY"
   }
 }
 
@@ -169,43 +159,6 @@ resource "aws_dynamodb_table" "identity-devices" {
     name            = "deviceList-timestamp-index"
     range_key       = "timestamp"
     projection_type = "ALL"
-  }
-}
-
-# Identity users with opaque_ke 2.0 credentials
-resource "aws_dynamodb_table" "identity-users-opaque2" {
-  # This table doesnt exist in prod
-  count = var.is_dev ? 1 : 0
-
-  name         = "identity-users-opaque2"
-  hash_key     = "userID"
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "userID"
-    type = "S"
-  }
-
-  attribute {
-    name = "username"
-    type = "S"
-  }
-
-  attribute {
-    name = "walletAddress"
-    type = "S"
-  }
-
-  global_secondary_index {
-    name            = "username-index"
-    hash_key        = "username"
-    projection_type = "KEYS_ONLY"
-  }
-
-  global_secondary_index {
-    name            = "walletAddress-index"
-    hash_key        = "walletAddress"
-    projection_type = "KEYS_ONLY"
   }
 }
 
