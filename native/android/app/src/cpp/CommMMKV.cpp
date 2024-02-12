@@ -37,6 +37,38 @@ public:
     }
     return std::nullopt;
   }
+
+  static bool setInt(std::string key, int value) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<jboolean(std::string, int)>("setInt");
+    return method(cls, key, value);
+  }
+
+  static std::optional<int> getInt(std::string key, int noValue) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JInteger(std::string, int)>("getInt");
+    const auto result = method(cls, key, noValue);
+    if (result) {
+      return result->value();
+    }
+    return std::nullopt;
+  }
+
+  static std::vector<std::string> getAllKeys() {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JArrayClass<JString>()>("getAllKeys");
+    auto methodResult = method(cls);
+
+    std::vector<std::string> result;
+    for (int i = 0; i < methodResult->size(); i++) {
+      result.push_back(methodResult->getElement(i)->toStdString());
+    }
+
+    return result;
+  }
 };
 
 namespace comm {
@@ -65,4 +97,24 @@ std::optional<std::string> CommMMKV::getString(std::string key) {
   return result;
 }
 
+bool CommMMKV::setInt(std::string key, int value) {
+  bool result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::setInt(key, value); });
+  return result;
+}
+
+std::optional<int> CommMMKV::getInt(std::string key, int noValue) {
+  std::optional<int> result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::getInt(key, noValue); });
+  return result;
+}
+
+std::vector<std::string> CommMMKV::getAllKeys() {
+  std::vector<std::string> result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::getAllKeys(); });
+  return result;
+}
 } // namespace comm

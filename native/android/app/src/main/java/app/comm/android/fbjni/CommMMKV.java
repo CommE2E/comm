@@ -78,4 +78,24 @@ public class CommMMKV {
     initialize();
     return getMMKVInstance(COMM_MMKV_ID, mmkvEncryptionKey).decodeString(key);
   }
+
+  public static boolean setInt(String key, int value) {
+    initialize();
+    return getMMKVInstance(COMM_MMKV_ID, mmkvEncryptionKey).encode(key, value);
+  }
+
+  public static Integer getInt(String key, int noValue) {
+    initialize();
+    int value = getMMKVInstance(COMM_MMKV_ID, mmkvEncryptionKey)
+                    .decodeInt(key, noValue);
+    if (value == noValue) {
+      return null;
+    }
+    return value;
+  }
+
+  public static String[] getAllKeys() {
+    initialize();
+    return getMMKVInstance(COMM_MMKV_ID, mmkvEncryptionKey).allKeys();
+  }
 }

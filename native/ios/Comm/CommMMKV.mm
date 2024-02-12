@@ -106,4 +106,50 @@ std::optional<std::string> CommMMKV::getString(std::string key) {
   return std::string([value UTF8String]);
 }
 
+bool CommMMKV::setInt(std::string key, int value) {
+  CommMMKV::initialize();
+  MMKV *mmkv = getMMKVInstance(commMMKVId.copy, mmkvEncryptionKey);
+
+  BOOL result =
+      [mmkv setInt64:value
+              forKey:[NSString stringWithCString:key.c_str()
+                                        encoding:NSUTF8StringEncoding]];
+
+  if (!result) {
+    Logger::log("Attempt to write in background or failure during write.");
+  }
+  return result;
+}
+
+std::optional<int> CommMMKV::getInt(std::string key, int noValue) {
+  CommMMKV::initialize();
+  MMKV *mmkv = getMMKVInstance(commMMKVId.copy, mmkvEncryptionKey);
+
+  int value =
+      [mmkv getInt64ForKey:[NSString stringWithCString:key.c_str()
+                                              encoding:NSUTF8StringEncoding]
+              defaultValue:noValue
+                  hasValue:nil];
+
+  if (value == noValue) {
+    return std::nullopt;
+  }
+
+  return value;
+}
+
+std::vector<std::string> CommMMKV::getAllKeys() {
+  CommMMKV::initialize();
+  MMKV *mmkv = getMMKVInstance(commMMKVId.copy, mmkvEncryptionKey);
+
+  NSArray<NSString *> *allKeys = [mmkv allKeys];
+  std::vector<std::string> result;
+
+  for (NSString *key in allKeys) {
+    result.emplace_back(std::string([key UTF8String]));
+  }
+
+  return result;
+}
+
 } // namespace comm
