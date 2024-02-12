@@ -29,6 +29,7 @@ import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react.js';
 import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react.js';
+import ThreadSettingsSaveButton from './thread-settings-save-button.react.js';
 import Tabs, { type TabData } from '../../../components/tabs.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
@@ -56,6 +57,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
+    // eslint-disable-next-line no-unused-vars
     const [errorMessage, setErrorMessage] = React.useState<?string>('');
     const [currentTabType, setCurrentTabType] =
       React.useState<TabType>('general');
@@ -197,20 +199,15 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
             threadNamePlaceholder={namePlaceholder}
             queuedChanges={queuedChanges}
             setQueuedChanges={setQueuedChanges}
-            setErrorMessage={setErrorMessage}
-            errorMessage={errorMessage}
           />
         );
       }
       if (currentTabType === 'privacy') {
         return (
           <ThreadSettingsPrivacyTab
-            threadSettingsOperationInProgress={changeInProgress}
             threadInfo={threadInfo}
             queuedChanges={queuedChanges}
             setQueuedChanges={setQueuedChanges}
-            setErrorMessage={setErrorMessage}
-            errorMessage={errorMessage}
           />
         );
       }
@@ -229,7 +226,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       availableRelationshipActions,
       changeInProgress,
       currentTabType,
-      errorMessage,
       namePlaceholder,
       otherUserInfo,
       queuedChanges,
@@ -239,6 +235,19 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const primaryButton = React.useMemo(() => {
       if (!threadInfo) {
         return null;
+      }
+
+      if (currentTabType === 'general' || currentTabType === 'privacy') {
+        return (
+          <ThreadSettingsSaveButton
+            activeTab={currentTabType}
+            threadInfo={threadInfo}
+            queuedChanges={queuedChanges}
+            setQueuedChanges={setQueuedChanges}
+            setErrorMessage={setErrorMessage}
+            threadSettingsOperationInProgress={changeInProgress}
+          />
+        );
       }
 
       if (currentTabType === 'relationship') {
@@ -252,7 +261,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
           setErrorMessage={setErrorMessage}
         />
       );
-    }, [changeInProgress, currentTabType, threadInfo]);
+    }, [changeInProgress, currentTabType, queuedChanges, threadInfo]);
 
     if (!threadInfo) {
       return (
