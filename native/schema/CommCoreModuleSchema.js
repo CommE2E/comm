@@ -113,6 +113,7 @@ interface Spec extends TurboModule {
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<string>;
   +decrypt: (message: string, deviceID: string) => Promise<string>;
+  +signMessage: (message: string) => Promise<string>;
   +getCodeVersion: () => number;
   +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;

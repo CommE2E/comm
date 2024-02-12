@@ -47,6 +47,7 @@ public:
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String encryptedMessage, jsi::String deviceID) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
+  virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
@@ -302,6 +303,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::decrypt, jsInvoker_, instance_, std::move(message), std::move(deviceID));
+    }
+    jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) override {
+      static_assert(
+          bridging::getParameterCount(&T::signMessage) == 2,
+          "Expected signMessage(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::signMessage, jsInvoker_, instance_, std::move(message));
     }
     double getCodeVersion(jsi::Runtime &rt) override {
       static_assert(
