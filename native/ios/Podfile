@@ -46,6 +46,7 @@ target 'Comm' do
   common_comm_target_pods
   pod 'ReactNativeKeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
   pod 'ReactNativeKeyboardInput', :path => '../node_modules/react-native-keyboard-input'
+  pod 'MMKV'
 
   react_native_config
 end
@@ -55,6 +56,7 @@ target 'NotificationService' do
   pod 'OLMKit', :path => "../node_modules/olm"
   pod 'RCT-Folly', :podspec => "../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   pod 'CommExpoPackage', :path => "../expo-modules/comm-expo-package/ios"
+  pod 'MMKVAppExtension'
 
   react_native_config
 end
