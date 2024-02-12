@@ -40,6 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommConstants.h"
 #import "CommCoreModule.h"
+#import "CommMMKV.h"
 #import "CommRustModule.h"
 #import "CommUtilsModule.h"
 #import "GlobalDBSingleton.h"
@@ -88,6 +89,7 @@ void didReceiveNewMessageInfosDarwinNotification(
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [self attemptDatabaseInitialization];
   [self registerForNewMessageInfosNotifications];
+  comm::CommMMKV::initialize();
   return YES;
 }
 
