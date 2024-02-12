@@ -1,8 +1,6 @@
 #include "DatabaseManager.h"
 #include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
-#ifdef __APPLE__
 #include "../Tools/CommMMKV.h"
-#endif
 #include "../Tools/CommSecureStore.h"
 #include "Logger.h"
 #include "PlatformSpecificTools.h"
@@ -39,9 +37,7 @@ void DatabaseManager::clearSensitiveData() {
   CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
   SQLiteQueryExecutor::clearSensitiveData();
   PlatformSpecificTools::removeBackupDirectory();
-#ifdef __APPLE__
   CommMMKV::clearSensitiveData();
-#endif
   NotificationsCryptoModule::clearSensitiveData();
   DatabaseManager::setDatabaseStatusAsWorkable();
 }
