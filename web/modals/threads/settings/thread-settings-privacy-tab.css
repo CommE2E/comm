@@ -8,8 +8,9 @@ div.enum_container {
   padding: 12px 0;
 }
 
-form.container {
+div.container {
   display: flex;
   flex-direction: column;
   flex: 1;
+  color: var(--text-background-primary-default);
 }
