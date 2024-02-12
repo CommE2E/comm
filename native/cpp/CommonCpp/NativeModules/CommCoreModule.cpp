@@ -1015,6 +1015,33 @@ jsi::Value CommCoreModule::decrypt(
       });
 }
 
+jsi::Value CommCoreModule::signMessage(jsi::Runtime &rt, jsi::String message) {
+  std::string messageStr = message.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string signature;
+          try {
+            signature = this->cryptoModule->signMessage(messageStr);
+          } catch (const std::exception &e) {
+            error = "signing message failed with: " + std::string(e.what());
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            auto jsiSignature{jsi::String::createFromUtf8(innerRt, signature)};
+            promise->resolve(std::move(jsiSignature));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
@@ -1459,5 +1486,4 @@ CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
         ::restoreBackup(rust::string(backupSecretStr), currentID);
       });
 }
-
 } // namespace comm
