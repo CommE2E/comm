@@ -2,11 +2,10 @@ div.modal_body {
   display: flex;
   flex-direction: column;
   width: 383px;
-  height: 650px;
+  height: 60vh;
   overflow: hidden;
 }
 div.tab_body {
-  padding: 20px;
   overflow: auto;
   flex: 1;
   display: flex;
@@ -22,4 +21,8 @@ div.modal_form_error {
   min-height: 26px;
   flex: 1;
   padding: 5px;
+}
+
+.relationshipPrimaryButtonPlaceholder {
+  height: 44.5px;
 }
