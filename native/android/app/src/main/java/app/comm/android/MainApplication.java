@@ -6,6 +6,7 @@ import android.database.CursorWindow;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import app.comm.android.commservices.CommServicesPackage;
+import app.comm.android.fbjni.CommMMKV;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.DatabaseInitializer;
 import app.comm.android.fbjni.GlobalDBSingleton;
@@ -91,6 +92,7 @@ public class MainApplication
 
     SoLoader.init(this, /* native exopackage */ false);
     this.initializeDatabase();
+    CommMMKV.initialize();
     ApplicationLifecycleDispatcher.onApplicationCreate(this);
     try {
       Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
