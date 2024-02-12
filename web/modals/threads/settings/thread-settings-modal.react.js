@@ -23,6 +23,7 @@ import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import ThreadSettingsDeleteButton from './thread-settings-delete-button.react.js';
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
@@ -223,14 +224,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
           />
         );
       }
-      return (
-        <ThreadSettingsDeleteTab
-          threadSettingsOperationInProgress={changeInProgress}
-          threadInfo={threadInfo}
-          setErrorMessage={setErrorMessage}
-          errorMessage={errorMessage}
-        />
-      );
+      return <ThreadSettingsDeleteTab />;
     }, [
       availableRelationshipActions,
       changeInProgress,
@@ -241,6 +235,20 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       queuedChanges,
       threadInfo,
     ]);
+
+    const primaryButton = React.useMemo(() => {
+      if (!threadInfo) {
+        return null;
+      }
+
+      return (
+        <ThreadSettingsDeleteButton
+          threadInfo={threadInfo}
+          threadSettingsOperationInProgress={changeInProgress}
+          setErrorMessage={setErrorMessage}
+        />
+      );
+    }, [changeInProgress, threadInfo]);
 
     if (!threadInfo) {
       return (
@@ -258,9 +266,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         onClose={modalContext.popModal}
         icon="settings"
         size="fit-content"
+        subheader={tabs}
+        primaryButton={primaryButton}
       >
         <div className={css.modal_body}>
-          {tabs}
           <div className={css.tab_body}>{tabContent}</div>
         </div>
       </Modal>
