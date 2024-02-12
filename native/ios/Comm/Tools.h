@@ -4,5 +4,6 @@
 
 @interface Tools : NSObject
 + (NSString *)getSQLiteFilePath;
++ (NSString *)getAppGroupDirectoryPath;
 + (NSString *)getAppGroupSQLiteFilePath;
 @end
