@@ -22,6 +22,7 @@ import {
   type RecoveryActionSource,
 } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -46,6 +47,8 @@ function SQLiteDataHandler(): React.Node {
   const storeLoaded = useSelector(state => state.storeLoaded);
 
   const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
@@ -67,6 +70,7 @@ function SQLiteDataHandler(): React.Node {
       try {
         await resolveKeyserverSessionInvalidation(
           dispatch,
+          dispatchActionPromise,
           cookie,
           urlPrefix,
           source,
@@ -91,6 +95,7 @@ function SQLiteDataHandler(): React.Node {
     [
       cookie,
       dispatch,
+      dispatchActionPromise,
       staffCanSee,
       urlPrefix,
       getInitialNotificationsEncryptedMessage,
