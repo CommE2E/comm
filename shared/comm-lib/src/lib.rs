@@ -8,6 +8,7 @@ pub mod crypto;
 pub mod database;
 #[cfg(feature = "http")]
 pub mod http;
+pub mod shared;
 pub mod tools;
 
 mod reexports {
