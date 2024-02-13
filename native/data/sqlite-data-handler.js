@@ -19,8 +19,8 @@ import {
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
-  logInActionSources,
-  type LogInActionSource,
+  recoveryActionSources,
+  type RecoveryActionSource,
 } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -65,7 +65,7 @@ function SQLiteDataHandler(): React.Node {
     useInitialNotificationsEncryptedMessage(nativeNotificationsSessionCreator);
 
   const callFetchNewCookieFromNativeCredentials = React.useCallback(
-    async (source: LogInActionSource) => {
+    async (source: RecoveryActionSource) => {
       try {
         await resolveKeyserverSessionInvalidation(
           dispatch,
@@ -152,7 +152,7 @@ function SQLiteDataHandler(): React.Node {
           }
         }
         await callFetchNewCookieFromNativeCredentials(
-          logInActionSources.corruptedDatabaseDeletion,
+          recoveryActionSources.corruptedDatabaseDeletion,
         );
       })();
       return;
@@ -219,7 +219,7 @@ function SQLiteDataHandler(): React.Node {
           );
         }
         await callFetchNewCookieFromNativeCredentials(
-          logInActionSources.sqliteLoadFailure,
+          recoveryActionSources.sqliteLoadFailure,
         );
       }
     })();

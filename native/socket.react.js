@@ -17,7 +17,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
-import { logInActionSources } from 'lib/types/account-types.js';
+import { recoveryActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -127,7 +127,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         dispatch,
         cookie,
         urlPrefix,
-        logInActionSources.refetchUserDataAfterAcknowledgment,
+        recoveryActionSources.refetchUserDataAfterAcknowledgment,
         keyserverID,
         getInitialNotificationsEncryptedMessage,
       );
