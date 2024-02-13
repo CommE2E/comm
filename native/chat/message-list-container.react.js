@@ -248,13 +248,13 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
 
-    const serverSearchResults = useSearchUsers(usernameInputText);
+    const searchResults = useSearchUsers(usernameInputText);
 
     const userSearchResults = usePotentialMemberItems({
       text: usernameInputText,
       userInfos: otherUserInfos,
       excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
-      includeServerSearchUsers: serverSearchResults,
+      includeServerSearchUsers: searchResults,
     });
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
