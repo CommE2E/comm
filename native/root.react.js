@@ -30,6 +30,7 @@ import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -80,6 +81,7 @@ import { useLoadCommFonts } from './themes/fonts.js';
 import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
+import { useIdentitySearchAuthMessage } from './utils/identity-search-utils.js';
 import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
 
 // Add custom items to expo-dev-menu
@@ -263,6 +265,7 @@ function Root() {
   })();
 
   const tunnelbrokerInitMessage = useTunnelbrokerInitMessage();
+  const identitySearchAuthMessage = useIdentitySearchAuthMessage();
 
   const gated: React.Node = (
     <>
@@ -308,56 +311,60 @@ function Root() {
               initMessage={tunnelbrokerInitMessage}
               peerToPeerMessageHandler={peerToPeerMessageHandler}
             >
-              <FeatureFlagsProvider>
-                <NavContext.Provider value={navContext}>
-                  <RootContext.Provider value={rootContext}>
-                    <InputStateContainer>
-                      <MessageEditingContextProvider>
-                        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                          <ActionSheetProvider>
-                            <ENSCacheProvider provider={provider}>
-                              <MediaCacheProvider
-                                persistence={filesystemMediaCache}
-                              >
-                                <EditUserAvatarProvider>
-                                  <NativeEditThreadAvatarProvider>
-                                    <MarkdownContextProvider>
-                                      <MessageSearchProvider>
-                                        <BottomSheetProvider>
-                                          <RegistrationContextProvider>
-                                            <SQLiteDataHandler />
-                                            <ConnectedStatusBar />
-                                            <ReduxPersistGate
-                                              persistor={getPersistor()}
-                                            >
-                                              {gated}
-                                            </ReduxPersistGate>
-                                            <PersistedStateGate>
-                                              <KeyserverConnectionsHandler
-                                                socketComponent={Socket}
-                                                detectUnsupervisedBackgroundRef={
-                                                  detectUnsupervisedBackgroundRef
-                                                }
-                                              />
-                                              <VersionSupportedChecker />
-                                              <PrekeysHandler />
-                                            </PersistedStateGate>
-                                            {navigation}
-                                          </RegistrationContextProvider>
-                                        </BottomSheetProvider>
-                                      </MessageSearchProvider>
-                                    </MarkdownContextProvider>
-                                  </NativeEditThreadAvatarProvider>
-                                </EditUserAvatarProvider>
-                              </MediaCacheProvider>
-                            </ENSCacheProvider>
-                          </ActionSheetProvider>
-                        </SafeAreaProvider>
-                      </MessageEditingContextProvider>
-                    </InputStateContainer>
-                  </RootContext.Provider>
-                </NavContext.Provider>
-              </FeatureFlagsProvider>
+              <IdentitySearchProvider authMessage={identitySearchAuthMessage}>
+                <FeatureFlagsProvider>
+                  <NavContext.Provider value={navContext}>
+                    <RootContext.Provider value={rootContext}>
+                      <InputStateContainer>
+                        <MessageEditingContextProvider>
+                          <SafeAreaProvider
+                            initialMetrics={initialWindowMetrics}
+                          >
+                            <ActionSheetProvider>
+                              <ENSCacheProvider provider={provider}>
+                                <MediaCacheProvider
+                                  persistence={filesystemMediaCache}
+                                >
+                                  <EditUserAvatarProvider>
+                                    <NativeEditThreadAvatarProvider>
+                                      <MarkdownContextProvider>
+                                        <MessageSearchProvider>
+                                          <BottomSheetProvider>
+                                            <RegistrationContextProvider>
+                                              <SQLiteDataHandler />
+                                              <ConnectedStatusBar />
+                                              <ReduxPersistGate
+                                                persistor={getPersistor()}
+                                              >
+                                                {gated}
+                                              </ReduxPersistGate>
+                                              <PersistedStateGate>
+                                                <KeyserverConnectionsHandler
+                                                  socketComponent={Socket}
+                                                  detectUnsupervisedBackgroundRef={
+                                                    detectUnsupervisedBackgroundRef
+                                                  }
+                                                />
+                                                <VersionSupportedChecker />
+                                                <PrekeysHandler />
+                                              </PersistedStateGate>
+                                              {navigation}
+                                            </RegistrationContextProvider>
+                                          </BottomSheetProvider>
+                                        </MessageSearchProvider>
+                                      </MarkdownContextProvider>
+                                    </NativeEditThreadAvatarProvider>
+                                  </EditUserAvatarProvider>
+                                </MediaCacheProvider>
+                              </ENSCacheProvider>
+                            </ActionSheetProvider>
+                          </SafeAreaProvider>
+                        </MessageEditingContextProvider>
+                      </InputStateContainer>
+                    </RootContext.Provider>
+                  </NavContext.Provider>
+                </FeatureFlagsProvider>
+              </IdentitySearchProvider>
             </TunnelbrokerProvider>
           </OlmSessionCreatorProvider>
         </IdentityServiceContextProvider>
