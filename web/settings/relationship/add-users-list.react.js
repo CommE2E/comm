@@ -9,7 +9,10 @@ import {
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { useSearchUsers } from 'lib/shared/search-utils.js';
+import {
+  useSearchUsers,
+  useSearchIdentityUsers,
+} from 'lib/shared/search-utils.js';
 import type {
   UserRelationshipStatus,
   RelationshipAction,
@@ -21,6 +24,7 @@ import type {
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
@@ -67,14 +71,22 @@ function AddUsersList(props: Props): React.Node {
     );
   }, [searchText, userStoreSearchIndex]);
 
+  let searchResults;
+  const identitySearchResults = useSearchIdentityUsers(searchText);
   const serverSearchResults = useSearchUsers(searchText);
+
+  if (usingCommServicesAccessToken) {
+    searchResults = identitySearchResults;
+  } else {
+    searchResults = serverSearchResults;
+  }
 
   const searchTextPresent = searchText.length > 0;
   const mergedUserInfos = React.useMemo(() => {
     const mergedInfos: { [string]: GlobalAccountUserInfo | AccountUserInfo } =
       {};
 
-    for (const userInfo of serverSearchResults) {
+    for (const userInfo of searchResults) {
       mergedInfos[userInfo.id] = userInfo;
     }
 
@@ -89,12 +101,7 @@ function AddUsersList(props: Props): React.Node {
     }
 
     return mergedInfos;
-  }, [
-    searchTextPresent,
-    serverSearchResults,
-    userInfos,
-    userStoreSearchResults,
-  ]);
+  }, [searchTextPresent, searchResults, userInfos, userStoreSearchResults]);
 
   const sortedUsers = React.useMemo(
     () =>
