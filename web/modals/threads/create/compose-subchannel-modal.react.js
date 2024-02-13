@@ -18,7 +18,7 @@ import css from './compose-subchannel-modal.css';
 import SubchannelMembers from './steps/subchannel-members.react.js';
 import type { VisibilityType } from './steps/subchannel-settings.react.js';
 import SubchannelSettings from './steps/subchannel-settings.react.js';
-import Stepper from '../../../components/stepper.react.js';
+import Button from '../../../components/button.react.js';
 import { updateNavInfoActionType } from '../../../redux/action-types.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
@@ -183,40 +183,6 @@ function ComposeSubchannelModal(props: Props): React.Node {
     ],
   );
 
-  const stepperButtons = React.useMemo(
-    () => ({
-      settings: {
-        nextProps: {
-          content: 'Next',
-          disabled: !channelName.trim(),
-          onClick: () => {
-            setErrorMessage('');
-            setChannelName(channelName.trim());
-            setActiveStep('members');
-          },
-        },
-      },
-      members: {
-        prevProps: {
-          content: 'Back',
-          onClick: () => setActiveStep('settings'),
-        },
-        nextProps: {
-          content: 'Create',
-          loading: loadingState === 'loading',
-          disabled: pendingUsersToAdd.size === 0,
-          onClick: dispatchCreateSubchannel,
-        },
-      },
-    }),
-    [
-      channelName,
-      dispatchCreateSubchannel,
-      loadingState,
-      pendingUsersToAdd.size,
-    ],
-  );
-
   const subchannelMembers = React.useMemo(
     () => <SubchannelMembers parentThreadInfo={parentThreadInfo} />,
     [parentThreadInfo],
@@ -227,29 +193,81 @@ function ComposeSubchannelModal(props: Props): React.Node {
       ? `Create channel - ${trimText(channelName, 11)}`
       : 'Create channel';
 
+  const subheader = React.useMemo(
+    () => <ComposeSubchannelHeader parentThreadName={parentThreadName} />,
+    [parentThreadName],
+  );
+
+  const modalContent = React.useMemo(() => {
+    if (activeStep === 'settings') {
+      return subchannelSettings;
+    }
+    return subchannelMembers;
+  }, [activeStep, subchannelMembers, subchannelSettings]);
+
+  const onClickNext = React.useCallback(() => {
+    setErrorMessage('');
+    setChannelName(channelName.trim());
+    setActiveStep('members');
+  }, [channelName]);
+
+  const primaryButton = React.useMemo(() => {
+    if (activeStep === 'settings') {
+      return (
+        <Button
+          disabled={!channelName.trim()}
+          variant="filled"
+          onClick={onClickNext}
+        >
+          Next
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        disabled={loadingState === 'loading' || pendingUsersToAdd.size === 0}
+        variant="filled"
+        onClick={dispatchCreateSubchannel}
+      >
+        Create
+      </Button>
+    );
+  }, [
+    activeStep,
+    channelName,
+    dispatchCreateSubchannel,
+    loadingState,
+    onClickNext,
+    pendingUsersToAdd.size,
+  ]);
+
+  const onClickBack = React.useCallback(() => setActiveStep('settings'), []);
+
+  const secondaryButton = React.useMemo(() => {
+    if (activeStep !== 'members') {
+      return null;
+    }
+
+    return (
+      <Button variant="outline" onClick={onClickBack}>
+        Back
+      </Button>
+    );
+  }, [activeStep, onClickBack]);
+
   return (
-    <Modal name={modalName} onClose={onClose} size="fit-content">
+    <Modal
+      name={modalName}
+      onClose={onClose}
+      size="large"
+      subheader={subheader}
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
+    >
       <div className={css.container}>
-        <ComposeSubchannelHeader parentThreadName={parentThreadName} />
-        <div className={css.stepItem}>
-          <Stepper.Container
-            className={css.stepContainer}
-            activeStep={activeStep}
-          >
-            <Stepper.Item
-              content={subchannelSettings}
-              name="settings"
-              nextProps={stepperButtons.settings.nextProps}
-            />
-            <Stepper.Item
-              content={subchannelMembers}
-              name="members"
-              prevProps={stepperButtons.members.prevProps}
-              nextProps={stepperButtons.members.nextProps}
-              errorMessage={errorMessage}
-            />
-          </Stepper.Container>
-        </div>
+        {modalContent}
+        {errorMessage}
       </div>
     </Modal>
   );
