@@ -73,6 +73,7 @@ function SQLiteDataHandler(): React.Node {
           source,
           authoritativeKeyserverID,
           getInitialNotificationsEncryptedMessage,
+          () => false,
         );
         dispatch({ type: setStoreLoadedActionType });
       } catch (fetchCookieException) {
