@@ -269,52 +269,6 @@ export type InboundKeysForUserRequestObject = {
   userId: string,
 };
 
-export type IdentifierCase = 0 | 1 | 2;
-
-declare export class FindUserIDRequest extends Message {
-  getUsername(): string;
-  setUsername(value: string): FindUserIDRequest;
-
-  getWalletAddress(): string;
-  setWalletAddress(value: string): FindUserIDRequest;
-
-  getIdentifierCase(): IdentifierCase;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): FindUserIDRequestObject;
-  static toObject(includeInstance: boolean, msg: FindUserIDRequest): FindUserIDRequestObject;
-  static serializeBinaryToWriter(message: FindUserIDRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): FindUserIDRequest;
-  static deserializeBinaryFromReader(message: FindUserIDRequest, reader: BinaryReader): FindUserIDRequest;
-}
-
-export type FindUserIDRequestObject = {
-  username: string,
-  walletAddress: string,
-}
-
-declare export class FindUserIDResponse extends Message {
-  getUserId(): string;
-  setUserId(value: string): FindUserIDResponse;
-  hasUserId(): boolean;
-  clearUserId(): FindUserIDResponse;
-
-  getIsReserved(): boolean;
-  setIsReserved(value: boolean): FindUserIDResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): FindUserIDResponseObject;
-  static toObject(includeInstance: boolean, msg: FindUserIDResponse): FindUserIDResponseObject;
-  static serializeBinaryToWriter(message: FindUserIDResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): FindUserIDResponse;
-  static deserializeBinaryFromReader(message: FindUserIDResponse, reader: BinaryReader): FindUserIDResponse;
-}
-
-export type FindUserIDResponseObject = {
-  userId?: string,
-  isReserved: boolean,
-}
-
 declare export class UpdateUserPasswordStartRequest extends Message {
   getOpaqueRegistrationRequest(): Uint8Array | string;
   getOpaqueRegistrationRequest_asU8(): Uint8Array;

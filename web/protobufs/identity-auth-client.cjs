@@ -630,67 +630,6 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.getKeyserverKey
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.auth.FindUserIDRequest,
- *   !proto.identity.auth.FindUserIDResponse>}
- */
-const methodDescriptor_IdentityClientService_FindUserID = new grpc.web.MethodDescriptor(
-  '/identity.auth.IdentityClientService/FindUserID',
-  grpc.web.MethodType.UNARY,
-  proto.identity.auth.FindUserIDRequest,
-  proto.identity.auth.FindUserIDResponse,
-  /**
-   * @param {!proto.identity.auth.FindUserIDRequest} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.identity.auth.FindUserIDResponse.deserializeBinary
-);
-
-
-/**
- * @param {!proto.identity.auth.FindUserIDRequest} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
- *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.auth.FindUserIDResponse)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.FindUserIDResponse>|undefined}
- *     The XHR Node Readable Stream
- */
-proto.identity.auth.IdentityClientServiceClient.prototype.findUserID =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/FindUserID',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_FindUserID,
-      callback);
-};
-
-
-/**
- * @param {!proto.identity.auth.FindUserIDRequest} request The
- *     request proto
- * @param {?Object<string, string>=} metadata User defined
- *     call metadata
- * @return {!Promise<!proto.identity.auth.FindUserIDResponse>}
- *     Promise that resolves to the response
- */
-proto.identity.auth.IdentityClientServicePromiseClient.prototype.findUserID =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/FindUserID',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_FindUserID);
-};
-
-
-/**
- * @const
- * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.GetDeviceListRequest,
  *   !proto.identity.auth.GetDeviceListResponse>}
  */
@@ -811,4 +750,3 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.updateDeviceLis
 
 
 module.exports = proto.identity.auth;
-
