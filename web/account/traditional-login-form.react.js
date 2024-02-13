@@ -87,7 +87,7 @@ function TraditionalLoginForm(): React.Node {
           ...extraInfo,
           username,
           password,
-          logInActionSource: logInActionSources.logInFromWebForm,
+          authActionSource: logInActionSources.logInFromWebForm,
           signedIdentityKeysBlob,
         });
         modalContext.popModal();

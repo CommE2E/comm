@@ -6,7 +6,7 @@ import type {
   CallKeyserverEndpoint,
 } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { InitialNotifMessageOptions } from 'lib/shared/crypto-utils.js';
-import type { LogInActionSource } from 'lib/types/account-types.js';
+import type { RecoveryActionSource } from 'lib/types/account-types.js';
 import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
@@ -17,7 +17,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
   callKeyserverEndpoint: CallKeyserverEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  logInActionSource: LogInActionSource,
+  recoveryActionSource: RecoveryActionSource,
   keyserverID: string,
   getInitialNotificationsEncryptedMessage?: (
     keyserverID: string,
@@ -44,7 +44,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
     logInRawAction(callKeyserverEndpoint)({
       ...keychainCredentials,
       ...extraInfo,
-      logInActionSource,
+      authActionSource: recoveryActionSource,
       keyserverIDs: [keyserverID],
     }),
     { calendarQuery },

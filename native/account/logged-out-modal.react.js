@@ -25,7 +25,7 @@ import {
 } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
-import { logInActionSources } from 'lib/types/account-types.js';
+import { recoveryActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -432,8 +432,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     if (!__DEV__) {
       const actionSource = loggedIn
-        ? logInActionSources.appStartReduxLoggedInButInvalidCookie
-        : logInActionSources.appStartCookieLoggedInButInvalidRedux;
+        ? recoveryActionSources.appStartReduxLoggedInButInvalidCookie
+        : recoveryActionSources.appStartCookieLoggedInButInvalidRedux;
       const sessionChange = await resolveKeyserverSessionInvalidation(
         dispatch,
         cookie,
