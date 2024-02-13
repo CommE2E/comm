@@ -21,7 +21,7 @@ type Props = {
   +selected: boolean,
   +onSelect: () => void,
   +disabled?: boolean,
-  +icon: React.Node,
+  +icon?: React.Node,
   +title: string,
   +type?: InputType,
   +iconPosition?: IconPosition,
@@ -81,12 +81,20 @@ function EnumSettingsOption(props: Props): React.Node {
     iconPositionClassnames[iconPosition],
   );
 
+  const optionIcon = React.useMemo(() => {
+    if (!icon) {
+      return null;
+    }
+
+    return <div className={optionIconClasses}>{icon}</div>;
+  }, [icon, optionIconClasses]);
+
   return (
     <div
       className={optionContainerClasses}
       onClick={disabled ? null : onSelect}
     >
-      <div className={optionIconClasses}>{icon}</div>
+      {optionIcon}
       <div className={css.optionContent}>
         <div className={css.optionTitle}>{title}</div>
         <div className={css.optionDescription}>{descriptionItems}</div>
