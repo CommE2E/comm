@@ -68,8 +68,6 @@ pub struct ServerConfig {
   pub localstack_endpoint: Option<String>,
   // Opaque 2.0 server secrets
   pub server_setup: comm_opaque2::ServerSetup<comm_opaque2::Cipher>,
-  // Reserved usernames
-  pub reserved_usernames: HashSet<String>,
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
   pub opensearch_endpoint: String,
@@ -93,7 +91,6 @@ impl ServerConfig {
     path_buf.push(SECRETS_SETUP_FILE);
 
     let server_setup = get_server_setup(path_buf.as_path())?;
-    let reserved_usernames = get_reserved_usernames_set()?;
     let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
 
     Ok(Self {
@@ -101,7 +98,6 @@ impl ServerConfig {
       tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
-      reserved_usernames,
       keyserver_public_key,
     })
   }
@@ -161,13 +157,4 @@ fn get_server_setup(
     general_purpose::STANDARD_NO_PAD.decode(encoded_server_setup)?;
   comm_opaque2::ServerSetup::deserialize(&decoded_server_setup)
     .map_err(Error::Opaque)
-}
-
-fn get_reserved_usernames_set() -> Result<HashSet<String>, Error> {
-  // All entries in `reserved_usernames.json` must be lowercase and must also be
-  // included in `lib/utils/reserved-users.js`!!
-  let contents = include_str!("../reserved_usernames.json");
-  let reserved_usernames: Vec<String> = serde_json::from_str(contents)?;
-
-  Ok(reserved_usernames.into_iter().collect())
 }

@@ -7,13 +7,14 @@ use std::sync::Arc;
 use async_stream::try_stream;
 use chrono::Duration;
 use comm_lib::http::ByteStream;
+use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_lib::tools::BoxedError;
 use once_cell::sync::Lazy;
 use tokio_stream::StreamExt;
 use tonic::codegen::futures_core::Stream;
 use tracing::{debug, error, info, trace, warn};
 
-use crate::config::{CONFIG, OFFENSIVE_INVITE_LINKS, RESERVED_INVITE_LINKS};
+use crate::config::{CONFIG, OFFENSIVE_INVITE_LINKS};
 use crate::constants::{
   INVITE_LINK_BLOB_HASH_PREFIX, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
 };
@@ -138,7 +139,7 @@ impl BlobService {
     invite_secret: &str,
   ) -> Result<(), BlobServiceError> {
     let lowercase_secret = invite_secret.to_lowercase();
-    if (RESERVED_INVITE_LINKS.contains(&lowercase_secret)) {
+    if (RESERVED_USERNAME_SET.contains(&lowercase_secret)) {
       debug!("Reserved invite link");
       return Err(BlobServiceError::InviteLinkError(InviteLinkError::Reserved));
     }

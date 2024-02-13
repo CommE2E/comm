@@ -62,3 +62,4 @@ tokio-stream = { version = "0.1.14", optional = true }
 # crypto dependencies
 aes-gcm = { version = "0.10", optional = true }
 aead = { version = "0.5", features = ["bytes"], optional = true }
+once_cell = "1.17"
