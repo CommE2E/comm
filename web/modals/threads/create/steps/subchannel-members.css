@@ -1,10 +1,5 @@
-.members {
-  overflow-y: auto;
-}
-
 .searchBar {
-  background-color: var(--modal-bg);
   position: sticky;
-  padding: 2.5px 0;
   top: 0;
+  z-index: 1;
 }
