@@ -67,14 +67,14 @@ function AddUsersList(props: Props): React.Node {
     );
   }, [searchText, userStoreSearchIndex]);
 
-  const serverSearchResults = useSearchUsers(searchText);
+  const searchResults = useSearchUsers(searchText);
 
   const searchTextPresent = searchText.length > 0;
   const mergedUserInfos = React.useMemo(() => {
     const mergedInfos: { [string]: GlobalAccountUserInfo | AccountUserInfo } =
       {};
 
-    for (const userInfo of serverSearchResults) {
+    for (const userInfo of searchResults) {
       mergedInfos[userInfo.id] = userInfo;
     }
 
@@ -89,12 +89,7 @@ function AddUsersList(props: Props): React.Node {
     }
 
     return mergedInfos;
-  }, [
-    searchTextPresent,
-    serverSearchResults,
-    userInfos,
-    userStoreSearchResults,
-  ]);
+  }, [searchTextPresent, searchResults, userInfos, userStoreSearchResults]);
 
   const sortedUsers = React.useMemo(
     () =>

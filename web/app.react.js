@@ -21,6 +21,7 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -67,6 +68,7 @@ import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
+import { createIdentitySearchAuthMessage } from './selectors/identity-search-selectors.js';
 import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selectors.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
@@ -420,10 +422,16 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 );
 
 function AppWithProvider(props: BaseProps): React.Node {
+  const identitySearchAuthMessage = useSelector(
+    createIdentitySearchAuthMessage,
+  );
+
   return (
-    <ModalProvider>
-      <ConnectedApp {...props} />
-    </ModalProvider>
+    <IdentitySearchProvider authMessage={identitySearchAuthMessage}>
+      <ModalProvider>
+        <ConnectedApp {...props} />
+      </ModalProvider>
+    </IdentitySearchProvider>
   );
 }
 
