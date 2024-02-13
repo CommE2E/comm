@@ -87,7 +87,35 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     );
   }, [adminMembers, allMembers, tab, threadInfo]);
 
+  const threadMembersModalContent = React.useMemo(
+    () => (
+      <div className={css.modalContentContainer}>
+        {tabs}
+        <div className={css.membersListTabsContent}>{tabContent}</div>
+      </div>
+    ),
+    [tabContent, tabs],
+  );
+
+  return threadMembersModalContent;
+}
+
+type Props = {
+  +threadID: string,
+  +onClose: () => void,
+};
+function ThreadMembersModal(props: Props): React.Node {
+  const { onClose, threadID } = props;
+  const renderModalContent = React.useCallback(
+    (searchText: string) => (
+      <ThreadMembersModalContent threadID={threadID} searchText={searchText} />
+    ),
+    [threadID],
+  );
+
   const { pushModal, popModal } = useModalContext();
+
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
   const onClickAddMembers = React.useCallback(() => {
     pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
@@ -111,38 +139,13 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     );
   }, [canAddMembers, onClickAddMembers]);
 
-  const threadMembersModalContent = React.useMemo(
-    () => (
-      <div className={css.modalContentContainer}>
-        {tabs}
-        <div className={css.membersListTabsContent}>{tabContent}</div>
-        {addMembersButton}
-      </div>
-    ),
-    [addMembersButton, tabContent, tabs],
-  );
-
-  return threadMembersModalContent;
-}
-
-type Props = {
-  +threadID: string,
-  +onClose: () => void,
-};
-function ThreadMembersModal(props: Props): React.Node {
-  const { onClose, threadID } = props;
-  const renderModalContent = React.useCallback(
-    (searchText: string) => (
-      <ThreadMembersModalContent threadID={threadID} searchText={searchText} />
-    ),
-    [threadID],
-  );
   return (
     <SearchModal
       name="Members"
       searchPlaceholder="Search members"
       onClose={onClose}
       size="large"
+      primaryButton={addMembersButton}
     >
       {renderModalContent}
     </SearchModal>
