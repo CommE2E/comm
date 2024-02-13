@@ -6,6 +6,7 @@ import * as React from 'react';
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { useStaffContext } from 'lib/components/staff-provider.react.js';
+import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
@@ -21,6 +22,8 @@ import {
   recoveryActionSources,
   type RecoveryActionSource,
 } from 'lib/types/account-types.js';
+import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
+import { getConfig } from 'lib/utils/config.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -65,18 +68,36 @@ function SQLiteDataHandler(): React.Node {
   const getInitialNotificationsEncryptedMessage =
     useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
-  const callFetchNewCookieFromNativeCredentials = React.useCallback(
+  const { resolveKeyserverSessionInvalidationUsingNativeCredentials } =
+    getConfig();
+  invariant(
+    resolveKeyserverSessionInvalidationUsingNativeCredentials,
+    'resolveKeyserverSessionInvalidationUsingNativeCredentials should be set ' +
+      'on native',
+  );
+  const recoverDataFromAuthoritativeKeyserver = React.useCallback(
     async (source: RecoveryActionSource) => {
-      try {
-        await resolveKeyserverSessionInvalidation(
-          dispatch,
+      const innerRecoverDataFromAuthoritativeKeyserver = (
+        callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
+        callKeyserverEndpoint: CallKeyserverEndpoint,
+      ) =>
+        resolveKeyserverSessionInvalidationUsingNativeCredentials(
+          callSingleKeyserverEndpoint,
+          callKeyserverEndpoint,
           dispatchActionPromise,
-          cookie,
-          urlPrefix,
           source,
           authoritativeKeyserverID,
           getInitialNotificationsEncryptedMessage,
           () => false,
+        );
+      try {
+        await resolveKeyserverSessionInvalidation(
+          dispatch,
+          cookie,
+          urlPrefix,
+          source,
+          authoritativeKeyserverID,
+          innerRecoverDataFromAuthoritativeKeyserver,
         );
         dispatch({ type: setStoreLoadedActionType });
       } catch (fetchCookieException) {
@@ -93,6 +114,7 @@ function SQLiteDataHandler(): React.Node {
       }
     },
     [
+      resolveKeyserverSessionInvalidationUsingNativeCredentials,
       cookie,
       dispatch,
       dispatchActionPromise,
@@ -155,7 +177,7 @@ function SQLiteDataHandler(): React.Node {
             commCoreModule.terminate();
           }
         }
-        await callFetchNewCookieFromNativeCredentials(
+        await recoverDataFromAuthoritativeKeyserver(
           recoveryActionSources.corruptedDatabaseDeletion,
         );
       })();
@@ -218,7 +240,7 @@ function SQLiteDataHandler(): React.Node {
               '{no exception message}',
           );
         }
-        await callFetchNewCookieFromNativeCredentials(
+        await recoverDataFromAuthoritativeKeyserver(
           recoveryActionSources.sqliteLoadFailure,
         );
       }
@@ -234,7 +256,7 @@ function SQLiteDataHandler(): React.Node {
     storeLoaded,
     urlPrefix,
     staffUserHasBeenLoggedIn,
-    callFetchNewCookieFromNativeCredentials,
+    recoverDataFromAuthoritativeKeyserver,
     callClearSensitiveData,
     mediaCacheContext,
   ]);
