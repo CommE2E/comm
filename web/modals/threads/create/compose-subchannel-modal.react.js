@@ -22,6 +22,10 @@ import Stepper from '../../../components/stepper.react.js';
 import { updateNavInfoActionType } from '../../../redux/action-types.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors.js';
+import {
+  useAddUsersListContext,
+  AddUsersListProvider,
+} from '../../../settings/relationship/add-users-list-provider.react.js';
 import Modal from '../../modal.react.js';
 
 type Props = {
@@ -64,16 +68,14 @@ function ComposeSubchannelModal(props: Props): React.Node {
   const { parentThreadInfo, onClose } = props;
   const { uiName: parentThreadName } = useResolvedThreadInfo(parentThreadInfo);
 
+  const { pendingUsersToAdd } = useAddUsersListContext();
+
   const [activeStep, setActiveStep] = React.useState<Steps>('settings');
 
   const [channelName, setChannelName] = React.useState<string>('');
   const [visibilityType, setVisibilityType] =
     React.useState<VisibilityType>('open');
   const [announcement, setAnnouncement] = React.useState<boolean>(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<
-    $ReadOnlySet<string>,
-  >(new Set());
-  const [searchUserText, setSearchUserText] = React.useState<string>('');
 
   const loadingState = useSelector(createSubchannelLoadingStatusSelector);
 
@@ -94,7 +96,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
         name: channelName,
         type: threadType,
         parentThreadID: parentThreadInfo.id,
-        initialMemberIDs: Array.from(selectedUsers),
+        initialMemberIDs: Array.from(pendingUsersToAdd.keys()),
         calendarQuery: query,
         color: parentThreadInfo.color,
       });
@@ -105,13 +107,14 @@ function ComposeSubchannelModal(props: Props): React.Node {
       return null;
     }
   }, [
-    parentThreadInfo,
-    selectedUsers,
     visibilityType,
     announcement,
-    callNewThread,
     calendarQuery,
+    callNewThread,
     channelName,
+    parentThreadInfo.id,
+    parentThreadInfo.color,
+    pendingUsersToAdd,
   ]);
 
   const dispatchCreateSubchannel = React.useCallback(async () => {
@@ -157,18 +160,6 @@ function ComposeSubchannelModal(props: Props): React.Node {
     [announcement],
   );
 
-  const toggleUserSelection = React.useCallback((userID: string) => {
-    setSelectedUsers((users: $ReadOnlySet<string>) => {
-      const newUsers = new Set(users);
-      if (newUsers.has(userID)) {
-        newUsers.delete(userID);
-      } else {
-        newUsers.add(userID);
-      }
-      return newUsers;
-    });
-  }, []);
-
   const subchannelSettings = React.useMemo(
     () => (
       <SubchannelSettings
@@ -213,31 +204,22 @@ function ComposeSubchannelModal(props: Props): React.Node {
         nextProps: {
           content: 'Create',
           loading: loadingState === 'loading',
-          disabled: selectedUsers.size === 0,
+          disabled: pendingUsersToAdd.size === 0,
           onClick: dispatchCreateSubchannel,
         },
       },
     }),
-    [channelName, dispatchCreateSubchannel, loadingState, selectedUsers],
+    [
+      channelName,
+      dispatchCreateSubchannel,
+      loadingState,
+      pendingUsersToAdd.size,
+    ],
   );
 
   const subchannelMembers = React.useMemo(
-    () => (
-      <SubchannelMembers
-        parentThreadInfo={parentThreadInfo}
-        selectedUsers={selectedUsers}
-        searchText={searchUserText}
-        setSearchText={setSearchUserText}
-        toggleUserSelection={toggleUserSelection}
-      />
-    ),
-    [
-      selectedUsers,
-      toggleUserSelection,
-      parentThreadInfo,
-      searchUserText,
-      setSearchUserText,
-    ],
+    () => <SubchannelMembers parentThreadInfo={parentThreadInfo} />,
+    [parentThreadInfo],
   );
 
   const modalName =
@@ -273,4 +255,17 @@ function ComposeSubchannelModal(props: Props): React.Node {
   );
 }
 
-export default ComposeSubchannelModal;
+function ComposeSubchannelModalWrapper(props: Props): React.Node {
+  const composeSubchannelModalWrapper = React.useMemo(
+    () => (
+      <AddUsersListProvider>
+        <ComposeSubchannelModal {...props} />
+      </AddUsersListProvider>
+    ),
+    [props],
+  );
+
+  return composeSubchannelModalWrapper;
+}
+
+export default ComposeSubchannelModalWrapper;

@@ -2,60 +2,42 @@
 
 import * as React from 'react';
 
-import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
-import MembersList from './subchannel-members-list.react.js';
 import css from './subchannel-members.css';
 import Search from '../../../../components/search.react.js';
+import AddUsersList from '../../../../settings/relationship/add-users-list.react.js';
+import { useSubchannelAddMembersListUserInfos } from '../../../../settings/relationship/add-users-utils.js';
 
 type SubchannelMembersProps = {
   +parentThreadInfo: ThreadInfo,
-  +selectedUsers: $ReadOnlySet<string>,
-  +searchText: string,
-  +setSearchText: string => void,
-  +toggleUserSelection: (userID: string) => void,
 };
 
 function SubchannelMembers(props: SubchannelMembersProps): React.Node {
-  const {
-    toggleUserSelection,
-    searchText,
-    setSearchText,
-    parentThreadInfo,
-    selectedUsers,
-  } = props;
+  const { parentThreadInfo } = props;
 
-  const ancestorThreads = useAncestorThreads(parentThreadInfo);
+  const [searchUserText, setSearchUserText] = React.useState<string>('');
 
-  const communityThread = ancestorThreads[0] ?? parentThreadInfo;
-
-  const userSearchIndex = useUserSearchIndex(communityThread.members);
-  const searchResult = React.useMemo(
-    () => new Set(userSearchIndex.getSearchResults(searchText)),
-    [userSearchIndex, searchText],
-  );
+  const { userInfos, sortedUsersWithENSNames } =
+    useSubchannelAddMembersListUserInfos({
+      parentThreadID: parentThreadInfo.id,
+      searchText: searchUserText,
+    });
 
   return (
     <>
       <div className={css.searchBar}>
         <Search
-          searchText={searchText}
-          onChangeText={setSearchText}
+          searchText={searchUserText}
+          onChangeText={setSearchUserText}
           placeholder="Search"
         />
       </div>
-      <div className={css.members}>
-        <MembersList
-          communityThreadInfo={communityThread}
-          parentThreadInfo={parentThreadInfo}
-          selectedUsers={selectedUsers}
-          searchResult={searchResult}
-          searchText={searchText}
-          toggleUserSelection={toggleUserSelection}
-        />
-      </div>
+      <AddUsersList
+        searchModeActive={searchUserText.length > 0}
+        userInfos={userInfos}
+        sortedUsersWithENSNames={sortedUsersWithENSNames}
+      />
     </>
   );
 }
