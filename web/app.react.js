@@ -21,6 +21,7 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -404,15 +405,17 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     return (
       <AppThemeWrapper>
         <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
-          <App
-            {...props}
-            navInfo={navInfo}
-            entriesLoadingStatus={entriesLoadingStatus}
-            loggedIn={loggedIn}
-            activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-            dispatch={dispatch}
-            modals={modals}
-          />
+          <IdentitySearchProvider>
+            <App
+              {...props}
+              navInfo={navInfo}
+              entriesLoadingStatus={entriesLoadingStatus}
+              loggedIn={loggedIn}
+              activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+              dispatch={dispatch}
+              modals={modals}
+            />
+          </IdentitySearchProvider>
         </TunnelbrokerProvider>
       </AppThemeWrapper>
     );

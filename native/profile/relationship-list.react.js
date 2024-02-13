@@ -119,16 +119,16 @@ function RelationshipList(props: Props): React.Node {
     $ReadOnlySet<string>,
   >(new Set());
 
-  const serverSearchResults = useSearchUsers(searchInputText);
+  const searchResults = useSearchUsers(searchInputText);
   const filteredServerSearchResults = React.useMemo(
     () =>
-      serverSearchResults.filter(searchUserInfo => {
+      searchResults.filter(searchUserInfo => {
         const userInfo = userInfos[searchUserInfo.id];
         return (
           !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
         );
       }),
-    [serverSearchResults, userInfos, excludeStatuses],
+    [searchResults, userInfos, excludeStatuses],
   );
 
   const userStoreSearchIndex = useUserSearchIndex(userInfosArray);
