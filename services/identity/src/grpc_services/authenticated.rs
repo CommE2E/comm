@@ -11,7 +11,6 @@ use crate::{
   database::DatabaseClient,
   ddb_utils::DateTimeExt,
   grpc_services::shared::get_value,
-  token::AuthType,
 };
 use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
@@ -20,14 +19,13 @@ use tonic::{Request, Response, Status};
 use tracing::{debug, error};
 
 use super::protos::auth::{
-  find_user_id_request, identity,
-  identity_client_service_server::IdentityClientService, FindUserIdRequest,
-  FindUserIdResponse, GetDeviceListRequest, GetDeviceListResponse, Identity,
-  InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
-  KeyserverKeysResponse, OutboundKeyInfo, OutboundKeysForUserRequest,
-  OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  identity, identity_client_service_server::IdentityClientService,
+  GetDeviceListRequest, GetDeviceListResponse, Identity, InboundKeyInfo,
+  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
+  RefreshUserPrekeysRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest,
 };
 use super::protos::unauth::Empty;
 
@@ -237,38 +235,6 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     Ok(tonic::Response::new(Empty {}))
-  }
-
-  async fn find_user_id(
-    &self,
-    request: tonic::Request<FindUserIdRequest>,
-  ) -> Result<tonic::Response<FindUserIdResponse>, tonic::Status> {
-    let message = request.into_inner();
-
-    use find_user_id_request::Identifier;
-    let (user_ident, auth_type) = match message.identifier {
-      None => {
-        return Err(tonic::Status::invalid_argument("no identifier provided"))
-      }
-      Some(Identifier::Username(username)) => (username, AuthType::Password),
-      Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
-    };
-
-    let (is_reserved_result, user_id_result) = tokio::join!(
-      self
-        .db_client
-        .username_in_reserved_usernames_table(&user_ident),
-      self
-        .db_client
-        .get_user_id_from_user_info(user_ident.clone(), &auth_type),
-    );
-    let is_reserved = is_reserved_result.map_err(handle_db_error)?;
-    let user_id = user_id_result.map_err(handle_db_error)?;
-
-    Ok(Response::new(FindUserIdResponse {
-      user_id,
-      is_reserved,
-    }))
   }
 
   async fn update_user_password_start(

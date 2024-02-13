@@ -51,9 +51,6 @@ service IdentityClientService {
   rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
     (KeyserverKeysResponse) {}
 
-  // Returns userID for given username or wallet address
-  rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
-
   // Returns device list history
   rpc GetDeviceListForUser(GetDeviceListRequest) returns
     (GetDeviceListResponse) {}
@@ -133,24 +130,6 @@ message InboundKeysForUserResponse {
 
 message InboundKeysForUserRequest {
   string user_id = 1;
-}
-
-// FindUserID
-
-message FindUserIDRequest {
-  oneof identifier {
-    string username = 1;
-    string wallet_address = 2;
-  }
-}
-
-message FindUserIDResponse {
-  // userID if the user is registered with Identity Service, null otherwise
-  optional string user_id = 1;
-  // true if the identifier (username or wallet address) exists in the
-  // reserved usernames list, false otherwise. It doesn't take into account
-  // whether the user is registered with Identity Service (userID != null).
-  bool is_reserved = 2;
 }
 
 // UpdateUserPassword

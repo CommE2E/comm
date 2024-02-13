@@ -808,5 +808,65 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.ping =
 };
 
 
-module.exports = proto.identity.unauth;
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.FindUserIDRequest,
+ *   !proto.identity.unauth.FindUserIDResponse>}
+ */
+const methodDescriptor_IdentityClientService_FindUserID = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/FindUserID',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.FindUserIDRequest,
+  proto.identity.unauth.FindUserIDResponse,
+  /**
+   * @param {!proto.identity.unauth.FindUserIDRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.FindUserIDResponse.deserializeBinary
+);
 
+
+/**
+ * @param {!proto.identity.unauth.FindUserIDRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.FindUserIDResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.FindUserIDResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.findUserID =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/FindUserID',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserID,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.FindUserIDRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.FindUserIDResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.findUserID =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/FindUserID',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserID);
+};
+
+
+module.exports = proto.identity.unauth;

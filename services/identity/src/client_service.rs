@@ -18,14 +18,14 @@ use crate::database::{
 };
 use crate::error::Error as DBError;
 use crate::grpc_services::protos::unauth::{
-  AddReservedUsernamesRequest, Empty, GenerateNonceResponse,
-  OpaqueLoginFinishRequest, OpaqueLoginFinishResponse, OpaqueLoginStartRequest,
-  OpaqueLoginStartResponse, RegistrationFinishRequest,
-  RegistrationFinishResponse, RegistrationStartRequest,
-  RegistrationStartResponse, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
-  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-  WalletLoginRequest, WalletLoginResponse,
+  find_user_id_request, AddReservedUsernamesRequest, Empty, FindUserIdRequest,
+  FindUserIdResponse, GenerateNonceResponse, OpaqueLoginFinishRequest,
+  OpaqueLoginFinishResponse, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+  RegistrationFinishRequest, RegistrationFinishResponse,
+  RegistrationStartRequest, RegistrationStartResponse,
+  RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
+  ReservedWalletLoginRequest, VerifyUserAccessTokenRequest,
+  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::DeviceKeyUploadActions;
@@ -685,6 +685,38 @@ impl IdentityClientService for ClientService {
   ) -> Result<Response<Empty>, tonic::Status> {
     let response = Response::new(Empty {});
     Ok(response)
+  }
+
+  async fn find_user_id(
+    &self,
+    request: tonic::Request<FindUserIdRequest>,
+  ) -> Result<tonic::Response<FindUserIdResponse>, tonic::Status> {
+    let message = request.into_inner();
+
+    use find_user_id_request::Identifier;
+    let (user_ident, auth_type) = match message.identifier {
+      None => {
+        return Err(tonic::Status::invalid_argument("no identifier provided"))
+      }
+      Some(Identifier::Username(username)) => (username, AuthType::Password),
+      Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
+    };
+
+    let (is_reserved_result, user_id_result) = tokio::join!(
+      self
+        .client
+        .username_in_reserved_usernames_table(&user_ident),
+      self
+        .client
+        .get_user_id_from_user_info(user_ident.clone(), &auth_type),
+    );
+    let is_reserved = is_reserved_result.map_err(handle_db_error)?;
+    let user_id = user_id_result.map_err(handle_db_error)?;
+
+    Ok(Response::new(FindUserIdResponse {
+      user_id,
+      is_reserved,
+    }))
   }
 }
 

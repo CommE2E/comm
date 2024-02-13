@@ -2,20 +2,19 @@ use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
-use grpc_clients::identity::protos::authenticated::find_user_id_request::Identifier;
 use grpc_clients::identity::{
-  get_auth_client, protos::authenticated::FindUserIdRequest,
+  get_unauthenticated_client,
+  protos::unauthenticated::{
+    find_user_id_request::Identifier, FindUserIdRequest,
+  },
 };
 
 #[tokio::test]
 async fn find_user_id_by_username() {
   let device_info = register_user_device(None, None).await;
 
-  let mut client = get_auth_client(
+  let mut client = get_unauthenticated_client(
     &service_addr::IDENTITY_GRPC.to_string(),
-    device_info.user_id.clone(),
-    device_info.device_id,
-    device_info.access_token,
     PLACEHOLDER_CODE_VERSION,
     DEVICE_TYPE.to_string(),
   )

@@ -74,13 +74,6 @@ declare export class IdentityClientServiceClient {
                response: identityAuthStructs.KeyserverKeysResponse) => void
   ): grpcWeb.ClientReadableStream<identityAuthStructs.KeyserverKeysResponse>;
 
-  findUserID(
-    request: identityAuthStructs.FindUserIDRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityAuthStructs.FindUserIDResponse) => void
-  ): grpcWeb.ClientReadableStream<identityAuthStructs.FindUserIDResponse>;
-
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
     metadata: grpcWeb.Metadata | void,
@@ -138,11 +131,6 @@ declare export class IdentityClientServicePromiseClient {
     request: identityAuthStructs.OutboundKeysForUserRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityAuthStructs.KeyserverKeysResponse>;
-
-  findUserID(
-    request: identityAuthStructs.FindUserIDRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityAuthStructs.FindUserIDResponse>;
 
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,

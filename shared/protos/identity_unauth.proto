@@ -50,6 +50,9 @@ service IdentityClientService {
 
   // Called by users periodically to check if their code version is supported
   rpc Ping(Empty) returns (Empty) {}
+
+  // Returns userID for given username or wallet address
+  rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
 }
 
 // Helper types
@@ -243,4 +246,22 @@ message RemoveReservedUsernameRequest {
   string message = 1;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
   string signature = 2;
+}
+
+// FindUserID
+
+message FindUserIDRequest {
+  oneof identifier {
+    string username = 1;
+    string wallet_address = 2;
+  }
+}
+
+message FindUserIDResponse {
+  // userID if the user is registered with Identity Service, null otherwise
+  optional string user_id = 1;
+  // true if the identifier (username or wallet address) exists in the
+  // reserved usernames list, false otherwise. It doesn't take into account
+  // whether the user is registered with Identity Service (userID != null).
+  bool is_reserved = 2;
 }
