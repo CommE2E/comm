@@ -235,8 +235,42 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
     return createButtonText;
   }, [createRolesLoadingStatus, createButtonText]);
 
+  const primaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="filled"
+        className={css.createRoleButton}
+        buttonColor={buttonThemes.standard}
+        onClick={onClickCreateRole}
+      >
+        {saveButtonContent}
+      </Button>
+    ),
+    [onClickCreateRole, saveButtonContent],
+  );
+
+  const secondaryButton = React.useMemo(
+    () => (
+      <Button
+        variant="outline"
+        className={css.backButton}
+        buttonColor={buttonThemes.outline}
+        onClick={onCloseModal}
+      >
+        Back
+      </Button>
+    ),
+    [onCloseModal],
+  );
+
   return (
-    <Modal name={modalName} onClose={onCloseModal} size="large">
+    <Modal
+      name={modalName}
+      onClose={onCloseModal}
+      size="large"
+      primaryButton={primaryButton}
+      secondaryButton={secondaryButton}
+    >
       <form method="POST" className={css.formContainer}>
         <div className={css.roleNameLabel}>Role name</div>
         <div className={css.roleNameInput}>
@@ -259,24 +293,6 @@ function CreateRolesModal(props: CreateRolesModalProps): React.Node {
         </div>
       </div>
       <div className={css.permissionsContainer}>{permissionsList}</div>
-      <div className={css.buttonsContainer}>
-        <Button
-          variant="outline"
-          className={css.backButton}
-          buttonColor={buttonThemes.outline}
-          onClick={onCloseModal}
-        >
-          Back
-        </Button>
-        <Button
-          variant="filled"
-          className={css.createRoleButton}
-          buttonColor={buttonThemes.standard}
-          onClick={onClickCreateRole}
-        >
-          {saveButtonContent}
-        </Button>
-      </div>
     </Modal>
   );
 }
