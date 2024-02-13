@@ -30,7 +30,7 @@ import type {
 import {
   userSettingsTypes,
   notificationTypeValues,
-  logInActionSources,
+  authActionSources,
 } from 'lib/types/account-types.js';
 import {
   type ClientAvatar,
@@ -453,7 +453,7 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
     calendarQuery: t.maybe(entryQueryInputValidator),
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
-    source: t.maybe(t.enums.of(values(logInActionSources))),
+    source: t.maybe(t.enums.of(values(authActionSources))),
     // We include `primaryIdentityPublicKey` to avoid breaking
     // old clients, but we no longer do anything with it.
     primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
@@ -710,7 +710,7 @@ export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest
     initialContentEncryptedMessage: t.String,
     initialNotificationsEncryptedMessage: t.String,
     doNotRegister: t.Boolean,
-    source: t.maybe(t.enums.of(values(logInActionSources))),
+    source: t.maybe(t.enums.of(values(authActionSources))),
   });
 
 async function keyserverAuthResponder(

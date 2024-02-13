@@ -281,7 +281,7 @@ class LogInPanel extends React.PureComponent<Props> {
         ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
-        logInActionSource: logInActionSources.logInFromNativeForm,
+        authActionSource: logInActionSources.logInFromNativeForm,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
