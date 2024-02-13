@@ -40,18 +40,18 @@ function UserListModal(props: Props): React.Node {
           usersComparator={usersComparator}
           searchText={searchText}
         />
-        <Button variant="filled" onClick={onAddUsersClick}>
-          {buttonLabel}
-        </Button>
       </div>
     ),
-    [
-      buttonLabel,
-      filterUser,
-      onAddUsersClick,
-      userRowComponent,
-      usersComparator,
-    ],
+    [filterUser, userRowComponent, usersComparator],
+  );
+
+  const primaryButton = React.useMemo(
+    () => (
+      <Button variant="filled" onClick={onAddUsersClick}>
+        {buttonLabel}
+      </Button>
+    ),
+    [buttonLabel, onAddUsersClick],
   );
 
   return (
@@ -60,6 +60,7 @@ function UserListModal(props: Props): React.Node {
       size="large"
       searchPlaceholder="Search by name"
       onClose={popModal}
+      primaryButton={primaryButton}
     >
       {searchModalChildGenerator}
     </SearchModal>
