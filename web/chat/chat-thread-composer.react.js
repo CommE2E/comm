@@ -12,6 +12,7 @@ import { useENSNames } from 'lib/hooks/ens-cache.js';
 import {
   usePotentialMemberItems,
   useSearchUsers,
+  useSearchIdentityUsers,
   notFriendNotice,
 } from 'lib/shared/search-utils.js';
 import {
@@ -22,6 +23,7 @@ import {
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import css from './chat-thread-composer.css';
 import UserAvatar from '../avatars/user-avatar.react.js';
@@ -55,13 +57,21 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray],
   );
 
+  let searchResults;
+  const identitySearchResults = useSearchIdentityUsers(usernameInputText);
   const serverSearchResults = useSearchUsers(usernameInputText);
+
+  if (usingCommServicesAccessToken) {
+    searchResults = identitySearchResults;
+  } else {
+    searchResults = serverSearchResults;
+  }
 
   const userListItems = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
     excludeUserIDs: userInfoInputIDs,
-    includeServerSearchUsers: serverSearchResults,
+    includeServerSearchUsers: searchResults,
   });
 
   const userListItemsWithENSNames = useENSNames(userListItems);
