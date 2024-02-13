@@ -55,13 +55,13 @@ function ChatThreadComposer(props: Props): React.Node {
     [userInfoInputArray],
   );
 
-  const serverSearchResults = useSearchUsers(usernameInputText);
+  const searchResults = useSearchUsers(usernameInputText);
 
   const userListItems = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
     excludeUserIDs: userInfoInputIDs,
-    includeServerSearchUsers: serverSearchResults,
+    includeServerSearchUsers: searchResults,
   });
 
   const userListItemsWithENSNames = useENSNames(userListItems);
