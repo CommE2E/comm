@@ -68,17 +68,6 @@ pub async fn load_aws_config() -> aws_config::SdkConfig {
   config_builder.load().await
 }
 
-fn get_all_reserved_invite_links() -> HashSet<String> {
-  // All entries in `reserved_usernames.json` must be lowercase and must also be
-  // included in `lib/utils/reserved-users.js`!!
-  let contents = include_str!("../reserved_usernames.json");
-  let reserved_usernames: Vec<String> = serde_json::from_str(contents).unwrap();
-
-  reserved_usernames.into_iter().collect()
-}
-pub static RESERVED_INVITE_LINKS: Lazy<HashSet<String>> =
-  Lazy::new(get_all_reserved_invite_links);
-
 fn get_all_offensive_invite_links() -> HashSet<String> {
   let contents = include_str!("../third-party/bad-words/words.json");
   let reserved_usernames: Vec<String> = serde_json::from_str(contents).unwrap();

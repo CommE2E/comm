@@ -3,6 +3,7 @@ use std::str::FromStr;
 
 // External crate imports
 use comm_lib::aws::DynamoDBError;
+use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;
@@ -111,7 +112,7 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::already_exists("username already exists"));
     }
 
-    if CONFIG.reserved_usernames.contains(&message.username)
+    if RESERVED_USERNAME_SET.contains(&message.username)
       || is_valid_ethereum_address(&message.username)
     {
       return Err(tonic::Status::invalid_argument("username reserved"));
@@ -151,7 +152,7 @@ impl IdentityClientService for ClientService {
     let message = request.into_inner();
     self.check_username_taken(&message.username).await?;
 
-    if CONFIG.reserved_usernames.contains(&message.username) {
+    if RESERVED_USERNAME_SET.contains(&message.username) {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 
