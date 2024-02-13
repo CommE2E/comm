@@ -1,7 +1,6 @@
 // @flow
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
-import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
@@ -17,14 +16,9 @@ import {
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { resetUserStateActionType } from 'lib/actions/user-actions.js';
-import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
-import {
-  cookieSelector,
-  urlPrefixSelector,
-} from 'lib/selectors/keyserver-selectors.js';
+import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { recoveryActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -72,7 +66,6 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils.js';
-import { nativeNotificationsSessionCreator } from '../utils/crypto-utils.js';
 import {
   type StateContainer,
   type StateChange,
@@ -245,17 +238,12 @@ type Props = {
   +persistedStateLoaded: boolean,
   +rehydrateConcluded: boolean,
   +cookie: ?string,
-  +urlPrefix: string,
   +loggedIn: boolean,
   +dimensions: DerivedDimensionsInfo,
   +splashStyle: ImageStyle,
   +styles: $ReadOnly<typeof unboundStyles>,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  // Keyserver olm sessions functions
-  +getInitialNotificationsEncryptedMessage: (
-    keyserverID: string,
-  ) => Promise<string>,
 };
 type State = {
   +mode: LoggedOutMode,
@@ -352,7 +340,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     if (this.props.rehydrateConcluded) {
-      void this.onInitialAppLoad();
+      this.onInitialAppLoad();
     }
     if (this.props.isForeground) {
       this.onForeground();
@@ -371,7 +359,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.setMode('prompt');
     }
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      void this.onInitialAppLoad();
+      this.onInitialAppLoad();
     }
     if (!prevProps.isForeground && this.props.isForeground) {
       this.onForeground();
@@ -415,43 +403,32 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   // This gets triggered when an app is killed and restarted
   // Not when it is returned from being backgrounded
-  async onInitialAppLoad() {
+  onInitialAppLoad() {
     if (!initialAppLoad) {
       return;
     }
     initialAppLoad = false;
 
-    if (usingCommServicesAccessToken) {
+    if (usingCommServicesAccessToken || __DEV__) {
       return;
     }
 
-    const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
+    const { loggedIn, cookie, dispatch } = this.props;
     const hasUserCookie = cookie && cookie.startsWith('user=');
     if (loggedIn === !!hasUserCookie) {
       return;
     }
-    if (!__DEV__) {
-      const actionSource = loggedIn
-        ? recoveryActionSources.appStartReduxLoggedInButInvalidCookie
-        : recoveryActionSources.appStartCookieLoggedInButInvalidRedux;
-      const sessionChange = await resolveKeyserverSessionInvalidation(
-        dispatch,
-        cookie,
-        urlPrefix,
-        actionSource,
-        authoritativeKeyserverID,
-        this.props.getInitialNotificationsEncryptedMessage,
-      );
-      if (
-        sessionChange &&
-        sessionChange.cookie &&
-        sessionChange.cookie.startsWith('user=')
-      ) {
-        // success! we can expect subsequent actions to fix up the state
-        return;
-      }
-    }
-    this.props.dispatch({ type: resetUserStateActionType });
+
+    const actionSource = loggedIn
+      ? recoveryActionSources.appStartReduxLoggedInButInvalidCookie
+      : recoveryActionSources.appStartCookieLoggedInButInvalidRedux;
+    dispatch({
+      type: setActiveSessionRecoveryActionType,
+      payload: {
+        activeSessionRecovery: actionSource,
+        keyserverID: authoritativeKeyserverID,
+      },
+    });
   }
 
   hardwareBack: () => boolean = () => {
@@ -817,18 +794,12 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     );
     const persistedStateLoaded = usePersistedStateLoaded();
     const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
-    const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
-    invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const splashStyle = useSelector(splashStyleSelector);
     const styles = useStyles(unboundStyles);
 
     const dispatch = useDispatch();
-    const getInitialNotificationsEncryptedMessage =
-      useInitialNotificationsEncryptedMessage(
-        nativeNotificationsSessionCreator,
-      );
     return (
       <LoggedOutModal
         {...props}
@@ -836,15 +807,11 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
         cookie={cookie}
-        urlPrefix={urlPrefix}
         loggedIn={loggedIn}
         dimensions={dimensions}
         splashStyle={splashStyle}
         styles={styles}
         dispatch={dispatch}
-        getInitialNotificationsEncryptedMessage={
-          getInitialNotificationsEncryptedMessage
-        }
       />
     );
   });
