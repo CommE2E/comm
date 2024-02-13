@@ -13,6 +13,7 @@ const babelConfig = require('./.babelrc.cjs');
 
 async function getConfig(configName) {
   const { getCommConfig } = await import(
+    // eslint-disable-next-line monorepo/no-relative-import
     '../keyserver/dist/lib/utils/comm-config.js'
   );
   return await getCommConfig(configName);
