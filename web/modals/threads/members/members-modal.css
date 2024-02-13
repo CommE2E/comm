@@ -1,5 +1,5 @@
 div.modalContentContainer {
-  height: 617px;
+  height: 60vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
