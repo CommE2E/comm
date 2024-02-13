@@ -6,11 +6,13 @@ import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import {
   useSearchUsers,
   usePotentialMemberItems,
 } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
+import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   GlobalAccountUserInfo,
@@ -182,4 +184,78 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
   return result;
 }
 
-export { useUserRelationshipUserInfos, useAddMembersListUserInfos };
+type UseSubchannelAddMembersListUserInfosParams = {
+  +parentThreadID: string,
+  +searchText: string,
+};
+
+function useSubchannelAddMembersListUserInfos(
+  params: UseSubchannelAddMembersListUserInfosParams,
+): {
+  +userInfos: {
+    [string]: RelativeMemberInfo,
+  },
+  +sortedUsersWithENSNames: $ReadOnlyArray<RelativeMemberInfo>,
+} {
+  const { parentThreadID, searchText } = params;
+
+  const { previouslySelectedUsers } = useAddUsersListContext();
+
+  const parentThreadInfo = useSelector(
+    state => threadInfoSelector(state)[parentThreadID],
+  );
+
+  const currentUserID = useSelector(state => state.currentUserInfo?.id);
+
+  const ancestorThreads = useAncestorThreads(parentThreadInfo);
+
+  const communityThreadInfo = ancestorThreads[0] ?? parentThreadInfo;
+
+  const userInfos = React.useMemo(() => {
+    const infos: { [string]: RelativeMemberInfo } = {};
+
+    for (const member of communityThreadInfo.members) {
+      infos[member.id] = member;
+    }
+
+    return infos;
+  }, [communityThreadInfo.members]);
+
+  const userSearchIndex = useUserSearchIndex(communityThreadInfo.members);
+
+  const searchResult = React.useMemo(
+    () => new Set(userSearchIndex.getSearchResults(searchText)),
+    [userSearchIndex, searchText],
+  );
+
+  const filterOutOtherMembersWithENSNames = React.useCallback(
+    (members: $ReadOnlyArray<RelativeMemberInfo>) =>
+      members.filter(
+        user =>
+          !previouslySelectedUsers.has(user.id) &&
+          user.id !== currentUserID &&
+          (searchResult.has(user.id) || searchText.length === 0),
+      ),
+    [currentUserID, previouslySelectedUsers, searchResult, searchText.length],
+  );
+
+  const otherMemberListWithoutENSNames = React.useMemo(
+    () => filterOutOtherMembersWithENSNames(communityThreadInfo.members),
+    [communityThreadInfo.members, filterOutOtherMembersWithENSNames],
+  );
+
+  const sortedUsersWithENSNames = useSortedENSResolvedUsers(
+    otherMemberListWithoutENSNames,
+  );
+
+  return {
+    userInfos,
+    sortedUsersWithENSNames,
+  };
+}
+
+export {
+  useUserRelationshipUserInfos,
+  useAddMembersListUserInfos,
+  useSubchannelAddMembersListUserInfos,
+};
