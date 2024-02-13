@@ -13,7 +13,10 @@ import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
-import { useSearchUsers } from 'lib/shared/search-utils.js';
+import {
+  useSearchUsers,
+  useSearchIdentityUsers,
+} from 'lib/shared/search-utils.js';
 import {
   userRelationshipStatus,
   relationshipActions,
@@ -25,6 +28,7 @@ import type {
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RelationshipListItem from './relationship-list-item.react.js';
@@ -119,16 +123,25 @@ function RelationshipList(props: Props): React.Node {
     $ReadOnlySet<string>,
   >(new Set());
 
+  let searchResults;
   const serverSearchResults = useSearchUsers(searchInputText);
+  const identitySearchResults = useSearchIdentityUsers(searchInputText);
+
+  if (usingCommServicesAccessToken) {
+    searchResults = identitySearchResults;
+  } else {
+    searchResults = serverSearchResults;
+  }
+
   const filteredServerSearchResults = React.useMemo(
     () =>
-      serverSearchResults.filter(searchUserInfo => {
+      searchResults.filter(searchUserInfo => {
         const userInfo = userInfos[searchUserInfo.id];
         return (
           !userInfo || !excludeStatuses.includes(userInfo.relationshipStatus)
         );
       }),
-    [serverSearchResults, userInfos, excludeStatuses],
+    [searchResults, userInfos, excludeStatuses],
   );
 
   const userStoreSearchIndex = useUserSearchIndex(userInfosArray);

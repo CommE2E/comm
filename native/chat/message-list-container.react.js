@@ -12,6 +12,7 @@ import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selector
 import {
   usePotentialMemberItems,
   useSearchUsers,
+  useSearchIdentityUsers,
 } from 'lib/shared/search-utils.js';
 import {
   pendingThreadType,
@@ -20,6 +21,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
 import { ChatInputBar } from './chat-input-bar.react.js';
@@ -248,13 +250,21 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> =
 
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
 
+    let searchResults;
     const serverSearchResults = useSearchUsers(usernameInputText);
+    const identitySearchResults = useSearchIdentityUsers(usernameInputText);
+
+    if (usingCommServicesAccessToken) {
+      searchResults = identitySearchResults;
+    } else {
+      searchResults = serverSearchResults;
+    }
 
     const userSearchResults = usePotentialMemberItems({
       text: usernameInputText,
       userInfos: otherUserInfos,
       excludeUserIDs: userInfoInputArray.map(userInfo => userInfo.id),
-      includeServerSearchUsers: serverSearchResults,
+      includeServerSearchUsers: searchResults,
     });
 
     const [baseThreadInfo, setBaseThreadInfo] = React.useState(
