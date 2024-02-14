@@ -45,7 +45,14 @@ declare export class IdentityClientServiceClient {
   ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
   logInWalletUser(
-    request: identityStructs.WalletLoginRequest,
+    request: identityStructs.WalletAuthRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
+
+  registerWalletUser(
+    request: identityStructs.WalletAuthRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.AuthResponse) => void
@@ -139,7 +146,12 @@ registerPasswordUserFinish(
   ): Promise<identityStructs.AuthResponse>;
 
   logInWalletUser(
-    request: identityStructs.WalletLoginRequest,
+    request: identityStructs.WalletAuthRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.AuthResponse>;
+
+  registerWalletUser(
+    request: identityStructs.WalletAuthRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.AuthResponse>;
 

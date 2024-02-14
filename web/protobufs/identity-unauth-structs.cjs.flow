@@ -308,27 +308,27 @@ export type OpaqueLoginStartResponseObject = {
   opaqueLoginResponse: Uint8Array | string,
 };
 
-declare export class WalletLoginRequest extends Message {
+declare export class WalletAuthRequest extends Message {
   getSiweMessage(): string;
-  setSiweMessage(value: string): WalletLoginRequest;
+  setSiweMessage(value: string): WalletAuthRequest;
 
   getSiweSignature(): string;
-  setSiweSignature(value: string): WalletLoginRequest;
+  setSiweSignature(value: string): WalletAuthRequest;
 
   getDeviceKeyUpload(): DeviceKeyUpload | void;
-  setDeviceKeyUpload(value?: DeviceKeyUpload): WalletLoginRequest;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): WalletAuthRequest;
   hasDeviceKeyUpload(): boolean;
-  clearDeviceKeyUpload(): WalletLoginRequest;
+  clearDeviceKeyUpload(): WalletAuthRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): WalletLoginRequestObject;
-  static toObject(includeInstance: boolean, msg: WalletLoginRequest): WalletLoginRequestObject;
-  static serializeBinaryToWriter(message: WalletLoginRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): WalletLoginRequest;
-  static deserializeBinaryFromReader(message: WalletLoginRequest, reader: BinaryReader): WalletLoginRequest;
+  toObject(includeInstance?: boolean): WalletAuthRequestObject;
+  static toObject(includeInstance: boolean, msg: WalletAuthRequest): WalletAuthRequestObject;
+  static serializeBinaryToWriter(message: WalletAuthRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): WalletAuthRequest;
+  static deserializeBinaryFromReader(message: WalletAuthRequest, reader: BinaryReader): WalletAuthRequest;
 }
 
-export type WalletLoginRequestObject = {
+export type WalletAuthRequestObject = {
   siweMessage: string,
   siweSignature: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
