@@ -12,7 +12,7 @@ namespace jsi = facebook::jsi;
 
 class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
   virtual jsi::Value generateNonce(jsi::Runtime &rt) override;
-  virtual jsi::Value registerUser(
+  virtual jsi::Value registerPasswordUser(
       jsi::Runtime &rt,
       jsi::String username,
       jsi::String password,
