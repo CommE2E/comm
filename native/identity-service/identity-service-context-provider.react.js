@@ -198,7 +198,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           })
           .filter(Boolean);
       },
-      registerUser: async (username: string, password: string) => {
+      registerPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
         const [
           { blobPayload, signature },
@@ -209,7 +209,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const registrationResult = await commRustModule.registerUser(
+        const registrationResult = await commRustModule.registerPasswordUser(
           username,
           password,
           blobPayload,
