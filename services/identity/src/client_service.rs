@@ -386,24 +386,7 @@ impl IdentityClientService for ClientService {
       &message.siwe_signature,
     )?;
 
-    match self
-      .client
-      .get_nonce_from_nonces_table(&parsed_message.nonce)
-      .await
-      .map_err(handle_db_error)?
-    {
-      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
-      Some(nonce) if nonce.is_expired() => {
-        // we don't need to remove the nonce from the table here
-        // because the DynamoDB TTL will take care of it
-        return Err(tonic::Status::aborted("nonce expired"));
-      }
-      Some(_) => self
-        .client
-        .remove_nonce_from_nonces_table(&parsed_message.nonce)
-        .await
-        .map_err(handle_db_error)?,
-    };
+    self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 
     let wallet_address = eip55(&parsed_message.address);
 
@@ -509,19 +492,7 @@ impl IdentityClientService for ClientService {
       &message.siwe_signature,
     )?;
 
-    match self
-      .client
-      .get_nonce_from_nonces_table(&parsed_message.nonce)
-      .await
-      .map_err(handle_db_error)?
-    {
-      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
-      Some(_) => self
-        .client
-        .remove_nonce_from_nonces_table(&parsed_message.nonce)
-        .await
-        .map_err(handle_db_error)?,
-    };
+    self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 
     let wallet_address = eip55(&parsed_message.address);
 
@@ -758,6 +729,31 @@ impl ClientService {
         "wallet address already exists",
       ));
     }
+    Ok(())
+  }
+
+  async fn verify_and_remove_nonce(
+    &self,
+    nonce: &str,
+  ) -> Result<(), tonic::Status> {
+    match self
+      .client
+      .get_nonce_from_nonces_table(nonce)
+      .await
+      .map_err(handle_db_error)?
+    {
+      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
+      Some(nonce) if nonce.is_expired() => {
+        // we don't need to remove the nonce from the table here
+        // because the DynamoDB TTL will take care of it
+        return Err(tonic::Status::aborted("nonce expired"));
+      }
+      Some(nonce_data) => self
+        .client
+        .remove_nonce_from_nonces_table(&nonce_data.nonce)
+        .await
+        .map_err(handle_db_error)?,
+    };
     Ok(())
   }
 }
