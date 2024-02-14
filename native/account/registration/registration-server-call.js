@@ -6,7 +6,7 @@ import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js'
 import {
   keyserverRegisterActionTypes,
   keyserverRegister,
-  useIdentityRegister,
+  useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
@@ -68,13 +68,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
-  const callIdentityRegister = useIdentityRegister();
+  const callIdentityPasswordRegister = useIdentityPasswordRegister();
 
   const identityRegisterUsernameAccount = React.useCallback(
     async (accountSelection: UsernameAccountSelection) => {
       const identityRegisterPromise = (async () => {
         try {
-          const result = await callIdentityRegister(
+          const result = await callIdentityPasswordRegister(
             accountSelection.username,
             accountSelection.password,
           );
@@ -114,7 +114,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       );
       await identityRegisterPromise;
     },
-    [callIdentityRegister, dispatchActionPromise],
+    [callIdentityPasswordRegister, dispatchActionPromise],
   );
 
   const keyserverRegisterUsernameAccount = React.useCallback(
