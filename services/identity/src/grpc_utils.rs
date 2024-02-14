@@ -1,3 +1,6 @@
+use base64::{engine::general_purpose, Engine as _};
+use ed25519_dalek::{PublicKey, Signature, Verifier};
+use serde::Deserialize;
 use tonic::Status;
 
 use crate::{
@@ -14,6 +17,55 @@ use crate::{
     },
   },
 };
+
+#[derive(Deserialize)]
+pub struct ChallengeResponse {
+  message: String,
+  signature: String,
+}
+
+#[derive(Deserialize)]
+pub struct NonceChallenge {
+  pub nonce: String,
+}
+
+impl TryFrom<&SecondaryDeviceKeysUploadRequest> for ChallengeResponse {
+  type Error = Status;
+  fn try_from(
+    value: &SecondaryDeviceKeysUploadRequest,
+  ) -> Result<Self, Self::Error> {
+    serde_json::from_str(&value.challenge_response)
+      .map_err(|_| Status::invalid_argument("message format invalid"))
+  }
+}
+
+impl ChallengeResponse {
+  pub fn verify_and_get_message<T: serde::de::DeserializeOwned>(
+    &self,
+    signing_public_key: &str,
+  ) -> Result<T, Status> {
+    let signature_bytes = general_purpose::STANDARD_NO_PAD
+      .decode(&self.signature)
+      .map_err(|_| Status::invalid_argument("signature invalid"))?;
+
+    let signature = Signature::from_bytes(&signature_bytes)
+      .map_err(|_| Status::invalid_argument("signature invalid"))?;
+
+    let public_key_bytes = general_purpose::STANDARD_NO_PAD
+      .decode(signing_public_key)
+      .map_err(|_| Status::failed_precondition("malformed key"))?;
+
+    let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
+      .map_err(|_| Status::failed_precondition("malformed key"))?;
+
+    public_key
+      .verify(self.message.as_bytes(), &signature)
+      .map_err(|_| Status::permission_denied("verification failed"))?;
+
+    serde_json::from_str(&self.message)
+      .map_err(|_| Status::invalid_argument("message format invalid"))
+  }
+}
 
 pub struct DeviceKeysInfo {
   pub device_info: DeviceRow,
@@ -194,5 +246,36 @@ impl TryFrom<DBIdentifier> for IdentityInfo {
         }))
       }
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use serde_json::json;
+
+  use super::*;
+
+  #[test]
+  fn test_challenge_response_verification() {
+    let signing_key = "TF6XVmtso2xpCfUWcU1dOTPDnoo+Euls3H4wJhO6T6A";
+    let challenge_response_json = json!({
+      "message": r#"{"nonce":"hello"}"#,
+      "signature": "pXQZc9if5/p926HoomKEtLfe10SNOHdkf3wIXLjax0yg3mOE0z+0JTf+IgsjB7p9RGSisVRfskQQXa30uPupAQ"
+    });
+    let request = SecondaryDeviceKeysUploadRequest {
+      challenge_response: serde_json::to_string(&challenge_response_json)
+        .unwrap(),
+      user_id: "foo".to_string(),
+      device_key_upload: None,
+    };
+
+    let challenge_response = ChallengeResponse::try_from(&request)
+      .expect("failed to parse challenge response");
+
+    let msg: NonceChallenge = challenge_response
+      .verify_and_get_message(signing_key)
+      .expect("verification failed");
+
+    assert_eq!(msg.nonce, "hello".to_string());
   }
 }
