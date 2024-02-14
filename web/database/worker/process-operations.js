@@ -220,4 +220,8 @@ function getClientStoreFromQueryExecutor(
   };
 }
 
-export { processDBStoreOperations, getClientStoreFromQueryExecutor };
+export {
+  processDBStoreOperations,
+  getClientStoreFromQueryExecutor,
+  processKeyserverStoreOperations,
+};

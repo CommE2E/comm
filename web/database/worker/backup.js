@@ -4,8 +4,10 @@ import { BackupClient, RequestedData } from 'backup-client-wasm';
 
 import backupService from 'lib/facts/backup-service.js';
 import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
+import { removeDeviceSpecificInfoFromDBKeyserverStoreOps } from 'lib/ops/keyserver-store-ops.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 
+import { processKeyserverStoreOperations } from './process-operations.js';
 import { completeRootKey } from '../../redux/persist-constants.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
@@ -52,6 +54,11 @@ async function restoreBackup(
   );
 
   sqliteQueryExecutor.setPersistStorageItem(completeRootKey, reduxPersistData);
+
+  const keyservers = sqliteQueryExecutor.getAllKeyservers();
+  const operations =
+    removeDeviceSpecificInfoFromDBKeyserverStoreOps(keyservers);
+  processKeyserverStoreOperations(sqliteQueryExecutor, operations, dbModule);
 
   await client.downloadLogs(userIdentity, backupID, async log => {
     const content = await decryptCommon(crypto, decryptionKey, log);

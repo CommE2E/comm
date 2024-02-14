@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { removeDeviceSpecificInfoFromDBKeyserverStoreOps } from 'lib/ops/keyserver-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
@@ -66,6 +67,11 @@ function useClientBackup(): ClientBackup {
     await setMockCommServicesAuthMetadata();
     const backupSecret = await getBackupSecret();
     await commCoreModule.restoreBackup(backupSecret);
+
+    const { keyservers } = await commCoreModule.getClientDBStore();
+    const operations =
+      removeDeviceSpecificInfoFromDBKeyserverStoreOps(keyservers);
+    await commCoreModule.processKeyserverStoreOperations(operations);
 
     console.info('Backup restored.');
   }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);
