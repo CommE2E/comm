@@ -43,6 +43,8 @@ public:
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKey, jsi::String keyserverID) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
+  virtual jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) = 0;
+  virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKey, jsi::String deviceID) = 0;
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String encryptedMessage, jsi::String deviceID) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
@@ -270,6 +272,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isNotificationsSessionInitialized, jsInvoker_, instance_);
+    }
+    jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) override {
+      static_assert(
+          bridging::getParameterCount(&T::updateKeyserverDataInNotifStorage) == 2,
+          "Expected updateKeyserverDataInNotifStorage(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::updateKeyserverDataInNotifStorage, jsInvoker_, instance_, std::move(keyserversData));
+    }
+    jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) override {
+      static_assert(
+          bridging::getParameterCount(&T::removeKeyserverDataFromNotifStorage) == 2,
+          "Expected removeKeyserverDataFromNotifStorage(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::removeKeyserverDataFromNotifStorage, jsInvoker_, instance_, std::move(keyserverIDsToDelete));
     }
     jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKey, jsi::String deviceID) override {
       static_assert(
