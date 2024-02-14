@@ -23,7 +23,7 @@ use crate::grpc_services::protos::unauth::{
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
   RegistrationFinishRequest, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+  ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
   VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
   WalletLoginRequest,
 };
@@ -496,9 +496,9 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
-  async fn log_in_reserved_wallet_user(
+  async fn register_reserved_wallet_user(
     &self,
-    request: tonic::Request<ReservedWalletLoginRequest>,
+    request: tonic::Request<ReservedWalletRegistrationRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
