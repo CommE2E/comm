@@ -260,6 +260,45 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           identityAuthResultValidator,
         );
       },
+      registerWalletUser: async (
+        walletAddress: string,
+        siweMessage: string,
+        siweSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const registrationResult = await commRustModule.registerWalletUser(
+          siweMessage,
+          siweSignature,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+        );
+        const { userID, accessToken: token } = JSON.parse(registrationResult);
+        const identityAuthResult = {
+          accessToken: token,
+          userID,
+          username: walletAddress,
+        };
+
+        return assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
+      },
       logInWalletUser: async (
         walletAddress: string,
         siweMessage: string,
