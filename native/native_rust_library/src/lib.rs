@@ -11,7 +11,7 @@ use grpc_clients::identity::protos::authenticated::{
 use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
-  RegistrationFinishRequest, RegistrationStartRequest, WalletLoginRequest,
+  RegistrationFinishRequest, RegistrationStartRequest, WalletAuthRequest,
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client, REQUEST_METADATA_COOKIE_KEY,
@@ -745,7 +745,7 @@ fn log_in_wallet_user(
 async fn log_in_wallet_user_helper(
   wallet_user_info: WalletUserInfo,
 ) -> Result<String, Error> {
-  let login_request = WalletLoginRequest {
+  let login_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
     siwe_signature: wallet_user_info.siwe_signature,
     device_key_upload: Some(DeviceKeyUpload {
