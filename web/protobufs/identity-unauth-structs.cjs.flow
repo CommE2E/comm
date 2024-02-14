@@ -216,22 +216,22 @@ export type RegistrationStartResponseObject = {
   opaqueRegistrationResponse: Uint8Array | string,
 };
 
-declare export class RegistrationFinishResponse extends Message {
+declare export class AuthResponse extends Message {
   getUserId(): string;
-  setUserId(value: string): RegistrationFinishResponse;
+  setUserId(value: string): AuthResponse;
 
   getAccessToken(): string;
-  setAccessToken(value: string): RegistrationFinishResponse;
+  setAccessToken(value: string): AuthResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RegistrationFinishResponseObject;
-  static toObject(includeInstance: boolean, msg: RegistrationFinishResponse): RegistrationFinishResponseObject;
-  static serializeBinaryToWriter(message: RegistrationFinishResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RegistrationFinishResponse;
-  static deserializeBinaryFromReader(message: RegistrationFinishResponse, reader: BinaryReader): RegistrationFinishResponse;
+  toObject(includeInstance?: boolean): AuthResponseObject;
+  static toObject(includeInstance: boolean, msg: AuthResponse): AuthResponseObject;
+  static serializeBinaryToWriter(message: AuthResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AuthResponse;
+  static deserializeBinaryFromReader(message: AuthResponse, reader: BinaryReader): AuthResponse;
 }
 
-export type RegistrationFinishResponseObject = {
+export type AuthResponseObject = {
   userId: string,
   accessToken: string,
 };
@@ -308,26 +308,6 @@ export type OpaqueLoginStartResponseObject = {
   opaqueLoginResponse: Uint8Array | string,
 };
 
-declare export class OpaqueLoginFinishResponse extends Message {
-  getUserId(): string;
-  setUserId(value: string): OpaqueLoginFinishResponse;
-
-  getAccessToken(): string;
-  setAccessToken(value: string): OpaqueLoginFinishResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): OpaqueLoginFinishResponseObject;
-  static toObject(includeInstance: boolean, msg: OpaqueLoginFinishResponse): OpaqueLoginFinishResponseObject;
-  static serializeBinaryToWriter(message: OpaqueLoginFinishResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): OpaqueLoginFinishResponse;
-  static deserializeBinaryFromReader(message: OpaqueLoginFinishResponse, reader: BinaryReader): OpaqueLoginFinishResponse;
-}
-
-export type OpaqueLoginFinishResponseObject = {
-  userId: string,
-  accessToken: string,
-};
-
 declare export class WalletLoginRequest extends Message {
   getSiweMessage(): string;
   setSiweMessage(value: string): WalletLoginRequest;
@@ -386,26 +366,6 @@ export type ReservedWalletLoginRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
   keyserverMessage: string,
   keyserverSignature: string,
-};
-
-declare export class WalletLoginResponse extends Message {
-  getUserId(): string;
-  setUserId(value: string): WalletLoginResponse;
-
-  getAccessToken(): string;
-  setAccessToken(value: string): WalletLoginResponse;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): WalletLoginResponseObject;
-  static toObject(includeInstance: boolean, msg: WalletLoginResponse): WalletLoginResponseObject;
-  static serializeBinaryToWriter(message: WalletLoginResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): WalletLoginResponse;
-  static deserializeBinaryFromReader(message: WalletLoginResponse, reader: BinaryReader): WalletLoginResponse;
-}
-
-export type WalletLoginResponseObject = {
-  userId: string,
-  accessToken: string,
 };
 
 declare export class GenerateNonceResponse extends Message {
