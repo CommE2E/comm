@@ -202,13 +202,13 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerReser
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.RegistrationFinishRequest,
- *   !proto.identity.unauth.RegistrationFinishResponse>}
+ *   !proto.identity.unauth.AuthResponse>}
  */
 const methodDescriptor_IdentityClientService_RegisterPasswordUserFinish = new grpc.web.MethodDescriptor(
   '/identity.unauth.IdentityClientService/RegisterPasswordUserFinish',
   grpc.web.MethodType.UNARY,
   proto.identity.unauth.RegistrationFinishRequest,
-  proto.identity.unauth.RegistrationFinishResponse,
+  proto.identity.unauth.AuthResponse,
   /**
    * @param {!proto.identity.unauth.RegistrationFinishRequest} request
    * @return {!Uint8Array}
@@ -216,7 +216,7 @@ const methodDescriptor_IdentityClientService_RegisterPasswordUserFinish = new gr
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.unauth.RegistrationFinishResponse.deserializeBinary
+  proto.identity.unauth.AuthResponse.deserializeBinary
 );
 
 
@@ -225,9 +225,9 @@ const methodDescriptor_IdentityClientService_RegisterPasswordUserFinish = new gr
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.RegistrationFinishResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.RegistrationFinishResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
  *     The XHR Node Readable Stream
  */
 proto.identity.unauth.IdentityClientServiceClient.prototype.registerPasswordUserFinish =
@@ -246,7 +246,7 @@ proto.identity.unauth.IdentityClientServiceClient.prototype.registerPasswordUser
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.unauth.RegistrationFinishResponse>}
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
  *     Promise that resolves to the response
  */
 proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerPasswordUserFinish =
@@ -324,13 +324,13 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPassword
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.OpaqueLoginFinishRequest,
- *   !proto.identity.unauth.OpaqueLoginFinishResponse>}
+ *   !proto.identity.unauth.AuthResponse>}
  */
 const methodDescriptor_IdentityClientService_LogInPasswordUserFinish = new grpc.web.MethodDescriptor(
   '/identity.unauth.IdentityClientService/LogInPasswordUserFinish',
   grpc.web.MethodType.UNARY,
   proto.identity.unauth.OpaqueLoginFinishRequest,
-  proto.identity.unauth.OpaqueLoginFinishResponse,
+  proto.identity.unauth.AuthResponse,
   /**
    * @param {!proto.identity.unauth.OpaqueLoginFinishRequest} request
    * @return {!Uint8Array}
@@ -338,7 +338,7 @@ const methodDescriptor_IdentityClientService_LogInPasswordUserFinish = new grpc.
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.unauth.OpaqueLoginFinishResponse.deserializeBinary
+  proto.identity.unauth.AuthResponse.deserializeBinary
 );
 
 
@@ -347,9 +347,9 @@ const methodDescriptor_IdentityClientService_LogInPasswordUserFinish = new grpc.
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.OpaqueLoginFinishResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.OpaqueLoginFinishResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
  *     The XHR Node Readable Stream
  */
 proto.identity.unauth.IdentityClientServiceClient.prototype.logInPasswordUserFinish =
@@ -368,7 +368,7 @@ proto.identity.unauth.IdentityClientServiceClient.prototype.logInPasswordUserFin
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.unauth.OpaqueLoginFinishResponse>}
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
  *     Promise that resolves to the response
  */
 proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPasswordUserFinish =
@@ -385,13 +385,13 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPassword
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.WalletLoginRequest,
- *   !proto.identity.unauth.WalletLoginResponse>}
+ *   !proto.identity.unauth.AuthResponse>}
  */
 const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.MethodDescriptor(
   '/identity.unauth.IdentityClientService/LogInWalletUser',
   grpc.web.MethodType.UNARY,
   proto.identity.unauth.WalletLoginRequest,
-  proto.identity.unauth.WalletLoginResponse,
+  proto.identity.unauth.AuthResponse,
   /**
    * @param {!proto.identity.unauth.WalletLoginRequest} request
    * @return {!Uint8Array}
@@ -399,7 +399,7 @@ const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.Meth
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.unauth.WalletLoginResponse.deserializeBinary
+  proto.identity.unauth.AuthResponse.deserializeBinary
 );
 
 
@@ -408,9 +408,9 @@ const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.Meth
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.WalletLoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.WalletLoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
  *     The XHR Node Readable Stream
  */
 proto.identity.unauth.IdentityClientServiceClient.prototype.logInWalletUser =
@@ -429,7 +429,7 @@ proto.identity.unauth.IdentityClientServiceClient.prototype.logInWalletUser =
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.unauth.WalletLoginResponse>}
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
  *     Promise that resolves to the response
  */
 proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInWalletUser =
@@ -446,13 +446,13 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInWalletUs
  * @const
  * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.ReservedWalletLoginRequest,
- *   !proto.identity.unauth.WalletLoginResponse>}
+ *   !proto.identity.unauth.AuthResponse>}
  */
 const methodDescriptor_IdentityClientService_LogInReservedWalletUser = new grpc.web.MethodDescriptor(
   '/identity.unauth.IdentityClientService/LogInReservedWalletUser',
   grpc.web.MethodType.UNARY,
   proto.identity.unauth.ReservedWalletLoginRequest,
-  proto.identity.unauth.WalletLoginResponse,
+  proto.identity.unauth.AuthResponse,
   /**
    * @param {!proto.identity.unauth.ReservedWalletLoginRequest} request
    * @return {!Uint8Array}
@@ -460,7 +460,7 @@ const methodDescriptor_IdentityClientService_LogInReservedWalletUser = new grpc.
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.unauth.WalletLoginResponse.deserializeBinary
+  proto.identity.unauth.AuthResponse.deserializeBinary
 );
 
 
@@ -469,9 +469,9 @@ const methodDescriptor_IdentityClientService_LogInReservedWalletUser = new grpc.
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.WalletLoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.WalletLoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
  *     The XHR Node Readable Stream
  */
 proto.identity.unauth.IdentityClientServiceClient.prototype.logInReservedWalletUser =
@@ -490,7 +490,7 @@ proto.identity.unauth.IdentityClientServiceClient.prototype.logInReservedWalletU
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.unauth.WalletLoginResponse>}
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
  *     Promise that resolves to the response
  */
 proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInReservedWalletUser =

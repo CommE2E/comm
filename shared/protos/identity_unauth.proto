@@ -16,15 +16,15 @@ service IdentityClientService {
   rpc RegisterReservedPasswordUserStart(ReservedRegistrationStartRequest)
     returns (RegistrationStartResponse) {}
   rpc RegisterPasswordUserFinish(RegistrationFinishRequest) returns (
-    RegistrationFinishResponse) {}
+    AuthResponse) {}
   // Called by user to register device and get an access token
   rpc LogInPasswordUserStart(OpaqueLoginStartRequest) returns
     (OpaqueLoginStartResponse) {}
   rpc LogInPasswordUserFinish(OpaqueLoginFinishRequest) returns
-    (OpaqueLoginFinishResponse) {}
-  rpc LogInWalletUser(WalletLoginRequest) returns (WalletLoginResponse) {}
+    (AuthResponse) {}
+  rpc LogInWalletUser(WalletLoginRequest) returns (AuthResponse) {}
   rpc LogInReservedWalletUser(ReservedWalletLoginRequest) returns
-    (WalletLoginResponse) {}
+    (AuthResponse) {}
 
   // Sign-In with Ethereum actions
 
@@ -145,10 +145,9 @@ message RegistrationStartResponse {
   bytes opaque_registration_response = 2;
 }
 
-message RegistrationFinishResponse {
-  // Unique identifier for newly registered user
+message AuthResponse {
+  // Unique identifier for user
   string user_id = 1;
-  // After successful unpacking of user credentials, return token
   string access_token = 2;
 }
 
@@ -178,13 +177,6 @@ message OpaqueLoginStartResponse {
   bytes opaque_login_response = 2;
 }
 
-message OpaqueLoginFinishResponse {
-  string user_id = 1;
-  // Mint and return a new access token upon successful login
-  string access_token = 2;
-
-}
-
 message WalletLoginRequest {
   string siwe_message = 1;
   string siwe_signature = 2;
@@ -204,11 +196,6 @@ message ReservedWalletLoginRequest {
   string keyserver_message = 4;
   // Above message signed with Ashoat's keyserver's signing ed25519 key
   string keyserver_signature = 5;
-}
-
-message WalletLoginResponse {
-  string user_id = 1;
-  string access_token = 2;
 }
 
 // GenerateNonce

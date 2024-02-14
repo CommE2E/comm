@@ -27,8 +27,8 @@ declare export class IdentityClientServiceClient {
     request: identityStructs.RegistrationFinishRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
-               response: identityStructs.RegistrationFinishResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.RegistrationFinishResponse>;
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
   logInPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
@@ -41,22 +41,22 @@ declare export class IdentityClientServiceClient {
     request: identityStructs.OpaqueLoginFinishRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
-               response: identityStructs.OpaqueLoginFinishResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.OpaqueLoginFinishResponse>;
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
   logInWalletUser(
     request: identityStructs.WalletLoginRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
-               response: identityStructs.WalletLoginResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
   logInReservedWalletUser(
     request: identityStructs.ReservedWalletLoginRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
-               response: identityStructs.WalletLoginResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.WalletLoginResponse>;
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
   generateNonce(
     request: identityStructs.Empty,
@@ -120,7 +120,7 @@ declare export class IdentityClientServicePromiseClient {
   registerPasswordUserFinish(
     request: identityStructs.RegistrationFinishRequest,
     metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.RegistrationFinishResponse>;
+  ): Promise<identityStructs.AuthResponse>;
 
   logInPasswordUserStart(
     request: identityStructs.OpaqueLoginStartRequest,
@@ -130,17 +130,17 @@ declare export class IdentityClientServicePromiseClient {
   logInPasswordUserFinish(
     request: identityStructs.OpaqueLoginFinishRequest,
     metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.OpaqueLoginFinishResponse>;
+  ): Promise<identityStructs.AuthResponse>;
 
   logInWalletUser(
     request: identityStructs.WalletLoginRequest,
     metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.WalletLoginResponse>;
+  ): Promise<identityStructs.AuthResponse>;
 
   logInReservedWalletUser(
     request: identityStructs.ReservedWalletLoginRequest,
     metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.WalletLoginResponse>;
+  ): Promise<identityStructs.AuthResponse>;
 
   generateNonce(
     request: identityStructs.Empty,
