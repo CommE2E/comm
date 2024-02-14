@@ -18,28 +18,35 @@ function BackupHandler(): null {
   const isAccountWithPassword = useSelector(state =>
     accountHasPassword(state.currentUserInfo),
   );
+  const isBackground = useSelector(
+    state => state.lifecycleState === 'background',
+  );
 
   React.useEffect(() => {
     if (!staffCanSee || !isAccountWithPassword) {
       return;
     }
 
-    if (isBackupEnabled && loggedIn) {
+    if (isBackupEnabled && loggedIn && !isBackground) {
       try {
         commCoreModule.startBackupHandler();
       } catch (err) {
         console.log('Error starting backup handler:', err);
       }
     } else {
-      void (async () => {
-        try {
-          await commCoreModule.stopBackupHandler();
-        } catch (err) {
-          console.log('Error stopping backup handler:', err);
-        }
-      })();
+      try {
+        commCoreModule.stopBackupHandler();
+      } catch (err) {
+        console.log('Error stopping backup handler:', err);
+      }
     }
-  }, [isBackupEnabled, staffCanSee, loggedIn, isAccountWithPassword]);
+  }, [
+    isBackupEnabled,
+    staffCanSee,
+    loggedIn,
+    isAccountWithPassword,
+    isBackground,
+  ]);
 
   return null;
 }
