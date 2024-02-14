@@ -2,9 +2,13 @@
 
 import backupService from 'lib/facts/backup-service.js';
 import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
+import { removeDeviceSpecificInfoFromDBKeyserverStoreOps } from 'lib/ops/keyserver-store-ops.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 
-import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
+import {
+  getProcessingStoreOpsExceptionMessage,
+  processKeyserverStoreOperations,
+} from './process-operations.js';
 import {
   BackupClient,
   RequestedData,
@@ -62,6 +66,11 @@ async function restoreBackup(
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
+
+  const keyservers = sqliteQueryExecutor.getAllKeyservers();
+  const operations =
+    removeDeviceSpecificInfoFromDBKeyserverStoreOps(keyservers);
+  processKeyserverStoreOperations(sqliteQueryExecutor, operations, dbModule);
 
   await client.downloadLogs(userIdentity, backupID, async log => {
     const content = await decryptCommon(crypto, decryptionKey, log);

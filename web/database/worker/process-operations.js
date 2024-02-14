@@ -224,4 +224,5 @@ export {
   processDBStoreOperations,
   getProcessingStoreOpsExceptionMessage,
   getClientStoreFromQueryExecutor,
+  processKeyserverStoreOperations,
 };
