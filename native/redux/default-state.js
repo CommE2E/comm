@@ -81,6 +81,9 @@ const defaultState = ({
   },
   threadActivityStore: {},
   integrityStore: { threadHashes: {}, threadHashingStatus: 'starting' },
+  communityStore: {
+    communityInfos: {},
+  },
 }: AppState);
 
 export { defaultState };
