@@ -334,33 +334,33 @@ export type WalletLoginRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
 };
 
-declare export class ReservedWalletLoginRequest extends Message {
+declare export class ReservedWalletRegistrationRequest extends Message {
   getSiweMessage(): string;
-  setSiweMessage(value: string): ReservedWalletLoginRequest;
+  setSiweMessage(value: string): ReservedWalletRegistrationRequest;
 
   getSiweSignature(): string;
-  setSiweSignature(value: string): ReservedWalletLoginRequest;
+  setSiweSignature(value: string): ReservedWalletRegistrationRequest;
 
   getDeviceKeyUpload(): DeviceKeyUpload | void;
-  setDeviceKeyUpload(value?: DeviceKeyUpload): ReservedWalletLoginRequest;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): ReservedWalletRegistrationRequest;
   hasDeviceKeyUpload(): boolean;
-  clearDeviceKeyUpload(): ReservedWalletLoginRequest;
+  clearDeviceKeyUpload(): ReservedWalletRegistrationRequest;
 
   getKeyserverMessage(): string;
-  setKeyserverMessage(value: string): ReservedWalletLoginRequest;
+  setKeyserverMessage(value: string): ReservedWalletRegistrationRequest;
 
   getKeyserverSignature(): string;
-  setKeyserverSignature(value: string): ReservedWalletLoginRequest;
+  setKeyserverSignature(value: string): ReservedWalletRegistrationRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ReservedWalletLoginRequestObject;
-  static toObject(includeInstance: boolean, msg: ReservedWalletLoginRequest): ReservedWalletLoginRequestObject;
-  static serializeBinaryToWriter(message: ReservedWalletLoginRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ReservedWalletLoginRequest;
-  static deserializeBinaryFromReader(message: ReservedWalletLoginRequest, reader: BinaryReader): ReservedWalletLoginRequest;
+  toObject(includeInstance?: boolean): ReservedWalletRegistrationRequestObject;
+  static toObject(includeInstance: boolean, msg: ReservedWalletRegistrationRequest): ReservedWalletRegistrationRequestObject;
+  static serializeBinaryToWriter(message: ReservedWalletRegistrationRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ReservedWalletRegistrationRequest;
+  static deserializeBinaryFromReader(message: ReservedWalletRegistrationRequest, reader: BinaryReader): ReservedWalletRegistrationRequest;
 }
 
-export type ReservedWalletLoginRequestObject = {
+export type ReservedWalletRegistrationRequestObject = {
   siweMessage: string,
   siweSignature: string,
   deviceKeyUpload?: DeviceKeyUploadObject,

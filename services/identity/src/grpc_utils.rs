@@ -9,7 +9,7 @@ use crate::{
     },
     unauth::{
       DeviceKeyUpload, OpaqueLoginStartRequest, RegistrationStartRequest,
-      ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+      ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
       WalletLoginRequest,
     },
   },
@@ -87,7 +87,7 @@ impl DeviceKeyUploadData for WalletLoginRequest {
   }
 }
 
-impl DeviceKeyUploadData for ReservedWalletLoginRequest {
+impl DeviceKeyUploadData for ReservedWalletRegistrationRequest {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
     self.device_key_upload.as_ref()
   }
