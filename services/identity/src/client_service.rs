@@ -26,7 +26,7 @@ use crate::grpc_services::protos::unauth::{
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
   VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
-  WalletLoginRequest,
+  WalletAuthRequest,
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::DeviceKeyUploadActions;
@@ -376,7 +376,7 @@ impl IdentityClientService for ClientService {
 
   async fn log_in_wallet_user(
     &self,
-    request: tonic::Request<WalletLoginRequest>,
+    request: tonic::Request<WalletAuthRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
@@ -411,67 +411,135 @@ impl IdentityClientService for ClientService {
       construct_flattened_device_key_upload(&message)?;
 
     let login_time = chrono::Utc::now();
-    let user_id = match self
+    let Some(user_id) = self
       .client
       .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
       .await
       .map_err(handle_db_error)?
-    {
-      Some(id) => {
-        // User already exists, so we should update the DDB item
-        self
-          .client
-          .add_user_device(
-            id.clone(),
-            flattened_device_key_upload.clone(),
-            code_version,
-            chrono::Utc::now(),
-          )
-          .await
-          .map_err(handle_db_error)?;
-        id
+    else {
+      // It's possible that the user attempting login is already registered
+      // on Ashoat's keyserver. If they are, we should send back a gRPC status
+      // code instructing them to get a signed message from Ashoat's keyserver
+      // in order to claim their wallet address and register with the Identity
+      // service.
+      let username_in_reserved_usernames_table = self
+        .client
+        .username_in_reserved_usernames_table(&wallet_address)
+        .await
+        .map_err(handle_db_error)?;
+
+      if username_in_reserved_usernames_table {
+        return Err(tonic::Status::failed_precondition(
+          "need keyserver message to claim username",
+        ));
       }
-      None => {
-        // It's possible that the user attempting login is already registered
-        // on Ashoat's keyserver. If they are, we should send back a gRPC status
-        // code instructing them to get a signed message from Ashoat's keyserver
-        // in order to claim their wallet address and register with the Identity
-        // service.
-        let username_in_reserved_usernames_table = self
-          .client
-          .username_in_reserved_usernames_table(&wallet_address)
-          .await
-          .map_err(handle_db_error)?;
 
-        if username_in_reserved_usernames_table {
-          return Err(tonic::Status::failed_precondition(
-            "need keyserver message to claim username",
-          ));
-        }
-
-        let social_proof =
-          SocialProof::new(message.siwe_message, message.siwe_signature);
-        let serialized_social_proof = serde_json::to_string(&social_proof)
-          .map_err(|_| {
-            tonic::Status::invalid_argument("invalid_social_proof")
-          })?;
-
-        // User doesn't exist yet and wallet address isn't reserved, so we
-        // should add a new user in DDB
-        self
-          .client
-          .add_wallet_user_to_users_table(
-            flattened_device_key_upload.clone(),
-            wallet_address,
-            serialized_social_proof,
-            None,
-            code_version,
-            login_time,
-          )
-          .await
-          .map_err(handle_db_error)?
-      }
+      return Err(tonic::Status::not_found("user not found"));
     };
+
+    self
+      .client
+      .add_user_device(
+        user_id.clone(),
+        flattened_device_key_upload.clone(),
+        code_version,
+        chrono::Utc::now(),
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    // Create access token
+    let token = AccessTokenData::with_created_time(
+      user_id.clone(),
+      flattened_device_key_upload.device_id_key,
+      login_time,
+      crate::token::AuthType::Password,
+      &mut OsRng,
+    );
+
+    let access_token = token.access_token.clone();
+
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = AuthResponse {
+      user_id,
+      access_token,
+    };
+    Ok(Response::new(response))
+  }
+
+  async fn register_wallet_user(
+    &self,
+    request: tonic::Request<WalletAuthRequest>,
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
+    let code_version = get_code_version(&request);
+    let message = request.into_inner();
+
+    let parsed_message = parse_and_verify_siwe_message(
+      &message.siwe_message,
+      &message.siwe_signature,
+    )?;
+
+    match self
+      .client
+      .get_nonce_from_nonces_table(&parsed_message.nonce)
+      .await
+      .map_err(handle_db_error)?
+    {
+      None => return Err(tonic::Status::invalid_argument("invalid nonce")),
+      Some(nonce) if nonce.is_expired() => {
+        // we don't need to remove the nonce from the table here
+        // because the DynamoDB TTL will take care of it
+        return Err(tonic::Status::aborted("nonce expired"));
+      }
+      Some(_) => self
+        .client
+        .remove_nonce_from_nonces_table(&parsed_message.nonce)
+        .await
+        .map_err(handle_db_error)?,
+    };
+
+    let wallet_address = eip55(&parsed_message.address);
+
+    self.check_wallet_address_taken(&wallet_address).await?;
+    let username_in_reserved_usernames_table = self
+      .client
+      .username_in_reserved_usernames_table(&wallet_address)
+      .await
+      .map_err(handle_db_error)?;
+
+    if username_in_reserved_usernames_table {
+      return Err(tonic::Status::already_exists(
+        "wallet address already exists",
+      ));
+    }
+
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+
+    let login_time = chrono::Utc::now();
+
+    let social_proof =
+      SocialProof::new(message.siwe_message, message.siwe_signature);
+    let serialized_social_proof = serde_json::to_string(&social_proof)
+      .map_err(|_| tonic::Status::invalid_argument("invalid_social_proof"))?;
+
+    let user_id = self
+      .client
+      .add_wallet_user_to_users_table(
+        flattened_device_key_upload.clone(),
+        wallet_address,
+        serialized_social_proof,
+        None,
+        code_version,
+        login_time,
+      )
+      .await
+      .map_err(handle_db_error)?;
 
     // Create access token
     let token = AccessTokenData::with_created_time(
