@@ -58,8 +58,8 @@ lazy_static! {
 mod ffi {
 
   extern "Rust" {
-    #[cxx_name = "identityRegisterUser"]
-    fn register_user(
+    #[cxx_name = "identityRegisterPasswordUser"]
+    fn register_password_user(
       username: String,
       password: String,
       key_payload: String,
@@ -489,7 +489,7 @@ struct AuthInfo {
 }
 
 #[instrument]
-fn register_user(
+fn register_password_user(
   username: String,
   password: String,
   key_payload: String,
@@ -515,7 +515,7 @@ fn register_user(
       content_one_time_keys,
       notif_one_time_keys,
     };
-    let result = register_user_helper(password_user_info).await;
+    let result = register_password_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
   });
 }
@@ -554,7 +554,7 @@ impl From<AuthResponse> for UserIDAndDeviceAccessToken {
   }
 }
 
-async fn register_user_helper(
+async fn register_password_user_helper(
   password_user_info: PasswordUserInfo,
 ) -> Result<String, Error> {
   let mut client_registration = Registration::new();
