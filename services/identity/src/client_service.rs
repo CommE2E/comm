@@ -18,14 +18,14 @@ use crate::database::{
 };
 use crate::error::Error as DBError;
 use crate::grpc_services::protos::unauth::{
-  find_user_id_request, AddReservedUsernamesRequest, Empty, FindUserIdRequest,
-  FindUserIdResponse, GenerateNonceResponse, OpaqueLoginFinishRequest,
-  OpaqueLoginFinishResponse, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-  RegistrationFinishRequest, RegistrationFinishResponse,
-  RegistrationStartRequest, RegistrationStartResponse,
-  RemoveReservedUsernameRequest, ReservedRegistrationStartRequest,
-  ReservedWalletLoginRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletLoginRequest, WalletLoginResponse,
+  find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
+  FindUserIdRequest, FindUserIdResponse, GenerateNonceResponse,
+  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
+  RegistrationFinishRequest, RegistrationStartRequest,
+  RegistrationStartResponse, RemoveReservedUsernameRequest,
+  ReservedRegistrationStartRequest, ReservedWalletLoginRequest,
+  VerifyUserAccessTokenRequest, VerifyUserAccessTokenResponse,
+  WalletLoginRequest,
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::DeviceKeyUploadActions;
@@ -201,7 +201,7 @@ impl IdentityClientService for ClientService {
   async fn register_password_user_finish(
     &self,
     request: tonic::Request<RegistrationFinishRequest>,
-  ) -> Result<tonic::Response<RegistrationFinishResponse>, tonic::Status> {
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
@@ -245,7 +245,7 @@ impl IdentityClientService for ClientService {
         .await
         .map_err(handle_db_error)?;
 
-      let response = RegistrationFinishResponse {
+      let response = AuthResponse {
         user_id,
         access_token,
       };
@@ -320,7 +320,7 @@ impl IdentityClientService for ClientService {
   async fn log_in_password_user_finish(
     &self,
     request: tonic::Request<OpaqueLoginFinishRequest>,
-  ) -> Result<tonic::Response<OpaqueLoginFinishResponse>, tonic::Status> {
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
@@ -363,7 +363,7 @@ impl IdentityClientService for ClientService {
         .await
         .map_err(handle_db_error)?;
 
-      let response = OpaqueLoginFinishResponse {
+      let response = AuthResponse {
         user_id: state.user_id,
         access_token,
       };
@@ -376,7 +376,7 @@ impl IdentityClientService for ClientService {
   async fn log_in_wallet_user(
     &self,
     request: tonic::Request<WalletLoginRequest>,
-  ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
@@ -489,7 +489,7 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?;
 
-    let response = WalletLoginResponse {
+    let response = AuthResponse {
       user_id,
       access_token,
     };
@@ -499,7 +499,7 @@ impl IdentityClientService for ClientService {
   async fn log_in_reserved_wallet_user(
     &self,
     request: tonic::Request<ReservedWalletLoginRequest>,
-  ) -> Result<tonic::Response<WalletLoginResponse>, tonic::Status> {
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
@@ -581,7 +581,7 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?;
 
-    let response = WalletLoginResponse {
+    let response = AuthResponse {
       user_id,
       access_token,
     };
