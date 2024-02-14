@@ -99,6 +99,12 @@ interface Spec extends TurboModule {
     keyserverID: string,
   ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
+  +updateKeyserverDataInNotifStorage: (
+    keyserversData: $ReadOnlyArray<{ +id: string, +unreadCount: number }>,
+  ) => Promise<void>;
+  +removeKeyserverDataFromNotifStorage: (
+    keyserverIDsToDelete: $ReadOnlyArray<string>,
+  ) => Promise<void>;
   +initializeContentOutboundSession: (
     identityKeys: string,
     prekey: string,
