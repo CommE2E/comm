@@ -28,7 +28,7 @@ import {
   OpaqueLoginFinishRequest,
   OpaqueLoginStartRequest,
   Prekey,
-  WalletLoginRequest,
+  WalletAuthRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
@@ -295,7 +295,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
     const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
 
-    const loginRequest = new WalletLoginRequest();
+    const loginRequest = new WalletAuthRequest();
     loginRequest.setSiweMessage(siweMessage);
     loginRequest.setSiweSignature(siweSignature);
     loginRequest.setDeviceKeyUpload(deviceKeyUpload);
