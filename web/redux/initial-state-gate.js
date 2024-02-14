@@ -124,6 +124,7 @@ function InitialReduxStateGate(props: Props): React.Node {
             reportStoreOperations: [],
             userStoreOperations: [],
             keyserverStoreOperations: [],
+            communityStoreOperations: [],
           },
           currentLoggedInUserID,
         );
