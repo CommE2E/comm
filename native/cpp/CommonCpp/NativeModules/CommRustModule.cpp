@@ -31,7 +31,7 @@ jsi::Value CommRustModule::generateNonce(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommRustModule::registerUser(
+jsi::Value CommRustModule::registerPasswordUser(
     jsi::Runtime &rt,
     jsi::String username,
     jsi::String password,
@@ -62,7 +62,7 @@ jsi::Value CommRustModule::registerUser(
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
-          identityRegisterUser(
+          identityRegisterPasswordUser(
               usernameRust,
               passwordRust,
               keyPayloadRust,
