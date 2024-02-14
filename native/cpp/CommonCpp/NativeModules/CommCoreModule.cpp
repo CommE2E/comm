@@ -874,6 +874,135 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::updateKeyserverDataInNotifStorage(
+    jsi::Runtime &rt,
+    jsi::Array keyserversData) {
+
+  std::vector<std::pair<std::string, int>> keyserversDataCpp;
+  for (auto idx = 0; idx < keyserversData.size(rt); idx++) {
+    auto data = keyserversData.getValueAtIndex(rt, idx).asObject(rt);
+    std::string keyserverID = data.getProperty(rt, "id").asString(rt).utf8(rt);
+    std::string keyserverUnreadCountKey =
+        "KEYSERVER." + keyserverID + ".UNREAD_COUNT";
+    int unreadCount = data.getProperty(rt, "unreadCount").asNumber();
+    keyserversDataCpp.push_back({keyserverUnreadCountKey, unreadCount});
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          for (const auto &keyserverData : keyserversDataCpp) {
+            CommMMKV::setInt(keyserverData.first, keyserverData.second);
+          }
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+          promise->resolve(jsi::Value::undefined());
+        });
+      });
+}
+
+jsi::Value CommCoreModule::removeKeyserverDataFromNotifStorage(
+    jsi::Runtime &rt,
+    jsi::Array keyserverIDsToDelete) {
+  std::vector<std::string> keyserverIDsToDeleteCpp{};
+  for (auto idx = 0; idx < keyserverIDsToDelete.size(rt); idx++) {
+    std::string keyserverID =
+        keyserverIDsToDelete.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    std::string keyserverUnreadCountKey =
+        "KEYSERVER." + keyserverID + ".UNREAD_COUNT";
+    keyserverIDsToDeleteCpp.push_back(keyserverUnreadCountKey);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          CommMMKV::removeKeys(keyserverIDsToDeleteCpp);
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+          promise->resolve(jsi::Value::undefined());
+        });
+      });
+}
+
+jsi::Value CommCoreModule::getKeyserverDataFromNotifStorage(
+    jsi::Runtime &rt,
+    jsi::Array keyserverIDs) {
+  std::vector<std::string> keyserverIDsCpp{};
+  for (auto idx = 0; idx < keyserverIDs.size(rt); idx++) {
+    std::string keyserverID =
+        keyserverIDs.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    keyserverIDsCpp.push_back(keyserverID);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        std::vector<std::pair<std::string, int>> keyserversDataVector{};
+
+        try {
+          for (const auto &keyserverID : keyserverIDsCpp) {
+            std::string keyserverUnreadCountKey =
+                "KEYSERVER." + keyserverID + ".UNREAD_COUNT";
+            std::optional<int> unreadCount =
+                CommMMKV::getInt(keyserverUnreadCountKey, -1);
+
+            if (!unreadCount.has_value()) {
+              continue;
+            }
+
+            keyserversDataVector.push_back({keyserverID, unreadCount.value()});
+          }
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        auto keyserversDataVectorPtr =
+            std::make_shared<std::vector<std::pair<std::string, int>>>(
+                std::move(keyserversDataVector));
+
+        this->jsInvoker_->invokeAsync(
+            [&innerRt, keyserversDataVectorPtr, error, promise]() {
+              if (error.size()) {
+                promise->reject(error);
+                return;
+              }
+
+              size_t numKeyserversData = keyserversDataVectorPtr->size();
+              jsi::Array jsiKeyserversData =
+                  jsi::Array(innerRt, numKeyserversData);
+              size_t writeIdx = 0;
+
+              for (const auto &keyserverData : *keyserversDataVectorPtr) {
+                jsi::Object jsiKeyserverData = jsi::Object(innerRt);
+                jsiKeyserverData.setProperty(
+                    innerRt, "id", keyserverData.first);
+                jsiKeyserverData.setProperty(
+                    innerRt, "unreadCount", keyserverData.second);
+                jsiKeyserversData.setValueAtIndex(
+                    innerRt, writeIdx++, jsiKeyserverData);
+              }
+
+              promise->resolve(jsiKeyserversData);
+            });
+      });
+}
+
 jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
