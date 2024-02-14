@@ -38,7 +38,11 @@ async function synchronizeInviteLinksWithBlobs() {
       })(),
     );
   }
-  await Promise.all(promises);
+  try {
+    await Promise.all(promises);
+  } catch (e) {
+    console.error('Invite links - blobs synchronization failed');
+  }
 }
 
 export { synchronizeInviteLinksWithBlobs };

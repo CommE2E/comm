@@ -23,6 +23,7 @@ import {
   createPickledOlmAccount,
   publishPrekeysToIdentity,
 } from '../utils/olm-utils.js';
+import { synchronizeInviteLinksWithBlobs } from '../utils/synchronizeInviteLinksWithBlobs.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
@@ -728,6 +729,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [57, synchronizeInviteLinksWithBlobs],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
