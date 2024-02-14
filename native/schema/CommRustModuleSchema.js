@@ -7,7 +7,7 @@ import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.j
 
 export interface Spec extends TurboModule {
   +generateNonce: () => Promise<string>;
-  +registerUser: (
+  +registerPasswordUser: (
     username: string,
     password: string,
     keyPayload: string,
