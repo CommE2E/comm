@@ -26,10 +26,12 @@ use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{Request, Status};
 use tracing::instrument;
+use wallet_registration::register_wallet_user;
 
 mod argon2_tools;
 mod backup;
 mod constants;
+mod wallet_registration;
 
 use argon2_tools::compute_backup_key_str;
 
@@ -76,6 +78,21 @@ mod ffi {
     fn log_in_password_user(
       username: String,
       password: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityRegisterWalletUser"]
+    fn register_wallet_user(
+      siwe_message: String,
+      siwe_signature: String,
       key_payload: String,
       key_payload_signature: String,
       content_prekey: String,
