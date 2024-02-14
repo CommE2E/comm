@@ -384,16 +384,16 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInPassword
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.unauth.WalletLoginRequest,
+ *   !proto.identity.unauth.WalletAuthRequest,
  *   !proto.identity.unauth.AuthResponse>}
  */
 const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.MethodDescriptor(
   '/identity.unauth.IdentityClientService/LogInWalletUser',
   grpc.web.MethodType.UNARY,
-  proto.identity.unauth.WalletLoginRequest,
+  proto.identity.unauth.WalletAuthRequest,
   proto.identity.unauth.AuthResponse,
   /**
-   * @param {!proto.identity.unauth.WalletLoginRequest} request
+   * @param {!proto.identity.unauth.WalletAuthRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
@@ -404,7 +404,7 @@ const methodDescriptor_IdentityClientService_LogInWalletUser = new grpc.web.Meth
 
 
 /**
- * @param {!proto.identity.unauth.WalletLoginRequest} request The
+ * @param {!proto.identity.unauth.WalletAuthRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
@@ -425,7 +425,7 @@ proto.identity.unauth.IdentityClientServiceClient.prototype.logInWalletUser =
 
 
 /**
- * @param {!proto.identity.unauth.WalletLoginRequest} request The
+ * @param {!proto.identity.unauth.WalletAuthRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
@@ -439,6 +439,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInWalletUs
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_LogInWalletUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.WalletAuthRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_RegisterWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/RegisterWalletUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.WalletAuthRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.WalletAuthRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.WalletAuthRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.registerWalletUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RegisterWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RegisterWalletUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.WalletAuthRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerWalletUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RegisterWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RegisterWalletUser);
 };
 
 
