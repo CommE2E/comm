@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CryptoTools/CryptoModule.h"
+#include "../Tools/CommMMKV.h"
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
@@ -93,6 +94,12 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String keyserverID) override;
   virtual jsi::Value
   isNotificationsSessionInitialized(jsi::Runtime &rt) override;
+  virtual jsi::Value updateKeyserverDataInNotifStorage(
+      jsi::Runtime &rt,
+      jsi::Array keyserversData) override;
+  virtual jsi::Value removeKeyserverDataFromNotifStorage(
+      jsi::Runtime &rt,
+      jsi::Array keyserverIDsToDelete) override;
   virtual jsi::Value initializeContentOutboundSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,

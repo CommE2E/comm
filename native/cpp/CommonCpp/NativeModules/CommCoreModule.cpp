@@ -874,6 +874,70 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::updateKeyserverDataInNotifStorage(
+    jsi::Runtime &rt,
+    jsi::Array keyserversData) {
+
+  std::vector<std::pair<std::string, int>> keyserversDataCpp;
+  for (auto idx = 0; idx < keyserversData.size(rt); idx++) {
+    auto data = keyserversData.getValueAtIndex(rt, idx).asObject(rt);
+    std::string keyserverID = data.getProperty(rt, "id").asString(rt).utf8(rt);
+    std::string mmkvKeyserverID = "KEYSERVER." + keyserverID + ".UNREAD_COUNT";
+    int unreadCount = data.getProperty(rt, "unreadCount").asNumber();
+    keyserversDataCpp.push_back({mmkvKeyserverID, unreadCount});
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          for (const auto &keyserverData : keyserversDataCpp) {
+            CommMMKV::setInt(keyserverData.first, keyserverData.second);
+          }
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+          promise->resolve(jsi::Value::undefined());
+        });
+      });
+}
+
+jsi::Value CommCoreModule::removeKeyserverDataFromNotifStorage(
+    jsi::Runtime &rt,
+    jsi::Array keyserverIDsToDelete) {
+  std::vector<std::string> keyserverIDsToDeleteCpp{};
+  for (auto idx = 0; idx < keyserverIDsToDelete.size(rt); idx++) {
+    std::string keyserverID =
+        keyserverIDsToDelete.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    std::string mmkvKeyserverID = "KEYSERVER." + keyserverID + ".UNREAD_COUNT";
+    keyserverIDsToDeleteCpp.push_back(mmkvKeyserverID);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          CommMMKV::removeKeys(keyserverIDsToDeleteCpp);
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+          promise->resolve(jsi::Value::undefined());
+        });
+      });
+}
+
 jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
