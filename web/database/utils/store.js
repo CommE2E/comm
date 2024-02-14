@@ -1,5 +1,6 @@
 // @flow
 
+import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -69,6 +70,7 @@ async function processDBStoreOperations(
     threadStoreOperations,
     reportStoreOperations,
     keyserverStoreOperations,
+    communityStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -80,12 +82,15 @@ async function processDBStoreOperations(
     reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
   const convertedKeyserverStoreOperations =
     keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
+  const convertedCommunityStoreOperations =
+    communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
     convertedReportStoreOperations.length === 0 &&
     draftStoreOperations.length === 0 &&
-    convertedKeyserverStoreOperations.length === 0
+    convertedKeyserverStoreOperations.length === 0 &&
+    convertedCommunityStoreOperations.length === 0
   ) {
     return;
   }
@@ -103,6 +108,7 @@ async function processDBStoreOperations(
         reportStoreOperations: convertedReportStoreOperations,
         threadStoreOperations: convertedThreadStoreOperations,
         keyserverStoreOperations: convertedKeyserverStoreOperations,
+        communityStoreOperations: convertedCommunityStoreOperations,
       },
     });
   } catch (e) {
