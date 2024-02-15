@@ -2,6 +2,7 @@
 
 import type { QueryResults } from 'mysql';
 
+import ashoat from 'lib/facts/ashoat.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
@@ -50,6 +51,31 @@ async function thisKeyserverID(): Promise<string> {
   return identityInfo?.userId ?? ashoatKeyserverID;
 }
 
+export type AdminData = {
+  +username: string,
+  +id: string,
+};
+
+async function thisKeyserverAdmin(): Promise<AdminData> {
+  const config = await getCommConfig<UserCredentials>({
+    folder: 'secrets',
+    name: 'user_credentials',
+  });
+
+  if (!config) {
+    return {
+      id: ashoat.id,
+      username: ashoat.username,
+    };
+  }
+  const id = await thisKeyserverID();
+
+  return {
+    id,
+    username: config.username,
+  };
+}
+
 function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   const updateQuery = SQL`
     REPLACE INTO metadata (name, data)
@@ -60,4 +86,9 @@ function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   return dbQuery(updateQuery);
 }
 
-export { fetchIdentityInfo, thisKeyserverID, saveIdentityInfo };
+export {
+  fetchIdentityInfo,
+  thisKeyserverID,
+  thisKeyserverAdmin,
+  saveIdentityInfo,
+};
