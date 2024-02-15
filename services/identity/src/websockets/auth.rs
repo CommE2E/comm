@@ -3,7 +3,7 @@ use grpc_clients::identity;
 use grpc_clients::tonic::Request;
 use identity::get_unauthenticated_client;
 use identity::protos::unauthenticated as client_proto;
-use identity_search_messages::AuthMessage;
+use identity_search_messages::IdentitySearchAuthMessage;
 use tracing::{debug, error};
 
 use crate::constants::DEFAULT_IDENTITY_ENDPOINT;
@@ -53,7 +53,7 @@ async fn verify_user_access_token(
 pub async fn handle_auth_message(message: &str) -> Result<(), WebsocketError> {
   let auth_message = serde_json::from_str(message.trim());
 
-  let auth_message: AuthMessage = match auth_message {
+  let auth_message: IdentitySearchAuthMessage = match auth_message {
     Ok(auth_message) => auth_message,
     Err(_) => {
       error!("Failed to parse auth message");

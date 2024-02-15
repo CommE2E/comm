@@ -3,12 +3,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Prefix {
+pub struct IdentitySearchPrefix {
   pub prefix: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum SearchQuery {
-  Prefix(Prefix),
+pub enum IdentitySearchQuery {
+  IdentitySearchPrefix(IdentitySearchPrefix),
 }
