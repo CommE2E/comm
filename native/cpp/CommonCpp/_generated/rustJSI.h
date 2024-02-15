@@ -35,6 +35,7 @@ public:
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String challengeResponse, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
+  virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
 
 };
 
@@ -175,6 +176,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::uploadSecondaryDeviceKeysAndLogIn, jsInvoker_, instance_, std::move(userID), std::move(challengeResponse), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
+    }
+    jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) override {
+      static_assert(
+          bridging::getParameterCount(&T::findUserIDForWalletAddress) == 2,
+          "Expected findUserIDForWalletAddress(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::findUserIDForWalletAddress, jsInvoker_, instance_, std::move(walletAddress));
     }
 
   private:

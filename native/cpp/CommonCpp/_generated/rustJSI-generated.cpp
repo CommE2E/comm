@@ -57,6 +57,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_updateDeviceList
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->uploadSecondaryDeviceKeysAndLogIn(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt), args[8].asObject(rt).asArray(rt), args[9].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForWalletAddress(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->findUserIDForWalletAddress(rt, args[0].asString(rt));
+}
 
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
@@ -75,6 +78,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getDeviceListForUser"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getDeviceListForUser};
   methodMap_["updateDeviceList"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updateDeviceList};
   methodMap_["uploadSecondaryDeviceKeysAndLogIn"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_uploadSecondaryDeviceKeysAndLogIn};
+  methodMap_["findUserIDForWalletAddress"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForWalletAddress};
 }
 
 

@@ -550,7 +550,6 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
       jsiStringToRustString(notifPrekeySignature, rt);
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
-
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         std::string error;
@@ -578,6 +577,27 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
         }
       });
   return jsi::Value::undefined();
+}
+
+jsi::Value CommRustModule::findUserIDForWalletAddress(
+    jsi::Runtime &rt,
+    jsi::String walletAddress) {
+  auto walletAddressRust = jsiStringToRustString(walletAddress, rt);
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityFindUserIDForWalletAddress(walletAddressRust, currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
 }
 
 } // namespace comm

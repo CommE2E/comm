@@ -122,6 +122,9 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys) override;
+  virtual jsi::Value findUserIDForWalletAddress(
+      jsi::Runtime &rt,
+      jsi::String walletAddress) override;
 
 public:
   CommRustModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

@@ -1,6 +1,7 @@
 use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
+use exact_user_search::find_user_id_for_wallet_address;
 use ffi::{bool_callback, string_callback, void_callback};
 use grpc_clients::identity::protos::auth::{
   GetDeviceListRequest, UpdateDeviceListRequest,
@@ -32,6 +33,7 @@ use wallet_registration::register_wallet_user;
 mod argon2_tools;
 mod backup;
 mod constants;
+mod exact_user_search;
 mod wallet_registration;
 
 use argon2_tools::compute_backup_key_str;
@@ -225,6 +227,9 @@ mod ffi {
       notif_one_time_keys: Vec<String>,
       promise_id: u32,
     );
+
+    #[cxx_name = "identityFindUserIDForWalletAddress"]
+    fn find_user_id_for_wallet_address(wallet_address: String, promise_id: u32);
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
