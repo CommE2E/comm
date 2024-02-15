@@ -35,7 +35,7 @@ export const entriesStateSyncSpec: ServerStateSyncSpec<
   },
   async fetchServerInfosHash(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const info = await fetch(viewer, ids);
-    return getServerInfosHash(info);
+    return await getServerInfosHash(info);
   },
   getServerInfosHash,
   getServerInfoHash,
@@ -51,10 +51,12 @@ async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   return serverEntryInfosObject(entriesResult.rawEntryInfos);
 }
 
-function getServerInfosHash(infos: RawEntryInfos) {
-  return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+async function getServerInfosHash(infos: RawEntryInfos) {
+  const results = await Promise.all(values(infos).map(getServerInfoHash));
+  return combineUnorderedHashes(results);
 }
 
-function getServerInfoHash(info: RawEntryInfo) {
-  return hash(validateOutput(null, rawEntryInfoValidator, info));
+async function getServerInfoHash(info: RawEntryInfo) {
+  const output = await validateOutput(null, rawEntryInfoValidator, info);
+  return hash(output);
 }

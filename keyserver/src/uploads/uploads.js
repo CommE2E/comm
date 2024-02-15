@@ -102,7 +102,7 @@ async function multimediaUploadResponder(
     throw new ServerError('invalid_parameters');
   }
   const results = await createUploads(viewer, uploadInfos);
-  return validateOutput(
+  return await validateOutput(
     viewer.platformDetails,
     MultimediaUploadResultValidator,
     {
