@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { inviteLinkURL } from 'lib/facts/links.js';
 import { useResettingState } from 'lib/hooks/use-resetting-state.js';
 import type { InviteLink } from 'lib/types/link-types.js';

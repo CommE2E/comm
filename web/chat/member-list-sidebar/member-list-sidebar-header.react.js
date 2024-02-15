@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 
 import css from './member-list-sidebar-header.css';
 import { useMemberListSidebarContext } from './member-list-sidebar-provider.react.js';

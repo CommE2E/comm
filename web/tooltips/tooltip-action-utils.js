@@ -40,7 +40,7 @@ import {
 import { getComposedMessageID } from '../chat/chat-constants.js';
 import { useEditModalContext } from '../chat/edit-message-provider.js';
 import type { PositionInfo } from '../chat/position-types.js';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import TogglePinModal from '../modals/chat/toggle-pin-modal.react.js';
 import {

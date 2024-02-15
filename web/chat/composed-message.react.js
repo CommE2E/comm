@@ -19,7 +19,7 @@ import css from './chat-message-list.css';
 import FailedSend from './failed-send.react.js';
 import InlineEngagement from './inline-engagement.react.js';
 import UserAvatar from '../avatars/user-avatar.react.js';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 import { type InputState, InputStateContext } from '../input/input-state.js';
 import { usePushUserProfileModal } from '../modals/user-profile/user-profile-utils.js';
 import { useMessageTooltip } from '../tooltips/tooltip-action-utils.js';

@@ -6,7 +6,7 @@ import * as React from 'react';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import SWMansionIcon, {
   type Icon,
-} from 'lib/components/SWMansionIcon.react.js';
+} from 'lib/components/swmansion-icon.react.js';
 
 import css from './modal.css';
 import Button from '../components/button.react.js';

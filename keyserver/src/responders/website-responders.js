@@ -10,7 +10,7 @@ import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
 import stores from 'lib/facts/stores.js';
-import getTitle from 'web/title/getTitle.js';
+import getTitle from 'web/title/get-title.js';
 
 import { waitForStream } from '../utils/json-stream.js';
 import {

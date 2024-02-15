@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';

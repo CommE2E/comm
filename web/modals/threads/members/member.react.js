@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   getAvailableThreadMemberActions,
   removeMemberFromThread,
@@ -21,7 +21,7 @@ import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 import ChangeMemberRoleModal from './change-member-role-modal.react.js';
 import css from './members-modal.css';
 import UserAvatar from '../../../avatars/user-avatar.react.js';
-import CommIcon from '../../../CommIcon.react.js';
+import CommIcon from '../../../comm-icon.react.js';
 import Label from '../../../components/label.react.js';
 import MenuItem from '../../../components/menu-item.react.js';
 import Menu from '../../../components/menu.react.js';
