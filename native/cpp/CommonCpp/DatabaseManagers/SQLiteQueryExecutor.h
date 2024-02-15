@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "NativeSQLiteConnectionManager.h"
+#include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/UserInfo.h"
@@ -86,6 +87,10 @@ public:
   void removeKeyservers(const std::vector<std::string> &ids) const override;
   void removeAllKeyservers() const override;
   std::vector<KeyserverInfo> getAllKeyservers() const override;
+  void replaceCommunity(const CommunityInfo &community_info) const override;
+  void removeCommunities(const std::vector<std::string> &ids) const override;
+  void removeAllCommunities() const override;
+  std::vector<CommunityInfo> getAllCommunities() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
