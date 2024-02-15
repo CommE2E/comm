@@ -38,6 +38,7 @@ import {
   convertUserInfosToReplaceUserOps,
   userStoreOpsHandlers,
 } from 'lib/ops/user-store-ops.js';
+import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
@@ -101,6 +102,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import {
   createUpdateDBOpsForMessageStoreMessages,
   createUpdateDBOpsForMessageStoreThreads,
+  updateClientDBThreadStoreThreadInfos,
 } from './client-db-utils.js';
 import { defaultState } from './default-state.js';
 import {
@@ -1080,6 +1082,12 @@ const migrations = {
     }
     return state;
   },
+  [63]: (state: AppState) =>
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      patchRawThreadInfosWithSpecialRole,
+      handleReduxMigrationFailure,
+    ),
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
