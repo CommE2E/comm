@@ -11,7 +11,7 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
-  Messages, SearchQuery, SearchResult, User,
+  IdentitySearchQuery, IdentitySearchResult, IdentitySearchUser, Messages,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -157,12 +157,14 @@ async fn handle_prefix_search(
 
   let search_response = send_search_request(&opensearch_url, prefix_query)
     .await?
-    .json::<SearchResponse<User>>()
+    .json::<SearchResponse<IdentitySearchUser>>()
     .await?;
 
-  let usernames: Vec<User> = search_response.into_documents().collect();
+  let usernames: Vec<IdentitySearchUser> =
+    search_response.into_documents().collect();
 
-  let search_result = serde_json::to_string(&SearchResult { hits: usernames })?;
+  let search_result =
+    serde_json::to_string(&IdentitySearchResult { hits: usernames })?;
 
   Ok(search_result)
 }
@@ -180,9 +182,9 @@ async fn handle_websocket_frame(
       debug!("Received heartbeat");
       Ok(())
     }
-    Messages::SearchQuery(search_request) => {
+    Messages::IdentitySearchQuery(search_request) => {
       let search_result = match search_request {
-        SearchQuery::Prefix(prefix_request) => {
+        IdentitySearchQuery::IdentitySearchPrefix(prefix_request) => {
           handle_prefix_search(&prefix_request.prefix).await
         }
       }?;
