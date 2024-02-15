@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type", rename_all = "camelCase")]
-pub struct AuthMessage {
+pub struct IdentitySearchAuthMessage {
   #[serde(rename = "userID")]
   pub user_id: String,
   #[serde(rename = "deviceID")]
