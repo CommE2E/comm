@@ -1,6 +1,7 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
 
+#include "entities/CommunityInfo.h"
 #include "entities/EntityQueryHelpers.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
@@ -1488,6 +1489,48 @@ std::vector<UserInfo> SQLiteQueryExecutor::getAllUsers() const {
       "FROM users;";
   return getAllEntities<UserInfo>(
       SQLiteQueryExecutor::getConnection(), getAllUsersSQL);
+}
+
+void SQLiteQueryExecutor::replaceCommunity(
+    const CommunityInfo &community_info) const {
+  static std::string replaceCommunitySQL =
+      "REPLACE INTO communities (id, community_info) "
+      "VALUES (?, ?);";
+  replaceEntity<CommunityInfo>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceCommunitySQL,
+      community_info);
+}
+
+void SQLiteQueryExecutor::removeAllCommunities() const {
+  static std::string removeAllCommunitiesSQL = "DELETE FROM communities;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllCommunitiesSQL);
+}
+
+void SQLiteQueryExecutor::removeCommunities(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeCommunitiesByKeysSQLStream;
+  removeCommunitiesByKeysSQLStream << "DELETE FROM communities "
+                                      "WHERE id IN "
+                                   << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeCommunitiesByKeysSQLStream.str(),
+      ids);
+}
+
+std::vector<CommunityInfo> SQLiteQueryExecutor::getAllCommunities() const {
+  static std::string getAllCommunitiesSQL =
+      "SELECT * "
+      "FROM communities;";
+  return getAllEntities<CommunityInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllCommunitiesSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {

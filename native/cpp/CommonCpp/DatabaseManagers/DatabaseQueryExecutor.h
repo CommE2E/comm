@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CryptoTools/Persist.h"
+#include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Message.h"
@@ -72,6 +73,10 @@ public:
   virtual void removeKeyservers(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllKeyservers() const = 0;
   virtual std::vector<KeyserverInfo> getAllKeyservers() const = 0;
+  virtual void replaceCommunity(const CommunityInfo &community_info) const = 0;
+  virtual void removeCommunities(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllCommunities() const = 0;
+  virtual std::vector<CommunityInfo> getAllCommunities() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
