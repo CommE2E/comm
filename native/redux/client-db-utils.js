@@ -26,6 +26,32 @@ import {
   convertRawThreadInfoToClientDBThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 
+import type { AppState } from './state-types.js';
+import { commCoreModule } from '../native-modules.js';
+
+function updateClientDBThreadStoreThreadInfos(
+  state: AppState,
+  migrationFunc: RawThreadInfos => RawThreadInfos,
+  handleMigrationFailure?: AppState => AppState,
+): AppState {
+  const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+  const operations = createUpdateDBOpsForThreadStoreThreadInfos(
+    clientDBThreadInfos,
+    migrationFunc,
+  );
+
+  try {
+    commCoreModule.processThreadStoreOperationsSync(operations);
+  } catch (exception) {
+    console.log(exception);
+    if (handleMigrationFailure) {
+      return handleMigrationFailure(state);
+    }
+    return ({ ...state, cookie: null }: any);
+  }
+  return state;
+}
+
 function createUpdateDBOpsForThreadStoreThreadInfos(
   clientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo>,
   migrationFunc: RawThreadInfos => RawThreadInfos,
@@ -113,6 +139,7 @@ function createUpdateDBOpsForMessageStoreThreads(
 }
 
 export {
+  updateClientDBThreadStoreThreadInfos,
   createUpdateDBOpsForThreadStoreThreadInfos,
   createUpdateDBOpsForMessageStoreMessages,
   createUpdateDBOpsForMessageStoreThreads,
