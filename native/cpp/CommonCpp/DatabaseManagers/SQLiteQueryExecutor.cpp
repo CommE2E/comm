@@ -501,6 +501,15 @@ bool enable_rollback_journal_mode(sqlite3 *db) {
   return false;
 }
 
+bool create_communities_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS communities ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   community_info TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "communities");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -587,6 +596,11 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS keyservers ("
       "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "	 keyserver_info TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS communities ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   community_info TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -828,7 +842,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {31, {recreate_message_store_threads_table, true}},
      {32, {create_users_table, true}},
      {33, {create_keyservers_table, true}},
-     {34, {enable_rollback_journal_mode, false}}}};
+     {34, {enable_rollback_journal_mode, false}},
+     {35, {create_communities_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
