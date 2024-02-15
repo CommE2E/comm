@@ -20,7 +20,8 @@
     "flowtype",
     "monorepo",
     "import",
-    "@stylistic/js"
+    "@stylistic/js",
+    "unicorn"
   ],
   "rules": {
     // Prettier is configured to keep lines to 80 chars, but there are two issues:
@@ -64,7 +65,13 @@
     ],
     "eqeqeq": ["error", "always"],
     "no-constant-condition": ["error", { "checkLoops": false }],
-    "consistent-return": "error"
+    "consistent-return": "error",
+    "unicorn/filename-case": [
+      "error",
+      {
+        "case": "kebabCase"
+      }
+    ]
   },
   "settings": {
     "react": {
