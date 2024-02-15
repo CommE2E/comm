@@ -14,7 +14,7 @@ import {
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import stores from 'lib/facts/stores.js';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';

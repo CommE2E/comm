@@ -9,7 +9,7 @@ import {
   useUpdateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
 import type { UpdateCalendarQueryInput } from 'lib/actions/entry-actions.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {

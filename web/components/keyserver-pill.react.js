@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import css from './keyserver-pill.css';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 
 type Props = {
   +keyserverAdminUsername: string,

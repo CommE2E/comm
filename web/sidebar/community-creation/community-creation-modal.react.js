@@ -18,7 +18,7 @@ import CommunityCreationKeyserverLabel from './community-creation-keyserver-labe
 import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
 import css from './community-creation-modal.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
-import CommIcon from '../../CommIcon.react.js';
+import CommIcon from '../../comm-icon.react.js';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import EnumSettingsOption from '../../components/enum-settings-option.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';

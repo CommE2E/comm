@@ -8,7 +8,7 @@ import {
   useChangeThreadMemberRoles,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
 import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type {

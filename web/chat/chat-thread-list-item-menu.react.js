@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 

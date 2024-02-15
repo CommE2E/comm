@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './account-settings-button.css';

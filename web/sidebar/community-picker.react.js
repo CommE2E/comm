@@ -8,7 +8,7 @@ import {
   clearChatCommunityFilter,
 } from 'lib/actions/community-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
