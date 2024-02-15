@@ -16,9 +16,9 @@ pub use websocket_messages::{
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Messages {
-  AuthMessage(AuthMessage),
-  SearchQuery(SearchQuery),
+  IdentitySearchAuthMessage(IdentitySearchAuthMessage),
+  IdentitySearchQuery(IdentitySearchQuery),
   Heartbeat(Heartbeat),
   ConnectionInitializationResponse(ConnectionInitializationResponse),
-  SearchResult(SearchResult),
+  IdentitySearchResult(IdentitySearchResult),
 }
