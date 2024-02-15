@@ -1,6 +1,5 @@
 // @flow
 
-import ashoat from 'lib/facts/ashoat.js';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { usernameMaxLength } from 'lib/shared/account-utils.js';
@@ -17,14 +16,17 @@ import {
 } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { ensureUserCredentials } from '../user/checks.js';
+import { thisKeyserverAdmin } from '../user/identity.js';
+import { verifyUserLoggedIn } from '../user/login.js';
 
 async function setupDB() {
   await ensureUserCredentials();
   await createTables();
+  await createOlmAccounts();
+  await verifyUserLoggedIn();
   await createUsers();
   await createThreads();
   await setUpMetadataTable();
-  await createOlmAccounts();
 }
 
 async function createTables() {
@@ -423,22 +425,32 @@ async function createTables() {
 }
 
 async function createUsers() {
-  const [user1, user2] = sortIDs(bots.commbot.userID, ashoat.id);
+  const admin = await thisKeyserverAdmin();
+
+  const [user1, user2] = sortIDs(bots.commbot.userID, admin.id);
   await dbQuery(
     SQL`
       INSERT INTO ids (id, table_name)
         VALUES
-          (${bots.commbot.userID}, 'users'),
-          (${ashoat.id}, 'users');
+          (${bots.commbot.userID}, 'users');
       INSERT INTO users (id, username, hash, avatar, creation_time)
         VALUES
           (${bots.commbot.userID}, 'commbot', '', NULL, 1530049900980),
-          (${ashoat.id}, 'ashoat', '', NULL, 1463588881886);
+          (${admin.id}, ${admin.username}, '', NULL, 1463588881886);
       INSERT INTO relationships_undirected (user1, user2, status)
         VALUES (${user1}, ${user2}, ${undirectedStatus.KNOW_OF});
     `,
     { multipleStatements: true },
   );
+  if (!isNaN(Number(admin.id))) {
+    await dbQuery(
+      SQL`
+        INSERT INTO ids (id, table_name)
+          VALUES
+            (${admin.id}, 'users');
+      `,
+    );
+  }
 }
 
 const createThreadOptions = { forceAddMembers: true };
@@ -451,7 +463,9 @@ async function createThreads() {
       (${bots.commbot.staffThreadID}, 'threads')
   `);
 
-  const ashoatViewer = createScriptViewer(ashoat.id);
+  const admin = await thisKeyserverAdmin();
+
+  const ashoatViewer = createScriptViewer(admin.id);
   const createGenesisPromise = createThread(
     ashoatViewer,
     {
@@ -471,7 +485,7 @@ async function createThreads() {
     {
       id: bots.commbot.staffThreadID,
       type: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-      initialMemberIDs: [ashoat.id],
+      initialMemberIDs: [admin.id],
     },
     createThreadOptions,
   );

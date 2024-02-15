@@ -3,7 +3,6 @@
 import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
-import ashoat from 'lib/facts/ashoat.js';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { policyTypes } from 'lib/facts/policies.js';
@@ -54,6 +53,7 @@ import type { Viewer } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
+import { thisKeyserverAdmin } from '../user/identity.js';
 
 const { commbot } = bots;
 
@@ -76,7 +76,7 @@ async function createAccount(
     throw new ServerError('invalid_username');
   }
 
-  const promises = [searchForUser(request.username)];
+  const promises = [searchForUser(request.username), thisKeyserverAdmin()];
   const {
     calendarQuery,
     signedIdentityKeysBlob,
@@ -86,7 +86,7 @@ async function createAccount(
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
 
-  const [existingUser] = await Promise.all(promises);
+  const [existingUser, admin] = await Promise.all(promises);
   if (
     reservedUsernamesSet.has(request.username.toLowerCase()) ||
     isValidEthereumAddress(request.username.toLowerCase())
@@ -136,7 +136,7 @@ async function createAccount(
 
   await Promise.all([
     updateThread(
-      createScriptViewer(ashoat.id),
+      createScriptViewer(admin.id),
       {
         threadID: genesis.id,
         changes: { newMemberIDs: [id] },
@@ -153,7 +153,7 @@ async function createAccount(
       viewer,
       {
         type: threadTypes.PERSONAL,
-        initialMemberIDs: [ashoat.id],
+        initialMemberIDs: [admin.id],
       },
       { forceAddMembers: true },
     ),
@@ -165,7 +165,7 @@ async function createAccount(
   const ashoatMessageDatas = ashoatMessages.map(message => ({
     type: messageTypes.TEXT,
     threadID: ashoatThreadID,
-    creatorID: ashoat.id,
+    creatorID: admin.id,
     time: messageTime++,
     text: message,
   }));
@@ -308,9 +308,11 @@ async function processOLMAccountCreation(
 }
 
 async function processAccountCreationCommon(viewer: Viewer) {
+  const admin = await thisKeyserverAdmin();
+
   await Promise.all([
     updateThread(
-      createScriptViewer(ashoat.id),
+      createScriptViewer(admin.id),
       {
         threadID: genesis.id,
         changes: { newMemberIDs: [viewer.userID] },
@@ -326,7 +328,7 @@ async function processAccountCreationCommon(viewer: Viewer) {
       viewer,
       {
         type: threadTypes.PERSONAL,
-        initialMemberIDs: [ashoat.id],
+        initialMemberIDs: [admin.id],
       },
       { forceAddMembers: true },
     ),
@@ -338,7 +340,7 @@ async function processAccountCreationCommon(viewer: Viewer) {
   const ashoatMessageDatas = ashoatMessages.map(message => ({
     type: messageTypes.TEXT,
     threadID: ashoatThreadID,
-    creatorID: ashoat.id,
+    creatorID: admin.id,
     time: messageTime++,
     text: message,
   }));
