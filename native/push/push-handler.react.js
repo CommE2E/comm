@@ -1,7 +1,6 @@
 // @flow
 
 import * as Haptics from 'expo-haptics';
-import invariant from 'invariant';
 import * as React from 'react';
 import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
@@ -17,20 +16,18 @@ import {
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
 import {
-  connectionSelector,
   deviceTokensSelector,
   updatesCurrentAsOfSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   threadInfoSelector,
-  unreadCount,
+  extendedUnreadCount,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { type ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
 import {
   convertNonPendingIDToNewSchema,
@@ -78,6 +75,7 @@ import {
   addLifecycleListener,
   getCurrentLifecycleState,
 } from '../lifecycle/lifecycle.js';
+import { commCoreModule } from '../native-modules.js';
 import { replaceWithThreadActionType } from '../navigation/action-types.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
@@ -100,7 +98,7 @@ type Props = {
   // Navigation state
   +activeThread: ?string,
   // Redux state
-  +unreadCount: number,
+  +unreadCount: { +[keyserverID: string]: number },
   +deviceTokens: {
     +[keyserverID: string]: ?string,
   },
@@ -108,7 +106,6 @@ type Props = {
     +[id: string]: ThreadInfo,
   },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  +connection: ConnectionInfo,
   +updatesCurrentAsOf: number,
   +activeTheme: ?GlobalTheme,
   +loggedIn: boolean,
@@ -211,9 +208,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       );
     }
 
-    if (this.props.connection.status === 'connected') {
-      this.updateBadgeCount();
-    }
+    void this.updateBadgeCount();
   }
 
   componentWillUnmount() {
@@ -267,14 +262,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (this.props.activeThread !== prevProps.activeThread) {
       this.clearNotifsOfThread();
     }
-
-    if (
-      this.props.connection.status === 'connected' &&
-      (prevProps.connection.status !== 'connected' ||
-        this.props.unreadCount !== prevProps.unreadCount)
-    ) {
-      this.updateBadgeCount();
-    }
+    void this.updateBadgeCount();
 
     for (const threadID of this.openThreadOnceReceived) {
       const threadInfo = this.props.threadInfos[threadID];
@@ -312,12 +300,41 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  updateBadgeCount() {
-    const curUnreadCount = this.props.unreadCount;
+  async updateBadgeCount() {
+    const curUnreadCounts = this.props.unreadCount;
+
+    let totalUnreadCount = 0;
+    const notifStorageUnreadCounts: Array<{
+      +id: string,
+      unreadCount: number,
+    }> = [];
+
+    for (const keyserverID in curUnreadCounts) {
+      totalUnreadCount += curUnreadCounts[keyserverID];
+      notifStorageUnreadCounts.push({
+        id: keyserverID,
+        unreadCount: curUnreadCounts[keyserverID],
+      });
+    }
+
     if (Platform.OS === 'ios') {
-      CommIOSNotifications.setBadgesCount(curUnreadCount);
+      CommIOSNotifications.setBadgesCount(totalUnreadCount);
     } else if (Platform.OS === 'android') {
-      CommAndroidNotifications.setBadge(curUnreadCount);
+      CommAndroidNotifications.setBadge(totalUnreadCount);
+    }
+
+    try {
+      await commCoreModule.updateKeyserverDataInNotifStorage(
+        notifStorageUnreadCounts,
+      );
+    } catch (e) {
+      if (__DEV__) {
+        Alert.alert(
+          'MMKV error',
+          'Failed to update keyserver data in MMKV.' + e.message,
+        );
+      }
+      console.log(e);
     }
   }
 
@@ -699,14 +716,12 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
-    const boundUnreadCount = useSelector(unreadCount);
+    const boundUnreadCount = useSelector(extendedUnreadCount);
     const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
     );
-    const connection = useSelector(connectionSelector(ashoatKeyserverID));
-    invariant(connection, 'keyserver missing from keyserverStore');
     const updatesCurrentAsOf = useSelector(
       updatesCurrentAsOfSelector(ashoatKeyserverID),
     );
@@ -726,7 +741,6 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         deviceTokens={deviceTokens}
         threadInfos={threadInfos}
         notifPermissionAlertInfo={notifPermissionAlertInfo}
-        connection={connection}
         updatesCurrentAsOf={updatesCurrentAsOf}
         activeTheme={activeTheme}
         loggedIn={loggedIn}
