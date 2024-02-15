@@ -1,9 +1,9 @@
 // @flow
-import ashoat from 'lib/facts/ashoat.js';
 
 import { main } from './utils.js';
 import { createThread } from '../creators/thread-creator.js';
 import { createScriptViewer } from '../session/scripts.js';
+import { thisKeyserverAdmin } from '../user/identity.js';
 
 const testUserID = '';
 const numOfThreads = 1000;
@@ -36,7 +36,8 @@ async function createThreads(
 // the app should be in a crash loop
 
 async function createManyThreadsToTriggerCrashLoop() {
-  await createThreads(numOfThreads, testUserID, ashoat.id);
+  const admin = await thisKeyserverAdmin();
+  await createThreads(numOfThreads, testUserID, admin.id);
 }
 
 main([createManyThreadsToTriggerCrashLoop]);
