@@ -48,6 +48,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<MessageStoreThread>("MessageStoreThreads")
       .field("id", &MessageStoreThread::id)
       .field("startReached", &MessageStoreThread::start_reached);
+  value_object<CommunityInfo>("CommunityInfo")
+      .field("id", &CommunityInfo::id)
+      .field("communityInfo", &CommunityInfo::community_info);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -158,6 +161,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "removeAllKeyservers", &SQLiteQueryExecutor::removeAllKeyservers)
       .function("getAllKeyservers", &SQLiteQueryExecutor::getAllKeyservers)
+      .function("replaceCommunity", &SQLiteQueryExecutor::replaceCommunity)
+      .function("removeCommunities", &SQLiteQueryExecutor::removeCommunities)
+      .function(
+          "removeAllCommunities", &SQLiteQueryExecutor::removeAllCommunities)
+      .function("getAllCommunities", &SQLiteQueryExecutor::getAllCommunities)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(

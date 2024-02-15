@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBCommunityInfo } from 'lib/ops/community-store-ops.js';
 import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
@@ -98,6 +99,11 @@ declare export class SQLiteQueryExecutor {
   removeKeyservers(ids: $ReadOnlyArray<string>): void;
   removeAllKeyservers(): void;
   getAllKeyservers(): ClientDBKeyserverInfo[];
+
+  replaceCommunity(communityInfo: ClientDBCommunityInfo): void;
+  removeCommunities(ids: $ReadOnlyArray<string>): void;
+  removeAllCommunities(): void;
+  getAllCommunities(): ClientDBCommunityInfo[];
 
   beginTransaction(): void;
   commitTransaction(): void;
