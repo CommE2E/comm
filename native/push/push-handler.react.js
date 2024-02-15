@@ -1,7 +1,7 @@
 // @flow
 
 import * as Haptics from 'expo-haptics';
-import invariant from 'invariant';
+import _groupBy from 'lodash/fp/groupBy.js';
 import * as React from 'react';
 import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
@@ -16,21 +16,22 @@ import {
   useSetDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
+import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
-  connectionSelector,
   deviceTokensSelector,
-  updatesCurrentAsOfSelector,
+  allUpdatesCurrentAsOfSelector,
+  allConnectionInfosSelector,
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   threadInfoSelector,
-  unreadCount,
+  extendedUnreadCount,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { type ConnectionInfo } from 'lib/types/socket-types.js';
+import type { ConnectionInfo } from 'lib/types/socket-types.js';
 import type { GlobalTheme } from 'lib/types/theme-types.js';
 import {
   convertNonPendingIDToNewSchema,
@@ -78,6 +79,7 @@ import {
   addLifecycleListener,
   getCurrentLifecycleState,
 } from '../lifecycle/lifecycle.js';
+import { commCoreModule } from '../native-modules.js';
 import { replaceWithThreadActionType } from '../navigation/action-types.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
@@ -100,7 +102,8 @@ type Props = {
   // Navigation state
   +activeThread: ?string,
   // Redux state
-  +unreadCount: number,
+  +unreadCount: { +[keyserverID: string]: number },
+  +connection: { +[keyserverID: string]: ?ConnectionInfo },
   +deviceTokens: {
     +[keyserverID: string]: ?string,
   },
@@ -108,8 +111,9 @@ type Props = {
     +[id: string]: ThreadInfo,
   },
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  +connection: ConnectionInfo,
-  +updatesCurrentAsOf: number,
+  +allUpdatesCurrentAsOf: {
+    +[keyserverID: string]: number,
+  },
   +activeTheme: ?GlobalTheme,
   +loggedIn: boolean,
   +navigateToThread: (params: MessageListParams) => void,
@@ -211,9 +215,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       );
     }
 
-    if (this.props.connection.status === 'connected') {
-      this.updateBadgeCount();
-    }
+    void this.updateBadgeCount();
   }
 
   componentWillUnmount() {
@@ -267,14 +269,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (this.props.activeThread !== prevProps.activeThread) {
       this.clearNotifsOfThread();
     }
-
-    if (
-      this.props.connection.status === 'connected' &&
-      (prevProps.connection.status !== 'connected' ||
-        this.props.unreadCount !== prevProps.unreadCount)
-    ) {
-      this.updateBadgeCount();
-    }
+    void this.updateBadgeCount();
 
     for (const threadID of this.openThreadOnceReceived) {
       const threadInfo = this.props.threadInfos[threadID];
@@ -300,7 +295,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
     if (!this.props.loggedIn && prevProps.loggedIn) {
       this.clearAllNotifs();
-      this.resetBadgeCount();
+      void this.resetBadgeCount();
     }
 
     if (
@@ -312,16 +307,81 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  updateBadgeCount() {
-    const curUnreadCount = this.props.unreadCount;
+  async updateBadgeCount() {
+    const curUnreadCounts = this.props.unreadCount;
+    const curConnections = this.props.connection;
+
+    const notifStorageUpdates: Array<{
+      +id: string,
+      +unreadCount: number,
+    }> = [];
+    const notifsStorageQueries: Array<string> = [];
+
+    for (const keyserverID in curUnreadCounts) {
+      if (curConnections[keyserverID]?.status !== 'connected') {
+        notifsStorageQueries.push(keyserverID);
+        continue;
+      }
+
+      notifStorageUpdates.push({
+        id: keyserverID,
+        unreadCount: curUnreadCounts[keyserverID],
+      });
+    }
+
+    let queriedKeyserverData: $ReadOnlyArray<{
+      +id: string,
+      +unreadCount: number,
+    }> = [];
+
+    try {
+      [queriedKeyserverData] = await Promise.all([
+        commCoreModule.getKeyserverDataFromNotifStorage(notifsStorageQueries),
+        commCoreModule.updateKeyserverDataInNotifStorage(notifStorageUpdates),
+      ]);
+    } catch (e) {
+      if (__DEV__) {
+        Alert.alert(
+          'MMKV error',
+          'Failed to update keyserver data in MMKV.' + e.message,
+        );
+      }
+      console.log(e);
+      return;
+    }
+
+    let totalUnreadCount = 0;
+    for (const keyserverData of notifStorageUpdates) {
+      totalUnreadCount += keyserverData.unreadCount;
+    }
+    for (const keyserverData of queriedKeyserverData) {
+      totalUnreadCount += keyserverData.unreadCount;
+    }
+
     if (Platform.OS === 'ios') {
-      CommIOSNotifications.setBadgesCount(curUnreadCount);
+      CommIOSNotifications.setBadgesCount(totalUnreadCount);
     } else if (Platform.OS === 'android') {
-      CommAndroidNotifications.setBadge(curUnreadCount);
+      CommAndroidNotifications.setBadge(totalUnreadCount);
     }
   }
 
-  resetBadgeCount() {
+  async resetBadgeCount() {
+    const keyserversDataToRemove = Object.keys(this.props.unreadCount);
+    try {
+      await commCoreModule.removeKeyserverDataFromNotifStorage(
+        keyserversDataToRemove,
+      );
+    } catch (e) {
+      if (__DEV__) {
+        Alert.alert(
+          'MMKV error',
+          'Failed to remove keyserver from MMKV.' + e.message,
+        );
+      }
+      console.log(e);
+      return;
+    }
+
     if (Platform.OS === 'ios') {
       CommIOSNotifications.setBadgesCount(0);
     } else if (Platform.OS === 'android') {
@@ -547,11 +607,22 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!rawMessageInfos) {
       return;
     }
-    const { updatesCurrentAsOf } = this.props;
-    this.props.dispatch({
-      type: saveMessagesActionType,
-      payload: { rawMessageInfos, updatesCurrentAsOf },
-    });
+
+    const keyserverIDToMessageInfos = _groupBy(messageInfos =>
+      extractKeyserverIDFromID(messageInfos.threadID),
+    )(rawMessageInfos);
+
+    for (const keyserverID in keyserverIDToMessageInfos) {
+      const updatesCurrentAsOf = this.props.allUpdatesCurrentAsOf[keyserverID];
+      if (!updatesCurrentAsOf) {
+        continue;
+      }
+
+      this.props.dispatch({
+        type: saveMessagesActionType,
+        payload: { rawMessageInfos, updatesCurrentAsOf },
+      });
+    }
   }
 
   iosForegroundNotificationReceived = (
@@ -667,9 +738,15 @@ class PushHandler extends React.PureComponent<Props, State> {
     const { messageInfos } = parsedMessage;
     this.saveMessageInfos(messageInfos);
 
+    const keyserverID = extractKeyserverIDFromID(message.threadID);
+    if (!keyserverID) {
+      return;
+    }
+    const updateCurrentAsOf = this.props.allUpdatesCurrentAsOf[keyserverID];
+
     handleAndroidMessage(
       parsedMessage,
-      this.props.updatesCurrentAsOf,
+      updateCurrentAsOf,
       this.handleAndroidNotificationIfActive,
     );
   };
@@ -699,19 +776,14 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
-    const boundUnreadCount = useSelector(unreadCount);
+    const boundUnreadCount = useSelector(extendedUnreadCount);
+    const boundConnection = useSelector(allConnectionInfosSelector);
     const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
     const notifPermissionAlertInfo = useSelector(
       state => state.notifPermissionAlertInfo,
     );
-    const connection = useSelector(
-      connectionSelector(authoritativeKeyserverID),
-    );
-    invariant(connection, 'keyserver missing from keyserverStore');
-    const updatesCurrentAsOf = useSelector(
-      updatesCurrentAsOfSelector(authoritativeKeyserverID),
-    );
+    const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);
     const navigateToThread = useNavigateToThread();
@@ -725,11 +797,11 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         {...props}
         activeThread={activeThread}
         unreadCount={boundUnreadCount}
+        connection={boundConnection}
         deviceTokens={deviceTokens}
         threadInfos={threadInfos}
         notifPermissionAlertInfo={notifPermissionAlertInfo}
-        connection={connection}
-        updatesCurrentAsOf={updatesCurrentAsOf}
+        allUpdatesCurrentAsOf={allUpdatesCurrentAsOf}
         activeTheme={activeTheme}
         loggedIn={loggedIn}
         navigateToThread={navigateToThread}
