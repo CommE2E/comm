@@ -1,14 +1,15 @@
 // @flow
 
-import ashoat from 'lib/facts/ashoat.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
 import { main } from './utils.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateThread } from '../updaters/thread-updaters.js';
+import { thisKeyserverAdmin } from '../user/identity.js';
 
 async function moveThreads() {
-  const viewer = createScriptViewer(ashoat.id);
+  const admin = await thisKeyserverAdmin();
+  const viewer = createScriptViewer(admin.id);
   await updateThread(
     viewer,
     {
