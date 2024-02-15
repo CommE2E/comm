@@ -34,6 +34,7 @@ public:
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
+  virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
 
 };
 
@@ -166,6 +167,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDeviceList, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(updatePayload));
+    }
+    jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) override {
+      static_assert(
+          bridging::getParameterCount(&T::findUserIDForWalletAddress) == 2,
+          "Expected findUserIDForWalletAddress(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::findUserIDForWalletAddress, jsInvoker_, instance_, std::move(walletAddress));
     }
 
   private:
