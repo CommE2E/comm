@@ -907,7 +907,7 @@ async function prepareAPNsNotification(
   inputData: APNsNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
-  const convertedData = validateOutput(
+  const convertedData = await validateOutput(
     inputData.platformDetails,
     apnsNotifInputDataValidator,
     inputData,
@@ -1087,7 +1087,7 @@ async function prepareAndroidNotification(
   inputData: AndroidNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
-  const convertedData = validateOutput(
+  const convertedData = await validateOutput(
     inputData.platformDetails,
     androidNotifInputDataValidator,
     inputData,
@@ -1241,7 +1241,7 @@ async function prepareWebNotification(
   inputData: WebNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedWebNotification>> {
-  const convertedData = validateOutput(
+  const convertedData = await validateOutput(
     inputData.platformDetails,
     webNotifInputDataValidator,
     inputData,
@@ -1283,7 +1283,7 @@ async function prepareWNSNotification(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   inputData: WNSNotifInputData,
 ): Promise<$ReadOnlyArray<TargetedWNSNotification>> {
-  const convertedData = validateOutput(
+  const convertedData = await validateOutput(
     inputData.platformDetails,
     wnsNotifInputDataValidator,
     inputData,
