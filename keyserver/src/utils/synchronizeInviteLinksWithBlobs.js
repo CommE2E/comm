@@ -41,7 +41,7 @@ async function synchronizeInviteLinksWithBlobs() {
   try {
     await Promise.all(promises);
   } catch (e) {
-    console.error('Invite links - blobs synchronization failed');
+    console.error('Invite links - blobs synchronization failed', e);
   }
 }
 
