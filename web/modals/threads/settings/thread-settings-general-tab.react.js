@@ -3,21 +3,17 @@
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import {
-  changeThreadSettingsActionTypes,
-  useChangeThreadSettings,
-} from 'lib/actions/thread-actions.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { type ThreadChanges } from 'lib/types/thread-types.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 import { chatNameMaxLength } from 'lib/utils/validation-utils.js';
 
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-general-tab.css';
+import { useOnSaveGeneralThreadSettings } from './thread-settings-utils.js';
 import EditThreadAvatar from '../../../avatars/edit-thread-avatar.react.js';
 import LoadingIndicator from '../../../loading-indicator.react.js';
 import Input from '../../input.react.js';
@@ -44,9 +40,6 @@ function ThreadSettingsGeneralTab(
     setErrorMessage,
     errorMessage,
   } = props;
-
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useChangeThreadSettings();
 
   const nameInputRef = React.useRef<?HTMLInputElement>();
 
@@ -99,37 +92,12 @@ function ThreadSettingsGeneralTab(
     [setQueuedChanges, threadInfo.color],
   );
 
-  const changeThreadSettingsAction = React.useCallback(async () => {
-    try {
-      setErrorMessage('');
-      return await callChangeThreadSettings({
-        threadID: threadInfo.id,
-        changes: queuedChanges,
-      });
-    } catch (e) {
-      setErrorMessage('unknown_error');
-      throw e;
-    } finally {
-      setQueuedChanges(Object.freeze({}));
-    }
-  }, [
-    callChangeThreadSettings,
+  const onSaveGeneralThreadSettings = useOnSaveGeneralThreadSettings({
+    threadInfo,
     queuedChanges,
-    setErrorMessage,
     setQueuedChanges,
-    threadInfo.id,
-  ]);
-
-  const onSubmit = React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      event.preventDefault();
-      void dispatchActionPromise(
-        changeThreadSettingsActionTypes,
-        changeThreadSettingsAction(),
-      );
-    },
-    [changeThreadSettingsAction, dispatchActionPromise],
-  );
+    setErrorMessage,
+  });
 
   const threadNameInputDisabled = !threadHasPermission(
     threadInfo,
@@ -188,7 +156,7 @@ function ThreadSettingsGeneralTab(
       <SubmitSection
         variant="filled"
         errorMessage={errorMessage}
-        onClick={onSubmit}
+        onClick={onSaveGeneralThreadSettings}
         disabled={threadSettingsOperationInProgress || !changeQueued}
       >
         {saveButtonContent}
