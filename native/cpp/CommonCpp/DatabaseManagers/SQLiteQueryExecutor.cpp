@@ -1543,6 +1543,7 @@ void SQLiteQueryExecutor::storeOlmPersistSession(
 void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
   std::string accountData =
       std::string(persist.account.begin(), persist.account.end());
+  this->storeOlmPersistAccount(accountData);
 
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
