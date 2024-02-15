@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 
 import css from './community-creation-button.css';
 import { navigationSidebarLabelTooltipMargin } from './navigation-sidebar-constants.js';

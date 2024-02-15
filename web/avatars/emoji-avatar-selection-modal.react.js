@@ -5,7 +5,7 @@ import Picker from '@emoji-mart/react';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type {
   ClientAvatar,
   ClientEmojiAvatar,

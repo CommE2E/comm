@@ -5,14 +5,14 @@ import * as React from 'react';
 
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
 import UserEmojiAvatarSelectionModal from './user-emoji-avatar-selection-modal.react.js';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 import MenuItem from '../components/menu-item.react.js';
 import Menu from '../components/menu.react.js';
 import { allowedMimeTypeString } from '../media/file-utils.js';

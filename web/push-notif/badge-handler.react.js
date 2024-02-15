@@ -9,7 +9,7 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import electron from '../electron.js';
 import { useSelector } from '../redux/redux-utils.js';
-import getTitle from '../title/getTitle.js';
+import getTitle from '../title/get-title.js';
 
 function useBadgeHandler() {
   const connection = useSelector(connectionSelector(ashoatKeyserverID));

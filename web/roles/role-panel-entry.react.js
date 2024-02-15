@@ -6,7 +6,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 
 import RoleActionsMenu from './role-actions-menu.react.js';
 import css from './role-panel-entry.css';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 
 type RolePanelEntryProps = {
   +threadInfo: ThreadInfo,

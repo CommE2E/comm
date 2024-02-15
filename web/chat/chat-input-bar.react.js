@@ -9,7 +9,7 @@ import {
   newThreadActionTypes,
   useJoinThread,
 } from 'lib/actions/thread-actions.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,

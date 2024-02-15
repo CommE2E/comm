@@ -11,7 +11,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 
 import css from './inline-engagement.css';
 import ReactionPill from './reaction-pill.react.js';
-import CommIcon from '../CommIcon.react.js';
+import CommIcon from '../comm-icon.react.js';
 import { useOnClickThread } from '../selectors/thread-selectors.js';
 
 type Props = {
