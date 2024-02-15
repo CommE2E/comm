@@ -44,7 +44,11 @@ function createJSONResponder<I, O>(
     responder: async (viewer, input) => {
       const request = await validateInput(viewer, inputValidator, input);
       const result = await responder(viewer, request);
-      return validateOutput(viewer.platformDetails, outputValidator, result);
+      return await validateOutput(
+        viewer.platformDetails,
+        outputValidator,
+        result,
+      );
     },
     requiredPolicies,
   };

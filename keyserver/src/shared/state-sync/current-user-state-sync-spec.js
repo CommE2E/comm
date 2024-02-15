@@ -22,7 +22,7 @@ export const currentUserStateSyncSpec: ServerStateSyncSpec<
   },
   async fetchServerInfosHash(viewer: Viewer) {
     const info = await fetch(viewer);
-    return getHash(info);
+    return await getHash(info);
   },
   getServerInfosHash: getHash,
   getServerInfoHash: getHash,
@@ -33,6 +33,11 @@ function fetch(viewer: Viewer) {
   return fetchCurrentUserInfo(viewer);
 }
 
-function getHash(currentUserInfo: CurrentUserInfo) {
-  return hash(validateOutput(null, currentUserInfoValidator, currentUserInfo));
+async function getHash(currentUserInfo: CurrentUserInfo) {
+  const output = await validateOutput(
+    null,
+    currentUserInfoValidator,
+    currentUserInfo,
+  );
+  return hash(output);
 }

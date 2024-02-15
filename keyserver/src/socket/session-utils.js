@@ -478,7 +478,9 @@ async function checkState(
         ) {
           // We have a type error here because Flow has no way to determine that
           // spec and infos are matched up
-          hashValue = spec.getServerInfoHash((iterableInfos[infoID]: any));
+          hashValue = await spec.getServerInfoHash(
+            (iterableInfos[infoID]: any),
+          );
         } else {
           hashValue = hash(iterableInfos[infoID]);
         }

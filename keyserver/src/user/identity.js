@@ -2,6 +2,10 @@
 
 import type { QueryResults } from 'mysql';
 
+import { getCommConfig } from 'lib/utils/comm-config.js';
+import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
+
+import type { UserCredentials } from './checks';
 import { SQL, dbQuery } from '../database/database.js';
 
 const userIDMetadataKey = 'user_id';
@@ -34,6 +38,24 @@ async function fetchIdentityInfo(): Promise<?IdentityInfo> {
   return { userId: userID, accessToken };
 }
 
+let cachedKeyserverID: ?string;
+
+async function thisKeyserverID(): Promise<string> {
+  if (cachedKeyserverID) {
+    return cachedKeyserverID;
+  }
+  const config = await getCommConfig<UserCredentials>({
+    folder: 'secrets',
+    name: 'user_credentials',
+  });
+  if (!config?.usingIdentityCredentials) {
+    return ashoatKeyserverID;
+  }
+  const identityInfo = await fetchIdentityInfo();
+  cachedKeyserverID = identityInfo?.userId ?? ashoatKeyserverID;
+  return cachedKeyserverID;
+}
+
 function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   const updateQuery = SQL`
     REPLACE INTO metadata (name, data)
@@ -44,4 +66,4 @@ function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   return dbQuery(updateQuery);
 }
 
-export { fetchIdentityInfo, saveIdentityInfo };
+export { fetchIdentityInfo, thisKeyserverID, saveIdentityInfo };

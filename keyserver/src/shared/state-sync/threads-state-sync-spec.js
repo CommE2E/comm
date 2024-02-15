@@ -28,7 +28,7 @@ export const threadsStateSyncSpec: ServerStateSyncSpec<
   },
   async fetchServerInfosHash(viewer: Viewer, ids?: $ReadOnlySet<string>) {
     const infos = await fetch(viewer, ids);
-    return getServerInfosHash(infos);
+    return await getServerInfosHash(infos);
   },
   getServerInfosHash,
   getServerInfoHash,
@@ -41,10 +41,12 @@ async function fetch(viewer: Viewer, ids?: $ReadOnlySet<string>) {
   return result.threadInfos;
 }
 
-function getServerInfosHash(infos: MixedRawThreadInfos) {
-  return combineUnorderedHashes(values(infos).map(getServerInfoHash));
+async function getServerInfosHash(infos: MixedRawThreadInfos) {
+  const results = await Promise.all(values(infos).map(getServerInfoHash));
+  return combineUnorderedHashes(results);
 }
 
-function getServerInfoHash(info: LegacyRawThreadInfo | RawThreadInfo) {
-  return hash(validateOutput(null, mixedRawThreadInfoValidator, info));
+async function getServerInfoHash(info: LegacyRawThreadInfo | RawThreadInfo) {
+  const output = await validateOutput(null, mixedRawThreadInfoValidator, info);
+  return hash(output);
 }
