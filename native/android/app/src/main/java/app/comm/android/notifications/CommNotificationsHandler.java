@@ -18,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.comm.android.ExpoUtils;
 import app.comm.android.MainActivity;
 import app.comm.android.R;
+import app.comm.android.fbjni.CommMMKV;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;
@@ -45,8 +46,15 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
   private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
   private static final String COLLAPSE_ID_KEY = "collapseKey";
+  private static final String KEYSERVER_ID_KEY = "keyserverID";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
+
+  // Those and future MMKV-related constants should match
+  // similar constants in NotificationService.mm
+  private static final String MMKV_KEY_SEPARATOR = ".";
+  private static final String MMKV_KEYSERVER_PREFIX = "KEYSERVER";
+  private static final String MMKV_UNREAD_COUNT_SUFFIX = "UNREAD_COUNT";
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
@@ -108,18 +116,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       handleNotificationRescind(message);
     }
 
-    String badge = message.getData().get(BADGE_KEY);
-    if (badge != null) {
-      try {
-        int badgeCount = Integer.parseInt(badge);
-        if (badgeCount > 0) {
-          ShortcutBadger.applyCount(this, badgeCount);
-        } else {
-          ShortcutBadger.removeCount(this);
-        }
-      } catch (NumberFormatException e) {
-        Log.w("COMM", "Invalid badge count", e);
-      }
+    try {
+      handleUnreadCountUpdate(message);
+    } catch (Exception e) {
+      Log.w("COMM", "Unread count update failure.", e);
     }
 
     String badgeOnly = message.getData().get(BADGE_ONLY_KEY);
@@ -211,6 +211,55 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
     if (groupSummaryPresent && !threadGroupPresent) {
       notificationManager.cancel(threadID, threadID.hashCode());
+    }
+  }
+
+  private void handleUnreadCountUpdate(RemoteMessage message) {
+    String badge = message.getData().get(BADGE_KEY);
+    if (badge == null) {
+      return;
+    }
+
+    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+      throw new RuntimeException("Received badge update without keyserver ID.");
+    }
+    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
+    String senderKeyserverUnreadCountKey = String.join(
+        MMKV_KEY_SEPARATOR,
+        MMKV_KEYSERVER_PREFIX,
+        senderKeyserverID,
+        MMKV_UNREAD_COUNT_SUFFIX);
+
+    int senderKeyserverUnreadCount;
+    try {
+      senderKeyserverUnreadCount = Integer.parseInt(badge);
+    } catch (NumberFormatException e) {
+      Log.w("COMM", "Invalid badge count", e);
+      return;
+    }
+    CommMMKV.setInt(senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
+
+    int totalUnreadCount = 0;
+    String[] allKeys = CommMMKV.getAllKeys();
+    for (String key : allKeys) {
+
+      if (!key.startsWith(MMKV_KEYSERVER_PREFIX) ||
+          !key.endsWith(MMKV_UNREAD_COUNT_SUFFIX)) {
+        continue;
+      }
+
+      Integer unreadCount = CommMMKV.getInt(key, -1);
+      if (unreadCount == null) {
+        continue;
+      }
+
+      totalUnreadCount += unreadCount;
+    }
+
+    if (totalUnreadCount > 0) {
+      ShortcutBadger.applyCount(this, totalUnreadCount);
+    } else {
+      ShortcutBadger.removeCount(this);
     }
   }
 
