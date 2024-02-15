@@ -105,6 +105,7 @@ export interface Spec extends TurboModule {
     authAccessToken: string,
     updatePayload: string,
   ) => Promise<void>;
+  +findUserIDForWalletAddress: (walletAddress: string) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
