@@ -99,12 +99,14 @@ import { getUUID } from 'lib/utils/uuid.js';
 import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 
 import {
-  updateClientDBThreadStoreThreadInfos,
-  createUpdateDBOpsForThreadStoreThreadInfos,
   createUpdateDBOpsForMessageStoreMessages,
   createUpdateDBOpsForMessageStoreThreads,
 } from './client-db-utils.js';
 import { defaultState } from './default-state.js';
+import {
+  deprecatedCreateUpdateDBOpsForThreadStoreThreadInfos,
+  deprecatedUpdateClientDBThreadStoreThreadInfos,
+} from './deprecated-client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
 import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
@@ -636,13 +638,13 @@ const migrations = {
     return state;
   },
   [38]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(
+    deprecatedUpdateClientDBThreadStoreThreadInfos(
       state,
       legacyUpdateRolesAndPermissions,
     ),
   [39]: (state: AppState) => unshimClientDB(state, [messageTypes.EDIT_MESSAGE]),
   [40]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(
+    deprecatedUpdateClientDBThreadStoreThreadInfos(
       state,
       legacyUpdateRolesAndPermissions,
     ),
@@ -689,10 +691,11 @@ const migrations = {
         messageInfos.map(convertRawMessageInfoToNewIDSchema),
       );
 
-    const threadOperations = createUpdateDBOpsForThreadStoreThreadInfos(
-      threads,
-      convertThreadStoreThreadInfosToNewIDSchema,
-    );
+    const threadOperations =
+      deprecatedCreateUpdateDBOpsForThreadStoreThreadInfos(
+        threads,
+        convertThreadStoreThreadInfosToNewIDSchema,
+      );
 
     const draftOperations = generateIDSchemaMigrationOpsForDrafts(drafts);
 
@@ -1020,7 +1023,7 @@ const migrations = {
     return state;
   },
   [60]: (state: AppState) =>
-    updateClientDBThreadStoreThreadInfos(
+    deprecatedUpdateClientDBThreadStoreThreadInfos(
       state,
       legacyUpdateRolesAndPermissions,
       handleReduxMigrationFailure,
@@ -1044,7 +1047,7 @@ const migrations = {
         },
         {},
       );
-    return updateClientDBThreadStoreThreadInfos(
+    return deprecatedUpdateClientDBThreadStoreThreadInfos(
       state,
       minimallyEncodeThreadInfosFunc,
       handleReduxMigrationFailure,
