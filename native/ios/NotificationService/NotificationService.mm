@@ -1,15 +1,22 @@
 #import "NotificationService.h"
+#import "CommMMKV.h"
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
 #import "StaffUtils.h"
 #import "TemporaryMessageStorage.h"
 #import <mach/mach.h>
+#include <iterator>
+#include <sstream>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
 NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailureKey = @"encryptionFailure";
 NSString *const collapseIDKey = @"collapseID";
+NSString *const keyserverIDKey = @"keyserverID";
+const std::string mmkvKeySeparator = ".";
+const std::string mmkvKeyserverPrefix = "KEYSERVER";
+const std::string mmkvUnreadCountSuffix = "UNREAD_COUNT";
 const std::string callingProcessName = "NSE";
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -37,6 +44,18 @@ size_t getMemoryUsageInBytes() {
 
   size_t memory_usage = static_cast<size_t>(vmInfo.phys_footprint);
   return memory_usage;
+}
+
+std::string joinStrings(
+    const std::string &separator,
+    const std::vector<std::string> &array) {
+  std::ostringstream joinedStream;
+  std::copy(
+      array.begin(),
+      array.end(),
+      std::ostream_iterator<std::string>(joinedStream, separator.c_str()));
+  std::string joined = joinedStream.str();
+  return joined.empty() ? joined : joined.substr(0, joined.size() - 1);
 }
 
 @interface NotificationService ()
@@ -140,7 +159,30 @@ size_t getMemoryUsageInBytes() {
         addObject:[NSString stringWithUTF8String:persistErrorMessage.c_str()]];
   }
 
-  // Step 3: (optional) rescind read notifications
+  // Step 3: Cumulative unread count calculation
+  if (content.badge) {
+    std::string unreadCountCalculationError;
+    try {
+      @try {
+        [self calculateTotalUnreadCountInPlace:content];
+      } @catch (NSException *e) {
+        unreadCountCalculationError =
+            "Obj-C exception: " + std::string([e.name UTF8String]) +
+            " during unread count calculation.";
+      }
+    } catch (const std::exception &e) {
+      unreadCountCalculationError = "C++ exception: " + std::string(e.what()) +
+          " during unread count calculation.";
+    }
+
+    if (unreadCountCalculationError.size()) {
+      [errorMessages
+          addObject:[NSString stringWithUTF8String:unreadCountCalculationError
+                                                       .c_str()]];
+    }
+  }
+
+  // Step 4: (optional) rescind read notifications
 
   // Message payload persistence is a higher priority task, so it has
   // to happen prior to potential notification center clearing.
@@ -172,7 +214,7 @@ size_t getMemoryUsageInBytes() {
     publicUserContent = [[UNNotificationContent alloc] init];
   }
 
-  // Step 4: (optional) execute notification coalescing
+  // Step 5: (optional) execute notification coalescing
   if ([self isCollapsible:content.userInfo]) {
     std::string coalescingErrorMessage;
     try {
@@ -202,7 +244,7 @@ size_t getMemoryUsageInBytes() {
     }
   }
 
-  // Step 5: (optional) create empty notification that
+  // Step 6: (optional) create empty notification that
   // only provides badge count.
   if ([self needsSilentBadgeUpdate:content.userInfo]) {
     UNMutableNotificationContent *badgeOnlyContent =
@@ -211,7 +253,7 @@ size_t getMemoryUsageInBytes() {
     publicUserContent = badgeOnlyContent;
   }
 
-  // Step 5: notify main app that there is data
+  // Step 7: notify main app that there is data
   // to transfer to SQLite and redux.
   [self sendNewMessageInfosNotification];
 
@@ -413,6 +455,49 @@ size_t getMemoryUsageInBytes() {
 - (BOOL)isRescind:(NSDictionary *)payload {
   return payload[backgroundNotificationTypeKey] &&
       [payload[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"];
+}
+
+- (void)calculateTotalUnreadCountInPlace:
+    (UNMutableNotificationContent *)content {
+  if (!content.userInfo[keyserverIDKey]) {
+    throw std::runtime_error("Received badge update without keyserver ID.");
+  }
+  std::string senderKeyserverID =
+      std::string([content.userInfo[keyserverIDKey] UTF8String]);
+
+  std::string senderKeyserverUnreadCountKey = joinStrings(
+      mmkvKeySeparator,
+      {mmkvKeyserverPrefix, senderKeyserverID, mmkvUnreadCountSuffix});
+
+  int senderKeyserverUnreadCount = [content.badge intValue];
+  comm::CommMMKV::setInt(
+      senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
+
+  int totalUnreadCount = senderKeyserverUnreadCount;
+  std::vector<std::string> allKeys = comm::CommMMKV::getAllKeys();
+  for (const auto &key : allKeys) {
+    if (key == senderKeyserverUnreadCountKey) {
+      continue;
+    }
+
+    if (key.size() <
+            mmkvKeyserverPrefix.size() + mmkvUnreadCountSuffix.size() ||
+        key.compare(0, mmkvKeyserverPrefix.size(), mmkvKeyserverPrefix) ||
+        key.compare(
+            key.size() - mmkvUnreadCountSuffix.size(),
+            mmkvUnreadCountSuffix.size(),
+            mmkvUnreadCountSuffix)) {
+      continue;
+    }
+
+    std::optional<int> unreadCount = comm::CommMMKV::getInt(key, -1);
+    if (!unreadCount.has_value()) {
+      continue;
+    }
+    totalUnreadCount += unreadCount.value();
+  }
+
+  content.badge = @(totalUnreadCount);
 }
 
 - (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
