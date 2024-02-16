@@ -23,7 +23,7 @@ import {
   createPickledOlmAccount,
   publishPrekeysToIdentity,
 } from '../utils/olm-utils.js';
-import { synchronizeInviteLinksWithBlobs } from '../utils/synchronizeInviteLinksWithBlobs.js';
+import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 

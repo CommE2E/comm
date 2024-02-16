@@ -69,7 +69,8 @@
     "unicorn/filename-case": [
       "error",
       {
-        "case": "kebabCase"
+        "case": "kebabCase",
+        "ignore": [".*_v.*\\.*\\.*\\.js", ".*ModuleSchema\\.js"]
       }
     ]
   },

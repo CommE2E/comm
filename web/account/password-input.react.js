@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import SWMansionIcon, {
   type Icon,
-} from 'lib/components/SWMansionIcon.react.js';
+} from 'lib/components/swmansion-icon.react.js';
 import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import css from './password-input.css';

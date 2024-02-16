@@ -4,7 +4,7 @@
  */
 import path from 'path';
 
-import codeGen from './CodeGen.js';
+import codeGen from './code-gen.js';
 ('use strict');
 
 const outPath = path.resolve('./cpp/CommonCpp/_generated');

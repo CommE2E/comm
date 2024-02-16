@@ -7,7 +7,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 

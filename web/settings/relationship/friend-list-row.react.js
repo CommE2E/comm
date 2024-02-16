@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 

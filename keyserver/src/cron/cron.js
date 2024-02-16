@@ -28,7 +28,7 @@ import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAndUploadAccountPrekeys } from '../utils/olm-utils.js';
-import { synchronizeInviteLinksWithBlobs } from '../utils/synchronizeInviteLinksWithBlobs.js';
+import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(

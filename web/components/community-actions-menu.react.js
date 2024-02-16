@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';

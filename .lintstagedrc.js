@@ -1,6 +1,6 @@
 const { ESLint } = require('eslint');
-const { getClangPaths } = require('./scripts/get_clang_paths');
-const { findRustProjectPath } = require('./scripts/get_cargo_path');
+const { getClangPaths } = require('./scripts/get-clang-paths');
+const { findRustProjectPath } = require('./scripts/get-cargo-path');
 
 const removeIgnoredFiles = async (files) => {
   const eslint = new ESLint();

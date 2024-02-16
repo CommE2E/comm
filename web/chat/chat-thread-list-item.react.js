@@ -3,7 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';

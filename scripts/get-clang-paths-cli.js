@@ -1,6 +1,6 @@
 // @flow
 
-const { clangPaths } = require('./get_clang_paths.js');
+const { clangPaths } = require('./get-clang-paths.js');
 
 (() => {
   let command = '(';

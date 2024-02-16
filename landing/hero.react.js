@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import HeroContent from './hero-content.react.js';
 import css from './hero.css';
-import Picture from './Picture.react.js';
+import Picture from './picture.react.js';
 
 type Props = {
   +url: string,
