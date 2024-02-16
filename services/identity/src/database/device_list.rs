@@ -1155,6 +1155,7 @@ mod migration {
     mobile_devices.first().cloned()
   }
 
+  #[cfg(test)]
   mod tests {
     use super::*;
     use chrono::Duration;

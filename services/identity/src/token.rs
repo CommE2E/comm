@@ -32,22 +32,6 @@ pub struct AccessTokenData {
 }
 
 impl AccessTokenData {
-  pub fn new(
-    user_id: String,
-    signing_public_key: String,
-    auth_type: AuthType,
-    rng: &mut (impl Rng + CryptoRng),
-  ) -> Self {
-    AccessTokenData {
-      user_id,
-      signing_public_key,
-      access_token: Alphanumeric.sample_string(rng, ACCESS_TOKEN_LENGTH),
-      created: Utc::now(),
-      auth_type,
-      valid: true,
-    }
-  }
-
   pub fn with_created_time(
     user_id: String,
     signing_public_key: String,

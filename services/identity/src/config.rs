@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose, DecodeError, Engine as _};
 use clap::{Parser, Subcommand};
 use once_cell::sync::Lazy;
-use std::{collections::HashSet, env, fmt, fs, io, path};
+use std::{env, fmt, fs, io, path};
 use tracing::{error, info};
 
 use crate::constants::{

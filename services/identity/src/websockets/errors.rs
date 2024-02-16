@@ -1,5 +1,3 @@
-use tracing::error;
-
 pub type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 #[derive(
@@ -7,9 +5,7 @@ pub type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 )]
 pub enum WebsocketError {
   InvalidMessage,
-  InvalidSearchQuery,
   UnauthorizedDevice,
-  SendError,
   SearchError,
   AuthError,
   SerializationError,

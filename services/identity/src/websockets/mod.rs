@@ -187,11 +187,7 @@ async fn handle_websocket_frame(
         }
       }?;
 
-      send_message(
-        Message::Text(format!("{}", search_result.to_string())),
-        outgoing.clone(),
-      )
-      .await;
+      send_message(Message::Text(search_result), outgoing.clone()).await;
 
       Ok(())
     }
