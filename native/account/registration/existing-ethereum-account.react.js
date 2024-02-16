@@ -9,6 +9,7 @@ import { useENSName } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -20,7 +21,10 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
-import { useLegacySIWEServerCall } from '../siwe-hooks.js';
+import {
+  useIdentityWalletLogInCall,
+  useLegacySIWEServerCall,
+} from '../siwe-hooks.js';
 
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
@@ -33,30 +37,47 @@ type Props = {
 };
 function ExistingEthereumAccount(props: Props): React.Node {
   const legacySiweServerCall = useLegacySIWEServerCall();
+  const identityWalletLogInCall = useIdentityWalletLogInCall();
 
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
-    try {
-      await legacySiweServerCall({ ...params, doNotRegister: true });
-    } catch (e) {
-      Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
-        [{ text: 'OK' }],
-        {
-          cancelable: false,
+    if (usingCommServicesAccessToken) {
+      try {
+        await identityWalletLogInCall(params);
+      } catch (e) {
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
+        throw e;
+      }
+    } else {
+      try {
+        await legacySiweServerCall({ ...params, doNotRegister: true });
+      } catch (e) {
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
+        throw e;
+      }
+      dispatch({
+        type: setDataLoadedActionType,
+        payload: {
+          dataLoaded: true,
         },
-      );
-      throw e;
+      });
     }
-    dispatch({
-      type: setDataLoadedActionType,
-      payload: {
-        dataLoaded: true,
-      },
-    });
-  }, [legacySiweServerCall, params, dispatch]);
+  }, [legacySiweServerCall, identityWalletLogInCall, params, dispatch]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
