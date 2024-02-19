@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { sortIDs } from 'lib/shared/relationship-utils.js';
+import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import {
   type UndirectedRelationshipRow,
   undirectedStatus,
@@ -15,7 +15,7 @@ class RelationshipChangeset {
   finalized: boolean = false;
 
   static _getKey(userA: string, userB: string): string {
-    const [user1, user2] = sortIDs(userA, userB);
+    const [user1, user2] = sortUserIDs(userA, userB);
     return `${user1}|${user2}`;
   }
 
