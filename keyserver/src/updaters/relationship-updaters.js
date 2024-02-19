@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { sortIDs } from 'lib/shared/relationship-utils.js';
+import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
   type RelationshipRequest,
@@ -74,7 +74,7 @@ async function updateRelationships(
     const now = Date.now();
     for (const userID in userRelationshipOperations) {
       const operations = userRelationshipOperations[userID];
-      const ids = sortIDs(viewer.userID, userID);
+      const ids = sortUserIDs(viewer.userID, userID);
 
       if (operations.length) {
         updateIDs.push(userID);
@@ -146,7 +146,7 @@ async function updateRelationships(
     updateIDs.push(...userIDs);
 
     const updateRows = userIDs.map(userID => {
-      const [user1, user2] = sortIDs(viewer.userID, userID);
+      const [user1, user2] = sortUserIDs(viewer.userID, userID);
       return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
 
@@ -169,7 +169,7 @@ async function updateRelationships(
     const undirectedRows = [];
     for (const userID of userIDs) {
       directedRows.push([viewer.userID, userID, directedStatus.BLOCKED]);
-      const [user1, user2] = sortIDs(viewer.userID, userID);
+      const [user1, user2] = sortUserIDs(viewer.userID, userID);
       undirectedRows.push({ user1, user2, status: undirectedStatus.KNOW_OF });
     }
 
