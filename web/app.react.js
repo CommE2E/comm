@@ -28,10 +28,12 @@ import {
 } from 'lib/selectors/loading-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
+import type { SecondaryTunnelbrokerConnection } from 'lib/tunnelbroker/secondary-tunnelbroker-connection.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
+import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
@@ -361,6 +363,119 @@ class App extends React.PureComponent<Props> {
   }
 }
 
+const WEB_TUNNELBROKER_CHANNEL = new BroadcastChannel('shared-tunnelbroker');
+const WEB_TUNNELBROKER_MESSAGE_TYPES = Object.freeze({
+  SEND_MESSAGE: 'send-message',
+  MESSAGE_STATUS: 'message-status',
+});
+
+function useOtherTabsTunnelbrokerConnection(): SecondaryTunnelbrokerConnection {
+  const onSendMessageCallbacks = React.useRef<
+    Set<(MessageToDeviceRequest) => mixed>,
+  >(new Set());
+
+  const onMessageStatusCallbacks = React.useRef<
+    Set<(messageID: string, error: ?string) => mixed>,
+  >(new Set());
+
+  React.useEffect(() => {
+    const messageHandler = (event: MessageEvent) => {
+      if (typeof event.data !== 'object' || !event.data) {
+        console.log(
+          'Invalid message received from shared ' +
+            'tunnelbroker broadcast channel',
+          event.data,
+        );
+        return;
+      }
+      const data = event.data;
+      if (data.type === WEB_TUNNELBROKER_MESSAGE_TYPES.SEND_MESSAGE) {
+        if (typeof data.message !== 'object' || !data.message) {
+          console.log(
+            'Invalid tunnelbroker message request received ' +
+              'from shared tunnelbroker broadcast channel',
+            event.data,
+          );
+          return;
+        }
+        // We know that the input was already validated
+        const message: MessageToDeviceRequest = (data.message: any);
+
+        for (const callback of onSendMessageCallbacks.current) {
+          callback(message);
+        }
+      } else if (data.type === WEB_TUNNELBROKER_MESSAGE_TYPES.MESSAGE_STATUS) {
+        if (typeof data.messageID !== 'string') {
+          console.log(
+            'Missing message id in message status message ' +
+              'from shared tunnelbroker broadcast channel',
+          );
+          return;
+        }
+        const messageID = data.messageID;
+
+        if (
+          typeof data.error !== 'string' &&
+          data.error !== null &&
+          data.error !== undefined
+        ) {
+          console.log(
+            'Invalid error in message status message ' +
+              'from shared tunnelbroker broadcast channel',
+            data.error,
+          );
+          return;
+        }
+        const error = data.error;
+
+        for (const callback of onMessageStatusCallbacks.current) {
+          callback(messageID, error);
+        }
+      } else {
+        console.log(
+          'Invalid message type ' +
+            'from shared tunnelbroker broadcast channel',
+          data,
+        );
+      }
+    };
+
+    WEB_TUNNELBROKER_CHANNEL.addEventListener('message', messageHandler);
+    return () =>
+      WEB_TUNNELBROKER_CHANNEL.removeEventListener('message', messageHandler);
+  }, [onMessageStatusCallbacks, onSendMessageCallbacks]);
+
+  return React.useMemo(
+    () => ({
+      sendMessage: message =>
+        WEB_TUNNELBROKER_CHANNEL.postMessage({
+          type: WEB_TUNNELBROKER_MESSAGE_TYPES.SEND_MESSAGE,
+          message,
+        }),
+      onSendMessage: callback => {
+        onSendMessageCallbacks.current.add(callback);
+        return () => {
+          onSendMessageCallbacks.current.delete(callback);
+        };
+      },
+      setMessageStatus: (messageID, error) => {
+        WEB_TUNNELBROKER_CHANNEL.postMessage({
+          type: WEB_TUNNELBROKER_MESSAGE_TYPES.MESSAGE_STATUS,
+          messageID,
+          error,
+        });
+      },
+      onMessageStatus: callback => {
+        onMessageStatusCallbacks.current.add(callback);
+        return () => {
+          onMessageStatusCallbacks.current.delete(callback);
+        };
+      },
+    }),
+    [onMessageStatusCallbacks, onSendMessageCallbacks],
+  );
+}
+
 const fetchEntriesLoadingStatusSelector = createLoadingStatusSelector(
   fetchEntriesActionTypes,
 );
@@ -409,12 +524,16 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     const { lockStatus, releaseLock } = useWebLock(TUNNELBROKER_LOCK_NAME);
 
+    const secondaryTunnelbrokerConnection: SecondaryTunnelbrokerConnection =
+      useOtherTabsTunnelbrokerConnection();
+
     return (
       <AppThemeWrapper>
         <TunnelbrokerProvider
           initMessage={tunnelbrokerInitMessage}
           shouldBeClosed={lockStatus !== 'acquired'}
           onClose={releaseLock}
+          secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
         >
           <IdentitySearchProvider>
             <App
