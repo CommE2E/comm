@@ -7,6 +7,7 @@ import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
   identityKeysBlobValidator,
+  type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
 import {
   type DeviceOlmOutboundKeys,
@@ -266,6 +267,21 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         return assertWithValidator(
           inboundUserKeys,
           userDeviceOlmInboundKeysValidator,
+        );
+      },
+      uploadOneTimeKeys: async (oneTimeKeys: OneTimeKeysResultValues) => {
+        const {
+          deviceID: authDeviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+
+        await commRustModule.uploadOneTimeKeys(
+          userID,
+          authDeviceID,
+          token,
+          oneTimeKeys.contentOneTimeKeys,
+          oneTimeKeys.notificationsOneTimeKeys,
         );
       },
       registerPasswordUser: async (username: string, password: string) => {
