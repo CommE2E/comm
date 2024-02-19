@@ -88,6 +88,17 @@ function useWebLock(name: string): {
     return 'acquired';
   }, [lock, isVisible]);
 
+  React.useEffect(() => {
+    if (!import.meta.webpackHot) {
+      return () => {};
+    }
+    const webpackHot: WebpackHot = (import.meta.webpackHot: any);
+    webpackHot.dispose(releaseLock);
+    return () => {
+      webpackHot.removeDisposeHandler(releaseLock);
+    };
+  }, [releaseLock]);
+
   return { lockStatus, releaseLock };
 }
 
@@ -120,5 +131,10 @@ type LockInfo = {
 };
 
 type LockMode = 'exclusive' | 'shared';
+
+type WebpackHot = {
+  dispose: ((data: mixed) => void) => void,
+  removeDisposeHandler: ((data: mixed) => void) => void,
+};
 
 export { useWebLock };
