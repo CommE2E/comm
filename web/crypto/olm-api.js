@@ -6,11 +6,12 @@ import type { Account, Session } from '@commapp/olm';
 import {
   type OlmAPI,
   olmEncryptedMessageTypes,
+  type OLMIdentityKeys,
 } from 'lib/types/crypto-types.js';
 
 // methods below are just mocks to SQLite API
 // implement proper methods tracked in ENG-6462
-// eslint-disable-next-line no-unused-vars
+
 function getOlmAccount(): Account {
   return new olm.Account();
 }
@@ -41,6 +42,27 @@ const olmAPI: OlmAPI = {
     );
     storeOlmSession(session);
     return result;
+  },
+  async contentInboundSessionCreator(
+    contentIdentityKeys: OLMIdentityKeys,
+    initialEncryptedContent: string,
+  ): Promise<string> {
+    const account = getOlmAccount();
+    const session = new olm.Session();
+    session.create_inbound_from(
+      account,
+      contentIdentityKeys.curve25519,
+      initialEncryptedContent,
+    );
+
+    account.remove_one_time_keys(session);
+    const initialEncryptedMessage = session.decrypt(
+      olmEncryptedMessageTypes.PREKEY,
+      initialEncryptedContent,
+    );
+    storeOlmAccount(account);
+    storeOlmSession(session);
+    return initialEncryptedMessage;
   },
 };
 
