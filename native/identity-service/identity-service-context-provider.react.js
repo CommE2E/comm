@@ -16,6 +16,10 @@ import {
   type UserAuthMetadata,
   ONE_TIME_KEYS_NUMBER,
   identityAuthResultValidator,
+  type DeviceOlmInboundKeys,
+  type UserDevicesOlmInboundKeys,
+  deviceOlmInboundKeysValidator,
+  userDeviceOlmInboundKeysValidator,
 } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -197,6 +201,72 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             }
           })
           .filter(Boolean);
+      },
+      getInboundKeysForUser: async (
+        targetUserID: string,
+      ): Promise<UserDevicesOlmInboundKeys> => {
+        const {
+          deviceID: authDeviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        const result = await commRustModule.getInboundKeysForUser(
+          userID,
+          authDeviceID,
+          token,
+          targetUserID,
+        );
+        const resultArray = JSON.parse(result);
+
+        const devicesKeys: {
+          [deviceID: string]: ?DeviceOlmInboundKeys,
+        } = {};
+
+        resultArray.forEach(inboundKeysInfo => {
+          try {
+            const payload = inboundKeysInfo?.payload;
+            const identityKeysBlob: IdentityKeysBlob = assertWithValidator(
+              payload ? JSON.parse(payload) : null,
+              identityKeysBlobValidator,
+            );
+            const deviceID = identityKeysBlob.primaryIdentityPublicKeys.ed25519;
+
+            const deviceKeys = {
+              identityKeysBlob,
+              signedPrekeys: {
+                contentPrekey: inboundKeysInfo?.contentPrekey,
+                contentPrekeySignature: inboundKeysInfo?.contentPrekeySignature,
+                notifPrekey: inboundKeysInfo?.notifPrekey,
+                notifPrekeySignature: inboundKeysInfo?.notifPrekeySignature,
+              },
+              payloadSignature: inboundKeysInfo?.payloadSignature,
+            };
+
+            try {
+              devicesKeys[deviceID] = assertWithValidator(
+                deviceKeys,
+                deviceOlmInboundKeysValidator,
+              );
+            } catch (e) {
+              console.log(e);
+              devicesKeys[deviceID] = null;
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        });
+        const device = resultArray?.[0];
+
+        const inboundUserKeys = {
+          keys: devicesKeys,
+          username: device?.username,
+          walletAddress: device?.walletAddress,
+        };
+
+        return assertWithValidator(
+          inboundUserKeys,
+          userDeviceOlmInboundKeysValidator,
+        );
       },
       registerPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
