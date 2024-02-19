@@ -137,4 +137,6 @@ type WebpackHot = {
   removeDisposeHandler: ((data: mixed) => void) => void,
 };
 
-export { useWebLock };
+const TUNNELBROKER_LOCK_NAME = 'tunnelbroker-lock';
+
+export { useWebLock, TUNNELBROKER_LOCK_NAME };
