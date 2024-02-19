@@ -3,6 +3,7 @@
 import { Login } from '@commapp/opaque-ke-wasm';
 
 import identityServiceConfig from 'lib/facts/identity-service.js';
+import type { OneTimeKeysResultValues } from 'lib/types/crypto-types.js';
 import {
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
@@ -288,6 +289,22 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       walletAddress: identityInfo?.getEthIdentity()?.getWalletAddress(),
     };
   };
+
+  uploadOneTimeKeys: (oneTimeKeys: OneTimeKeysResultValues) => Promise<void> =
+    async (oneTimeKeys: OneTimeKeysResultValues) => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
+
+      const contentOneTimeKeysArray = [...oneTimeKeys.contentOneTimeKeys];
+      const notifOneTimeKeysArray = [...oneTimeKeys.notificationsOneTimeKeys];
+
+      const request = new IdentityAuthStructs.UploadOneTimeKeysRequest();
+      request.setContentOneTimePrekeysList(contentOneTimeKeysArray);
+      request.setNotifOneTimePrekeysList(notifOneTimeKeysArray);
+      await client.uploadOneTimeKeys(request);
+    };
 
   logInPasswordUser: (
     username: string,
