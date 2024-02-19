@@ -3,7 +3,10 @@
 import { Login } from '@commapp/opaque-ke-wasm';
 
 import identityServiceConfig from 'lib/facts/identity-service.js';
-import type { OneTimeKeysResultValues } from 'lib/types/crypto-types.js';
+import type {
+  OneTimeKeysResultValues,
+  SignedPrekeys,
+} from 'lib/types/crypto-types.js';
 import {
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
@@ -406,6 +409,28 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   generateNonce: () => Promise<string> = async () => {
     const result = await this.unauthClient.generateNonce(new Empty());
     return result.getNonce();
+  };
+
+  publishWebPrekeys: (prekeys: SignedPrekeys) => Promise<void> = async (
+    prekeys: SignedPrekeys,
+  ) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const contentPrekeyUpload = new Prekey();
+    contentPrekeyUpload.setPrekey(prekeys.contentPrekey);
+    contentPrekeyUpload.setPrekeySignature(prekeys.contentPrekeySignature);
+
+    const notifPrekeyUpload = new Prekey();
+    notifPrekeyUpload.setPrekey(prekeys.notifPrekey);
+    notifPrekeyUpload.setPrekeySignature(prekeys.notifPrekeySignature);
+
+    const request = new IdentityAuthStructs.RefreshUserPrekeysRequest();
+    request.setNewContentPrekeys(contentPrekeyUpload);
+    request.setNewNotifPrekeys(notifPrekeyUpload);
+    await client.refreshUserPrekeys(request);
   };
 }
 
