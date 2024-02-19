@@ -13,6 +13,10 @@ import {
   type IdentityDeviceKeyUpload,
   identityDeviceTypes,
   identityAuthResultValidator,
+  type UserDevicesOlmInboundKeys,
+  type DeviceOlmInboundKeys,
+  deviceOlmInboundKeysValidator,
+  userDeviceOlmInboundKeysValidator,
 } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -170,7 +174,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         const contentPreKey = outboundKeysInfo?.contentPrekey;
         const notifPreKey = outboundKeysInfo?.notifPrekey;
 
-        if (!(typeof deviceID === 'string')) {
+        if (typeof deviceID !== 'string') {
           console.log(`Invalid deviceID in devicesMap: ${deviceID}`);
           return null;
         }
@@ -222,6 +226,73 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     );
 
     return devicesKeys.filter(Boolean);
+  };
+
+  getInboundKeysForUser: (
+    userID: string,
+  ) => Promise<UserDevicesOlmInboundKeys> = async (userID: string) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const request = new IdentityAuthStructs.InboundKeysForUserRequest();
+    request.setUserId(userID);
+    const response = await client.getInboundKeysForUser(request);
+    const devicesMap = response.toObject()?.devicesMap;
+
+    if (!devicesMap || !Array.isArray(devicesMap)) {
+      throw new Error('Invalid devicesMap');
+    }
+
+    const devicesKeys: {
+      [deviceID: string]: ?DeviceOlmInboundKeys,
+    } = {};
+
+    devicesMap.forEach(([deviceID, inboundKeys]) => {
+      const identityInfo = inboundKeys?.identityInfo;
+      const payload = identityInfo?.payload;
+      const contentPreKey = inboundKeys?.contentPrekey;
+      const notifPreKey = inboundKeys?.notifPrekey;
+
+      if (typeof deviceID !== 'string') {
+        console.log(`Invalid deviceID in devicesMap: ${deviceID}`);
+        return;
+      }
+
+      const deviceKeys = {
+        identityKeysBlob: payload ? JSON.parse(payload) : null,
+        signedPrekeys: {
+          contentPrekey: contentPreKey?.prekey,
+          contentPrekeySignature: contentPreKey?.prekeySignature,
+          notifPrekey: notifPreKey?.prekey,
+          notifPrekeySignature: notifPreKey?.prekeySignature,
+        },
+        payloadSignature: identityInfo?.payloadSignature,
+      };
+
+      try {
+        devicesKeys[deviceID] = assertWithValidator(
+          deviceKeys,
+          deviceOlmInboundKeysValidator,
+        );
+      } catch (e) {
+        console.log(e);
+        devicesKeys[deviceID] = null;
+      }
+    });
+
+    const identityInfo = response?.getIdentity();
+    const inboundUserKeys = {
+      keys: devicesKeys,
+      username: identityInfo?.getUsername(),
+      walletAddress: identityInfo?.getEthIdentity()?.getWalletAddress(),
+    };
+
+    return assertWithValidator(
+      inboundUserKeys,
+      userDeviceOlmInboundKeysValidator,
+    );
   };
 
   logInPasswordUser: (
