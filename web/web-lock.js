@@ -94,6 +94,17 @@ function useWebLock(name: string): {
     return lockStatuses.ACQUIRED;
   }, [lockRequest, isVisible]);
 
+  React.useEffect(() => {
+    if (!import.meta.webpackHot) {
+      return undefined;
+    }
+    const webpackHot: WebpackHot = (import.meta.webpackHot: any);
+    webpackHot.dispose(releaseLockOrAbortRequest);
+    return () => {
+      webpackHot.removeDisposeHandler(releaseLockOrAbortRequest);
+    };
+  }, [releaseLockOrAbortRequest]);
+
   return { lockStatus, releaseLockOrAbortRequest };
 }
 
@@ -126,5 +137,10 @@ type LockInfo = {
 };
 
 type LockMode = 'exclusive' | 'shared';
+
+type WebpackHot = {
+  +dispose: ((data: mixed) => void) => void,
+  +removeDisposeHandler: ((data: mixed) => void) => void,
+};
 
 export { useWebLock };
