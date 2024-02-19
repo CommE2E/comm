@@ -10,7 +10,7 @@ import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
-import type { OLMOneTimeKeys } from 'lib/types/crypto-types';
+import type { OneTimeKeysResult, SignedPrekeys } from 'lib/types/crypto-types';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
@@ -29,22 +29,10 @@ type ClientPublicKeys = {
   +signature: string,
 };
 
-type SignedPrekeys = {
-  +contentPrekey: string,
-  +contentPrekeySignature: string,
-  +notifPrekey: string,
-  +notifPrekeySignature: string,
-};
-
 type CommServicesAuthMetadata = {
   +userID?: ?string,
   +deviceID?: ?string,
   +accessToken?: ?string,
-};
-
-type OneTimeKeysResult = {
-  contentOneTimeKeys: OLMOneTimeKeys,
-  notificationsOneTimeKeys: OLMOneTimeKeys,
 };
 
 interface Spec extends TurboModule {
