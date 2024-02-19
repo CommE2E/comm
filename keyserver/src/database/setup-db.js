@@ -171,7 +171,7 @@ async function createTables() {
         id bigint(20) NOT NULL,
         user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         type tinyint(3) UNSIGNED NOT NULL,
-        \`key\` bigint(20) DEFAULT NULL,
+        \`key\` varchar(255) CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
         updater bigint(20) DEFAULT NULL,
         target bigint(20) DEFAULT NULL,
         content mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
