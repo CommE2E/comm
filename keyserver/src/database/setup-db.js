@@ -4,7 +4,7 @@ import ashoat from 'lib/facts/ashoat.js';
 import bots from 'lib/facts/bots.js';
 import genesis from 'lib/facts/genesis.js';
 import { usernameMaxLength } from 'lib/shared/account-utils.js';
-import { sortIDs } from 'lib/shared/relationship-utils.js';
+import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { undirectedStatus } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
@@ -171,7 +171,7 @@ async function createTables() {
         id bigint(20) NOT NULL,
         user varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         type tinyint(3) UNSIGNED NOT NULL,
-        \`key\` bigint(20) DEFAULT NULL,
+        \`key\` varchar(255) CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
         updater bigint(20) DEFAULT NULL,
         target bigint(20) DEFAULT NULL,
         content mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
@@ -423,7 +423,7 @@ async function createTables() {
 }
 
 async function createUsers() {
-  const [user1, user2] = sortIDs(bots.commbot.userID, ashoat.id);
+  const [user1, user2] = sortUserIDs(bots.commbot.userID, ashoat.id);
   await dbQuery(
     SQL`
       INSERT INTO ids (id, table_name)
