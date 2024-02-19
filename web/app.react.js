@@ -44,6 +44,7 @@ import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
+import { olmAPI } from './crypto/olm-api.js';
 import { initOpaque } from './crypto/opaque-utils.js';
 import { getDatabaseModule } from './database/database-module-provider.js';
 import electron from './electron.js';
@@ -102,6 +103,7 @@ registerConfig({
     stateVersion: persistConfig.version,
     ...desktopDetails,
   },
+  olmAPI,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
