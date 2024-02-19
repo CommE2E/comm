@@ -77,6 +77,7 @@ import './typography.css';
 import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
+import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
 
 void initOpaque();
 
@@ -401,9 +402,15 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     const tunnelbrokerInitMessage = useSelector(createTunnelbrokerInitMessage);
 
+    const { lockStatus, releaseLock } = useWebLock(TUNNELBROKER_LOCK_NAME);
+
     return (
       <AppThemeWrapper>
-        <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
+        <TunnelbrokerProvider
+          initMessage={tunnelbrokerInitMessage}
+          shouldBeOpened={lockStatus === 'acquired'}
+          onClose={releaseLock}
+        >
           <App
             {...props}
             navInfo={navInfo}
