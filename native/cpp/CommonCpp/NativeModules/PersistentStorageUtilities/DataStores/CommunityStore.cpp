@@ -17,7 +17,15 @@ CommunityStore::CommunityStore(
 jsi::Array CommunityStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<CommunityInfo>> communitiesVectorPtr) const {
-  jsi::Array jsiCommunities = jsi::Array(rt, 0);
+  size_t numCommunities = communitiesVectorPtr->size();
+  jsi::Array jsiCommunities = jsi::Array(rt, numCommunities);
+  size_t writeIdx = 0;
+  for (const CommunityInfo &community : *communitiesVectorPtr) {
+    jsi::Object jsiCommunity = jsi::Object(rt);
+    jsiCommunity.setProperty(rt, "id", community.id);
+    jsiCommunity.setProperty(rt, "communityInfo", community.community_info);
+    jsiCommunities.setValueAtIndex(rt, writeIdx++, jsiCommunity);
+  }
   return jsiCommunities;
 }
 
