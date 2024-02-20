@@ -61,6 +61,8 @@ pub enum Command {
     #[arg(default_value = SECRETS_DIRECTORY)]
     dir: String,
   },
+  /// Syncs DynamoDB users with identity-search search index
+  SyncIdentitySearch,
 }
 
 #[derive(Clone)]
@@ -75,8 +77,8 @@ pub struct ServerConfig {
 
 impl ServerConfig {
   fn from_cli(cli: &Cli) -> Result<Self, Error> {
-    if !matches!(cli.command, Command::Server) {
-      panic!("ServerConfig is only available for the `server` command");
+    if !matches!(cli.command, Command::Server | Command::SyncIdentitySearch) {
+      panic!("ServerConfig is only available for the `server` or `sync-identity-search` command");
     }
 
     info!("Tunnelbroker endpoint: {}", &cli.tunnelbroker_endpoint);
