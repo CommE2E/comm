@@ -19,7 +19,7 @@
     "ci-cleaninstall": "yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000",
     "eslint:all": "eslint --report-unused-disable-directives .",
     "eslint:fix": "eslint --fix --report-unused-disable-directives .",
-    "clang-format-all": "eval `node scripts/get_clang_paths_cli.js` | xargs clang-format -i",
+    "clang-format-all": "eval `node scripts/get-clang-paths-cli.js` | xargs clang-format -i",
     "rust-pre-commit": "./scripts/rust_pre_commit.sh",
     "terraform-pre-commit": "./scripts/terraform_pre_commit.sh",
     "prepare": "husky install",
