@@ -49,7 +49,6 @@ import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
 import ErrorBoundary from './error-boundary.react.js';
-import { peerToPeerMessageHandler } from './handlers/peer-to-peer-message-handler.js';
 import IdentityServiceContextProvider from './identity-service/identity-service-context-provider.react.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react.js';
@@ -304,10 +303,7 @@ function Root() {
       <StaffContextProvider>
         <IdentityServiceContextProvider>
           <OlmSessionCreatorProvider>
-            <TunnelbrokerProvider
-              initMessage={tunnelbrokerInitMessage}
-              peerToPeerMessageHandler={peerToPeerMessageHandler}
-            >
+            <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
               <FeatureFlagsProvider>
                 <NavContext.Provider value={navContext}>
                   <RootContext.Provider value={rootContext}>
