@@ -192,51 +192,6 @@ void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
       callingProcessName);
 }
 
-std::string NotificationsCryptoModule::getNotificationsIdentityKeys(
-    const std::string &callingProcessName) {
-  std::string identityKeys;
-  auto caller = [&identityKeys](
-                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    identityKeys = cryptoModule->getIdentityKeys();
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return identityKeys;
-}
-
-std::string NotificationsCryptoModule::getNotificationsPrekey(
-    const std::string &callingProcessName) {
-  std::string prekey;
-  auto caller =
-      [&prekey](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-        prekey = cryptoModule->getPrekey();
-      };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return prekey;
-}
-
-std::string NotificationsCryptoModule::getNotificationsPrekeySignature(
-    const std::string &callingProcessName) {
-  std::string prekeySignature;
-  auto caller = [&prekeySignature](
-                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    prekeySignature = cryptoModule->getPrekeySignature();
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return prekeySignature;
-}
-
-std::string NotificationsCryptoModule::getNotificationsOneTimeKeysForPublishing(
-    const size_t oneTimeKeysAmount,
-    const std::string &callingProcessName) {
-  std::string oneTimeKeys;
-  auto caller = [&oneTimeKeys, oneTimeKeysAmount](
-                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    oneTimeKeys = cryptoModule->getOneTimeKeysForPublishing(oneTimeKeysAmount);
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return oneTimeKeys;
-}
-
 crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
     const std::string &identityKeys,
     const std::string &prekey,
