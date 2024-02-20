@@ -163,7 +163,7 @@ pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 
 pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";
 
-// Opensearch Domain
+// Identity Search
 
 pub const OPENSEARCH_ENDPOINT: &str = "OPENSEARCH_ENDPOINT";
 pub const DEFAULT_OPENSEARCH_ENDPOINT: &str =

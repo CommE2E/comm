@@ -157,8 +157,10 @@ async fn handle_prefix_search(
     },
   };
 
-  let opensearch_url =
-    format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
+  let opensearch_url = format!(
+    "https://{}/{}/_search/",
+    &CONFIG.opensearch_endpoint, IDENTITY_SEARCH_INDEX
+  );
 
   let search_response = send_search_request(&opensearch_url, prefix_query)
     .await?
