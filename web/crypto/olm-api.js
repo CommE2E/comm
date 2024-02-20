@@ -7,13 +7,17 @@ import {
   type OlmAPI,
   olmEncryptedMessageTypes,
   type OLMIdentityKeys,
+  type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
+import { getAccountOneTimeKeys } from 'lib/utils/olm-utils.js';
 
 // methods below are just mocks to SQLite API
 // implement proper methods tracked in ENG-6462
 
 function getOlmAccount(): Account {
-  return new olm.Account();
+  const account = new olm.Account();
+  account.create();
+  return account;
 }
 // eslint-disable-next-line no-unused-vars
 function getOlmSession(deviceID: string): Session {
@@ -63,6 +67,25 @@ const olmAPI: OlmAPI = {
     storeOlmAccount(account);
     storeOlmSession(session);
     return initialEncryptedMessage;
+  },
+  async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
+    const contentAccount = getOlmAccount();
+    const notifAccount = getOlmAccount();
+    const contentOneTimeKeys = getAccountOneTimeKeys(
+      contentAccount,
+      numberOfKeys,
+    );
+    contentAccount.mark_keys_as_published();
+    storeOlmAccount(contentAccount);
+
+    const notificationsOneTimeKeys = getAccountOneTimeKeys(
+      notifAccount,
+      numberOfKeys,
+    );
+    notifAccount.mark_keys_as_published();
+    storeOlmAccount(notifAccount);
+
+    return { contentOneTimeKeys, notificationsOneTimeKeys };
   },
 };
 
