@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -154,6 +155,37 @@ function processKeyserverStoreOperations(
   }
 }
 
+function processCommunityStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBCommunityStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBCommunityStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_communities') {
+        sqliteQueryExecutor.removeAllCommunities();
+      } else if (operation.type === 'remove_communities') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeCommunities(ids);
+      } else if (operation.type === 'replace_community') {
+        const { id, communityInfo } = operation.payload;
+        sqliteQueryExecutor.replaceCommunity({ id, communityInfo });
+      } else {
+        throw new Error('Unsupported community operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } community operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
@@ -164,6 +196,7 @@ function processDBStoreOperations(
     reportStoreOperations,
     threadStoreOperations,
     keyserverStoreOperations,
+    communityStoreOperations,
   } = storeOperations;
 
   try {
@@ -196,6 +229,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (communityStoreOperations && communityStoreOperations.length > 0) {
+      processCommunityStoreOperations(
+        sqliteQueryExecutor,
+        communityStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -217,7 +257,7 @@ function getClientStoreFromQueryExecutor(
     reports: sqliteQueryExecutor.getAllReports(),
     users: [],
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
-    communities: [],
+    communities: sqliteQueryExecutor.getAllCommunities(),
   };
 }
 
