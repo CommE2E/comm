@@ -11,14 +11,7 @@ namespace comm {
 namespace crypto {
 
 class Session {
-  OlmAccount *ownerUserAccount;
-  std::uint8_t *ownerIdentityKeys;
-
   OlmBuffer olmSessionBuffer;
-
-  Session(OlmAccount *account, std::uint8_t *ownerIdentityKeys)
-      : ownerUserAccount(account), ownerIdentityKeys(ownerIdentityKeys) {
-  }
 
 public:
   static std::unique_ptr<Session> createSessionAsInitializer(
@@ -34,12 +27,10 @@ public:
       const OlmBuffer &encryptedMessage,
       const OlmBuffer &idKeys);
   OlmBuffer storeAsB64(const std::string &secretKey);
-  static std::unique_ptr<Session> restoreFromB64(
-      OlmAccount *account,
-      std::uint8_t *ownerIdentityKeys,
-      const std::string &secretKey,
-      OlmBuffer &b64);
+  static std::unique_ptr<Session>
+  restoreFromB64(const std::string &secretKey, OlmBuffer &b64);
   OlmSession *getOlmSession();
+  std::string decrypt(EncryptedData &encryptedData);
 };
 
 } // namespace crypto
