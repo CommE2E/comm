@@ -1,6 +1,11 @@
 // @flow
 
-import type { OlmAPI, OLMIdentityKeys } from 'lib/types/crypto-types';
+import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
+import type {
+  OneTimeKeysResultValues,
+  OlmAPI,
+  OLMIdentityKeys,
+} from 'lib/types/crypto-types';
 
 import { commCoreModule } from '../native-modules.js';
 
@@ -23,6 +28,14 @@ const olmAPI: OlmAPI = {
       initialEncryptedContent,
       contentIdentityKeys.ed25519,
     );
+  },
+  async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
+    const { contentOneTimeKeys, notificationsOneTimeKeys } =
+      await commCoreModule.getOneTimeKeys(numberOfKeys);
+    return {
+      contentOneTimeKeys: getOneTimeKeyValues(contentOneTimeKeys),
+      notificationsOneTimeKeys: getOneTimeKeyValues(notificationsOneTimeKeys),
+    };
   },
 };
 
