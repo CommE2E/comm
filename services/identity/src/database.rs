@@ -984,6 +984,61 @@ impl DatabaseClient {
     Ok(result)
   }
 
+  pub async fn get_all_user_details(&self) -> Result<Vec<UserDetail>, Error> {
+    let scan_output = self
+      .client
+      .scan()
+      .table_name(USERS_TABLE)
+      .projection_expression(format!(
+        "{USERS_TABLE_USERNAME_ATTRIBUTE}, {USERS_TABLE_PARTITION_KEY}"
+      ))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let mut result = Vec::new();
+    if let Some(attributes) = scan_output.items {
+      for mut attribute in attributes {
+        if let (Ok(username), Ok(user_id)) = (
+          attribute.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE),
+          attribute.take_attr(USERS_TABLE_PARTITION_KEY),
+        ) {
+          result.push(UserDetail { username, user_id });
+        }
+      }
+    }
+    Ok(result)
+  }
+
+  pub async fn get_all_reserved_user_details(
+    &self,
+  ) -> Result<Vec<UserDetail>, Error> {
+    let scan_output = self
+      .client
+      .scan()
+      .table_name(RESERVED_USERNAMES_TABLE)
+      .projection_expression(format!(
+        "{RESERVED_USERNAMES_TABLE_PARTITION_KEY},\
+      {RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE}"
+      ))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let mut result = Vec::new();
+    if let Some(attributes) = scan_output.items {
+      for mut attribute in attributes {
+        if let (Ok(username), Ok(user_id)) = (
+          attribute.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE),
+          attribute.take_attr(RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE),
+        ) {
+          result.push(UserDetail { username, user_id });
+        }
+      }
+    }
+    Ok(result)
+  }
+
   pub async fn add_nonce_to_nonces_table(
     &self,
     nonce_data: NonceData,
