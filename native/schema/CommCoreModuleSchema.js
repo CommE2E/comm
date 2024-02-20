@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
+import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
@@ -81,6 +82,9 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +processKeyserverStoreOperations: (
     operations: $ReadOnlyArray<ClientDBKeyserverStoreOperation>,
+  ) => Promise<void>;
+  +processCommunityStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBCommunityStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
