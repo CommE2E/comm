@@ -10,9 +10,9 @@ use hyper::{Body, Request, Response, StatusCode};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
-  ConnectionInitializationResponse, ConnectionInitializationStatus, IdentitySearchFailure,
-  Heartbeat, IdentitySearchUser, MessagesToServer, IdentitySearchMethod,
-  IdentitySearchResponse, IdentitySearchResult,
+  ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
+  IdentitySearchFailure, IdentitySearchMethod, IdentitySearchResponse,
+  IdentitySearchResult, IdentitySearchUser, MessagesToServer,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -23,7 +23,8 @@ mod send;
 
 use crate::config::CONFIG;
 use crate::constants::{
-  IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
+  IDENTITY_SEARCH_INDEX, IDENTITY_SERVICE_WEBSOCKET_ADDR,
+  SOCKET_HEARTBEAT_TIMEOUT,
 };
 use send::{send_message, WebsocketSink};
 pub mod errors;
@@ -154,8 +155,10 @@ async fn handle_prefix_search(
     },
   };
 
-  let opensearch_url =
-    format!("https://{}/users/_search/", &CONFIG.opensearch_endpoint);
+  let opensearch_url = format!(
+    "https://{}/{}/_search/",
+    &CONFIG.opensearch_endpoint, IDENTITY_SEARCH_INDEX
+  );
 
   let search_response = send_search_request(&opensearch_url, prefix_query)
     .await?
