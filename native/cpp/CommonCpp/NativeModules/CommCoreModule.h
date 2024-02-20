@@ -28,7 +28,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
-  std::unique_ptr<crypto::CryptoModule> cryptoModule;
+  std::unique_ptr<crypto::CryptoModule> contentCryptoModule;
+  const std::string notifsCryptoAccountID = "notifsCryptoAccountID";
+  std::unique_ptr<crypto::CryptoModule> notifsCryptoModule;
   DraftStore draftStore;
   ThreadStore threadStore;
   MessageStore messageStore;
@@ -38,7 +40,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   CommunityStore communityStore;
   IntegrityStore integrityStore;
 
-  void persistCryptoModule();
+  void
+  persistCryptoModules(bool persistContentModule, bool persistNotifsModule);
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
