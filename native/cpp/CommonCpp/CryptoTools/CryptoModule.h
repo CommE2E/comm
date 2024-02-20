@@ -67,6 +67,7 @@ public:
       const OlmBuffer &oneTimeKey);
   bool hasSessionFor(const std::string &targetDeviceId);
   std::shared_ptr<Session> getSessionByDeviceId(const std::string &deviceId);
+  void removeSessionByDeviceId(const std::string &deviceId);
 
   Persist storeAsB64(const std::string &secretKey);
   void restoreFromB64(const std::string &secretKey, Persist persist);
