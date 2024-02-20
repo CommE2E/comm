@@ -1,8 +1,9 @@
 steps:
-  - label: 'Emscripten build'
+  - label: 'Emscripten and Wasmpack build'
     command:
       - 'cd web'
       - 'nix develop --accept-flake-config --command yarn build-db-wasm'
+      - 'nix develop --accept-flake-config --command yarn build-backup-client-wasm'
       - 'git diff --exit-code'
     retry:
       automatic: true
