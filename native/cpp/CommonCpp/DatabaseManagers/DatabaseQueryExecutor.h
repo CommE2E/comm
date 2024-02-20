@@ -76,11 +76,15 @@ public:
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
-  virtual std::optional<std::string> getOlmPersistAccountData() const = 0;
+  virtual std::optional<std::string>
+  getOlmPersistAccountData(bool isContentAccount) const = 0;
   virtual void
   storeOlmPersistSession(const OlmPersistSession &session) const = 0;
-  virtual void storeOlmPersistAccount(const std::string &accountData) const = 0;
-  virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
+  virtual void storeOlmPersistAccount(
+      bool isContentAccount,
+      const std::string &accountData) const = 0;
+  virtual void
+  storeOlmPersistData(bool isContentAccount, crypto::Persist persist) const = 0;
   virtual void setNotifyToken(std::string token) const = 0;
   virtual void clearNotifyToken() const = 0;
   virtual void setCurrentUserID(std::string userID) const = 0;
@@ -99,7 +103,8 @@ public:
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
   virtual std::vector<MessageWithMedias> getAllMessagesWeb() const = 0;
   virtual void replaceMessageWeb(const WebMessage &message) const = 0;
-  virtual NullableString getOlmPersistAccountDataWeb() const = 0;
+  virtual NullableString
+  getOlmPersistAccountDataWeb(bool isContentAccount) const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;
