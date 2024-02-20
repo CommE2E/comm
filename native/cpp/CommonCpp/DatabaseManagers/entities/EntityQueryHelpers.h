@@ -22,20 +22,8 @@ std::vector<T> getAllEntities(sqlite3 *db, std::string getAllEntitiesSQL) {
 }
 
 template <typename T>
-std::unique_ptr<T> getEntityByPrimaryKey(
-    sqlite3 *db,
-    std::string getEntityByPrimaryKeySQL,
-    std::string primaryKey) {
-  SQLiteStatementWrapper preparedSQL(
-      db, getEntityByPrimaryKeySQL, "Failed to fetch row by primary key.");
-  int bindResult = bindStringToSQL(primaryKey, preparedSQL, 1);
-  if (bindResult != SQLITE_OK) {
-    std::stringstream error_message;
-    error_message << "Failed to bind primary key to SQL statement. Details: "
-                  << sqlite3_errstr(bindResult) << std::endl;
-    throw std::runtime_error(error_message.str());
-  }
-
+std::unique_ptr<T>
+getEntityByPrimaryKeyCommon(SQLiteStatementWrapper &preparedSQL) {
   int stepResult = sqlite3_step(preparedSQL);
   if (stepResult == SQLITE_DONE) {
     return nullptr;
@@ -50,6 +38,41 @@ std::unique_ptr<T> getEntityByPrimaryKey(
 
   T entity = T::fromSQLResult(preparedSQL, 0);
   return std::make_unique<T>(std::move(entity));
+}
+
+template <typename T>
+std::unique_ptr<T> getEntityByPrimaryKey(
+    sqlite3 *db,
+    std::string getEntityByPrimaryKeySQL,
+    std::string primaryKey) {
+  SQLiteStatementWrapper preparedSQL(
+      db, getEntityByPrimaryKeySQL, "Failed to fetch row by primary key.");
+  int bindResult = bindStringToSQL(primaryKey, preparedSQL, 1);
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind primary key to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+
+  return getEntityByPrimaryKeyCommon<T>(preparedSQL);
+}
+
+template <typename T>
+std::unique_ptr<T> getEntityByIntegerPrimaryKey(
+    sqlite3 *db,
+    std::string getEntityByPrimaryKeySQL,
+    int primaryKey) {
+  SQLiteStatementWrapper preparedSQL(
+      db, getEntityByPrimaryKeySQL, "Failed to fetch row by primary key.");
+  int bindResult = bindIntToSQL(primaryKey, preparedSQL, 1);
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind primary key to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+  return getEntityByPrimaryKeyCommon<T>(preparedSQL);
 }
 
 template <typename T>
