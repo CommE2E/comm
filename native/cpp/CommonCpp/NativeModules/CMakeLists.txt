@@ -19,6 +19,7 @@ set(NATIVE_HDRS
   "DraftStoreOperations.h"
   "UserStoreOperations.h"
   "KeyserverStoreOperations.h"
+  "CommunityStoreOperations.h"
 )
 
 set(NATIVE_SRCS
@@ -81,6 +82,7 @@ set(DATA_STORES_HDRS
   ${_data_stores_path}/ReportStore.h
   ${_data_stores_path}/UserStore.h
   ${_data_stores_path}/KeyserverStore.h
+  ${_data_stores_path}/CommunityStore.h
 )
 set(DATA_STORES_SRCS
   ${_data_stores_path}/DraftStore.cpp
@@ -89,6 +91,7 @@ set(DATA_STORES_SRCS
   ${_data_stores_path}/ReportStore.cpp
   ${_data_stores_path}/UserStore.cpp
   ${_data_stores_path}/KeyserverStore.cpp
+  ${_data_stores_path}/CommunityStore.cpp
 )
 
 set(_backup_op_path ./PersistentStorageUtilities/BackupOperationsUtilities)
