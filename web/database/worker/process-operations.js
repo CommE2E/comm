@@ -217,6 +217,7 @@ function getClientStoreFromQueryExecutor(
     reports: sqliteQueryExecutor.getAllReports(),
     users: [],
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
+    communities: [],
   };
 }
 
