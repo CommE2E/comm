@@ -333,7 +333,9 @@ void CommCoreModule::terminate(jsi::Runtime &rt) {
   TerminateApp::terminate();
 }
 
-void CommCoreModule::persistCryptoModule() {
+void CommCoreModule::persistCryptoModules(
+    bool persistContentModule,
+    bool persistNotifsModule) {
   folly::Optional<std::string> storedSecretKey =
       CommSecureStore::get(this->secureStoreAccountDataKey);
   if (!storedSecretKey.hasValue()) {
@@ -342,20 +344,39 @@ void CommCoreModule::persistCryptoModule() {
         this->secureStoreAccountDataKey, storedSecretKey.value());
   }
 
-  crypto::Persist newPersist =
-      this->cryptoModule->storeAsB64(storedSecretKey.value());
+  if (!persistContentModule && !persistNotifsModule) {
+    return;
+  }
+
+  crypto::Persist newPersist;
+  if (persistContentModule) {
+    newPersist = this->cryptoModule->storeAsB64(storedSecretKey.value());
+  }
+
+  crypto::Persist newNotifsPersist;
+  if (persistNotifsModule) {
+    newNotifsPersist =
+        this->notifsCryptoModule->storeAsB64(storedSecretKey.value());
+  }
 
   std::promise<void> persistencePromise;
   std::future<void> persistenceFuture = persistencePromise.get_future();
-  GlobalDBSingleton::instance.scheduleOrRunCancellable([=,
-                                                        &persistencePromise]() {
-    try {
-      DatabaseManager::getQueryExecutor().storeOlmPersistData(true, newPersist);
-      persistencePromise.set_value();
-    } catch (std::system_error &e) {
-      persistencePromise.set_exception(std::make_exception_ptr(e));
-    }
-  });
+  GlobalDBSingleton::instance.scheduleOrRunCancellable(
+      [=, &persistencePromise]() {
+        try {
+          if (persistContentModule) {
+            DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                true, newPersist);
+          }
+          if (persistNotifsModule) {
+            DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                false, newNotifsPersist);
+          }
+          persistencePromise.set_value();
+        } catch (std::system_error &e) {
+          persistencePromise.set_exception(std::make_exception_ptr(e));
+        }
+      });
   persistenceFuture.get();
 }
 
@@ -372,6 +393,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=]() {
           crypto::Persist persist;
+          crypto::Persist notifsPersist;
           std::string error;
           try {
             std::optional<std::string> accountData =
@@ -392,6 +414,15 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                     sessionsDataItem.target_user_id, sessionDataBuffer));
               }
             }
+
+            std::optional<std::string> notifsAccountData =
+                DatabaseManager::getQueryExecutor().getOlmPersistAccountData(
+                    false);
+            if (notifsAccountData.has_value()) {
+              notifsPersist.account = crypto::OlmBuffer(
+                  notifsAccountData->begin(), notifsAccountData->end());
+            }
+
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -400,51 +431,38 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
             std::string error;
             this->cryptoModule.reset(new crypto::CryptoModule(
                 this->publicCryptoAccountID, storedSecretKey.value(), persist));
-            if (persist.isEmpty()) {
-              crypto::Persist newPersist =
-                  this->cryptoModule->storeAsB64(storedSecretKey.value());
-              GlobalDBSingleton::instance.scheduleOrRunCancellable(
-                  [=]() {
-                    std::string error;
-                    try {
-                      DatabaseManager::getQueryExecutor().storeOlmPersistData(
-                          true, newPersist);
-                    } catch (std::system_error &e) {
-                      error = e.what();
-                    }
-                    this->jsInvoker_->invokeAsync([=]() {
-                      if (error.size()) {
-                        promise->reject(error);
-                        return;
-                      }
-                    });
-                  },
-                  promise,
-                  this->jsInvoker_);
 
-            } else {
-              this->cryptoModule->restoreFromB64(
-                  storedSecretKey.value(), persist);
-              this->jsInvoker_->invokeAsync([=]() {
-                if (error.size()) {
-                  promise->reject(error);
-                  return;
-                }
-              });
-            }
+            this->notifsCryptoModule.reset(new crypto::CryptoModule(
+                this->notifsCryptoAccountID,
+                storedSecretKey.value(),
+                notifsPersist));
+
             try {
-              NotificationsCryptoModule::initializeNotificationsCryptoAccount(
-                  "Comm");
+              this->persistCryptoModules(
+                  persist.isEmpty(), notifsPersist.isEmpty());
             } catch (const std::exception &e) {
               error = e.what();
             }
+
             this->jsInvoker_->invokeAsync([=]() {
               if (error.size()) {
                 promise->reject(error);
                 return;
               }
-              promise->resolve(jsi::Value::undefined());
             });
+
+            if (!persist.isEmpty()) {
+              this->cryptoModule->restoreFromB64(
+                  storedSecretKey.value(), persist);
+            }
+
+            if (!notifsPersist.isEmpty()) {
+              this->notifsCryptoModule->restoreFromB64(
+                  storedSecretKey.value(), notifsPersist);
+            }
+
+            this->jsInvoker_->invokeAsync(
+                [=]() { promise->resolve(jsi::Value::undefined()); });
           });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
@@ -459,19 +477,12 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
           std::string error;
           std::string primaryKeysResult;
           std::string notificationsKeysResult;
-          if (this->cryptoModule == nullptr) {
+          if (this->cryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
             primaryKeysResult = this->cryptoModule->getIdentityKeys();
-          }
-          try {
-            if (!error.size()) {
-              notificationsKeysResult =
-                  NotificationsCryptoModule::getNotificationsIdentityKeys(
-                      "Comm");
-            }
-          } catch (const std::exception &e) {
-            error = e.what();
+            notificationsKeysResult = this->cryptoModule->getIdentityKeys();
           }
 
           std::string notificationsCurve25519Cpp, notificationsEd25519Cpp,
@@ -607,7 +618,8 @@ CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
           std::string error;
           std::string contentResult;
           std::string notifResult;
-          if (this->cryptoModule == nullptr) {
+          if (this->cryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
             this->jsInvoker_->invokeAsync([=, &innerRt]() {
               promise->reject("user has not been initialized");
             });
@@ -616,10 +628,9 @@ CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
           try {
             contentResult = this->cryptoModule->getOneTimeKeysForPublishing(
                 oneTimeKeysAmount);
-            this->persistCryptoModule();
-            notifResult = NotificationsCryptoModule::
-                getNotificationsOneTimeKeysForPublishing(
-                    oneTimeKeysAmount, "Comm");
+            notifResult = this->notifsCryptoModule->getOneTimeKeysForPublishing(
+                oneTimeKeysAmount);
+            this->persistCryptoModules(true, true);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -636,18 +647,6 @@ CommCoreModule::getOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
       });
 }
 
-std::pair<std::string, std::string> getNotificationsPrekeyAndSignature() {
-  // TODO: Implement notifs prekey rotation.
-  // Notifications prekey is not rotated at this moment. It
-  // is fetched with signature to match identity service API.
-  std::string notificationsPrekey =
-      NotificationsCryptoModule::getNotificationsPrekey("Comm");
-  std::string notificationsPrekeySignature =
-      NotificationsCryptoModule::getNotificationsPrekeySignature("Comm");
-
-  return std::make_pair(notificationsPrekey, notificationsPrekeySignature);
-}
-
 jsi::Value CommCoreModule::validateAndUploadPrekeys(
     jsi::Runtime &rt,
     jsi::String authUserID,
@@ -661,8 +660,10 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
         taskType job = [=, &innerRt]() {
           std::string error;
           std::optional<std::string> maybePrekeyToUpload;
+          std::optional<std::string> maybeNotifsPrekeyToUpload;
 
-          if (this->cryptoModule == nullptr) {
+          if (this->cryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
             this->jsInvoker_->invokeAsync([=, &innerRt]() {
               promise->reject("user has not been initialized");
             });
@@ -671,9 +672,16 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
 
           try {
             maybePrekeyToUpload = this->cryptoModule->validatePrekey();
-            this->persistCryptoModule();
+            maybeNotifsPrekeyToUpload =
+                this->notifsCryptoModule->validatePrekey();
+            this->persistCryptoModules(true, true);
+
             if (!maybePrekeyToUpload.has_value()) {
               maybePrekeyToUpload = this->cryptoModule->getUnpublishedPrekey();
+            }
+            if (!maybeNotifsPrekeyToUpload.has_value()) {
+              maybeNotifsPrekeyToUpload =
+                  this->notifsCryptoModule->getUnpublishedPrekey();
             }
           } catch (const std::exception &e) {
             error = e.what();
@@ -683,21 +691,23 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
             this->jsInvoker_->invokeAsync(
                 [=, &innerRt]() { promise->reject(error); });
             return;
-          } else if (!maybePrekeyToUpload.has_value()) {
+          } else if (
+              !maybePrekeyToUpload.has_value() ||
+              !maybeNotifsPrekeyToUpload.has_value()) {
             this->jsInvoker_->invokeAsync(
                 [=]() { promise->resolve(jsi::Value::undefined()); });
             return;
           }
 
           std::string prekeyToUpload = maybePrekeyToUpload.value();
+          std::string notifsPrekeyToUpload = maybeNotifsPrekeyToUpload.value();
           std::string prekeyUploadError;
 
           try {
             std::string prekeySignature =
                 this->cryptoModule->getPrekeySignature();
-            std::string notificationsPrekey, notificationsPrekeySignature;
-            std::tie(notificationsPrekey, notificationsPrekeySignature) =
-                getNotificationsPrekeyAndSignature();
+            std::string notifsPrekeySignature =
+                this->notifsCryptoModule->getPrekeySignature();
 
             try {
               std::promise<folly::dynamic> prekeyPromise;
@@ -713,8 +723,8 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
                   authAccessTokenRust,
                   rust::string(prekeyToUpload),
                   rust::string(prekeySignature),
-                  rust::string(notificationsPrekey),
-                  rust::string(notificationsPrekeySignature),
+                  rust::string(notifsPrekeyToUpload),
+                  rust::string(notifsPrekeySignature),
                   currentID);
               prekeyFuture.get();
             } catch (const std::exception &e) {
@@ -723,7 +733,8 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
 
             if (!prekeyUploadError.size()) {
               this->cryptoModule->markPrekeyAsPublished();
-              this->persistCryptoModule();
+              this->notifsCryptoModule->markPrekeyAsPublished();
+              this->persistCryptoModules(true, true);
             }
           } catch (std::exception &e) {
             error = e.what();
@@ -750,10 +761,12 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string contentPrekeySignature, notifPrekey, notifPrekeySignature;
+          std::string contentPrekeySignature, notifPrekeySignature;
           std::optional<std::string> contentPrekey;
+          std::optional<std::string> notifPrekey;
 
-          if (this->cryptoModule == nullptr) {
+          if (this->cryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
             this->jsInvoker_->invokeAsync([=, &innerRt]() {
               promise->reject("user has not been initialized");
             });
@@ -767,12 +780,19 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
             if (!contentPrekey) {
               contentPrekey = this->cryptoModule->getPrekey();
             }
-            this->persistCryptoModule();
+
+            notifPrekey = this->notifsCryptoModule->validatePrekey();
+            if (!notifPrekey) {
+              notifPrekey = this->notifsCryptoModule->getUnpublishedPrekey();
+            }
+            if (!notifPrekey) {
+              notifPrekey = this->notifsCryptoModule->getPrekey();
+            }
+            this->persistCryptoModules(true, true);
 
             contentPrekeySignature = this->cryptoModule->getPrekeySignature();
-
-            std::tie(notifPrekey, notifPrekeySignature) =
-                getNotificationsPrekeyAndSignature();
+            notifPrekeySignature =
+                this->notifsCryptoModule->getPrekeySignature();
 
           } catch (const std::exception &e) {
             error = e.what();
@@ -788,7 +808,7 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
             auto contentPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
             auto notifPrekeyJSI =
-                jsi::String::createFromUtf8(innerRt, notifPrekey);
+                jsi::String::createFromUtf8(innerRt, notifPrekey.value());
             auto notifPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
 
@@ -827,6 +847,9 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
           std::string error;
           crypto::EncryptedData result;
           try {
+            // Introduced temporarily to make this diff non-breaking change
+            NotificationsCryptoModule::initializeNotificationsCryptoAccount(
+                "Comm");
             result = NotificationsCryptoModule::initializeNotificationsSession(
                 identityKeysCpp,
                 prekeyCpp,
@@ -970,7 +993,7 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedMessage =
                 cryptoModule->encrypt(deviceIDCpp, initMessage);
-            this->persistCryptoModule();
+            this->persistCryptoModules(true, false);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1014,7 +1037,7 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
                 encryptedMessageCpp.begin(), encryptedMessageCpp.end())};
             decryptedMessage =
                 cryptoModule->decrypt(deviceIDCpp, encryptedData);
-            this->persistCryptoModule();
+            this->persistCryptoModules(true, false);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1044,7 +1067,7 @@ jsi::Value CommCoreModule::encrypt(
           crypto::EncryptedData encryptedMessage;
           try {
             encryptedMessage = cryptoModule->encrypt(deviceIDCpp, messageCpp);
-            this->persistCryptoModule();
+            this->persistCryptoModules(true, false);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1081,7 +1104,7 @@ jsi::Value CommCoreModule::decrypt(
                 ENCRYPTED_MESSAGE_TYPE};
             decryptedMessage =
                 cryptoModule->decrypt(deviceIDCpp, encryptedData);
-            this->persistCryptoModule();
+            this->persistCryptoModules(true, false);
           } catch (const std::exception &e) {
             error = e.what();
           }
