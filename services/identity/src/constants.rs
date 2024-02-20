@@ -163,12 +163,13 @@ pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
 
 pub const OPAQUE_SERVER_SETUP: &str = "OPAQUE_SERVER_SETUP";
 
-// Opensearch Domain
+// Identity Search
 
 pub const OPENSEARCH_ENDPOINT: &str = "OPENSEARCH_ENDPOINT";
 pub const DEFAULT_OPENSEARCH_ENDPOINT: &str =
   "identity-search-domain.us-east-2.opensearch.localhost.local
 stack.cloud:4566";
+pub const IDENTITY_SEARCH_INDEX: &str = "users";
 
 // Tunnelbroker
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
