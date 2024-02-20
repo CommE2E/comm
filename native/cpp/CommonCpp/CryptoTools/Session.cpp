@@ -17,7 +17,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
     const OlmBuffer &oneTimeKey) {
-  std::unique_ptr<Session> session(new Session(account, ownerIdentityKeys));
+  std::unique_ptr<Session> session(new Session());
 
   session->olmSessionBuffer.resize(::olm_session_size());
   ::olm_session(session->olmSessionBuffer.data());
@@ -30,7 +30,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
   if (-1 ==
       ::olm_create_outbound_session(
           session->getOlmSession(),
-          session->ownerUserAccount,
+          account,
           idKeys.data() + ID_KEYS_PREFIX_OFFSET,
           KEYSIZE,
           idKeys.data() + SIGNING_KEYS_PREFIX_OFFSET,
@@ -55,7 +55,7 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
     std::uint8_t *ownerIdentityKeys,
     const OlmBuffer &encryptedMessage,
     const OlmBuffer &idKeys) {
-  std::unique_ptr<Session> session(new Session(account, ownerIdentityKeys));
+  std::unique_ptr<Session> session(new Session());
 
   OlmBuffer tmpEncryptedMessage(encryptedMessage);
   session->olmSessionBuffer.resize(::olm_session_size());
@@ -63,7 +63,7 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
   if (-1 ==
       ::olm_create_inbound_session(
           session->getOlmSession(),
-          session->ownerUserAccount,
+          account,
           tmpEncryptedMessage.data(),
           encryptedMessage.size())) {
     throw std::runtime_error(
@@ -94,12 +94,9 @@ OlmBuffer Session::storeAsB64(const std::string &secretKey) {
   return pickle;
 }
 
-std::unique_ptr<Session> Session::restoreFromB64(
-    OlmAccount *account,
-    std::uint8_t *ownerIdentityKeys,
-    const std::string &secretKey,
-    OlmBuffer &b64) {
-  std::unique_ptr<Session> session(new Session(account, ownerIdentityKeys));
+std::unique_ptr<Session>
+Session::restoreFromB64(const std::string &secretKey, OlmBuffer &b64) {
+  std::unique_ptr<Session> session(new Session());
 
   session->olmSessionBuffer.resize(::olm_session_size());
   ::olm_session(session->olmSessionBuffer.data());
@@ -113,6 +110,51 @@ std::unique_ptr<Session> Session::restoreFromB64(
     throw std::runtime_error("error pickleSession => ::olm_unpickle_session");
   }
   return session;
+}
+
+std::string Session::decrypt(EncryptedData &encryptedData) {
+  OlmSession *session = this->getOlmSession();
+
+  OlmBuffer utilityBuffer(::olm_utility_size());
+  OlmUtility *olmUtility = ::olm_utility(utilityBuffer.data());
+
+  OlmBuffer messageHashBuffer(::olm_sha256_length(olmUtility));
+  ::olm_sha256(
+      olmUtility,
+      encryptedData.message.data(),
+      encryptedData.message.size(),
+      messageHashBuffer.data(),
+      messageHashBuffer.size());
+
+  OlmBuffer tmpEncryptedMessage(encryptedData.message);
+  size_t maxSize = ::olm_decrypt_max_plaintext_length(
+      session,
+      encryptedData.messageType,
+      tmpEncryptedMessage.data(),
+      tmpEncryptedMessage.size());
+
+  if (maxSize == -1) {
+    throw std::runtime_error{
+        "error decrypt_max_plaintext_length => " +
+        std::string{::olm_session_last_error(session)} + ". Hash: " +
+        std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
+  }
+
+  OlmBuffer decryptedMessage(maxSize);
+  size_t decryptedSize = ::olm_decrypt(
+      session,
+      encryptedData.messageType,
+      encryptedData.message.data(),
+      encryptedData.message.size(),
+      decryptedMessage.data(),
+      decryptedMessage.size());
+  if (decryptedSize == -1) {
+    throw std::runtime_error{
+        "error decrypt => " + std::string{::olm_session_last_error(session)} +
+        ". Hash: " +
+        std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
+  }
+  return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
 } // namespace crypto
