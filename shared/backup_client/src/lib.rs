@@ -22,7 +22,7 @@ use tokio_tungstenite_wasm::{
 };
 
 const LOG_DOWNLOAD_RETRY_DELAY: Duration = Duration::from_secs(5);
-const LOG_DOWNLOAD_MAX_RETRY: usize = 3;
+const LOG_DOWNLOAD_MAX_RETRY: usize = 5;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::wasm_bindgen;
