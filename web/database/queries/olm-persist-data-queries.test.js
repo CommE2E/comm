@@ -21,7 +21,14 @@ describe('Olm Tables queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor.storeOlmPersistAccount('accountData');
+    queryExecutor.storeOlmPersistAccount(
+      queryExecutor.getContentAccountID(),
+      'contentAccountData',
+    );
+    queryExecutor.storeOlmPersistAccount(
+      queryExecutor.getNotifsAccountID(),
+      'notifsAccountData',
+    );
 
     queryExecutor.storeOlmPersistSession({
       targetUserID: '1',
@@ -42,8 +49,15 @@ describe('Olm Tables queries', () => {
   });
 
   it('should return olm account data', () => {
-    const olmAccount = queryExecutor.getOlmPersistAccountDataWeb();
-    expect(olmAccount.value).toBe('accountData');
+    const contentOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(
+      queryExecutor.getContentAccountID(),
+    );
+    expect(contentOlmAccount.value).toBe('contentAccountData');
+
+    const notifsOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(
+      queryExecutor.getNotifsAccountID(),
+    );
+    expect(notifsOlmAccount.value).toBe('notifsAccountData');
   });
 
   it('should return all olm sessions', () => {

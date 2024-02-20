@@ -16,7 +16,8 @@
 #include "StaffUtils.h"
 #endif
 
-#define ACCOUNT_ID 1
+const int CONTENT_ACCOUNT_ID = 1;
+const int NOTIFS_ACCOUNT_ID = 2;
 
 namespace comm {
 
@@ -1579,6 +1580,14 @@ void SQLiteQueryExecutor::rollbackTransaction() const {
   executeQuery(SQLiteQueryExecutor::getConnection(), "ROLLBACK;");
 }
 
+int SQLiteQueryExecutor::getContentAccountID() const {
+  return CONTENT_ACCOUNT_ID;
+}
+
+int SQLiteQueryExecutor::getNotifsAccountID() const {
+  return NOTIFS_ACCOUNT_ID;
+}
+
 std::vector<OlmPersistSession>
 SQLiteQueryExecutor::getOlmPersistSessionsData() const {
   static std::string getAllOlmPersistSessionsSQL =
@@ -1589,30 +1598,30 @@ SQLiteQueryExecutor::getOlmPersistSessionsData() const {
 }
 
 std::optional<std::string>
-SQLiteQueryExecutor::getOlmPersistAccountData() const {
-  static std::string getAllOlmPersistAccountSQL =
+SQLiteQueryExecutor::getOlmPersistAccountData(int accountID) const {
+  static std::string getOlmPersistAccountSQL =
       "SELECT * "
-      "FROM olm_persist_account;";
-  std::vector<OlmPersistAccount> result = getAllEntities<OlmPersistAccount>(
-      SQLiteQueryExecutor::getConnection(), getAllOlmPersistAccountSQL);
-  if (result.size() > 1) {
-    throw std::system_error(
-        ECANCELED,
-        std::generic_category(),
-        "Multiple records found for the olm_persist_account table");
+      "FROM olm_persist_account "
+      "WHERE id = ?;";
+  std::unique_ptr<OlmPersistAccount> result =
+      getEntityByIntegerPrimaryKey<OlmPersistAccount>(
+          SQLiteQueryExecutor::getConnection(),
+          getOlmPersistAccountSQL,
+          accountID);
+  if (result == nullptr) {
+    return std::nullopt;
   }
-  return (result.size() == 0)
-      ? std::nullopt
-      : std::optional<std::string>(result[0].account_data);
+  return result->account_data;
 }
 
 void SQLiteQueryExecutor::storeOlmPersistAccount(
+    int accountID,
     const std::string &accountData) const {
   static std::string replaceOlmPersistAccountSQL =
       "REPLACE INTO olm_persist_account (id, account_data) "
       "VALUES (?, ?);";
 
-  OlmPersistAccount persistAccount = {ACCOUNT_ID, accountData};
+  OlmPersistAccount persistAccount = {accountID, accountData};
 
   replaceEntity<OlmPersistAccount>(
       SQLiteQueryExecutor::getConnection(),
@@ -1632,10 +1641,19 @@ void SQLiteQueryExecutor::storeOlmPersistSession(
       session);
 }
 
-void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+void SQLiteQueryExecutor::storeOlmPersistData(
+    int accountID,
+    crypto::Persist persist) const {
+
+  if (accountID != CONTENT_ACCOUNT_ID && persist.sessions.size() > 0) {
+    throw std::runtime_error(
+        "Attempt to store notifications sessions in SQLite. Notifications "
+        "sessions must be stored in storage shared with NSE.");
+  }
+
   std::string accountData =
       std::string(persist.account.begin(), persist.account.end());
-  this->storeOlmPersistAccount(accountData);
+  this->storeOlmPersistAccount(accountID, accountData);
 
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
@@ -1803,8 +1821,10 @@ void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
   this->replaceMessage(message.toMessage());
 };
 
-NullableString SQLiteQueryExecutor::getOlmPersistAccountDataWeb() const {
-  std::optional<std::string> accountData = this->getOlmPersistAccountData();
+NullableString
+SQLiteQueryExecutor::getOlmPersistAccountDataWeb(int accountID) const {
+  std::optional<std::string> accountData =
+      this->getOlmPersistAccountData(accountID);
   if (!accountData.has_value()) {
     return NullableString();
   }
