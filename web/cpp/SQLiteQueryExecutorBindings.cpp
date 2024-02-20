@@ -178,6 +178,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
+          "getContentAccountID", &SQLiteQueryExecutor::getContentAccountID)
+      .function("getNotifsAccountID", &SQLiteQueryExecutor::getNotifsAccountID)
+      .function(
           "getOlmPersistSessionsData",
           &SQLiteQueryExecutor::getOlmPersistSessionsData)
       .function(
