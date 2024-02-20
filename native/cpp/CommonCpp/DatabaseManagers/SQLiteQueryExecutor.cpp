@@ -1696,7 +1696,7 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   if (file_exists(tempAttachmentsPath)) {
     Logger::log(
         "Attempting to delete temporary attachments file from previous backup "
-        "attempt.");
+        "attempt. Change log for testing WASM changes.");
     attempt_delete_file(
         tempAttachmentsPath,
         "Failed to delete temporary attachments file from previous backup "
