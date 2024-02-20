@@ -5,10 +5,7 @@ import type {
   IdentityKeysBlob,
   OLMIdentityKeys,
 } from 'lib/types/crypto-types.js';
-import type {
-  OutboundKeyInfoResponse,
-  InboundKeyInfoResponse,
-} from 'lib/types/identity-service-types';
+import type { OutboundKeyInfoResponse } from 'lib/types/identity-service-types';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import {
   type OutboundSessionCreation,
@@ -39,51 +36,6 @@ async function getContentSigningKey(): Promise<string> {
     primaryIdentityPublicKeys: { ed25519 },
   } = await commCoreModule.getUserPublicKey();
   return ed25519;
-}
-
-async function nativeInboundContentSessionCreator(
-  message: OutboundSessionCreation,
-): Promise<string> {
-  const { senderInfo, encryptedContent } = message;
-
-  const authMetadata = await commCoreModule.getCommServicesAuthMetadata();
-  const { userID, deviceID, accessToken } = authMetadata;
-  if (!userID || !deviceID || !accessToken) {
-    throw new Error('CommServicesAuthMetadata is missing');
-  }
-
-  await commCoreModule.initializeCryptoAccount();
-  const keysResponse = await commRustModule.getInboundKeysForUser(
-    userID,
-    deviceID,
-    accessToken,
-    senderInfo.userID,
-  );
-
-  const inboundKeys: InboundKeyInfoResponse[] = JSON.parse(keysResponse);
-  const deviceKeys: ?InboundKeyInfoResponse = inboundKeys.find(keys => {
-    const keysPayload: IdentityKeysBlob = JSON.parse(keys.payload);
-    return (
-      keysPayload.primaryIdentityPublicKeys.ed25519 === senderInfo.deviceID
-    );
-  });
-
-  if (!deviceKeys) {
-    throw new Error(
-      'No keys for the device that requested creating a session, ' +
-        `deviceID: ${senderInfo.deviceID}`,
-    );
-  }
-  const keysPayload: IdentityKeysBlob = JSON.parse(deviceKeys.payload);
-  const identityKeys = JSON.stringify({
-    curve25519: keysPayload.primaryIdentityPublicKeys.curve25519,
-    ed25519: keysPayload.primaryIdentityPublicKeys.ed25519,
-  });
-  return commCoreModule.initializeContentInboundSession(
-    identityKeys,
-    encryptedContent,
-    keysPayload.primaryIdentityPublicKeys.ed25519,
-  );
 }
 
 function nativeOutboundContentSessionCreator(
@@ -175,7 +127,6 @@ async function createOlmSessionsWithOwnDevices(
 export {
   getContentSigningKey,
   nativeNotificationsSessionCreator,
-  nativeInboundContentSessionCreator,
   createOlmSessionsWithOwnDevices,
   nativeOutboundContentSessionCreator,
 };
