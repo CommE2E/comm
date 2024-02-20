@@ -21,6 +21,7 @@ mod keygen;
 mod nonce;
 mod reserved_users;
 mod siwe;
+mod sync;
 mod token;
 mod tunnelbroker;
 mod websockets;
@@ -28,6 +29,7 @@ mod websockets;
 use constants::IDENTITY_SERVICE_SOCKET_ADDR;
 use cors::cors_layer;
 use keygen::generate_and_persist_keypair;
+use sync::sync_identity_search;
 use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
 
@@ -88,6 +90,13 @@ async fn main() -> Result<(), BoxedError> {
         websocket_result = websocket_server => websocket_result,
         grpc_result = grpc_server => { grpc_result.map_err(|e| e.into()) },
       };
+    }
+    Command::SyncIdentitySearch => {
+      let aws_config = aws::config::from_env().region("us-east-2").load().await;
+      let database_client = DatabaseClient::new(&aws_config);
+      let sync_result = sync_identity_search(&database_client).await;
+
+      error::consume_error(sync_result);
     }
   }
 
