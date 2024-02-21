@@ -407,20 +407,10 @@ function useFetchAndDecryptMedia(): (
 ) => Promise<FetchAndDecryptMediaOutput> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
-  const { getAuthMetadata } = identityContext;
 
-  return React.useCallback(
-    async (blobURI, encryptionKey, options) => {
-      const authMetadata = await getAuthMetadata();
-      return fetchAndDecryptMedia(
-        blobURI,
-        encryptionKey,
-        authMetadata,
-        options,
-      );
-    },
-    [getAuthMetadata],
-  );
+  return React.useCallback(async (blobURI, encryptionKey, options) => {
+    return fetchAndDecryptMedia(blobURI, encryptionKey, undefined, options);
+  }, []);
 }
 
 function encryptBase64(
