@@ -88,7 +88,7 @@ build_openssl() {
 if [ ! -d "$OPENSSL_DIR" ]; then
     echo "OpenSSL sources not found. Downloading."
     download_openssl
-fi 
+fi
 
 if [ ! -f "$OPENSSL_LIBCRYPTO" ]; then
     echo "OpenSSL binary not found. Building."
@@ -155,6 +155,7 @@ INPUT_FILES=(
 )
 
 mkdir -p "$OUTPUT_DIR"
+
 
 emcc -lembind \
   "${EMCC_FLAGS[@]}" \
