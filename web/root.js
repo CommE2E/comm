@@ -29,6 +29,10 @@ import { defaultWebState } from './redux/default-state.js';
 import InitialReduxStateGate from './redux/initial-state-gate.js';
 import { persistConfig } from './redux/persist.js';
 import { type AppState, type Action, reducer } from './redux/redux-setup.js';
+import {
+  synchronizeStoreWithOtherTabs,
+  tabSynchronizationMiddleware,
+} from './redux/tab-synchronization.js';
 import history from './router-history.js';
 import Socket from './socket.react.js';
 
@@ -38,8 +42,11 @@ const persistedReducer = persistReducer(persistConfig, reducer);
 const store: Store<AppState, Action> = createStore(
   persistedReducer,
   defaultWebState,
-  composeWithDevTools({})(applyMiddleware(thunk, reduxLoggerMiddleware)),
+  composeWithDevTools({})(
+    applyMiddleware(thunk, reduxLoggerMiddleware, tabSynchronizationMiddleware),
+  ),
 );
+synchronizeStoreWithOtherTabs(store);
 const persistor = persistStore(store);
 
 const RootProvider = (): React.Node => (
