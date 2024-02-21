@@ -18,7 +18,7 @@ function AccessTokenHandler(): React.Node {
         await commCoreModule.getCommServicesAuthMetadata();
       dispatch({
         type: setAccessTokenActionType,
-        payload: accessToken,
+        payload: accessToken ?? null,
       });
     })();
   }, [dispatch]);
