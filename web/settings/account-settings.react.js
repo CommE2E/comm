@@ -12,6 +12,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
+import BackupTestRestoreModal from './backup-test-restore-modal.react.js';
 import PasswordChangeModal from './password-change-modal.js';
 import BlockListModal from './relationship/block-list-modal.react.js';
 import FriendListModal from './relationship/friend-list-modal.react.js';
@@ -74,6 +75,11 @@ function AccountSettings(): React.Node {
         />,
       ),
     [addListener, popModal, pushModal, removeListener],
+  );
+
+  const openBackupTestRestoreModal = React.useCallback(
+    () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
+    [popModal, pushModal],
   );
 
   const showAppearanceModal = React.useCallback(
@@ -146,6 +152,24 @@ function AccountSettings(): React.Node {
       </div>
     );
   }
+  let backup;
+  if (staffCanSee) {
+    backup = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Backup menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Test backup restore</span>
+              <Button variant="text" onClick={openBackupTestRestoreModal}>
+                <p className={css.buttonText}>Insert data</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -180,6 +204,7 @@ function AccountSettings(): React.Node {
         </div>
         {preferences}
         {tunnelbroker}
+        {backup}
       </div>
     </div>
   );
