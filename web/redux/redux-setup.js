@@ -122,17 +122,17 @@ export type AppState = {
 
 export type Action =
   | BaseAction
-  | { type: 'UPDATE_NAV_INFO', payload: Partial<WebNavInfo> }
+  | { +type: 'UPDATE_NAV_INFO', +payload: Partial<WebNavInfo> }
   | {
-      type: 'UPDATE_WINDOW_DIMENSIONS',
-      payload: WindowDimensions,
+      +type: 'UPDATE_WINDOW_DIMENSIONS',
+      +payload: WindowDimensions,
     }
   | {
-      type: 'UPDATE_WINDOW_ACTIVE',
-      payload: boolean,
+      +type: 'UPDATE_WINDOW_ACTIVE',
+      +payload: boolean,
     }
-  | { +type: 'SET_CRYPTO_STORE', payload: CryptoStore }
-  | { +type: 'SET_INITIAL_REDUX_STATE', payload: InitialReduxState };
+  | { +type: 'SET_CRYPTO_STORE', +payload: CryptoStore }
+  | { +type: 'SET_INITIAL_REDUX_STATE', +payload: InitialReduxState };
 
 function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
@@ -162,6 +162,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       });
     }
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -183,6 +184,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     );
   } else if (action.type === updateWindowDimensionsActionType) {
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -192,6 +194,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     );
   } else if (action.type === updateWindowActiveActionType) {
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -340,10 +343,16 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     communityPickerStore,
   };
 
-  return validateStateAndProcessDBOperations(oldState, state, storeOperations);
+  return validateStateAndProcessDBOperations(
+    action,
+    oldState,
+    state,
+    storeOperations,
+  );
 }
 
 function validateStateAndProcessDBOperations(
+  action: Action,
   oldState: AppState,
   state: AppState,
   storeOperations: StoreOperations,
@@ -454,10 +463,19 @@ function validateStateAndProcessDBOperations(
     };
   }
 
-  void processDBStoreOperations(
-    storeOperations,
-    state.currentUserInfo?.id ?? null,
-  );
+  // The operations were already dispatched from the main tab
+
+  // For now the `dispatchSource` field is not included in any of the
+  // redux actions and this causes flow to throw an error.
+  // As soon as one of the actions is updated, this fix (and the corresponding
+  // one in tab-synchronization.js) can be removed.
+  // $FlowFixMe
+  if (action.dispatchSource !== 'tab-sync') {
+    void processDBStoreOperations(
+      storeOperations,
+      state.currentUserInfo?.id ?? null,
+    );
+  }
 
   return state;
 }
