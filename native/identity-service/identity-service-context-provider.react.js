@@ -13,7 +13,7 @@ import {
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
   type UserDevicesOlmOutboundKeys,
-  type UserLoginResponse,
+  type UserAuthMetadata,
   ONE_TIME_KEYS_NUMBER,
   identityAuthResultValidator,
 } from 'lib/types/identity-service-types.js';
@@ -42,8 +42,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const metadataEmitter = getCommServicesAuthMetadataEmitter();
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
-      (authMetadata: UserLoginResponse) => {
-        userIDPromiseRef.current = Promise.resolve(authMetadata.userId);
+      (authMetadata: UserAuthMetadata) => {
+        userIDPromiseRef.current = Promise.resolve(authMetadata.userID);
       },
     );
     return () => subscription.remove();

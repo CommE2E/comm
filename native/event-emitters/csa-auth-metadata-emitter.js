@@ -2,7 +2,7 @@
 
 import { NativeModules, NativeEventEmitter } from 'react-native';
 
-import { type UserLoginResponse } from 'lib/types/identity-service-types.js';
+import { type UserAuthMetadata } from 'lib/types/identity-service-types.js';
 
 type CommServicesAuthMetadataEmitterConstants = {
   +COMM_SERVICES_AUTH_METADATA: 'commServicesAuthMetadata',
@@ -19,7 +19,7 @@ const CommServicesAuthMetadataEmitterModule: CommServicesAuthMetadataEmitterModu
   NativeModules.CommServicesAuthMetadataEmitter;
 
 function getCommServicesAuthMetadataEmitter(): NativeEventEmitter<{
-  +commServicesAuthMetadata: [UserLoginResponse],
+  +commServicesAuthMetadata: [UserAuthMetadata],
 }> {
   return new NativeEventEmitter(CommServicesAuthMetadataEmitterModule);
 }
