@@ -26,7 +26,8 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
-  static void assign_encryption_key();
+  static void generateFreshEncryptionKey();
+  static void generateFreshBackupLogsEncryptionKey();
 #else
   static SQLiteConnectionManager connectionManager;
 #endif
