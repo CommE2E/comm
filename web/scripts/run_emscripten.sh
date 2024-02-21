@@ -2,6 +2,8 @@
 
 set -Eeuo pipefail
 
+sha256sum ./database/_generated/comm_query_executor.wasm
+
 if ! command -v emcc > /dev/null; then
   echo "Please install emscripten or run 'nix develop'" >&2
   exit 1
@@ -88,7 +90,7 @@ build_openssl() {
 if [ ! -d "$OPENSSL_DIR" ]; then
     echo "OpenSSL sources not found. Downloading."
     download_openssl
-fi 
+fi
 
 if [ ! -f "$OPENSSL_LIBCRYPTO" ]; then
     echo "OpenSSL binary not found. Building."
@@ -156,6 +158,8 @@ INPUT_FILES=(
 
 mkdir -p "$OUTPUT_DIR"
 
+
+emcc -v
 emcc -lembind \
   "${EMCC_FLAGS[@]}" \
   "${CFLAGS[@]}" \
@@ -169,3 +173,5 @@ sed -i.bak -e "1i\/\/ \@${GENERATED_TAG}" "${OUTPUT_FILE}"
 
 mv -f "${OUTPUT_DIR}${OUTPUT_FILE_NAME}.wasm" "${OUTPUT_DIR}comm_query_executor.wasm"
 rm -f "${OUTPUT_FILE}.bak"
+
+sha256sum ./database/_generated/comm_query_executor.wasm

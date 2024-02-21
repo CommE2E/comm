@@ -916,6 +916,7 @@ void SQLiteQueryExecutor::migrate() {
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
           << std::endl;
   Logger::log(db_path.str());
+  Logger::log("TEST");
 
   auto db_version = get_database_version(db);
   std::stringstream version_msg;
