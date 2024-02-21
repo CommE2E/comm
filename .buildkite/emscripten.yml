@@ -1,18 +1,17 @@
 steps:
   - label: 'Emscripten build'
     command:
+      - 'git config --global --add safe.directory "*"'
       - 'apt update && apt install -y autoconf libtool build-essential cmake git'
       - 'cd web'
-      - 'BEFORE_HASH=$(sha256sum ./database/_generated/comm_query_executor.wasm)'
       - './scripts/run_emscripten.sh'
-      - 'AFTER_HASH=$(sha256sum ./database/_generated/comm_query_executor.wasm)'
-      - '[[ "$BEFORE_HASH" == "$AFTER_HASH" ]] || exit 1'
+      - 'git diff --exit-code ./database/_generated/comm_query_executor.wasm'
     retry:
       automatic: true
     plugins:
       - docker#v5.3.0:
           image: 'emscripten/emsdk:3.1.17'
           propagate-environment: true
-          shell: ['/bin/bash', '-e', '-c']
+          shell: [ '/bin/bash', '-e', '-c' ]
     agents:
       - 'autoscaling=true'
