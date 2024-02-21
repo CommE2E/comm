@@ -109,7 +109,10 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
       fetchCallUpdateOlmAccount('content', markKeysAsPublished),
       fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
     ]);
-    return identity_info;
+    return {
+      userId: identity_info.userID,
+      accessToken: identity_info.accessToken,
+    };
   } catch (e) {
     console.warn('Failed to login user: ' + getMessageForException(e));
     try {
@@ -128,7 +131,10 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
         fetchCallUpdateOlmAccount('content', markKeysAsPublished),
         fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
       ]);
-      return identity_info;
+      return {
+        userId: identity_info.userID,
+        accessToken: identity_info.accessToken,
+      };
     } catch (err) {
       console.warn('Failed to register user: ' + getMessageForException(err));
       throw new ServerError('identity_auth_failed');

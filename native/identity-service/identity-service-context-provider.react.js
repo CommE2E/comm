@@ -43,7 +43,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
       (authMetadata: UserLoginResponse) => {
-        userIDPromiseRef.current = Promise.resolve(authMetadata.userId);
+        userIDPromiseRef.current = Promise.resolve(authMetadata.userID);
       },
     );
     return () => subscription.remove();
