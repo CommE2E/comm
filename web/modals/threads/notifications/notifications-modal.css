@@ -1,7 +1,6 @@
 div.container {
   display: flex;
   flex-direction: column;
-  color: var(--fg);
   row-gap: 20px;
   min-width: 343px;
   width: min-content;
@@ -10,7 +9,7 @@ div.container {
 p.notice {
   text-align: center;
   font-size: var(--xs-font-12);
-  color: var(--notification-settings-option-color);
+  color: var(--text-background-secondary-default);
 }
 
 div.optionsContainer {
