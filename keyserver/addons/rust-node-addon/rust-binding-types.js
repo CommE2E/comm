@@ -1,10 +1,9 @@
 // @flow
 
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import type {
-  InboundKeyInfoResponse,
-  UserLoginResponse,
-} from 'lib/types/identity-service-types.js';
+import type { InboundKeyInfoResponse } from 'lib/types/identity-service-types.js';
+
+import type { IdentityInfo } from '../../src/user/identity.js';
 
 type RustNativeBindingAPI = {
   +loginUser: (
@@ -17,7 +16,7 @@ type RustNativeBindingAPI = {
     notifPrekeySignature: string,
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
-  ) => Promise<UserLoginResponse>,
+  ) => Promise<IdentityInfo>,
   +registerUser: (
     username: string,
     password: string,
@@ -28,7 +27,7 @@ type RustNativeBindingAPI = {
     notifPrekeySignature: string,
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
-  ) => Promise<UserLoginResponse>,
+  ) => Promise<IdentityInfo>,
   +addReservedUsernames: (message: string, signature: string) => Promise<void>,
   +removeReservedUsername: (
     message: string,

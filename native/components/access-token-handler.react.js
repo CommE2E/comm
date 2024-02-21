@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { setAccessTokenActionType } from 'lib/actions/user-actions.js';
-import type { UserLoginResponse } from 'lib/types/identity-service-types.js';
+import type { UserAuthMetadata } from 'lib/types/identity-service-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
@@ -27,7 +27,7 @@ function AccessTokenHandler(): React.Node {
     const metadataEmitter = getCommServicesAuthMetadataEmitter();
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
-      (authMetadata: UserLoginResponse) => {
+      (authMetadata: UserAuthMetadata) => {
         dispatch({
           type: setAccessTokenActionType,
           payload: authMetadata.accessToken,
