@@ -263,7 +263,7 @@ type FetchAndDecryptMediaOutput = {
 async function fetchAndDecryptMedia(
   blobURI: string,
   encryptionKey: string,
-  authMetadata: AuthMetadata,
+  authMetadata: ?AuthMetadata,
   options: FetchAndDecryptMediaOptions,
 ): Promise<FetchAndDecryptMediaOutput> {
   let success = true,
@@ -272,7 +272,7 @@ async function fetchAndDecryptMedia(
 
   // Step 1. Fetch the file and convert it to a Uint8Array
   let headers;
-  if (isBlobServiceURI(blobURI)) {
+  if (isBlobServiceURI(blobURI) && authMetadata) {
     headers = createDefaultHTTPRequestHeaders(authMetadata);
   }
 
@@ -407,20 +407,10 @@ function useFetchAndDecryptMedia(): (
 ) => Promise<FetchAndDecryptMediaOutput> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
-  const { getAuthMetadata } = identityContext;
 
-  return React.useCallback(
-    async (blobURI, encryptionKey, options) => {
-      const authMetadata = await getAuthMetadata();
-      return fetchAndDecryptMedia(
-        blobURI,
-        encryptionKey,
-        authMetadata,
-        options,
-      );
-    },
-    [getAuthMetadata],
-  );
+  return React.useCallback(async (blobURI, encryptionKey, options) => {
+    return fetchAndDecryptMedia(blobURI, encryptionKey, undefined, options);
+  }, []);
 }
 
 function encryptBase64(
