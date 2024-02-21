@@ -748,7 +748,7 @@ async function keyserverAuthResponder(
   let inboundKeysForUser;
   try {
     inboundKeysForUser = await rustAPI.getInboundKeysForUserDevice(
-      identityInfo.userId,
+      identityInfo.userID,
       authDeviceID,
       identityInfo.accessToken,
       userID,

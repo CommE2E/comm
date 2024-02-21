@@ -13,7 +13,7 @@ import { getContentSigningKey } from '../utils/olm-utils.js';
 async function createRequestHeaders(
   includeContentType: boolean = true,
 ): Promise<{ [string]: string }> {
-  const [{ userId: userID, accessToken }, deviceID] = await Promise.all([
+  const [{ userID, accessToken }, deviceID] = await Promise.all([
     verifyUserLoggedIn(),
     getContentSigningKey(),
   ]);

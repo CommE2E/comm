@@ -39,7 +39,7 @@ async function createAndMaintainTunnelbrokerWebsocket(
     type: 'ConnectionInitializationMessage',
     deviceID: deviceID,
     accessToken: identityInfo.accessToken,
-    userID: identityInfo.userId,
+    userID: identityInfo.userID,
     deviceType: 'keyserver',
   };
 

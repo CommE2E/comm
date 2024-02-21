@@ -125,7 +125,7 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
           notifAccount.one_time_keys(),
         );
         await rustAPI.uploadOneTimeKeys(
-          identityInfo.userId,
+          identityInfo.userID,
           deviceID,
           identityInfo.accessToken,
           contentOneTimeKeys,
@@ -193,7 +193,7 @@ async function publishPrekeysToIdentity(
   }
 
   await rustAPI.publishPrekeys(
-    identityInfo.userId,
+    identityInfo.userID,
     deviceID,
     identityInfo.accessToken,
     contentPrekey,

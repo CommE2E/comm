@@ -33,7 +33,7 @@ async function versionResponder(): Promise<VersionResponse> {
   return {
     codeVersion: keyserverCodeVersion,
     ownerUsername: userInfo?.username,
-    ownerID: identityInfo?.userId,
+    ownerID: identityInfo?.userID,
   };
 }
 

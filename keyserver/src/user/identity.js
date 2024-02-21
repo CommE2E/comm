@@ -13,8 +13,8 @@ const userIDMetadataKey = 'user_id';
 const accessTokenMetadataKey = 'access_token';
 
 // This information is minted when registering with identity service
-// Naming should reflect the rust-bindings: userId -> user_id
-export type IdentityInfo = { +userId: string, +accessToken: string };
+// Naming should reflect the rust-bindings: userID -> user_id
+export type IdentityInfo = { +userID: string, +accessToken: string };
 
 async function fetchIdentityInfo(): Promise<?IdentityInfo> {
   const versionQuery = SQL`
@@ -36,7 +36,7 @@ async function fetchIdentityInfo(): Promise<?IdentityInfo> {
   if (!userID || !accessToken) {
     return null;
   }
-  return { userId: userID, accessToken };
+  return { userID, accessToken };
 }
 
 let cachedKeyserverID: ?string;
@@ -53,7 +53,7 @@ async function thisKeyserverID(): Promise<string> {
     return ashoatKeyserverID;
   }
   const identityInfo = await fetchIdentityInfo();
-  cachedKeyserverID = identityInfo?.userId ?? ashoatKeyserverID;
+  cachedKeyserverID = identityInfo?.userID ?? ashoatKeyserverID;
   return cachedKeyserverID;
 }
 
@@ -85,7 +85,7 @@ async function thisKeyserverAdmin(): Promise<AdminData> {
 function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
   const updateQuery = SQL`
     REPLACE INTO metadata (name, data)
-    VALUES (${userIDMetadataKey}, ${userInfo.userId}),
+    VALUES (${userIDMetadataKey}, ${userInfo.userID}),
       (${accessTokenMetadataKey}, ${userInfo.accessToken})
   `;
 

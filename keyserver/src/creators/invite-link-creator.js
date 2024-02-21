@@ -211,7 +211,7 @@ async function uploadInviteLinkBlob(
   holder: string,
 ): Promise<BlobOperationResult> {
   const identityInfo = await fetchIdentityInfo();
-  const keyserverID = identityInfo?.userId;
+  const keyserverID = identityInfo?.userID;
   if (!keyserverID) {
     throw new ServerError('invalid_credentials');
   }
