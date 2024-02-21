@@ -1650,7 +1650,7 @@ void SQLiteQueryExecutor::clearSensitiveData() {
                 << strerror(errno);
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
-  SQLiteQueryExecutor::assign_encryption_key();
+  SQLiteQueryExecutor::generateFreshEncryptionKey();
   SQLiteQueryExecutor::migrate();
 }
 
@@ -1669,8 +1669,12 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
       SQLiteQueryExecutor::backupLogsEncryptionKey =
           maybeBackupLogsEncryptionKey.value();
       return;
+    } else if (file_exists(databasePath) && maybeEncryptionKey) {
+      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+      SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey();
+      return;
     }
-    SQLiteQueryExecutor::assign_encryption_key();
+    SQLiteQueryExecutor::generateFreshEncryptionKey();
   });
 }
 
@@ -1774,18 +1778,22 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   }
 }
 
-void SQLiteQueryExecutor::assign_encryption_key() {
+void SQLiteQueryExecutor::generateFreshEncryptionKey() {
   std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
       SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  CommSecureStore::set(
+      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey();
+}
+
+void SQLiteQueryExecutor::generateFreshBackupLogsEncryptionKey() {
   std::string backupLogsEncryptionKey =
       comm::crypto::Tools::generateRandomHexString(
           SQLiteQueryExecutor::backupLogsEncryptionKeySize);
   CommSecureStore::set(
-      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
-  CommSecureStore::set(
       SQLiteQueryExecutor::secureStoreBackupLogsEncryptionKeyID,
       backupLogsEncryptionKey);
-  SQLiteQueryExecutor::encryptionKey = encryptionKey;
   SQLiteQueryExecutor::backupLogsEncryptionKey = backupLogsEncryptionKey;
 }
 
