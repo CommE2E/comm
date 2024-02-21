@@ -162,6 +162,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       });
     }
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -183,6 +184,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     );
   } else if (action.type === updateWindowDimensionsActionType) {
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -192,6 +194,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     );
   } else if (action.type === updateWindowActiveActionType) {
     return validateStateAndProcessDBOperations(
+      action,
       oldState,
       {
         ...state,
@@ -340,10 +343,16 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     communityPickerStore,
   };
 
-  return validateStateAndProcessDBOperations(oldState, state, storeOperations);
+  return validateStateAndProcessDBOperations(
+    action,
+    oldState,
+    state,
+    storeOperations,
+  );
 }
 
 function validateStateAndProcessDBOperations(
+  action: Action,
   oldState: AppState,
   state: AppState,
   storeOperations: StoreOperations,
@@ -454,10 +463,13 @@ function validateStateAndProcessDBOperations(
     };
   }
 
-  void processDBStoreOperations(
-    storeOperations,
-    state.currentUserInfo?.id ?? null,
-  );
+  // The operations were already dispatched from the main tab
+  if (action.dispatchSource !== 'tab-sync') {
+    void processDBStoreOperations(
+      storeOperations,
+      state.currentUserInfo?.id ?? null,
+    );
+  }
 
   return state;
 }
