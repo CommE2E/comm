@@ -6,10 +6,7 @@ import localforage from 'localforage';
 import * as React from 'react';
 import uuid from 'uuid';
 
-import {
-  initialEncryptedMessageContent,
-  getPrekeyValueFromBlob,
-} from 'lib/shared/crypto-utils.js';
+import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
 import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
 import type {
   SignedIdentityKeysBlob,
@@ -258,16 +255,12 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       const { picklingKey, pickledAccount } = notificationAccount;
       account.unpickle(picklingKey, pickledAccount);
 
-      const notificationsPrekey = getPrekeyValueFromBlob(
-        notificationsInitializationInfo.prekey,
-      );
-
       const session = new olm.Session();
       session.create_outbound(
         account,
         notificationsIdentityKeys.curve25519,
         notificationsIdentityKeys.ed25519,
-        notificationsPrekey,
+        notificationsInitializationInfo.prekey,
         notificationsInitializationInfo.prekeySignature,
         notificationsInitializationInfo.oneTimeKey,
       );
@@ -334,16 +327,12 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       const { picklingKey, pickledAccount } = primaryAccount;
       account.unpickle(picklingKey, pickledAccount);
 
-      const contentPrekey = getPrekeyValueFromBlob(
-        contentInitializationInfo.prekey,
-      );
-
       const session = new olm.Session();
       session.create_outbound(
         account,
         contentIdentityKeys.curve25519,
         contentIdentityKeys.ed25519,
-        contentPrekey,
+        contentInitializationInfo.prekey,
         contentInitializationInfo.prekeySignature,
         contentInitializationInfo.oneTimeKey,
       );
