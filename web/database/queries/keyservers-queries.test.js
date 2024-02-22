@@ -4,6 +4,7 @@ import {
   convertKeyserverInfoToClientDBKeyserverInfo,
   keyserverStoreOpsHandlers,
 } from 'lib/ops/keyserver-store-ops.js';
+import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 
@@ -23,6 +24,11 @@ const TEST_KEYSERVER_1: KeyserverInfo = {
   },
   deviceToken: 'token',
   lastCommunicatedPlatformDetails: null,
+  actualizedCalendarQuery: {
+    startDate: '',
+    endDate: '',
+    filters: defaultCalendarFilters,
+  },
 };
 const TEST_KEYSERVER_2: KeyserverInfo = {
   cookie: 'testCookie2',
@@ -33,6 +39,11 @@ const TEST_KEYSERVER_2: KeyserverInfo = {
   },
   deviceToken: 'token',
   lastCommunicatedPlatformDetails: null,
+  actualizedCalendarQuery: {
+    startDate: '',
+    endDate: '',
+    filters: defaultCalendarFilters,
+  },
 };
 
 describe('Keyserver Store queries', () => {

@@ -63,11 +63,6 @@ const defaultWebState: AppState = Object.freeze({
   inviteLinksStore: {
     links: {},
   },
-  actualizedCalendarQuery: {
-    startDate: '',
-    endDate: '',
-    filters: defaultCalendarFilters,
-  },
   communityPickerStore: { chat: null, calendar: null },
   keyserverStore: {
     keyserverInfos: {

@@ -1,10 +1,8 @@
 // @flow
 
-import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
-import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -45,7 +43,6 @@ const defaultState = ({
   dataLoaded: false,
   customServer: natNodeServer,
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
-  actualizedCalendarQuery: defaultCalendarQuery(Platform.OS),
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,

@@ -1,6 +1,6 @@
 // @flow
 
-import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
+import type { CalendarQuery, EntryStore } from 'lib/types/entry-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
