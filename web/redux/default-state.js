@@ -8,6 +8,7 @@ import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import type { AppState } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
+import electron from '../electron.js';
 
 declare var keyserverURL: string;
 
@@ -63,15 +64,13 @@ const defaultWebState: AppState = Object.freeze({
   inviteLinksStore: {
     links: {},
   },
-  actualizedCalendarQuery: {
-    startDate: '',
-    endDate: '',
-    filters: defaultCalendarFilters,
-  },
   communityPickerStore: { chat: null, calendar: null },
   keyserverStore: {
     keyserverInfos: {
-      [authoritativeKeyserverID]: defaultKeyserverInfo(keyserverURL),
+      [authoritativeKeyserverID]: defaultKeyserverInfo(
+        keyserverURL,
+        electron?.platform ?? 'web',
+      ),
     },
   },
   threadActivityStore: {},
