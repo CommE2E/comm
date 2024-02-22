@@ -25,6 +25,7 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
+import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -34,6 +35,7 @@ import {
   UnknownErrorAlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
+import { getContentSigningKey } from '../../utils/crypto-utils.js';
 import { setNativeCredentials } from '../native-credentials.js';
 import {
   useLegacySIWEServerCall,
@@ -85,6 +87,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             username: accountSelection.username,
             password: accountSelection.password,
           });
+
+          const ed25519 = await getContentSigningKey();
+          await commCoreModule.setCommServicesAuthMetadata(
+            result.userID,
+            ed25519,
+            result.accessToken,
+          );
+
           return result;
         } catch (e) {
           if (e.message === 'username reserved') {
