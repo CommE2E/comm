@@ -29,7 +29,7 @@ import {
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
-import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
+import type { EntryStore } from 'lib/types/entry-types.js';
 import { type CalendarFilter } from 'lib/types/filter-types.js';
 import type { IntegrityStore } from 'lib/types/integrity-types.js';
 import type { KeyserverStore } from 'lib/types/keyserver-types.js';
@@ -98,7 +98,6 @@ export type AppState = {
   +communityPickerStore: CommunityPickerStore,
   +windowDimensions: WindowDimensions,
   +notifPermissionAlertInfo: NotifPermissionAlertInfo,
-  +actualizedCalendarQuery: CalendarQuery,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
   +enabledApps: EnabledApps,
@@ -147,7 +146,8 @@ function reducer(oldState: AppState | void, action: Action): AppState {
   };
 
   if (action.type === setInitialReduxState) {
-    const { userInfos, keyserverInfos, ...rest } = action.payload;
+    const { userInfos, keyserverInfos, actualizedCalendarQuery, ...rest } =
+      action.payload;
     const replaceOperations: ReplaceKeyserverOperation[] = [];
     for (const keyserverID in keyserverInfos) {
       replaceOperations.push({
@@ -157,6 +157,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
           keyserverInfo: {
             ...state.keyserverStore.keyserverInfos[keyserverID],
             ...keyserverInfos[keyserverID],
+            actualizedCalendarQuery,
           },
         },
       });

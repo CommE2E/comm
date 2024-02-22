@@ -5,11 +5,13 @@ import { getStoredState, purgeStoredState } from 'redux-persist';
 import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
+import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
+import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
@@ -259,6 +261,54 @@ const migrations = {
     } catch (e) {
       console.log(e);
       return handleReduxMigrationFailure(state);
+    }
+  },
+  [12]: async (state: any) => {
+    const { actualizedCalendarQuery, ...rest } = state;
+    const databaseModule = await getDatabaseModule();
+    const operations: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo: {
+          ...keyserverInfo,
+          actualizedCalendarQuery: {
+            ...actualizedCalendarQuery,
+            filters: filterThreadIDsInFilterList(
+              actualizedCalendarQuery.filters,
+              (threadID: string) => extractKeyserverIDFromID(threadID) === id,
+            ),
+          },
+        },
+      },
+    }));
+    const dbOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps(operations);
+
+    const newState = {
+      ...rest,
+      keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+        rest.keyserverStore,
+        operations,
+      ),
+    };
+
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+    if (!isDatabaseSupported) {
+      return newState;
+    }
+
+    try {
+      await databaseModule.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { keyserverStoreOperations: dbOperations },
+      });
+      return newState;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(newState);
     }
   },
 };
