@@ -10,8 +10,12 @@ use aws_sdk_dynamodb::{
   operation::get_item::GetItemOutput,
   types::{AttributeValue, DeleteRequest, ReturnValue, WriteRequest},
 };
-use comm_lib::database::{
-  self, batch_operations::ExponentialBackoffConfig, parse_int_attribute, Error,
+use comm_lib::{
+  blob::client::BlobServiceClient,
+  database::{
+    self, batch_operations::ExponentialBackoffConfig, parse_int_attribute,
+    Error,
+  },
 };
 use tracing::{error, trace, warn};
 
@@ -118,6 +122,7 @@ impl DatabaseClient {
     &self,
     user_id: &str,
     backup_id: &str,
+    blob_client: &BlobServiceClient,
   ) -> Result<Option<BackupItem>, Error> {
     let item_key = BackupItem::item_key(user_id, backup_id);
 
@@ -140,7 +145,13 @@ impl DatabaseClient {
       .transpose()
       .map_err(Error::from)?;
 
-    self.remove_log_items_for_backup(user_id, backup_id).await?;
+    if let Some(backup_item) = &result {
+      backup_item.revoke_holders(blob_client);
+    }
+
+    self
+      .remove_log_items_for_backup(user_id, backup_id, blob_client)
+      .await?;
 
     Ok(result)
   }
@@ -150,6 +161,7 @@ impl DatabaseClient {
   pub async fn remove_old_backups(
     &self,
     user_id: &str,
+    blob_client: &BlobServiceClient,
   ) -> Result<Vec<BackupItem>, Error> {
     let response = self
       .client
@@ -201,8 +213,9 @@ impl DatabaseClient {
 
       trace!("Removing backup item: {item:?}");
 
-      if let Some(backup) =
-        self.remove_backup_item(user_id, &item.backup_id).await?
+      if let Some(backup) = self
+        .remove_backup_item(user_id, &item.backup_id, blob_client)
+        .await?
       {
         removed_backups.push(backup);
       } else {
@@ -291,6 +304,7 @@ impl DatabaseClient {
     &self,
     user_id: &str,
     backup_id: &str,
+    blob_client: &BlobServiceClient,
   ) -> Result<(), Error> {
     let (mut items, mut last_id) =
       self.fetch_log_items(user_id, backup_id, None).await?;
@@ -300,6 +314,10 @@ impl DatabaseClient {
 
       items.append(&mut new_items);
       last_id = new_last_id;
+    }
+
+    for log_item in &items {
+      log_item.revoke_holders(blob_client);
     }
 
     let write_requests = items

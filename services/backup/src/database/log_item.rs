@@ -54,6 +54,20 @@ impl LogItem {
     )
   }
 
+  pub fn revoke_holders(&self, blob_client: &BlobServiceClient) {
+    if let BlobOrDBContent::Blob(content_info) = &self.content {
+      blob_client
+        .schedule_revoke_holder(&content_info.blob_hash, &content_info.holder);
+    }
+
+    for attachment_info in &self.attachments {
+      blob_client.schedule_revoke_holder(
+        &attachment_info.blob_hash,
+        &attachment_info.holder,
+      );
+    }
+  }
+
   pub fn item_key(
     user_id: impl Into<String>,
     backup_id: impl Into<String>,
