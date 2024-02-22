@@ -25,6 +25,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     reports: null,
     users: null,
     keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
+    communityInfos: null,
   };
   const data = await databaseModule.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -56,6 +57,14 @@ async function getClientDBStore(): Promise<ClientStore> {
       ...result,
       keyserverInfos: keyserverStoreOpsHandlers.translateClientDBData(
         data.store.keyservers,
+      ),
+    };
+  }
+  if (data?.store?.communities) {
+    result = {
+      ...result,
+      communityInfos: communityStoreOpsHandlers.translateClientDBData(
+        data.store.communities,
       ),
     };
   }

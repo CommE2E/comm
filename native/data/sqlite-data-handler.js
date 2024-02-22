@@ -7,6 +7,7 @@ import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
 import { useStaffContext } from 'lib/components/staff-provider.react.js';
 import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
+import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -179,6 +180,7 @@ function SQLiteDataHandler(): React.Node {
           reports,
           users,
           keyservers,
+          communities,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -187,6 +189,8 @@ function SQLiteDataHandler(): React.Node {
         const usersFromDB = userStoreOpsHandlers.translateClientDBData(users);
         const keyserverInfosFromDB =
           keyserverStoreOpsHandlers.translateClientDBData(keyservers);
+        const communityInfosFromDB =
+          communityStoreOpsHandlers.translateClientDBData(communities);
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -199,6 +203,7 @@ function SQLiteDataHandler(): React.Node {
             reports: reportsFromDB,
             users: usersFromDB,
             keyserverInfos: keyserverInfosFromDB,
+            communities: communityInfosFromDB,
           },
         });
       } catch (setStoreException) {
