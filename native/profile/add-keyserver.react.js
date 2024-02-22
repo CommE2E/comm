@@ -49,8 +49,8 @@ function AddKeyserver(props: Props): React.Node {
       return;
     }
 
-    const isKeyserverURLValid = await isKeyserverURLValidCallback();
-    if (!isKeyserverURLValid) {
+    const keyserverVersionData = await isKeyserverURLValidCallback();
+    if (!keyserverVersionData) {
       setShowErrorMessage(true);
       return;
     }
@@ -60,7 +60,7 @@ function AddKeyserver(props: Props): React.Node {
     dispatch({
       type: addKeyserverActionType,
       payload: {
-        keyserverAdminUserID: currentUserID,
+        keyserverAdminUserID: keyserverVersionData.ownerID,
         newKeyserverInfo,
       },
     });
