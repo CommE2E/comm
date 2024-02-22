@@ -6,6 +6,7 @@ import * as React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { roleIsDefaultRole } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
 
@@ -39,8 +40,8 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
   );
   invariant(existingRoleID, 'Role ID must exist for an existing role');
 
-  const defaultRoleID = Object.keys(threadInfo.roles).find(
-    roleID => threadInfo.roles[roleID].isDefault,
+  const defaultRoleID = Object.keys(threadInfo.roles).find(roleID =>
+    roleIsDefaultRole(threadInfo.roles[roleID]),
   );
   invariant(defaultRoleID, 'Default role ID must exist');
 
