@@ -96,10 +96,10 @@ async fn get_identity_client() -> Result<
     DEVICE_TYPE.to_string(),
   )
   .await
-  .map_err(|_| {
+  .map_err(|e| {
     Error::new(
       Status::GenericFailure,
-      "Unable to connect to identity service".to_string(),
+      format!("Unable to connect to identity service: {}", e),
     )
   })
 }
@@ -120,10 +120,10 @@ async fn get_authenticated_identity_client(
     DEVICE_TYPE.to_string(),
   )
   .await
-  .map_err(|_| {
+  .map_err(|e| {
     Error::new(
       Status::GenericFailure,
-      "Unable to connect to identity service".to_string(),
+      format!("Unable to connect to identity service: {}", e),
     )
   })
 }
