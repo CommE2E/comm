@@ -35,6 +35,7 @@ async function main() {
     await androidPublisher.edits.commit({
       packageName: 'app.comm.android',
       editId: insertResp.data.id,
+      changesNotSentForReview: true,
     });
 
   } catch (error) {
