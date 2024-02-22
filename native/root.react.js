@@ -29,6 +29,7 @@ import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
+import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -44,7 +45,6 @@ import MessageEditingContextProvider from './chat/message-editing-context-provid
 import AccessTokenHandler from './components/access-token-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
-import PrekeysHandler from './components/prekeys-handler.react.js';
 import VersionSupportedChecker from './components/version-supported.react.js';
 import ConnectedStatusBar from './connected-status-bar.react.js';
 import { SQLiteDataHandler } from './data/sqlite-data-handler.js';
