@@ -1,3 +1,4 @@
+use crate::constants::backup_table;
 use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_lib::{
@@ -5,8 +6,6 @@ use comm_lib::{
   database::{AttributeTryInto, DBItemError, TryFromAttribute},
 };
 use std::collections::HashMap;
-
-use crate::constants::backup_table;
 
 #[derive(Clone, Debug)]
 pub struct BackupItem {
@@ -36,17 +35,21 @@ impl BackupItem {
     }
   }
 
-  pub async fn revoke_holders(self, blob_client: &BlobServiceClient) {
-    blob_client
-      .schedule_revoke_holder(self.user_keys.blob_hash, self.user_keys.holder);
+  pub fn revoke_holders(&self, blob_client: &BlobServiceClient) {
+    blob_client.schedule_revoke_holder(
+      &self.user_keys.blob_hash,
+      &self.user_keys.holder,
+    );
 
-    blob_client
-      .schedule_revoke_holder(self.user_data.blob_hash, self.user_data.holder);
+    blob_client.schedule_revoke_holder(
+      &self.user_data.blob_hash,
+      &self.user_data.holder,
+    );
 
-    for attachment_info in self.attachments {
+    for attachment_info in &self.attachments {
       blob_client.schedule_revoke_holder(
-        attachment_info.blob_hash,
-        attachment_info.holder,
+        &attachment_info.blob_hash,
+        &attachment_info.holder,
       );
     }
   }
