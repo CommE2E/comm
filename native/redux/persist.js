@@ -15,6 +15,7 @@ import {
   convertCalendarFilterToNewIDSchema,
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
+import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
@@ -38,6 +39,7 @@ import {
   convertUserInfosToReplaceUserOps,
   userStoreOpsHandlers,
 } from 'lib/ops/user-store-ops.js';
+import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
@@ -1079,6 +1081,46 @@ const migrations = {
       return handleReduxMigrationFailure(state);
     }
     return state;
+  },
+  [63]: async (state: any) => {
+    const { actualizedCalendarQuery, ...rest } = state;
+    const operations: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo: {
+          ...keyserverInfo,
+          actualizedCalendarQuery: {
+            ...actualizedCalendarQuery,
+            filters: filterThreadIDsInFilterList(
+              actualizedCalendarQuery.filters,
+              (threadID: string) => extractKeyserverIDFromID(threadID) === id,
+            ),
+          },
+        },
+      },
+    }));
+    const dbOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps(operations);
+
+    const newState = {
+      ...rest,
+      keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+        rest.keyserverStore,
+        operations,
+      ),
+    };
+    try {
+      await commCoreModule.processKeyserverStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return newState;
+      }
+      return handleReduxMigrationFailure(newState);
+    }
+    return newState;
   },
 };
 
