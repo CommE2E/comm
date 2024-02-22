@@ -3,13 +3,19 @@
 import olm from '@commapp/olm';
 import type { Account, Session } from '@commapp/olm';
 
+import { type IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
   type OlmAPI,
   olmEncryptedMessageTypes,
   type OLMIdentityKeys,
   type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
-import { getAccountOneTimeKeysSet } from 'lib/utils/olm-utils.js';
+import {
+  getAccountOneTimeKeysSet,
+  getAccountPrekeysSet,
+  shouldForgetPrekey,
+  shouldRotatePrekey,
+} from 'lib/utils/olm-utils.js';
 
 // methods below are just mocks to SQLite API
 // implement proper methods tracked in ENG-6462
@@ -86,6 +92,50 @@ const olmAPI: OlmAPI = {
     storeOlmAccount(notifAccount);
 
     return { contentOneTimeKeys, notificationsOneTimeKeys };
+  },
+  async validateAndUploadPrekeys(
+    identityContext: IdentityClientContextType,
+  ): Promise<void> {
+    const authMetadata = await identityContext.getAuthMetadata();
+    const { userID, deviceID, accessToken } = authMetadata;
+    if (!userID || !deviceID || !accessToken) {
+      return;
+    }
+
+    const contentAccount = getOlmAccount();
+    if (shouldRotatePrekey(contentAccount)) {
+      contentAccount.generate_prekey();
+    }
+    if (shouldForgetPrekey(contentAccount)) {
+      contentAccount.forget_old_prekey();
+    }
+    await storeOlmAccount(contentAccount);
+
+    if (!contentAccount.unpublished_prekey()) {
+      return;
+    }
+
+    const notifAccount = getOlmAccount();
+    const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
+      getAccountPrekeysSet(notifAccount);
+    const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
+      getAccountPrekeysSet(contentAccount);
+
+    if (!notifPrekeySignature || !contentPrekeySignature) {
+      throw new Error('Prekey signature is missing');
+    }
+
+    if (!identityContext.identityClient.publishPrekeys) {
+      throw new Error('Publish prekeys method unimplemented');
+    }
+    await identityContext.identityClient.publishPrekeys({
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+    });
+    contentAccount.mark_keys_as_published();
+    await storeOlmAccount(contentAccount);
   },
 };
 
