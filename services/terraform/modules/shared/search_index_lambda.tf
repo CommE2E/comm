@@ -43,15 +43,17 @@ resource "aws_lambda_function" "search_index_lambda" {
 }
 
 resource "aws_lambda_event_source_mapping" "identity_users_trigger" {
-  event_source_arn  = aws_dynamodb_table.identity-users.stream_arn
-  function_name     = aws_lambda_function.search_index_lambda.arn
-  starting_position = "LATEST"
+  event_source_arn       = aws_dynamodb_table.identity-users.stream_arn
+  function_name          = aws_lambda_function.search_index_lambda.arn
+  starting_position      = "LATEST"
+  maximum_retry_attempts = 2
 }
 
 resource "aws_lambda_event_source_mapping" "identity_reserved_usernames_trigger" {
-  event_source_arn  = aws_dynamodb_table.identity-reserved-usernames.stream_arn
-  function_name     = aws_lambda_function.search_index_lambda.arn
-  starting_position = "LATEST"
+  event_source_arn       = aws_dynamodb_table.identity-reserved-usernames.stream_arn
+  function_name          = aws_lambda_function.search_index_lambda.arn
+  starting_position      = "LATEST"
+  maximum_retry_attempts = 2
 }
 
 resource "aws_security_group" "search_index_lambda" {
@@ -70,5 +72,4 @@ resource "aws_security_group" "search_index_lambda" {
 resource "aws_lambda_function_event_invoke_config" "search-index-lambda" {
   function_name                = aws_lambda_function.search_index_lambda.function_name
   maximum_event_age_in_seconds = 60
-  maximum_retry_attempts       = 2
 }
