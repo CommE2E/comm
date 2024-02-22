@@ -2,7 +2,6 @@
 
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
-import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type {
   WebInitialKeyserverInfo,
   ClientWebInitialReduxStateResponse,
@@ -92,11 +91,6 @@ const getInitialReduxState =
     } = responses[ashoatKeyserverID];
 
     const dataLoaded = currentUserInfo && !currentUserInfo.anonymous;
-    const actualizedCalendarQuery = {
-      startDate: navInfo.startDate,
-      endDate: navInfo.endDate,
-      filters: defaultCalendarFilters,
-    };
 
     const entryStore = {
       daysToEntries: {},
@@ -169,7 +163,6 @@ const getInitialReduxState =
       entryStore,
       threadStore,
       userInfos,
-      actualizedCalendarQuery,
       messageStore,
       dataLoaded,
       pushApiPublicKey,
