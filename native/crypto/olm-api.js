@@ -1,6 +1,7 @@
 // @flow
 
 import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
+import { type IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import type {
   OneTimeKeysResultValues,
   OlmAPI,
@@ -36,6 +37,25 @@ const olmAPI: OlmAPI = {
       contentOneTimeKeys: getOneTimeKeyValues(contentOneTimeKeys),
       notificationsOneTimeKeys: getOneTimeKeyValues(notificationsOneTimeKeys),
     };
+  },
+  async validateAndUploadPrekeys(
+    identityContext: IdentityClientContextType,
+  ): Promise<void> {
+    let authMetadata;
+    try {
+      authMetadata = await identityContext.getAuthMetadata();
+    } catch (e) {
+      return;
+    }
+    const { userID, deviceID, accessToken } = authMetadata;
+    if (!userID || !deviceID || !accessToken) {
+      return;
+    }
+    await commCoreModule.validateAndUploadPrekeys(
+      userID,
+      deviceID,
+      accessToken,
+    );
   },
 };
 
