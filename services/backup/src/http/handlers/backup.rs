@@ -95,13 +95,10 @@ pub async fn upload(
     attachment_revoke.cancel();
   }
 
-  for backup in db_client
-    .remove_old_backups(&user.user_id)
+  db_client
+    .remove_old_backups(&user.user_id, &blob_client)
     .await
-    .map_err(BackupError::from)?
-  {
-    backup.revoke_holders(&blob_client).await;
-  }
+    .map_err(BackupError::from)?;
 
   Ok(HttpResponse::Ok().finish())
 }
