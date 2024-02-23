@@ -50,7 +50,6 @@ import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-lis
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { olmAPI } from './crypto/olm-api.js';
 import { initOpaque } from './crypto/opaque-utils.js';
-import { getDatabaseModule } from './database/database-module-provider.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import InviteLinkHandler from './invite-links/invite-link-handler.react.js';
@@ -76,6 +75,7 @@ import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selector
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
+import { getCommSharedWorker } from './shared-worker/shared-worker-provider.js';
 import CommunityPicker from './sidebar/community-picker.react.js';
 import Splash from './splash/splash.react.js';
 import './typography.css';
@@ -120,8 +120,8 @@ versionBroadcast.onmessage = (event: MessageEvent) => {
   }
 };
 
-// Start initializing the database immediately
-void getDatabaseModule();
+// Start initializing the shared worker immediately
+void getCommSharedWorker();
 
 type BaseProps = {
   +location: {
