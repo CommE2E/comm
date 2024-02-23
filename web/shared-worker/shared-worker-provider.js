@@ -26,45 +26,49 @@ declare var baseURL: string;
 declare var commQueryExecutorFilename: string;
 declare var backupClientFilename: string;
 
-const databaseStatuses = Object.freeze({
+const sharedWorkerStatuses = Object.freeze({
   notRunning: 'NOT_RUNNING',
   initSuccess: 'INIT_SUCCESS',
   initInProgress: 'INIT_IN_PROGRESS',
   initError: 'INIT_ERROR',
 });
 
-type DatabaseStatus =
+type SharedWorkerStatus =
   | { +type: 'NOT_RUNNING' | 'INIT_SUCCESS' | 'INIT_ERROR' }
   | { +type: 'INIT_IN_PROGRESS', +initPromise: Promise<void> };
 
 type InitOptions = { +clearDatabase: boolean };
 
-class DatabaseModule {
+class CommSharedWorker {
   worker: ?SharedWorker;
   workerProxy: ?WorkerConnectionProxy;
-  status: DatabaseStatus = { type: databaseStatuses.notRunning };
+  status: SharedWorkerStatus = { type: sharedWorkerStatuses.notRunning };
 
   async init({ clearDatabase }: InitOptions): Promise<void> {
     if (!isSQLiteSupported()) {
       console.warn('SQLite is not supported');
-      this.status = { type: databaseStatuses.initError };
+      this.status = { type: sharedWorkerStatuses.initError };
       return;
     }
 
-    if (this.status.type === databaseStatuses.initInProgress) {
+    if (this.status.type === sharedWorkerStatuses.initInProgress) {
       await this.status.initPromise;
       return;
     }
 
     if (
-      (this.status.type === databaseStatuses.initSuccess && !clearDatabase) ||
-      this.status.type === databaseStatuses.initError
+      (this.status.type === sharedWorkerStatuses.initSuccess &&
+        !clearDatabase) ||
+      this.status.type === sharedWorkerStatuses.initError
     ) {
       return;
     }
 
     const initPromise = (async () => {
-      if (clearDatabase && this.status.type === databaseStatuses.initSuccess) {
+      if (
+        clearDatabase &&
+        this.status.type === sharedWorkerStatuses.initSuccess
+      ) {
         console.info('Clearing sensitive data');
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
@@ -73,7 +77,7 @@ class DatabaseModule {
       }
 
       const codeVersion = getConfig().platformDetails.codeVersion ?? '';
-      const workerName = `comm-app-database-${codeVersion}`;
+      const workerName = `comm-app-shared-worker-${codeVersion}`;
 
       this.worker = new SharedWorker(DATABASE_WORKER_PATH, workerName);
       this.worker.onerror = console.error;
@@ -97,38 +101,38 @@ class DatabaseModule {
           commQueryExecutorFilename,
           backupClientFilename,
         });
-        this.status = { type: databaseStatuses.initSuccess };
+        this.status = { type: sharedWorkerStatuses.initSuccess };
         console.info('Database initialization success');
       } catch (error) {
-        this.status = { type: databaseStatuses.initError };
+        this.status = { type: sharedWorkerStatuses.initError };
         console.error(`Database initialization failure`, error);
       }
     })();
 
-    this.status = { type: databaseStatuses.initInProgress, initPromise };
+    this.status = { type: sharedWorkerStatuses.initInProgress, initPromise };
 
     await initPromise;
   }
 
-  async isDatabaseSupported(): Promise<boolean> {
-    if (this.status.type === databaseStatuses.initInProgress) {
+  async isSupported(): Promise<boolean> {
+    if (this.status.type === sharedWorkerStatuses.initInProgress) {
       await this.status.initPromise;
     }
-    return this.status.type === databaseStatuses.initSuccess;
+    return this.status.type === sharedWorkerStatuses.initSuccess;
   }
 
   async schedule(
     payload: WorkerRequestMessage,
   ): Promise<?WorkerResponseMessage> {
-    if (this.status.type === databaseStatuses.notRunning) {
+    if (this.status.type === sharedWorkerStatuses.notRunning) {
       throw new Error('Database not running');
     }
 
-    if (this.status.type === databaseStatuses.initInProgress) {
+    if (this.status.type === sharedWorkerStatuses.initInProgress) {
       await this.status.initPromise;
     }
 
-    if (this.status.type === databaseStatuses.initError) {
+    if (this.status.type === sharedWorkerStatuses.initError) {
       throw new Error('Database could not be initialized');
     }
 
@@ -151,15 +155,15 @@ async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
   return await exportKeyToJWK(newEncryptionKey);
 }
 
-let databaseModule: ?DatabaseModule = null;
-async function getDatabaseModule(): Promise<DatabaseModule> {
-  if (databaseModule) {
-    return databaseModule;
+let sharedWorker: ?CommSharedWorker = null;
+async function getCommSharedWorker(): Promise<CommSharedWorker> {
+  if (sharedWorker) {
+    return sharedWorker;
   }
-  const newModule = new DatabaseModule();
-  databaseModule = newModule;
+  const newModule = new CommSharedWorker();
+  sharedWorker = newModule;
   await newModule.init({ clearDatabase: false });
   return newModule;
 }
 
-export { getDatabaseModule };
+export { getCommSharedWorker };

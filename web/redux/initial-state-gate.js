@@ -21,11 +21,11 @@ import {
 } from './action-types.js';
 import { useSelector } from './redux-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
+import Loading from '../loading.react.js';
 import {
   getClientDBStore,
   processDBStoreOperations,
-} from '../database/utils/store.js';
-import Loading from '../loading.react.js';
+} from '../shared-worker/utils/store.js';
 
 type Props = {
   +persistor: Persistor,
