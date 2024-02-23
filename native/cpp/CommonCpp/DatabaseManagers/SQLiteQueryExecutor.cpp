@@ -921,6 +921,7 @@ void SQLiteQueryExecutor::migrate() {
   std::stringstream version_msg;
   version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
+  Logger::log("TEST");
 
   if (db_version == 0) {
     auto db_created = set_up_database(db);
