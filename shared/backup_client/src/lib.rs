@@ -1,4 +1,5 @@
-use std::time::Duration;
+#[cfg(target_arch = "wasm32")]
+mod web;
 
 use async_stream::{stream, try_stream};
 pub use comm_lib::auth::UserIdentity;
@@ -7,25 +8,26 @@ pub use comm_lib::backup::{
   UploadLogRequest,
 };
 pub use futures_util::{Sink, SinkExt, Stream, StreamExt, TryStreamExt};
-
 use hex::ToHex;
 use reqwest::{
   header::InvalidHeaderValue,
   multipart::{Form, Part},
   Body,
 };
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tokio_tungstenite::{
-  connect_async,
-  tungstenite::{
-    Error as TungsteniteError,
-    Message::{Binary, Ping},
-  },
+use std::time::Duration;
+use tokio_tungstenite_wasm::{
+  connect, Error as TungsteniteError, Message::Binary,
 };
 
 const LOG_DOWNLOAD_RETRY_DELAY: Duration = Duration::from_secs(5);
 const LOG_DOWNLOAD_MAX_RETRY: usize = 3;
 
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::wasm_bindgen;
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 #[derive(Debug, Clone)]
 pub struct BackupClient {
   url: reqwest::Url,
@@ -170,6 +172,9 @@ impl BackupClient {
                 break 'retry;
               }
 
+              #[cfg(target_arch = "wasm32")]
+              let _ = web::sleep(LOG_DOWNLOAD_RETRY_DELAY).await;
+              #[cfg(not(target_arch = "wasm32"))]
               tokio::time::sleep(LOG_DOWNLOAD_RETRY_DELAY).await;
               continue 'retry;
             }
@@ -253,11 +258,7 @@ impl BackupClient {
     Error,
   > {
     let url = self.create_ws_url()?;
-    let (stream, response) = connect_async(url).await?;
-
-    if response.status().is_client_error() {
-      return Err(Error::TungsteniteError(TungsteniteError::Http(response)));
-    }
+    let stream = connect(url).await?;
 
     let (mut tx, rx) = stream.split();
 
@@ -275,8 +276,6 @@ impl BackupClient {
     let rx = rx.filter_map(|msg| async {
       let bytes = match msg {
         Ok(Binary(bytes)) => bytes,
-        // Handled by tungstenite
-        Ok(Ping(_)) => return None,
         Ok(_) => return Some(Err(Error::InvalidWSMessage)),
         Err(err) => return Some(Err(err.into())),
       };
@@ -312,10 +311,13 @@ pub struct BackupData {
   pub attachments: Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum BackupDescriptor {
   BackupID {
+    #[serde(rename = "backupID")]
     backup_id: String,
+    #[serde(rename = "userIdentity")]
     user_identity: UserIdentity,
   },
   Latest {
@@ -323,7 +325,8 @@ pub enum BackupDescriptor {
   },
 }
 
-#[derive(Debug, Clone, Copy)]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+#[derive(Debug, Clone)]
 pub enum RequestedData {
   BackupID,
   UserKeys,
