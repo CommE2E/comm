@@ -9,6 +9,7 @@ import type {
   StoreOperations,
 } from 'lib/types/store-ops-types.js';
 
+import { defaultWebState } from '../../redux/default-state.js';
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../database-module-provider.js';
 
@@ -22,7 +23,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     messageStoreThreads: null,
     reports: null,
     users: null,
-    keyserverInfos: null,
+    keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
   };
   const data = await databaseModule.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -49,7 +50,7 @@ async function getClientDBStore(): Promise<ClientStore> {
       },
     };
   }
-  if (data?.store?.keyservers) {
+  if (data?.store?.keyservers && data?.store.keyservers.length) {
     result = {
       ...result,
       keyserverInfos: keyserverStoreOpsHandlers.translateClientDBData(
