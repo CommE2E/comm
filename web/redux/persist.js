@@ -35,8 +35,8 @@ import { rootKey, rootKeyPrefix } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
 import { nonUserSpecificFieldsWeb } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
-import { getDatabaseModule } from '../database/database-module-provider.js';
-import { isSQLiteSupported } from '../database/utils/db-utils.js';
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { isSQLiteSupported } from '../shared-worker/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var keyserverURL: string;
@@ -94,18 +94,18 @@ const migrations = {
       };
     }
 
-    const databaseModule = await getDatabaseModule();
-    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
 
-    if (!isDatabaseSupported) {
+    if (!isSupported) {
       return newState;
     }
 
-    const stores = await databaseModule.schedule({
+    const stores = await sharedWorker.schedule({
       type: workerRequestMessageTypes.GET_CLIENT_STORE,
     });
     invariant(stores?.store, 'Stores should exist');
-    await databaseModule.schedule({
+    await sharedWorker.schedule({
       type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
       storeOperations: {
         draftStoreOperations: generateIDSchemaMigrationOpsForDrafts(
@@ -134,9 +134,9 @@ const migrations = {
     };
   },
   [5]: async (state: any) => {
-    const databaseModule = await getDatabaseModule();
-    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
-    if (!isDatabaseSupported) {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+    if (!isSupported) {
       return state;
     }
 
@@ -154,7 +154,7 @@ const migrations = {
       });
     }
 
-    await databaseModule.schedule({
+    await sharedWorker.schedule({
       type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
       storeOperations: { draftStoreOperations },
     });
@@ -229,9 +229,9 @@ const migrations = {
     };
   },
   [11]: async (state: AppState) => {
-    const databaseModule = await getDatabaseModule();
-    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
-    if (!isDatabaseSupported) {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+    if (!isSupported) {
       return state;
     }
 
@@ -252,7 +252,7 @@ const migrations = {
       ]);
 
     try {
-      await databaseModule.schedule({
+      await sharedWorker.schedule({
         type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
         storeOperations: { keyserverStoreOperations },
       });
@@ -265,8 +265,8 @@ const migrations = {
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
-  const databaseModule = await getDatabaseModule();
-  const isSupported = await databaseModule.isDatabaseSupported();
+  const sharedWorker = await getCommSharedWorker();
+  const isSupported = await sharedWorker.isSupported();
   if (!isSupported) {
     return undefined;
   }

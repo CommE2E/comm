@@ -63,8 +63,8 @@ import reduceNavInfo from './nav-reducer.js';
 import { onStateDifference } from './redux-debug-utils.js';
 import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
-import { processDBStoreOperations } from '../database/utils/store.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
+import { processDBStoreOperations } from '../shared-worker/utils/store.js';
 import type { InitialReduxState } from '../types/redux-types.js';
 
 export type WindowDimensions = { width: number, height: number };
