@@ -39,7 +39,7 @@ type DatabaseStatus =
 
 type InitOptions = { +clearDatabase: boolean };
 
-class DatabaseModule {
+class CommSharedWorker {
   worker: ?SharedWorker;
   workerProxy: ?WorkerConnectionProxy;
   status: DatabaseStatus = { type: databaseStatuses.notRunning };
@@ -73,7 +73,7 @@ class DatabaseModule {
       }
 
       const codeVersion = getConfig().platformDetails.codeVersion ?? '';
-      const workerName = `comm-app-database-${codeVersion}`;
+      const workerName = `comm-app-shared-worker-${codeVersion}`;
 
       this.worker = new SharedWorker(DATABASE_WORKER_PATH, workerName);
       this.worker.onerror = console.error;
@@ -110,7 +110,7 @@ class DatabaseModule {
     await initPromise;
   }
 
-  async isDatabaseSupported(): Promise<boolean> {
+  async isSupported(): Promise<boolean> {
     if (this.status.type === databaseStatuses.initInProgress) {
       await this.status.initPromise;
     }
@@ -151,15 +151,15 @@ async function getSafariEncryptionKey(): Promise<SubtleCrypto$JsonWebKey> {
   return await exportKeyToJWK(newEncryptionKey);
 }
 
-let databaseModule: ?DatabaseModule = null;
-async function getDatabaseModule(): Promise<DatabaseModule> {
-  if (databaseModule) {
-    return databaseModule;
+let sharedWorker: ?CommSharedWorker = null;
+async function getCommSharedWorker(): Promise<CommSharedWorker> {
+  if (sharedWorker) {
+    return sharedWorker;
   }
-  const newModule = new DatabaseModule();
-  databaseModule = newModule;
+  const newModule = new CommSharedWorker();
+  sharedWorker = newModule;
   await newModule.init({ clearDatabase: false });
   return newModule;
 }
 
-export { getDatabaseModule };
+export { getCommSharedWorker };

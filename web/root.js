@@ -21,8 +21,6 @@ import {
   OlmSessionCreatorProvider,
 } from './account/account-hooks.js';
 import App from './app.react.js';
-import { SQLiteDataHandler } from './database/sqlite-data-handler.js';
-import { localforageConfig } from './database/utils/constants.js';
 import ErrorBoundary from './error-boundary.react.js';
 import IdentityServiceContextProvider from './grpc/identity-service-context-provider.react.js';
 import { defaultWebState } from './redux/default-state.js';
@@ -34,6 +32,8 @@ import {
   tabSynchronizationMiddleware,
 } from './redux/tab-synchronization.js';
 import history from './router-history.js';
+import { SQLiteDataHandler } from './shared-worker/sqlite-data-handler.js';
+import { localforageConfig } from './shared-worker/utils/constants.js';
 import Socket from './socket.react.js';
 
 localforage.config(localforageConfig);
