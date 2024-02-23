@@ -88,7 +88,7 @@ build_openssl() {
 if [ ! -d "$OPENSSL_DIR" ]; then
     echo "OpenSSL sources not found. Downloading."
     download_openssl
-fi 
+fi
 
 if [ ! -f "$OPENSSL_LIBCRYPTO" ]; then
     echo "OpenSSL binary not found. Building."
@@ -144,6 +144,8 @@ CFLAGS=(
   -I "$SQLITE_DIR"
   -I "${NATIVE_CPP_DIR}CommonCpp/Tools/"
 )
+
+emcc -v
 
 INPUT_FILES=(
   "${INPUT_DIR}SQLiteConnectionManager.cpp"
