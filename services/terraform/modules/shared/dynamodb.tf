@@ -195,6 +195,22 @@ resource "aws_dynamodb_table" "identity-nonces" {
   }
 }
 
+resource "aws_dynamodb_table" "identity-workflows-in-progress" {
+  name         = "identity-workflows-in-progress"
+  hash_key     = "id"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expirationTimeUnix"
+    enabled        = true
+  }
+}
+
 resource "aws_dynamodb_table" "identity-reserved-usernames" {
   name             = "identity-reserved-usernames"
   hash_key         = "username"
