@@ -56,6 +56,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
   mariadb-client \
   cmake \
+  binaryen \
   && rm -rf /var/lib/apt/lists/*
 
 # Install protobuf manually to ensure that we have the correct version
@@ -112,7 +113,8 @@ RUN cd keyserver && . bash/source-nvm.sh
 COPY --chown=comm package.json yarn.lock postinstall.sh ./
 COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
 COPY --chown=comm lib/package.json lib/.flowconfig lib/
-COPY --chown=comm web/package.json web/.flowconfig web/
+COPY --chown=comm web/package.json web/.flowconfig web/postinstall.sh web/
+COPY --chown=comm web/scripts/run_wasmpack.sh web/scripts/
 COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
@@ -132,6 +134,11 @@ RUN cargo init keyserver/addons/rust-node-addon --lib
 COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
 
+# Create empty Rust library for WASM backup client and copy in Cargo.toml file
+RUN cargo init web/backup-client-wasm/ --lib
+COPY --chown=comm web/backup-client-wasm/Cargo.toml \
+  web/backup-client-wasm/
+
 # Copy in local dependencies of rust-node-addon
 COPY --chown=comm shared/comm-opaque2 shared/comm-opaque2/
 
@@ -140,6 +147,12 @@ COPY --chown=comm shared/protos shared/protos/
 
 # Copy identity service gRPC client
 COPY --chown=comm shared/grpc_clients shared/grpc_clients/
+
+# Copy shared backup client
+COPY --chown=comm shared/backup_client shared/backup_client/
+
+# Copy shared lib
+COPY --chown=comm shared/comm-lib shared/comm-lib/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
@@ -171,6 +184,10 @@ COPY --chown=comm landing landing/
 RUN yarn workspace landing prod
 
 COPY --chown=comm web web/
+
+# Build WASM backup client no that source files are copied in
+RUN yarn workspace web build-backup-client-wasm
+
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
