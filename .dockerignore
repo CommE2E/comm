@@ -29,6 +29,7 @@ native
 
 web/node_modules
 web/dist
+web/backup-client-wasm/target
 
 keyserver/dist
 keyserver/node_modules
