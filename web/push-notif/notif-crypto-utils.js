@@ -19,12 +19,12 @@ import {
   encryptData,
   importJWKKey,
 } from '../crypto/aes-gcm-crypto-utils.js';
+import { initOlm } from '../olm/olm-utils.js';
 import {
   NOTIFICATIONS_OLM_DATA_CONTENT,
   NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
-} from '../database/utils/constants.js';
-import { isDesktopSafari } from '../database/utils/db-utils.js';
-import { initOlm } from '../olm/olm-utils.js';
+} from '../shared-worker/utils/constants.js';
+import { isDesktopSafari } from '../shared-worker/utils/db-utils.js';
 
 export type WebNotifDecryptionError = {
   +id: string,

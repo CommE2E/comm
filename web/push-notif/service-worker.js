@@ -15,7 +15,7 @@ import {
   type WebNotifDecryptionError,
 } from './notif-crypto-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
-import { localforageConfig } from '../database/utils/constants.js';
+import { localforageConfig } from '../shared-worker/utils/constants.js';
 
 declare class PushMessageData {
   json(): Object;

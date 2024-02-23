@@ -120,7 +120,7 @@ const baseNodeServerRenderingConfig = {
 const baseWebWorkersConfig = {
   entry: {
     pushNotif: './push-notif/service-worker.js',
-    database: './database/worker/db-worker.js',
+    database: './shared-worker/worker/shared-worker.js',
   },
   output: {
     filename: '[name].build.js',
@@ -139,7 +139,7 @@ const devWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'database/_generated/comm_query_executor.wasm',
+        from: 'shared-worker/_generated/comm_query_executor.wasm',
         to: path.join(__dirname, 'dist', 'webworkers'),
       },
     ],
@@ -166,7 +166,7 @@ const prodWebWorkersPlugins = [
   new CopyPlugin({
     patterns: [
       {
-        from: 'database/_generated/comm_query_executor.wasm',
+        from: 'shared-worker/_generated/comm_query_executor.wasm',
         to: path.join(
           __dirname,
           'dist',
