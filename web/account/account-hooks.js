@@ -29,7 +29,6 @@ import {
   encryptData,
   exportKeyToJWK,
 } from '../crypto/aes-gcm-crypto-utils.js';
-import { isDesktopSafari } from '../database/utils/db-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
 import {
   getOlmDataContentKeyForCookie,
@@ -37,6 +36,7 @@ import {
 } from '../push-notif/notif-crypto-utils.js';
 import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { isDesktopSafari } from '../shared-worker/utils/db-utils.js';
 
 const CryptoStoreContext: React.Context<?CryptoStoreContextType> =
   React.createContext(null);

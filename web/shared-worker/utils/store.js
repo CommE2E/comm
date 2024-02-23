@@ -11,10 +11,10 @@ import type {
 
 import { defaultWebState } from '../../redux/default-state.js';
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
-import { getDatabaseModule } from '../database-module-provider.js';
+import { getCommSharedWorker } from '../shared-worker-provider.js';
 
 async function getClientDBStore(): Promise<ClientStore> {
-  const databaseModule = await getDatabaseModule();
+  const sharedWorker = await getCommSharedWorker();
   let result: ClientStore = {
     currentUserID: null,
     drafts: [],
@@ -25,7 +25,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     users: null,
     keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
   };
-  const data = await databaseModule.schedule({
+  const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
   });
   if (data?.store?.drafts) {
@@ -91,13 +91,13 @@ async function processDBStoreOperations(
     return;
   }
 
-  const databaseModule = await getDatabaseModule();
-  const isSupported = await databaseModule.isDatabaseSupported();
+  const sharedWorker = await getCommSharedWorker();
+  const isSupported = await sharedWorker.isSupported();
   if (!isSupported) {
     return;
   }
   try {
-    await databaseModule.schedule({
+    await sharedWorker.schedule({
       type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
       storeOperations: {
         draftStoreOperations,
@@ -111,7 +111,7 @@ async function processDBStoreOperations(
     if (canUseDatabase) {
       window.alert(e.message);
       if (threadStoreOperations.length > 0) {
-        await databaseModule.init({ clearDatabase: true });
+        await sharedWorker.init({ clearDatabase: true });
         location.reload();
       }
     }
