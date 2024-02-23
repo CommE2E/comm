@@ -7,9 +7,9 @@ import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 
 import css from './backup-test-restore-modal.css';
 import Button from '../components/button.react.js';
-import { getDatabaseModule } from '../database/database-module-provider.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 type Props = {
@@ -39,8 +39,8 @@ function BackupTestRestoreModal(props: Props): React.Node {
 
           const authMetadata = await client.getAuthMetadata();
 
-          const databaseModule = await getDatabaseModule();
-          await databaseModule.schedule({
+          const sharedWorker = await getCommSharedWorker();
+          await sharedWorker.schedule({
             type: workerRequestMessageTypes.BACKUP_RESTORE,
             authMetadata,
             backupID,
