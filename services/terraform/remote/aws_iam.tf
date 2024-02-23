@@ -319,3 +319,19 @@ resource "aws_opensearch_domain_policy" "opensearch_domain_access" {
   domain_name     = module.shared.opensearch_domain_identity.domain_name
   access_policies = data.aws_iam_policy_document.opensearch_domain_access.json
 }
+
+resource "aws_iam_role" "scheduler" {
+  name = "cron-scheduler-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = ["scheduler.amazonaws.com"]
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
