@@ -57,7 +57,7 @@ resource "aws_scheduler_schedule" "blob_cleanup" {
 
   target {
     arn      = aws_ecs_cluster.comm_services.arn
-    role_arn = aws_iam_role.scheduler.arn
+    role_arn = aws_iam_role.task_scheduler.arn
 
     ecs_parameters {
       task_definition_arn = aws_ecs_task_definition.blob_cleanup.arn_without_revision
@@ -81,29 +81,13 @@ resource "aws_scheduler_schedule" "blob_cleanup" {
   }
 }
 
-resource "aws_iam_role" "scheduler" {
-  name = "cron-scheduler-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          Service = ["scheduler.amazonaws.com"]
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
+resource "aws_iam_role_policy_attachment" "blob_cleanup_scheduler" {
+  policy_arn = aws_iam_policy.blob_cleanup_scheduler.arn
+  role       = aws_iam_role.task_scheduler.name
 }
 
-resource "aws_iam_role_policy_attachment" "scheduler" {
-  policy_arn = aws_iam_policy.scheduler.arn
-  role       = aws_iam_role.scheduler.name
-}
-
-resource "aws_iam_policy" "scheduler" {
-  name = "cron-scheduler-policy"
+resource "aws_iam_policy" "blob_cleanup_scheduler" {
+  name = "blob-cleanup-cron-scheduler-policy"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
