@@ -5,7 +5,7 @@ import * as React from 'react';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { getDatabaseModule } from './database-module-provider.js';
+import { getCommSharedWorker } from './shared-worker-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
@@ -19,11 +19,11 @@ function SQLiteDataHandler(): React.Node {
   );
 
   const handleSensitiveData = React.useCallback(async () => {
-    const databaseModule = await getDatabaseModule();
+    const sharedWorker = await getCommSharedWorker();
     let currentDBUserID,
       errorGettingUserID = false;
     try {
-      const currentUserData = await databaseModule.schedule({
+      const currentUserData = await sharedWorker.schedule({
         type: workerRequestMessageTypes.GET_CURRENT_USER_ID,
       });
       currentDBUserID = currentUserData?.userID;
@@ -42,7 +42,7 @@ function SQLiteDataHandler(): React.Node {
 
     if (currentDBUserID || errorGettingUserID) {
       try {
-        await databaseModule.init({ clearDatabase: true });
+        await sharedWorker.init({ clearDatabase: true });
       } catch (error) {
         console.error(
           `Error clearing sensitive data: ${
@@ -55,7 +55,7 @@ function SQLiteDataHandler(): React.Node {
     }
     if (currentLoggedInUserID) {
       try {
-        await databaseModule.schedule({
+        await sharedWorker.schedule({
           type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
           userID: currentLoggedInUserID,
         });
@@ -71,13 +71,13 @@ function SQLiteDataHandler(): React.Node {
 
   React.useEffect(() => {
     void (async () => {
-      const databaseModule = await getDatabaseModule();
+      const sharedWorker = await getCommSharedWorker();
 
       if (!rehydrateConcluded) {
         return;
       }
 
-      const isSupported = await databaseModule.isDatabaseSupported();
+      const isSupported = await sharedWorker.isSupported();
       if (!isSupported) {
         return;
       }

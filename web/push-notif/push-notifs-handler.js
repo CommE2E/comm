@@ -18,14 +18,14 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import { decryptDesktopNotification } from './notif-crypto-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
-import {
-  WORKERS_MODULES_DIR_PATH,
-  DEFAULT_OLM_FILENAME,
-} from '../database/utils/constants.js';
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
+import {
+  WORKERS_MODULES_DIR_PATH,
+  DEFAULT_OLM_FILENAME,
+} from '../shared-worker/utils/constants.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 declare var baseURL: string;

@@ -12,9 +12,9 @@ SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
 NATIVE_CPP_DIR="${SCRIPT_DIR}/../../native/cpp/"
 INPUT_DIR="${NATIVE_CPP_DIR}CommonCpp/DatabaseManagers/"
 ENTITIES_DIR="${NATIVE_CPP_DIR}CommonCpp/DatabaseManagers/entities/"
-SQLITE_DIR="${SCRIPT_DIR}/../database/sqlite/"
+SQLITE_DIR="${SCRIPT_DIR}/../shared-worker/sqlite/"
 WEB_CPP_DIR="${SCRIPT_DIR}/../cpp/"
-OUTPUT_DIR="${SCRIPT_DIR}/../database/_generated/"
+OUTPUT_DIR="${SCRIPT_DIR}/../shared-worker/_generated/"
 
 # files
 SQLITE_SOURCE="${SQLITE_DIR}sqlite3.c"
