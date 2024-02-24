@@ -4,12 +4,14 @@ use opaque_ke::{
   ServerLoginStartParameters, ServerSetup,
 };
 use rand::rngs::OsRng;
+use serde::{Deserialize, Serialize};
 
 use crate::Cipher;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Login {
   state: Option<ServerLogin<Cipher>>,
+  #[serde(default = "OsRng::default", skip)]
   rng: OsRng,
   pub session_key: Option<Vec<u8>>,
 }

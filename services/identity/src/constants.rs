@@ -71,6 +71,11 @@ pub const NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE: &str = "expirationTime";
 pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
   "expirationTimeUnix";
 
+pub const WORKFLOWS_IN_PROGRESS_TABLE: &str = "identity-workflows-in-progress";
+pub const WORKFLOWS_IN_PROGRESS_PARTITION_KEY: &str = "id";
+pub const WORKFLOWS_IN_PROGRESS_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
+  "expirationTimeUnix";
+
 // Usernames reserved because they exist in Ashoat's keyserver already
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
@@ -149,7 +154,12 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 // Nonce
 
 pub const NONCE_LENGTH: usize = 17;
-pub const NONCE_TTL_DURATION: i64 = 120; // seconds
+pub const NONCE_TTL_DURATION: Duration = Duration::from_secs(120); // seconds
+
+// Workflows in progress
+
+pub const WORKFLOWS_IN_PROGRESS_TTL_DURATION: Duration =
+  Duration::from_secs(120);
 
 // Identity
 
