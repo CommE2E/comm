@@ -23,14 +23,15 @@ mod send;
 
 use crate::config::CONFIG;
 use crate::constants::{
-  IDENTITY_SEARCH_INDEX, IDENTITY_SERVICE_WEBSOCKET_ADDR,
-  SOCKET_HEARTBEAT_TIMEOUT,
+  IDENTITY_SEARCH_INDEX, IDENTITY_SEARCH_RESULT_SIZE,
+  IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
 use send::{send_message, WebsocketSink};
 pub mod errors;
 
 #[derive(Serialize, Deserialize)]
 struct Query {
+  size: u32,
   query: Prefix,
 }
 
@@ -148,6 +149,7 @@ async fn handle_prefix_search(
   prefix_request: identity_search_messages::IdentitySearchPrefix,
 ) -> Result<IdentitySearchResult, errors::WebsocketError> {
   let prefix_query = Query {
+    size: IDENTITY_SEARCH_RESULT_SIZE,
     query: Prefix {
       prefix: Username {
         username: prefix_request.prefix.trim().to_string(),
