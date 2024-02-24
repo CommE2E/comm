@@ -7,6 +7,7 @@ use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use moka::future::Cache;
 use rand::rngs::OsRng;
+use serde::{Deserialize, Serialize};
 use siwe::eip55;
 use tonic::Response;
 use tracing::{debug, error, warn};
@@ -48,33 +49,33 @@ pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
     IdentityClientService, IdentityClientServiceServer,
   };
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum WorkflowInProgress {
   Registration(Box<UserRegistrationInfo>),
   Login(Box<UserLoginInfo>),
   Update(UpdateState),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UserRegistrationInfo {
   pub username: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub user_id: Option<String>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UserLoginInfo {
   pub user_id: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub opaque_server_login: comm_opaque2::server::Login,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UpdateState {
   pub user_id: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct FlattenedDeviceKeyUpload {
   pub device_id_key: String,
   pub key_payload: String,

@@ -3,6 +3,8 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use crate::error::Error;
 pub use crate::identity::protos::unauth::DeviceType;
 
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
 impl TryFrom<i32> for DeviceType {
   type Error = crate::error::Error;
 
@@ -28,6 +30,41 @@ impl Display for DeviceType {
       DeviceType::Android => write!(f, "android"),
       DeviceType::Windows => write!(f, "windows"),
       DeviceType::MacOs => write!(f, "macos"),
+    }
+  }
+}
+
+impl Serialize for DeviceType {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    let value = match self {
+      DeviceType::Keyserver => 0,
+      DeviceType::Web => 1,
+      DeviceType::Ios => 2,
+      DeviceType::Android => 3,
+      DeviceType::Windows => 4,
+      DeviceType::MacOs => 5,
+    };
+    serializer.serialize_i32(value)
+  }
+}
+
+impl<'de> Deserialize<'de> for DeviceType {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'de>,
+  {
+    let value = i32::deserialize(deserializer)?;
+    match value {
+      0 => Ok(DeviceType::Keyserver),
+      1 => Ok(DeviceType::Web),
+      2 => Ok(DeviceType::Ios),
+      3 => Ok(DeviceType::Android),
+      4 => Ok(DeviceType::Windows),
+      5 => Ok(DeviceType::MacOs),
+      _ => Err(serde::de::Error::custom("Invalid DeviceType value")),
     }
   }
 }
