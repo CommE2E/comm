@@ -111,6 +111,9 @@ public:
       const std::vector<ClientMessageToDevice> &messages) const override;
   std::vector<ClientMessageToDevice>
   getAllMessagesToDevice(const std::string &deviceID) const override;
+  void removeMessagesToDeviceOlderThan(
+      const ClientMessageToDevice &lastConfirmedMessage) const override;
+  void removeAllMessagesForDevice(const std::string &deviceID) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
