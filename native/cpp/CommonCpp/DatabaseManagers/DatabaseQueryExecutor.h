@@ -103,6 +103,10 @@ public:
       const std::vector<ClientMessageToDevice> &messages) const = 0;
   virtual std::vector<ClientMessageToDevice>
   getAllMessagesToDevice(const std::string &deviceID) const = 0;
+  virtual void removeMessagesToDeviceOlderThan(
+      const ClientMessageToDevice &lastConfirmedMessage) const = 0;
+  virtual void
+  removeAllMessagesForDevice(const std::string &deviceID) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;

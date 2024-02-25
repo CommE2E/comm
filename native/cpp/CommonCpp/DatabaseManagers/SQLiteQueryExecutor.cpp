@@ -1736,6 +1736,46 @@ SQLiteQueryExecutor::getAllMessagesToDevice(const std::string &deviceID) const {
   return messages;
 }
 
+void SQLiteQueryExecutor::removeMessagesToDeviceOlderThan(
+    const ClientMessageToDevice &lastConfirmedMessageClient) const {
+  static std::string query =
+      "DELETE FROM messages_to_device "
+      "WHERE timestamp <= ? AND device_id IN (?);";
+
+  MessageToDevice lastConfirmedMessage =
+      lastConfirmedMessageClient.toMessageToDevice();
+  sqlite3_stmt *stmt;
+  int result = sqlite3_prepare_v2(
+      SQLiteQueryExecutor::getConnection(), query.c_str(), -1, &stmt, nullptr);
+  if (result != SQLITE_OK) {
+    throw std::runtime_error(
+        "Failed to prepare removeMessagesToDeviceOlderThan statement: " +
+        std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
+  }
+
+  sqlite3_bind_int64(stmt, 1, lastConfirmedMessage.timestamp);
+  sqlite3_bind_text(
+      stmt, 2, lastConfirmedMessage.device_id.c_str(), -1, SQLITE_TRANSIENT);
+
+  result = sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+  if (result != SQLITE_DONE) {
+    throw std::runtime_error(
+        "Failed to execute removeMessagesToDeviceOlderThan statement: " +
+        std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
+  }
+}
+
+void SQLiteQueryExecutor::removeAllMessagesForDevice(
+    const std::string &deviceID) const {
+  static std::string removeMessagesSQL =
+      "DELETE FROM messages_to_device "
+      "WHERE device_id IN (?);";
+  std::vector<std::string> keys = {deviceID};
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeMessagesSQL, keys);
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
