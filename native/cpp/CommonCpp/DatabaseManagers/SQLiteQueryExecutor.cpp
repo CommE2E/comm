@@ -1634,6 +1634,20 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
   return (entry == nullptr) ? "" : entry->data;
 }
 
+void SQLiteQueryExecutor::addMessagesToDevice(
+    const std::vector<ClientMessageToDevice> &messages) const {
+  static std::string addMessageToDevice =
+      "REPLACE INTO messages_to_device ("
+      " message_id, device_id, user_id, timestamp, content) "
+      "VALUES (?, ?, ?, ?, ?);";
+
+  for (const ClientMessageToDevice &clientMessage : messages) {
+    MessageToDevice message = clientMessage.toMessageToDevice();
+    replaceEntity<MessageToDevice>(
+        SQLiteQueryExecutor::getConnection(), addMessageToDevice, message);
+  }
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
