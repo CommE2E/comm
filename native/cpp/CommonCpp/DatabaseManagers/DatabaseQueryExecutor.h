@@ -101,6 +101,8 @@ public:
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
   virtual void addMessagesToDevice(
       const std::vector<ClientMessageToDevice> &messages) const = 0;
+  virtual std::vector<ClientMessageToDevice>
+  getAllMessagesToDevice(const std::string &deviceID) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
