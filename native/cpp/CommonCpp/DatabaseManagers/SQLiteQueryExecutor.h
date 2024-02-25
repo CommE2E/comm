@@ -109,6 +109,8 @@ public:
       const std::vector<std::uint8_t> &backupLog) const override;
   void addMessagesToDevice(
       const std::vector<ClientMessageToDevice> &messages) const override;
+  std::vector<ClientMessageToDevice>
+  getAllMessagesToDevice(const std::string &deviceID) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
