@@ -1708,6 +1708,29 @@ void SQLiteQueryExecutor::addMessagesToDevice(
   }
 }
 
+std::vector<ClientMessageToDevice>
+SQLiteQueryExecutor::getAllMessagesToDevice(const std::string &deviceID) const {
+  std::string query =
+      "SELECT * FROM messages_to_device "
+      "WHERE device_id = ? "
+      "ORDER BY timestamp;";
+
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      query,
+      "Failed to get all messages to device");
+
+  sqlite3_bind_text(preparedSQL, 1, deviceID.c_str(), -1, SQLITE_TRANSIENT);
+
+  std::vector<ClientMessageToDevice> messages;
+  for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
+       stepResult = sqlite3_step(preparedSQL)) {
+    messages.emplace_back(
+        ClientMessageToDevice(MessageToDevice::fromSQLResult(preparedSQL, 0)));
+  }
+
+  return messages;
+}
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
