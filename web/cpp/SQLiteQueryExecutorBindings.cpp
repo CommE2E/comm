@@ -1,4 +1,5 @@
 #include "SQLiteQueryExecutor.cpp"
+#include "entities/MessageToDevice.h"
 #include "entities/Nullable.h"
 
 #include <emscripten/bind.h>
@@ -92,6 +93,13 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<OlmPersistSession>("OlmPersistSession")
       .field("targetUserID", &OlmPersistSession::target_user_id)
       .field("sessionData", &OlmPersistSession::session_data);
+
+  value_object<ClientMessageToDevice>("ClientMessageToDevice")
+      .field("messageID", &ClientMessageToDevice::message_id)
+      .field("deviceID", &ClientMessageToDevice::device_id)
+      .field("userID", &ClientMessageToDevice::user_id)
+      .field("timestamp", &ClientMessageToDevice::timestamp)
+      .field("content", &ClientMessageToDevice::content);
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
