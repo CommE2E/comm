@@ -502,6 +502,23 @@ bool enable_rollback_journal_mode(sqlite3 *db) {
   return false;
 }
 
+bool create_messages_to_device_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS messages_to_device ("
+      "	 message_id TEXT NOT NULL,"
+      "	 device_id TEXT NOT NULL,"
+      "	 user_id TEXT NOT NULL,"
+      "	 timestamp BIGINT NOT NULL,"
+      "	 content TEXT NOT NULL,"
+      "	 PRIMARY KEY (message_id, device_id)"
+      ");"
+
+      "CREATE INDEX IF NOT EXISTS messages_to_device_idx_id_timestamp"
+      "  ON messages_to_device (device_id, timestamp);";
+
+  return create_table(db, query, "messages_to_device");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -590,11 +607,24 @@ bool create_schema(sqlite3 *db) {
       "	 keyserver_info TEXT NOT NULL"
       ");"
 
+      "CREATE TABLE IF NOT EXISTS messages_to_device ("
+      "	 message_id TEXT NOT NULL,"
+      "	 device_id TEXT NOT NULL,"
+      "	 user_id TEXT NOT NULL,"
+      "	 timestamp BIGINT NOT NULL,"
+      "	 content TEXT NOT NULL,"
+      "	 PRIMARY KEY (message_id, device_id)"
+      ");"
+
       "CREATE INDEX IF NOT EXISTS media_idx_container"
       "  ON media (container);"
 
       "CREATE INDEX IF NOT EXISTS messages_idx_thread_time"
-      "  ON messages (thread, time);",
+      "  ON messages (thread, time);"
+
+      "CREATE INDEX IF NOT EXISTS messages_to_device_idx_id_timestamp"
+      "  ON messages_to_device (device_id, timestamp);",
+
       nullptr,
       nullptr,
       &error);
@@ -829,7 +859,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {31, {recreate_message_store_threads_table, true}},
      {32, {create_users_table, true}},
      {33, {create_keyservers_table, true}},
-     {34, {enable_rollback_journal_mode, false}}}};
+     {34, {enable_rollback_journal_mode, false}},
+     {35, {create_messages_to_device_table, false}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
