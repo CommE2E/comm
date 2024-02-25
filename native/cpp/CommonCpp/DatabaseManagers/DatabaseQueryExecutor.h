@@ -102,6 +102,9 @@ public:
       const ClientMessageToDevice &lastConfirmedMessage) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
+  virtual void duplicateMessagesForDevice(
+      const std::string &currentDeviceID,
+      const std::string &newDeviceID) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
