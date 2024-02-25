@@ -195,7 +195,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "restoreFromMainCompaction",
           &SQLiteQueryExecutor::restoreFromMainCompaction)
       .function(
-          "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog);
+          "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog)
+      .function(
+          "addMessagesToDevice", &SQLiteQueryExecutor::addMessagesToDevice)
+      .function(
+          "removeMessagesToDeviceOlderThan",
+          &SQLiteQueryExecutor::removeMessagesToDeviceOlderThan)
+      .function(
+          "removeAllMessagesForDevice",
+          &SQLiteQueryExecutor::removeAllMessagesForDevice)
+      .function(
+          "getAllMessagesToDevice",
+          &SQLiteQueryExecutor::getAllMessagesToDevice);
 }
 
 } // namespace comm

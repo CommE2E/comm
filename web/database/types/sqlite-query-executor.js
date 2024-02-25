@@ -130,6 +130,13 @@ declare export class SQLiteQueryExecutor {
 
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
+  addMessagesToDevice(messages: $ReadOnlyArray<ClientMessageToDevice>): void;
+  removeMessagesToDeviceOlderThan(message: ClientMessageToDevice): void;
+  removeAllMessagesForDevice(message: string): void;
+  getAllMessagesToDevice(
+    deviceID: string,
+  ): $ReadOnlyArray<ClientMessageToDevice>;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
