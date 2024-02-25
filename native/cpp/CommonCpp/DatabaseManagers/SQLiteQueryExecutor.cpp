@@ -1716,6 +1716,37 @@ void SQLiteQueryExecutor::removeAllMessagesForDevice(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQL, keys);
 }
 
+void SQLiteQueryExecutor::duplicateMessagesForDevice(
+    const std::string &currentDeviceID,
+    const std::string &newDeviceID) const {
+  static std::string query =
+      "INSERT INTO messages_to_device "
+      " (message_id, device_id, user_id, timestamp, content) "
+      "SELECT message_id, ?, user_id, timestamp, content "
+      "FROM messages_to_device "
+      "WHERE device_id = ?;";
+
+  sqlite3_stmt *stmt;
+  int result = sqlite3_prepare_v2(
+      SQLiteQueryExecutor::getConnection(), query.c_str(), -1, &stmt, nullptr);
+  if (result != SQLITE_OK) {
+    throw std::runtime_error(
+        "Failed to prepare duplicateMessagesForDevice statement: " +
+        std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
+  }
+
+  sqlite3_bind_text(stmt, 1, newDeviceID.c_str(), -1, SQLITE_TRANSIENT);
+  sqlite3_bind_text(stmt, 2, currentDeviceID.c_str(), -1, SQLITE_TRANSIENT);
+
+  result = sqlite3_step(stmt);
+  sqlite3_finalize(stmt);
+  if (result != SQLITE_DONE) {
+    throw std::runtime_error(
+        "Failed to execute duplicateMessagesForDevice statement: " +
+        std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
+  }
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();

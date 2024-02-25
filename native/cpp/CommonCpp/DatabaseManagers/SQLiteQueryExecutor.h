@@ -114,6 +114,9 @@ public:
   void removeMessagesToDeviceOlderThan(
       const ClientMessageToDevice &lastConfirmedMessage) const override;
   void removeAllMessagesForDevice(const std::string &deviceID) const override;
+  void duplicateMessagesForDevice(
+      const std::string &currentDeviceID,
+      const std::string &newDeviceID) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
