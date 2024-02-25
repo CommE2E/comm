@@ -112,6 +112,8 @@ public:
       std::string mainCompactionEncryptionKey) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
+  void addMessagesToDevice(
+      const std::vector<ClientMessageToDevice> &messages) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
