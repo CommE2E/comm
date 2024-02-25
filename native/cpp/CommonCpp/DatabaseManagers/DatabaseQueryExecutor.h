@@ -5,6 +5,7 @@
 #include "entities/KeyserverInfo.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
+#include "entities/MessageToDevice.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
 #include "entities/PersistItem.h"
@@ -93,6 +94,8 @@ public:
       std::string mainCompactionEncryptionKey) const = 0;
   virtual void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
+  virtual void addMessagesToDevice(
+      const std::vector<ClientMessageToDevice> &messages) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
