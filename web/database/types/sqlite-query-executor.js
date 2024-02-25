@@ -37,6 +37,15 @@ type OlmPersistSession = {
   +sessionData: string,
 };
 
+export type ClientMessageToDevice = {
+  +messageID: string,
+  +deviceID: string,
+  +userID: string,
+  +timestamp: string,
+  +plaintext: string,
+  +ciphertext: string,
+};
+
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string): void;
 
