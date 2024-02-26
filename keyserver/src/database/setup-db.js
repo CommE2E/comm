@@ -215,11 +215,6 @@ async function createTables() {
         status tinyint(1) UNSIGNED NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-      CREATE TABLE one_time_keys (
-        session bigint(20) NOT NULL,
-        one_time_key char(43) NOT NULL
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
       CREATE TABLE user_messages (
         recipient varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         thread bigint(20) NOT NULL,

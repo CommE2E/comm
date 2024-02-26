@@ -47,12 +47,7 @@ import {
 } from './responders/entry-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
 import { createJSONResponder } from './responders/handlers.js';
-import {
-  getSessionPublicKeysResponder,
-  getOlmSessionInitializationDataResponder,
-  getSessionPublicKeysInputValidator,
-  getSessionPublicKeysResponseValidator,
-} from './responders/keys-responders.js';
+import { getOlmSessionInitializationDataResponder } from './responders/keys-responders.js';
 import {
   createOrUpdatePublicLinkResponder,
   disableInviteLinkResponder,
@@ -369,12 +364,6 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     initialReduxStateRequestValidator,
     initialReduxStateValidator,
     [],
-  ),
-  get_session_public_keys: createJSONResponder(
-    getSessionPublicKeysResponder,
-    getSessionPublicKeysInputValidator,
-    getSessionPublicKeysResponseValidator,
-    baseLegalPolicies,
   ),
   join_thread: createJSONResponder(
     threadJoinResponder,

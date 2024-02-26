@@ -20,7 +20,6 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types.js';
-import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
 import type { AppState } from '../redux/redux-setup.js';
 
@@ -67,7 +66,6 @@ const webGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
       getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       getInitialNotificationsEncryptedMessage: (
         keyserverID: string,
@@ -83,7 +81,6 @@ const webGetClientResponsesSelector: (
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
-        null,
         getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
         serverRequests,
