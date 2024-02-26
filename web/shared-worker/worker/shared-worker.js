@@ -7,6 +7,7 @@ import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
 } from './process-operations.js';
+import { clearCryptoStore, processAppOlmApiRequest } from './worker-crypto.js';
 import {
   getDBModule,
   getSQLiteQueryExecutor,
@@ -29,6 +30,7 @@ import {
   workerResponseMessageTypes,
   type WorkerRequestProxyMessage,
   workerWriteRequests,
+  workerOlmAPIRequests,
 } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
 import {
@@ -189,6 +191,7 @@ async function processAppRequest(
     await Promise.all(promises);
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
+    clearCryptoStore();
     encryptionKey = null;
     await localforage.clear();
     if (dbModule && sqliteQueryExecutor) {
@@ -229,8 +232,9 @@ async function processAppRequest(
   }
 
   // write operations
-  if (!workerWriteRequests.includes(message.type)) {
-    throw new Error('Request type not supported');
+  const isOlmAPIRequest = workerOlmAPIRequests.includes(message.type);
+  if (!workerWriteRequests.includes(message.type) && !isOlmAPIRequest) {
+    throw new Error(`Request type ${message.type} not supported`);
   }
   if (!sqliteQueryExecutor || !dbModule) {
     throw new Error(
@@ -238,7 +242,11 @@ async function processAppRequest(
     );
   }
 
-  if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
+  if (isOlmAPIRequest) {
+    await processAppOlmApiRequest(message);
+  } else if (
+    message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
+  ) {
     processDBStoreOperations(
       sqliteQueryExecutor,
       message.storeOperations,
