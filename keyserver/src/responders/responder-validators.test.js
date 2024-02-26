@@ -13,7 +13,6 @@ import {
   deltaEntryInfosResultValidator,
   restoreEntryResponseValidator,
 } from './entry-responders.js';
-import { getSessionPublicKeysResponseValidator } from './keys-responders.js';
 import {
   inviteLinkVerificationResponseValidator,
   fetchInviteLinksResponseValidator,
@@ -429,24 +428,6 @@ describe('activity responder', () => {
     expect(setThreadUnreadStatusResultValidator.is(response)).toBe(true);
     expect(
       setThreadUnreadStatusResultValidator.is({ ...response, unread: false }),
-    ).toBe(false);
-  });
-});
-
-describe('keys responder', () => {
-  it('should validate get session public keys response', () => {
-    const response = {
-      identityKey: 'key',
-      oneTimeKey: 'key',
-    };
-
-    expect(getSessionPublicKeysResponseValidator.is(response)).toBe(true);
-    expect(getSessionPublicKeysResponseValidator.is(null)).toBe(true);
-    expect(
-      getSessionPublicKeysResponseValidator.is({
-        ...response,
-        identityKey: undefined,
-      }),
     ).toBe(false);
   });
 });

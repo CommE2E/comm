@@ -17,7 +17,6 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types.js';
-import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
 import { commCoreModule } from '../native-modules.js';
 import { calendarActiveSelector } from '../navigation/nav-selectors.js';
@@ -37,17 +36,6 @@ const sessionIdentificationSelector: (
 ) => (state: AppState) => SessionIdentification = _memoize(
   baseSessionIdentificationSelector,
 );
-
-function oneTimeKeyGenerator(inc: number): string {
-  // todo replace this hard code with something like
-  // commCoreModule.generateOneTimeKeys()
-  let str = Date.now().toString() + '_' + inc.toString() + '_';
-  while (str.length < 43) {
-    str += Math.random().toString(36).substr(2, 5);
-  }
-  str = str.substr(0, 43);
-  return str;
-}
 
 async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   await commCoreModule.initializeCryptoAccount();
@@ -81,7 +69,6 @@ const nativeGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
       getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       getInitialNotificationsEncryptedMessage: ?(
         keyserverID: string,
@@ -96,7 +83,6 @@ const nativeGetClientResponsesSelector: (
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
-        oneTimeKeyGenerator,
         getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
         serverRequests,
