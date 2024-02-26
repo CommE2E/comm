@@ -17,6 +17,11 @@ import {
   shouldRotatePrekey,
 } from 'lib/utils/olm-utils.js';
 
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { olmWasmPath } from '../shared-worker/utils/constants.js';
+import { workerRequestMessageTypes } from '../types/worker-types.js';
+
+const usingSharedWorker = false;
 // methods below are just mocks to SQLite API
 // implement proper methods tracked in ENG-6462
 
@@ -36,7 +41,15 @@ function storeOlmSession(session: Session): void {}
 
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
-    await olm.init();
+    if (usingSharedWorker) {
+      const sharedWorker = await getCommSharedWorker();
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+        olmWasmPath: olmWasmPath(),
+      });
+    } else {
+      await olm.init();
+    }
   },
   async encrypt(content: string, deviceID: string): Promise<string> {
     const session = getOlmSession(deviceID);

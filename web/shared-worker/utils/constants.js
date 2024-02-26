@@ -46,3 +46,12 @@ export const localforageConfig: PartialConfig = {
   description: 'Comm encrypted database storage',
   version: '1.0',
 };
+
+declare var baseURL: string;
+declare var olmFilename: string;
+export function olmWasmPath(): string {
+  const origin = window.location.origin;
+  const olmWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
+  const olmWasmFilename = olmFilename ? olmFilename : DEFAULT_OLM_FILENAME;
+  return `${olmWasmDirPath}/${olmWasmFilename}`;
+}
