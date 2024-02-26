@@ -1,6 +1,7 @@
 // @flow
 
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -20,6 +21,7 @@ export const workerRequestMessageTypes = Object.freeze({
   REMOVE_PERSIST_STORAGE_ITEM: 9,
   CLEAR_SENSITIVE_DATA: 10,
   BACKUP_RESTORE: 11,
+  INITIALIZE_CRYPTO_ACCOUNT: 12,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -28,6 +30,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.BACKUP_RESTORE,
+  workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
 ];
 
 export type PingWorkerRequestMessage = {
@@ -41,6 +44,7 @@ export type InitWorkerRequestMessage = {
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
   +backupClientFilename?: ?string,
+  +initialCryptoStore?: CryptoStore,
 };
 
 export type GenerateDatabaseEncryptionKeyRequestMessage = {
@@ -93,6 +97,12 @@ export type BackupRestoreRequestMessage = {
   +backupLogDataKey: string,
 };
 
+export type InitializeCryptoAccountRequestMessage = {
+  +type: 12,
+  +olmWasmPath: string,
+  +initialCryptoStore?: CryptoStore,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -105,7 +115,8 @@ export type WorkerRequestMessage =
   | SetPersistStorageItemRequestMessage
   | RemovePersistStorageItemRequestMessage
   | ClearSensitiveDataRequestMessage
-  | BackupRestoreRequestMessage;
+  | BackupRestoreRequestMessage
+  | InitializeCryptoAccountRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
