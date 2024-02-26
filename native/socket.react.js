@@ -78,6 +78,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         redux: state,
         navContext,
         getInitialNotificationsEncryptedMessage,
+        keyserverID,
       }),
     );
     const sessionStateFunc = useSelector(state =>

@@ -80,6 +80,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         state,
         getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
+        keyserverID,
       }),
     );
     const sessionStateFunc = useSelector(

@@ -59,12 +59,13 @@ async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   return signedIdentityKeysBlob;
 }
 
-type NativeGetClientResponsesSelectorInputType = {
+type NativeGetClientResponsesSelectorInputType = $ReadOnly<{
   ...NavPlusRedux,
   getInitialNotificationsEncryptedMessage: (
     keyserverID: string,
   ) => Promise<string>,
-};
+  keyserverID: string,
+}>;
 
 const nativeGetClientResponsesSelector: (
   input: NativeGetClientResponsesSelectorInputType,
@@ -72,7 +73,7 @@ const nativeGetClientResponsesSelector: (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
   (input: NativeGetClientResponsesSelectorInputType) =>
-    getClientResponsesSelector(input.redux),
+    getClientResponsesSelector(input.redux, input.keyserverID),
   (input: NativeGetClientResponsesSelectorInputType) =>
     calendarActiveSelector(input.navContext),
   (input: NativeGetClientResponsesSelectorInputType) =>
