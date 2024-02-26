@@ -7,6 +7,7 @@ import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
 } from './process-operations.js';
+import { clearCryptoStore, initializeCryptoAccount } from './worker-crypto.js';
 import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
   decryptData,
@@ -182,6 +183,7 @@ async function processAppRequest(
     await Promise.all(promises);
     return undefined;
   } else if (message.type === workerRequestMessageTypes.CLEAR_SENSITIVE_DATA) {
+    clearCryptoStore();
     encryptionKey = null;
     await localforage.clear();
     if (dbModule && sqliteQueryExecutor) {
@@ -255,6 +257,15 @@ async function processAppRequest(
       message.backupID,
       message.backupDataKey,
       message.backupLogDataKey,
+    );
+  } else if (
+    message.type === workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT
+  ) {
+    await initializeCryptoAccount(
+      sqliteQueryExecutor,
+      dbModule,
+      message.olmWasmPath,
+      message.initialCryptoStore,
     );
   }
 
