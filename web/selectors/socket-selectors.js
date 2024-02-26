@@ -48,6 +48,7 @@ type WebGetClientResponsesSelectorInputType = {
   +getInitialNotificationsEncryptedMessage: (
     keyserverID: string,
   ) => Promise<string>,
+  +keyserverID: string,
 };
 
 const webGetClientResponsesSelector: (
@@ -56,7 +57,7 @@ const webGetClientResponsesSelector: (
   serverRequests: $ReadOnlyArray<ClientServerRequest>,
 ) => Promise<$ReadOnlyArray<ClientClientResponse>> = createSelector(
   (input: WebGetClientResponsesSelectorInputType) =>
-    getClientResponsesSelector(input.state),
+    getClientResponsesSelector(input.state, input.keyserverID),
   (input: WebGetClientResponsesSelectorInputType) =>
     input.getSignedIdentityKeysBlob,
   (input: WebGetClientResponsesSelectorInputType) =>
