@@ -39,10 +39,8 @@ import {
 } from 'lib/utils/validation-utils.js';
 
 import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
-import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
 import createReport from '../creators/report-creator.js';
 import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
-import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers.js';
 import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
 import {
   threadInconsistencyReportValidatorShape,
@@ -103,13 +101,6 @@ const clientResponseInputValidator: TUnion<ClientResponse> = t.union([
       x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
     ),
     activityUpdates: activityUpdatesInputValidator,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.MORE_ONE_TIME_KEYS',
-      x => x === serverRequestTypes.MORE_ONE_TIME_KEYS,
-    ),
-    keys: t.list(t.String),
   }),
   tShape({
     type: t.irreducible(
@@ -194,9 +185,6 @@ async function processClientResponses(
         invalidKeys.length > 0
           ? { status: 'state_invalid', invalidKeys }
           : { status: 'state_validated' };
-    } else if (clientResponse.type === serverRequestTypes.MORE_ONE_TIME_KEYS) {
-      invariant(clientResponse.keys, 'keys expected in client response');
-      ignorePromiseRejections(saveOneTimeKeys(viewer, clientResponse.keys));
     } else if (
       clientResponse.type === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB
     ) {
@@ -254,22 +242,9 @@ async function processClientResponses(
 
   const serverRequests: Array<ServerServerRequest> = [];
 
-  const checkOneTimeKeysPromise = (async () => {
-    if (!viewer.loggedIn) {
-      return;
-    }
-    const enoughOneTimeKeys = await checkIfSessionHasEnoughOneTimeKeys(
-      viewer.session,
-    );
-    if (!enoughOneTimeKeys) {
-      serverRequests.push({ type: serverRequestTypes.MORE_ONE_TIME_KEYS });
-    }
-  })();
-
   const { activityUpdateResult } = await promiseAll({
     all: Promise.all(promises),
     activityUpdateResult: activityUpdatePromise,
-    checkOneTimeKeysPromise,
   });
 
   if (
