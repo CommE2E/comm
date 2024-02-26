@@ -22,14 +22,8 @@ import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import {
-  WORKERS_MODULES_DIR_PATH,
-  DEFAULT_OLM_FILENAME,
-} from '../shared-worker/utils/constants.js';
+import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-
-declare var baseURL: string;
-declare var olmFilename: string;
 
 function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
@@ -106,11 +100,10 @@ function useCreatePushSubscription(): () => Promise<void> {
       return;
     }
 
-    const origin = window.location.origin;
-    const olmWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
-    const olmWasmFilename = olmFilename ? olmFilename : DEFAULT_OLM_FILENAME;
-    const olmWasmPath = `${olmWasmDirPath}/${olmWasmFilename}`;
-    workerRegistration.active?.postMessage({ olmWasmPath, staffCanSee });
+    workerRegistration.active?.postMessage({
+      olmWasmPath: getOlmWasmPath(),
+      staffCanSee,
+    });
 
     const subscription = await workerRegistration.pushManager.subscribe({
       userVisibleOnly: true,
