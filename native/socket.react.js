@@ -21,7 +21,6 @@ import { logInActionSources } from 'lib/types/account-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { InputStateContext } from './input/input-state.js';
 import {
   activeMessageListSelector,
   nativeCalendarQuery,
@@ -40,7 +39,6 @@ import { decompressMessage } from './utils/decompress.js';
 
 const NativeSocket: React.ComponentType<BaseSocketProps> =
   React.memo<BaseSocketProps>(function NativeSocket(props: BaseSocketProps) {
-    const inputState = React.useContext(InputStateContext);
     const navContext = React.useContext(NavContext);
 
     const { keyserverID } = props;
@@ -92,13 +90,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         redux: state,
         navContext,
       }),
-    );
-
-    const canSendReports = useSelector(
-      state =>
-        !state.frozen &&
-        state.connectivity.hasWiFi &&
-        (!inputState || !inputState.uploadInProgress()),
     );
 
     const activeThread = React.useMemo(() => {
@@ -162,7 +153,6 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         urlPrefix={urlPrefix}
         connection={connection}
         currentCalendarQuery={currentCalendarQuery}
-        canSendReports={canSendReports}
         frozen={frozen}
         preRequestUserState={preRequestUserState}
         dispatch={dispatch}
