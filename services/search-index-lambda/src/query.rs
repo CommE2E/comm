@@ -31,6 +31,6 @@ pub struct Match {
 
 #[derive(Serialize)]
 pub struct Term {
-  #[serde(rename = "userID")]
-  pub user_id: String,
+  #[serde(rename = "userID.keyword")]
+  pub user_id_keyword: String,
 }
