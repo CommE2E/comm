@@ -12,6 +12,7 @@ import thunk from 'redux-thunk';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
+import ReportHandler from 'lib/components/report-handler.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
@@ -56,6 +57,7 @@ const RootProvider = (): React.Node => (
                 <PrekeysHandler />
                 <SQLiteDataHandler />
                 <IntegrityHandler />
+                <ReportHandler canSendReports={true} />
               </OlmSessionCreatorProvider>
             </IdentityServiceContextProvider>
           </GetOrCreateCryptoStoreProvider>
