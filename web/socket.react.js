@@ -117,7 +117,6 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         urlPrefix={urlPrefix}
         connection={connection}
         currentCalendarQuery={currentCalendarQuery}
-        canSendReports={true}
         frozen={false}
         preRequestUserState={preRequestUserState}
         dispatch={dispatch}
