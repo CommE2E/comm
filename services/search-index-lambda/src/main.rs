@@ -172,7 +172,7 @@ async fn handle_modify(
     query: Query {
       r#match: None,
       term: Some(Term {
-        user_id: user_id.clone(),
+        user_id_keyword: user_id.clone(),
       }),
     },
     script: Some(Script {
