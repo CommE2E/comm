@@ -23,8 +23,6 @@ prev:
     nativeBuildInputs = (o.nativeBuildInputs or []) ++ [ prev.cmake ];
   });
 
-  comm-blob = final.callPackage ./blob.nix { };
-
   devShells.default = final.callPackage ./dev-shell.nix { };
   devShell = final.devShells.default;
 
