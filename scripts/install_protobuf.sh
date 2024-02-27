@@ -5,7 +5,7 @@ set -euo pipefail
 git clone \
   --recurse-submodules \
   --single-branch \
-  -b v3.15.8 \
+  -b v21.12 \
   https://github.com/protocolbuffers/protobuf
 
 pushd protobuf || exit
