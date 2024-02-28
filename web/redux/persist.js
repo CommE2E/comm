@@ -6,6 +6,11 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
+  communityStoreOpsHandlers,
+  type ClientDBCommunityStoreOperation,
+  type ReplaceCommunityOperation,
+} from 'lib/ops/community-store-ops.js';
+import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
@@ -15,10 +20,13 @@ import {
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
+import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
@@ -48,6 +56,7 @@ const persistWhitelist = [
   'keyserverStore',
   'globalThemeInfo',
   'customServer',
+  'communityStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
@@ -261,6 +270,56 @@ const migrations = {
       return handleReduxMigrationFailure(state);
     }
   },
+  [12]: async (state: AppState) => {
+    const databaseModule = await getDatabaseModule();
+    const isDatabaseSupported = await databaseModule.isDatabaseSupported();
+
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    const clientDBStores = await databaseModule.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+    invariant(clientDBStores?.store, 'Stores should exist');
+
+    const threadInfos = clientDBStores.store.threads;
+
+    const replaceOperations: $ReadOnlyArray<ReplaceCommunityOperation> =
+      threadInfos
+        .filter(threadInfo => threadTypeIsCommunityRoot(threadInfo.type))
+        .map(threadInfo => {
+          const communityInfo: CommunityInfo = {
+            enabledApps: defaultEnabledApps,
+          };
+          return {
+            type: 'replace_community',
+            payload: {
+              id: threadInfo.id,
+              communityInfo,
+            },
+          };
+        });
+
+    const commmunityStoreOperations: $ReadOnlyArray<ClientDBCommunityStoreOperation> =
+      communityStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_communities' },
+        ...replaceOperations,
+      ]);
+
+    try {
+      await databaseModule.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: {
+          communityStoreOperations: commmunityStoreOperations,
+        },
+      });
+      return state;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(state);
+    }
+  },
 };
 
 const rootKey = 'root';
@@ -307,7 +366,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 11,
+  version: 12,
   transforms: [keyserverStoreTransform],
 };
 

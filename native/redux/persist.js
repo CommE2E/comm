@@ -17,6 +17,11 @@ import {
 } from 'lib/_generated/migration-utils.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
+  communityStoreOpsHandlers,
+  type ClientDBCommunityStoreOperation,
+  type ReplaceCommunityOperation,
+} from 'lib/ops/community-store-ops.js';
+import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
@@ -53,6 +58,7 @@ import {
   DEPRECATED_unshimMessageStore,
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -75,6 +81,7 @@ import type {
 } from 'lib/types/report-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
@@ -1126,6 +1133,42 @@ const migrations = {
     }
     return newState;
   },
+  [64]: async (state: AppState) => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+
+    const replaceOperations: $ReadOnlyArray<ReplaceCommunityOperation> =
+      clientDBThreadInfos
+        .filter(threadInfo => threadTypeIsCommunityRoot(threadInfo.type))
+        .map(threadInfo => {
+          const communityInfo: CommunityInfo = {
+            enabledApps: defaultEnabledApps,
+          };
+          return {
+            type: 'replace_community',
+            payload: {
+              id: threadInfo.id,
+              communityInfo,
+            },
+          };
+        });
+
+    const dbOperations: $ReadOnlyArray<ClientDBCommunityStoreOperation> =
+      communityStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_communities' },
+        ...replaceOperations,
+      ]);
+
+    try {
+      await commCoreModule.processCommunityStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1193,7 +1236,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 63,
+  version: 64,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
