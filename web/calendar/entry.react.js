@@ -17,6 +17,7 @@ import {
   type PushModal,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
+import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
@@ -47,7 +48,6 @@ import {
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './calendar.css';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react.js';
@@ -472,10 +472,12 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const connection = useSelector(
-      connectionSelector(authoritativeKeyserverID),
+    const keyserverID = extractKeyserverIDFromID(threadID);
+    const connection = useSelector(connectionSelector(keyserverID));
+    invariant(
+      connection,
+      `keyserver ${keyserverID} missing from keyserverStore`,
     );
-    invariant(connection, 'keyserver missing from keyserverStore');
     const online = connection.status === 'connected';
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();
