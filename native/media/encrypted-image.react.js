@@ -39,7 +39,7 @@ function EncryptedImage(props: Props): React.Node {
   const connected = useSelector(state => state.connectivity.connected);
   const prevConnectedRef = React.useRef(connected);
   const [attempt, setAttempt] = React.useState(0);
-  const [errorOccured, setErrorOccured] = React.useState(false);
+  const [errorOccurred, setErrorOccurred] = React.useState(false);
 
   if (prevConnectedRef.current !== connected) {
     if (!source && connected) {
@@ -83,7 +83,7 @@ function EncryptedImage(props: Props): React.Node {
           void mediaCache?.set(blobURI, result.uri);
           setSource({ uri: result.uri });
         } else {
-          setErrorOccured(true);
+          setErrorOccurred(true);
         }
       }
     };
@@ -110,7 +110,7 @@ function EncryptedImage(props: Props): React.Node {
       style={style}
       invisibleLoad={invisibleLoad}
       key={attempt}
-      errorOccured={errorOccured}
+      errorOccured={errorOccurred}
     />
   );
 }
