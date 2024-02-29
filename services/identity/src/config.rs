@@ -1,14 +1,17 @@
+use std::{env, fmt, fs, io, path};
+
 use base64::{engine::general_purpose, DecodeError, Engine as _};
 use clap::{Parser, Subcommand};
+use http::HeaderValue;
 use once_cell::sync::Lazy;
-use std::{env, fmt, fs, io, path};
+use tower_http::cors::AllowOrigin;
 use tracing::{error, info};
 
 use crate::constants::{
-  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
-  TUNNELBROKER_GRPC_ENDPOINT,
+  cors::ALLOW_ORIGIN_LIST, DEFAULT_OPENSEARCH_ENDPOINT,
+  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
+  OPAQUE_SERVER_SETUP, OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -49,6 +52,11 @@ struct Cli {
   #[arg(env = OPENSEARCH_ENDPOINT)]
   #[arg(default_value = DEFAULT_OPENSEARCH_ENDPOINT)]
   opensearch_endpoint: String,
+
+  /// Allowed origins
+  #[arg(long, global = true)]
+  #[arg(env = ALLOW_ORIGIN_LIST)]
+  allow_origin_list: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -73,6 +81,7 @@ pub struct ServerConfig {
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
   pub opensearch_endpoint: String,
+  pub allow_origin: Option<AllowOrigin>,
 }
 
 impl ServerConfig {
@@ -85,15 +94,20 @@ impl ServerConfig {
     if let Some(endpoint) = &cli.localstack_endpoint {
       info!("Using Localstack endpoint: {}", endpoint);
     }
-
     info!("Using OpenSearch endpoint: {}", cli.opensearch_endpoint);
 
     let mut path_buf = path::PathBuf::new();
     path_buf.push(SECRETS_DIRECTORY);
     path_buf.push(SECRETS_SETUP_FILE);
-
     let server_setup = get_server_setup(path_buf.as_path())?;
+
     let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
+
+    let allow_origin = cli
+      .allow_origin_list
+      .clone()
+      .map(|s| slice_to_allow_origin(&s))
+      .transpose()?;
 
     Ok(Self {
       localstack_endpoint: cli.localstack_endpoint.clone(),
@@ -101,20 +115,20 @@ impl ServerConfig {
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       keyserver_public_key,
+      allow_origin,
     })
-  }
-
-  pub fn is_dev(&self) -> bool {
-    self.localstack_endpoint.is_some()
   }
 }
 
 impl fmt::Debug for ServerConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_struct("ServerConfig")
-      .field("server_keypair", &"** redacted **")
-      .field("keyserver_auth_token", &"** redacted **")
       .field("localstack_endpoint", &self.localstack_endpoint)
+      .field("server_setup", &"** redacted **")
+      .field("keyserver_public_key", &self.keyserver_public_key)
+      .field("tunnelbroker_endpoint", &self.tunnelbroker_endpoint)
+      .field("opensearch_endpoint", &self.opensearch_endpoint)
+      .field("allow_origin_list", &"** redacted **")
       .finish()
   }
 }
@@ -131,6 +145,8 @@ pub enum Error {
   Json(serde_json::Error),
   #[display(...)]
   Decode(DecodeError),
+  #[display(...)]
+  InvalidHeaderValue(http::header::InvalidHeaderValue),
 }
 
 fn get_server_setup(
@@ -159,4 +175,13 @@ fn get_server_setup(
     general_purpose::STANDARD_NO_PAD.decode(encoded_server_setup)?;
   comm_opaque2::ServerSetup::deserialize(&decoded_server_setup)
     .map_err(Error::Opaque)
+}
+
+fn slice_to_allow_origin(origins: &str) -> Result<AllowOrigin, Error> {
+  let allow_origin_result: Result<Vec<HeaderValue>, Error> = origins
+    .split(',')
+    .map(|s| HeaderValue::from_str(s.trim()).map_err(Error::InvalidHeaderValue))
+    .collect();
+  let allow_origin_list = allow_origin_result?;
+  Ok(AllowOrigin::list(allow_origin_list))
 }
