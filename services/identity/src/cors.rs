@@ -1,19 +1,14 @@
-use http::{HeaderName, HeaderValue};
+use http::HeaderName;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use crate::{config::CONFIG, constants::cors};
 
 pub fn cors_layer() -> CorsLayer {
-  let allow_origin = if CONFIG.is_dev() {
-    AllowOrigin::mirror_request()
-  } else {
-    AllowOrigin::list(
-      cors::DEFAULT_ALLOW_ORIGIN
-        .iter()
-        .cloned()
-        .map(HeaderValue::from_static),
-    )
-  };
+  let allow_origin = CONFIG
+    .allow_origin
+    .clone()
+    .unwrap_or_else(AllowOrigin::mirror_request);
+
   CorsLayer::new()
     .allow_origin(allow_origin)
     .allow_credentials(true)
