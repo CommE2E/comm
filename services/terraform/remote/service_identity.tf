@@ -21,6 +21,19 @@ locals {
   identity_service_domain_name      = "identity.${local.root_domain}"
 
   opaque_server_setup_secret_name = "identity/ServerSetup"
+  staging_allow_origin_list       = <<EOT
+    http://localhost:3000,
+    http://localhost:3001,
+    http://localhost:3002,
+    http://localhost:3003,
+    http://localhost:3004,
+    http://localhost:3005,
+    http://localhost:3006,
+    http://localhost:3007,
+    http://localhost:3008,
+    http://localhost:3009,
+  EOT
+  production_allow_origin_list    = "https://web.comm.app"
 }
 
 data "aws_secretsmanager_secret" "identity_server_setup" {
@@ -63,7 +76,11 @@ resource "aws_ecs_task_definition" "identity_service" {
         },
         {
           name  = "OPENSEARCH_ENDPOINT"
-          value = "${module.shared.opensearch_domain_identity.endpoint}"
+          value = module.shared.opensearch_domain_identity.endpoint
+        },
+        {
+          name  = "ALLOW_ORIGIN_LIST"
+          value = local.is_staging ? local.staging_allow_origin_list : local.production_allow_origin_list
         }
       ]
       secrets = [
