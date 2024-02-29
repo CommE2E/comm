@@ -72,7 +72,10 @@ async function createAccount(
   if (request.password.trim() === '') {
     throw new ServerError('empty_password');
   }
-  if (request.username.search(validUsernameRegex) === -1) {
+  if (
+    request.username.search(validUsernameRegex) === -1 ||
+    isValidEthereumAddress(request.username.toLowerCase())
+  ) {
     throw new ServerError('invalid_username');
   }
 
@@ -87,10 +90,7 @@ async function createAccount(
   }
 
   const [existingUser, admin] = await Promise.all(promises);
-  if (
-    reservedUsernamesSet.has(request.username.toLowerCase()) ||
-    isValidEthereumAddress(request.username.toLowerCase())
-  ) {
+  if (reservedUsernamesSet.has(request.username.toLowerCase())) {
     throw new ServerError('username_reserved');
   }
   if (existingUser) {

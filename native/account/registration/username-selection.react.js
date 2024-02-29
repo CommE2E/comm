@@ -12,6 +12,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -53,7 +54,9 @@ function UsernameSelection(props: Props): React.Node {
   const [username, setUsername] = React.useState(
     cachedSelections.username ?? '',
   );
-  const validUsername = username.search(validUsernameRegex) > -1;
+  const validUsername =
+    username.search(validUsernameRegex) > -1 &&
+    !isValidEthereumAddress(username.toLowerCase());
 
   const [usernameError, setUsernameError] = React.useState<?UsernameError>();
   const checkUsernameValidity = React.useCallback(() => {
