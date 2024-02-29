@@ -25,7 +25,6 @@ import {
   updateCalendarQueryActionTypes,
   useUpdateCalendarQuery,
 } from 'lib/actions/entry-actions.js';
-import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import type {
@@ -36,7 +35,6 @@ import type {
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ConnectionStatus } from 'lib/types/socket-types.js';
 import {
   dateFromString,
   dateString,
@@ -55,7 +53,6 @@ import {
   InternalEntry,
 } from './entry.react.js';
 import SectionFooter from './section-footer.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import ContentLoading from '../components/content-loading.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
@@ -172,7 +169,7 @@ type Props = {
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +dimensions: DerivedDimensionsInfo,
   +loadingStatus: LoadingStatus,
-  +connectionStatus: ConnectionStatus,
+  +connected: boolean,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
@@ -304,14 +301,12 @@ class Calendar extends React.PureComponent<Props, State> {
       this.bottomLoaderWaitingToLeaveView = true;
     }
 
-    const { loadingStatus, connectionStatus } = this.props;
-    const {
-      loadingStatus: prevLoadingStatus,
-      connectionStatus: prevConnectionStatus,
-    } = prevProps;
+    const { loadingStatus, connected } = this.props;
+    const { loadingStatus: prevLoadingStatus, connected: prevConnected } =
+      prevProps;
     if (
       (loadingStatus === 'error' && prevLoadingStatus === 'loading') ||
-      (connectionStatus === 'connected' && prevConnectionStatus !== 'connected')
+      (connected && !prevConnected)
     ) {
       this.loadMoreAbove();
       this.loadMoreBelow();
@@ -1010,7 +1005,7 @@ class Calendar extends React.PureComponent<Props, State> {
     if (
       this.topLoadingFromScroll &&
       this.topLoaderWaitingToLeaveView &&
-      this.props.connectionStatus === 'connected'
+      this.props.connected
     ) {
       this.dispatchCalendarQueryUpdate(this.topLoadingFromScroll);
     }
@@ -1020,7 +1015,7 @@ class Calendar extends React.PureComponent<Props, State> {
     if (
       this.bottomLoadingFromScroll &&
       this.bottomLoaderWaitingToLeaveView &&
-      this.props.connectionStatus === 'connected'
+      this.props.connected
     ) {
       this.dispatchCalendarQueryUpdate(this.bottomLoadingFromScroll);
     }
@@ -1081,11 +1076,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const calendarFilters = useSelector(state => state.calendarFilters);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const loadingStatus = useSelector(loadingStatusSelector);
-    const connection = useSelector(
-      connectionSelector(authoritativeKeyserverID),
-    );
-    invariant(connection, 'keyserver missing from keyserverStore');
-    const connectionStatus = connection.status;
+    const connected = useSelector(state => state.connectivity.connected);
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
@@ -1103,7 +1094,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         calendarFilters={calendarFilters}
         dimensions={dimensions}
         loadingStatus={loadingStatus}
-        connectionStatus={connectionStatus}
+        connected={connected}
         colors={colors}
         styles={styles}
         indicatorStyle={indicatorStyle}
