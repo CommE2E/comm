@@ -63,7 +63,11 @@ resource "aws_ecs_task_definition" "identity_service" {
         },
         {
           name  = "OPENSEARCH_ENDPOINT"
-          value = "${module.shared.opensearch_domain_identity.endpoint}"
+          value = module.shared.opensearch_domain_identity.endpoint
+        },
+        {
+          name  = "REMOTE_ENVIRONMENT"
+          value = local.is_staging ? "staging" : "production"
         }
       ]
       secrets = [
