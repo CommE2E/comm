@@ -5,10 +5,10 @@ use std::{env, fmt, fs, io, path};
 use tracing::{error, info};
 
 use crate::constants::{
-  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
-  TUNNELBROKER_GRPC_ENDPOINT,
+  cors::ALLOW_ORIGIN_LIST, DEFAULT_OPENSEARCH_ENDPOINT,
+  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
+  OPAQUE_SERVER_SETUP, OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -49,6 +49,11 @@ struct Cli {
   #[arg(env = OPENSEARCH_ENDPOINT)]
   #[arg(default_value = DEFAULT_OPENSEARCH_ENDPOINT)]
   opensearch_endpoint: String,
+
+  /// Allowed origins
+  #[arg(long, global = true)]
+  #[arg(env = ALLOW_ORIGIN_LIST)]
+  allow_origin_list: Option<String>,
 }
 
 #[derive(Subcommand)]
@@ -73,6 +78,7 @@ pub struct ServerConfig {
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
   pub opensearch_endpoint: String,
+  pub allow_origin_list: Option<String>,
 }
 
 impl ServerConfig {
@@ -85,7 +91,6 @@ impl ServerConfig {
     if let Some(endpoint) = &cli.localstack_endpoint {
       info!("Using Localstack endpoint: {}", endpoint);
     }
-
     info!("Using OpenSearch endpoint: {}", cli.opensearch_endpoint);
 
     let mut path_buf = path::PathBuf::new();
@@ -101,20 +106,20 @@ impl ServerConfig {
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       keyserver_public_key,
+      allow_origin_list: cli.allow_origin_list.clone(),
     })
-  }
-
-  pub fn is_dev(&self) -> bool {
-    self.localstack_endpoint.is_some()
   }
 }
 
 impl fmt::Debug for ServerConfig {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_struct("ServerConfig")
-      .field("server_keypair", &"** redacted **")
-      .field("keyserver_auth_token", &"** redacted **")
       .field("localstack_endpoint", &self.localstack_endpoint)
+      .field("server_setup", &"** redacted **")
+      .field("keyserver_public_key", &self.keyserver_public_key)
+      .field("tunnelbroker_endpoint", &self.tunnelbroker_endpoint)
+      .field("opensearch_endpoint", &self.opensearch_endpoint)
+      .field("allow_origin_list", &"** redacted **")
       .finish()
   }
 }
@@ -131,6 +136,8 @@ pub enum Error {
   Json(serde_json::Error),
   #[display(...)]
   Decode(DecodeError),
+  #[display(...)]
+  InvalidRemoteEnvironment,
 }
 
 fn get_server_setup(

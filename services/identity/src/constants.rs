@@ -216,6 +216,5 @@ pub mod cors {
     super::request_metadata::DEVICE_ID,
     super::request_metadata::ACCESS_TOKEN,
   ];
-  pub const DEFAULT_ALLOW_ORIGIN: [&str; 2] =
-    ["https://web.comm.app", "http://localhost:3000"];
+  pub const ALLOW_ORIGIN_LIST: &str = "ALLOW_ORIGIN_LIST";
 }

@@ -4,15 +4,9 @@ use tower_http::cors::{AllowOrigin, CorsLayer};
 use crate::{config::CONFIG, constants::cors};
 
 pub fn cors_layer() -> CorsLayer {
-  let allow_origin = if CONFIG.is_dev() {
-    AllowOrigin::mirror_request()
-  } else {
-    AllowOrigin::list(
-      cors::DEFAULT_ALLOW_ORIGIN
-        .iter()
-        .cloned()
-        .map(HeaderValue::from_static),
-    )
+  let allow_origin = match &CONFIG.allow_origin_list {
+    None => AllowOrigin::mirror_request(),
+    Some(allow_origin_list) => slice_to_allow_origin(allow_origin_list),
   };
   CorsLayer::new()
     .allow_origin(allow_origin)
@@ -32,4 +26,11 @@ pub fn cors_layer() -> CorsLayer {
         .map(HeaderName::from_static)
         .collect::<Vec<HeaderName>>(),
     )
+}
+
+fn slice_to_allow_origin(origins: &str) -> AllowOrigin {
+  let allow_origin_list = origins.split(',').map(|s| {
+    HeaderValue::from_str(s.trim()).expect("failed to parse allow origin list")
+  });
+  AllowOrigin::list(allow_origin_list)
 }
