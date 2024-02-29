@@ -1,14 +1,11 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
-import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 
 import { decryptBase64, useFetchAndDecryptMedia } from './encryption-utils.js';
 import LoadableImage from './loadable-image.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
@@ -39,18 +36,16 @@ function EncryptedImage(props: Props): React.Node {
   const mediaCache = React.useContext(MediaCacheContext);
   const [source, setSource] = React.useState<?ImageSource>(null);
 
-  const connection = useSelector(connectionSelector(authoritativeKeyserverID));
-  invariant(connection, 'keyserver missing from keyserverStore');
-  const connectionStatus = connection.status;
-  const prevConnectionStatusRef = React.useRef(connectionStatus);
+  const connected = useSelector(state => state.connectivity.connected);
+  const prevConnectedRef = React.useRef(connected);
   const [attempt, setAttempt] = React.useState(0);
   const [errorOccured, setErrorOccured] = React.useState(false);
 
-  if (prevConnectionStatusRef.current !== connectionStatus) {
-    if (!source && connectionStatus === 'connected') {
+  if (prevConnectedRef.current !== connected) {
+    if (!source && connected) {
       setAttempt(attempt + 1);
     }
-    prevConnectionStatusRef.current = connectionStatus;
+    prevConnectedRef.current = connected;
   }
 
   const placeholder = React.useMemo(() => {
