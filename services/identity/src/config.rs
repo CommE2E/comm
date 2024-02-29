@@ -7,8 +7,8 @@ use tracing::{error, info};
 use crate::constants::{
   DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
   KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
-  TUNNELBROKER_GRPC_ENDPOINT,
+  OPENSEARCH_ENDPOINT, REMOTE_ENVIRONMENT, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -73,6 +73,7 @@ pub struct ServerConfig {
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
   pub opensearch_endpoint: String,
+  pub remote_environment: Option<RemoteEnvironment>,
 }
 
 impl ServerConfig {
@@ -95,17 +96,18 @@ impl ServerConfig {
     let server_setup = get_server_setup(path_buf.as_path())?;
     let keyserver_public_key = env::var(KEYSERVER_PUBLIC_KEY).ok();
 
+    let remote_environment_opt = env::var(REMOTE_ENVIRONMENT).ok();
+    let remote_environment =
+      remote_environment_opt.and_then(|s| RemoteEnvironment::try_from(s).ok());
+
     Ok(Self {
       localstack_endpoint: cli.localstack_endpoint.clone(),
       tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       keyserver_public_key,
+      remote_environment,
     })
-  }
-
-  pub fn is_dev(&self) -> bool {
-    self.localstack_endpoint.is_some()
   }
 }
 
@@ -131,6 +133,8 @@ pub enum Error {
   Json(serde_json::Error),
   #[display(...)]
   Decode(DecodeError),
+  #[display(...)]
+  InvalidRemoteEnvironment,
 }
 
 fn get_server_setup(
@@ -159,4 +163,22 @@ fn get_server_setup(
     general_purpose::STANDARD_NO_PAD.decode(encoded_server_setup)?;
   comm_opaque2::ServerSetup::deserialize(&decoded_server_setup)
     .map_err(Error::Opaque)
+}
+
+#[derive(Clone, PartialEq)]
+pub enum RemoteEnvironment {
+  Staging,
+  Production,
+}
+
+impl TryFrom<String> for RemoteEnvironment {
+  type Error = Error;
+
+  fn try_from(value: String) -> Result<Self, Self::Error> {
+    match value.as_str() {
+      "staging" => Ok(RemoteEnvironment::Staging),
+      "production" => Ok(RemoteEnvironment::Production),
+      _ => Err(Error::InvalidRemoteEnvironment),
+    }
+  }
 }

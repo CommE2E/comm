@@ -216,6 +216,14 @@ pub mod cors {
     super::request_metadata::DEVICE_ID,
     super::request_metadata::ACCESS_TOKEN,
   ];
-  pub const DEFAULT_ALLOW_ORIGIN: [&str; 2] =
-    ["https://web.comm.app", "http://localhost:3000"];
+  pub const STAGING_ALLOW_ORIGIN_LIST: [&str; 3] = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+  ];
+  pub const PROD_ALLOW_ORIGIN_LIST: [&str; 1] = ["https://web.comm.app"];
 }
+
+// Remote Environment
+
+pub const REMOTE_ENVIRONMENT: &str = "REMOTE_ENVIRONMENT";
