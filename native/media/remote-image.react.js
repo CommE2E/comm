@@ -1,13 +1,8 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
-import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
-import { type ConnectionStatus } from 'lib/types/socket-types.js';
-
 import LoadableImage from './loadable-image.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { ImageSource } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
@@ -22,7 +17,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +connectionStatus: ConnectionStatus,
+  +connected: boolean,
 };
 type State = {
   +attempt: number,
@@ -34,11 +29,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (
-      !this.loaded &&
-      this.props.connectionStatus === 'connected' &&
-      prevProps.connectionStatus !== 'connected'
-    ) {
+    if (!this.loaded && this.props.connected && !prevProps.connected) {
       this.setState(otherPrevState => ({
         attempt: otherPrevState.attempt + 1,
       }));
@@ -69,9 +60,7 @@ class RemoteImage extends React.PureComponent<Props, State> {
 }
 
 function ConnectedRemoteImage(props: BaseProps): React.Node {
-  const connection = useSelector(connectionSelector(authoritativeKeyserverID));
-  invariant(connection, 'keyserver missing from keyserverStore');
-  const connectionStatus = connection.status;
+  const connected = useSelector(state => state.connectivity.connected);
 
   const { uri, onLoad, spinnerColor, style, invisibleLoad, placeholder } =
     props;
@@ -85,18 +74,10 @@ function ConnectedRemoteImage(props: BaseProps): React.Node {
         style={style}
         invisibleLoad={invisibleLoad}
         placeholder={placeholder}
-        connectionStatus={connectionStatus}
+        connected={connected}
       />
     ),
-    [
-      connectionStatus,
-      invisibleLoad,
-      onLoad,
-      placeholder,
-      spinnerColor,
-      style,
-      uri,
-    ],
+    [connected, invisibleLoad, onLoad, placeholder, spinnerColor, style, uri],
   );
   return connectedRemoteImage;
 }
