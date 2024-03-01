@@ -21,6 +21,7 @@ import type {
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
@@ -95,7 +96,7 @@ function TraditionalLoginForm(): React.Node {
       } catch (e) {
         setUsername('');
         setPassword('');
-        if (e.message === 'invalid_credentials') {
+        if (getMessageForException(e) === 'invalid_credentials') {
           setErrorMessage('incorrect username or password');
         } else {
           setErrorMessage('unknown error');
@@ -121,7 +122,11 @@ function TraditionalLoginForm(): React.Node {
     } catch (e) {
       setUsername('');
       setPassword('');
-      if (e.message === 'user not found') {
+      const messageForException = getMessageForException(e);
+      if (
+        messageForException === 'user not found' ||
+        messageForException === 'login failed'
+      ) {
         setErrorMessage('incorrect username or password');
       } else {
         setErrorMessage('unknown error');
