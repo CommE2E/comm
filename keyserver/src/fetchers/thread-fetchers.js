@@ -289,8 +289,8 @@ function rawThreadInfosFromServerThreadInfos(
     { native: 301, web: 56 },
   );
   const futureCodeVersion = hasMinCodeVersion(viewer.platformDetails, {
-    native: NEXT_CODE_VERSION,
-    web: NEXT_CODE_VERSION,
+    native: 324,
+    web: 72,
     majorDesktop: NEXT_CODE_VERSION,
   });
 
