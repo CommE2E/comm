@@ -360,7 +360,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 11,
+  version: 12,
   transforms: [keyserverStoreTransform],
 };
 
