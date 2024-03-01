@@ -7,6 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   useRoleMemberCountsForCommunity,
+  useRoleNamesToSpecialRole,
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -51,6 +52,7 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
   const styles = useStyles(unboundStyles);
 
   const roleNamesToMembers = useRoleMemberCountsForCommunity(threadInfo);
+  const roleNamesToSpecialRole = useRoleNamesToSpecialRole(threadInfo);
 
   const roleNamesToUserSurfacedPermissions =
     useRoleUserSurfacedPermissions(threadInfo);
@@ -65,6 +67,7 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
           navigation={props.navigation}
           threadInfo={threadInfo}
           roleName={roleName}
+          specialRole={roleNamesToSpecialRole[roleName]}
           rolePermissions={roleNamesToUserSurfacedPermissions[roleName]}
           memberCount={roleNamesToMembers[roleName]}
         />,
@@ -76,6 +79,7 @@ function CommunityRolesScreen(props: CommunityRolesScreenProps): React.Node {
     roleNamesToMembers,
     props.navigation,
     threadInfo,
+    roleNamesToSpecialRole,
     roleNamesToUserSurfacedPermissions,
   ]);
 
