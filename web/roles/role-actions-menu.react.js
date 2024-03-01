@@ -9,7 +9,11 @@ import {
   roleIsDefaultRole,
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  RoleInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { values } from 'lib/utils/objects.js';
 import { useRoleDeletableAndEditableStatus } from 'lib/utils/role-utils.js';
 
 import CreateRolesModal from './create-roles-modal.react.js';
@@ -34,15 +38,15 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
   );
   invariant(defaultRoleID, 'default role should exist');
 
-  const existingRoleID = Object.keys(threadInfo.roles).find(
-    roleID => threadInfo.roles[roleID].name === roleName,
+  const existingRole = values(threadInfo.roles).find(
+    (role: RoleInfo) => role.name === roleName,
   );
-  invariant(existingRoleID, 'existing role should exist');
+  invariant(existingRole, 'existing role should exist');
 
   const roleOptions = useRoleDeletableAndEditableStatus(
     roleName,
     defaultRoleID,
-    existingRoleID,
+    existingRole.id,
   );
 
   const roleNamesToUserSurfacedPermissions =
@@ -54,13 +58,13 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
         <CreateRolesModal
           threadInfo={threadInfo}
           action="edit_role"
-          existingRoleID={existingRoleID}
+          existingRoleID={existingRole.id}
           roleName={roleName}
           rolePermissions={roleNamesToUserSurfacedPermissions[roleName]}
         />,
       ),
     [
-      existingRoleID,
+      existingRole.id,
       pushModal,
       roleName,
       roleNamesToUserSurfacedPermissions,
@@ -72,10 +76,10 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
       <DeleteRoleModal
         threadInfo={threadInfo}
         defaultRoleID={defaultRoleID}
-        roleID={existingRoleID}
+        roleID={existingRole.id}
       />,
     );
-  }, [existingRoleID, pushModal, threadInfo, defaultRoleID]);
+  }, [pushModal, threadInfo, defaultRoleID, existingRole.id]);
 
   const menuItems = React.useMemo(() => {
     const availableOptions = [];
