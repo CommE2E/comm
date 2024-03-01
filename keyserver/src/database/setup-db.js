@@ -376,9 +376,6 @@ async function createTables() {
         ADD UNIQUE KEY user1_user2 (user1,user2),
         ADD UNIQUE KEY user2_user1 (user2,user1);
 
-      ALTER TABLE one_time_keys
-        ADD PRIMARY KEY (session, one_time_key);
-
       ALTER TABLE user_messages
         ADD INDEX recipient_time (recipient, time),
         ADD INDEX recipient_thread_time (recipient, thread, time),
