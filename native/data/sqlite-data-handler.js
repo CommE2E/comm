@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
@@ -21,6 +22,7 @@ import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserve
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { supportingMultipleKeyservers } from 'lib/utils/services-utils.js';
 
 import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from '../account/legacy-recover-keyserver-session.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -108,6 +110,21 @@ function SQLiteDataHandler(): React.Node {
     ],
   );
 
+  const recoverData = React.useCallback(
+    (source: RecoveryActionSource) => {
+      if (supportingMultipleKeyservers) {
+        invariant(
+          false,
+          'recoverData in SQLiteDataHandler is not yet implemented when ' +
+            'supportingMultipleKeyservers is enabled. It should recover ' +
+            'from broken SQLite state by restoring from backup service',
+        );
+      }
+      return recoverDataFromAuthoritativeKeyserver(source);
+    },
+    [recoverDataFromAuthoritativeKeyserver],
+  );
+
   const callClearSensitiveData = React.useCallback(
     async (triggeredBy: string) => {
       await clearSensitiveData();
@@ -161,9 +178,7 @@ function SQLiteDataHandler(): React.Node {
             commCoreModule.terminate();
           }
         }
-        await recoverDataFromAuthoritativeKeyserver(
-          recoveryActionSources.corruptedDatabaseDeletion,
-        );
+        await recoverData(recoveryActionSources.corruptedDatabaseDeletion);
       })();
       return;
     }
@@ -228,9 +243,7 @@ function SQLiteDataHandler(): React.Node {
               '{no exception message}',
           );
         }
-        await recoverDataFromAuthoritativeKeyserver(
-          recoveryActionSources.sqliteLoadFailure,
-        );
+        await recoverData(recoveryActionSources.sqliteLoadFailure);
       }
     })();
   }, [
@@ -241,7 +254,7 @@ function SQLiteDataHandler(): React.Node {
     rehydrateConcluded,
     staffCanSee,
     storeLoaded,
-    recoverDataFromAuthoritativeKeyserver,
+    recoverData,
     callClearSensitiveData,
     mediaCacheContext,
   ]);
