@@ -3,7 +3,6 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::Arc;
 
-use elastic::client::responses::SearchResponse as ElasticSearchResponse;
 use futures::lock::Mutex;
 use futures_util::{SinkExt, StreamExt};
 use hyper::{Body, Request, Response, StatusCode};
@@ -19,6 +18,7 @@ use tokio::net::TcpListener;
 use tracing::{debug, error, info};
 
 mod auth;
+mod opensearch;
 mod send;
 
 use crate::config::CONFIG;
@@ -26,6 +26,7 @@ use crate::constants::{
   IDENTITY_SEARCH_INDEX, IDENTITY_SEARCH_RESULT_SIZE,
   IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
+use opensearch::OpenSearchResponse;
 use send::{send_message, WebsocketSink};
 pub mod errors;
 
@@ -164,11 +165,15 @@ async fn handle_prefix_search(
 
   let search_response = send_search_request(&opensearch_url, prefix_query)
     .await?
-    .json::<ElasticSearchResponse<IdentitySearchUser>>()
+    .json::<OpenSearchResponse<IdentitySearchUser>>()
     .await?;
 
-  let usernames: Vec<IdentitySearchUser> =
-    search_response.into_documents().collect();
+  let usernames: Vec<IdentitySearchUser> = search_response
+    .hits
+    .inner
+    .into_iter()
+    .filter_map(|hit| hit.source)
+    .collect();
 
   let search_result = IdentitySearchResult {
     id: request_id.to_string(),
