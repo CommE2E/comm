@@ -5,17 +5,12 @@ import * as React from 'react';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
-import { useStaffContext } from 'lib/components/staff-provider.react.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
-import { resolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
+import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
-import {
-  cookieSelector,
-  urlPrefixSelector,
-} from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
@@ -46,6 +41,8 @@ async function clearSensitiveData() {
   }
 }
 
+const returnsFalseSinceDoesntNeedToSupportCancellation = () => false;
+
 function SQLiteDataHandler(): React.Node {
   const storeLoaded = useSelector(state => state.storeLoaded);
 
@@ -55,11 +52,7 @@ function SQLiteDataHandler(): React.Node {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated),
   );
-  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
-  const urlPrefix = useSelector(urlPrefixSelector(authoritativeKeyserverID));
-  invariant(urlPrefix, "missing urlPrefix for ashoat's keyserver");
   const staffCanSee = useStaffCanSee();
-  const { staffUserHasBeenLoggedIn } = useStaffContext();
   const loggedIn = useSelector(isLoggedIn);
   const currentLoggedInUserID = useSelector(state =>
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
@@ -75,6 +68,9 @@ function SQLiteDataHandler(): React.Node {
     'resolveKeyserverSessionInvalidationUsingNativeCredentials should be set ' +
       'on native',
   );
+  const keyserverRecoveryLogIn = useKeyserverRecoveryLogIn(
+    authoritativeKeyserverID,
+  );
   const recoverDataFromAuthoritativeKeyserver = React.useCallback(
     async (source: RecoveryActionSource) => {
       const innerRecoverDataFromAuthoritativeKeyserver = (
@@ -88,16 +84,13 @@ function SQLiteDataHandler(): React.Node {
           source,
           authoritativeKeyserverID,
           getInitialNotificationsEncryptedMessage,
-          () => false,
+          returnsFalseSinceDoesntNeedToSupportCancellation,
         );
       try {
-        await resolveKeyserverSessionInvalidation(
-          dispatch,
-          cookie,
-          urlPrefix,
+        await keyserverRecoveryLogIn(
           source,
-          authoritativeKeyserverID,
           innerRecoverDataFromAuthoritativeKeyserver,
+          returnsFalseSinceDoesntNeedToSupportCancellation,
         );
         dispatch({ type: setStoreLoadedActionType });
       } catch (fetchCookieException) {
@@ -115,11 +108,10 @@ function SQLiteDataHandler(): React.Node {
     },
     [
       resolveKeyserverSessionInvalidationUsingNativeCredentials,
-      cookie,
       dispatch,
       dispatchActionPromise,
+      keyserverRecoveryLogIn,
       staffCanSee,
-      urlPrefix,
       getInitialNotificationsEncryptedMessage,
     ],
   );
@@ -249,13 +241,10 @@ function SQLiteDataHandler(): React.Node {
     currentLoggedInUserID,
     handleSensitiveData,
     loggedIn,
-    cookie,
     dispatch,
     rehydrateConcluded,
     staffCanSee,
     storeLoaded,
-    urlPrefix,
-    staffUserHasBeenLoggedIn,
     recoverDataFromAuthoritativeKeyserver,
     callClearSensitiveData,
     mediaCacheContext,
