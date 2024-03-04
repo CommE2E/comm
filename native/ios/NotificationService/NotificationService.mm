@@ -261,7 +261,7 @@ size_t getMemoryUsageInBytes() {
 
   if (decryptionExecuted) {
     comm::NotificationsCryptoModule::flushState(
-        std::move(statefulDecryptResultPtr), callingProcessName);
+        std::move(statefulDecryptResultPtr));
   }
 }
 
@@ -534,9 +534,15 @@ size_t getMemoryUsageInBytes() {
     decryptContentInPlace:(UNMutableNotificationContent *)content {
   std::string encryptedData =
       std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
-
+  std::string senderKeyserverID = ashoatKeyserverID;
+  if (content.userInfo[keyserverIDKey]) {
+    senderKeyserverID =
+        std::string([content.userInfo[keyserverIDKey] UTF8String]);
+  }
   auto decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
-      encryptedData, comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
+      senderKeyserverID,
+      encryptedData,
+      comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
 
   NSString *decryptedSerializedPayload =
       [NSString stringWithUTF8String:decryptResult->getDecryptedData().c_str()];
