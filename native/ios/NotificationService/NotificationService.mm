@@ -20,7 +20,7 @@ NSString *const keyserverIDKey = @"keyserverID";
 const std::string mmkvKeySeparator = ".";
 const std::string mmkvKeyserverPrefix = "KEYSERVER";
 const std::string mmkvUnreadCountSuffix = "UNREAD_COUNT";
-const std::string callingProcessName = "NSE";
+
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
 int64_t const notificationRemovalDelay = (int64_t)(0.1 * NSEC_PER_SEC);
@@ -279,7 +279,7 @@ std::string joinStrings(
 
   if (decryptionExecuted) {
     comm::NotificationsCryptoModule::flushState(
-        std::move(statefulDecryptResultPtr), callingProcessName);
+        std::move(statefulDecryptResultPtr));
   }
 }
 
@@ -549,8 +549,17 @@ std::string joinStrings(
   std::string encryptedData =
       std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
 
+  if (!content.userInfo[keyserverIDKey]) {
+    throw std::runtime_error(
+        "Received encrypted notification without keyserverID.");
+  }
+  std::string senderKeyserverID =
+      std::string([content.userInfo[keyserverIDKey] UTF8String]);
+
   auto decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
-      encryptedData, comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
+      senderKeyserverID,
+      encryptedData,
+      comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
 
   NSString *decryptedSerializedPayload =
       [NSString stringWithUTF8String:decryptResult->getDecryptedData().c_str()];
