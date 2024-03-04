@@ -87,9 +87,15 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   @Override
   public void onMessageReceived(RemoteMessage message) {
+    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+      throw new RuntimeException(
+          "Received encrypted notification without keyserver ID.");
+    }
+    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
+
     if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
       try {
-        message = this.decryptRemoteMessage(message);
+        message = this.decryptRemoteMessage(message, senderKeyserverID);
       } catch (JSONException e) {
         Log.w("COMM", "Malformed notification JSON payload.", e);
         return;
@@ -373,14 +379,15 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
   }
 
-  private RemoteMessage decryptRemoteMessage(RemoteMessage message)
+  private RemoteMessage
+  decryptRemoteMessage(RemoteMessage message, String senderKeyserverID)
       throws JSONException, IllegalStateException {
     String encryptedSerializedPayload =
         message.getData().get(ENCRYPTED_PAYLOAD_KEY);
     String decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
+        senderKeyserverID,
         encryptedSerializedPayload,
-        NotificationsCryptoModule.olmEncryptedTypeMessage(),
-        "CommNotificationsHandler");
+        NotificationsCryptoModule.olmEncryptedTypeMessage());
 
     JSONObject decryptedPayload = new JSONObject(decryptedSerializedPayload);
 

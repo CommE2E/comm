@@ -841,21 +841,35 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
   auto oneTimeKeyCpp{oneTimeKey.utf8(rt)};
+  auto keyserverIDCpp{keyserverID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
           crypto::EncryptedData result;
           try {
-            // Introduced temporarily to make this diff non-breaking change
-            NotificationsCryptoModule::initializeNotificationsCryptoAccount(
-                "Comm");
-            result = NotificationsCryptoModule::initializeNotificationsSession(
-                identityKeysCpp,
-                prekeyCpp,
-                prekeySignatureCpp,
-                oneTimeKeyCpp,
-                "Comm");
+            this->notifsCryptoModule->initializeOutboundForSendingSession(
+                keyserverIDCpp,
+                std::vector<uint8_t>(
+                    identityKeysCpp.begin(), identityKeysCpp.end()),
+                std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
+                std::vector<uint8_t>(
+                    prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
+                std::vector<uint8_t>(
+                    oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
+
+            result = this->notifsCryptoModule->encrypt(
+                keyserverIDCpp,
+                NotificationsCryptoModule::initialEncryptedMessageContent);
+
+            std::shared_ptr<crypto::Session> keyserverNotificationsSession =
+                this->notifsCryptoModule->getSessionByDeviceId(keyserverIDCpp);
+
+            NotificationsCryptoModule::persistNotificationsSession(
+                keyserverIDCpp, keyserverNotificationsSession);
+
+            this->notifsCryptoModule->removeSessionByDeviceId(keyserverIDCpp);
+            this->persistCryptoModules(false, true);
           } catch (const std::exception &e) {
             error = e.what();
           }
