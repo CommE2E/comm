@@ -78,6 +78,7 @@ import { fetchCollapsableNotifs } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { thisKeyserverID } from '../user/identity.js';
 import { getENSNames } from '../utils/ens-cache.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
@@ -111,6 +112,8 @@ async function sendPushNotifs(pushInfo: PushInfo) {
   if (Object.keys(pushInfo).length === 0) {
     return;
   }
+
+  const keyserverID = await thisKeyserverID();
 
   const [
     unreadCounts,
@@ -148,6 +151,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
     for (const notifInfo of usersToCollapsableNotifInfo[userID]) {
       preparePromises.push(
         preparePushNotif({
+          keyserverID,
           notifInfo,
           userID,
           pushUserInfo: pushInfo[userID],
@@ -192,6 +196,7 @@ type PreparePushResult = {
 };
 
 async function preparePushNotif(input: {
+  keyserverID: string,
   notifInfo: CollapsableNotifInfo,
   userID: string,
   pushUserInfo: PushUserInfo,
@@ -204,6 +209,7 @@ async function preparePushNotif(input: {
   rowsToSave: Map<string, NotificationRow>, // mutable
 }): Promise<?$ReadOnlyArray<PreparePushResult>> {
   const {
+    keyserverID,
     notifInfo,
     userID,
     pushUserInfo,
@@ -319,6 +325,7 @@ async function preparePushNotif(input: {
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
             {
+              keyserverID,
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
@@ -359,6 +366,7 @@ async function preparePushNotif(input: {
         (async () => {
           const targetedNotifications = await prepareAndroidNotification(
             {
+              keyserverID,
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
@@ -437,6 +445,7 @@ async function preparePushNotif(input: {
         (async () => {
           const targetedNotifications = await prepareAPNsNotification(
             {
+              keyserverID,
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
@@ -886,6 +895,7 @@ function getDevicesByPlatform(
 }
 
 type APNsNotifInputData = {
+  +keyserverID: string,
   +notifTexts: ResolvedNotifTexts,
   +newRawMessageInfos: RawMessageInfo[],
   +threadID: string,
@@ -895,6 +905,7 @@ type APNsNotifInputData = {
   +platformDetails: PlatformDetails,
 };
 const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
+  keyserverID: t.String,
   notifTexts: resolvedNotifTextsValidator,
   newRawMessageInfos: t.list(rawMessageInfoValidator),
   threadID: tID,
@@ -913,6 +924,7 @@ async function prepareAPNsNotification(
     inputData,
   );
   const {
+    keyserverID,
     notifTexts,
     newRawMessageInfos,
     threadID,
@@ -960,10 +972,14 @@ async function prepareAPNsNotification(
     notification.body = merged;
     notification.sound = 'default';
   }
+
   notification.payload = {
     ...notification.payload,
     ...rest,
   };
+  if (platformDetails.platform !== 'macos') {
+    notification.payload.keyserverID = keyserverID;
+  }
 
   notification.badge = unreadCount;
   notification.threadId = threadID;
@@ -1093,6 +1109,7 @@ async function prepareAndroidNotification(
     inputData,
   );
   const {
+    keyserverID,
     notifTexts,
     newRawMessageInfos,
     threadID,
@@ -1118,6 +1135,7 @@ async function prepareAndroidNotification(
   const { merged, ...rest } = notifTexts;
   const notification = {
     data: {
+      keyserverID,
       badge: unreadCount.toString(),
       ...rest,
       threadID,
@@ -1628,11 +1646,13 @@ async function updateBadgeCount(
   if (viewer.data.cookieID) {
     deviceTokenQuery.append(SQL`AND id != ${viewer.cookieID} `);
   }
-  const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
-    getUnreadCounts([userID]),
-    dbQuery(deviceTokenQuery),
-    createIDs('notifications', 1),
-  ]);
+  const [unreadCounts, [deviceTokenResult], [dbID], keyserverID] =
+    await Promise.all([
+      getUnreadCounts([userID]),
+      dbQuery(deviceTokenQuery),
+      createIDs('notifications', 1),
+      thisKeyserverID(),
+    ]);
   const unreadCount = unreadCounts[userID];
   const devices = deviceTokenResult.map(row => {
     const versions = JSON.parse(row.versions);
@@ -1660,6 +1680,7 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
+      notification.payload.keyserverID = keyserverID;
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (codeVersion > 222) {
@@ -1706,7 +1727,9 @@ async function updateBadgeCount(
         codeVersion < 69
           ? { badge: unreadCount.toString() }
           : { badge: unreadCount.toString(), badgeOnly: '1' };
-      const notification = { data: notificationData };
+      const notification = {
+        data: { ...notificationData, keyserverID },
+      };
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>;
         if (codeVersion > 222) {
