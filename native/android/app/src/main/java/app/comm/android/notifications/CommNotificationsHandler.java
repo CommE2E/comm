@@ -49,8 +49,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String KEYSERVER_ID_KEY = "keyserverID";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
-  // Introduced temporarily
-  private static final String ASHOAT_KEYSERVER_ID = "256";
+
   private static final String MMKV_KEYSERVER_PREFIX = "KEYSERVER.";
   private static final String MMKV_UNREAD_COUNT_SUFFIX = ".UNREAD_COUNT";
   private Bitmap displayableNotificationLargeIcon;
@@ -89,10 +88,11 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   @Override
   public void onMessageReceived(RemoteMessage message) {
-    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
-    if (senderKeyserverID == null) {
-      senderKeyserverID = ASHOAT_KEYSERVER_ID;
+    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+      throw new RuntimeException(
+          "Received encrypted notification without keyserver ID.");
     }
+    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
 
     if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
       try {
@@ -223,10 +223,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       return;
     }
 
-    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
-    if (senderKeyserverID == null) {
-      senderKeyserverID = ASHOAT_KEYSERVER_ID;
+    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+      throw new RuntimeException("Received badge update without keyserver ID.");
     }
+    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
     String senderKeyserverUnreadCountKey =
         MMKV_KEYSERVER_PREFIX + senderKeyserverID + MMKV_UNREAD_COUNT_SUFFIX;
 

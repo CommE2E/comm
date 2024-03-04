@@ -22,8 +22,6 @@ int64_t const semaphoreAwaitTimeLimit = (int64_t)(20 * NSEC_PER_SEC);
 
 CFStringRef newMessageInfosDarwinNotification =
     CFSTR("app.comm.darwin_new_message_infos");
-// Introduced temporarily
-const std::string ashoatKeyserverID = "256";
 
 // Implementation below was inspired by the
 // following discussion with Apple staff member:
@@ -444,11 +442,11 @@ size_t getMemoryUsageInBytes() {
 
 - (void)calculateTotalUnreadCountInPlace:
     (UNMutableNotificationContent *)content {
-  std::string senderKeyserverID = ashoatKeyserverID;
-  if (content.userInfo[keyserverIDKey]) {
-    senderKeyserverID =
-        std::string([content.userInfo[keyserverIDKey] UTF8String]);
+  if (!content.userInfo[keyserverIDKey]) {
+    throw std::runtime_error("Received badge update without keyserverID.");
   }
+  std::string senderKeyserverID =
+      std::string([content.userInfo[keyserverIDKey] UTF8String]);
 
   static const std::string keyserverPrefix = "KEYSERVER.";
   static const std::string unreadCountSuffix = ".UNREAD_COUNT";
@@ -534,11 +532,15 @@ size_t getMemoryUsageInBytes() {
     decryptContentInPlace:(UNMutableNotificationContent *)content {
   std::string encryptedData =
       std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
-  std::string senderKeyserverID = ashoatKeyserverID;
-  if (content.userInfo[keyserverIDKey]) {
-    senderKeyserverID =
-        std::string([content.userInfo[keyserverIDKey] UTF8String]);
+
+  if (!content.userInfo[keyserverIDKey]) {
+    throw std::runtime_error(
+        "Received encrypted notification without keyserverID.");
   }
+
+  std::string senderKeyserverID =
+      std::string([content.userInfo[keyserverIDKey] UTF8String]);
+
   auto decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
       senderKeyserverID,
       encryptedData,
