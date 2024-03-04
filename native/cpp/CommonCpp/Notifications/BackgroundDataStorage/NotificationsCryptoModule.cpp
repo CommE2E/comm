@@ -1,31 +1,34 @@
 #include "NotificationsCryptoModule.h"
 #include "../../CryptoTools/Persist.h"
 #include "../../CryptoTools/Tools.h"
+#include "../../Tools/CommMMKV.h"
 #include "../../Tools/CommSecureStore.h"
+#include "../../Tools/Logger.h"
 #include "../../Tools/PlatformSpecificTools.h"
 
-#include <fcntl.h>
 #include <folly/String.h>
 #include <folly/dynamic.h>
 #include <folly/json.h>
-#include <unistd.h>
 #include <fstream>
 #include <memory>
 #include <sstream>
 
 namespace comm {
 
-const std::string
-    NotificationsCryptoModule::secureStoreNotificationsAccountDataKey =
-        "notificationsCryptoAccountDataKey";
 const std::string NotificationsCryptoModule::notificationsCryptoAccountID =
     "notificationsCryptoAccountDataID";
-const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
-    "keyserverHostedNotificationsID";
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
     "{\"type\": \"init\"}";
 const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
-const int temporaryFilePathRandomSuffixLength = 32;
+
+// This constant is only used to migrate the existing notifications
+// session with production keyserver from flat file to MMKV. This
+// migration will fire when user updates the app. It will also fire
+// on dev env provided old keyserver set up is used. Developers willing
+// to use new keyserver set up must log out before installing updated
+// app version. Do not introduce new usages of this constant in the code!!!
+const std::string ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage =
+    "256";
 
 std::unique_ptr<crypto::CryptoModule>
 NotificationsCryptoModule::deserializeCryptoModule(
@@ -74,156 +77,77 @@ NotificationsCryptoModule::deserializeCryptoModule(
       crypto::Persist({account, sessions}));
 }
 
-void NotificationsCryptoModule::serializeAndFlushCryptoModule(
-    std::unique_ptr<crypto::CryptoModule> cryptoModule,
-    const std::string &path,
-    const std::string &picklingKey,
-    const std::string &callingProcessName) {
-  crypto::Persist persist = cryptoModule->storeAsB64(picklingKey);
-
-  folly::dynamic sessions = folly::dynamic::object;
-  for (auto &sessionKeyValuePair : persist.sessions) {
-    std::string targetUserID = sessionKeyValuePair.first;
-    crypto::OlmBuffer sessionData = sessionKeyValuePair.second;
-    sessions[targetUserID] =
-        std::string(sessionData.begin(), sessionData.end());
-  }
-
-  std::string account =
-      std::string(persist.account.begin(), persist.account.end());
-  folly::dynamic persistJSON =
-      folly::dynamic::object("account", account)("sessions", sessions);
-  std::string pickledPersist = folly::toJson(persistJSON);
-
-  std::string temporaryFilePathRandomSuffix =
-      crypto::Tools::generateRandomHexString(
-          temporaryFilePathRandomSuffixLength);
-  std::string temporaryPath =
-      path + callingProcessName + temporaryFilePathRandomSuffix;
-
-  mode_t readWritePermissionsMode = 0666;
-  int temporaryFD =
-      open(temporaryPath.c_str(), O_CREAT | O_WRONLY, readWritePermissionsMode);
-  if (temporaryFD == -1) {
-    throw std::runtime_error(
-        "Failed to create temporary file. Unable to atomically update "
-        "notifications crypto account. Details: " +
-        std::string(strerror(errno)));
-  }
-  ssize_t bytesWritten =
-      write(temporaryFD, pickledPersist.c_str(), pickledPersist.length());
-  if (bytesWritten == -1 || bytesWritten != pickledPersist.length()) {
-    remove(temporaryPath.c_str());
-    throw std::runtime_error(
-        "Failed to write all data to temporary file. Unable to atomically "
-        "update notifications crypto account. Details: " +
-        std::string(strerror(errno)));
-  }
-  if (fsync(temporaryFD) == -1) {
-    remove(temporaryPath.c_str());
-    throw std::runtime_error(
-        "Failed to synchronize temporary file data with hardware storage. "
-        "Unable to atomically update notifications crypto account. Details: " +
-        std::string(strerror(errno)));
-  };
-  close(temporaryFD);
-  if (rename(temporaryPath.c_str(), path.c_str()) == -1) {
-    remove(temporaryPath.c_str());
-    throw std::runtime_error(
-        "Failed to replace temporary file content with notifications crypto "
-        "account. Unable to atomically update notifications crypto account. "
-        "Details: " +
-        std::string(strerror(errno)));
-  }
-  remove(temporaryPath.c_str());
+std::string NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
+    const std::string &keyserverID) {
+  return "KEYSERVER." + keyserverID + ".NOTIFS_SESSION";
 }
 
-std::string NotificationsCryptoModule::getPicklingKey() {
-  folly::Optional<std::string> picklingKey = CommSecureStore::get(
-      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
-  if (!picklingKey.hasValue()) {
+std::string NotificationsCryptoModule::serializeNotificationsSession(
+    std::shared_ptr<crypto::Session> session,
+    std::string picklingKey) {
+  crypto::OlmBuffer pickledSessionBytes = session->storeAsB64(picklingKey);
+  std::string pickledSession =
+      std::string{pickledSessionBytes.begin(), pickledSessionBytes.end()};
+  folly::dynamic serializedSessionJson = folly::dynamic::object(
+      "session", pickledSession)("picklingKey", picklingKey);
+  return folly::toJson(serializedSessionJson);
+}
+
+std::pair<std::unique_ptr<crypto::Session>, std::string>
+NotificationsCryptoModule::deserializeNotificationsSession(
+    const std::string &serializedSession) {
+  folly::dynamic serializedSessionJson;
+  try {
+    serializedSessionJson = folly::parseJson(serializedSession);
+  } catch (const folly::json::parse_error &e) {
     throw std::runtime_error(
-        "Attempt to retrieve notifications crypto account before it was "
-        "correctly initialized.");
+        "Notifications session deserialization failed with reason: " +
+        std::string(e.what()));
   }
-  return picklingKey.value();
+
+  std::string pickledSession = serializedSessionJson["session"].asString();
+  crypto::OlmBuffer pickledSessionBytes =
+      crypto::OlmBuffer{pickledSession.begin(), pickledSession.end()};
+  std::string picklingKey = serializedSessionJson["picklingKey"].asString();
+  std::unique_ptr<crypto::Session> session =
+      crypto::Session::restoreFromB64(picklingKey, pickledSessionBytes);
+  return {std::move(session), picklingKey};
 }
 
-void NotificationsCryptoModule::callCryptoModule(
-    std::function<
-        void(const std::unique_ptr<crypto::CryptoModule> &cryptoModule)> caller,
-    const std::string &callingProcessName) {
-  const std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
-  const std::string path =
-      PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  std::unique_ptr<crypto::CryptoModule> cryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
-  caller(cryptoModule);
-  NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      std::move(cryptoModule), path, picklingKey, callingProcessName);
-}
-
-void NotificationsCryptoModule::initializeNotificationsCryptoAccount(
-    const std::string &callingProcessName) {
+std::unique_ptr<crypto::CryptoModule>
+NotificationsCryptoModule::migrateLegacyNotificationsCryptoModule() {
   const std::string notificationsCryptoAccountPath =
       PlatformSpecificTools::getNotificationsCryptoAccountPath();
   std::ifstream notificationCryptoAccountCheck(notificationsCryptoAccountPath);
-  if (notificationCryptoAccountCheck.good()) {
-    // Implemented in CommmCoreModule semantics regarding public olm account
-    // initialization is idempotent. We should follow the same approach when it
-    // comes to notifications
+
+  if (!notificationCryptoAccountCheck.good()) {
     notificationCryptoAccountCheck.close();
-    return;
+    return nullptr;
   }
-  // There is no reason to check if the key is already present since if we are
-  // in this place in the code we are about to create new account
-  std::string picklingKey = crypto::Tools::generateRandomString(64);
-  CommSecureStore::set(
-      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey,
-      picklingKey);
+  notificationCryptoAccountCheck.close();
 
-  std::unique_ptr<crypto::CryptoModule> cryptoModule =
-      std::make_unique<crypto::CryptoModule>(
-          NotificationsCryptoModule::notificationsCryptoAccountID);
-  NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      std::move(cryptoModule),
-      notificationsCryptoAccountPath,
-      picklingKey,
-      callingProcessName);
-}
+  std::string legacySecureStoreNotifsAccountKey =
+      "notificationsCryptoAccountDataKey";
+  folly::Optional<std::string> legacyPicklingKey =
+      CommSecureStore::get(legacySecureStoreNotifsAccountKey);
+  if (!legacyPicklingKey.hasValue()) {
+    throw std::runtime_error(
+        "Attempt to migrate legacy notifications account but pickling key "
+        "missing.");
+  }
 
-crypto::EncryptedData NotificationsCryptoModule::initializeNotificationsSession(
-    const std::string &identityKeys,
-    const std::string &prekey,
-    const std::string &prekeySignature,
-    const std::string &oneTimeKey,
-    const std::string &callingProcessName) {
-  crypto::EncryptedData initialEncryptedMessage;
-  auto caller = [&](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    cryptoModule->initializeOutboundForSendingSession(
-        NotificationsCryptoModule::keyserverHostedNotificationsID,
-        std::vector<uint8_t>(identityKeys.begin(), identityKeys.end()),
-        std::vector<uint8_t>(prekey.begin(), prekey.end()),
-        std::vector<uint8_t>(prekeySignature.begin(), prekeySignature.end()),
-        std::vector<uint8_t>(oneTimeKey.begin(), oneTimeKey.end()));
-    initialEncryptedMessage = cryptoModule->encrypt(
-        NotificationsCryptoModule::keyserverHostedNotificationsID,
-        NotificationsCryptoModule::initialEncryptedMessageContent);
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return initialEncryptedMessage;
-}
+  std::unique_ptr<crypto::CryptoModule> legacyCryptoModule =
+      NotificationsCryptoModule::deserializeCryptoModule(
+          notificationsCryptoAccountPath, legacyPicklingKey.value());
 
-bool NotificationsCryptoModule::isNotificationsSessionInitialized(
-    const std::string &callingProcessName) {
-  bool sessionInitialized;
-  auto caller = [&sessionInitialized](
-                    const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    sessionInitialized = cryptoModule->hasSessionFor(
-        NotificationsCryptoModule::keyserverHostedNotificationsID);
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
-  return sessionInitialized;
+  std::string legacyNotificationsSessionID = "keyserverHostedNotificationsID";
+  std::shared_ptr<crypto::Session> legacyNotificationsSession =
+      legacyCryptoModule->getSessionByDeviceId(legacyNotificationsSessionID);
+
+  NotificationsCryptoModule::persistNotificationsSession(
+      ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage,
+      legacyNotificationsSession);
+  return legacyCryptoModule;
 }
 
 void NotificationsCryptoModule::clearSensitiveData() {
@@ -236,26 +160,86 @@ void NotificationsCryptoModule::clearSensitiveData() {
   }
 }
 
+void NotificationsCryptoModule::persistNotificationsSessionInternal(
+    const std::string &keyserverID,
+    const std::string &picklingKey,
+    std::shared_ptr<crypto::Session> session) {
+  std::string serializedSession =
+      NotificationsCryptoModule::serializeNotificationsSession(
+          session, picklingKey);
+  std::string keyserverNotificationsSessionKey =
+      NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
+          keyserverID);
+
+  bool sessionStored =
+      CommMMKV::setString(keyserverNotificationsSessionKey, serializedSession);
+
+  if (!sessionStored) {
+    throw std::runtime_error(
+        "Failed to persist to MMKV notifications session for keyserver: " +
+        keyserverID);
+  }
+}
+
+std::pair<std::unique_ptr<crypto::Session>, std::string>
+NotificationsCryptoModule::fetchNotificationsSession(
+    const std::string &keyserverID) {
+  std::string keyserverNotificationsSessionKey =
+      NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
+          keyserverID);
+  std::optional<std::string> serializedSession =
+      CommMMKV::getString(keyserverNotificationsSessionKey);
+
+  if (!serializedSession.has_value()) {
+    throw std::runtime_error(
+        "Missing notifications session for keyserver: " + keyserverID);
+  }
+
+  return NotificationsCryptoModule::deserializeNotificationsSession(
+      serializedSession.value());
+}
+
+void NotificationsCryptoModule::persistNotificationsSession(
+    const std::string &keyserverID,
+    std::shared_ptr<crypto::Session> keyserverNotificationsSession) {
+  std::string picklingKey = crypto::Tools::generateRandomString(64);
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      keyserverID, picklingKey, keyserverNotificationsSession);
+}
+
+bool NotificationsCryptoModule::isNotificationsSessionInitialized(
+    const std::string &keyserverID) {
+  std::string keyserverNotificationsSessionKey =
+      "KEYSERVER." + keyserverID + ".NOTIFS_SESSION";
+  return CommMMKV::getString(keyserverNotificationsSessionKey).has_value();
+}
+
 std::string NotificationsCryptoModule::decrypt(
+    const std::string &keyserverID,
     const std::string &data,
-    const size_t messageType,
-    const std::string &callingProcessName) {
-  std::string decryptedData;
-  auto caller = [&](const std::unique_ptr<crypto::CryptoModule> &cryptoModule) {
-    crypto::EncryptedData encryptedData{
-        std::vector<uint8_t>(data.begin(), data.end()), messageType};
-    decryptedData = cryptoModule->decrypt(
-        NotificationsCryptoModule::keyserverHostedNotificationsID,
-        encryptedData);
-  };
-  NotificationsCryptoModule::callCryptoModule(caller, callingProcessName);
+    const size_t messageType) {
+  std::unique_ptr<crypto::Session> session;
+  std::string picklingKey;
+  std::tie(session, picklingKey) =
+      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+
+  crypto::EncryptedData encryptedData{
+      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+  std::string decryptedData = session->decrypt(encryptedData);
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      keyserverID, picklingKey, std::move(session));
   return decryptedData;
 }
 
 NotificationsCryptoModule::StatefulDecryptResult::StatefulDecryptResult(
-    std::unique_ptr<crypto::CryptoModule> cryptoModule,
+    std::unique_ptr<crypto::Session> session,
+    std::string keyserverID,
+    std::string picklingKey,
     std::string decryptedData)
-    : cryptoModuleState(std::move(cryptoModule)), decryptedData(decryptedData) {
+    : sessionState(std::move(session)),
+      keyserverID(keyserverID),
+      picklingKey(picklingKey),
+      decryptedData(decryptedData) {
 }
 
 std::string
@@ -263,37 +247,39 @@ NotificationsCryptoModule::StatefulDecryptResult::getDecryptedData() {
   return this->decryptedData;
 }
 
+std::string NotificationsCryptoModule::StatefulDecryptResult::getKeyserverID() {
+  return this->keyserverID;
+}
+
+std::string NotificationsCryptoModule::StatefulDecryptResult::getPicklingKey() {
+  return this->picklingKey;
+}
+
 std::unique_ptr<NotificationsCryptoModule::StatefulDecryptResult>
 NotificationsCryptoModule::statefulDecrypt(
+    const std::string &keyserverID,
     const std::string &data,
     const size_t messageType) {
-  std::string path = PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
+  std::unique_ptr<crypto::Session> session;
+  std::string picklingKey;
+  std::tie(session, picklingKey) =
+      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
 
-  std::unique_ptr<crypto::CryptoModule> cryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(path, picklingKey);
   crypto::EncryptedData encryptedData{
       std::vector<uint8_t>(data.begin(), data.end()), messageType};
-  std::string decryptedData = cryptoModule->decrypt(
-      NotificationsCryptoModule::keyserverHostedNotificationsID, encryptedData);
-  StatefulDecryptResult statefulDecryptResult(
-      std::move(cryptoModule), decryptedData);
+  std::string decryptedData = session->decrypt(encryptedData);
 
+  StatefulDecryptResult statefulDecryptResult(
+      std::move(session), keyserverID, picklingKey, decryptedData);
   return std::make_unique<StatefulDecryptResult>(
       std::move(statefulDecryptResult));
 }
 
 void NotificationsCryptoModule::flushState(
-    std::unique_ptr<StatefulDecryptResult> statefulDecryptResult,
-    const std::string &callingProcessName) {
-
-  std::string path = PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  std::string picklingKey = NotificationsCryptoModule::getPicklingKey();
-
-  NotificationsCryptoModule::serializeAndFlushCryptoModule(
-      std::move(statefulDecryptResult->cryptoModuleState),
-      path,
-      picklingKey,
-      callingProcessName);
+    std::unique_ptr<StatefulDecryptResult> statefulDecryptResult) {
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      statefulDecryptResult->getKeyserverID(),
+      statefulDecryptResult->getPicklingKey(),
+      std::move(statefulDecryptResult->sessionState));
 }
 } // namespace comm
