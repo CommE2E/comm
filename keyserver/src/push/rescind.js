@@ -30,6 +30,7 @@ import {
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
+import { thisKeyserverID } from '../user/identity.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
 type ParsedDelivery = {
@@ -62,7 +63,6 @@ async function rescindPushNotifs(
       ) AS unread_count
     FROM notifications n
     LEFT JOIN memberships m ON m.user = n.user 
-      AND m.last_message > m.last_read_message 
       AND m.role > 0 
       AND JSON_EXTRACT(subscription, ${notificationExtractString})
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
@@ -70,7 +70,10 @@ async function rescindPushNotifs(
   `);
   fetchQuery.append(notifCondition);
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
-  const [fetchResult] = await dbQuery(fetchQuery);
+  const [fetchResult, keyserverID] = await Promise.all([
+    dbQuery(fetchQuery),
+    thisKeyserverID(),
+  ]);
 
   const allDeviceTokens = new Set<string>();
   const parsedDeliveries: { [string]: $ReadOnlyArray<ParsedDelivery> } = {};
@@ -152,6 +155,7 @@ async function rescindPushNotifs(
         }));
         const deliveryPromise = (async () => {
           const targetedNotifications = await prepareIOSNotification(
+            keyserverID,
             delivery.notificationID,
             row.unread_count,
             threadID,
@@ -174,6 +178,7 @@ async function rescindPushNotifs(
         }));
         const deliveryPromise = (async () => {
           const targetedNotifications = await prepareAndroidNotification(
+            keyserverID,
             delivery.notificationID,
             row.unread_count,
             threadID,
@@ -303,6 +308,7 @@ async function conditionallyEncryptNotification<T>(
 }
 
 async function prepareIOSNotification(
+  keyserverID: string,
   iosID: string,
   unreadCount: number,
   threadID: string,
@@ -334,6 +340,7 @@ async function prepareIOSNotification(
           notificationId: iosID,
           setUnreadStatus: true,
           threadID,
+          keyserverID,
         }
       : {
           managedAps: {
@@ -350,6 +357,7 @@ async function prepareIOSNotification(
 }
 
 async function prepareAndroidNotification(
+  keyserverID: string,
   notifID: string,
   unreadCount: number,
   threadID: string,
@@ -366,6 +374,7 @@ async function prepareAndroidNotification(
       rescindID: notifID,
       setUnreadStatus: 'true',
       threadID,
+      keyserverID,
     },
   };
   return await conditionallyEncryptNotification(
