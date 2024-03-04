@@ -14,9 +14,9 @@ public:
 
   static std::string decrypt(
       facebook::jni::alias_ref<NotificationsCryptoModuleJNIHelper> jThis,
+      std::string keyserverID,
       std::string data,
-      int messageType,
-      std::string callingProcessName);
+      int messageType);
 
   static void registerNatives();
 };

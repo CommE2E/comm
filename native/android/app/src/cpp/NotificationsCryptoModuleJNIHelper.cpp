@@ -9,11 +9,11 @@ int NotificationsCryptoModuleJNIHelper::olmEncryptedTypeMessage(
 
 std::string NotificationsCryptoModuleJNIHelper::decrypt(
     facebook::jni::alias_ref<NotificationsCryptoModuleJNIHelper> jThis,
+    std::string keyserverID,
     std::string data,
-    int messageType,
-    std::string callingProcessName) {
+    int messageType) {
   std::string decryptedData =
-      NotificationsCryptoModule::decrypt(data, messageType, callingProcessName);
+      NotificationsCryptoModule::decrypt(keyserverID, data, messageType);
   return decryptedData;
 }
 
