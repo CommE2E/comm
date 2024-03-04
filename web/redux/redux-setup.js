@@ -61,6 +61,7 @@ import { reduceCryptoStore, setCryptoStore } from './crypto-store-reducer.js';
 import { defaultWebState } from './default-state.js';
 import reduceNavInfo from './nav-reducer.js';
 import { onStateDifference } from './redux-debug-utils.js';
+import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
 import { processDBStoreOperations } from '../database/utils/store.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
@@ -345,6 +346,10 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     ),
     cryptoStore: reduceCryptoStore(state.cryptoStore, action),
     communityPickerStore,
+    commServicesAccessToken: reduceServicesAccessToken(
+      state.commServicesAccessToken,
+      action,
+    ),
   };
 
   return validateStateAndProcessDBOperations(
