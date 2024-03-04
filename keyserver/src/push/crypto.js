@@ -46,14 +46,16 @@ async function encryptAPNsNotification(
 
   encryptedNotification.id = notification.id;
   encryptedNotification.payload.id = notification.id;
+  encryptedNotification.payload.keyserverID = notification.payload.keyserverID;
   encryptedNotification.topic = notification.topic;
   encryptedNotification.sound = notification.aps.sound;
   encryptedNotification.pushType = 'alert';
   encryptedNotification.mutableContent = true;
 
-  const { id, ...payloadSansId } = notification.payload;
+  const { id, keyserverID, ...payloadSansUnencryptedData } =
+    notification.payload;
   const unencryptedPayload = {
-    ...payloadSansId,
+    ...payloadSansUnencryptedData,
     badge: notification.aps.badge.toString(),
     merged: notification.body,
   };
@@ -197,8 +199,9 @@ async function encryptAndroidNotification(
   +payloadSizeExceeded: boolean,
   +encryptionOrder?: number,
 }> {
-  const { id, badgeOnly, ...unencryptedPayload } = notification.data;
-  let unencryptedData = { badgeOnly };
+  const { id, keyserverID, badgeOnly, ...unencryptedPayload } =
+    notification.data;
+  let unencryptedData = { badgeOnly, keyserverID };
   if (id) {
     unencryptedData = { ...unencryptedData, id };
   }
@@ -238,12 +241,13 @@ async function encryptAndroidNotificationRescind(
   // We don't validate payload size for rescind
   // since they are expected to be small and
   // never exceed any FCM limit
+  const { keyserverID, ...unencryptedPayload } = notification.data;
   const { resultPayload } = await encryptAndroidNotificationPayload(
     cookieID,
-    notification.data,
+    unencryptedPayload,
   );
   return {
-    data: resultPayload,
+    data: { keyserverID, ...resultPayload },
   };
 }
 
