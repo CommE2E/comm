@@ -39,21 +39,25 @@ export type AndroidNotification = {
   +data: {
     +id?: string,
     +badgeOnly?: string,
+    +keyserverID: string,
     ...AndroidNotificationPayload | { +encryptedPayload: string },
   },
 };
 
 export type AndroidNotificationRescind = {
-  +data:
-    | {
-        +badge: string,
-        +rescind: 'true',
-        +rescindID: string,
-        +setUnreadStatus: 'true',
-        +threadID: string,
-        +encryptionFailed?: string,
-      }
-    | { +encryptedPayload: string },
+  +data: {
+    +keyserverID: string,
+    ...
+      | {
+          +badge: string,
+          +rescind: 'true',
+          +rescindID: string,
+          +setUnreadStatus: 'true',
+          +threadID: string,
+          +encryptionFailed?: string,
+        }
+      | { +encryptedPayload: string },
+  },
 };
 
 export type TargetedAndroidNotification = {
