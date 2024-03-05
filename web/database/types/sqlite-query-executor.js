@@ -104,7 +104,7 @@ declare export class SQLiteQueryExecutor {
   removeAllThreads(): void;
   getAllThreadsWeb(): WebClientDBThreadInfo[];
 
-  replaceKeyserver(user_info: ClientDBKeyserverInfo): void;
+  replaceKeyserver(keyserverInfo: ClientDBKeyserverInfo): void;
   removeKeyservers(ids: $ReadOnlyArray<string>): void;
   removeAllKeyservers(): void;
   getAllKeyservers(): ClientDBKeyserverInfo[];
@@ -131,8 +131,10 @@ declare export class SQLiteQueryExecutor {
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
   addMessagesToDevice(messages: $ReadOnlyArray<ClientMessageToDevice>): void;
-  removeMessagesToDeviceOlderThan(message: ClientMessageToDevice): void;
-  removeAllMessagesForDevice(message: string): void;
+  removeMessagesToDeviceOlderThan(
+    lastConfirmedMessage: ClientMessageToDevice,
+  ): void;
+  removeAllMessagesForDevice(deviceID: string): void;
   getAllMessagesToDevice(
     deviceID: string,
   ): $ReadOnlyArray<ClientMessageToDevice>;
