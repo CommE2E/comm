@@ -1,5 +1,6 @@
 steps:
   - label: 'Emscripten build'
+    key: 'emscripten-build'
     command:
       - 'cd web'
       - 'nix develop --accept-flake-config --command yarn build-db-wasm'
@@ -8,3 +9,12 @@ steps:
       automatic: true
     agents:
       - 'mac=true'
+
+  - wait:
+    continue_on_failure: true
+
+  - label: 'Clean on failure'
+    command: |
+      if [ $(buildkite-agent step get "outcome" --step "emscripten-build") == "hard_failed" ]; then
+        nix develop --accept-flake-config --command yarn clean-db-wasm
+      fi
