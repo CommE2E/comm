@@ -963,8 +963,8 @@ void SQLiteQueryExecutor::migrate() {
   default_on_db_open_callback(db);
 
   std::stringstream db_path;
-  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
-          << std::endl;
+  db_path << "db path: TESTESTEST "
+          << SQLiteQueryExecutor::sqliteFilePath.c_str() << std::endl;
   Logger::log(db_path.str());
 
   auto db_version = get_database_version(db);
