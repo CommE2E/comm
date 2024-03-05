@@ -56,9 +56,12 @@ describe('Keyserver Store queries', () => {
 
   beforeEach(() => {
     if (!dbModule) {
-      return;
+      throw new Error('Database module is missing');
     }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor?.replaceKeyserver(
       convertKeyserverInfoToClientDBKeyserverInfo({
         keyserverInfo: TEST_KEYSERVER_1,

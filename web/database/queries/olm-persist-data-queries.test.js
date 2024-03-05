@@ -14,7 +14,13 @@ describe('Olm Tables queries', () => {
   });
 
   beforeEach(() => {
+    if (!dbModule) {
+      throw new Error('Database module is missing');
+    }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor.storeOlmPersistAccount('accountData');
 
     queryExecutor.storeOlmPersistSession({

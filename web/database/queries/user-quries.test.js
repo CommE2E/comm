@@ -42,9 +42,12 @@ describe('User Store queries', () => {
 
   beforeEach(() => {
     if (!dbModule) {
-      return;
+      throw new Error('Database module is missing');
     }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor?.replaceUser(convertUserInfoToClientDBUserInfo(TEST_USER_1));
     queryExecutor?.replaceUser(convertUserInfoToClientDBUserInfo(TEST_USER_2));
   });

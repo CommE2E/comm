@@ -65,9 +65,12 @@ describe('Message to device queries', () => {
 
   beforeEach(() => {
     if (!dbModule) {
-      return;
+      throw new Error('Database module is missing');
     }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor?.addMessagesToDevice([
       TEST_MSG_1,
       TEST_MSG_2,

@@ -14,7 +14,13 @@ describe('Message and media store queries', () => {
   });
 
   beforeEach(() => {
+    if (!dbModule) {
+      throw new Error('Database module is missing');
+    }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor.replaceMessageWeb({
       id: '1',
       localID: { value: '', isNull: true },
