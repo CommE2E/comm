@@ -118,9 +118,12 @@ declare export class SQLiteQueryExecutor {
   commitTransaction(): void;
   rollbackTransaction(): void;
 
-  getOlmPersistAccountDataWeb(): NullableString;
+  getOlmPersistAccountDataWeb(is_content_account: boolean): NullableString;
   getOlmPersistSessionsData(): $ReadOnlyArray<OlmPersistSession>;
-  storeOlmPersistAccount(accountData: string): void;
+  storeOlmPersistAccount(
+    is_content_account: boolean,
+    account_data: string,
+  ): void;
   storeOlmPersistSession(session: OlmPersistSession): void;
 
   restoreFromMainCompaction(

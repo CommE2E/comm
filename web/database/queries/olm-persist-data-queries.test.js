@@ -15,7 +15,8 @@ describe('Olm Tables queries', () => {
 
   beforeEach(() => {
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
-    queryExecutor.storeOlmPersistAccount('accountData');
+    queryExecutor.storeOlmPersistAccount(true, 'contentAccountData');
+    queryExecutor.storeOlmPersistAccount(false, 'notifsAccountData');
 
     queryExecutor.storeOlmPersistSession({
       targetUserID: '1',
@@ -36,8 +37,11 @@ describe('Olm Tables queries', () => {
   });
 
   it('should return olm account data', () => {
-    const olmAccount = queryExecutor.getOlmPersistAccountDataWeb();
-    expect(olmAccount.value).toBe('accountData');
+    const contentOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(true);
+    expect(contentOlmAccount.value).toBe('contentAccountData');
+
+    const notifsOlmAccount = queryExecutor.getOlmPersistAccountDataWeb(false);
+    expect(notifsOlmAccount.value).toBe('notifsAccountData');
   });
 
   it('should return all olm sessions', () => {

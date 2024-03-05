@@ -96,10 +96,14 @@ public:
   void commitTransaction() const override;
   void rollbackTransaction() const override;
   std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
-  std::optional<std::string> getOlmPersistAccountData() const override;
+  std::optional<std::string>
+  getOlmPersistAccountData(bool isContentAccount) const override;
   void storeOlmPersistSession(const OlmPersistSession &session) const override;
-  void storeOlmPersistAccount(const std::string &accountData) const override;
-  void storeOlmPersistData(crypto::Persist persist) const override;
+  void storeOlmPersistAccount(
+      bool isContentAccount,
+      const std::string &accountData) const override;
+  void storeOlmPersistData(bool isContentAccount, crypto::Persist persist)
+      const override;
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
   void setCurrentUserID(std::string userID) const override;
@@ -125,7 +129,8 @@ public:
   void replaceThreadWeb(const WebThread &thread) const override;
   std::vector<MessageWithMedias> getAllMessagesWeb() const override;
   void replaceMessageWeb(const WebMessage &message) const override;
-  NullableString getOlmPersistAccountDataWeb() const override;
+  NullableString
+  getOlmPersistAccountDataWeb(bool isContentAccount) const override;
 #else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
