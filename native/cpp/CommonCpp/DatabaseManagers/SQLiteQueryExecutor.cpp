@@ -512,6 +512,15 @@ bool create_communities_table(sqlite3 *db) {
   return create_table(db, query, "communities");
 }
 
+bool create_integrity_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS integrity ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   threadHash TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "integrity");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -603,6 +612,11 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS communities ("
       "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "   community_info TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS integrity ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   threadHash TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -845,7 +859,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {32, {create_users_table, true}},
      {33, {create_keyservers_table, true}},
      {34, {enable_rollback_journal_mode, false}},
-     {35, {create_communities_table, true}}}};
+     {35, {create_communities_table, true}},
+     {36, {create_integrity_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
