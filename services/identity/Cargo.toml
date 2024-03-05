@@ -41,6 +41,7 @@ tower-http = { version = "0.4", features = ["cors"] }
 http = "0.2"
 reqwest = { version = "0.11", features = ["json"] }
 futures = "0.3.30"
+url = "2.5"
 
 [build-dependencies]
 tonic-build = "0.9.1"
