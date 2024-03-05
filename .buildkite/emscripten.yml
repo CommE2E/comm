@@ -6,7 +6,7 @@ steps:
       - 'nix develop --accept-flake-config --command yarn build-db-wasm'
       - 'git diff --exit-code'
     agents:
-      - 'mac=true'
+      - 'mac-emscripten=true'
 
   - wait:
     continue_on_failure: true
@@ -20,4 +20,4 @@ steps:
         git diff --exit-code
       fi
     agents:
-      - 'mac=true'
+      - 'mac-emscripten=true'
