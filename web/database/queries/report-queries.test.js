@@ -14,7 +14,13 @@ describe('Report Store queries', () => {
   });
 
   beforeEach(() => {
+    if (!dbModule) {
+      throw new Error('Database module is missing');
+    }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor.replaceReport({ id: '1', report: '{report_content_1}' });
     queryExecutor.replaceReport({ id: '2', report: '{report_content_2}' });
   });

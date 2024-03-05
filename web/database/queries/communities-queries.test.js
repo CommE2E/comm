@@ -41,10 +41,12 @@ describe('Community Store queries', () => {
 
   beforeEach(() => {
     if (!dbModule) {
-      return;
+      throw new Error('Database module is missing');
     }
-
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLite Query Executor is missing');
+    }
     queryExecutor?.replaceCommunity(
       convertCommunityInfoToClientDBCommunityInfo({
         communityInfo: TEST_COMMUNITY_1,

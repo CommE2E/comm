@@ -14,7 +14,13 @@ describe('Threads queries', () => {
   });
 
   beforeEach(() => {
+    if (!dbModule) {
+      throw new Error('Database module is missing');
+    }
     queryExecutor = new dbModule.SQLiteQueryExecutor(FILE_PATH);
+    if (!queryExecutor) {
+      throw new Error('SQLiteQueryExecutor is missing');
+    }
     queryExecutor.replaceThreadWeb({
       id: '1',
       type: 1,
@@ -76,19 +82,19 @@ describe('Threads queries', () => {
   });
 
   it('should return all threads', () => {
-    const threads = queryExecutor.getAllThreadsWeb();
+    const threads = queryExecutor?.getAllThreadsWeb();
     expect(threads.length).toBe(3);
   });
 
   it('should remove all threads', () => {
-    queryExecutor.removeAllThreads();
-    const threads = queryExecutor.getAllThreadsWeb();
+    queryExecutor?.removeAllThreads();
+    const threads = queryExecutor?.getAllThreadsWeb();
     expect(threads.length).toBe(0);
   });
 
   it('should remove subset of threads', () => {
-    queryExecutor.removeThreads(['2']);
-    const threads = queryExecutor.getAllThreadsWeb();
+    queryExecutor?.removeThreads(['2']);
+    const threads = queryExecutor?.getAllThreadsWeb();
     expect(threads.length).toBe(2);
   });
 });
