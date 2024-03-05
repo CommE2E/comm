@@ -57,7 +57,8 @@ struct Cli {
   /// Allowed origins
   #[arg(long, global = true)]
   #[arg(env = ALLOW_ORIGIN_LIST)]
-  allow_origin_list: Option<String>,
+  #[arg(value_delimiter = ',')]
+  allow_origin_list: Option<Vec<String>>,
 }
 
 #[derive(Subcommand)]
@@ -106,8 +107,8 @@ impl ServerConfig {
 
     let allow_origin = cli
       .allow_origin_list
-      .clone()
-      .map(|s| slice_to_allow_origin(&s))
+      .as_ref()
+      .map(|s| slice_to_allow_origin(s.as_slice()))
       .transpose()?;
 
     Ok(Self {
@@ -188,9 +189,9 @@ fn get_server_setup(
     .map_err(Error::Opaque)
 }
 
-fn slice_to_allow_origin(origins: &str) -> Result<AllowOrigin, Error> {
+fn slice_to_allow_origin(origins: &[String]) -> Result<AllowOrigin, Error> {
   let allow_origin_result: Result<Vec<HeaderValue>, Error> = origins
-    .split(',')
+    .iter()
     .map(|s| {
       validate_origin(s)?;
       HeaderValue::from_str(s.trim()).map_err(Error::InvalidHeaderValue)
