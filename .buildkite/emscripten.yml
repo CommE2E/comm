@@ -8,3 +8,8 @@ steps:
       automatic: true
     agents:
       - 'mac=true'
+  - label: 'Clean on failure'
+    command: |
+      if [ $(buildkite-agent step get "outcome" --step "Emscripten build") == "hard_failed" ]; then
+        nix develop --accept-flake-config --command yarn clean-db-wasm
+      fi
