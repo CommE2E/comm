@@ -6,6 +6,7 @@ use http::HeaderValue;
 use once_cell::sync::Lazy;
 use tower_http::cors::AllowOrigin;
 use tracing::{error, info};
+use url::Url;
 
 use crate::constants::{
   cors::ALLOW_ORIGIN_LIST, DEFAULT_OPENSEARCH_ENDPOINT,
@@ -147,6 +148,16 @@ pub enum Error {
   Decode(DecodeError),
   #[display(...)]
   InvalidHeaderValue(http::header::InvalidHeaderValue),
+  #[display(...)]
+  InvalidOrigin(InvalidOriginError),
+}
+
+#[derive(Debug, derive_more::Display)]
+pub enum InvalidOriginError {
+  InvalidScheme,
+  MissingHost,
+  MissingPort,
+  ParseError,
 }
 
 fn get_server_setup(
@@ -180,8 +191,79 @@ fn get_server_setup(
 fn slice_to_allow_origin(origins: &str) -> Result<AllowOrigin, Error> {
   let allow_origin_result: Result<Vec<HeaderValue>, Error> = origins
     .split(',')
-    .map(|s| HeaderValue::from_str(s.trim()).map_err(Error::InvalidHeaderValue))
+    .map(|s| {
+      validate_origin(s)?;
+      HeaderValue::from_str(s.trim()).map_err(Error::InvalidHeaderValue)
+    })
     .collect();
   let allow_origin_list = allow_origin_result?;
   Ok(AllowOrigin::list(allow_origin_list))
+}
+
+fn validate_origin(origin_str: &str) -> Result<(), Error> {
+  let Ok(url) = Url::parse(origin_str) else {
+    return Err(Error::InvalidOrigin(InvalidOriginError::ParseError));
+  };
+  if !matches!(url.scheme(), "http" | "https") {
+    return Err(Error::InvalidOrigin(InvalidOriginError::InvalidScheme));
+  };
+  if url.host_str().is_none() {
+    return Err(Error::InvalidOrigin(InvalidOriginError::MissingHost));
+  };
+  if url.port().is_none() {
+    return Err(Error::InvalidOrigin(InvalidOriginError::MissingPort));
+  };
+  Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::validate_origin;
+
+  #[test]
+  fn test_valid_origin() {
+    let valid_origin = "http://localhost:3000";
+    assert!(
+      validate_origin(valid_origin).is_ok(),
+      "Expected a valid origin, but got an invalid one"
+    );
+  }
+
+  #[test]
+  fn test_invalid_origin_missing_scheme() {
+    let invalid_origin = "localhost:3000";
+    assert!(
+      validate_origin(invalid_origin).is_err(),
+      "Expected an invalid origin (missing scheme), but got a valid one"
+    );
+  }
+
+  #[test]
+  fn test_invalid_origin_missing_host() {
+    let invalid_origin = "http://:3000";
+    assert!(
+      validate_origin(invalid_origin).is_err(),
+      "Expected an invalid origin (missing host), but got a valid one"
+    );
+  }
+
+  #[test]
+  fn test_invalid_origin_missing_port() {
+    // We require that the port always be specified in origins
+    let invalid_origin = "http://localhost";
+    assert!(
+      validate_origin(invalid_origin).is_err(),
+      "Expected an invalid origin (missing port), but got a valid one"
+    );
+  }
+
+  #[test]
+  fn test_invalid_origin_invalid_scheme() {
+    // We only allow http and https origins
+    let invalid_origin = "ftp://example.com";
+    assert!(
+      validate_origin(invalid_origin).is_err(),
+      "Expected an invalid origin (invalid scheme), but got a valid one"
+    );
+  }
 }
