@@ -20,4 +20,4 @@ steps:
         git diff --exit-code
       fi
     agents:
-      - 'mac=true'
+      - 'mac-emscripten=true'
