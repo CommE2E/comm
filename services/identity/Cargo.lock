@@ -2097,6 +2097,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tunnelbroker_messages",
+ "url 2.5.0",
  "uuid 1.6.1",
 ]
 
