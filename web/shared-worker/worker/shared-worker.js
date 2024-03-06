@@ -3,6 +3,7 @@
 import localforage from 'localforage';
 
 import { restoreBackup } from './backup.js';
+import { processAppIdentityClientRequest } from './identity-client.js';
 import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
@@ -25,6 +26,7 @@ import {
   type WorkerRequestProxyMessage,
   workerWriteRequests,
 } from '../../types/worker-types.js';
+import { workerIdentityClientRequests } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
 import { type EmscriptenModule } from '../types/module.js';
 import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
@@ -223,8 +225,10 @@ async function processAppRequest(
     };
   }
 
-  // write operations
-  if (!workerWriteRequests.includes(message.type)) {
+  const isIdentityClientRequest = workerIdentityClientRequests.includes(
+    message.type,
+  );
+  if (!workerWriteRequests.includes(message.type) && !isIdentityClientRequest) {
     throw new Error('Request type not supported');
   }
   if (!sqliteQueryExecutor || !dbModule) {
@@ -233,6 +237,15 @@ async function processAppRequest(
     );
   }
 
+  if (isIdentityClientRequest) {
+    return processAppIdentityClientRequest(
+      sqliteQueryExecutor,
+      dbModule,
+      message,
+    );
+  }
+
+  // write operations
   if (message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS) {
     processDBStoreOperations(
       sqliteQueryExecutor,
