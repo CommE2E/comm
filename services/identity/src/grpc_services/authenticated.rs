@@ -3,9 +3,7 @@ use std::collections::HashMap;
 use crate::config::CONFIG;
 use crate::database::{DeviceListRow, DeviceListUpdate};
 use crate::{
-  client_service::{
-    handle_db_error, CacheExt, UpdateState, WorkflowInProgress,
-  },
+  client_service::{handle_db_error, UpdateState, WorkflowInProgress},
   constants::request_metadata,
   database::DatabaseClient,
   ddb_utils::DateTimeExt,
@@ -13,7 +11,6 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
-use moka::future::Cache;
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, warn};
 
@@ -31,7 +28,6 @@ use super::protos::unauth::Empty;
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
   db_client: DatabaseClient,
-  cache: Cache<String, WorkflowInProgress>,
 }
 
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
@@ -255,9 +251,10 @@ impl IdentityClientService for AuthenticatedService {
 
     let update_state = UpdateState { user_id };
     let session_id = self
-      .cache
-      .insert_with_uuid_key(WorkflowInProgress::Update(update_state))
-      .await;
+      .db_client
+      .insert_workflow(WorkflowInProgress::Update(update_state))
+      .await
+      .map_err(handle_db_error)?;
 
     let response = UpdateUserPasswordStartResponse {
       session_id,
@@ -272,13 +269,14 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let message = request.into_inner();
 
-    let Some(WorkflowInProgress::Update(state)) =
-      self.cache.get(&message.session_id)
+    let Some(WorkflowInProgress::Update(state)) = self
+      .db_client
+      .get_workflow(message.session_id)
+      .await
+      .map_err(handle_db_error)?
     else {
       return Err(tonic::Status::not_found("session not found"));
     };
-
-    self.cache.invalidate(&message.session_id).await;
 
     let server_registration = comm_opaque2::server::Registration::new();
     let password_file = server_registration
