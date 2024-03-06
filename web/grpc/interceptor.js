@@ -2,9 +2,15 @@
 
 import * as grpcWeb from 'grpc-web';
 
-import { getConfig } from 'lib/utils/config.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
 
 class VersionInterceptor<Request, Response> {
+  platformDetails: PlatformDetails;
+
+  constructor(platformDetails: PlatformDetails) {
+    this.platformDetails = platformDetails;
+  }
+
   intercept(
     request: grpcWeb.Request<Request, Response>,
     invoker: (
@@ -12,9 +18,8 @@ class VersionInterceptor<Request, Response> {
     ) => Promise<grpcWeb.UnaryResponse<Request, Response>>,
   ): Promise<grpcWeb.UnaryResponse<Request, Response>> {
     const metadata = request.getMetadata();
-    const config = getConfig();
-    const codeVersion = config.platformDetails.codeVersion;
-    const deviceType = config.platformDetails.platform;
+    const codeVersion = this.platformDetails.codeVersion;
+    const deviceType = this.platformDetails.platform;
     if (codeVersion) {
       metadata['code_version'] = codeVersion.toString();
     }
