@@ -19,15 +19,12 @@ use grpc_clients::identity::protos::unauth::{
   RegistrationFinishRequest, RegistrationStartRequest,
   SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
 };
-use grpc_clients::identity::{
-  get_auth_client, get_unauthenticated_client, REQUEST_METADATA_COOKIE_KEY,
-  RESPONSE_METADATA_COOKIE_KEY,
-};
+use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use lazy_static::lazy_static;
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
-use tonic::{Request, Status};
+use tonic::Status;
 use tracing::instrument;
 use wallet_registration::register_wallet_user;
 
@@ -621,14 +618,6 @@ async fn register_password_user_helper(
     .register_password_user_start(registration_start_request)
     .await?;
 
-  // We need to get the load balancer cookie from from the response and send it
-  // in the subsequent request to ensure it is routed to the same identity
-  // service instance as the first request
-  let cookie = response
-    .metadata()
-    .get(RESPONSE_METADATA_COOKIE_KEY)
-    .cloned();
-
   let registration_start_response = response.into_inner();
 
   let opaque_registration_upload = client_registration
@@ -643,17 +632,8 @@ async fn register_password_user_helper(
     opaque_registration_upload,
   };
 
-  let mut finish_request = Request::new(registration_finish_request);
-
-  // Cookie won't be available in local dev environments
-  if let Some(cookie_metadata) = cookie {
-    finish_request
-      .metadata_mut()
-      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
-  }
-
   let registration_finish_response = identity_client
-    .register_password_user_finish(finish_request)
+    .register_password_user_finish(registration_finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token =
@@ -734,14 +714,6 @@ async fn log_in_password_user_helper(
     .log_in_password_user_start(login_start_request)
     .await?;
 
-  // We need to get the load balancer cookie from from the response and send it
-  // in the subsequent request to ensure it is routed to the same identity
-  // service instance as the first request
-  let cookie = response
-    .metadata()
-    .get(RESPONSE_METADATA_COOKIE_KEY)
-    .cloned();
-
   let login_start_response = response.into_inner();
 
   let opaque_login_upload = client_login
@@ -753,17 +725,8 @@ async fn log_in_password_user_helper(
     opaque_login_upload,
   };
 
-  let mut finish_request = Request::new(login_finish_request);
-
-  // Cookie won't be available in local dev environments
-  if let Some(cookie_metadata) = cookie {
-    finish_request
-      .metadata_mut()
-      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
-  }
-
   let login_finish_response = identity_client
-    .log_in_password_user_finish(finish_request)
+    .log_in_password_user_finish(login_finish_request)
     .await?
     .into_inner();
   let user_id_and_access_token =
@@ -909,14 +872,6 @@ async fn update_user_password_helper(
     .update_user_password_start(update_password_start_request)
     .await?;
 
-  // We need to get the load balancer cookie from from the response and send it
-  // in the subsequent request to ensure it is routed to the same identity
-  // service instance as the first request
-  let cookie = response
-    .metadata()
-    .get(RESPONSE_METADATA_COOKIE_KEY)
-    .cloned();
-
   let update_password_start_response = response.into_inner();
 
   let opaque_registration_upload = client_registration
@@ -931,17 +886,8 @@ async fn update_user_password_helper(
     opaque_registration_upload,
   };
 
-  let mut finish_request = Request::new(update_password_finish_request);
-
-  // Cookie won't be available in local dev environments
-  if let Some(cookie_metadata) = cookie {
-    finish_request
-      .metadata_mut()
-      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
-  }
-
   identity_client
-    .update_user_password_finish(finish_request)
+    .update_user_password_finish(update_password_finish_request)
     .await?;
 
   Ok(())

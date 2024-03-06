@@ -21,15 +21,12 @@ use grpc_clients::identity::protos::authenticated::{
 };
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
-use grpc_clients::identity::{
-  REQUEST_METADATA_COOKIE_KEY, RESPONSE_METADATA_COOKIE_KEY,
-};
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
 use std::env::var;
 use tonic::codegen::InterceptedService;
-use tonic::{transport::Channel, Request};
+use tonic::transport::Channel;
 use tracing::{self, info, instrument, warn, Level};
 use tracing_subscriber::EnvFilter;
 
