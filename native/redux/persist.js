@@ -132,6 +132,7 @@ const persistBlacklist = [
   'threadStore',
   'storeLoaded',
   'connection',
+  'dbOpsStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {

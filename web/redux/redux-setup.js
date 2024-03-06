@@ -28,6 +28,7 @@ import {
 } from 'lib/shared/session-utils.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
+import type { DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -119,6 +120,7 @@ export type AppState = {
   +globalThemeInfo: GlobalThemeInfo,
   +customServer: ?string,
   +communityStore: CommunityStore,
+  +dbOpsStore: DBOpsStore,
 };
 
 export type Action =

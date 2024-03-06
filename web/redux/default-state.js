@@ -81,6 +81,10 @@ const defaultWebState: AppState = Object.freeze({
   communityStore: {
     communityInfos: {},
   },
+  dbOpsStore: {
+    queuedOps: [],
+    noOpsActions: [],
+  },
 });
 
 export { defaultWebState };
