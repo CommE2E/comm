@@ -5,7 +5,6 @@ use std::str::FromStr;
 use comm_lib::aws::DynamoDBError;
 use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
-use moka::future::Cache;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use siwe::eip55;
@@ -33,7 +32,6 @@ use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::{
   ChallengeResponse, DeviceKeyUploadActions, NonceChallenge,
 };
-use crate::id::generate_uuid;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
   validate_account_ownership_message_and_get_user_id,
@@ -92,7 +90,6 @@ pub struct FlattenedDeviceKeyUpload {
 #[derive(derive_more::Constructor)]
 pub struct ClientService {
   client: DatabaseClient,
-  cache: Cache<String, WorkflowInProgress>,
 }
 
 #[tonic::async_trait]
@@ -135,11 +132,12 @@ impl IdentityClientService for ClientService {
       )
       .map_err(protocol_error_to_grpc_status)?;
     let session_id = self
-      .cache
-      .insert_with_uuid_key(WorkflowInProgress::Registration(Box::new(
+      .client
+      .insert_workflow(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
-      .await;
+      .await
+      .map_err(handle_db_error)?;
 
     let response = RegistrationStartResponse {
       session_id,
@@ -189,11 +187,12 @@ impl IdentityClientService for ClientService {
       .map_err(protocol_error_to_grpc_status)?;
 
     let session_id = self
-      .cache
-      .insert_with_uuid_key(WorkflowInProgress::Registration(Box::new(
+      .client
+      .insert_workflow(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
-      .await;
+      .await
+      .map_err(handle_db_error)?;
 
     let response = RegistrationStartResponse {
       session_id,
@@ -209,11 +208,12 @@ impl IdentityClientService for ClientService {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
-    if let Some(WorkflowInProgress::Registration(state)) =
-      self.cache.get(&message.session_id)
+    if let Some(WorkflowInProgress::Registration(state)) = self
+      .client
+      .get_workflow(message.session_id)
+      .await
+      .map_err(handle_db_error)?
     {
-      self.cache.invalidate(&message.session_id).await;
-
       let server_registration = comm_opaque2::server::Registration::new();
       let password_file = server_registration
         .finish(&message.opaque_registration_upload)
@@ -310,9 +310,10 @@ impl IdentityClientService for ClientService {
       construct_user_login_info(&message, user_id, server_login)?;
 
     let session_id = self
-      .cache
-      .insert_with_uuid_key(WorkflowInProgress::Login(Box::new(login_state)))
-      .await;
+      .client
+      .insert_workflow(WorkflowInProgress::Login(Box::new(login_state)))
+      .await
+      .map_err(handle_db_error)?;
 
     let response = Response::new(OpaqueLoginStartResponse {
       session_id,
@@ -328,11 +329,12 @@ impl IdentityClientService for ClientService {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
-    if let Some(WorkflowInProgress::Login(state)) =
-      self.cache.get(&message.session_id)
+    if let Some(WorkflowInProgress::Login(state)) = self
+      .client
+      .get_workflow(message.session_id)
+      .await
+      .map_err(handle_db_error)?
     {
-      self.cache.invalidate(&message.session_id).await;
-
       let mut server_login = state.opaque_server_login.clone();
       server_login
         .finish(&message.opaque_login_upload)
@@ -893,23 +895,6 @@ impl ClientService {
         .map_err(handle_db_error)?,
     };
     Ok(())
-  }
-}
-
-#[tonic::async_trait]
-pub trait CacheExt<T> {
-  async fn insert_with_uuid_key(&self, value: T) -> String;
-}
-
-#[tonic::async_trait]
-impl<T> CacheExt<T> for Cache<String, T>
-where
-  T: Clone + Send + Sync + 'static,
-{
-  async fn insert_with_uuid_key(&self, value: T) -> String {
-    let session_id = generate_uuid();
-    self.insert(session_id.clone(), value).await;
-    session_id
   }
 }
 

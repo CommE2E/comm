@@ -1,9 +1,6 @@
-use std::time::Duration;
-
 use comm_lib::aws;
 use config::Command;
 use database::DatabaseClient;
-use moka::future::Cache;
 use tonic::transport::Server;
 use tonic_web::GrpcWebLayer;
 
@@ -57,17 +54,13 @@ async fn main() -> Result<(), BoxedError> {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let aws_config = aws::config::from_env().region("us-east-2").load().await;
       let database_client = DatabaseClient::new(&aws_config);
-      let workflow_cache = Cache::builder()
-        .time_to_live(Duration::from_secs(10))
-        .build();
-      let inner_client_service =
-        ClientService::new(database_client.clone(), workflow_cache.clone());
+      let inner_client_service = ClientService::new(database_client.clone());
       let client_service = IdentityClientServiceServer::with_interceptor(
         inner_client_service,
         grpc_services::shared::version_interceptor,
       );
       let inner_auth_service =
-        AuthenticatedService::new(database_client.clone(), workflow_cache);
+        AuthenticatedService::new(database_client.clone());
       let auth_service =
         AuthServer::with_interceptor(inner_auth_service, move |req| {
           grpc_services::authenticated::auth_interceptor(req, &database_client)
