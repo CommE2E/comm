@@ -7,6 +7,7 @@ import type {
   OneTimeKeysResultValues,
   SignedPrekeys,
 } from 'lib/types/crypto-types.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
 import {
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
@@ -41,19 +42,26 @@ import {
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
 class IdentityServiceClientWrapper implements IdentityServiceClient {
+  overridedOpaqueFilepath: ?string;
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
 
   constructor(
+    platformDetails: PlatformDetails,
+    overridedOpaqueFilepath: ?string,
     authLayer: ?IdentityServiceAuthLayer,
     getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
   ) {
+    this.overridedOpaqueFilepath = overridedOpaqueFilepath;
     if (authLayer) {
-      this.authClient =
-        IdentityServiceClientWrapper.createAuthClient(authLayer);
+      this.authClient = IdentityServiceClientWrapper.createAuthClient(
+        platformDetails,
+        authLayer,
+      );
     }
-    this.unauthClient = IdentityServiceClientWrapper.createUnauthClient();
+    this.unauthClient =
+      IdentityServiceClientWrapper.createUnauthClient(platformDetails);
     this.getDeviceKeyUpload = getDeviceKeyUpload;
   }
 
@@ -62,6 +70,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   }
 
   static createAuthClient(
+    platformDetails: PlatformDetails,
     authLayer: IdentityServiceAuthLayer,
   ): IdentityAuthClient.IdentityClientServicePromiseClient {
     const { userID, deviceID, commServicesAccessToken } = authLayer;
@@ -69,7 +78,9 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const identitySocketAddr =
       IdentityServiceClientWrapper.determineSocketAddr();
 
-    const versionInterceptor = new VersionInterceptor<Request, Response>();
+    const versionInterceptor = new VersionInterceptor<Request, Response>(
+      platformDetails,
+    );
     const authInterceptor = new AuthInterceptor<Request, Response>(
       userID,
       deviceID,
@@ -87,11 +98,15 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     );
   }
 
-  static createUnauthClient(): IdentityUnauthClient.IdentityClientServicePromiseClient {
+  static createUnauthClient(
+    platformDetails: PlatformDetails,
+  ): IdentityUnauthClient.IdentityClientServicePromiseClient {
     const identitySocketAddr =
       IdentityServiceClientWrapper.determineSocketAddr();
 
-    const versionInterceptor = new VersionInterceptor<Request, Response>();
+    const versionInterceptor = new VersionInterceptor<Request, Response>(
+      platformDetails,
+    );
 
     const unauthClientOpts = {
       unaryInterceptors: [versionInterceptor],
@@ -329,7 +344,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const [identityDeviceKeyUpload] = await Promise.all([
       this.getDeviceKeyUpload(),
-      initOpaque(),
+      initOpaque(this.overridedOpaqueFilepath),
     ]);
 
     const opaqueLogin = new Login();
