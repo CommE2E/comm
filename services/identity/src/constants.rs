@@ -73,6 +73,7 @@ pub const NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
 
 pub const WORKFLOWS_IN_PROGRESS_TABLE: &str = "identity-workflows-in-progress";
 pub const WORKFLOWS_IN_PROGRESS_PARTITION_KEY: &str = "id";
+pub const WORKFLOWS_IN_PROGRESS_WORKFLOW_ATTRIBUTE: &str = "workflow";
 pub const WORKFLOWS_IN_PROGRESS_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
   "expirationTimeUnix";
 
