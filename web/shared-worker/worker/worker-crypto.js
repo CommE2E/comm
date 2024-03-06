@@ -3,7 +3,14 @@
 import olm from '@commapp/olm';
 import uuid from 'uuid';
 
-import type { CryptoStore, PickledOLMAccount } from 'lib/types/crypto-types.js';
+import type {
+  CryptoStore,
+  PickledOLMAccount,
+  IdentityKeysBlob,
+  SignedIdentityKeysBlob,
+} from 'lib/types/crypto-types.js';
+import type { IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import { getDBModule, getSQLiteQueryExecutor } from './worker-database.js';
@@ -164,4 +171,58 @@ async function processAppOlmApiRequest(
   }
 }
 
-export { clearCryptoStore, processAppOlmApiRequest };
+function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
+  if (!cryptoStore) {
+    throw new Error('Crypto account not initialized');
+  }
+
+  const { contentAccount, notificationAccount } = cryptoStore;
+
+  const identityKeysBlob: IdentityKeysBlob = {
+    primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
+    notificationIdentityPublicKeys: JSON.parse(
+      notificationAccount.identity_keys(),
+    ),
+  };
+
+  const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
+  const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+    payload: payloadToBeSigned,
+    signature: contentAccount.sign(payloadToBeSigned),
+  };
+
+  return signedIdentityKeysBlob;
+}
+
+function getDeviceKeyUpload(): IdentityDeviceKeyUpload {
+  if (!cryptoStore) {
+    throw new Error('Crypto account not initialized');
+  }
+  const { contentAccount, notificationAccount } = cryptoStore;
+
+  const signedIdentityKeysBlob = getSignedIdentityKeysBlob();
+
+  const primaryAccountKeysSet = retrieveAccountKeysSet(contentAccount);
+  const notificationAccountKeysSet =
+    retrieveAccountKeysSet(notificationAccount);
+
+  persistCryptoStore();
+
+  return {
+    keyPayload: signedIdentityKeysBlob.payload,
+    keyPayloadSignature: signedIdentityKeysBlob.signature,
+    contentPrekey: primaryAccountKeysSet.prekey,
+    contentPrekeySignature: primaryAccountKeysSet.prekeySignature,
+    notifPrekey: notificationAccountKeysSet.prekey,
+    notifPrekeySignature: notificationAccountKeysSet.prekeySignature,
+    contentOneTimeKeys: primaryAccountKeysSet.oneTimeKeys,
+    notifOneTimeKeys: notificationAccountKeysSet.oneTimeKeys,
+  };
+}
+
+export {
+  clearCryptoStore,
+  processAppOlmApiRequest,
+  getSignedIdentityKeysBlob,
+  getDeviceKeyUpload,
+};

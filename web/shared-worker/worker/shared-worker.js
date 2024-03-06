@@ -3,6 +3,7 @@
 import localforage from 'localforage';
 
 import { restoreBackup } from './backup.js';
+import { processAppIdentityClientRequest } from './identity-client.js';
 import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
@@ -32,6 +33,7 @@ import {
   workerWriteRequests,
   workerOlmAPIRequests,
 } from '../../types/worker-types.js';
+import { workerIdentityClientRequests } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
@@ -233,7 +235,14 @@ async function processAppRequest(
 
   // write operations
   const isOlmAPIRequest = workerOlmAPIRequests.includes(message.type);
-  if (!workerWriteRequests.includes(message.type) && !isOlmAPIRequest) {
+  const isIdentityClientRequest = workerIdentityClientRequests.includes(
+    message.type,
+  );
+  if (
+    !workerWriteRequests.includes(message.type) &&
+    !isOlmAPIRequest &&
+    !isIdentityClientRequest
+  ) {
     throw new Error(`Request type ${message.type} not supported`);
   }
   if (!sqliteQueryExecutor || !dbModule) {
@@ -242,8 +251,15 @@ async function processAppRequest(
     );
   }
 
+  let result;
   if (isOlmAPIRequest) {
     await processAppOlmApiRequest(message);
+  } else if (isIdentityClientRequest) {
+    result = await processAppIdentityClientRequest(
+      sqliteQueryExecutor,
+      dbModule,
+      message,
+    );
   } else if (
     message.type === workerRequestMessageTypes.PROCESS_STORE_OPERATIONS
   ) {
@@ -278,7 +294,7 @@ async function processAppRequest(
     void persist();
   }
 
-  return undefined;
+  return result;
 }
 
 function connectHandler(event: SharedWorkerMessageEvent) {
