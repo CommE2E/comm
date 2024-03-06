@@ -20,6 +20,8 @@ pub enum Error {
   DeviceList(DeviceListError),
   #[display(...)]
   MalformedItem,
+  #[display(...)]
+  Serde(serde_json::Error),
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
