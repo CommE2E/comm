@@ -2,6 +2,8 @@
 
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
+import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -22,6 +24,7 @@ export const workerRequestMessageTypes = Object.freeze({
   CLEAR_SENSITIVE_DATA: 10,
   BACKUP_RESTORE: 11,
   INITIALIZE_CRYPTO_ACCOUNT: 12,
+  CREATE_IDENTITY_SERVICE_CLIENT: 13,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -31,6 +34,10 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.BACKUP_RESTORE,
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+];
+
+export const workerIdentityClientRequests: $ReadOnlyArray<number> = [
+  workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT,
 ];
 
 export type PingWorkerRequestMessage = {
@@ -103,6 +110,13 @@ export type InitializeCryptoAccountRequestMessage = {
   +initialCryptoStore?: CryptoStore,
 };
 
+export type CreateIdentityServiceClientRequestMessage = {
+  +type: 13,
+  +opaqueWasmPath: string,
+  +platformDetails: PlatformDetails,
+  +authLayer: ?IdentityServiceAuthLayer,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -116,7 +130,8 @@ export type WorkerRequestMessage =
   | RemovePersistStorageItemRequestMessage
   | ClearSensitiveDataRequestMessage
   | BackupRestoreRequestMessage
-  | InitializeCryptoAccountRequestMessage;
+  | InitializeCryptoAccountRequestMessage
+  | CreateIdentityServiceClientRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
