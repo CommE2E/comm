@@ -84,6 +84,9 @@ const defaultState = ({
   communityStore: {
     communityInfos: {},
   },
+  dbOpsStore: {
+    queuedOps: [],
+  },
 }: AppState);
 
 export { defaultState };
