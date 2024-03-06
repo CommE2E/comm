@@ -17,5 +17,4 @@ pub mod protos {
 
 pub use authenticated::get_auth_client;
 pub use device::DeviceType;
-pub use shared::{REQUEST_METADATA_COOKIE_KEY, RESPONSE_METADATA_COOKIE_KEY};
 pub use unauthenticated::get_unauthenticated_client;
