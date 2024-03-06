@@ -160,6 +160,16 @@ const devWebWorkersPlugins = [
       },
     ],
   }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from:
+          'node_modules/@commapp/opaque-ke-wasm' +
+          '/pkg/comm_opaque2_wasm_bg.wasm',
+        to: path.join(__dirname, 'dist', 'webworkers'),
+      },
+    ],
+  }),
 ];
 
 const prodWebWorkersPlugins = [
@@ -198,6 +208,21 @@ const prodWebWorkersPlugins = [
           'dist',
           'webworkers',
           'backup-client.[contenthash:12].wasm',
+        ),
+      },
+    ],
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from:
+          'node_modules/@commapp/opaque-ke-wasm' +
+          '/pkg/comm_opaque2_wasm_bg.wasm',
+        to: path.join(
+          __dirname,
+          'dist',
+          'webworkers',
+          'opaque-ke.[contenthash:12].wasm',
         ),
       },
     ],
