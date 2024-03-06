@@ -15,6 +15,8 @@ export const DEFAULT_BACKUP_CLIENT_FILENAME = 'backup-client-wasm_bg.wasm';
 
 export const DEFAULT_OLM_FILENAME = 'olm.wasm';
 
+export const DEFAULT_WEBWORKERS_OPAQUE_FILENAME = 'comm_opaque2_wasm_bg.wasm';
+
 export const COMM_SQLITE_DATABASE_PATH = 'comm.sqlite';
 export const COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH =
   'comm_backup_restore.sqlite';
@@ -54,4 +56,14 @@ export function getOlmWasmPath(): string {
   const olmWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
   const olmWasmFilename = olmFilename ? olmFilename : DEFAULT_OLM_FILENAME;
   return `${olmWasmDirPath}/${olmWasmFilename}`;
+}
+
+declare var webworkersOpaqueFilename: string;
+export function getOpaqueWasmPath(): string {
+  const origin = window.location.origin;
+  const opaqueWasmDirPath = `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`;
+  const opaqueWasmFilename = webworkersOpaqueFilename
+    ? webworkersOpaqueFilename
+    : DEFAULT_WEBWORKERS_OPAQUE_FILENAME;
+  return `${opaqueWasmDirPath}/${opaqueWasmFilename}`;
 }
