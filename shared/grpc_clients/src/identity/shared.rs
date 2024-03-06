@@ -4,9 +4,6 @@ use tonic::{
   Request, Status,
 };
 
-pub const RESPONSE_METADATA_COOKIE_KEY: &str = "set-cookie";
-pub const REQUEST_METADATA_COOKIE_KEY: &str = "cookie";
-
 pub struct CodeVersionLayer {
   pub(crate) version: u64,
   pub(crate) device_type: String,

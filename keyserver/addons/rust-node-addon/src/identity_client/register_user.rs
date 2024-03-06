@@ -43,11 +43,11 @@ pub async fn register_user(
     one_time_notif_prekeys: notif_one_time_keys,
     device_type: DeviceType::Keyserver.into(),
   };
-  let registration_start_request = Request::new(RegistrationStartRequest {
+  let registration_start_request = RegistrationStartRequest {
     opaque_registration_request,
     username,
     device_key_upload: Some(device_key_upload),
-  });
+  };
 
   // Finish OPAQUE registration and send final registration request
   let response = identity_client
@@ -55,14 +55,6 @@ pub async fn register_user(
     .await
     .map_err(handle_grpc_error)?;
   debug!("Received registration start response");
-
-  // We need to get the load balancer cookie from from the response and send it
-  // in the subsequent request to ensure it is routed to the same identity
-  // service instance as the first request
-  let cookie = response
-    .metadata()
-    .get(RESPONSE_METADATA_COOKIE_KEY)
-    .cloned();
 
   let registration_start_response = response.into_inner();
 
@@ -73,18 +65,10 @@ pub async fn register_user(
     )
     .map_err(|_| Error::from_status(Status::GenericFailure))?;
 
-  let mut registration_finish_request =
-    Request::new(RegistrationFinishRequest {
-      session_id: registration_start_response.session_id,
-      opaque_registration_upload,
-    });
-
-  // Cookie won't be available in local dev environments
-  if let Some(cookie_metadata) = cookie {
-    registration_finish_request
-      .metadata_mut()
-      .insert(REQUEST_METADATA_COOKIE_KEY, cookie_metadata);
-  }
+  let registration_finish_request = RegistrationFinishRequest {
+    session_id: registration_start_response.session_id,
+    opaque_registration_upload,
+  };
 
   let registration_response = identity_client
     .register_password_user_finish(registration_finish_request)
