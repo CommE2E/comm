@@ -55,3 +55,15 @@ export function olmWasmPath(): string {
   const olmWasmFilename = olmFilename ? olmFilename : DEFAULT_OLM_FILENAME;
   return `${olmWasmDirPath}/${olmWasmFilename}`;
 }
+
+declare var opaqueURL: string;
+export function opaqueWasmPath(): string {
+  try {
+    // Check if it's a valid url
+    new URL(opaqueURL);
+    return opaqueURL;
+  } catch (err) {}
+
+  const origin = window.location.origin;
+  return `${origin}${baseURL}/${opaqueURL}`;
+}

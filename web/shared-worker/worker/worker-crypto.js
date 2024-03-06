@@ -7,7 +7,11 @@ import type {
   CryptoStore,
   PickledOLMAccount,
   OLMIdentityKeys,
+  IdentityKeysBlob,
+  SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
+import type { IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import type { EmscriptenModule } from '../types/module';
@@ -117,4 +121,97 @@ async function initializeCryptoAccount(
   persistCryptoStore(sqliteQueryExecutor, dbModule);
 }
 
-export { clearCryptoStore, initializeCryptoAccount };
+function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
+  if (!cryptoStore) {
+    throw new Error('Crypto account not initialized');
+  }
+
+  const { primaryAccount, primaryIdentityKeys, notificationIdentityKeys } =
+    cryptoStore;
+
+  const primaryOLMAccount = new olm.Account();
+  primaryOLMAccount.unpickle(
+    primaryAccount.picklingKey,
+    primaryAccount.pickledAccount,
+  );
+
+  const identityKeysBlob: IdentityKeysBlob = {
+    primaryIdentityPublicKeys: primaryIdentityKeys,
+    notificationIdentityPublicKeys: notificationIdentityKeys,
+  };
+
+  const payloadToBeSigned: string = JSON.stringify(identityKeysBlob);
+  const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
+    payload: payloadToBeSigned,
+    signature: primaryOLMAccount.sign(payloadToBeSigned),
+  };
+
+  return signedIdentityKeysBlob;
+}
+
+function getDeviceKeyUpload(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  dbModule: EmscriptenModule,
+): IdentityDeviceKeyUpload {
+  if (!cryptoStore) {
+    throw new Error('Crypto account not initialized');
+  }
+  const { primaryAccount, notificationAccount, ...rest } = cryptoStore;
+
+  const signedIdentityKeysBlob = getSignedIdentityKeysBlob();
+
+  const primaryOLMAccount = new olm.Account();
+  const notificationOLMAccount = new olm.Account();
+  primaryOLMAccount.unpickle(
+    primaryAccount.picklingKey,
+    primaryAccount.pickledAccount,
+  );
+  notificationOLMAccount.unpickle(
+    notificationAccount.picklingKey,
+    notificationAccount.pickledAccount,
+  );
+
+  const primaryAccountKeysSet = retrieveAccountKeysSet(primaryOLMAccount);
+  const notificationAccountKeysSet = retrieveAccountKeysSet(
+    notificationOLMAccount,
+  );
+
+  const pickledPrimaryAccount = primaryOLMAccount.pickle(
+    primaryAccount.picklingKey,
+  );
+  const pickledNotificationAccount = notificationOLMAccount.pickle(
+    notificationAccount.picklingKey,
+  );
+
+  cryptoStore = {
+    ...rest,
+    primaryAccount: {
+      picklingKey: primaryAccount.picklingKey,
+      pickledAccount: pickledPrimaryAccount,
+    },
+    notificationAccount: {
+      picklingKey: notificationAccount.picklingKey,
+      pickledAccount: pickledNotificationAccount,
+    },
+  };
+
+  persistCryptoStore(sqliteQueryExecutor, dbModule);
+
+  return {
+    keyPayload: signedIdentityKeysBlob.payload,
+    keyPayloadSignature: signedIdentityKeysBlob.signature,
+    contentPrekey: primaryAccountKeysSet.prekey,
+    contentPrekeySignature: primaryAccountKeysSet.prekeySignature,
+    notifPrekey: notificationAccountKeysSet.prekey,
+    notifPrekeySignature: notificationAccountKeysSet.prekeySignature,
+    contentOneTimeKeys: primaryAccountKeysSet.oneTimeKeys,
+    notifOneTimeKeys: notificationAccountKeysSet.oneTimeKeys,
+  };
+}
+
+export {
+  clearCryptoStore,
+  initializeCryptoAccount,
+  getSignedIdentityKeysBlob,
+  getDeviceKeyUpload,
+};
