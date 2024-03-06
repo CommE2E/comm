@@ -4,11 +4,23 @@ const basePath = process.argv[2];
 
 const fs = require('fs');
 const readline = require('readline');
+const Writable = require('stream').Writable;
 
-// Create an interface for reading input
+let silenceOutput = false;
+
+const outStream = new Writable({
+  write: function (chunk, encoding, callback) {
+    if (!silenceOutput) {
+      process.stdout.write(chunk, encoding);
+    }
+    callback();
+  },
+});
+
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
+  output: outStream,
+  terminal: true,
 });
 
 const data = {};
@@ -17,13 +29,17 @@ rl.question('username: ', value1 => {
   data.username = value1;
 
   rl.question('password: ', value2 => {
-    data.password = value2;
+    silenceOutput = false;
+    rl.output.write('\n');
 
+    data.password = value2;
     writeFiles(data);
 
     // Close the readline interface
     rl.close();
   });
+
+  silenceOutput = true;
 });
 
 function writeFiles(credentials) {
