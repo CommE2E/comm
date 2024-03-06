@@ -6,6 +6,7 @@ import {
   IdentityClientContext,
   type AuthMetadata,
 } from 'lib/shared/identity-client-context.js';
+import { getConfig } from 'lib/utils/config.js';
 
 import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
 import { useGetDeviceKeyUpload } from '../account/account-hooks.js';
@@ -33,7 +34,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         commServicesAccessToken: accessToken,
       };
     }
-    return new IdentityServiceClientWrapper(authLayer, getDeviceKeyUpload);
+    return new IdentityServiceClientWrapper(
+      getConfig().platformDetails,
+      null,
+      authLayer,
+      getDeviceKeyUpload,
+    );
   }, [accessToken, deviceID, getDeviceKeyUpload, userID]);
 
   const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
