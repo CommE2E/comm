@@ -5,15 +5,17 @@ import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.
 
 import { getDeviceKeyUpload } from './worker-crypto.js';
 import { IdentityServiceClientWrapper } from '../../grpc/identity-service-client-wrapper.js';
-import { workerRequestMessageTypes } from '../../types/worker-types.js';
 import type {
   WorkerResponseMessage,
   WorkerRequestMessage,
 } from '../../types/worker-types.js';
-import type { EmscriptenModule } from '../types/module';
-import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor';
+import {
+  workerRequestMessageTypes,
+  workerResponseMessageTypes,
+} from '../../types/worker-types.js';
+import type { EmscriptenModule } from '../types/module.js';
+import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
-// eslint-disable-next-line no-unused-vars
 let identityClient: ?IdentityServiceClientWrapper = null;
 
 async function processAppIdentityClientRequest(
@@ -32,6 +34,29 @@ async function processAppIdentityClientRequest(
       message.authLayer,
     );
   }
+
+  if (!identityClient) {
+    throw new Error('Identity client not created');
+  }
+
+  if (message.type === workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD) {
+    // Flow doesn't allow us to access methods like this (it needs an index
+    // signature declaration in the object type)
+    // $FlowFixMe
+    const method = identityClient[message.method];
+    if (typeof method !== 'function') {
+      throw new Error(
+        `Couldn't find identity client method with name '${message.method}'`,
+      );
+    }
+    const result = await method(...message.args);
+    return {
+      type: workerResponseMessageTypes.CALL_IDENTITY_CLIENT_METHOD,
+      result,
+    };
+  }
+
+  return undefined;
 }
 
 function createIdentityServiceClient(
