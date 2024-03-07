@@ -35,6 +35,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
   const {
     error,
     isLoading,
+    isChanged,
     name,
     setName,
     createOrUpdateInviteLink,
@@ -122,7 +123,7 @@ function ManagePublicLinkScreen(props: Props): React.Node {
         <Button
           style={[styles.button, styles.buttonPrimary]}
           onPress={createOrUpdateInviteLink}
-          disabled={isLoading}
+          disabled={isLoading || !isChanged}
         >
           <Text style={styles.buttonText}>Save & enable public link</Text>
         </Button>
