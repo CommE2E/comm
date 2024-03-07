@@ -8,8 +8,10 @@ import {
 } from 'lib/shared/identity-client-context.js';
 import { getConfig } from 'lib/utils/config.js';
 
+import { IdentityServiceClientSharedProxy } from './identity-service-client-proxy.js';
 import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
 import { useGetDeviceKeyUpload } from '../account/account-hooks.js';
+import { usingSharedWorker } from '../crypto/olm-api.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
@@ -34,12 +36,16 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         commServicesAccessToken: accessToken,
       };
     }
-    return new IdentityServiceClientWrapper(
-      getConfig().platformDetails,
-      null,
-      authLayer,
-      getDeviceKeyUpload,
-    );
+    if (usingSharedWorker) {
+      return new IdentityServiceClientSharedProxy(authLayer);
+    } else {
+      return new IdentityServiceClientWrapper(
+        getConfig().platformDetails,
+        null,
+        authLayer,
+        getDeviceKeyUpload,
+      );
+    }
   }, [accessToken, deviceID, getDeviceKeyUpload, userID]);
 
   const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
