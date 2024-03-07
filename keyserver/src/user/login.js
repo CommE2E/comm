@@ -7,6 +7,7 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
+import type { UserCredentials } from './checks.js';
 import {
   saveIdentityInfo,
   fetchIdentityInfo,
@@ -15,8 +16,6 @@ import {
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 
-type UserCredentials = { +username: string, +password: string };
-
 // After register or login is successful
 function markKeysAsPublished(account: OlmAccount) {
   account.mark_prekey_as_published();
@@ -24,20 +23,6 @@ function markKeysAsPublished(account: OlmAccount) {
 }
 
 async function verifyUserLoggedIn(): Promise<IdentityInfo> {
-  const result = await fetchIdentityInfo();
-
-  if (result) {
-    return result;
-  }
-
-  const identityInfo = await registerOrLogIn();
-  await saveIdentityInfo(identityInfo);
-  return identityInfo;
-}
-
-async function registerOrLogIn(): Promise<IdentityInfo> {
-  const rustAPIPromise = getRustAPI();
-
   const userInfo = await getCommConfig<UserCredentials>({
     folder: 'secrets',
     name: 'user_credentials',
@@ -46,6 +31,36 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
   if (!userInfo) {
     throw new ServerError('missing_user_credentials');
   }
+
+  if (
+    userInfo.usingIdentityCredentials === undefined &&
+    process.env.NODE_ENV === 'development'
+  ) {
+    console.warn(
+      'Keyserver is not set up to use identity credentials',
+      '\nUsing identity credentials is optional for now',
+      '\nYou can restart nix to set up a new keyserver',
+      'with identity credentials',
+      '\nFor keyservers running in the Docker, refer to',
+      'https://www.notion.so/commapp/Running-two-keyservers-4295f98e7b0547d4ba027ba52c2d2e80?pvs=4#1f4178200d2b442bb7fa05dca447f406',
+    );
+  }
+
+  const result = await fetchIdentityInfo();
+
+  if (result) {
+    return result;
+  }
+
+  const identityInfo = await registerOrLogIn(userInfo);
+  await saveIdentityInfo(identityInfo);
+  return identityInfo;
+}
+
+async function registerOrLogIn(
+  userInfo: UserCredentials,
+): Promise<IdentityInfo> {
+  const rustAPIPromise = getRustAPI();
 
   const {
     identityKeys: notificationsIdentityKeys,
