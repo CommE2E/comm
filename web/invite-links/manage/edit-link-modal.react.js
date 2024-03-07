@@ -33,8 +33,14 @@ function EditLinkModal(props: Props): React.Node {
   const { inviteLink, enterViewMode, enterDisableMode, community } = props;
   const { popModal } = useModalContext();
 
-  const { error, isLoading, name, setName, createOrUpdateInviteLink } =
-    useInviteLinksActions(community.id, inviteLink);
+  const {
+    error,
+    isLoading,
+    isChanged,
+    name,
+    setName,
+    createOrUpdateInviteLink,
+  } = useInviteLinksActions(community.id, inviteLink);
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       setName(event.currentTarget.value);
@@ -103,7 +109,7 @@ function EditLinkModal(props: Props): React.Node {
             <Button
               variant="filled"
               onClick={createOrUpdateInviteLink}
-              disabled={isLoading}
+              disabled={isLoading || !isChanged}
             >
               Save & enable public link
             </Button>
