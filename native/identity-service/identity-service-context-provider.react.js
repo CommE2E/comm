@@ -10,6 +10,7 @@ import {
   type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
 import {
+  type SignedDeviceList,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
@@ -449,6 +450,42 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         return validatedResult;
       },
       generateNonce: commRustModule.generateNonce,
+      getDeviceListHistoryForUser: async (
+        userID: string,
+        sinceTimestamp?: number,
+      ) => {
+        const {
+          deviceID: authDeviceID,
+          userID: authUserID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        const result = await commRustModule.getDeviceListForUser(
+          authUserID,
+          authDeviceID,
+          token,
+          userID,
+          sinceTimestamp,
+        );
+        const rawPayloads: string[] = JSON.parse(result);
+        const deviceLists: SignedDeviceList[] = rawPayloads.map(payload =>
+          JSON.parse(payload),
+        );
+        return deviceLists;
+      },
+      updateDeviceList: async (newDeviceList: SignedDeviceList) => {
+        const {
+          deviceID: authDeviceID,
+          userID,
+          accessToken: authAccessToken,
+        } = await getAuthMetadata();
+        const payload = JSON.stringify(newDeviceList);
+        await commRustModule.updateDeviceList(
+          userID,
+          authDeviceID,
+          authAccessToken,
+          payload,
+        );
+      },
     }),
     [getAuthMetadata],
   );
