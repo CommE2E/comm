@@ -22,21 +22,7 @@ function markKeysAsPublished(account: OlmAccount) {
   account.mark_keys_as_published();
 }
 
-async function verifyUserLoggedIn(): Promise<IdentityInfo> {
-  const result = await fetchIdentityInfo();
-
-  if (result) {
-    return result;
-  }
-
-  const identityInfo = await registerOrLogIn();
-  await saveIdentityInfo(identityInfo);
-  return identityInfo;
-}
-
-async function registerOrLogIn(): Promise<IdentityInfo> {
-  const rustAPIPromise = getRustAPI();
-
+async function getUserCredentials(): Promise<UserCredentials> {
   const userInfo = await getCommConfig<UserCredentials>({
     folder: 'secrets',
     name: 'user_credentials',
@@ -45,6 +31,44 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
   if (!userInfo) {
     throw new ServerError('missing_user_credentials');
   }
+
+  if (
+    userInfo.usingIdentityCredentials === undefined &&
+    process.env.NODE_ENV === 'development'
+  ) {
+    console.warn(
+      'Keyserver is not set up to use identity credentials' +
+        '\nUsing identity credentials is optional for now' +
+        '\nYou can restart nix to set up a new keyserver ' +
+        'with identity credentials' +
+        '\nFor keyservers running in Docker, refer to ' +
+        'https://www.notion.so/commapp/Running-two-keyservers-4295f98e7b0547d4ba027ba52c2d2e80?pvs=4#1f4178200d2b442bb7fa05dca447f406',
+    );
+  }
+
+  return userInfo;
+}
+
+async function verifyUserLoggedIn(): Promise<IdentityInfo> {
+  const userInfoPromise = getUserCredentials();
+
+  const result = await fetchIdentityInfo();
+
+  if (result) {
+    return result;
+  }
+
+  const userInfo = await userInfoPromise;
+
+  const identityInfo = await registerOrLogIn(userInfo);
+  await saveIdentityInfo(identityInfo);
+  return identityInfo;
+}
+
+async function registerOrLogIn(
+  userInfo: UserCredentials,
+): Promise<IdentityInfo> {
+  const rustAPIPromise = getRustAPI();
 
   const {
     identityKeys: notificationsIdentityKeys,
