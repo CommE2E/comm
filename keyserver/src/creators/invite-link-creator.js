@@ -112,16 +112,22 @@ async function createOrUpdatePublicLink(
       await dbQuery(query);
       const holder = existingPrimaryLink.blobHolder;
       if (holder) {
-        await deleteBlob({
-          hash: inviteLinkBlobHash(existingPrimaryLink.name),
-          holder,
-        });
+        await deleteBlob(
+          {
+            hash: inviteLinkBlobHash(existingPrimaryLink.name),
+            holder,
+          },
+          true,
+        );
       }
     } catch (e) {
-      await deleteBlob({
-        hash: inviteLinkBlobHash(request.name),
-        holder: blobHolder,
-      });
+      await deleteBlob(
+        {
+          hash: inviteLinkBlobHash(request.name),
+          holder: blobHolder,
+        },
+        true,
+      );
       if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
         throw new ServerError('already_in_use');
       }
@@ -168,10 +174,13 @@ async function createOrUpdatePublicLink(
   } catch (e) {
     await Promise.all([
       dbQuery(deleteIDs),
-      deleteBlob({
-        hash: inviteLinkBlobHash(request.name),
-        holder: blobHolder,
-      }),
+      deleteBlob(
+        {
+          hash: inviteLinkBlobHash(request.name),
+          holder: blobHolder,
+        },
+        true,
+      ),
     ]);
     if (e.errno === MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
       throw new ServerError('already_in_use');
@@ -182,10 +191,13 @@ async function createOrUpdatePublicLink(
   if (result.affectedRows === 0) {
     await Promise.all([
       dbQuery(deleteIDs),
-      deleteBlob({
-        hash: inviteLinkBlobHash(request.name),
-        holder: blobHolder,
-      }),
+      deleteBlob(
+        {
+          hash: inviteLinkBlobHash(request.name),
+          holder: blobHolder,
+        },
+        true,
+      ),
     ]);
     throw new ServerError('invalid_parameters');
   }
