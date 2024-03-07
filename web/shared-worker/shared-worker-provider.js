@@ -162,4 +162,4 @@ async function getCommSharedWorker(): Promise<CommSharedWorker> {
   return newModule;
 }
 
-export { getCommSharedWorker };
+export { CommSharedWorker, getCommSharedWorker };

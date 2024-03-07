@@ -3,7 +3,10 @@
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
-import type { IdentityServiceAuthLayer } from 'lib/types/identity-service-types.js';
+import type {
+  IdentityServiceClient,
+  IdentityServiceAuthLayer,
+} from 'lib/types/identity-service-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -25,6 +28,7 @@ export const workerRequestMessageTypes = Object.freeze({
   BACKUP_RESTORE: 11,
   INITIALIZE_CRYPTO_ACCOUNT: 12,
   CREATE_IDENTITY_SERVICE_CLIENT: 13,
+  CALL_IDENTITY_CLIENT_METHOD: 14,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -42,6 +46,7 @@ export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
 
 export const workerIdentityClientRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT,
+  workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD,
 ];
 
 export type PingWorkerRequestMessage = {
@@ -121,6 +126,12 @@ export type CreateIdentityServiceClientRequestMessage = {
   +authLayer: ?IdentityServiceAuthLayer,
 };
 
+export type CallIdentityClientMethodRequestMessage = {
+  +type: 14,
+  +method: $Keys<IdentityServiceClient>,
+  +args: $ReadOnlyArray<mixed>,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -135,7 +146,8 @@ export type WorkerRequestMessage =
   | ClearSensitiveDataRequestMessage
   | BackupRestoreRequestMessage
   | InitializeCryptoAccountRequestMessage
-  | CreateIdentityServiceClientRequestMessage;
+  | CreateIdentityServiceClientRequestMessage
+  | CallIdentityClientMethodRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -148,6 +160,7 @@ export const workerResponseMessageTypes = Object.freeze({
   CLIENT_STORE: 1,
   GET_CURRENT_USER_ID: 2,
   GET_PERSIST_STORAGE_ITEM: 3,
+  CALL_IDENTITY_CLIENT_METHOD: 4,
 });
 
 export type PongWorkerResponseMessage = {
@@ -170,11 +183,17 @@ export type GetPersistStorageItemResponseMessage = {
   +item: string,
 };
 
+export type CallIdentityClientMethodResponseMessage = {
+  +type: 4,
+  +result: mixed,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
   | GetCurrentUserIDResponseMessage
-  | GetPersistStorageItemResponseMessage;
+  | GetPersistStorageItemResponseMessage
+  | CallIdentityClientMethodResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
