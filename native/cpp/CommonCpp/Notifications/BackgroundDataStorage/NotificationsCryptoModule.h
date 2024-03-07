@@ -2,6 +2,7 @@
 
 #include "../../CryptoTools/CryptoModule.h"
 
+#include <functional>
 #include <string>
 
 namespace comm {
