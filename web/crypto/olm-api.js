@@ -152,4 +152,4 @@ const olmAPI: OlmAPI = {
   },
 };
 
-export { olmAPI };
+export { olmAPI, usingSharedWorker };
