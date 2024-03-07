@@ -130,6 +130,65 @@ describe('olm.Account', () => {
     return true;
   };
 
+  const testRatchetSequential = (
+    aliceSession: olm.Session,
+    bobSession: olm.Session,
+    bobAccount: olm.Account,
+  ) => {
+    let test_text = randomString(40);
+    console.log(test_text);
+    let encrypted = aliceSession.encrypt(test_text);
+    expect(encrypted.type).toEqual(0);
+
+    console.log(encrypted);
+
+    try {
+      bobSession.create_inbound(bobAccount, encrypted.body);
+    } catch (error) {
+      console.log('error');
+      expect(error.message).toBe('OLM.BAD_MESSAGE_KEY_ID');
+      return false;
+    }
+
+    bobAccount.remove_one_time_keys(bobSession);
+    let decrypted = bobSession.decrypt(encrypted.type, encrypted.body);
+    console.log(decrypted);
+    expect(decrypted).toEqual(test_text);
+
+    test_text = randomString(40);
+    encrypted = bobSession.encrypt(test_text);
+    expect(encrypted.type).toEqual(1);
+    decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
+    expect(decrypted).toEqual(test_text);
+
+    const testText1 = 'message1';
+    const encrypted1 = bobSession.encrypt(testText1);
+    const testText2 = 'message2';
+    const encrypted2 = bobSession.encrypt(testText2);
+
+    expect(() =>
+      aliceSession.decrypt_sequential(encrypted2.type, encrypted2.body),
+    ).toThrow('OLM.OLM_MESSAGE_OUT_OF_ORDER');
+
+    const decrypted1 = aliceSession.decrypt_sequential(
+      encrypted1.type,
+      encrypted1.body,
+    );
+    expect(decrypted1).toEqual(testText1);
+
+    const decrypted2 = aliceSession.decrypt_sequential(
+      encrypted2.type,
+      encrypted2.body,
+    );
+    expect(decrypted2).toEqual(testText2);
+
+    expect(() =>
+      aliceSession.decrypt_sequential(encrypted2.type, encrypted2.body),
+    ).toThrow('OLM.OLM_ALREADY_DECRYPTED');
+
+    return true;
+  };
+
   it('should get Olm Utility', async () => {
     await olm.init();
     const utility = getOlmUtility();
@@ -175,6 +234,18 @@ describe('olm.Account', () => {
 
     createSession(aliceSession, aliceAccount, bobAccount);
     expect(testRatchet(aliceSession, bobSession, bobAccount)).toBeTrue;
+  });
+
+  it('should encrypt and decrypt sequential', async () => {
+    await olm.init();
+    const aliceAccount = initAccount();
+    const bobAccount = initAccount();
+    const aliceSession = new olm.Session();
+    const bobSession = new olm.Session();
+
+    createSession(aliceSession, aliceAccount, bobAccount);
+    expect(testRatchetSequential(aliceSession, bobSession, bobAccount))
+      .toBeTrue;
   });
 
   it('should encrypt and decrypt, even after a prekey is rotated', async () => {
