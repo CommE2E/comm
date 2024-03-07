@@ -5,6 +5,7 @@ import type {
   SignedPrekeys,
 } from 'lib/types/crypto-types.js';
 import type {
+  SignedDeviceList,
   IdentityServiceClient,
   IdentityServiceAuthLayer,
   DeviceOlmOutboundKeys,
@@ -104,6 +105,13 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
 
   publishWebPrekeys: (prekeys: SignedPrekeys) => Promise<void> =
     this.proxyToWorker('publishWebPrekeys');
+
+  getDeviceListHistoryForUser: (
+    userID: string,
+    sinceTimestamp?: number,
+  ) => Promise<$ReadOnlyArray<SignedDeviceList>> = this.proxyToWorker(
+    'getDeviceListHistoryForUser',
+  );
 }
 
 export { IdentityServiceClientSharedProxy };
