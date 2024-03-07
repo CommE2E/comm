@@ -154,6 +154,21 @@ async function registerOrLogIn(
       return identity_info;
     } catch (err) {
       console.warn('Failed to register user: ' + getMessageForException(err));
+      if (userInfo.usingIdentityCredentials) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            'Please re-enter `nix develop` and provide new user credentials',
+          );
+        } else {
+          console.warn(
+            'For keyservers running in Docker, set different ' +
+              'user credentials in COMM_JSONCONFIG_secrets_user_credentials, ' +
+              'remove all tables from the database, and restart.' +
+              '\nFor keyservers outside of Docker, re-enter `nix develop` ' +
+              'and provide new user credentials',
+          );
+        }
+      }
       throw new ServerError('identity_auth_failed');
     }
   }
