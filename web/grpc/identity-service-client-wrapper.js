@@ -8,6 +8,8 @@ import type {
   SignedPrekeys,
 } from 'lib/types/crypto-types.js';
 import {
+  type RawDeviceListPayload,
+  type SignedDeviceList,
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
@@ -432,6 +434,30 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     request.setNewNotifPrekeys(notifPrekeyUpload);
     await client.refreshUserPrekeys(request);
   };
+
+  getDeviceListHistoryForUser: (
+    userID: string,
+    sinceTimestamp?: number,
+  ) => Promise<$ReadOnlyArray<SignedDeviceList>> = async (
+    userID,
+    sinceTimestamp,
+  ) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    const request = new IdentityAuthStructs.GetDeviceListRequest();
+    request.setUserId(userID);
+    if (sinceTimestamp) {
+      request.setSinceTimestamp(sinceTimestamp);
+    }
+    const response = await client.getDeviceListForUser(request);
+    const rawPayloads = response.getDeviceListUpdatesList();
+    const deviceListUpdates: SignedDeviceList[] = rawPayloads.map(payload =>
+      JSON.parse(payload),
+    );
+    return deviceListUpdates;
+  };
 }
 
 function authDeviceKeyUpload(
@@ -473,5 +499,4 @@ function authDeviceKeyUpload(
 
   return deviceKeyUpload;
 }
-
 export { IdentityServiceClientWrapper };
