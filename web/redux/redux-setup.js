@@ -18,6 +18,7 @@ import {
   type ThreadStoreOperation,
   threadStoreOpsHandlers,
 } from 'lib/ops/thread-store-ops.js';
+import { queueDbOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
@@ -482,6 +483,14 @@ function validateStateAndProcessDBOperations(
   // one in tab-synchronization.js) can be removed.
   // $FlowFixMe
   if (action.dispatchSource !== 'tab-sync') {
+    state = {
+      ...state,
+      dbOpsStore: queueDbOps(
+        state.dbOpsStore,
+        action.actionID,
+        storeOperations,
+      ),
+    };
     void processDBStoreOperations(
       storeOperations,
       state.currentUserInfo?.id ?? null,
