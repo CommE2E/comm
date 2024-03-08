@@ -250,6 +250,11 @@ declare export class OpaqueLoginStartRequest extends Message {
   hasDeviceKeyUpload(): boolean;
   clearDeviceKeyUpload(): OpaqueLoginStartRequest;
 
+  getForce(): boolean;
+  setForce(value: boolean): OpaqueLoginStartRequest;
+  hasForce(): boolean;
+  clearForce(): OpaqueLoginStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): OpaqueLoginStartRequestObject;
   static toObject(includeInstance: boolean, msg: OpaqueLoginStartRequest): OpaqueLoginStartRequestObject;
@@ -262,6 +267,7 @@ export type OpaqueLoginStartRequestObject = {
   username: string,
   opaqueLoginRequest: Uint8Array | string,
   deviceKeyUpload?: DeviceKeyUploadObject,
+  force?: boolean,
 };
 
 declare export class OpaqueLoginFinishRequest extends Message {
