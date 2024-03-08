@@ -390,6 +390,21 @@ impl DatabaseClient {
     Ok(Some(outbound_payload))
   }
 
+  pub async fn get_keyserver_device_id_for_user(
+    &self,
+    user_id: &str,
+  ) -> Result<Option<String>, Error> {
+    use crate::grpc_services::protos::unauth::DeviceType as GrpcDeviceType;
+
+    let user_devices = self.get_current_devices(user_id).await?;
+    let maybe_keyserver_device_id = user_devices
+      .into_iter()
+      .find(|device| device.device_type == GrpcDeviceType::Keyserver)
+      .map(|device| device.device_id);
+
+    Ok(maybe_keyserver_device_id)
+  }
+
   /// Will "mint" a single one-time key by attempting to successfully delete a
   /// key
   pub async fn get_one_time_key(
