@@ -18,6 +18,7 @@ import {
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import { queueDBOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import {
@@ -299,7 +300,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     ...fixUnreadActiveThreadResult.threadStoreOperations,
   ];
 
-  void processDBStoreOperations({
+  const ops = {
     draftStoreOperations,
     messageStoreOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
@@ -307,7 +308,13 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     userStoreOperations,
     keyserverStoreOperations,
     communityStoreOperations,
-  });
+  };
+  state = {
+    ...state,
+    dbOpsStore: queueDBOps(state.dbOpsStore, action.actionID, ops),
+  };
+
+  void processDBStoreOperations(ops);
 
   return state;
 }
