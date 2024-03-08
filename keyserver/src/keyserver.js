@@ -41,6 +41,7 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads.js';
+import { createAuthoritativeKeyserverConfigFiles } from './user/create-configs.js';
 import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
@@ -106,6 +107,9 @@ void (async () => {
       ignorePromiseRejections(
         createAndMaintainTunnelbrokerWebsocket(identityInfo),
       );
+      if (process.env.NODE_ENV === 'development') {
+        await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
+      }
     } catch (e) {
       console.warn(
         'Failed identity login. Login optional until staging environment is available',
