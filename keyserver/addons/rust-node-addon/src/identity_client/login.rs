@@ -51,6 +51,7 @@ pub async fn login_user(
       one_time_notif_prekeys: notif_one_time_keys,
       device_type: DeviceType::Keyserver.into(),
     }),
+    force: None,
   };
 
   debug!("Starting login to identity service");

@@ -701,6 +701,7 @@ async fn log_in_password_user_helper(
       one_time_notif_prekeys: password_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
+    force: None,
   };
 
   let mut identity_client = get_unauthenticated_client(

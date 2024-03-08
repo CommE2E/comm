@@ -56,17 +56,25 @@ async fn test_device_list_rotation() {
   let username = android.username.clone();
 
   // 2. Log in a web device
-  let _web =
-    login_user_device(&username, Some(&DEVICE_KEYS_WEB), Some(DeviceType::Web))
-      .await;
+  let _web = login_user_device(
+    &username,
+    Some(&DEVICE_KEYS_WEB),
+    Some(DeviceType::Web),
+    None,
+  )
+  .await;
 
   // 3. Remove android device
   logout_user_device(android).await;
 
   // 4. Log in an iOS device
-  let _ios =
-    login_user_device(&username, Some(&DEVICE_KEYS_IOS), Some(DeviceType::Ios))
-      .await;
+  let _ios = login_user_device(
+    &username,
+    Some(&DEVICE_KEYS_IOS),
+    Some(DeviceType::Ios),
+    None,
+  )
+  .await;
 
   // Get device list updates for the user
   let device_lists_response: Vec<Vec<String>> =
@@ -142,6 +150,77 @@ async fn test_update_device_list_rpc() {
     last_device_list.devices,
     vec![primary_device_id, "device2".into()]
   );
+}
+
+#[tokio::test]
+async fn test_keyserver_force_login() {
+  use commtest::identity::olm_account_infos::{
+    DEFAULT_CLIENT_KEYS as DEVICE_KEYS_ANDROID,
+    MOCK_CLIENT_KEYS_1 as DEVICE_KEYS_KEYSERVER_1,
+    MOCK_CLIENT_KEYS_2 as DEVICE_KEYS_KEYSERVER_2,
+  };
+
+  // Create viewer (user that doesn't change devices)
+  let viewer = register_user_device(None, None).await;
+  let mut auth_client = get_auth_client(
+    &service_addr::IDENTITY_GRPC.to_string(),
+    viewer.user_id.clone(),
+    viewer.device_id,
+    viewer.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
+
+  let android_device_id =
+    &DEVICE_KEYS_ANDROID.primary_identity_public_keys.ed25519;
+  let keyserver_1_device_id =
+    &DEVICE_KEYS_KEYSERVER_1.primary_identity_public_keys.ed25519;
+  let keyserver_2_device_id =
+    &DEVICE_KEYS_KEYSERVER_2.primary_identity_public_keys.ed25519;
+
+  // 1. Register user with primary Android device
+  let android =
+    register_user_device(Some(&DEVICE_KEYS_ANDROID), Some(DeviceType::Android))
+      .await;
+  let user_id = android.user_id.clone();
+  let username = android.username.clone();
+
+  // 2. Log in on keyserver 1
+  let _keyserver_1 = login_user_device(
+    &username,
+    Some(&DEVICE_KEYS_KEYSERVER_1),
+    Some(DeviceType::Keyserver),
+    None,
+  )
+  .await;
+
+  // 3. Log in on keyserver 2 with force = true
+  let _keyserver_2 = login_user_device(
+    &username,
+    Some(&DEVICE_KEYS_KEYSERVER_2),
+    Some(DeviceType::Keyserver),
+    Some(true),
+  )
+  .await;
+
+  // Get device list updates for the user
+  let device_lists_response: Vec<Vec<String>> =
+    get_device_list_history(&mut auth_client, &user_id)
+      .await
+      .into_iter()
+      .map(|device_list| device_list.devices)
+      .collect();
+
+  let expected_device_list: Vec<Vec<String>> = vec![
+    vec![android_device_id.into()],
+    vec![android_device_id.into(), keyserver_1_device_id.into()],
+    vec![android_device_id.into()],
+    vec![android_device_id.into(), keyserver_2_device_id.into()],
+  ];
+
+  assert_eq!(device_lists_response, expected_device_list);
 }
 
 // See GetDeviceListResponse in identity_authenticated.proto
