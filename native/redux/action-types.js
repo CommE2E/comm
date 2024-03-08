@@ -3,6 +3,7 @@
 import type { Orientations } from 'react-native-orientation-locker';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
+import type { MessageID } from 'lib/types/db-ops-types';
 import type { BaseAction } from 'lib/types/redux-types.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
@@ -23,33 +24,38 @@ export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
 ]);
 
-export type Action =
+export type Action = $ReadOnly<
   | BaseAction
   | {
-      +type: 'SET_REDUX_STATE',
-      +payload: { +state: AppState, +hideFromMonitor: boolean },
-    }
-  | {
-      +type: 'UPDATE_DIMENSIONS',
-      +payload: Partial<DimensionsInfo>,
-    }
-  | {
-      +type: 'UPDATE_CONNECTIVITY',
-      +payload: ConnectivityInfo,
-    }
-  | {
-      +type: 'UPDATE_DEVICE_CAMERA_INFO',
-      +payload: Partial<DeviceCameraInfo>,
-    }
-  | {
-      +type: 'UPDATE_DEVICE_ORIENTATION',
-      +payload: Orientations,
-    }
-  | {
-      +type: 'UPDATE_THREAD_LAST_NAVIGATED',
-      +payload: { +threadID: string, +time: number },
-    }
-  | {
-      +type: 'SET_STORE_LOADED',
-    }
-  | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings };
+      +messageID?: MessageID,
+      ...
+        | {
+            +type: 'SET_REDUX_STATE',
+            +payload: { +state: AppState, +hideFromMonitor: boolean },
+          }
+        | {
+            +type: 'UPDATE_DIMENSIONS',
+            +payload: Partial<DimensionsInfo>,
+          }
+        | {
+            +type: 'UPDATE_CONNECTIVITY',
+            +payload: ConnectivityInfo,
+          }
+        | {
+            +type: 'UPDATE_DEVICE_CAMERA_INFO',
+            +payload: Partial<DeviceCameraInfo>,
+          }
+        | {
+            +type: 'UPDATE_DEVICE_ORIENTATION',
+            +payload: Orientations,
+          }
+        | {
+            +type: 'UPDATE_THREAD_LAST_NAVIGATED',
+            +payload: { +threadID: string, +time: number },
+          }
+        | {
+            +type: 'SET_STORE_LOADED',
+          }
+        | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings },
+    },
+>;

@@ -27,7 +27,7 @@ import {
   identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
-import type { DBOpsStore } from 'lib/types/db-ops-types.js';
+import type { MessageID, DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -121,18 +121,23 @@ export type AppState = {
   +dbOpsStore: DBOpsStore,
 };
 
-export type Action =
+export type Action = $ReadOnly<
   | BaseAction
-  | { +type: 'UPDATE_NAV_INFO', +payload: Partial<WebNavInfo> }
   | {
-      +type: 'UPDATE_WINDOW_DIMENSIONS',
-      +payload: WindowDimensions,
-    }
-  | {
-      +type: 'UPDATE_WINDOW_ACTIVE',
-      +payload: boolean,
-    }
-  | { +type: 'SET_INITIAL_REDUX_STATE', +payload: InitialReduxState };
+      +messageID?: MessageID,
+      ...
+        | { +type: 'UPDATE_NAV_INFO', +payload: Partial<WebNavInfo> }
+        | {
+            +type: 'UPDATE_WINDOW_DIMENSIONS',
+            +payload: WindowDimensions,
+          }
+        | {
+            +type: 'UPDATE_WINDOW_ACTIVE',
+            +payload: boolean,
+          }
+        | { +type: 'SET_INITIAL_REDUX_STATE', +payload: InitialReduxState },
+    },
+>;
 
 function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
