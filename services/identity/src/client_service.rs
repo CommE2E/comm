@@ -9,7 +9,7 @@ use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use siwe::eip55;
 use tonic::Response;
-use tracing::{debug, error, warn};
+use tracing::{debug, error, info, warn};
 
 // Workspace crate imports
 use crate::config::CONFIG;
@@ -66,6 +66,7 @@ pub struct UserLoginInfo {
   pub user_id: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub opaque_server_login: comm_opaque2::server::Login,
+  pub device_to_remove: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -265,7 +266,7 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<OpaqueLoginStartResponse>, tonic::Status> {
     let message = request.into_inner();
 
-    debug!("Attempting to login user: {:?}", &message.username);
+    debug!("Attempting to log in user: {:?}", &message.username);
     let user_id_and_password_file = self
       .client
       .get_user_id_and_password_file_from_username(&message.username)
@@ -296,6 +297,18 @@ impl IdentityClientService for ClientService {
         return Err(tonic::Status::not_found("user not found"));
       };
 
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+
+    let maybe_device_to_remove = self
+      .get_keyserver_device_to_remove(
+        &user_id,
+        &flattened_device_key_upload.device_id_key,
+        message.force.unwrap_or(false),
+        &flattened_device_key_upload.device_type,
+      )
+      .await?;
+
     let mut server_login = comm_opaque2::server::Login::new();
     let server_response = server_login
       .start(
@@ -306,8 +319,12 @@ impl IdentityClientService for ClientService {
       )
       .map_err(protocol_error_to_grpc_status)?;
 
-    let login_state =
-      construct_user_login_info(&message, user_id, server_login)?;
+    let login_state = construct_user_login_info(
+      user_id,
+      server_login,
+      flattened_device_key_upload,
+      maybe_device_to_remove,
+    )?;
 
     let session_id = self
       .client
@@ -339,6 +356,14 @@ impl IdentityClientService for ClientService {
       server_login
         .finish(&message.opaque_login_upload)
         .map_err(protocol_error_to_grpc_status)?;
+
+      if let Some(device_to_remove) = state.device_to_remove {
+        self
+          .client
+          .remove_device(state.user_id.clone(), device_to_remove)
+          .await
+          .map_err(handle_db_error)?;
+      }
 
       let login_time = chrono::Utc::now();
       self
@@ -896,6 +921,44 @@ impl ClientService {
     };
     Ok(())
   }
+
+  async fn get_keyserver_device_to_remove(
+    &self,
+    user_id: &str,
+    new_keyserver_device_id: &str,
+    force: bool,
+    device_type: &DeviceType,
+  ) -> Result<Option<String>, tonic::Status> {
+    if device_type != &DeviceType::Keyserver {
+      return Ok(None);
+    }
+
+    let maybe_keyserver_device_id = self
+      .client
+      .get_keyserver_device_id_for_user(user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let Some(existing_keyserver_device_id) = maybe_keyserver_device_id else {
+      return Ok(None);
+    };
+
+    if new_keyserver_device_id == existing_keyserver_device_id {
+      return Ok(None);
+    }
+
+    if force {
+      info!(
+        "keyserver {} will be removed from the device list",
+        existing_keyserver_device_id
+      );
+      Ok(Some(existing_keyserver_device_id))
+    } else {
+      Err(tonic::Status::already_exists(
+        "user already has a keyserver",
+      ))
+    }
+  }
 }
 
 pub fn handle_db_error(db_error: DBError) -> tonic::Status {
@@ -932,16 +995,16 @@ fn construct_user_registration_info(
 }
 
 fn construct_user_login_info(
-  message: &impl DeviceKeyUploadActions,
   user_id: String,
   opaque_server_login: comm_opaque2::server::Login,
+  flattened_device_key_upload: FlattenedDeviceKeyUpload,
+  device_to_remove: Option<String>,
 ) -> Result<UserLoginInfo, tonic::Status> {
   Ok(UserLoginInfo {
     user_id,
-    flattened_device_key_upload: construct_flattened_device_key_upload(
-      message,
-    )?,
+    flattened_device_key_upload,
     opaque_server_login,
+    device_to_remove,
   })
 }
 

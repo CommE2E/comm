@@ -24,8 +24,8 @@ pub struct DeviceInfo {
   pub access_token: String,
 }
 
-/// Log in existing user with a device.
-/// - Tries to log in with given username (it has to be already registered)
+/// Register a new user with a device.
+/// - Gives random username (returned by function).
 /// - Device type defaults to keyserver.
 /// - Device ID taken from `keys` (ed25519), see [`DEFAULT_CLIENT_KEYS`]
 pub async fn register_user_device(
@@ -111,14 +111,15 @@ pub async fn register_user_device(
   }
 }
 
-/// Register a new user with a device.
-/// - Gives random username (returned by function).
+/// Log in existing user with a device.
+/// - Tries to log in with given username (it has to be already registered)
 /// - Device type defaults to keyserver.
 /// - Device ID taken from `keys` (ed25519), see [`DEFAULT_CLIENT_KEYS`]
 pub async fn login_user_device(
   username: &str,
   keys: Option<&ClientPublicKeys>,
   device_type: Option<DeviceType>,
+  force: bool,
 ) -> DeviceInfo {
   // TODO: Generate dynamic valid olm account info
   let keys = keys.unwrap_or_else(|| &DEFAULT_CLIENT_KEYS);
@@ -151,6 +152,7 @@ pub async fn login_user_device(
       one_time_notif_prekeys: Vec::new(),
       device_type: device_type.into(),
     }),
+    force: Some(force),
   };
 
   let mut identity_client = get_unauthenticated_client(
