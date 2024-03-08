@@ -2457,7 +2457,8 @@ proto.identity.unauth.OpaqueLoginStartRequest.toObject = function(includeInstanc
   var f, obj = {
     username: jspb.Message.getFieldWithDefault(msg, 1, ""),
     opaqueLoginRequest: msg.getOpaqueLoginRequest_asB64(),
-    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f)
+    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
+    force: jspb.Message.getBooleanFieldWithDefault(msg, 4, false)
   };
 
   if (includeInstance) {
@@ -2506,6 +2507,10 @@ proto.identity.unauth.OpaqueLoginStartRequest.deserializeBinaryFromReader = func
       var value = new proto.identity.unauth.DeviceKeyUpload;
       reader.readMessage(value,proto.identity.unauth.DeviceKeyUpload.deserializeBinaryFromReader);
       msg.setDeviceKeyUpload(value);
+      break;
+    case 4:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setForce(value);
       break;
     default:
       reader.skipField();
@@ -2556,6 +2561,13 @@ proto.identity.unauth.OpaqueLoginStartRequest.serializeBinaryToWriter = function
       3,
       f,
       proto.identity.unauth.DeviceKeyUpload.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {boolean} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
+    writer.writeBool(
+      4,
+      f
     );
   }
 };
@@ -2655,6 +2667,42 @@ proto.identity.unauth.OpaqueLoginStartRequest.prototype.clearDeviceKeyUpload = f
  */
 proto.identity.unauth.OpaqueLoginStartRequest.prototype.hasDeviceKeyUpload = function() {
   return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional bool force = 4;
+ * @return {boolean}
+ */
+proto.identity.unauth.OpaqueLoginStartRequest.prototype.getForce = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 4, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.identity.unauth.OpaqueLoginStartRequest} returns this
+ */
+proto.identity.unauth.OpaqueLoginStartRequest.prototype.setForce = function(value) {
+  return jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.OpaqueLoginStartRequest} returns this
+ */
+proto.identity.unauth.OpaqueLoginStartRequest.prototype.clearForce = function() {
+  return jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.OpaqueLoginStartRequest.prototype.hasForce = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
