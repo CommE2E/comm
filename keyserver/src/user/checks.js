@@ -4,7 +4,8 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 export type UserCredentials = {
   +username: string,
   +password: string,
-  +usingIdentityCredentials: boolean,
+  +usingIdentityCredentials?: boolean,
+  +forceLogin?: boolean,
 };
 
 async function ensureUserCredentials() {

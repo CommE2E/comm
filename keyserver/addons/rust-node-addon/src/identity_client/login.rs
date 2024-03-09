@@ -18,8 +18,9 @@ pub async fn login_user(
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
+  force: Option<bool>,
 ) -> Result<UserLoginInfo> {
-  debug!("Attempting to login user: {}", username);
+  debug!("Attempting to log in user: {}", username);
 
   // Set up the gRPC client that will be used to talk to the Identity service
   let mut identity_client = get_identity_client().await?;
@@ -51,7 +52,7 @@ pub async fn login_user(
       one_time_notif_prekeys: notif_one_time_keys,
       device_type: DeviceType::Keyserver.into(),
     }),
-    force: None,
+    force,
   };
 
   debug!("Starting login to identity service");
