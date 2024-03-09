@@ -34,6 +34,7 @@ function writeFiles(credentials) {
       username: credentials.username,
       password: credentials.password,
       usingIdentityCredentials: true,
+      forceLogin: true,
     };
     const userCredentialsJSON = JSON.stringify(userCredentials, null, 2);
     const keyserverSecrets = 'keyserver/secrets';

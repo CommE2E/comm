@@ -7,6 +7,7 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
+import type { UserCredentials } from './checks.js';
 import {
   saveIdentityInfo,
   fetchIdentityInfo,
@@ -14,8 +15,6 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
-
-type UserCredentials = { +username: string, +password: string };
 
 // After register or login is successful
 function markKeysAsPublished(account: OlmAccount) {
@@ -94,6 +93,11 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
   ]);
 
   try {
+    if (userInfo.forceLogin) {
+      console.warn(
+        'Force login enabled. If you have another keyserver associated with this account, it will be removed.',
+      );
+    }
     const identity_info = await rustAPI.loginUser(
       userInfo.username,
       userInfo.password,
@@ -104,6 +108,7 @@ async function registerOrLogIn(): Promise<IdentityInfo> {
       notificationsPrekeySignature,
       contentOneTimeKeys,
       notificationsOneTimeKeys,
+      userInfo.forceLogin,
     );
     await Promise.all([
       fetchCallUpdateOlmAccount('content', markKeysAsPublished),
