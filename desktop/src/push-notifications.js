@@ -129,12 +129,22 @@ function showNewNotification(
 
 function listenForNotifications(
   handleClick: (threadID?: string) => void,
-  handleEncryptedNotification: (encryptedPayload: string) => void,
+  handleEncryptedNotification: (
+    keyserverID: string,
+    encryptedPayload: string,
+  ) => void,
 ) {
   if (process.platform === 'darwin') {
     pushNotifications.on('received-apns-notification', (event, userInfo) => {
+      const { keyserverID, encryptedPayload } = userInfo;
+      if (
+        typeof keyserverID !== 'string' ||
+        typeof encryptedPayload !== 'string'
+      ) {
+        return;
+      }
       if (userInfo.encryptedPayload) {
-        handleEncryptedNotification(userInfo.encryptedPayload);
+        handleEncryptedNotification(keyserverID, encryptedPayload);
       } else {
         showNewNotification(userInfo, handleClick);
       }
@@ -142,7 +152,10 @@ function listenForNotifications(
   } else if (process.platform === 'win32') {
     windowsPushNotifEventEmitter.on('received-wns-notification', payload => {
       if (payload.encryptedPayload) {
-        handleEncryptedNotification(payload.encryptedPayload);
+        handleEncryptedNotification(
+          payload.keyserverID,
+          payload.encryptedPayload,
+        );
       } else {
         showNewNotification(payload, handleClick);
       }
