@@ -9,6 +9,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import {
   type SignedDeviceList,
+  type SignedMessage,
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
@@ -38,6 +39,7 @@ import {
   OpaqueLoginStartRequest,
   Prekey,
   WalletAuthRequest,
+  SecondaryDeviceKeysUploadRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
@@ -407,6 +409,38 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
 
+  uploadKeysForRegisteredDeviceAndLogIn: (
+    ownerUserID: string,
+    nonceChallengeResponse: SignedMessage,
+  ) => Promise<IdentityAuthResult> = async (
+    ownerUserID,
+    nonceChallengeResponse,
+  ) => {
+    const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
+    const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
+    const challengeResponse = JSON.stringify(nonceChallengeResponse);
+
+    const request = new SecondaryDeviceKeysUploadRequest();
+    request.setUserId(ownerUserID);
+    request.setChallengeResponse(challengeResponse);
+    request.setDeviceKeyUpload(deviceKeyUpload);
+
+    let response;
+    try {
+      response =
+        await this.unauthClient.uploadKeysForRegisteredDeviceAndLogIn(request);
+    } catch (e) {
+      console.log('Error calling logInWalletUser:', e);
+      throw new Error(getMessageForException(e) ?? 'unknown');
+    }
+
+    const userID = response.getUserId();
+    const accessToken = response.getAccessToken();
+    const identityAuthResult = { accessToken, userID, username: '' };
+
+    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
+  };
+
   generateNonce: () => Promise<string> = async () => {
     const result = await this.unauthClient.generateNonce(new Empty());
     return result.getNonce();
@@ -419,7 +453,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     if (!client) {
       throw new Error('Identity service client is not initialized');
     }
-
     const contentPrekeyUpload = new Prekey();
     contentPrekeyUpload.setPrekey(prekeys.contentPrekey);
     contentPrekeyUpload.setPrekeySignature(prekeys.contentPrekeySignature);
