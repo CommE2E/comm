@@ -8,6 +8,10 @@ import uuid from 'uuid';
 
 import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
 import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type {
   SignedIdentityKeysBlob,
   CryptoStore,
@@ -18,6 +22,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import { type IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -237,6 +242,7 @@ function useGetDeviceKeyUpload(): () => Promise<IdentityDeviceKeyUpload> {
 function OlmSessionCreatorProvider(props: Props): React.Node {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
   const currentCryptoStore = useSelector(state => state.cryptoStore);
+  const platformDetails = getConfig().platformDetails;
 
   const createNewNotificationsSession = React.useCallback(
     async (
@@ -282,12 +288,25 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
         encryptionKey,
       );
 
-      const notifsOlmDataEncryptionKeyDBLabel =
-        getOlmEncryptionKeyDBLabelForCookie(cookie, keyserverID);
-      const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
-        cookie,
-        keyserverID,
-      );
+      let notifsOlmDataContentKey;
+      let notifsOlmDataEncryptionKeyDBLabel;
+
+      if (
+        hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION })
+      ) {
+        notifsOlmDataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForCookie(
+          cookie,
+          keyserverID,
+        );
+        notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
+          cookie,
+          keyserverID,
+        );
+      } else {
+        notifsOlmDataEncryptionKeyDBLabel =
+          getOlmEncryptionKeyDBLabelForCookie(cookie);
+        notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
+      }
 
       const persistEncryptionKeyPromise = (async () => {
         let cryptoKeyPersistentForm;
@@ -312,7 +331,7 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
 
       return initialNotificationsEncryptedMessage;
     },
-    [getOrCreateCryptoStore],
+    [getOrCreateCryptoStore, platformDetails],
   );
 
   const createNewContentSession = React.useCallback(
@@ -348,7 +367,10 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
     [getOrCreateCryptoStore],
   );
 
-  const notificationsSessionPromise = React.useRef<?Promise<string>>(null);
+  const perKeyserverNotificationsSessionPromises = React.useRef<{
+    [keyserverID: string]: ?Promise<string>,
+  }>({});
+
   const createNotificationsSession = React.useCallback(
     async (
       cookie: ?string,
@@ -356,8 +378,8 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       notificationsInitializationInfo: OlmSessionInitializationInfo,
       keyserverID: string,
     ) => {
-      if (notificationsSessionPromise.current) {
-        return notificationsSessionPromise.current;
+      if (perKeyserverNotificationsSessionPromises.current[keyserverID]) {
+        return perKeyserverNotificationsSessionPromises.current[keyserverID];
       }
 
       const newNotificationsSessionPromise = (async () => {
@@ -369,12 +391,14 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
             keyserverID,
           );
         } catch (e) {
-          notificationsSessionPromise.current = undefined;
+          perKeyserverNotificationsSessionPromises.current[keyserverID] =
+            undefined;
           throw e;
         }
       })();
 
-      notificationsSessionPromise.current = newNotificationsSessionPromise;
+      perKeyserverNotificationsSessionPromises.current[keyserverID] =
+        newNotificationsSessionPromise;
       return newNotificationsSessionPromise;
     },
     [createNewNotificationsSession],
@@ -383,7 +407,7 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
   const isCryptoStoreSet = !!currentCryptoStore;
   React.useEffect(() => {
     if (!isCryptoStoreSet) {
-      notificationsSessionPromise.current = undefined;
+      perKeyserverNotificationsSessionPromises.current = {};
     }
   }, [isCryptoStoreSet]);
 

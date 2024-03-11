@@ -8,6 +8,12 @@ import {
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
+import { isDesktopPlatform } from 'lib/types/device-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import {
   shouldSkipPushPermissionAlert,
@@ -16,7 +22,10 @@ import {
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { decryptDesktopNotification } from './notif-crypto-utils.js';
+import {
+  decryptDesktopNotification,
+  migrateLegacyOlmNotificationsSessions,
+} from './notif-crypto-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import electron from '../electron.js';
 import PushNotifModal from '../modals/push-notif-modal.react.js';
@@ -29,6 +38,22 @@ function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSetDeviceToken = useSetDeviceTokenFanout();
   const staffCanSee = useStaffCanSee();
+  const [notifsOlmSessionMigrated, setNotifsSessionsMigrated] =
+    React.useState<boolean>(false);
+  const platformDetails = getConfig().platformDetails;
+
+  React.useEffect(() => {
+    if (
+      !isDesktopPlatform(platformDetails.platform) ||
+      !hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION })
+    ) {
+      return;
+    }
+    void (async () => {
+      await migrateLegacyOlmNotificationsSessions();
+      setNotifsSessionsMigrated(true);
+    })();
+  }, [platformDetails]);
 
   React.useEffect(
     () =>
@@ -45,26 +70,31 @@ function useCreateDesktopPushSubscription() {
     electron?.fetchDeviceToken?.();
   }, []);
 
-  React.useEffect(
-    () =>
-      electron?.onEncryptedNotification?.(
-        async ({
+  React.useEffect(() => {
+    if (
+      hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION }) &&
+      !notifsOlmSessionMigrated
+    ) {
+      return undefined;
+    }
+
+    return electron?.onEncryptedNotification?.(
+      async ({
+        encryptedPayload,
+        keyserverID,
+      }: {
+        encryptedPayload: string,
+        keyserverID?: string,
+      }) => {
+        const decryptedPayload = await decryptDesktopNotification(
           encryptedPayload,
+          staffCanSee,
           keyserverID,
-        }: {
-          encryptedPayload: string,
-          keyserverID?: string,
-        }) => {
-          const decryptedPayload = await decryptDesktopNotification(
-            encryptedPayload,
-            staffCanSee,
-            keyserverID,
-          );
-          electron?.showDecryptedNotification(decryptedPayload);
-        },
-      ),
-    [staffCanSee],
-  );
+        );
+        electron?.showDecryptedNotification(decryptedPayload);
+      },
+    );
+  }, [staffCanSee, notifsOlmSessionMigrated, platformDetails]);
 
   const dispatch = useDispatch();
 
