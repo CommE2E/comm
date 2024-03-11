@@ -11,6 +11,7 @@ import type {
   PlainTextWebNotificationPayload,
   WebNotification,
   PlainTextWNSNotification,
+  PlainTextWNSNotificationPayload,
   WNSNotification,
 } from 'lib/types/notif-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
@@ -289,22 +290,32 @@ async function encryptWebNotification(
   cookieID: string,
   notification: PlainTextWebNotification,
 ): Promise<{ +notification: WebNotification, +encryptionOrder?: number }> {
-  const { id, ...payloadSansId } = notification;
+  const { id, keyserverID, ...payloadSansId } = notification;
   const { encryptionOrder, ...encryptionResult } =
     await encryptBasicPayload<PlainTextWebNotificationPayload>(
       cookieID,
       payloadSansId,
     );
-  return { notification: { id, ...encryptionResult }, encryptionOrder };
+  return {
+    notification: { id, keyserverID, ...encryptionResult },
+    encryptionOrder,
+  };
 }
 
 async function encryptWNSNotification(
   cookieID: string,
   notification: PlainTextWNSNotification,
 ): Promise<{ +notification: WNSNotification, +encryptionOrder?: number }> {
+  const { keyserverID, ...payloadSansKeyserverID } = notification;
   const { encryptionOrder, ...encryptionResult } =
-    await encryptBasicPayload<PlainTextWNSNotification>(cookieID, notification);
-  return { notification: encryptionResult, encryptionOrder };
+    await encryptBasicPayload<PlainTextWNSNotificationPayload>(
+      cookieID,
+      payloadSansKeyserverID,
+    );
+  return {
+    notification: { keyserverID, ...encryptionResult },
+    encryptionOrder,
+  };
 }
 
 function prepareEncryptedAPNsNotifications(
