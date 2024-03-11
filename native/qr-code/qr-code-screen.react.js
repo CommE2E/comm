@@ -95,6 +95,15 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         deviceKeys.aesKey,
         innerMessage,
       );
+
+      if (
+        qrCodeAuthMessage?.type ===
+        qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE
+      ) {
+        console.log('Received backup data key:', qrCodeAuthMessage);
+        return;
+      }
+
       if (
         !qrCodeAuthMessage ||
         qrCodeAuthMessage.type !==
