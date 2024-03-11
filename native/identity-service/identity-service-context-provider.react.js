@@ -11,6 +11,7 @@ import {
 } from 'lib/types/crypto-types.js';
 import {
   type SignedDeviceList,
+  type SignedMessage,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
@@ -436,6 +437,50 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           username: walletAddress,
         };
 
+        const validatedResult = assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
+      },
+      uploadKeysForRegisteredDeviceAndLogIn: async (
+        userID: string,
+        nonceChallengeResponse: SignedMessage,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const challengeResponse = JSON.stringify(nonceChallengeResponse);
+        const registrationResult =
+          await commRustModule.uploadSecondaryDeviceKeysAndLogIn(
+            userID,
+            challengeResponse,
+            blobPayload,
+            signature,
+            prekeys.contentPrekey,
+            prekeys.contentPrekeySignature,
+            prekeys.notifPrekey,
+            prekeys.notifPrekeySignature,
+            getOneTimeKeyValues(contentOneTimeKeys),
+            getOneTimeKeyValues(notificationsOneTimeKeys),
+          );
+        const { accessToken: token } = JSON.parse(registrationResult);
+
+        const identityAuthResult = { accessToken: token, userID, username: '' };
         const validatedResult = assertWithValidator(
           identityAuthResult,
           identityAuthResultValidator,
