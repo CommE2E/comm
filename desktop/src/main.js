@@ -304,10 +304,14 @@ const run = () => {
       }
     };
 
-    const handleEncryptedNotification = (encryptedPayload: string) => {
+    const handleEncryptedNotification = (
+      encryptedPayload: string,
+      keyserverID: string,
+    ) => {
       if (mainWindow) {
         mainWindow.webContents.send('on-encrypted-notification', {
           encryptedPayload,
+          keyserverID,
         });
       }
     };
