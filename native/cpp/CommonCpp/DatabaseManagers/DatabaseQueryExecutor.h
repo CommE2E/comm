@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
+#include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
@@ -78,6 +79,13 @@ public:
   virtual void removeCommunities(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllCommunities() const = 0;
   virtual std::vector<CommunityInfo> getAllCommunities() const = 0;
+  virtual void replaceIntegrityThreadHashes(
+      const std::vector<IntegrityThreadHash> &thread_hashes) const = 0;
+  virtual void
+  removeIntegrityThreadHashes(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllIntegrityThreadHashes() const = 0;
+  virtual std::vector<IntegrityThreadHash>
+  getAllIntegrityThreadHashes() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;

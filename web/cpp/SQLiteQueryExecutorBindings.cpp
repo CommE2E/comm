@@ -52,6 +52,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<CommunityInfo>("CommunityInfo")
       .field("id", &CommunityInfo::id)
       .field("communityInfo", &CommunityInfo::community_info);
+  value_object<IntegrityThreadHash>("IntegrityThreadHash")
+      .field("id", &IntegrityThreadHash::id)
+      .field("threadHash", &IntegrityThreadHash::thread_hash);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -175,6 +178,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "removeAllCommunities", &SQLiteQueryExecutor::removeAllCommunities)
       .function("getAllCommunities", &SQLiteQueryExecutor::getAllCommunities)
+      .function(
+          "replaceIntegrityThreadHashes",
+          &SQLiteQueryExecutor::replaceIntegrityThreadHashes)
+      .function(
+          "removeIntegrityThreadHashes",
+          &SQLiteQueryExecutor::removeIntegrityThreadHashes)
+      .function(
+          "removeAllIntegrityThreadHashes",
+          &SQLiteQueryExecutor::removeAllIntegrityThreadHashes)
+      .function(
+          "getAllIntegrityThreadHashes",
+          &SQLiteQueryExecutor::getAllIntegrityThreadHashes)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(

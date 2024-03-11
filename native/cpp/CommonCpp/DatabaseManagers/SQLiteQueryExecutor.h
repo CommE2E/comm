@@ -5,6 +5,7 @@
 #include "NativeSQLiteConnectionManager.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
+#include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/UserInfo.h"
 
@@ -92,6 +93,12 @@ public:
   void removeCommunities(const std::vector<std::string> &ids) const override;
   void removeAllCommunities() const override;
   std::vector<CommunityInfo> getAllCommunities() const override;
+  void replaceIntegrityThreadHashes(
+      const std::vector<IntegrityThreadHash> &thread_hashes) const override;
+  void removeIntegrityThreadHashes(
+      const std::vector<std::string> &ids) const override;
+  void removeAllIntegrityThreadHashes() const override;
+  std::vector<IntegrityThreadHash> getAllIntegrityThreadHashes() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
