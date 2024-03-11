@@ -54,8 +54,15 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(
     () =>
       electron?.onEncryptedNotification?.(
-        async ({ encryptedPayload }: { encryptedPayload: string }) => {
+        async ({
+          keyserverID,
+          encryptedPayload,
+        }: {
+          keyserverID: string,
+          encryptedPayload: string,
+        }) => {
           const decryptedPayload = await decryptDesktopNotification(
+            keyserverID,
             encryptedPayload,
             staffCanSee,
           );

@@ -288,7 +288,7 @@ function OlmSessionCreatorProvider(props: Props): React.Node {
       );
 
       const notifsOlmDataEncryptionKeyDBLabel =
-        getOlmEncryptionKeyDBLabelForCookie(cookie);
+        getOlmEncryptionKeyDBLabelForCookie(cookie, keyserverID);
       const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
         cookie,
         keyserverID,

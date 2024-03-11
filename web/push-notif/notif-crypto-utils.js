@@ -105,6 +105,7 @@ async function decryptWebNotification(
 }
 
 async function decryptDesktopNotification(
+  keyserverID: string,
   encryptedPayload: string,
   staffCanSee: boolean,
 ): Promise<{ +[string]: mixed }> {
@@ -342,7 +343,11 @@ function getOlmDataContentKeyForCookie(
   return `${NOTIFICATIONS_OLM_DATA_CONTENT}:${cookieID}`;
 }
 
-function getOlmEncryptionKeyDBLabelForCookie(cookie: ?string): string {
+function getOlmEncryptionKeyDBLabelForCookie(
+  cookie: ?string,
+  // eslint-disable-next-line no-unused-vars
+  keyserverID: string,
+): string {
   if (!cookie) {
     return NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY;
   }
