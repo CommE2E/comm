@@ -16,7 +16,10 @@ import {
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { decryptDesktopNotification } from './notif-crypto-utils.js';
+import {
+  decryptDesktopNotification,
+  migrateLegacyOlmNotificationsSessions,
+} from './notif-crypto-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import {
   WORKERS_MODULES_DIR_PATH,
@@ -35,6 +38,15 @@ function useCreateDesktopPushSubscription() {
   const dispatchActionPromise = useDispatchActionPromise();
   const callSetDeviceToken = useSetDeviceTokenFanout();
   const staffCanSee = useStaffCanSee();
+  const [notifsOlmSessionMigrated, setNotifsSessionsMigrated] =
+    React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    void (async () => {
+      await migrateLegacyOlmNotificationsSessions();
+      setNotifsSessionsMigrated(true);
+    })();
+  }, []);
 
   React.useEffect(
     () =>
@@ -51,26 +63,28 @@ function useCreateDesktopPushSubscription() {
     electron?.fetchDeviceToken?.();
   }, []);
 
-  React.useEffect(
-    () =>
-      electron?.onEncryptedNotification?.(
-        async ({
+  React.useEffect(() => {
+    if (!notifsOlmSessionMigrated) {
+      return undefined;
+    }
+
+    return electron?.onEncryptedNotification?.(
+      async ({
+        keyserverID,
+        encryptedPayload,
+      }: {
+        keyserverID: string,
+        encryptedPayload: string,
+      }) => {
+        const decryptedPayload = await decryptDesktopNotification(
           keyserverID,
           encryptedPayload,
-        }: {
-          keyserverID: string,
-          encryptedPayload: string,
-        }) => {
-          const decryptedPayload = await decryptDesktopNotification(
-            keyserverID,
-            encryptedPayload,
-            staffCanSee,
-          );
-          electron?.showDecryptedNotification(decryptedPayload);
-        },
-      ),
-    [staffCanSee],
-  );
+          staffCanSee,
+        );
+        electron?.showDecryptedNotification(decryptedPayload);
+      },
+    );
+  }, [staffCanSee, notifsOlmSessionMigrated]);
 
   const dispatch = useDispatch();
 
