@@ -10,6 +10,7 @@ import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 
 import {
   decryptWebNotification,
+  migrateLegacyOlmNotificationsSessions,
   WEB_NOTIFS_SERVICE_UTILS_KEY,
   type WebNotifsServiceUtilsData,
   type WebNotifDecryptionError,
@@ -78,6 +79,8 @@ self.addEventListener('message', (event: CommAppMessage) => {
         WEB_NOTIFS_SERVICE_UTILS_KEY,
         webNotifsServiceUtils,
       );
+
+      await migrateLegacyOlmNotificationsSessions();
     })(),
   );
 });
