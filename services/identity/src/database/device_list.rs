@@ -647,8 +647,6 @@ impl DatabaseClient {
       .put_item()
       .table_name(devices_table::NAME)
       .set_item(Some(new_device.into()))
-      .expression_attribute_names("#user_id", ATTR_USER_ID)
-      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
       .send()
       .await
       .map_err(|e| {
