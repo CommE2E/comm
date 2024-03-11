@@ -350,7 +350,9 @@ void CommCoreModule::persistCryptoModule() {
   GlobalDBSingleton::instance.scheduleOrRunCancellable(
       [=, &persistencePromise]() {
         try {
-          DatabaseManager::getQueryExecutor().storeOlmPersistData(newPersist);
+          DatabaseManager::getQueryExecutor().storeOlmPersistData(
+              DatabaseManager::getQueryExecutor().getContentAccountID(),
+              newPersist);
           persistencePromise.set_value();
         } catch (std::system_error &e) {
           persistencePromise.set_exception(std::make_exception_ptr(e));
@@ -375,7 +377,8 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
           std::string error;
           try {
             std::optional<std::string> accountData =
-                DatabaseManager::getQueryExecutor().getOlmPersistAccountData();
+                DatabaseManager::getQueryExecutor().getOlmPersistAccountData(
+                    DatabaseManager::getQueryExecutor().getContentAccountID());
             if (accountData.has_value()) {
               persist.account =
                   crypto::OlmBuffer(accountData->begin(), accountData->end());
@@ -407,6 +410,8 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                     std::string error;
                     try {
                       DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                          DatabaseManager::getQueryExecutor()
+                              .getContentAccountID(),
                           newPersist);
                     } catch (std::system_error &e) {
                       error = e.what();
