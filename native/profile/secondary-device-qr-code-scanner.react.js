@@ -2,10 +2,16 @@
 
 import { useNavigation } from '@react-navigation/native';
 import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { RawDeviceList } from 'lib/types/identity-service-types.js';
+import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { createQRAuthTunnelbrokerMessage } from 'lib/utils/qr-code-auth.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -26,6 +32,49 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const navigation = useNavigation();
 
+  const tunnelbrokerContext = useTunnelbroker();
+  const identityContext = React.useContext(IdentityClientContext);
+
+  const addDeviceToList = React.useCallback(
+    async (newDeviceID: string) => {
+      invariant(identityContext, 'identity context not set');
+      const { getDeviceListHistoryForUser, updateDeviceList } =
+        identityContext.identityClient;
+      invariant(
+        updateDeviceList,
+        'updateDeviceList() should be defined for primary device',
+      );
+
+      const authMetadata = await identityContext.getAuthMetadata();
+      if (!authMetadata?.userID) {
+        throw new Error('missing auth metadata');
+      }
+
+      const deviceLists = await getDeviceListHistoryForUser(
+        authMetadata.userID,
+      );
+      const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
+      const deviceList: RawDeviceList = JSON.parse(
+        lastSignedDeviceList.rawDeviceList,
+      );
+
+      const { devices } = deviceList;
+      if (!devices.includes(newDeviceID)) {
+        const newDeviceList: RawDeviceList = {
+          devices: [...devices, newDeviceID],
+          timestamp: Date.now(),
+        };
+        await updateDeviceList({
+          rawDeviceList: JSON.stringify(newDeviceList),
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+    [identityContext],
+  );
+
   React.useEffect(() => {
     void (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -43,28 +92,55 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     })();
   }, [navigation]);
 
-  const onConnect = React.useCallback((barCodeEvent: BarCodeEvent) => {
-    const { data } = barCodeEvent;
-    const parsedData = parseDataFromDeepLink(data);
-    const keysMatch = parsedData?.data?.keys;
+  const onConnect = React.useCallback(
+    (barCodeEvent: BarCodeEvent) => {
+      const { data } = barCodeEvent;
+      const parsedData = parseDataFromDeepLink(data);
+      const keysMatch = parsedData?.data?.keys;
 
-    if (!parsedData || !keysMatch) {
-      Alert.alert(
-        'Scan failed',
-        'QR code does not contain a valid pair of keys.',
-        [{ text: 'OK' }],
-      );
-      return;
-    }
+      if (!parsedData || !keysMatch) {
+        Alert.alert(
+          'Scan failed',
+          'QR code does not contain a valid pair of keys.',
+          [{ text: 'OK' }],
+        );
+        return;
+      }
 
-    const keys = JSON.parse(decodeURIComponent(keysMatch));
+      const keys = JSON.parse(decodeURIComponent(keysMatch));
+      const { aes256, ed25519 } = keys;
 
-    Alert.alert(
-      'Scan successful',
-      `QR code contains the following keys: ${JSON.stringify(keys)}`,
-      [{ text: 'OK' }],
-    );
-  }, []);
+      void (async () => {
+        try {
+          invariant(identityContext, 'identity context not set');
+          const { deviceID: primaryDeviceID, userID } =
+            await identityContext.getAuthMetadata();
+          if (!primaryDeviceID || !userID) {
+            throw new Error('missing auth metadata');
+          }
+          await addDeviceToList(ed25519);
+          const message = createQRAuthTunnelbrokerMessage(aes256, {
+            type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
+            userID,
+            primaryDeviceID,
+          });
+          await tunnelbrokerContext.sendMessage({
+            deviceID: ed25519,
+            payload: JSON.stringify(message),
+          });
+        } catch (err) {
+          console.log('Primary device error:', err);
+          Alert.alert(
+            'Adding device failed',
+            'Failed to update the device list',
+            [{ text: 'OK' }],
+          );
+          navigation.goBack();
+        }
+      })();
+    },
+    [tunnelbrokerContext, addDeviceToList, identityContext, navigation],
+  );
 
   const onCancelScan = React.useCallback(() => setScanned(false), []);
 
