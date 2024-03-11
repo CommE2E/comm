@@ -119,6 +119,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<UserInfo> userStoreVector;
           std::vector<KeyserverInfo> keyserverStoreVector;
           std::vector<CommunityInfo> communityStoreVector;
+          std::vector<IntegrityThreadHash> integrityStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -133,6 +134,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 DatabaseManager::getQueryExecutor().getAllKeyservers();
             communityStoreVector =
                 DatabaseManager::getQueryExecutor().getAllCommunities();
+            integrityStoreVector = DatabaseManager::getQueryExecutor()
+                                       .getAllIntegrityThreadHashes();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -156,6 +159,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto communityStoreVectorPtr =
               std::make_shared<std::vector<CommunityInfo>>(
                   std::move(communityStoreVector));
+          auto integrityStoreVectorPtr =
+              std::make_shared<std::vector<IntegrityThreadHash>>(
+                  std::move(integrityStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
@@ -165,6 +171,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          userStoreVectorPtr,
                                          keyserveStoreVectorPtr,
                                          communityStoreVectorPtr,
+                                         integrityStoreVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
@@ -173,8 +180,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          reportStore = this->reportStore,
                                          userStore = this->userStore,
                                          keyserverStore = this->keyserverStore,
-                                         communityStore =
-                                             this->communityStore]() {
+                                         communityStore = this->communityStore,
+                                         integrityStore =
+                                             this->integrityStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -196,6 +204,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, keyserveStoreVectorPtr);
             jsi::Array jsiCommunityStore = communityStore.parseDBDataStore(
                 innerRt, communityStoreVectorPtr);
+            jsi::Array jsiIntegrityStore = integrityStore.parseDBDataStore(
+                innerRt, integrityStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -209,6 +219,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, "keyservers", jsiKeyserverStore);
             jsiClientDBStore.setProperty(
                 innerRt, "communities", jsiCommunityStore);
+            jsiClientDBStore.setProperty(
+                innerRt, "integrityThreadHashes", jsiIntegrityStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
