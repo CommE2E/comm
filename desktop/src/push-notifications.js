@@ -129,23 +129,34 @@ function showNewNotification(
 
 function listenForNotifications(
   handleClick: (threadID?: string) => void,
-  handleEncryptedNotification: (encryptedPayload: string) => void,
+  handleEncryptedNotification: (
+    encryptedPayload: string,
+    keyserverID: string,
+  ) => void,
 ) {
   if (process.platform === 'darwin') {
     pushNotifications.on('received-apns-notification', (event, userInfo) => {
-      if (userInfo.encryptedPayload) {
-        handleEncryptedNotification(userInfo.encryptedPayload);
-      } else {
-        showNewNotification(userInfo, handleClick);
+      const { keyserverID, encryptedPayload } = userInfo;
+      if (
+        typeof keyserverID === 'string' &&
+        typeof encryptedPayload === 'string'
+      ) {
+        handleEncryptedNotification(encryptedPayload, keyserverID);
+        return;
       }
+      showNewNotification(userInfo, handleClick);
     });
   } else if (process.platform === 'win32') {
     windowsPushNotifEventEmitter.on('received-wns-notification', payload => {
-      if (payload.encryptedPayload) {
-        handleEncryptedNotification(payload.encryptedPayload);
-      } else {
-        showNewNotification(payload, handleClick);
+      const { keyserverID, encryptedPayload } = payload;
+      if (
+        typeof keyserverID === 'string' &&
+        typeof encryptedPayload === 'string'
+      ) {
+        handleEncryptedNotification(encryptedPayload, keyserverID);
+        return;
       }
+      showNewNotification(payload, handleClick);
     });
   }
 }

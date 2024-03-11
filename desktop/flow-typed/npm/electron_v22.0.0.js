@@ -336,7 +336,7 @@ declare module 'electron' {
   declare type PushNotificationsEvents = {
     'received-apns-notification': (
       event: Event,
-      userInfo: { +[string]: mixed, +encryptedPayload?: string },
+      userInfo: {+[string]: mixed},
     ) => void,
   };
 
