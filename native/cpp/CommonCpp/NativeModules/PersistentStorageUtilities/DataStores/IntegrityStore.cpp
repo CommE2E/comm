@@ -22,7 +22,19 @@ jsi::Array IntegrityStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<IntegrityThreadHash>>
         integrityThreadHashesVectorPtr) const {
-  jsi::Array jsiIntegrityThreadHashes = jsi::Array(rt, 0);
+  size_t numIntegrityThreadHashes = integrityThreadHashesVectorPtr->size();
+  jsi::Array jsiIntegrityThreadHashes =
+      jsi::Array(rt, numIntegrityThreadHashes);
+  size_t writeIdx = 0;
+  for (const IntegrityThreadHash &integrityThreadHash :
+       *integrityThreadHashesVectorPtr) {
+    jsi::Object jsiIntegrityThreadHash = jsi::Object(rt);
+    jsiIntegrityThreadHash.setProperty(rt, "id", integrityThreadHash.id);
+    jsiIntegrityThreadHash.setProperty(
+        rt, "threadHash", integrityThreadHash.thread_hash);
+    jsiIntegrityThreadHashes.setValueAtIndex(
+        rt, writeIdx++, jsiIntegrityThreadHash);
+  }
   return jsiIntegrityThreadHashes;
 }
 
