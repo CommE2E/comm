@@ -42,6 +42,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
   const [deviceKeys, setDeviceKeys] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
+  const [primaryDeviceID, setPrimaryDeviceID] = React.useState<?string>();
   const {
     setUnauthorizedDeviceID,
     addListener,
@@ -52,6 +53,29 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   } = useTunnelbroker();
   const identityContext = React.useContext(IdentityClientContext);
   const identityClient = identityContext?.identityClient;
+
+  React.useEffect(() => {
+    if (
+      !(tunnelbrokerConnected && isAuthorized && primaryDeviceID && deviceKeys)
+    ) {
+      return;
+    }
+
+    const message = createQRAuthTunnelbrokerMessage(deviceKeys.aesKey, {
+      type: qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS,
+    });
+    console.log('SECONDARY MESSAGE', message);
+    void sendMessage({
+      deviceID: primaryDeviceID,
+      payload: JSON.stringify(message),
+    });
+  }, [
+    tunnelbrokerConnected,
+    isAuthorized,
+    sendMessage,
+    primaryDeviceID,
+    deviceKeys,
+  ]);
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -78,7 +102,9 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
       ) {
         return;
       }
-      const { userID } = qrCodeAuthMessage;
+      const { primaryDeviceID: receivedPrimaryDeviceID, userID } =
+        qrCodeAuthMessage;
+      setPrimaryDeviceID(receivedPrimaryDeviceID);
 
       try {
         const nonce = await identityClient.generateNonce();

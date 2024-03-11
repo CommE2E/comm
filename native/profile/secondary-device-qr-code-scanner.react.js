@@ -2,10 +2,27 @@
 
 import { useNavigation } from '@react-navigation/native';
 import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { RawDeviceList } from 'lib/types/identity-service-types.js';
+import {
+  tunnelbrokerMessageTypes,
+  type TunnelbrokerMessage,
+} from 'lib/types/tunnelbroker/messages.js';
+import {
+  peerToPeerMessageTypes,
+  type PeerToPeerMessage,
+} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import {
+  createQRAuthTunnelbrokerMessage,
+  parseQRAuthTunnelbrokerMessage,
+} from 'lib/utils/qr-code-auth.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -28,6 +45,9 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
   const tunnelbrokerContext = useTunnelbroker();
   const identityContext = React.useContext(IdentityClientContext);
+
+  const aes256Key = React.useRef<?string>(null);
+  const secondaryDeviceID = React.useRef<?string>(null);
 
   const addDeviceToList = React.useCallback(
     async (newDeviceID: string) => {
@@ -69,6 +89,45 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     [identityContext],
   );
 
+  const tunnelbrokerMessageListener = React.useCallback(
+    async (message: TunnelbrokerMessage) => {
+      const encryptionKey = aes256Key.current;
+      const targetDeviceID = secondaryDeviceID.current;
+      if (!encryptionKey || !targetDeviceID) {
+        return;
+      }
+      if (message.type !== tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE) {
+        return;
+      }
+
+      const innerMessage: PeerToPeerMessage = JSON.parse(message.payload);
+      if (innerMessage.type !== peerToPeerMessageTypes.QR_CODE_AUTH_MESSAGE) {
+        return;
+      }
+
+      const payload = parseQRAuthTunnelbrokerMessage(
+        encryptionKey,
+        innerMessage,
+      );
+      if (
+        payload?.type !==
+        qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS
+      ) {
+        return;
+      }
+      Alert.alert('Device added', `It worked`, [{ text: 'OK' }]);
+    },
+    [tunnelbrokerContext],
+  );
+
+  React.useEffect(() => {
+    tunnelbrokerContext.addListener(tunnelbrokerMessageListener);
+
+    return () => {
+      tunnelbrokerContext.removeListener(tunnelbrokerMessageListener);
+    };
+  }, [tunnelbrokerMessageListener, tunnelbrokerContext]);
+
   React.useEffect(() => {
     void (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -103,6 +162,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
       const keys = JSON.parse(decodeURIComponent(keysMatch));
       const { aes256, ed25519 } = keys;
+      aes256Key.current = aes256;
+      secondaryDeviceID.current = ed25519;
 
       void (async () => {
         try {
@@ -133,12 +194,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         }
       })();
     },
-    [
-      tunnelbrokerContext,
-      addDeviceToList,
-      identityContext,
-      navigation,
-    ],
+    [tunnelbrokerContext, addDeviceToList, identityContext, navigation],
   );
 
   const onCancelScan = React.useCallback(() => setScanned(false), []);
