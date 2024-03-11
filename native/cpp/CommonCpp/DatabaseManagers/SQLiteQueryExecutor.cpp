@@ -3,6 +3,7 @@
 
 #include "entities/CommunityInfo.h"
 #include "entities/EntityQueryHelpers.h"
+#include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
 #include "entities/UserInfo.h"
@@ -1581,6 +1582,53 @@ std::vector<CommunityInfo> SQLiteQueryExecutor::getAllCommunities() const {
       "FROM communities;";
   return getAllEntities<CommunityInfo>(
       SQLiteQueryExecutor::getConnection(), getAllCommunitiesSQL);
+}
+
+void SQLiteQueryExecutor::replaceIntegrityThreadHashes(
+    const std::vector<IntegrityThreadHash> &threadHashes) const {
+  static std::string replaceIntegrityThreadHashSQL =
+      "REPLACE INTO integrity_store (id, thread_hash) "
+      "VALUES (?, ?);";
+  for (const IntegrityThreadHash &integrityThreadHash : threadHashes) {
+    replaceEntity<IntegrityThreadHash>(
+        SQLiteQueryExecutor::getConnection(),
+        replaceIntegrityThreadHashSQL,
+        integrityThreadHash);
+  }
+}
+
+void SQLiteQueryExecutor::removeAllIntegrityThreadHashes() const {
+  static std::string removeAllIntegrityThreadHashesSQL =
+      "DELETE FROM integrity_store;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllIntegrityThreadHashesSQL);
+}
+
+void SQLiteQueryExecutor::removeIntegrityThreadHashes(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeIntegrityThreadHashesByKeysSQLStream;
+  removeIntegrityThreadHashesByKeysSQLStream << "DELETE FROM integrity_store "
+                                                "WHERE id IN "
+                                             << getSQLStatementArray(ids.size())
+                                             << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeIntegrityThreadHashesByKeysSQLStream.str(),
+      ids);
+}
+
+std::vector<IntegrityThreadHash>
+SQLiteQueryExecutor::getAllIntegrityThreadHashes() const {
+  static std::string getAllIntegrityThreadHashesSQL =
+      "SELECT * "
+      "FROM integrity_store;";
+  return getAllEntities<IntegrityThreadHash>(
+      SQLiteQueryExecutor::getConnection(), getAllIntegrityThreadHashesSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
