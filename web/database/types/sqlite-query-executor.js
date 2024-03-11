@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBCommunityInfo } from 'lib/ops/community-store-ops.js';
+import type { ClientDBIntegrityThreadHash } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
@@ -113,6 +114,13 @@ declare export class SQLiteQueryExecutor {
   removeCommunities(ids: $ReadOnlyArray<string>): void;
   removeAllCommunities(): void;
   getAllCommunities(): ClientDBCommunityInfo[];
+
+  replaceIntegrityThreadHashes(
+    threadHashes: $ReadOnlyArray<ClientDBIntegrityThreadHash>,
+  ): void;
+  removeIntegrityThreadHashes(ids: $ReadOnlyArray<string>): void;
+  removeAllIntegrityThreadHashes(): void;
+  getAllIntegrityThreadHashes(): ClientDBIntegrityThreadHash[];
 
   beginTransaction(): void;
   commitTransaction(): void;
