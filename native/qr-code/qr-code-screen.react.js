@@ -22,7 +22,10 @@ import {
   peerToPeerMessageValidator,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import { parseQRAuthTunnelbrokerMessage } from 'lib/utils/qr-code-auth.js';
+import {
+  createQRAuthTunnelbrokerMessage,
+  parseQRAuthTunnelbrokerMessage,
+} from 'lib/utils/qr-code-auth.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import { commCoreModule } from '../native-modules.js';
@@ -42,10 +45,42 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
-  const { setUnauthorizedDeviceID, addListener, removeListener } =
-    useTunnelbroker();
+  const [primaryDeviceID, setPrimaryDeviceID] = React.useState<?string>();
+  const {
+    setUnauthorizedDeviceID,
+    addListener,
+    removeListener,
+    connected: tunnelbrokerConnected,
+    isAuthorized,
+    sendMessage,
+  } = useTunnelbroker();
   const identityContext = React.useContext(IdentityClientContext);
   const identityClient = identityContext?.identityClient;
+
+  React.useEffect(() => {
+    if (
+      !tunnelbrokerConnected ||
+      !isAuthorized ||
+      !primaryDeviceID ||
+      !qrData
+    ) {
+      return;
+    }
+
+    const message = createQRAuthTunnelbrokerMessage(qrData.aesKey, {
+      type: qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS,
+    });
+    void sendMessage({
+      deviceID: primaryDeviceID,
+      payload: JSON.stringify(message),
+    });
+  }, [
+    tunnelbrokerConnected,
+    isAuthorized,
+    sendMessage,
+    primaryDeviceID,
+    qrData,
+  ]);
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -80,7 +115,9 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
       ) {
         return;
       }
-      const { userID } = qrCodeAuthMessage;
+      const { primaryDeviceID: receivedPrimaryDeviceID, userID } =
+        qrCodeAuthMessage;
+      setPrimaryDeviceID(receivedPrimaryDeviceID);
 
       try {
         const nonce = await identityClient.generateNonce();
