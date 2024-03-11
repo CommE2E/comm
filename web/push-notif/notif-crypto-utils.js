@@ -46,11 +46,22 @@ type DecryptionResult<T> = {
 export const WEB_NOTIFS_SERVICE_UTILS_KEY = 'webNotifsServiceUtils';
 
 const SESSION_UPDATE_MAX_PENDING_TIME = 10 * 1000;
+const INDEXED_DB_KEYSERVER_PREFIX = 'keyserver';
+const INDEXED_DB_KEY_SEPARATOR = ':';
+
+// This constant is only used to migrate the existing notifications
+// session with production keyserver to new IndexedDB key format. This
+// migration will fire when user updates the app. It will also fire
+// on dev env provided old keyserver set up is used. Developers willing
+// to use new keyserver set up must log out before updating the app.
+// Do not introduce new usages of this constant in the code!!!
+const ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE =
+  '256';
 
 async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
 ): Promise<PlainTextWebNotification | WebNotifDecryptionError> {
-  const { id, encryptedPayload } = encryptedNotification;
+  const { id, keyserverID, encryptedPayload } = encryptedNotification;
   const utilsData = await localforage.getItem<WebNotifsServiceUtilsData>(
     WEB_NOTIFS_SERVICE_UTILS_KEY,
   );
@@ -62,7 +73,7 @@ async function decryptWebNotification(
 
   let olmDBKeys;
   try {
-    olmDBKeys = await getNotifsOlmSessionDBKeys();
+    olmDBKeys = await getNotifsOlmSessionDBKeys(keyserverID);
   } catch (e) {
     return {
       id,
@@ -107,13 +118,12 @@ async function decryptWebNotification(
 async function decryptDesktopNotification(
   encryptedPayload: string,
   staffCanSee: boolean,
-  // eslint-disable-next-line no-unused-vars
   keyserverID?: string,
 ): Promise<{ +[string]: mixed }> {
   let encryptedOlmData, encryptionKey, olmDataContentKey;
   try {
     const { olmDataContentKey: olmDataContentKeyValue, encryptionKeyDBKey } =
-      await getNotifsOlmSessionDBKeys();
+      await getNotifsOlmSessionDBKeys(keyserverID);
 
     olmDataContentKey = olmDataContentKeyValue;
 
@@ -281,16 +291,26 @@ async function retrieveEncryptionKey(
   return await importJWKKey(persistedCryptoKey);
 }
 
-async function getNotifsOlmSessionDBKeys(): Promise<{
+async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
   +olmDataContentKey: string,
   +encryptionKeyDBKey: string,
 }> {
+  const olmDataContentKeyForKeyserverPrefix = getOlmDataContentKeyForCookie(
+    undefined,
+    keyserverID,
+  );
+
+  const olmEncryptionKeyDBLabelForKeyserverPrefix =
+    getOlmEncryptionKeyDBLabelForCookie(undefined, keyserverID);
+
   const dbKeys = await localforage.keys();
   const olmDataContentKeys = sortOlmDBKeysArray(
-    dbKeys.filter(key => key.startsWith(NOTIFICATIONS_OLM_DATA_CONTENT)),
+    dbKeys.filter(key => key.startsWith(olmDataContentKeyForKeyserverPrefix)),
   );
   const encryptionKeyDBLabels = sortOlmDBKeysArray(
-    dbKeys.filter(key => key.startsWith(NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY)),
+    dbKeys.filter(key =>
+      key.startsWith(olmEncryptionKeyDBLabelForKeyserverPrefix),
+    ),
   );
 
   if (olmDataContentKeys.length === 0 || encryptionKeyDBLabels.length === 0) {
@@ -334,30 +354,53 @@ async function getNotifsOlmSessionDBKeys(): Promise<{
 
 function getOlmDataContentKeyForCookie(
   cookie: ?string,
-  // eslint-disable-next-line no-unused-vars
-  keyserverID: string,
+  keyserverID?: string,
 ): string {
+  let olmDataContentKeyBase;
+  if (keyserverID) {
+    olmDataContentKeyBase = [
+      INDEXED_DB_KEYSERVER_PREFIX,
+      keyserverID,
+      NOTIFICATIONS_OLM_DATA_CONTENT,
+    ].join(INDEXED_DB_KEY_SEPARATOR);
+  } else {
+    olmDataContentKeyBase = NOTIFICATIONS_OLM_DATA_CONTENT;
+  }
+
   if (!cookie) {
-    return NOTIFICATIONS_OLM_DATA_CONTENT;
+    return olmDataContentKeyBase;
   }
   const cookieID = getCookieIDFromCookie(cookie);
-  return `${NOTIFICATIONS_OLM_DATA_CONTENT}:${cookieID}`;
+  return [olmDataContentKeyBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
 }
 
 function getOlmEncryptionKeyDBLabelForCookie(
   cookie: ?string,
-  // eslint-disable-next-line no-unused-vars
-  keyserverID: string,
+  keyserverID?: string,
 ): string {
+  let olmEncryptionKeyDBLabelBase;
+  if (keyserverID) {
+    olmEncryptionKeyDBLabelBase = [
+      INDEXED_DB_KEYSERVER_PREFIX,
+      keyserverID,
+      NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+    ].join(INDEXED_DB_KEY_SEPARATOR);
+  } else {
+    olmEncryptionKeyDBLabelBase = NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY;
+  }
+
   if (!cookie) {
-    return NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY;
+    return olmEncryptionKeyDBLabelBase;
   }
   const cookieID = getCookieIDFromCookie(cookie);
-  return `${NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY}:${cookieID}`;
+  return [olmEncryptionKeyDBLabelBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
 }
 
 function getCookieIDFromOlmDBKey(olmDBKey: string): string | '0' {
-  const cookieID = olmDBKey.split(':')[1];
+  // Olm DB keys comply to one of the following formats:
+  // KEYSERVER:<id>:(OLM_CONTENT | OLM_ENCRYPTION_KEY):<cookie id>
+  // or legacy (OLM_CONTENT | OLM_ENCRYPTION_KEY):<cookie id>
+  const cookieID = olmDBKey.split(INDEXED_DB_KEY_SEPARATOR).slice(-1)[0];
   return cookieID ?? '0';
 }
 
@@ -376,9 +419,52 @@ function sortOlmDBKeysArray(
     .map(({ key }) => key);
 }
 
+async function migrateLegacyOlmNotificationsSessions() {
+  const keyValuePairsToInsert: { [key: string]: EncryptedData | CryptoKey } =
+    {};
+  const keysToDelete = [];
+
+  await localforage.iterate((value: EncryptedData | CryptoKey, key) => {
+    let keyToInsert;
+    if (key.startsWith(NOTIFICATIONS_OLM_DATA_CONTENT)) {
+      const cookieID = getCookieIDFromOlmDBKey(key);
+      keyToInsert = getOlmDataContentKeyForCookie(
+        cookieID,
+        ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE,
+      );
+    } else if (key.startsWith(NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY)) {
+      const cookieID = getCookieIDFromOlmDBKey(key);
+      keyToInsert = getOlmEncryptionKeyDBLabelForCookie(
+        cookieID,
+        ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE,
+      );
+    } else {
+      return undefined;
+    }
+
+    keyValuePairsToInsert[keyToInsert] = value;
+    keysToDelete.push(key);
+    return undefined;
+  });
+
+  const insertionPromises = Object.entries(keyValuePairsToInsert).map(
+    ([key, value]) =>
+      (async () => {
+        await localforage.setItem(key, value);
+      })(),
+  );
+
+  const deletionPromises = keysToDelete.map(key =>
+    (async () => await localforage.removeItem(key))(),
+  );
+
+  await Promise.all([...insertionPromises, ...deletionPromises]);
+}
+
 export {
   decryptWebNotification,
   decryptDesktopNotification,
   getOlmDataContentKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
+  migrateLegacyOlmNotificationsSessions,
 };
