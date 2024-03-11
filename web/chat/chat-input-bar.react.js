@@ -83,6 +83,7 @@ type Props = {
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
   +parentThreadInfo: ?ThreadInfo,
+  +communityThreadInfo: ?ThreadInfo,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -343,6 +344,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     } else if (
       threadFrozenDueToViewerBlock(
         this.props.threadInfo,
+        this.props.communityThreadInfo,
         this.props.viewerID,
         this.props.userInfos,
       ) &&
@@ -588,9 +590,13 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const { getChatMentionSearchIndex } = useChatMentionContext();
     const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
-    const { parentThreadID } = props.threadInfo;
+    const { parentThreadID, community } = props.threadInfo;
     const parentThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+
+    const communityThreadInfo = useSelector(state =>
+      community ? threadInfoSelector(state)[community] : null,
     );
 
     const userMentionsCandidates = useUserMentionsCandidates(
@@ -673,6 +679,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         typeaheadMatchedStrings={typeaheadMatchedStrings}
         suggestions={suggestions}
         parentThreadInfo={parentThreadInfo}
+        communityThreadInfo={communityThreadInfo}
       />
     );
   });
