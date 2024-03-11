@@ -297,6 +297,8 @@ async function processAppRequest(
   return result;
 }
 
+let currentlyProcessedMessage: ?Promise<void> = null;
+
 function connectHandler(event: SharedWorkerMessageEvent) {
   if (!event.ports.length) {
     return;
@@ -314,18 +316,21 @@ function connectHandler(event: SharedWorkerMessageEvent) {
       });
     }
 
-    try {
-      const result = await processAppRequest(message);
-      port.postMessage({
-        id,
-        message: result,
-      });
-    } catch (e) {
-      port.postMessage({
-        id,
-        error: e.message,
-      });
-    }
+    currentlyProcessedMessage = (async () => {
+      await currentlyProcessedMessage;
+      try {
+        const result = await processAppRequest(message);
+        port.postMessage({
+          id,
+          message: result,
+        });
+      } catch (e) {
+        port.postMessage({
+          id,
+          error: e.message,
+        });
+      }
+    })();
   };
 }
 
