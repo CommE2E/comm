@@ -6,6 +6,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type {
   SignedDeviceList,
+  SignedMessage,
   IdentityServiceClient,
   IdentityServiceAuthLayer,
   DeviceOlmOutboundKeys,
@@ -100,6 +101,13 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
     siweMessage: string,
     siweSignature: string,
   ) => Promise<IdentityAuthResult> = this.proxyToWorker('logInWalletUser');
+
+  uploadKeysForRegisteredDeviceAndLogIn: (
+    userID: string,
+    nonceChallengeResponse: SignedMessage,
+  ) => Promise<IdentityAuthResult> = this.proxyToWorker(
+    'uploadKeysForRegisteredDeviceAndLogIn',
+  );
 
   generateNonce: () => Promise<string> = this.proxyToWorker('generateNonce');
 

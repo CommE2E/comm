@@ -11,6 +11,7 @@ import type { PlatformDetails } from 'lib/types/device-types.js';
 import {
   type SignedDeviceList,
   signedDeviceListHistoryValidator,
+  type SignedMessage,
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
@@ -40,6 +41,7 @@ import {
   OpaqueLoginStartRequest,
   Prekey,
   WalletAuthRequest,
+  SecondaryDeviceKeysUploadRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
@@ -419,6 +421,38 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const userID = loginResponse.getUserId();
     const accessToken = loginResponse.getAccessToken();
     const identityAuthResult = { accessToken, userID, username: walletAddress };
+
+    return assertWithValidator(identityAuthResult, identityAuthResultValidator);
+  };
+
+  uploadKeysForRegisteredDeviceAndLogIn: (
+    ownerUserID: string,
+    nonceChallengeResponse: SignedMessage,
+  ) => Promise<IdentityAuthResult> = async (
+    ownerUserID,
+    nonceChallengeResponse,
+  ) => {
+    const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
+    const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
+    const challengeResponse = JSON.stringify(nonceChallengeResponse);
+
+    const request = new SecondaryDeviceKeysUploadRequest();
+    request.setUserId(ownerUserID);
+    request.setChallengeResponse(challengeResponse);
+    request.setDeviceKeyUpload(deviceKeyUpload);
+
+    let response;
+    try {
+      response =
+        await this.unauthClient.uploadKeysForRegisteredDeviceAndLogIn(request);
+    } catch (e) {
+      console.log('Error calling uploadKeysForRegisteredDeviceAndLogIn:', e);
+      throw new Error(getMessageForException(e) ?? 'unknown');
+    }
+
+    const userID = response.getUserId();
+    const accessToken = response.getAccessToken();
+    const identityAuthResult = { accessToken, userID, username: '' };
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
