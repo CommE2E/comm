@@ -49,6 +49,34 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const aes256Key = React.useRef<?string>(null);
   const secondaryDeviceID = React.useRef<?string>(null);
 
+  const broadcastDeviceListUpdate = React.useCallback(async () => {
+    invariant(identityContext, 'identity context not set');
+    const { getAuthMetadata, identityClient } = identityContext;
+    const { userID } = await getAuthMetadata();
+    if (!userID) {
+      throw new Error('missing auth metadata');
+    }
+
+    const deviceLists =
+      await identityClient.getDeviceListHistoryForUser(userID);
+    const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
+    const deviceList: RawDeviceList = JSON.parse(
+      lastSignedDeviceList.rawDeviceList,
+    );
+
+    const promises = deviceList.devices.map(recipient =>
+      tunnelbrokerContext.sendMessage({
+        deviceID: recipient,
+        payload: JSON.stringify({
+          type: peerToPeerMessageTypes.DEVICCE_LIST_UPDATED,
+          userID,
+          signedDeviceList: JSON.stringify(lastSignedDeviceList),
+        }),
+      }),
+    );
+    await Promise.all(promises);
+  }, [identityContext, tunnelbrokerContext]);
+
   const addDeviceToList = React.useCallback(
     async (newDeviceID: string) => {
       invariant(identityContext, 'identity context not set');
@@ -115,11 +143,24 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       ) {
         return;
       }
+
+      void broadcastDeviceListUpdate();
+
+      const backupKeyMessage = createQRAuthTunnelbrokerMessage(encryptionKey, {
+        type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
+        backupID: 'stub',
+        backupDataKey: 'stub',
+      });
+      await tunnelbrokerContext.sendMessage({
+        deviceID: targetDeviceID,
+        payload: JSON.stringify(backupKeyMessage),
+      });
+
       Alert.alert('Device added', 'Device registered successfully', [
         { text: 'OK' },
       ]);
     },
-    [tunnelbrokerContext],
+    [tunnelbrokerContext, broadcastDeviceListUpdate],
   );
 
   React.useEffect(() => {
