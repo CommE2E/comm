@@ -11,6 +11,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
+		34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -139,6 +140,9 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
 		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
 		34329B452B9EC96200233438 /* IntegrityThreadHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegrityThreadHash.h; sourceTree = "<group>"; };
+		34329B3E2B9EBD3400233438 /* IntegrityStoreOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegrityStoreOperations.h; sourceTree = "<group>"; };
+		34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IntegrityStore.cpp; path = PersistentStorageUtilities/DataStores/IntegrityStore.cpp; sourceTree = "<group>"; };
+		34329B402B9EBFCE00233438 /* IntegrityStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IntegrityStore.h; path = PersistentStorageUtilities/DataStores/IntegrityStore.h; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
@@ -465,6 +469,7 @@
 			isa = PBXGroup;
 			children = (
 				B3B02EBE2B8538860020D118 /* CommunityStoreOperations.h */,
+				34329B3E2B9EBD3400233438 /* IntegrityStoreOperations.h */,
 				8E2CC2562B5C999A000C94D6 /* KeyserverStoreOperations.h */,
 				CBA784382B28AC4300E9F419 /* CommServicesAuthMetadataEmitter.h */,
 				8E3994562B039A9300D5E950 /* UserStoreOperations.h */,
@@ -646,6 +651,8 @@
 				8E2CC2572B5C99B0000C94D6 /* KeyserverStore.h */,
 				B3B02EBD2B8536560020D118 /* CommunityStore.cpp */,
 				B3B02EBC2B8534C00020D118 /* CommunityStore.h */,
+				34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */,
+				34329B402B9EBFCE00233438 /* IntegrityStore.h */,
 				8E3994532B039A7C00D5E950 /* UserStore.cpp */,
 				8E3994542B039A7C00D5E950 /* UserStore.h */,
 				8EF7756F2A751B780046A385 /* ReportStore.cpp */,
@@ -1165,6 +1172,7 @@
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				DFD5E7862B052B1400C32B6A /* RustAESCrypto.cpp in Sources */,
 				8EF775712A751B780046A385 /* ReportStore.cpp in Sources */,
+				34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */,
 				CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */,
