@@ -1,16 +1,32 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type {
+  NonceChallenge,
+  SignedMessage,
+} from 'lib/types/identity-service-types.js';
+import {
+  tunnelbrokerMessageTypes,
+  type TunnelbrokerMessage,
+} from 'lib/types/tunnelbroker/messages.js';
+import { peerToPeerMessageTypes } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { parseQRAuthTunnelbrokerMessage } from 'lib/utils/qr-code-auth.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
+import Alert from '../utils/alert.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type QRCodeScreenProps = {
@@ -21,6 +37,83 @@ type QRCodeScreenProps = {
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
+  const [deviceKeys, setDeviceKeys] =
+    React.useState<?{ +deviceID: string, +aesKey: string }>();
+  const { setUnauthorizedDeviceID, addListener, removeListener } =
+    useTunnelbroker();
+  const identityContext = React.useContext(IdentityClientContext);
+  const identityClient = identityContext?.identityClient;
+
+  const tunnelbrokerMessageListener = React.useCallback(
+    async (message: TunnelbrokerMessage) => {
+      invariant(identityClient, 'identity context not set');
+      if (
+        !deviceKeys ||
+        message.type !== tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE
+      ) {
+        return;
+      }
+
+      const innerMessage = JSON.parse(message.payload);
+      if (innerMessage.type !== peerToPeerMessageTypes.QR_CODE_AUTH_MESSAGE) {
+        return;
+      }
+      const qrCodeAuthMessage = parseQRAuthTunnelbrokerMessage(
+        deviceKeys.aesKey,
+        innerMessage,
+      );
+      if (
+        !qrCodeAuthMessage ||
+        qrCodeAuthMessage.type !==
+          qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS
+      ) {
+        return;
+      }
+      const { userID } = qrCodeAuthMessage;
+
+      try {
+        const nonce = await identityClient.generateNonce();
+        const nonceChallenge: NonceChallenge = { nonce };
+        const nonceMessage = JSON.stringify(nonceChallenge);
+        const signature = await commCoreModule.signMessage(nonceMessage);
+        const challengeResponse: SignedMessage = {
+          message: nonceMessage,
+          signature,
+        };
+
+        await identityClient.uploadKeysForRegisteredDeviceAndLogIn(
+          userID,
+          challengeResponse,
+        );
+        setUnauthorizedDeviceID(null);
+      } catch (err) {
+        console.error('Secondary device registration error:', err);
+        Alert.alert('Registration failed', 'Failed to upload device keys', [
+          { text: 'OK' },
+        ]);
+      }
+    },
+    [setUnauthorizedDeviceID, identityClient, deviceKeys],
+  );
+
+  React.useEffect(() => {
+    if (!deviceKeys) {
+      return () => {};
+    }
+    addListener(tunnelbrokerMessageListener);
+    setUnauthorizedDeviceID(deviceKeys.deviceID);
+
+    return () => {
+      removeListener(tunnelbrokerMessageListener);
+      setUnauthorizedDeviceID(null);
+    };
+  }, [
+    setUnauthorizedDeviceID,
+    deviceKeys,
+    addListener,
+    removeListener,
+    tunnelbrokerMessageListener,
+  ]);
 
   const generateQRCode = React.useCallback(async () => {
     try {
@@ -31,6 +124,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
       const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);
       setQrCodeValue(url);
+      setDeviceKeys({ deviceID: ed25519Key, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
     }
