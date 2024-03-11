@@ -407,6 +407,7 @@ async function preparePushNotif(input: {
             {
               notifTexts,
               threadID: threadInfo.id,
+              keyserverID,
               unreadCount,
               platformDetails,
             },
@@ -486,6 +487,7 @@ async function preparePushNotif(input: {
           const targetedNotifications = await prepareWNSNotification(devices, {
             notifTexts,
             threadID: threadInfo.id,
+            keyserverID,
             unreadCount,
             platformDetails,
           });
@@ -977,9 +979,6 @@ async function prepareAPNsNotification(
     ...notification.payload,
     ...rest,
   };
-  if (platformDetails.platform !== 'macos') {
-    notification.payload.keyserverID = keyserverID;
-  }
 
   notification.badge = unreadCount;
   notification.threadId = threadID;
@@ -987,6 +986,7 @@ async function prepareAPNsNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadID;
+  notification.payload.keyserverID = keyserverID;
 
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
@@ -1246,12 +1246,14 @@ async function prepareAndroidNotification(
 type WebNotifInputData = {
   +notifTexts: ResolvedNotifTexts,
   +threadID: string,
+  +keyserverID: string,
   +unreadCount: number,
   +platformDetails: PlatformDetails,
 };
 const webNotifInputDataValidator = tShape<WebNotifInputData>({
   notifTexts: resolvedNotifTextsValidator,
   threadID: tID,
+  keyserverID: t.String,
   unreadCount: t.Number,
   platformDetails: tPlatformDetails,
 });
@@ -1264,7 +1266,7 @@ async function prepareWebNotification(
     webNotifInputDataValidator,
     inputData,
   );
-  const { notifTexts, threadID, unreadCount } = convertedData;
+  const { notifTexts, threadID, unreadCount, keyserverID } = convertedData;
   const id = uuidv4();
   const { merged, ...rest } = notifTexts;
   const notification = {
@@ -1272,6 +1274,7 @@ async function prepareWebNotification(
     unreadCount,
     id,
     threadID,
+    keyserverID,
   };
 
   const shouldBeEncrypted = hasMinCodeVersion(convertedData.platformDetails, {
@@ -1288,12 +1291,14 @@ async function prepareWebNotification(
 type WNSNotifInputData = {
   +notifTexts: ResolvedNotifTexts,
   +threadID: string,
+  +keyserverID: string,
   +unreadCount: number,
   +platformDetails: PlatformDetails,
 };
 const wnsNotifInputDataValidator = tShape<WNSNotifInputData>({
   notifTexts: resolvedNotifTextsValidator,
   threadID: tID,
+  keyserverID: t.String,
   unreadCount: t.Number,
   platformDetails: tPlatformDetails,
 });
@@ -1306,12 +1311,13 @@ async function prepareWNSNotification(
     wnsNotifInputDataValidator,
     inputData,
   );
-  const { notifTexts, threadID, unreadCount } = convertedData;
+  const { notifTexts, threadID, unreadCount, keyserverID } = convertedData;
   const { merged, ...rest } = notifTexts;
   const notification = {
     ...rest,
     unreadCount,
     threadID,
+    keyserverID,
   };
 
   if (
@@ -1780,6 +1786,7 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
+      notification.payload.keyserverID = keyserverID;
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         const shouldBeEncrypted = hasMinCodeVersion(viewer.platformDetails, {
           web: 47,
