@@ -3,11 +3,15 @@
 import olm from '@commapp/olm';
 import uuid from 'uuid';
 
-import type {
-  CryptoStore,
-  PickledOLMAccount,
-  IdentityKeysBlob,
-  SignedIdentityKeysBlob,
+import {
+  olmEncryptedMessageTypes,
+  type OLMIdentityKeys,
+  type CryptoStore,
+  type PickledOLMAccount,
+  type IdentityKeysBlob,
+  type SignedIdentityKeysBlob,
+  type OlmAPI,
+  type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
 import type {
   IdentityNewDeviceKeyUpload,
@@ -15,16 +19,22 @@ import type {
 } from 'lib/types/identity-service-types.js';
 import { entries } from 'lib/utils/objects.js';
 import {
-  retrieveIdentityKeysAndPrekeys,
   retrieveAccountKeysSet,
+  getAccountOneTimeKeys,
+  getAccountPrekeysSet,
+  shouldForgetPrekey,
+  shouldRotatePrekey,
+  retrieveIdentityKeysAndPrekeys,
 } from 'lib/utils/olm-utils.js';
 
+import { getIdentityClient } from './identity-client.js';
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import { getDBModule, getSQLiteQueryExecutor } from './worker-database.js';
 import {
   type WorkerRequestMessage,
   type WorkerResponseMessage,
   workerRequestMessageTypes,
+  workerResponseMessageTypes,
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 
@@ -194,23 +204,7 @@ async function initializeCryptoAccount(
     return;
   }
 
-  const contentAccountResult = getOrCreateOlmAccount(
-    sqliteQueryExecutor.getContentAccountID(),
-  );
-  const contentSessions = getOlmSessions(contentAccountResult.picklingKey);
-  const notificationAccountResult = getOrCreateOlmAccount(
-    sqliteQueryExecutor.getNotifsAccountID(),
-  );
-
-  cryptoStore = {
-    contentAccountPickleKey: contentAccountResult.picklingKey,
-    contentAccount: contentAccountResult.account,
-    contentSessions,
-    notificationAccountPickleKey: notificationAccountResult.picklingKey,
-    notificationAccount: notificationAccountResult.account,
-  };
-
-  persistCryptoStore();
+  await olmAPI.initializeCryptoAccount();
 }
 
 async function processAppOlmApiRequest(
@@ -221,7 +215,19 @@ async function processAppOlmApiRequest(
       message.olmWasmPath,
       message.initialCryptoStore,
     );
+  } else if (message.type === workerRequestMessageTypes.CALL_OLM_API_METHOD) {
+    const method: (...$ReadOnlyArray<mixed>) => mixed = (olmAPI[
+      message.method
+    ]: any);
+    // Flow doesn't allow us to bind the (stringified) method name with
+    // the argument types so we need to pass the args as mixed.
+    const result = await method(...message.args);
+    return {
+      type: workerResponseMessageTypes.CALL_OLM_API_METHOD,
+      result,
+    };
   }
+  return undefined;
 }
 
 function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
@@ -297,6 +303,167 @@ function getExistingDeviceKeyUpload(): IdentityExistingDeviceKeyUpload {
     notifPrekeySignature,
   };
 }
+
+const olmAPI: OlmAPI = {
+  async initializeCryptoAccount(): Promise<void> {
+    const sqliteQueryExecutor = getSQLiteQueryExecutor();
+    if (!sqliteQueryExecutor) {
+      throw new Error('Database not initialized');
+    }
+
+    const contentAccountResult = getOrCreateOlmAccount(
+      sqliteQueryExecutor.getContentAccountID(),
+    );
+    const notificationAccountResult = getOrCreateOlmAccount(
+      sqliteQueryExecutor.getNotifsAccountID(),
+    );
+    const contentSessions = getOlmSessions(contentAccountResult.picklingKey);
+
+    cryptoStore = {
+      contentAccountPickleKey: contentAccountResult.picklingKey,
+      contentAccount: contentAccountResult.account,
+      contentSessions,
+      notificationAccountPickleKey: notificationAccountResult.picklingKey,
+      notificationAccount: notificationAccountResult.account,
+    };
+
+    persistCryptoStore();
+  },
+  async encrypt(content: string, deviceID: string): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const session = cryptoStore.contentSessions[deviceID];
+    if (!session) {
+      throw new Error(`No session for deviceID: ${deviceID}`);
+    }
+    const { body } = session.encrypt(content);
+
+    persistCryptoStore();
+
+    return body;
+  },
+  async decrypt(encryptedContent: string, deviceID: string): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+
+    const session = cryptoStore.contentSessions[deviceID];
+    if (!session) {
+      throw new Error(`No session for deviceID: ${deviceID}`);
+    }
+
+    const result = session.decrypt(
+      olmEncryptedMessageTypes.TEXT,
+      encryptedContent,
+    );
+
+    persistCryptoStore();
+
+    return result;
+  },
+  async contentInboundSessionCreator(
+    contentIdentityKeys: OLMIdentityKeys,
+    initialEncryptedContent: string,
+  ): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, contentSessions } = cryptoStore;
+
+    const session = new olm.Session();
+    session.create_inbound_from(
+      contentAccount,
+      contentIdentityKeys.curve25519,
+      initialEncryptedContent,
+    );
+
+    contentAccount.remove_one_time_keys(session);
+    const initialEncryptedMessage = session.decrypt(
+      olmEncryptedMessageTypes.PREKEY,
+      initialEncryptedContent,
+    );
+
+    contentSessions[contentIdentityKeys.ed25519] = session;
+    persistCryptoStore();
+
+    return initialEncryptedMessage;
+  },
+  async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, notificationAccount } = cryptoStore;
+
+    const contentOneTimeKeys = getAccountOneTimeKeys(
+      contentAccount,
+      numberOfKeys,
+    );
+    contentAccount.mark_keys_as_published();
+
+    const notificationsOneTimeKeys = getAccountOneTimeKeys(
+      notificationAccount,
+      numberOfKeys,
+    );
+    notificationAccount.mark_keys_as_published();
+
+    persistCryptoStore();
+
+    return { contentOneTimeKeys, notificationsOneTimeKeys };
+  },
+  async validateAndUploadPrekeys(authMetadata): Promise<void> {
+    const { userID, deviceID, accessToken } = authMetadata;
+    if (!userID || !deviceID || !accessToken) {
+      return;
+    }
+    const identityClient = getIdentityClient();
+
+    if (!identityClient) {
+      throw new Error('Identity client not initialized');
+    }
+
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, notificationAccount } = cryptoStore;
+
+    // Content and notification accounts' keys are always rotated at the same
+    // time so we only need to check one of them.
+    if (shouldRotatePrekey(contentAccount)) {
+      contentAccount.generate_prekey();
+      notificationAccount.generate_prekey();
+    }
+    if (shouldForgetPrekey(contentAccount)) {
+      contentAccount.forget_old_prekey();
+      notificationAccount.forget_old_prekey();
+    }
+    persistCryptoStore();
+
+    if (!contentAccount.unpublished_prekey()) {
+      return;
+    }
+
+    const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
+      getAccountPrekeysSet(notificationAccount);
+    const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
+      getAccountPrekeysSet(contentAccount);
+
+    if (!notifPrekeySignature || !contentPrekeySignature) {
+      throw new Error('Prekey signature is missing');
+    }
+
+    await identityClient.publishWebPrekeys({
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+    });
+    contentAccount.mark_prekey_as_published();
+    notificationAccount.mark_prekey_as_published();
+
+    persistCryptoStore();
+  },
+};
 
 export {
   clearCryptoStore,
