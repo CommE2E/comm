@@ -1,7 +1,7 @@
 // @flow
 
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
-import type { CryptoStore } from 'lib/types/crypto-types.js';
+import type { OlmAPI, CryptoStore } from 'lib/types/crypto-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   IdentityServiceClient,
@@ -29,6 +29,7 @@ export const workerRequestMessageTypes = Object.freeze({
   INITIALIZE_CRYPTO_ACCOUNT: 12,
   CREATE_IDENTITY_SERVICE_CLIENT: 13,
   CALL_IDENTITY_CLIENT_METHOD: 14,
+  CALL_OLM_API_METHOD: 15,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -42,6 +43,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+  workerRequestMessageTypes.CALL_OLM_API_METHOD,
 ];
 
 export const workerIdentityClientRequests: $ReadOnlyArray<number> = [
@@ -131,6 +133,12 @@ export type CallIdentityClientMethodRequestMessage = {
   +args: $ReadOnlyArray<mixed>,
 };
 
+export type CallOLMApiMethodRequestMessage = {
+  +type: 15,
+  +method: $Keys<OlmAPI>,
+  +args: $ReadOnlyArray<mixed>,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -146,7 +154,8 @@ export type WorkerRequestMessage =
   | BackupRestoreRequestMessage
   | InitializeCryptoAccountRequestMessage
   | CreateIdentityServiceClientRequestMessage
-  | CallIdentityClientMethodRequestMessage;
+  | CallIdentityClientMethodRequestMessage
+  | CallOLMApiMethodRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -160,6 +169,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_CURRENT_USER_ID: 2,
   GET_PERSIST_STORAGE_ITEM: 3,
   CALL_IDENTITY_CLIENT_METHOD: 4,
+  CALL_OLM_API_METHOD: 5,
 });
 
 export type PongWorkerResponseMessage = {
@@ -187,12 +197,18 @@ export type CallIdentityClientMethodResponseMessage = {
   +result: mixed,
 };
 
+export type CallOLMApiMethodResponseMessage = {
+  +type: 5,
+  +result: mixed,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
   | GetCurrentUserIDResponseMessage
   | GetPersistStorageItemResponseMessage
-  | CallIdentityClientMethodResponseMessage;
+  | CallIdentityClientMethodResponseMessage
+  | CallOLMApiMethodResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,

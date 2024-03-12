@@ -253,7 +253,7 @@ async function processAppRequest(
 
   let result;
   if (isOlmAPIRequest) {
-    await processAppOlmApiRequest(message);
+    result = await processAppOlmApiRequest(message);
   } else if (isIdentityClientRequest) {
     result = await processAppIdentityClientRequest(
       sqliteQueryExecutor,
