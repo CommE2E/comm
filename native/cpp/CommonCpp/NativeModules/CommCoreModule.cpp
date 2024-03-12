@@ -588,6 +588,20 @@ jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
   return jsiOneTimeKeys;
 }
 
+jsi::String parseOLMPrekey(jsi::Runtime &rt, std::string prekeyBlob) {
+  folly::dynamic parsedPrekey = folly::parseJson(prekeyBlob);
+
+  auto prekey = parsedPrekey["curve25519"].values().begin()->asString();
+  return jsi::String::createFromUtf8(rt, prekey);
+}
+
+rust::String parseOLMPrekey(std::string prekeyBlob) {
+  folly::dynamic parsedPrekey = folly::parseJson(prekeyBlob);
+
+  auto prekey = parsedPrekey["curve25519"].values().begin()->asString();
+  return rust::String(prekey);
+}
+
 jsi::Object parseOneTimeKeysResult(
     jsi::Runtime &rt,
     std::string contentOneTimeKeysBlob,
@@ -715,9 +729,9 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
                   authUserIDRust,
                   authDeviceIDRust,
                   authAccessTokenRust,
-                  rust::string(prekeyToUpload),
+                  parseOLMPrekey(prekeyToUpload),
                   rust::string(prekeySignature),
-                  rust::string(notificationsPrekey),
+                  parseOLMPrekey(notificationsPrekey),
                   rust::string(notificationsPrekeySignature),
                   currentID);
               prekeyFuture.get();
@@ -788,11 +802,10 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
               return;
             }
             auto contentPrekeyJSI =
-                jsi::String::createFromUtf8(innerRt, contentPrekey.value());
+                parseOLMPrekey(innerRt, contentPrekey.value());
             auto contentPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
-            auto notifPrekeyJSI =
-                jsi::String::createFromUtf8(innerRt, notifPrekey);
+            auto notifPrekeyJSI = parseOLMPrekey(innerRt, notifPrekey);
             auto notifPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
 
