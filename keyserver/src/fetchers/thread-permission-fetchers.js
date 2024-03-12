@@ -8,8 +8,8 @@ import {
 } from 'lib/permissions/thread-permissions.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import {
-  threadFrozenDueToBlock,
   permissionsDisabledByBlock,
+  serverThreadFrozenDueToBlock,
 } from 'lib/shared/thread-utils.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
@@ -158,7 +158,7 @@ async function checkThreadsFrozen(
   ]);
 
   for (const threadID in threadInfos) {
-    const blockedThread = threadFrozenDueToBlock(
+    const blockedThread = serverThreadFrozenDueToBlock(
       threadInfos[threadID],
       viewer.id,
       userInfos,
