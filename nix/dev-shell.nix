@@ -154,6 +154,8 @@ mkShell {
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
 
+    $PRJ_ROOT/scripts/set-up-authoritative-keyserver.sh
+
     echo "Welcome to Comm dev environment! :)"
   '';
 }

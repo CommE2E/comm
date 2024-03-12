@@ -5,7 +5,7 @@ PRJ_ROOT="$(git rev-parse --show-toplevel)"
 user_credentials_file="$PRJ_ROOT/keyserver/secrets/user_credentials.json"
 
 set_up_or_abort() {
-  read -r -p "Do you want to set up a new authoritative keyserver? (y/N) " user_input
+  read -t 60 -r -p "Do you want to set up a new authoritative keyserver? (y/N) " user_input
     
   if [[ $user_input != "Y" && $user_input != "y" ]]; then
     exit 1
@@ -34,6 +34,10 @@ set_up_or_abort() {
 
   node "$PRJ_ROOT"/scripts/set-user-credentials.js "$PRJ_ROOT"
 }
+
+if [[ -n "$BUILDKITE" || -n "$GITHUB_ACTIONS" ]]; then
+  exit
+fi
 
 if grep -q '"usingIdentityCredentials":.*true' "$user_credentials_file"; then    
   if ! (mysql -u "$USER" -Bse "USE comm; SELECT * FROM metadata" 2>/dev/null | grep "db_version">/dev/null); then
