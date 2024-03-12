@@ -1,6 +1,7 @@
 // @flow
 
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
+import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -186,6 +187,37 @@ function processCommunityStoreOperations(
   }
 }
 
+function processIntegrityStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBIntegrityStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBIntegrityStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_integrity_thread_hashes') {
+        sqliteQueryExecutor.removeAllIntegrityThreadHashes();
+      } else if (operation.type === 'remove_integrity_thread_hashes') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeIntegrityThreadHashes(ids);
+      } else if (operation.type === 'replace_integrity_thread_hashes') {
+        const { threadHashes } = operation.payload;
+        sqliteQueryExecutor.replaceIntegrityThreadHashes(threadHashes);
+      } else {
+        throw new Error('Unsupported integrity operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } integrity operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
@@ -197,6 +229,7 @@ function processDBStoreOperations(
     threadStoreOperations,
     keyserverStoreOperations,
     communityStoreOperations,
+    integrityStoreOperations,
   } = storeOperations;
 
   try {
@@ -236,6 +269,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (integrityStoreOperations && integrityStoreOperations.length > 0) {
+      processIntegrityStoreOperations(
+        sqliteQueryExecutor,
+        integrityStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -258,7 +298,7 @@ function getClientStoreFromQueryExecutor(
     users: [],
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
-    integrityThreadHashes: [],
+    integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
   };
 }
 
