@@ -1,43 +1,43 @@
 // @flow
 
 import olm from '@commapp/olm';
-import type { Account, Session } from '@commapp/olm';
 
-import { type IdentityClientContextType } from 'lib/shared/identity-client-context.js';
-import {
-  type OlmAPI,
-  olmEncryptedMessageTypes,
-  type OLMIdentityKeys,
-  type OneTimeKeysResultValues,
-} from 'lib/types/crypto-types.js';
-import {
-  getAccountOneTimeKeys,
-  getAccountPrekeysSet,
-  shouldForgetPrekey,
-  shouldRotatePrekey,
-} from 'lib/utils/olm-utils.js';
+import { type OlmAPI } from 'lib/types/crypto-types.js';
 
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
-import { workerRequestMessageTypes } from '../types/worker-types.js';
+import {
+  workerRequestMessageTypes,
+  workerResponseMessageTypes,
+} from '../types/worker-types.js';
 
 const usingSharedWorker = false;
-// methods below are just mocks to SQLite API
-// implement proper methods tracked in ENG-6462
 
-function getOlmAccount(): Account {
-  const account = new olm.Account();
-  account.create();
-  return account;
+function proxyToWorker<T>(
+  method: $Keys<OlmAPI>,
+): (...args: $ReadOnlyArray<mixed>) => Promise<T> {
+  return async (...args: $ReadOnlyArray<mixed>) => {
+    const sharedWorker = await getCommSharedWorker();
+    const result = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.CALL_OLM_API_METHOD,
+      method,
+      args,
+    });
+
+    if (!result) {
+      throw new Error(`Worker OlmAPI call didn't return expected message`);
+    } else if (result.type !== workerResponseMessageTypes.CALL_OLM_API_METHOD) {
+      throw new Error(
+        `Worker OlmAPI call didn't return expected message. Instead got: ${JSON.stringify(
+          result,
+        )}`,
+      );
+    }
+
+    // Worker should return a message with the corresponding return type
+    return (result.result: any);
+  };
 }
-// eslint-disable-next-line no-unused-vars
-function getOlmSession(deviceID: string): Session {
-  return new olm.Session();
-}
-// eslint-disable-next-line no-unused-vars
-function storeOlmAccount(account: Account): void {}
-// eslint-disable-next-line no-unused-vars
-function storeOlmSession(session: Session): void {}
 
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
@@ -51,105 +51,11 @@ const olmAPI: OlmAPI = {
       await olm.init();
     }
   },
-  async encrypt(content: string, deviceID: string): Promise<string> {
-    const session = getOlmSession(deviceID);
-    const { body } = session.encrypt(content);
-    storeOlmSession(session);
-    return body;
-  },
-  async decrypt(encryptedContent: string, deviceID: string): Promise<string> {
-    const session = getOlmSession(deviceID);
-    const result = session.decrypt(
-      olmEncryptedMessageTypes.TEXT,
-      encryptedContent,
-    );
-    storeOlmSession(session);
-    return result;
-  },
-  async contentInboundSessionCreator(
-    contentIdentityKeys: OLMIdentityKeys,
-    initialEncryptedContent: string,
-  ): Promise<string> {
-    const account = getOlmAccount();
-    const session = new olm.Session();
-    session.create_inbound_from(
-      account,
-      contentIdentityKeys.curve25519,
-      initialEncryptedContent,
-    );
-
-    account.remove_one_time_keys(session);
-    const initialEncryptedMessage = session.decrypt(
-      olmEncryptedMessageTypes.PREKEY,
-      initialEncryptedContent,
-    );
-    storeOlmAccount(account);
-    storeOlmSession(session);
-    return initialEncryptedMessage;
-  },
-  async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
-    const contentAccount = getOlmAccount();
-    const notifAccount = getOlmAccount();
-    const contentOneTimeKeys = getAccountOneTimeKeys(
-      contentAccount,
-      numberOfKeys,
-    );
-    contentAccount.mark_keys_as_published();
-    storeOlmAccount(contentAccount);
-
-    const notificationsOneTimeKeys = getAccountOneTimeKeys(
-      notifAccount,
-      numberOfKeys,
-    );
-    notifAccount.mark_keys_as_published();
-    storeOlmAccount(notifAccount);
-
-    return { contentOneTimeKeys, notificationsOneTimeKeys };
-  },
-  async validateAndUploadPrekeys(
-    identityContext: IdentityClientContextType,
-  ): Promise<void> {
-    const authMetadata = await identityContext.getAuthMetadata();
-    const { userID, deviceID, accessToken } = authMetadata;
-    if (!userID || !deviceID || !accessToken) {
-      return;
-    }
-
-    const contentAccount = getOlmAccount();
-    if (shouldRotatePrekey(contentAccount)) {
-      contentAccount.generate_prekey();
-    }
-    if (shouldForgetPrekey(contentAccount)) {
-      contentAccount.forget_old_prekey();
-    }
-    await storeOlmAccount(contentAccount);
-
-    if (!contentAccount.unpublished_prekey()) {
-      return;
-    }
-
-    const notifAccount = getOlmAccount();
-    const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
-      getAccountPrekeysSet(notifAccount);
-    const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
-      getAccountPrekeysSet(contentAccount);
-
-    if (!notifPrekeySignature || !contentPrekeySignature) {
-      throw new Error('Prekey signature is missing');
-    }
-
-    if (!identityContext.identityClient.publishWebPrekeys) {
-      throw new Error('Publish prekeys method unimplemented');
-    }
-    await identityContext.identityClient.publishWebPrekeys({
-      contentPrekey,
-      contentPrekeySignature,
-      notifPrekey,
-      notifPrekeySignature,
-    });
-    contentAccount.mark_keys_as_published();
-    await storeOlmAccount(contentAccount);
-  },
+  encrypt: proxyToWorker('encrypt'),
+  decrypt: proxyToWorker('decrypt'),
+  contentInboundSessionCreator: proxyToWorker('contentInboundSessionCreator'),
+  getOneTimeKeys: proxyToWorker('getOneTimeKeys'),
+  validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
 };
 
 export { olmAPI, usingSharedWorker };
