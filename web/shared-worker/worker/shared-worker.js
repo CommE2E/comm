@@ -7,6 +7,12 @@ import {
   getClientStoreFromQueryExecutor,
   processDBStoreOperations,
 } from './process-operations.js';
+import {
+  getDBModule,
+  getSQLiteQueryExecutor,
+  setDBModule,
+  setSQLiteQueryExecutor,
+} from './worker-database.js';
 import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
   decryptData,
@@ -25,8 +31,6 @@ import {
   workerWriteRequests,
 } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
-import { type EmscriptenModule } from '../types/module.js';
-import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
   CURRENT_USER_ID_KEY,
@@ -45,9 +49,6 @@ localforage.config(localforageConfig);
 
 let encryptionKey: ?CryptoKey = null;
 
-let sqliteQueryExecutor: ?SQLiteQueryExecutor = null;
-let dbModule: ?EmscriptenModule = null;
-
 let persistNeeded: boolean = false;
 let persistInProgress: boolean = false;
 
@@ -56,6 +57,8 @@ async function initDatabase(
   commQueryExecutorFilename: ?string,
   encryptionKeyJWK?: ?SubtleCrypto$JsonWebKey,
 ) {
+  const dbModule = getDBModule();
+  const sqliteQueryExecutor = getSQLiteQueryExecutor();
   if (!!dbModule && !!sqliteQueryExecutor) {
     console.log('Database already initialized');
     return;
@@ -65,7 +68,7 @@ async function initDatabase(
     ? dbModule
     : getDatabaseModule(commQueryExecutorFilename, webworkerModulesFilePath);
   if (!dbModule) {
-    dbModule = newModule;
+    setDBModule(newModule);
   }
 
   if (encryptionKeyJWK) {
@@ -100,8 +103,8 @@ async function initDatabase(
   } else {
     console.info('Creating fresh database');
   }
-  sqliteQueryExecutor = new newModule.SQLiteQueryExecutor(
-    COMM_SQLITE_DATABASE_PATH,
+  setSQLiteQueryExecutor(
+    new newModule.SQLiteQueryExecutor(COMM_SQLITE_DATABASE_PATH),
   );
 }
 
@@ -120,8 +123,9 @@ async function initBackupClient(
 
 async function persist() {
   persistInProgress = true;
-  const module = dbModule;
-  if (!sqliteQueryExecutor || !module) {
+  const sqliteQueryExecutor = getSQLiteQueryExecutor();
+  const dbModule = getDBModule();
+  if (!sqliteQueryExecutor || !dbModule) {
     persistInProgress = false;
     throw new Error(
       'Database not initialized while persisting database content',
@@ -134,7 +138,7 @@ async function persist() {
 
   while (persistNeeded) {
     persistNeeded = false;
-    const dbData = exportDatabaseContent(module, COMM_SQLITE_DATABASE_PATH);
+    const dbData = exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH);
     if (!encryptionKey) {
       persistInProgress = false;
       throw new Error('Encryption key is missing');
@@ -161,6 +165,9 @@ async function processAppRequest(
     await localforage.setItem(SQLITE_ENCRYPTION_KEY, cryptoKey);
     return undefined;
   }
+
+  const sqliteQueryExecutor = getSQLiteQueryExecutor();
+  const dbModule = getDBModule();
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
@@ -191,7 +198,7 @@ async function processAppRequest(
         sqliteQueryExecutor,
       );
     }
-    sqliteQueryExecutor = null;
+    setSQLiteQueryExecutor(null);
     return undefined;
   }
 
