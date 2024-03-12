@@ -5,7 +5,7 @@ PRJ_ROOT="$(git rev-parse --show-toplevel)"
 user_credentials_file="$PRJ_ROOT/keyserver/secrets/user_credentials.json"
 
 set_up_or_abort() {
-  read -r -p "Do you want to set up a new authoritative keyserver? (y/N) " user_input
+  read -t 60 -r -p "Do you want to set up a new authoritative keyserver? (y/N) " user_input
     
   if [[ $user_input != "Y" && $user_input != "y" ]]; then
     exit 1
