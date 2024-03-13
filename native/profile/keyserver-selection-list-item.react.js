@@ -2,7 +2,7 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
@@ -53,12 +53,16 @@ function KeyserverSelectionListItem(props: Props): React.Node {
         style={styles.keyserverListItemContainer}
         onPress={onPress}
       >
-        <Pill
-          label={keyserverAdminUserInfo.username}
-          backgroundColor={colors.codeBackground}
-          icon={cloudIcon}
-        />
-        <StatusIndicator connectionInfo={keyserverInfo.connection} />
+        <View style={styles.keyserverPillContainer}>
+          <Pill
+            label={keyserverAdminUserInfo.username}
+            backgroundColor={colors.codeBackground}
+            icon={cloudIcon}
+          />
+        </View>
+        <View style={styles.keyserverStatusIndicatorContainer}>
+          <StatusIndicator connectionInfo={keyserverInfo.connection} />
+        </View>
       </TouchableOpacity>
     ),
     [
@@ -68,6 +72,8 @@ function KeyserverSelectionListItem(props: Props): React.Node {
       keyserverInfo.connection,
       onPress,
       styles.keyserverListItemContainer,
+      styles.keyserverPillContainer,
+      styles.keyserverStatusIndicatorContainer,
     ],
   );
 
@@ -81,6 +87,13 @@ const unboundStyles = {
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingVertical: 10,
+  },
+  keyserverPillContainer: {
+    flex: 1,
+    alignItems: 'baseline',
+  },
+  keyserverStatusIndicatorContainer: {
+    marginLeft: 32,
   },
 };
 
