@@ -77,6 +77,7 @@ limitations under the License.
     ): boolean;
     encrypt(plaintext: string): EncryptResult;
     decrypt(message_type: number, message: string): string;
+    decrypt_sequential(message_type: number, message: string): string;
     describe(): string;
   }
 

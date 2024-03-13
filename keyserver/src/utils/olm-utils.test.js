@@ -113,6 +113,11 @@ describe('olm.Account', () => {
     decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
     expect(decrypted).toEqual(test_text);
 
+    const aliceEncrypted = aliceSession.encrypt(test_text);
+    expect(() =>
+      aliceSession.decrypt(aliceEncrypted.type, aliceEncrypted.body),
+    ).toThrow('OLM.BAD_MESSAGE_MAC');
+
     for (let index = 1; index < num_msg; index++) {
       test_text = randomString(40);
       encrypted = aliceSession.encrypt(test_text);
@@ -126,6 +131,75 @@ describe('olm.Account', () => {
       decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
       expect(decrypted).toEqual(test_text);
     }
+
+    expect(() =>
+      aliceSession.decrypt_sequential(encrypted.type, encrypted.body),
+    ).toThrow('OLM.OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED');
+
+    return true;
+  };
+
+  const testRatchetSequential = (
+    aliceSession: olm.Session,
+    bobSession: olm.Session,
+    bobAccount: olm.Account,
+  ) => {
+    let test_text = randomString(40);
+    let encrypted = aliceSession.encrypt(test_text);
+    expect(encrypted.type).toEqual(0);
+
+    try {
+      bobSession.create_inbound(bobAccount, encrypted.body);
+    } catch (error) {
+      expect(error.message).toBe('OLM.BAD_MESSAGE_KEY_ID');
+      return false;
+    }
+
+    bobAccount.remove_one_time_keys(bobSession);
+    let decrypted = bobSession.decrypt(encrypted.type, encrypted.body);
+    expect(decrypted).toEqual(test_text);
+
+    test_text = randomString(40);
+    encrypted = bobSession.encrypt(test_text);
+    expect(encrypted.type).toEqual(1);
+    decrypted = aliceSession.decrypt(encrypted.type, encrypted.body);
+    expect(decrypted).toEqual(test_text);
+
+    const testText1 = 'message1';
+    const encrypted1 = bobSession.encrypt(testText1);
+    const testText2 = 'message2';
+    const encrypted2 = bobSession.encrypt(testText2);
+
+    // encrypt message using alice session and trying to decrypt with
+    // the same session => `BAD_MESSAGE_MAC`
+    const aliceEncrypted = aliceSession.encrypt(test_text);
+    expect(() =>
+      aliceSession.decrypt_sequential(aliceEncrypted.type, aliceEncrypted.body),
+    ).toThrow('OLM.BAD_MESSAGE_MAC');
+
+    // decrypting encrypted2 before encrypted1 using
+    // decrypt_sequential() => OLM_MESSAGE_OUT_OF_ORDER
+    expect(() =>
+      aliceSession.decrypt_sequential(encrypted2.type, encrypted2.body),
+    ).toThrow('OLM.OLM_MESSAGE_OUT_OF_ORDER');
+
+    // test correct order
+    const decrypted1 = aliceSession.decrypt_sequential(
+      encrypted1.type,
+      encrypted1.body,
+    );
+    expect(decrypted1).toEqual(testText1);
+    const decrypted2 = aliceSession.decrypt_sequential(
+      encrypted2.type,
+      encrypted2.body,
+    );
+    expect(decrypted2).toEqual(testText2);
+
+    // try to decrypt second time
+    // the same message => OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED
+    expect(() =>
+      aliceSession.decrypt_sequential(encrypted2.type, encrypted2.body),
+    ).toThrow('OLM.OLM_ALREADY_DECRYPTED_OR_KEYS_SKIPPED');
 
     return true;
   };
@@ -175,6 +249,18 @@ describe('olm.Account', () => {
 
     createSession(aliceSession, aliceAccount, bobAccount);
     expect(testRatchet(aliceSession, bobSession, bobAccount)).toBeTrue;
+  });
+
+  it('should encrypt and decrypt sequential', async () => {
+    await olm.init();
+    const aliceAccount = initAccount();
+    const bobAccount = initAccount();
+    const aliceSession = new olm.Session();
+    const bobSession = new olm.Session();
+
+    createSession(aliceSession, aliceAccount, bobAccount);
+    expect(testRatchetSequential(aliceSession, bobSession, bobAccount))
+      .toBeTrue;
   });
 
   it('should encrypt and decrypt, even after a prekey is rotated', async () => {
