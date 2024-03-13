@@ -17,6 +17,11 @@ import {
 } from 'lib/_generated/migration-utils.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
+  type ClientDBIntegrityStoreOperation,
+  integrityStoreOpsHandlers,
+  type ReplaceIntegrityThreadHashesOperation,
+} from 'lib/ops/integrity-store-ops.js';
+import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
@@ -1133,6 +1138,30 @@ const migrations = {
       patchRawThreadInfosWithSpecialRole,
       handleReduxMigrationFailure,
     ),
+  [65]: async (state: AppState) => {
+    const replaceOp: ReplaceIntegrityThreadHashesOperation = {
+      type: 'replace_integrity_thread_hashes',
+      payload: {
+        threadHashes: state.integrityStore.threadHashes,
+      },
+    };
+
+    const dbOperations: $ReadOnlyArray<ClientDBIntegrityStoreOperation> =
+      integrityStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_integrity_thread_hashes' },
+        replaceOp,
+      ]);
+
+    try {
+      await commCoreModule.processIntegrityStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1200,7 +1229,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 63,
+  version: 65,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
