@@ -13,6 +13,7 @@ import type {
   IdentityNewDeviceKeyUpload,
   IdentityExistingDeviceKeyUpload,
 } from 'lib/types/identity-service-types.js';
+import { entries } from 'lib/utils/objects.js';
 import {
   retrieveIdentityKeysAndPrekeys,
   retrieveAccountKeysSet,
@@ -25,10 +26,12 @@ import {
   type WorkerResponseMessage,
   workerRequestMessageTypes,
 } from '../../types/worker-types.js';
+import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 
 type WorkerCryptoStore = {
   +contentAccountPickleKey: string,
   +contentAccount: olm.Account,
+  +contentSessions: { [deviceID: string]: olm.Session },
   +notificationAccountPickleKey: string,
   +notificationAccount: olm.Account,
 };
@@ -54,6 +57,7 @@ function persistCryptoStore() {
   const {
     contentAccountPickleKey,
     contentAccount,
+    contentSessions,
     notificationAccountPickleKey,
     notificationAccount,
   } = cryptoStore;
@@ -62,6 +66,13 @@ function persistCryptoStore() {
     picklingKey: contentAccountPickleKey,
     pickledAccount: contentAccount.pickle(contentAccountPickleKey),
   };
+
+  const pickledContentSessions: OlmPersistSession[] = entries(
+    contentSessions,
+  ).map(([deviceID, session]) => ({
+    targetUserID: deviceID,
+    sessionData: session.pickle(contentAccountPickleKey),
+  }));
 
   const pickledNotificationAccount: PickledOLMAccount = {
     picklingKey: notificationAccountPickleKey,
@@ -73,6 +84,9 @@ function persistCryptoStore() {
       sqliteQueryExecutor.getContentAccountID(),
       JSON.stringify(pickledContentAccount),
     );
+    for (const pickledSession of pickledContentSessions) {
+      sqliteQueryExecutor.storeOlmPersistSession(pickledSession);
+    }
     sqliteQueryExecutor.storeOlmPersistAccount(
       sqliteQueryExecutor.getNotifsAccountID(),
       JSON.stringify(pickledNotificationAccount),
@@ -115,6 +129,34 @@ function getOrCreateOlmAccount(accountIDInDB: number): {
   return { picklingKey, account };
 }
 
+function getOlmSessions(picklingKey: string): {
+  [deviceID: string]: olm.Session,
+} {
+  const sqliteQueryExecutor = getSQLiteQueryExecutor();
+  const dbModule = getDBModule();
+  if (!sqliteQueryExecutor || !dbModule) {
+    throw new Error(
+      "Couldn't get olm sessions because database is not initialized",
+    );
+  }
+
+  let sessionsData;
+  try {
+    sessionsData = sqliteQueryExecutor.getOlmPersistSessionsData();
+  } catch (err) {
+    throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
+  }
+
+  const sessions: { [deviceID: string]: olm.Session } = {};
+  for (const sessionData of sessionsData) {
+    const session = new olm.Session();
+    session.unpickle(picklingKey, sessionData.sessionData);
+    sessions[sessionData.targetUserID] = session;
+  }
+
+  return sessions;
+}
+
 function unpickleInitialCryptoStoreAccount(
   account: PickledOLMAccount,
 ): olm.Account {
@@ -141,6 +183,7 @@ async function initializeCryptoAccount(
       contentAccount: unpickleInitialCryptoStoreAccount(
         initialCryptoStore.primaryAccount,
       ),
+      contentSessions: {},
       notificationAccountPickleKey:
         initialCryptoStore.notificationAccount.picklingKey,
       notificationAccount: unpickleInitialCryptoStoreAccount(
@@ -154,6 +197,7 @@ async function initializeCryptoAccount(
   const contentAccountResult = getOrCreateOlmAccount(
     sqliteQueryExecutor.getContentAccountID(),
   );
+  const contentSessions = getOlmSessions(contentAccountResult.picklingKey);
   const notificationAccountResult = getOrCreateOlmAccount(
     sqliteQueryExecutor.getNotifsAccountID(),
   );
@@ -161,6 +205,7 @@ async function initializeCryptoAccount(
   cryptoStore = {
     contentAccountPickleKey: contentAccountResult.picklingKey,
     contentAccount: contentAccountResult.account,
+    contentSessions,
     notificationAccountPickleKey: notificationAccountResult.picklingKey,
     notificationAccount: notificationAccountResult.account,
   };
