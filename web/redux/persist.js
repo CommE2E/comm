@@ -6,6 +6,11 @@ import storage from 'redux-persist/es/storage/index.js';
 import type { PersistConfig } from 'redux-persist/src/types.js';
 
 import {
+  type ClientDBIntegrityStoreOperation,
+  integrityStoreOpsHandlers,
+  type ReplaceIntegrityThreadHashesOperation,
+} from 'lib/ops/integrity-store-ops.js';
+import {
   type ClientDBKeyserverStoreOperation,
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
@@ -262,6 +267,37 @@ const migrations = {
       return handleReduxMigrationFailure(state);
     }
   },
+  [12]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+    if (!isSupported) {
+      return state;
+    }
+
+    const replaceOp: ReplaceIntegrityThreadHashesOperation = {
+      type: 'replace_integrity_thread_hashes',
+      payload: {
+        threadHashes: state.integrityStore.threadHashes,
+      },
+    };
+
+    const integrityStoreOperations: $ReadOnlyArray<ClientDBIntegrityStoreOperation> =
+      integrityStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_integrity_thread_hashes' },
+        replaceOp,
+      ]);
+
+    try {
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { integrityStoreOperations },
+      });
+      return state;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(state);
+    }
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -307,7 +343,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 11,
+  version: 12,
   transforms: [keyserverStoreTransform],
 };
 
