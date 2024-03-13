@@ -33,7 +33,7 @@ type Media = {
   +extras: string,
 };
 
-type OlmPersistSession = {
+export type OlmPersistSession = {
   +targetUserID: string,
   +sessionData: string,
 };
