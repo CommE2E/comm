@@ -199,11 +199,13 @@ function KeyserverSelectionBottomSheet(props: Props): React.Node {
       <View style={styles.container}>
         <View style={styles.keyserverDetailsContainer}>
           <View style={styles.keyserverHeaderContainer}>
-            <Pill
-              label={keyserverAdminUserInfo.username}
-              backgroundColor={colors.codeBackground}
-              icon={cloudIcon}
-            />
+            <View style={styles.keyserverPillContainer}>
+              <Pill
+                label={keyserverAdminUserInfo.username}
+                backgroundColor={colors.codeBackground}
+                icon={cloudIcon}
+              />
+            </View>
             <View style={styles.statusIndicatorContainer}>
               <StatusIndicator connectionInfo={keyserverInfo.connection} />
             </View>
@@ -225,7 +227,7 @@ const unboundStyles = {
   keyserverDetailsContainer: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    padding: 16,
     backgroundColor: 'modalAccentBackground',
     marginBottom: 24,
     borderRadius: 8,
@@ -234,8 +236,12 @@ const unboundStyles = {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  keyserverPillContainer: {
+    flex: 1,
+    alignItems: 'baseline',
+  },
   statusIndicatorContainer: {
-    marginLeft: 8,
+    marginLeft: 24,
   },
   keyserverURLText: {
     color: 'modalForegroundLabel',
