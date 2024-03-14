@@ -12,6 +12,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
@@ -22,6 +23,7 @@ import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
   PasswordSelectionRouteName,
@@ -88,11 +90,21 @@ function UsernameSelection(props: Props): React.Node {
       return;
     }
 
-    const searchPromise = exactSearchUserCall(username);
-    void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
-    const { userInfo } = await searchPromise;
+    let userAlreadyExists;
+    if (usingCommServicesAccessToken) {
+      const findUserIDResponseString =
+        await commRustModule.findUserIDForUsername(username);
+      const findUserIDResponse = JSON.parse(findUserIDResponseString);
+      userAlreadyExists =
+        !!findUserIDResponse.userID || findUserIDResponse.isReserved;
+    } else {
+      const searchPromise = exactSearchUserCall(username);
+      void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+      const { userInfo } = await searchPromise;
+      userAlreadyExists = !!userInfo;
+    }
 
-    if (userInfo) {
+    if (userAlreadyExists) {
       setUsernameError('username_taken');
       return;
     }
