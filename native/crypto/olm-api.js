@@ -6,7 +6,7 @@ import type {
   OneTimeKeysResultValues,
   OlmAPI,
   OLMIdentityKeys,
-} from 'lib/types/crypto-types';
+} from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
 import { commCoreModule } from '../native-modules.js';
@@ -15,6 +15,7 @@ const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
     await commCoreModule.initializeCryptoAccount();
   },
+  getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
   decrypt: commCoreModule.decrypt,
   async contentInboundSessionCreator(
