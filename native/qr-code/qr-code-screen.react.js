@@ -16,6 +16,10 @@ import type {
 } from 'lib/types/identity-service-types.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
+import {
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+} from './qr-code-utils.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -93,6 +97,8 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         secondaryDeviceID={deviceKeys?.deviceID}
         aesKey={deviceKeys?.aesKey}
         performSecondaryDeviceRegistration={performRegistration}
+        composeMessage={composeTunnelbrokerQRAuthMessage}
+        processMessage={parseTunnelbrokerQRAuthMessage}
       />
       <View style={styles.container}>
         <Text style={styles.heading}>Log in to Comm</Text>
