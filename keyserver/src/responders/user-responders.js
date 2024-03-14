@@ -130,7 +130,7 @@ import {
 } from '../session/cookies.js';
 import type { Viewer } from '../session/viewer.js';
 import {
-  accountUpdater,
+  passwordUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updatePassword,
@@ -180,7 +180,7 @@ async function passwordUpdateResponder(
   viewer: Viewer,
   request: PasswordUpdate,
 ): Promise<void> {
-  await accountUpdater(viewer, request);
+  await passwordUpdater(viewer, request);
 }
 
 async function sendVerificationEmailResponder(viewer: Viewer): Promise<void> {

@@ -34,7 +34,7 @@ import { getUploadURL, makeUploadURI } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 
-async function accountUpdater(
+async function passwordUpdater(
   viewer: Viewer,
   update: PasswordUpdate,
 ): Promise<void> {
@@ -66,18 +66,6 @@ async function accountUpdater(
     UPDATE users SET ${changedFields} WHERE id = ${viewer.userID}
   `;
   await dbQuery(saveQuery);
-
-  const updateDatas = [
-    {
-      type: updateTypes.UPDATE_CURRENT_USER,
-      userID: viewer.userID,
-      time: Date.now(),
-    },
-  ];
-  await createUpdates(updateDatas, {
-    viewer,
-    updatesForCurrentSession: 'broadcast',
-  });
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -256,7 +244,7 @@ async function createUserAvatarUpdates(
 }
 
 export {
-  accountUpdater,
+  passwordUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updateUserSettings,
