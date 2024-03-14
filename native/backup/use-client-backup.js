@@ -3,11 +3,11 @@
 import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type ClientBackup = {
   +uploadBackupProtocol: () => Promise<void>,

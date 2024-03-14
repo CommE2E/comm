@@ -18,6 +18,7 @@ import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
@@ -26,7 +27,6 @@ import { useSelector } from '../redux/redux-utils.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
