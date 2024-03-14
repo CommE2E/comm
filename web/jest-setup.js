@@ -1,8 +1,12 @@
 // @flow
+/* eslint-disable no-undef -- "global is not defined" */
 
 import crypto from 'crypto';
+import util from 'util';
 
 // crypto.webcrypto was introduced in Node 15.10.0.
 // It is not defined in Flow so we need a cast
-// eslint-disable-next-line no-undef -- "global is not defined"
 global.crypto = (crypto: any).webcrypto;
+
+global.TextEncoder = util.TextEncoder;
+global.TextDecoder = util.TextDecoder;
