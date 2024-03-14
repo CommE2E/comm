@@ -147,6 +147,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     userStoreOperations: [],
     keyserverStoreOperations: [],
     communityStoreOperations: [],
+    integrityStoreOperations: [],
   };
 
   if (action.type === setInitialReduxState) {
