@@ -35,7 +35,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
           KEYSIZE,
           idKeys.data() + SIGNING_KEYS_PREFIX_OFFSET,
           KEYSIZE,
-          preKeys.data() + PRE_KEY_PREFIX_OFFSET,
+          preKeys.data(),
           KEYSIZE,
           preKeySignature.data(),
           SIGNATURESIZE,
