@@ -60,6 +60,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_uploadSecondaryD
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForWalletAddress(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->findUserIDForWalletAddress(rt, args[0].asString(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForUsername(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->findUserIDForUsername(rt, args[0].asString(rt));
+}
 
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
@@ -79,6 +82,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["updateDeviceList"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updateDeviceList};
   methodMap_["uploadSecondaryDeviceKeysAndLogIn"] = MethodMetadata {10, __hostFunction_CommRustModuleSchemaCxxSpecJSI_uploadSecondaryDeviceKeysAndLogIn};
   methodMap_["findUserIDForWalletAddress"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForWalletAddress};
+  methodMap_["findUserIDForUsername"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForUsername};
 }
 
 
