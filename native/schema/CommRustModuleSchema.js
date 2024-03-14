@@ -118,6 +118,7 @@ export interface Spec extends TurboModule {
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
   +findUserIDForWalletAddress: (walletAddress: string) => Promise<string>;
+  +findUserIDForUsername: (username: string) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
