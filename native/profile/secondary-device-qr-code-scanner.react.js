@@ -19,13 +19,13 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import {
-  createQRAuthTunnelbrokerMessage,
-  parseQRAuthTunnelbrokerMessage,
-} from 'lib/utils/qr-code-auth.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import {
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+} from '../qr-code/qr-code-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
@@ -133,7 +133,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      const payload = parseQRAuthTunnelbrokerMessage(
+      const payload = await parseTunnelbrokerQRAuthMessage(
         encryptionKey,
         innerMessage,
       );
@@ -146,11 +146,15 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
       void broadcastDeviceListUpdate();
 
-      const backupKeyMessage = createQRAuthTunnelbrokerMessage(encryptionKey, {
-        type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
-        backupID: 'stub',
-        backupDataKey: 'stub',
-      });
+      const backupKeyMessage = await composeTunnelbrokerQRAuthMessage(
+        encryptionKey,
+        {
+          type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
+          backupID: 'stub',
+          backupDataKey: 'stub',
+          backupLogDataKey: 'stub',
+        },
+      );
       await tunnelbrokerContext.sendMessage({
         deviceID: targetDeviceID,
         payload: JSON.stringify(backupKeyMessage),
@@ -217,7 +221,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
             throw new Error('missing auth metadata');
           }
           await addDeviceToList(ed25519);
-          const message = createQRAuthTunnelbrokerMessage(aes256, {
+          const message = await composeTunnelbrokerQRAuthMessage(aes256, {
             type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
             userID,
             primaryDeviceID,
