@@ -13,6 +13,7 @@ import {
   type SignedIdentityKeysBlob,
   type OlmAPI,
   type OneTimeKeysResultValues,
+  type ClientPublicKeys,
 } from 'lib/types/crypto-types.js';
 import type {
   IdentityNewDeviceKeyUpload,
@@ -330,6 +331,22 @@ const olmAPI: OlmAPI = {
     };
 
     persistCryptoStore();
+  },
+  async getUserPublicKey(): Promise<ClientPublicKeys> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, notificationAccount } = cryptoStore;
+    const { payload, signature } = getSignedIdentityKeysBlob();
+
+    return {
+      primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
+      notificationIdentityPublicKeys: JSON.parse(
+        notificationAccount.identity_keys(),
+      ),
+      blobPayload: payload,
+      signature,
+    };
   },
   async encrypt(content: string, deviceID: string): Promise<string> {
     if (!cryptoStore) {

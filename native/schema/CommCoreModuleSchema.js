@@ -12,24 +12,15 @@ import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
-import type { OneTimeKeysResult, SignedPrekeys } from 'lib/types/crypto-types';
+import type {
+  OneTimeKeysResult,
+  SignedPrekeys,
+  ClientPublicKeys,
+} from 'lib/types/crypto-types';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
-
-type ClientPublicKeys = {
-  +primaryIdentityPublicKeys: {
-    +ed25519: string,
-    +curve25519: string,
-  },
-  +notificationIdentityPublicKeys: {
-    +ed25519: string,
-    +curve25519: string,
-  },
-  +blobPayload: string,
-  +signature: string,
-};
 
 type CommServicesAuthMetadata = {
   +userID?: ?string,
