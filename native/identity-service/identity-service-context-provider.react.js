@@ -25,12 +25,12 @@ import {
   deviceOlmInboundKeysValidator,
   userDeviceOlmInboundKeysValidator,
 } from 'lib/types/identity-service-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getCommServicesAuthMetadataEmitter } from '../event-emitters/csa-auth-metadata-emitter.js';
 import { commCoreModule, commRustModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type Props = {
   +children: React.Node,
