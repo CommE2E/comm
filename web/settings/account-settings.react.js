@@ -7,7 +7,9 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import { createOlmSessionsWithOwnDevices } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './account-settings.css';
@@ -30,6 +32,7 @@ function AccountSettings(): React.Node {
     () => dispatchActionPromise(logOutActionTypes, sendLogoutRequest()),
     [dispatchActionPromise, sendLogoutRequest],
   );
+  const identityContext = React.useContext(IdentityClientContext);
 
   const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
@@ -76,6 +79,22 @@ function AccountSettings(): React.Node {
       ),
     [addListener, popModal, pushModal, removeListener],
   );
+
+  const onCreateOlmSessions = React.useCallback(async () => {
+    if (!identityContext) {
+      return;
+    }
+    const authMetadata = await identityContext.getAuthMetadata();
+    try {
+      await createOlmSessionsWithOwnDevices(
+        authMetadata,
+        identityContext.identityClient,
+        sendMessage,
+      );
+    } catch (e) {
+      console.log(`Error creating olm sessions with own devices: ${e.message}`);
+    }
+  }, [identityContext, sendMessage]);
 
   const openBackupTestRestoreModal = React.useCallback(
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
@@ -145,6 +164,12 @@ function AccountSettings(): React.Node {
               <span>Trace received messages</span>
               <Button variant="text" onClick={openTunnelbrokerMessagesModal}>
                 <p className={css.buttonText}>Show list</p>
+              </Button>
+            </li>
+            <li>
+              <span>Create session with own devices</span>
+              <Button variant="text" onClick={onCreateOlmSessions}>
+                <p className={css.buttonText}>Create</p>
               </Button>
             </li>
           </ul>
