@@ -153,14 +153,16 @@ function ConnectEthereum(props: Props): React.Node {
     async (result: SIWEResult) => {
       let userAlreadyExists;
       if (usingCommServicesAccessToken) {
-        const findUserIDResponse =
+        const findUserIDResponseString =
           await commRustModule.findUserIDForWalletAddress(result.address);
-        userAlreadyExists = JSON.parse(findUserIDResponse).userID !== null;
+        const findUserIDResponse = JSON.parse(findUserIDResponseString);
+        userAlreadyExists =
+          !!findUserIDResponse.userID || findUserIDResponse.isReserved;
       } else {
         const searchPromise = exactSearchUserCall(result.address);
         void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
         const { userInfo } = await searchPromise;
-        userAlreadyExists = userInfo !== null;
+        userAlreadyExists = !!userInfo;
       }
 
       if (userAlreadyExists) {
