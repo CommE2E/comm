@@ -10,7 +10,8 @@ import { identityLogInActionTypes } from 'lib/actions/user-actions.js';
 import { QRAuthHandler } from 'lib/components/qr-auth-handler.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
-import { uintArrayToHexString } from 'lib/media/data-utils.js';
+import * as AES from 'lib/media/aes-crypto-utils-common.js';
+import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { CryptoStore, PickledOLMAccount } from 'lib/types/crypto-types.js';
@@ -19,11 +20,27 @@ import type {
   SignedMessage,
 } from 'lib/types/identity-service-types.js';
 import type { WebAppState } from 'lib/types/redux-types.js';
+import {
+  peerToPeerMessageTypes,
+  type QRCodeAuthMessage,
+} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import {
+  qrCodeAuthMessagePayloadValidator,
+  type QRCodeAuthMessagePayload,
+} from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './qr-code-login.css';
 import { initOlm } from '../olm/olm-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
+import {
+  base64DecodeBuffer,
+  base64EncodeBuffer,
+} from '../utils/base64-utils.js';
+import {
+  convertBytesToObj,
+  convertObjToBytes,
+} from '../utils/conversion-utils.js';
 
 const deviceIDAndPrimaryAccountSelector: (state: WebAppState) => {
   ed25519Key: ?string,
@@ -35,6 +52,38 @@ const deviceIDAndPrimaryAccountSelector: (state: WebAppState) => {
     primaryAccount: cryptoStore?.primaryAccount,
   }),
 );
+
+async function composeTunnelbrokerMessage(
+  encryptionKey: string,
+  obj: QRCodeAuthMessagePayload,
+): Promise<QRCodeAuthMessage> {
+  const objBytes = convertObjToBytes(obj);
+  const keyBytes = hexToUintArray(encryptionKey);
+  const encryptedBytes = await AES.encryptCommon(crypto, keyBytes, objBytes);
+  const encryptedContent = base64EncodeBuffer(encryptedBytes);
+  return {
+    type: peerToPeerMessageTypes.QR_CODE_AUTH_MESSAGE,
+    encryptedContent,
+  };
+}
+
+async function parseTunnelbrokerMessage(
+  encryptionKey: string,
+  message: QRCodeAuthMessage,
+): Promise<?QRCodeAuthMessagePayload> {
+  const encryptedData = base64DecodeBuffer(message.encryptedContent);
+  const decryptedData = await AES.decryptCommon(
+    crypto,
+    hexToUintArray(encryptionKey),
+    new Uint8Array(encryptedData),
+  );
+  const payload = convertBytesToObj<QRCodeAuthMessagePayload>(decryptedData);
+  if (!qrCodeAuthMessagePayloadValidator.is(payload)) {
+    return null;
+  }
+
+  return payload;
+}
 
 function QrCodeLogin(): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
@@ -120,6 +169,8 @@ function QrCodeLogin(): React.Node {
         secondaryDeviceID={deviceKeys?.deviceID}
         aesKey={deviceKeys?.aesKey}
         performSecondaryDeviceRegistration={performRegistration}
+        composeMessage={composeTunnelbrokerMessage}
+        processMessage={parseTunnelbrokerMessage}
       />
       <div className={css.qrContainer}>
         <div className={css.title}>Log in to Comm</div>
