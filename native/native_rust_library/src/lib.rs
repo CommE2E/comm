@@ -1,7 +1,9 @@
 use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use exact_user_search::find_user_id_for_wallet_address;
+use exact_user_search::{
+  find_user_id_for_username, find_user_id_for_wallet_address,
+};
 use ffi::{bool_callback, string_callback, void_callback};
 use future_manager::ffi::*;
 use grpc_clients::identity::protos::auth::{
@@ -229,6 +231,9 @@ mod ffi {
 
     #[cxx_name = "identityFindUserIDForWalletAddress"]
     fn find_user_id_for_wallet_address(wallet_address: String, promise_id: u32);
+
+    #[cxx_name = "identityFindUserIDForUsername"]
+    fn find_user_id_for_username(username: String, promise_id: u32);
 
     // Argon2
     #[cxx_name = "compute_backup_key"]
