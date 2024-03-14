@@ -20,6 +20,7 @@ export const workerRequestMessageTypes = Object.freeze({
   REMOVE_PERSIST_STORAGE_ITEM: 9,
   CLEAR_SENSITIVE_DATA: 10,
   BACKUP_RESTORE: 11,
+  GET_DB_FILE: 99999,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -93,6 +94,10 @@ export type BackupRestoreRequestMessage = {
   +backupLogDataKey: string,
 };
 
+export type GetDBFileRequestMessage = {
+  +type: 99999,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -105,7 +110,8 @@ export type WorkerRequestMessage =
   | SetPersistStorageItemRequestMessage
   | RemovePersistStorageItemRequestMessage
   | ClearSensitiveDataRequestMessage
-  | BackupRestoreRequestMessage;
+  | BackupRestoreRequestMessage
+  | GetDBFileRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -118,6 +124,7 @@ export const workerResponseMessageTypes = Object.freeze({
   CLIENT_STORE: 1,
   GET_CURRENT_USER_ID: 2,
   GET_PERSIST_STORAGE_ITEM: 3,
+  GET_DB_FILE: 99999,
 });
 
 export type PongWorkerResponseMessage = {
@@ -140,11 +147,17 @@ export type GetPersistStorageItemResponseMessage = {
   +item: string,
 };
 
+export type GetDBFileResponseMessage = {
+  +type: 99999,
+  +file: Uint8Array,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
   | GetCurrentUserIDResponseMessage
-  | GetPersistStorageItemResponseMessage;
+  | GetPersistStorageItemResponseMessage
+  | GetDBFileResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,

@@ -20,7 +20,9 @@ import TunnelbrokerMessagesScreen from './tunnelbroker-message-list.react.js';
 import TunnelbrokerTestScreen from './tunnelbroker-test.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Button from '../components/button.react.js';
+import { getDatabaseModule } from '../database/database-module-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { workerRequestMessageTypes } from '../types/worker-types.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
@@ -81,6 +83,27 @@ function AccountSettings(): React.Node {
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
     [popModal, pushModal],
   );
+
+  const downloadDatabaseFile = React.useCallback(async () => {
+    const databaseModule = await getDatabaseModule();
+    const response = await databaseModule.schedule({
+      type: workerRequestMessageTypes.GET_DB_FILE,
+    });
+    if (!response) {
+      return;
+    }
+    const { file } = response;
+    const blob = new Blob([file]);
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = 'web.sqlite';
+
+    document.body?.appendChild(a);
+    a.click();
+    document.body?.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, []);
 
   const showAppearanceModal = React.useCallback(
     () => pushModal(<AppearanceChangeModal />),
@@ -170,6 +193,24 @@ function AccountSettings(): React.Node {
       </div>
     );
   }
+  let dbDownload;
+  if (staffCanSee) {
+    dbDownload = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Database menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Database file</span>
+              <Button variant="text" onClick={downloadDatabaseFile}>
+                <p className={css.buttonText}>Download</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -205,6 +246,7 @@ function AccountSettings(): React.Node {
         {preferences}
         {tunnelbroker}
         {backup}
+        {dbDownload}
       </div>
     </div>
   );
