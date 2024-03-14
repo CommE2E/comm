@@ -6,12 +6,12 @@ import QRCode from 'react-native-qrcode-svg';
 
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,

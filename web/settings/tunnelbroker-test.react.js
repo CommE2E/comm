@@ -4,11 +4,18 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { type ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import {
+  type EncryptedMessage,
+  peerToPeerMessageTypes,
+} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import css from './tunnelbroker-test.css';
 import Button from '../components/button.react.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +sendMessage: (message: ClientMessageToDevice) => Promise<void>,
@@ -24,6 +31,10 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
   const recipientInput = React.useRef<?HTMLInputElement>(null);
   const messageInput = React.useRef<?HTMLInputElement>(null);
 
+  const currentUserID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
   const onSubmit = React.useCallback(
     async (event: SyntheticEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -37,6 +48,42 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
       setLoading(false);
     },
     [message, recipient, sendMessage],
+  );
+
+  const onSubmitEncrypted = React.useCallback(
+    async (event: SyntheticEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+
+      if (!currentUserID) {
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await olmAPI.initializeCryptoAccount();
+        const encrypted = await olmAPI.encrypt(
+          `Encrypted message to ${recipient}`,
+          recipient,
+        );
+        const deviceID = await getContentSigningKey();
+        const encryptedMessage: EncryptedMessage = {
+          type: peerToPeerMessageTypes.ENCRYPTED_MESSAGE,
+          senderInfo: {
+            deviceID,
+            userID: currentUserID,
+          },
+          encryptedContent: encrypted,
+        };
+        await sendMessage({
+          deviceID: recipient,
+          payload: JSON.stringify(encryptedMessage),
+        });
+      } catch (e) {
+        setErrorMessage(e.message);
+      }
+      setLoading(false);
+    },
+    [currentUserID, recipient, sendMessage],
   );
 
   let errorMsg;
@@ -83,6 +130,17 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
             disabled={!recipient || !message || loading}
           >
             Send Message
+          </Button>
+          {errorMsg}
+        </div>
+        <div className={css.footer}>
+          <Button
+            type="submit"
+            variant="filled"
+            onClick={onSubmitEncrypted}
+            disabled={!recipient || loading}
+          >
+            Send Encrypted Message
           </Button>
           {errorMsg}
         </div>

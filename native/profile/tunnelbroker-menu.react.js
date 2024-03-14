@@ -5,24 +5,25 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { TunnelbrokerMessage } from 'lib/types/tunnelbroker/messages.js';
 import {
   type EncryptedMessage,
   peerToPeerMessageTypes,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import {
+  createOlmSessionsWithOwnDevices,
+  getContentSigningKey,
+} from 'lib/utils/crypto-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
-import { commCoreModule } from '../native-modules.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import {
-  createOlmSessionsWithOwnDevices,
-  getContentSigningKey,
-} from '../utils/crypto-utils.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'TunnelbrokerMenu'>,
@@ -35,6 +36,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
   const currentUserID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
+  const identityContext = React.useContext(IdentityClientContext);
 
   const { connected, addListener, sendMessage, removeListener } =
     useTunnelbroker();
@@ -61,20 +63,28 @@ function TunnelbrokerMenu(props: Props): React.Node {
   }, [message, recipient, sendMessage]);
 
   const onCreateSessions = React.useCallback(async () => {
+    if (!identityContext) {
+      return;
+    }
+    const authMetadata = await identityContext.getAuthMetadata();
     try {
-      await createOlmSessionsWithOwnDevices(sendMessage);
+      await createOlmSessionsWithOwnDevices(
+        authMetadata,
+        identityContext.identityClient,
+        sendMessage,
+      );
     } catch (e) {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
-  }, [sendMessage]);
+  }, [identityContext, sendMessage]);
 
   const onSendEncryptedMessage = React.useCallback(async () => {
     try {
       if (!currentUserID) {
         return;
       }
-      await commCoreModule.initializeCryptoAccount();
-      const encrypted = await commCoreModule.encrypt(
+      await olmAPI.initializeCryptoAccount();
+      const encrypted = await olmAPI.encrypt(
         `Encrypted message to ${recipient}`,
         recipient,
       );
