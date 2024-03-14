@@ -3,6 +3,7 @@
 import { useSelector as reactReduxUseSelector } from 'react-redux';
 
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import {
   keyserverStoreOpsHandlers,
   getKeyserversToRemoveFromNotifsStore,
@@ -34,6 +35,7 @@ async function processDBStoreOperations(
     reportStoreOperations,
     userStoreOperations,
     keyserverStoreOperations,
+    integrityStoreOperations,
     communityStoreOperations,
   } = storeOperations;
 
@@ -51,6 +53,8 @@ async function processDBStoreOperations(
     communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
   const keyserversToRemoveFromNotifsStore =
     getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations);
+  const convertedIntegrityStoreOperations =
+    integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
 
   try {
     const promises = [];
@@ -103,6 +107,13 @@ async function processDBStoreOperations(
       promises.push(
         commCoreModule.removeKeyserverDataFromNotifStorage(
           keyserversToRemoveFromNotifsStore,
+        ),
+      );
+    }
+    if (convertedIntegrityStoreOperations.length > 0) {
+      promises.push(
+        commCoreModule.processIntegrityStoreOperations(
+          convertedIntegrityStoreOperations,
         ),
       );
     }
