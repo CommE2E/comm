@@ -58,6 +58,8 @@ const INDEXED_DB_KEY_SEPARATOR = ':';
 const ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE =
   '256';
 
+const INDEXED_DB_UNREAD_COUNT_SUFFIX = 'unreadCount';
+
 async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
 ): Promise<PlainTextWebNotification | WebNotifDecryptionError> {
@@ -105,6 +107,11 @@ async function decryptWebNotification(
       encryptedPayload,
     );
 
+    const { unreadCount } = decryptedNotification;
+    await updateNotifsUnreadCountStorage({
+      [keyserverID]: unreadCount,
+    });
+
     return { id, ...decryptedNotification };
   } catch (e) {
     return {
@@ -146,8 +153,9 @@ async function decryptDesktopNotification(
     };
   }
 
+  let decryptedNotification;
   try {
-    return await commonDecrypt(
+    decryptedNotification = await commonDecrypt<{ +[string]: mixed }>(
       encryptedOlmData,
       olmDataContentKey,
       encryptionKey,
@@ -159,6 +167,27 @@ async function decryptDesktopNotification(
       staffCanSee,
     };
   }
+
+  if (!keyserverID) {
+    return decryptedNotification;
+  }
+
+  // iOS notifications require that unread count is set under
+  // `badge` key. Since MacOS notifications are created by the
+  // same function the unread count is also set under `badge` key
+  const { badge } = decryptedNotification;
+  if (typeof badge === 'number') {
+    await updateNotifsUnreadCountStorage({ [(keyserverID: string)]: badge });
+    return decryptedNotification;
+  }
+
+  const { unreadCount } = decryptedNotification;
+  if (typeof unreadCount === 'number') {
+    await updateNotifsUnreadCountStorage({
+      [(keyserverID: string)]: unreadCount,
+    });
+  }
+  return decryptedNotification;
 }
 
 async function commonDecrypt<T>(
@@ -463,10 +492,53 @@ async function migrateLegacyOlmNotificationsSessions() {
   await Promise.all([...insertionPromises, ...deletionPromises]);
 }
 
+// Multiple keyserver unread count utilities
+function getKeyserverUnreadCountKey(keyserverID: string) {
+  return [
+    INDEXED_DB_KEYSERVER_PREFIX,
+    keyserverID,
+    INDEXED_DB_UNREAD_COUNT_SUFFIX,
+  ].join(INDEXED_DB_KEY_SEPARATOR);
+}
+
+async function updateNotifsUnreadCountStorage(perKeyserverUnreadCount: {
+  +[keyserverID: string]: number,
+}) {
+  const unreadCountUpdatePromises: Array<Promise<number>> = Object.entries(
+    perKeyserverUnreadCount,
+  ).map(([keyserverID, unreadCount]) => {
+    const keyserverUnreadCountKey = getKeyserverUnreadCountKey(keyserverID);
+    return localforage.setItem<number>(keyserverUnreadCountKey, unreadCount);
+  });
+
+  await Promise.all(unreadCountUpdatePromises);
+}
+
+async function queryNotifsUnreadCountStorage(
+  keyserverIDs: $ReadOnlyArray<string>,
+): Promise<{
+  +[keyserverID: string]: ?number,
+}> {
+  const queryUnreadCountPromises: Array<Promise<[string, ?number]>> =
+    keyserverIDs.map(async keyserverID => {
+      const keyserverUnreadCountKey = getKeyserverUnreadCountKey(keyserverID);
+      const unreadCount = await localforage.getItem<number>(
+        keyserverUnreadCountKey,
+      );
+      return [keyserverID, unreadCount];
+    });
+
+  const queriedUnreadCounts: $ReadOnlyArray<[string, ?number]> =
+    await Promise.all(queryUnreadCountPromises);
+  return Object.fromEntries(queriedUnreadCounts);
+}
+
 export {
   decryptWebNotification,
   decryptDesktopNotification,
   getOlmDataContentKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
   migrateLegacyOlmNotificationsSessions,
+  updateNotifsUnreadCountStorage,
+  queryNotifsUnreadCountStorage,
 };
