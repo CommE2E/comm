@@ -23,7 +23,7 @@ import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
 import {
   rawThreadInfoFromServerThreadInfo,
-  threadInfoFromRawThreadInfo,
+  serverThreadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
@@ -144,7 +144,11 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           'rawThreadInfo from rawThreadInfoFromServerThreadInfo must be ' +
             'minimallyEncoded when minimallyEncodePermissions option is set',
         );
-        return threadInfoFromRawThreadInfo(rawThreadInfo, userID, userInfos);
+        return serverThreadInfoFromRawThreadInfo(
+          rawThreadInfo,
+          userID,
+          userInfos,
+        );
       }),
       _pickBy(threadInfo => threadInfo),
     )(serverThreadInfos);
