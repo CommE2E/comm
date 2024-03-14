@@ -7,6 +7,7 @@ import type {
   OlmAPI,
   OLMIdentityKeys,
 } from 'lib/types/crypto-types';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
 import { commCoreModule } from '../native-modules.js';
 
@@ -27,6 +28,24 @@ const olmAPI: OlmAPI = {
     return commCoreModule.initializeContentInboundSession(
       identityKeys,
       initialEncryptedContent,
+      contentIdentityKeys.ed25519,
+    );
+  },
+  async contentOutboundSessionCreator(
+    contentIdentityKeys: OLMIdentityKeys,
+    contentInitializationInfo: OlmSessionInitializationInfo,
+  ): Promise<string> {
+    const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
+    const identityKeys = JSON.stringify({
+      curve25519: contentIdentityKeys.curve25519,
+      ed25519: contentIdentityKeys.ed25519,
+    });
+
+    return commCoreModule.initializeContentOutboundSession(
+      identityKeys,
+      prekey,
+      prekeySignature,
+      oneTimeKey,
       contentIdentityKeys.ed25519,
     );
   },

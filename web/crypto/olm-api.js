@@ -54,6 +54,7 @@ const olmAPI: OlmAPI = {
   encrypt: proxyToWorker('encrypt'),
   decrypt: proxyToWorker('decrypt'),
   contentInboundSessionCreator: proxyToWorker('contentInboundSessionCreator'),
+  contentOutboundSessionCreator: proxyToWorker('contentOutboundSessionCreator'),
   getOneTimeKeys: proxyToWorker('getOneTimeKeys'),
   validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
 };
