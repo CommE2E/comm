@@ -4,6 +4,10 @@ import olm from '@commapp/olm';
 import uuid from 'uuid';
 
 import {
+  getPrekeyValueFromBlob,
+  initialEncryptedMessageContent,
+} from 'lib/shared/crypto-utils.js';
+import {
   olmEncryptedMessageTypes,
   type OLMIdentityKeys,
   type CryptoStore,
@@ -14,6 +18,7 @@ import {
   type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
 import type { IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { entries } from 'lib/utils/objects.js';
 import {
   retrieveAccountKeysSet,
@@ -354,6 +359,37 @@ const olmAPI: OlmAPI = {
     persistCryptoStore();
 
     return initialEncryptedMessage;
+  },
+  async contentOutboundSessionCreator(
+    contentIdentityKeys: OLMIdentityKeys,
+    contentInitializationInfo: OlmSessionInitializationInfo,
+  ): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, contentSessions } = cryptoStore;
+
+    const contentPrekey = getPrekeyValueFromBlob(
+      contentInitializationInfo.prekey,
+    );
+
+    const session = new olm.Session();
+    session.create_outbound(
+      contentAccount,
+      contentIdentityKeys.curve25519,
+      contentIdentityKeys.ed25519,
+      contentPrekey,
+      contentInitializationInfo.prekeySignature,
+      contentInitializationInfo.oneTimeKey,
+    );
+    const { body: initialContentEncryptedMessage } = session.encrypt(
+      JSON.stringify(initialEncryptedMessageContent),
+    );
+
+    contentSessions[contentIdentityKeys.ed25519] = session;
+    persistCryptoStore();
+
+    return initialContentEncryptedMessage;
   },
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
     if (!cryptoStore) {
