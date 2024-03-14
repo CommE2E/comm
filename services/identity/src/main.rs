@@ -16,6 +16,7 @@ mod grpc_utils;
 mod id;
 mod keygen;
 mod nonce;
+mod regex;
 mod reserved_users;
 mod siwe;
 mod sync_identity_search;

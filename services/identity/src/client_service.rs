@@ -42,10 +42,10 @@ use crate::siwe::{
   is_valid_ethereum_address, parse_and_verify_siwe_message, SocialProof,
 };
 use crate::token::{AccessTokenData, AuthType};
-
 pub use crate::grpc_services::protos::unauth::identity_client_service_server::{
     IdentityClientService, IdentityClientServiceServer,
   };
+use crate::regex::is_valid_username;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub enum WorkflowInProgress {
@@ -102,6 +102,12 @@ impl IdentityClientService for ClientService {
     let message = request.into_inner();
     debug!("Received registration request for: {}", message.username);
 
+    if !is_valid_username(&message.username)
+      || is_valid_ethereum_address(&message.username)
+    {
+      return Err(tonic::Status::invalid_argument("invalid username"));
+    }
+
     self.check_username_taken(&message.username).await?;
     let username_in_reserved_usernames_table = self
       .client
@@ -113,9 +119,7 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::already_exists("username already exists"));
     }
 
-    if RESERVED_USERNAME_SET.contains(&message.username)
-      || is_valid_ethereum_address(&message.username)
-    {
+    if RESERVED_USERNAME_SET.contains(&message.username) {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 

@@ -228,3 +228,8 @@ pub mod cors {
   ];
   pub const ALLOW_ORIGIN_LIST: &str = "ALLOW_ORIGIN_LIST";
 }
+
+// Regex
+
+pub const VALID_USERNAME_REGEX_STRING: &str =
+  r"^[a-zA-Z0-9][a-zA-Z0-9-_]{0,190}$";
