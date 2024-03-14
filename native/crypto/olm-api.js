@@ -7,8 +7,10 @@ import type {
   OlmAPI,
   OLMIdentityKeys,
 } from 'lib/types/crypto-types';
+import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
 import { commCoreModule } from '../native-modules.js';
+import { nativeOutboundContentSessionCreator } from '../utils/crypto-utils.js';
 
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
@@ -27,6 +29,16 @@ const olmAPI: OlmAPI = {
     return commCoreModule.initializeContentInboundSession(
       identityKeys,
       initialEncryptedContent,
+      contentIdentityKeys.ed25519,
+    );
+  },
+  async contentOutboundSessionCreator(
+    contentIdentityKeys: OLMIdentityKeys,
+    contentInitializationInfo: OlmSessionInitializationInfo,
+  ): Promise<string> {
+    return nativeOutboundContentSessionCreator(
+      contentIdentityKeys,
+      contentInitializationInfo,
       contentIdentityKeys.ed25519,
     );
   },
