@@ -15,6 +15,7 @@ import type {
   NonceChallenge,
   SignedMessage,
 } from 'lib/types/identity-service-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import {
@@ -26,7 +27,6 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
 import Alert from '../utils/alert.js';
-import { getContentSigningKey } from '../utils/crypto-utils.js';
 
 type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
