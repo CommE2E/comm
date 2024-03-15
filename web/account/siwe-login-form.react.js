@@ -28,7 +28,6 @@ import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
-import type { OLMIdentityKeys } from 'lib/types/crypto-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { getMessageForException, ServerError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -40,11 +39,11 @@ import {
   siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
-import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -117,24 +116,18 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     siweNonceShouldBeFetched,
   ]);
 
-  const primaryIdentityPublicKeys: ?OLMIdentityKeys = useSelector(
-    state => state.cryptoStore?.primaryIdentityKeys,
-  );
-
-  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
-
   const callLegacySIWEAuthEndpoint = React.useCallback(
     async (message: string, signature: string, extraInfo: LogInExtraInfo) => {
-      const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
-      invariant(
-        signedIdentityKeysBlob,
-        'signedIdentityKeysBlob must be set in attemptSIWEAuth',
-      );
+      await olmAPI.initializeCryptoAccount();
+      const userPublicKey = await olmAPI.getUserPublicKey();
       try {
         return await legacySiweAuthCall({
           message,
           signature,
-          signedIdentityKeysBlob,
+          signedIdentityKeysBlob: {
+            payload: userPublicKey.blobPayload,
+            signature: userPublicKey.signature,
+          },
           doNotRegister: true,
           ...extraInfo,
         });
@@ -148,7 +141,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         throw e;
       }
     },
-    [getSignedIdentityKeysBlob, legacySiweAuthCall],
+    [legacySiweAuthCall],
   );
 
   const attemptLegacySIWEAuth = React.useCallback(
@@ -190,13 +183,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const onSignInButtonClick = React.useCallback(async () => {
     invariant(signer, 'signer must be present during SIWE attempt');
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
-    invariant(
-      primaryIdentityPublicKeys,
-      'primaryIdentityPublicKeys must be present during SIWE attempt',
-    );
-    const statement = getSIWEStatementForPublicKey(
-      primaryIdentityPublicKeys.ed25519,
-    );
+    await olmAPI.initializeCryptoAccount();
+    const {
+      primaryIdentityPublicKeys: { ed25519 },
+    } = await olmAPI.getUserPublicKey();
+    const statement = getSIWEStatementForPublicKey(ed25519);
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage({ message });
     if (usingCommServicesAccessToken) {
@@ -214,7 +205,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     address,
     attemptLegacySIWEAuth,
     attemptIdentityWalletLogIn,
-    primaryIdentityPublicKeys,
     signer,
     siweNonce,
     dispatch,
@@ -243,11 +233,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [css.hidden]: !error,
   });
 
-  if (
-    siweAuthLoadingStatus === 'loading' ||
-    !siweNonce ||
-    !primaryIdentityPublicKeys
-  ) {
+  if (siweAuthLoadingStatus === 'loading' || !siweNonce) {
     return (
       <div className={css.loadingIndicator}>
         <LoadingIndicator status="loading" size="large" />

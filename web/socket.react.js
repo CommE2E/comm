@@ -15,7 +15,6 @@ import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { useGetSignedIdentityKeysBlob } from './account/account-hooks.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
@@ -50,13 +49,11 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     const preRequestUserState = useSelector(
       preRequestUserStateForSingleKeyserverSelector(keyserverID),
     );
-    const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(keyserverID);
     const getClientResponses = useSelector(state =>
       webGetClientResponsesSelector({
         state,
-        getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
         keyserverID,
       }),

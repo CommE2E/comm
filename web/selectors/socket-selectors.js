@@ -11,7 +11,6 @@ import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
-import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
@@ -43,7 +42,6 @@ const sessionIdentificationSelector: (
 
 type WebGetClientResponsesSelectorInputType = {
   +state: AppState,
-  +getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
   +keyserverID: string,
 };
@@ -56,26 +54,21 @@ const webGetClientResponsesSelector: (
   (input: WebGetClientResponsesSelectorInputType) =>
     getClientResponsesSelector(input.state, input.keyserverID),
   (input: WebGetClientResponsesSelectorInputType) =>
-    input.getSignedIdentityKeysBlob,
-  (input: WebGetClientResponsesSelectorInputType) =>
     input.state.navInfo.tab === 'calendar',
   (input: WebGetClientResponsesSelectorInputType) =>
     input.getInitialNotificationsEncryptedMessage,
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       getInitialNotificationsEncryptedMessage: () => Promise<string>,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
-    getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
     calendarActive: boolean,
     getInitialNotificationsEncryptedMessage: () => Promise<string>,
   ) =>
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
-        getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
         serverRequests,
       ),
