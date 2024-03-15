@@ -131,7 +131,6 @@ const persistBlacklist = [
   'frozen',
   'threadStore',
   'storeLoaded',
-  'connection',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
