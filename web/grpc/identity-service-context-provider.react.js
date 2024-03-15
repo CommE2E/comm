@@ -6,12 +6,9 @@ import {
   IdentityClientContext,
   type AuthMetadata,
 } from 'lib/shared/identity-client-context.js';
-import { getConfig } from 'lib/utils/config.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import { IdentityServiceClientSharedProxy } from './identity-service-client-proxy.js';
-import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
-import { useGetDeviceKeyUpload } from '../account/account-hooks.js';
-import { usingSharedWorker } from '../crypto/olm-api.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
@@ -22,10 +19,14 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
   const userID = useSelector(state => state.currentUserInfo?.id);
   const accessToken = useSelector(state => state.commServicesAccessToken);
-  const deviceID = useSelector(
-    state => state.cryptoStore?.primaryIdentityKeys.ed25519,
-  );
-  const getDeviceKeyUpload = useGetDeviceKeyUpload();
+  const [deviceID, setDeviceID] = React.useState<?string>(null);
+
+  React.useEffect(() => {
+    void (async () => {
+      const contentSigningKey = await getContentSigningKey();
+      setDeviceID(contentSigningKey);
+    })();
+  }, [accessToken]);
 
   const client = React.useMemo(() => {
     let authLayer = null;
@@ -36,26 +37,20 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         commServicesAccessToken: accessToken,
       };
     }
-    if (usingSharedWorker) {
-      return new IdentityServiceClientSharedProxy(authLayer);
-    } else {
-      return new IdentityServiceClientWrapper(
-        getConfig().platformDetails,
-        null,
-        authLayer,
-        getDeviceKeyUpload,
-      );
-    }
-  }, [accessToken, deviceID, getDeviceKeyUpload, userID]);
 
-  const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
-    async () => ({
+    return new IdentityServiceClientSharedProxy(authLayer);
+  }, [accessToken, deviceID, userID]);
+
+  const getAuthMetadata = React.useCallback<
+    () => Promise<AuthMetadata>,
+  >(async () => {
+    const contentSigningKey = await getContentSigningKey();
+    return {
       userID,
-      deviceID,
+      deviceID: contentSigningKey,
       accessToken,
-    }),
-    [accessToken, deviceID, userID],
-  );
+    };
+  }, [accessToken, userID]);
 
   const value = React.useMemo(
     () => ({

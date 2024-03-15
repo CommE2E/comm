@@ -29,7 +29,10 @@ import {
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { extractMajorDesktopVersion } from 'lib/shared/version-utils.js';
 import type { SecondaryTunnelbrokerConnection } from 'lib/tunnelbroker/secondary-tunnelbroker-connection.js';
-import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import {
+  TunnelbrokerProvider,
+  useTunnelbrokerInitMessage,
+} from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -71,7 +74,6 @@ import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
-import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selectors.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
@@ -520,7 +522,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       [modalContext.modals],
     );
 
-    const tunnelbrokerInitMessage = useSelector(createTunnelbrokerInitMessage);
+    const tunnelbrokerInitMessage = useTunnelbrokerInitMessage();
 
     const { lockStatus, releaseLockOrAbortRequest } = useWebLock(
       TUNNELBROKER_LOCK_NAME,

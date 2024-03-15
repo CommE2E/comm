@@ -33,7 +33,10 @@ import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
-import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import {
+  TunnelbrokerProvider,
+  useTunnelbrokerInitMessage,
+} from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
@@ -80,7 +83,6 @@ import { useLoadCommFonts } from './themes/fonts.js';
 import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
-import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
 
 // Add custom items to expo-dev-menu
 import './dev-menu.js';
