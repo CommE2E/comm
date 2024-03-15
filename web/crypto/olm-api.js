@@ -1,7 +1,5 @@
 // @flow
 
-import olm from '@commapp/olm';
-
 import { type OlmAPI } from 'lib/types/crypto-types.js';
 
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
@@ -10,8 +8,6 @@ import {
   workerRequestMessageTypes,
   workerResponseMessageTypes,
 } from '../types/worker-types.js';
-
-const usingSharedWorker = false;
 
 function proxyToWorker<T>(
   method: $Keys<OlmAPI>,
@@ -41,15 +37,11 @@ function proxyToWorker<T>(
 
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
-    if (usingSharedWorker) {
-      const sharedWorker = await getCommSharedWorker();
-      await sharedWorker.schedule({
-        type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
-        olmWasmPath: getOlmWasmPath(),
-      });
-    } else {
-      await olm.init();
-    }
+    const sharedWorker = await getCommSharedWorker();
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+      olmWasmPath: getOlmWasmPath(),
+    });
   },
   getUserPublicKey: proxyToWorker('getUserPublicKey'),
   encrypt: proxyToWorker('encrypt'),
@@ -62,4 +54,4 @@ const olmAPI: OlmAPI = {
   signMessage: proxyToWorker('signMessage'),
 };
 
-export { olmAPI, usingSharedWorker };
+export { olmAPI };

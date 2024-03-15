@@ -1,10 +1,8 @@
 // @flow
 
-import olm from '@commapp/olm';
 import invariant from 'invariant';
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
-import { createSelector } from 'reselect';
 
 import { identityLogInActionTypes } from 'lib/actions/user-actions.js';
 import { QRAuthHandler } from 'lib/components/qr-auth-handler.react.js';
@@ -14,12 +12,10 @@ import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { CryptoStore, PickledOLMAccount } from 'lib/types/crypto-types.js';
 import type {
   NonceChallenge,
   SignedMessage,
 } from 'lib/types/identity-service-types.js';
-import type { WebAppState } from 'lib/types/redux-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -28,11 +24,11 @@ import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './qr-code-login.css';
-import { initOlm } from '../olm/olm-utils.js';
-import { useSelector } from '../redux/redux-utils.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import {
   base64DecodeBuffer,
   base64EncodeBuffer,
@@ -41,17 +37,6 @@ import {
   convertBytesToObj,
   convertObjToBytes,
 } from '../utils/conversion-utils.js';
-
-const deviceIDAndPrimaryAccountSelector: (state: WebAppState) => {
-  ed25519Key: ?string,
-  primaryAccount: ?PickledOLMAccount,
-} = createSelector(
-  (state: WebAppState) => state.cryptoStore,
-  (cryptoStore: ?CryptoStore) => ({
-    ed25519Key: cryptoStore?.primaryIdentityKeys.ed25519,
-    primaryAccount: cryptoStore?.primaryAccount,
-  }),
-);
 
 async function composeTunnelbrokerMessage(
   encryptionKey: string,
@@ -87,9 +72,7 @@ async function parseTunnelbrokerMessage(
 
 function QrCodeLogin(): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
-  const { ed25519Key, primaryAccount } = useSelector(
-    deviceIDAndPrimaryAccountSelector,
-  );
+
   const [deviceKeys, setDeviceKeys] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
@@ -100,22 +83,12 @@ function QrCodeLogin(): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const performRegistration = React.useCallback(
     async (userID: string) => {
-      if (!primaryAccount) {
-        return;
-      }
       invariant(identityClient, 'identity context not set');
       try {
-        await initOlm();
-        const primaryOLMAccount = new olm.Account();
-        primaryOLMAccount.unpickle(
-          primaryAccount.picklingKey,
-          primaryAccount.pickledAccount,
-        );
-
         const nonce = await identityClient.generateNonce();
         const nonceChallenge: NonceChallenge = { nonce };
         const nonceMessage = JSON.stringify(nonceChallenge);
-        const signature = await primaryOLMAccount.sign(nonceMessage);
+        const signature = await olmAPI.signMessage(nonceMessage);
         const challengeResponse: SignedMessage = {
           message: nonceMessage,
           signature,
@@ -133,31 +106,27 @@ function QrCodeLogin(): React.Node {
         console.error('Secondary device registration error:', err);
       }
     },
-    [
-      dispatchActionPromise,
-      identityClient,
-      primaryAccount,
-      setUnauthorizedDeviceID,
-    ],
+    [dispatchActionPromise, identityClient, setUnauthorizedDeviceID],
   );
 
   const generateQRCode = React.useCallback(async () => {
     try {
-      if (!ed25519Key) {
+      const ed25519 = await getContentSigningKey();
+      if (!ed25519) {
         return;
       }
 
       const rawAESKey: Uint8Array = await generateKeyCommon(crypto);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
-      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);
-      setUnauthorizedDeviceID(ed25519Key);
+      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519);
+      setUnauthorizedDeviceID(ed25519);
       setQrCodeValue(url);
-      setDeviceKeys({ deviceID: ed25519Key, aesKey: aesKeyAsHexString });
+      setDeviceKeys({ deviceID: ed25519, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
     }
-  }, [ed25519Key, setUnauthorizedDeviceID]);
+  }, [setUnauthorizedDeviceID]);
 
   React.useEffect(() => {
     void generateQRCode();
