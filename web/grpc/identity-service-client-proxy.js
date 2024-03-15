@@ -71,6 +71,8 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
 
   deleteUser: () => Promise<void> = this.proxyToWorker('deleteUser');
 
+  logOut: () => Promise<void> = this.proxyToWorker('logOut');
+
   getKeyserverKeys: (keyserverID: string) => Promise<DeviceOlmOutboundKeys> =
     this.proxyToWorker('getKeyserverKeys');
 
