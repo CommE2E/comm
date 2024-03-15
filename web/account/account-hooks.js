@@ -2,49 +2,28 @@
 
 import olm from '@commapp/olm';
 import invariant from 'invariant';
-import localforage from 'localforage';
 import * as React from 'react';
 import uuid from 'uuid';
 
-import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
-import { OlmSessionCreatorContext } from 'lib/shared/olm-session-creator-context.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
 import type {
   SignedIdentityKeysBlob,
   CryptoStore,
   IdentityKeysBlob,
   CryptoStoreContextType,
-  OLMIdentityKeys,
-  NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
 import {
   type IdentityNewDeviceKeyUpload,
   type IdentityExistingDeviceKeyUpload,
 } from 'lib/types/identity-service-types.js';
-import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
-import { getConfig } from 'lib/utils/config.js';
 import {
   retrieveIdentityKeysAndPrekeys,
   getAccountOneTimeKeys,
 } from 'lib/utils/olm-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import {
-  generateCryptoKey,
-  encryptData,
-  exportKeyToJWK,
-} from '../crypto/aes-gcm-crypto-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
-import {
-  getOlmDataContentKeyForCookie,
-  getOlmEncryptionKeyDBLabelForCookie,
-} from '../push-notif/notif-crypto-utils.js';
 import { setCryptoStore } from '../redux/crypto-store-reducer.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { isDesktopSafari } from '../shared-worker/utils/db-utils.js';
 
 const CryptoStoreContext: React.Context<?CryptoStoreContextType> =
   React.createContext(null);
@@ -318,197 +297,9 @@ function useGetExistingDeviceKeyUpload(): () => Promise<IdentityExistingDeviceKe
   }, [dispatch, getOrCreateCryptoStore, getSignedIdentityKeysBlob]);
 }
 
-function OlmSessionCreatorProvider(props: Props): React.Node {
-  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
-  const currentCryptoStore = useSelector(state => state.cryptoStore);
-  const platformDetails = getConfig().platformDetails;
-
-  const createNewNotificationsSession = React.useCallback(
-    async (
-      cookie: ?string,
-      notificationsIdentityKeys: OLMIdentityKeys,
-      notificationsInitializationInfo: OlmSessionInitializationInfo,
-      keyserverID: string,
-    ) => {
-      const [{ notificationAccount }, encryptionKey] = await Promise.all([
-        getOrCreateCryptoStore(),
-        generateCryptoKey({ extractable: isDesktopSafari }),
-        initOlm(),
-      ]);
-
-      const account = new olm.Account();
-      const { picklingKey, pickledAccount } = notificationAccount;
-      account.unpickle(picklingKey, pickledAccount);
-
-      const notificationsPrekey = notificationsInitializationInfo.prekey;
-
-      const session = new olm.Session();
-      session.create_outbound(
-        account,
-        notificationsIdentityKeys.curve25519,
-        notificationsIdentityKeys.ed25519,
-        notificationsPrekey,
-        notificationsInitializationInfo.prekeySignature,
-        notificationsInitializationInfo.oneTimeKey,
-      );
-      const { body: initialNotificationsEncryptedMessage } = session.encrypt(
-        JSON.stringify(initialEncryptedMessageContent),
-      );
-
-      const mainSession = session.pickle(picklingKey);
-      const notificationsOlmData: NotificationsOlmDataType = {
-        mainSession,
-        pendingSessionUpdate: mainSession,
-        updateCreationTimestamp: Date.now(),
-        picklingKey,
-      };
-      const encryptedOlmData = await encryptData(
-        new TextEncoder().encode(JSON.stringify(notificationsOlmData)),
-        encryptionKey,
-      );
-
-      let notifsOlmDataContentKey;
-      let notifsOlmDataEncryptionKeyDBLabel;
-
-      if (
-        hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION })
-      ) {
-        notifsOlmDataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForCookie(
-          cookie,
-          keyserverID,
-        );
-        notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
-          cookie,
-          keyserverID,
-        );
-      } else {
-        notifsOlmDataEncryptionKeyDBLabel =
-          getOlmEncryptionKeyDBLabelForCookie(cookie);
-        notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
-      }
-
-      const persistEncryptionKeyPromise = (async () => {
-        let cryptoKeyPersistentForm;
-        if (isDesktopSafari) {
-          // Safari doesn't support structured clone algorithm in service
-          // worker context so we have to store CryptoKey as JSON
-          cryptoKeyPersistentForm = await exportKeyToJWK(encryptionKey);
-        } else {
-          cryptoKeyPersistentForm = encryptionKey;
-        }
-
-        await localforage.setItem(
-          notifsOlmDataEncryptionKeyDBLabel,
-          cryptoKeyPersistentForm,
-        );
-      })();
-
-      await Promise.all([
-        localforage.setItem(notifsOlmDataContentKey, encryptedOlmData),
-        persistEncryptionKeyPromise,
-      ]);
-
-      return initialNotificationsEncryptedMessage;
-    },
-    [getOrCreateCryptoStore, platformDetails],
-  );
-
-  const createNewContentSession = React.useCallback(
-    async (
-      contentIdentityKeys: OLMIdentityKeys,
-      contentInitializationInfo: OlmSessionInitializationInfo,
-    ) => {
-      const [{ primaryAccount }] = await Promise.all([
-        getOrCreateCryptoStore(),
-        initOlm(),
-      ]);
-
-      const account = new olm.Account();
-      const { picklingKey, pickledAccount } = primaryAccount;
-      account.unpickle(picklingKey, pickledAccount);
-
-      const contentPrekey = contentInitializationInfo.prekey;
-
-      const session = new olm.Session();
-      session.create_outbound(
-        account,
-        contentIdentityKeys.curve25519,
-        contentIdentityKeys.ed25519,
-        contentPrekey,
-        contentInitializationInfo.prekeySignature,
-        contentInitializationInfo.oneTimeKey,
-      );
-      const { body: initialContentEncryptedMessage } = session.encrypt(
-        JSON.stringify(initialEncryptedMessageContent),
-      );
-      return initialContentEncryptedMessage;
-    },
-    [getOrCreateCryptoStore],
-  );
-
-  const perKeyserverNotificationsSessionPromises = React.useRef<{
-    [keyserverID: string]: ?Promise<string>,
-  }>({});
-
-  const createNotificationsSession = React.useCallback(
-    async (
-      cookie: ?string,
-      notificationsIdentityKeys: OLMIdentityKeys,
-      notificationsInitializationInfo: OlmSessionInitializationInfo,
-      keyserverID: string,
-    ) => {
-      if (perKeyserverNotificationsSessionPromises.current[keyserverID]) {
-        return perKeyserverNotificationsSessionPromises.current[keyserverID];
-      }
-
-      const newNotificationsSessionPromise = (async () => {
-        try {
-          return await createNewNotificationsSession(
-            cookie,
-            notificationsIdentityKeys,
-            notificationsInitializationInfo,
-            keyserverID,
-          );
-        } catch (e) {
-          perKeyserverNotificationsSessionPromises.current[keyserverID] =
-            undefined;
-          throw e;
-        }
-      })();
-
-      perKeyserverNotificationsSessionPromises.current[keyserverID] =
-        newNotificationsSessionPromise;
-      return newNotificationsSessionPromise;
-    },
-    [createNewNotificationsSession],
-  );
-
-  const isCryptoStoreSet = !!currentCryptoStore;
-  React.useEffect(() => {
-    if (!isCryptoStoreSet) {
-      perKeyserverNotificationsSessionPromises.current = {};
-    }
-  }, [isCryptoStoreSet]);
-
-  const contextValue = React.useMemo(
-    () => ({
-      notificationsSessionCreator: createNotificationsSession,
-      contentSessionCreator: createNewContentSession,
-    }),
-    [createNewContentSession, createNotificationsSession],
-  );
-
-  return (
-    <OlmSessionCreatorContext.Provider value={contextValue}>
-      {props.children}
-    </OlmSessionCreatorContext.Provider>
-  );
-}
-
 export {
   useGetSignedIdentityKeysBlob,
   useGetOrCreateCryptoStore,
-  OlmSessionCreatorProvider,
   GetOrCreateCryptoStoreProvider,
   useGetNewDeviceKeyUpload,
   useGetExistingDeviceKeyUpload,
