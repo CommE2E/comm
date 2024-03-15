@@ -138,6 +138,14 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityLogOut"]
+    fn log_out(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityGetOutboundKeysForUser"]
     fn get_outbound_keys_for_user(
       auth_user_id: String,
@@ -922,6 +930,38 @@ async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   )
   .await?;
   identity_client.delete_user(Empty {}).await?;
+
+  Ok(())
+}
+
+fn log_out(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let auth_info = AuthInfo {
+      access_token,
+      user_id,
+      device_id,
+    };
+    let result = log_out_helper(auth_info).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn log_out_helper(auth_info: AuthInfo) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+  identity_client.log_out_user(Empty {}).await?;
 
   Ok(())
 }
