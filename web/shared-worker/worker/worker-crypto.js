@@ -1,6 +1,7 @@
 // @flow
 
 import olm from '@commapp/olm';
+import localforage from 'localforage';
 import uuid from 'uuid';
 
 import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
@@ -14,6 +15,7 @@ import {
   type OlmAPI,
   type OneTimeKeysResultValues,
   type ClientPublicKeys,
+  type NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
 import type { IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
@@ -30,12 +32,22 @@ import { getIdentityClient } from './identity-client.js';
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import { getDBModule, getSQLiteQueryExecutor } from './worker-database.js';
 import {
+  encryptData,
+  exportKeyToJWK,
+  generateCryptoKey,
+} from '../../crypto/aes-gcm-crypto-utils.js';
+import {
+  getOlmDataContentKeyForCookie,
+  getOlmEncryptionKeyDBLabelForCookie,
+} from '../../push-notif/notif-crypto-utils.js';
+import {
   type WorkerRequestMessage,
   type WorkerResponseMessage,
   workerRequestMessageTypes,
   workerResponseMessageTypes,
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
+import { isDesktopSafari } from '../utils/db-utils.js';
 
 type WorkerCryptoStore = {
   +contentAccountPickleKey: string,
@@ -405,6 +417,77 @@ const olmAPI: OlmAPI = {
     persistCryptoStore();
 
     return initialContentEncryptedMessage;
+  },
+  async notificationsSessionCreator(
+    cookie: ?string,
+    notificationsIdentityKeys: OLMIdentityKeys,
+    notificationsInitializationInfo: OlmSessionInitializationInfo,
+    keyserverID: string,
+  ): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+
+    const { notificationAccountPickleKey, notificationAccount } = cryptoStore;
+    const encryptionKey = await generateCryptoKey({
+      extractable: isDesktopSafari,
+    });
+
+    const notificationsPrekey = notificationsInitializationInfo.prekey;
+    const session = new olm.Session();
+    session.create_outbound(
+      notificationAccount,
+      notificationsIdentityKeys.curve25519,
+      notificationsIdentityKeys.ed25519,
+      notificationsPrekey,
+      notificationsInitializationInfo.prekeySignature,
+      notificationsInitializationInfo.oneTimeKey,
+    );
+    const { body: initialNotificationsEncryptedMessage } = session.encrypt(
+      JSON.stringify(initialEncryptedMessageContent),
+    );
+
+    const mainSession = session.pickle(notificationAccountPickleKey);
+    const notificationsOlmData: NotificationsOlmDataType = {
+      mainSession,
+      pendingSessionUpdate: mainSession,
+      updateCreationTimestamp: Date.now(),
+      picklingKey: notificationAccountPickleKey,
+    };
+    const encryptedOlmData = await encryptData(
+      new TextEncoder().encode(JSON.stringify(notificationsOlmData)),
+      encryptionKey,
+    );
+
+    const notifsOlmDataEncryptionKeyDBLabel =
+      getOlmEncryptionKeyDBLabelForCookie(cookie);
+    const notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
+      cookie,
+      keyserverID,
+    );
+
+    const persistEncryptionKeyPromise = (async () => {
+      let cryptoKeyPersistentForm;
+      if (isDesktopSafari) {
+        // Safari doesn't support structured clone algorithm in service
+        // worker context so we have to store CryptoKey as JSON
+        cryptoKeyPersistentForm = await exportKeyToJWK(encryptionKey);
+      } else {
+        cryptoKeyPersistentForm = encryptionKey;
+      }
+
+      await localforage.setItem(
+        notifsOlmDataEncryptionKeyDBLabel,
+        cryptoKeyPersistentForm,
+      );
+    })();
+
+    await Promise.all([
+      localforage.setItem(notifsOlmDataContentKey, encryptedOlmData),
+      persistEncryptionKeyPromise,
+    ]);
+
+    return initialNotificationsEncryptedMessage;
   },
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
     if (!cryptoStore) {
