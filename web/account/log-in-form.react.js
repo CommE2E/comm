@@ -7,13 +7,13 @@ import { useWalletClient } from 'wagmi';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { useGetOrCreateCryptoStore } from './account-hooks.js';
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
 import TraditionalLoginForm from './traditional-login-form.react.js';
 import Button from '../components/button.react.js';
 import OrBreak from '../components/or-break.react.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 
 function LoginForm(): React.Node {
@@ -21,11 +21,9 @@ function LoginForm(): React.Node {
   const { data: signer } = useWalletClient();
   const dispatch = useDispatch();
 
-  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
-
   React.useEffect(() => {
-    void getOrCreateCryptoStore();
-  }, [getOrCreateCryptoStore]);
+    void olmAPI.initializeCryptoAccount();
+  }, []);
 
   const onQRCodeLoginButtonClick = React.useCallback(() => {
     dispatch({
