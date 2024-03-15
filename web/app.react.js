@@ -71,7 +71,6 @@ import { useSelector } from './redux/redux-utils.js';
 import VisibilityHandler from './redux/visibility-handler.react.js';
 import history from './router-history.js';
 import { MessageSearchStateProvider } from './search/message-search-state-provider.react.js';
-import { createTunnelbrokerInitMessage } from './selectors/tunnelbroker-selectors.js';
 import AccountSettings from './settings/account-settings.react.js';
 import DangerZone from './settings/danger-zone.react.js';
 import KeyserverSelectionList from './settings/keyserver-selection-list.react.js';
@@ -82,6 +81,7 @@ import './typography.css';
 import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
+import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
 import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
 
 void initOpaque();
@@ -520,7 +520,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       [modalContext.modals],
     );
 
-    const tunnelbrokerInitMessage = useSelector(createTunnelbrokerInitMessage);
+    const tunnelbrokerInitMessage = useTunnelbrokerInitMessage();
 
     const { lockStatus, releaseLockOrAbortRequest } = useWebLock(
       TUNNELBROKER_LOCK_NAME,

@@ -25,11 +25,11 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
-import { useGetSignedIdentityKeysBlob } from './account-hooks.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react.js';
 import Button from '../components/button.react.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,8 +43,6 @@ function TraditionalLoginForm(): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
-
-  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
 
   const usernameInputRef = React.useRef<?HTMLInputElement>();
   React.useEffect(() => {
@@ -77,19 +75,18 @@ function TraditionalLoginForm(): React.Node {
 
   const legacyLogInAction = React.useCallback(
     async (extraInfo: LogInExtraInfo) => {
-      const signedIdentityKeysBlob = await getSignedIdentityKeysBlob();
+      await olmAPI.initializeCryptoAccount();
+      const userPublicKey = await olmAPI.getUserPublicKey();
       try {
-        invariant(
-          signedIdentityKeysBlob,
-          'signedIdentityKeysBlob must be set in logInAction',
-        );
-
         const result = await callLegacyLogIn({
           ...extraInfo,
           username,
           password,
           authActionSource: logInActionSources.logInFromWebForm,
-          signedIdentityKeysBlob,
+          signedIdentityKeysBlob: {
+            payload: userPublicKey.blobPayload,
+            signature: userPublicKey.signature,
+          },
         });
         modalContext.popModal();
         return result;
@@ -105,13 +102,7 @@ function TraditionalLoginForm(): React.Node {
         throw e;
       }
     },
-    [
-      callLegacyLogIn,
-      modalContext,
-      password,
-      getSignedIdentityKeysBlob,
-      username,
-    ],
+    [callLegacyLogIn, modalContext, password, username],
   );
 
   const identityPasswordLogInAction = React.useCallback(async () => {
