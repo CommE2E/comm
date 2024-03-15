@@ -6,31 +6,29 @@ import * as React from 'react';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import css from './qr-code-login.css';
-import { useSelector } from '../redux/redux-utils.js';
 
 function QrCodeLogin(): React.Node {
   const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
-  const ed25519Key = useSelector(
-    state => state.cryptoStore?.primaryIdentityKeys.ed25519,
-  );
 
   const generateQRCode = React.useCallback(async () => {
     try {
-      if (!ed25519Key) {
+      const ed25519 = await getContentSigningKey();
+      if (!ed25519) {
         return;
       }
 
       const rawAESKey: Uint8Array = await generateKeyCommon(crypto);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
-      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);
+      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519);
       setQrCodeValue(url);
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
     }
-  }, [ed25519Key]);
+  }, []);
 
   React.useEffect(() => {
     void generateQRCode();

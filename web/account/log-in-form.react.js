@@ -7,7 +7,6 @@ import { useWalletClient } from 'wagmi';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
-import { useGetOrCreateCryptoStore } from './account-hooks.js';
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
@@ -20,12 +19,6 @@ function LoginForm(): React.Node {
   const { openConnectModal } = useConnectModal();
   const { data: signer } = useWalletClient();
   const dispatch = useDispatch();
-
-  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
-
-  React.useEffect(() => {
-    void getOrCreateCryptoStore();
-  }, [getOrCreateCryptoStore]);
 
   const onQRCodeLoginButtonClick = React.useCallback(() => {
     dispatch({

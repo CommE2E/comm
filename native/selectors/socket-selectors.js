@@ -8,7 +8,6 @@ import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
 } from 'lib/selectors/socket-selectors.js';
-import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
@@ -18,7 +17,6 @@ import type {
   SessionState,
 } from 'lib/types/session-types.js';
 
-import { commCoreModule } from '../native-modules.js';
 import { calendarActiveSelector } from '../navigation/nav-selectors.js';
 import type { AppState } from '../redux/state-types.js';
 import type { NavPlusRedux } from '../types/selector-types.js';
@@ -36,16 +34,6 @@ const sessionIdentificationSelector: (
 ) => (state: AppState) => SessionIdentification = _memoize(
   baseSessionIdentificationSelector,
 );
-
-async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
-  await commCoreModule.initializeCryptoAccount();
-  const { blobPayload, signature } = await commCoreModule.getUserPublicKey();
-  const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
-    payload: blobPayload,
-    signature,
-  };
-  return signedIdentityKeysBlob;
-}
 
 type NativeGetClientResponsesSelectorInputType = $ReadOnly<{
   ...NavPlusRedux,
@@ -67,7 +55,6 @@ const nativeGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      getSignedIdentityKeysBlob: () => Promise<SignedIdentityKeysBlob>,
       getInitialNotificationsEncryptedMessage: () => Promise<string>,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => Promise<$ReadOnlyArray<ClientClientResponse>>,
@@ -77,7 +64,6 @@ const nativeGetClientResponsesSelector: (
     (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
       getClientResponsesFunc(
         calendarActive,
-        getSignedIdentityKeysBlob,
         getInitialNotificationsEncryptedMessage,
         serverRequests,
       ),
