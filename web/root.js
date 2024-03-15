@@ -16,10 +16,6 @@ import ReportHandler from 'lib/components/report-handler.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 
-import {
-  GetOrCreateCryptoStoreProvider,
-  OlmSessionCreatorProvider,
-} from './account/account-hooks.js';
 import App from './app.react.js';
 import ErrorBoundary from './error-boundary.react.js';
 import IdentityServiceContextProvider from './grpc/identity-service-context-provider.react.js';
@@ -54,20 +50,16 @@ const RootProvider = (): React.Node => (
     <ErrorBoundary>
       <CallKeyserverEndpointProvider>
         <InitialReduxStateGate persistor={persistor}>
-          <GetOrCreateCryptoStoreProvider>
-            <IdentityServiceContextProvider>
-              <OlmSessionCreatorProvider>
-                <Router history={history.getHistoryObject()}>
-                  <Route path="*" component={App} />
-                </Router>
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-                <PrekeysHandler />
-                <SQLiteDataHandler />
-                <IntegrityHandler />
-                <ReportHandler canSendReports={true} />
-              </OlmSessionCreatorProvider>
-            </IdentityServiceContextProvider>
-          </GetOrCreateCryptoStoreProvider>
+          <IdentityServiceContextProvider>
+            <Router history={history.getHistoryObject()}>
+              <Route path="*" component={App} />
+            </Router>
+            <KeyserverConnectionsHandler socketComponent={Socket} />
+            <PrekeysHandler />
+            <SQLiteDataHandler />
+            <IntegrityHandler />
+            <ReportHandler canSendReports={true} />
+          </IdentityServiceContextProvider>
         </InitialReduxStateGate>
       </CallKeyserverEndpointProvider>
     </ErrorBoundary>
