@@ -10,7 +10,10 @@ import type {
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
 import { commCoreModule } from '../native-modules.js';
-import { nativeOutboundContentSessionCreator } from '../utils/crypto-utils.js';
+import {
+  nativeOutboundContentSessionCreator,
+  nativeNotificationsSessionCreator,
+} from '../utils/crypto-utils.js';
 
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
@@ -41,6 +44,18 @@ const olmAPI: OlmAPI = {
       contentIdentityKeys,
       contentInitializationInfo,
       contentIdentityKeys.ed25519,
+    );
+  },
+  notificationsSessionCreator(
+    cookie: ?string,
+    notificationsIdentityKeys: OLMIdentityKeys,
+    notificationsInitializationInfo: OlmSessionInitializationInfo,
+    keyserverID: string,
+  ): Promise<string> {
+    return nativeNotificationsSessionCreator(
+      notificationsIdentityKeys,
+      notificationsInitializationInfo,
+      keyserverID,
     );
   },
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
