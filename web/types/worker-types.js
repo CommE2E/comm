@@ -1,7 +1,11 @@
 // @flow
 
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
-import type { OlmAPI, CryptoStore } from 'lib/types/crypto-types.js';
+import type {
+  PickledOLMAccount,
+  OLMIdentityKeys,
+  OlmAPI,
+} from 'lib/types/crypto-types.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   IdentityServiceClient,
@@ -114,10 +118,16 @@ export type BackupRestoreRequestMessage = {
   +backupLogDataKey: string,
 };
 
+export type LegacyCryptoStore = {
+  +primaryAccount: PickledOLMAccount,
+  +primaryIdentityKeys: OLMIdentityKeys,
+  +notificationAccount: PickledOLMAccount,
+  +notificationIdentityKeys: OLMIdentityKeys,
+};
 export type InitializeCryptoAccountRequestMessage = {
   +type: 12,
   +olmWasmPath: string,
-  +initialCryptoStore?: CryptoStore,
+  +initialCryptoStore?: LegacyCryptoStore,
 };
 
 export type CreateIdentityServiceClientRequestMessage = {
