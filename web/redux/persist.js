@@ -38,6 +38,7 @@ import type { AppState } from './redux-setup.js';
 import { nonUserSpecificFieldsWeb } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
 import { isSQLiteSupported } from '../shared-worker/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
@@ -45,7 +46,6 @@ declare var keyserverURL: string;
 
 const persistWhitelist = [
   'enabledApps',
-  'cryptoStore',
   'notifPermissionAlertInfo',
   'commServicesAccessToken',
   'keyserverStore',
@@ -311,6 +311,16 @@ const migrations = {
       return handleReduxMigrationFailure(newState);
     }
   },
+  [13]: async (state: any) => {
+    const { cryptoStore, ...rest } = state;
+    const sharedWorker = await getCommSharedWorker();
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+      olmWasmPath: getOlmWasmPath(),
+      initialCryptoStore: cryptoStore,
+    });
+    return rest;
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -356,7 +366,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 12,
+  version: 13,
   transforms: [keyserverStoreTransform],
 };
 

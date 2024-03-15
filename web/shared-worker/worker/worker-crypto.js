@@ -12,7 +12,6 @@ import {
 import {
   olmEncryptedMessageTypes,
   type OLMIdentityKeys,
-  type CryptoStore,
   type PickledOLMAccount,
   type IdentityKeysBlob,
   type SignedIdentityKeysBlob,
@@ -57,6 +56,7 @@ import {
   type WorkerResponseMessage,
   workerRequestMessageTypes,
   workerResponseMessageTypes,
+  type LegacyCryptoStore,
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 import { isDesktopSafari } from '../utils/db-utils.js';
@@ -201,7 +201,7 @@ function unpickleInitialCryptoStoreAccount(
 
 async function initializeCryptoAccount(
   olmWasmPath: string,
-  initialCryptoStore: ?CryptoStore,
+  initialCryptoStore: ?LegacyCryptoStore,
 ) {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
   if (!sqliteQueryExecutor) {
