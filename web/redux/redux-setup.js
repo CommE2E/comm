@@ -27,7 +27,6 @@ import {
   identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
-import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -57,7 +56,6 @@ import {
   setInitialReduxState,
 } from './action-types.js';
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
-import { reduceCryptoStore, setCryptoStore } from './crypto-store-reducer.js';
 import { defaultWebState } from './default-state.js';
 import reduceNavInfo from './nav-reducer.js';
 import { onStateDifference } from './redux-debug-utils.js';
@@ -108,7 +106,6 @@ export type AppState = {
   +dataLoaded: boolean,
   +windowActive: boolean,
   +userPolicies: UserPolicies,
-  +cryptoStore: ?CryptoStore,
   +pushApiPublicKey: ?string,
   +_persist: ?PersistState,
   +commServicesAccessToken: ?string,
@@ -133,7 +130,6 @@ export type Action =
       +type: 'UPDATE_WINDOW_ACTIVE',
       +payload: boolean,
     }
-  | { +type: 'SET_CRYPTO_STORE', +payload: CryptoStore }
   | { +type: 'SET_INITIAL_REDUX_STATE', +payload: InitialReduxState };
 
 function reducer(oldState: AppState | void, action: Action): AppState {
@@ -317,10 +313,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     );
   }
 
-  if (
-    action.type !== updateNavInfoActionType &&
-    action.type !== setCryptoStore
-  ) {
+  if (action.type !== updateNavInfoActionType) {
     const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
     storeOperations = {
@@ -344,7 +337,6 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       action,
       state.threadStore.threadInfos,
     ),
-    cryptoStore: reduceCryptoStore(state.cryptoStore, action),
     communityPickerStore,
     commServicesAccessToken: reduceServicesAccessToken(
       state.commServicesAccessToken,
