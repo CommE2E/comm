@@ -129,6 +129,12 @@ interface Spec extends TurboModule {
   +stopBackupHandler: () => void;
   +createNewBackup: (backupSecret: string) => Promise<void>;
   +restoreBackup: (backupSecret: string) => Promise<string>;
+  +restoreBackupData: (
+    backupID: string,
+    backupDataKey: string,
+    backupLogDataKey: string,
+  ) => Promise<void>;
+  +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {
