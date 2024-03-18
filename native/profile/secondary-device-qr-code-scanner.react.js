@@ -9,6 +9,10 @@ import { View } from 'react-native';
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import {
+  backupKeysValidator,
+  type BackupKeys,
+} from 'lib/types/backup-types.js';
 import type { RawDeviceList } from 'lib/types/identity-service-types.js';
 import {
   tunnelbrokerMessageTypes,
@@ -20,8 +24,11 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
+import { getBackupSecret } from '../backup/use-client-backup.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   composeTunnelbrokerQRAuthMessage,
@@ -158,13 +165,19 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
       void broadcastDeviceListUpdate();
 
+      const backupSecret = await getBackupSecret();
+      const backupKeysResponse =
+        await commCoreModule.retrieveBackupKeys(backupSecret);
+      const backupKeys = assertWithValidator<BackupKeys>(
+        JSON.parse(backupKeysResponse),
+        backupKeysValidator,
+      );
+
       const backupKeyMessage = await composeTunnelbrokerQRAuthMessage(
         encryptionKey,
         {
           type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
-          backupID: 'stub',
-          backupDataKey: 'stub',
-          backupLogDataKey: 'stub',
+          ...backupKeys,
         },
       );
       await tunnelbrokerContext.sendMessage({
