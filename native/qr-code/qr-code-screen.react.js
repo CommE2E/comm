@@ -10,6 +10,7 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { BackupKeys } from 'lib/types/backup-types.js';
 import type {
   NonceChallenge,
   SignedMessage,
@@ -31,6 +32,15 @@ type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
+
+function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
+  const { backupID, backupDataKey, backupLogDataKey } = backupKeys;
+  return commCoreModule.restoreBackupData(
+    backupID,
+    backupDataKey,
+    backupLogDataKey,
+  );
+}
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
@@ -99,6 +109,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         performSecondaryDeviceRegistration={performRegistration}
         composeMessage={composeTunnelbrokerQRAuthMessage}
         processMessage={parseTunnelbrokerQRAuthMessage}
+        performBackupRestore={performBackupRestore}
       />
       <View style={styles.container}>
         <Text style={styles.heading}>Log in to Comm</Text>
