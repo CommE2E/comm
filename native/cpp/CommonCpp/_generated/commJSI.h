@@ -68,6 +68,8 @@ public:
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey) = 0;
+  virtual jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) = 0;
 
 };
 
@@ -472,6 +474,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::restoreBackup, jsInvoker_, instance_, std::move(backupSecret));
+    }
+    jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey) override {
+      static_assert(
+          bridging::getParameterCount(&T::restoreBackupData) == 4,
+          "Expected restoreBackupData(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::restoreBackupData, jsInvoker_, instance_, std::move(backupID), std::move(backupDataKey), std::move(backupLogDataKey));
+    }
+    jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) override {
+      static_assert(
+          bridging::getParameterCount(&T::retrieveBackupKeys) == 2,
+          "Expected retrieveBackupKeys(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::retrieveBackupKeys, jsInvoker_, instance_, std::move(backupSecret));
     }
 
   private:

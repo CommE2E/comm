@@ -7,9 +7,11 @@ use crate::constants::{aes, secure_store};
 use crate::ffi::{
   create_main_compaction, get_backup_directory_path,
   get_backup_user_keys_file_path, restore_from_backup_log,
-  restore_from_main_compaction, secure_store_get, void_callback,
+  restore_from_main_compaction, secure_store_get, string_callback,
+  void_callback,
 };
 use crate::future_manager;
+use crate::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{
@@ -66,6 +68,73 @@ pub mod ffi {
   pub fn restore_backup(backup_secret: String, promise_id: u32) {
     RUNTIME.spawn(async move {
       let result = download_backup(backup_secret)
+        .await
+        .map_err(|err| err.to_string());
+
+      let result = match result {
+        Ok(result) => result,
+        Err(error) => {
+          void_callback(error, promise_id);
+          return;
+        }
+      };
+
+      let (future_id, future) = future_manager::new_future::<()>().await;
+      restore_from_main_compaction(
+        &result.backup_restoration_path.to_string_lossy(),
+        &result.backup_data_key,
+        future_id,
+      );
+
+      if let Err(error) = future.await {
+        void_callback(error, promise_id);
+        return;
+      }
+
+      if let Err(error) =
+        download_and_apply_logs(&result.backup_id, result.backup_log_data_key)
+          .await
+      {
+        void_callback(error.to_string(), promise_id);
+        return;
+      }
+
+      void_callback(String::new(), promise_id);
+    });
+  }
+
+  pub fn retrieve_backup_keys(backup_secret: String, promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let result = download_backup_keys(backup_secret)
+        .await
+        .map_err(|err| err.to_string());
+
+      let result = match result {
+        Ok(result) => result,
+        Err(error) => {
+          string_callback(error, promise_id, "".to_string());
+          return;
+        }
+      };
+
+      let serialize_result = serde_json::to_string(&result);
+      handle_string_result_as_callback(serialize_result, promise_id);
+    });
+  }
+
+  pub fn restore_backup_data(
+    backup_id: String,
+    backup_data_key: String,
+    backup_log_data_key: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let backup_keys = BackupKeysResult {
+        backup_id,
+        backup_data_key,
+        backup_log_data_key,
+      };
+      let result = download_backup_data(backup_keys)
         .await
         .map_err(|err| err.to_string());
 

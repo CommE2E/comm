@@ -320,6 +320,17 @@ mod ffi {
 
     #[cxx_name = "restoreBackup"]
     fn restore_backup(backup_secret: String, promise_id: u32);
+
+    #[cxx_name = "restoreBackupData"]
+    fn restore_backup_data(
+      backup_id: String,
+      backup_data_key: String,
+      backup_log_data_key: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "retrieveBackupKeys"]
+    fn retrieve_backup_keys(backup_secret: String, promise_id: u32);
   }
 
   // Secure store
