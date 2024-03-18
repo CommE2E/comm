@@ -1666,4 +1666,35 @@ CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
         ::restoreBackup(rust::string(backupSecretStr), currentID);
       });
 }
+
+jsi::Value CommCoreModule::restoreBackupData(
+    jsi::Runtime &rt,
+    jsi::String backupID,
+    jsi::String backupDataKey,
+    jsi::String backupLogDataKey) {
+  std::string backupIDStr = backupID.utf8(rt);
+  std::string backupDataKeyStr = backupDataKey.utf8(rt);
+  std::string backupLogDataKeyStr = backupLogDataKey.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto currentID = RustPromiseManager::instance.addPromise(
+            {promise, this->jsInvoker_, innerRt});
+        ::restoreBackupData(
+            rust::string(backupIDStr),
+            rust::string(backupDataKeyStr),
+            rust::string(backupLogDataKeyStr),
+            currentID);
+      });
+}
+
+jsi::Value
+CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) {
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto currentID = RustPromiseManager::instance.addPromise(
+            {promise, this->jsInvoker_, innerRt});
+        ::retrieveBackupKeys(rust::string(backupSecretStr), currentID);
+      });
+}
 } // namespace comm
