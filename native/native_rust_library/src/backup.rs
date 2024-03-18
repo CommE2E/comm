@@ -134,8 +134,14 @@ pub async fn create_userkeys_compaction(
 async fn download_backup(
   backup_secret: String,
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
-  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+  let backup_keys = download_backup_keys(backup_secret).await?;
+  download_backup_data(backup_keys).await
+}
 
+async fn download_backup_keys(
+  backup_secret: String,
+) -> Result<BackupKeysResult, Box<dyn Error>> {
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
   let user_identity = get_user_identity_from_secure_store()?;
 
   let latest_backup_descriptor = BackupDescriptor::Latest {
@@ -158,6 +164,25 @@ async fn download_backup(
   let user_keys =
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
+  Ok(BackupKeysResult {
+    backup_id,
+    backup_data_key: user_keys.backup_data_key,
+    backup_log_data_key: user_keys.backup_log_data_key,
+  })
+}
+
+async fn download_backup_data(
+  backup_keys: BackupKeysResult,
+) -> Result<CompactionDownloadResult, Box<dyn Error>> {
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+  let user_identity = get_user_identity_from_secure_store()?;
+
+  let BackupKeysResult {
+    backup_id,
+    backup_data_key,
+    backup_log_data_key,
+  } = backup_keys;
+
   let backup_data_descriptor = BackupDescriptor::BackupID {
     backup_id: backup_id.clone(),
     user_identity: user_identity.clone(),
@@ -173,10 +198,10 @@ async fn download_backup(
   tokio::fs::write(&backup_restoration_path, encrypted_user_data).await?;
 
   Ok(CompactionDownloadResult {
-    backup_id,
     backup_restoration_path,
-    backup_data_key: user_keys.backup_data_key,
-    backup_log_data_key: user_keys.backup_log_data_key,
+    backup_id,
+    backup_data_key,
+    backup_log_data_key,
   })
 }
 
@@ -213,6 +238,13 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
     access_token: secure_store_get(secure_store::COMM_SERVICES_ACCESS_TOKEN)?,
     device_id: secure_store_get(secure_store::DEVICE_ID)?,
   })
+}
+
+#[derive(Debug, Serialize)]
+struct BackupKeysResult {
+  backup_id: String,
+  backup_data_key: String,
+  backup_log_data_key: String,
 }
 
 struct CompactionDownloadResult {
