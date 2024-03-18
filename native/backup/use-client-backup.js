@@ -73,4 +73,4 @@ function useClientBackup(): ClientBackup {
   return { uploadBackupProtocol, restoreBackupProtocol };
 }
 
-export { useClientBackup };
+export { getBackupSecret, useClientBackup };
