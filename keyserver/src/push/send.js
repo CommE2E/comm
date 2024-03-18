@@ -25,7 +25,10 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  hasMinCodeVersion,
+  NEXT_CODE_VERSION,
+} from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -69,6 +72,7 @@ import {
   wnsMaxNotificationPayloadByteSize,
   wnsPush,
   type WNSPushError,
+  blobServiceUpload,
 } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -1022,6 +1026,23 @@ async function prepareAPNsNotification(
     }));
   }
 
+  // The `messageInfos` field in notification payload is
+  // not used on MacOS so we can return early.
+  if (platformDetails.platform === 'macos') {
+    const macOSNotifsWithoutMessageInfos =
+      await prepareEncryptedAPNsNotifications(
+        devices,
+        notification,
+        platformDetails.codeVersion,
+      );
+    return macOSNotifsWithoutMessageInfos.map(
+      ({ notification: notif, deviceToken }) => ({
+        notification: notif,
+        deviceToken,
+      }),
+    );
+  }
+
   const notifsWithMessageInfos = await prepareEncryptedAPNsNotifications(
     devices,
     copyWithMessageInfos,
@@ -1047,6 +1068,32 @@ async function prepareAPNsNotification(
         encryptionOrder,
       }),
     );
+  }
+
+  const canQueryBlobService = hasMinCodeVersion(platformDetails, {
+    native: NEXT_CODE_VERSION,
+  });
+
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
+      copyWithMessageInfos.compile(),
+    ));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${uniqueID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  if (blobHash && encryptionKey) {
+    notification.payload = {
+      ...notification.payload,
+      blobHash,
+      encryptionKey,
+    };
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAPNsNotifications(

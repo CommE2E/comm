@@ -1,4 +1,6 @@
 #import "NotificationService.h"
+#import "AESCryptoModuleObjCCompat.h"
+#import "CommIOSBlobClient.h"
 #import "CommMMKV.h"
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
@@ -14,6 +16,8 @@ NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailureKey = @"encryptionFailure";
 NSString *const collapseIDKey = @"collapseID";
 NSString *const keyserverIDKey = @"keyserverID";
+NSString *const blobHashKey = @"blobHash";
+NSString *const encryptionKeyLabel = @"encryptionKey";
 
 // Those and future MMKV-related constants should match
 // similar constants in CommNotificationsHandler.java
@@ -257,7 +261,32 @@ std::string joinStrings(
     publicUserContent = badgeOnlyContent;
   }
 
-  // Step 7: notify main app that there is data
+  // Step 7: (optional) download notification paylaod
+  // from blob service in case it is large notification
+  if ([self isLargeNotification:content.userInfo]) {
+    std::string processLargeNotificationError;
+    try {
+      @try {
+        [self fetchAndPersistLargeNotifPayload:content];
+      } @catch (NSException *e) {
+        processLargeNotificationError =
+            "Obj-C exception: " + std::string([e.name UTF8String]) +
+            " during large notification processing.";
+      }
+    } catch (const std::exception &e) {
+      processLargeNotificationError =
+          "C++ exception: " + std::string(e.what()) +
+          " during large notification processing.";
+    }
+
+    if (processLargeNotificationError.size()) {
+      [errorMessages
+          addObject:[NSString stringWithUTF8String:processLargeNotificationError
+                                                       .c_str()]];
+    }
+  }
+
+  // Step 8: notify main app that there is data
   // to transfer to SQLite and redux.
   [self sendNewMessageInfosNotification];
 
@@ -500,6 +529,32 @@ std::string joinStrings(
   content.badge = @(totalUnreadCount);
 }
 
+- (void)fetchAndPersistLargeNotifPayload:
+    (UNMutableNotificationContent *)content {
+  NSString *blobHash = content.userInfo[blobHashKey];
+
+  NSData *encryptionKey = [[NSData alloc]
+      initWithBase64EncodedString:content.userInfo[encryptionKeyLabel]
+                          options:0];
+
+  __block NSError *fetchError = nil;
+  NSData *largePayloadBinary =
+      [CommIOSBlobClient.sharedInstance getBlobSync:blobHash
+                                         orSetError:&fetchError];
+
+  if (fetchError) {
+    comm::Logger::log(
+        "Failed to fetch notif payload from blob service. Details: " +
+        std::string([fetchError.localizedDescription UTF8String]));
+    return;
+  }
+
+  NSDictionary *largePayload =
+      [NotificationService aesDecryptAndParse:largePayloadBinary
+                                      withKey:encryptionKey];
+  [self persistMessagePayload:largePayload];
+}
+
 - (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
   // TODO: refactor this check by introducing
   // badgeOnly property in iOS notification payload
@@ -517,6 +572,10 @@ std::string joinStrings(
 
 - (BOOL)isCollapsible:(NSDictionary *)payload {
   return payload[collapseIDKey];
+}
+
+- (BOOL)isLargeNotification:(NSDictionary *)payload {
+  return payload[blobHashKey] && payload[encryptionKeyLabel];
 }
 
 - (UNNotificationContent *)getBadgeOnlyContentFor:
@@ -799,11 +858,55 @@ std::string joinStrings(
   return memorySource;
 }
 
+// AES Cryptography
+static AESCryptoModuleObjCCompat *_aesCryptoModule = nil;
+
++ (AESCryptoModuleObjCCompat *)processLocalAESCryptoModule {
+  return _aesCryptoModule;
+}
+
++ (NSDictionary *)aesDecryptAndParse:(NSData *)sealedData
+                             withKey:(NSData *)key {
+  NSError *decryptError = nil;
+  NSInteger destinationLength =
+      [[NotificationService processLocalAESCryptoModule]
+          decryptedLength:sealedData];
+
+  NSMutableData *destination = [NSMutableData dataWithLength:destinationLength];
+  [[NotificationService processLocalAESCryptoModule]
+      decryptWithKey:key
+          sealedData:sealedData
+         destination:destination
+           withError:&decryptError];
+
+  if (decryptError) {
+    comm::Logger::log(
+        "NSE: Notification aes decryption failure. Details: " +
+        std::string([decryptError.localizedDescription UTF8String]));
+    return nil;
+  }
+
+  NSString *decryptedSerializedPayload =
+      [[NSString alloc] initWithData:destination encoding:NSUTF8StringEncoding];
+
+  return [NSJSONSerialization
+      JSONObjectWithData:[decryptedSerializedPayload
+                             dataUsingEncoding:NSUTF8StringEncoding]
+                 options:0
+                   error:nil];
+}
+
+// Process-local initialization code NSE may use different threads and instances
+// of this class to process notifs, but it usually keeps the same process for
+// extended period of time. Objects that can be initialized once and reused on
+// each notif should be declared in a method below to avoid wasting resources
+
 + (void)setUpNSEProcess {
   static dispatch_source_t memoryEventSource;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
+    _aesCryptoModule = [[AESCryptoModuleObjCCompat alloc] init];
     memoryEventSource = [NotificationService registerForMemoryEvents];
   });
 }
