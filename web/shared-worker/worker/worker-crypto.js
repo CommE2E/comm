@@ -9,7 +9,7 @@ import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
-import type { IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
@@ -196,7 +196,7 @@ function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
   return signedIdentityKeysBlob;
 }
 
-function getDeviceKeyUpload(): IdentityDeviceKeyUpload {
+function getNewDeviceKeyUpload(): IdentityNewDeviceKeyUpload {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
   }
@@ -226,5 +226,5 @@ export {
   clearCryptoStore,
   processAppOlmApiRequest,
   getSignedIdentityKeysBlob,
-  getDeviceKeyUpload,
+  getNewDeviceKeyUpload,
 };
