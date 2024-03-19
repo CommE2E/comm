@@ -1267,11 +1267,11 @@ async function prepareAndroidNotification(
     notificationsSizeValidator,
   );
 
-  const devicesWithExcessiveSize = notifsWithMessageInfos
+  const devicesWithExcessiveSizeNoHolders = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
     .map(({ cookieID, deviceToken }) => ({ cookieID, deviceToken }));
 
-  if (devicesWithExcessiveSize.length === 0) {
+  if (devicesWithExcessiveSizeNoHolders.length === 0) {
     return notifsWithMessageInfos.map(
       ({ notification: notif, deviceToken, encryptionOrder }) => ({
         notification: notif,
@@ -1285,12 +1285,13 @@ async function prepareAndroidNotification(
     native: NEXT_CODE_VERSION,
   });
 
-  let blobHash, encryptionKey, blobUploadError;
+  let blobHash, blobHolders, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
-    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
-      JSON.stringify(copyWithMessageInfos.data),
-      1,
-    ));
+    ({ blobHash, blobHolders, encryptionKey, blobUploadError } =
+      await blobServiceUpload(
+        JSON.stringify(copyWithMessageInfos.data),
+        devicesWithExcessiveSizeNoHolders.length,
+      ));
   }
 
   if (blobUploadError) {
@@ -1300,12 +1301,23 @@ async function prepareAndroidNotification(
     );
   }
 
-  if (blobHash && encryptionKey) {
+  let devicesWithExcessiveSize = devicesWithExcessiveSizeNoHolders;
+  if (
+    blobHash &&
+    encryptionKey &&
+    blobHolders &&
+    blobHolders.length === devicesWithExcessiveSizeNoHolders.length
+  ) {
     notification.data = {
       ...notification.data,
       blobHash,
       encryptionKey,
     };
+
+    devicesWithExcessiveSize = blobHolders.map((holder, idx) => ({
+      ...devicesWithExcessiveSize[idx],
+      blobHolder: holder,
+    }));
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
