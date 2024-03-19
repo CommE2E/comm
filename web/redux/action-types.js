@@ -83,13 +83,8 @@ const getInitialReduxState =
         getInitialReduxStateCallSingleKeyserverEndpointOptions,
       );
 
-    const {
-      currentUserInfo,
-      userInfos,
-      pushApiPublicKey,
-      commServicesAccessToken,
-      navInfo,
-    } = responses[authoritativeKeyserverID];
+    const { currentUserInfo, userInfos, pushApiPublicKey, navInfo } =
+      responses[authoritativeKeyserverID];
 
     const dataLoaded = currentUserInfo && !currentUserInfo.anonymous;
     const actualizedCalendarQuery = {
@@ -173,7 +168,6 @@ const getInitialReduxState =
       messageStore,
       dataLoaded,
       pushApiPublicKey,
-      commServicesAccessToken,
       inviteLinksStore,
       keyserverInfos,
     };
