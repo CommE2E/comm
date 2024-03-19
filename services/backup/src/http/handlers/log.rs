@@ -170,7 +170,7 @@ impl LogWSActor {
         };
 
         log_item.ensure_size_constraints(&blob_client).await?;
-        db_client.put_log_item(log_item).await?;
+        db_client.put_log_item(log_item, &blob_client).await?;
 
         Ok(vec![LogWSResponse::LogUploaded { backup_id, log_id }])
       }
