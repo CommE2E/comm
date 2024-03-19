@@ -15,6 +15,7 @@ import {
 } from '../../types/worker-types.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
+import { initOpaque } from '../utils/opaque-utils.js';
 
 let identityClient: ?IdentityServiceClientWrapper = null;
 
@@ -27,6 +28,7 @@ async function processAppIdentityClientRequest(
   if (
     message.type === workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT
   ) {
+    void initOpaque(message.opaqueWasmPath);
     identityClient = new IdentityServiceClientWrapper(
       platformDetails,
       message.opaqueWasmPath,

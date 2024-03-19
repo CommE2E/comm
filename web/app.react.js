@@ -49,7 +49,6 @@ import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import { olmAPI } from './crypto/olm-api.js';
-import { initOpaque } from './crypto/opaque-utils.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import InviteLinkHandler from './invite-links/invite-link-handler.react.js';
@@ -82,8 +81,6 @@ import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
-
-void initOpaque();
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
