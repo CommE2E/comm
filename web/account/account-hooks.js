@@ -16,7 +16,7 @@ import type {
   OLMIdentityKeys,
   NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
-import { type IdentityDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import { type IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -170,7 +170,7 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
   }, [getOrCreateCryptoStore]);
 }
 
-function useGetDeviceKeyUpload(): () => Promise<IdentityDeviceKeyUpload> {
+function useGetNewDeviceKeyUpload(): () => Promise<IdentityNewDeviceKeyUpload> {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
   // `getSignedIdentityKeysBlob()` will initialize OLM, so no need to do it
   // again
@@ -407,5 +407,5 @@ export {
   useGetOrCreateCryptoStore,
   OlmSessionCreatorProvider,
   GetOrCreateCryptoStoreProvider,
-  useGetDeviceKeyUpload,
+  useGetNewDeviceKeyUpload,
 };
