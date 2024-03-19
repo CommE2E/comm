@@ -30,7 +30,6 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
-import { initOpaque } from '../crypto/opaque-utils.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
 import * as IdentityAuthStructs from '../protobufs/identity-auth-structs.cjs';
 import {
@@ -44,16 +43,17 @@ import {
   SecondaryDeviceKeysUploadRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
+import { initOpaque } from '../shared-worker/utils/opaque-utils.js';
 
 class IdentityServiceClientWrapper implements IdentityServiceClient {
-  overridedOpaqueFilepath: ?string;
+  overridedOpaqueFilepath: string;
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
 
   constructor(
     platformDetails: PlatformDetails,
-    overridedOpaqueFilepath: ?string,
+    overridedOpaqueFilepath: string,
     authLayer: ?IdentityServiceAuthLayer,
     getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
   ) {
