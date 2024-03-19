@@ -201,16 +201,21 @@ async function encryptAndroidNotification(
   cookieID: string,
   notification: AndroidNotification,
   notificationSizeValidator?: AndroidNotification => boolean,
+  blobHolder?: ?string,
 ): Promise<{
   +notification: AndroidNotification,
   +payloadSizeExceeded: boolean,
   +encryptionOrder?: number,
 }> {
-  const { id, keyserverID, badgeOnly, ...unencryptedPayload } =
-    notification.data;
+  const { id, keyserverID, badgeOnly, ...rest } = notification.data;
   let unencryptedData = { badgeOnly, keyserverID };
   if (id) {
     unencryptedData = { ...unencryptedData, id };
+  }
+
+  let unencryptedPayload = rest;
+  if (blobHolder) {
+    unencryptedPayload = { ...unencryptedPayload, blobHolder };
   }
 
   let payloadSizeValidator;
@@ -392,11 +397,12 @@ function prepareEncryptedAndroidNotifications(
   }>,
 > {
   const notificationPromises = devices.map(
-    async ({ deviceToken, cookieID }) => {
+    async ({ deviceToken, cookieID, blobHolder }) => {
       const notif = await encryptAndroidNotification(
         cookieID,
         notification,
         notificationSizeValidator,
+        blobHolder,
       );
       return { deviceToken, cookieID, ...notif };
     },

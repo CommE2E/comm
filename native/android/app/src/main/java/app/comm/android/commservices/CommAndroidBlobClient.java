@@ -1,5 +1,12 @@
 package app.comm.android.commservices;
 
+import android.content.Context;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 import app.comm.android.BuildConfig;
 import app.comm.android.fbjni.CommSecureStore;
 import java.io.IOException;
@@ -15,9 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CommAndroidBlobClient {
-  private static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
-      ? "https://blob.staging.commtechnologies.org"
-      : "https://blob.commtechnologies.org";
   // The FirebaseMessagingService docs state that message
   // processing should complete within at most 20 seconds
   // window. Therefore we limit http time call to 15 seconds
@@ -25,10 +29,16 @@ public class CommAndroidBlobClient {
   private static final int NOTIF_PROCESSING_TIME_LIMIT_SECONDS = 15;
   // OkHttp docs advise to share OkHttpClient instances
   // https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#okhttpclients-should-be-shared
-  private static final OkHttpClient httpClient =
+  public static final OkHttpClient httpClient =
       new OkHttpClient.Builder()
           .callTimeout(NOTIF_PROCESSING_TIME_LIMIT_SECONDS, TimeUnit.SECONDS)
           .build();
+
+  public static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
+      ? "https://blob.staging.commtechnologies.org"
+      : "https://blob.commtechnologies.org";
+  public static final String BLOB_HASH_KEY = "blob_hash";
+  public static final String BLOB_HOLDER_KEY = "holder";
 
   public byte[] getBlobSync(String blobHash) throws Exception {
     String authToken = getAuthToken();
@@ -47,7 +57,28 @@ public class CommAndroidBlobClient {
     return response.body().bytes();
   }
 
-  private String getAuthToken() throws JSONException {
+  public void scheduleDeferredBlobDeletion(
+      String blobHash,
+      String blobHolder,
+      Context context) {
+    Constraints constraints = new Constraints.Builder()
+                                  .setRequiredNetworkType(NetworkType.CONNECTED)
+                                  .build();
+    WorkRequest deleteBlobWorkRequest =
+        new OneTimeWorkRequest.Builder(CommAndroidDeleteBlobWork.class)
+            .setConstraints(constraints)
+            .setInitialDelay(
+                NOTIFICATION_PROCESSING_TIME_LIMIT, TimeUnit.SECONDS)
+            .setInputData(new Data.Builder()
+                              .putString(BLOB_HASH_KEY, blobHash)
+                              .putString(BLOB_HOLDER_KEY, blobHolder)
+                              .build())
+            .build();
+
+    WorkManager.getInstance(context).enqueue(deleteBlobWorkRequest);
+  }
+
+  public static String getAuthToken() throws JSONException {
     // Authentication data are retrieved on every request
     // since they might change while CommNotificationsHandler
     // thread is running so we should not rely on caching
