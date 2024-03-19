@@ -28,7 +28,7 @@ import type {
   TargetedWNSNotification,
 } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { upload } from '../services/blob.js';
+import { upload, assignHolder } from '../services/blob.js';
 
 const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',
@@ -397,23 +397,36 @@ async function wnsSinglePush(token: string, notification: string, url: string) {
   }
 }
 
-async function blobServiceUpload(payload: string): Promise<
+async function blobServiceUpload(
+  payload: string,
+  numberOfHolders: number,
+): Promise<
   | {
+      +blobHolders: $ReadOnlyArray<string>,
       +blobHash: string,
       +encryptionKey: string,
     }
   | { +blobUploadError: string },
 > {
-  const blobHolder = uuid.v4();
+  const blobHolders = Array.from({ length: numberOfHolders }, () => uuid.v4());
   try {
     const { encryptionKey, encryptedPayload, encryptedPayloadHash } =
       await encryptBlobPayload(payload);
-    await upload(encryptedPayload, {
+    const [blobHolder, ...additionalHolders] = blobHolders;
+
+    const uploadPromise = upload(encryptedPayload, {
       hash: encryptedPayloadHash,
       holder: blobHolder,
     });
+
+    const additionalHoldersPromises = additionalHolders.map(holder =>
+      assignHolder({ hash: encryptedPayloadHash, holder }),
+    );
+
+    await Promise.all([uploadPromise, Promise.all(additionalHoldersPromises)]);
     return {
       blobHash: encryptedPayloadHash,
+      blobHolders,
       encryptionKey,
     };
   } catch (e) {
