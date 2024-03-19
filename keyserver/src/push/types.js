@@ -81,4 +81,5 @@ export type TargetedWNSNotification = {
 export type NotificationTargetDevice = {
   +cookieID: string,
   +deviceToken: string,
+  +blobHolder?: string,
 };
