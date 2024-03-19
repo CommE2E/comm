@@ -15,10 +15,12 @@ import {
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
+import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
@@ -262,6 +264,53 @@ const migrations = {
       return handleReduxMigrationFailure(state);
     }
   },
+  [12]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+    if (!isSupported) {
+      return state;
+    }
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      state.keyserverStore.keyserverInfos,
+    )
+      .filter(([, keyserverInfo]) => !keyserverInfo.actualizedCalendarQuery)
+      .map(([id, keyserverInfo]) => ({
+        type: 'replace_keyserver',
+        payload: {
+          id,
+          keyserverInfo: {
+            ...keyserverInfo,
+            actualizedCalendarQuery: defaultCalendarQuery(
+              getConfig().platformDetails.platform,
+            ),
+          },
+        },
+      }));
+    if (replaceOps.length === 0) {
+      return state;
+    }
+
+    const newState = {
+      ...state,
+      keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+        state.keyserverStore,
+        replaceOps,
+      ),
+    };
+    const keyserverStoreOperations =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps(replaceOps);
+
+    try {
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { keyserverStoreOperations },
+      });
+      return newState;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(newState);
+    }
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -307,7 +356,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 11,
+  version: 12,
   transforms: [keyserverStoreTransform],
 };
 
