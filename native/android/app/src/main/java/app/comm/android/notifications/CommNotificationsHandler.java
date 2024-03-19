@@ -50,6 +50,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
   private static final String BLOB_HASH_KEY = "blobHash";
+  private static final String BLOB_HOLDER_KEY = "blobHolder";
   private static final String AES_ENCRYPTION_KEY_LABEL = "encryptionKey";
   private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
   private static final String COLLAPSE_ID_KEY = "collapseKey";
@@ -153,7 +154,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     }
 
     if (message.getData().get(BLOB_HASH_KEY) != null &&
-        message.getData().get(AES_ENCRYPTION_KEY_LABEL) != null) {
+        message.getData().get(AES_ENCRYPTION_KEY_LABEL) != null &&
+        message.getData().get(BLOB_HOLDER_KEY) != null) {
       handleLargeNotification(message);
     }
 
@@ -294,6 +296,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   private void handleLargeNotification(RemoteMessage message) {
     String blobHash = message.getData().get(BLOB_HASH_KEY);
+    String blobHolder = message.getData().get(BLOB_HOLDER_KEY);
     try {
       byte[] largePayload = blobClient.getBlobSync(blobHash);
       message = aesDecryptRemoteMessage(message, largePayload);
@@ -301,6 +304,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     } catch (Exception e) {
       Log.w("COMM", "Failure when handling large notification.", e);
     }
+    blobClient.scheduleDeferredBlobDeletion(
+        blobHash, blobHolder, this.getApplicationContext());
   }
 
   private void addToThreadGroupAndDisplay(
