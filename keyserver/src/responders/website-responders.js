@@ -43,7 +43,6 @@ type AssetInfo = {
   +cssInclude: string,
   +olmFilename: string,
   +commQueryExecutorFilename: string,
-  +opaqueURL: string,
   +backupClientFilename: string,
   +webworkersOpaqueFilename: string,
 };
@@ -60,7 +59,6 @@ async function getAssetInfo() {
       cssInclude: '',
       olmFilename: '',
       commQueryExecutorFilename: '',
-      opaqueURL: 'http://localhost:8080/opaque-ke.wasm',
       backupClientFilename: '',
       webworkersOpaqueFilename: '',
     };
@@ -86,7 +84,6 @@ async function getAssetInfo() {
       `,
       olmFilename: manifest['olm.wasm'],
       commQueryExecutorFilename: webworkersManifest['comm_query_executor.wasm'],
-      opaqueURL: `compiled/${manifest['comm_opaque2_wasm_bg.wasm']}`,
       backupClientFilename: webworkersManifest['backup-client-wasm_bg.wasm'],
       webworkersOpaqueFilename: webworkersManifest['comm_opaque2_wasm_bg.wasm'],
     };
@@ -138,7 +135,6 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
     fontsURL,
     cssInclude,
     olmFilename,
-    opaqueURL,
     commQueryExecutorFilename,
     backupClientFilename,
     webworkersOpaqueFilename,
@@ -195,7 +191,6 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
           var commQueryExecutorFilename = "${commQueryExecutorFilename}";
           var backupClientFilename = "${backupClientFilename}";
           var webworkersOpaqueFilename = "${webworkersOpaqueFilename}"
-          var opaqueURL = "${opaqueURL}";
         </script>
         <script src="${jsURL}"></script>
       </body>

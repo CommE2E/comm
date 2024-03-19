@@ -46,14 +46,14 @@ import {
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 
 class IdentityServiceClientWrapper implements IdentityServiceClient {
-  overridedOpaqueFilepath: ?string;
+  overridedOpaqueFilepath: string;
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
 
   constructor(
     platformDetails: PlatformDetails,
-    overridedOpaqueFilepath: ?string,
+    overridedOpaqueFilepath: string,
     authLayer: ?IdentityServiceAuthLayer,
     getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
   ) {

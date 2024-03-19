@@ -64,16 +64,6 @@ const baseDevBrowserConfig = {
         },
       ],
     }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from:
-            'node_modules/@commapp/opaque-ke-wasm' +
-            '/pkg/comm_opaque2_wasm_bg.wasm',
-          to: path.join(__dirname, 'dist', 'opaque-ke.wasm'),
-        },
-      ],
-    }),
   ],
 };
 
@@ -85,16 +75,6 @@ const baseProdBrowserConfig = {
         {
           from: 'node_modules/@commapp/olm/olm.wasm',
           to: path.join(__dirname, 'dist', 'olm.[contenthash:12].wasm'),
-        },
-      ],
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from:
-            'node_modules/@commapp/opaque-ke-wasm' +
-            '/pkg/comm_opaque2_wasm_bg.wasm',
-          to: path.join(__dirname, 'dist', 'opaque-ke.[contenthash:12].wasm'),
         },
       ],
     }),
