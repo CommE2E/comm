@@ -399,6 +399,7 @@ async function wnsSinglePush(token: string, notification: string, url: string) {
 
 async function blobServiceUpload(payload: string): Promise<
   | {
+      +blobHolder: string,
       +blobHash: string,
       +encryptionKey: string,
     }
@@ -414,6 +415,7 @@ async function blobServiceUpload(payload: string): Promise<
     });
     return {
       blobHash: encryptedPayloadHash,
+      blobHolder,
       encryptionKey,
     };
   } catch (e) {
