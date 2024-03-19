@@ -17,7 +17,6 @@ export type InitialReduxState = {
   +userInfos: UserInfos,
   +messageStore: MessageStore,
   +pushApiPublicKey: ?string,
-  +commServicesAccessToken: null,
   +inviteLinksStore: InviteLinksStore,
   +dataLoaded: boolean,
   +actualizedCalendarQuery: CalendarQuery,
