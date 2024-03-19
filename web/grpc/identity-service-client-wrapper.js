@@ -18,7 +18,7 @@ import {
   deviceOlmOutboundKeysValidator,
   type UserDevicesOlmOutboundKeys,
   type IdentityAuthResult,
-  type IdentityDeviceKeyUpload,
+  type IdentityNewDeviceKeyUpload,
   identityDeviceTypes,
   identityAuthResultValidator,
   type UserDevicesOlmInboundKeys,
@@ -49,13 +49,13 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   overridedOpaqueFilepath: ?string;
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
-  getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>;
+  getNewDeviceKeyUpload: () => Promise<IdentityNewDeviceKeyUpload>;
 
   constructor(
     platformDetails: PlatformDetails,
     overridedOpaqueFilepath: ?string,
     authLayer: ?IdentityServiceAuthLayer,
-    getDeviceKeyUpload: () => Promise<IdentityDeviceKeyUpload>,
+    getNewDeviceKeyUpload: () => Promise<IdentityNewDeviceKeyUpload>,
   ) {
     this.overridedOpaqueFilepath = overridedOpaqueFilepath;
     if (authLayer) {
@@ -66,7 +66,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
     this.unauthClient =
       IdentityServiceClientWrapper.createUnauthClient(platformDetails);
-    this.getDeviceKeyUpload = getDeviceKeyUpload;
+    this.getNewDeviceKeyUpload = getNewDeviceKeyUpload;
   }
 
   static determineSocketAddr(): string {
@@ -354,14 +354,14 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
 
     const [identityDeviceKeyUpload] = await Promise.all([
-      this.getDeviceKeyUpload(),
+      this.getNewDeviceKeyUpload(),
       initOpaque(this.overridedOpaqueFilepath),
     ]);
 
     const opaqueLogin = new Login();
     const startRequestBytes = opaqueLogin.start(password);
 
-    const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
+    const deviceKeyUpload = authNewDeviceKeyUpload(identityDeviceKeyUpload);
 
     const loginStartRequest = new OpaqueLoginStartRequest();
     loginStartRequest.setUsername(username);
@@ -409,8 +409,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     siweMessage: string,
     siweSignature: string,
   ) => {
-    const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
-    const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
+    const identityDeviceKeyUpload = await this.getNewDeviceKeyUpload();
+    const deviceKeyUpload = authNewDeviceKeyUpload(identityDeviceKeyUpload);
 
     const loginRequest = new WalletAuthRequest();
     loginRequest.setSiweMessage(siweMessage);
@@ -439,8 +439,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     ownerUserID,
     nonceChallengeResponse,
   ) => {
-    const identityDeviceKeyUpload = await this.getDeviceKeyUpload();
-    const deviceKeyUpload = authDeviceKeyUpload(identityDeviceKeyUpload);
+    const identityDeviceKeyUpload = await this.getNewDeviceKeyUpload();
+    const deviceKeyUpload = authNewDeviceKeyUpload(identityDeviceKeyUpload);
     const challengeResponse = JSON.stringify(nonceChallengeResponse);
 
     const request = new SecondaryDeviceKeysUploadRequest();
@@ -519,8 +519,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   };
 }
 
-function authDeviceKeyUpload(
-  uploadData: IdentityDeviceKeyUpload,
+function authNewDeviceKeyUpload(
+  uploadData: IdentityNewDeviceKeyUpload,
 ): DeviceKeyUpload {
   const {
     keyPayload,
