@@ -41,8 +41,9 @@ async function processAppIdentityClientRequest(
   if (message.type === workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD) {
     // Flow doesn't allow us to access methods like this (it needs an index
     // signature declaration in the object type)
-    // $FlowFixMe
-    const method = identityClient[message.method];
+    const method: (...$ReadOnlyArray<mixed>) => mixed = (identityClient: any)[
+      message.method
+    ];
     if (typeof method !== 'function') {
       throw new Error(
         `Couldn't find identity client method with name '${message.method}'`,
