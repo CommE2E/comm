@@ -97,7 +97,6 @@ export const initialReduxStateValidator: TInterface<ServerWebInitialReduxStateRe
     userInfos: userInfosValidator,
     messageStore: messageStoreValidator,
     pushApiPublicKey: t.maybe(t.String),
-    commServicesAccessToken: t.Nil,
     inviteLinksStore: inviteLinksStoreValidator,
     keyserverInfo: initialKeyserverInfoValidator,
   });
@@ -372,7 +371,6 @@ async function getInitialReduxStateResponder(
       userInfos: userInfosPromise,
       messageStore: messageStorePromise,
       pushApiPublicKey: pushApiPublicKeyPromise,
-      commServicesAccessToken: null,
       inviteLinksStore: inviteLinksStorePromise,
       keyserverInfo: keyserverInfoPromise,
     });
