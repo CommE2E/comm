@@ -18,6 +18,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.comm.android.ExpoUtils;
 import app.comm.android.MainActivity;
 import app.comm.android.R;
+import app.comm.android.aescrypto.AESCryptoModuleCompat;
+import app.comm.android.commservices.CommAndroidBlobClient;
 import app.comm.android.fbjni.CommMMKV;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
@@ -29,9 +31,13 @@ import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import java.io.File;
+import java.io.IOException;
+import java.lang.OutOfMemoryError;
 import java.lang.StringBuilder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,11 +45,12 @@ import org.json.JSONObject;
 public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String BADGE_KEY = "badge";
   private static final String BADGE_ONLY_KEY = "badgeOnly";
-  private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
   private static final String NOTIF_ID_KEY = "id";
   private static final String ENCRYPTED_PAYLOAD_KEY = "encryptedPayload";
   private static final String ENCRYPTION_FAILED_KEY = "encryptionFailed";
+  private static final String BLOB_HASH_KEY = "blobHash";
+  private static final String AES_ENCRYPTION_KEY_LABEL = "encryptionKey";
   private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
   private static final String COLLAPSE_ID_KEY = "collapseKey";
   private static final String KEYSERVER_ID_KEY = "keyserverID";
@@ -58,6 +65,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
+  private CommAndroidBlobClient blobClient;
+  private AESCryptoModuleCompat aesCryptoModule;
 
   public static final String RESCIND_KEY = "rescind";
   public static final String RESCIND_ID_KEY = "rescindID";
@@ -80,6 +89,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     localBroadcastManager = LocalBroadcastManager.getInstance(this);
     displayableNotificationLargeIcon = BitmapFactory.decodeResource(
         this.getApplicationContext().getResources(), R.mipmap.ic_launcher);
+    blobClient = new CommAndroidBlobClient();
+    aesCryptoModule = new AESCryptoModuleCompat();
   }
 
   @Override
@@ -93,7 +104,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   public void onMessageReceived(RemoteMessage message) {
     if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
       try {
-        message = this.decryptRemoteMessage(message);
+        message = this.olmDecryptRemoteMessage(message);
       } catch (JSONException e) {
         Log.w("COMM", "Malformed notification JSON payload.", e);
         return;
@@ -127,19 +138,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       return;
     }
 
-    String backgroundNotifType =
-        message.getData().get(BACKGROUND_NOTIF_TYPE_KEY);
+    if (message.getData().get(MESSAGE_INFOS_KEY) != null) {
+      handleMessageInfosPersistence(message);
+    }
 
-    String rawMessageInfosString = message.getData().get(MESSAGE_INFOS_KEY);
-    File sqliteFile =
-        this.getApplicationContext().getDatabasePath("comm.sqlite");
-    if (rawMessageInfosString != null && sqliteFile.exists()) {
-      GlobalDBSingleton.scheduleOrRun(() -> {
-        MessageOperationsUtilities.storeMessageInfos(
-            sqliteFile.getPath(), rawMessageInfosString);
-      });
-    } else if (rawMessageInfosString != null) {
-      Log.w("COMM", "Database not existing yet. Skipping notification");
+    if (message.getData().get(BLOB_HASH_KEY) != null &&
+        message.getData().get(AES_ENCRYPTION_KEY_LABEL) != null) {
+      handleLargeNotification(message);
     }
 
     Intent intent = new Intent(MESSAGE_EVENT);
@@ -263,6 +268,39 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     }
   }
 
+  private void handleMessageInfosPersistence(RemoteMessage message) {
+    String rawMessageInfosString = message.getData().get(MESSAGE_INFOS_KEY);
+    File sqliteFile =
+        this.getApplicationContext().getDatabasePath("comm.sqlite");
+    if (rawMessageInfosString != null && sqliteFile.exists()) {
+      GlobalDBSingleton.scheduleOrRun(() -> {
+        MessageOperationsUtilities.storeMessageInfos(
+            sqliteFile.getPath(), rawMessageInfosString);
+      });
+    } else if (rawMessageInfosString != null) {
+      Log.w("COMM", "Database not existing yet. Skipping notification");
+    }
+  }
+
+  private void handleLargeNotification(RemoteMessage message) {
+    String blobHash = message.getData().get(BLOB_HASH_KEY);
+    try {
+      byte[] largePayload = blobClient.getBlobSync(blobHash);
+      message = aesDecryptRemoteMessage(message, largePayload);
+      handleMessageInfosPersistence(message);
+    } catch (JSONException e) {
+      Log.w("COMM", "Malformed notification JSON payload", e);
+    } catch (IOException e) {
+      Log.w("COMM", "I/O exception during large notification handling.", e);
+    } catch (OutOfMemoryError e) {
+      Log.w("COMM", "Notification payload to large to fit into memory.", e);
+    } catch (IllegalStateException e) {
+      Log.w("COMM", "Android notification type violation.", e);
+    } catch (Exception e) {
+      Log.w("COMM", "Failure when handling large notification.", e);
+    }
+  }
+
   private void addToThreadGroupAndDisplay(
       String notificationID,
       NotificationCompat.Builder notificationBuilder,
@@ -377,15 +415,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
   }
 
-  private RemoteMessage decryptRemoteMessage(RemoteMessage message)
+  private RemoteMessage updateRemoteMessageWithDecryptedPayload(
+      RemoteMessage message,
+      String decryptedSerializedPayload)
       throws JSONException, IllegalStateException {
-    String encryptedSerializedPayload =
-        message.getData().get(ENCRYPTED_PAYLOAD_KEY);
-    String decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
-        encryptedSerializedPayload,
-        NotificationsCryptoModule.olmEncryptedTypeMessage(),
-        "CommNotificationsHandler");
-
     JSONObject decryptedPayload = new JSONObject(decryptedSerializedPayload);
 
     ((Iterable<String>)() -> decryptedPayload.keys())
@@ -400,6 +433,37 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
           message.getData().put(payloadFieldName, payloadFieldValue);
         });
     return message;
+  }
+
+  private RemoteMessage olmDecryptRemoteMessage(RemoteMessage message)
+      throws JSONException, IllegalStateException {
+    String encryptedSerializedPayload =
+        message.getData().get(ENCRYPTED_PAYLOAD_KEY);
+    String decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
+        encryptedSerializedPayload,
+        NotificationsCryptoModule.olmEncryptedTypeMessage(),
+        "CommNotificationsHandler");
+
+    return updateRemoteMessageWithDecryptedPayload(
+        message, decryptedSerializedPayload);
+  }
+
+  private RemoteMessage
+  aesDecryptRemoteMessage(RemoteMessage message, byte[] blob)
+      throws JSONException, IllegalStateException {
+    String aesEncryptionKey = message.getData().get(AES_ENCRYPTION_KEY_LABEL);
+    // On the keyserver AES key is generated as raw bytes
+    // so to send it in JSON it is encoded to Base64 string.
+    byte[] aesEncryptionKeyBytes = Base64.getDecoder().decode(aesEncryptionKey);
+    // On the keyserver notification is a string so it is
+    // first encoded into UTF8 bytes. Therefore bytes
+    // obtained from blob decryption are correct UTF8 bytes.
+    String decryptedSerializedPayload = new String(
+        aesCryptoModule.decrypt(aesEncryptionKeyBytes, blob),
+        StandardCharsets.UTF_8);
+
+    return updateRemoteMessageWithDecryptedPayload(
+        message, decryptedSerializedPayload);
   }
 
   private Bundle

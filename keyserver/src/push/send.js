@@ -1163,17 +1163,22 @@ async function prepareAndroidNotification(
     collapseKey,
     badgeOnly,
     unreadCount,
-    platformDetails: { codeVersion },
+    platformDetails,
     dbID,
   } = convertedData;
-  const canDecryptNonCollapsibleTextNotifs = codeVersion && codeVersion > 228;
 
+  const canDecryptNonCollapsibleTextNotifs = hasMinCodeVersion(
+    platformDetails,
+    { native: 228 },
+  );
   const isNonCollapsibleTextNotif =
     newRawMessageInfos.every(
       newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
     ) && !collapseKey;
 
-  const canDecryptAllNotifTypes = codeVersion && codeVersion >= 267;
+  const canDecryptAllNotifTypes = hasMinCodeVersion(platformDetails, {
+    native: 267,
+  });
 
   const shouldBeEncrypted =
     canDecryptAllNotifTypes ||
@@ -1202,17 +1207,11 @@ async function prepareAndroidNotification(
     notifID = dbID;
   }
 
-  // The reason we only include `badgeOnly` for newer clients is because older
-  // clients don't know how to parse it. The reason we only include `id` for
-  // newer clients is that if the older clients see that field, they assume
-  // the notif has a full payload, and then crash when trying to parse it.
-  // By skipping `id` we allow old clients to still handle in-app notifs and
-  // badge updating.
-  if (!badgeOnly || (codeVersion && codeVersion >= 69)) {
+  if (!badgeOnly) {
     notification.data = {
       ...notification.data,
       id: notifID,
-      badgeOnly: badgeOnly ? '1' : '0',
+      badgeOnly: '0',
     };
   }
 
@@ -1261,6 +1260,32 @@ async function prepareAndroidNotification(
         encryptionOrder,
       }),
     );
+  }
+
+  const canQueryBlobService = hasMinCodeVersion(platformDetails, {
+    native: NEXT_CODE_VERSION,
+  });
+
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
+      JSON.stringify(copyWithMessageInfos.data),
+    ));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${notifID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  if (blobHash && encryptionKey) {
+    notification.data = {
+      ...notification.data,
+      blobHash,
+      encryptionKey,
+    };
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
