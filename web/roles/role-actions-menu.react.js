@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
+  roleIsAdminRole,
   roleIsDefaultRole,
   useRoleUserSurfacedPermissions,
 } from 'lib/shared/thread-utils.js';
@@ -14,7 +15,6 @@ import type {
   ThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { values } from 'lib/utils/objects.js';
-import { useRoleDeletableAndEditableStatus } from 'lib/utils/role-utils.js';
 
 import CreateRolesModal from './create-roles-modal.react.js';
 import DeleteRoleModal from './delete-role-modal.react.js';
@@ -42,12 +42,6 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
     (role: RoleInfo) => role.name === roleName,
   );
   invariant(existingRole, 'existing role should exist');
-
-  const roleOptions = useRoleDeletableAndEditableStatus(
-    roleName,
-    defaultRoleID,
-    existingRole.id,
-  );
 
   const roleNamesToUserSurfacedPermissions =
     useRoleUserSurfacedPermissions(threadInfo);
@@ -83,9 +77,8 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
 
   const menuItems = React.useMemo(() => {
     const availableOptions = [];
-    const { isDeletable, isEditable } = roleOptions;
 
-    if (isEditable) {
+    if (!roleIsAdminRole(existingRole)) {
       availableOptions.push(
         <MenuItem
           key="Edit role"
@@ -97,7 +90,7 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
       );
     }
 
-    if (isDeletable) {
+    if (!roleIsAdminRole(existingRole) && !roleIsDefaultRole(existingRole)) {
       availableOptions.push(
         <MenuItem
           key="Delete role"
@@ -110,7 +103,7 @@ function RoleActionsMenu(props: RoleActionsMenuProps): React.Node {
     }
 
     return availableOptions;
-  }, [roleOptions, openDeleteRoleModal, openEditRoleModal]);
+  }, [existingRole, openEditRoleModal, openDeleteRoleModal]);
 
   return (
     <div className={css.menuContainer}>
