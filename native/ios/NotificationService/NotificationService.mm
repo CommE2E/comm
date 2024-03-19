@@ -17,6 +17,7 @@ NSString *const encryptionFailureKey = @"encryptionFailure";
 NSString *const collapseIDKey = @"collapseID";
 NSString *const keyserverIDKey = @"keyserverID";
 NSString *const blobHashKey = @"blobHash";
+NSString *const blobHolderKey = @"blobHolder";
 NSString *const encryptionKeyLabel = @"encryptionKey";
 
 // Those and future MMKV-related constants should match
@@ -557,6 +558,9 @@ std::string joinStrings(
       [NotificationService aesDecryptAndParse:largePayloadBinary
                                       withKey:encryptionKey];
   [self persistMessagePayload:largePayload];
+  [CommIOSBlobClient.sharedInstance
+      storeBlobForDeletionWithHash:blobHash
+                         andHolder:content.userInfo[blobHolderKey]];
 }
 
 - (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
@@ -579,7 +583,8 @@ std::string joinStrings(
 }
 
 - (BOOL)isLargeNotification:(NSDictionary *)payload {
-  return payload[blobHashKey] && payload[encryptionKeyLabel];
+  return payload[blobHashKey] && payload[encryptionKeyLabel] &&
+      payload[blobHolderKey];
 }
 
 - (UNNotificationContent *)getBadgeOnlyContentFor:

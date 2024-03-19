@@ -1074,11 +1074,10 @@ async function prepareAPNsNotification(
     native: NEXT_CODE_VERSION,
   });
 
-  let blobHash, encryptionKey, blobUploadError;
+  let blobHash, blobHolder, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
-    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
-      copyWithMessageInfos.compile(),
-    ));
+    ({ blobHash, blobHolder, encryptionKey, blobUploadError } =
+      await blobServiceUpload(copyWithMessageInfos.compile()));
   }
 
   if (blobUploadError) {
@@ -1091,6 +1090,7 @@ async function prepareAPNsNotification(
   if (blobHash && encryptionKey) {
     notification.payload = {
       blobHash,
+      blobHolder,
       encryptionKey,
       ...notification.payload,
     };

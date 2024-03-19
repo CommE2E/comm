@@ -40,6 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommConstants.h"
 #import "CommCoreModule.h"
+#import "CommIOSBlobClient.h"
 #import "CommMMKV.h"
 #import "CommRustModule.h"
 #import "CommUtilsModule.h"
@@ -98,6 +99,7 @@ void didReceiveNewMessageInfosDarwinNotification(
   RCTAppSetupPrepareApp(application);
 
   [self moveMessagesToDatabase:NO];
+  [self scheduleNSEBlobsDeletion];
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient
                                          error:nil];
 
@@ -386,6 +388,7 @@ using Runtime = facebook::jsi::Runtime;
 
 - (void)didReceiveNewMessageInfosNSNotification:(NSNotification *)notification {
   [self moveMessagesToDatabase:YES];
+  [self scheduleNSEBlobsDeletion];
 }
 
 - (void)registerForNewMessageInfosNotifications {
@@ -402,6 +405,22 @@ using Runtime = facebook::jsi::Runtime;
       newMessageInfosDarwinNotification,
       NULL,
       CFNotificationSuspensionBehaviorDeliverImmediately);
+}
+
+// NSE has limited time to process notifications. Therefore
+// deferable and low priority networking such as fetched
+// blob deletion from blob service should be handled by the
+// main app on a low priority background thread.
+
+- (void)scheduleNSEBlobsDeletion {
+  dispatch_async(
+      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [CommIOSBlobClient.sharedInstance deleteStoredBlobs];
+      });
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+  [[CommIOSBlobClient sharedInstance] cancelOngoingRequests];
 }
 
 // Copied from
