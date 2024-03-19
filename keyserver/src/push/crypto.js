@@ -31,6 +31,7 @@ async function encryptAPNsNotification(
   notification: apn.Notification,
   codeVersion?: ?number,
   notificationSizeValidator?: apn.Notification => boolean,
+  blobHolder?: ?string,
 ): Promise<{
   +notification: apn.Notification,
   +payloadSizeExceeded: boolean,
@@ -47,6 +48,11 @@ async function encryptAPNsNotification(
 
   encryptedNotification.id = notification.id;
   encryptedNotification.payload.id = notification.id;
+
+  if (blobHolder) {
+    encryptedNotification.payload.blobHolder = blobHolder;
+  }
+
   encryptedNotification.payload.keyserverID = notification.payload.keyserverID;
   encryptedNotification.topic = notification.topic;
   encryptedNotification.sound = notification.aps.sound;
@@ -334,12 +340,13 @@ function prepareEncryptedAPNsNotifications(
   }>,
 > {
   const notificationPromises = devices.map(
-    async ({ cookieID, deviceToken }) => {
+    async ({ cookieID, deviceToken, blobHolder }) => {
       const notif = await encryptAPNsNotification(
         cookieID,
         notification,
         codeVersion,
         notificationSizeValidator,
+        blobHolder,
       );
       return { cookieID, deviceToken, ...notif };
     },
