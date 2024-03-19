@@ -229,20 +229,36 @@ impl DatabaseClient {
 
 /// Backup log functions
 impl DatabaseClient {
-  pub async fn put_log_item(&self, log_item: LogItem) -> Result<(), Error> {
+  pub async fn put_log_item(
+    &self,
+    log_item: LogItem,
+    blob_client: &BlobServiceClient,
+  ) -> Result<(), Error> {
     let item = log_item.into();
 
-    self
+    let result = self
       .client
       .put_item()
       .table_name(log_table::TABLE_NAME)
       .set_item(Some(item))
+      .return_values(ReturnValue::AllOld)
       .send()
       .await
       .map_err(|e| {
         error!("DynamoDB client failed to put log item");
         Error::AwsSdk(e.into())
       })?;
+
+    let Some(replaced_log_attrs) = result.attributes else {
+      return Ok(());
+    };
+
+    let Ok(replaced_log) = LogItem::try_from(replaced_log_attrs) else {
+      warn!("Couldn't parse replaced log item");
+      return Ok(());
+    };
+
+    replaced_log.revoke_holders(blob_client);
 
     Ok(())
   }
