@@ -1,4 +1,5 @@
 #import "CommIOSBlobClient.h"
+#import "CommMMKV.h"
 #import "CommSecureStore.h"
 #import "Logger.h"
 
@@ -10,6 +11,11 @@ NSString const *blobServiceAddress = @"https://blob.commtechnologies.org";
 #endif
 
 int const blobServiceQueryTimeLimit = 15;
+const std::string mmkvBlobHolderPrefix = "BLOB_HOLDER.";
+// The blob service expects slightly different keys in
+// delete reuqest payload than we use in notif payload
+NSString *const blobServiceHashKey = @"blob_hash";
+NSString *const blobServiceHolderKey = @"holder";
 
 @interface CommIOSBlobClient ()
 @property(nonatomic, strong) NSURLSession *sharedBlobServiceSession;
@@ -110,6 +116,129 @@ int const blobServiceQueryTimeLimit = 15;
     return nil;
   }
   return blobContent;
+}
+
+- (void)deleteBlobAsyncWithHash:(NSString *)blobHash
+                      andHolder:(NSString *)blobHolder
+             withSuccessHandler:(void (^)())successHandler
+              andFailureHandler:(void (^)(NSError *))failureHandler {
+  NSError *authTokenError = nil;
+  NSString *authToken =
+      [CommIOSBlobClient _getAuthTokenOrSetError:&authTokenError];
+
+  if (authTokenError) {
+    comm::Logger::log(
+        "Failed to create blob service auth token. Reason: " +
+        std::string([authTokenError.localizedDescription UTF8String]));
+    return;
+  }
+
+  NSString *blobUrlStr = [blobServiceAddress stringByAppendingString:@"/blob"];
+  NSURL *blobUrl = [NSURL URLWithString:blobUrlStr];
+
+  NSMutableURLRequest *deleteRequest =
+      [NSMutableURLRequest requestWithURL:blobUrl];
+
+  [deleteRequest setValue:authToken forHTTPHeaderField:@"Authorization"];
+  [deleteRequest setValue:@"application/json"
+       forHTTPHeaderField:@"content-type"];
+
+  deleteRequest.HTTPMethod = @"DELETE";
+  deleteRequest.HTTPBody = [NSJSONSerialization dataWithJSONObject:@{
+    blobServiceHolderKey : blobHolder,
+    blobServiceHashKey : blobHash
+  }
+                                                           options:0
+                                                             error:nil];
+
+  NSURLSessionDataTask *task = [self.sharedBlobServiceSession
+      dataTaskWithRequest:deleteRequest
+        completionHandler:^(
+            NSData *_Nullable data,
+            NSURLResponse *_Nullable response,
+            NSError *_Nullable error) {
+          NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+
+          if (httpResponse.statusCode > 299) {
+            NSString *errorMessage =
+                [@"Deleting blob failed with the following reason: "
+                    stringByAppendingString:[NSHTTPURLResponse
+                                                localizedStringForStatusCode:
+                                                    httpResponse.statusCode]];
+            failureHandler([NSError
+                errorWithDomain:@"app.comm"
+                           code:httpResponse.statusCode
+                       userInfo:@{NSLocalizedDescriptionKey : errorMessage}]);
+            return;
+          }
+
+          if (error) {
+            failureHandler(error);
+            return;
+          }
+
+          successHandler();
+        }];
+
+  [task resume];
+}
+
+- (void)storeBlobForDeletionWithHash:(NSString *)blobHash
+                           andHolder:(NSString *)blobHolder {
+  std::string blobHashCpp = std::string([blobHash UTF8String]);
+  std::string blobHolderCpp = std::string([blobHolder UTF8String]);
+
+  std::string mmkvBlobHolderKey = mmkvBlobHolderPrefix + blobHolderCpp;
+  comm::CommMMKV::setString(mmkvBlobHolderKey, blobHashCpp);
+}
+
+- (void)deleteStoredBlobs {
+  std::vector<std::string> allKeys = comm::CommMMKV::getAllKeys();
+  NSMutableArray<NSDictionary *> *blobsDataForDeletion =
+      [[NSMutableArray alloc] init];
+
+  for (const auto &key : allKeys) {
+    if (key.size() <= mmkvBlobHolderPrefix.size() ||
+        key.compare(0, mmkvBlobHolderPrefix.size(), mmkvBlobHolderPrefix)) {
+      continue;
+    }
+
+    std::optional<std::string> blobHash = comm::CommMMKV::getString(key);
+    if (!blobHash.has_value()) {
+      continue;
+    }
+    std::string blobHolder = key.substr(mmkvBlobHolderPrefix.size());
+
+    NSString *blobHolderObjC =
+        [NSString stringWithCString:blobHolder.c_str()
+                           encoding:NSUTF8StringEncoding];
+    NSString *blobHashObjC =
+        [NSString stringWithCString:blobHash.value().c_str()
+                           encoding:NSUTF8StringEncoding];
+
+    [self deleteBlobAsyncWithHash:blobHashObjC
+        andHolder:blobHolderObjC
+        withSuccessHandler:^{
+          std::string mmkvBlobHolderKey = mmkvBlobHolderPrefix + blobHolder;
+          comm::CommMMKV::removeKeys({mmkvBlobHolderKey});
+        }
+        andFailureHandler:^(NSError *error) {
+          comm::Logger::log(
+              "Failed to delete blob hash " + blobHash.value() +
+              " from blob service. Details: " +
+              std::string([error.localizedDescription UTF8String]));
+        }];
+  }
+}
+
+- (void)cancelOngoingRequests {
+  [self.sharedBlobServiceSession
+      getAllTasksWithCompletionHandler:^(
+          NSArray<__kindof NSURLSessionTask *> *_Nonnull tasks) {
+        for (NSURLSessionTask *task in tasks) {
+          [task cancel];
+        }
+      }];
 }
 
 + (NSString *)_getAuthTokenOrSetError:(NSError **)error {
