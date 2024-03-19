@@ -375,7 +375,6 @@ async function preparePushNotif(input: {
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
-              badgeOnly,
               unreadCount,
               platformDetails,
               dbID,
@@ -900,26 +899,36 @@ function getDevicesByPlatform(
   return byPlatform;
 }
 
-type APNsNotifInputData = {
+type CommonNativeNotifInputData = {
   +keyserverID: string,
   +notifTexts: ResolvedNotifTexts,
   +newRawMessageInfos: RawMessageInfo[],
   +threadID: string,
   +collapseKey: ?string,
-  +badgeOnly: boolean,
   +unreadCount: number,
   +platformDetails: PlatformDetails,
 };
-const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
+
+const commonNativeNotifInputDataValidator = tShape<CommonNativeNotifInputData>({
   keyserverID: t.String,
   notifTexts: resolvedNotifTextsValidator,
   newRawMessageInfos: t.list(rawMessageInfoValidator),
   threadID: tID,
   collapseKey: t.maybe(t.String),
-  badgeOnly: t.Boolean,
   unreadCount: t.Number,
   platformDetails: tPlatformDetails,
 });
+
+type APNsNotifInputData = {
+  ...CommonNativeNotifInputData,
+  +badgeOnly: boolean,
+};
+
+const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
+  ...commonNativeNotifInputDataValidator.meta.props,
+  badgeOnly: t.Boolean,
+});
+
 async function prepareAPNsNotification(
   inputData: APNsNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
@@ -1152,11 +1161,11 @@ async function prepareAPNsNotification(
 }
 
 type AndroidNotifInputData = {
-  ...APNsNotifInputData,
+  ...CommonNativeNotifInputData,
   +dbID: string,
 };
 const androidNotifInputDataValidator = tShape<AndroidNotifInputData>({
-  ...apnsNotifInputDataValidator.meta.props,
+  ...commonNativeNotifInputDataValidator.meta.props,
   dbID: t.String,
 });
 async function prepareAndroidNotification(
@@ -1174,19 +1183,23 @@ async function prepareAndroidNotification(
     newRawMessageInfos,
     threadID,
     collapseKey,
-    badgeOnly,
     unreadCount,
-    platformDetails: { codeVersion },
+    platformDetails,
     dbID,
   } = convertedData;
-  const canDecryptNonCollapsibleTextNotifs = codeVersion && codeVersion > 228;
 
+  const canDecryptNonCollapsibleTextNotifs = hasMinCodeVersion(
+    platformDetails,
+    { native: 228 },
+  );
   const isNonCollapsibleTextNotif =
     newRawMessageInfos.every(
       newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
     ) && !collapseKey;
 
-  const canDecryptAllNotifTypes = codeVersion && codeVersion >= 267;
+  const canDecryptAllNotifTypes = hasMinCodeVersion(platformDetails, {
+    native: 267,
+  });
 
   const shouldBeEncrypted =
     canDecryptAllNotifTypes ||
@@ -1215,19 +1228,11 @@ async function prepareAndroidNotification(
     notifID = dbID;
   }
 
-  // The reason we only include `badgeOnly` for newer clients is because older
-  // clients don't know how to parse it. The reason we only include `id` for
-  // newer clients is that if the older clients see that field, they assume
-  // the notif has a full payload, and then crash when trying to parse it.
-  // By skipping `id` we allow old clients to still handle in-app notifs and
-  // badge updating.
-  if (!badgeOnly || (codeVersion && codeVersion >= 69)) {
-    notification.data = {
-      ...notification.data,
-      id: notifID,
-      badgeOnly: badgeOnly ? '1' : '0',
-    };
-  }
+  notification.data = {
+    ...notification.data,
+    id: notifID,
+    badgeOnly: '0',
+  };
 
   const messageInfos = JSON.stringify(newRawMessageInfos);
   const copyWithMessageInfos = {
@@ -1274,6 +1279,33 @@ async function prepareAndroidNotification(
         encryptionOrder,
       }),
     );
+  }
+
+  const canQueryBlobService = hasMinCodeVersion(platformDetails, {
+    native: NEXT_CODE_VERSION,
+  });
+
+  let blobHash, encryptionKey, blobUploadError;
+  if (canQueryBlobService) {
+    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
+      JSON.stringify(copyWithMessageInfos.data),
+      1,
+    ));
+  }
+
+  if (blobUploadError) {
+    console.warn(
+      `Failed to upload payload of notification: ${notifID} ` +
+        `due to error: ${blobUploadError}`,
+    );
+  }
+
+  if (blobHash && encryptionKey) {
+    notification.data = {
+      ...notification.data,
+      blobHash,
+      encryptionKey,
+    };
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
