@@ -1266,11 +1266,10 @@ async function prepareAndroidNotification(
     native: NEXT_CODE_VERSION,
   });
 
-  let blobHash, encryptionKey, blobUploadError;
+  let blobHash, blobHolder, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
-    ({ blobHash, encryptionKey, blobUploadError } = await blobServiceUpload(
-      JSON.stringify(copyWithMessageInfos.data),
-    ));
+    ({ blobHash, blobHolder, encryptionKey, blobUploadError } =
+      await blobServiceUpload(JSON.stringify(copyWithMessageInfos.data)));
   }
 
   if (blobUploadError) {
@@ -1284,6 +1283,7 @@ async function prepareAndroidNotification(
     notification.data = {
       ...notification.data,
       blobHash,
+      blobHolder,
       encryptionKey,
     };
   }
