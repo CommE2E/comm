@@ -588,18 +588,25 @@ jsi::Object parseOLMOneTimeKeys(jsi::Runtime &rt, std::string oneTimeKeysBlob) {
   return jsiOneTimeKeys;
 }
 
-jsi::String parseOLMPrekey(jsi::Runtime &rt, std::string prekeyBlob) {
-  folly::dynamic parsedPrekey = folly::parseJson(prekeyBlob);
+std::string parseOLMPrekey(std::string prekeyBlob) {
+  folly::dynamic parsedPrekey;
+  try {
+    parsedPrekey = folly::parseJson(prekeyBlob);
+  } catch (const folly::json::parse_error &e) {
+    throw std::runtime_error(
+        "parsing prekey failed with: " + std::string(e.what()));
+  }
 
-  auto prekey = parsedPrekey["curve25519"].values().begin()->asString();
-  return jsi::String::createFromUtf8(rt, prekey);
-}
+  folly::dynamic innerObject = parsedPrekey["curve25519"];
+  if (!innerObject.isObject()) {
+    throw std::runtime_error("parsing prekey failed: inner object malformed");
+  }
 
-rust::String parseOLMPrekey(std::string prekeyBlob) {
-  folly::dynamic parsedPrekey = folly::parseJson(prekeyBlob);
+  if (innerObject.values().begin() == innerObject.values().end()) {
+    throw std::runtime_error("parsing prekey failed: prekey missing");
+  }
 
-  auto prekey = parsedPrekey["curve25519"].values().begin()->asString();
-  return rust::String(prekey);
+  return parsedPrekey["curve25519"].values().begin()->asString();
 }
 
 jsi::Object parseOneTimeKeysResult(
@@ -725,14 +732,21 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
                   std::move(prekeyPromise)};
               auto currentID = RustPromiseManager::instance.addPromise(
                   std::move(promiseInfo));
+              auto prekeyToUploadRust =
+                  rust::String(parseOLMPrekey(prekeyToUpload));
+              auto prekeySignatureRust = rust::string(prekeySignature);
+              auto notificationsPrekeyRust =
+                  rust::String(parseOLMPrekey(notificationsPrekey));
+              auto notificationsPrekeySignatureRust =
+                  rust::string(notificationsPrekeySignature);
               ::identityRefreshUserPrekeys(
                   authUserIDRust,
                   authDeviceIDRust,
                   authAccessTokenRust,
-                  parseOLMPrekey(prekeyToUpload),
-                  rust::string(prekeySignature),
-                  parseOLMPrekey(notificationsPrekey),
-                  rust::string(notificationsPrekeySignature),
+                  prekeyToUploadRust,
+                  prekeySignatureRust,
+                  notificationsPrekeyRust,
+                  notificationsPrekeySignatureRust,
                   currentID);
               prekeyFuture.get();
             } catch (const std::exception &e) {
@@ -768,8 +782,9 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::string contentPrekeySignature, notifPrekey, notifPrekeySignature;
-          std::optional<std::string> contentPrekey;
+          std::string contentPrekey, notifPrekey, contentPrekeySignature,
+              notifPrekeyBlob, notifPrekeySignature;
+          std::optional<std::string> contentPrekeyBlob;
 
           if (this->cryptoModule == nullptr) {
             this->jsInvoker_->invokeAsync([=, &innerRt]() {
@@ -778,20 +793,22 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
             return;
           }
           try {
-            contentPrekey = this->cryptoModule->validatePrekey();
-            if (!contentPrekey) {
-              contentPrekey = this->cryptoModule->getUnpublishedPrekey();
+            contentPrekeyBlob = this->cryptoModule->validatePrekey();
+            if (!contentPrekeyBlob) {
+              contentPrekeyBlob = this->cryptoModule->getUnpublishedPrekey();
             }
-            if (!contentPrekey) {
-              contentPrekey = this->cryptoModule->getPrekey();
+            if (!contentPrekeyBlob) {
+              contentPrekeyBlob = this->cryptoModule->getPrekey();
             }
             this->persistCryptoModule();
 
             contentPrekeySignature = this->cryptoModule->getPrekeySignature();
 
-            std::tie(notifPrekey, notifPrekeySignature) =
+            std::tie(notifPrekeyBlob, notifPrekeySignature) =
                 getNotificationsPrekeyAndSignature();
 
+            contentPrekey = parseOLMPrekey(contentPrekeyBlob.value());
+            notifPrekey = parseOLMPrekey(notifPrekeyBlob);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -802,10 +819,11 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
               return;
             }
             auto contentPrekeyJSI =
-                parseOLMPrekey(innerRt, contentPrekey.value());
+                jsi::String::createFromUtf8(innerRt, contentPrekey);
             auto contentPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, contentPrekeySignature);
-            auto notifPrekeyJSI = parseOLMPrekey(innerRt, notifPrekey);
+            auto notifPrekeyJSI =
+                jsi::String::createFromUtf8(innerRt, notifPrekey);
             auto notifPrekeySignatureJSI =
                 jsi::String::createFromUtf8(innerRt, notifPrekeySignature);
 
