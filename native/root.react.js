@@ -74,7 +74,7 @@ import ConnectivityUpdater from './redux/connectivity-updater.react.js';
 import { DimensionsUpdater } from './redux/dimensions-updater.react.js';
 import { getPersistor } from './redux/persist.js';
 import { store } from './redux/redux-setup.js';
-import { useSelector } from './redux/redux-utils.js';
+import { processDBStoreOperations, useSelector } from './redux/redux-utils.js';
 import { RootContext } from './root-context.js';
 import { MessageSearchProvider } from './search/search-provider.react.js';
 import Socket from './socket.react.js';
@@ -277,7 +277,7 @@ function Root() {
       <BackupHandler />
       <IntegrityHandler />
       <AccessTokenHandler />
-      <DBOpsHandler />
+      <DBOpsHandler processDBStoreOperations={processDBStoreOperations} />
     </>
   );
   let navigation;
