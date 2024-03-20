@@ -300,6 +300,7 @@ type Props = {
   +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
+  +communityThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (
@@ -701,6 +702,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     } else if (
       threadFrozenDueToViewerBlock(
         this.props.threadInfo,
+        this.props.communityThreadInfo,
         this.props.viewerID,
         this.props.userInfos,
       ) &&
@@ -1259,9 +1261,12 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const { getChatMentionSearchIndex } = useChatMentionContext();
   const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
-  const { parentThreadID } = props.threadInfo;
+  const { parentThreadID, community } = props.threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
   );
 
   const userMentionsCandidates = useUserMentionsCandidates(
@@ -1349,6 +1354,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       chatMentionSearchIndex={chatMentionSearchIndex}
       chatMentionCandidates={chatMentionCandidates}
       parentThreadInfo={parentThreadInfo}
+      communityThreadInfo={communityThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
       editMessage={editMessage}
