@@ -28,8 +28,6 @@ export interface Spec extends TurboModule {
     contentPrekeySignature: string,
     notifPrekey: string,
     notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
   +registerWalletUser: (
     siweMessage: string,
@@ -52,8 +50,6 @@ export interface Spec extends TurboModule {
     contentPrekeySignature: string,
     notifPrekey: string,
     notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
   +updatePassword: (
     userID: string,
