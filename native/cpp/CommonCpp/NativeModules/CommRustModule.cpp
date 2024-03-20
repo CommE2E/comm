@@ -93,9 +93,7 @@ jsi::Value CommRustModule::logInPasswordUser(
     jsi::String contentPrekey,
     jsi::String contentPrekeySignature,
     jsi::String notifPrekey,
-    jsi::String notifPrekeySignature,
-    jsi::Array contentOneTimeKeys,
-    jsi::Array notifOneTimeKeys) {
+    jsi::String notifPrekeySignature) {
   auto usernameRust = jsiStringToRustString(username, rt);
   auto passwordRust = jsiStringToRustString(password, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -106,8 +104,6 @@ jsi::Value CommRustModule::logInPasswordUser(
   auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
   auto notifPrekeySignatureRust =
       jsiStringToRustString(notifPrekeySignature, rt);
-  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
-  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -124,8 +120,6 @@ jsi::Value CommRustModule::logInPasswordUser(
               contentPrekeySignatureRust,
               notifPrekeyRust,
               notifPrekeySignatureRust,
-              contentOneTimeKeysRust,
-              notifOneTimeKeysRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -199,9 +193,7 @@ jsi::Value CommRustModule::logInWalletUser(
     jsi::String contentPrekey,
     jsi::String contentPrekeySignature,
     jsi::String notifPrekey,
-    jsi::String notifPrekeySignature,
-    jsi::Array contentOneTimeKeys,
-    jsi::Array notifOneTimeKeys) {
+    jsi::String notifPrekeySignature) {
   auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
   auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -212,8 +204,6 @@ jsi::Value CommRustModule::logInWalletUser(
   auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
   auto notifPrekeySignatureRust =
       jsiStringToRustString(notifPrekeySignature, rt);
-  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
-  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -230,8 +220,6 @@ jsi::Value CommRustModule::logInWalletUser(
               contentPrekeySignatureRust,
               notifPrekeyRust,
               notifPrekeySignatureRust,
-              contentOneTimeKeysRust,
-              notifOneTimeKeysRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
