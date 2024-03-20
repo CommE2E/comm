@@ -1,6 +1,9 @@
 // @flow
 
-import { getNewDeviceKeyUpload } from './worker-crypto.js';
+import {
+  getNewDeviceKeyUpload,
+  getExistingDeviceKeyUpload,
+} from './worker-crypto.js';
 import { IdentityServiceClientWrapper } from '../../grpc/identity-service-client-wrapper.js';
 import {
   type WorkerResponseMessage,
@@ -26,6 +29,7 @@ async function processAppIdentityClientRequest(
       message.opaqueWasmPath,
       message.authLayer,
       async () => getNewDeviceKeyUpload(),
+      async () => getExistingDeviceKeyUpload(),
     );
     return undefined;
   }

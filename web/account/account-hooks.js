@@ -20,10 +20,16 @@ import type {
   OLMIdentityKeys,
   NotificationsOlmDataType,
 } from 'lib/types/crypto-types.js';
-import { type IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
+import {
+  type IdentityNewDeviceKeyUpload,
+  type IdentityExistingDeviceKeyUpload,
+} from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import { getConfig } from 'lib/utils/config.js';
-import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
+import {
+  retrieveIdentityKeysAndPrekeys,
+  getAccountOneTimeKeys,
+} from 'lib/utils/olm-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import {
@@ -177,14 +183,24 @@ function useGetSignedIdentityKeysBlob(): () => Promise<SignedIdentityKeysBlob> {
 
 function useGetNewDeviceKeyUpload(): () => Promise<IdentityNewDeviceKeyUpload> {
   const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
-  // `getSignedIdentityKeysBlob()` will initialize OLM, so no need to do it
+  // `getExistingDeviceKeyUpload()` will initialize OLM, so no need to do it
   // again
-  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
+  const getExistingDeviceKeyUpload = useGetExistingDeviceKeyUpload();
   const dispatch = useDispatch();
 
   return React.useCallback(async () => {
-    const [signedIdentityKeysBlob, cryptoStore] = await Promise.all([
-      getSignedIdentityKeysBlob(),
+    const [
+      {
+        keyPayload,
+        keyPayloadSignature,
+        contentPrekey,
+        contentPrekeySignature,
+        notifPrekey,
+        notifPrekeySignature,
+      },
+      cryptoStore,
+    ] = await Promise.all([
+      getExistingDeviceKeyUpload(),
       getOrCreateCryptoStore(),
     ]);
 
@@ -199,10 +215,8 @@ function useGetNewDeviceKeyUpload(): () => Promise<IdentityNewDeviceKeyUpload> {
       cryptoStore.notificationAccount.pickledAccount,
     );
 
-    const primaryAccountKeysSet = retrieveAccountKeysSet(primaryOLMAccount);
-    const notificationAccountKeysSet = retrieveAccountKeysSet(
-      notificationOLMAccount,
-    );
+    const contentOneTimeKeys = getAccountOneTimeKeys(primaryOLMAccount);
+    const notifOneTimeKeys = getAccountOneTimeKeys(notificationOLMAccount);
 
     const pickledPrimaryAccount = primaryOLMAccount.pickle(
       cryptoStore.primaryAccount.picklingKey,
@@ -227,14 +241,79 @@ function useGetNewDeviceKeyUpload(): () => Promise<IdentityNewDeviceKeyUpload> {
     dispatch({ type: setCryptoStore, payload: updatedCryptoStore });
 
     return {
-      keyPayload: signedIdentityKeysBlob.payload,
-      keyPayloadSignature: signedIdentityKeysBlob.signature,
-      contentPrekey: primaryAccountKeysSet.prekey,
-      contentPrekeySignature: primaryAccountKeysSet.prekeySignature,
-      notifPrekey: notificationAccountKeysSet.prekey,
-      notifPrekeySignature: notificationAccountKeysSet.prekeySignature,
-      contentOneTimeKeys: primaryAccountKeysSet.oneTimeKeys,
-      notifOneTimeKeys: notificationAccountKeysSet.oneTimeKeys,
+      keyPayload,
+      keyPayloadSignature,
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
+      contentOneTimeKeys,
+      notifOneTimeKeys,
+    };
+  }, [dispatch, getOrCreateCryptoStore, getExistingDeviceKeyUpload]);
+}
+
+function useGetExistingDeviceKeyUpload(): () => Promise<IdentityExistingDeviceKeyUpload> {
+  const getOrCreateCryptoStore = useGetOrCreateCryptoStore();
+  // `getSignedIdentityKeysBlob()` will initialize OLM, so no need to do it
+  // again
+  const getSignedIdentityKeysBlob = useGetSignedIdentityKeysBlob();
+  const dispatch = useDispatch();
+
+  return React.useCallback(async () => {
+    const [
+      { payload: keyPayload, signature: keyPayloadSignature },
+      cryptoStore,
+    ] = await Promise.all([
+      getSignedIdentityKeysBlob(),
+      getOrCreateCryptoStore(),
+    ]);
+
+    const primaryOLMAccount = new olm.Account();
+    const notificationOLMAccount = new olm.Account();
+    primaryOLMAccount.unpickle(
+      cryptoStore.primaryAccount.picklingKey,
+      cryptoStore.primaryAccount.pickledAccount,
+    );
+    notificationOLMAccount.unpickle(
+      cryptoStore.notificationAccount.picklingKey,
+      cryptoStore.notificationAccount.pickledAccount,
+    );
+
+    const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
+      retrieveIdentityKeysAndPrekeys(primaryOLMAccount);
+    const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
+      retrieveIdentityKeysAndPrekeys(notificationOLMAccount);
+
+    const pickledPrimaryAccount = primaryOLMAccount.pickle(
+      cryptoStore.primaryAccount.picklingKey,
+    );
+    const pickledNotificationAccount = notificationOLMAccount.pickle(
+      cryptoStore.notificationAccount.picklingKey,
+    );
+
+    const updatedCryptoStore = {
+      primaryAccount: {
+        picklingKey: cryptoStore.primaryAccount.picklingKey,
+        pickledAccount: pickledPrimaryAccount,
+      },
+      primaryIdentityKeys: cryptoStore.primaryIdentityKeys,
+      notificationAccount: {
+        picklingKey: cryptoStore.notificationAccount.picklingKey,
+        pickledAccount: pickledNotificationAccount,
+      },
+      notificationIdentityKeys: cryptoStore.notificationIdentityKeys,
+    };
+
+    dispatch({ type: setCryptoStore, payload: updatedCryptoStore });
+
+    return {
+      keyPayload,
+      keyPayloadSignature,
+      contentPrekey,
+      contentPrekeySignature,
+      notifPrekey,
+      notifPrekeySignature,
     };
   }, [dispatch, getOrCreateCryptoStore, getSignedIdentityKeysBlob]);
 }
@@ -432,4 +511,5 @@ export {
   OlmSessionCreatorProvider,
   GetOrCreateCryptoStoreProvider,
   useGetNewDeviceKeyUpload,
+  useGetExistingDeviceKeyUpload,
 };
