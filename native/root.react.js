@@ -31,6 +31,7 @@ import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-ha
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -276,6 +277,7 @@ function Root() {
       <BackupHandler />
       <IntegrityHandler />
       <AccessTokenHandler />
+      <DBOpsHandler />
     </>
   );
   let navigation;
