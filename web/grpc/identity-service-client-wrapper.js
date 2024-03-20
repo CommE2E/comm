@@ -533,29 +533,60 @@ function authNewDeviceKeyUpload(
     notifOneTimeKeys,
   } = uploadData;
 
-  const contentOneTimeKeysArray = [...contentOneTimeKeys];
-  const notifOneTimeKeysArray = [...notifOneTimeKeys];
+  const identityKeyInfo = createIdentityKeyInfo(
+    keyPayload,
+    keyPayloadSignature,
+  );
 
+  const contentPrekeyUpload = createPrekey(
+    contentPrekey,
+    contentPrekeySignature,
+  );
+
+  const notifPrekeyUpload = createPrekey(notifPrekey, notifPrekeySignature);
+
+  const deviceKeyUpload = createDeviceKeyUpload(
+    identityKeyInfo,
+    contentPrekeyUpload,
+    notifPrekeyUpload,
+    contentOneTimeKeys,
+    notifOneTimeKeys,
+  );
+
+  return deviceKeyUpload;
+}
+
+function createIdentityKeyInfo(
+  keyPayload: string,
+  keyPayloadSignature: string,
+): IdentityKeyInfo {
   const identityKeyInfo = new IdentityKeyInfo();
   identityKeyInfo.setPayload(keyPayload);
   identityKeyInfo.setPayloadSignature(keyPayloadSignature);
+  return identityKeyInfo;
+}
 
-  const contentPrekeyUpload = new Prekey();
-  contentPrekeyUpload.setPrekey(contentPrekey);
-  contentPrekeyUpload.setPrekeySignature(contentPrekeySignature);
+function createPrekey(prekey: string, prekeySignature: string): Prekey {
+  const prekeyUpload = new Prekey();
+  prekeyUpload.setPrekey(prekey);
+  prekeyUpload.setPrekeySignature(prekeySignature);
+  return prekeyUpload;
+}
 
-  const notifPrekeyUpload = new Prekey();
-  notifPrekeyUpload.setPrekey(notifPrekey);
-  notifPrekeyUpload.setPrekeySignature(notifPrekeySignature);
-
+function createDeviceKeyUpload(
+  identityKeyInfo: IdentityKeyInfo,
+  contentPrekeyUpload: Prekey,
+  notifPrekeyUpload: Prekey,
+  contentOneTimeKeys: $ReadOnlyArray<string> = [],
+  notifOneTimeKeys: $ReadOnlyArray<string> = [],
+): DeviceKeyUpload {
   const deviceKeyUpload = new DeviceKeyUpload();
   deviceKeyUpload.setDeviceKeyInfo(identityKeyInfo);
   deviceKeyUpload.setContentUpload(contentPrekeyUpload);
   deviceKeyUpload.setNotifUpload(notifPrekeyUpload);
-  deviceKeyUpload.setOneTimeContentPrekeysList(contentOneTimeKeysArray);
-  deviceKeyUpload.setOneTimeNotifPrekeysList(notifOneTimeKeysArray);
+  deviceKeyUpload.setOneTimeContentPrekeysList([...contentOneTimeKeys]);
+  deviceKeyUpload.setOneTimeNotifPrekeysList([...notifOneTimeKeys]);
   deviceKeyUpload.setDeviceType(identityDeviceTypes.WEB);
-
   return deviceKeyUpload;
 }
 
