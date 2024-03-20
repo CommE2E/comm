@@ -6,6 +6,8 @@ import * as React from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { SpecialRole } from 'lib/permissions/special-roles.js';
+import { specialRoles } from 'lib/permissions/special-roles.js';
 import { roleIsDefaultRole } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserSurfacedPermission } from 'lib/types/thread-permission-types.js';
@@ -22,13 +24,20 @@ type RolePanelEntryProps = {
   +navigation: RolesNavigationProp<'CommunityRolesScreen'>,
   +threadInfo: ThreadInfo,
   +roleName: string,
+  +specialRole: ?SpecialRole,
   +rolePermissions: $ReadOnlySet<UserSurfacedPermission>,
   +memberCount: number,
 };
 
 function RolePanelEntry(props: RolePanelEntryProps): React.Node {
-  const { navigation, threadInfo, roleName, rolePermissions, memberCount } =
-    props;
+  const {
+    navigation,
+    threadInfo,
+    roleName,
+    specialRole,
+    rolePermissions,
+    memberCount,
+  } = props;
   const styles = useStyles(unboundStyles);
 
   const existingRoleID = React.useMemo(
@@ -128,7 +137,7 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
   ]);
 
   const menuButton = React.useMemo(() => {
-    if (roleName === 'Admins') {
+    if (specialRole === specialRoles.ADMIN_ROLE) {
       return <View style={styles.rolePanelEmptyMenuButton} />;
     }
     return (
@@ -141,10 +150,10 @@ function RolePanelEntry(props: RolePanelEntryProps): React.Node {
       </TouchableOpacity>
     );
   }, [
-    roleName,
-    styles.rolePanelEmptyMenuButton,
-    styles.rolePanelMenuButton,
+    specialRole,
     showActionSheet,
+    styles.rolePanelMenuButton,
+    styles.rolePanelEmptyMenuButton,
   ]);
 
   return (
