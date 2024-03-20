@@ -1,18 +1,30 @@
 // @flow
 
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 
 import {
   IdentityClientContext,
   type AuthMetadata,
 } from 'lib/shared/identity-client-context.js';
+import type {
+  IdentityServiceClient,
+  IdentityServiceAuthLayer,
+} from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
-import { IdentityServiceClientSharedProxy } from './identity-service-client-proxy.js';
-import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
-import { useGetDeviceKeyUpload } from '../account/account-hooks.js';
-import { usingSharedWorker } from '../crypto/olm-api.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { getOpaqueWasmPath } from '../shared-worker/utils/constants.js';
+import {
+  workerRequestMessageTypes,
+  workerResponseMessageTypes,
+} from '../types/worker-types.js';
+
+type CreateMethodWorkerProxy = <Return>(
+  method: $Keys<IdentityServiceClient>,
+) => (...args: $ReadOnlyArray<mixed>) => Promise<Return>;
 
 type Props = {
   +children: React.Node,
@@ -22,40 +34,104 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
   const userID = useSelector(state => state.currentUserInfo?.id);
   const accessToken = useSelector(state => state.commServicesAccessToken);
-  const deviceID = useSelector(
-    state => state.cryptoStore?.primaryIdentityKeys.ed25519,
-  );
-  const getDeviceKeyUpload = useGetDeviceKeyUpload();
 
-  const client = React.useMemo(() => {
-    let authLayer = null;
-    if (userID && deviceID && accessToken) {
-      authLayer = {
-        userID,
-        deviceID,
-        commServicesAccessToken: accessToken,
-      };
-    }
-    if (usingSharedWorker) {
-      return new IdentityServiceClientSharedProxy(authLayer);
-    } else {
-      return new IdentityServiceClientWrapper(
-        getConfig().platformDetails,
-        null,
-        authLayer,
-        getDeviceKeyUpload,
-      );
-    }
-  }, [accessToken, deviceID, getDeviceKeyUpload, userID]);
-
-  const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
-    async () => ({
+  const getAuthMetadata = React.useCallback<
+    () => Promise<AuthMetadata>,
+  >(async () => {
+    const contentSigningKey = await getContentSigningKey();
+    return {
       userID,
-      deviceID,
+      deviceID: contentSigningKey,
       accessToken,
-    }),
-    [accessToken, deviceID, userID],
+    };
+  }, [accessToken, userID]);
+
+  const workerClientAuthMetadata = React.useRef<?AuthMetadata>(null);
+  const ensureThatWorkerClientAuthMetadataIsCurrent =
+    React.useCallback(async () => {
+      const sharedWorker = await getCommSharedWorker();
+      const authMetadata = await getAuthMetadata();
+
+      if (!_isEqual(authMetadata, workerClientAuthMetadata.current)) {
+        workerClientAuthMetadata.current = authMetadata;
+
+        let authLayer: ?IdentityServiceAuthLayer = null;
+        if (
+          authMetadata.userID &&
+          authMetadata.deviceID &&
+          authMetadata.accessToken
+        ) {
+          authLayer = {
+            userID: authMetadata.userID,
+            deviceID: authMetadata.deviceID,
+            commServicesAccessToken: authMetadata.accessToken,
+          };
+        }
+
+        await sharedWorker.schedule({
+          type: workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT,
+          opaqueWasmPath: getOpaqueWasmPath(),
+          platformDetails: getConfig().platformDetails,
+          authLayer,
+        });
+      }
+    }, [getAuthMetadata]);
+
+  React.useEffect(() => {
+    void ensureThatWorkerClientAuthMetadataIsCurrent();
+  }, [ensureThatWorkerClientAuthMetadataIsCurrent]);
+
+  const proxyMethodToWorker: CreateMethodWorkerProxy = React.useCallback(
+    method =>
+      async (...args: $ReadOnlyArray<mixed>) => {
+        await ensureThatWorkerClientAuthMetadataIsCurrent();
+
+        const sharedWorker = await getCommSharedWorker();
+        const result = await sharedWorker.schedule({
+          type: workerRequestMessageTypes.CALL_IDENTITY_CLIENT_METHOD,
+          method,
+          args,
+        });
+
+        if (!result) {
+          throw new Error(
+            `Worker identity call didn't return expected message`,
+          );
+        } else if (
+          result.type !== workerResponseMessageTypes.CALL_IDENTITY_CLIENT_METHOD
+        ) {
+          throw new Error(
+            `Worker identity call didn't return expected message. Instead got: ${JSON.stringify(
+              result,
+            )}`,
+          );
+        }
+
+        // Worker should return a message with the corresponding return type
+        return (result.result: any);
+      },
+    [ensureThatWorkerClientAuthMetadataIsCurrent],
   );
+
+  const client = React.useMemo<IdentityServiceClient>(() => {
+    return {
+      deleteUser: proxyMethodToWorker('deleteUser'),
+      getKeyserverKeys: proxyMethodToWorker('getKeyserverKeys'),
+      getOutboundKeysForUser: proxyMethodToWorker('getOutboundKeysForUser'),
+      getInboundKeysForUser: proxyMethodToWorker('getInboundKeysForUser'),
+      uploadOneTimeKeys: proxyMethodToWorker('uploadOneTimeKeys'),
+      logInPasswordUser: proxyMethodToWorker('logInPasswordUser'),
+      logInWalletUser: proxyMethodToWorker('logInWalletUser'),
+      uploadKeysForRegisteredDeviceAndLogIn: proxyMethodToWorker(
+        'uploadKeysForRegisteredDeviceAndLogIn',
+      ),
+      generateNonce: proxyMethodToWorker('generateNonce'),
+      publishWebPrekeys: proxyMethodToWorker('publishWebPrekeys'),
+      getDeviceListHistoryForUser: proxyMethodToWorker(
+        'getDeviceListHistoryForUser',
+      ),
+    };
+  }, [proxyMethodToWorker]);
 
   const value = React.useMemo(
     () => ({
