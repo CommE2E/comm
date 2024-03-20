@@ -9,8 +9,14 @@ import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
-import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
-import { retrieveAccountKeysSet } from 'lib/utils/olm-utils.js';
+import type {
+  IdentityNewDeviceKeyUpload,
+  IdentityExistingDeviceKeyUpload,
+} from 'lib/types/identity-service-types.js';
+import {
+  retrieveIdentityKeysAndPrekeys,
+  retrieveAccountKeysSet,
+} from 'lib/utils/olm-utils.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import { getDBModule, getSQLiteQueryExecutor } from './worker-database.js';
@@ -222,9 +228,35 @@ function getNewDeviceKeyUpload(): IdentityNewDeviceKeyUpload {
   };
 }
 
+function getExistingDeviceKeyUpload(): IdentityExistingDeviceKeyUpload {
+  if (!cryptoStore) {
+    throw new Error('Crypto account not initialized');
+  }
+  const { contentAccount, notificationAccount } = cryptoStore;
+
+  const signedIdentityKeysBlob = getSignedIdentityKeysBlob();
+
+  const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
+    retrieveIdentityKeysAndPrekeys(contentAccount);
+  const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
+    retrieveIdentityKeysAndPrekeys(notificationAccount);
+
+  persistCryptoStore();
+
+  return {
+    keyPayload: signedIdentityKeysBlob.payload,
+    keyPayloadSignature: signedIdentityKeysBlob.signature,
+    contentPrekey,
+    contentPrekeySignature,
+    notifPrekey,
+    notifPrekeySignature,
+  };
+}
+
 export {
   clearCryptoStore,
   processAppOlmApiRequest,
   getSignedIdentityKeysBlob,
   getNewDeviceKeyUpload,
+  getExistingDeviceKeyUpload,
 };

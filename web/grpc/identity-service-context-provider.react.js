@@ -10,7 +10,10 @@ import { getConfig } from 'lib/utils/config.js';
 
 import { IdentityServiceClientSharedProxy } from './identity-service-client-proxy.js';
 import { IdentityServiceClientWrapper } from './identity-service-client-wrapper.js';
-import { useGetNewDeviceKeyUpload } from '../account/account-hooks.js';
+import {
+  useGetNewDeviceKeyUpload,
+  useGetExistingDeviceKeyUpload,
+} from '../account/account-hooks.js';
 import { usingSharedWorker } from '../crypto/olm-api.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -26,6 +29,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     state => state.cryptoStore?.primaryIdentityKeys.ed25519,
   );
   const getNewDeviceKeyUpload = useGetNewDeviceKeyUpload();
+  const getExistingDeviceKeyUpload = useGetExistingDeviceKeyUpload();
 
   const client = React.useMemo(() => {
     let authLayer = null;
@@ -44,9 +48,16 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         null,
         authLayer,
         getNewDeviceKeyUpload,
+        getExistingDeviceKeyUpload,
       );
     }
-  }, [accessToken, deviceID, getNewDeviceKeyUpload, userID]);
+  }, [
+    accessToken,
+    deviceID,
+    getNewDeviceKeyUpload,
+    getExistingDeviceKeyUpload,
+    userID,
+  ]);
 
   const getAuthMetadata = React.useCallback<() => Promise<AuthMetadata>>(
     async () => ({
