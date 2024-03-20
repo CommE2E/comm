@@ -64,7 +64,6 @@ import { onStateDifference } from './redux-debug-utils.js';
 import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
-import { processDBStoreOperations } from '../shared-worker/utils/store.js';
 import type { InitialReduxState } from '../types/redux-types.js';
 
 export type WindowDimensions = { width: number, height: number };
@@ -171,7 +170,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         },
       });
     }
-    return validateStateAndProcessDBOperations(
+    return validateStateAndQueueOpsProcessing(
       action,
       oldState,
       {
@@ -193,7 +192,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       },
     );
   } else if (action.type === updateWindowDimensionsActionType) {
-    return validateStateAndProcessDBOperations(
+    return validateStateAndQueueOpsProcessing(
       action,
       oldState,
       {
@@ -203,7 +202,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       storeOperations,
     );
   } else if (action.type === updateWindowActiveActionType) {
-    return validateStateAndProcessDBOperations(
+    return validateStateAndQueueOpsProcessing(
       action,
       oldState,
       {
@@ -353,7 +352,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     ),
   };
 
-  return validateStateAndProcessDBOperations(
+  return validateStateAndQueueOpsProcessing(
     action,
     oldState,
     state,
@@ -361,7 +360,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
   );
 }
 
-function validateStateAndProcessDBOperations(
+function validateStateAndQueueOpsProcessing(
   action: Action,
   oldState: AppState,
   state: AppState,
@@ -480,22 +479,14 @@ function validateStateAndProcessDBOperations(
   // As soon as one of the actions is updated, this fix (and the corresponding
   // one in tab-synchronization.js) can be removed.
   // $FlowFixMe
-  if (action.dispatchSource !== 'tab-sync') {
-    state = {
-      ...state,
-      dbOpsStore: queueDBOps(
-        state.dbOpsStore,
-        action.messageID,
-        storeOperations,
-      ),
-    };
-    void processDBStoreOperations(
-      storeOperations,
-      state.currentUserInfo?.id ?? null,
-    );
+  if (action.dispatchSource === 'tab-sync') {
+    return state;
   }
 
-  return state;
+  return {
+    ...state,
+    dbOpsStore: queueDBOps(state.dbOpsStore, action.messageID, storeOperations),
+  };
 }
 
 export { nonUserSpecificFieldsWeb, reducer };

@@ -48,7 +48,6 @@ import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { onStateDifference } from './redux-debug-utils.js';
-import { processDBStoreOperations } from './redux-utils.js';
 import { nonUserSpecificFieldsNative } from './state-types.js';
 import type { AppState } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
@@ -315,8 +314,6 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     ...state,
     dbOpsStore: queueDBOps(state.dbOpsStore, action.messageID, ops),
   };
-
-  void processDBStoreOperations(ops);
 
   return state;
 }
