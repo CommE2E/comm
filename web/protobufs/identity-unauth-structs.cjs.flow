@@ -553,4 +553,64 @@ export type FindUserIDResponseObject = {
   isReserved: boolean,
 }
 
+declare export class GetFarcasterUsersRequest extends Message {
+  getFarcasterIdsList(): Array<string>;
+  setFarcasterIdsList(value: Array<string>): GetFarcasterUsersRequest;
+  clearFarcasterIdsList(): GetFarcasterUsersRequest;
+  addFarcasterIds(value: string, index?: number): GetFarcasterUsersRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetFarcasterUsersRequestObject;
+  static toObject(includeInstance: boolean, msg: GetFarcasterUsersRequest): GetFarcasterUsersRequestObject;
+  static serializeBinaryToWriter(message: GetFarcasterUsersRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetFarcasterUsersRequest;
+  static deserializeBinaryFromReader(message: GetFarcasterUsersRequest, reader: BinaryReader): GetFarcasterUsersRequest;
+}
+
+export type GetFarcasterUsersRequestObject = {
+  farcasterIdsList: Array<string>,
+}
+
+declare export class GetFarcasterUsersResponse extends Message {
+  getFarcasterUsersList(): Array<FarcasterUser>;
+  setFarcasterUsersList(value: Array<FarcasterUser>): GetFarcasterUsersResponse;
+  clearFarcasterUsersList(): GetFarcasterUsersResponse;
+  addFarcasterUsers(value?: FarcasterUser, index?: number): FarcasterUser;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetFarcasterUsersResponseObject;
+  static toObject(includeInstance: boolean, msg: GetFarcasterUsersResponse): GetFarcasterUsersResponseObject;
+  static serializeBinaryToWriter(message: GetFarcasterUsersResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetFarcasterUsersResponse;
+  static deserializeBinaryFromReader(message: GetFarcasterUsersResponse, reader: BinaryReader): GetFarcasterUsersResponse;
+}
+
+export type GetFarcasterUsersResponseObject = {
+  farcasterUsersList: Array<FarcasterUserObject>,
+}
+
+declare export class FarcasterUser extends Message {
+  getUserId(): string;
+  setUserId(value: string): FarcasterUser;
+
+  getFarcasterId(): string;
+  setFarcasterId(value: string): FarcasterUser;
+
+  getUsername(): string;
+  setUsername(value: string): FarcasterUser;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): FarcasterUserObject;
+  static toObject(includeInstance: boolean, msg: FarcasterUser): FarcasterUserObject;
+  static serializeBinaryToWriter(message: FarcasterUser, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): FarcasterUser;
+  static deserializeBinaryFromReader(message: FarcasterUser, reader: BinaryReader): FarcasterUser;
+}
+
+export type FarcasterUserObject = {
+  userId: string,
+  farcasterId: string,
+  username: string,
+}
+
 export type DeviceType = 0 | 1 | 2 | 3 | 4 | 5;

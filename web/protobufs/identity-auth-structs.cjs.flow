@@ -389,3 +389,18 @@ export type UpdateDeviceListRequestObject = {
   newDeviceList: string,
 }
 
+declare export class LinkFarcasterAccountRequest extends Message {
+  getFarcasterId(): string;
+  setFarcasterId(value: string): LinkFarcasterAccountRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkFarcasterAccountRequestObject;
+  static toObject(includeInstance: boolean, msg: LinkFarcasterAccountRequest): LinkFarcasterAccountRequestObject;
+  static serializeBinaryToWriter(message: LinkFarcasterAccountRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkFarcasterAccountRequest;
+  static deserializeBinaryFromReader(message: LinkFarcasterAccountRequest, reader: BinaryReader): LinkFarcasterAccountRequest;
+}
+
+export type LinkFarcasterAccountRequestObject = {
+  farcasterId: string,
+}
