@@ -11,6 +11,7 @@ import thunk from 'redux-thunk';
 
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
+import { OpsContextProvider } from 'lib/components/ops-context-provider.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
@@ -55,21 +56,23 @@ const RootProvider = (): React.Node => (
     <ErrorBoundary>
       <CallKeyserverEndpointProvider>
         <InitialReduxStateGate persistor={persistor}>
-          <GetOrCreateCryptoStoreProvider>
-            <IdentityServiceContextProvider>
-              <OlmSessionCreatorProvider>
-                <Router history={history.getHistoryObject()}>
-                  <Route path="*" component={App} />
-                </Router>
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-                <PrekeysHandler />
-                <SQLiteDataHandler />
-                <IntegrityHandler />
-                <ReportHandler canSendReports={true} />
-                <DBOpsHandler />
-              </OlmSessionCreatorProvider>
-            </IdentityServiceContextProvider>
-          </GetOrCreateCryptoStoreProvider>
+          <OpsContextProvider>
+            <GetOrCreateCryptoStoreProvider>
+              <IdentityServiceContextProvider>
+                <OlmSessionCreatorProvider>
+                  <Router history={history.getHistoryObject()}>
+                    <Route path="*" component={App} />
+                  </Router>
+                  <KeyserverConnectionsHandler socketComponent={Socket} />
+                  <PrekeysHandler />
+                  <SQLiteDataHandler />
+                  <IntegrityHandler />
+                  <ReportHandler canSendReports={true} />
+                  <DBOpsHandler />
+                </OlmSessionCreatorProvider>
+              </IdentityServiceContextProvider>
+            </GetOrCreateCryptoStoreProvider>
+          </OpsContextProvider>
         </InitialReduxStateGate>
       </CallKeyserverEndpointProvider>
     </ErrorBoundary>

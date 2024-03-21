@@ -29,6 +29,7 @@ import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
+import { OpsContextProvider } from 'lib/components/ops-context-provider.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
@@ -304,69 +305,71 @@ function Root() {
   }
   return (
     <GestureHandlerRootView style={styles.app}>
-      <StaffContextProvider>
-        <IdentityServiceContextProvider>
-          <OlmSessionCreatorProvider>
-            <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
-              <IdentitySearchProvider>
-                <FeatureFlagsProvider>
-                  <NavContext.Provider value={navContext}>
-                    <RootContext.Provider value={rootContext}>
-                      <InputStateContainer>
-                        <MessageEditingContextProvider>
-                          <SafeAreaProvider
-                            initialMetrics={initialWindowMetrics}
-                          >
-                            <ActionSheetProvider>
-                              <ENSCacheProvider provider={provider}>
-                                <MediaCacheProvider
-                                  persistence={filesystemMediaCache}
-                                >
-                                  <EditUserAvatarProvider>
-                                    <NativeEditThreadAvatarProvider>
-                                      <MarkdownContextProvider>
-                                        <MessageSearchProvider>
-                                          <BottomSheetProvider>
-                                            <RegistrationContextProvider>
-                                              <SQLiteDataHandler />
-                                              <ConnectedStatusBar />
-                                              <ReduxPersistGate
-                                                persistor={getPersistor()}
-                                              >
-                                                {gated}
-                                              </ReduxPersistGate>
-                                              <PersistedStateGate>
-                                                <KeyserverConnectionsHandler
-                                                  socketComponent={Socket}
-                                                  detectUnsupervisedBackgroundRef={
-                                                    detectUnsupervisedBackgroundRef
-                                                  }
-                                                />
-                                                <VersionSupportedChecker />
-                                                <PrekeysHandler />
-                                                <ReportHandler />
-                                              </PersistedStateGate>
-                                              {navigation}
-                                            </RegistrationContextProvider>
-                                          </BottomSheetProvider>
-                                        </MessageSearchProvider>
-                                      </MarkdownContextProvider>
-                                    </NativeEditThreadAvatarProvider>
-                                  </EditUserAvatarProvider>
-                                </MediaCacheProvider>
-                              </ENSCacheProvider>
-                            </ActionSheetProvider>
-                          </SafeAreaProvider>
-                        </MessageEditingContextProvider>
-                      </InputStateContainer>
-                    </RootContext.Provider>
-                  </NavContext.Provider>
-                </FeatureFlagsProvider>
-              </IdentitySearchProvider>
-            </TunnelbrokerProvider>
-          </OlmSessionCreatorProvider>
-        </IdentityServiceContextProvider>
-      </StaffContextProvider>
+      <OpsContextProvider>
+        <StaffContextProvider>
+          <IdentityServiceContextProvider>
+            <OlmSessionCreatorProvider>
+              <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
+                <IdentitySearchProvider>
+                  <FeatureFlagsProvider>
+                    <NavContext.Provider value={navContext}>
+                      <RootContext.Provider value={rootContext}>
+                        <InputStateContainer>
+                          <MessageEditingContextProvider>
+                            <SafeAreaProvider
+                              initialMetrics={initialWindowMetrics}
+                            >
+                              <ActionSheetProvider>
+                                <ENSCacheProvider provider={provider}>
+                                  <MediaCacheProvider
+                                    persistence={filesystemMediaCache}
+                                  >
+                                    <EditUserAvatarProvider>
+                                      <NativeEditThreadAvatarProvider>
+                                        <MarkdownContextProvider>
+                                          <MessageSearchProvider>
+                                            <BottomSheetProvider>
+                                              <RegistrationContextProvider>
+                                                <SQLiteDataHandler />
+                                                <ConnectedStatusBar />
+                                                <ReduxPersistGate
+                                                  persistor={getPersistor()}
+                                                >
+                                                  {gated}
+                                                </ReduxPersistGate>
+                                                <PersistedStateGate>
+                                                  <KeyserverConnectionsHandler
+                                                    socketComponent={Socket}
+                                                    detectUnsupervisedBackgroundRef={
+                                                      detectUnsupervisedBackgroundRef
+                                                    }
+                                                  />
+                                                  <VersionSupportedChecker />
+                                                  <PrekeysHandler />
+                                                  <ReportHandler />
+                                                </PersistedStateGate>
+                                                {navigation}
+                                              </RegistrationContextProvider>
+                                            </BottomSheetProvider>
+                                          </MessageSearchProvider>
+                                        </MarkdownContextProvider>
+                                      </NativeEditThreadAvatarProvider>
+                                    </EditUserAvatarProvider>
+                                  </MediaCacheProvider>
+                                </ENSCacheProvider>
+                              </ActionSheetProvider>
+                            </SafeAreaProvider>
+                          </MessageEditingContextProvider>
+                        </InputStateContainer>
+                      </RootContext.Provider>
+                    </NavContext.Provider>
+                  </FeatureFlagsProvider>
+                </IdentitySearchProvider>
+              </TunnelbrokerProvider>
+            </OlmSessionCreatorProvider>
+          </IdentityServiceContextProvider>
+        </StaffContextProvider>
+      </OpsContextProvider>
     </GestureHandlerRootView>
   );
 }
