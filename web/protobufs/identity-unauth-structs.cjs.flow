@@ -122,6 +122,11 @@ declare export class RegistrationStartRequest extends Message {
   hasDeviceKeyUpload(): boolean;
   clearDeviceKeyUpload(): RegistrationStartRequest;
 
+  getFarcasterId(): string;
+  setFarcasterId(value: string): RegistrationStartRequest;
+  hasFarcasterId(): boolean;
+  clearFarcasterId(): RegistrationStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationStartRequestObject;
   static toObject(includeInstance: boolean, msg: RegistrationStartRequest): RegistrationStartRequestObject;
@@ -134,6 +139,7 @@ export type RegistrationStartRequestObject = {
   opaqueRegistrationRequest: Uint8Array | string,
   username: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
+  farcasterId?: string,
 };
 
 declare export class ReservedRegistrationStartRequest extends Message {
@@ -326,6 +332,11 @@ declare export class WalletAuthRequest extends Message {
   hasDeviceKeyUpload(): boolean;
   clearDeviceKeyUpload(): WalletAuthRequest;
 
+  getFarcasterId(): string;
+  setFarcasterId(value: string): WalletAuthRequest;
+  hasFarcasterId(): boolean;
+  clearFarcasterId(): WalletAuthRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WalletAuthRequestObject;
   static toObject(includeInstance: boolean, msg: WalletAuthRequest): WalletAuthRequestObject;
@@ -338,6 +349,7 @@ export type WalletAuthRequestObject = {
   siweMessage: string,
   siweSignature: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
+  farcasterId?: string,
 };
 
 declare export class ReservedWalletRegistrationRequest extends Message {
