@@ -18,10 +18,11 @@ use super::protos::auth::{
   identity, identity_client_service_server::IdentityClientService,
   GetDeviceListRequest, GetDeviceListResponse, Identity, InboundKeyInfo,
   InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
-  OutboundKeyInfo, OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  RefreshUserPrekeysRequest, UpdateDeviceListRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
-  UpdateUserPasswordStartResponse, UploadOneTimeKeysRequest,
+  LinkFarcasterAccountRequest, OutboundKeyInfo, OutboundKeysForUserRequest,
+  OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
+  UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
+  UploadOneTimeKeysRequest,
 };
 use super::protos::unauth::Empty;
 
@@ -393,6 +394,13 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     Ok(Response::new(Empty {}))
+  }
+
+  async fn link_farcaster_account(
+    &self,
+    _request: tonic::Request<LinkFarcasterAccountRequest>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    unimplemented!();
   }
 }
 

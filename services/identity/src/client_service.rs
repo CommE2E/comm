@@ -26,7 +26,8 @@ use crate::grpc_services::protos::unauth::{
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
   SecondaryDeviceKeysUploadRequest, VerifyUserAccessTokenRequest,
-  VerifyUserAccessTokenResponse, WalletAuthRequest,
+  VerifyUserAccessTokenResponse, WalletAuthRequest, GetFarcasterUsersRequest,
+  GetFarcasterUsersResponse
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::{
@@ -870,6 +871,13 @@ impl IdentityClientService for ClientService {
       user_id,
       is_reserved,
     }))
+  }
+
+  async fn get_farcaster_users(
+    &self,
+    _request: tonic::Request<GetFarcasterUsersRequest>,
+  ) -> Result<tonic::Response<GetFarcasterUsersResponse>, tonic::Status> {
+    unimplemented!();
   }
 }
 
