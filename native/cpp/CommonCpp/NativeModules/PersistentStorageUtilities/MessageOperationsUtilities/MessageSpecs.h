@@ -9,7 +9,6 @@
 #include "MessageSpecs/DeleteEntryMessageSpec.h"
 #include "MessageSpecs/EditEntryMessageSpec.h"
 #include "MessageSpecs/EditMessageSpec.h"
-#include "MessageSpecs/LegacyUpdateRelationshipMessageSpec.h"
 #include "MessageSpecs/MessageSpec.h"
 #include "MessageSpecs/MultimediaMessageSpec.h"
 #include "MessageSpecs/ReactionMessageSpec.h"
@@ -17,6 +16,7 @@
 #include "MessageSpecs/SidebarSourceMessageSpec.h"
 #include "MessageSpecs/TextMessageSpec.h"
 #include "MessageSpecs/UnsupportedMessageSpec.h"
+#include "MessageSpecs/UpdateRelationshipMessageSpec.h"
 
 #include <map>
 
@@ -44,6 +44,8 @@ enum class MessageType {
   CREATE_SIDEBAR,
   REACTION,
   EDIT_MESSAGE,
+  TOGGLE_PIN,
+  UPDATE_RELATIONSHIP,
 };
 
 const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
@@ -84,7 +86,10 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
           {MessageType::MULTIMEDIA, std::make_unique<MultimediaMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::LEGACY_UPDATE_RELATIONSHIP,
-           std::make_unique<LegacyUpdateRelationshipMessageSpec>()});
+           std::make_unique<UpdateRelationshipMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::UPDATE_RELATIONSHIP,
+           std::make_unique<UpdateRelationshipMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::CREATE_SIDEBAR,
            std::make_unique<CreateSidebarMessageSpec>()});
