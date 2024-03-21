@@ -1,6 +1,6 @@
 // @flow
 
-let neynarKey = null;
+let neynarKey: ?string = null;
 try {
   // $FlowExpectedError: file might not exist
   const { key } = require('../facts/neynar.json');
