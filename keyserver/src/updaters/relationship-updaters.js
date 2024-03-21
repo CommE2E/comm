@@ -198,6 +198,19 @@ async function updateRelationships(
         user1 = ${viewer.userID} AND user2 IN (${userIDs})
     `;
     await dbQuery(query);
+  } else if (action === relationshipActions.FARCASTER_MUTUAL) {
+    // We have to create personal threads before setting the relationship
+    // status. By doing that we make sure that failed thread creation is
+    // reported to the caller and can be repeated - there should be only
+    // one PERSONAL thread per a pair of users and we can safely call it
+    // repeatedly.
+    await createPersonalThreads(viewer, request);
+    const insertRows = request.userIDs.map(otherUserID => {
+      const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
+      return { user1, user2, status: undirectedStatus.KNOW_OF };
+    });
+    const updateDatas = await updateChangedUndirectedRelationships(insertRows);
+    await createUpdates(updateDatas);
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
@@ -313,9 +326,11 @@ async function createPersonalThreads(
   request: RelationshipRequest,
 ) {
   invariant(
-    request.action === relationshipActions.FRIEND,
-    'We should only create a PERSONAL threads when sending a FRIEND request, ' +
-      `but we tried to do that for ${request.action}`,
+    request.action === relationshipActions.FRIEND ||
+      request.action === relationshipActions.FARCASTER_MUTUAL,
+    'We should only create a PERSONAL threads when sending FRIEND or ' +
+      'FARCASTER_MUTUAL requests, but we tried to do that for ' +
+      request.action,
   );
 
   const threadIDPerUser: { [string]: string } = {};
