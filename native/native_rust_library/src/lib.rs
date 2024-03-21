@@ -4,6 +4,7 @@ use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
 use exact_user_search::{
   find_user_id_for_username, find_user_id_for_wallet_address,
 };
+use farcaster::farcaster_id_string_to_option;
 use ffi::{bool_callback, string_callback, void_callback};
 use future_manager::ffi::*;
 use grpc_clients::identity::protos::auth::{
@@ -34,6 +35,7 @@ mod argon2_tools;
 mod backup;
 mod constants;
 mod exact_user_search;
+mod farcaster;
 mod future_manager;
 mod wallet_registration;
 
@@ -75,6 +77,7 @@ mod ffi {
       notif_prekey_signature: String,
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
+      farcaster_id: String, // TODO: move params to serde struct
       promise_id: u32,
     );
 
@@ -103,6 +106,7 @@ mod ffi {
       notif_prekey_signature: String,
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
+      farcaster_id: String, // TODO: move params to serde struct
       promise_id: u32,
     );
 
@@ -544,6 +548,7 @@ fn register_password_user(
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
+  farcaster_id: String,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
@@ -558,6 +563,7 @@ fn register_password_user(
       notif_prekey_signature,
       content_one_time_keys,
       notif_one_time_keys,
+      farcaster_id: farcaster_id_string_to_option(&farcaster_id),
     };
     let result = register_password_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -575,6 +581,7 @@ struct PasswordUserInfo {
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
+  farcaster_id: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -626,7 +633,7 @@ async fn register_password_user_helper(
       one_time_notif_prekeys: password_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
-    farcaster_id: None,
+    farcaster_id: password_user_info.farcaster_id,
   };
 
   let mut identity_client = get_unauthenticated_client(
@@ -686,6 +693,7 @@ fn log_in_password_user(
       notif_prekey_signature,
       content_one_time_keys: Vec::new(),
       notif_one_time_keys: Vec::new(),
+      farcaster_id: None,
     };
     let result = log_in_password_user_helper(password_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -765,6 +773,7 @@ struct WalletUserInfo {
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
+  farcaster_id: Option<String>,
 }
 
 #[instrument]
@@ -791,6 +800,7 @@ fn log_in_wallet_user(
       notif_prekey_signature,
       content_one_time_keys: Vec::new(),
       notif_one_time_keys: Vec::new(),
+      farcaster_id: None,
     };
     let result = log_in_wallet_user_helper(wallet_user_info).await;
     handle_string_result_as_callback(result, promise_id);
