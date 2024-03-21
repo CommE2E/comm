@@ -53,6 +53,7 @@ pub const USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE: &str = "walletAddress";
 pub const USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME: &str = "socialProof";
 pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
   "deviceListTimestamp";
+pub const USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME: &str = "farcasterID";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
 

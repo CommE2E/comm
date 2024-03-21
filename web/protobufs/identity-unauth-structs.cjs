@@ -1399,7 +1399,8 @@ proto.identity.unauth.RegistrationStartRequest.toObject = function(includeInstan
   var f, obj = {
     opaqueRegistrationRequest: msg.getOpaqueRegistrationRequest_asB64(),
     username: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f)
+    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
+    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -1448,6 +1449,10 @@ proto.identity.unauth.RegistrationStartRequest.deserializeBinaryFromReader = fun
       var value = new proto.identity.unauth.DeviceKeyUpload;
       reader.readMessage(value,proto.identity.unauth.DeviceKeyUpload.deserializeBinaryFromReader);
       msg.setDeviceKeyUpload(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFarcasterId(value);
       break;
     default:
       reader.skipField();
@@ -1498,6 +1503,13 @@ proto.identity.unauth.RegistrationStartRequest.serializeBinaryToWriter = functio
       3,
       f,
       proto.identity.unauth.DeviceKeyUpload.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
+    writer.writeString(
+      4,
+      f
     );
   }
 };
@@ -1597,6 +1609,42 @@ proto.identity.unauth.RegistrationStartRequest.prototype.clearDeviceKeyUpload = 
  */
 proto.identity.unauth.RegistrationStartRequest.prototype.hasDeviceKeyUpload = function() {
   return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional string farcaster_id = 4;
+ * @return {string}
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.getFarcasterId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.RegistrationStartRequest} returns this
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.setFarcasterId = function(value) {
+  return jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.RegistrationStartRequest} returns this
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.clearFarcasterId = function() {
+  return jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.hasFarcasterId = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
@@ -3108,7 +3156,8 @@ proto.identity.unauth.WalletAuthRequest.toObject = function(includeInstance, msg
   var f, obj = {
     siweMessage: jspb.Message.getFieldWithDefault(msg, 1, ""),
     siweSignature: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f)
+    deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
+    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -3157,6 +3206,10 @@ proto.identity.unauth.WalletAuthRequest.deserializeBinaryFromReader = function(m
       var value = new proto.identity.unauth.DeviceKeyUpload;
       reader.readMessage(value,proto.identity.unauth.DeviceKeyUpload.deserializeBinaryFromReader);
       msg.setDeviceKeyUpload(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setFarcasterId(value);
       break;
     default:
       reader.skipField();
@@ -3207,6 +3260,13 @@ proto.identity.unauth.WalletAuthRequest.serializeBinaryToWriter = function(messa
       3,
       f,
       proto.identity.unauth.DeviceKeyUpload.serializeBinaryToWriter
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
+    writer.writeString(
+      4,
+      f
     );
   }
 };
@@ -3282,6 +3342,42 @@ proto.identity.unauth.WalletAuthRequest.prototype.clearDeviceKeyUpload = functio
  */
 proto.identity.unauth.WalletAuthRequest.prototype.hasDeviceKeyUpload = function() {
   return jspb.Message.getField(this, 3) != null;
+};
+
+
+/**
+ * optional string farcaster_id = 4;
+ * @return {string}
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.getFarcasterId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.WalletAuthRequest} returns this
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.setFarcasterId = function(value) {
+  return jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.identity.unauth.WalletAuthRequest} returns this
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.clearFarcasterId = function() {
+  return jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.hasFarcasterId = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
