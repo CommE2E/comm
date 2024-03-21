@@ -80,7 +80,6 @@ import { useLoadCommFonts } from './themes/fonts.js';
 import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
-import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
 
 // Add custom items to expo-dev-menu
 import './dev-menu.js';
@@ -262,8 +261,6 @@ function Root() {
     return undefined;
   })();
 
-  const tunnelbrokerInitMessage = useTunnelbrokerInitMessage();
-
   const gated: React.Node = (
     <>
       <LifecycleHandler />
@@ -303,7 +300,7 @@ function Root() {
     <GestureHandlerRootView style={styles.app}>
       <StaffContextProvider>
         <IdentityServiceContextProvider>
-          <TunnelbrokerProvider initMessage={tunnelbrokerInitMessage}>
+          <TunnelbrokerProvider>
             <IdentitySearchProvider>
               <FeatureFlagsProvider>
                 <NavContext.Provider value={navContext}>
