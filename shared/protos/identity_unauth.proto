@@ -57,6 +57,10 @@ service IdentityClientService {
 
   // Returns userID for given username or wallet address
   rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
+
+  // Farcaster actions
+  rpc GetFarcasterUsers(GetFarcasterUsersRequest) returns
+    (GetFarcasterUsersResponse) {}
 }
 
 // Helper types
@@ -271,4 +275,20 @@ message FindUserIDResponse {
   // reserved usernames list, false otherwise. It doesn't take into account
   // whether the user is registered with Identity Service (userID != null).
   bool is_reserved = 2;
+}
+
+// GetFarcasterUsers
+
+message GetFarcasterUsersRequest {
+  repeated string farcaster_ids = 1;
+}
+
+message GetFarcasterUsersResponse {
+  repeated FarcasterUser farcaster_users = 1;
+}
+
+message FarcasterUser {
+  string user_id = 1;
+  string farcaster_id = 2;
+  string username = 3;
 }
