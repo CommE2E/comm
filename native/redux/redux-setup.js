@@ -60,6 +60,7 @@ import { isStaffRelease } from '../utils/staff-utils.js';
 import { getDevServerHostname } from '../utils/url-utils.js';
 
 function reducer(state: AppState = defaultState, inputAction: Action) {
+  console.log(inputAction.type);
   let action = inputAction;
 
   if (action.type === setReduxStateActionType) {
