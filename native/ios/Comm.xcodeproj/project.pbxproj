@@ -281,7 +281,7 @@
 		CB38F2BC286C6C970010535C /* CreateSubThreadMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CreateSubThreadMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/CreateSubThreadMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BD286C6C970010535C /* MultimediaMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MultimediaMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/MultimediaMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
-		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
+		CB38F2BF286C6C980010535C /* LegacyUpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LegacyUpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/LegacyUpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3CCAFF2B7246F400793640 /* NativeSQLiteConnectionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeSQLiteConnectionManager.h; sourceTree = "<group>"; };
 		CB3CCB002B7246F400793640 /* NativeSQLiteConnectionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeSQLiteConnectionManager.cpp; sourceTree = "<group>"; };
@@ -727,7 +727,7 @@
 				CB38F2B6286C6C970010535C /* RestoreEntryMessageSpec.h */,
 				CB38F2B3286C6C970010535C /* TextMessageSpec.h */,
 				CB38F2B9286C6C970010535C /* UnsupportedMessageSpec.h */,
-				CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */,
+				CB38F2BF286C6C980010535C /* LegacyUpdateRelationshipMessageSpec.h */,
 			);
 			name = MessageSpecs;
 			sourceTree = "<group>";

@@ -3,7 +3,7 @@
 #include "MessageSpec.h"
 
 namespace comm {
-class UpdateRelationshipMessageSpec : public MessageSpec {
+class LegacyUpdateRelationshipMessageSpec : public MessageSpec {
   virtual std::unique_ptr<std::string>
   messageContentForClientDB(const folly::dynamic &rawMessageInfo) override {
     folly::dynamic updateRelationshipData =
