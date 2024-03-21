@@ -317,7 +317,7 @@ const migrations = {
   [20]: (state: AppState) => ({
     ...state,
     messageStore: DEPRECATED_unshimMessageStore(state.messageStore, [
-      messageTypes.UPDATE_RELATIONSHIP,
+      messageTypes.LEGACY_UPDATE_RELATIONSHIP,
     ]),
   }),
   [21]: (state: AppState) => ({
