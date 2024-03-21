@@ -57,6 +57,12 @@ service IdentityClientService {
 
   rpc UpdateDeviceListForUser(UpdateDeviceListRequest) returns
     (identity.unauth.Empty) {}
+
+  // Farcaster actions
+
+  // Called by an existing user to link their Farcaster account
+  rpc LinkFarcasterAccount(LinkFarcasterAccountRequest) returns
+    (identity.unauth.Empty) {}
 }
 
 // Helper types
@@ -191,4 +197,10 @@ message UpdateDeviceListRequest {
   //   })
   // }
   string new_device_list = 1;
+}
+
+// LinkFarcasterAccount
+
+message LinkFarcasterAccountRequest {
+  string farcaster_id = 1;
 }
