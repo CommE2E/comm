@@ -154,6 +154,7 @@ class TunnelbrokerSocket {
         }
       }
     } else if (message.type === tunnelbrokerMessageTypes.HEARTBEAT) {
+      console.log('TB heartbeat message received');
       const heartbeat: Heartbeat = {
         type: tunnelbrokerMessageTypes.HEARTBEAT,
       };
