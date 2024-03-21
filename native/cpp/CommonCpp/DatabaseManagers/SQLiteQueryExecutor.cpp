@@ -531,6 +531,15 @@ bool create_messages_to_device_table(sqlite3 *db) {
   return create_table(db, query, "messages_to_device");
 }
 
+bool create_synced_metadata_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS synced_metadata ("
+      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 data TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "synced_metadata");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -632,6 +641,11 @@ bool create_schema(sqlite3 *db) {
       "	 plaintext TEXT NOT NULL,"
       "	 ciphertext TEXT NOT NULL,"
       "	 PRIMARY KEY (message_id, device_id)"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS synced_metadata ("
+      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 data TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -879,7 +893,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {33, {create_keyservers_table, true}},
      {34, {enable_rollback_journal_mode, false}},
      {35, {create_communities_table, true}},
-     {36, {create_messages_to_device_table, true}}}};
+     {36, {create_messages_to_device_table, true}},
+     {37, {create_synced_metadata_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
