@@ -117,6 +117,7 @@ message RegistrationStartRequest {
   string username = 2;
   // Information needed to open a new channel to current user's device
   DeviceKeyUpload device_key_upload = 3;
+  optional string farcaster_id = 4;
 }
 
 message ReservedRegistrationStartRequest {
@@ -191,6 +192,7 @@ message WalletAuthRequest {
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
   DeviceKeyUpload device_key_upload = 3;
+  optional string farcaster_id = 4;
 }
 
 message ReservedWalletRegistrationRequest {
