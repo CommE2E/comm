@@ -42,7 +42,8 @@ jsi::Value CommRustModule::registerPasswordUser(
     jsi::String notifPrekey,
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
-    jsi::Array notifOneTimeKeys) {
+    jsi::Array notifOneTimeKeys,
+    jsi::String farcasterID) {
   auto usernameRust = jsiStringToRustString(username, rt);
   auto passwordRust = jsiStringToRustString(password, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -55,6 +56,7 @@ jsi::Value CommRustModule::registerPasswordUser(
       jsiStringToRustString(notifPrekeySignature, rt);
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+  auto farcasterIDRust = jsiStringToRustString(farcasterID, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -73,6 +75,7 @@ jsi::Value CommRustModule::registerPasswordUser(
               notifPrekeySignatureRust,
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
+              farcasterIDRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -142,7 +145,8 @@ jsi::Value CommRustModule::registerWalletUser(
     jsi::String notifPrekey,
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
-    jsi::Array notifOneTimeKeys) {
+    jsi::Array notifOneTimeKeys,
+    jsi::String farcasterID) {
   auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
   auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -155,6 +159,7 @@ jsi::Value CommRustModule::registerWalletUser(
       jsiStringToRustString(notifPrekeySignature, rt);
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+  auto farcasterIDRust = jsiStringToRustString(farcasterID, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -173,6 +178,7 @@ jsi::Value CommRustModule::registerWalletUser(
               notifPrekeySignatureRust,
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
+              farcasterIDRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
