@@ -47,9 +47,10 @@ use crate::constants::{
   RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
-  USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
-  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
-  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
+  USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
+  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
+  USERS_TABLE_USERNAME_INDEX, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::id::generate_uuid;
 use crate::nonce::NonceData;
@@ -171,6 +172,7 @@ impl DatabaseClient {
         Some((registration_state.username, Blob::new(password_file))),
         None,
         registration_state.user_id,
+        registration_state.farcaster_id,
       )
       .await?;
 
@@ -194,6 +196,7 @@ impl DatabaseClient {
     user_id: Option<String>,
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
+    farcaster_id: Option<String>,
   ) -> Result<String, Error> {
     let wallet_identity = EthereumIdentity {
       wallet_address,
@@ -205,6 +208,7 @@ impl DatabaseClient {
         None,
         Some(wallet_identity),
         user_id,
+        farcaster_id,
       )
       .await?;
 
@@ -226,6 +230,7 @@ impl DatabaseClient {
     username_and_password_file: Option<(String, Blob)>,
     wallet_identity: Option<EthereumIdentity>,
     user_id: Option<String>,
+    farcaster_id: Option<String>,
   ) -> Result<String, Error> {
     let user_id = user_id.unwrap_or_else(generate_uuid);
     let mut user = HashMap::from([(
@@ -252,6 +257,13 @@ impl DatabaseClient {
       user.insert(
         USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
         AttributeValue::S(eth_identity.social_proof),
+      );
+    }
+
+    if let Some(fid) = farcaster_id {
+      user.insert(
+        USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(fid),
       );
     }
 
