@@ -59,6 +59,7 @@ pub struct UserRegistrationInfo {
   pub username: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub user_id: Option<String>,
+  pub farcaster_id: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -127,6 +128,7 @@ impl IdentityClientService for ClientService {
       &message,
       None,
       message.username.clone(),
+      message.farcaster_id.clone(),
     )?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
@@ -181,6 +183,7 @@ impl IdentityClientService for ClientService {
       &message,
       Some(user_id),
       message.username.clone(),
+      None,
     )?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
@@ -554,6 +557,7 @@ impl IdentityClientService for ClientService {
         None,
         code_version,
         login_time,
+        message.farcaster_id,
       )
       .await
       .map_err(handle_db_error)?;
@@ -635,6 +639,7 @@ impl IdentityClientService for ClientService {
         Some(user_id.clone()),
         code_version,
         login_time,
+        None,
       )
       .await
       .map_err(handle_db_error)?;
@@ -988,6 +993,7 @@ fn construct_user_registration_info(
   message: &impl DeviceKeyUploadActions,
   user_id: Option<String>,
   username: String,
+  farcaster_id: Option<String>,
 ) -> Result<UserRegistrationInfo, tonic::Status> {
   Ok(UserRegistrationInfo {
     username,
@@ -995,6 +1001,7 @@ fn construct_user_registration_info(
       message,
     )?,
     user_id,
+    farcaster_id,
   })
 }
 

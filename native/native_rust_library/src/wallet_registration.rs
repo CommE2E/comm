@@ -66,6 +66,7 @@ async fn register_wallet_user_helper(
       one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
+    farcaster_id: None,
   };
 
   let mut identity_client = get_unauthenticated_client(

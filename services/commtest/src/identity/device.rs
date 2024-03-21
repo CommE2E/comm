@@ -70,6 +70,7 @@ pub async fn register_user_device(
       one_time_notif_prekeys: Vec::new(),
       device_type: device_type.into(),
     }),
+    farcaster_id: None,
   };
 
   let mut identity_client = get_unauthenticated_client(
