@@ -30,6 +30,7 @@ import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.reac
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
+import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -82,6 +83,7 @@ import { useLoadCommFonts } from './themes/fonts.js';
 import { DarkTheme, LightTheme } from './themes/navigation.js';
 import ThemeHandler from './themes/theme-handler.react.js';
 import { provider } from './utils/ethers-utils.js';
+import { neynarKey } from './utils/neynar-utils.js';
 import { useTunnelbrokerInitMessage } from './utils/tunnelbroker-utils.js';
 
 // Add custom items to expo-dev-menu
@@ -318,42 +320,44 @@ function Root() {
                           >
                             <ActionSheetProvider>
                               <ENSCacheProvider provider={provider}>
-                                <MediaCacheProvider
-                                  persistence={filesystemMediaCache}
-                                >
-                                  <EditUserAvatarProvider>
-                                    <NativeEditThreadAvatarProvider>
-                                      <MarkdownContextProvider>
-                                        <MessageSearchProvider>
-                                          <BottomSheetProvider>
-                                            <RegistrationContextProvider>
-                                              <SQLiteDataHandler />
-                                              <ConnectedStatusBar />
-                                              <ReduxPersistGate
-                                                persistor={getPersistor()}
-                                              >
-                                                {gated}
-                                              </ReduxPersistGate>
-                                              <PersistedStateGate>
-                                                <KeyserverConnectionsHandler
-                                                  socketComponent={Socket}
-                                                  detectUnsupervisedBackgroundRef={
-                                                    detectUnsupervisedBackgroundRef
-                                                  }
-                                                />
-                                                <VersionSupportedChecker />
-                                                <PrekeysHandler />
-                                                <ReportHandler />
-                                                <FarcasterDataHandler />
-                                              </PersistedStateGate>
-                                              {navigation}
-                                            </RegistrationContextProvider>
-                                          </BottomSheetProvider>
-                                        </MessageSearchProvider>
-                                      </MarkdownContextProvider>
-                                    </NativeEditThreadAvatarProvider>
-                                  </EditUserAvatarProvider>
-                                </MediaCacheProvider>
+                                <NeynarClientProvider apiKey={neynarKey}>
+                                  <MediaCacheProvider
+                                    persistence={filesystemMediaCache}
+                                  >
+                                    <EditUserAvatarProvider>
+                                      <NativeEditThreadAvatarProvider>
+                                        <MarkdownContextProvider>
+                                          <MessageSearchProvider>
+                                            <BottomSheetProvider>
+                                              <RegistrationContextProvider>
+                                                <SQLiteDataHandler />
+                                                <ConnectedStatusBar />
+                                                <ReduxPersistGate
+                                                  persistor={getPersistor()}
+                                                >
+                                                  {gated}
+                                                </ReduxPersistGate>
+                                                <PersistedStateGate>
+                                                  <KeyserverConnectionsHandler
+                                                    socketComponent={Socket}
+                                                    detectUnsupervisedBackgroundRef={
+                                                      detectUnsupervisedBackgroundRef
+                                                    }
+                                                  />
+                                                  <VersionSupportedChecker />
+                                                  <PrekeysHandler />
+                                                  <ReportHandler />
+                                                  <FarcasterDataHandler />
+                                                </PersistedStateGate>
+                                                {navigation}
+                                              </RegistrationContextProvider>
+                                            </BottomSheetProvider>
+                                          </MessageSearchProvider>
+                                        </MarkdownContextProvider>
+                                      </NativeEditThreadAvatarProvider>
+                                    </EditUserAvatarProvider>
+                                  </MediaCacheProvider>
+                                </NeynarClientProvider>
                               </ENSCacheProvider>
                             </ActionSheetProvider>
                           </SafeAreaProvider>
