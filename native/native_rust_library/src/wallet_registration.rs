@@ -1,6 +1,7 @@
 use crate::{
-  handle_string_result_as_callback, Error, UserIDAndDeviceAccessToken,
-  WalletUserInfo, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
+  farcaster::farcaster_id_string_to_option, handle_string_result_as_callback,
+  Error, UserIDAndDeviceAccessToken, WalletUserInfo, CODE_VERSION, DEVICE_TYPE,
+  IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use grpc_clients::identity::{
   get_unauthenticated_client,
@@ -22,6 +23,7 @@ pub fn register_wallet_user(
   notif_prekey_signature: String,
   content_one_time_keys: Vec<String>,
   notif_one_time_keys: Vec<String>,
+  farcaster_id: String,
   promise_id: u32,
 ) {
   RUNTIME.spawn(async move {
@@ -36,6 +38,7 @@ pub fn register_wallet_user(
       notif_prekey_signature,
       content_one_time_keys,
       notif_one_time_keys,
+      farcaster_id: farcaster_id_string_to_option(&farcaster_id),
     };
     let result = register_wallet_user_helper(wallet_user_info).await;
     handle_string_result_as_callback(result, promise_id);
@@ -66,7 +69,7 @@ async fn register_wallet_user_helper(
       one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
-    farcaster_id: None,
+    farcaster_id: wallet_user_info.farcaster_id,
   };
 
   let mut identity_client = get_unauthenticated_client(
