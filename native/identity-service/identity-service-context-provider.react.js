@@ -144,11 +144,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       getKeyserverKeys: async (
         keyserverID: string,
       ): Promise<DeviceOlmOutboundKeys> => {
-        const {
-          deviceID,
-          userID,
-          accessToken: token,
-        } = await getAuthMetadata();
+        const authMetadata = await getAuthMetadata();
+        console.log('authMetadata', authMetadata);
+        const { deviceID, userID, accessToken: token } = authMetadata;
         const result = await commRustModule.getKeyserverKeys(
           userID,
           deviceID,
