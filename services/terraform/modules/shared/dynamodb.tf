@@ -118,6 +118,11 @@ resource "aws_dynamodb_table" "identity-users" {
     type = "S"
   }
 
+  attribute {
+    name = "farcasterID"
+    type = "S"
+  }
+
   global_secondary_index {
     name            = "username-index"
     hash_key        = "username"
@@ -127,6 +132,12 @@ resource "aws_dynamodb_table" "identity-users" {
   global_secondary_index {
     name            = "walletAddress-index"
     hash_key        = "walletAddress"
+    projection_type = "KEYS_ONLY"
+  }
+
+  global_secondary_index {
+    name            = "farcasterID-index"
+    hash_key        = "farcasterID"
     projection_type = "KEYS_ONLY"
   }
 }
