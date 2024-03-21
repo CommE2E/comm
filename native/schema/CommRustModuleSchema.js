@@ -18,6 +18,7 @@ export interface Spec extends TurboModule {
     notifPrekeySignature: string,
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
+    farcasterID: string,
   ) => Promise<string>;
   +logInPasswordUser: (
     username: string,
@@ -42,6 +43,7 @@ export interface Spec extends TurboModule {
     notifPrekeySignature: string,
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
+    farcasterID: string,
   ) => Promise<string>;
   +logInWalletUser: (
     siweMessage: string,

@@ -23,7 +23,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekey,
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys) override;
+      jsi::Array notifOneTimeKeys,
+      jsi::String farcasterID) override;
   virtual jsi::Value logInPasswordUser(
       jsi::Runtime &rt,
       jsi::String username,
@@ -47,7 +48,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekey,
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
-      jsi::Array notifOneTimeKeys) override;
+      jsi::Array notifOneTimeKeys,
+      jsi::String farcasterID) override;
   virtual jsi::Value logInWalletUser(
       jsi::Runtime &rt,
       jsi::String siweMessage,
