@@ -317,6 +317,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekeySignature,
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
+          '',
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = { accessToken: token, userID, username };
@@ -393,6 +394,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekeySignature,
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
+          '',
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = {
