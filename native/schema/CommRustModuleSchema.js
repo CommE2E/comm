@@ -122,6 +122,7 @@ export interface Spec extends TurboModule {
   ) => Promise<string>;
   +findUserIDForWalletAddress: (walletAddress: string) => Promise<string>;
   +findUserIDForUsername: (username: string) => Promise<string>;
+  +getFarcasterUsers: (farcasterIDs: $ReadOnlyArray<string>) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
