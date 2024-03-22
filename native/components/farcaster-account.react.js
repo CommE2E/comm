@@ -1,13 +1,14 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, Linking } from 'react-native';
+import { View, Linking } from 'react-native';
 import WebView from 'react-native-webview';
 
+import FarcasterPrompt from './farcaster-prompt.react.js';
+import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
-import { useStyles } from '../themes/colors.js';
+import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
-import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
 type FarcasterWebViewMessage =
   | {
@@ -37,8 +38,6 @@ type Props = {
 
 function FarcasterAccount(props: Props): React.Node {
   const { onSuccess } = props;
-
-  const styles = useStyles(unboundStyles);
 
   const [webViewState, setWebViewState] =
     React.useState<WebViewState>('closed');
@@ -77,64 +76,31 @@ function FarcasterAccount(props: Props): React.Node {
         />
       </View>
     );
-  }, [handleMessage, webViewState, styles.webViewContainer, styles.webView]);
+  }, [handleMessage, webViewState]);
 
   const connectButtonVariant =
     webViewState === 'opening' ? 'loading' : 'enabled';
 
   return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.header}>
-          Do you want to connect your Farcaster account?
-        </Text>
-        <Text style={styles.body}>
-          Connecting your Farcaster account lets you see your mutual follows on
-          Comm. We&rsquo;ll also surface communities based on your Farcaster
-          channels.
-        </Text>
-        <View style={styles.farcasterLogoContainer}>
-          <FarcasterLogo />
-        </View>
-        {webView}
-      </View>
-      <View style={styles.connectButtonContainer}>
+    <>
+      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+        <FarcasterPrompt />
+      </RegistrationContentContainer>
+      <RegistrationButtonContainer>
         <RegistrationButton
           onPress={onPressConnectFarcaster}
           label="Connect Farcaster account"
           variant={connectButtonVariant}
         />
-      </View>
-    </View>
+      </RegistrationButtonContainer>
+      {webView}
+    </>
   );
 }
 
-const unboundStyles = {
-  container: {
-    flex: 1,
-    backgroundColor: 'panelBackground',
-    justifyContent: 'space-between',
-  },
-  contentContainer: {
+const styles = {
+  scrollViewContentContainer: {
     flexGrow: 1,
-    padding: 16,
-  },
-  header: {
-    fontSize: 24,
-    color: 'panelForegroundLabel',
-    paddingBottom: 16,
-  },
-  body: {
-    fontFamily: 'Arial',
-    fontSize: 15,
-    lineHeight: 20,
-    color: 'panelForegroundSecondaryLabel',
-    paddingBottom: 16,
-  },
-  farcasterLogoContainer: {
-    flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   webViewContainer: {
     height: 0,
