@@ -87,6 +87,9 @@ const defaultState = ({
   dbOpsStore: {
     queuedOps: [],
   },
+  syncedMetadataStore: {
+    syncedMetadata: {},
+  },
 }: AppState);
 
 export { defaultState };
