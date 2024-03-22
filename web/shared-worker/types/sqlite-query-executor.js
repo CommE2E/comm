@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBAuxUserInfo } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityInfo } from 'lib/ops/community-store-ops.js';
 import type { ClientDBIntegrityThreadHash } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
@@ -129,6 +130,10 @@ declare export class SQLiteQueryExecutor {
   removeSyncedMetadata(names: $ReadOnlyArray<string>): void;
   removeAllSyncedMetadata(): void;
   getAllSyncedMetadata(): ClientDBSyncedMetadataEntry[];
+  replaceAuxUserInfo(auxUserInfo: ClientDBAuxUserInfo): void;
+  removeAuxUserInfos(ids: $ReadOnlyArray<string>): void;
+  removeAllAuxUserInfos(): void;
+  getAllAuxUserInfos(): ClientDBAuxUserInfo[];
 
   beginTransaction(): void;
   commitTransaction(): void;
