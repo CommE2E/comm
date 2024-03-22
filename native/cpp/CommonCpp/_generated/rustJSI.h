@@ -38,6 +38,7 @@ public:
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String challengeResponse, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
   virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
   virtual jsi::Value findUserIDForUsername(jsi::Runtime &rt, jsi::String username) = 0;
+  virtual jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) = 0;
 
 };
 
@@ -202,6 +203,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::findUserIDForUsername, jsInvoker_, instance_, std::move(username));
+    }
+    jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) override {
+      static_assert(
+          bridging::getParameterCount(&T::getFarcasterUsers) == 2,
+          "Expected getFarcasterUsers(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getFarcasterUsers, jsInvoker_, instance_, std::move(farcasterIDs));
     }
 
   private:

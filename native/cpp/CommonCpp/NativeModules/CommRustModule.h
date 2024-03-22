@@ -134,6 +134,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String walletAddress) override;
   virtual jsi::Value
   findUserIDForUsername(jsi::Runtime &rt, jsi::String username) override;
+  virtual jsi::Value
+  getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) override;
 
 public:
   CommRustModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
