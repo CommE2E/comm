@@ -8,7 +8,7 @@ import { FIDContext } from 'lib/components/fid-provider.react.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
-import FarcastAccount from '../components/farcast-account.react.js';
+import FarcasterAccount from '../components/farcaster-account.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
@@ -61,7 +61,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
 
   return (
     <View style={styles.connectContainer}>
-      <FarcastAccount onSuccess={onSuccess} />
+      <FarcasterAccount onSuccess={onSuccess} />
     </View>
   );
 }

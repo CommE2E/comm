@@ -7,7 +7,7 @@ import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
-import FarcasterAccount from '../../components/farcast-account.react.js';
+import FarcasterAccount from '../../components/farcaster-account.react.js';
 import {
   type NavigationRoute,
   UsernameSelectionRouteName,
