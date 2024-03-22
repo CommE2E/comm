@@ -13,6 +13,7 @@ import type {
   IdentityAuthResult,
   UserDevicesOlmInboundKeys,
   UserDevicesOlmOutboundKeys,
+  FarcasterUser,
 } from 'lib/types/identity-service-types.js';
 import { getConfig } from 'lib/utils/config.js';
 
@@ -122,6 +123,14 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
   ) => Promise<$ReadOnlyArray<SignedDeviceList>> = this.proxyToWorker(
     'getDeviceListHistoryForUser',
   );
+
+  getFarcasterUsers: (
+    farcasterIDs: $ReadOnlyArray<string>,
+  ) => Promise<$ReadOnlyArray<FarcasterUser>> =
+    this.proxyToWorker('getFarcasterUsers');
+
+  linkFarcasterAccount: (farcasterID: string) => Promise<void> =
+    this.proxyToWorker('linkFarcasterAccount');
 }
 
 export { IdentityServiceClientSharedProxy };
