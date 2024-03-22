@@ -13,9 +13,9 @@ import type {
   CoolOrNerdMode,
   EthereumAccountSelection,
 } from './registration-types.js';
-import FarcasterAccount from '../../components/farcaster-account.react.js';
-import type { WebViewState } from '../../components/farcaster-account.react.js';
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
+import FarcasterWebView from '../../components/farcaster-web-view.react.js';
+import type { FarcasterWebViewState } from '../../components/farcaster-web-view.react.js';
 import {
   type NavigationRoute,
   UsernameSelectionRouteName,
@@ -78,7 +78,7 @@ function ConnectFarcaster(prop: Props): React.Node {
   );
 
   const [webViewState, setWebViewState] =
-    React.useState<WebViewState>('closed');
+    React.useState<FarcasterWebViewState>('closed');
 
   const onSuccess = React.useCallback(
     (fid: string) => {
@@ -103,7 +103,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       <RegistrationContentContainer style={styles.scrollViewContentContainer}>
         <FarcasterPrompt />
       </RegistrationContentContainer>
-      <FarcasterAccount onSuccess={onSuccess} webViewState={webViewState} />
+      <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       <RegistrationButtonContainer>
         <RegistrationButton
           onPress={onPressConnectFarcaster}

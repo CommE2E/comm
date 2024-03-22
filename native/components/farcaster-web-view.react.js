@@ -24,13 +24,13 @@ type WebViewMessageEvent = {
   ...
 };
 
-export type WebViewState = 'closed' | 'opening';
+export type FarcasterWebViewState = 'closed' | 'opening';
 
 const commConnectFarcasterURL = `${defaultLandingURLPrefix}/connect-farcaster`;
 
 type Props = {
   +onSuccess: (fid: string) => mixed,
-  +webViewState: WebViewState,
+  +webViewState: FarcasterWebViewState,
 };
 
 function FarcasterAccount(props: Props): React.Node {

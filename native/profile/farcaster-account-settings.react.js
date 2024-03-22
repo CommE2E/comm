@@ -9,9 +9,9 @@ import { FIDContext } from 'lib/components/fid-provider.react.js';
 import type { ProfileNavigationProp } from './profile.react.js';
 import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
-import FarcasterAccount from '../components/farcaster-account.react.js';
-import type { WebViewState } from '../components/farcaster-account.react.js';
 import FarcasterPrompt from '../components/farcaster-prompt.react.js';
+import FarcasterWebView from '../components/farcaster-web-view.react.js';
+import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
@@ -38,7 +38,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
   }, [goBack, setFID]);
 
   const [webViewState, setWebViewState] =
-    React.useState<WebViewState>('closed');
+    React.useState<FarcasterWebViewState>('closed');
 
   const onSuccess = React.useCallback(
     (newFID: string) => {
@@ -82,7 +82,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
       <View style={styles.container}>
         <FarcasterPrompt />
       </View>
-      <FarcasterAccount onSuccess={onSuccess} webViewState={webViewState} />
+      <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       <RegistrationButtonContainer>
         <RegistrationButton
           onPress={onPressConnectFarcaster}
