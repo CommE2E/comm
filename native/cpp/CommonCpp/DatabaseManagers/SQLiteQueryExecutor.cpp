@@ -6,6 +6,7 @@
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
+#include "entities/SyncedMetadataEntry.h"
 #include "entities/UserInfo.h"
 #include <fstream>
 #include <iostream>
@@ -1682,6 +1683,51 @@ SQLiteQueryExecutor::getAllIntegrityThreadHashes() const {
       "FROM integrity_store;";
   return getAllEntities<IntegrityThreadHash>(
       SQLiteQueryExecutor::getConnection(), getAllIntegrityThreadHashesSQL);
+}
+
+void SQLiteQueryExecutor::replaceSyncedMetadataEntry(
+    const SyncedMetadataEntry &synced_metadata_entry) const {
+  static std::string replaceSyncedMetadataEntrySQL =
+      "REPLACE INTO synced_metadata (name, data) "
+      "VALUES (?, ?);";
+  replaceEntity<SyncedMetadataEntry>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceSyncedMetadataEntrySQL,
+      synced_metadata_entry);
+}
+
+void SQLiteQueryExecutor::removeAllSyncedMetadata() const {
+  static std::string removeAllSyncedMetadataSQL =
+      "DELETE FROM synced_metadata;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllSyncedMetadataSQL);
+}
+
+void SQLiteQueryExecutor::removeSyncedMetadata(
+    const std::vector<std::string> &names) const {
+  if (!names.size()) {
+    return;
+  }
+
+  std::stringstream removeSyncedMetadataByNamesSQLStream;
+  removeSyncedMetadataByNamesSQLStream << "DELETE FROM synced_metadata "
+                                          "WHERE name IN "
+                                       << getSQLStatementArray(names.size())
+                                       << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeSyncedMetadataByNamesSQLStream.str(),
+      names);
+}
+
+std::vector<SyncedMetadataEntry>
+SQLiteQueryExecutor::getAllSyncedMetadata() const {
+  static std::string getAllSyncedMetadataSQL =
+      "SELECT * "
+      "FROM synced_metadata;";
+  return getAllEntities<SyncedMetadataEntry>(
+      SQLiteQueryExecutor::getConnection(), getAllSyncedMetadataSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
