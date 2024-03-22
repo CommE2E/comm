@@ -258,6 +258,7 @@ function getClientStoreFromQueryExecutor(
     users: [],
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
+    syncedMetadata: [],
   };
 }
 

@@ -119,6 +119,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<UserInfo> userStoreVector;
           std::vector<KeyserverInfo> keyserverStoreVector;
           std::vector<CommunityInfo> communityStoreVector;
+          std::vector<SyncedMetadataEntry> syncedMetadataStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -133,6 +134,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 DatabaseManager::getQueryExecutor().getAllKeyservers();
             communityStoreVector =
                 DatabaseManager::getQueryExecutor().getAllCommunities();
+            syncedMetadataStoreVector =
+                DatabaseManager::getQueryExecutor().getAllSyncedMetadata();
+
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -156,6 +160,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto communityStoreVectorPtr =
               std::make_shared<std::vector<CommunityInfo>>(
                   std::move(communityStoreVector));
+          auto syncedMetadataStoreVectorPtr =
+              std::make_shared<std::vector<SyncedMetadataEntry>>(
+                  std::move(syncedMetadataStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
@@ -165,6 +172,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          userStoreVectorPtr,
                                          keyserveStoreVectorPtr,
                                          communityStoreVectorPtr,
+                                         syncedMetadataStoreVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
@@ -173,8 +181,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          reportStore = this->reportStore,
                                          userStore = this->userStore,
                                          keyserverStore = this->keyserverStore,
-                                         communityStore =
-                                             this->communityStore]() {
+                                         communityStore = this->communityStore,
+                                         syncedMetadataStore =
+                                             this->syncedMetadataStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -196,6 +205,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, keyserveStoreVectorPtr);
             jsi::Array jsiCommunityStore = communityStore.parseDBDataStore(
                 innerRt, communityStoreVectorPtr);
+            jsi::Array jsiSyncedMetadataStore =
+                syncedMetadataStore.parseDBDataStore(
+                    innerRt, syncedMetadataStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -209,6 +221,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, "keyservers", jsiKeyserverStore);
             jsiClientDBStore.setProperty(
                 innerRt, "communities", jsiCommunityStore);
+            jsiClientDBStore.setProperty(
+                innerRt, "syncedMetadata", jsiSyncedMetadataStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
