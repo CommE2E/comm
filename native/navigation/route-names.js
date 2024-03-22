@@ -121,6 +121,7 @@ export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
+export const ConnectFarcasterRouteName = 'ConnectFarcaster';
 export const UsernameSelectionRouteName = 'UsernameSelection';
 export const CommunityCreationRouteName = 'CommunityCreation';
 export const CommunityConfigurationRouteName = 'CommunityConfiguration';
@@ -253,6 +254,7 @@ export type RegistrationParamList = {
   +KeyserverSelection: KeyserverSelectionParams,
   +ConnectEthereum: ConnectEthereumParams,
   +ExistingEthereumAccount: ExistingEthereumAccountParams,
+  +ConnectFarcaster: void,
   +UsernameSelection: UsernameSelectionParams,
   +PasswordSelection: PasswordSelectionParams,
   +AvatarSelection: AvatarSelectionParams,

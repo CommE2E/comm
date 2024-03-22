@@ -10,6 +10,7 @@ import * as React from 'react';
 import AccountDoesNotExist from './account-does-not-exist.react.js';
 import AvatarSelection from './avatar-selection.react.js';
 import ConnectEthereum from './connect-ethereum.react.js';
+import ConnectFarcaster from './connect-farcaster.react.js';
 import CoolOrNerdModeSelection from './cool-or-nerd-mode-selection.react.js';
 import EmojiAvatarSelection from './emoji-avatar-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
@@ -23,6 +24,7 @@ import {
   KeyserverSelectionRouteName,
   CoolOrNerdModeSelectionRouteName,
   ConnectEthereumRouteName,
+  ConnectFarcasterRouteName,
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
   PasswordSelectionRouteName,
@@ -82,6 +84,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={ExistingEthereumAccountRouteName}
         component={ExistingEthereumAccount}
+      />
+      <Registration.Screen
+        name={ConnectFarcasterRouteName}
+        component={ConnectFarcaster}
       />
       <Registration.Screen
         name={UsernameSelectionRouteName}
