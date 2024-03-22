@@ -540,6 +540,19 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const farcasterUsers = JSON.parse(farcasterUsersJSONString);
         return assertWithValidator(farcasterUsers, farcasterUsersValidator);
       },
+      linkFarcasterAccount: async (farcasterID: string) => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        return commRustModule.linkFarcasterAccount(
+          userID,
+          deviceID,
+          token,
+          farcasterID,
+        );
+      },
     }),
     [getAuthMetadata],
   );
