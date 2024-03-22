@@ -148,6 +148,7 @@ export const AddKeyserverRouteName = 'AddKeyserver';
 export const KeyserverSelectionBottomSheetRouteName =
   'KeyserverSelectionBottomSheet';
 export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
+export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -246,6 +247,7 @@ export type ProfileParamList = {
   +TunnelbrokerMenu: void,
   +KeyserverSelectionList: void,
   +AddKeyserver: void,
+  +FarcasterAccountSettings: void,
 };
 
 export type CommunityDrawerParamList = { +TabNavigator: void };

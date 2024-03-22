@@ -36,6 +36,7 @@ import {
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
   TunnelbrokerMenuRouteName,
+  FarcasterAccountSettingsRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -227,8 +228,16 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let farcasterAccount;
     let linkedDevices;
     if (__DEV__) {
+      farcasterAccount = (
+        <ProfileRow
+          content="Farcaster account"
+          onPress={this.onPressFaracsterAccount}
+        />
+      );
+
       linkedDevices = (
         <ProfileRow content="Linked devices" onPress={this.onPressDevices} />
       );
@@ -280,6 +289,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {tunnelbrokerMenu}
           </View>
           <View style={this.props.styles.section}>
+            {farcasterAccount}
             {linkedDevices}
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
@@ -373,6 +383,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressDeleteAccount = () => {
     this.props.navigation.navigate({ name: DeleteAccountRouteName });
+  };
+
+  onPressFaracsterAccount = () => {
+    this.props.navigation.navigate({ name: FarcasterAccountSettingsRouteName });
   };
 
   onPressDevices = () => {
