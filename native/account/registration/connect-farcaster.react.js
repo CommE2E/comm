@@ -23,7 +23,6 @@ type FarcasterWebViewMessage =
   | {
       +type: 'farcaster_data',
       +fid: string,
-      +username: string,
     };
 
 type WebViewMessageEvent = {
@@ -50,14 +49,11 @@ function ConnectFarcaster(prop: Props): React.Node {
   const { navigate } = navigation;
   const { params } = route;
 
-  // TODO
-  // const connectButtonVariant =
-  //   exactSearchUserCallLoading || panelState === 'opening'
-  //     ? 'loading'
-  //     : defaultConnectButtonVariant;
-
   const [webViewState, setWebViewState] =
     React.useState<WebViewState>('closed');
+
+  const [farcasterAccountFID, setFarcasterAccountFID] =
+    React.useState<?string>(null);
 
   const onSkip = React.useCallback(() => {
     navigate<'UsernameSelection'>({
@@ -74,8 +70,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       console.log('url', data.url);
       void Linking.openURL(data.url);
     } else if (data.type === 'farcaster_data') {
-      // send data
-      console.log('data', data);
+      setFarcasterAccountFID(data.fid);
     }
   }, []);
 
@@ -97,25 +92,47 @@ function ConnectFarcaster(prop: Props): React.Node {
     );
   }, [handleMessage, webViewState]);
 
+  const farcasterAccountDetails = React.useMemo(() => {
+    if (!farcasterAccountFID) {
+      return null;
+    }
+    return (
+      <View>
+        <Text style={styles.text}>Farcaster fid: {farcasterAccountFID}</Text>
+      </View>
+    );
+  }, [farcasterAccountFID]);
+
+  const buttons = React.useMemo(() => {
+    if (farcasterAccountFID) {
+      return null;
+    }
+
+    return (
+      <RegistrationButtonContainer>
+        <RegistrationButton
+          onPress={() => {
+            setWebViewState('opening');
+          }}
+          label="Connect Farcaster account"
+          variant="enabled"
+        />
+        <RegistrationButton
+          onPress={onSkip}
+          label="Do not connect"
+          variant="outline"
+        />
+      </RegistrationButtonContainer>
+    );
+  }, [farcasterAccountFID, onSkip]);
+
   return (
     <>
       <RegistrationContainer>
         <RegistrationContentContainer>
           <Text style={styles.text}>Connect to Farcaster?</Text>
-          <RegistrationButtonContainer>
-            <RegistrationButton
-              onPress={() => {
-                setWebViewState('opening');
-              }}
-              label="Connect Farcaster account"
-              variant="enabled"
-            />
-            <RegistrationButton
-              onPress={onSkip}
-              label="Do not connect"
-              variant="outline"
-            />
-          </RegistrationButtonContainer>
+          {farcasterAccountDetails}
+          {buttons}
         </RegistrationContentContainer>
       </RegistrationContainer>
       {webview}
