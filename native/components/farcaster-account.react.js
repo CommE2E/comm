@@ -1,11 +1,8 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Linking } from 'react-native';
 import WebView from 'react-native-webview';
-
-import { FIDContext } from 'lib/components/fid-provider.react.js';
 
 import RegistrationButton from '../account/registration/registration-button.react.js';
 import { useStyles } from '../themes/colors.js';
@@ -35,14 +32,11 @@ type WebViewState = 'closed' | 'opening';
 const commConnectFarcasterURL = `${defaultLandingURLPrefix}/connect-farcaster`;
 
 type Props = {
-  +onSuccess: () => mixed,
+  +onSuccess: (fid: string) => mixed,
 };
 
 function FarcasterAccount(props: Props): React.Node {
   const { onSuccess } = props;
-
-  const setFID = React.useContext(FIDContext)?.setFID;
-  invariant(setFID, 'FIDContext is missing');
 
   const styles = useStyles(unboundStyles);
 
@@ -60,12 +54,11 @@ function FarcasterAccount(props: Props): React.Node {
       if (data.type === 'farcaster_url') {
         void Linking.openURL(data.url);
       } else if (data.type === 'farcaster_data') {
-        setFID(data.fid.toString());
+        onSuccess(data.fid.toString());
         setWebViewState('closed');
-        onSuccess();
       }
     },
-    [onSuccess, setFID],
+    [onSuccess],
   );
 
   const webView = React.useMemo(() => {

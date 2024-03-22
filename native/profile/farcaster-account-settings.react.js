@@ -34,9 +34,13 @@ function FarcasterAccountSettings(props: Props): React.Node {
     goBack();
   }, [goBack, setFID]);
 
-  const onSuccess = React.useCallback(() => {
-    goBack();
-  }, [goBack]);
+  const onSuccess = React.useCallback(
+    (newFID: string) => {
+      setFID(newFID);
+      goBack();
+    },
+    [setFID, goBack],
+  );
 
   if (fid) {
     return (
