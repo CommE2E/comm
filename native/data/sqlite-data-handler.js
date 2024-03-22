@@ -10,6 +10,7 @@ import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js'
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -206,6 +207,7 @@ function SQLiteDataHandler(): React.Node {
           users,
           keyservers,
           communities,
+          syncedMetadata,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -216,6 +218,8 @@ function SQLiteDataHandler(): React.Node {
           keyserverStoreOpsHandlers.translateClientDBData(keyservers);
         const communityInfosFromDB =
           communityStoreOpsHandlers.translateClientDBData(communities);
+        const syncedMetadataFromDB =
+          syncedMetadataStoreOpsHandlers.translateClientDBData(syncedMetadata);
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -229,6 +233,7 @@ function SQLiteDataHandler(): React.Node {
             users: usersFromDB,
             keyserverInfos: keyserverInfosFromDB,
             communities: communityInfosFromDB,
+            syncedMetadata: syncedMetadataFromDB,
           },
         });
       } catch (setStoreException) {
