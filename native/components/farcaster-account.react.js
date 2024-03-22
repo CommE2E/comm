@@ -38,7 +38,7 @@ type Props = {
   +onSuccess: () => mixed,
 };
 
-function FarcastAccount(props: Props): React.Node {
+function FarcasterAccount(props: Props): React.Node {
   const { onSuccess } = props;
 
   const setFID = React.useContext(FIDContext)?.setFID;
@@ -155,4 +155,4 @@ const unboundStyles = {
   },
 };
 
-export default FarcastAccount;
+export default FarcasterAccount;
