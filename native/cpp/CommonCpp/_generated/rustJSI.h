@@ -39,6 +39,7 @@ public:
   virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
   virtual jsi::Value findUserIDForUsername(jsi::Runtime &rt, jsi::String username) = 0;
   virtual jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) = 0;
+  virtual jsi::Value linkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID) = 0;
 
 };
 
@@ -211,6 +212,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getFarcasterUsers, jsInvoker_, instance_, std::move(farcasterIDs));
+    }
+    jsi::Value linkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID) override {
+      static_assert(
+          bridging::getParameterCount(&T::linkFarcasterAccount) == 5,
+          "Expected linkFarcasterAccount(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::linkFarcasterAccount, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(farcasterID));
     }
 
   private:
