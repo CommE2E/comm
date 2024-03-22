@@ -12,6 +12,7 @@ import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import type { CoolOrNerdMode } from './registration-types.js';
 import {
   type NavigationRoute,
   UsernameSelectionRouteName,
@@ -19,6 +20,13 @@ import {
 import { useStyles } from '../../themes/colors.js';
 import { defaultLandingURLPrefix } from '../../utils/url-utils.js';
 import FarcasterLogo from '../../vectors/farcaster-logo.react.js';
+
+export type ConnectFarcasterParams = {
+  +userSelections: {
+    +coolOrNerdMode: CoolOrNerdMode,
+    +keyserverURL: string,
+  },
+};
 
 type FarcasterWebViewMessage =
   | {
@@ -38,8 +46,7 @@ type WebViewMessageEvent = {
   ...
 };
 
-// might not need this but adding just in case
-type WebViewState = 'closed' | 'opening' | 'open' | 'closing';
+type WebViewState = 'closed' | 'opening';
 
 type Props = {
   +navigation: RegistrationNavigationProp<'ConnectFarcaster'>,

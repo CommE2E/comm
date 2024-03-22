@@ -52,9 +52,8 @@ type Props = {
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {
-  // TODO: add this back
-  // const { params } = props.route;
-  const { userSelections } = props.route.params;
+  const { params } = props.route;
+  const { userSelections } = params;
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
@@ -129,8 +128,9 @@ function ConnectEthereum(props: Props): React.Node {
   const onSkip = React.useCallback(() => {
     navigate<'ConnectFarcaster'>({
       name: ConnectFarcasterRouteName,
+      params,
     });
-  }, [navigate]);
+  }, [navigate, params]);
 
   const { keyserverURL } = userSelections;
   const serverCallParamOverride = React.useMemo(
