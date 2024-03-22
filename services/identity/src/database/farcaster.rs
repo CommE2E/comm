@@ -4,7 +4,6 @@ use comm_lib::database::AttributeMap;
 use comm_lib::database::DBItemAttributeError;
 use comm_lib::database::DBItemError;
 use comm_lib::database::Value;
-use grpc_clients::identity::protos::unauth::FarcasterUser;
 use tracing::error;
 
 use crate::constants::USERS_TABLE;
@@ -13,14 +12,15 @@ use crate::constants::USERS_TABLE_FARCASTER_ID_INDEX;
 use crate::constants::USERS_TABLE_PARTITION_KEY;
 use crate::constants::USERS_TABLE_USERNAME_ATTRIBUTE;
 use crate::constants::USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE;
+use crate::grpc_services::protos::unauth::FarcasterUser;
 
 use super::DatabaseClient;
 use super::Error;
 
-struct FarcasterUserData(FarcasterUser);
+pub struct FarcasterUserData(pub FarcasterUser);
 
 impl DatabaseClient {
-  async fn get_farcaster_users(
+  pub async fn get_farcaster_users(
     &self,
     farcaster_ids: Vec<String>,
   ) -> Result<Vec<FarcasterUserData>, Error> {
