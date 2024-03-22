@@ -20,7 +20,16 @@ jsi::Array SyncedMetadataStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<SyncedMetadataEntry>> syncedMetadataVectorPtr)
     const {
-  jsi::Array jsiSyncedMetadata = jsi::Array(rt, 0);
+  size_t numSyncedMetadata = syncedMetadataVectorPtr->size();
+  jsi::Array jsiSyncedMetadata = jsi::Array(rt, numSyncedMetadata);
+  size_t writeIdx = 0;
+  for (const SyncedMetadataEntry &syncedMetadataEntry :
+       *syncedMetadataVectorPtr) {
+    jsi::Object jsiSyncedMetadataEntry = jsi::Object(rt);
+    jsiSyncedMetadataEntry.setProperty(rt, "name", syncedMetadataEntry.name);
+    jsiSyncedMetadataEntry.setProperty(rt, "data", syncedMetadataEntry.data);
+    jsiSyncedMetadata.setValueAtIndex(rt, writeIdx++, jsiSyncedMetadataEntry);
+  }
   return jsiSyncedMetadata;
 }
 
