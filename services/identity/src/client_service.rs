@@ -875,9 +875,20 @@ impl IdentityClientService for ClientService {
 
   async fn get_farcaster_users(
     &self,
-    _request: tonic::Request<GetFarcasterUsersRequest>,
+    request: tonic::Request<GetFarcasterUsersRequest>,
   ) -> Result<tonic::Response<GetFarcasterUsersResponse>, tonic::Status> {
-    unimplemented!();
+    let message = request.into_inner();
+
+    let farcaster_users = self
+      .client
+      .get_farcaster_users(message.farcaster_ids)
+      .await
+      .map_err(handle_db_error)?
+      .into_iter()
+      .map(|d| d.0)
+      .collect();
+
+    Ok(Response::new(GetFarcasterUsersResponse { farcaster_users }))
   }
 }
 
