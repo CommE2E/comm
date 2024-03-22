@@ -16,6 +16,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
+import type { SyncedMetadataStore } from 'lib/types/synced-metadata-types.js';
 import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
@@ -77,6 +78,7 @@ export type AppState = {
   +localSettings: LocalSettings,
   +integrityStore: IntegrityStore,
   +communityStore: CommunityStore,
+  +syncedMetadataStore: SyncedMetadataStore,
 };
 
 export { nonUserSpecificFieldsNative };

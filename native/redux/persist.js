@@ -138,6 +138,7 @@ const persistBlacklist = [
   'frozen',
   'threadStore',
   'storeLoaded',
+  'syncedMetadataStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {

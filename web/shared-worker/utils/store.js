@@ -4,6 +4,7 @@ import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type {
@@ -28,6 +29,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
     communityInfos: null,
     threadHashes: null,
+    syncedMetadata: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -92,6 +94,7 @@ async function processDBStoreOperations(
     keyserverStoreOperations,
     communityStoreOperations,
     integrityStoreOperations,
+    syncedMetadataStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -107,6 +110,10 @@ async function processDBStoreOperations(
     communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
   const convertedIntegrityStoreOperations =
     integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
+  const convertedSyncedMetadataStoreOperations =
+    syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
+      syncedMetadataStoreOperations,
+    );
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -114,7 +121,8 @@ async function processDBStoreOperations(
     draftStoreOperations.length === 0 &&
     convertedKeyserverStoreOperations.length === 0 &&
     convertedCommunityStoreOperations.length === 0 &&
-    convertedIntegrityStoreOperations.length === 0
+    convertedIntegrityStoreOperations.length === 0 &&
+    convertedSyncedMetadataStoreOperations.length === 0
   ) {
     return;
   }
@@ -134,6 +142,7 @@ async function processDBStoreOperations(
         keyserverStoreOperations: convertedKeyserverStoreOperations,
         communityStoreOperations: convertedCommunityStoreOperations,
         integrityStoreOperations: convertedIntegrityStoreOperations,
+        syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
       },
     });
   } catch (e) {

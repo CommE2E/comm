@@ -84,6 +84,9 @@ const defaultState = ({
   communityStore: {
     communityInfos: {},
   },
+  syncedMetadataStore: {
+    syncedMetadata: {},
+  },
 }: AppState);
 
 export { defaultState };
