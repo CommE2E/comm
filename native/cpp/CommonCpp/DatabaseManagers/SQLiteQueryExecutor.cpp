@@ -910,7 +910,7 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {35, {create_communities_table, true}},
      {36, {create_messages_to_device_table, true}},
      {37, {create_synced_metadata_table, true}},
-     {38, {create_aux_user_table_table, true}}}};
+     {38, {create_aux_user_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
