@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import bots from 'lib/facts/bots.js';
 import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -27,6 +28,8 @@ import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+
+const { commbot } = bots;
 
 async function updateRelationships(
   viewer: Viewer,
@@ -218,7 +221,7 @@ async function updateRelationships(
     const messageDatas = request.userIDs.map(otherUserID => ({
       type: messageTypes.UPDATE_RELATIONSHIP,
       threadID: threadIDPerUser[otherUserID],
-      creatorID: viewer.userID,
+      creatorID: commbot.userID,
       targetID: otherUserID,
       time: now,
       operation: 'farcaster_mutual',
