@@ -26,6 +26,7 @@ import {
   invalidSessionDowngrade,
   identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
+import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { CryptoStore } from 'lib/types/crypto-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
@@ -122,6 +123,7 @@ export type AppState = {
   +customServer: ?string,
   +communityStore: CommunityStore,
   +syncedMetadataStore: SyncedMetadataStore,
+  +auxUserStore: AuxUserStore,
 };
 
 export type Action =
@@ -150,6 +152,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     keyserverStoreOperations: [],
     communityStoreOperations: [],
     syncedMetadataStoreOperations: [],
+    auxUserStoreOperations: [],
   };
 
   if (action.type === setInitialReduxState) {

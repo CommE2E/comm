@@ -87,6 +87,9 @@ const defaultState = ({
   syncedMetadataStore: {
     syncedMetadata: {},
   },
+  auxUserStore: {
+    auxUserInfos: {},
+  },
 }: AppState);
 
 export { defaultState };
