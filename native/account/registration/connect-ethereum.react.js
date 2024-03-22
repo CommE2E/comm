@@ -27,7 +27,6 @@ import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
   ConnectFarcasterRouteName,
-  AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
@@ -177,10 +176,10 @@ function ConnectEthereum(props: Props): React.Node {
 
       const newUserSelections = {
         ...userSelections,
-        accountSelection: ethereumAccount,
+        ethereumAccount,
       };
-      navigate<'AvatarSelection'>({
-        name: AvatarSelectionRouteName,
+      navigate<'ConnectFarcaster'>({
+        name: ConnectFarcasterRouteName,
         params: { userSelections: newUserSelections },
       });
     },
@@ -231,10 +230,10 @@ function ConnectEthereum(props: Props): React.Node {
     );
     const newUserSelections = {
       ...userSelections,
-      accountSelection: ethereumAccount,
+      ethereumAccount,
     };
-    navigate<'AvatarSelection'>({
-      name: AvatarSelectionRouteName,
+    navigate<'ConnectFarcaster'>({
+      name: ConnectFarcasterRouteName,
       params: { userSelections: newUserSelections },
     });
   }, [ethereumAccount, userSelections, navigate]);

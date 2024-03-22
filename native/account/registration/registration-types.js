@@ -40,6 +40,7 @@ export type AvatarData =
 export type RegistrationServerCallInput = {
   +coolOrNerdMode: CoolOrNerdMode,
   +keyserverURL: string,
+  +farcasterID: ?string,
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,
 };
@@ -51,6 +52,7 @@ export type CachedUserSelections = {
   +password?: string,
   +avatarData?: ?AvatarData,
   +ethereumAccount?: EthereumAccountSelection,
+  +farcasterID?: string,
 };
 
 export const ensAvatarSelection: AvatarData = {

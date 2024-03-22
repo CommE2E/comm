@@ -39,6 +39,7 @@ export type UsernameSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverURL: string,
+    +farcasterID: ?string,
   },
 };
 

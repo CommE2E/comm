@@ -37,6 +37,7 @@ export type AvatarSelectionParams = {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverURL: string,
     +accountSelection: AccountSelection,
+    +farcasterID: ?string,
   },
 };
 
