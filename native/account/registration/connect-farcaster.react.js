@@ -2,10 +2,10 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View } from 'react-native';
 
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
+import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
@@ -13,6 +13,7 @@ import type {
   EthereumAccountSelection,
 } from './registration-types.js';
 import FarcasterAccount from '../../components/farcaster-account.react.js';
+import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import {
   type NavigationRoute,
   UsernameSelectionRouteName,
@@ -85,27 +86,24 @@ function ConnectFarcaster(prop: Props): React.Node {
   );
 
   return (
-    <RegistrationContainer style={styles.registrationContainer}>
-      <FarcasterAccount onSuccess={onSuccess} />
-      <View style={styles.secondaryButtonContainer}>
+    <RegistrationContainer>
+      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+        <FarcasterPrompt />
+      </RegistrationContentContainer>
+      <FarcasterAccount onSuccess={onSuccess}>
         <RegistrationButton
           onPress={goToNextStep}
           label="Do not connect"
           variant="outline"
         />
-      </View>
+      </FarcasterAccount>
     </RegistrationContainer>
   );
 }
 
 const styles = {
-  registrationContainer: {
-    // TODO: fix this hack
-    paddingTop: 112,
-  },
-  secondaryButtonContainer: {
-    marginHorizontal: 16,
-    marginBottom: 8,
+  scrollViewContentContainer: {
+    flexGrow: 1,
   },
 };
 

@@ -4,10 +4,8 @@ import * as React from 'react';
 import { View, Linking } from 'react-native';
 import WebView from 'react-native-webview';
 
-import FarcasterPrompt from './farcaster-prompt.react.js';
 import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
-import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 type FarcasterWebViewMessage =
@@ -34,10 +32,11 @@ const commConnectFarcasterURL = `${defaultLandingURLPrefix}/connect-farcaster`;
 
 type Props = {
   +onSuccess: (fid: string) => mixed,
+  +children: React.Node,
 };
 
 function FarcasterAccount(props: Props): React.Node {
-  const { onSuccess } = props;
+  const { onSuccess, children } = props;
 
   const [webViewState, setWebViewState] =
     React.useState<WebViewState>('closed');
@@ -83,15 +82,13 @@ function FarcasterAccount(props: Props): React.Node {
 
   return (
     <>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-        <FarcasterPrompt />
-      </RegistrationContentContainer>
       <RegistrationButtonContainer>
         <RegistrationButton
           onPress={onPressConnectFarcaster}
           label="Connect Farcaster account"
           variant={connectButtonVariant}
         />
+        {children}
       </RegistrationButtonContainer>
       {webView}
     </>
@@ -99,9 +96,6 @@ function FarcasterAccount(props: Props): React.Node {
 }
 
 const styles = {
-  scrollViewContentContainer: {
-    flexGrow: 1,
-  },
   webViewContainer: {
     height: 0,
     overflow: 'hidden',
