@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use comm_lib::aws::ddb::types::AttributeValue;
+use comm_lib::aws::ddb::types::ReturnValue;
 use comm_lib::database::AttributeExtractor;
 use comm_lib::database::AttributeMap;
 use comm_lib::database::DBItemAttributeError;
@@ -64,21 +65,38 @@ impl DatabaseClient {
     user_id: String,
     farcaster_id: String,
   ) -> Result<(), Error> {
-    let update_expression =
-      format!("SET {} = :val", USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
-    let expression_attribute_values =
-      HashMap::from([(":val".to_string(), AttributeValue::S(farcaster_id))]);
+    let update_expression = format!(
+      "SET {} = if_not_exists({}, :val)",
+      USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
+      USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME
+    );
+    let expression_attribute_values = HashMap::from([(
+      ":val".to_string(),
+      AttributeValue::S(farcaster_id.clone()),
+    )]);
 
-    self
+    let response = self
       .client
       .update_item()
       .table_name(USERS_TABLE)
       .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
       .update_expression(update_expression)
       .set_expression_attribute_values(Some(expression_attribute_values))
+      .return_values(ReturnValue::UpdatedNew)
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    match response.attributes {
+      None => return Err(Error::MissingItem),
+      Some(mut attrs) => {
+        let farcaster_id_from_table: String =
+          attrs.take_attr(USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME)?;
+        if farcaster_id_from_table != farcaster_id {
+          return Err(Error::CannotOverwrite);
+        }
+      }
+    }
 
     Ok(())
   }
