@@ -1745,6 +1745,48 @@ SQLiteQueryExecutor::getAllSyncedMetadata() const {
       SQLiteQueryExecutor::getConnection(), getAllSyncedMetadataSQL);
 }
 
+void SQLiteQueryExecutor::replaceAuxUserInfo(
+    const AuxUserInfo &aux_user_info) const {
+  static std::string replaceAuxUserInfoSQL =
+      "REPLACE INTO aux_users (id, aux_user_info) "
+      "VALUES (?, ?);";
+  replaceEntity<AuxUserInfo>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceAuxUserInfoSQL,
+      aux_user_info);
+}
+
+void SQLiteQueryExecutor::removeAllAuxUserInfos() const {
+  static std::string removeAllAuxUserInfosSQL = "DELETE FROM aux_users;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllAuxUserInfosSQL);
+}
+
+void SQLiteQueryExecutor::removeAuxUserInfos(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeAuxUserInfosByKeysSQLStream;
+  removeAuxUserInfosByKeysSQLStream << "DELETE FROM aux_users "
+                                       "WHERE id IN "
+                                    << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeAuxUserInfosByKeysSQLStream.str(),
+      ids);
+}
+
+std::vector<AuxUserInfo> SQLiteQueryExecutor::getAllAuxUserInfos() const {
+  static std::string getAllAuxUserInfosSQL =
+      "SELECT * "
+      "FROM aux_users;";
+  return getAllEntities<AuxUserInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllAuxUserInfosSQL);
+}
+
 void SQLiteQueryExecutor::beginTransaction() const {
   executeQuery(SQLiteQueryExecutor::getConnection(), "BEGIN TRANSACTION;");
 }
