@@ -1,6 +1,6 @@
 // @flow
 
-import { AuthKitProvider, useSignIn, SignInButton } from '@farcaster/auth-kit';
+import { AuthKitProvider, useSignIn } from '@farcaster/auth-kit';
 import * as React from 'react';
 
 type FarcasterWebViewMessage =
@@ -11,7 +11,6 @@ type FarcasterWebViewMessage =
   | {
       +type: 'farcaster_data',
       +fid: string,
-      +username: string,
     };
 
 const config = {
@@ -25,12 +24,18 @@ function postMessageToNativeWebView(message: FarcasterWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
 
-function ConnectFarcaster(): React.Node {
-  const onSuccessCallback = React.useCallback(
-    () => console.log('hello world'),
-    [],
-  );
+type OnSuccessCallbackArgs = {
+  fid: string,
+  username: string,
+};
+function onSuccessCallback({ fid }: OnSuccessCallbackArgs) {
+  postMessageToNativeWebView({
+    type: 'farcaster_data',
+    fid,
+  });
+}
 
+function ConnectFarcaster(): React.Node {
   const signInState = useSignIn({ onSuccess: onSuccessCallback });
 
   const {
@@ -41,7 +46,6 @@ function ConnectFarcaster(): React.Node {
     isError,
     channelToken,
     url,
-    data,
     validSignature,
   } = signInState;
 
@@ -51,6 +55,7 @@ function ConnectFarcaster(): React.Node {
     }
   }, [channelToken, connect]);
 
+  const messageSentRef = React.useRef(false);
   const authenticated = isSuccess && validSignature;
 
   React.useEffect(() => {
@@ -63,9 +68,8 @@ function ConnectFarcaster(): React.Node {
 
     signIn();
 
-    // console.log('url', url);
-
-    if (url) {
+    if (url && messageSentRef.current === false) {
+      messageSentRef.current = true;
       postMessageToNativeWebView({
         type: 'farcaster_url',
         url,
@@ -73,45 +77,7 @@ function ConnectFarcaster(): React.Node {
     }
   }, [authenticated, isError, reconnect, signIn, url]);
 
-  React.useEffect(() => {
-    if (!authenticated) {
-      return;
-    }
-
-    postMessageToNativeWebView({
-      type: 'farcaster_data',
-      fid: data.fid,
-      username: data.username,
-    });
-  }, [authenticated, data]);
-
-  console.log('authenticated', authenticated);
-  console.log('isSuccess', isSuccess);
-  console.log('validSignature', validSignature);
-
-  if (authenticated) {
-    return (
-      <div>
-        <h1>Connected Farcaster</h1>
-        <p>You are now connected to Farcaster.</p>
-        <div>Username: {data.username}</div>
-        <div>fid: {data.fid}</div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ backgroundColor: 'red' }}>
-      <h1>Connect Farcaster</h1>
-      <p>This is a page for connecting Farcaster.</p>
-      <SignInButton
-        onSuccess={({ fid, username }) =>
-          console.log(`Hello, ${username}! Your fid is ${fid}.`)
-        }
-      />
-      <div>URL: {url}</div>
-    </div>
-  );
+  return null;
 }
 
 function ConnectFarcasterWrapper(): React.Node {
