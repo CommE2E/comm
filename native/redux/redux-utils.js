@@ -10,6 +10,7 @@ import {
 } from 'lib/ops/keyserver-store-ops.js';
 import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
@@ -37,6 +38,7 @@ async function processDBStoreOperations(
     keyserverStoreOperations,
     integrityStoreOperations,
     communityStoreOperations,
+    syncedMetadataStoreOperations,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
@@ -51,6 +53,10 @@ async function processDBStoreOperations(
     keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
   const convertedCommunityStoreOperations =
     communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
+  const convertedSyncedMetadataStoreOperations =
+    syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
+      syncedMetadataStoreOperations,
+    );
   const keyserversToRemoveFromNotifsStore =
     getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations);
   const convertedIntegrityStoreOperations =
@@ -114,6 +120,13 @@ async function processDBStoreOperations(
       promises.push(
         commCoreModule.processIntegrityStoreOperations(
           convertedIntegrityStoreOperations,
+        ),
+      );
+    }
+    if (convertedSyncedMetadataStoreOperations.length > 0) {
+      promises.push(
+        commCoreModule.processSyncedMetadataStoreOperations(
+          convertedSyncedMetadataStoreOperations,
         ),
       );
     }
