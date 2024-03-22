@@ -52,6 +52,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<CommunityInfo>("CommunityInfo")
       .field("id", &CommunityInfo::id)
       .field("communityInfo", &CommunityInfo::community_info);
+  value_object<SyncedMetadataEntry>("SyncedMetadataEntry")
+      .field("name", &SyncedMetadataEntry::name)
+      .field("data", &SyncedMetadataEntry::data);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -175,6 +178,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "removeAllCommunities", &SQLiteQueryExecutor::removeAllCommunities)
       .function("getAllCommunities", &SQLiteQueryExecutor::getAllCommunities)
+      .function("replaceSyncedMetadataEntry", &SQLiteQueryExecutor::replaceSyncedMetadataEntry)
+      .function("removeSyncedMetadata", &SQLiteQueryExecutor::removeSyncedMetadata)
+      .function(
+          "removeAllSyncedMetadata", &SQLiteQueryExecutor::removeAllSyncedMetadata)
+      .function("getAllSyncedMetadata", &SQLiteQueryExecutor::getAllSyncedMetadata)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(

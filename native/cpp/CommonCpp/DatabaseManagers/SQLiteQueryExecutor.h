@@ -92,6 +92,12 @@ public:
   void removeCommunities(const std::vector<std::string> &ids) const override;
   void removeAllCommunities() const override;
   std::vector<CommunityInfo> getAllCommunities() const override;
+  void replaceSyncedMetadataEntry(
+      const SyncedMetadataEntry &synced_metadata_entry) const override;
+  void
+  removeSyncedMetadata(const std::vector<std::string> &names) const override;
+  void removeAllSyncedMetadata() const override;
+  std::vector<SyncedMetadataEntry> getAllSyncedMetadata() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
