@@ -55,6 +55,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<IntegrityThreadHash>("IntegrityThreadHash")
       .field("id", &IntegrityThreadHash::id)
       .field("threadHash", &IntegrityThreadHash::thread_hash);
+  value_object<SyncedMetadataEntry>("SyncedMetadataEntry")
+      .field("name", &SyncedMetadataEntry::name)
+      .field("data", &SyncedMetadataEntry::data);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -190,6 +193,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "getAllIntegrityThreadHashes",
           &SQLiteQueryExecutor::getAllIntegrityThreadHashes)
+      .function("replaceSyncedMetadataEntry", &SQLiteQueryExecutor::replaceSyncedMetadataEntry)
+      .function("removeSyncedMetadata", &SQLiteQueryExecutor::removeSyncedMetadata)
+      .function(
+          "removeAllSyncedMetadata", &SQLiteQueryExecutor::removeAllSyncedMetadata)
+      .function("getAllSyncedMetadata", &SQLiteQueryExecutor::getAllSyncedMetadata)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
