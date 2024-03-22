@@ -204,13 +204,26 @@ async function updateRelationships(
     // reported to the caller and can be repeated - there should be only
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
-    await createPersonalThreads(viewer, request);
+    const threadIDPerUser = await createPersonalThreads(viewer, request);
+
     const insertRows = request.userIDs.map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
       return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
+
     await createUpdates(updateDatas);
+
+    const now = Date.now();
+    const messageDatas = request.userIDs.map(otherUserID => ({
+      type: messageTypes.UPDATE_RELATIONSHIP,
+      threadID: threadIDPerUser[otherUserID],
+      creatorID: viewer.userID,
+      targetID: otherUserID,
+      time: now,
+      operation: 'farcaster_mutual',
+    }));
+    await createMessages(viewer, messageDatas, 'broadcast');
   } else {
     invariant(false, `action ${action} is invalid or not supported currently`);
   }
