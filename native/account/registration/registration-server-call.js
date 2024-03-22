@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -9,6 +10,7 @@ import {
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
+import { FIDContext } from 'lib/components/fid-provider.react.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -72,6 +74,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const dispatchActionPromise = useDispatchActionPromise();
   const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
   const callIdentityPasswordRegister = useIdentityPasswordRegister();
+
+  const fidContext = React.useContext(FIDContext);
+  invariant(fidContext, 'FIDContext is missing');
+  const { setFID } = fidContext;
 
   const identityRegisterUsernameAccount = React.useCallback(
     async (accountSelection: UsernameAccountSelection) => {
@@ -191,7 +197,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData, keyserverURL } = input;
+            const { accountSelection, avatarData, keyserverURL, farcasterID } =
+              input;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -233,6 +240,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               type: setURLPrefix,
               payload: keyserverURL,
             });
+            setFID(farcasterID);
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
@@ -251,6 +259,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       legacySiweServerCall,
       dispatch,
       identityWalletRegisterCall,
+      setFID,
     ],
   );
 
