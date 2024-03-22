@@ -4,6 +4,7 @@ import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-op
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
@@ -218,6 +219,37 @@ function processIntegrityStoreOperations(
   }
 }
 
+function processSyncedMetadataStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBSyncedMetadataStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_synced_metadata') {
+        sqliteQueryExecutor.removeAllSyncedMetadata();
+      } else if (operation.type === 'remove_synced_metadata') {
+        const { names } = operation.payload;
+        sqliteQueryExecutor.removeSyncedMetadata(names);
+      } else if (operation.type === 'replace_synced_metadata_entry') {
+        const { name, data } = operation.payload;
+        sqliteQueryExecutor.replaceSyncedMetadataEntry({ name, data });
+      } else {
+        throw new Error('Unsupported synced metadata operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } synced metadata operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
@@ -230,6 +262,7 @@ function processDBStoreOperations(
     keyserverStoreOperations,
     communityStoreOperations,
     integrityStoreOperations,
+    syncedMetadataStoreOperations,
   } = storeOperations;
 
   try {
@@ -276,6 +309,16 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (
+      syncedMetadataStoreOperations &&
+      syncedMetadataStoreOperations.length > 0
+    ) {
+      processSyncedMetadataStoreOperations(
+        sqliteQueryExecutor,
+        syncedMetadataStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -299,7 +342,7 @@ function getClientStoreFromQueryExecutor(
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
-    syncedMetadata: [],
+    syncedMetadata: sqliteQueryExecutor.getAllSyncedMetadata(),
   };
 }
 
