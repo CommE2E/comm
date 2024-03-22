@@ -26,7 +26,7 @@ import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
-  UsernameSelectionRouteName,
+  ConnectFarcasterRouteName,
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -52,7 +52,8 @@ type Props = {
   +route: NavigationRoute<'ConnectEthereum'>,
 };
 function ConnectEthereum(props: Props): React.Node {
-  const { params } = props.route;
+  // TODO: add this back
+  // const { params } = props.route;
   const { userSelections } = props.route.params;
 
   const registrationContext = React.useContext(RegistrationContext);
@@ -126,11 +127,10 @@ function ConnectEthereum(props: Props): React.Node {
 
   const { navigate } = props.navigation;
   const onSkip = React.useCallback(() => {
-    navigate<'UsernameSelection'>({
-      name: UsernameSelectionRouteName,
-      params,
+    navigate<'ConnectFarcaster'>({
+      name: ConnectFarcasterRouteName,
     });
-  }, [navigate, params]);
+  }, [navigate]);
 
   const { keyserverURL } = userSelections;
   const serverCallParamOverride = React.useMemo(
