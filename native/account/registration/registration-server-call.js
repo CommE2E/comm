@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
@@ -74,16 +75,21 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
   const callIdentityPasswordRegister = useIdentityPasswordRegister();
 
-  const fid = React.useContext(FIDContext)?.fid;
+  const fidContext = React.useContext(FIDContext);
+  invariant(fidContext, 'FIDContext is missing');
+  const { setFID } = fidContext;
 
   const identityRegisterUsernameAccount = React.useCallback(
-    async (accountSelection: UsernameAccountSelection) => {
+    async (
+      accountSelection: UsernameAccountSelection,
+      farcasterID: ?string,
+    ) => {
       const identityRegisterPromise = (async () => {
         try {
           const result = await callIdentityPasswordRegister(
             accountSelection.username,
             accountSelection.password,
-            fid,
+            farcasterID,
           );
           await setNativeCredentials({
             username: accountSelection.username,
@@ -121,7 +127,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       );
       await identityRegisterPromise;
     },
-    [callIdentityPasswordRegister, fid, dispatchActionPromise],
+    [callIdentityPasswordRegister, dispatchActionPromise],
   );
 
   const keyserverRegisterUsernameAccount = React.useCallback(
@@ -195,7 +201,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData, keyserverURL } = input;
+            const { accountSelection, avatarData, keyserverURL, farcasterID } =
+              input;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -205,7 +212,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 keyserverURL,
               );
             } else if (accountSelection.accountType === 'username') {
-              await identityRegisterUsernameAccount(accountSelection);
+              await identityRegisterUsernameAccount(
+                accountSelection,
+                farcasterID,
+              );
             } else if (!usingCommServicesAccessToken) {
               try {
                 await legacySiweServerCall(accountSelection, {
@@ -224,7 +234,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   address: accountSelection.address,
                   message: accountSelection.message,
                   signature: accountSelection.signature,
-                  fid,
+                  fid: farcasterID,
                 });
               } catch (e) {
                 Alert.alert(
@@ -238,6 +248,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               type: setURLPrefix,
               payload: keyserverURL,
             });
+            setFID(farcasterID);
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
@@ -256,7 +267,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       legacySiweServerCall,
       dispatch,
       identityWalletRegisterCall,
-      fid,
+      setFID,
     ],
   );
 
