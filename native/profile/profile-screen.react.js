@@ -234,7 +234,7 @@ class ProfileScreen extends React.PureComponent<Props> {
       farcasterAccount = (
         <ProfileRow
           content="Farcaster account"
-          onPress={this.onPressFaracsterAccount}
+          onPress={this.onPressFarcasterAccount}
         />
       );
 
@@ -385,7 +385,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     this.props.navigation.navigate({ name: DeleteAccountRouteName });
   };
 
-  onPressFaracsterAccount = () => {
+  onPressFarcasterAccount = () => {
     this.props.navigation.navigate({ name: FarcasterAccountSettingsRouteName });
   };
 
