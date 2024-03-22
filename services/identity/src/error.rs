@@ -22,6 +22,8 @@ pub enum Error {
   MalformedItem,
   #[display(...)]
   Serde(serde_json::Error),
+  #[display(...)]
+  CannotOverwrite,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
