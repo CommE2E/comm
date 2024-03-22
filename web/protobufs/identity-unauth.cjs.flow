@@ -114,6 +114,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.FindUserIDResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.FindUserIDResponse>;
 
+  getFarcasterUsers(
+    request: identityStructs.GetFarcasterUsersRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.GetFarcasterUsersResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.GetFarcasterUsersResponse>;
+
 }
 
 declare export class IdentityClientServicePromiseClient {
@@ -194,5 +201,10 @@ registerPasswordUserFinish(
     request: identityStructs.FindUserIDRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.FindUserIDResponse>;
+
+  getFarcasterUsers(
+    request: identityStructs.GetFarcasterUsersRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.GetFarcasterUsersResponse>;
 
 }

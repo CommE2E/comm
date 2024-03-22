@@ -991,5 +991,65 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.findUserID =
 };
 
 
-module.exports = proto.identity.unauth;
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.GetFarcasterUsersRequest,
+ *   !proto.identity.unauth.GetFarcasterUsersResponse>}
+ */
+const methodDescriptor_IdentityClientService_GetFarcasterUsers = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/GetFarcasterUsers',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.GetFarcasterUsersRequest,
+  proto.identity.unauth.GetFarcasterUsersResponse,
+  /**
+   * @param {!proto.identity.unauth.GetFarcasterUsersRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.GetFarcasterUsersResponse.deserializeBinary
+);
 
+
+/**
+ * @param {!proto.identity.unauth.GetFarcasterUsersRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.GetFarcasterUsersResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.GetFarcasterUsersResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.getFarcasterUsers =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/GetFarcasterUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetFarcasterUsers,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.GetFarcasterUsersRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.GetFarcasterUsersResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.getFarcasterUsers =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/GetFarcasterUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetFarcasterUsers);
+};
+
+
+module.exports = proto.identity.unauth;
