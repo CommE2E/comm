@@ -39,7 +39,7 @@ function ConnectFarcaster(prop: Props): React.Node {
   }, [navigate, params]);
 
   return (
-    <RegistrationContainer>
+    <RegistrationContainer style={styles.registrationContainer}>
       <FarcasterAccount onSuccess={goToNextStep} />
       <View style={styles.secondaryButtonContainer}>
         <RegistrationButton
@@ -53,6 +53,10 @@ function ConnectFarcaster(prop: Props): React.Node {
 }
 
 const styles = {
+  registrationContainer: {
+    // TODO: fix this hack
+    paddingTop: 112,
+  },
   secondaryButtonContainer: {
     marginHorizontal: 16,
     marginBottom: 8,

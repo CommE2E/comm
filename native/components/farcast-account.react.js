@@ -8,7 +8,6 @@ import WebView from 'react-native-webview';
 import { FIDContext } from 'lib/components/fid-provider.react.js';
 
 import RegistrationButton from '../account/registration/registration-button.react.js';
-import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import { useStyles } from '../themes/colors.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
@@ -91,7 +90,7 @@ function FarcastAccount(props: Props): React.Node {
 
   return (
     <View style={styles.container}>
-      <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+      <View style={styles.contentContainer}>
         <Text style={styles.header}>
           Do you want to connect your Farcaster account?
         </Text>
@@ -104,7 +103,7 @@ function FarcastAccount(props: Props): React.Node {
           <FarcasterLogo />
         </View>
         {webView}
-      </RegistrationContentContainer>
+      </View>
       <View style={styles.connectButtonContainer}>
         <RegistrationButton
           onPress={onPressConnectFarcaster}
@@ -122,8 +121,9 @@ const unboundStyles = {
     backgroundColor: 'panelBackground',
     justifyContent: 'space-between',
   },
-  scrollViewContentContainer: {
+  contentContainer: {
     flexGrow: 1,
+    padding: 16,
   },
   header: {
     fontSize: 24,
