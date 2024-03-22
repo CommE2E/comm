@@ -136,9 +136,10 @@ resource "aws_dynamodb_table" "identity-users" {
   }
 
   global_secondary_index {
-    name            = "farcasterID-index"
-    hash_key        = "farcasterID"
-    projection_type = "KEYS_ONLY"
+    name               = "farcasterID-index"
+    hash_key           = "farcasterID"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["walletAddress", "username"]
   }
 }
 
