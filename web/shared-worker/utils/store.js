@@ -80,6 +80,14 @@ async function getClientDBStore(): Promise<ClientStore> {
       ),
     };
   }
+  if (data?.store?.syncedMetadata) {
+    result = {
+      ...result,
+      syncedMetadata: syncedMetadataStoreOpsHandlers.translateClientDBData(
+        data.store.syncedMetadata,
+      ),
+    };
+  }
   return result;
 }
 
