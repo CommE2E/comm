@@ -56,6 +56,7 @@ pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
 pub const USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME: &str = "farcasterID";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
+pub const USERS_TABLE_FARCASTER_ID_INDEX: &str = "farcasterID-index";
 
 pub const ACCESS_TOKEN_TABLE: &str = "identity-tokens";
 pub const ACCESS_TOKEN_TABLE_PARTITION_KEY: &str = "userID";
