@@ -403,6 +403,27 @@ impl IdentityClientService for AuthenticatedService {
     let (user_id, _) = get_user_and_device_id(&request)?;
     let message = request.into_inner();
 
+    let mut get_farcaster_users_response = self
+      .db_client
+      .get_farcaster_users(vec![message.farcaster_id.clone()])
+      .await
+      .map_err(handle_db_error)?;
+
+    if get_farcaster_users_response.len() > 1 {
+      error!("multiple users associated with the same Farcaster ID");
+      return Err(Status::failed_precondition("cannot link Farcaster ID"));
+    }
+
+    if let Some(u) = get_farcaster_users_response.pop() {
+      if u.0.user_id == user_id {
+        return Ok(Response::new(Empty {}));
+      } else {
+        return Err(Status::already_exists(
+          "farcaster ID already associated with different user",
+        ));
+      }
+    }
+
     self
       .db_client
       .add_farcaster_id(user_id, message.farcaster_id)
