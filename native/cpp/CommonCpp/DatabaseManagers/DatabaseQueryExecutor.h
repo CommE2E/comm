@@ -12,6 +12,7 @@
 #include "entities/OlmPersistSession.h"
 #include "entities/PersistItem.h"
 #include "entities/Report.h"
+#include "entities/SyncedMetadataEntry.h"
 #include "entities/Thread.h"
 #include "entities/UserInfo.h"
 
@@ -86,6 +87,12 @@ public:
   virtual void removeAllIntegrityThreadHashes() const = 0;
   virtual std::vector<IntegrityThreadHash>
   getAllIntegrityThreadHashes() const = 0;
+  virtual void replaceSyncedMetadataEntry(
+      const SyncedMetadataEntry &synced_metadata_entry) const = 0;
+  virtual void
+  removeSyncedMetadata(const std::vector<std::string> &names) const = 0;
+  virtual void removeAllSyncedMetadata() const = 0;
+  virtual std::vector<SyncedMetadataEntry> getAllSyncedMetadata() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
