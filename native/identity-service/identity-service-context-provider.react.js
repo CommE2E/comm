@@ -24,6 +24,7 @@ import {
   type UserDevicesOlmInboundKeys,
   deviceOlmInboundKeysValidator,
   userDeviceOlmInboundKeysValidator,
+  farcasterUsersValidator,
 } from 'lib/types/identity-service-types.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -532,6 +533,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           authAccessToken,
           payload,
         );
+      },
+      getFarcasterUsers: async (farcasterIDs: $ReadOnlyArray<string>) => {
+        const farcasterUsersJSONString =
+          await commRustModule.getFarcasterUsers(farcasterIDs);
+        const farcasterUsers = JSON.parse(farcasterUsersJSONString);
+        return assertWithValidator(farcasterUsers, farcasterUsersValidator);
       },
     }),
     [getAuthMetadata],
