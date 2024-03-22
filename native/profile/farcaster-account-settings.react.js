@@ -7,8 +7,10 @@ import { View, Text } from 'react-native';
 import { FIDContext } from 'lib/components/fid-provider.react.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
+import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
 import FarcasterAccount from '../components/farcaster-account.react.js';
+import type { WebViewState } from '../components/farcaster-account.react.js';
 import FarcasterPrompt from '../components/farcaster-prompt.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -35,13 +37,24 @@ function FarcasterAccountSettings(props: Props): React.Node {
     goBack();
   }, [goBack, setFID]);
 
+  const [webViewState, setWebViewState] =
+    React.useState<WebViewState>('closed');
+
   const onSuccess = React.useCallback(
     (newFID: string) => {
+      setWebViewState('closed');
       setFID(newFID);
       goBack();
     },
     [setFID, goBack],
   );
+
+  const onPressConnectFarcaster = React.useCallback(() => {
+    setWebViewState('opening');
+  }, []);
+
+  const connectButtonVariant =
+    webViewState === 'opening' ? 'loading' : 'enabled';
 
   if (fid) {
     return (
@@ -69,7 +82,14 @@ function FarcasterAccountSettings(props: Props): React.Node {
       <View style={styles.container}>
         <FarcasterPrompt />
       </View>
-      <FarcasterAccount onSuccess={onSuccess} />
+      <FarcasterAccount onSuccess={onSuccess} webViewState={webViewState} />
+      <RegistrationButtonContainer>
+        <RegistrationButton
+          onPress={onPressConnectFarcaster}
+          label="Connect Farcaster account"
+          variant={connectButtonVariant}
+        />
+      </RegistrationButtonContainer>
     </View>
   );
 }

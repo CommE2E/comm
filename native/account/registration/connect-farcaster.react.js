@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
@@ -13,6 +14,7 @@ import type {
   EthereumAccountSelection,
 } from './registration-types.js';
 import FarcasterAccount from '../../components/farcaster-account.react.js';
+import type { WebViewState } from '../../components/farcaster-account.react.js';
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import {
   type NavigationRoute,
@@ -45,6 +47,7 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const goToNextStep = React.useCallback(
     (fid?: ?string) => {
+      setWebViewState('closed');
       const { ethereumAccount, ...restUserSelections } = params.userSelections;
       if (ethereumAccount) {
         navigate<'AvatarSelection'>({
@@ -74,6 +77,9 @@ function ConnectFarcaster(prop: Props): React.Node {
     [navigate, params],
   );
 
+  const [webViewState, setWebViewState] =
+    React.useState<WebViewState>('closed');
+
   const onSuccess = React.useCallback(
     (fid: string) => {
       goToNextStep(fid);
@@ -85,18 +91,31 @@ function ConnectFarcaster(prop: Props): React.Node {
     [goToNextStep, setCachedSelections],
   );
 
+  const onPressConnectFarcaster = React.useCallback(() => {
+    setWebViewState('opening');
+  }, []);
+
+  const connectButtonVariant =
+    webViewState === 'opening' ? 'loading' : 'enabled';
+
   return (
     <RegistrationContainer>
       <RegistrationContentContainer style={styles.scrollViewContentContainer}>
         <FarcasterPrompt />
       </RegistrationContentContainer>
-      <FarcasterAccount onSuccess={onSuccess}>
+      <FarcasterAccount onSuccess={onSuccess} webViewState={webViewState} />
+      <RegistrationButtonContainer>
+        <RegistrationButton
+          onPress={onPressConnectFarcaster}
+          label="Connect Farcaster account"
+          variant={connectButtonVariant}
+        />
         <RegistrationButton
           onPress={goToNextStep}
           label="Do not connect"
           variant="outline"
         />
-      </FarcasterAccount>
+      </RegistrationButtonContainer>
     </RegistrationContainer>
   );
 }

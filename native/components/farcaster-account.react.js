@@ -4,8 +4,6 @@ import * as React from 'react';
 import { View, Linking } from 'react-native';
 import WebView from 'react-native-webview';
 
-import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
-import RegistrationButton from '../account/registration/registration-button.react.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
 type FarcasterWebViewMessage =
@@ -26,24 +24,17 @@ type WebViewMessageEvent = {
   ...
 };
 
-type WebViewState = 'closed' | 'opening';
+export type WebViewState = 'closed' | 'opening';
 
 const commConnectFarcasterURL = `${defaultLandingURLPrefix}/connect-farcaster`;
 
 type Props = {
   +onSuccess: (fid: string) => mixed,
-  +children: React.Node,
+  +webViewState: WebViewState,
 };
 
 function FarcasterAccount(props: Props): React.Node {
-  const { onSuccess, children } = props;
-
-  const [webViewState, setWebViewState] =
-    React.useState<WebViewState>('closed');
-
-  const onPressConnectFarcaster = React.useCallback(() => {
-    setWebViewState('opening');
-  }, []);
+  const { onSuccess, webViewState } = props;
 
   const handleMessage = React.useCallback(
     (event: WebViewMessageEvent) => {
@@ -53,7 +44,6 @@ function FarcasterAccount(props: Props): React.Node {
         void Linking.openURL(data.url);
       } else if (data.type === 'farcaster_data') {
         onSuccess(data.fid.toString());
-        setWebViewState('closed');
       }
     },
     [onSuccess],
@@ -77,22 +67,7 @@ function FarcasterAccount(props: Props): React.Node {
     );
   }, [handleMessage, webViewState]);
 
-  const connectButtonVariant =
-    webViewState === 'opening' ? 'loading' : 'enabled';
-
-  return (
-    <>
-      <RegistrationButtonContainer>
-        <RegistrationButton
-          onPress={onPressConnectFarcaster}
-          label="Connect Farcaster account"
-          variant={connectButtonVariant}
-        />
-        {children}
-      </RegistrationButtonContainer>
-      {webView}
-    </>
-  );
+  return <>{webView}</>;
 }
 
 const styles = {
