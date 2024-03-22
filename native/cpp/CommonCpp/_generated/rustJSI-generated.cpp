@@ -69,6 +69,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForUse
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_getFarcasterUsers(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->getFarcasterUsers(rt, args[0].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_linkFarcasterAccount(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->linkFarcasterAccount(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+}
 
 CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommRustTurboModule", jsInvoker) {
@@ -91,6 +94,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["findUserIDForWalletAddress"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForWalletAddress};
   methodMap_["findUserIDForUsername"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_findUserIDForUsername};
   methodMap_["getFarcasterUsers"] = MethodMetadata {1, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getFarcasterUsers};
+  methodMap_["linkFarcasterAccount"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_linkFarcasterAccount};
 }
 
 
