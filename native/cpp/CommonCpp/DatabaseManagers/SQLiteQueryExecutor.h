@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "NativeSQLiteConnectionManager.h"
+#include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
 #include "entities/IntegrityThreadHash.h"
@@ -99,6 +100,10 @@ public:
       const std::vector<std::string> &ids) const override;
   void removeAllIntegrityThreadHashes() const override;
   std::vector<IntegrityThreadHash> getAllIntegrityThreadHashes() const override;
+  void replaceAuxUserInfo(const AuxUserInfo &aux_user_info) const override;
+  void removeAuxUserInfos(const std::vector<std::string> &ids) const override;
+  void removeAllAuxUserInfos() const override;
+  virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;

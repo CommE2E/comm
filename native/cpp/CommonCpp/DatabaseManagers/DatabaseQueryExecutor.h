@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CryptoTools/Persist.h"
+#include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
 #include "entities/IntegrityThreadHash.h"
@@ -86,6 +87,11 @@ public:
   virtual void removeAllIntegrityThreadHashes() const = 0;
   virtual std::vector<IntegrityThreadHash>
   getAllIntegrityThreadHashes() const = 0;
+  virtual void replaceAuxUserInfo(const AuxUserInfo &aux_user_info) const = 0;
+  virtual void
+  removeAuxUserInfos(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllAuxUserInfos() const = 0;
+  virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
