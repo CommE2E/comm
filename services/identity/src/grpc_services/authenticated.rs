@@ -398,9 +398,19 @@ impl IdentityClientService for AuthenticatedService {
 
   async fn link_farcaster_account(
     &self,
-    _request: tonic::Request<LinkFarcasterAccountRequest>,
+    request: tonic::Request<LinkFarcasterAccountRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
-    unimplemented!();
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    self
+      .db_client
+      .add_farcaster_id(user_id, message.farcaster_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
   }
 }
 

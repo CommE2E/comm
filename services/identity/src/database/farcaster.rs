@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::database::AttributeExtractor;
 use comm_lib::database::AttributeMap;
@@ -55,6 +57,30 @@ impl DatabaseClient {
     }
 
     Ok(users)
+  }
+
+  pub async fn add_farcaster_id(
+    &self,
+    user_id: String,
+    farcaster_id: String,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("SET {} = :val", USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
+    let expression_attribute_values =
+      HashMap::from([(":val".to_string(), AttributeValue::S(farcaster_id))]);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
   }
 }
 
