@@ -125,6 +125,10 @@ impl IdentityClientService for ClientService {
       return Err(tonic::Status::invalid_argument("username reserved"));
     }
 
+    if let Some(fid) = &message.farcaster_id {
+      self.check_farcaster_id_taken(fid).await?;
+    }
+
     let registration_state = construct_user_registration_info(
       &message,
       None,
@@ -539,6 +543,10 @@ impl IdentityClientService for ClientService {
       ));
     }
 
+    if let Some(fid) = &message.farcaster_id {
+      self.check_farcaster_id_taken(fid).await?;
+    }
+
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
 
@@ -920,6 +928,24 @@ impl ClientService {
     if wallet_address_taken {
       return Err(tonic::Status::already_exists(
         "wallet address already exists",
+      ));
+    }
+    Ok(())
+  }
+
+  async fn check_farcaster_id_taken(
+    &self,
+    farcaster_id: &str,
+  ) -> Result<(), tonic::Status> {
+    let fid_already_registered = !self
+      .client
+      .get_farcaster_users(vec![farcaster_id.to_string()])
+      .await
+      .map_err(handle_db_error)?
+      .is_empty();
+    if fid_already_registered {
+      return Err(tonic::Status::already_exists(
+        "farcaster ID already associated with different user",
       ));
     }
     Ok(())
