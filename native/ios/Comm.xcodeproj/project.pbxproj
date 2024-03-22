@@ -12,6 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
 		34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */; };
+		34055C152BAD31AC0008E713 /* SyncedMetadataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34055C142BAD31AC0008E713 /* SyncedMetadataStore.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -143,6 +144,9 @@
 		34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IntegrityStore.cpp; path = PersistentStorageUtilities/DataStores/IntegrityStore.cpp; sourceTree = "<group>"; };
 		34329B402B9EBFCE00233438 /* IntegrityStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IntegrityStore.h; path = PersistentStorageUtilities/DataStores/IntegrityStore.h; sourceTree = "<group>"; };
 		34329B452B9EC96200233438 /* IntegrityThreadHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegrityThreadHash.h; sourceTree = "<group>"; };
+		34055C132BAD31AB0008E713 /* SyncedMetadataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyncedMetadataStore.h; path = PersistentStorageUtilities/DataStores/SyncedMetadataStore.h; sourceTree = "<group>"; };
+		34055C142BAD31AC0008E713 /* SyncedMetadataStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SyncedMetadataStore.cpp; path = PersistentStorageUtilities/DataStores/SyncedMetadataStore.cpp; sourceTree = "<group>"; };
+		34055C162BAD31BD0008E713 /* SyncedMetadataStoreOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncedMetadataStoreOperations.h; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
@@ -488,6 +492,7 @@
 				71BE843E2636A944002849D2 /* CommCoreModule.h */,
 				7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */,
 				7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */,
+				34055C162BAD31BD0008E713 /* SyncedMetadataStoreOperations.h */,
 				B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */,
 				B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */,
 			);
@@ -664,6 +669,8 @@
 				8EA59BD42A6E8E0400EB4F53 /* DraftStore.cpp */,
 				8EA59BD52A6E8E0400EB4F53 /* DraftStore.h */,
 				8EA59BD32A6E8CB700EB4F53 /* BaseDataStore.h */,
+				34055C142BAD31AC0008E713 /* SyncedMetadataStore.cpp */,
+				34055C132BAD31AB0008E713 /* SyncedMetadataStore.h */,
 			);
 			name = DataStores;
 			sourceTree = "<group>";
@@ -1141,6 +1148,7 @@
 				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
 				8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */,
+				34055C152BAD31AC0008E713 /* SyncedMetadataStore.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				B3B02EBF2B8538980020D118 /* CommunityStore.cpp in Sources */,
 				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
