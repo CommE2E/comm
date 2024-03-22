@@ -1,9 +1,11 @@
 use crate::{
-  handle_string_result_as_callback, Error, CODE_VERSION, DEVICE_TYPE,
-  IDENTITY_SOCKET_ADDR, RUNTIME,
+  handle_string_result_as_callback, handle_void_result_as_callback, Error,
+  CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use grpc_clients::identity::{
-  get_unauthenticated_client, protos::unauth::GetFarcasterUsersRequest,
+  get_auth_client, get_unauthenticated_client,
+  protos::auth::LinkFarcasterAccountRequest,
+  protos::unauth::GetFarcasterUsersRequest,
 };
 use serde::Serialize;
 
@@ -60,4 +62,49 @@ async fn get_farcaster_users_helper(
     .collect();
 
   Ok(serde_json::to_string(&mapped_response)?)
+}
+
+pub fn link_farcaster_account(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  farcaster_id: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let result = link_farcaster_account_helper(
+      user_id,
+      device_id,
+      access_token,
+      farcaster_id,
+    )
+    .await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn link_farcaster_account_helper(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  farcaster_id: String,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    user_id,
+    device_id,
+    access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let link_farcaster_account_request =
+    LinkFarcasterAccountRequest { farcaster_id };
+
+  identity_client
+    .link_farcaster_account(link_farcaster_account_request)
+    .await?;
+
+  Ok(())
 }
