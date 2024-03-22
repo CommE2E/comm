@@ -11,6 +11,7 @@ import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -208,6 +209,7 @@ function SQLiteDataHandler(): React.Node {
           keyservers,
           communities,
           integrityThreadHashes,
+          syncedMetadata,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -222,6 +224,8 @@ function SQLiteDataHandler(): React.Node {
           integrityStoreOpsHandlers.translateClientDBData(
             integrityThreadHashes,
           );
+        const syncedMetadataFromDB =
+          syncedMetadataStoreOpsHandlers.translateClientDBData(syncedMetadata);
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -236,6 +240,7 @@ function SQLiteDataHandler(): React.Node {
             keyserverInfos: keyserverInfosFromDB,
             communities: communityInfosFromDB,
             threadHashes: threadHashesFromDB,
+            syncedMetadata: syncedMetadataFromDB,
           },
         });
       } catch (setStoreException) {
