@@ -55,6 +55,28 @@ impl DatabaseClient {
 
     Ok(users)
   }
+
+  pub async fn add_farcaster_id(
+    &self,
+    user_id: String,
+    farcaster_id: String,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("SET {} = :val", USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .expression_attribute_values(":val", AttributeValue::S(farcaster_id))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
 }
 
 impl TryFrom<AttributeMap> for FarcasterUserData {
