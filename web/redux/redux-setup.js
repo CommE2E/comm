@@ -47,6 +47,7 @@ import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
+import type { SyncedMetadataStore } from 'lib/types/synced-metadata-types.js';
 import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
@@ -122,6 +123,7 @@ export type AppState = {
   +customServer: ?string,
   +communityStore: CommunityStore,
   +dbOpsStore: DBOpsStore,
+  +syncedMetadataStore: SyncedMetadataStore,
 };
 
 export type Action = $ReadOnly<
@@ -154,6 +156,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     keyserverStoreOperations: [],
     communityStoreOperations: [],
     integrityStoreOperations: [],
+    syncedMetadataStoreOperations: [],
   };
 
   if (
