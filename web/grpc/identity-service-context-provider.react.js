@@ -133,6 +133,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       getDeviceListHistoryForUser: proxyMethodToWorker(
         'getDeviceListHistoryForUser',
       ),
+      getFarcasterUsers: proxyMethodToWorker('getFarcasterUsers'),
+      linkFarcasterAccount: proxyMethodToWorker('linkFarcasterAccount'),
     };
   }, [proxyMethodToWorker]);
 

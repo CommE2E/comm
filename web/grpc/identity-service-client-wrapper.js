@@ -26,7 +26,9 @@ import {
   type DeviceOlmInboundKeys,
   deviceOlmInboundKeysValidator,
   userDeviceOlmInboundKeysValidator,
+  type FarcasterUser,
 } from 'lib/types/identity-service-types.js';
+import { farcasterUsersValidator } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
@@ -42,6 +44,7 @@ import {
   Prekey,
   WalletAuthRequest,
   SecondaryDeviceKeysUploadRequest,
+  GetFarcasterUsersRequest,
 } from '../protobufs/identity-unauth-structs.cjs';
 import * as IdentityUnauthClient from '../protobufs/identity-unauth.cjs';
 import { initOpaque } from '../shared-worker/utils/opaque-utils.js';
@@ -525,6 +528,50 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       signedDeviceListHistoryValidator,
     );
   };
+
+  getFarcasterUsers: (
+    farcasterIDs: $ReadOnlyArray<string>,
+  ) => Promise<$ReadOnlyArray<FarcasterUser>> = async farcasterIDs => {
+    const getFarcasterUsersRequest = new GetFarcasterUsersRequest();
+    getFarcasterUsersRequest.setFarcasterIdsList([...farcasterIDs]);
+
+    let getFarcasterUsersResponse;
+    try {
+      getFarcasterUsersResponse = await this.unauthClient.getFarcasterUsers(
+        getFarcasterUsersRequest,
+      );
+    } catch (e) {
+      console.log('Error calling getFarcasterUsers:', e);
+      throw new Error(getMessageForException(e) ?? 'unknown');
+    }
+
+    const farcasterUsersList =
+      getFarcasterUsersResponse.getFarcasterUsersList();
+
+    const returnList = [];
+
+    for (const user of farcasterUsersList) {
+      returnList.push({
+        userID: user.getUserId(),
+        username: user.getUsername(),
+        farcasterID: user.getFarcasterId(),
+      });
+    }
+
+    return assertWithValidator(returnList, farcasterUsersValidator);
+  };
+
+  linkFarcasterAccount: (farcasterID: string) => Promise<void> =
+    async farcasterID => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
+      const linkFarcasterAccountRequest =
+        new IdentityAuthStructs.LinkFarcasterAccountRequest();
+      linkFarcasterAccountRequest.setFarcasterId(farcasterID);
+      await client.linkFarcasterAccount(linkFarcasterAccountRequest);
+    };
 }
 
 function authNewDeviceKeyUpload(
