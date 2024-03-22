@@ -61,6 +61,7 @@ function FarcastAccount(props: Props): React.Node {
         void Linking.openURL(data.url);
       } else if (data.type === 'farcaster_data') {
         setFID(data.fid.toString());
+        setWebViewState('closed');
         onSuccess();
       }
     },
