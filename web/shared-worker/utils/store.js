@@ -3,6 +3,7 @@
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
+import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type {
@@ -26,6 +27,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     users: null,
     keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
     communityInfos: null,
+    syncedMetadata: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -81,6 +83,7 @@ async function processDBStoreOperations(
     reportStoreOperations,
     keyserverStoreOperations,
     communityStoreOperations,
+    syncedMetadataStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -94,13 +97,18 @@ async function processDBStoreOperations(
     keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
   const convertedCommunityStoreOperations =
     communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
+  const convertedSyncedMetadataStoreOperations =
+    syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
+      syncedMetadataStoreOperations,
+    );
 
   if (
     convertedThreadStoreOperations.length === 0 &&
     convertedReportStoreOperations.length === 0 &&
     draftStoreOperations.length === 0 &&
     convertedKeyserverStoreOperations.length === 0 &&
-    convertedCommunityStoreOperations.length === 0
+    convertedCommunityStoreOperations.length === 0 &&
+    convertedSyncedMetadataStoreOperations.length === 0
   ) {
     return;
   }
@@ -119,6 +127,7 @@ async function processDBStoreOperations(
         threadStoreOperations: convertedThreadStoreOperations,
         keyserverStoreOperations: convertedKeyserverStoreOperations,
         communityStoreOperations: convertedCommunityStoreOperations,
+        syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
       },
     });
   } catch (e) {
