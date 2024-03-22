@@ -329,6 +329,13 @@ jsi::Value CommCoreModule::processCommunityStoreOperations(
   return this->communityStore.processStoreOperations(rt, std::move(operations));
 }
 
+jsi::Value CommCoreModule::processSyncedMetadataStoreOperations(
+    jsi::Runtime &rt,
+    jsi::Array operations) {
+  return this->syncedMetadataStore.processStoreOperations(
+      rt, std::move(operations));
+}
+
 void CommCoreModule::terminate(jsi::Runtime &rt) {
   TerminateApp::terminate();
 }
@@ -1235,7 +1242,8 @@ CommCoreModule::CommCoreModule(
       reportStore(jsInvoker),
       userStore(jsInvoker),
       keyserverStore(jsInvoker),
-      communityStore(jsInvoker) {
+      communityStore(jsInvoker),
+      syncedMetadataStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 

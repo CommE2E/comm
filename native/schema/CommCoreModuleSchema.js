@@ -9,6 +9,7 @@ import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-op
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
+import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
 import type { OneTimeKeysResult, SignedPrekeys } from 'lib/types/crypto-types';
@@ -73,6 +74,9 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +processCommunityStoreOperations: (
     operations: $ReadOnlyArray<ClientDBCommunityStoreOperation>,
+  ) => Promise<void>;
+  +processSyncedMetadataStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
