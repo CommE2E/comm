@@ -33,6 +33,7 @@ class TunnelbrokerSocket {
   connected: boolean;
   promises: Promises;
   heartbeatTimeoutID: ?TimeoutID;
+  oneTimeKeysPromise: ?Promise<void>;
 
   constructor(socketURL: string, initMessage: ConnectionInitializationMessage) {
     this.connected = false;
@@ -108,7 +109,7 @@ class TunnelbrokerSocket {
         const messageToKeyserver = JSON.parse(payload);
         if (refreshKeysRequestValidator.is(messageToKeyserver)) {
           const request: RefreshKeyRequest = messageToKeyserver;
-          await uploadNewOneTimeKeys(request.numberOfKeys);
+          this.refreshOneTimeKeys(request.numberOfKeys);
         }
       } catch (e) {
         console.error(
@@ -148,6 +149,14 @@ class TunnelbrokerSocket {
       };
       this.ws.send(JSON.stringify(heartbeat));
     }
+  };
+
+  refreshOneTimeKeys: (numberOfKeys: number) => void = numberOfKeys => {
+    const oldOneTimeKeysPromise = this.oneTimeKeysPromise;
+    this.oneTimeKeysPromise = (async () => {
+      await oldOneTimeKeysPromise;
+      await uploadNewOneTimeKeys(numberOfKeys);
+    })();
   };
 
   sendMessage: (message: ClientMessageToDevice) => Promise<void> = (
