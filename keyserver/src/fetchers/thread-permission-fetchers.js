@@ -262,6 +262,9 @@ async function validateCandidateMembers(
       }
       return results;
     }
+    for (const userID of allCandidates) {
+      results.set(userID, 'non-member');
+    }
     const memberOfContainingThreadQuery = SQL`
       SELECT user, role AS containing_role
       FROM memberships
