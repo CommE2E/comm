@@ -66,6 +66,8 @@ service IdentityClientService {
   // Called by an existing user to unlink their Farcaster account
   rpc UnlinkFarcasterAccount(identity.unauth.Empty) returns
     (identity.unauth.Empty) {}
+
+  rpc FindUserIdentity(UserIdentityRequest) returns (UserIdentityResponse) {}
 }
 
 // Helper types
@@ -206,4 +208,15 @@ message UpdateDeviceListRequest {
 
 message LinkFarcasterAccountRequest {
   string farcaster_id = 1;
+}
+
+// FindUserIdentity
+
+message UserIdentityRequest {
+  // user ID for which we want to get the identity
+  string user_id = 1;
+}
+
+message UserIdentityResponse {
+  Identity identity = 1;
 }

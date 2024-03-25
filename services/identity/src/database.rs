@@ -974,20 +974,22 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  /// Retrieves username for password users or wallet address for wallet users
+  /// Returns `None` if user not found
   pub async fn get_user_identifier(
     &self,
     user_id: &str,
-  ) -> Result<Identifier, Error> {
-    let user_info = self
+  ) -> Result<Option<Identifier>, Error> {
+    self
       .get_item_from_users_table(user_id)
       .await?
       .item
-      .ok_or(Error::MissingItem)?;
-
-    Identifier::try_from(user_info).map_err(|e| {
-      error!(user_id, "Database item is missing an identifier");
-      e
-    })
+      .map(Identifier::try_from)
+      .transpose()
+      .map_err(|e| {
+        error!(user_id, "Database item is missing an identifier");
+        e
+      })
   }
 
   async fn get_all_usernames(&self) -> Result<Vec<String>, Error> {
