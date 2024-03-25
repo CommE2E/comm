@@ -1,5 +1,6 @@
 // @flow
 
+import _debounce from 'lodash/debounce.js';
 import uuid from 'uuid';
 import WebSocket from 'ws';
 
@@ -109,7 +110,7 @@ class TunnelbrokerSocket {
         const messageToKeyserver = JSON.parse(payload);
         if (refreshKeysRequestValidator.is(messageToKeyserver)) {
           const request: RefreshKeyRequest = messageToKeyserver;
-          this.refreshOneTimeKeys(request.numberOfKeys);
+          this.debouncedRefreshOneTimeKeys(request.numberOfKeys);
         }
       } catch (e) {
         console.error(
@@ -158,6 +159,12 @@ class TunnelbrokerSocket {
       await uploadNewOneTimeKeys(numberOfKeys);
     })();
   };
+
+  debouncedRefreshOneTimeKeys: (numberOfKeys: number) => void = _debounce(
+    this.refreshOneTimeKeys,
+    100,
+    { leading: true, trailing: true },
+  );
 
   sendMessage: (message: ClientMessageToDevice) => Promise<void> = (
     message: ClientMessageToDevice,
