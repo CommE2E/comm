@@ -376,7 +376,7 @@ impl IdentityClientService for AuthenticatedService {
     }))
   }
 
-  async fn update_device_list_for_user(
+  async fn update_device_list(
     &self,
     request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {

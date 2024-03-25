@@ -694,8 +694,8 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.getDeviceListFo
  *   !proto.identity.auth.UpdateDeviceListRequest,
  *   !proto.identity.unauth.Empty>}
  */
-const methodDescriptor_IdentityClientService_UpdateDeviceListForUser = new grpc.web.MethodDescriptor(
-  '/identity.auth.IdentityClientService/UpdateDeviceListForUser',
+const methodDescriptor_IdentityClientService_UpdateDeviceList = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/UpdateDeviceList',
   grpc.web.MethodType.UNARY,
   proto.identity.auth.UpdateDeviceListRequest,
   identity_unauth_pb.Empty,
@@ -720,13 +720,13 @@ const methodDescriptor_IdentityClientService_UpdateDeviceListForUser = new grpc.
  * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.auth.IdentityClientServiceClient.prototype.updateDeviceListForUser =
+proto.identity.auth.IdentityClientServiceClient.prototype.updateDeviceList =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/UpdateDeviceListForUser',
+      '/identity.auth.IdentityClientService/UpdateDeviceList',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_UpdateDeviceListForUser,
+      methodDescriptor_IdentityClientService_UpdateDeviceList,
       callback);
 };
 
@@ -739,13 +739,13 @@ proto.identity.auth.IdentityClientServiceClient.prototype.updateDeviceListForUse
  * @return {!Promise<!proto.identity.unauth.Empty>}
  *     Promise that resolves to the response
  */
-proto.identity.auth.IdentityClientServicePromiseClient.prototype.updateDeviceListForUser =
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.updateDeviceList =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/UpdateDeviceListForUser',
+      '/identity.auth.IdentityClientService/UpdateDeviceList',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_UpdateDeviceListForUser);
+      methodDescriptor_IdentityClientService_UpdateDeviceList);
 };
 
 
