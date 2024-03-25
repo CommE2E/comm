@@ -134,7 +134,7 @@ async fn test_update_device_list_rpc() {
       .expect("failed to serialize payload"),
   };
   auth_client
-    .update_device_list_for_user(update_request)
+    .update_device_list(update_request)
     .await
     .expect("Update device list RPC failed");
 

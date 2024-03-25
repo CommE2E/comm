@@ -55,7 +55,7 @@ service IdentityClientService {
   rpc GetDeviceListForUser(GetDeviceListRequest) returns
     (GetDeviceListResponse) {}
 
-  rpc UpdateDeviceListForUser(UpdateDeviceListRequest) returns
+  rpc UpdateDeviceList(UpdateDeviceListRequest) returns
     (identity.unauth.Empty) {}
 }
 

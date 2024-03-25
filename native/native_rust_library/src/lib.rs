@@ -1391,9 +1391,7 @@ async fn update_device_list_helper(
     new_device_list: update_payload,
   };
 
-  identity_client
-    .update_device_list_for_user(update_request)
-    .await?;
+  identity_client.update_device_list(update_request).await?;
 
   Ok(())
 }
