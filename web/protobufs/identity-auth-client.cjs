@@ -871,4 +871,66 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.unlinkFarcaster
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.UserIdentityRequest,
+ *   !proto.identity.auth.UserIdentityResponse>}
+ */
+const methodDescriptor_IdentityClientService_FindUserIdentity = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/FindUserIdentity',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.UserIdentityRequest,
+  proto.identity.auth.UserIdentityResponse,
+  /**
+   * @param {!proto.identity.auth.UserIdentityRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.auth.UserIdentityResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.UserIdentityRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.UserIdentityResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.UserIdentityResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.findUserIdentity =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/FindUserIdentity',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserIdentity,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.UserIdentityRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.auth.UserIdentityResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.findUserIdentity =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/FindUserIdentity',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_FindUserIdentity);
+};
+
+
 module.exports = proto.identity.auth;
+

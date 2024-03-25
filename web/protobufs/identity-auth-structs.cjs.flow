@@ -404,3 +404,37 @@ declare export class LinkFarcasterAccountRequest extends Message {
 export type LinkFarcasterAccountRequestObject = {
   farcasterId: string,
 }
+
+declare export class UserIdentityRequest extends Message {
+  getUserId(): string;
+  setUserId(value: string): UserIdentityRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UserIdentityRequestObject;
+  static toObject(includeInstance: boolean, msg: UserIdentityRequest): UserIdentityRequestObject;
+  static serializeBinaryToWriter(message: UserIdentityRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UserIdentityRequest;
+  static deserializeBinaryFromReader(message: UserIdentityRequest, reader: BinaryReader): UserIdentityRequest;
+}
+
+export type UserIdentityRequestObject = {
+  userId: string,
+}
+
+declare export class UserIdentityResponse extends Message {
+  getIdentity(): Identity | void;
+  setIdentity(value?: Identity): UserIdentityResponse;
+  hasIdentity(): boolean;
+  clearIdentity(): UserIdentityResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UserIdentityResponseObject;
+  static toObject(includeInstance: boolean, msg: UserIdentityResponse): UserIdentityResponseObject;
+  static serializeBinaryToWriter(message: UserIdentityResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UserIdentityResponse;
+  static deserializeBinaryFromReader(message: UserIdentityResponse, reader: BinaryReader): UserIdentityResponse;
+}
+
+export type UserIdentityResponseObject = {
+  identity: ?IdentityObject,
+}

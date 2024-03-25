@@ -24,6 +24,7 @@ use super::protos::auth::{
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
 };
+use super::protos::auth::{UserIdentityRequest, UserIdentityResponse};
 use super::protos::unauth::Empty;
 
 #[derive(derive_more::Constructor)]
@@ -165,7 +166,8 @@ impl IdentityClientService for AuthenticatedService {
       .db_client
       .get_user_identifier(user_id)
       .await
-      .map_err(handle_db_error)?;
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let identity_info = IdentityInfo::try_from(identifier)?;
 
@@ -196,7 +198,8 @@ impl IdentityClientService for AuthenticatedService {
       .db_client
       .get_user_identifier(&message.user_id)
       .await
-      .map_err(handle_db_error)?;
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let identity_info = IdentityInfo::try_from(identifier)?;
 
@@ -448,6 +451,29 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Empty {};
     Ok(Response::new(response))
+  }
+
+  async fn find_user_identity(
+    &self,
+    request: tonic::Request<UserIdentityRequest>,
+  ) -> Result<Response<UserIdentityResponse>, tonic::Status> {
+    use identity::IdentityInfo;
+
+    let message = request.into_inner();
+    let identifier = self
+      .db_client
+      .get_user_identifier(&message.user_id)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+
+    let identity_info = IdentityInfo::try_from(identifier)?;
+    let identity = Some(Identity {
+      identity_info: Some(identity_info),
+    });
+
+    let response = Response::new(UserIdentityResponse { identity });
+    return Ok(response);
   }
 }
 

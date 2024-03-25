@@ -696,6 +696,13 @@ impl IdentityClientService for ClientService {
 
     self.verify_and_remove_nonce(&nonce).await?;
 
+    let user_identifier = self
+      .client
+      .get_user_identifier(&user_id)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+
     let Some(device_list) = self
       .client
       .get_current_device_list(&user_id)
@@ -713,12 +720,6 @@ impl IdentityClientService for ClientService {
     }
 
     let login_time = chrono::Utc::now();
-
-    let user_identifier = self
-      .client
-      .get_user_identifier(&user_id)
-      .await
-      .map_err(handle_db_error)?;
     let token = AccessTokenData::with_created_time(
       user_id.clone(),
       device_id,
