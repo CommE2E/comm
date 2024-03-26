@@ -618,6 +618,13 @@ const olmAPI: OlmAPI = {
 
     persistCryptoStore();
   },
+  async signMessage(message: string): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount } = cryptoStore;
+    return contentAccount.sign(message);
+  },
 };
 
 export {
