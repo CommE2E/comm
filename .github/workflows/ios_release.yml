@@ -50,6 +50,12 @@ jobs:
           ALCHEMY_API_KEY: ${{secrets.ALCHEMY_API_KEY}}
         run: mkdir -p facts && echo '{"key":"'"$ALCHEMY_API_KEY"'"}' > facts/alchemy.json
 
+      - name: Save NEYNAR_API_KEY to file
+        working-directory: ./native
+        env:
+          NEYNAR_API_KEY: ${{secrets.NEYNAR_API_KEY}}
+        run: mkdir -p facts && echo '{"key":"'"$NEYNAR_API_KEY"'"}' > facts/neynar.json
+
       - name: Save auth_key to file
         working-directory: ./native/ios
         env:
