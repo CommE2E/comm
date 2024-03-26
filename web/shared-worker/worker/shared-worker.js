@@ -14,6 +14,8 @@ import {
   getSQLiteQueryExecutor,
   setDBModule,
   setSQLiteQueryExecutor,
+  getPlatformDetails,
+  setPlatformDetails,
 } from './worker-database.js';
 import initBackupClientModule from '../../backup-client-wasm/wasm/backup-client-wasm.js';
 import {
@@ -175,6 +177,7 @@ async function processAppRequest(
 
   // database operations
   if (message.type === workerRequestMessageTypes.INIT) {
+    setPlatformDetails(message.platformDetails);
     const promises = [
       initDatabase(
         message.webworkerModulesFilePath,
@@ -255,9 +258,16 @@ async function processAppRequest(
   if (isOlmAPIRequest) {
     result = await processAppOlmApiRequest(message);
   } else if (isIdentityClientRequest) {
+    const platformDetails = getPlatformDetails();
+    if (!platformDetails) {
+      throw new Error(
+        'Platform details not set, unable to process identity client request',
+      );
+    }
     result = await processAppIdentityClientRequest(
       sqliteQueryExecutor,
       dbModule,
+      platformDetails,
       message,
     );
   } else if (

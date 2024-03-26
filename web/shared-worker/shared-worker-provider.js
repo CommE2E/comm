@@ -76,7 +76,8 @@ class CommSharedWorker {
         });
       }
 
-      const codeVersion = getConfig().platformDetails.codeVersion ?? '';
+      const platformDetails = getConfig().platformDetails;
+      const codeVersion = platformDetails.codeVersion ?? '';
       const workerName = `comm-app-shared-worker-${codeVersion}`;
 
       this.worker = new SharedWorker(DATABASE_WORKER_PATH, workerName);
@@ -96,6 +97,7 @@ class CommSharedWorker {
         invariant(this.workerProxy, 'Worker proxy should exist');
         await this.workerProxy.scheduleOnWorker({
           type: workerRequestMessageTypes.INIT,
+          platformDetails,
           webworkerModulesFilePath: `${origin}${baseURL}${WORKERS_MODULES_DIR_PATH}`,
           encryptionKey,
           commQueryExecutorFilename,
