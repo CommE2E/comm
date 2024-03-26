@@ -39,6 +39,14 @@ std::string SQLiteQueryExecutor::backupLogsEncryptionKey;
 
 #ifndef EMSCRIPTEN
 NativeSQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
+std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesBlocklist = {
+    "olm_persist_account",
+    "olm_persist_sessions",
+    "metadata",
+    "messages_to_device",
+    "integrity_store",
+    "persist_storage",
+};
 #else
 SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
 #endif
@@ -1091,6 +1099,8 @@ void SQLiteQueryExecutor::migrate() {
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
   SQLiteQueryExecutor::migrate();
 #ifndef EMSCRIPTEN
+  SQLiteQueryExecutor::initializeTablesForLogMonitoring();
+
   std::string currentBackupID = this->getMetadata("backupID");
   if (!StaffUtils::isStaffRelease() || !currentBackupID.size()) {
     return;
@@ -2031,6 +2041,34 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
   });
 }
 
+void SQLiteQueryExecutor::initializeTablesForLogMonitoring() {
+  sqlite3 *db;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  default_on_db_open_callback(db);
+
+  std::vector<std::string> tablesToMonitor;
+  {
+    SQLiteStatementWrapper preparedSQL(
+        db,
+        "SELECT name FROM sqlite_master WHERE type='table';",
+        "Failed to get all database tables");
+
+    for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
+         stepResult = sqlite3_step(preparedSQL)) {
+      std::string table_name =
+          reinterpret_cast<const char *>(sqlite3_column_text(preparedSQL, 0));
+      if (SQLiteQueryExecutor::backedUpTablesBlocklist.find(table_name) ==
+          SQLiteQueryExecutor::backedUpTablesBlocklist.end()) {
+        tablesToMonitor.emplace_back(table_name);
+      }
+    }
+    // Runs preparedSQL destructor which finalizes the sqlite statement
+  }
+  sqlite3_close(db);
+
+  SQLiteQueryExecutor::connectionManager.tablesToMonitor = tablesToMonitor;
+}
+
 void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   std::string finalBackupPath =
       PlatformSpecificTools::getBackupFilePath(backupID, false);
@@ -2087,12 +2125,15 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
     throw std::runtime_error(error_message.str());
   }
 
-  std::string removeDeviceSpecificDataSQL =
-      "DELETE FROM olm_persist_account;"
-      "DELETE FROM olm_persist_sessions;"
-      "DELETE FROM metadata;"
-      "DELETE FROM messages_to_device;";
-  executeQuery(backupDB, removeDeviceSpecificDataSQL);
+  if (!SQLiteQueryExecutor::backedUpTablesBlocklist.empty()) {
+    std::string removeDeviceSpecificDataSQL = "";
+    for (const auto &table_name :
+         SQLiteQueryExecutor::backedUpTablesBlocklist) {
+      removeDeviceSpecificDataSQL.append("DELETE FROM " + table_name + ";\n");
+    }
+    executeQuery(backupDB, removeDeviceSpecificDataSQL);
+  }
+
   executeQuery(backupDB, "VACUUM;");
   sqlite3_close(backupDB);
 

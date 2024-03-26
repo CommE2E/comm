@@ -20,16 +20,6 @@ void NativeSQLiteConnectionManager::attachSession() {
       sqlite3session_create(dbConnection, "main", &backupLogsSession);
   handleSQLiteError(sessionCreationResult, "Failed to create sqlite3 session.");
 
-  static const std::vector<std::string> tablesToMonitor = {
-      "drafts",
-      "messages",
-      "media",
-      "threads",
-      "message_store_threads",
-      "reports",
-      "keyservers",
-      "users"};
-
   for (const auto &table : tablesToMonitor) {
     int sessionAttachResult =
         sqlite3session_attach(backupLogsSession, table.c_str());
