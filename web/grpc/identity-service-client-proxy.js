@@ -14,7 +14,6 @@ import type {
   UserDevicesOlmInboundKeys,
   UserDevicesOlmOutboundKeys,
 } from 'lib/types/identity-service-types.js';
-import { getConfig } from 'lib/utils/config.js';
 
 import {
   type CommSharedWorker,
@@ -35,7 +34,6 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
       await sharedWorker.schedule({
         type: workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT,
         opaqueWasmPath: getOpaqueWasmPath(),
-        platformDetails: getConfig().platformDetails,
         authLayer,
       });
 
