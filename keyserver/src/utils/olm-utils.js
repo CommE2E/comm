@@ -6,6 +6,7 @@ import type {
   Utility as OlmUtility,
   Session as OlmSession,
 } from '@commapp/olm';
+import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 
@@ -111,32 +112,42 @@ async function uploadNewOneTimeKeys(numberOfKeys: number) {
     throw new ServerError('missing_identity_info');
   }
 
-  await fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
-    contentAccount.generate_one_time_keys(numberOfKeys);
-    const contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
-      contentAccount.one_time_keys(),
-    );
+  let contentOneTimeKeys: ?$ReadOnlyArray<string>;
+  let notifOneTimeKeys: ?$ReadOnlyArray<string>;
 
-    return fetchCallUpdateOlmAccount(
-      'notifications',
-      async (notifAccount: OlmAccount) => {
-        notifAccount.generate_one_time_keys(numberOfKeys);
-        const notifOneTimeKeys = getOneTimeKeyValuesFromBlob(
-          notifAccount.one_time_keys(),
-        );
-        await rustAPI.uploadOneTimeKeys(
-          identityInfo.userId,
-          deviceID,
-          identityInfo.accessToken,
-          contentOneTimeKeys,
-          notifOneTimeKeys,
-        );
+  await Promise.all([
+    fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
+      contentAccount.generate_one_time_keys(numberOfKeys);
+      contentOneTimeKeys = getOneTimeKeyValuesFromBlob(
+        contentAccount.one_time_keys(),
+      );
+      contentAccount.mark_keys_as_published();
+    }),
+    fetchCallUpdateOlmAccount('notifications', (notifAccount: OlmAccount) => {
+      notifAccount.generate_one_time_keys(numberOfKeys);
+      notifOneTimeKeys = getOneTimeKeyValuesFromBlob(
+        notifAccount.one_time_keys(),
+      );
+      notifAccount.mark_keys_as_published();
+    }),
+  ]);
 
-        notifAccount.mark_keys_as_published();
-        contentAccount.mark_keys_as_published();
-      },
-    );
-  });
+  invariant(
+    contentOneTimeKeys,
+    'content one-time keys not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    notifOneTimeKeys,
+    'notif one-time keys not set after fetchCallUpdateOlmAccount',
+  );
+
+  await rustAPI.uploadOneTimeKeys(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    contentOneTimeKeys,
+    notifOneTimeKeys,
+  );
 }
 
 async function getContentSigningKey(): Promise<string> {
