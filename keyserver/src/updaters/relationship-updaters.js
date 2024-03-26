@@ -88,7 +88,7 @@ async function updateRelationships(
           const status = undirectedStatus.FRIEND;
           undirectedInsertRows.push({ user1, user2, status });
           messageDatas.push({
-            type: messageTypes.UPDATE_RELATIONSHIP,
+            type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
             threadID: threadIDPerUser[userID],
             creatorID: viewer.userID,
             targetID: userID,
@@ -99,7 +99,7 @@ async function updateRelationships(
           const status = directedStatus.PENDING_FRIEND;
           directedInsertRows.push([viewer.userID, userID, status]);
           messageDatas.push({
-            type: messageTypes.UPDATE_RELATIONSHIP,
+            type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
             threadID: threadIDPerUser[userID],
             creatorID: viewer.userID,
             targetID: userID,
