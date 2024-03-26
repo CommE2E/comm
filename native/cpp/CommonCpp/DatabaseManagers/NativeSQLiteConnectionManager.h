@@ -19,6 +19,7 @@ private:
   getAttachmentsFromLog(std::uint8_t *patchsetPtr, int patchsetSize);
 
 public:
+  std::vector<std::string> tablesToMonitor;
   NativeSQLiteConnectionManager();
   void setLogsMonitoring(bool enabled);
   bool getLogsMonitoring();

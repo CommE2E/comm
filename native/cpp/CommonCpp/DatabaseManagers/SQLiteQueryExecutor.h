@@ -11,6 +11,7 @@
 
 #include <mutex>
 #include <string>
+#include <unordered_set>
 
 namespace comm {
 
@@ -28,8 +29,10 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
 #ifndef EMSCRIPTEN
   static NativeSQLiteConnectionManager connectionManager;
+  static std::unordered_set<std::string> backedUpTablesBlocklist;
   static void generateFreshEncryptionKey();
   static void generateFreshBackupLogsEncryptionKey();
+  static void initializeTablesForLogMonitoring();
 #else
   static SQLiteConnectionManager connectionManager;
 #endif
