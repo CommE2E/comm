@@ -85,6 +85,7 @@ const olmAPI: OlmAPI = {
       accessToken,
     );
   },
+  signMessage: commCoreModule.signMessage,
 };
 
 export { olmAPI };

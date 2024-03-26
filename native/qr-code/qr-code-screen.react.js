@@ -22,6 +22,7 @@ import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
 } from './qr-code-utils.js';
+import { olmAPI } from '../crypto/olm-api.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -59,7 +60,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         const nonce = await identityClient.generateNonce();
         const nonceChallenge: NonceChallenge = { nonce };
         const nonceMessage = JSON.stringify(nonceChallenge);
-        const signature = await commCoreModule.signMessage(nonceMessage);
+        const signature = await olmAPI.signMessage(nonceMessage);
         const challengeResponse: SignedMessage = {
           message: nonceMessage,
           signature,

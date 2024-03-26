@@ -59,6 +59,7 @@ const olmAPI: OlmAPI = {
   notificationsSessionCreator: proxyToWorker('notificationsSessionCreator'),
   getOneTimeKeys: proxyToWorker('getOneTimeKeys'),
   validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
+  signMessage: proxyToWorker('signMessage'),
 };
 
 export { olmAPI, usingSharedWorker };
