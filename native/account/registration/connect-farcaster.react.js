@@ -76,6 +76,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     },
     [navigate, params],
   );
+  const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -140,7 +141,7 @@ function ConnectFarcaster(prop: Props): React.Node {
           variant={connectButtonVariant}
         />
         <RegistrationButton
-          onPress={goToNextStep}
+          onPress={onSkip}
           label="Do not connect"
           variant="outline"
         />
