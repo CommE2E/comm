@@ -1,5 +1,7 @@
 // @flow
 
+import type { PlatformDetails } from 'lib/types/device-types.js';
+
 import {
   getNewDeviceKeyUpload,
   getExistingDeviceKeyUpload,
@@ -19,13 +21,14 @@ let identityClient: ?IdentityServiceClientWrapper = null;
 async function processAppIdentityClientRequest(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   dbModule: EmscriptenModule,
+  platformDetails: PlatformDetails,
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
   if (
     message.type === workerRequestMessageTypes.CREATE_IDENTITY_SERVICE_CLIENT
   ) {
     identityClient = new IdentityServiceClientWrapper(
-      message.platformDetails,
+      platformDetails,
       message.opaqueWasmPath,
       message.authLayer,
       async () => getNewDeviceKeyUpload(),
