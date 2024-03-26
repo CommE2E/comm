@@ -58,6 +58,7 @@ export type PingWorkerRequestMessage = {
 
 export type InitWorkerRequestMessage = {
   +type: 1,
+  +platformDetails: PlatformDetails,
   +webworkerModulesFilePath: string,
   +commQueryExecutorFilename: ?string,
   +encryptionKey?: ?SubtleCrypto$JsonWebKey,
@@ -123,7 +124,6 @@ export type InitializeCryptoAccountRequestMessage = {
 export type CreateIdentityServiceClientRequestMessage = {
   +type: 13,
   +opaqueWasmPath: string,
-  +platformDetails: PlatformDetails,
   +authLayer: ?IdentityServiceAuthLayer,
 };
 

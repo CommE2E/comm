@@ -1,5 +1,7 @@
 // @flow
 
+import type { PlatformDetails } from 'lib/types/device-types.js';
+
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 
@@ -23,9 +25,21 @@ function setDBModule(newDBModule: EmscriptenModule) {
   dbModule = newDBModule;
 }
 
+let platformDetails: ?PlatformDetails = null;
+
+function getPlatformDetails(): ?PlatformDetails {
+  return platformDetails;
+}
+
+function setPlatformDetails(newPlatformDetails: PlatformDetails) {
+  platformDetails = newPlatformDetails;
+}
+
 export {
   getSQLiteQueryExecutor,
   setSQLiteQueryExecutor,
   getDBModule,
   setDBModule,
+  getPlatformDetails,
+  setPlatformDetails,
 };
