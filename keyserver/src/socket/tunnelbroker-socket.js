@@ -37,7 +37,11 @@ class TunnelbrokerSocket {
   heartbeatTimeoutID: ?TimeoutID;
   oneTimeKeysPromise: ?Promise<void>;
 
-  constructor(socketURL: string, initMessage: ConnectionInitializationMessage) {
+  constructor(
+    socketURL: string,
+    initMessage: ConnectionInitializationMessage,
+    onClose: () => mixed,
+  ) {
     const socket = new WebSocket(socketURL);
 
     socket.on('open', () => {
@@ -54,6 +58,7 @@ class TunnelbrokerSocket {
       this.connected = false;
       this.stopHeartbeatTimeout();
       console.error('Connection to Tunnelbroker closed');
+      onClose();
     });
 
     socket.on('error', (error: Error) => {

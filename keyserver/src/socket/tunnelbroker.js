@@ -2,6 +2,7 @@
 
 import type { ConnectionInitializationMessage } from 'lib/types/tunnelbroker/session-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
+import sleep from 'lib/utils/sleep.js';
 
 import TunnelbrokerSocket from './tunnelbroker-socket.js';
 import { type IdentityInfo } from '../user/identity.js';
@@ -43,7 +44,13 @@ async function createAndMaintainTunnelbrokerWebsocket(
     deviceType: 'keyserver',
   };
 
-  new TunnelbrokerSocket(tbConnectionInfo.url, initMessage);
+  const createNewTunnelbrokerSocket = () => {
+    new TunnelbrokerSocket(tbConnectionInfo.url, initMessage, async () => {
+      await sleep(3000);
+      createNewTunnelbrokerSocket();
+    });
+  };
+  createNewTunnelbrokerSocket();
 }
 
 export { createAndMaintainTunnelbrokerWebsocket };
