@@ -596,6 +596,15 @@ bool create_synced_metadata_table(sqlite3 *db) {
   return create_table(db, query, "synced_metadata");
 }
 
+bool create_keyservers_synced(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS keyservers_synced ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 keyserver_info TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "keyservers_synced");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -680,6 +689,11 @@ bool create_schema(sqlite3 *db) {
       ");"
 
       "CREATE TABLE IF NOT EXISTS keyservers ("
+      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 keyserver_info TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS keyservers_synced ("
       "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "	 keyserver_info TEXT NOT NULL"
       ");"
@@ -957,7 +971,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {36, {create_messages_to_device_table, true}},
      {37, {create_integrity_table, true}},
      {38, {migrate_notifs_crypto_account, true}},
-     {39, {create_synced_metadata_table, true}}}};
+     {39, {create_synced_metadata_table, true}},
+     {40, {create_keyservers_synced, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
