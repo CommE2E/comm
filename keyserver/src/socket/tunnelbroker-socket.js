@@ -31,24 +31,28 @@ type Promises = { [clientMessageID: string]: PromiseCallbacks };
 
 class TunnelbrokerSocket {
   ws: WebSocket;
-  connected: boolean;
-  promises: Promises;
+  connected: boolean = false;
+  closed: boolean = false;
+  promises: Promises = {};
   heartbeatTimeoutID: ?TimeoutID;
   oneTimeKeysPromise: ?Promise<void>;
 
   constructor(socketURL: string, initMessage: ConnectionInitializationMessage) {
-    this.connected = false;
-    this.promises = {};
-
     const socket = new WebSocket(socketURL);
 
     socket.on('open', () => {
-      socket.send(JSON.stringify(initMessage));
+      if (!this.closed) {
+        socket.send(JSON.stringify(initMessage));
+      }
     });
 
     socket.on('close', async () => {
-      this.stopHeartbeatTimeout();
+      if (this.closed) {
+        return;
+      }
+      this.closed = true;
       this.connected = false;
+      this.stopHeartbeatTimeout();
       console.error('Connection to Tunnelbroker closed');
     });
 
