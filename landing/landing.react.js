@@ -10,6 +10,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 
 import AppLanding from './app-landing.react.js';
+import ConnectFarcaster from './connect-farcaster.react.js';
 import Footer from './footer.react.js';
 import Header, { HEADER_BREAKPOINT } from './header.react.js';
 import Investors from './investors.react.js';
@@ -28,9 +29,14 @@ import './global.css';
 
 function Landing(): React.Node {
   const onSIWE = useRouteMatch({ path: '/siwe' });
+  const onConnectFarcaster = useRouteMatch({ path: '/connect-farcaster' });
+
   if (onSIWE) {
     return <SIWE />;
+  } else if (onConnectFarcaster) {
+    return <ConnectFarcaster />;
   }
+
   return (
     <ModalProvider>
       <LandingSite />
