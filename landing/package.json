@@ -16,6 +16,7 @@
     "@babel/plugin-transform-object-rest-spread": "^7.23.4",
     "@babel/plugin-transform-optional-chaining": "^7.23.4",
     "@babel/plugin-transform-react-constant-elements": "^7.23.3",
+    "@babel/plugin-transform-private-methods": "^7.24.1",
     "@babel/plugin-transform-runtime": "^7.23.7",
     "@babel/preset-env": "^7.23.7",
     "@babel/preset-flow": "^7.23.3",
