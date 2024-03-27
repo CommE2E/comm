@@ -433,6 +433,22 @@ impl IdentityClientService for AuthenticatedService {
     let response = Empty {};
     Ok(Response::new(response))
   }
+
+  async fn unlink_farcaster_account(
+    &self,
+    request: tonic::Request<Empty>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+
+    self
+      .db_client
+      .remove_farcaster_id(user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
 }
 
 // raw device list that can be serialized to JSON (and then signed in the future)

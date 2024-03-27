@@ -100,6 +100,26 @@ impl DatabaseClient {
 
     Ok(())
   }
+
+  pub async fn remove_farcaster_id(
+    &self,
+    user_id: String,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("REMOVE {}", USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
+
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
 }
 
 impl TryFrom<AttributeMap> for FarcasterUserData {
