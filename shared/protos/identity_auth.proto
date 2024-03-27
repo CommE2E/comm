@@ -63,6 +63,9 @@ service IdentityClientService {
   // Called by an existing user to link their Farcaster account
   rpc LinkFarcasterAccount(LinkFarcasterAccountRequest) returns
     (identity.unauth.Empty) {}
+  // Called by an existing user to unlink their Farcaster account
+  rpc UnlinkFarcasterAccount(identity.unauth.Empty) returns
+    (identity.unauth.Empty) {}
 }
 
 // Helper types
