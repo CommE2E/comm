@@ -24,6 +24,7 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
+import type { WebViewMessageEvent } from '../types/web-view-types.js';
 import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { getContentSigningKey } from '../utils/crypto-utils.js';
@@ -39,14 +40,6 @@ const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
 );
 const legacySiweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
-
-type WebViewMessageEvent = {
-  +nativeEvent: {
-    +data: string,
-    ...
-  },
-  ...
-};
 
 type Props = {
   +onClosed: () => mixed,
