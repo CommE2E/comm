@@ -43,6 +43,7 @@ const nonUserSpecificFieldsNative = [
   'frozen',
   'keyserverStore',
   '_persist',
+  'commServicesAccessToken',
 ];
 
 export type AppState = {
