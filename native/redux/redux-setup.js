@@ -179,22 +179,17 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       defaultState,
       nonUserSpecificFieldsNative,
     );
-  } else if (action.type === identityRegisterActionTypes.success) {
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
   } else if (
-    action.type === identityLogInActionTypes.success &&
-    action.payload.userID !== action.payload.preRequestUserState?.id
+    action.type === identityRegisterActionTypes.success ||
+    (action.type === identityLogInActionTypes.success &&
+      action.payload.userID !== action.payload.preRequestUserState?.id)
   ) {
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
+    state = resetUserSpecificState(state, defaultState, [
+      ...nonUserSpecificFieldsNative,
+      'commServicesAccessToken',
+    ]);
   }
+
   if (
     (action.type === setNewSessionActionType &&
       action.payload.sessionChange.currentUserInfo &&
