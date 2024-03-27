@@ -3,15 +3,7 @@
 import { AuthKitProvider, useSignIn } from '@farcaster/auth-kit';
 import * as React from 'react';
 
-type FarcasterWebViewMessage =
-  | {
-      +type: 'farcaster_url',
-      +url: string,
-    }
-  | {
-      +type: 'farcaster_data',
-      +fid: string,
-    };
+import type { FarcasterWebViewMessage } from 'lib/types/farcaster-types.js';
 
 const config = {
   domain: 'Comm',
