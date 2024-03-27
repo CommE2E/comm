@@ -8,6 +8,7 @@ import {
   deleteKeyserverAccountActionTypes,
   deleteAccountActionTypes,
   identityRegisterActionTypes,
+  identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
@@ -307,6 +308,15 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       nonUserSpecificFieldsWeb,
     );
   } else if (action.type === identityRegisterActionTypes.success) {
+    state = resetUserSpecificState(
+      state,
+      defaultWebState,
+      nonUserSpecificFieldsWeb,
+    );
+  } else if (
+    action.type === identityLogInActionTypes.success &&
+    action.payload.userID !== action.payload.preRequestUserState?.id
+  ) {
     state = resetUserSpecificState(
       state,
       defaultWebState,
