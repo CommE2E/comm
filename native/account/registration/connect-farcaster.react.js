@@ -1,11 +1,13 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
@@ -38,6 +40,10 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const { navigate } = navigation;
   const { params } = route;
+
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { setCachedSelections } = registrationContext;
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -78,9 +84,16 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);
 
-  const onSuccess = React.useCallback(() => {
-    // TODO: implement onSuccess
-  }, []);
+  const onSuccess = React.useCallback(
+    (fid: string) => {
+      goToNextStep(fid);
+      setCachedSelections(oldUserSelections => ({
+        ...oldUserSelections,
+        farcasterID: fid,
+      }));
+    },
+    [goToNextStep, setCachedSelections],
+  );
 
   const onPressConnectFarcaster = React.useCallback(() => {
     setWebViewState('opening');
