@@ -20,9 +20,9 @@ use crate::database::{
 use crate::error::{DeviceListError, Error as DBError};
 use crate::grpc_services::protos::unauth::{
   find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
-  FindUserIdRequest, FindUserIdResponse, GenerateNonceResponse,
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, OpaqueLoginStartResponse,
-  RegistrationFinishRequest, RegistrationStartRequest,
+  ExistingDeviceLoginRequest, FindUserIdRequest, FindUserIdResponse,
+  GenerateNonceResponse, OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
+  OpaqueLoginStartResponse, RegistrationFinishRequest, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
   SecondaryDeviceKeysUploadRequest, VerifyUserAccessTokenRequest,
@@ -736,6 +736,13 @@ impl IdentityClientService for ClientService {
       access_token,
     };
     Ok(Response::new(response))
+  }
+
+  async fn log_in_existing_device(
+    &self,
+    request: tonic::Request<ExistingDeviceLoginRequest>,
+  ) -> std::result::Result<tonic::Response<AuthResponse>, tonic::Status> {
+    Err(tonic::Status::unimplemented("todo"))
   }
 
   async fn generate_nonce(
