@@ -3,7 +3,8 @@ use commtest::identity::device::{
 };
 use commtest::service_addr;
 use grpc_clients::identity::{
-  get_unauthenticated_client,
+  get_auth_client, get_unauthenticated_client,
+  protos::auth::{identity::IdentityInfo, Identity, UserIdentityRequest},
   protos::unauthenticated::{
     find_user_id_request::Identifier, FindUserIdRequest,
   },
@@ -35,5 +36,41 @@ async fn find_user_id_by_username() {
     response.user_id,
     Some(device_info.user_id),
     "User ID should match"
+  );
+}
+
+#[tokio::test]
+async fn find_username_for_user() {
+  let device_info = register_user_device(None, None).await;
+
+  let mut client = get_auth_client(
+    &service_addr::IDENTITY_GRPC.to_string(),
+    device_info.user_id.clone(),
+    device_info.device_id,
+    device_info.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
+
+  let request = UserIdentityRequest {
+    user_id: device_info.user_id,
+  };
+  let response = client
+    .find_user_identity(request)
+    .await
+    .expect("request failed")
+    .into_inner();
+
+  let expected_username = device_info.username;
+  assert!(
+    matches!(
+      response.identity,
+      Some(Identity {
+        identity_info: Some(IdentityInfo::Username(username))
+      }) if username == expected_username
+    ),
+    "username doesn't match"
   );
 }
