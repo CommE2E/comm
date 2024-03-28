@@ -30,6 +30,7 @@ service IdentityClientService {
 
   rpc UploadKeysForRegisteredDeviceAndLogIn(SecondaryDeviceKeysUploadRequest)
     returns (AuthResponse) {}
+  rpc LogInExistingDevice(ExistingDeviceLoginRequest) returns (AuthResponse) {}
 
   /* Service actions */
 
@@ -217,10 +218,20 @@ message ReservedWalletRegistrationRequest {
 
 message SecondaryDeviceKeysUploadRequest {
   string user_id = 1;
+  // Signed nonce message, JSON-stringified
   string challenge_response = 2;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
   DeviceKeyUpload device_key_upload = 3;
+}
+
+// LogInExistingDevice
+
+message ExistingDeviceLoginRequest {
+  string user_id = 1;
+  string device_id = 2;
+  // Signed nonce message, JSON-stringified
+  string challenge_response = 3;
 }
 
 // GenerateNonce
