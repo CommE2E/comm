@@ -6,6 +6,8 @@ import {
   type OneTimeKeysResultValues,
   type OlmAPI,
   type OLMIdentityKeys,
+  type EncryptedData,
+  olmEncryptedMessageTypes,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
@@ -20,7 +22,7 @@ const olmAPI: OlmAPI = {
   decrypt: commCoreModule.decrypt,
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
-    initialEncryptedContent: string,
+    initialEncryptedData: EncryptedData,
   ): Promise<string> {
     const identityKeys = JSON.stringify({
       curve25519: contentIdentityKeys.curve25519,
@@ -28,27 +30,31 @@ const olmAPI: OlmAPI = {
     });
     return commCoreModule.initializeContentInboundSession(
       identityKeys,
-      initialEncryptedContent,
+      initialEncryptedData.message,
       contentIdentityKeys.ed25519,
     );
   },
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
-  ): Promise<string> {
+  ): Promise<EncryptedData> {
     const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
     const identityKeys = JSON.stringify({
       curve25519: contentIdentityKeys.curve25519,
       ed25519: contentIdentityKeys.ed25519,
     });
 
-    return commCoreModule.initializeContentOutboundSession(
+    const message = await commCoreModule.initializeContentOutboundSession(
       identityKeys,
       prekey,
       prekeySignature,
       oneTimeKey,
       contentIdentityKeys.ed25519,
     );
+    return {
+      message,
+      messageType: olmEncryptedMessageTypes.PREKEY,
+    };
   },
   notificationsSessionCreator(
     cookie: ?string,
