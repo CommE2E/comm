@@ -1221,11 +1221,17 @@ jsi::Value CommCoreModule::encrypt(
               promise->reject(error);
               return;
             }
-            promise->resolve(jsi::String::createFromUtf8(
+            auto encryptedDataJSI = jsi::Object(innerRt);
+            auto message = std::string{
+                encryptedMessage.message.begin(),
+                encryptedMessage.message.end()};
+            auto messageJSI = jsi::String::createFromUtf8(innerRt, message);
+            encryptedDataJSI.setProperty(innerRt, "message", messageJSI);
+            encryptedDataJSI.setProperty(
                 innerRt,
-                std::string{
-                    encryptedMessage.message.begin(),
-                    encryptedMessage.message.end()}));
+                "messageType",
+                static_cast<int>(encryptedMessage.messageType));
+            promise->resolve(std::move(encryptedDataJSI));
           });
         };
         this->cryptoThread->scheduleTask(job);
