@@ -628,6 +628,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.uploadKeysFor
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.ExistingDeviceLoginRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_LogInExistingDevice = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/LogInExistingDevice',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.ExistingDeviceLoginRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.ExistingDeviceLoginRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.ExistingDeviceLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.logInExistingDevice =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/LogInExistingDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogInExistingDevice,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.ExistingDeviceLoginRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInExistingDevice =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/LogInExistingDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogInExistingDevice);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.VerifyUserAccessTokenRequest,
  *   !proto.identity.unauth.VerifyUserAccessTokenResponse>}
  */
