@@ -24,7 +24,7 @@ import CommIcon from '../../components/comm-icon.react.js';
 import {
   type NavigationRoute,
   ConnectEthereumRouteName,
-  AvatarSelectionRouteName,
+  ConnectFarcasterRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
@@ -144,11 +144,11 @@ function KeyserverSelection(props: Props): React.Node {
 
     const userSelectionsWithAccount = {
       ...userSelections,
-      accountSelection: ethereumAccount,
+      ethereumAccount,
     };
     setSkipEthereumLoginOnce(false);
-    navigate<'AvatarSelection'>({
-      name: AvatarSelectionRouteName,
+    navigate<'ConnectFarcaster'>({
+      name: ConnectFarcasterRouteName,
       params: { userSelections: userSelectionsWithAccount },
     });
   }, [

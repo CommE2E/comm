@@ -25,6 +25,7 @@ export type PasswordSelectionParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverURL: string,
+    +farcasterID: ?string,
     +username: string,
   },
 };
@@ -76,10 +77,9 @@ function PasswordSelection(props: Props): React.Node {
       return;
     }
 
-    const { coolOrNerdMode, keyserverURL, username } = userSelections;
+    const { username, ...rest } = userSelections;
     const newUserSelections = {
-      coolOrNerdMode,
-      keyserverURL,
+      ...rest,
       accountSelection: {
         accountType: 'username',
         username,

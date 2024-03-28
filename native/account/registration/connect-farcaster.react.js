@@ -14,7 +14,11 @@ import type {
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../../components/farcaster-web-view.react.js';
-import { type NavigationRoute } from '../../navigation/route-names.js';
+import {
+  type NavigationRoute,
+  UsernameSelectionRouteName,
+  AvatarSelectionRouteName,
+} from '../../navigation/route-names.js';
 
 export type ConnectFarcasterParams = {
   +userSelections: {
@@ -29,10 +33,50 @@ type Props = {
   +route: NavigationRoute<'ConnectFarcaster'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function ConnectFarcaster(prop: Props): React.Node {
+  const { navigation, route } = prop;
+
+  const { navigate } = navigation;
+  const { params } = route;
+
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
+
+  const goToNextStep = React.useCallback(
+    (fid?: ?string) => {
+      setWebViewState('closed');
+
+      const { ethereumAccount, ...restUserSelections } = params.userSelections;
+
+      if (ethereumAccount) {
+        navigate<'AvatarSelection'>({
+          name: AvatarSelectionRouteName,
+          params: {
+            ...params,
+            userSelections: {
+              ...restUserSelections,
+              accountSelection: ethereumAccount,
+              farcasterID: fid,
+            },
+          },
+        });
+      } else {
+        navigate<'UsernameSelection'>({
+          name: UsernameSelectionRouteName,
+          params: {
+            ...params,
+            userSelections: {
+              ...restUserSelections,
+              farcasterID: fid,
+            },
+          },
+        });
+      }
+    },
+    [navigate, params],
+  );
+
+  const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);
 
   const onSuccess = React.useCallback(() => {
     // TODO: implement onSuccess
@@ -58,10 +102,21 @@ function ConnectFarcaster(prop: Props): React.Node {
             label="Connect Farcaster account"
             variant={connectButtonVariant}
           />
+          <RegistrationButton
+            onPress={onSkip}
+            label="Do not connect"
+            variant="outline"
+          />
         </RegistrationButtonContainer>
       </RegistrationContainer>
     ),
-    [connectButtonVariant, onPressConnectFarcaster, onSuccess, webViewState],
+    [
+      connectButtonVariant,
+      onPressConnectFarcaster,
+      onSkip,
+      onSuccess,
+      webViewState,
+    ],
   );
 
   return connectFarcaster;

@@ -23,6 +23,7 @@ export type RegistrationTermsParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverURL: string,
+    +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
   },
