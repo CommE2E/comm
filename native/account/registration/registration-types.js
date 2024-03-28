@@ -52,6 +52,7 @@ export type CachedUserSelections = {
   +password?: string,
   +avatarData?: ?AvatarData,
   +ethereumAccount?: EthereumAccountSelection,
+  +farcasterID?: string,
 };
 
 export const ensAvatarSelection: AvatarData = {
