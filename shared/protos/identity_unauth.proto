@@ -5,7 +5,7 @@ package identity.unauth;
 // RPCs from a client (iOS, Android, or web) to identity service
 service IdentityClientService {
 
-  // Account actions
+  /* Account actions */
 
   // Called by user to register with the Identity Service (PAKE only)
   // Due to limitations of grpc-web, the Opaque challenge+response
@@ -22,6 +22,7 @@ service IdentityClientService {
     (OpaqueLoginStartResponse) {}
   rpc LogInPasswordUserFinish(OpaqueLoginFinishRequest) returns
     (AuthResponse) {}
+
   rpc LogInWalletUser(WalletAuthRequest) returns (AuthResponse) {}
   rpc RegisterWalletUser(WalletAuthRequest) returns (AuthResponse) {}
   rpc RegisterReservedWalletUser(ReservedWalletRegistrationRequest) returns
@@ -30,18 +31,13 @@ service IdentityClientService {
   rpc UploadKeysForRegisteredDeviceAndLogIn(SecondaryDeviceKeysUploadRequest)
     returns (AuthResponse) {}
 
-  // Sign-In with Ethereum actions
-
-  // Called by clients to get a nonce for a Sign-In with Ethereum message
-  rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
-
-  // Service actions
+  /* Service actions */
 
   // Called by other services to verify a user's access token
   rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
     (VerifyUserAccessTokenResponse) {}
 
-  // Ashoat's keyserver actions
+  /* Ashoat's keyserver actions */
 
   // Called by Ashoat's keyserver to add usernames to the Identity service's
   // reserved list
@@ -50,13 +46,18 @@ service IdentityClientService {
   // service's reserved list
   rpc RemoveReservedUsername(RemoveReservedUsernameRequest) returns (Empty) {}
 
-  // Miscellaneous actions
+  /* Miscellaneous actions */
 
   // Called by users periodically to check if their code version is supported
   rpc Ping(Empty) returns (Empty) {}
 
   // Returns userID for given username or wallet address
   rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
+
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  // or RPCs requiring challenge-response actions
+  rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
+
 }
 
 // Helper types
