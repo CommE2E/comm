@@ -158,6 +158,18 @@ async function persist() {
 async function processAppRequest(
   message: WorkerRequestMessage,
 ): Promise<?WorkerResponseMessage> {
+  // testing
+  if (message.type === workerRequestMessageTypes.GET_DB_FILE) {
+    const dbModule = getDBModule();
+    if (!dbModule) {
+      throw new Error(`Database not initialized, unable export database file`);
+    }
+    return {
+      type: workerResponseMessageTypes.GET_DB_FILE,
+      file: exportDatabaseContent(dbModule, COMM_SQLITE_DATABASE_PATH),
+    };
+  }
+
   // non-database operations
   if (message.type === workerRequestMessageTypes.PING) {
     return {
