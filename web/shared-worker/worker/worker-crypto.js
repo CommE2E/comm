@@ -383,7 +383,10 @@ const olmAPI: OlmAPI = {
       messageType: encryptedContent.type,
     };
   },
-  async decrypt(encryptedContent: string, deviceID: string): Promise<string> {
+  async decrypt(
+    encryptedData: EncryptedData,
+    deviceID: string,
+  ): Promise<string> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
@@ -394,8 +397,8 @@ const olmAPI: OlmAPI = {
     }
 
     const result = session.decrypt(
-      olmEncryptedMessageTypes.TEXT,
-      encryptedContent,
+      encryptedData.messageType,
+      encryptedData.message,
     );
 
     persistCryptoStore();
