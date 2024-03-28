@@ -16,7 +16,8 @@ import type {
   OneTimeKeysResult,
   SignedPrekeys,
   ClientPublicKeys,
-} from 'lib/types/crypto-types';
+  EncryptedData,
+} from 'lib/types/crypto-types.js';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
@@ -107,7 +108,7 @@ interface Spec extends TurboModule {
     encryptedMessage: string,
     deviceID: string,
   ) => Promise<string>;
-  +encrypt: (message: string, deviceID: string) => Promise<string>;
+  +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +decrypt: (message: string, deviceID: string) => Promise<string>;
   +signMessage: (message: string) => Promise<string>;
   +getCodeVersion: () => number;
