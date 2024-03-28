@@ -572,6 +572,14 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       linkFarcasterAccountRequest.setFarcasterId(farcasterID);
       await client.linkFarcasterAccount(linkFarcasterAccountRequest);
     };
+
+  unlinkFarcasterAccount: () => Promise<void> = async () => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    await client.unlinkFarcasterAccount(new Empty());
+  };
 }
 
 function authNewDeviceKeyUpload(
