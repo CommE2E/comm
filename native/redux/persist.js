@@ -1229,7 +1229,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 65,
+  version: 64,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
