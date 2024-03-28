@@ -756,7 +756,57 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<ExistingDeviceLoginRequest>,
   ) -> std::result::Result<tonic::Response<AuthResponse>, tonic::Status> {
-    Err(tonic::Status::unimplemented("todo"))
+    let message = request.into_inner();
+    let challenge_response = ChallengeResponse::try_from(&message)?;
+    let ExistingDeviceLoginRequest {
+      user_id, device_id, ..
+    } = message;
+
+    let NonceChallenge { nonce } =
+      challenge_response.verify_and_get_message(&device_id)?;
+    self.verify_and_remove_nonce(&nonce).await?;
+
+    let (identifier_response, device_list_response) = tokio::join!(
+      self.client.get_user_identifier(&user_id),
+      self.client.get_current_device_list(&user_id)
+    );
+    let user_identifier = identifier_response
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+
+    let device_list = device_list_response
+      .map_err(handle_db_error)?
+      .ok_or_else(|| {
+        warn!("User {} does not have a valid device list.", user_id);
+        tonic::Status::aborted("device list error")
+      })?;
+
+    if !device_list.device_ids.contains(&device_id) {
+      return Err(tonic::Status::permission_denied(
+        "device not in device list",
+      ));
+    }
+
+    let login_time = chrono::Utc::now();
+    let token = AccessTokenData::with_created_time(
+      user_id.clone(),
+      device_id,
+      login_time,
+      user_identifier.into(),
+      &mut OsRng,
+    );
+    let access_token = token.access_token.clone();
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = AuthResponse {
+      user_id,
+      access_token,
+    };
+    Ok(Response::new(response))
   }
 
   async fn generate_nonce(

@@ -11,9 +11,10 @@ use crate::{
       identity::IdentityInfo, EthereumIdentity, InboundKeyInfo, OutboundKeyInfo,
     },
     unauth::{
-      DeviceKeyUpload, OpaqueLoginStartRequest, RegistrationStartRequest,
-      ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
-      SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
+      DeviceKeyUpload, ExistingDeviceLoginRequest, OpaqueLoginStartRequest,
+      RegistrationStartRequest, ReservedRegistrationStartRequest,
+      ReservedWalletRegistrationRequest, SecondaryDeviceKeysUploadRequest,
+      WalletAuthRequest,
     },
   },
 };
@@ -34,6 +35,14 @@ impl TryFrom<&SecondaryDeviceKeysUploadRequest> for ChallengeResponse {
   fn try_from(
     value: &SecondaryDeviceKeysUploadRequest,
   ) -> Result<Self, Self::Error> {
+    serde_json::from_str(&value.challenge_response)
+      .map_err(|_| Status::invalid_argument("message format invalid"))
+  }
+}
+
+impl TryFrom<&ExistingDeviceLoginRequest> for ChallengeResponse {
+  type Error = Status;
+  fn try_from(value: &ExistingDeviceLoginRequest) -> Result<Self, Self::Error> {
     serde_json::from_str(&value.challenge_response)
       .map_err(|_| Status::invalid_argument("message format invalid"))
   }
