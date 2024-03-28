@@ -5,7 +5,7 @@ package identity.unauth;
 // RPCs from a client (iOS, Android, or web) to identity service
 service IdentityClientService {
 
-  // Account actions
+  /* Account actions */
 
   // Called by user to register with the Identity Service (PAKE only)
   // Due to limitations of grpc-web, the Opaque challenge+response
@@ -22,6 +22,7 @@ service IdentityClientService {
     (OpaqueLoginStartResponse) {}
   rpc LogInPasswordUserFinish(OpaqueLoginFinishRequest) returns
     (AuthResponse) {}
+
   rpc LogInWalletUser(WalletAuthRequest) returns (AuthResponse) {}
   rpc RegisterWalletUser(WalletAuthRequest) returns (AuthResponse) {}
   rpc RegisterReservedWalletUser(ReservedWalletRegistrationRequest) returns
@@ -30,27 +31,22 @@ service IdentityClientService {
   rpc UploadKeysForRegisteredDeviceAndLogIn(SecondaryDeviceKeysUploadRequest)
     returns (AuthResponse) {}
 
-  // Sign-In with Ethereum actions
-
-  // Called by clients to get a nonce for a Sign-In with Ethereum message
-  rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
-
-  // Service actions
+  /* Service actions */
 
   // Called by other services to verify a user's access token
   rpc VerifyUserAccessToken(VerifyUserAccessTokenRequest) returns
     (VerifyUserAccessTokenResponse) {}
 
-  // Ashoat's keyserver actions
+  /* Authoritative keyserver actions */
 
-  // Called by Ashoat's keyserver to add usernames to the Identity service's
-  // reserved list
+  // Called by authoritative keyserver to add usernames
+  // to the Identity service's reserved list
   rpc AddReservedUsernames(AddReservedUsernamesRequest) returns (Empty) {}
-  // Called by Ashoat's keyserver to remove usernames from the Identity
+  // Called by authoritative keyserver to remove usernames from the Identity
   // service's reserved list
   rpc RemoveReservedUsername(RemoveReservedUsernameRequest) returns (Empty) {}
 
-  // Miscellaneous actions
+  /* Miscellaneous actions */
 
   // Called by users periodically to check if their code version is supported
   rpc Ping(Empty) returns (Empty) {}
@@ -58,7 +54,12 @@ service IdentityClientService {
   // Returns userID for given username or wallet address
   rpc FindUserID(FindUserIDRequest) returns (FindUserIDResponse) {}
 
-  // Farcaster actions
+  // Called by clients to get a nonce for a Sign-In with Ethereum message
+  // or RPCs requiring challenge-response actions
+  rpc GenerateNonce(Empty) returns (GenerateNonceResponse) {}
+
+  /* Farcaster actions */
+
   rpc GetFarcasterUsers(GetFarcasterUsersRequest) returns
     (GetFarcasterUsersResponse) {}
 }
@@ -130,10 +131,10 @@ message ReservedRegistrationStartRequest {
   string username = 2;
   // Information needed to open a new channel to current user's device
   DeviceKeyUpload device_key_upload = 3;
-  // Message from Ashoat's keyserver attesting that a given user has ownership
-  // of a given username
+  // Message from authoritative keyserver attesting that a given user 
+  // has ownership of a given username
   string keyserver_message = 4;
-  // Above message signed with Ashoat's keyserver's signing ed25519 key
+  // Above message signed with authoritative keyserver's signing ed25519 key
   string keyserver_signature = 5;
 }
 
@@ -205,10 +206,10 @@ message ReservedWalletRegistrationRequest {
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
   DeviceKeyUpload device_key_upload = 3;
-  // Message from Ashoat's keyserver attesting that a given user has ownership
-  // of a given wallet address
+  // Message from authoritative keyserver attesting that a given user
+  // has ownership of a given wallet address
   string keyserver_message = 4;
-  // Above message signed with Ashoat's keyserver's signing ed25519 key
+  // Above message signed with authoritative keyserver's signing ed25519 key
   string keyserver_signature = 5;
 }
 
@@ -244,18 +245,18 @@ message VerifyUserAccessTokenResponse {
 // AddReservedUsernames
 
 message AddReservedUsernamesRequest {
-  // Message from Ashoat's keyserver containing the username to be added
+  // Message from authoritative keyserver containing the username to be added
   string message = 1;
-  // Above message signed with Ashoat's keyserver's signing ed25519 key
+  // Above message signed with authoritative keyserver's signing ed25519 key
   string signature = 2;
 }
 
 // RemoveReservedUsername
 
 message RemoveReservedUsernameRequest {
-  // Message from Ashoat's keyserver containing the username to be removed
+  // Message from authoritative keyserver containing the username to be removed
   string message = 1;
-  // Above message signed with Ashoat's keyserver's signing ed25519 key
+  // Above message signed with authoritative keyserver's signing ed25519 key
   string signature = 2;
 }
 

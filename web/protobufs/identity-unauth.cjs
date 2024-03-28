@@ -628,67 +628,6 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.uploadKeysFor
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.unauth.Empty,
- *   !proto.identity.unauth.GenerateNonceResponse>}
- */
-const methodDescriptor_IdentityClientService_GenerateNonce = new grpc.web.MethodDescriptor(
-  '/identity.unauth.IdentityClientService/GenerateNonce',
-  grpc.web.MethodType.UNARY,
-  proto.identity.unauth.Empty,
-  proto.identity.unauth.GenerateNonceResponse,
-  /**
-   * @param {!proto.identity.unauth.Empty} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.identity.unauth.GenerateNonceResponse.deserializeBinary
-);
-
-
-/**
- * @param {!proto.identity.unauth.Empty} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
- *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.GenerateNonceResponse)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.GenerateNonceResponse>|undefined}
- *     The XHR Node Readable Stream
- */
-proto.identity.unauth.IdentityClientServiceClient.prototype.generateNonce =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/identity.unauth.IdentityClientService/GenerateNonce',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_GenerateNonce,
-      callback);
-};
-
-
-/**
- * @param {!proto.identity.unauth.Empty} request The
- *     request proto
- * @param {?Object<string, string>=} metadata User defined
- *     call metadata
- * @return {!Promise<!proto.identity.unauth.GenerateNonceResponse>}
- *     Promise that resolves to the response
- */
-proto.identity.unauth.IdentityClientServicePromiseClient.prototype.generateNonce =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/identity.unauth.IdentityClientService/GenerateNonce',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_GenerateNonce);
-};
-
-
-/**
- * @const
- * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.VerifyUserAccessTokenRequest,
  *   !proto.identity.unauth.VerifyUserAccessTokenResponse>}
  */
@@ -988,6 +927,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.findUserID =
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_FindUserID);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.Empty,
+ *   !proto.identity.unauth.GenerateNonceResponse>}
+ */
+const methodDescriptor_IdentityClientService_GenerateNonce = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/GenerateNonce',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.Empty,
+  proto.identity.unauth.GenerateNonceResponse,
+  /**
+   * @param {!proto.identity.unauth.Empty} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.GenerateNonceResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.GenerateNonceResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.GenerateNonceResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.generateNonce =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/GenerateNonce',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GenerateNonce,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.Empty} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.GenerateNonceResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.generateNonce =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/GenerateNonce',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GenerateNonce);
 };
 
 
