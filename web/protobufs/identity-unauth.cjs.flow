@@ -72,13 +72,6 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.AuthResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
-  generateNonce(
-    request: identityStructs.Empty,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityStructs.GenerateNonceResponse) => void
-  ): grpcWeb.ClientReadableStream<identityStructs.GenerateNonceResponse>;
-
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
     metadata: grpcWeb.Metadata | void,
@@ -113,6 +106,13 @@ declare export class IdentityClientServiceClient {
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.FindUserIDResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.FindUserIDResponse>;
+
+  generateNonce(
+    request: identityStructs.Empty,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.GenerateNonceResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.GenerateNonceResponse>;
 
 }
 
@@ -165,11 +165,6 @@ registerPasswordUserFinish(
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.AuthResponse>;
 
-  generateNonce(
-    request: identityStructs.Empty,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityStructs.GenerateNonceResponse>;
-
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
     metadata?: grpcWeb.Metadata
@@ -194,5 +189,10 @@ registerPasswordUserFinish(
     request: identityStructs.FindUserIDRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.FindUserIDResponse>;
+
+  generateNonce(
+    request: identityStructs.Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.GenerateNonceResponse>;
 
 }
