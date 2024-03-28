@@ -7,7 +7,6 @@ import uuid from 'uuid';
 import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
-  olmEncryptedMessageTypes,
   type OLMIdentityKeys,
   type PickledOLMAccount,
   type IdentityKeysBlob,
@@ -407,7 +406,7 @@ const olmAPI: OlmAPI = {
   },
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
-    initialEncryptedContent: string,
+    initialEncryptedData: EncryptedData,
   ): Promise<string> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
@@ -418,13 +417,13 @@ const olmAPI: OlmAPI = {
     session.create_inbound_from(
       contentAccount,
       contentIdentityKeys.curve25519,
-      initialEncryptedContent,
+      initialEncryptedData.message,
     );
 
     contentAccount.remove_one_time_keys(session);
     const initialEncryptedMessage = session.decrypt(
-      olmEncryptedMessageTypes.PREKEY,
-      initialEncryptedContent,
+      initialEncryptedData.messageType,
+      initialEncryptedData.message,
     );
 
     contentSessions[contentIdentityKeys.ed25519] = session;
@@ -435,7 +434,7 @@ const olmAPI: OlmAPI = {
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
-  ): Promise<string> {
+  ): Promise<EncryptedData> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
@@ -450,14 +449,17 @@ const olmAPI: OlmAPI = {
       contentInitializationInfo.prekeySignature,
       contentInitializationInfo.oneTimeKey,
     );
-    const { body: initialContentEncryptedMessage } = session.encrypt(
+    const initialEncryptedData = session.encrypt(
       JSON.stringify(initialEncryptedMessageContent),
     );
 
     contentSessions[contentIdentityKeys.ed25519] = session;
     persistCryptoStore();
 
-    return initialContentEncryptedMessage;
+    return {
+      message: initialEncryptedData.body,
+      messageType: initialEncryptedData.type,
+    };
   },
   async notificationsSessionCreator(
     cookie: ?string,
