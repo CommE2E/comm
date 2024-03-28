@@ -7,7 +7,6 @@ import {
   type OlmAPI,
   type OLMIdentityKeys,
   type EncryptedData,
-  olmEncryptedMessageTypes,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
@@ -30,7 +29,7 @@ const olmAPI: OlmAPI = {
     });
     return commCoreModule.initializeContentInboundSession(
       identityKeys,
-      initialEncryptedData.message,
+      initialEncryptedData,
       contentIdentityKeys.ed25519,
     );
   },
@@ -44,17 +43,13 @@ const olmAPI: OlmAPI = {
       ed25519: contentIdentityKeys.ed25519,
     });
 
-    const message = await commCoreModule.initializeContentOutboundSession(
+    return commCoreModule.initializeContentOutboundSession(
       identityKeys,
       prekey,
       prekeySignature,
       oneTimeKey,
       contentIdentityKeys.ed25519,
     );
-    return {
-      message,
-      messageType: olmEncryptedMessageTypes.PREKEY,
-    };
   },
   notificationsSessionCreator(
     cookie: ?string,

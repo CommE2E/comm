@@ -121,7 +121,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value initializeContentInboundSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
-      jsi::String encryptedMessage,
+      jsi::Object encryptedDataJSI,
       jsi::String deviceID) override;
   virtual jsi::Value
   encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) override;
