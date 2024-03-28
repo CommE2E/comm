@@ -34,6 +34,7 @@ export const workerRequestMessageTypes = Object.freeze({
   CREATE_IDENTITY_SERVICE_CLIENT: 13,
   CALL_IDENTITY_CLIENT_METHOD: 14,
   CALL_OLM_API_METHOD: 15,
+  GET_DB_FILE: 99999,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -151,6 +152,10 @@ export type CallOLMApiMethodRequestMessage = {
   +args: $ReadOnlyArray<mixed>,
 };
 
+export type GetDBFileRequestMessage = {
+  +type: 99999,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -167,7 +172,8 @@ export type WorkerRequestMessage =
   | InitializeCryptoAccountRequestMessage
   | CreateIdentityServiceClientRequestMessage
   | CallIdentityClientMethodRequestMessage
-  | CallOLMApiMethodRequestMessage;
+  | CallOLMApiMethodRequestMessage
+  | GetDBFileRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -182,6 +188,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_PERSIST_STORAGE_ITEM: 3,
   CALL_IDENTITY_CLIENT_METHOD: 4,
   CALL_OLM_API_METHOD: 5,
+  GET_DB_FILE: 99999,
 });
 
 export type PongWorkerResponseMessage = {
@@ -214,13 +221,19 @@ export type CallOLMApiMethodResponseMessage = {
   +result: mixed,
 };
 
+export type GetDBFileResponseMessage = {
+  +type: 99999,
+  +file: Uint8Array,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
   | GetCurrentUserIDResponseMessage
   | GetPersistStorageItemResponseMessage
   | CallIdentityClientMethodResponseMessage
-  | CallOLMApiMethodResponseMessage;
+  | CallOLMApiMethodResponseMessage
+  | GetDBFileResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
