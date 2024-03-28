@@ -109,7 +109,7 @@ interface Spec extends TurboModule {
     deviceID: string,
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
-  +decrypt: (message: string, deviceID: string) => Promise<string>;
+  +decrypt: (encryptedData: Object, deviceID: string) => Promise<string>;
   +signMessage: (message: string) => Promise<string>;
   +getCodeVersion: () => number;
   +terminate: () => void;
@@ -147,6 +147,7 @@ export interface CoreModuleSpec extends Spec {
     password: string,
     backupID: string,
   ) => Promise<ArrayBuffer>;
+  +decrypt: (encryptedData: EncryptedData, deviceID: string) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
