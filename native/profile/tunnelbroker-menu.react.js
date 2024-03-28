@@ -85,7 +85,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
         return;
       }
       await olmAPI.initializeCryptoAccount();
-      const { message: encrypted } = await olmAPI.encrypt(
+      const encryptedData = await olmAPI.encrypt(
         `Encrypted message to ${recipient}`,
         recipient,
       );
@@ -96,7 +96,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
           deviceID,
           userID: currentUserID,
         },
-        encryptedContent: encrypted,
+        encryptedData,
       };
       await sendMessage({
         deviceID: recipient,
