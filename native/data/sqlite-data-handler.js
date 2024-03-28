@@ -8,7 +8,6 @@ import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js'
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
-import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -207,7 +206,6 @@ function SQLiteDataHandler(): React.Node {
           users,
           keyservers,
           communities,
-          integrityThreadHashes,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -218,10 +216,6 @@ function SQLiteDataHandler(): React.Node {
           keyserverStoreOpsHandlers.translateClientDBData(keyservers);
         const communityInfosFromDB =
           communityStoreOpsHandlers.translateClientDBData(communities);
-        const threadHashesFromDB =
-          integrityStoreOpsHandlers.translateClientDBData(
-            integrityThreadHashes,
-          );
 
         dispatch({
           type: setClientDBStoreActionType,
@@ -235,7 +229,6 @@ function SQLiteDataHandler(): React.Node {
             users: usersFromDB,
             keyserverInfos: keyserverInfosFromDB,
             communities: communityInfosFromDB,
-            threadHashes: threadHashesFromDB,
           },
         });
       } catch (setStoreException) {
