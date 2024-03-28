@@ -7,9 +7,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import { createOlmSessionsWithOwnDevices } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './account-settings.css';
@@ -23,6 +21,8 @@ import TunnelbrokerTestScreen from './tunnelbroker-test.react.js';
 import EditUserAvatar from '../avatars/edit-user-avatar.react.js';
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { workerRequestMessageTypes } from '../types/worker-types.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
@@ -32,7 +32,6 @@ function AccountSettings(): React.Node {
     () => dispatchActionPromise(logOutActionTypes, sendLogoutRequest()),
     [dispatchActionPromise, sendLogoutRequest],
   );
-  const identityContext = React.useContext(IdentityClientContext);
 
   const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
@@ -80,26 +79,31 @@ function AccountSettings(): React.Node {
     [addListener, popModal, pushModal, removeListener],
   );
 
-  const onCreateOlmSessions = React.useCallback(async () => {
-    if (!identityContext) {
-      return;
-    }
-    const authMetadata = await identityContext.getAuthMetadata();
-    try {
-      await createOlmSessionsWithOwnDevices(
-        authMetadata,
-        identityContext.identityClient,
-        sendMessage,
-      );
-    } catch (e) {
-      console.log(`Error creating olm sessions with own devices: ${e.message}`);
-    }
-  }, [identityContext, sendMessage]);
-
   const openBackupTestRestoreModal = React.useCallback(
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
     [popModal, pushModal],
   );
+
+  const downloadDatabaseFile = React.useCallback(async () => {
+    const databaseModule = await getCommSharedWorker();
+    const response = await databaseModule.schedule({
+      type: workerRequestMessageTypes.GET_DB_FILE,
+    });
+    if (!response) {
+      return;
+    }
+    const { file } = response;
+    const blob = new Blob([file]);
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = 'web.sqlite';
+
+    document.body?.appendChild(a);
+    a.click();
+    document.body?.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, []);
 
   const showAppearanceModal = React.useCallback(
     () => pushModal(<AppearanceChangeModal />),
@@ -166,12 +170,6 @@ function AccountSettings(): React.Node {
                 <p className={css.buttonText}>Show list</p>
               </Button>
             </li>
-            <li>
-              <span>Create session with own devices</span>
-              <Button variant="text" onClick={onCreateOlmSessions}>
-                <p className={css.buttonText}>Create</p>
-              </Button>
-            </li>
           </ul>
         </div>
       </div>
@@ -188,6 +186,24 @@ function AccountSettings(): React.Node {
               <span>Test backup restore</span>
               <Button variant="text" onClick={openBackupTestRestoreModal}>
                 <p className={css.buttonText}>Insert data</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
+  let dbDownload;
+  if (staffCanSee) {
+    dbDownload = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Database menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Database file</span>
+              <Button variant="text" onClick={downloadDatabaseFile}>
+                <p className={css.buttonText}>Download</p>
               </Button>
             </li>
           </ul>
@@ -230,6 +246,7 @@ function AccountSettings(): React.Node {
         {preferences}
         {tunnelbroker}
         {backup}
+        {dbDownload}
       </div>
     </div>
   );
