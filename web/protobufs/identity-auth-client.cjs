@@ -325,6 +325,67 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.getInboundKeysF
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.OutboundKeysForUserRequest,
+ *   !proto.identity.auth.KeyserverKeysResponse>}
+ */
+const methodDescriptor_IdentityClientService_GetKeyserverKeys = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/GetKeyserverKeys',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.OutboundKeysForUserRequest,
+  proto.identity.auth.KeyserverKeysResponse,
+  /**
+   * @param {!proto.identity.auth.OutboundKeysForUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.auth.KeyserverKeysResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.OutboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.KeyserverKeysResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.KeyserverKeysResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.getKeyserverKeys =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/GetKeyserverKeys',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetKeyserverKeys,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.OutboundKeysForUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.auth.KeyserverKeysResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.getKeyserverKeys =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/GetKeyserverKeys',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetKeyserverKeys);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.UpdateUserPasswordStartRequest,
  *   !proto.identity.auth.UpdateUserPasswordStartResponse>}
  */
@@ -563,67 +624,6 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.deleteUser =
       request,
       metadata || {},
       methodDescriptor_IdentityClientService_DeleteUser);
-};
-
-
-/**
- * @const
- * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.auth.OutboundKeysForUserRequest,
- *   !proto.identity.auth.KeyserverKeysResponse>}
- */
-const methodDescriptor_IdentityClientService_GetKeyserverKeys = new grpc.web.MethodDescriptor(
-  '/identity.auth.IdentityClientService/GetKeyserverKeys',
-  grpc.web.MethodType.UNARY,
-  proto.identity.auth.OutboundKeysForUserRequest,
-  proto.identity.auth.KeyserverKeysResponse,
-  /**
-   * @param {!proto.identity.auth.OutboundKeysForUserRequest} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.identity.auth.KeyserverKeysResponse.deserializeBinary
-);
-
-
-/**
- * @param {!proto.identity.auth.OutboundKeysForUserRequest} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
- *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.auth.KeyserverKeysResponse)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.KeyserverKeysResponse>|undefined}
- *     The XHR Node Readable Stream
- */
-proto.identity.auth.IdentityClientServiceClient.prototype.getKeyserverKeys =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/GetKeyserverKeys',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_GetKeyserverKeys,
-      callback);
-};
-
-
-/**
- * @param {!proto.identity.auth.OutboundKeysForUserRequest} request The
- *     request proto
- * @param {?Object<string, string>=} metadata User defined
- *     call metadata
- * @return {!Promise<!proto.identity.auth.KeyserverKeysResponse>}
- *     Promise that resolves to the response
- */
-proto.identity.auth.IdentityClientServicePromiseClient.prototype.getKeyserverKeys =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/GetKeyserverKeys',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_GetKeyserverKeys);
 };
 
 

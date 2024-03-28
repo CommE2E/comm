@@ -10,7 +10,8 @@ package identity.auth;
 // token through an interceptor, thus avoiding the need to explicitly pass
 // the credentials on every request
 service IdentityClientService {
-  // X3DH actions
+
+  /* X3DH actions */
 
   // Replenish one-time preKeys
   rpc UploadOneTimeKeys(UploadOneTimeKeysRequest)
@@ -34,6 +35,12 @@ service IdentityClientService {
   // the other user's username.
   rpc GetInboundKeysForUser(InboundKeysForUserRequest) returns
     (InboundKeysForUserResponse) {}
+  // Called by clients to get required keys for opening a connection
+  // to a user's keyserver
+  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
+    (KeyserverKeysResponse) {}
+
+  /* Account actions */
 
   // Called by user to update password and receive new access token
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
@@ -46,10 +53,7 @@ service IdentityClientService {
   // Called by a user to delete their own account
   rpc DeleteUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
 
-  // Called by clients to get required keys for opening a connection
-  // to a user's keyserver
-  rpc GetKeyserverKeys(OutboundKeysForUserRequest) returns
-    (KeyserverKeysResponse) {}
+  /* Device list actions */
 
   // Returns device list history
   rpc GetDeviceListForUser(GetDeviceListRequest) returns
@@ -58,7 +62,7 @@ service IdentityClientService {
   rpc UpdateDeviceList(UpdateDeviceListRequest) returns
     (identity.unauth.Empty) {}
 
-  // Farcaster actions
+  /* Farcaster actions */
 
   // Called by an existing user to link their Farcaster account
   rpc LinkFarcasterAccount(LinkFarcasterAccountRequest) returns
@@ -66,6 +70,8 @@ service IdentityClientService {
   // Called by an existing user to unlink their Farcaster account
   rpc UnlinkFarcasterAccount(identity.unauth.Empty) returns
     (identity.unauth.Empty) {}
+
+  /* Miscellaneous actions */
 
   rpc FindUserIdentity(UserIdentityRequest) returns (UserIdentityResponse) {}
 }

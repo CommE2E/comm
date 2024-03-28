@@ -39,6 +39,13 @@ declare export class IdentityClientServiceClient {
                response: identityAuthStructs.InboundKeysForUserResponse) => void
   ): grpcWeb.ClientReadableStream<identityAuthStructs.InboundKeysForUserResponse>;
 
+  getKeyserverKeys(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.KeyserverKeysResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.KeyserverKeysResponse>;
+
   updateUserPasswordStart(
     request: identityAuthStructs.UpdateUserPasswordStartRequest,
     metadata: grpcWeb.Metadata | void,
@@ -66,13 +73,6 @@ declare export class IdentityClientServiceClient {
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
-
-  getKeyserverKeys(
-    request: identityAuthStructs.OutboundKeysForUserRequest,
-    metadata: grpcWeb.Metadata | void,
-    callback: (err: grpcWeb.RpcError,
-               response: identityAuthStructs.KeyserverKeysResponse) => void
-  ): grpcWeb.ClientReadableStream<identityAuthStructs.KeyserverKeysResponse>;
 
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
@@ -135,6 +135,11 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityAuthStructs.InboundKeysForUserResponse>;
 
+  getKeyserverKeys(
+    request: identityAuthStructs.OutboundKeysForUserRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.KeyserverKeysResponse>;
+
   updateUserPasswordStart(
     request: identityAuthStructs.UpdateUserPasswordStartRequest,
     metadata?: grpcWeb.Metadata
@@ -154,11 +159,6 @@ declare export class IdentityClientServicePromiseClient {
     request: identityStructs.Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
-
-  getKeyserverKeys(
-    request: identityAuthStructs.OutboundKeysForUserRequest,
-    metadata?: grpcWeb.Metadata
-  ): Promise<identityAuthStructs.KeyserverKeysResponse>;
 
   getDeviceListForUser(
     request: identityAuthStructs.GetDeviceListRequest,
