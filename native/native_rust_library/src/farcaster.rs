@@ -4,7 +4,7 @@ use crate::{
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
-  protos::auth::LinkFarcasterAccountRequest,
+  protos::auth::LinkFarcasterAccountRequest, protos::unauth::Empty,
   protos::unauth::GetFarcasterUsersRequest,
 };
 use serde::Serialize;
@@ -105,6 +105,39 @@ async fn link_farcaster_account_helper(
   identity_client
     .link_farcaster_account(link_farcaster_account_request)
     .await?;
+
+  Ok(())
+}
+
+pub fn unlink_farcaster_account(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let result =
+      unlink_farcaster_account_helper(user_id, device_id, access_token).await;
+    handle_void_result_as_callback(result, promise_id);
+  });
+}
+
+async fn unlink_farcaster_account_helper(
+  user_id: String,
+  device_id: String,
+  access_token: String,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    user_id,
+    device_id,
+    access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  identity_client.unlink_farcaster_account(Empty {}).await?;
 
   Ok(())
 }

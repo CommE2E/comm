@@ -6,6 +6,7 @@ use exact_user_search::{
 };
 use farcaster::{
   farcaster_id_string_to_option, get_farcaster_users, link_farcaster_account,
+  unlink_farcaster_account,
 };
 use ffi::{bool_callback, string_callback, void_callback};
 use future_manager::ffi::*;
@@ -255,6 +256,14 @@ mod ffi {
       device_id: String,
       access_token: String,
       farcaster_id: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityUnlinkFarcasterAccount"]
+    fn unlink_farcaster_account(
+      user_id: String,
+      device_id: String,
+      access_token: String,
       promise_id: u32,
     );
 
