@@ -1240,9 +1240,12 @@ jsi::Value CommCoreModule::encrypt(
 
 jsi::Value CommCoreModule::decrypt(
     jsi::Runtime &rt,
-    jsi::String message,
+    jsi::Object encryptedDataJSI,
     jsi::String deviceID) {
-  auto messageCpp{message.utf8(rt)};
+  size_t messageType =
+      std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
+  std::string message =
+      encryptedDataJSI.getProperty(rt, "message").asString(rt).utf8(rt);
   auto deviceIDCpp{deviceID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -1251,8 +1254,8 @@ jsi::Value CommCoreModule::decrypt(
           std::string decryptedMessage;
           try {
             crypto::EncryptedData encryptedData{
-                std::vector<uint8_t>(messageCpp.begin(), messageCpp.end()),
-                ENCRYPTED_MESSAGE_TYPE};
+                std::vector<uint8_t>(message.begin(), message.end()),
+                messageType};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
             this->persistCryptoModules(true, false);

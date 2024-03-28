@@ -11,8 +11,6 @@
 #define ID_KEYS_PREFIX_OFFSET 15
 #define SIGNING_KEYS_PREFIX_OFFSET 71
 
-#define ENCRYPTED_MESSAGE_TYPE 1
-
 namespace comm {
 namespace crypto {
 
