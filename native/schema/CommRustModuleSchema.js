@@ -129,6 +129,11 @@ export interface Spec extends TurboModule {
     accessToken: string,
     farcasterID: string,
   ) => Promise<void>;
+  +unlinkFarcasterAccount: (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+  ) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

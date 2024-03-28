@@ -692,4 +692,30 @@ jsi::Value CommRustModule::linkFarcasterAccount(
       });
 }
 
+jsi::Value CommRustModule::unlinkFarcasterAccount(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String deviceID,
+    jsi::String accessToken) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto accessTokenRust = jsiStringToRustString(accessToken, rt);
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityUnlinkFarcasterAccount(
+              userIDRust, deviceIDRust, accessTokenRust, currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 } // namespace comm
