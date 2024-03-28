@@ -102,10 +102,10 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKey: string,
     deviceID: string,
-  ) => Promise<string>;
+  ) => Promise<EncryptedData>;
   +initializeContentInboundSession: (
     identityKeys: string,
-    encryptedMessage: string,
+    encryptedContent: Object,
     deviceID: string,
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
@@ -148,6 +148,11 @@ export interface CoreModuleSpec extends Spec {
     backupID: string,
   ) => Promise<ArrayBuffer>;
   +decrypt: (encryptedData: EncryptedData, deviceID: string) => Promise<string>;
+  +initializeContentInboundSession: (
+    identityKeys: string,
+    encryptedContent: EncryptedData,
+    deviceID: string,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
