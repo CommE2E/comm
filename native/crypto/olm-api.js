@@ -6,7 +6,6 @@ import {
   type OneTimeKeysResultValues,
   type OlmAPI,
   type OLMIdentityKeys,
-  type EncryptedData,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
@@ -18,12 +17,7 @@ const olmAPI: OlmAPI = {
   },
   getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
-  async decrypt(
-    encryptedData: EncryptedData,
-    deviceID: string,
-  ): Promise<string> {
-    return commCoreModule.decrypt(encryptedData.message, deviceID);
-  },
+  decrypt: commCoreModule.decrypt,
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedContent: string,
