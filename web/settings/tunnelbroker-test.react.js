@@ -61,7 +61,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
       setLoading(true);
       try {
         await olmAPI.initializeCryptoAccount();
-        const encrypted = await olmAPI.encrypt(
+        const { message: encrypted } = await olmAPI.encrypt(
           `Encrypted message to ${recipient}`,
           recipient,
         );

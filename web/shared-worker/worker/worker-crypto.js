@@ -19,6 +19,7 @@ import {
   type OneTimeKeysResultValues,
   type ClientPublicKeys,
   type NotificationsOlmDataType,
+  type EncryptedData,
 } from 'lib/types/crypto-types.js';
 import type {
   IdentityNewDeviceKeyUpload,
@@ -368,7 +369,7 @@ const olmAPI: OlmAPI = {
       signature,
     };
   },
-  async encrypt(content: string, deviceID: string): Promise<string> {
+  async encrypt(content: string, deviceID: string): Promise<EncryptedData> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
@@ -376,11 +377,14 @@ const olmAPI: OlmAPI = {
     if (!session) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
-    const { body } = session.encrypt(content);
+    const encryptedContent = session.encrypt(content);
 
     persistCryptoStore();
 
-    return body;
+    return {
+      message: encryptedContent.body,
+      messageType: encryptedContent.type,
+    };
   },
   async decrypt(encryptedContent: string, deviceID: string): Promise<string> {
     if (!cryptoStore) {
