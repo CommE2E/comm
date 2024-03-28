@@ -131,6 +131,10 @@ class IdentityServiceClientSharedProxy implements IdentityServiceClient {
 
   linkFarcasterAccount: (farcasterID: string) => Promise<void> =
     this.proxyToWorker('linkFarcasterAccount');
+
+  unlinkFarcasterAccount: () => Promise<void> = this.proxyToWorker(
+    'unlinkFarcasterAccount',
+  );
 }
 
 export { IdentityServiceClientSharedProxy };
