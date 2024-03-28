@@ -40,6 +40,7 @@ public:
   virtual jsi::Value findUserIDForUsername(jsi::Runtime &rt, jsi::String username) = 0;
   virtual jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) = 0;
   virtual jsi::Value linkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String farcasterID) = 0;
+  virtual jsi::Value unlinkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
 
 };
 
@@ -220,6 +221,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::linkFarcasterAccount, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(farcasterID));
+    }
+    jsi::Value unlinkFarcasterAccount(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
+      static_assert(
+          bridging::getParameterCount(&T::unlinkFarcasterAccount) == 4,
+          "Expected unlinkFarcasterAccount(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::unlinkFarcasterAccount, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
     }
 
   private:
