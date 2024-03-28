@@ -26,8 +26,7 @@ import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
-  UsernameSelectionRouteName,
-  AvatarSelectionRouteName,
+  ConnectFarcasterRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
@@ -53,7 +52,7 @@ type Props = {
 };
 function ConnectEthereum(props: Props): React.Node {
   const { params } = props.route;
-  const { userSelections } = props.route.params;
+  const { userSelections } = params;
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
@@ -126,8 +125,8 @@ function ConnectEthereum(props: Props): React.Node {
 
   const { navigate } = props.navigation;
   const onSkip = React.useCallback(() => {
-    navigate<'UsernameSelection'>({
-      name: UsernameSelectionRouteName,
+    navigate<'ConnectFarcaster'>({
+      name: ConnectFarcasterRouteName,
       params,
     });
   }, [navigate, params]);
@@ -177,10 +176,10 @@ function ConnectEthereum(props: Props): React.Node {
 
       const newUserSelections = {
         ...userSelections,
-        accountSelection: ethereumAccount,
+        ethereumAccount,
       };
-      navigate<'AvatarSelection'>({
-        name: AvatarSelectionRouteName,
+      navigate<'ConnectFarcaster'>({
+        name: ConnectFarcasterRouteName,
         params: { userSelections: newUserSelections },
       });
     },
@@ -231,10 +230,10 @@ function ConnectEthereum(props: Props): React.Node {
     );
     const newUserSelections = {
       ...userSelections,
-      accountSelection: ethereumAccount,
+      ethereumAccount,
     };
-    navigate<'AvatarSelection'>({
-      name: AvatarSelectionRouteName,
+    navigate<'ConnectFarcaster'>({
+      name: ConnectFarcasterRouteName,
       params: { userSelections: newUserSelections },
     });
   }, [ethereumAccount, userSelections, navigate]);
