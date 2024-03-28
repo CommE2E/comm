@@ -103,7 +103,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeConten
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeContentOutboundSession(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentInboundSession(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeContentInboundSession(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeContentInboundSession(rt, args[0].asString(rt), args[1].asObject(rt), args[2].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encrypt(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->encrypt(rt, args[0].asString(rt), args[1].asString(rt));
