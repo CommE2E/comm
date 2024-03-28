@@ -39,11 +39,13 @@ enum class MessageType {
   UNSUPPORTED,
   IMAGES,
   MULTIMEDIA,
-  UPDATE_RELATIONSHIP,
+  LEGACY_UPDATE_RELATIONSHIP,
   SIDEBAR_SOURCE,
   CREATE_SIDEBAR,
   REACTION,
   EDIT_MESSAGE,
+  TOGGLE_PIN,
+  UPDATE_RELATIONSHIP,
 };
 
 const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
@@ -83,7 +85,7 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
       message_specs_initializer.insert(
           {MessageType::MULTIMEDIA, std::make_unique<MultimediaMessageSpec>()});
       message_specs_initializer.insert(
-          {MessageType::UPDATE_RELATIONSHIP,
+          {MessageType::LEGACY_UPDATE_RELATIONSHIP,
            std::make_unique<UpdateRelationshipMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::CREATE_SIDEBAR,
@@ -95,6 +97,9 @@ const std::map<MessageType, std::unique_ptr<MessageSpec>> messageSpecsHolder =
            std::make_unique<SidebarSourceMessageSpec>()});
       message_specs_initializer.insert(
           {MessageType::EDIT_MESSAGE, std::make_unique<EditMessageSpec>()});
+      message_specs_initializer.insert(
+          {MessageType::UPDATE_RELATIONSHIP,
+           std::make_unique<UpdateRelationshipMessageSpec>()});
       return message_specs_initializer;
     }();
 
