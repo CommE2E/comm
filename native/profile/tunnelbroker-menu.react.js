@@ -29,6 +29,7 @@ type Props = {
   +navigation: ProfileNavigationProp<'TunnelbrokerMenu'>,
   +route: NavigationRoute<'TunnelbrokerMenu'>,
 };
+
 // eslint-disable-next-line no-unused-vars
 function TunnelbrokerMenu(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
@@ -84,7 +85,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
         return;
       }
       await olmAPI.initializeCryptoAccount();
-      const encrypted = await olmAPI.encrypt(
+      const { message: encrypted } = await olmAPI.encrypt(
         `Encrypted message to ${recipient}`,
         recipient,
       );
