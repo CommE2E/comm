@@ -120,6 +120,11 @@ export interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<string>;
+  +logInExistingDevice: (
+    userID: string,
+    deviceID: string,
+    challengeResponse: string,
+  ) => Promise<string>;
   +findUserIDForWalletAddress: (walletAddress: string) => Promise<string>;
   +findUserIDForUsername: (username: string) => Promise<string>;
   +getFarcasterUsers: (farcasterIDs: $ReadOnlyArray<string>) => Promise<string>;
