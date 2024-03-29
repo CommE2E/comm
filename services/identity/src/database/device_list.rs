@@ -556,6 +556,58 @@ impl DatabaseClient {
     Ok(item.is_some())
   }
 
+  pub async fn get_device_data(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+  ) -> Result<Option<DeviceRow>, Error> {
+    let GetItemOutput { item, .. } = self
+      .client
+      .get_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id.into()))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id.into()).into())
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to fetch device data: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    let Some(attrs) = item else {
+      return Ok(None);
+    };
+
+    let device_data = DeviceRow::try_from(attrs)?;
+    Ok(Some(device_data))
+  }
+
+  /// Fails if the device list is empty
+  pub async fn get_primary_device_data(
+    &self,
+    user_id: &str,
+  ) -> Result<DeviceRow, Error> {
+    let device_list = self.get_current_device_list(user_id).await?;
+    let Some(primary_device_id) = device_list
+      .as_ref()
+      .and_then(|list| list.device_ids.first())
+    else {
+      error!(user_id, "Device list is empty. Cannot fetch primary device");
+      return Err(Error::DeviceList(DeviceListError::DeviceNotFound));
+    };
+
+    self
+      .get_device_data(user_id, primary_device_id)
+      .await?
+      .ok_or_else(|| {
+        error!(
+          "Corrupt database. Missing primary device data for user {}",
+          user_id
+        );
+        Error::MissingItem
+      })
+  }
+
   /// Required only for migration purposes (determining primary device)
   pub async fn update_device_login_time(
     &self,
