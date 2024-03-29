@@ -13,6 +13,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
@@ -36,6 +37,7 @@ import {
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
   TunnelbrokerMenuRouteName,
+  FarcasterAccountSettingsRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -234,6 +236,16 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let farcasterAccountSettings;
+    if (usingCommServicesAccessToken || __DEV__) {
+      farcasterAccountSettings = (
+        <ProfileRow
+          content="Farcaster account"
+          onPress={this.onPressFaracsterAccount}
+        />
+      );
+    }
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -280,6 +292,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {tunnelbrokerMenu}
           </View>
           <View style={this.props.styles.section}>
+            {farcasterAccountSettings}
             {linkedDevices}
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
@@ -373,6 +386,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressDeleteAccount = () => {
     this.props.navigation.navigate({ name: DeleteAccountRouteName });
+  };
+
+  onPressFaracsterAccount = () => {
+    this.props.navigation.navigate({ name: FarcasterAccountSettingsRouteName });
   };
 
   onPressDevices = () => {
