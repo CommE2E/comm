@@ -24,6 +24,8 @@ jsi::Array KeyserverStore::parseDBDataStore(
     jsi::Object jsiKeyserver = jsi::Object(rt);
     jsiKeyserver.setProperty(rt, "id", keyserver.id);
     jsiKeyserver.setProperty(rt, "keyserverInfo", keyserver.keyserver_info);
+    jsiKeyserver.setProperty(
+        rt, "syncedKeyserverInfo", keyserver.synced_keyserver_info);
     jsiKeyservers.setValueAtIndex(rt, writeIdx++, jsiKeyserver);
   }
   return jsiKeyservers;
@@ -60,8 +62,12 @@ KeyserverStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
       std::string id = payloadObj.getProperty(rt, "id").asString(rt).utf8(rt);
       std::string keyserver_info =
           payloadObj.getProperty(rt, "keyserverInfo").asString(rt).utf8(rt);
+      std::string synced_keyserver_info =
+          payloadObj.getProperty(rt, "syncedKeyserverInfo")
+              .asString(rt)
+              .utf8(rt);
 
-      KeyserverInfo keyserver{id, keyserver_info};
+      KeyserverInfo keyserver{id, keyserver_info, synced_keyserver_info};
 
       keyserverStoreOps.push_back(
           std::make_unique<ReplaceKeyserverOperation>(std::move(keyserver)));

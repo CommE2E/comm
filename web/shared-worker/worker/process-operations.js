@@ -138,8 +138,12 @@ function processKeyserverStoreOperations(
         const { ids } = operation.payload;
         sqliteQueryExecutor.removeKeyservers(ids);
       } else if (operation.type === 'replace_keyserver') {
-        const { id, keyserverInfo } = operation.payload;
-        sqliteQueryExecutor.replaceKeyserver({ id, keyserverInfo });
+        const { id, keyserverInfo, syncedKeyserverInfo } = operation.payload;
+        sqliteQueryExecutor.replaceKeyserver({
+          id,
+          keyserverInfo,
+          syncedKeyserverInfo,
+        });
       } else {
         throw new Error('Unsupported keyserver operation');
       }
