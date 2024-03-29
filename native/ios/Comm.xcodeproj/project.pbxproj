@@ -12,6 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
 		34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */; };
+		34FF25BA2BB757870075EC40 /* AuxUserStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34FF25B92BB757860075EC40 /* AuxUserStore.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
@@ -143,6 +144,9 @@
 		34329B3F2B9EBFCE00233438 /* IntegrityStore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IntegrityStore.cpp; path = PersistentStorageUtilities/DataStores/IntegrityStore.cpp; sourceTree = "<group>"; };
 		34329B402B9EBFCE00233438 /* IntegrityStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IntegrityStore.h; path = PersistentStorageUtilities/DataStores/IntegrityStore.h; sourceTree = "<group>"; };
 		34329B452B9EC96200233438 /* IntegrityThreadHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntegrityThreadHash.h; sourceTree = "<group>"; };
+		34FF25A62BB738DC0075EC40 /* AuxUserStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AuxUserStoreOperations.h; sourceTree = "<group>"; };
+		34FF25B82BB753B30075EC40 /* AuxUserStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AuxUserStore.h; path = PersistentStorageUtilities/DataStores/AuxUserStore.h; sourceTree = "<group>"; };
+		34FF25B92BB757860075EC40 /* AuxUserStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AuxUserStore.cpp; path = PersistentStorageUtilities/DataStores/AuxUserStore.cpp; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
@@ -490,6 +494,7 @@
 				7FBB2A7429E9450E002C6493 /* CommUtilsModule.h */,
 				B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */,
 				B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */,
+				34FF25A62BB738DC0075EC40 /* AuxUserStoreOperations.h */,
 			);
 			path = NativeModules;
 			sourceTree = "<group>";
@@ -647,6 +652,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				34FF25B82BB753B30075EC40 /* AuxUserStore.h */,
+				34FF25B92BB757860075EC40 /* AuxUserStore.cpp */,
 				8E2CC2582B5C99B0000C94D6 /* KeyserverStore.cpp */,
 				8E2CC2572B5C99B0000C94D6 /* KeyserverStore.h */,
 				B3B02EBD2B8536560020D118 /* CommunityStore.cpp */,
@@ -1137,6 +1144,7 @@
 				CBCA09062A8E0E7400F75B3E /* StaffUtils.cpp in Sources */,
 				8EF7756B2A7433630046A385 /* ThreadStore.cpp in Sources */,
 				CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */,
+				34FF25BA2BB757870075EC40 /* AuxUserStore.cpp in Sources */,
 				CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */,
 				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
