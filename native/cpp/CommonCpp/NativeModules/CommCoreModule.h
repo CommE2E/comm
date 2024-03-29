@@ -5,6 +5,7 @@
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "../_generated/commJSI.h"
+#include "PersistentStorageUtilities/DataStores/AuxUserStore.h"
 #include "PersistentStorageUtilities/DataStores/CommunityStore.h"
 #include "PersistentStorageUtilities/DataStores/DraftStore.h"
 #include "PersistentStorageUtilities/DataStores/IntegrityStore.h"
@@ -41,6 +42,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   CommunityStore communityStore;
   IntegrityStore integrityStore;
   SyncedMetadataStore syncedMetadataStore;
+  AuxUserStore auxUserStore;
 
   void
   persistCryptoModules(bool persistContentModule, bool persistNotifsModule);
@@ -86,6 +88,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::Array operations) override;
   virtual jsi::Value processSyncedMetadataStoreOperations(
+      jsi::Runtime &rt,
+      jsi::Array operations) override;
+  virtual jsi::Value processAuxUserStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
