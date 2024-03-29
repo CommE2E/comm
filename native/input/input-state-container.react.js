@@ -729,7 +729,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     threadInfo: ThreadInfo,
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
-    const { localMediaID } = ids;
+    const { localMediaID, localThumbnailID } = ids;
     const start = selection.sendTime;
     const steps: Array<MediaMissionStep> = [selection];
     let encryptionSteps: $ReadOnlyArray<MediaMissionStep> = [];
@@ -758,7 +758,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     };
     const onUploadFailed = (message: string) => {
       errorMessage = message;
-      this.handleUploadFailure(localMessageID, localMediaID);
+      this.handleUploadFailure(localMessageID, localMediaID, localThumbnailID);
       userTime = Date.now() - start;
     };
 
@@ -1260,25 +1260,42 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
   };
 
-  handleUploadFailure(localMessageID: string, localUploadID: string) {
+  handleUploadFailure(
+    localMessageID: string,
+    localUploadID: string,
+    localThumbnailID: ?string,
+  ) {
     this.setState(prevState => {
       const uploads = prevState.pendingUploads[localMessageID];
+
       const upload = uploads[localUploadID];
-      if (!upload) {
+      const thumbnailUpload = localThumbnailID
+        ? uploads[localThumbnailID]
+        : undefined;
+      if (!upload && !thumbnailUpload) {
         // The upload has been completed before it failed
         return {};
       }
+
+      const newUploads = { ...uploads };
+      newUploads[localUploadID] = {
+        ...upload,
+        failed: true,
+        progressPercent: 0,
+      };
+      if (localThumbnailID) {
+        newUploads[localThumbnailID] = {
+          processingStep: null,
+          ...thumbnailUpload,
+          failed: true,
+          progressPercent: 0,
+        };
+      }
+
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
-          [localMessageID]: {
-            ...uploads,
-            [localUploadID]: {
-              ...upload,
-              failed: true,
-              progressPercent: 0,
-            },
-          },
+          [localMessageID]: newUploads,
         },
       };
     });
