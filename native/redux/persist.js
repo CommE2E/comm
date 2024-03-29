@@ -1163,6 +1163,45 @@ const migrations = {
     }
     return state;
   },
+  [66]: async (state: AppState) => {
+    const stores = await commCoreModule.getClientDBStore();
+    const keyserversDBInfo = stores.keyservers;
+
+    const { translateClientDBData } = keyserverStoreOpsHandlers;
+    const keyservers = translateClientDBData(keyserversDBInfo);
+
+    // There is no modification of the keyserver data, but the ops handling
+    // should correctly split the data between synced and non-synced tables
+
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      keyservers,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo,
+      },
+    }));
+
+    const keyserverStoreOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_keyservers' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processKeyserverStoreOperations(
+        keyserverStoreOperations,
+      );
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1230,7 +1269,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 65,
+  version: 66,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
