@@ -17,7 +17,16 @@ AuxUserStore::AuxUserStore(
 jsi::Array AuxUserStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<AuxUserInfo>> auxUserInfosVectorPtr) const {
-  jsi::Array jsiAuxUserInfos = jsi::Array(rt, 0);
+
+  size_t numAuxUserInfos = auxUserInfosVectorPtr->size();
+  jsi::Array jsiAuxUserInfos = jsi::Array(rt, numAuxUserInfos);
+  size_t writeIdx = 0;
+  for (const AuxUserInfo &auxUserInfo : *auxUserInfosVectorPtr) {
+    jsi::Object jsiAuxUserInfo = jsi::Object(rt);
+    jsiAuxUserInfo.setProperty(rt, "id", auxUserInfo.id);
+    jsiAuxUserInfo.setProperty(rt, "auxUserInfo", auxUserInfo.aux_user_info);
+    jsiAuxUserInfos.setValueAtIndex(rt, writeIdx++, jsiAuxUserInfo);
+  }
   return jsiAuxUserInfos;
 }
 
