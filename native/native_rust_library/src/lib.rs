@@ -16,8 +16,8 @@ use grpc_clients::identity::protos::authenticated::{
   UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::unauth::{
-  AuthResponse, DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
+  AuthResponse, DeviceKeyUpload, DeviceType, Empty, ExistingDeviceLoginRequest,
+  IdentityKeyInfo, OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest,
   SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
 };
@@ -230,6 +230,14 @@ mod ffi {
       notif_prekey_signature: String,
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityLogInExistingDevice"]
+    fn log_in_existing_device(
+      user_id: String,
+      device_id: String,
+      challenge_response: String,
       promise_id: u32,
     );
 
@@ -1459,6 +1467,47 @@ async fn upload_secondary_device_keys_and_log_in_helper(
 
   let response = identity_client
     .upload_keys_for_registered_device_and_log_in(request)
+    .await?
+    .into_inner();
+
+  let user_id_and_access_token = UserIDAndDeviceAccessToken::from(response);
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
+}
+
+fn log_in_existing_device(
+  user_id: String,
+  device_id: String,
+  challenge_response: String,
+  promise_id: u32,
+) {
+  RUNTIME.spawn(async move {
+    let result =
+      log_in_existing_device_helper(user_id, device_id, challenge_response)
+        .await;
+    handle_string_result_as_callback(result, promise_id);
+  });
+}
+
+async fn log_in_existing_device_helper(
+  user_id: String,
+  device_id: String,
+  challenge_response: String,
+) -> Result<String, Error> {
+  let mut identity_client = get_unauthenticated_client(
+    IDENTITY_SOCKET_ADDR,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let request = ExistingDeviceLoginRequest {
+    user_id,
+    device_id,
+    challenge_response,
+  };
+
+  let response = identity_client
+    .log_in_existing_device(request)
     .await?
     .into_inner();
 
