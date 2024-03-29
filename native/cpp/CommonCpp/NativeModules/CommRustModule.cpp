@@ -590,7 +590,33 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
               [error, promise]() { promise->reject(error); });
         }
       });
-  return jsi::Value::undefined();
+}
+
+jsi::Value CommRustModule::logInExistingDevice(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String deviceID,
+    jsi::String challengeResponse) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto challengeResponseRust = jsiStringToRustString(challengeResponse, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityLogInExistingDevice(
+              userIDRust, deviceIDRust, challengeResponseRust, currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
 }
 
 jsi::Value CommRustModule::findUserIDForWalletAddress(
