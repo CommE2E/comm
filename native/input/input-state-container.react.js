@@ -756,9 +756,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       return errorMessage;
     };
-    const onUploadFailed = (mediaID: string, message: string) => {
+    const onUploadFailed = (message: string) => {
       errorMessage = message;
-      this.handleUploadFailure(localMessageID, mediaID);
+      this.handleUploadFailure(localMessageID, localMediaID);
       userTime = Date.now() - start;
     };
 
@@ -781,7 +781,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           processResult.reason === 'video_too_long'
             ? `can't do vids longer than ${videoDurationLimit}min`
             : 'processing failed';
-        onUploadFailed(localMediaID, message);
+        onUploadFailed(message);
         return await onUploadFinished(processResult);
       }
       if (processResult.shouldDisposePath) {
@@ -789,7 +789,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
       processedMedia = processResult;
     } catch (e) {
-      onUploadFailed(localMediaID, 'processing failed');
+      onUploadFailed('processing failed');
       return await onUploadFinished({
         success: false,
         reason: 'processing_exception',
@@ -805,7 +805,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           await encryptMedia(processedMedia);
         encryptionSteps = encryptionReturn.steps;
         if (!encryptionResult.success) {
-          onUploadFailed(localMediaID, encryptionResult.reason);
+          onUploadFailed(encryptionResult.reason);
           return await onUploadFinished(encryptionResult);
         }
         if (encryptionResult.shouldDisposePath) {
@@ -813,7 +813,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         }
         processedMedia = encryptionResult;
       } catch (e) {
-        onUploadFailed(localMediaID, 'encryption failed');
+        onUploadFailed('encryption failed');
         return await onUploadFinished({
           success: false,
           reason: 'encryption_exception',
@@ -961,7 +961,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
-      onUploadFailed(localMediaID, 'upload failed');
+      onUploadFailed('upload failed');
       mediaMissionResult = {
         success: false,
         reason: 'http_upload_failed',
