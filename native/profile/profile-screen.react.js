@@ -36,6 +36,7 @@ import {
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
   TunnelbrokerMenuRouteName,
+  FarcasterAccountSettingsRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
@@ -171,7 +172,8 @@ class ProfileScreen extends React.PureComponent<Props> {
     let developerTools,
       defaultNotifications,
       keyserverSelection,
-      tunnelbrokerMenu;
+      tunnelbrokerMenu,
+      farcasterAccountSettings;
     const { staffCanSee, isAccountWithPassword } = this.props;
     if (staffCanSee) {
       developerTools = (
@@ -196,6 +198,13 @@ class ProfileScreen extends React.PureComponent<Props> {
         <ProfileRow
           content="Tunnelbroker menu"
           onPress={this.onPressTunnelbrokerMenu}
+        />
+      );
+
+      farcasterAccountSettings = (
+        <ProfileRow
+          content="Farcaster account"
+          onPress={this.onPressFaracsterAccount}
         />
       );
     }
@@ -280,6 +289,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {tunnelbrokerMenu}
           </View>
           <View style={this.props.styles.section}>
+            {farcasterAccountSettings}
             {linkedDevices}
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
@@ -373,6 +383,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressDeleteAccount = () => {
     this.props.navigation.navigate({ name: DeleteAccountRouteName });
+  };
+
+  onPressFaracsterAccount = () => {
+    this.props.navigation.navigate({ name: FarcasterAccountSettingsRouteName });
   };
 
   onPressDevices = () => {

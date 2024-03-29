@@ -19,6 +19,7 @@ import DeleteAccount from './delete-account.react.js';
 import DevTools from './dev-tools.react.js';
 import EditPassword from './edit-password.react.js';
 import EmojiUserAvatarCreation from './emoji-user-avatar-creation.react.js';
+import FarcasterAccountSettings from './farcaster-account-settings.react.js';
 import KeyserverSelectionListHeaderRightButton from './keyserver-selection-list-header-right-button.react.js';
 import KeyserverSelectionList from './keyserver-selection-list.react.js';
 import LinkedDevicesHeaderRightButton from './linked-devices-header-right-button.react.js';
@@ -49,6 +50,7 @@ import {
   BackupMenuRouteName,
   KeyserverSelectionListRouteName,
   AddKeyserverRouteName,
+  FarcasterAccountSettingsRouteName,
   type ScreenParamList,
   type ProfileParamList,
   TunnelbrokerMenuRouteName,
@@ -86,6 +88,7 @@ const privacyOptions = { headerTitle: 'Privacy' };
 const friendListOptions = { headerTitle: 'Friend list' };
 const blockListOptions = { headerTitle: 'Block list' };
 const defaultNotificationsOptions = { headerTitle: 'Default Notifications' };
+const farcasterSettingsOptions = { headerTitle: 'Farcaster account' };
 
 export type ProfileNavigationProp<
   RouteName: $Keys<ProfileParamList> = $Keys<ProfileParamList>,
@@ -224,6 +227,11 @@ function ProfileComponent(props: Props): React.Node {
             name={BlockListRouteName}
             component={RelationshipList}
             options={blockListOptions}
+          />
+          <Profile.Screen
+            name={FarcasterAccountSettingsRouteName}
+            component={FarcasterAccountSettings}
+            options={farcasterSettingsOptions}
           />
         </Profile.Navigator>
       </KeyboardAvoidingView>
