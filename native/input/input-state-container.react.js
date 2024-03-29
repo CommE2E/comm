@@ -206,6 +206,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           allUploadsComplete = false;
           completedUploadIDs.delete(singleMedia.id);
         }
+        const { thumbnailID } = singleMedia;
+        if (thumbnailID && isLocalUploadID(thumbnailID)) {
+          allUploadsComplete = false;
+          completedUploadIDs.delete(thumbnailID);
+        }
       }
 
       if (allUploadsComplete) {
