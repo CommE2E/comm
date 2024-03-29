@@ -321,6 +321,55 @@ const migrations = {
     });
     return rest;
   },
+  [14]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+
+    if (!isSupported) {
+      return state;
+    }
+
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+    const keyserversDBInfo = stores?.store?.keyservers;
+    if (!keyserversDBInfo) {
+      return state;
+    }
+
+    const { translateClientDBData } = keyserverStoreOpsHandlers;
+    const keyservers = translateClientDBData(keyserversDBInfo);
+
+    // There is no modification of the keyserver data, but the ops handling
+    // should correctly split the data between synced and non-synced tables
+
+    const replaceOps: $ReadOnlyArray<ReplaceKeyserverOperation> = entries(
+      keyservers,
+    ).map(([id, keyserverInfo]) => ({
+      type: 'replace_keyserver',
+      payload: {
+        id,
+        keyserverInfo,
+      },
+    }));
+
+    const keyserverStoreOperations: $ReadOnlyArray<ClientDBKeyserverStoreOperation> =
+      keyserverStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_keyservers' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { keyserverStoreOperations },
+      });
+      return state;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(state);
+    }
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -366,7 +415,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 13,
+  version: 14,
   transforms: [keyserverStoreTransform],
 };
 

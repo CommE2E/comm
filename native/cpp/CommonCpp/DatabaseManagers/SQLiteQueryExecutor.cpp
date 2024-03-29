@@ -46,6 +46,7 @@ std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesBlocklist = {
     "messages_to_device",
     "integrity_store",
     "persist_storage",
+    "keyservers",
 };
 #else
 SQLiteConnectionManager SQLiteQueryExecutor::connectionManager;
@@ -602,7 +603,23 @@ bool create_keyservers_synced(sqlite3 *db) {
       "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "	 keyserver_info TEXT NOT NULL"
       ");";
-  return create_table(db, query, "keyservers_synced");
+  bool success = create_table(db, query, "keyservers_synced");
+  if (!success) {
+    return false;
+  }
+
+  std::string copyData =
+      "INSERT INTO keyservers_synced (id, keyserver_info)"
+      "SELECT id, keyserver_info "
+      "FROM keyservers;";
+
+  char *error;
+  sqlite3_exec(db, copyData.c_str(), nullptr, nullptr, &error);
+  if (error) {
+    return false;
+  }
+
+  return true;
 }
 
 bool create_schema(sqlite3 *db) {
