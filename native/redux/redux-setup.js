@@ -115,6 +115,21 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
   }
 
   if (
+    (action.type === logOutActionTypes.success ||
+      action.type === deleteAccountActionTypes.success) &&
+    identityInvalidSessionDowngrade(
+      state,
+      action.payload.currentUserInfo,
+      action.payload.preRequestUserState,
+    )
+  ) {
+    return {
+      ...state,
+      loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+    };
+  }
+
+  if (
     action.type === setNewSessionActionType &&
     invalidSessionDowngrade(
       state,
@@ -156,45 +171,8 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
         keyserverIDs: newKeyserverIDs,
       },
     };
-  } else if (
-    action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success
-  ) {
-    const { currentUserInfo, preRequestUserState } = action.payload;
-    if (
-      identityInvalidSessionDowngrade(
-        state,
-        currentUserInfo,
-        preRequestUserState,
-      )
-    ) {
-      return {
-        ...state,
-        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
-      };
-    }
-
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
-  } else if (action.type === identityRegisterActionTypes.success) {
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
-  } else if (
-    action.type === identityLogInActionTypes.success &&
-    action.payload.userID !== action.payload.preRequestUserState?.id
-  ) {
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
   }
+
   if (
     (action.type === setNewSessionActionType &&
       action.payload.sessionChange.currentUserInfo &&
@@ -218,6 +196,20 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       ))
   ) {
     return state;
+  }
+
+  if (
+    action.type === logOutActionTypes.success ||
+    action.type === deleteAccountActionTypes.success ||
+    action.type === identityRegisterActionTypes.success ||
+    (action.type === identityLogInActionTypes.success &&
+      action.payload.userID !== action.payload.preRequestUserState?.id)
+  ) {
+    state = resetUserSpecificState(
+      state,
+      defaultState,
+      nonUserSpecificFieldsNative,
+    );
   }
 
   if (action.type === updateDimensionsActiveType) {
