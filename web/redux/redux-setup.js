@@ -7,8 +7,6 @@ import {
   logOutActionTypes,
   deleteKeyserverAccountActionTypes,
   deleteAccountActionTypes,
-  identityRegisterActionTypes,
-  identityLogInActionTypes,
   keyserverAuthActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
@@ -23,6 +21,7 @@ import {
 import { queueDBOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
+import { reduceCurrentUserInfo } from 'lib/reducers/user-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
@@ -334,21 +333,38 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     };
   }
 
-  if (
-    action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success ||
-    action.type === identityRegisterActionTypes.success ||
-    (action.type === identityLogInActionTypes.success &&
-      action.payload.userID !== action.payload.preRequestUserState?.id)
-  ) {
-    state = resetUserSpecificState(
-      state,
-      defaultWebState,
-      nonUserSpecificFieldsWeb,
-    );
-  }
-
   if (action.type !== updateNavInfoActionType) {
+    // We're calling this reducer twice: here and in the base reducer. This call
+    // is only used to determine the new current user ID. We don't want to use
+    // the remaining part of the current user info, because it is possible that
+    // the reducer returned a modified ID without cleared remaining parts of
+    // the current user info - this would be a bug, but we want to be extra
+    // careful when clearing the state.
+    // When newCurrentUserInfo has the same ID as state.currentUserInfo
+    // the state won't be cleared and the current user info determined in base
+    // reducer will be equal to the newCurrentUserInfo.
+    // When newCurrentUserInfo has different ID than state.currentUserInfo, we
+    // reset the state and pass it to the base reducer. Then, in base reducer,
+    // reduceCurrentUserInfo acts on the cleared state and may return
+    // a different result than newCurrentUserInfo.
+    // Overall, the solution is a little wasteful, but makes us sure that we
+    // never keep the info of the user when the current user ID changes.
+    const newCurrentUserInfo = reduceCurrentUserInfo(
+      state.currentUserInfo,
+      action,
+    );
+    if (
+      state.currentUserInfo &&
+      !state.currentUserInfo?.anonymous &&
+      newCurrentUserInfo?.id !== state.currentUserInfo?.id
+    ) {
+      state = resetUserSpecificState(
+        state,
+        defaultWebState,
+        nonUserSpecificFieldsWeb,
+      );
+    }
+
     const baseReducerResult = baseReducer(state, action, onStateDifference);
     state = baseReducerResult.state;
     storeOperations = {
