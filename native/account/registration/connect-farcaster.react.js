@@ -43,7 +43,7 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { setCachedSelections } = registrationContext;
+  const { cachedSelections, setCachedSelections } = registrationContext;
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -95,12 +95,45 @@ function ConnectFarcaster(prop: Props): React.Node {
     [goToNextStep, setCachedSelections],
   );
 
+  const { farcasterID } = cachedSelections;
+  const alreadyHasConnected = !!farcasterID;
+
   const onPressConnectFarcaster = React.useCallback(() => {
     setWebViewState('opening');
   }, []);
 
+  const defaultConnectButtonVariant = alreadyHasConnected
+    ? 'outline'
+    : 'enabled';
+
   const connectButtonVariant =
-    webViewState === 'opening' ? 'loading' : 'enabled';
+    webViewState === 'opening' ? 'loading' : defaultConnectButtonVariant;
+
+  const connectButtonText = alreadyHasConnected
+    ? 'Connect new Farcaster account'
+    : 'Connect Farcaster account';
+
+  const onUseAlreadyConnectedAccount = React.useCallback(() => {
+    invariant(
+      farcasterID,
+      'farcasterID should be set in onUseAlreadyConnectedAccount',
+    );
+    goToNextStep(farcasterID);
+  }, [farcasterID, goToNextStep]);
+
+  const alreadyConnectedButton = React.useMemo(() => {
+    if (!alreadyHasConnected) {
+      return null;
+    }
+
+    return (
+      <RegistrationButton
+        onPress={onUseAlreadyConnectedAccount}
+        label="Use connected Farcaster account"
+        variant="enabled"
+      />
+    );
+  }, [alreadyHasConnected, onUseAlreadyConnectedAccount]);
 
   const connectFarcaster = React.useMemo(
     () => (
@@ -110,9 +143,10 @@ function ConnectFarcaster(prop: Props): React.Node {
         </RegistrationContentContainer>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
+          {alreadyConnectedButton}
           <RegistrationButton
             onPress={onPressConnectFarcaster}
-            label="Connect Farcaster account"
+            label={connectButtonText}
             variant={connectButtonVariant}
           />
           <RegistrationButton
@@ -124,6 +158,8 @@ function ConnectFarcaster(prop: Props): React.Node {
       </RegistrationContainer>
     ),
     [
+      alreadyConnectedButton,
+      connectButtonText,
       connectButtonVariant,
       onPressConnectFarcaster,
       onSkip,
