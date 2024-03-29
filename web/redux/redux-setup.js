@@ -181,6 +181,21 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     return state;
   }
 
+  if (
+    (action.type === logOutActionTypes.success ||
+      action.type === deleteAccountActionTypes.success) &&
+    identityInvalidSessionDowngrade(
+      oldState,
+      action.payload.currentUserInfo,
+      action.payload.preRequestUserState,
+    )
+  ) {
+    return {
+      ...oldState,
+      loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
+    };
+  }
+
   if (action.type === setInitialReduxState) {
     const { userInfos, keyserverInfos, actualizedCalendarQuery, ...rest } =
       action.payload;
@@ -317,38 +332,14 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         keyserverIDs: newKeyserverIDs,
       },
     };
-  } else if (
-    action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success
-  ) {
-    const { currentUserInfo, preRequestUserState } = action.payload;
-    if (
-      identityInvalidSessionDowngrade(
-        oldState,
-        currentUserInfo,
-        preRequestUserState,
-      )
-    ) {
-      return {
-        ...oldState,
-        loadingStatuses: reduceLoadingStatuses(state.loadingStatuses, action),
-      };
-    }
+  }
 
-    state = resetUserSpecificState(
-      state,
-      defaultWebState,
-      nonUserSpecificFieldsWeb,
-    );
-  } else if (action.type === identityRegisterActionTypes.success) {
-    state = resetUserSpecificState(
-      state,
-      defaultWebState,
-      nonUserSpecificFieldsWeb,
-    );
-  } else if (
-    action.type === identityLogInActionTypes.success &&
-    action.payload.userID !== action.payload.preRequestUserState?.id
+  if (
+    action.type === logOutActionTypes.success ||
+    action.type === deleteAccountActionTypes.success ||
+    action.type === identityRegisterActionTypes.success ||
+    (action.type === identityLogInActionTypes.success &&
+      action.payload.userID !== action.payload.preRequestUserState?.id)
   ) {
     state = resetUserSpecificState(
       state,
