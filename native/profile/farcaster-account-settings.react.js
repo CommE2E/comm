@@ -29,8 +29,8 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const onPressDisconnect = React.useCallback(() => {
-    // TODO: Implement disconnecting from Farcaster
-  }, []);
+    setFID(null);
+  }, [setFID]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
