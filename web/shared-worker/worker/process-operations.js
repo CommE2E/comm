@@ -299,6 +299,7 @@ function getClientStoreFromQueryExecutor(
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
+    auxUserInfos: [],
   };
 }
 
