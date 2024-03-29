@@ -11,6 +11,7 @@ use grpc_clients::identity::protos::unauth::{
   DeviceKeyUpload, DeviceType, Empty, IdentityKeyInfo,
   OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
   RegistrationFinishRequest, RegistrationStartRequest,
+  VerifyUserAccessTokenRequest,
 };
 
 pub const PLACEHOLDER_CODE_VERSION: u64 = 0;
@@ -22,6 +23,16 @@ pub struct DeviceInfo {
   pub user_id: String,
   pub device_id: String,
   pub access_token: String,
+}
+
+impl From<&DeviceInfo> for VerifyUserAccessTokenRequest {
+  fn from(value: &DeviceInfo) -> Self {
+    Self {
+      user_id: value.user_id.to_string(),
+      device_id: value.device_id.to_string(),
+      access_token: value.access_token.to_string(),
+    }
+  }
 }
 
 /// Register a new user with a device.
