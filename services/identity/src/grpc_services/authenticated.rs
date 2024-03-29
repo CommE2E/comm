@@ -202,14 +202,21 @@ impl IdentityClientService for AuthenticatedService {
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let identity_info = IdentityInfo::try_from(identifier)?;
-
     let identity = Some(Identity {
       identity_info: Some(identity_info),
     });
 
+    let primary_device_data = self
+      .db_client
+      .get_primary_device_data(&message.user_id)
+      .await
+      .map_err(handle_db_error)?;
+    let primary_device_keys = primary_device_data.device_key_info;
+
     let response = Response::new(KeyserverKeysResponse {
       keyserver_info,
       identity,
+      primary_device_identity_info: Some(primary_device_keys.into()),
     });
 
     return Ok(response);
