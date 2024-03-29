@@ -1576,10 +1576,18 @@ void SQLiteQueryExecutor::replaceKeyserver(
     const KeyserverInfo &keyserver_info) const {
   static std::string replaceKeyserverSQL =
       "REPLACE INTO keyservers (id, keyserver_info) "
-      "VALUES (?, ?);";
+      "VALUES (:id, :keyserver_info);";
   replaceEntity<KeyserverInfo>(
       SQLiteQueryExecutor::getConnection(),
       replaceKeyserverSQL,
+      keyserver_info);
+
+  static std::string replaceKeyserverSyncedSQL =
+      "REPLACE INTO keyservers_synced (id, keyserver_info) "
+      "VALUES (:id, :synced_keyserver_info);";
+  replaceEntity<KeyserverInfo>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceKeyserverSyncedSQL,
       keyserver_info);
 }
 
@@ -1587,6 +1595,10 @@ void SQLiteQueryExecutor::removeAllKeyservers() const {
   static std::string removeAllKeyserversSQL = "DELETE FROM keyservers;";
   removeAllEntities(
       SQLiteQueryExecutor::getConnection(), removeAllKeyserversSQL);
+  static std::string removeAllKeyserversSyncedSQL =
+      "DELETE FROM keyservers_synced;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllKeyserversSyncedSQL);
 }
 
 void SQLiteQueryExecutor::removeKeyservers(
@@ -1595,21 +1607,38 @@ void SQLiteQueryExecutor::removeKeyservers(
     return;
   }
 
+  auto idArray = getSQLStatementArray(ids.size());
+
   std::stringstream removeKeyserversByKeysSQLStream;
   removeKeyserversByKeysSQLStream << "DELETE FROM keyservers "
                                      "WHERE id IN "
-                                  << getSQLStatementArray(ids.size()) << ";";
+                                  << idArray << ";";
 
   removeEntitiesByKeys(
       SQLiteQueryExecutor::getConnection(),
       removeKeyserversByKeysSQLStream.str(),
       ids);
+
+  std::stringstream removeKeyserversSyncedByKeysSQLStream;
+  removeKeyserversSyncedByKeysSQLStream << "DELETE FROM keyservers_synced "
+                                           "WHERE id IN "
+                                        << idArray << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeKeyserversSyncedByKeysSQLStream.str(),
+      ids);
 }
 
 std::vector<KeyserverInfo> SQLiteQueryExecutor::getAllKeyservers() const {
   static std::string getAllKeyserversSQL =
-      "SELECT * "
-      "FROM keyservers;";
+      "SELECT "
+      "   synced.id, "
+      "   COALESCE(keyservers.keyserver_info, ''), "
+      "   synced.keyserver_info "
+      "FROM keyservers_synced synced "
+      "LEFT JOIN keyservers "
+      "   ON synced.id = keyservers.id;";
   return getAllEntities<KeyserverInfo>(
       SQLiteQueryExecutor::getConnection(), getAllKeyserversSQL);
 }

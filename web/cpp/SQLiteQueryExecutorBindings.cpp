@@ -45,7 +45,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("userInfo", &UserInfo::user_info);
   value_object<KeyserverInfo>("KeyserverInfo")
       .field("id", &KeyserverInfo::id)
-      .field("keyserverInfo", &KeyserverInfo::keyserver_info);
+      .field("keyserverInfo", &KeyserverInfo::keyserver_info)
+      .field("syncedKeyserverInfo", &KeyserverInfo::synced_keyserver_info);
   value_object<MessageStoreThread>("MessageStoreThreads")
       .field("id", &MessageStoreThread::id)
       .field("startReached", &MessageStoreThread::start_reached);
