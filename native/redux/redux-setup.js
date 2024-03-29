@@ -13,8 +13,6 @@ import {
   logInActionTypes,
   keyserverAuthActionTypes,
   deleteKeyserverAccountActionTypes,
-  identityRegisterActionTypes,
-  identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -22,6 +20,7 @@ import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { queueDBOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
+import { reduceCurrentUserInfo } from 'lib/reducers/user-reducer.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
@@ -49,8 +48,8 @@ import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
 import { onStateDifference } from './redux-debug-utils.js';
-import { nonUserSpecificFieldsNative } from './state-types.js';
 import type { AppState } from './state-types.js';
+import { nonUserSpecificFieldsNative } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
@@ -198,20 +197,6 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     return state;
   }
 
-  if (
-    action.type === logOutActionTypes.success ||
-    action.type === deleteAccountActionTypes.success ||
-    action.type === identityRegisterActionTypes.success ||
-    (action.type === identityLogInActionTypes.success &&
-      action.payload.userID !== action.payload.preRequestUserState?.id)
-  ) {
-    state = resetUserSpecificState(
-      state,
-      defaultState,
-      nonUserSpecificFieldsNative,
-    );
-  }
-
   if (action.type === updateDimensionsActiveType) {
     return {
       ...state,
@@ -273,6 +258,25 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       // call to reducer we ignore the SQLite data since it is not valid
       return state;
     }
+  }
+
+  // We're reducing current user info twice. Once here - from the previous
+  // state, and once in baseReducer. This approach protects us against possible
+  // bugs in currentUserInfo reducer. BaseReducer acts on cleared
+  // currentUserInfo so there's no risk of keeping the old info with a new ID.
+  const newCurrentUserInfo = reduceCurrentUserInfo(
+    state.currentUserInfo,
+    action,
+  );
+  if (
+    !state.currentUserInfo?.anonymous &&
+    newCurrentUserInfo?.id !== state.currentUserInfo?.id
+  ) {
+    state = resetUserSpecificState(
+      state,
+      defaultState,
+      nonUserSpecificFieldsNative,
+    );
   }
 
   const baseReducerResult = baseReducer(
