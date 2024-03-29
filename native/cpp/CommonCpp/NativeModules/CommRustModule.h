@@ -123,6 +123,11 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String notifPrekeySignature,
       jsi::Array contentOneTimeKeys,
       jsi::Array notifOneTimeKeys) override;
+  virtual jsi::Value logInExistingDevice(
+      jsi::Runtime &rt,
+      jsi::String userID,
+      jsi::String deviceID,
+      jsi::String challengeResponse) override;
   virtual jsi::Value findUserIDForWalletAddress(
       jsi::Runtime &rt,
       jsi::String walletAddress) override;
