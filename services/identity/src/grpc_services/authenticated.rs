@@ -187,6 +187,17 @@ impl IdentityClientService for AuthenticatedService {
 
     let message = request.into_inner();
 
+    let identifier = self
+      .db_client
+      .get_user_identifier(&message.user_id)
+      .await
+      .map_err(handle_db_error)?
+      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+    let identity_info = IdentityInfo::try_from(identifier)?;
+    let identity = Some(Identity {
+      identity_info: Some(identity_info),
+    });
+
     let keyserver_info = self
       .db_client
       .get_keyserver_keys_for_user(&message.user_id)
@@ -194,22 +205,17 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?
       .map(OutboundKeyInfo::from);
 
-    let identifier = self
+    let primary_device_data = self
       .db_client
-      .get_user_identifier(&message.user_id)
+      .get_primary_device_data(&message.user_id)
       .await
-      .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
-
-    let identity_info = IdentityInfo::try_from(identifier)?;
-
-    let identity = Some(Identity {
-      identity_info: Some(identity_info),
-    });
+      .map_err(handle_db_error)?;
+    let primary_device_keys = primary_device_data.device_key_info;
 
     let response = Response::new(KeyserverKeysResponse {
       keyserver_info,
       identity,
+      primary_device_identity_info: Some(primary_device_keys.into()),
     });
 
     return Ok(response);
