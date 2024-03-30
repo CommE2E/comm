@@ -7,10 +7,11 @@ import {
   useModalState,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge.js';
 import * as React from 'react';
-import { useAccount, useWalletClient, WagmiConfig } from 'wagmi';
+import { useAccount, useWalletClient, WagmiProvider } from 'wagmi';
 
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
@@ -19,11 +20,7 @@ import {
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
-import {
-  AlchemyENSCacheProvider,
-  wagmiConfig,
-  wagmiChains,
-} from 'lib/utils/wagmi-utils.js';
+import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
@@ -56,6 +53,8 @@ async function signInWithEthereum(
     signature,
   });
 }
+
+const queryClient = new QueryClient();
 
 function SIWE(): React.Node {
   const { address } = useAccount();
@@ -170,17 +169,15 @@ function SIWEWrapper(): React.Node {
     });
   }, []);
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <AlchemyENSCacheProvider>
-        <RainbowKitProvider
-          theme={theme}
-          modalSize="compact"
-          chains={wagmiChains}
-        >
-          <SIWE />
-        </RainbowKitProvider>
-      </AlchemyENSCacheProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <AlchemyENSCacheProvider>
+          <RainbowKitProvider theme={theme} modalSize="compact">
+            <SIWE />
+          </RainbowKitProvider>
+        </AlchemyENSCacheProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
