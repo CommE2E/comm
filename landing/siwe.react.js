@@ -88,27 +88,23 @@ function SIWE(): React.Node {
 
   const [wcModalOpen, setWCModalOpen] = React.useState(false);
 
-  const prevConnectModalOpen = React.useRef(false);
+  const prevModalOpen = React.useRef(false);
   const modalState = useModalState();
   const closeTimeoutRef = React.useRef<?TimeoutID>();
   const { connectModalOpen } = modalState;
+  const modalOpen = connectModalOpen || wcModalOpen;
   React.useEffect(() => {
-    if (
-      !connectModalOpen &&
-      !wcModalOpen &&
-      prevConnectModalOpen.current &&
-      !signer
-    ) {
+    if (!modalOpen && prevModalOpen.current && !signer) {
       closeTimeoutRef.current = setTimeout(
         () => postMessageToNativeWebView({ type: 'siwe_closed' }),
-        250,
+        500,
       );
     } else if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = undefined;
     }
-    prevConnectModalOpen.current = connectModalOpen;
-  }, [connectModalOpen, wcModalOpen, signer]);
+    prevModalOpen.current = modalOpen;
+  }, [modalOpen, signer]);
 
   const onWalletConnectModalUpdate = React.useCallback(
     (update: WalletConnectModalUpdate) => {
