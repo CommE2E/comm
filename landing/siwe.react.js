@@ -20,7 +20,10 @@ import {
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
-import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
+import {
+  AlchemyENSCacheProvider,
+  getWagmiConfig,
+} from 'lib/utils/wagmi-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
@@ -32,6 +35,8 @@ import {
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
+
+const wagmiConfig = getWagmiConfig();
 
 type Signer = {
   +signMessage: ({ +message: string, ... }) => Promise<string>,

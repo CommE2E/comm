@@ -38,7 +38,10 @@ import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-d
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import { AlchemyENSCacheProvider, wagmiConfig } from 'lib/utils/wagmi-utils.js';
+import {
+  AlchemyENSCacheProvider,
+  getWagmiConfig,
+} from 'lib/utils/wagmi-utils.js';
 
 import QrCodeLogin from './account/qr-code-login.react.js';
 import AppThemeWrapper from './app-theme-wrapper.react.js';
@@ -121,6 +124,8 @@ versionBroadcast.onmessage = (event: MessageEvent) => {
 void getCommSharedWorker();
 
 const queryClient = new QueryClient();
+
+const wagmiConfig = getWagmiConfig({ includeInjectedWallet: true });
 
 type BaseProps = {
   +location: {
