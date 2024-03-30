@@ -5,10 +5,7 @@ import localforage from 'localforage';
 import uuid from 'uuid';
 
 import { initialEncryptedMessageContent } from 'lib/shared/crypto-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   olmEncryptedMessageTypes,
   type OLMIdentityKeys,
@@ -505,7 +502,7 @@ const olmAPI: OlmAPI = {
     let notifsOlmDataEncryptionKeyDBLabel;
 
     if (
-      hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION })
+      hasMinCodeVersion(platformDetails, { majorDesktop: 12 })
     ) {
       notifsOlmDataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForCookie(
         cookie,

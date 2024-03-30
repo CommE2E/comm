@@ -8,10 +8,7 @@ import {
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { isDesktopPlatform } from 'lib/types/device-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
@@ -45,7 +42,7 @@ function useCreateDesktopPushSubscription() {
   React.useEffect(() => {
     if (
       !isDesktopPlatform(platformDetails.platform) ||
-      !hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION })
+      !hasMinCodeVersion(platformDetails, { majorDesktop: 12 })
     ) {
       return;
     }
@@ -72,7 +69,7 @@ function useCreateDesktopPushSubscription() {
 
   React.useEffect(() => {
     if (
-      hasMinCodeVersion(platformDetails, { majorDesktop: NEXT_CODE_VERSION }) &&
+      hasMinCodeVersion(platformDetails, { majorDesktop: 12 }) &&
       !notifsOlmSessionMigrated
     ) {
       return undefined;
