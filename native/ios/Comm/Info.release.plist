@@ -39,7 +39,49 @@
   </array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>metamask</string>
+		<string>trust</string>
+		<string>safe</string>
 		<string>rainbow</string>
+		<string>uniswap</string>
+		<string>zerion</string>
+		<string>imtokenv2</string>
+		<string>spot</string>
+		<string>omni</string>
+		<string>dfw</string>
+		<string>tpoutside</string>
+		<string>robinhood-wallet</string>
+		<string>frontier</string>
+		<string>blockchain-wallet</string>
+		<string>safepalwallet</string>
+		<string>bitkeep</string>
+		<string>oneinch</string>
+		<string>exodus</string>
+		<string>bnc</string>
+		<string>ledgerlive</string>
+		<string>mewwallet</string>
+		<string>awallet</string>
+		<string>keyring</string>
+		<string>lobstr</string>
+		<string>ontoprovider</string>
+		<string>mathwallet</string>
+		<string>unstoppabledomains</string>
+		<string>obvious</string>
+		<string>fireblocks-wc</string>
+		<string>ambire</string>
+		<string>internetmoney</string>
+		<string>walletnow</string>
+		<string>bitcoincom</string>
+		<string>coin98</string>
+		<string>arculuswc</string>
+		<string>cryptobrowser</string>
+		<string>chainapp</string>
+		<string>huddln</string>
+		<string>verso</string>
+		<string>haha</string>
+		<string>modularwallet</string>
+		<string>coinomi</string>
+		<string>cbwallet</string>
 		<string>org-appextension-feature-password-management</string>
 		<string>https</string>
 	</array>
