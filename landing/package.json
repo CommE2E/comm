@@ -42,7 +42,7 @@
     "@rainbow-me/rainbowkit": "^1.1.1",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
-    "ethers": "^5.7.2",
+    "ethers": "^6.11.1",
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^3.0.0",
     "lib": "0.0.1",

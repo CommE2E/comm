@@ -57,7 +57,7 @@
     "cors": "^2.8.5",
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
-    "ethers": "^5.7.2",
+    "ethers": "^6.11.1",
     "express": "^4.17.3",
     "express-ws": "^4.0.0",
     "file-type": "^12.3.0",

@@ -2,7 +2,7 @@
 
 import '@ethersproject/shims';
 
-import { ethers } from 'ethers';
+import { AlchemyProvider } from 'ethers';
 
 import type { EthersProvider } from 'lib/types/ethers-types.js';
 
@@ -15,7 +15,7 @@ try {
 
 let provider: ?EthersProvider;
 if (alchemyKey) {
-  provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+  provider = new AlchemyProvider('mainnet', alchemyKey);
 }
 
 export { provider };
