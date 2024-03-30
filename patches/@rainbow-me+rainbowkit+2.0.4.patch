@@ -10,3 +10,15 @@ index 3d856c7..95d5a23 100644
 +  emojiAvatarForAddress,
    useConnectModal
  };
+diff --git a/node_modules/@rainbow-me/rainbowkit/dist/wallets/walletConnectors/chunk-62IPH7HD.js b/node_modules/@rainbow-me/rainbowkit/dist/wallets/walletConnectors/chunk-62IPH7HD.js
+index 892ac7c..008a7c7 100644
+--- a/node_modules/@rainbow-me/rainbowkit/dist/wallets/walletConnectors/chunk-62IPH7HD.js
++++ b/node_modules/@rainbow-me/rainbowkit/dist/wallets/walletConnectors/chunk-62IPH7HD.js
+@@ -86,6 +86,7 @@ var coinbaseWallet = ({
+       ...coinbaseWagmiWallet({
+         appName,
+         appLogoUrl: appIcon,
++        enableMobileWalletLink: true,
+         headlessMode: true
+       })(config),
+       ...walletDetails
