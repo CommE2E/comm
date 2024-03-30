@@ -125,7 +125,13 @@ void getCommSharedWorker();
 
 const queryClient = new QueryClient();
 
-const wagmiConfig = getWagmiConfig({ includeInjectedWallet: true });
+const wagmiConfig = getWagmiConfig([
+  'injected',
+  'rainbow',
+  'metamask',
+  'coinbase',
+  'walletconnect',
+]);
 
 type BaseProps = {
   +location: {
