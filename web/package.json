@@ -60,7 +60,7 @@
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
     "emoji-mart": "^5.5.2",
-    "ethers": "^5.7.2",
+    "ethers": "^6.11.1",
     "exif-js": "^2.3.0",
     "google-protobuf": "^3.21.2",
     "grpc-web": "^1.4.2",
