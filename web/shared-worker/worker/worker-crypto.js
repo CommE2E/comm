@@ -501,9 +501,7 @@ const olmAPI: OlmAPI = {
     let notifsOlmDataContentKey;
     let notifsOlmDataEncryptionKeyDBLabel;
 
-    if (
-      hasMinCodeVersion(platformDetails, { majorDesktop: 12 })
-    ) {
+    if (hasMinCodeVersion(platformDetails, { majorDesktop: 12 })) {
       notifsOlmDataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForCookie(
         cookie,
         keyserverID,
