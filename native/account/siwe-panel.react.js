@@ -160,10 +160,17 @@ function SIWEPanel(props: Props): React.Node {
         closeBottomSheet?.();
       } else if (data.type === 'walletconnect_modal_update') {
         const height = data.state === 'open' ? data.height : 0;
-        setWalletConnectModalHeight(height);
+        if (!walletConnectModalHeight || height > 0) {
+          setWalletConnectModalHeight(height);
+        }
       }
     },
-    [onSuccessfulWalletSignature, onClosing, closeBottomSheet],
+    [
+      onSuccessfulWalletSignature,
+      onClosing,
+      closeBottomSheet,
+      walletConnectModalHeight,
+    ],
   );
   const prevClosingRef = React.useRef<?boolean>();
   React.useEffect(() => {
