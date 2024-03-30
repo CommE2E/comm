@@ -3,12 +3,13 @@
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import classnames from 'classnames';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { WagmiConfig } from 'wagmi';
+import { WagmiProvider } from 'wagmi';
 
 import {
   fetchEntriesActionTypes,
@@ -119,6 +120,8 @@ versionBroadcast.onmessage = (event: MessageEvent) => {
 // Start initializing the shared worker immediately
 void getCommSharedWorker();
 
+const queryClient = new QueryClient();
+
 type BaseProps = {
   +location: {
     +pathname: string,
@@ -217,23 +220,25 @@ class App extends React.PureComponent<Props> {
       <DndProvider backend={HTML5Backend}>
         <EditModalProvider>
           <MenuProvider>
-            <WagmiConfig config={wagmiConfig}>
-              <AlchemyENSCacheProvider>
-                <TooltipProvider>
-                  <MessageSearchStateProvider>
-                    <ChatMentionContextProvider>
-                      <FocusHandler />
-                      <VisibilityHandler />
-                      <PolicyAcknowledgmentHandler />
-                      <PushNotificationsHandler />
-                      <InviteLinkHandler />
-                      <InviteLinksRefresher />
-                      {content}
-                    </ChatMentionContextProvider>
-                  </MessageSearchStateProvider>
-                </TooltipProvider>
-              </AlchemyENSCacheProvider>
-            </WagmiConfig>
+            <WagmiProvider config={wagmiConfig}>
+              <QueryClientProvider client={queryClient}>
+                <AlchemyENSCacheProvider>
+                  <TooltipProvider>
+                    <MessageSearchStateProvider>
+                      <ChatMentionContextProvider>
+                        <FocusHandler />
+                        <VisibilityHandler />
+                        <PolicyAcknowledgmentHandler />
+                        <PushNotificationsHandler />
+                        <InviteLinkHandler />
+                        <InviteLinksRefresher />
+                        {content}
+                      </ChatMentionContextProvider>
+                    </MessageSearchStateProvider>
+                  </TooltipProvider>
+                </AlchemyENSCacheProvider>
+              </QueryClientProvider>
+            </WagmiProvider>
           </MenuProvider>
         </EditModalProvider>
       </DndProvider>
