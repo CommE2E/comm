@@ -4,6 +4,7 @@ module.exports = {
     'transform-remove-strict-mode',
     '@babel/plugin-proposal-optional-chaining',
     '@babel/plugin-proposal-nullish-coalescing-operator',
+    ['@babel/plugin-transform-private-methods', { loose: true }],
     // react-native-reanimated must be last
     'react-native-reanimated/plugin',
   ],

@@ -1,6 +1,6 @@
 // @flow
 
-import { ethers } from 'ethers';
+import { AlchemyProvider } from 'ethers';
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import { ENSCache } from 'lib/utils/ens-cache.js';
@@ -22,7 +22,7 @@ async function initENSCache() {
   if (!alchemyKey) {
     return;
   }
-  const provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+  const provider = new AlchemyProvider('mainnet', alchemyKey);
   const ensCache = new ENSCache(provider);
   getENSNames = <T: ?BaseUserInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
     baseGetENSNames(ensCache, users);
