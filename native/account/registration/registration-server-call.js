@@ -80,12 +80,16 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const { setFID } = fidContext;
 
   const identityRegisterUsernameAccount = React.useCallback(
-    async (accountSelection: UsernameAccountSelection) => {
+    async (
+      accountSelection: UsernameAccountSelection,
+      farcasterID: ?string,
+    ) => {
       const identityRegisterPromise = (async () => {
         try {
           const result = await callIdentityPasswordRegister(
             accountSelection.username,
             accountSelection.password,
+            farcasterID,
           );
           await setNativeCredentials({
             username: accountSelection.username,
@@ -208,7 +212,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 keyserverURL,
               );
             } else if (accountSelection.accountType === 'username') {
-              await identityRegisterUsernameAccount(accountSelection);
+              await identityRegisterUsernameAccount(
+                accountSelection,
+                farcasterID,
+              );
             } else if (!usingCommServicesAccessToken) {
               try {
                 await legacySiweServerCall(accountSelection, {
@@ -227,6 +234,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   address: accountSelection.address,
                   message: accountSelection.message,
                   signature: accountSelection.signature,
+                  fid: farcasterID,
                 });
               } catch (e) {
                 Alert.alert(
