@@ -14,7 +14,10 @@ import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
+import type {
+  SIWEResult,
+  IdentityWalletRegisterInput,
+} from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import type { CallSingleKeyserverEndpointOptions } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -113,12 +116,17 @@ function useIdentityWalletLogInCall(): SIWEResult => Promise<void> {
   );
 }
 
-function useIdentityWalletRegisterCall(): SIWEResult => Promise<void> {
+function useIdentityWalletRegisterCall(): IdentityWalletRegisterInput => Promise<void> {
   const identityWalletRegister = useIdentityWalletRegister();
   const dispatchActionPromise = useDispatchActionPromise();
   return React.useCallback(
-    async ({ address, message, signature }) => {
-      const siwePromise = identityWalletRegister(address, message, signature);
+    async ({ address, message, signature, fid }) => {
+      const siwePromise = identityWalletRegister(
+        address,
+        message,
+        signature,
+        fid,
+      );
       void dispatchActionPromise(identityRegisterActionTypes, siwePromise);
 
       await siwePromise;

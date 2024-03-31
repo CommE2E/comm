@@ -296,7 +296,11 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           oneTimeKeys.notificationsOneTimeKeys,
         );
       },
-      registerPasswordUser: async (username: string, password: string) => {
+      registerPasswordUser: async (
+        username: string,
+        password: string,
+        fid: ?string,
+      ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
           { blobPayload, signature, primaryIdentityPublicKeys },
@@ -318,7 +322,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekeySignature,
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
-          '',
+          fid ?? '',
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = { accessToken: token, userID, username };
@@ -373,6 +377,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         walletAddress: string,
         siweMessage: string,
         siweSignature: string,
+        fid: ?string,
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
@@ -395,7 +400,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekeySignature,
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
-          '',
+          fid ?? '',
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = {

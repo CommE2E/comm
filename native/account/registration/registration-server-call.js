@@ -212,7 +212,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 keyserverURL,
               );
             } else if (accountSelection.accountType === 'username') {
-              await identityRegisterUsernameAccount(accountSelection);
+              await identityRegisterUsernameAccount(
+                accountSelection,
+                farcasterID,
+              );
             } else if (!usingCommServicesAccessToken) {
               try {
                 await legacySiweServerCall(accountSelection, {
@@ -231,6 +234,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   address: accountSelection.address,
                   message: accountSelection.message,
                   signature: accountSelection.signature,
+                  fid: farcasterID,
                 });
               } catch (e) {
                 Alert.alert(
