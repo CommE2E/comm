@@ -9,6 +9,7 @@ import {
   deleteAccountActionTypes,
   identityRegisterActionTypes,
   identityLogInActionTypes,
+  keyserverAuthActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
@@ -27,6 +28,7 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import {
   invalidSessionDowngrade,
   identityInvalidSessionDowngrade,
+  invalidSessionRecovery,
 } from 'lib/shared/session-utils.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { MessageID, DBOpsStore } from 'lib/types/db-ops-types.js';
@@ -153,6 +155,24 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     communityStoreOperations: [],
     integrityStoreOperations: [],
   };
+
+  if (
+    (action.type === setNewSessionActionType &&
+      action.payload.sessionChange.currentUserInfo &&
+      invalidSessionRecovery(
+        state,
+        action.payload.sessionChange.currentUserInfo,
+        action.payload.authActionSource,
+      )) ||
+    (action.type === keyserverAuthActionTypes.success &&
+      invalidSessionRecovery(
+        state,
+        action.payload.preRequestUserInfo,
+        action.payload.authActionSource,
+      ))
+  ) {
+    return state;
+  }
 
   if (action.type === setInitialReduxState) {
     const { userInfos, keyserverInfos, actualizedCalendarQuery, ...rest } =
