@@ -30,17 +30,9 @@ mod identity;
 mod utils;
 
 use crate::argon2_tools::compute_backup_key_str;
-use crate::identity::exact_user_search::{
-  find_user_id_for_username, find_user_id_for_wallet_address,
-};
-use crate::identity::farcaster::{
-  farcaster_id_string_to_option, get_farcaster_users, link_farcaster_account,
-  unlink_farcaster_account,
-};
-use crate::identity::wallet_registration::register_wallet_user;
+use crate::identity::farcaster::farcaster_id_string_to_option;
 use crate::utils::jsi_callbacks::{
-  handle_bool_result_as_callback, handle_string_result_as_callback,
-  handle_void_result_as_callback,
+  handle_string_result_as_callback, handle_void_result_as_callback,
 };
 
 mod generated {
@@ -65,6 +57,7 @@ lazy_static! {
 
 // ffi uses
 use backup::ffi::*;
+use identity::ffi::*;
 use utils::future_manager::ffi::*;
 
 #[cxx::bridge]
@@ -436,55 +429,6 @@ mod ffi {
 
     #[cxx_name = "rejectFuture"]
     fn reject_future(future_id: usize, error: String);
-  }
-}
-
-fn generate_nonce(promise_id: u32) {
-  RUNTIME.spawn(async move {
-    let result = fetch_nonce().await;
-    handle_string_result_as_callback(result, promise_id);
-  });
-}
-
-async fn fetch_nonce() -> Result<String, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
-  let nonce = identity_client
-    .generate_nonce(Empty {})
-    .await?
-    .into_inner()
-    .nonce;
-  Ok(nonce)
-}
-
-fn version_supported(promise_id: u32) {
-  RUNTIME.spawn(async move {
-    let result = version_supported_helper().await;
-    handle_bool_result_as_callback(result, promise_id);
-  });
-}
-
-async fn version_supported_helper() -> Result<bool, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
-  let response = identity_client.ping(Empty {}).await;
-  match response {
-    Ok(_) => Ok(true),
-    Err(e) => {
-      if grpc_clients::error::is_version_unsupported(&e) {
-        Ok(false)
-      } else {
-        Err(e.into())
-      }
-    }
   }
 }
 

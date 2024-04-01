@@ -19,26 +19,30 @@ struct FindUserIDResponse {
   is_reserved: bool,
 }
 
-#[instrument]
-pub fn find_user_id_for_wallet_address(
-  wallet_address: String,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let result =
-      find_user_id_helper(RequestIdentifier::WalletAddress(wallet_address))
-        .await;
-    handle_string_result_as_callback(result, promise_id);
-  });
-}
+pub mod ffi {
+  use super::*;
 
-#[instrument]
-pub fn find_user_id_for_username(username: String, promise_id: u32) {
-  RUNTIME.spawn(async move {
-    let result =
-      find_user_id_helper(RequestIdentifier::Username(username)).await;
-    handle_string_result_as_callback(result, promise_id);
-  });
+  #[instrument]
+  pub fn find_user_id_for_wallet_address(
+    wallet_address: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let result =
+        find_user_id_helper(RequestIdentifier::WalletAddress(wallet_address))
+          .await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  #[instrument]
+  pub fn find_user_id_for_username(username: String, promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let result =
+        find_user_id_helper(RequestIdentifier::Username(username)).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
 }
 
 async fn find_user_id_helper(
