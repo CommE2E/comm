@@ -10,8 +10,8 @@ use crate::ffi::{
   restore_from_main_compaction, secure_store_get, string_callback,
   void_callback,
 };
-use crate::future_manager;
-use crate::handle_string_result_as_callback;
+use crate::utils::future_manager;
+use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
 use backup_client::{

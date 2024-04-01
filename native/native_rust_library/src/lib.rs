@@ -1,15 +1,5 @@
-use backup::ffi::*;
 use comm_opaque2::client::{Login, Registration};
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use exact_user_search::{
-  find_user_id_for_username, find_user_id_for_wallet_address,
-};
-use farcaster::{
-  farcaster_id_string_to_option, get_farcaster_users, link_farcaster_account,
-  unlink_farcaster_account,
-};
-use ffi::{bool_callback, string_callback, void_callback};
-use future_manager::ffi::*;
 use grpc_clients::identity::protos::auth::{
   GetDeviceListRequest, UpdateDeviceListRequest,
 };
@@ -32,17 +22,28 @@ use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::Status;
 use tracing::instrument;
-use wallet_registration::register_wallet_user;
 
 mod argon2_tools;
 mod backup;
 mod constants;
 mod exact_user_search;
 mod farcaster;
-mod future_manager;
+mod utils;
 mod wallet_registration;
 
-use argon2_tools::compute_backup_key_str;
+use crate::argon2_tools::compute_backup_key_str;
+use crate::exact_user_search::{
+  find_user_id_for_username, find_user_id_for_wallet_address,
+};
+use crate::farcaster::{
+  farcaster_id_string_to_option, get_farcaster_users, link_farcaster_account,
+  unlink_farcaster_account,
+};
+use crate::utils::jsi_callbacks::{
+  handle_bool_result_as_callback, handle_string_result_as_callback,
+  handle_void_result_as_callback,
+};
+use crate::wallet_registration::register_wallet_user;
 
 mod generated {
   // We get the CODE_VERSION from this generated file
@@ -63,6 +64,10 @@ lazy_static! {
   static ref RUNTIME: Arc<Runtime> =
     Arc::new(Builder::new_multi_thread().enable_all().build().unwrap());
 }
+
+// ffi uses
+use backup::ffi::*;
+use utils::future_manager::ffi::*;
 
 #[cxx::bridge]
 mod ffi {
@@ -433,38 +438,6 @@ mod ffi {
 
     #[cxx_name = "rejectFuture"]
     fn reject_future(future_id: usize, error: String);
-  }
-}
-
-fn handle_string_result_as_callback<E>(
-  result: Result<String, E>,
-  promise_id: u32,
-) where
-  E: std::fmt::Display,
-{
-  match result {
-    Err(e) => string_callback(e.to_string(), promise_id, "".to_string()),
-    Ok(r) => string_callback("".to_string(), promise_id, r),
-  }
-}
-
-fn handle_void_result_as_callback<E>(result: Result<(), E>, promise_id: u32)
-where
-  E: std::fmt::Display,
-{
-  match result {
-    Err(e) => void_callback(e.to_string(), promise_id),
-    Ok(_) => void_callback("".to_string(), promise_id),
-  }
-}
-
-fn handle_bool_result_as_callback<E>(result: Result<bool, E>, promise_id: u32)
-where
-  E: std::fmt::Display,
-{
-  match result {
-    Err(e) => bool_callback(e.to_string(), promise_id, false),
-    Ok(r) => bool_callback("".to_string(), promise_id, r),
   }
 }
 
