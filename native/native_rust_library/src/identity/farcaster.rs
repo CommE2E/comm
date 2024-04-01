@@ -1,6 +1,8 @@
 use crate::{
-  handle_string_result_as_callback, handle_void_result_as_callback, Error,
-  CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
+  utils::jsi_callbacks::{
+    handle_string_result_as_callback, handle_void_result_as_callback,
+  },
+  Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
