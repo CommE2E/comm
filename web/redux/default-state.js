@@ -83,6 +83,9 @@ const defaultWebState: AppState = Object.freeze({
   dbOpsStore: {
     queuedOps: [],
   },
+  auxUserStore: {
+    auxUserInfos: {},
+  },
 });
 
 export { defaultWebState };

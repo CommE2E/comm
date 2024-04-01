@@ -84,6 +84,9 @@ const defaultState = ({
   communityStore: {
     communityInfos: {},
   },
+  auxUserStore: {
+    auxUserInfos: {},
+  },
   dbOpsStore: {
     queuedOps: [],
   },

@@ -1,5 +1,6 @@
 // @flow
 
+import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
@@ -92,6 +93,7 @@ async function processDBStoreOperations(
     keyserverStoreOperations,
     communityStoreOperations,
     integrityStoreOperations,
+    auxUserStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -107,6 +109,8 @@ async function processDBStoreOperations(
     communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
   const convertedIntegrityStoreOperations =
     integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
+  const convertedAuxUserStoreOperations =
+    auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -114,7 +118,8 @@ async function processDBStoreOperations(
     draftStoreOperations.length === 0 &&
     convertedKeyserverStoreOperations.length === 0 &&
     convertedCommunityStoreOperations.length === 0 &&
-    convertedIntegrityStoreOperations.length === 0
+    convertedIntegrityStoreOperations.length === 0 &&
+    convertedAuxUserStoreOperations.length === 0
   ) {
     return;
   }
@@ -134,6 +139,7 @@ async function processDBStoreOperations(
         keyserverStoreOperations: convertedKeyserverStoreOperations,
         communityStoreOperations: convertedCommunityStoreOperations,
         integrityStoreOperations: convertedIntegrityStoreOperations,
+        auxUserStoreOperations: convertedAuxUserStoreOperations,
       },
     });
   } catch (e) {
