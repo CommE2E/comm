@@ -21,19 +21,55 @@ struct FarcasterUser {
   farcaster_id: String,
 }
 
+pub mod ffi {
+  use super::*;
+
+  pub fn get_farcaster_users(farcaster_ids: Vec<String>, promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let result = get_farcaster_users_helper(farcaster_ids).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn link_farcaster_account(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    farcaster_id: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let result = link_farcaster_account_helper(
+        user_id,
+        device_id,
+        access_token,
+        farcaster_id,
+      )
+      .await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn unlink_farcaster_account(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let result =
+        unlink_farcaster_account_helper(user_id, device_id, access_token).await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+}
+
 pub fn farcaster_id_string_to_option(input: &str) -> Option<String> {
   if input.is_empty() {
     None
   } else {
     Some(input.to_string())
   }
-}
-
-pub fn get_farcaster_users(farcaster_ids: Vec<String>, promise_id: u32) {
-  RUNTIME.spawn(async move {
-    let result = get_farcaster_users_helper(farcaster_ids).await;
-    handle_string_result_as_callback(result, promise_id);
-  });
 }
 
 async fn get_farcaster_users_helper(
@@ -66,25 +102,6 @@ async fn get_farcaster_users_helper(
   Ok(serde_json::to_string(&mapped_response)?)
 }
 
-pub fn link_farcaster_account(
-  user_id: String,
-  device_id: String,
-  access_token: String,
-  farcaster_id: String,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let result = link_farcaster_account_helper(
-      user_id,
-      device_id,
-      access_token,
-      farcaster_id,
-    )
-    .await;
-    handle_void_result_as_callback(result, promise_id);
-  });
-}
-
 async fn link_farcaster_account_helper(
   user_id: String,
   device_id: String,
@@ -109,19 +126,6 @@ async fn link_farcaster_account_helper(
     .await?;
 
   Ok(())
-}
-
-pub fn unlink_farcaster_account(
-  user_id: String,
-  device_id: String,
-  access_token: String,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let result =
-      unlink_farcaster_account_helper(user_id, device_id, access_token).await;
-    handle_void_result_as_callback(result, promise_id);
-  });
 }
 
 async fn unlink_farcaster_account_helper(

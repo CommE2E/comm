@@ -12,38 +12,42 @@ use grpc_clients::identity::{
 };
 use tracing::instrument;
 
-#[instrument]
-pub fn register_wallet_user(
-  siwe_message: String,
-  siwe_signature: String,
-  key_payload: String,
-  key_payload_signature: String,
-  content_prekey: String,
-  content_prekey_signature: String,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  content_one_time_keys: Vec<String>,
-  notif_one_time_keys: Vec<String>,
-  farcaster_id: String,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let wallet_user_info = WalletUserInfo {
-      siwe_message,
-      siwe_signature,
-      key_payload,
-      key_payload_signature,
-      content_prekey,
-      content_prekey_signature,
-      notif_prekey,
-      notif_prekey_signature,
-      content_one_time_keys,
-      notif_one_time_keys,
-      farcaster_id: farcaster_id_string_to_option(&farcaster_id),
-    };
-    let result = register_wallet_user_helper(wallet_user_info).await;
-    handle_string_result_as_callback(result, promise_id);
-  });
+pub mod ffi {
+  use super::*;
+
+  #[instrument]
+  pub fn register_wallet_user(
+    siwe_message: String,
+    siwe_signature: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    farcaster_id: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let wallet_user_info = WalletUserInfo {
+        siwe_message,
+        siwe_signature,
+        key_payload,
+        key_payload_signature,
+        content_prekey,
+        content_prekey_signature,
+        notif_prekey,
+        notif_prekey_signature,
+        content_one_time_keys,
+        notif_one_time_keys,
+        farcaster_id: farcaster_id_string_to_option(&farcaster_id),
+      };
+      let result = register_wallet_user_helper(wallet_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
 }
 
 async fn register_wallet_user_helper(
