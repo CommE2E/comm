@@ -86,6 +86,9 @@ const defaultWebState: AppState = Object.freeze({
   syncedMetadataStore: {
     syncedMetadata: {},
   },
+  auxUserStore: {
+    auxUserInfos: {},
+  },
 });
 
 export { defaultWebState };
