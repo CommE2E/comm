@@ -26,24 +26,22 @@ use tracing::instrument;
 mod argon2_tools;
 mod backup;
 mod constants;
-mod exact_user_search;
-mod farcaster;
+mod identity;
 mod utils;
-mod wallet_registration;
 
 use crate::argon2_tools::compute_backup_key_str;
-use crate::exact_user_search::{
+use crate::identity::exact_user_search::{
   find_user_id_for_username, find_user_id_for_wallet_address,
 };
-use crate::farcaster::{
+use crate::identity::farcaster::{
   farcaster_id_string_to_option, get_farcaster_users, link_farcaster_account,
   unlink_farcaster_account,
 };
+use crate::identity::wallet_registration::register_wallet_user;
 use crate::utils::jsi_callbacks::{
   handle_bool_result_as_callback, handle_string_result_as_callback,
   handle_void_result_as_callback,
 };
-use crate::wallet_registration::register_wallet_user;
 
 mod generated {
   // We get the CODE_VERSION from this generated file
