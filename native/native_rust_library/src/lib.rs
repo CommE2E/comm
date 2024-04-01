@@ -10,10 +10,10 @@ use grpc_clients::identity::protos::authenticated::{
   UploadOneTimeKeysRequest,
 };
 use grpc_clients::identity::protos::unauth::{
-  AuthResponse, DeviceKeyUpload, DeviceType, Empty, ExistingDeviceLoginRequest,
+  DeviceKeyUpload, DeviceType, Empty, ExistingDeviceLoginRequest,
   IdentityKeyInfo, OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
-  RegistrationFinishRequest, RegistrationStartRequest,
-  SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
+  SecondaryDeviceKeysUploadRequest, 
+  WalletAuthRequest,
 };
 use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use lazy_static::lazy_static;
@@ -30,7 +30,9 @@ mod identity;
 mod utils;
 
 use crate::argon2_tools::compute_backup_key_str;
-use crate::identity::farcaster::farcaster_id_string_to_option;
+use crate::identity::{
+  AuthInfo, PasswordUserInfo, UserIDAndDeviceAccessToken, WalletUserInfo,
+};
 use crate::utils::jsi_callbacks::{
   handle_string_result_as_callback, handle_void_result_as_callback,
 };
@@ -477,145 +479,6 @@ async fn get_keyserver_keys_helper(
   Ok(serde_json::to_string(&keyserver_keys)?)
 }
 
-struct AuthInfo {
-  user_id: String,
-  device_id: String,
-  access_token: String,
-}
-
-#[instrument]
-fn register_password_user(
-  username: String,
-  password: String,
-  key_payload: String,
-  key_payload_signature: String,
-  content_prekey: String,
-  content_prekey_signature: String,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  content_one_time_keys: Vec<String>,
-  notif_one_time_keys: Vec<String>,
-  farcaster_id: String,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let password_user_info = PasswordUserInfo {
-      username,
-      password,
-      key_payload,
-      key_payload_signature,
-      content_prekey,
-      content_prekey_signature,
-      notif_prekey,
-      notif_prekey_signature,
-      content_one_time_keys,
-      notif_one_time_keys,
-      farcaster_id: farcaster_id_string_to_option(&farcaster_id),
-    };
-    let result = register_password_user_helper(password_user_info).await;
-    handle_string_result_as_callback(result, promise_id);
-  });
-}
-
-struct PasswordUserInfo {
-  username: String,
-  password: String,
-  key_payload: String,
-  key_payload_signature: String,
-  content_prekey: String,
-  content_prekey_signature: String,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  content_one_time_keys: Vec<String>,
-  notif_one_time_keys: Vec<String>,
-  farcaster_id: Option<String>,
-}
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct UserIDAndDeviceAccessToken {
-  #[serde(rename = "userID")]
-  user_id: String,
-  access_token: String,
-}
-
-impl From<AuthResponse> for UserIDAndDeviceAccessToken {
-  fn from(value: AuthResponse) -> Self {
-    let AuthResponse {
-      user_id,
-      access_token,
-    } = value;
-    Self {
-      user_id,
-      access_token,
-    }
-  }
-}
-
-async fn register_password_user_helper(
-  password_user_info: PasswordUserInfo,
-) -> Result<String, Error> {
-  let mut client_registration = Registration::new();
-  let opaque_registration_request = client_registration
-    .start(&password_user_info.password)
-    .map_err(handle_error)?;
-  let registration_start_request = RegistrationStartRequest {
-    opaque_registration_request,
-    username: password_user_info.username,
-    device_key_upload: Some(DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: password_user_info.key_payload,
-        payload_signature: password_user_info.key_payload_signature,
-        social_proof: None,
-      }),
-      content_upload: Some(Prekey {
-        prekey: password_user_info.content_prekey,
-        prekey_signature: password_user_info.content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: password_user_info.notif_prekey,
-        prekey_signature: password_user_info.notif_prekey_signature,
-      }),
-      one_time_content_prekeys: password_user_info.content_one_time_keys,
-      one_time_notif_prekeys: password_user_info.notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    }),
-    farcaster_id: password_user_info.farcaster_id,
-  };
-
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
-  let response = identity_client
-    .register_password_user_start(registration_start_request)
-    .await?;
-
-  let registration_start_response = response.into_inner();
-
-  let opaque_registration_upload = client_registration
-    .finish(
-      &password_user_info.password,
-      &registration_start_response.opaque_registration_response,
-    )
-    .map_err(handle_error)?;
-
-  let registration_finish_request = RegistrationFinishRequest {
-    session_id: registration_start_response.session_id,
-    opaque_registration_upload,
-  };
-
-  let registration_finish_response = identity_client
-    .register_password_user_finish(registration_finish_request)
-    .await?
-    .into_inner();
-  let user_id_and_access_token =
-    UserIDAndDeviceAccessToken::from(registration_finish_response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
-}
-
 #[instrument]
 fn log_in_password_user(
   username: String,
@@ -707,20 +570,6 @@ async fn log_in_password_user_helper(
   let user_id_and_access_token =
     UserIDAndDeviceAccessToken::from(login_finish_response);
   Ok(serde_json::to_string(&user_id_and_access_token)?)
-}
-
-struct WalletUserInfo {
-  siwe_message: String,
-  siwe_signature: String,
-  key_payload: String,
-  key_payload_signature: String,
-  content_prekey: String,
-  content_prekey_signature: String,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  content_one_time_keys: Vec<String>,
-  notif_one_time_keys: Vec<String>,
-  farcaster_id: Option<String>,
 }
 
 #[instrument]

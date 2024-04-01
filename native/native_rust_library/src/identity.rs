@@ -1,5 +1,6 @@
 use grpc_clients::identity::get_unauthenticated_client;
-use grpc_clients::identity::protos::unauth::Empty;
+use grpc_clients::identity::protos::unauth::{AuthResponse, Empty};
+use serde::Serialize;
 
 use crate::utils::jsi_callbacks::{
   handle_bool_result_as_callback, handle_string_result_as_callback,
@@ -9,14 +10,14 @@ use crate::{CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR};
 
 pub mod exact_user_search;
 pub mod farcaster;
-pub mod wallet_registration;
+pub mod registration;
 
 pub mod ffi {
   use super::*;
 
   pub use exact_user_search::ffi::*;
   pub use farcaster::ffi::*;
-  pub use wallet_registration::ffi::*;
+  pub use registration::ffi::*;
 
   pub fn generate_nonce(promise_id: u32) {
     RUNTIME.spawn(async move {
@@ -32,6 +33,65 @@ pub mod ffi {
     });
   }
 }
+
+// helper structs
+
+pub struct AuthInfo {
+  pub user_id: String,
+  pub device_id: String,
+  pub access_token: String,
+}
+
+pub struct PasswordUserInfo {
+  pub username: String,
+  pub password: String,
+  pub key_payload: String,
+  pub key_payload_signature: String,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
+  pub content_one_time_keys: Vec<String>,
+  pub notif_one_time_keys: Vec<String>,
+  pub farcaster_id: Option<String>,
+}
+
+pub struct WalletUserInfo {
+  pub siwe_message: String,
+  pub siwe_signature: String,
+  pub key_payload: String,
+  pub key_payload_signature: String,
+  pub content_prekey: String,
+  pub content_prekey_signature: String,
+  pub notif_prekey: String,
+  pub notif_prekey_signature: String,
+  pub content_one_time_keys: Vec<String>,
+  pub notif_one_time_keys: Vec<String>,
+  pub farcaster_id: Option<String>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UserIDAndDeviceAccessToken {
+  #[serde(rename = "userID")]
+  user_id: String,
+  access_token: String,
+}
+
+impl From<AuthResponse> for UserIDAndDeviceAccessToken {
+  fn from(value: AuthResponse) -> Self {
+    let AuthResponse {
+      user_id,
+      access_token,
+    } = value;
+    Self {
+      user_id,
+      access_token,
+    }
+  }
+}
+
+// API implementation helpers
 
 async fn fetch_nonce() -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
