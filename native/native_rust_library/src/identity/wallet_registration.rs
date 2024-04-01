@@ -1,6 +1,7 @@
 use crate::{
-  farcaster::farcaster_id_string_to_option, handle_string_result_as_callback,
-  Error, UserIDAndDeviceAccessToken, WalletUserInfo, CODE_VERSION, DEVICE_TYPE,
+  identity::farcaster::farcaster_id_string_to_option,
+  utils::jsi_callbacks::handle_string_result_as_callback, Error,
+  UserIDAndDeviceAccessToken, WalletUserInfo, CODE_VERSION, DEVICE_TYPE,
   IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use grpc_clients::identity::{
