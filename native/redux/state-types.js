@@ -3,6 +3,7 @@
 import type { Orientations } from 'react-native-orientation-locker';
 import type { PersistState } from 'redux-persist/es/types.js';
 
+import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types';
 import type { DraftStore } from 'lib/types/draft-types.js';
@@ -81,6 +82,7 @@ export type AppState = {
   +communityStore: CommunityStore,
   +dbOpsStore: DBOpsStore,
   +syncedMetadataStore: SyncedMetadataStore,
+  +auxUserStore: AuxUserStore,
 };
 
 export { nonUserSpecificFieldsNative };
