@@ -1,7 +1,10 @@
 // @flow
 
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
-import type { InboundKeyInfoResponse } from 'lib/types/identity-service-types.js';
+import type {
+  InboundKeyInfoResponse,
+  FarcasterUser,
+} from 'lib/types/identity-service-types.js';
 
 import type { IdentityInfo } from '../../src/user/identity.js';
 
@@ -55,6 +58,9 @@ type RustNativeBindingAPI = {
     userId: string,
     deviceId: string,
   ) => Promise<InboundKeyInfoResponse>,
+  +getFarcasterUsers: (
+    farcasterIds: $ReadOnlyArray<string>,
+  ) => Promise<$ReadOnlyArray<FarcasterUser>>,
 };
 
 export type { RustNativeBindingAPI };
