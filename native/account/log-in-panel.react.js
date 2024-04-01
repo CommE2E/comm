@@ -30,6 +30,7 @@ import {
 } from 'lib/types/account-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -324,14 +325,18 @@ class LogInPanel extends React.PureComponent<Props> {
       });
       return result;
     } catch (e) {
-      if (e.message === 'user not found') {
+      const messageForException = getMessageForException(e);
+      if (
+        messageForException === 'user not found' ||
+        messageForException === 'login failed'
+      ) {
         Alert.alert(
           UserNotFoundAlertDetails.title,
           UserNotFoundAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
           { cancelable: false },
         );
-      } else if (e.message === 'Unsupported version') {
+      } else if (messageForException === 'Unsupported version') {
         Alert.alert(
           AppOutOfDateAlertDetails.title,
           AppOutOfDateAlertDetails.message,
