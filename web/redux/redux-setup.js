@@ -30,6 +30,7 @@ import {
   identityInvalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/session-utils.js';
+import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { MessageID, DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
@@ -124,6 +125,7 @@ export type AppState = {
   +communityStore: CommunityStore,
   +dbOpsStore: DBOpsStore,
   +syncedMetadataStore: SyncedMetadataStore,
+  +auxUserStore: AuxUserStore,
 };
 
 export type Action = $ReadOnly<
@@ -157,6 +159,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     communityStoreOperations: [],
     integrityStoreOperations: [],
     syncedMetadataStoreOperations: [],
+    auxUserStoreOperations: [],
   };
 
   if (
