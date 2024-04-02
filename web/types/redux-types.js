@@ -29,7 +29,7 @@ export type InitialReduxStateActionPayload = {
   +entryStore: EntryStore,
   +threadStore?: ThreadStore,
   +userInfos?: UserInfos,
-  +messageStore: MessageStore,
+  +messageStore?: MessageStore,
   +pushApiPublicKey: ?string,
   +inviteLinksStore: InviteLinksStore,
   +dataLoaded: boolean,
@@ -39,6 +39,7 @@ export type InitialReduxStateActionPayload = {
 
 export type ExcludedData = {
   +userStore?: boolean,
+  +messageStore?: boolean,
   +threadStore?: boolean,
 };
 
