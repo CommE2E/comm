@@ -6,6 +6,7 @@ import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-op
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops.js';
 import type {
   ClientDBDraftStoreOperation,
   DraftStoreOperation,
@@ -250,6 +251,34 @@ function processSyncedMetadataStoreOperations(
   }
 }
 
+function processUserStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation of operations) {
+    try {
+      if (operation.type === 'remove_users') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeUsers(ids);
+      } else if (operation.type === 'replace_user') {
+        const user = operation.payload;
+        sqliteQueryExecutor.replaceUser(user);
+      } else if (operation.type === 'remove_all_users') {
+        sqliteQueryExecutor.removeAllUsers();
+      } else {
+        throw new Error('Unsupported user operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } user operation: ${getProcessingStoreOpsExceptionMessage(e, module)}`,
+      );
+    }
+  }
+}
+
 function processDBStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   storeOperations: ClientDBStoreOperations,
@@ -263,6 +292,7 @@ function processDBStoreOperations(
     communityStoreOperations,
     integrityStoreOperations,
     syncedMetadataStoreOperations,
+    userStoreOperations,
   } = storeOperations;
 
   try {
@@ -319,6 +349,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (userStoreOperations && userStoreOperations.length > 0) {
+      processUserStoreOperations(
+        sqliteQueryExecutor,
+        userStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -338,7 +375,7 @@ function getClientStoreFromQueryExecutor(
       .map(t => webThreadToClientDBThreadInfo(t)),
     messageStoreThreads: [],
     reports: sqliteQueryExecutor.getAllReports(),
-    users: [],
+    users: sqliteQueryExecutor.getAllUsers(),
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),

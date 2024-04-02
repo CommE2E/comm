@@ -6,6 +6,7 @@ import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
+import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type {
   ClientStore,
@@ -88,6 +89,12 @@ async function getClientDBStore(): Promise<ClientStore> {
       ),
     };
   }
+  if (data?.store?.users && data.store.users.length > 0) {
+    result = {
+      ...result,
+      users: userStoreOpsHandlers.translateClientDBData(data.store.users),
+    };
+  }
   return result;
 }
 
@@ -103,6 +110,7 @@ async function processDBStoreOperations(
     communityStoreOperations,
     integrityStoreOperations,
     syncedMetadataStoreOperations,
+    userStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -122,6 +130,8 @@ async function processDBStoreOperations(
     syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
       syncedMetadataStoreOperations,
     );
+  const convertedUserStoreOperations =
+    userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -130,7 +140,8 @@ async function processDBStoreOperations(
     convertedKeyserverStoreOperations.length === 0 &&
     convertedCommunityStoreOperations.length === 0 &&
     convertedIntegrityStoreOperations.length === 0 &&
-    convertedSyncedMetadataStoreOperations.length === 0
+    convertedSyncedMetadataStoreOperations.length === 0 &&
+    convertedUserStoreOperations.length === 0
   ) {
     return;
   }
@@ -151,6 +162,7 @@ async function processDBStoreOperations(
         communityStoreOperations: convertedCommunityStoreOperations,
         integrityStoreOperations: convertedIntegrityStoreOperations,
         syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
+        userStoreOperations: convertedUserStoreOperations,
       },
     });
   } catch (e) {

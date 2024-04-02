@@ -68,6 +68,7 @@ import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
 
 const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
+  userStore: t.maybe(t.Bool),
   threadStore: t.maybe(t.Bool),
 });
 
@@ -238,6 +239,10 @@ async function getInitialReduxStateResponder(
     };
   })();
   const userInfosPromise = (async () => {
+    if (excludedData.userStore && useDatabase) {
+      return {};
+    }
+
     const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
       userInfoPromise,
       hasNotAcknowledgedPoliciesPromise,
