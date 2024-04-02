@@ -138,6 +138,7 @@ const persistBlacklist = [
   'storeLoaded',
   'dbOpsStore',
   'syncedMetadataStore',
+  'userStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
@@ -1199,6 +1200,10 @@ const migrations = {
 
     return state;
   },
+  [67]: async (state: AppState) => {
+    const { userStore, ...rest } = state;
+    return rest;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1266,7 +1271,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 66,
+  version: 67,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
