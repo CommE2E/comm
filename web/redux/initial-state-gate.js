@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import type { MessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
@@ -77,6 +78,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           urlInfo,
           excludedData: {
             threadStore: !!clientDBStore.threadStore,
+            messageStore: !!clientDBStore.messages,
             userStore: !!clientDBStore.users,
           },
           allUpdatesCurrentAsOf,
@@ -126,15 +128,35 @@ function InitialReduxStateGate(props: Props): React.Node {
           }));
         }
 
+        let messageStoreOperations: MessageStoreOperation[] = [];
+        if (clientDBStore.messages) {
+          const { messageStore, ...rest } = initialReduxState;
+          initialReduxState = rest;
+        } else {
+          const { messages, threads } = payload.messageStore;
+
+          messageStoreOperations = [
+            ...entries(messages).map(([id, messageInfo]) => ({
+              type: 'replace',
+              payload: { id, messageInfo },
+            })),
+            {
+              type: 'replace_threads',
+              payload: { threads },
+            },
+          ];
+        }
+
         if (
           threadStoreOperations.length > 0 ||
-          userStoreOperations.length > 0
+          userStoreOperations.length > 0 ||
+          messageStoreOperations.length > 0
         ) {
           await processDBStoreOperations(
             {
               threadStoreOperations,
               draftStoreOperations: [],
-              messageStoreOperations: [],
+              messageStoreOperations,
               reportStoreOperations: [],
               userStoreOperations,
               keyserverStoreOperations: [],
