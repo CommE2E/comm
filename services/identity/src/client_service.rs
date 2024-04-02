@@ -18,6 +18,7 @@ use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
 };
 use crate::error::{DeviceListError, Error as DBError};
+use crate::grpc_services::authenticated::DeletePasswordUserInfo;
 use crate::grpc_services::protos::unauth::{
   find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
   ExistingDeviceLoginRequest, FindUserIdRequest, FindUserIdResponse,
@@ -53,6 +54,7 @@ pub enum WorkflowInProgress {
   Registration(Box<UserRegistrationInfo>),
   Login(Box<UserLoginInfo>),
   Update(UpdateState),
+  PasswordUserDeletion(Box<DeletePasswordUserInfo>),
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -301,7 +303,7 @@ impl IdentityClientService for ClientService {
           .map_err(handle_db_error)?;
 
         if username_in_reserved_usernames_table {
-          return Err(tonic::Status::failed_precondition(
+          return Err(tonic::Status::permission_denied(
             "need keyserver message to claim username",
           ));
         }
@@ -454,7 +456,7 @@ impl IdentityClientService for ClientService {
         .map_err(handle_db_error)?;
 
       if username_in_reserved_usernames_table {
-        return Err(tonic::Status::failed_precondition(
+        return Err(tonic::Status::permission_denied(
           "need keyserver message to claim username",
         ));
       }

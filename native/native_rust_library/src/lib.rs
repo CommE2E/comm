@@ -113,8 +113,8 @@ mod ffi {
       promise_id: u32,
     );
 
-    #[cxx_name = "identityDeleteUser"]
-    fn delete_user(
+    #[cxx_name = "identityDeleteWalletUser"]
+    fn delete_wallet_user(
       user_id: String,
       device_id: String,
       access_token: String,

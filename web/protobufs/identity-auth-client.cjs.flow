@@ -67,7 +67,21 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
-  deleteUser(
+  deletePasswordUserStart(
+    request: identityAuthStructs.DeletePasswordUserStartRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityAuthStructs.DeletePasswordUserStartResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.DeletePasswordUserStartResponse>;
+
+  deletePasswordUserFinish(
+    request: identityAuthStructs.DeletePasswordUserFinishRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  deleteWalletUser(
     request: identityStructs.Empty,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
@@ -155,7 +169,17 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
-  deleteUser(
+  deletePasswordUserStart(
+    request: identityAuthStructs.DeletePasswordUserStartRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityAuthStructs.DeletePasswordUserStartResponse>;
+
+  deletePasswordUserFinish(
+    request: identityAuthStructs.DeletePasswordUserFinishRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  deleteWalletUser(
     request: identityStructs.Empty,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;

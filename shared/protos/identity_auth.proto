@@ -51,7 +51,11 @@ service IdentityClientService {
   // Called by user to log out (clears device's keys and access token)
   rpc LogOutUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
   // Called by a user to delete their own account
-  rpc DeleteUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
+  rpc DeletePasswordUserStart(DeletePasswordUserStartRequest) returns
+    (DeletePasswordUserStartResponse) {}
+  rpc DeletePasswordUserFinish(DeletePasswordUserFinishRequest) returns
+    (identity.unauth.Empty) {}
+  rpc DeleteWalletUser(identity.unauth.Empty) returns (identity.unauth.Empty) {}
 
   /* Device list actions */
 
@@ -175,6 +179,27 @@ message UpdateUserPasswordStartResponse {
   // Identifier used to correlate start request with finish request
   string session_id = 1;
   bytes opaque_registration_response = 2;
+}
+
+// DeletePasswordUser
+
+// First user must log in
+message DeletePasswordUserStartRequest {
+  // Message sent to initiate PAKE login
+  bytes opaque_login_request = 1;
+}
+
+// If login is successful, the user's account will be deleted
+message DeletePasswordUserFinishRequest {
+  // Identifier used to correlate requests in the same workflow
+  string session_id = 1;
+  bytes opaque_login_upload = 2;
+}
+
+message DeletePasswordUserStartResponse {
+  // Identifier used to correlate requests in the same workflow
+  string session_id = 1;
+  bytes opaque_login_response = 2;
 }
 
 // GetDeviceListForUser
