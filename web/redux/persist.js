@@ -15,6 +15,7 @@ import {
   type StorageMigrationFunction,
 } from 'lib/shared/create-async-migrate.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
+import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
@@ -51,6 +52,8 @@ const persistWhitelist = [
   'keyserverStore',
   'globalThemeInfo',
   'customServer',
+  'messageStore',
+  'nextLocalID',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
@@ -367,7 +370,7 @@ const persistConfig: PersistConfig = {
     migrateStorageToSQLite,
   ): any),
   version: 13,
-  transforms: [keyserverStoreTransform],
+  transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
 export { persistConfig };
