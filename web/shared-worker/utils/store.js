@@ -4,6 +4,7 @@ import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
+import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
@@ -105,6 +106,21 @@ async function getClientDBStore(): Promise<ClientStore> {
       users: userStoreOpsHandlers.translateClientDBData(data.store.users),
     };
   }
+  if (data?.store?.messages && data.store.messages.length > 0) {
+    result = {
+      ...result,
+      messages: data.store.messages,
+    };
+  }
+  if (
+    data?.store?.messageStoreThreads &&
+    data.store.messageStoreThreads.length > 0
+  ) {
+    result = {
+      ...result,
+      messageStoreThreads: data.store.messageStoreThreads,
+    };
+  }
   return result;
 }
 
@@ -122,6 +138,7 @@ async function processDBStoreOperations(
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
     userStoreOperations,
+    messageStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -145,6 +162,8 @@ async function processDBStoreOperations(
     auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
   const convertedUserStoreOperations =
     userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+  const convertedMessageStoreOperations =
+    messageStoreOpsHandlers.convertOpsToClientDBOps(messageStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -155,7 +174,8 @@ async function processDBStoreOperations(
     convertedIntegrityStoreOperations.length === 0 &&
     convertedSyncedMetadataStoreOperations.length === 0 &&
     convertedAuxUserStoreOperations.length === 0 &&
-    convertedUserStoreOperations.length === 0
+    convertedUserStoreOperations.length === 0 &&
+    convertedMessageStoreOperations.length === 0
   ) {
     return;
   }
@@ -178,6 +198,7 @@ async function processDBStoreOperations(
         syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
         auxUserStoreOperations: convertedAuxUserStoreOperations,
         userStoreOperations: convertedUserStoreOperations,
+        messageStoreOperations: convertedMessageStoreOperations,
       },
     });
   } catch (e) {
