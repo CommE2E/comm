@@ -25,8 +25,8 @@ import { StackView } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, View, useWindowDimensions } from 'react-native';
-import { useSelector } from 'react-redux';
 
+import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
@@ -44,7 +44,6 @@ import HomeChatThreadList from './home-chat-thread-list.react.js';
 import { MessageEditingContext } from './message-editing-context.react.js';
 import MessageListContainer from './message-list-container.react.js';
 import MessageListHeaderTitle from './message-list-header-title.react.js';
-import MessageStorePruner from './message-store-pruner.react.js';
 import PinnedMessagesScreen from './pinned-messages-screen.react.js';
 import DeleteThread from './settings/delete-thread.react.js';
 import EmojiThreadAvatarCreation from './settings/emoji-thread-avatar-creation.react.js';
@@ -57,6 +56,8 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
+import { activeThreadSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
 import {
   defaultStackScreenOptions,
   transitionPreset,
@@ -80,6 +81,7 @@ import {
   type NavigationRoute,
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import ChangeRolesHeaderLeftButton from '../roles/change-roles-header-left-button.react.js';
 import ChangeRolesScreen from '../roles/change-roles-screen.react.js';
 import MessageSearch from '../search/message-search.react.js';
@@ -410,6 +412,10 @@ export default function ChatComponent(props: Props): React.Node {
     [styles.threadListHeaderStyle],
   );
 
+  const frozen = useSelector(state => state.frozen);
+  const navContext = React.useContext(NavContext);
+  const activeThreadID = activeThreadSelector(navContext);
+
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
@@ -468,7 +474,7 @@ export default function ChatComponent(props: Props): React.Node {
             options={changeRolesScreenOptions}
           />
         </Chat.Navigator>
-        <MessageStorePruner />
+        <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
         <ThreadScreenPruner />
         {draftUpdater}
       </KeyboardAvoidingView>
