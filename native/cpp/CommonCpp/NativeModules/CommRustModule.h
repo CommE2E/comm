@@ -64,7 +64,7 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String deviceID,
       jsi::String accessToken,
       jsi::String password) override;
-  virtual jsi::Value deleteUser(
+  virtual jsi::Value deleteWalletUser(
       jsi::Runtime &rt,
       jsi::String userID,
       jsi::String deviceID,

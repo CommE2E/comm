@@ -130,13 +130,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     );
   }
 
-  deleteUser: () => Promise<void> = async () => {
-    if (!this.authClient) {
-      throw new Error('Identity service client is not initialized');
-    }
-    await this.authClient.deleteUser(new Empty());
-  };
-
   logOut: () => Promise<void> = async () => {
     if (!this.authClient) {
       throw new Error('Identity service client is not initialized');

@@ -824,7 +824,22 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn get_item_from_users_table(
+  pub async fn get_username_and_password_file(
+    &self,
+    user_id: &str,
+  ) -> Result<Option<(String, Vec<u8>)>, Error> {
+    let Some(mut user) = self.get_item_from_users_table(user_id).await?.item
+    else {
+      return Ok(None);
+    };
+    let username = user.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE)?;
+    let password_file = parse_registration_data_attribute(
+      user.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
+    )?;
+    Ok(Some((username, password_file)))
+  }
+
+  async fn get_item_from_users_table(
     &self,
     user_id: &str,
   ) -> Result<GetItemOutput, Error> {

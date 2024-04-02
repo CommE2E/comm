@@ -59,7 +59,7 @@ export interface Spec extends TurboModule {
     accessToken: string,
     password: string,
   ) => Promise<void>;
-  +deleteUser: (
+  +deleteWalletUser: (
     userID: string,
     deviceID: string,
     accessToken: string,

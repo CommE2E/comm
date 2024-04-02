@@ -77,13 +77,13 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
   const client = React.useMemo<IdentityServiceClient>(
     () => ({
-      deleteUser: async () => {
+      deleteWalletUser: async () => {
         const {
           deviceID,
           userID,
           accessToken: token,
         } = await getAuthMetadata();
-        return commRustModule.deleteUser(userID, deviceID, token);
+        return commRustModule.deleteWalletUser(userID, deviceID, token);
       },
       logOut: async () => {
         const {

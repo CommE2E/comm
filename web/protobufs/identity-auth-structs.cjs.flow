@@ -337,6 +337,68 @@ export type UpdateUserPasswordStartResponseObject = {
   opaqueRegistrationResponse: Uint8Array | string,
 };
 
+declare export class DeletePasswordUserStartRequest extends Message {
+  getOpaqueLoginRequest(): Uint8Array | string;
+  getOpaqueLoginRequest_asU8(): Uint8Array;
+  getOpaqueLoginRequest_asB64(): string;
+  setOpaqueLoginRequest(value: Uint8Array | string): DeletePasswordUserStartRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeletePasswordUserStartRequestObject;
+  static toObject(includeInstance: boolean, msg: DeletePasswordUserStartRequest): DeletePasswordUserStartRequestObject;
+  static serializeBinaryToWriter(message: DeletePasswordUserStartRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeletePasswordUserStartRequest;
+  static deserializeBinaryFromReader(message: DeletePasswordUserStartRequest, reader: BinaryReader): DeletePasswordUserStartRequest;
+}
+
+export type DeletePasswordUserStartRequestObject = {
+  opaqueLoginRequest: Uint8Array | string,
+}
+
+declare export class DeletePasswordUserFinishRequest extends Message {
+  getSessionId(): string;
+  setSessionId(value: string): DeletePasswordUserFinishRequest;
+
+  getOpaqueLoginUpload(): Uint8Array | string;
+  getOpaqueLoginUpload_asU8(): Uint8Array;
+  getOpaqueLoginUpload_asB64(): string;
+  setOpaqueLoginUpload(value: Uint8Array | string): DeletePasswordUserFinishRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeletePasswordUserFinishRequestObject;
+  static toObject(includeInstance: boolean, msg: DeletePasswordUserFinishRequest): DeletePasswordUserFinishRequestObject;
+  static serializeBinaryToWriter(message: DeletePasswordUserFinishRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeletePasswordUserFinishRequest;
+  static deserializeBinaryFromReader(message: DeletePasswordUserFinishRequest, reader: BinaryReader): DeletePasswordUserFinishRequest;
+}
+
+export type DeletePasswordUserFinishRequestObject = {
+  sessionId: string,
+  opaqueLoginUpload: Uint8Array | string,
+}
+
+declare export class DeletePasswordUserStartResponse extends Message {
+  getSessionId(): string;
+  setSessionId(value: string): DeletePasswordUserStartResponse;
+
+  getOpaqueLoginResponse(): Uint8Array | string;
+  getOpaqueLoginResponse_asU8(): Uint8Array;
+  getOpaqueLoginResponse_asB64(): string;
+  setOpaqueLoginResponse(value: Uint8Array | string): DeletePasswordUserStartResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DeletePasswordUserStartResponseObject;
+  static toObject(includeInstance: boolean, msg: DeletePasswordUserStartResponse): DeletePasswordUserStartResponseObject;
+  static serializeBinaryToWriter(message: DeletePasswordUserStartResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DeletePasswordUserStartResponse;
+  static deserializeBinaryFromReader(message: DeletePasswordUserStartResponse, reader: BinaryReader): DeletePasswordUserStartResponse;
+}
+
+export type DeletePasswordUserStartResponseObject = {
+  sessionId: string,
+  opaqueLoginResponse: Uint8Array | string,
+}
+
 export type SinceTimestampCase = 0 | 2;
 
 declare export class GetDeviceListRequest extends Message {

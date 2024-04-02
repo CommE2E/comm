@@ -569,11 +569,133 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.logOutUser =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.DeletePasswordUserStartRequest,
+ *   !proto.identity.auth.DeletePasswordUserStartResponse>}
+ */
+const methodDescriptor_IdentityClientService_DeletePasswordUserStart = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/DeletePasswordUserStart',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.DeletePasswordUserStartRequest,
+  proto.identity.auth.DeletePasswordUserStartResponse,
+  /**
+   * @param {!proto.identity.auth.DeletePasswordUserStartRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.auth.DeletePasswordUserStartResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.DeletePasswordUserStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.DeletePasswordUserStartResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.DeletePasswordUserStartResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.deletePasswordUserStart =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/DeletePasswordUserStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeletePasswordUserStart,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.DeletePasswordUserStartRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.auth.DeletePasswordUserStartResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.deletePasswordUserStart =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/DeletePasswordUserStart',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeletePasswordUserStart);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.DeletePasswordUserFinishRequest,
+ *   !proto.identity.unauth.Empty>}
+ */
+const methodDescriptor_IdentityClientService_DeletePasswordUserFinish = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/DeletePasswordUserFinish',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.DeletePasswordUserFinishRequest,
+  identity_unauth_pb.Empty,
+  /**
+   * @param {!proto.identity.auth.DeletePasswordUserFinishRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_unauth_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.DeletePasswordUserFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.deletePasswordUserFinish =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/DeletePasswordUserFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeletePasswordUserFinish,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.DeletePasswordUserFinishRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.deletePasswordUserFinish =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/DeletePasswordUserFinish',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_DeletePasswordUserFinish);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.Empty,
  *   !proto.identity.unauth.Empty>}
  */
-const methodDescriptor_IdentityClientService_DeleteUser = new grpc.web.MethodDescriptor(
-  '/identity.auth.IdentityClientService/DeleteUser',
+const methodDescriptor_IdentityClientService_DeleteWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/DeleteWalletUser',
   grpc.web.MethodType.UNARY,
   identity_unauth_pb.Empty,
   identity_unauth_pb.Empty,
@@ -598,13 +720,13 @@ const methodDescriptor_IdentityClientService_DeleteUser = new grpc.web.MethodDes
  * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.auth.IdentityClientServiceClient.prototype.deleteUser =
+proto.identity.auth.IdentityClientServiceClient.prototype.deleteWalletUser =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/DeleteUser',
+      '/identity.auth.IdentityClientService/DeleteWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_DeleteUser,
+      methodDescriptor_IdentityClientService_DeleteWalletUser,
       callback);
 };
 
@@ -617,13 +739,13 @@ proto.identity.auth.IdentityClientServiceClient.prototype.deleteUser =
  * @return {!Promise<!proto.identity.unauth.Empty>}
  *     Promise that resolves to the response
  */
-proto.identity.auth.IdentityClientServicePromiseClient.prototype.deleteUser =
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.deleteWalletUser =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/DeleteUser',
+      '/identity.auth.IdentityClientService/DeleteWalletUser',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_DeleteUser);
+      methodDescriptor_IdentityClientService_DeleteWalletUser);
 };
 
 
