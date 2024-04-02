@@ -137,6 +137,41 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     await this.authClient.deleteWalletUser(new Empty());
   };
 
+  deletePasswordUser: (password: string) => Promise<void> = async (
+    password: string,
+  ) => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+
+    const opaqueLogin = new Login();
+    const startRequestBytes = opaqueLogin.start(password);
+
+    const deleteStartRequest =
+      new IdentityAuthStructs.DeletePasswordUserStartRequest();
+    deleteStartRequest.setOpaqueLoginRequest(startRequestBytes);
+
+    let deleteStartResponse;
+    try {
+      deleteStartResponse =
+        await client.deletePasswordUserStart(deleteStartRequest);
+    } catch (e) {
+      console.log('Error calling deletePasswordUserStart:', e);
+      throw new Error(getMessageForException(e) ?? 'unknown');
+    }
+    const finishRequestBytes = opaqueLogin.finish(
+      deleteStartResponse.getOpaqueLoginResponse_asU8(),
+    );
+
+    const deleteFinishRequest =
+      new IdentityAuthStructs.DeletePasswordUserFinishRequest();
+    deleteFinishRequest.setSessionId(deleteStartResponse.getSessionId());
+    deleteFinishRequest.setOpaqueLoginUpload(finishRequestBytes);
+
+    await client.deletePasswordUserFinish(deleteFinishRequest);
+  };
+
   logOut: () => Promise<void> = async () => {
     if (!this.authClient) {
       throw new Error('Identity service client is not initialized');

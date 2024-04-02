@@ -118,6 +118,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
   const client = React.useMemo<IdentityServiceClient>(() => {
     return {
       deleteWalletUser: proxyMethodToWorker('deleteWalletUser'),
+      deletePasswordUser: proxyMethodToWorker('deletePasswordUser'),
       logOut: proxyMethodToWorker('logOut'),
       getKeyserverKeys: proxyMethodToWorker('getKeyserverKeys'),
       getOutboundKeysForUser: proxyMethodToWorker('getOutboundKeysForUser'),
