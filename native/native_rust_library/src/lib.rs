@@ -121,6 +121,15 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityDeletePasswordUser"]
+    fn delete_password_user(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      password: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityLogOut"]
     fn log_out(
       user_id: String,

@@ -1,6 +1,7 @@
-use comm_opaque2::client::Registration;
+use comm_opaque2::client::{Login, Registration};
 use grpc_clients::identity::get_auth_client;
 use grpc_clients::identity::protos::auth::{
+  DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
   UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::unauth::Empty;
@@ -44,6 +45,24 @@ pub mod ffi {
         device_id,
       };
       let result = delete_wallet_user_helper(auth_info).await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn delete_password_user(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    password: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let auth_info = AuthInfo {
+        access_token,
+        user_id,
+        device_id,
+      };
+      let result = delete_password_user_helper(auth_info, password).await;
       handle_void_result_as_callback(result, promise_id);
     });
   }
@@ -129,6 +148,50 @@ async fn delete_wallet_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   )
   .await?;
   identity_client.delete_wallet_user(Empty {}).await?;
+
+  Ok(())
+}
+
+async fn delete_password_user_helper(
+  auth_info: AuthInfo,
+  password: String,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let mut client_login = Login::new();
+  let opaque_login_request =
+    client_login.start(&password).map_err(crate::handle_error)?;
+
+  let delete_start_request = DeletePasswordUserStartRequest {
+    opaque_login_request,
+  };
+
+  let response = identity_client
+    .delete_password_user_start(delete_start_request)
+    .await?;
+
+  let delete_start_response = response.into_inner();
+
+  let opaque_login_upload = client_login
+    .finish(&delete_start_response.opaque_login_response)
+    .map_err(crate::handle_error)?;
+
+  let delete_finish_request = DeletePasswordUserFinishRequest {
+    session_id: delete_start_response.session_id,
+    opaque_login_upload,
+  };
+
+  identity_client
+    .delete_password_user_finish(delete_finish_request)
+    .await?;
 
   Ok(())
 }
