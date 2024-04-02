@@ -16,6 +16,18 @@ index 8fa1171..316b482 100644
    /**
     * When the clear button should appear on the right side of the text view.
     * This property is supported only for single-line TextInput component.
+diff --git a/node_modules/react-native/Libraries/Lists/FlatList.js b/node_modules/react-native/Libraries/Lists/FlatList.js
+index a569626..1ea1c03 100644
+--- a/node_modules/react-native/Libraries/Lists/FlatList.js
++++ b/node_modules/react-native/Libraries/Lists/FlatList.js
+@@ -295,7 +295,6 @@ export type Props<ItemT> = {
+  * Also inherits [ScrollView Props](docs/scrollview.html#props), unless it is nested in another FlatList of same orientation.
+  */
+ class FlatList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
+-  props: Props<ItemT>;
+   /**
+    * Scrolls to the end of the content. May be janky without `getItemLayout` prop.
+    */
 diff --git a/node_modules/react-native/Libraries/Lists/VirtualizedList.js b/node_modules/react-native/Libraries/Lists/VirtualizedList.js
 index 69e6309..5343e6a 100644
 --- a/node_modules/react-native/Libraries/Lists/VirtualizedList.js
