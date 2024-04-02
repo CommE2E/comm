@@ -10,6 +10,7 @@ use crate::{CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR};
 
 pub mod exact_user_search;
 pub mod farcaster;
+pub mod login;
 pub mod registration;
 
 pub mod ffi {
@@ -17,6 +18,7 @@ pub mod ffi {
 
   pub use exact_user_search::ffi::*;
   pub use farcaster::ffi::*;
+  pub use login::ffi::*;
   pub use registration::ffi::*;
 
   pub fn generate_nonce(promise_id: u32) {
