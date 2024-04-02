@@ -56,7 +56,7 @@ describe('Message and media store queries', () => {
       container: '1',
       thread: '1',
       uri: '1',
-      type: '1',
+      type: 'photo',
       extras: '1',
     });
     queryExecutor.replaceMedia({
@@ -64,7 +64,7 @@ describe('Message and media store queries', () => {
       container: '1',
       thread: '1',
       uri: '1',
-      type: '1',
+      type: 'photo',
       extras: '1',
     });
     queryExecutor.replaceMedia({
@@ -72,7 +72,7 @@ describe('Message and media store queries', () => {
       container: '3',
       thread: '2',
       uri: '1',
-      type: '1',
+      type: 'photo',
       extras: '1',
     });
     queryExecutor.replaceMedia({
@@ -80,7 +80,7 @@ describe('Message and media store queries', () => {
       container: '3',
       thread: '2',
       uri: '1',
-      type: '1',
+      type: 'photo',
       extras: '1',
     });
   });

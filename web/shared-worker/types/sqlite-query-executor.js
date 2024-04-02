@@ -30,7 +30,7 @@ type Media = {
   +container: string,
   +thread: string,
   +uri: string,
-  +type: string,
+  +type: 'photo' | 'video',
   +extras: string,
 };
 
