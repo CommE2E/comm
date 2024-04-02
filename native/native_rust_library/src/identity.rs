@@ -12,6 +12,7 @@ pub mod exact_user_search;
 pub mod farcaster;
 pub mod login;
 pub mod registration;
+pub mod x3dh;
 
 pub mod ffi {
   use super::*;
@@ -20,6 +21,7 @@ pub mod ffi {
   pub use farcaster::ffi::*;
   pub use login::ffi::*;
   pub use registration::ffi::*;
+  pub use x3dh::ffi::*;
 
   pub fn generate_nonce(promise_id: u32) {
     RUNTIME.spawn(async move {
