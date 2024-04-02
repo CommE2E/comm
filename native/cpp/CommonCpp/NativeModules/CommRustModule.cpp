@@ -270,6 +270,39 @@ jsi::Value CommRustModule::updatePassword(
       });
 }
 
+jsi::Value CommRustModule::deletePasswordUser(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String deviceID,
+    jsi::String accessToken,
+    jsi::String password) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto accessTokenRust = jsiStringToRustString(accessToken, rt);
+  auto passwordRust = jsiStringToRustString(password, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityDeletePasswordUser(
+              userIDRust,
+              deviceIDRust,
+              accessTokenRust,
+              passwordRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 jsi::Value CommRustModule::deleteWalletUser(
     jsi::Runtime &rt,
     jsi::String userID,
