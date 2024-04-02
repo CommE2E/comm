@@ -68,6 +68,7 @@ import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
 
 const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
+  userStore: t.maybe(t.Bool),
   threadStore: t.maybe(t.Bool),
 });
 
@@ -244,6 +245,12 @@ async function getInitialReduxStateResponder(
     ]);
     return hasNotAcknowledgedPolicies ? {} : userInfos;
   })();
+  const finalUserInfosPromise = (async () => {
+    if (excludedData.userStore && useDatabase) {
+      return {};
+    }
+    return await userInfosPromise;
+  })();
 
   const navInfoPromise = (async () => {
     const [
@@ -368,7 +375,7 @@ async function getInitialReduxStateResponder(
       currentUserInfo: currentUserInfoPromise,
       entryStore: entryStorePromise,
       threadStore: threadStorePromise,
-      userInfos: userInfosPromise,
+      userInfos: finalUserInfosPromise,
       messageStore: messageStorePromise,
       pushApiPublicKey: pushApiPublicKeyPromise,
       inviteLinksStore: inviteLinksStorePromise,

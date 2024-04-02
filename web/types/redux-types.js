@@ -23,7 +23,14 @@ export type InitialReduxState = {
   +keyserverInfos: { +[keyserverID: string]: WebInitialKeyserverInfo },
 };
 
+export type InitialReduxStateActionPayload = $ReadOnly<{
+  ...InitialReduxState,
+  +threadStore?: ThreadStore,
+  +userInfos?: UserInfos,
+}>;
+
 export type ExcludedData = {
+  +userStore?: boolean,
   +threadStore?: boolean,
 };
 

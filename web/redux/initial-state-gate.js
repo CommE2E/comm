@@ -6,12 +6,13 @@ import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { LegacyRawThreadInfo } from 'lib/types/thread-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
-import { entries } from 'lib/utils/objects.js';
+import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 
@@ -26,6 +27,7 @@ import {
   getClientDBStore,
   processDBStoreOperations,
 } from '../shared-worker/utils/store.js';
+import type { InitialReduxStateActionPayload } from '../types/redux-types.js';
 
 type Props = {
   +persistor: Persistor,
@@ -75,6 +77,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           urlInfo,
           excludedData: {
             threadStore: !!clientDBStore.threadStore,
+            userStore: !!clientDBStore.users,
           },
           allUpdatesCurrentAsOf,
         });
@@ -89,50 +92,65 @@ function InitialReduxStateGate(props: Props): React.Node {
           return;
         }
 
+        let initialReduxState: InitialReduxStateActionPayload = payload;
+
+        let threadStoreOperations: ThreadStoreOperation[] = [];
         if (clientDBStore.threadStore) {
-          const { threadStore, ...rest } = payload;
-          dispatch({ type: setInitialReduxState, payload: rest });
-          return;
+          const { threadStore, ...rest } = initialReduxState;
+          initialReduxState = rest;
+        } else {
+          // When there is no data in the DB, it's necessary to migrate data
+          // from the keyserver payload to the DB
+          threadStoreOperations = entries(payload.threadStore.threadInfos).map(
+            ([id, threadInfo]: [
+              string,
+              LegacyRawThreadInfo | RawThreadInfo,
+            ]) => ({
+              type: 'replace',
+              payload: {
+                id,
+                threadInfo,
+              },
+            }),
+          );
         }
 
-        // When there is no data in the DB, it's necessary to migrate data
-        // from the keyserver payload to the DB
-        const {
-          threadStore: { threadInfos },
-        } = payload;
+        let userStoreOperations: UserStoreOperation[] = [];
+        if (clientDBStore.users) {
+          const { userInfos, ...rest } = initialReduxState;
+          initialReduxState = rest;
+        } else {
+          userStoreOperations = values(payload.userInfos).map(userInfo => ({
+            type: 'replace_user',
+            payload: userInfo,
+          }));
+        }
 
-        const threadStoreOperations: ThreadStoreOperation[] = entries(
-          threadInfos,
-        ).map(
-          ([id, threadInfo]: [
-            string,
-            LegacyRawThreadInfo | RawThreadInfo,
-          ]) => ({
-            type: 'replace',
-            payload: {
-              id,
-              threadInfo,
+        if (
+          threadStoreOperations.length > 0 ||
+          userStoreOperations.length > 0
+        ) {
+          await processDBStoreOperations(
+            {
+              threadStoreOperations,
+              draftStoreOperations: [],
+              messageStoreOperations: [],
+              reportStoreOperations: [],
+              userStoreOperations,
+              keyserverStoreOperations: [],
+              communityStoreOperations: [],
+              integrityStoreOperations: [],
+              syncedMetadataStoreOperations: [],
+              auxUserStoreOperations: [],
             },
-          }),
-        );
+            currentLoggedInUserID,
+          );
+        }
 
-        await processDBStoreOperations(
-          {
-            threadStoreOperations,
-            draftStoreOperations: [],
-            messageStoreOperations: [],
-            reportStoreOperations: [],
-            userStoreOperations: [],
-            keyserverStoreOperations: [],
-            communityStoreOperations: [],
-            integrityStoreOperations: [],
-            syncedMetadataStoreOperations: [],
-            auxUserStoreOperations: [],
-          },
-          currentLoggedInUserID,
-        );
-
-        dispatch({ type: setInitialReduxState, payload });
+        dispatch({
+          type: setInitialReduxState,
+          payload: initialReduxState,
+        });
       } catch (err) {
         setInitError(err);
       }
