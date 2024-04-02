@@ -3,7 +3,8 @@ use grpc_clients::identity::{
   get_unauthenticated_client,
   protos::unauth::{
     DeviceKeyUpload, IdentityKeyInfo, OpaqueLoginFinishRequest,
-    OpaqueLoginStartRequest, Prekey, WalletAuthRequest,
+    OpaqueLoginStartRequest, Prekey, SecondaryDeviceKeysUploadRequest,
+    WalletAuthRequest,
   },
 };
 use tracing::instrument;
@@ -73,6 +74,50 @@ pub mod ffi {
         farcaster_id: None,
       };
       let result = log_in_wallet_user_helper(wallet_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  // QR code device log in
+  pub fn upload_secondary_device_keys_and_log_in(
+    user_id: String,
+    challenge_response: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let device_key_upload = DeviceKeyUpload {
+        device_key_info: Some(IdentityKeyInfo {
+          payload: key_payload,
+          payload_signature: key_payload_signature,
+          social_proof: None,
+        }),
+        content_upload: Some(Prekey {
+          prekey: content_prekey,
+          prekey_signature: content_prekey_signature,
+        }),
+        notif_upload: Some(Prekey {
+          prekey: notif_prekey,
+          prekey_signature: notif_prekey_signature,
+        }),
+        one_time_content_prekeys: content_one_time_keys,
+        one_time_notif_prekeys: notif_one_time_keys,
+        device_type: DEVICE_TYPE.into(),
+      };
+
+      let result = upload_secondary_device_keys_and_log_in_helper(
+        user_id,
+        challenge_response,
+        device_key_upload,
+      )
+      .await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -181,5 +226,32 @@ async fn log_in_wallet_user_helper(
 
   let user_id_and_access_token =
     UserIDAndDeviceAccessToken::from(login_response);
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
+}
+
+async fn upload_secondary_device_keys_and_log_in_helper(
+  user_id: String,
+  challenge_response: String,
+  device_key_upload: DeviceKeyUpload,
+) -> Result<String, Error> {
+  let mut identity_client = get_unauthenticated_client(
+    IDENTITY_SOCKET_ADDR,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let request = SecondaryDeviceKeysUploadRequest {
+    user_id,
+    challenge_response,
+    device_key_upload: Some(device_key_upload),
+  };
+
+  let response = identity_client
+    .upload_keys_for_registered_device_and_log_in(request)
+    .await?
+    .into_inner();
+
+  let user_id_and_access_token = UserIDAndDeviceAccessToken::from(response);
   Ok(serde_json::to_string(&user_id_and_access_token)?)
 }

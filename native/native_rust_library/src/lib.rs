@@ -1,9 +1,5 @@
 use comm_opaque2::grpc::opaque_error_to_grpc_status as handle_error;
-use grpc_clients::identity::get_unauthenticated_client;
-use grpc_clients::identity::protos::unauth::{
-  DeviceKeyUpload, DeviceType, IdentityKeyInfo, Prekey,
-  SecondaryDeviceKeysUploadRequest,
-};
+use grpc_clients::identity::protos::unauth::DeviceType;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
@@ -16,7 +12,6 @@ mod identity;
 mod utils;
 
 use crate::argon2_tools::compute_backup_key_str;
-use crate::identity::UserIDAndDeviceAccessToken;
 use crate::utils::jsi_callbacks::{
   handle_string_result_as_callback, handle_void_result_as_callback,
 };
@@ -49,6 +44,7 @@ use utils::future_manager::ffi::*;
 #[cxx::bridge]
 mod ffi {
 
+  // Identity Service APIs
   extern "Rust" {
     #[cxx_name = "identityRegisterPasswordUser"]
     fn register_password_user(
@@ -410,76 +406,6 @@ mod ffi {
   }
 }
 
-fn upload_secondary_device_keys_and_log_in(
-  user_id: String,
-  challenge_response: String,
-  key_payload: String,
-  key_payload_signature: String,
-  content_prekey: String,
-  content_prekey_signature: String,
-  notif_prekey: String,
-  notif_prekey_signature: String,
-  content_one_time_keys: Vec<String>,
-  notif_one_time_keys: Vec<String>,
-  promise_id: u32,
-) {
-  RUNTIME.spawn(async move {
-    let device_key_upload = DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: key_payload,
-        payload_signature: key_payload_signature,
-        social_proof: None,
-      }),
-      content_upload: Some(Prekey {
-        prekey: content_prekey,
-        prekey_signature: content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: notif_prekey,
-        prekey_signature: notif_prekey_signature,
-      }),
-      one_time_content_prekeys: content_one_time_keys,
-      one_time_notif_prekeys: notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    };
-
-    let result = upload_secondary_device_keys_and_log_in_helper(
-      user_id,
-      challenge_response,
-      device_key_upload,
-    )
-    .await;
-    handle_string_result_as_callback(result, promise_id);
-  });
-}
-
-async fn upload_secondary_device_keys_and_log_in_helper(
-  user_id: String,
-  challenge_response: String,
-  device_key_upload: DeviceKeyUpload,
-) -> Result<String, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
-
-  let request = SecondaryDeviceKeysUploadRequest {
-    user_id,
-    challenge_response,
-    device_key_upload: Some(device_key_upload),
-  };
-
-  let response = identity_client
-    .upload_keys_for_registered_device_and_log_in(request)
-    .await?
-    .into_inner();
-
-  let user_id_and_access_token = UserIDAndDeviceAccessToken::from(response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
-}
-
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
@@ -495,6 +421,7 @@ pub enum Error {
 }
 
 #[cfg(test)]
+#[allow(clippy::assertions_on_constants)]
 mod tests {
   use super::{BACKUP_SOCKET_ADDR, CODE_VERSION, IDENTITY_SOCKET_ADDR};
 
@@ -505,7 +432,7 @@ mod tests {
 
   #[test]
   fn test_identity_socket_addr_exists() {
-    assert!(IDENTITY_SOCKET_ADDR.len() > 0);
-    assert!(BACKUP_SOCKET_ADDR.len() > 0);
+    assert!(!IDENTITY_SOCKET_ADDR.is_empty());
+    assert!(!BACKUP_SOCKET_ADDR.is_empty());
   }
 }
