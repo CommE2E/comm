@@ -58,9 +58,9 @@ const getInitialReduxState =
         continue;
       }
       const clientUpdatesCurrentAsOf = allUpdatesCurrentAsOf[keyserverID];
-      const keyserverExcludedData: ExcludedData = {
-        threadStore: !!excludedData.threadStore && !!clientUpdatesCurrentAsOf,
-      };
+      const keyserverExcludedData: ExcludedData = clientUpdatesCurrentAsOf
+        ? excludedData
+        : {};
       if (keyserverID === threadKeyserverID) {
         requests[keyserverID] = {
           urlInfo,
