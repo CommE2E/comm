@@ -69,6 +69,7 @@ import { thisKeyserverID } from '../user/identity.js';
 
 const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
   userStore: t.maybe(t.Bool),
+  messageStore: t.maybe(t.Bool),
   threadStore: t.maybe(t.Bool),
 });
 
@@ -188,6 +189,15 @@ async function getInitialReduxStateResponder(
     return { threadInfos: hasNotAcknowledgedPolicies ? {} : threadInfos };
   })();
   const messageStorePromise: Promise<MessageStore> = (async () => {
+    if (excludedData.messageStore && useDatabase) {
+      return {
+        messages: {},
+        threads: {},
+        local: {},
+        currentAsOf: {},
+      };
+    }
+
     const [
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
