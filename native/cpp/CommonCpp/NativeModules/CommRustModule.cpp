@@ -270,7 +270,7 @@ jsi::Value CommRustModule::updatePassword(
       });
 }
 
-jsi::Value CommRustModule::deleteUser(
+jsi::Value CommRustModule::deleteWalletUser(
     jsi::Runtime &rt,
     jsi::String userID,
     jsi::String deviceID,
@@ -285,7 +285,7 @@ jsi::Value CommRustModule::deleteUser(
         try {
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
-          identityDeleteUser(
+          identityDeleteWalletUser(
               userIDRust, deviceIDRust, accessTokenRust, currentID);
         } catch (const std::exception &e) {
           error = e.what();

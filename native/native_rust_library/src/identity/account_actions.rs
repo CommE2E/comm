@@ -31,7 +31,7 @@ pub mod ffi {
     });
   }
 
-  pub fn delete_user(
+  pub fn delete_wallet_user(
     user_id: String,
     device_id: String,
     access_token: String,
@@ -43,7 +43,7 @@ pub mod ffi {
         user_id,
         device_id,
       };
-      let result = delete_user_helper(auth_info).await;
+      let result = delete_wallet_user_helper(auth_info).await;
       handle_void_result_as_callback(result, promise_id);
     });
   }
@@ -118,7 +118,7 @@ async fn update_user_password_helper(
   Ok(())
 }
 
-async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
+async fn delete_wallet_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
   let mut identity_client = get_auth_client(
     IDENTITY_SOCKET_ADDR,
     auth_info.user_id,
@@ -128,7 +128,7 @@ async fn delete_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  identity_client.delete_user(Empty {}).await?;
+  identity_client.delete_wallet_user(Empty {}).await?;
 
   Ok(())
 }

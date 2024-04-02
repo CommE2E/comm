@@ -26,7 +26,7 @@ public:
   virtual jsi::Value registerWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String farcasterID) = 0;
   virtual jsi::Value logInWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature) = 0;
   virtual jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
-  virtual jsi::Value deleteUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
+  virtual jsi::Value deleteWalletUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value logOut(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
   virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
@@ -111,13 +111,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updatePassword, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(password));
     }
-    jsi::Value deleteUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
+    jsi::Value deleteWalletUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
       static_assert(
-          bridging::getParameterCount(&T::deleteUser) == 4,
-          "Expected deleteUser(...) to have 4 parameters");
+          bridging::getParameterCount(&T::deleteWalletUser) == 4,
+          "Expected deleteWalletUser(...) to have 4 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::deleteUser, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
+          rt, &T::deleteWalletUser, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
     }
     jsi::Value logOut(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
       static_assert(

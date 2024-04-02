@@ -16,8 +16,10 @@ use tracing::{debug, error, warn};
 
 use super::protos::auth::{
   identity, identity_client_service_server::IdentityClientService,
-  GetDeviceListRequest, GetDeviceListResponse, Identity, InboundKeyInfo,
-  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
+  DeletePasswordUserStartResponse, GetDeviceListRequest, GetDeviceListResponse,
+  Identity, InboundKeyInfo, InboundKeysForUserRequest,
+  InboundKeysForUserResponse, KeyserverKeysResponse,
   LinkFarcasterAccountRequest, OutboundKeyInfo, OutboundKeysForUserRequest,
   OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
@@ -327,11 +329,103 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
-  async fn delete_user(
+  async fn delete_wallet_user(
     &self,
     request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (user_id, _) = get_user_and_device_id(&request)?;
+
+    debug!("Attempting to delete wallet user: {}", user_id);
+
+    let maybe_username_and_password_file = self
+      .db_client
+      .get_username_and_password_file(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    if maybe_username_and_password_file.is_some() {
+      return Err(tonic::Status::permission_denied("password user"));
+    }
+
+    self
+      .db_client
+      .delete_user(user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
+
+  async fn delete_password_user_start(
+    &self,
+    request: tonic::Request<DeletePasswordUserStartRequest>,
+  ) -> Result<tonic::Response<DeletePasswordUserStartResponse>, tonic::Status>
+  {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    debug!("Attempting to start deleting password user: {}", user_id);
+    let maybe_username_and_password_file = self
+      .db_client
+      .get_username_and_password_file(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let Some((username, password_file_bytes)) =
+      maybe_username_and_password_file
+    else {
+      return Err(tonic::Status::not_found("user not found"));
+    };
+
+    let mut server_login = comm_opaque2::server::Login::new();
+    let server_response = server_login
+      .start(
+        &CONFIG.server_setup,
+        &password_file_bytes,
+        &message.opaque_login_request,
+        username.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    let delete_state = construct_delete_password_user_info(server_login);
+
+    let session_id = self
+      .db_client
+      .insert_workflow(WorkflowInProgress::PasswordUserDeletion(Box::new(
+        delete_state,
+      )))
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Response::new(DeletePasswordUserStartResponse {
+      session_id,
+      opaque_login_response: server_response,
+    });
+    Ok(response)
+  }
+
+  async fn delete_password_user_finish(
+    &self,
+    request: tonic::Request<DeletePasswordUserFinishRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    debug!("Attempting to finish deleting password user: {}", user_id);
+    let Some(WorkflowInProgress::PasswordUserDeletion(state)) = self
+      .db_client
+      .get_workflow(message.session_id)
+      .await
+      .map_err(handle_db_error)?
+    else {
+      return Err(tonic::Status::not_found("session not found"));
+    };
+
+    let mut server_login = state.opaque_server_login;
+    server_login
+      .finish(&message.opaque_login_upload)
+      .map_err(protocol_error_to_grpc_status)?;
 
     self
       .db_client
@@ -555,6 +649,19 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
       tonic::Status::invalid_argument("invalid timestamp")
     })?;
     Ok(DeviceListUpdate::new(devices, timestamp))
+  }
+}
+
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
+pub struct DeletePasswordUserInfo {
+  pub opaque_server_login: comm_opaque2::server::Login,
+}
+
+fn construct_delete_password_user_info(
+  opaque_server_login: comm_opaque2::server::Login,
+) -> DeletePasswordUserInfo {
+  DeletePasswordUserInfo {
+    opaque_server_login,
   }
 }
 
