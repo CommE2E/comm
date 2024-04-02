@@ -27,8 +27,8 @@ import {
   deviceOlmInboundKeysValidator,
   userDeviceOlmInboundKeysValidator,
   type FarcasterUser,
+  farcasterUsersValidator,
 } from 'lib/types/identity-service-types.js';
-import { farcasterUsersValidator } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
