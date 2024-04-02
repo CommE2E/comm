@@ -14,6 +14,7 @@ import type {
   ClientStore,
   StoreOperations,
 } from 'lib/types/store-ops-types.js';
+import { entries } from 'lib/utils/objects.js';
 
 import { defaultWebState } from '../../redux/default-state.js';
 import { workerRequestMessageTypes } from '../../types/worker-types.js';
@@ -205,7 +206,14 @@ async function processDBStoreOperations(
     console.log(e);
     if (canUseDatabase) {
       window.alert(e.message);
-      if (threadStoreOperations.length > 0) {
+      if (
+        entries(storeOperations).some(
+          ([key, ops]) =>
+            key !== 'draftStoreOperations' &&
+            key !== 'reportStoreOperations' &&
+            ops.length > 0,
+        )
+      ) {
         await sharedWorker.init({ clearDatabase: true });
         location.reload();
       }
