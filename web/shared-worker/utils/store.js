@@ -190,7 +190,14 @@ async function processDBStoreOperations(
     console.log(e);
     if (canUseDatabase) {
       window.alert(e.message);
-      if (threadStoreOperations.length > 0) {
+      if (
+        threadStoreOperations.length > 0 ||
+        keyserverStoreOperations.length > 0 ||
+        communityStoreOperations.length > 0 ||
+        integrityStoreOperations.length > 0 ||
+        userStoreOperations.length > 0 ||
+        messageStoreOperations.length > 0
+      ) {
         await sharedWorker.init({ clearDatabase: true });
         location.reload();
       }
