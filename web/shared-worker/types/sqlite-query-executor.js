@@ -14,7 +14,7 @@ import {
   type NullableInt,
 } from './entities.js';
 
-type WebMessage = {
+export type WebMessage = {
   +id: string,
   +localID: NullableString,
   +thread: string,
@@ -25,7 +25,7 @@ type WebMessage = {
   +time: string,
 };
 
-type Media = {
+export type Media = {
   +id: string,
   +container: string,
   +thread: string,
