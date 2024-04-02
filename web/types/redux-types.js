@@ -23,7 +23,22 @@ export type InitialReduxState = {
   +keyserverInfos: { +[keyserverID: string]: WebInitialKeyserverInfo },
 };
 
+export type InitialReduxStateActionPayload = {
+  +navInfo: WebNavInfo,
+  +currentUserInfo: CurrentUserInfo,
+  +entryStore: EntryStore,
+  +threadStore?: ThreadStore,
+  +userInfos?: UserInfos,
+  +messageStore: MessageStore,
+  +pushApiPublicKey: ?string,
+  +inviteLinksStore: InviteLinksStore,
+  +dataLoaded: boolean,
+  +actualizedCalendarQuery: CalendarQuery,
+  +keyserverInfos: { +[keyserverID: string]: WebInitialKeyserverInfo },
+};
+
 export type ExcludedData = {
+  +userStore?: boolean,
   +threadStore?: boolean,
 };
 
