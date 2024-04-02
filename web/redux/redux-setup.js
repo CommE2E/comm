@@ -69,7 +69,7 @@ import { onStateDifference } from './redux-debug-utils.js';
 import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
 import { activeThreadSelector } from '../selectors/nav-selectors.js';
-import type { InitialReduxState } from '../types/redux-types.js';
+import type { InitialReduxStateActionPayload } from '../types/redux-types.js';
 
 export type WindowDimensions = { width: number, height: number };
 
@@ -140,7 +140,10 @@ export type Action = $ReadOnly<
             +type: 'UPDATE_WINDOW_ACTIVE',
             +payload: boolean,
           }
-        | { +type: 'SET_INITIAL_REDUX_STATE', +payload: InitialReduxState },
+        | {
+            +type: 'SET_INITIAL_REDUX_STATE',
+            +payload: InitialReduxStateActionPayload,
+          },
     },
 >;
 
@@ -195,27 +198,26 @@ function reducer(oldState: AppState | void, action: Action): AppState {
         },
       });
     }
-    return validateStateAndQueueOpsProcessing(
-      action,
-      oldState,
-      {
-        ...state,
-        ...rest,
-        userStore: { userInfos },
-        keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
-          state.keyserverStore,
-          replaceOperations,
-        ),
-        initialStateLoaded: true,
-      },
-      {
-        ...storeOperations,
-        keyserverStoreOperations: [
-          ...storeOperations.keyserverStoreOperations,
-          ...replaceOperations,
-        ],
-      },
-    );
+    let newState = {
+      ...state,
+      ...rest,
+      keyserverStore: keyserverStoreOpsHandlers.processStoreOperations(
+        state.keyserverStore,
+        replaceOperations,
+      ),
+      initialStateLoaded: true,
+    };
+
+    if (userInfos) {
+      newState = { ...newState, userStore: { userInfos } };
+    }
+    return validateStateAndQueueOpsProcessing(action, oldState, newState, {
+      ...storeOperations,
+      keyserverStoreOperations: [
+        ...storeOperations.keyserverStoreOperations,
+        ...replaceOperations,
+      ],
+    });
   } else if (action.type === updateWindowDimensionsActionType) {
     return validateStateAndQueueOpsProcessing(
       action,
