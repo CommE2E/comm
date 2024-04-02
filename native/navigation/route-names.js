@@ -149,6 +149,8 @@ export const KeyserverSelectionBottomSheetRouteName =
   'KeyserverSelectionBottomSheet';
 export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
 export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
+export const ConnectFarcasterBottomSheetRouteName =
+  'ConnectFarcasterBottomSheet';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -172,6 +174,7 @@ export type RootParamList = {
   +UserProfileBottomSheetNavigator: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
+  +ConnectFarcasterBottomSheet: void,
 };
 
 export type MessageTooltipRouteNames =
