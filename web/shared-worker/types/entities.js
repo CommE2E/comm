@@ -1,6 +1,9 @@
 // @flow
 
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
+
+import type { Media, WebMessage } from './sqlite-query-executor.js';
 
 export type Nullable<T> = {
   +value: T,
@@ -39,6 +42,19 @@ function createNullableString(value: ?string): NullableString {
   }
   return {
     value,
+    isNull: false,
+  };
+}
+
+function createNullableInt(value: ?string): NullableInt {
+  if (value === null || value === undefined) {
+    return {
+      value: 0,
+      isNull: true,
+    };
+  }
+  return {
+    value: Number(value),
     isNull: false,
   };
 }
@@ -99,4 +115,68 @@ function webThreadToClientDBThreadInfo(
   return result;
 }
 
-export { clientDBThreadInfoToWebThread, webThreadToClientDBThreadInfo };
+function clientDBMessageInfoToWebMessage(messageInfo: ClientDBMessageInfo): {
+  +message: WebMessage,
+  +medias: $ReadOnlyArray<Media>,
+} {
+  return {
+    message: {
+      id: messageInfo.id,
+      localID: createNullableString(messageInfo.local_id),
+      thread: messageInfo.thread,
+      user: messageInfo.user,
+      type: Number(messageInfo.type),
+      futureType: createNullableInt(messageInfo.future_type),
+      content: createNullableString(messageInfo.content),
+      time: messageInfo.time,
+    },
+    medias:
+      messageInfo.media_infos?.map(({ id, uri, type, extras }) => ({
+        id,
+        uri,
+        type,
+        extras,
+        thread: messageInfo.thread,
+        container: messageInfo.id,
+      })) ?? [],
+  };
+}
+
+function webMessageToClientDBMessageInfo({
+  message,
+  medias,
+}: {
+  +message: WebMessage,
+  +medias: $ReadOnlyArray<Media>,
+}): ClientDBMessageInfo {
+  let media_infos = null;
+  if (medias?.length !== 0) {
+    media_infos = medias.map(({ id, uri, type, extras }) => ({
+      id,
+      uri,
+      type,
+      extras,
+    }));
+  }
+
+  return {
+    id: message.id,
+    local_id: message.localID.isNull ? null : message.localID.value,
+    thread: message.thread,
+    user: message.user,
+    type: message.type.toString(),
+    future_type: message.futureType.isNull
+      ? null
+      : message.futureType.value.toString(),
+    content: message.content.isNull ? null : message.content.value,
+    time: message.time,
+    media_infos,
+  };
+}
+
+export {
+  clientDBThreadInfoToWebThread,
+  webThreadToClientDBThreadInfo,
+  clientDBMessageInfoToWebMessage,
+  webMessageToClientDBMessageInfo,
+};

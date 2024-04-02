@@ -4,6 +4,7 @@ import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.j
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
+import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -21,6 +22,8 @@ import { getMessageForException } from 'lib/utils/errors.js';
 import {
   clientDBThreadInfoToWebThread,
   webThreadToClientDBThreadInfo,
+  webMessageToClientDBMessageInfo,
+  clientDBMessageInfoToWebMessage,
 } from '../types/entities.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
@@ -256,6 +259,63 @@ function processSyncedMetadataStoreOperations(
   }
 }
 
+function processMessageStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation of operations) {
+    try {
+      if (operation.type === 'rekey') {
+        const { from, to } = operation.payload;
+        sqliteQueryExecutor.rekeyMessage(from, to);
+      } else if (operation.type === 'remove') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeMessages(ids);
+      } else if (operation.type === 'replace') {
+        const { message, medias } = clientDBMessageInfoToWebMessage(
+          operation.payload,
+        );
+        sqliteQueryExecutor.replaceMessageWeb(message);
+        for (const media of medias) {
+          sqliteQueryExecutor.replaceMedia(media);
+        }
+      } else if (operation.type === 'remove_all') {
+        sqliteQueryExecutor.removeAllMessages();
+        sqliteQueryExecutor.removeAllMedia();
+      } else if (operation.type === 'remove_threads') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeMessageStoreThreads(ids);
+      } else if (operation.type === 'replace_threads') {
+        const { threads } = operation.payload;
+
+        sqliteQueryExecutor.replaceMessageStoreThreads(
+          threads.map(({ id, start_reached }) => ({
+            id,
+            startReached: Number(start_reached),
+          })),
+        );
+      } else if (operation.type === 'remove_all_threads') {
+        sqliteQueryExecutor.removeAllMessageStoreThreads();
+      } else if (operation.type === 'remove_messages_for_threads') {
+        const { threadIDs } = operation.payload;
+        sqliteQueryExecutor.removeMessagesForThreads(threadIDs);
+      } else {
+        throw new Error('Unsupported message operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } message operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function processUserStoreOperations(
   sqliteQueryExecutor: SQLiteQueryExecutor,
   operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
@@ -299,6 +359,7 @@ function processDBStoreOperations(
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
     userStoreOperations,
+    messageStoreOperations,
   } = storeOperations;
 
   try {
@@ -369,6 +430,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (messageStoreOperations && messageStoreOperations.length > 0) {
+      processMessageStoreOperations(
+        sqliteQueryExecutor,
+        messageStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -413,11 +481,18 @@ function getClientStoreFromQueryExecutor(
 ): ClientDBStore {
   return {
     drafts: sqliteQueryExecutor.getAllDrafts(),
-    messages: [],
+    messages: sqliteQueryExecutor
+      .getAllMessagesWeb()
+      .map(webMessageToClientDBMessageInfo),
     threads: sqliteQueryExecutor
       .getAllThreadsWeb()
-      .map(t => webThreadToClientDBThreadInfo(t)),
-    messageStoreThreads: [],
+      .map(webThreadToClientDBThreadInfo),
+    messageStoreThreads: sqliteQueryExecutor
+      .getAllMessageStoreThreads()
+      .map(({ id, startReached }) => ({
+        id,
+        start_reached: startReached.toString(),
+      })),
     reports: sqliteQueryExecutor.getAllReports(),
     users: sqliteQueryExecutor.getAllUsers(),
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
