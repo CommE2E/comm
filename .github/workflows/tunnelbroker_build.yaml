@@ -19,6 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: docker-compose build --no-cache tunnelbroker-server
+      - name: docker compose build --no-cache tunnelbroker-server
         working-directory: ./services
-        run: docker-compose build --no-cache tunnelbroker-server
+        run: docker compose build --no-cache tunnelbroker-server
