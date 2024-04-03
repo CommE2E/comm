@@ -116,7 +116,7 @@ message OutboundKeyInfo {
 }
 
 message KeyserverKeysResponse {
-  optional OutboundKeyInfo keyserver_info = 1;
+  OutboundKeyInfo keyserver_info = 1;
   Identity identity = 2;
   identity.unauth.IdentityKeyInfo primary_device_identity_info = 3;
 }
