@@ -170,7 +170,7 @@ declare export class KeyserverKeysResponse extends Message {
 }
 
 export type KeyserverKeysResponseObject = {
-  keyserverInfo?: OutboundKeyInfoObject,
+  keyserverInfo: ?OutboundKeyInfoObject,
   identity: ?IdentityObject,
   primaryDeviceIdentityInfo: ?identityStructs.IdentityKeyInfoObject,
 };
