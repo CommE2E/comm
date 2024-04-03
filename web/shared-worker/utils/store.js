@@ -29,6 +29,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     keyserverInfos: defaultWebState.keyserverStore.keyserverInfos,
     communityInfos: null,
     threadHashes: null,
+    auxUserInfos: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -76,6 +77,14 @@ async function getClientDBStore(): Promise<ClientStore> {
       ...result,
       threadHashes: integrityStoreOpsHandlers.translateClientDBData(
         data.store.integrityThreadHashes,
+      ),
+    };
+  }
+  if (data?.store?.auxUserInfos) {
+    result = {
+      ...result,
+      auxUserInfos: auxUserStoreOpsHandlers.translateClientDBData(
+        data.store.auxUserInfos,
       ),
     };
   }
