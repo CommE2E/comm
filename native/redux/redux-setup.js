@@ -21,6 +21,7 @@ import { queueDBOps } from 'lib/reducers/db-ops-reducer.js';
 import { reduceLoadingStatuses } from 'lib/reducers/loading-reducer.js';
 import baseReducer from 'lib/reducers/master-reducer.js';
 import { reduceCurrentUserInfo } from 'lib/reducers/user-reducer.js';
+import { shouldClearData } from 'lib/shared/data-utils.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
@@ -279,11 +280,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     state.currentUserInfo,
     action,
   );
-  if (
-    state.currentUserInfo &&
-    !state.currentUserInfo?.anonymous &&
-    newCurrentUserInfo?.id !== state.currentUserInfo?.id
-  ) {
+  if (shouldClearData(state.currentUserInfo?.id, newCurrentUserInfo?.id)) {
     state = resetUserSpecificState(
       state,
       defaultState,

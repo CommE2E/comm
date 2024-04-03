@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { shouldClearData } from 'lib/shared/data-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -36,11 +37,10 @@ function SQLiteDataHandler(): React.Node {
       );
     }
 
-    if (currentDBUserID === currentLoggedInUserID && !errorGettingUserID) {
-      return;
-    }
-
-    if (currentDBUserID || errorGettingUserID) {
+    if (
+      errorGettingUserID ||
+      shouldClearData(currentDBUserID, currentLoggedInUserID)
+    ) {
       try {
         await sharedWorker.init({ clearDatabase: true });
       } catch (error) {
@@ -53,7 +53,8 @@ function SQLiteDataHandler(): React.Node {
         return;
       }
     }
-    if (currentLoggedInUserID) {
+
+    if (currentLoggedInUserID && currentLoggedInUserID !== currentDBUserID) {
       try {
         await sharedWorker.schedule({
           type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
