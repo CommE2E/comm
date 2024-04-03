@@ -198,12 +198,14 @@ impl IdentityClientService for AuthenticatedService {
       identity_info: Some(identity_info),
     });
 
-    let keyserver_info = self
+    let Some(keyserver_info) = self
       .db_client
       .get_keyserver_keys_for_user(&message.user_id)
       .await
       .map_err(handle_db_error)?
-      .map(OutboundKeyInfo::from);
+    else {
+      return Err(Status::not_found("keyserver not found"));
+    };
 
     let primary_device_data = self
       .db_client
@@ -213,7 +215,7 @@ impl IdentityClientService for AuthenticatedService {
     let primary_device_keys = primary_device_data.device_key_info;
 
     let response = Response::new(KeyserverKeysResponse {
-      keyserver_info,
+      keyserver_info: Some(keyserver_info.into()),
       identity,
       primary_device_identity_info: Some(primary_device_keys.into()),
     });
