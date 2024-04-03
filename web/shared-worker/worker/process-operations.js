@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
@@ -230,6 +231,7 @@ function processDBStoreOperations(
     keyserverStoreOperations,
     communityStoreOperations,
     integrityStoreOperations,
+    auxUserStoreOperations,
   } = storeOperations;
 
   try {
@@ -276,11 +278,49 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (auxUserStoreOperations && auxUserStoreOperations.length > 0) {
+      processAuxUserStoreOperations(
+        sqliteQueryExecutor,
+        auxUserStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
     console.log('Error while processing store ops: ', e);
     throw e;
+  }
+}
+
+function processAuxUserStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBAuxUserStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBAuxUserStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_aux_user_infos') {
+        sqliteQueryExecutor.removeAllAuxUserInfos();
+      } else if (operation.type === 'remove_aux_user_infos') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeAuxUserInfos(ids);
+      } else if (operation.type === 'replace_aux_user_info') {
+        const { id, auxUserInfo } = operation.payload;
+        sqliteQueryExecutor.replaceAuxUserInfo({ id, auxUserInfo });
+      } else {
+        throw new Error('Unsupported aux user operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } aux user operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
   }
 }
 
@@ -299,7 +339,7 @@ function getClientStoreFromQueryExecutor(
     keyservers: sqliteQueryExecutor.getAllKeyservers(),
     communities: sqliteQueryExecutor.getAllCommunities(),
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
-    auxUserInfos: [],
+    auxUserInfos: sqliteQueryExecutor.getAllAuxUserInfos(),
   };
 }
 
