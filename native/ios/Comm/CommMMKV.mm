@@ -63,7 +63,8 @@ void CommMMKV::initialize() {
     } else if (!isRunningInAppExtension) {
       assignInitializationData();
     } else {
-      throw std::runtime_error("NSE can't initialize MMKV encryption key.");
+      throw CommMMKV::InitFromNSEForbiddenError(
+          std::string("NSE can't initialize MMKV encryption key."));
     }
 
     [MMKV initializeMMKV:nil

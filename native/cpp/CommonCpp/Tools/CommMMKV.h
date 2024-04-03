@@ -26,5 +26,10 @@ public:
 
   static std::vector<std::string> getAllKeys();
   static void removeKeys(const std::vector<std::string> &keys);
+
+  class InitFromNSEForbiddenError : public std::runtime_error {
+  public:
+    using std::runtime_error::runtime_error;
+  };
 };
 } // namespace comm
