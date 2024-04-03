@@ -19,6 +19,8 @@ import {
 } from './identity.js';
 import { getMessageForException } from '../responders/utils.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
+import { unpickleOlmAccount } from '../utils/olm-utils.js';
+import type { PickledOlmAccount } from '../utils/olm-utils.js';
 
 // After register or login is successful
 function markKeysAsPublished(account: OlmAccount) {
@@ -67,6 +69,62 @@ async function verifyUserLoggedIn(): Promise<IdentityInfo> {
   const identityInfo = await registerOrLogIn(userInfo);
   await saveIdentityInfo(identityInfo);
   return identityInfo;
+}
+
+async function unpickleAndUseCallback<T>(
+  pickledOlmAccount: PickledOlmAccount,
+  callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
+): Promise<{ result: T, pickledOlmAccount: PickledOlmAccount }> {
+  const { picklingKey, pickledAccount } = pickledOlmAccount;
+
+  const account = await unpickleOlmAccount({
+    picklingKey,
+    pickledAccount,
+  });
+  let result;
+  try {
+    result = await callback(account, picklingKey);
+  } catch (e) {
+    throw new ServerError(getMessageForException(e) ?? 'unknown_error');
+  }
+  const updatedAccount = account.pickle(picklingKey);
+
+  return {
+    result,
+    pickledOlmAccount: { ...pickledOlmAccount, pickledAccount: updatedAccount },
+  };
+}
+
+async function verifyUserLoggedInWithoutDB(
+  pickledContentAccount: PickledOlmAccount,
+  pickledNotificationsAccount: PickledOlmAccount,
+): Promise<{
+  identityInfo: IdentityInfo,
+  pickledContentAccount: PickledOlmAccount,
+  pickledNotificationsAccount: PickledOlmAccount,
+}> {
+  const userInfo = await getUserCredentials();
+
+  const identityInfo = await registerOrLogInBase(
+    userInfo,
+    async callback => {
+      const { result, pickledOlmAccount } = await unpickleAndUseCallback(
+        pickledContentAccount,
+        callback,
+      );
+      pickledContentAccount = pickledOlmAccount;
+      return result;
+    },
+    async callback => {
+      const { result, pickledOlmAccount } = await unpickleAndUseCallback(
+        pickledNotificationsAccount,
+        callback,
+      );
+      pickledNotificationsAccount = pickledOlmAccount;
+      return result;
+    },
+  );
+  return { identityInfo, pickledContentAccount, pickledNotificationsAccount };
 }
 
 async function registerOrLogIn(
@@ -197,4 +255,4 @@ async function registerOrLogInBase<T>(
   }
 }
 
-export { verifyUserLoggedIn };
+export { verifyUserLoggedIn, verifyUserLoggedInWithoutDB };
