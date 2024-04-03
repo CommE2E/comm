@@ -31,6 +31,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     communityInfos: null,
     threadHashes: null,
     syncedMetadata: null,
+    auxUserInfos: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -86,6 +87,14 @@ async function getClientDBStore(): Promise<ClientStore> {
       ...result,
       syncedMetadata: syncedMetadataStoreOpsHandlers.translateClientDBData(
         data.store.syncedMetadata,
+      ),
+    };
+  }
+  if (data?.store?.auxUserInfos) {
+    result = {
+      ...result,
+      auxUserInfos: auxUserStoreOpsHandlers.translateClientDBData(
+        data.store.auxUserInfos,
       ),
     };
   }
