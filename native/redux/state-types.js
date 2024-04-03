@@ -3,6 +3,7 @@
 import type { Orientations } from 'react-native-orientation-locker';
 import type { PersistState } from 'redux-persist/es/types.js';
 
+import type { AlertInfo } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types';
@@ -23,7 +24,6 @@ import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
-import type { NotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { NavInfo } from '../navigation/default-state.js';
@@ -58,7 +58,7 @@ export type AppState = {
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
   +dataLoaded: boolean,
   +customServer: ?string,
-  +notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  +notifPermissionAlertInfo: AlertInfo,
   +watchedThreadIDs: $ReadOnlyArray<string>,
   +lifecycleState: LifecycleState,
   +enabledApps: EnabledApps,
