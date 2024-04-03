@@ -72,16 +72,29 @@ async function verifyUserLoggedIn(): Promise<IdentityInfo> {
 async function registerOrLogIn(
   userInfo: UserCredentials,
 ): Promise<IdentityInfo> {
+  return registerOrLogInBase(
+    userInfo,
+    callback => fetchCallUpdateOlmAccount('content', callback),
+    callback => fetchCallUpdateOlmAccount('notifications', callback),
+  );
+}
+
+async function registerOrLogInBase<T>(
+  userInfo: UserCredentials,
+  getUpdateContentAccount: <T>(
+    callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
+  ) => Promise<T>,
+  getUpdateNotificationsAccount: <T>(
+    callback: (account: OlmAccount, picklingKey: string) => Promise<T> | T,
+  ) => Promise<T>,
+): Promise<IdentityInfo> {
   const rustAPIPromise = getRustAPI();
 
   const {
     identityKeys: notificationsIdentityKeys,
     prekey: notificationsPrekey,
     prekeySignature: notificationsPrekeySignature,
-  } = await fetchCallUpdateOlmAccount(
-    'notifications',
-    retrieveIdentityKeysAndPrekeys,
-  );
+  } = await getUpdateNotificationsAccount(retrieveIdentityKeysAndPrekeys);
 
   const contentAccountCallback = (account: OlmAccount) => {
     const {
@@ -116,7 +129,7 @@ async function registerOrLogIn(
     },
   ] = await Promise.all([
     rustAPIPromise,
-    fetchCallUpdateOlmAccount('content', contentAccountCallback),
+    getUpdateContentAccount(contentAccountCallback),
   ]);
 
   try {
@@ -131,17 +144,17 @@ async function registerOrLogIn(
       userInfo.forceLogin,
     );
     await Promise.all([
-      fetchCallUpdateOlmAccount('content', markKeysAsPublished),
-      fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
+      getUpdateContentAccount(markKeysAsPublished),
+      getUpdateNotificationsAccount(markKeysAsPublished),
     ]);
     return identity_info;
   } catch (e) {
     console.warn('Failed to login user: ' + getMessageForException(e));
     const [contentOneTimeKeys, notificationsOneTimeKeys] = await Promise.all([
-      fetchCallUpdateOlmAccount('content', (account: OlmAccount) =>
+      getUpdateContentAccount((account: OlmAccount) =>
         getAccountOneTimeKeys(account, ONE_TIME_KEYS_NUMBER),
       ),
-      fetchCallUpdateOlmAccount('notifications', (account: OlmAccount) =>
+      getUpdateNotificationsAccount((account: OlmAccount) =>
         getAccountOneTimeKeys(account, ONE_TIME_KEYS_NUMBER),
       ),
     ]);
@@ -158,8 +171,8 @@ async function registerOrLogIn(
         notificationsOneTimeKeys,
       );
       await Promise.all([
-        fetchCallUpdateOlmAccount('content', markKeysAsPublished),
-        fetchCallUpdateOlmAccount('notifications', markKeysAsPublished),
+        getUpdateContentAccount(markKeysAsPublished),
+        getUpdateNotificationsAccount(markKeysAsPublished),
       ]);
       return identity_info;
     } catch (err) {
