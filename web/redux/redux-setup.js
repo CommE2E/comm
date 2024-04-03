@@ -24,6 +24,7 @@ import baseReducer from 'lib/reducers/master-reducer.js';
 import { reduceCurrentUserInfo } from 'lib/reducers/user-reducer.js';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { shouldClearData } from 'lib/shared/data-utils.js';
 import {
   invalidSessionDowngrade,
   identityInvalidSessionDowngrade,
@@ -353,11 +354,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
       state.currentUserInfo,
       action,
     );
-    if (
-      state.currentUserInfo &&
-      !state.currentUserInfo?.anonymous &&
-      newCurrentUserInfo?.id !== state.currentUserInfo?.id
-    ) {
+    if (shouldClearData(state.currentUserInfo?.id, newCurrentUserInfo?.id)) {
       state = resetUserSpecificState(
         state,
         defaultWebState,
