@@ -25,7 +25,7 @@ import {
 } from '../updaters/olm-account-updater.js';
 import { verifyUserLoggedIn } from '../user/login.js';
 
-type PickledOlmAccount = {
+export type PickledOlmAccount = {
   +picklingKey: string,
   +pickledAccount: string,
 };

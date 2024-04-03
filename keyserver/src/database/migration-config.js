@@ -23,6 +23,7 @@ import {
   createPickledOlmAccount,
   publishPrekeysToIdentity,
 } from '../utils/olm-utils.js';
+import type { PickledOlmAccount } from '../utils/olm-utils.js';
 import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
@@ -844,6 +845,13 @@ async function createOlmAccounts() {
   const [pickledContentAccount, pickledNotificationsAccount] =
     await Promise.all([createPickledOlmAccount(), createPickledOlmAccount()]);
 
+  await saveNewOlmAccounts(pickledContentAccount, pickledNotificationsAccount);
+}
+
+async function saveNewOlmAccounts(
+  pickledContentAccount: PickledOlmAccount,
+  pickledNotificationsAccount: PickledOlmAccount,
+) {
   await dbQuery(
     SQL`
       INSERT INTO olm_accounts (is_content, version, 
@@ -869,4 +877,9 @@ function isDockerEnvironment(): boolean {
   return !!process.env.COMM_DATABASE_HOST;
 }
 
-export { migrations, newDatabaseVersion, createOlmAccounts };
+export {
+  migrations,
+  newDatabaseVersion,
+  createOlmAccounts,
+  saveNewOlmAccounts,
+};

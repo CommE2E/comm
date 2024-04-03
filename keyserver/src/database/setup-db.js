@@ -12,18 +12,30 @@ import { dbQuery, SQL } from '../database/database.js';
 import { updateDBVersion } from '../database/db-version.js';
 import {
   newDatabaseVersion,
-  createOlmAccounts,
+  saveNewOlmAccounts,
 } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { ensureUserCredentials } from '../user/checks.js';
-import { thisKeyserverAdmin } from '../user/identity.js';
-import { verifyUserLoggedIn } from '../user/login.js';
+import { thisKeyserverAdmin, saveIdentityInfo } from '../user/identity.js';
+import { verifyUserLoggedInWithoutDB } from '../user/login.js';
+import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
 async function setupDB() {
+  const [pickledContentAccount, pickledNotificationsAccount] =
+    await Promise.all([createPickledOlmAccount(), createPickledOlmAccount()]);
+
+  const {
+    identityInfo,
+    pickledContentAccount: contentAccount,
+    pickledNotificationsAccount: notificationsAccount,
+  } = await verifyUserLoggedInWithoutDB(
+    pickledContentAccount,
+    pickledNotificationsAccount,
+  );
   await ensureUserCredentials();
   await createTables();
-  await createOlmAccounts();
-  await verifyUserLoggedIn();
+  await saveNewOlmAccounts(contentAccount, notificationsAccount);
+  await saveIdentityInfo(identityInfo);
   await createUsers();
   await createThreads();
   await setUpMetadataTable();
