@@ -6,17 +6,23 @@
 #include "../../Tools/Logger.h"
 #include "../../Tools/PlatformSpecificTools.h"
 
+#include <fcntl.h>
 #include <folly/String.h>
 #include <folly/dynamic.h>
 #include <folly/json.h>
+#include <unistd.h>
 #include <fstream>
 #include <memory>
 #include <sstream>
 
 namespace comm {
-
+const std::string
+    NotificationsCryptoModule::secureStoreNotificationsAccountDataKey =
+        "notificationsCryptoAccountDataKey";
 const std::string NotificationsCryptoModule::notificationsCryptoAccountID =
     "notificationsCryptoAccountDataID";
+const std::string NotificationsCryptoModule::keyserverHostedNotificationsID =
+    "keyserverHostedNotificationsID";
 const std::string NotificationsCryptoModule::initialEncryptedMessageContent =
     "{\"type\": \"init\"}";
 const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
@@ -29,6 +35,7 @@ const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
 // app version. Do not introduce new usages of this constant in the code!!!
 const std::string ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage =
     "256";
+const int temporaryFilePathRandomSuffixLength = 32;
 
 std::unique_ptr<crypto::CryptoModule>
 NotificationsCryptoModule::deserializeCryptoModule(
@@ -75,6 +82,68 @@ NotificationsCryptoModule::deserializeCryptoModule(
       notificationsCryptoAccountID,
       picklingKey,
       crypto::Persist({account, sessions}));
+}
+
+void NotificationsCryptoModule::serializeAndFlushCryptoModule(
+    std::unique_ptr<crypto::CryptoModule> cryptoModule,
+    const std::string &path,
+    const std::string &picklingKey) {
+  crypto::Persist persist = cryptoModule->storeAsB64(picklingKey);
+
+  folly::dynamic sessions = folly::dynamic::object;
+  for (auto &sessionKeyValuePair : persist.sessions) {
+    std::string targetUserID = sessionKeyValuePair.first;
+    crypto::OlmBuffer sessionData = sessionKeyValuePair.second;
+    sessions[targetUserID] =
+        std::string(sessionData.begin(), sessionData.end());
+  }
+
+  std::string account =
+      std::string(persist.account.begin(), persist.account.end());
+  folly::dynamic persistJSON =
+      folly::dynamic::object("account", account)("sessions", sessions);
+  std::string pickledPersist = folly::toJson(persistJSON);
+
+  std::string temporaryFilePathRandomSuffix =
+      crypto::Tools::generateRandomHexString(
+          temporaryFilePathRandomSuffixLength);
+  std::string temporaryPath = path + temporaryFilePathRandomSuffix;
+
+  mode_t readWritePermissionsMode = 0666;
+  int temporaryFD =
+      open(temporaryPath.c_str(), O_CREAT | O_WRONLY, readWritePermissionsMode);
+  if (temporaryFD == -1) {
+    throw std::runtime_error(
+        "Failed to create temporary file. Unable to atomically update "
+        "notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  }
+  ssize_t bytesWritten =
+      write(temporaryFD, pickledPersist.c_str(), pickledPersist.length());
+  if (bytesWritten == -1 || bytesWritten != pickledPersist.length()) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to write all data to temporary file. Unable to atomically "
+        "update notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  }
+  if (fsync(temporaryFD) == -1) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to synchronize temporary file data with hardware storage. "
+        "Unable to atomically update notifications crypto account. Details: " +
+        std::string(strerror(errno)));
+  };
+  close(temporaryFD);
+  if (rename(temporaryPath.c_str(), path.c_str()) == -1) {
+    remove(temporaryPath.c_str());
+    throw std::runtime_error(
+        "Failed to replace temporary file content with notifications crypto "
+        "account. Unable to atomically update notifications crypto account. "
+        "Details: " +
+        std::string(strerror(errno)));
+  }
+  remove(temporaryPath.c_str());
 }
 
 std::string NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
@@ -181,18 +250,27 @@ void NotificationsCryptoModule::persistNotificationsSessionInternal(
   }
 }
 
-std::pair<std::unique_ptr<crypto::Session>, std::string>
+std::optional<std::pair<std::unique_ptr<crypto::Session>, std::string>>
 NotificationsCryptoModule::fetchNotificationsSession(
     const std::string &keyserverID) {
   std::string keyserverNotificationsSessionKey =
       NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
           keyserverID);
-  std::optional<std::string> serializedSession =
-      CommMMKV::getString(keyserverNotificationsSessionKey);
 
-  if (!serializedSession.has_value()) {
+  std::optional<std::string> serializedSession;
+  try {
+    serializedSession = CommMMKV::getString(keyserverNotificationsSessionKey);
+  } catch (const CommMMKV::InitFromNSEForbiddenError &e) {
+    serializedSession = std::nullopt;
+  }
+
+  if (!serializedSession.has_value() &&
+      keyserverID !=
+          ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage) {
     throw std::runtime_error(
         "Missing notifications session for keyserver: " + keyserverID);
+  } else if (!serializedSession.has_value()) {
+    return std::nullopt;
   }
 
   return NotificationsCryptoModule::deserializeNotificationsSession(
@@ -214,21 +292,15 @@ bool NotificationsCryptoModule::isNotificationsSessionInitialized(
   return CommMMKV::getString(keyserverNotificationsSessionKey).has_value();
 }
 
-std::string NotificationsCryptoModule::decrypt(
-    const std::string &keyserverID,
-    const std::string &data,
-    const size_t messageType) {
-  std::unique_ptr<crypto::Session> session;
-  std::string picklingKey;
-  std::tie(session, picklingKey) =
-      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+NotificationsCryptoModule::BaseStatefulDecryptResult::BaseStatefulDecryptResult(
+    std::string picklingKey,
+    std::string decryptedData)
+    : picklingKey(picklingKey), decryptedData(decryptedData) {
+}
 
-  crypto::EncryptedData encryptedData{
-      std::vector<uint8_t>(data.begin(), data.end()), messageType};
-  std::string decryptedData = session->decrypt(encryptedData);
-  NotificationsCryptoModule::persistNotificationsSessionInternal(
-      keyserverID, picklingKey, std::move(session));
-  return decryptedData;
+std::string
+NotificationsCryptoModule::BaseStatefulDecryptResult::getDecryptedData() {
+  return this->decryptedData;
 }
 
 NotificationsCryptoModule::StatefulDecryptResult::StatefulDecryptResult(
@@ -236,50 +308,123 @@ NotificationsCryptoModule::StatefulDecryptResult::StatefulDecryptResult(
     std::string keyserverID,
     std::string picklingKey,
     std::string decryptedData)
-    : sessionState(std::move(session)),
-      keyserverID(keyserverID),
-      picklingKey(picklingKey),
-      decryptedData(decryptedData) {
+    : NotificationsCryptoModule::BaseStatefulDecryptResult::
+          BaseStatefulDecryptResult(picklingKey, decryptedData),
+      sessionState(std::move(session)),
+      keyserverID(keyserverID) {
 }
 
-std::string
-NotificationsCryptoModule::StatefulDecryptResult::getDecryptedData() {
-  return this->decryptedData;
+void NotificationsCryptoModule::StatefulDecryptResult::flushState() {
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      this->keyserverID, this->picklingKey, std::move(this->sessionState));
 }
 
-std::string NotificationsCryptoModule::StatefulDecryptResult::getKeyserverID() {
-  return this->keyserverID;
+NotificationsCryptoModule::LegacyStatefulDecryptResult::
+    LegacyStatefulDecryptResult(
+        std::unique_ptr<crypto::CryptoModule> cryptoModule,
+        std::string path,
+        std::string picklingKey,
+        std::string decryptedData)
+    : NotificationsCryptoModule::BaseStatefulDecryptResult::
+          BaseStatefulDecryptResult(picklingKey, decryptedData),
+      path(path),
+      cryptoModule(std::move(cryptoModule)) {
 }
 
-std::string NotificationsCryptoModule::StatefulDecryptResult::getPicklingKey() {
-  return this->picklingKey;
+void NotificationsCryptoModule::LegacyStatefulDecryptResult::flushState() {
+  NotificationsCryptoModule::serializeAndFlushCryptoModule(
+      std::move(this->cryptoModule), this->path, this->picklingKey);
 }
 
-std::unique_ptr<NotificationsCryptoModule::StatefulDecryptResult>
+std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
+NotificationsCryptoModule::prepareLegacyDecryptedState(
+    const std::string &data,
+    const size_t messageType) {
+  folly::Optional<std::string> picklingKey = comm::CommSecureStore::get(
+      NotificationsCryptoModule::secureStoreNotificationsAccountDataKey);
+
+  if (!picklingKey.hasValue()) {
+    throw std::runtime_error(
+        "Legacy notifications session pickling key missing.");
+  }
+
+  std::string legacyNotificationsAccountPath =
+      comm::PlatformSpecificTools::getNotificationsCryptoAccountPath();
+
+  crypto::EncryptedData encryptedData{
+      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+
+  auto cryptoModule = NotificationsCryptoModule::deserializeCryptoModule(
+      legacyNotificationsAccountPath, picklingKey.value());
+
+  std::string decryptedData = cryptoModule->decrypt(
+      NotificationsCryptoModule::keyserverHostedNotificationsID, encryptedData);
+
+  LegacyStatefulDecryptResult statefulDecryptResult(
+      std::move(cryptoModule),
+      legacyNotificationsAccountPath,
+      picklingKey.value(),
+      decryptedData);
+
+  return std::make_unique<LegacyStatefulDecryptResult>(
+      std::move(statefulDecryptResult));
+}
+
+std::string NotificationsCryptoModule::decrypt(
+    const std::string &keyserverID,
+    const std::string &data,
+    const size_t messageType) {
+
+  auto sessionWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+  if (!sessionWithPicklingKey.has_value()) {
+    auto statefulDecryptResult =
+        NotificationsCryptoModule::prepareLegacyDecryptedState(
+            data, messageType);
+    statefulDecryptResult->flushState();
+    return statefulDecryptResult->getDecryptedData();
+  }
+
+  std::unique_ptr<crypto::Session> session =
+      std::move(sessionWithPicklingKey.value().first);
+  std::string picklingKey = sessionWithPicklingKey.value().second;
+  crypto::EncryptedData encryptedData{
+      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+
+  std::string decryptedData = session->decrypt(encryptedData);
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      keyserverID, picklingKey, std::move(session));
+  return decryptedData;
+}
+
+std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
 NotificationsCryptoModule::statefulDecrypt(
     const std::string &keyserverID,
     const std::string &data,
     const size_t messageType) {
-  std::unique_ptr<crypto::Session> session;
-  std::string picklingKey;
-  std::tie(session, picklingKey) =
-      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
 
+  auto sessionWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+  if (!sessionWithPicklingKey.has_value()) {
+    return NotificationsCryptoModule::prepareLegacyDecryptedState(
+        data, messageType);
+  }
+
+  std::unique_ptr<crypto::Session> session =
+      std::move(sessionWithPicklingKey.value().first);
+  std::string picklingKey = sessionWithPicklingKey.value().second;
   crypto::EncryptedData encryptedData{
       std::vector<uint8_t>(data.begin(), data.end()), messageType};
   std::string decryptedData = session->decrypt(encryptedData);
-
   StatefulDecryptResult statefulDecryptResult(
       std::move(session), keyserverID, picklingKey, decryptedData);
+
   return std::make_unique<StatefulDecryptResult>(
       std::move(statefulDecryptResult));
 }
 
 void NotificationsCryptoModule::flushState(
-    std::unique_ptr<StatefulDecryptResult> statefulDecryptResult) {
-  NotificationsCryptoModule::persistNotificationsSessionInternal(
-      statefulDecryptResult->getKeyserverID(),
-      statefulDecryptResult->getPicklingKey(),
-      std::move(statefulDecryptResult->sessionState));
+    std::unique_ptr<BaseStatefulDecryptResult> baseStatefulDecryptResult) {
+  baseStatefulDecryptResult->flushState();
 }
 } // namespace comm
