@@ -193,11 +193,16 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "getAllIntegrityThreadHashes",
           &SQLiteQueryExecutor::getAllIntegrityThreadHashes)
-      .function("replaceSyncedMetadataEntry", &SQLiteQueryExecutor::replaceSyncedMetadataEntry)
-      .function("removeSyncedMetadata", &SQLiteQueryExecutor::removeSyncedMetadata)
       .function(
-          "removeAllSyncedMetadata", &SQLiteQueryExecutor::removeAllSyncedMetadata)
-      .function("getAllSyncedMetadata", &SQLiteQueryExecutor::getAllSyncedMetadata)
+          "replaceSyncedMetadataEntry",
+          &SQLiteQueryExecutor::replaceSyncedMetadataEntry)
+      .function(
+          "removeSyncedMetadata", &SQLiteQueryExecutor::removeSyncedMetadata)
+      .function(
+          "removeAllSyncedMetadata",
+          &SQLiteQueryExecutor::removeAllSyncedMetadata)
+      .function(
+          "getAllSyncedMetadata", &SQLiteQueryExecutor::getAllSyncedMetadata)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
