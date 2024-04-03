@@ -1,10 +1,10 @@
 // @flow
 
+import { defaultAlertInfo } from 'lib/types/alert-types.js';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
-import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 
 import type { AppState } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -44,7 +44,7 @@ const defaultWebState: AppState = Object.freeze({
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
   dataLoaded: false,
-  notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+  notifPermissionAlertInfo: defaultAlertInfo,
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultWebEnabledApps,
