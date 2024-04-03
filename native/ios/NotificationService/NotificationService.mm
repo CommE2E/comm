@@ -85,7 +85,7 @@ std::string joinStrings(
   UNNotificationContent *publicUserContent = content;
 
   // Step 1: notification decryption.
-  std::unique_ptr<comm::NotificationsCryptoModule::StatefulDecryptResult>
+  std::unique_ptr<comm::NotificationsCryptoModule::BaseStatefulDecryptResult>
       statefulDecryptResultPtr;
   BOOL decryptionExecuted = NO;
 
@@ -178,7 +178,8 @@ std::string joinStrings(
           " during unread count calculation.";
     }
 
-    if (unreadCountCalculationError.size()) {
+    if (unreadCountCalculationError.size() &&
+        comm::StaffUtils::isStaffRelease()) {
       [errorMessages
           addObject:[NSString stringWithUTF8String:unreadCountCalculationError
                                                        .c_str()]];
@@ -544,7 +545,7 @@ std::string joinStrings(
       [payload[encryptionFailureKey] isEqualToNumber:@(1)];
 }
 
-- (std::unique_ptr<comm::NotificationsCryptoModule::StatefulDecryptResult>)
+- (std::unique_ptr<comm::NotificationsCryptoModule::BaseStatefulDecryptResult>)
     decryptContentInPlace:(UNMutableNotificationContent *)content {
   std::string encryptedData =
       std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
