@@ -28,6 +28,7 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
+import type { AlertInfo } from 'lib/types/alert-types.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -38,7 +39,6 @@ import {
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import {
-  type NotifPermissionAlertInfo,
   recordNotifPermissionAlertActionType,
   shouldSkipPushPermissionAlert,
 } from 'lib/utils/push-alerts.js';
@@ -110,7 +110,7 @@ type Props = {
   +threadInfos: {
     +[id: string]: ThreadInfo,
   },
-  +notifPermissionAlertInfo: NotifPermissionAlertInfo,
+  +notifPermissionAlertInfo: AlertInfo,
   +allUpdatesCurrentAsOf: {
     +[keyserverID: string]: number,
   },
