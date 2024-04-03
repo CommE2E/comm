@@ -16,6 +16,7 @@ import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
+import { shouldClearData } from 'lib/shared/data-utils.js';
 import {
   recoveryActionSources,
   type RecoveryActionSource,
@@ -138,10 +139,7 @@ function SQLiteDataHandler(): React.Node {
   const handleSensitiveData = React.useCallback(async () => {
     try {
       const databaseCurrentUserInfoID = await commCoreModule.getCurrentUserID();
-      if (
-        databaseCurrentUserInfoID &&
-        databaseCurrentUserInfoID !== currentLoggedInUserID
-      ) {
+      if (shouldClearData(databaseCurrentUserInfoID, currentLoggedInUserID)) {
         await callClearSensitiveData('change in logged-in user credentials');
       }
       if (currentLoggedInUserID) {
