@@ -25,6 +25,14 @@ const rl = readline.createInterface({
 
 const data = {};
 
+console.log(
+  'Your new authoritative keyserver needs to have an owner that is ' +
+    'not an admin of any other keyserver registered with ' +
+    "the staging identity service. If the user doesn't exist on the staging " +
+    'identity service, they will be registered. ' +
+    'Please provide credentials below.',
+);
+
 rl.question('username: ', value1 => {
   data.username = value1;
 
