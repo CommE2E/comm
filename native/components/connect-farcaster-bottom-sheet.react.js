@@ -1,16 +1,22 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
   type FarcasterWebViewState,
 } from './farcaster-web-view.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
+import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+
+// paddingTop + farcaster prompt + marginBottom + button
+const connectFarcasterBottomSheetHeight = 32 + 350 + 40 + 48;
 
 type Props = {
   +navigation: RootNavigationProp<'ConnectFarcasterBottomSheet'>,
@@ -23,6 +29,16 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const { goBack } = navigation;
 
   const bottomSheetRef = React.useRef(null);
+
+  const bottomSheetContext = React.useContext(BottomSheetContext);
+  invariant(bottomSheetContext, 'bottomSheetContext should be set');
+  const { setContentHeight } = bottomSheetContext;
+
+  const insets = useSafeAreaInsets();
+
+  React.useLayoutEffect(() => {
+    setContentHeight(connectFarcasterBottomSheetHeight + insets.bottom);
+  }, [insets.bottom, setContentHeight]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
