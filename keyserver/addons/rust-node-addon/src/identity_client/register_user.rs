@@ -29,7 +29,6 @@ pub async fn register_user(
     device_key_info: Some(IdentityKeyInfo {
       payload: signed_identity_keys_blob.payload,
       payload_signature: signed_identity_keys_blob.signature,
-      social_proof: None,
     }),
     content_upload: Some(Prekey {
       prekey: content_prekey,
