@@ -1,5 +1,5 @@
 use grpc_clients::identity::protos::authenticated::{
-  identity::IdentityInfo, EthereumIdentity, Identity, InboundKeysForUserRequest,
+  EthereumIdentity, Identity, InboundKeysForUserRequest,
 };
 
 use super::*;
@@ -38,14 +38,14 @@ pub async fn get_inbound_keys_for_user_device(
 
   let (username, wallet_address) = match response.identity {
     Some(Identity {
-      identity_info: Some(IdentityInfo::Username(u)),
+      username: u, eth_identity: None
     }) => (Some(u), None),
     Some(Identity {
-      identity_info:
-        Some(IdentityInfo::EthIdentity(EthereumIdentity {
-          wallet_address: w,
-          .. // We ignore the social proof for now
-        })),
+      username: _,
+      eth_identity: Some(EthereumIdentity {
+        wallet_address: w,
+        .. // We ignore the social proof for now
+      })
     }) => (None, Some(w)),
     _ => (None, None),
   };

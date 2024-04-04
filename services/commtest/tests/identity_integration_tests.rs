@@ -4,7 +4,7 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
-  protos::auth::{identity::IdentityInfo, Identity, UserIdentityRequest},
+  protos::auth::{Identity, UserIdentityRequest},
   protos::unauthenticated::{
     find_user_id_request::Identifier, FindUserIdRequest,
   },
@@ -68,7 +68,7 @@ async fn find_username_for_user() {
     matches!(
       response.identity,
       Some(Identity {
-        identity_info: Some(IdentityInfo::Username(username))
+        username, ..
       }) if username == expected_username
     ),
     "username doesn't match"
