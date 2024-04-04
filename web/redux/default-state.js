@@ -56,7 +56,6 @@ const defaultWebState: AppState = Object.freeze({
     },
     queuedReports: [],
   },
-  nextLocalID: 0,
   _persist: null,
   userPolicies: {},
   commServicesAccessToken: null,

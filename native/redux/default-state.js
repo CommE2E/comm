@@ -55,7 +55,6 @@ const defaultState = ({
     },
     queuedReports: [],
   },
-  nextLocalID: 0,
   _persist: null,
   dimensions: defaultDimensionsInfo,
   connectivity: defaultConnectivityInfo,

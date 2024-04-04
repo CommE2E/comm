@@ -1199,6 +1199,10 @@ const migrations = {
 
     return state;
   },
+  [67]: (state: any) => {
+    const { nextLocalID, ...rest } = state;
+    return rest;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -1266,7 +1270,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 66,
+  version: 67,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
