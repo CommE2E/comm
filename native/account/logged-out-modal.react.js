@@ -19,7 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { recoveryActionSources } from 'lib/types/account-types.js';
+import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -420,8 +420,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     const actionSource = loggedIn
-      ? recoveryActionSources.appStartReduxLoggedInButInvalidCookie
-      : recoveryActionSources.appStartCookieLoggedInButInvalidRedux;
+      ? recoveryFromReduxActionSources.appStartReduxLoggedInButInvalidCookie
+      : recoveryFromReduxActionSources.appStartCookieLoggedInButInvalidRedux;
     dispatch({
       type: setActiveSessionRecoveryActionType,
       payload: {
