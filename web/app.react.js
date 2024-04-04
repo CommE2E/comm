@@ -3,13 +3,11 @@
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import classnames from 'classnames';
 import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { WagmiProvider } from 'wagmi';
 
 import {
   fetchEntriesActionTypes,
@@ -38,10 +36,7 @@ import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-d
 import { getConfig, registerConfig } from 'lib/utils/config.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
-import {
-  AlchemyENSCacheProvider,
-  getWagmiConfig,
-} from 'lib/utils/wagmi-utils.js';
+import { AlchemyENSCacheProvider } from 'lib/utils/wagmi-utils.js';
 
 import QrCodeLogin from './account/qr-code-login.react.js';
 import AppThemeWrapper from './app-theme-wrapper.react.js';
@@ -122,16 +117,6 @@ versionBroadcast.onmessage = (event: MessageEvent) => {
 
 // Start initializing the shared worker immediately
 void getCommSharedWorker();
-
-const queryClient = new QueryClient();
-
-const wagmiConfig = getWagmiConfig([
-  'injected',
-  'rainbow',
-  'metamask',
-  'coinbase',
-  'walletconnect',
-]);
 
 type BaseProps = {
   +location: {
@@ -231,25 +216,21 @@ class App extends React.PureComponent<Props> {
       <DndProvider backend={HTML5Backend}>
         <EditModalProvider>
           <MenuProvider>
-            <WagmiProvider config={wagmiConfig}>
-              <QueryClientProvider client={queryClient}>
-                <AlchemyENSCacheProvider>
-                  <TooltipProvider>
-                    <MessageSearchStateProvider>
-                      <ChatMentionContextProvider>
-                        <FocusHandler />
-                        <VisibilityHandler />
-                        <PolicyAcknowledgmentHandler />
-                        <PushNotificationsHandler />
-                        <InviteLinkHandler />
-                        <InviteLinksRefresher />
-                        {content}
-                      </ChatMentionContextProvider>
-                    </MessageSearchStateProvider>
-                  </TooltipProvider>
-                </AlchemyENSCacheProvider>
-              </QueryClientProvider>
-            </WagmiProvider>
+            <AlchemyENSCacheProvider>
+              <TooltipProvider>
+                <MessageSearchStateProvider>
+                  <ChatMentionContextProvider>
+                    <FocusHandler />
+                    <VisibilityHandler />
+                    <PolicyAcknowledgmentHandler />
+                    <PushNotificationsHandler />
+                    <InviteLinkHandler />
+                    <InviteLinksRefresher />
+                    {content}
+                  </ChatMentionContextProvider>
+                </MessageSearchStateProvider>
+              </TooltipProvider>
+            </AlchemyENSCacheProvider>
           </MenuProvider>
         </EditModalProvider>
       </DndProvider>
