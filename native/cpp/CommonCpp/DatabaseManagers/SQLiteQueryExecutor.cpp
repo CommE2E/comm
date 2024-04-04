@@ -631,6 +631,30 @@ bool create_aux_user_table(sqlite3 *db) {
   return create_table(db, query, "aux_users");
 }
 
+bool update_persist_sessions_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE olm_persist_sessions "
+      "   RENAME COLUMN `target_user_id` TO `target_device_id`; "
+      "ALTER TABLE olm_persist_sessions "
+      " 	ADD COLUMN version INTEGER NOT NULL DEFAULT 1;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error updating olm_persist_sessions table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -657,8 +681,9 @@ bool create_schema(sqlite3 *db) {
       ");"
 
       "CREATE TABLE IF NOT EXISTS olm_persist_sessions ("
-      "	 target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 session_data TEXT NOT NULL"
+      "	 target_device_id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "	 session_data TEXT NOT NULL,"
+      "  version INTEGER NOT NULL DEFAULT 1"
       ");"
 
       "CREATE TABLE IF NOT EXISTS media ("
@@ -1004,7 +1029,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {38, {migrate_notifs_crypto_account, true}},
      {39, {create_synced_metadata_table, true}},
      {40, {create_keyservers_synced, true}},
-     {41, {create_aux_user_table, true}}}};
+     {41, {create_aux_user_table, true}},
+     {42, {update_persist_sessions_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
