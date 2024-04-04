@@ -36,8 +36,9 @@ export type Media = {
 };
 
 export type OlmPersistSession = {
-  +targetUserID: string,
+  +targetDeviceID: string,
   +sessionData: string,
+  +version: number,
 };
 
 export type ClientMessageToDevice = {
