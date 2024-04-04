@@ -1,9 +1,19 @@
+use std::collections::HashMap;
+
 use chrono::Utc;
+use comm_lib::{
+  aws::ddb::types::AttributeValue,
+  database::{AttributeExtractor, AttributeMap, TryFromAttribute},
+};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use siwe::Message;
 use tonic::Status;
 use tracing::error;
+
+use crate::constants::{
+  SOCIAL_PROOF_MESSAGE_ATTRIBUTE, SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
+};
 
 pub fn parse_and_verify_siwe_message(
   siwe_message: &str,
@@ -40,25 +50,51 @@ pub fn is_valid_ethereum_address(candidate: &str) -> bool {
   ethereum_address_regex.is_match(candidate)
 }
 
-#[derive(derive_more::Constructor, Serialize, Deserialize)]
+#[derive(derive_more::Constructor)]
 pub struct SocialProof {
   pub message: String,
   pub signature: String,
 }
 
-impl TryFrom<String> for SocialProof {
-  type Error = crate::error::Error;
+impl From<SocialProof> for AttributeValue {
+  fn from(value: SocialProof) -> Self {
+    AttributeValue::M(HashMap::from([
+      (
+        SOCIAL_PROOF_MESSAGE_ATTRIBUTE.to_string(),
+        AttributeValue::S(value.message),
+      ),
+      (
+        SOCIAL_PROOF_SIGNATURE_ATTRIBUTE.to_string(),
+        AttributeValue::S(value.signature),
+      ),
+    ]))
+  }
+}
 
-  fn try_from(value: String) -> Result<Self, Self::Error> {
-    serde_json::from_str(&value).map_err(|err| {
-      error!("Failed to deserialize social proof: {err}");
-      err.into()
-    })
+impl TryFrom<AttributeMap> for SocialProof {
+  type Error = comm_lib::database::DBItemError;
+
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
+    let message = attrs.take_attr(SOCIAL_PROOF_MESSAGE_ATTRIBUTE)?;
+    let signature = attrs.take_attr(SOCIAL_PROOF_SIGNATURE_ATTRIBUTE)?;
+    Ok(Self { message, signature })
+  }
+}
+
+impl TryFromAttribute for SocialProof {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, comm_lib::database::DBItemError> {
+    AttributeMap::try_from_attr(attribute_name, attribute)
+      .and_then(SocialProof::try_from)
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use crate::constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME;
+
   use super::*;
 
   #[test]
@@ -98,5 +134,25 @@ mod tests {
     );
     // Empty string
     assert_eq!(is_valid_ethereum_address(""), false);
+  }
+
+  #[test]
+  fn test_social_proof_ddb_format() {
+    let message = "foo";
+    let signature = "bar";
+    let social_proof =
+      SocialProof::new(message.to_string(), signature.to_string());
+
+    let mut user_item = AttributeMap::from([(
+      USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
+      social_proof.into(),
+    )]);
+
+    let deserialized: SocialProof = user_item
+      .take_attr(USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME)
+      .expect("social proof fetch failed");
+
+    assert_eq!(deserialized.message, message);
+    assert_eq!(deserialized.signature, signature);
   }
 }

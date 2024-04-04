@@ -169,7 +169,7 @@ impl IdentityClientService for AuthenticatedService {
 
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
-      identity: Some(identifier.try_into()?),
+      identity: Some(identifier.into()),
     }))
   }
 
@@ -204,7 +204,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Response::new(KeyserverKeysResponse {
       keyserver_info: Some(keyserver_info.into()),
-      identity: Some(identifier.try_into()?),
+      identity: Some(identifier.into()),
       primary_device_identity_info: Some(primary_device_keys.into()),
     });
 
@@ -462,7 +462,7 @@ impl IdentityClientService for AuthenticatedService {
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
     let response = UserIdentityResponse {
-      identity: Some(identifier.try_into()?),
+      identity: Some(identifier.into()),
     };
     return Ok(Response::new(response));
   }

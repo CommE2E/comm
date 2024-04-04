@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use crate::{
   constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  ddb_utils::EthereumIdentity, reserved_users::UserDetail,
+  ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
 };
 use crate::{
   ddb_utils::{
@@ -193,7 +193,7 @@ impl DatabaseClient {
     &self,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
     wallet_address: String,
-    social_proof: String,
+    social_proof: SocialProof,
     user_id: Option<String>,
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
@@ -257,7 +257,7 @@ impl DatabaseClient {
       );
       user.insert(
         USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME.to_string(),
-        AttributeValue::S(eth_identity.social_proof),
+        eth_identity.social_proof.into(),
       );
     }
 
