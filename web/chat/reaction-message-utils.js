@@ -9,6 +9,7 @@ import {
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
+import { getNextLocalID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/utils/call-single-keyserver-endpoint.js';
@@ -25,7 +26,6 @@ import { getAppContainerPositionInfo } from '../utils/window-utils.js';
 
 function useSendReaction(
   messageID: ?string,
-  localID: string,
   threadID: string,
   reactions: ReactionInfo,
 ): (reaction: string) => mixed {
@@ -43,6 +43,8 @@ function useSendReaction(
       if (!messageID) {
         return;
       }
+
+      const localID = getNextLocalID();
 
       invariant(viewerID, 'viewerID should be set');
 
@@ -108,7 +110,6 @@ function useSendReaction(
       viewerID,
       reactions,
       threadID,
-      localID,
       dispatchActionPromise,
       callSendReactionMessage,
       pushModal,

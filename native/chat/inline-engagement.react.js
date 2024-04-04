@@ -11,7 +11,6 @@ import Animated, {
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { getInlineEngagementSidebarText } from 'lib/shared/inline-engagement-utils.js';
-import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { MessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
@@ -246,11 +245,8 @@ function InlineEngagement(props: Props): React.Node {
     repliesText,
   ]);
 
-  const localID = useNextLocalID();
-
   const sendReaction = useSendReaction(
     messageInfo.id,
-    localID,
     threadInfo.id,
     reactions,
   );

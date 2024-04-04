@@ -41,7 +41,6 @@ type Props = {
   +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   +viewerID: ?string,
   +loggedIn: boolean,
-  +nextLocalID: number,
   +dispatch: Dispatch,
   +pushModal: PushModal,
   +popModal: () => void,
@@ -200,12 +199,7 @@ class Day extends React.PureComponent<Props, State> {
     invariant(viewerID, 'should have viewerID in order to create thread');
     this.props.dispatch({
       type: createLocalEntryActionType,
-      payload: createLocalEntry(
-        threadID,
-        this.props.nextLocalID,
-        this.props.dayString,
-        viewerID,
-      ),
+      payload: createLocalEntry(threadID, this.props.dayString, viewerID),
     });
   };
 
@@ -236,7 +230,6 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       state =>
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
-    const nextLocalID = useSelector(state => state.nextLocalID);
     const dispatch = useDispatch();
     const { pushModal, popModal } = useModalContext();
 
@@ -246,7 +239,6 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         onScreenThreadInfos={onScreenThreadInfos}
         viewerID={viewerID}
         loggedIn={loggedIn}
-        nextLocalID={nextLocalID}
         dispatch={dispatch}
         pushModal={pushModal}
         popModal={popModal}

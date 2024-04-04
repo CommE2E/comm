@@ -3,7 +3,6 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
-import { useNextLocalID } from 'lib/shared/message-utils.js';
 import {
   useViewerAlreadySelectedMessageReactions,
   useCanCreateReactionFromMessage,
@@ -102,7 +101,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   );
 
   const { messageInfo, threadInfo, reactions } = item;
-  const localID = useNextLocalID();
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
@@ -111,7 +109,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
 
   const sendReaction = useSendReaction(
     messageInfo.id,
-    localID,
     threadInfo.id,
     reactions,
   );
