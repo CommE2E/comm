@@ -43,7 +43,6 @@ pub async fn get_inbound_keys_for_user_device(
   let inbound_key_info_response = InboundKeyInfoResponse {
     payload: device_inbound_key_info.payload,
     payload_signature: device_inbound_key_info.payload_signature,
-    social_proof: device_inbound_key_info.social_proof,
     content_prekey: device_inbound_key_info.content_prekey,
     content_prekey_signature: device_inbound_key_info.content_prekey_signature,
     notif_prekey: device_inbound_key_info.notif_prekey,

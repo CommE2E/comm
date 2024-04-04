@@ -890,8 +890,7 @@ proto.identity.unauth.IdentityKeyInfo.prototype.toObject = function(opt_includeI
 proto.identity.unauth.IdentityKeyInfo.toObject = function(includeInstance, msg) {
   var f, obj = {
     payload: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    payloadSignature: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    socialProof: jspb.Message.getFieldWithDefault(msg, 3, "")
+    payloadSignature: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -936,10 +935,6 @@ proto.identity.unauth.IdentityKeyInfo.deserializeBinaryFromReader = function(msg
       var value = /** @type {string} */ (reader.readString());
       msg.setPayloadSignature(value);
       break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setSocialProof(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -983,13 +978,6 @@ proto.identity.unauth.IdentityKeyInfo.serializeBinaryToWriter = function(message
       f
     );
   }
-  f = /** @type {string} */ (jspb.Message.getField(message, 3));
-  if (f != null) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
 };
 
 
@@ -1026,42 +1014,6 @@ proto.identity.unauth.IdentityKeyInfo.prototype.getPayloadSignature = function()
  */
 proto.identity.unauth.IdentityKeyInfo.prototype.setPayloadSignature = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string social_proof = 3;
- * @return {string}
- */
-proto.identity.unauth.IdentityKeyInfo.prototype.getSocialProof = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.identity.unauth.IdentityKeyInfo} returns this
- */
-proto.identity.unauth.IdentityKeyInfo.prototype.setSocialProof = function(value) {
-  return jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.identity.unauth.IdentityKeyInfo} returns this
- */
-proto.identity.unauth.IdentityKeyInfo.prototype.clearSocialProof = function() {
-  return jspb.Message.setField(this, 3, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.identity.unauth.IdentityKeyInfo.prototype.hasSocialProof = function() {
-  return jspb.Message.getField(this, 3) != null;
 };
 
 

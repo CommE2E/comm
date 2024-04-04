@@ -264,9 +264,6 @@ impl From<IdentityKeyInfo> for protos::unauth::IdentityKeyInfo {
     Self {
       payload: value.key_payload,
       payload_signature: value.key_payload_signature,
-      // social proof isn't stored in the devices table
-      // it cannot be retrieved here
-      social_proof: None,
     }
   }
 }
