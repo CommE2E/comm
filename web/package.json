@@ -101,7 +101,7 @@
     "uuid": "^3.4.0",
     "viem": "^2.9.5",
     "visibilityjs": "^2.0.2",
-    "wagmi": "^2.5.16"
+    "wagmi": "^2.5.18"
   },
   "jest": {
     "roots": [
