@@ -40,7 +40,6 @@ function ThreadPickerModal(props: Props): React.Node {
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const nextLocalID = useSelector(state => state.nextLocalID);
   const dispatch = useDispatch();
 
   const rootNavigatorContext = React.useContext(RootNavigatorContext);
@@ -53,10 +52,10 @@ function ThreadPickerModal(props: Props): React.Node {
       rootNavigatorContext.setKeyboardHandlingEnabled(false);
       dispatch({
         type: createLocalEntryActionType,
-        payload: createLocalEntry(threadID, nextLocalID, dateString, viewerID),
+        payload: createLocalEntry(threadID, dateString, viewerID),
       });
     },
-    [rootNavigatorContext, dispatch, viewerID, nextLocalID, dateString],
+    [rootNavigatorContext, dispatch, viewerID, dateString],
   );
 
   React.useEffect(

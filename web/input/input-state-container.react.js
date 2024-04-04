@@ -47,6 +47,7 @@ import {
   createMediaMessageInfo,
   localIDPrefix,
   useMessageCreationSideEffectsFunc,
+  getNextLocalID,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
 import {
@@ -642,10 +643,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               parentThreadInfo: ?ThreadInfo,
             ) =>
               this.sendTextMessage(messageInfo, threadInfo, parentThreadInfo),
-            createMultimediaMessage: (
-              localID: number,
-              threadInfo: ThreadInfo,
-            ) => this.createMultimediaMessage(localID, threadInfo),
+            createMultimediaMessage: (threadInfo: ThreadInfo) =>
+              this.createMultimediaMessage(threadInfo),
             setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
             setTextCursorPosition: (newPosition: number) =>
               this.setTextCursorPosition(threadID, newPosition),
@@ -1395,10 +1394,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   // Creates a MultimediaMessage from the unassigned pending uploads,
   // if there are any
-  createMultimediaMessage(localID: number, threadInfo: ThreadInfo) {
+  createMultimediaMessage(threadInfo: ThreadInfo) {
     this.props.sendCallbacks.forEach(callback => callback());
 
-    const localMessageID = `${localIDPrefix}${localID}`;
+    const localMessageID = getNextLocalID();
     void this.startThreadCreation(threadInfo);
 
     if (threadIsPendingSidebar(threadInfo.id)) {

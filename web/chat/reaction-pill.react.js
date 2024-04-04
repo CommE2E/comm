@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
-import { useNextLocalID } from 'lib/shared/message-utils.js';
 
 import { useSendReaction } from './reaction-message-utils.js';
 import css from './reaction-pill.css';
@@ -26,8 +25,7 @@ type Props = {
 function ReactionPill(props: Props): React.Node {
   const { reaction, messageID, threadID, reactions } = props;
 
-  const localID = useNextLocalID();
-  const sendReaction = useSendReaction(messageID, localID, threadID, reactions);
+  const sendReaction = useSendReaction(messageID, threadID, reactions);
 
   const onClickReaction = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
