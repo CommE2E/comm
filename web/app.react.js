@@ -231,7 +231,7 @@ class App extends React.PureComponent<Props> {
       <DndProvider backend={HTML5Backend}>
         <EditModalProvider>
           <MenuProvider>
-            <WagmiProvider config={wagmiConfig}>
+            <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
               <QueryClientProvider client={queryClient}>
                 <AlchemyENSCacheProvider>
                   <TooltipProvider>
