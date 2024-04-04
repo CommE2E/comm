@@ -1,5 +1,6 @@
 // @flow
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import localforage from 'localforage';
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -8,6 +9,7 @@ import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction.js';
 import { persistReducer, persistStore } from 'redux-persist';
 import thunk from 'redux-thunk';
+import { WagmiProvider } from 'wagmi';
 
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
@@ -15,6 +17,7 @@ import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
+import { getWagmiConfig } from 'lib/utils/wagmi-utils.js';
 
 import App from './app.react.js';
 import { DBOpsHandler } from './components/db-ops-handler.react.js';
@@ -46,24 +49,38 @@ const store: Store<AppState, Action> = createStore(
 synchronizeStoreWithOtherTabs(store);
 const persistor = persistStore(store);
 
+const queryClient = new QueryClient();
+
+const wagmiConfig = getWagmiConfig([
+  'injected',
+  'rainbow',
+  'metamask',
+  'coinbase',
+  'walletconnect',
+]);
+
 const RootProvider = (): React.Node => (
   <Provider store={store}>
     <ErrorBoundary>
-      <CallKeyserverEndpointProvider>
-        <InitialReduxStateGate persistor={persistor}>
-          <IdentityServiceContextProvider>
-            <Router history={history.getHistoryObject()}>
-              <Route path="*" component={App} />
-            </Router>
-            <KeyserverConnectionsHandler socketComponent={Socket} />
-            <PrekeysHandler />
-            <SQLiteDataHandler />
-            <IntegrityHandler />
-            <ReportHandler canSendReports={true} />
-            <DBOpsHandler />
-          </IdentityServiceContextProvider>
-        </InitialReduxStateGate>
-      </CallKeyserverEndpointProvider>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <CallKeyserverEndpointProvider>
+            <InitialReduxStateGate persistor={persistor}>
+              <IdentityServiceContextProvider>
+                <Router history={history.getHistoryObject()}>
+                  <Route path="*" component={App} />
+                </Router>
+                <KeyserverConnectionsHandler socketComponent={Socket} />
+                <PrekeysHandler />
+                <SQLiteDataHandler />
+                <IntegrityHandler />
+                <ReportHandler canSendReports={true} />
+                <DBOpsHandler />
+              </IdentityServiceContextProvider>
+            </InitialReduxStateGate>
+          </CallKeyserverEndpointProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </ErrorBoundary>
   </Provider>
 );
