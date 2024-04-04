@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
-import { useNextLocalID } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import css from './message-tooltip.css';
@@ -170,11 +169,8 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     };
   }, [emojiKeyboardPosition]);
 
-  const localID = useNextLocalID();
-
   const sendReaction = useSendReaction(
     messageInfo.id,
-    localID,
     threadInfo.id,
     reactions,
   );

@@ -8,6 +8,7 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { getNextLocalID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import { cloneError } from 'lib/utils/errors.js';
@@ -22,7 +23,6 @@ import Alert from '../utils/alert.js';
 
 function useSendReaction(
   messageID: ?string,
-  localID: string,
   threadID: string,
   reactions: ReactionInfo,
 ): (reaction: string) => mixed {
@@ -38,6 +38,8 @@ function useSendReaction(
       if (!messageID) {
         return;
       }
+
+      const localID = getNextLocalID();
 
       invariant(viewerID, 'viewerID should be set');
 
@@ -102,7 +104,6 @@ function useSendReaction(
       viewerID,
       reactions,
       threadID,
-      localID,
       dispatchActionPromise,
       callSendReactionMessage,
     ],
