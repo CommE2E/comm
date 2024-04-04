@@ -84,6 +84,10 @@ pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
 pub const RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE: &str = "userID";
 
+// Users table social proof attribute
+pub const SOCIAL_PROOF_MESSAGE_ATTRIBUTE: &str = "siweMessage";
+pub const SOCIAL_PROOF_SIGNATURE_ATTRIBUTE: &str = "siweSignature";
+
 pub mod devices_table {
   /// table name
   pub const NAME: &str = "identity-devices";

@@ -6,9 +6,12 @@ use comm_lib::{
 use std::collections::HashMap;
 use std::iter::IntoIterator;
 
-use crate::constants::{
-  USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
-  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+use crate::{
+  constants::{
+    USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
+    USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  },
+  siwe::SocialProof,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -84,7 +87,7 @@ pub enum Identifier {
 
 pub struct EthereumIdentity {
   pub wallet_address: String,
-  pub social_proof: String,
+  pub social_proof: SocialProof,
 }
 
 impl TryFrom<AttributeMap> for Identifier {
