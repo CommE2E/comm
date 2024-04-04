@@ -28,7 +28,6 @@ goog.exportSymbol('proto.identity.auth.EthereumIdentity', null, global);
 goog.exportSymbol('proto.identity.auth.GetDeviceListRequest', null, global);
 goog.exportSymbol('proto.identity.auth.GetDeviceListResponse', null, global);
 goog.exportSymbol('proto.identity.auth.Identity', null, global);
-goog.exportSymbol('proto.identity.auth.Identity.IdentityInfoCase', null, global);
 goog.exportSymbol('proto.identity.auth.InboundKeyInfo', null, global);
 goog.exportSymbol('proto.identity.auth.InboundKeysForUserRequest', null, global);
 goog.exportSymbol('proto.identity.auth.InboundKeysForUserResponse', null, global);
@@ -77,7 +76,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.identity.auth.Identity = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.identity.auth.Identity.oneofGroups_);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.identity.auth.Identity, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -498,7 +497,8 @@ proto.identity.auth.EthereumIdentity.prototype.toObject = function(opt_includeIn
 proto.identity.auth.EthereumIdentity.toObject = function(includeInstance, msg) {
   var f, obj = {
     walletAddress: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    socialProof: jspb.Message.getFieldWithDefault(msg, 2, "")
+    siweMessage: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    siweSignature: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -541,7 +541,11 @@ proto.identity.auth.EthereumIdentity.deserializeBinaryFromReader = function(msg,
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setSocialProof(value);
+      msg.setSiweMessage(value);
+      break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setSiweSignature(value);
       break;
     default:
       reader.skipField();
@@ -579,10 +583,17 @@ proto.identity.auth.EthereumIdentity.serializeBinaryToWriter = function(message,
       f
     );
   }
-  f = message.getSocialProof();
+  f = message.getSiweMessage();
   if (f.length > 0) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getSiweSignature();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
       f
     );
   }
@@ -608,10 +619,10 @@ proto.identity.auth.EthereumIdentity.prototype.setWalletAddress = function(value
 
 
 /**
- * optional string social_proof = 2;
+ * optional string siwe_message = 2;
  * @return {string}
  */
-proto.identity.auth.EthereumIdentity.prototype.getSocialProof = function() {
+proto.identity.auth.EthereumIdentity.prototype.getSiweMessage = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -620,37 +631,29 @@ proto.identity.auth.EthereumIdentity.prototype.getSocialProof = function() {
  * @param {string} value
  * @return {!proto.identity.auth.EthereumIdentity} returns this
  */
-proto.identity.auth.EthereumIdentity.prototype.setSocialProof = function(value) {
+proto.identity.auth.EthereumIdentity.prototype.setSiweMessage = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
-
 /**
- * Oneof group definitions for this message. Each group defines the field
- * numbers belonging to that group. When of these fields' value is set, all
- * other fields in the group are cleared. During deserialization, if multiple
- * fields are encountered for a group, only the last value seen will be kept.
- * @private {!Array<!Array<number>>}
- * @const
+ * optional string siwe_signature = 3;
+ * @return {string}
  */
-proto.identity.auth.Identity.oneofGroups_ = [[1,2]];
-
-/**
- * @enum {number}
- */
-proto.identity.auth.Identity.IdentityInfoCase = {
-  IDENTITY_INFO_NOT_SET: 0,
-  USERNAME: 1,
-  ETH_IDENTITY: 2
+proto.identity.auth.EthereumIdentity.prototype.getSiweSignature = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
+
 /**
- * @return {proto.identity.auth.Identity.IdentityInfoCase}
+ * @param {string} value
+ * @return {!proto.identity.auth.EthereumIdentity} returns this
  */
-proto.identity.auth.Identity.prototype.getIdentityInfoCase = function() {
-  return /** @type {proto.identity.auth.Identity.IdentityInfoCase} */(jspb.Message.computeOneofCase(this, proto.identity.auth.Identity.oneofGroups_[0]));
+proto.identity.auth.EthereumIdentity.prototype.setSiweSignature = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
+
+
 
 
 
@@ -759,8 +762,8 @@ proto.identity.auth.Identity.prototype.serializeBinary = function() {
  */
 proto.identity.auth.Identity.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = /** @type {string} */ (jspb.Message.getField(message, 1));
-  if (f != null) {
+  f = message.getUsername();
+  if (f.length > 0) {
     writer.writeString(
       1,
       f
@@ -791,25 +794,7 @@ proto.identity.auth.Identity.prototype.getUsername = function() {
  * @return {!proto.identity.auth.Identity} returns this
  */
 proto.identity.auth.Identity.prototype.setUsername = function(value) {
-  return jspb.Message.setOneofField(this, 1, proto.identity.auth.Identity.oneofGroups_[0], value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.identity.auth.Identity} returns this
- */
-proto.identity.auth.Identity.prototype.clearUsername = function() {
-  return jspb.Message.setOneofField(this, 1, proto.identity.auth.Identity.oneofGroups_[0], undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.identity.auth.Identity.prototype.hasUsername = function() {
-  return jspb.Message.getField(this, 1) != null;
+  return jspb.Message.setProto3StringField(this, 1, value);
 };
 
 
@@ -828,7 +813,7 @@ proto.identity.auth.Identity.prototype.getEthIdentity = function() {
  * @return {!proto.identity.auth.Identity} returns this
 */
 proto.identity.auth.Identity.prototype.setEthIdentity = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 2, proto.identity.auth.Identity.oneofGroups_[0], value);
+  return jspb.Message.setWrapperField(this, 2, value);
 };
 
 
