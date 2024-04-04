@@ -2,6 +2,8 @@
 
 import localforage from 'localforage';
 
+import { getMessageForException } from 'lib/utils/errors.js';
+
 import { restoreBackup } from './backup.js';
 import { processAppIdentityClientRequest } from './identity-client.js';
 import {
@@ -337,7 +339,7 @@ function connectHandler(event: SharedWorkerMessageEvent) {
       } catch (e) {
         port.postMessage({
           id,
-          error: e.message,
+          error: getMessageForException(e),
         });
       }
     })();
