@@ -242,32 +242,22 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
   }
 }
 
-impl TryFrom<DBIdentifier> for Identity {
-  type Error = Status;
-
-  fn try_from(value: DBIdentifier) -> Result<Self, Self::Error> {
-    let identity = match value {
+impl From<DBIdentifier> for Identity {
+  fn from(value: DBIdentifier) -> Self {
+    match value {
       DBIdentifier::Username(username) => Identity {
         username,
         eth_identity: None,
       },
-      DBIdentifier::WalletAddress(eth_identity) => {
-        let SocialProof { message, signature } =
-          eth_identity.social_proof.try_into().map_err(|err| {
-            error!("Failed to construct wallet identity: {err}");
-            Status::internal("unexpected error")
-          })?;
-        Identity {
-          username: eth_identity.wallet_address.clone(),
-          eth_identity: Some(EthereumIdentity {
-            wallet_address: eth_identity.wallet_address,
-            siwe_message: message,
-            siwe_signature: signature,
-          }),
-        }
-      }
-    };
-    Ok(identity)
+      DBIdentifier::WalletAddress(eth_identity) => Identity {
+        username: eth_identity.wallet_address.clone(),
+        eth_identity: Some(EthereumIdentity {
+          wallet_address: eth_identity.wallet_address,
+          siwe_message: eth_identity.social_proof.message,
+          siwe_signature: eth_identity.social_proof.signature,
+        }),
+      },
+    }
   }
 }
 
