@@ -1,6 +1,6 @@
 use chrono::Utc;
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use siwe::Message;
 use tonic::Status;
 use tracing::error;
@@ -40,10 +40,21 @@ pub fn is_valid_ethereum_address(candidate: &str) -> bool {
   ethereum_address_regex.is_match(candidate)
 }
 
-#[derive(derive_more::Constructor, Serialize)]
+#[derive(derive_more::Constructor, Serialize, Deserialize)]
 pub struct SocialProof {
-  message: String,
-  signature: String,
+  pub message: String,
+  pub signature: String,
+}
+
+impl TryFrom<String> for SocialProof {
+  type Error = crate::error::Error;
+
+  fn try_from(value: String) -> Result<Self, Self::Error> {
+    serde_json::from_str(&value).map_err(|err| {
+      error!("Failed to deserialize social proof: {err}");
+      err.into()
+    })
+  }
 }
 
 #[cfg(test)]

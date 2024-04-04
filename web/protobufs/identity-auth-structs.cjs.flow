@@ -13,8 +13,11 @@ declare export class EthereumIdentity extends Message {
   getWalletAddress(): string;
   setWalletAddress(value: string): EthereumIdentity;
 
-  getSocialProof(): string;
-  setSocialProof(value: string): EthereumIdentity;
+  getSiweMessage(): string;
+  setSiweMessage(value: string): EthereumIdentity;
+
+  getSiweSignature(): string;
+  setSiweSignature(value: string): EthereumIdentity;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): EthereumIdentityObject;
@@ -26,10 +29,9 @@ declare export class EthereumIdentity extends Message {
 
 export type EthereumIdentityObject = {
   walletAddress: string,
-  socialProof: string,
+  siweMessage: string,
+  siweSignature: string,
 }
-
-export type IdentityInfoCase = 0 | 1 | 2;
 
 declare export class Identity extends Message {
   getUsername(): string;
@@ -39,8 +41,6 @@ declare export class Identity extends Message {
   setEthIdentity(value?: EthereumIdentity): Identity;
   hasEthIdentity(): boolean;
   clearEthIdentity(): Identity;
-
-  getIdentityInfoCase(): IdentityInfoCase;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IdentityObject;

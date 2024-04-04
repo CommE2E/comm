@@ -1,6 +1,4 @@
-use grpc_clients::identity::protos::authenticated::{
-  identity::IdentityInfo, EthereumIdentity, Identity, InboundKeysForUserRequest,
-};
+use grpc_clients::identity::protos::authenticated::InboundKeysForUserRequest;
 
 use super::*;
 
@@ -36,19 +34,11 @@ pub async fn get_inbound_keys_for_user_device(
       .ok_or(Error::from_status(Status::GenericFailure))?,
   )?;
 
-  let (username, wallet_address) = match response.identity {
-    Some(Identity {
-      identity_info: Some(IdentityInfo::Username(u)),
-    }) => (Some(u), None),
-    Some(Identity {
-      identity_info:
-        Some(IdentityInfo::EthIdentity(EthereumIdentity {
-          wallet_address: w,
-          .. // We ignore the social proof for now
-        })),
-    }) => (None, Some(w)),
-    _ => (None, None),
-  };
+  let identity = response
+    .identity
+    .ok_or_else(|| Error::from_status(Status::GenericFailure))?;
+  let username = Some(identity.username);
+  let wallet_address = identity.eth_identity.map(|eth| eth.wallet_address);
 
   let inbound_key_info_response = InboundKeyInfoResponse {
     payload: device_inbound_key_info.payload,

@@ -2,14 +2,13 @@ use base64::{engine::general_purpose, Engine as _};
 use ed25519_dalek::{PublicKey, Signature, Verifier};
 use serde::Deserialize;
 use tonic::Status;
+use tracing::error;
 
 use crate::{
   database::DeviceRow,
   ddb_utils::Identifier as DBIdentifier,
   grpc_services::protos::{
-    auth::{
-      identity::IdentityInfo, EthereumIdentity, InboundKeyInfo, OutboundKeyInfo,
-    },
+    auth::{EthereumIdentity, Identity, InboundKeyInfo, OutboundKeyInfo},
     unauth::{
       DeviceKeyUpload, ExistingDeviceLoginRequest, OpaqueLoginStartRequest,
       RegistrationStartRequest, ReservedRegistrationStartRequest,
@@ -17,6 +16,7 @@ use crate::{
       WalletAuthRequest,
     },
   },
+  siwe::SocialProof,
 };
 
 #[derive(Deserialize)]
@@ -242,19 +242,32 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
   }
 }
 
-impl TryFrom<DBIdentifier> for IdentityInfo {
+impl TryFrom<DBIdentifier> for Identity {
   type Error = Status;
 
   fn try_from(value: DBIdentifier) -> Result<Self, Self::Error> {
-    match value {
-      DBIdentifier::Username(username) => Ok(IdentityInfo::Username(username)),
+    let identity = match value {
+      DBIdentifier::Username(username) => Identity {
+        username,
+        eth_identity: None,
+      },
       DBIdentifier::WalletAddress(eth_identity) => {
-        Ok(IdentityInfo::EthIdentity(EthereumIdentity {
-          wallet_address: eth_identity.wallet_address,
-          social_proof: eth_identity.social_proof,
-        }))
+        let SocialProof { message, signature } =
+          eth_identity.social_proof.try_into().map_err(|err| {
+            error!("Failed to construct wallet identity: {err}");
+            Status::internal("unexpected error")
+          })?;
+        Identity {
+          username: eth_identity.wallet_address.clone(),
+          eth_identity: Some(EthereumIdentity {
+            wallet_address: eth_identity.wallet_address,
+            siwe_message: message,
+            siwe_signature: signature,
+          }),
+        }
       }
-    }
+    };
+    Ok(identity)
   }
 }
 
