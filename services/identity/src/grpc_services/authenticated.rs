@@ -15,9 +15,9 @@ use tonic::{Request, Response, Status};
 use tracing::{debug, error, warn};
 
 use super::protos::auth::{
-  identity, identity_client_service_server::IdentityClientService,
-  GetDeviceListRequest, GetDeviceListResponse, Identity, InboundKeyInfo,
-  InboundKeysForUserRequest, InboundKeysForUserResponse, KeyserverKeysResponse,
+  identity_client_service_server::IdentityClientService, GetDeviceListRequest,
+  GetDeviceListResponse, InboundKeyInfo, InboundKeysForUserRequest,
+  InboundKeysForUserResponse, KeyserverKeysResponse,
   LinkFarcasterAccountRequest, OutboundKeyInfo, OutboundKeysForUserRequest,
   OutboundKeysForUserResponse, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
@@ -145,8 +145,6 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<InboundKeysForUserRequest>,
   ) -> Result<tonic::Response<InboundKeysForUserResponse>, tonic::Status> {
-    use identity::IdentityInfo;
-
     let message = request.into_inner();
     let user_id = &message.user_id;
 
@@ -169,13 +167,9 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
-    let identity_info = IdentityInfo::try_from(identifier)?;
-
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
-      identity: Some(Identity {
-        identity_info: Some(identity_info),
-      }),
+      identity: Some(identifier.try_into()?),
     }))
   }
 
@@ -183,8 +177,6 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: Request<OutboundKeysForUserRequest>,
   ) -> Result<Response<KeyserverKeysResponse>, Status> {
-    use identity::IdentityInfo;
-
     let message = request.into_inner();
 
     let identifier = self
@@ -193,10 +185,6 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
-    let identity_info = IdentityInfo::try_from(identifier)?;
-    let identity = Some(Identity {
-      identity_info: Some(identity_info),
-    });
 
     let Some(keyserver_info) = self
       .db_client
@@ -216,7 +204,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = Response::new(KeyserverKeysResponse {
       keyserver_info: Some(keyserver_info.into()),
-      identity,
+      identity: Some(identifier.try_into()?),
       primary_device_identity_info: Some(primary_device_keys.into()),
     });
 
@@ -465,8 +453,6 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<UserIdentityRequest>,
   ) -> Result<Response<UserIdentityResponse>, tonic::Status> {
-    use identity::IdentityInfo;
-
     let message = request.into_inner();
     let identifier = self
       .db_client
@@ -475,13 +461,10 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
-    let identity_info = IdentityInfo::try_from(identifier)?;
-    let identity = Some(Identity {
-      identity_info: Some(identity_info),
-    });
-
-    let response = Response::new(UserIdentityResponse { identity });
-    return Ok(response);
+    let response = UserIdentityResponse {
+      identity: Some(identifier.try_into()?),
+    };
+    return Ok(Response::new(response));
   }
 }
 

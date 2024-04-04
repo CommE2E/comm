@@ -80,14 +80,14 @@ service IdentityClientService {
 
 message EthereumIdentity {
   string wallet_address = 1;
-  string social_proof = 2;
+  string siwe_message = 2;
+  string siwe_signature = 3;
 }
 
 message Identity {
-  oneof identity_info {
-    string username = 1;
-    EthereumIdentity eth_identity = 2;
-  }
+  // this is wallet address for Ethereum users
+  string username = 1;
+  optional EthereumIdentity eth_identity = 2;
 }
 
 // UploadOneTimeKeys
