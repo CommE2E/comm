@@ -67,7 +67,6 @@ pub async fn register_user_device(
       device_key_info: Some(IdentityKeyInfo {
         payload: example_payload.to_string(),
         payload_signature: "foo".to_string(),
-        social_proof: None,
       }),
       content_upload: Some(Prekey {
         prekey: "content_prekey".to_string(),
@@ -150,7 +149,6 @@ pub async fn login_user_device(
       device_key_info: Some(IdentityKeyInfo {
         payload: example_payload.to_string(),
         payload_signature: "foo".to_string(),
-        social_proof: None,
       }),
       content_upload: Some(Prekey {
         prekey: "content_prekey".to_string(),

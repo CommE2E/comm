@@ -174,7 +174,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
           oneTimeKey: keyserverInfo?.getOneTimeNotifPrekey(),
         },
         payloadSignature: identityInfo?.getPayloadSignature(),
-        socialProof: identityInfo?.getSocialProof(),
       };
 
       if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
@@ -240,7 +239,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
             oneTimeKey: outboundKeysInfo.oneTimeNotifPrekey,
           },
           payloadSignature: identityInfo?.payloadSignature,
-          socialProof: identityInfo?.socialProof,
         };
 
         try {
