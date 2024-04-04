@@ -215,11 +215,11 @@ message ReservedWalletRegistrationRequest {
 
 message SecondaryDeviceKeysUploadRequest {
   string user_id = 1;
-  // Signed nonce message, JSON-stringified
-  string challenge_response = 2;
+  string nonce = 2;
+  string nonce_signature = 3;
   // Information specific to a user's device needed to open a new channel of
   // communication with this user
-  DeviceKeyUpload device_key_upload = 3;
+  DeviceKeyUpload device_key_upload = 4;
 }
 
 // LogInExistingDevice
@@ -227,8 +227,8 @@ message SecondaryDeviceKeysUploadRequest {
 message ExistingDeviceLoginRequest {
   string user_id = 1;
   string device_id = 2;
-  // Signed nonce message, JSON-stringified
-  string challenge_response = 3;
+  string nonce = 3;
+  string nonce_signature = 4;
 }
 
 // GenerateNonce

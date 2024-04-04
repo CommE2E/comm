@@ -206,7 +206,8 @@ mod ffi {
     #[cxx_name = "identityUploadSecondaryDeviceKeysAndLogIn"]
     fn upload_secondary_device_keys_and_log_in(
       user_id: String,
-      challenge_response: String,
+      nonce: String,
+      nonce_signature: String,
       key_payload: String,
       key_payload_signature: String,
       content_prekey: String,
@@ -222,7 +223,8 @@ mod ffi {
     fn log_in_existing_device(
       user_id: String,
       device_id: String,
-      challenge_response: String,
+      nonce: String,
+      nonce_signature: String,
       promise_id: u32,
     );
 

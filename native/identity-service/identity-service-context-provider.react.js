@@ -12,7 +12,7 @@ import {
 import {
   type SignedDeviceList,
   signedDeviceListHistoryValidator,
-  type SignedMessage,
+  type SignedNonce,
   type DeviceOlmOutboundKeys,
   deviceOlmOutboundKeysValidator,
   type IdentityServiceClient,
@@ -465,7 +465,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       },
       uploadKeysForRegisteredDeviceAndLogIn: async (
         userID: string,
-        nonceChallengeResponse: SignedMessage,
+        nonceChallengeResponse: SignedNonce,
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
@@ -477,11 +477,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const challengeResponse = JSON.stringify(nonceChallengeResponse);
+        const { nonce, nonceSignature } = nonceChallengeResponse;
         const registrationResult =
           await commRustModule.uploadSecondaryDeviceKeysAndLogIn(
             userID,
-            challengeResponse,
+            nonce,
+            nonceSignature,
             blobPayload,
             signature,
             prekeys.contentPrekey,
