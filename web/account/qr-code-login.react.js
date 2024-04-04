@@ -12,10 +12,7 @@ import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type {
-  NonceChallenge,
-  SignedMessage,
-} from 'lib/types/identity-service-types.js';
+import type { SignedNonce } from 'lib/types/identity-service-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -86,12 +83,10 @@ function QrCodeLogin(): React.Node {
       invariant(identityClient, 'identity context not set');
       try {
         const nonce = await identityClient.generateNonce();
-        const nonceChallenge: NonceChallenge = { nonce };
-        const nonceMessage = JSON.stringify(nonceChallenge);
-        const signature = await olmAPI.signMessage(nonceMessage);
-        const challengeResponse: SignedMessage = {
-          message: nonceMessage,
-          signature,
+        const nonceSignature = await olmAPI.signMessage(nonce);
+        const challengeResponse: SignedNonce = {
+          nonce,
+          nonceSignature,
         };
 
         await dispatchActionPromise(

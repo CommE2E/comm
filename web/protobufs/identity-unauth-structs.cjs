@@ -3725,7 +3725,8 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.toObject = func
 proto.identity.unauth.SecondaryDeviceKeysUploadRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     userId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    challengeResponse: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    nonce: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    nonceSignature: jspb.Message.getFieldWithDefault(msg, 3, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f)
   };
 
@@ -3769,9 +3770,13 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.deserializeBinaryFromRead
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setChallengeResponse(value);
+      msg.setNonce(value);
       break;
     case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNonceSignature(value);
+      break;
+    case 4:
       var value = new proto.identity.unauth.DeviceKeyUpload;
       reader.readMessage(value,proto.identity.unauth.DeviceKeyUpload.deserializeBinaryFromReader);
       msg.setDeviceKeyUpload(value);
@@ -3812,17 +3817,24 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.serializeBinaryToWriter =
       f
     );
   }
-  f = message.getChallengeResponse();
+  f = message.getNonce();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
+  f = message.getNonceSignature();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
   f = message.getDeviceKeyUpload();
   if (f != null) {
     writer.writeMessage(
-      3,
+      4,
       f,
       proto.identity.unauth.DeviceKeyUpload.serializeBinaryToWriter
     );
@@ -3849,10 +3861,10 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.setUserId = fun
 
 
 /**
- * optional string challenge_response = 2;
+ * optional string nonce = 2;
  * @return {string}
  */
-proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getChallengeResponse = function() {
+proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getNonce = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -3861,18 +3873,36 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getChallengeRes
  * @param {string} value
  * @return {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} returns this
  */
-proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.setChallengeResponse = function(value) {
+proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.setNonce = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional DeviceKeyUpload device_key_upload = 3;
+ * optional string nonce_signature = 3;
+ * @return {string}
+ */
+proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getNonceSignature = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} returns this
+ */
+proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.setNonceSignature = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional DeviceKeyUpload device_key_upload = 4;
  * @return {?proto.identity.unauth.DeviceKeyUpload}
  */
 proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getDeviceKeyUpload = function() {
   return /** @type{?proto.identity.unauth.DeviceKeyUpload} */ (
-    jspb.Message.getWrapperField(this, proto.identity.unauth.DeviceKeyUpload, 3));
+    jspb.Message.getWrapperField(this, proto.identity.unauth.DeviceKeyUpload, 4));
 };
 
 
@@ -3881,7 +3911,7 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.getDeviceKeyUpl
  * @return {!proto.identity.unauth.SecondaryDeviceKeysUploadRequest} returns this
 */
 proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.setDeviceKeyUpload = function(value) {
-  return jspb.Message.setWrapperField(this, 3, value);
+  return jspb.Message.setWrapperField(this, 4, value);
 };
 
 
@@ -3899,7 +3929,7 @@ proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.clearDeviceKeyU
  * @return {boolean}
  */
 proto.identity.unauth.SecondaryDeviceKeysUploadRequest.prototype.hasDeviceKeyUpload = function() {
-  return jspb.Message.getField(this, 3) != null;
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
@@ -3937,7 +3967,8 @@ proto.identity.unauth.ExistingDeviceLoginRequest.toObject = function(includeInst
   var f, obj = {
     userId: jspb.Message.getFieldWithDefault(msg, 1, ""),
     deviceId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    challengeResponse: jspb.Message.getFieldWithDefault(msg, 3, "")
+    nonce: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    nonceSignature: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -3984,7 +4015,11 @@ proto.identity.unauth.ExistingDeviceLoginRequest.deserializeBinaryFromReader = f
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
-      msg.setChallengeResponse(value);
+      msg.setNonce(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setNonceSignature(value);
       break;
     default:
       reader.skipField();
@@ -4029,10 +4064,17 @@ proto.identity.unauth.ExistingDeviceLoginRequest.serializeBinaryToWriter = funct
       f
     );
   }
-  f = message.getChallengeResponse();
+  f = message.getNonce();
   if (f.length > 0) {
     writer.writeString(
       3,
+      f
+    );
+  }
+  f = message.getNonceSignature();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
       f
     );
   }
@@ -4076,10 +4118,10 @@ proto.identity.unauth.ExistingDeviceLoginRequest.prototype.setDeviceId = functio
 
 
 /**
- * optional string challenge_response = 3;
+ * optional string nonce = 3;
  * @return {string}
  */
-proto.identity.unauth.ExistingDeviceLoginRequest.prototype.getChallengeResponse = function() {
+proto.identity.unauth.ExistingDeviceLoginRequest.prototype.getNonce = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -4088,8 +4130,26 @@ proto.identity.unauth.ExistingDeviceLoginRequest.prototype.getChallengeResponse 
  * @param {string} value
  * @return {!proto.identity.unauth.ExistingDeviceLoginRequest} returns this
  */
-proto.identity.unauth.ExistingDeviceLoginRequest.prototype.setChallengeResponse = function(value) {
+proto.identity.unauth.ExistingDeviceLoginRequest.prototype.setNonce = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string nonce_signature = 4;
+ * @return {string}
+ */
+proto.identity.unauth.ExistingDeviceLoginRequest.prototype.getNonceSignature = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.ExistingDeviceLoginRequest} returns this
+ */
+proto.identity.unauth.ExistingDeviceLoginRequest.prototype.setNonceSignature = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 
