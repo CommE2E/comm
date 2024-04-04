@@ -141,7 +141,6 @@ pub struct UserLoginInfo {
 pub struct DeviceInboundKeyInfo {
   pub payload: String,
   pub payload_signature: String,
-  pub social_proof: Option<String>,
   pub content_prekey: String,
   pub content_prekey_signature: String,
   pub notif_prekey: String,
@@ -159,7 +158,6 @@ impl TryFrom<InboundKeyInfo> for DeviceInboundKeyInfo {
     let IdentityKeyInfo {
       payload,
       payload_signature,
-      social_proof,
     } = identity_info;
 
     let content_prekey = key_info
@@ -183,7 +181,6 @@ impl TryFrom<InboundKeyInfo> for DeviceInboundKeyInfo {
     Ok(Self {
       payload,
       payload_signature,
-      social_proof,
       content_prekey: content_prekey_value,
       content_prekey_signature,
       notif_prekey: notif_prekey_value,
@@ -196,7 +193,6 @@ impl TryFrom<InboundKeyInfo> for DeviceInboundKeyInfo {
 pub struct InboundKeyInfoResponse {
   pub payload: String,
   pub payload_signature: String,
-  pub social_proof: Option<String>,
   pub content_prekey: String,
   pub content_prekey_signature: String,
   pub notif_prekey: String,

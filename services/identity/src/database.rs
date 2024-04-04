@@ -109,7 +109,6 @@ impl TryFrom<DBDeviceTypeInt> for DeviceType {
 pub struct OutboundKeys {
   pub key_payload: String,
   pub key_payload_signature: String,
-  pub social_proof: Option<String>,
   pub content_prekey: Prekey,
   pub notif_prekey: Prekey,
   pub content_one_time_key: Option<String>,
@@ -123,7 +122,6 @@ impl From<OutboundKeys> for protos::auth::OutboundKeyInfo {
       identity_info: Some(IdentityKeyInfo {
         payload: db_keys.key_payload,
         payload_signature: db_keys.key_payload_signature,
-        social_proof: db_keys.social_proof,
       }),
       content_prekey: Some(db_keys.content_prekey.into()),
       notif_prekey: Some(db_keys.notif_prekey.into()),
@@ -347,18 +345,6 @@ impl DatabaseClient {
   ) -> Result<Option<OutboundKeys>, Error> {
     use crate::grpc_services::protos::unauth::DeviceType as GrpcDeviceType;
 
-    // DynamoDB doesn't have a way to "pop" a value from a list, so we must
-    // first read in user info, then update one_time_keys with value we
-    // gave to requester
-    let mut user_info = self
-      .get_item_from_users_table(user_id)
-      .await?
-      .item
-      .ok_or(Error::MissingItem)?;
-
-    let user_id: String = user_info.take_attr(USERS_TABLE_PARTITION_KEY)?;
-    let social_proof: Option<String> =
-      user_info.take_attr(USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME)?;
     let user_devices = self.get_current_devices(user_id).await?;
     let maybe_keyserver_device = user_devices
       .into_iter()
@@ -393,7 +379,6 @@ impl DatabaseClient {
     let outbound_payload = OutboundKeys {
       key_payload: keyserver.device_key_info.key_payload,
       key_payload_signature: keyserver.device_key_info.key_payload_signature,
-      social_proof,
       content_prekey: keyserver.content_prekey,
       notif_prekey: keyserver.notif_prekey,
       content_one_time_key,

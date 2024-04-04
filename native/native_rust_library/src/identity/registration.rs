@@ -103,7 +103,6 @@ async fn register_password_user_helper(
       device_key_info: Some(IdentityKeyInfo {
         payload: password_user_info.key_payload,
         payload_signature: password_user_info.key_payload_signature,
-        social_proof: None,
       }),
       content_upload: Some(Prekey {
         prekey: password_user_info.content_prekey,
@@ -163,7 +162,6 @@ async fn register_wallet_user_helper(
       device_key_info: Some(IdentityKeyInfo {
         payload: wallet_user_info.key_payload,
         payload_signature: wallet_user_info.key_payload_signature,
-        social_proof: None, // The SIWE message and signature are the social proof
       }),
       content_upload: Some(Prekey {
         prekey: wallet_user_info.content_prekey,
