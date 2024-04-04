@@ -58,10 +58,15 @@ import {
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 import { isDesktopSafari } from '../utils/db-utils.js';
 
+type OlmSession = { +session: olm.Session, +version: number };
+type OlmSessions = {
+  [deviceID: string]: OlmSession,
+};
+
 type WorkerCryptoStore = {
   +contentAccountPickleKey: string,
   +contentAccount: olm.Account,
-  +contentSessions: { [deviceID: string]: olm.Session },
+  +contentSessions: OlmSessions,
   +notificationAccountPickleKey: string,
   +notificationAccount: olm.Account,
 };
@@ -99,10 +104,10 @@ function persistCryptoStore() {
 
   const pickledContentSessions: OlmPersistSession[] = entries(
     contentSessions,
-  ).map(([targetDeviceID, session]) => ({
+  ).map(([targetDeviceID, sessionData]) => ({
     targetDeviceID,
-    sessionData: session.pickle(contentAccountPickleKey),
-    version: 1,
+    sessionData: sessionData.session.pickle(contentAccountPickleKey),
+    version: sessionData.version,
   }));
 
   const pickledNotificationAccount: PickledOLMAccount = {
@@ -160,9 +165,7 @@ function getOrCreateOlmAccount(accountIDInDB: number): {
   return { picklingKey, account };
 }
 
-function getOlmSessions(picklingKey: string): {
-  [deviceID: string]: olm.Session,
-} {
+function getOlmSessions(picklingKey: string): OlmSessions {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
   const dbModule = getDBModule();
   if (!sqliteQueryExecutor || !dbModule) {
@@ -171,21 +174,25 @@ function getOlmSessions(picklingKey: string): {
     );
   }
 
-  let sessionsData;
+  let dbSessionsData;
   try {
-    sessionsData = sqliteQueryExecutor.getOlmPersistSessionsData();
+    dbSessionsData = sqliteQueryExecutor.getOlmPersistSessionsData();
   } catch (err) {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 
-  const sessions: { [deviceID: string]: olm.Session } = {};
-  for (const sessionData of sessionsData) {
+  const sessionsData: OlmSessions = {};
+  for (const persistedSession: OlmPersistSession of dbSessionsData) {
+    const { sessionData, version } = persistedSession;
     const session = new olm.Session();
-    session.unpickle(picklingKey, sessionData.sessionData);
-    sessions[sessionData.targetDeviceID] = session;
+    session.unpickle(picklingKey, sessionData);
+    sessionsData[persistedSession.targetDeviceID] = {
+      session,
+      version,
+    };
   }
 
-  return sessions;
+  return sessionsData;
 }
 
 function unpickleInitialCryptoStoreAccount(
@@ -370,7 +377,7 @@ const olmAPI: OlmAPI = {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const session = cryptoStore.contentSessions[deviceID];
+    const { session } = cryptoStore.contentSessions[deviceID];
     if (!session) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
@@ -391,7 +398,7 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
 
-    const session = cryptoStore.contentSessions[deviceID];
+    const { session } = cryptoStore.contentSessions[deviceID];
     if (!session) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
@@ -427,7 +434,10 @@ const olmAPI: OlmAPI = {
       initialEncryptedData.message,
     );
 
-    contentSessions[contentIdentityKeys.ed25519] = session;
+    contentSessions[contentIdentityKeys.ed25519] = {
+      session,
+      version: 1,
+    };
     persistCryptoStore();
 
     return initialEncryptedMessage;
@@ -454,7 +464,7 @@ const olmAPI: OlmAPI = {
       JSON.stringify(initialEncryptedMessageContent),
     );
 
-    contentSessions[contentIdentityKeys.ed25519] = session;
+    contentSessions[contentIdentityKeys.ed25519] = { session, version: 1 };
     persistCryptoStore();
 
     return {
