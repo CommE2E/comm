@@ -215,7 +215,7 @@ async function processDBStoreOperations(
         userStoreOperations.length > 0 ||
         messageStoreOperations.length > 0
       ) {
-        await sharedWorker.init({ clearDatabase: true });
+        await sharedWorker.init({ clearDatabase: true, markAsCorrupted: true });
         location.reload();
       }
     }
