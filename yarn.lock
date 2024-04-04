@@ -5596,10 +5596,10 @@
   dependencies:
     "@types/node" "^8.10.29"
 
-"@wagmi/connectors@4.1.22":
-  version "4.1.22"
-  resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-4.1.22.tgz#6e2b253a5e08ff8a145cfc2beb943a375a073414"
-  integrity sha512-9t14G28awyeWTjGS/OfEd/DhdeX5t4Pio3SJHw4M4aTexIfN5DHGmmtfUtSu6DP1r+LD2vSI4ShT7vH0dgtZwA==
+"@wagmi/connectors@4.1.24":
+  version "4.1.24"
+  resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-4.1.24.tgz#e9ffa2944391ef24ced6e2dc524f429514274722"
+  integrity sha512-gFziI7E3m+ESJmEnsvlm/eMlboKwdfGqOOQIU068MoZ+ZcNxoLZe4gu8CqnrmG7ksdPtwG38prsMl96opZexIA==
   dependencies:
     "@coinbase/wallet-sdk" "3.9.1"
     "@metamask/sdk" "0.14.3"
@@ -5608,10 +5608,10 @@
     "@walletconnect/ethereum-provider" "2.11.2"
     "@walletconnect/modal" "2.6.2"
 
-"@wagmi/core@2.6.13":
-  version "2.6.13"
-  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-2.6.13.tgz#eaca669b6b4283ec69412a206e66182a11d926c6"
-  integrity sha512-RZQ0mBXMH5oe7uvFkNh0e/gPWWLsbkDv/6/SeTY2H7fsH4I/T62ID6eNYUtyOoz7FgQTdAyPdSEt9lst1ZXxkQ==
+"@wagmi/core@2.6.15":
+  version "2.6.15"
+  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-2.6.15.tgz#14dca5f575d5267d72016448623bdd6c959d178b"
+  integrity sha512-P3w7NIPBs6Pt3j8k5Tq9cVYjvUiyuEAk3WxZfUG5NyaveLqs3b6IC6Frl63zriSV3Bj0tdJJXhEVoIIeIUqMCA==
   dependencies:
     eventemitter3 "5.0.1"
     mipd "0.0.5"
@@ -24548,13 +24548,13 @@ w3c-xmlserializer@^4.0.0:
   dependencies:
     xml-name-validator "^4.0.0"
 
-wagmi@^2.5.16:
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-2.5.16.tgz#42e4be44dd8e96deda10d953b91d13ee3a512758"
-  integrity sha512-nVSx65kGYcjvELJKoe+l1E78zHqtYwfg0nf2HuZkt1gVvqguo+hIQe534hSf1m+ivdtb0MPlwNCvj6K4QJ7FTw==
+wagmi@^2.5.18:
+  version "2.5.18"
+  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-2.5.18.tgz#aff4477929399ba55eb29766249ba51f51f390c7"
+  integrity sha512-V2NTcgI1kZxLZcpW/FaS5KEoc89IkW8b39kBEZLzCFMIiSYqOINoq2N1S5Y9ZD8PYFmBmvFC0KxQ0uNBmWi+pg==
   dependencies:
-    "@wagmi/connectors" "4.1.22"
-    "@wagmi/core" "2.6.13"
+    "@wagmi/connectors" "4.1.24"
+    "@wagmi/core" "2.6.15"
     use-sync-external-store "1.2.0"
 
 walker@^1.0.7, walker@^1.0.8, walker@~1.0.5:
