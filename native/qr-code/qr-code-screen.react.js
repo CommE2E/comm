@@ -11,10 +11,7 @@ import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { BackupKeys } from 'lib/types/backup-types.js';
-import type {
-  NonceChallenge,
-  SignedMessage,
-} from 'lib/types/identity-service-types.js';
+import type { SignedNonce } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
@@ -58,12 +55,10 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
       invariant(identityClient, 'identity context not set');
       try {
         const nonce = await identityClient.generateNonce();
-        const nonceChallenge: NonceChallenge = { nonce };
-        const nonceMessage = JSON.stringify(nonceChallenge);
-        const signature = await olmAPI.signMessage(nonceMessage);
-        const challengeResponse: SignedMessage = {
-          message: nonceMessage,
-          signature,
+        const nonceSignature = await olmAPI.signMessage(nonce);
+        const challengeResponse: SignedNonce = {
+          nonce,
+          nonceSignature,
         };
 
         await identityClient.uploadKeysForRegisteredDeviceAndLogIn(

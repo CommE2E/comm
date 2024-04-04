@@ -549,7 +549,8 @@ jsi::Value CommRustModule::updateDeviceList(
 jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
     jsi::Runtime &rt,
     jsi::String userID,
-    jsi::String challengeResponse,
+    jsi::String nonce,
+    jsi::String nonceSignature,
     jsi::String keyPayload,
     jsi::String keyPayloadSignature,
     jsi::String contentPrekey,
@@ -559,7 +560,8 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys) {
   auto userIDRust = jsiStringToRustString(userID, rt);
-  auto challengeResponseRust = jsiStringToRustString(challengeResponse, rt);
+  auto nonceRust = jsiStringToRustString(nonce, rt);
+  auto nonceSignatureRust = jsiStringToRustString(nonceSignature, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
   auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
   auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
@@ -578,7 +580,8 @@ jsi::Value CommRustModule::uploadSecondaryDeviceKeysAndLogIn(
               {promise, this->jsInvoker_, innerRt});
           identityUploadSecondaryDeviceKeysAndLogIn(
               userIDRust,
-              challengeResponseRust,
+              nonceRust,
+              nonceSignatureRust,
               keyPayloadRust,
               keyPayloadSignatureRust,
               contentPrekeyRust,
@@ -602,10 +605,12 @@ jsi::Value CommRustModule::logInExistingDevice(
     jsi::Runtime &rt,
     jsi::String userID,
     jsi::String deviceID,
-    jsi::String challengeResponse) {
+    jsi::String nonce,
+    jsi::String nonceSignature) {
   auto userIDRust = jsiStringToRustString(userID, rt);
   auto deviceIDRust = jsiStringToRustString(deviceID, rt);
-  auto challengeResponseRust = jsiStringToRustString(challengeResponse, rt);
+  auto nonceRust = jsiStringToRustString(nonce, rt);
+  auto nonceSignatureRust = jsiStringToRustString(nonceSignature, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -614,7 +619,11 @@ jsi::Value CommRustModule::logInExistingDevice(
           auto currentID = RustPromiseManager::instance.addPromise(
               {promise, this->jsInvoker_, innerRt});
           identityLogInExistingDevice(
-              userIDRust, deviceIDRust, challengeResponseRust, currentID);
+              userIDRust,
+              deviceIDRust,
+              nonceRust,
+              nonceSignatureRust,
+              currentID);
         } catch (const std::exception &e) {
           error = e.what();
         };
