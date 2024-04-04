@@ -99,9 +99,10 @@ function persistCryptoStore() {
 
   const pickledContentSessions: OlmPersistSession[] = entries(
     contentSessions,
-  ).map(([deviceID, session]) => ({
-    targetUserID: deviceID,
+  ).map(([targetDeviceID, session]) => ({
+    targetDeviceID,
     sessionData: session.pickle(contentAccountPickleKey),
+    version: 1,
   }));
 
   const pickledNotificationAccount: PickledOLMAccount = {
@@ -181,7 +182,7 @@ function getOlmSessions(picklingKey: string): {
   for (const sessionData of sessionsData) {
     const session = new olm.Session();
     session.unpickle(picklingKey, sessionData.sessionData);
-    sessions[sessionData.targetUserID] = session;
+    sessions[sessionData.targetDeviceID] = session;
   }
 
   return sessions;

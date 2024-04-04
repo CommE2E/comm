@@ -104,8 +104,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("medias", &MessageWithMedias::medias);
 
   value_object<OlmPersistSession>("OlmPersistSession")
-      .field("targetUserID", &OlmPersistSession::target_user_id)
-      .field("sessionData", &OlmPersistSession::session_data);
+      .field("targetDeviceID", &OlmPersistSession::target_device_id)
+      .field("sessionData", &OlmPersistSession::session_data)
+      .field("version", &OlmPersistSession::version);
 
   value_object<ClientMessageToDevice>("ClientMessageToDevice")
       .field("messageID", &ClientMessageToDevice::message_id)

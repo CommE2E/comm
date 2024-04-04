@@ -470,7 +470,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                     sessionsDataItem.session_data.begin(),
                     sessionsDataItem.session_data.end());
                 contentPersist.sessions.insert(std::make_pair(
-                    sessionsDataItem.target_user_id, sessionDataBuffer));
+                    sessionsDataItem.target_device_id, sessionDataBuffer));
               }
             }
 

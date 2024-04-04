@@ -1948,8 +1948,9 @@ void SQLiteQueryExecutor::storeOlmPersistAccount(
 void SQLiteQueryExecutor::storeOlmPersistSession(
     const OlmPersistSession &session) const {
   static std::string replaceOlmPersistSessionSQL =
-      "REPLACE INTO olm_persist_sessions (target_user_id, session_data) "
-      "VALUES (?, ?);";
+      "REPLACE INTO olm_persist_sessions "
+      "(target_device_id, session_data, version) "
+      "VALUES (?, ?, ?);";
 
   replaceEntity<OlmPersistSession>(
       SQLiteQueryExecutor::getConnection(),
