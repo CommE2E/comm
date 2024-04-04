@@ -37,14 +37,14 @@ type SharedWorkerStatus =
   | { +type: 'NOT_RUNNING' | 'INIT_SUCCESS' | 'INIT_ERROR' }
   | { +type: 'INIT_IN_PROGRESS', +initPromise: Promise<void> };
 
-type InitOptions = { +clearDatabase: boolean };
+type InitOptions = { +clearDatabase: boolean, +markAsCorrupted?: boolean };
 
 class CommSharedWorker {
   worker: ?SharedWorker;
   workerProxy: ?WorkerConnectionProxy;
   status: SharedWorkerStatus = { type: sharedWorkerStatuses.notRunning };
 
-  async init({ clearDatabase }: InitOptions): Promise<void> {
+  async init({ clearDatabase, markAsCorrupted }: InitOptions): Promise<void> {
     if (!isSQLiteSupported()) {
       console.warn('SQLite is not supported');
       this.status = { type: sharedWorkerStatuses.initError };
@@ -88,6 +88,11 @@ class CommSharedWorker {
       );
 
       const origin = window.location.origin;
+
+      if (markAsCorrupted) {
+        this.status = { type: sharedWorkerStatuses.initError };
+        return;
+      }
 
       try {
         let encryptionKey = null;
