@@ -384,8 +384,11 @@ declare export class SecondaryDeviceKeysUploadRequest extends Message {
   getUserId(): string;
   setUserId(value: string): SecondaryDeviceKeysUploadRequest;
 
-  getChallengeResponse(): string;
-  setChallengeResponse(value: string): SecondaryDeviceKeysUploadRequest;
+  getNonce(): string;
+  setNonce(value: string): SecondaryDeviceKeysUploadRequest;
+
+  getNonceSignature(): string;
+  setNonceSignature(value: string): SecondaryDeviceKeysUploadRequest;
 
   getDeviceKeyUpload(): DeviceKeyUpload | void;
   setDeviceKeyUpload(value?: DeviceKeyUpload): SecondaryDeviceKeysUploadRequest;
@@ -402,6 +405,8 @@ declare export class SecondaryDeviceKeysUploadRequest extends Message {
 
 export type SecondaryDeviceKeysUploadRequestObject = {
   userId: string,
+  nonce: string,
+  nonceSignature: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
 }
 
@@ -412,8 +417,11 @@ declare export class ExistingDeviceLoginRequest extends Message {
   getDeviceId(): string;
   setDeviceId(value: string): ExistingDeviceLoginRequest;
 
-  getChallengeResponse(): string;
-  setChallengeResponse(value: string): ExistingDeviceLoginRequest;
+  getNonce(): string;
+  setNonce(value: string): ExistingDeviceLoginRequest;
+
+  getNonceSignature(): string;
+  setNonceSignature(value: string): ExistingDeviceLoginRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ExistingDeviceLoginRequestObject;
@@ -426,7 +434,8 @@ declare export class ExistingDeviceLoginRequest extends Message {
 export type ExistingDeviceLoginRequestObject = {
   userId: string,
   deviceId: string,
-  challengeResponse: string,
+  nonce: string,
+  nonceSignature: string,
 }
 
 declare export class GenerateNonceResponse extends Message {

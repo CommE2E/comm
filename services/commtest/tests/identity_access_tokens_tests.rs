@@ -54,12 +54,13 @@ async fn refresh_token_test() {
     .expect("failed to generate nonce")
     .into_inner()
     .nonce;
-  let challenge_response = account.sign_nonce(nonce);
+  let nonce_signature = account.sign_message(&nonce);
   let new_credentials = client
     .log_in_existing_device(ExistingDeviceLoginRequest {
       user_id: user.user_id.clone(),
       device_id: user.device_id.clone(),
-      challenge_response,
+      nonce,
+      nonce_signature,
     })
     .await
     .expect("LogInExistingDevice call failed")

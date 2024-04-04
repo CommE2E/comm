@@ -81,7 +81,8 @@ pub mod ffi {
   // QR code device log in
   pub fn upload_secondary_device_keys_and_log_in(
     user_id: String,
-    challenge_response: String,
+    nonce: String,
+    nonce_signature: String,
     key_payload: String,
     key_payload_signature: String,
     content_prekey: String,
@@ -113,7 +114,8 @@ pub mod ffi {
 
       let result = upload_secondary_device_keys_and_log_in_helper(
         user_id,
-        challenge_response,
+        nonce,
+        nonce_signature,
         device_key_upload,
       )
       .await;
@@ -124,13 +126,18 @@ pub mod ffi {
   pub fn log_in_existing_device(
     user_id: String,
     device_id: String,
-    challenge_response: String,
+    nonce: String,
+    nonce_signature: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let result =
-        log_in_existing_device_helper(user_id, device_id, challenge_response)
-          .await;
+      let result = log_in_existing_device_helper(
+        user_id,
+        device_id,
+        nonce,
+        nonce_signature,
+      )
+      .await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -242,7 +249,8 @@ async fn log_in_wallet_user_helper(
 
 async fn upload_secondary_device_keys_and_log_in_helper(
   user_id: String,
-  challenge_response: String,
+  nonce: String,
+  nonce_signature: String,
   device_key_upload: DeviceKeyUpload,
 ) -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
@@ -254,7 +262,8 @@ async fn upload_secondary_device_keys_and_log_in_helper(
 
   let request = SecondaryDeviceKeysUploadRequest {
     user_id,
-    challenge_response,
+    nonce,
+    nonce_signature,
     device_key_upload: Some(device_key_upload),
   };
 
@@ -270,7 +279,8 @@ async fn upload_secondary_device_keys_and_log_in_helper(
 async fn log_in_existing_device_helper(
   user_id: String,
   device_id: String,
-  challenge_response: String,
+  nonce: String,
+  nonce_signature: String,
 ) -> Result<String, Error> {
   let mut identity_client = get_unauthenticated_client(
     IDENTITY_SOCKET_ADDR,
@@ -282,7 +292,8 @@ async fn log_in_existing_device_helper(
   let request = ExistingDeviceLoginRequest {
     user_id,
     device_id,
-    challenge_response,
+    nonce,
+    nonce_signature,
   };
 
   let response = identity_client

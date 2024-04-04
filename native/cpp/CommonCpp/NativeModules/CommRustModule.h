@@ -116,7 +116,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(
       jsi::Runtime &rt,
       jsi::String userID,
-      jsi::String challengeResponse,
+      jsi::String nonce,
+      jsi::String nonceSignature,
       jsi::String keyPayload,
       jsi::String keyPayloadSignature,
       jsi::String contentPrekey,
@@ -129,7 +130,8 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String userID,
       jsi::String deviceID,
-      jsi::String challengeResponse) override;
+      jsi::String nonce,
+      jsi::String nonceSignature) override;
   virtual jsi::Value findUserIDForWalletAddress(
       jsi::Runtime &rt,
       jsi::String walletAddress) override;

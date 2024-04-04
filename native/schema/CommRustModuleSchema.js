@@ -110,7 +110,8 @@ export interface Spec extends TurboModule {
   ) => Promise<void>;
   +uploadSecondaryDeviceKeysAndLogIn: (
     userID: string,
-    challengeResponse: string,
+    nonce: string,
+    nonceSignature: string,
     keyPayload: string,
     keyPayloadSignature: string,
     contentPrekey: string,
@@ -123,7 +124,8 @@ export interface Spec extends TurboModule {
   +logInExistingDevice: (
     userID: string,
     deviceID: string,
-    challengeResponse: string,
+    nonce: string,
+    nonceSignature: string,
   ) => Promise<string>;
   +findUserIDForWalletAddress: (walletAddress: string) => Promise<string>;
   +findUserIDForUsername: (username: string) => Promise<string>;

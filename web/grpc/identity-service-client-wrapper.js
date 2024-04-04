@@ -11,7 +11,7 @@ import type { PlatformDetails } from 'lib/types/device-types.js';
 import {
   type SignedDeviceList,
   signedDeviceListHistoryValidator,
-  type SignedMessage,
+  type SignedNonce,
   type IdentityServiceAuthLayer,
   type IdentityServiceClient,
   type DeviceOlmOutboundKeys,
@@ -443,18 +443,19 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
   uploadKeysForRegisteredDeviceAndLogIn: (
     ownerUserID: string,
-    nonceChallengeResponse: SignedMessage,
+    nonceChallengeResponse: SignedNonce,
   ) => Promise<IdentityAuthResult> = async (
     ownerUserID,
     nonceChallengeResponse,
   ) => {
     const identityDeviceKeyUpload = await this.getNewDeviceKeyUpload();
     const deviceKeyUpload = authNewDeviceKeyUpload(identityDeviceKeyUpload);
-    const challengeResponse = JSON.stringify(nonceChallengeResponse);
+    const { nonce, nonceSignature } = nonceChallengeResponse;
 
     const request = new SecondaryDeviceKeysUploadRequest();
     request.setUserId(ownerUserID);
-    request.setChallengeResponse(challengeResponse);
+    request.setNonce(nonce);
+    request.setNonceSignature(nonceSignature);
     request.setDeviceKeyUpload(deviceKeyUpload);
 
     let response;

@@ -31,7 +31,7 @@ use crate::grpc_services::protos::unauth::{
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::{
-  ChallengeResponse, DeviceKeyUploadActions, NonceChallenge,
+  SignedNonce, DeviceKeyUploadActions,
 };
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
@@ -680,16 +680,14 @@ impl IdentityClientService for ClientService {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
 
-    let challenge_response = ChallengeResponse::try_from(&message)?;
+    let challenge_response = SignedNonce::try_from(&message)?;
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
 
     let user_id = message.user_id;
     let device_id = flattened_device_key_upload.device_id_key.clone();
 
-    let NonceChallenge { nonce } =
-      challenge_response.verify_and_get_message(&device_id)?;
-
+    let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
 
     let user_identifier = self
@@ -753,13 +751,12 @@ impl IdentityClientService for ClientService {
     request: tonic::Request<ExistingDeviceLoginRequest>,
   ) -> std::result::Result<tonic::Response<AuthResponse>, tonic::Status> {
     let message = request.into_inner();
-    let challenge_response = ChallengeResponse::try_from(&message)?;
+    let challenge_response = SignedNonce::try_from(&message)?;
     let ExistingDeviceLoginRequest {
       user_id, device_id, ..
     } = message;
 
-    let NonceChallenge { nonce } =
-      challenge_response.verify_and_get_message(&device_id)?;
+    let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
 
     let (identifier_response, device_list_response) = tokio::join!(

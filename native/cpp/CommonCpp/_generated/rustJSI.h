@@ -35,8 +35,8 @@ public:
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
-  virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String challengeResponse, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
-  virtual jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String challengeResponse) = 0;
+  virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String nonce, jsi::String nonceSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
+  virtual jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String nonce, jsi::String nonceSignature) = 0;
   virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
   virtual jsi::Value findUserIDForUsername(jsi::Runtime &rt, jsi::String username) = 0;
   virtual jsi::Value getFarcasterUsers(jsi::Runtime &rt, jsi::Array farcasterIDs) = 0;
@@ -183,21 +183,21 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDeviceList, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(updatePayload));
     }
-    jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String challengeResponse, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) override {
+    jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String nonce, jsi::String nonceSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) override {
       static_assert(
-          bridging::getParameterCount(&T::uploadSecondaryDeviceKeysAndLogIn) == 11,
-          "Expected uploadSecondaryDeviceKeysAndLogIn(...) to have 11 parameters");
+          bridging::getParameterCount(&T::uploadSecondaryDeviceKeysAndLogIn) == 12,
+          "Expected uploadSecondaryDeviceKeysAndLogIn(...) to have 12 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::uploadSecondaryDeviceKeysAndLogIn, jsInvoker_, instance_, std::move(userID), std::move(challengeResponse), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
+          rt, &T::uploadSecondaryDeviceKeysAndLogIn, jsInvoker_, instance_, std::move(userID), std::move(nonce), std::move(nonceSignature), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature), std::move(contentOneTimeKeys), std::move(notifOneTimeKeys));
     }
-    jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String challengeResponse) override {
+    jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String nonce, jsi::String nonceSignature) override {
       static_assert(
-          bridging::getParameterCount(&T::logInExistingDevice) == 4,
-          "Expected logInExistingDevice(...) to have 4 parameters");
+          bridging::getParameterCount(&T::logInExistingDevice) == 5,
+          "Expected logInExistingDevice(...) to have 5 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::logInExistingDevice, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(challengeResponse));
+          rt, &T::logInExistingDevice, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(nonce), std::move(nonceSignature));
     }
     jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) override {
       static_assert(

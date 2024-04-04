@@ -2,7 +2,6 @@ use base64::{engine::general_purpose, Engine as _};
 use ed25519_dalek::{PublicKey, Signature, Verifier};
 use serde::Deserialize;
 use tonic::Status;
-use tracing::error;
 
 use crate::{
   database::DeviceRow,
@@ -16,43 +15,41 @@ use crate::{
       WalletAuthRequest,
     },
   },
-  siwe::SocialProof,
 };
 
 #[derive(Deserialize)]
-pub struct ChallengeResponse {
-  message: String,
+pub struct SignedNonce {
+  nonce: String,
   signature: String,
 }
 
-#[derive(Deserialize)]
-pub struct NonceChallenge {
-  pub nonce: String,
-}
-
-impl TryFrom<&SecondaryDeviceKeysUploadRequest> for ChallengeResponse {
+impl TryFrom<&SecondaryDeviceKeysUploadRequest> for SignedNonce {
   type Error = Status;
   fn try_from(
     value: &SecondaryDeviceKeysUploadRequest,
   ) -> Result<Self, Self::Error> {
-    serde_json::from_str(&value.challenge_response)
-      .map_err(|_| Status::invalid_argument("message format invalid"))
+    Ok(Self {
+      nonce: value.nonce.to_string(),
+      signature: value.nonce_signature.to_string(),
+    })
   }
 }
 
-impl TryFrom<&ExistingDeviceLoginRequest> for ChallengeResponse {
+impl TryFrom<&ExistingDeviceLoginRequest> for SignedNonce {
   type Error = Status;
   fn try_from(value: &ExistingDeviceLoginRequest) -> Result<Self, Self::Error> {
-    serde_json::from_str(&value.challenge_response)
-      .map_err(|_| Status::invalid_argument("message format invalid"))
+    Ok(Self {
+      nonce: value.nonce.to_string(),
+      signature: value.nonce_signature.to_string(),
+    })
   }
 }
 
-impl ChallengeResponse {
-  pub fn verify_and_get_message<T: serde::de::DeserializeOwned>(
-    &self,
+impl SignedNonce {
+  pub fn verify_and_get_nonce(
+    self,
     signing_public_key: &str,
-  ) -> Result<T, Status> {
+  ) -> Result<String, Status> {
     let signature_bytes = general_purpose::STANDARD_NO_PAD
       .decode(&self.signature)
       .map_err(|_| Status::invalid_argument("signature invalid"))?;
@@ -68,11 +65,10 @@ impl ChallengeResponse {
       .map_err(|_| Status::failed_precondition("malformed key"))?;
 
     public_key
-      .verify(self.message.as_bytes(), &signature)
+      .verify(self.nonce.as_bytes(), &signature)
       .map_err(|_| Status::permission_denied("verification failed"))?;
 
-    serde_json::from_str(&self.message)
-      .map_err(|_| Status::invalid_argument("message format invalid"))
+    Ok(self.nonce)
   }
 }
 
@@ -263,31 +259,27 @@ impl From<DBIdentifier> for Identity {
 
 #[cfg(test)]
 mod tests {
-  use serde_json::json;
-
   use super::*;
 
   #[test]
   fn test_challenge_response_verification() {
-    let signing_key = "TF6XVmtso2xpCfUWcU1dOTPDnoo+Euls3H4wJhO6T6A";
-    let challenge_response_json = json!({
-      "message": r#"{"nonce":"hello"}"#,
-      "signature": "pXQZc9if5/p926HoomKEtLfe10SNOHdkf3wIXLjax0yg3mOE0z+0JTf+IgsjB7p9RGSisVRfskQQXa30uPupAQ"
-    });
+    let expected_nonce = "hello";
+    let signing_key = "jnBariweGMSdfmJYvuObTu4IGT1fpaJTo/ovbkU0SAY";
+
     let request = SecondaryDeviceKeysUploadRequest {
-      challenge_response: serde_json::to_string(&challenge_response_json)
-        .unwrap(),
+      nonce: expected_nonce.to_string(),
+      nonce_signature: "LWlgCDND3bmgIS8liW/0eKJvuNs4Vcb4iMf43zD038/MnC0cSAYl2l3bO9dFc0fa2w6/2ABsUlPDMVr+isE0Aw".to_string(),
       user_id: "foo".to_string(),
       device_key_upload: None,
     };
 
-    let challenge_response = ChallengeResponse::try_from(&request)
+    let challenge_response = SignedNonce::try_from(&request)
       .expect("failed to parse challenge response");
 
-    let msg: NonceChallenge = challenge_response
-      .verify_and_get_message(signing_key)
+    let retrieved_nonce = challenge_response
+      .verify_and_get_nonce(signing_key)
       .expect("verification failed");
 
-    assert_eq!(msg.nonce, "hello".to_string());
+    assert_eq!(retrieved_nonce, expected_nonce);
   }
 }
