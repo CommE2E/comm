@@ -72,7 +72,7 @@ export type BaseInputState = {
     threadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) => mixed,
-  +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
+  +createMultimediaMessage: (threadInfo: ThreadInfo) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,

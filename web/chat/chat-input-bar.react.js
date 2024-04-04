@@ -24,7 +24,7 @@ import {
   useMentionTypeaheadUserSuggestions,
   useUserMentionsCandidates,
 } from 'lib/shared/mention-utils.js';
-import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
+import { trimMessage, getNextLocalID } from 'lib/shared/message-utils.js';
 import {
   checkIfDefaultMembersAreVoiced,
   threadActualMembers,
@@ -75,7 +75,6 @@ type Props = {
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
-  +nextLocalID: number,
   +isThreadActive: boolean,
   +userInfos: UserInfos,
   +dispatchActionPromise: DispatchActionPromise,
@@ -480,25 +479,19 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   send() {
-    let { nextLocalID } = this.props;
-
     const text = trimMessage(this.props.inputState.draft);
     if (text) {
-      this.dispatchTextMessageAction(text, nextLocalID);
-      nextLocalID++;
+      this.dispatchTextMessageAction(text);
     }
     if (this.props.inputState.pendingUploads.length > 0) {
-      this.props.inputState.createMultimediaMessage(
-        nextLocalID,
-        this.props.threadInfo,
-      );
+      this.props.inputState.createMultimediaMessage(this.props.threadInfo);
     }
   }
 
-  dispatchTextMessageAction(text: string, nextLocalID: number) {
+  dispatchTextMessageAction(text: string) {
     this.props.inputState.setDraft('');
 
-    const localID = `${localIDPrefix}${nextLocalID}`;
+    const localID = getNextLocalID();
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
 
@@ -572,7 +565,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
-    const nextLocalID = useSelector(state => state.nextLocalID);
     const isThreadActive = useSelector(
       state => props.threadInfo.id === state.navInfo.activeChatThreadID,
     );
@@ -671,7 +663,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         joinThreadLoadingStatus={joinThreadLoadingStatus}
         threadCreationInProgress={threadCreationInProgress}
         calendarQuery={calendarQuery}
-        nextLocalID={nextLocalID}
         isThreadActive={isThreadActive}
         userInfos={userInfos}
         dispatchActionPromise={dispatchActionPromise}

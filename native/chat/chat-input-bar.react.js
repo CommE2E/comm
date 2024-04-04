@@ -53,7 +53,7 @@ import {
   type MessagePreviewResult,
   trimMessage,
   useMessagePreview,
-  useNextLocalID,
+  getNextLocalID,
 } from 'lib/shared/message-utils.js';
 import SentencePrefixSearchIndex from 'lib/shared/sentence-prefix-search-index.js';
 import {
@@ -284,7 +284,6 @@ type Props = {
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
-  +nextLocalID: string,
   +userInfos: UserInfos,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
@@ -973,7 +972,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       return;
     }
 
-    const localID = this.props.nextLocalID;
+    const localID = getNextLocalID();
     const creatorID = this.props.viewerID;
     invariant(creatorID, 'should have viewer ID in order to send a message');
     invariant(
@@ -1243,7 +1242,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       navContext,
     }),
   );
-  const nextLocalID = useNextLocalID();
   const userInfos = useSelector(state => state.userStore.userInfos);
 
   const styles = useStyles(unboundStyles);
@@ -1340,7 +1338,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       threadCreationInProgress={threadCreationInProgress}
       calendarQuery={calendarQuery}
-      nextLocalID={nextLocalID}
       userInfos={userInfos}
       colors={colors}
       styles={styles}
