@@ -30,6 +30,7 @@ import {
 } from 'lib/types/account-types.js';
 import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import {
   useDispatchActionPromise,
@@ -46,6 +47,7 @@ import { PanelButton, Panel } from './panel-components.react.js';
 import PasswordInput from './password-input.react.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
@@ -323,6 +325,13 @@ class LogInPanel extends React.PureComponent<Props> {
         username: this.usernameInputText,
         password: this.passwordInputText,
       });
+
+      const ed25519 = await getContentSigningKey();
+      await commCoreModule.setCommServicesAuthMetadata(
+        result.userID,
+        ed25519,
+        result.accessToken,
+      );
       return result;
     } catch (e) {
       const messageForException = getMessageForException(e);

@@ -14,6 +14,8 @@ import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserve
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -29,6 +31,7 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
+import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -93,6 +96,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             username: accountSelection.username,
             password: accountSelection.password,
           });
+
+          const ed25519 = await getContentSigningKey();
+          await commCoreModule.setCommServicesAuthMetadata(
+            result.userID,
+            ed25519,
+            result.accessToken,
+          );
+
           return result;
         } catch (e) {
           if (e.message === 'username reserved') {
