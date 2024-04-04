@@ -554,15 +554,13 @@ impl IdentityClientService for ClientService {
 
     let social_proof =
       SocialProof::new(message.siwe_message, message.siwe_signature);
-    let serialized_social_proof = serde_json::to_string(&social_proof)
-      .map_err(|_| tonic::Status::invalid_argument("invalid_social_proof"))?;
 
     let user_id = self
       .client
       .add_wallet_user_to_users_table(
         flattened_device_key_upload.clone(),
         wallet_address,
-        serialized_social_proof,
+        social_proof,
         None,
         code_version,
         login_time,
@@ -635,8 +633,6 @@ impl IdentityClientService for ClientService {
 
     let social_proof =
       SocialProof::new(message.siwe_message, message.siwe_signature);
-    let serialized_social_proof = serde_json::to_string(&social_proof)
-      .map_err(|_| tonic::Status::invalid_argument("invalid_social_proof"))?;
 
     let login_time = chrono::Utc::now();
     self
@@ -644,7 +640,7 @@ impl IdentityClientService for ClientService {
       .add_wallet_user_to_users_table(
         flattened_device_key_upload.clone(),
         wallet_address,
-        serialized_social_proof,
+        social_proof,
         Some(user_id.clone()),
         code_version,
         login_time,
