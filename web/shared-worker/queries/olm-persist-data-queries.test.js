@@ -1,9 +1,28 @@
 // @flow
 
 import { getDatabaseModule } from '../db-module.js';
+import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
+
+const TEST_SESSION_DATA: OlmPersistSession[] = [
+  {
+    targetDeviceID: '1',
+    sessionData: '1',
+    version: 1,
+  },
+  {
+    targetDeviceID: '2',
+    sessionData: '2',
+    version: 2,
+  },
+  {
+    targetDeviceID: '3',
+    sessionData: '3',
+    version: 2,
+  },
+];
 
 describe('Olm Tables queries', () => {
   let queryExecutor;
@@ -30,18 +49,9 @@ describe('Olm Tables queries', () => {
       'notifsAccountData',
     );
 
-    queryExecutor.storeOlmPersistSession({
-      targetUserID: '1',
-      sessionData: '1',
-    });
-    queryExecutor.storeOlmPersistSession({
-      targetUserID: '2',
-      sessionData: '2',
-    });
-    queryExecutor.storeOlmPersistSession({
-      targetUserID: '3',
-      sessionData: '3',
-    });
+    queryExecutor.storeOlmPersistSession(TEST_SESSION_DATA[0]);
+    queryExecutor.storeOlmPersistSession(TEST_SESSION_DATA[1]);
+    queryExecutor.storeOlmPersistSession(TEST_SESSION_DATA[2]);
   });
 
   afterEach(() => {
@@ -63,5 +73,6 @@ describe('Olm Tables queries', () => {
   it('should return all olm sessions', () => {
     const olmSessions = queryExecutor.getOlmPersistSessionsData();
     expect(olmSessions.length).toBe(3);
+    expect(olmSessions).toStrictEqual(TEST_SESSION_DATA);
   });
 });
