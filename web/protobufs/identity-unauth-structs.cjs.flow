@@ -39,7 +39,6 @@ declare export class Prekey extends Message {
 export type IdentityKeyInfoObject = {
   payload: string,
   payloadSignature: string,
-  socialProof?: string,
 };
 
 declare export class IdentityKeyInfo extends Message {
@@ -48,11 +47,6 @@ declare export class IdentityKeyInfo extends Message {
 
   getPayloadSignature(): string;
   setPayloadSignature(value: string): IdentityKeyInfo;
-
-  getSocialProof(): string;
-  setSocialProof(value: string): IdentityKeyInfo;
-  hasSocialProof(): boolean;
-  clearSocialProof(): IdentityKeyInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IdentityKeyInfoObject;

@@ -161,7 +161,6 @@ struct GetInboundKeysRequestInfo {
 struct OutboundKeyInfoResponse {
   pub payload: String,
   pub payload_signature: String,
-  pub social_proof: Option<String>,
   pub content_prekey: String,
   pub content_prekey_signature: String,
   pub notif_prekey: String,
@@ -177,7 +176,6 @@ struct OutboundKeyInfoResponse {
 struct InboundKeyInfoResponse {
   pub payload: String,
   pub payload_signature: String,
-  pub social_proof: Option<String>,
   pub content_prekey: String,
   pub content_prekey_signature: String,
   pub notif_prekey: String,
@@ -194,7 +192,6 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
     let IdentityKeyInfo {
       payload,
       payload_signature,
-      social_proof,
     } = identity_info;
 
     let content_prekey =
@@ -219,7 +216,6 @@ impl TryFrom<OutboundKeyInfo> for OutboundKeyInfoResponse {
     Ok(Self {
       payload,
       payload_signature,
-      social_proof,
       content_prekey: content_prekey_value,
       content_prekey_signature,
       notif_prekey: notif_prekey_value,
@@ -249,7 +245,6 @@ impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
     let IdentityKeyInfo {
       payload,
       payload_signature,
-      social_proof,
     } = identity_info;
 
     let content_prekey =
@@ -271,7 +266,6 @@ impl TryFrom<InboundKeyInfo> for InboundKeyInfoResponse {
     Ok(Self {
       payload,
       payload_signature,
-      social_proof,
       content_prekey: content_prekey_value,
       content_prekey_signature,
       notif_prekey: notif_prekey_value,
