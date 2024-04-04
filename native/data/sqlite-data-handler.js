@@ -19,8 +19,8 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { shouldClearData } from 'lib/shared/data-utils.js';
 import {
-  recoveryActionSources,
-  type RecoveryActionSource,
+  recoveryFromDataHandlerActionSources,
+  type RecoveryFromDataHandlerActionSource,
 } from 'lib/types/account-types.js';
 import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -71,7 +71,7 @@ function SQLiteDataHandler(): React.Node {
     authoritativeKeyserverID,
   );
   const recoverDataFromAuthoritativeKeyserver = React.useCallback(
-    async (source: RecoveryActionSource) => {
+    async (source: RecoveryFromDataHandlerActionSource) => {
       const innerRecoverDataFromAuthoritativeKeyserver = (
         callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
         callKeyserverEndpoint: CallKeyserverEndpoint,
@@ -115,7 +115,7 @@ function SQLiteDataHandler(): React.Node {
   );
 
   const recoverData = React.useCallback(
-    (source: RecoveryActionSource) => {
+    (source: RecoveryFromDataHandlerActionSource) => {
       if (supportingMultipleKeyservers) {
         invariant(
           false,
@@ -179,7 +179,9 @@ function SQLiteDataHandler(): React.Node {
             commCoreModule.terminate();
           }
         }
-        await recoverData(recoveryActionSources.corruptedDatabaseDeletion);
+        await recoverData(
+          recoveryFromDataHandlerActionSources.corruptedDatabaseDeletion,
+        );
       })();
       return;
     }
@@ -258,7 +260,9 @@ function SQLiteDataHandler(): React.Node {
               '{no exception message}',
           );
         }
-        await recoverData(recoveryActionSources.sqliteLoadFailure);
+        await recoverData(
+          recoveryFromDataHandlerActionSources.sqliteLoadFailure,
+        );
       }
     })();
   }, [
