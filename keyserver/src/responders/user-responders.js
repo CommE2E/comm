@@ -3,7 +3,7 @@
 import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
-import { ErrorTypes, SiweMessage } from 'siwe';
+import { SiweErrorType, SiweMessage } from 'siwe';
 import t, { type TInterface, type TUnion, type TEnums } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -606,17 +606,14 @@ async function siweAuthResponder(
 
   // 4. Validate SIWEMessage signature and handle possible errors.
   try {
-    await siweMessage.validate(signature);
+    await siweMessage.verify({ signature });
   } catch (error) {
-    if (error === ErrorTypes.EXPIRED_MESSAGE) {
+    if (error === SiweErrorType.EXPIRED_MESSAGE) {
       // Thrown when the `expirationTime` is present and in the past.
       throw new ServerError('expired_message');
-    } else if (error === ErrorTypes.INVALID_SIGNATURE) {
+    } else if (error === SiweErrorType.INVALID_SIGNATURE) {
       // Thrown when the `validate()` function can't verify the message.
       throw new ServerError('invalid_signature');
-    } else if (error === ErrorTypes.MALFORMED_SESSION) {
-      // Thrown when some required field is missing.
-      throw new ServerError('malformed_session');
     } else {
       throw new ServerError('unknown_error');
     }
