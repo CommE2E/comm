@@ -13,7 +13,7 @@ fi
 # docker cli, so instead use docker ps + grep to determine running container
 if docker ps | grep localstack &> /dev/null; then
   echo "Stopping localstack..." >&2
-  docker stop localstack_main > /dev/null
+  docker stop localstack-main > /dev/null
 else
   echo "No localstack instance found, skipping..."
 fi
