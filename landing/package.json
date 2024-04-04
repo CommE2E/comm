@@ -53,6 +53,6 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "viem": "^2.9.5",
-    "wagmi": "^2.5.16"
+    "wagmi": "^2.5.18"
   }
 }
