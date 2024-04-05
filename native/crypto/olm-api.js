@@ -19,6 +19,7 @@ const olmAPI: OlmAPI = {
   getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
   decrypt: commCoreModule.decrypt,
+  // $FlowFixMe
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
@@ -36,6 +37,7 @@ const olmAPI: OlmAPI = {
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
+    // $FlowFixMe
   ): Promise<EncryptedData> {
     const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
     const identityKeys = JSON.stringify({
