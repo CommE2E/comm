@@ -225,9 +225,10 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .append_one_time_prekeys(
-        device_id,
-        message.content_one_time_prekeys,
-        message.notif_one_time_prekeys,
+        &user_id,
+        &device_id,
+        &message.content_one_time_prekeys,
+        &message.notif_one_time_prekeys,
       )
       .await
       .map_err(handle_db_error)?;

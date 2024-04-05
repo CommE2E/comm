@@ -30,6 +30,8 @@ use crate::{
 
 use super::DatabaseClient;
 
+// We omit the content and notif one-time key count attributes from this struct
+// because they are internal helpers and are not provided by users
 #[derive(Clone, Debug)]
 pub struct DeviceRow {
   pub user_id: String,
@@ -114,7 +116,7 @@ impl DeviceListRow {
 }
 
 // helper structs for converting to/from attribute values for sort key (a.k.a itemID)
-struct DeviceIDAttribute(String);
+pub struct DeviceIDAttribute(pub String);
 struct DeviceListKeyAttribute(DateTime<Utc>);
 
 impl From<DeviceIDAttribute> for AttributeValue {
@@ -683,8 +685,9 @@ impl DatabaseClient {
   ) -> Result<(), Error> {
     let content_one_time_keys = device_key_upload.content_one_time_keys.clone();
     let notif_one_time_keys = device_key_upload.notif_one_time_keys.clone();
+    let user_id_string = user_id.into();
     let new_device = DeviceRow::from_device_key_upload(
-      user_id,
+      user_id_string.clone(),
       device_key_upload,
       code_version,
       login_time,
@@ -705,9 +708,10 @@ impl DatabaseClient {
 
     self
       .append_one_time_prekeys(
-        device_id,
-        content_one_time_keys,
-        notif_one_time_keys,
+        &user_id_string,
+        &device_id,
+        &content_one_time_keys,
+        &notif_one_time_keys,
       )
       .await?;
 

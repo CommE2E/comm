@@ -6,7 +6,6 @@ use comm_lib::{
   database::{AttributeExtractor, AttributeMap, TryFromAttribute},
 };
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use siwe::Message;
 use tonic::Status;
 use tracing::error;

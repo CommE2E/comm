@@ -123,23 +123,20 @@ pub mod devices_table {
   // migration-specific attrs
   pub const ATTR_CODE_VERSION: &str = "codeVersion";
   pub const ATTR_LOGIN_TIME: &str = "loginTime";
+
+  // one-time key constants
+  pub const ATTR_CONTENT_OTK_COUNT: &str = "contentOTKCount";
+  pub const ATTR_NOTIF_OTK_COUNT: &str = "notifOTKCount";
 }
 
 // One time keys table, which need to exist in their own table to ensure
 // atomicity of additions and removals
 pub mod one_time_keys_table {
-  // The `PARTITION_KEY` will contain "notification_${deviceID}" or
-  // "content_${deviceID}" to allow for both key sets to coexist in the same table
   pub const NAME: &str = "identity-one-time-keys";
-  pub const PARTITION_KEY: &str = "deviceID";
-  pub const DEVICE_ID: &str = PARTITION_KEY;
-  pub const SORT_KEY: &str = "oneTimeKey";
-  pub const ONE_TIME_KEY: &str = SORT_KEY;
+  pub const PARTITION_KEY: &str = "userID#deviceID#olmAccount";
+  pub const SORT_KEY: &str = "timestamp#keyNumber";
+  pub const ATTR_ONE_TIME_KEY: &str = "oneTimeKey";
 }
-
-// One-time key constants for device info map
-pub const CONTENT_ONE_TIME_KEY: &str = "contentOneTimeKey";
-pub const NOTIF_ONE_TIME_KEY: &str = "notifOneTimeKey";
 
 // Tokio
 
@@ -239,3 +236,16 @@ pub mod cors {
 
 pub const VALID_USERNAME_REGEX_STRING: &str =
   r"^[a-zA-Z0-9][a-zA-Z0-9-_]{0,190}$";
+
+// Retry
+
+// TODO: Replace this with `ExponentialBackoffConfig` from `comm-lib`
+pub mod retry {
+  pub const MAX_ATTEMPTS: usize = 8;
+
+  pub const CONDITIONAL_CHECK_FAILED: &str = "ConditionalCheckFailed";
+  pub const TRANSACTION_CONFLICT: &str = "TransactionConflict";
+}
+
+// One-time keys
+pub const ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT: usize = 49;
