@@ -1,14 +1,23 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use comm_lib::{
-  aws::ddb::types::{AttributeValue, PutRequest, WriteRequest},
+  aws::{
+    ddb::types::{
+      error::TransactionCanceledException, AttributeValue, Put,
+      TransactWriteItem, Update,
+    },
+    DynamoDBError,
+  },
   database::{AttributeExtractor, AttributeMap},
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::iter::IntoIterator;
 
-use crate::constants::{
-  USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
-  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+use crate::{
+  constants::{
+    USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
+    USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  },
+  database::DeviceIDAttribute,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -17,53 +26,117 @@ pub enum OlmAccountType {
   Notification,
 }
 
-// Prefix the one time keys with the olm account variant. This allows for a single
-// DDB table to contain both notification and content keys for a device.
 pub fn create_one_time_key_partition_key(
+  user_id: &str,
   device_id: &str,
   account_type: OlmAccountType,
 ) -> String {
-  match account_type {
-    OlmAccountType::Content => format!("content_{device_id}"),
-    OlmAccountType::Notification => format!("notification_{device_id}"),
-  }
+  let account_type = match account_type {
+    OlmAccountType::Content => "content",
+    OlmAccountType::Notification => "notif",
+  };
+  format!("{user_id}#{device_id}#{account_type}")
+}
+
+fn create_one_time_key_sort_key(
+  key_number: usize,
+  current_time: DateTime<Utc>,
+) -> String {
+  let timestamp = current_time.to_rfc3339();
+  format!("{timestamp}#{:02}", key_number)
 }
 
 fn create_one_time_key_put_request(
+  user_id: &str,
   device_id: &str,
   one_time_key: String,
+  key_number: usize,
   account_type: OlmAccountType,
-) -> WriteRequest {
+  current_time: DateTime<Utc>,
+) -> Put {
   use crate::constants::one_time_keys_table::*;
 
   let partition_key =
-    create_one_time_key_partition_key(device_id, account_type);
-  let builder = PutRequest::builder();
+    create_one_time_key_partition_key(user_id, device_id, account_type);
+  let sort_key = create_one_time_key_sort_key(key_number, current_time);
+
+  let builder = Put::builder();
   let attrs = HashMap::from([
     (PARTITION_KEY.to_string(), AttributeValue::S(partition_key)),
-    (SORT_KEY.to_string(), AttributeValue::S(one_time_key)),
+    (SORT_KEY.to_string(), AttributeValue::S(sort_key)),
+    (
+      ATTR_ONE_TIME_KEY.to_string(),
+      AttributeValue::S(one_time_key),
+    ),
   ]);
 
-  let put_request = builder.set_item(Some(attrs)).build();
-
-  WriteRequest::builder().put_request(put_request).build()
+  builder.table_name(NAME).set_item(Some(attrs)).build()
 }
 
 pub fn into_one_time_put_requests<T>(
+  user_id: &str,
   device_id: &str,
   one_time_keys: T,
   account_type: OlmAccountType,
-) -> Vec<WriteRequest>
+  current_time: DateTime<Utc>,
+) -> Vec<TransactWriteItem>
 where
   T: IntoIterator,
   <T as IntoIterator>::Item: ToString,
 {
   one_time_keys
     .into_iter()
-    .map(|otk| {
-      create_one_time_key_put_request(device_id, otk.to_string(), account_type)
+    .enumerate()
+    .map(|(index, otk)| {
+      create_one_time_key_put_request(
+        user_id,
+        device_id,
+        otk.to_string(),
+        index,
+        account_type,
+        current_time,
+      )
     })
+    .map(|put_request| TransactWriteItem::builder().put(put_request).build())
     .collect()
+}
+
+pub fn into_one_time_update_requests(
+  user_id: &str,
+  device_id: &str,
+  num_content_keys: usize,
+  num_notif_keys: usize,
+) -> TransactWriteItem {
+  use crate::constants::devices_table;
+
+  let update_otk_count = Update::builder()
+    .table_name(devices_table::NAME)
+    .key(
+      devices_table::ATTR_USER_ID,
+      AttributeValue::S(user_id.to_string()),
+    )
+    .key(
+      devices_table::ATTR_ITEM_ID,
+      DeviceIDAttribute(device_id.into()).into(),
+    )
+    .update_expression(format!(
+      "ADD {} :num_content, {} :num_notif",
+      devices_table::ATTR_CONTENT_OTK_COUNT,
+      devices_table::ATTR_NOTIF_OTK_COUNT
+    ))
+    .expression_attribute_values(
+      ":num_content",
+      AttributeValue::N(num_content_keys.to_string()),
+    )
+    .expression_attribute_values(
+      ":num_notif",
+      AttributeValue::N(num_notif_keys.to_string()),
+    )
+    .build();
+
+  TransactWriteItem::builder()
+    .update(update_otk_count)
+    .build()
 }
 
 pub trait DateTimeExt {
@@ -111,6 +184,66 @@ impl TryFrom<AttributeMap> for Identifier {
       }))
     } else {
       Err(Self::Error::MalformedItem)
+    }
+  }
+}
+
+pub fn is_transaction_retryable(
+  err: &DynamoDBError,
+  retryable_codes: &HashSet<&str>,
+) -> bool {
+  match err {
+    DynamoDBError::TransactionCanceledException(
+      TransactionCanceledException {
+        cancellation_reasons: Some(reasons),
+        ..
+      },
+    ) => reasons.iter().any(|reason| {
+      retryable_codes.contains(&reason.code().unwrap_or_default())
+    }),
+    _ => false,
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::constants::one_time_keys_table;
+
+  use super::*;
+
+  #[test]
+  fn test_into_one_time_put_requests() {
+    let otks = ["not", "real", "keys"];
+    let current_time = Utc::now();
+
+    let requests = into_one_time_put_requests(
+      "abc",
+      "123",
+      otks,
+      OlmAccountType::Content,
+      current_time,
+    );
+
+    assert_eq!(requests.len(), 3);
+
+    for (index, request) in requests.into_iter().enumerate() {
+      let mut item = request.put.unwrap().item.unwrap();
+      assert_eq!(
+        item.remove(one_time_keys_table::PARTITION_KEY).unwrap(),
+        AttributeValue::S("abc#123#content".to_string())
+      );
+      assert_eq!(
+        item.remove(one_time_keys_table::SORT_KEY).unwrap(),
+        AttributeValue::S(format!(
+          "{}#{:02}",
+          current_time.to_rfc3339(),
+          index
+        ))
+      );
+      assert_eq!(
+        item.remove(one_time_keys_table::ATTR_ONE_TIME_KEY).unwrap(),
+        AttributeValue::S(otks[index].to_string())
+      );
     }
   }
 }

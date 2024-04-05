@@ -62,7 +62,7 @@ async fn test_refresh_keys_request_upon_depletion() {
   let _first_reponse = client
     .get_keyserver_keys(keyserver_request.clone())
     .await
-    .expect("Second keyserver keys request failed")
+    .expect("keyserver keys request failed")
     .into_inner()
     .keyserver_info
     .unwrap();
