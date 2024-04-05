@@ -7,7 +7,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { TunnelbrokerMessage } from 'lib/types/tunnelbroker/messages.js';
+import {
+  tunnelbrokerMessageTypes,
+  type TunnelbrokerMessage,
+} from 'lib/types/tunnelbroker/messages.js';
 import {
   type EncryptedMessage,
   peerToPeerMessageTypes,
@@ -194,11 +197,13 @@ function TunnelbrokerMenu(props: Props): React.Node {
       </View>
 
       <Text style={styles.header}>MESSAGES</Text>
-      {messages.map(msg => (
-        <View key={msg.messageID} style={styles.section}>
-          <Text style={styles.submenuText}>{JSON.stringify(msg)}</Text>
-        </View>
-      ))}
+      {messages
+        .filter(msg => msg.type !== tunnelbrokerMessageTypes.HEARTBEAT)
+        .map((msg, id) => (
+          <View key={id} style={styles.section}>
+            <Text style={styles.submenuText}>{JSON.stringify(msg)}</Text>
+          </View>
+        ))}
     </ScrollView>
   );
 }

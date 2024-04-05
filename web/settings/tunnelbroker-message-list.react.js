@@ -3,7 +3,10 @@
 import * as React from 'react';
 
 import type { TunnelbrokerSocketListener } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { TunnelbrokerMessage } from 'lib/types/tunnelbroker/messages.js';
+import {
+  tunnelbrokerMessageTypes,
+  type TunnelbrokerMessage,
+} from 'lib/types/tunnelbroker/messages.js';
 
 import css from './tunnelbroker-message-list.css';
 import Modal from '../modals/modal.react.js';
@@ -33,11 +36,13 @@ function TunnelbrokerMessagesScreen(props: Props): React.Node {
     </div>
   );
   if (messages.length) {
-    messageList = messages.map(message => (
-      <div key={message.messageID} className={css.messageRow}>
-        <div className={css.messageCol}>{JSON.stringify(message)}</div>
-      </div>
-    ));
+    messageList = messages
+      .filter(message => message.type !== tunnelbrokerMessageTypes.HEARTBEAT)
+      .map((message, id) => (
+        <div key={id} className={css.messageRow}>
+          <div className={css.messageCol}>{JSON.stringify(message)}</div>
+        </div>
+      ));
   }
 
   return (
