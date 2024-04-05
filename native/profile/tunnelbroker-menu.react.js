@@ -43,8 +43,15 @@ function TunnelbrokerMenu(props: Props): React.Node {
     useTunnelbroker();
   const [messages, setMessages] = useState<TunnelbrokerMessage[]>([]);
   const [recipient, setRecipient] = useState('');
-
   const [message, setMessage] = useState('');
+  const [deviceID, setDeviceID] = React.useState<?string>();
+
+  React.useEffect(() => {
+    void (async () => {
+      const contentSigningKey = await getContentSigningKey();
+      setDeviceID(contentSigningKey);
+    })();
+  }, []);
 
   const listener = React.useCallback((msg: TunnelbrokerMessage) => {
     setMessages(prev => [...prev, msg]);
@@ -89,11 +96,11 @@ function TunnelbrokerMenu(props: Props): React.Node {
         `Encrypted message to ${recipient}`,
         recipient,
       );
-      const deviceID = await getContentSigningKey();
+      const signingKey = await getContentSigningKey();
       const encryptedMessage: EncryptedMessage = {
         type: peerToPeerMessageTypes.ENCRYPTED_MESSAGE,
         senderInfo: {
-          deviceID,
+          deviceID: signingKey,
           userID: currentUserID,
         },
         encryptedData,
@@ -117,6 +124,20 @@ function TunnelbrokerMenu(props: Props): React.Node {
         <View style={styles.submenuButton}>
           <Text style={styles.submenuText}>Connected</Text>
           <Text style={styles.text}>{connected.toString()}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.header}>DEVICE ID</Text>
+      <View style={styles.section}>
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>{deviceID}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.header}>USER ID</Text>
+      <View style={styles.section}>
+        <View style={styles.submenuButton}>
+          <Text style={styles.submenuText}>{currentUserID}</Text>
         </View>
       </View>
 
