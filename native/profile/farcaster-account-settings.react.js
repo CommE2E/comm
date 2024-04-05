@@ -74,7 +74,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     () => (
       <View style={styles.connectContainer}>
         <View style={styles.promptContainer}>
-          <FarcasterPrompt />
+          <FarcasterPrompt showDisconnectText={!!fid} />
         </View>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <View style={styles.buttonContainer}>{button}</View>
@@ -82,6 +82,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     ),
     [
       button,
+      fid,
       onSuccess,
       styles.buttonContainer,
       styles.connectContainer,
