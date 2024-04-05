@@ -138,6 +138,7 @@ const persistBlacklist = [
   'dbOpsStore',
   'syncedMetadataStore',
   'userStore',
+  'auxUserStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
