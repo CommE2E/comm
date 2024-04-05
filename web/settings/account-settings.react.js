@@ -9,7 +9,10 @@ import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import { createOlmSessionsWithOwnDevices } from 'lib/utils/crypto-utils.js';
+import {
+  createOlmSessionsWithOwnDevices,
+  getContentSigningKey,
+} from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './account-settings.css';
@@ -33,6 +36,16 @@ function AccountSettings(): React.Node {
     [dispatchActionPromise, sendLogoutRequest],
   );
   const identityContext = React.useContext(IdentityClientContext);
+
+  const userID = useSelector(state => state.currentUserInfo?.id);
+  const [deviceID, setDeviceID] = React.useState<?string>();
+
+  React.useEffect(() => {
+    void (async () => {
+      const contentSigningKey = await getContentSigningKey();
+      setDeviceID(contentSigningKey);
+    })();
+  }, []);
 
   const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
@@ -195,6 +208,29 @@ function AccountSettings(): React.Node {
       </div>
     );
   }
+  let deviceData;
+  if (staffCanSee) {
+    deviceData = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>Device ID</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>{deviceID}</span>
+            </li>
+          </ul>
+        </div>
+        <h4 className={css.preferencesHeader}>User ID</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>{userID}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -230,6 +266,7 @@ function AccountSettings(): React.Node {
         {preferences}
         {tunnelbroker}
         {backup}
+        {deviceData}
       </div>
     </div>
   );
