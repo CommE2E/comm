@@ -5,6 +5,9 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FIDContext } from 'lib/components/fid-provider.react.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
   type FarcasterWebViewState,
@@ -32,6 +35,10 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
 
   const bottomSheetRef = React.useRef(null);
 
+  const fidContext = React.useContext(FIDContext);
+  invariant(fidContext, 'fidContext is missing');
+  const { fid, setFID } = fidContext;
+
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
   const { setContentHeight } = bottomSheetContext;
@@ -51,10 +58,20 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
 
-  const onSuccessfulConnect = React.useCallback(() => {
-    // TODO: Update fid
-    bottomSheetRef.current?.close();
-  }, []);
+  const onSuccessfulConnect = React.useCallback(
+    (newFID: string) => {
+      setFID(newFID);
+    },
+    [setFID],
+  );
+
+  const isAppForegrounded = useIsAppForegrounded();
+
+  React.useEffect(() => {
+    if (fid && isAppForegrounded) {
+      bottomSheetRef.current?.close();
+    }
+  }, [fid, isAppForegrounded]);
 
   const onPressConnect = React.useCallback(() => {
     setWebViewState('opening');
