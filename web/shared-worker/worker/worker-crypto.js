@@ -16,6 +16,7 @@ import {
   type ClientPublicKeys,
   type NotificationsOlmDataType,
   type EncryptedData,
+  type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type {
   IdentityNewDeviceKeyUpload,
@@ -415,11 +416,19 @@ const olmAPI: OlmAPI = {
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
+    sessionVersion: number,
   ): Promise<string> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
     const { contentAccount, contentSessions } = cryptoStore;
+
+    const existingSession = contentSessions[contentIdentityKeys.ed25519];
+    if (existingSession && existingSession.version > sessionVersion) {
+      throw new Error('OLM_SESSION_ALREADY_CREATED');
+    } else if (existingSession && existingSession.version === sessionVersion) {
+      throw new Error('OLM_SESSION_CREATION_RACE_CONDITION');
+    }
 
     const session = new olm.Session();
     session.create_inbound_from(
@@ -434,9 +443,10 @@ const olmAPI: OlmAPI = {
       initialEncryptedData.message,
     );
 
+    const newSessionVersion = existingSession ? existingSession.version + 1 : 1;
     contentSessions[contentIdentityKeys.ed25519] = {
       session,
-      version: 1,
+      version: newSessionVersion,
     };
     persistCryptoStore();
 
@@ -445,11 +455,12 @@ const olmAPI: OlmAPI = {
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
-  ): Promise<EncryptedData> {
+  ): Promise<OutboundSessionCreationResult> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
     const { contentAccount, contentSessions } = cryptoStore;
+    const existingSession = contentSessions[contentIdentityKeys.ed25519];
 
     const session = new olm.Session();
     session.create_outbound(
@@ -464,13 +475,19 @@ const olmAPI: OlmAPI = {
       JSON.stringify(initialEncryptedMessageContent),
     );
 
-    contentSessions[contentIdentityKeys.ed25519] = { session, version: 1 };
+    const newSessionVersion = existingSession ? existingSession.version + 1 : 1;
+    contentSessions[contentIdentityKeys.ed25519] = {
+      session,
+      version: newSessionVersion,
+    };
     persistCryptoStore();
 
-    return {
+    const encryptedData: EncryptedData = {
       message: initialEncryptedData.body,
       messageType: initialEncryptedData.type,
     };
+
+    return { encryptedData, sessionVersion: newSessionVersion };
   },
   async notificationsSessionCreator(
     cookie: ?string,
