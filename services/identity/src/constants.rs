@@ -124,18 +124,10 @@ pub mod devices_table {
 // One time keys table, which need to exist in their own table to ensure
 // atomicity of additions and removals
 pub mod one_time_keys_table {
-  // The `PARTITION_KEY` will contain "notification_${deviceID}" or
-  // "content_${deviceID}" to allow for both key sets to coexist in the same table
   pub const NAME: &str = "identity-one-time-keys";
-  pub const PARTITION_KEY: &str = "deviceID";
-  pub const DEVICE_ID: &str = PARTITION_KEY;
-  pub const SORT_KEY: &str = "oneTimeKey";
-  pub const ONE_TIME_KEY: &str = SORT_KEY;
+  pub const PARTITION_KEY: &str = "userID#deviceID#olmAccount";
+  pub const SORT_KEY: &str = "timestamp#keyNumber";
 }
-
-// One-time key constants for device info map
-pub const CONTENT_ONE_TIME_KEY: &str = "contentOneTimeKey";
-pub const NOTIF_ONE_TIME_KEY: &str = "notifOneTimeKey";
 
 // Tokio
 

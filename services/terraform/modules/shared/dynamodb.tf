@@ -238,17 +238,17 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
 
 resource "aws_dynamodb_table" "identity-one-time-keys" {
   name         = "identity-one-time-keys"
-  hash_key     = "deviceID"
-  range_key    = "oneTimeKey"
+  hash_key     = "userID#deviceID#olmAccount"
+  range_key    = "timestamp#keyNumber"
   billing_mode = "PAY_PER_REQUEST"
 
   attribute {
-    name = "deviceID"
+    name = "userID#deviceID"
     type = "S"
   }
 
   attribute {
-    name = "oneTimeKey"
+    name = "timestamp#keyNumber"
     type = "S"
   }
 }
