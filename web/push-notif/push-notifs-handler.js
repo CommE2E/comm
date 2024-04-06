@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { recordNotifPermissionAlertActionType } from 'lib/actions/alert-actions.js';
 import {
   useSetDeviceTokenFanout,
   setDeviceTokenActionTypes,
@@ -13,10 +14,7 @@ import { alertTypes } from 'lib/types/alert-types.js';
 import { isDesktopPlatform } from 'lib/types/device-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
-import {
-  shouldSkipPushPermissionAlert,
-  recordNotifPermissionAlertActionType,
-} from 'lib/utils/push-alerts.js';
+import { shouldSkipPushPermissionAlert } from 'lib/utils/push-alerts.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 

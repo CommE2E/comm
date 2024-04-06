@@ -6,6 +6,7 @@ import * as React from 'react';
 import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 
+import { recordNotifPermissionAlertActionType } from 'lib/actions/alert-actions.js';
 import type {
   DeviceTokens,
   SetDeviceTokenActionPayload,
@@ -38,10 +39,7 @@ import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
-import {
-  recordNotifPermissionAlertActionType,
-  shouldSkipPushPermissionAlert,
-} from 'lib/utils/push-alerts.js';
+import { shouldSkipPushPermissionAlert } from 'lib/utils/push-alerts.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
