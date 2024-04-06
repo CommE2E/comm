@@ -3,7 +3,7 @@
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 
-import { defaultAlertInfo } from 'lib/types/alert-types.js';
+import { defaultAlertInfo, alertTypes } from 'lib/types/alert-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
@@ -43,7 +43,11 @@ const defaultState = ({
   calendarFilters: defaultCalendarFilters,
   dataLoaded: false,
   customServer: natNodeServer,
-  notifPermissionAlertInfo: defaultAlertInfo,
+  alertStore: {
+    alertInfos: {
+      [alertTypes.NOTIF_PERMISSION]: defaultAlertInfo,
+    },
+  },
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultEnabledApps,

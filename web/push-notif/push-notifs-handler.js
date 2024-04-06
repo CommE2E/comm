@@ -9,6 +9,7 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import { alertTypes } from 'lib/types/alert-types.js';
 import { isDesktopPlatform } from 'lib/types/device-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
@@ -156,7 +157,7 @@ function PushNotificationsHandler(): React.Node {
   const createPushSubscription = useCreatePushSubscription();
 
   const notifPermissionAlertInfo = useSelector(
-    state => state.notifPermissionAlertInfo,
+    state => state.alertStore.alertInfos[alertTypes.NOTIF_PERMISSION],
   );
 
   const modalContext = useModalContext();
