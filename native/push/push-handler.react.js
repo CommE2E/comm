@@ -28,7 +28,7 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
-import type { AlertInfo } from 'lib/types/alert-types.js';
+import { alertTypes, type AlertInfo } from 'lib/types/alert-types.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -779,7 +779,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
     const notifPermissionAlertInfo = useSelector(
-      state => state.notifPermissionAlertInfo,
+      state => state.alertStore.alertInfos[alertTypes.NOTIF_PERMISSION],
     );
     const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);

@@ -47,7 +47,7 @@ declare var keyserverURL: string;
 
 const persistWhitelist = [
   'enabledApps',
-  'notifPermissionAlertInfo',
+  'alertStore',
   'commServicesAccessToken',
   'keyserverStore',
   'globalThemeInfo',

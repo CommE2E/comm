@@ -1,6 +1,6 @@
 // @flow
 
-import { defaultAlertInfo } from 'lib/types/alert-types.js';
+import { defaultAlertInfo, alertTypes } from 'lib/types/alert-types.js';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
@@ -44,7 +44,11 @@ const defaultWebState: AppState = Object.freeze({
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
   dataLoaded: false,
-  notifPermissionAlertInfo: defaultAlertInfo,
+  alertStore: {
+    alertInfos: {
+      [alertTypes.NOTIF_PERMISSION]: defaultAlertInfo,
+    },
+  },
   watchedThreadIDs: [],
   lifecycleState: 'active',
   enabledApps: defaultWebEnabledApps,
