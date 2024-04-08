@@ -165,7 +165,13 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String userID,
       jsi::String deviceID,
       jsi::String accessToken) override;
+  virtual void innerSetCommServicesAuthMetadata(
+      std::string userID,
+      std::string deviceID,
+      std::string accessToken);
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) override;
+  virtual jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) override;
+  virtual void innerClearCommServicesAuthMetadata();
   virtual jsi::Value setCommServicesAccessToken(
       jsi::Runtime &rt,
       jsi::String accessToken) override;

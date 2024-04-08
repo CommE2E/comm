@@ -68,6 +68,7 @@ public:
   virtual jsi::Value generateRandomString(jsi::Runtime &rt, double size) = 0;
   virtual jsi::Value setCommServicesAuthMetadata(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
+  virtual jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) = 0;
   virtual jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) = 0;
   virtual jsi::Value clearCommServicesAccessToken(jsi::Runtime &rt) = 0;
   virtual void startBackupHandler(jsi::Runtime &rt) = 0;
@@ -480,6 +481,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getCommServicesAuthMetadata, jsInvoker_, instance_);
+    }
+    jsi::Value clearCommServicesAuthMetadata(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::clearCommServicesAuthMetadata) == 1,
+          "Expected clearCommServicesAuthMetadata(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::clearCommServicesAuthMetadata, jsInvoker_, instance_);
     }
     jsi::Value setCommServicesAccessToken(jsi::Runtime &rt, jsi::String accessToken) override {
       static_assert(
