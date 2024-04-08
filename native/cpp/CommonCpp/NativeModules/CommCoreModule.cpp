@@ -1583,31 +1583,39 @@ jsi::Value CommCoreModule::setCommServicesAuthMetadata(
   auto userIDStr{userID.utf8(rt)};
   auto deviceIDStr{deviceID.utf8(rt)};
   auto accessTokenStr{accessToken.utf8(rt)};
+  return this->setCommServicesAuthMetadata(
+      rt, userIDStr, deviceIDStr, accessTokenStr);
+}
+
+jsi::Value CommCoreModule::setCommServicesAuthMetadata(
+    jsi::Runtime &rt,
+    std::string userID,
+    std::string deviceID,
+    std::string accessToken) {
   return createPromiseAsJSIValue(
       rt,
-      [this, userIDStr, deviceIDStr, accessTokenStr](
+      [this, userID, deviceID, accessToken](
           jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job =
-            [this, promise, userIDStr, deviceIDStr, accessTokenStr]() {
-              std::string error;
-              try {
-                CommSecureStore::set(CommSecureStore::userID, userIDStr);
-                CommSecureStore::set(CommSecureStore::deviceID, deviceIDStr);
-                CommSecureStore::set(
-                    CommSecureStore::commServicesAccessToken, accessTokenStr);
-                CommServicesAuthMetadataEmitter::sendAuthMetadataToJS(
-                    accessTokenStr, userIDStr);
-              } catch (const std::exception &e) {
-                error = e.what();
-              }
-              this->jsInvoker_->invokeAsync([error, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                } else {
-                  promise->resolve(jsi::Value::undefined());
-                }
-              });
-            };
+        taskType job = [this, promise, userID, deviceID, accessToken]() {
+          std::string error;
+          try {
+            CommSecureStore::set(CommSecureStore::userID, userID);
+            CommSecureStore::set(CommSecureStore::deviceID, deviceID);
+            CommSecureStore::set(
+                CommSecureStore::commServicesAccessToken, accessToken);
+            CommServicesAuthMetadataEmitter::sendAuthMetadataToJS(
+                accessToken, userID);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
       });
@@ -1671,6 +1679,10 @@ jsi::Value CommCoreModule::getCommServicesAuthMetadata(jsi::Runtime &rt) {
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
       });
+}
+
+jsi::Value CommCoreModule::clearCommServicesAuthMetadata(jsi::Runtime &rt) {
+  return this->setCommServicesAuthMetadata(rt, "", "", "");
 }
 
 jsi::Value CommCoreModule::setCommServicesAccessToken(

@@ -18,7 +18,7 @@ function AccessTokenHandler(): React.Node {
         await commCoreModule.getCommServicesAuthMetadata();
       dispatch({
         type: setAccessTokenActionType,
-        payload: accessToken ?? null,
+        payload: accessToken && accessToken !== '' ? accessToken : null,
       });
     })();
   }, [dispatch]);
@@ -27,10 +27,10 @@ function AccessTokenHandler(): React.Node {
     const metadataEmitter = getCommServicesAuthMetadataEmitter();
     const subscription = metadataEmitter.addListener(
       'commServicesAuthMetadata',
-      (authMetadata: UserAuthMetadata) => {
+      ({ accessToken }: UserAuthMetadata) => {
         dispatch({
           type: setAccessTokenActionType,
-          payload: authMetadata.accessToken,
+          payload: accessToken && accessToken !== '' ? accessToken : null,
         });
       },
     );

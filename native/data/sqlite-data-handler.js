@@ -39,6 +39,7 @@ import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 async function clearSensitiveData() {
+  await commCoreModule.clearCommServicesAuthMetadata();
   await commCoreModule.clearSensitiveData();
   try {
     await filesystemMediaCache.clearCache();
