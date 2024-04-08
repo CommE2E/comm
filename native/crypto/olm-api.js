@@ -7,6 +7,7 @@ import {
   type OlmAPI,
   type OLMIdentityKeys,
   type EncryptedData,
+  type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 
@@ -19,10 +20,10 @@ const olmAPI: OlmAPI = {
   getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
   decrypt: commCoreModule.decrypt,
-  // $FlowFixMe
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
+    sessionVersion: number,
   ): Promise<string> {
     const identityKeys = JSON.stringify({
       curve25519: contentIdentityKeys.curve25519,
@@ -32,13 +33,13 @@ const olmAPI: OlmAPI = {
       identityKeys,
       initialEncryptedData,
       contentIdentityKeys.ed25519,
+      sessionVersion,
     );
   },
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
-    // $FlowFixMe
-  ): Promise<EncryptedData> {
+  ): Promise<OutboundSessionCreationResult> {
     const { prekey, prekeySignature, oneTimeKey } = contentInitializationInfo;
     const identityKeys = JSON.stringify({
       curve25519: contentIdentityKeys.curve25519,
