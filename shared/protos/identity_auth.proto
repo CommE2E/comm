@@ -58,6 +58,9 @@ service IdentityClientService {
   // Returns device list history
   rpc GetDeviceListForUser(GetDeviceListRequest) returns
     (GetDeviceListResponse) {}
+  // Returns current device list for a set of users
+  rpc GetDeviceListsForUsers (PeersDeviceListsRequest) returns
+    (PeersDeviceListsResponse) {}
 
   rpc UpdateDeviceList(UpdateDeviceListRequest) returns
     (identity.unauth.Empty) {}
@@ -196,6 +199,19 @@ message GetDeviceListResponse {
   //   })
   // }
   repeated string device_list_updates = 1;
+}
+
+// GetDeviceListsForUsers
+
+message PeersDeviceListsRequest {
+  repeated string user_ids = 1;
+}
+
+message PeersDeviceListsResponse {
+  // keys are user_id
+  // values are JSON-stringified device list payloads
+  // (see GetDeviceListResponse message for payload structure)
+  map<string, string> users_device_lists = 1;
 }
 
 // UpdateDeviceListForUser
