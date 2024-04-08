@@ -51,7 +51,7 @@ public:
   virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
   virtual jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, jsi::String oneTimeKey, jsi::String deviceID) = 0;
-  virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID) = 0;
+  virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
   virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
@@ -345,13 +345,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::initializeContentOutboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(prekey), std::move(prekeySignature), std::move(oneTimeKey), std::move(deviceID));
     }
-    jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID) override {
+    jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeContentInboundSession) == 4,
-          "Expected initializeContentInboundSession(...) to have 4 parameters");
+          bridging::getParameterCount(&T::initializeContentInboundSession) == 5,
+          "Expected initializeContentInboundSession(...) to have 5 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeContentInboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(encryptedContent), std::move(deviceID));
+          rt, &T::initializeContentInboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(encryptedContent), std::move(deviceID), std::move(sessionVersion));
     }
     jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) override {
       static_assert(

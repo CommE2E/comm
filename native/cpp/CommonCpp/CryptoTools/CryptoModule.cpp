@@ -261,8 +261,17 @@ void CryptoModule::initializeInboundForReceivingSession(
     const std::string &targetDeviceId,
     const OlmBuffer &encryptedMessage,
     const OlmBuffer &idKeys,
+    int sessionVersion,
     const bool overwrite) {
   if (this->hasSessionFor(targetDeviceId)) {
+    std::shared_ptr<Session> existingSession =
+        getSessionByDeviceId(targetDeviceId);
+    if (existingSession->getVersion() > sessionVersion) {
+      throw std::runtime_error{"OLM_SESSION_ALREADY_CREATED"};
+    } else if (existingSession->getVersion() == sessionVersion) {
+      throw std::runtime_error{"OLM_SESSION_CREATION_RACE_CONDITION"};
+    }
+
     if (overwrite) {
       this->sessions.erase(this->sessions.find(targetDeviceId));
     } else {
@@ -276,16 +285,21 @@ void CryptoModule::initializeInboundForReceivingSession(
       this->keys.identityKeys.data(),
       encryptedMessage,
       idKeys);
+  newSession->setVersion(sessionVersion);
   this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
 }
 
-void CryptoModule::initializeOutboundForSendingSession(
+int CryptoModule::initializeOutboundForSendingSession(
     const std::string &targetDeviceId,
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
     const OlmBuffer &oneTimeKey) {
+  int newSessionVersion = 1;
   if (this->hasSessionFor(targetDeviceId)) {
+    std::shared_ptr<Session> existingSession =
+        getSessionByDeviceId(targetDeviceId);
+    newSessionVersion = existingSession->getVersion() + 1;
     Logger::log(
         "olm session overwritten for the device with id: " + targetDeviceId);
     this->sessions.erase(this->sessions.find(targetDeviceId));
@@ -297,7 +311,9 @@ void CryptoModule::initializeOutboundForSendingSession(
       preKeys,
       preKeySignature,
       oneTimeKey);
+  newSession->setVersion(newSessionVersion);
   this->sessions.insert(make_pair(targetDeviceId, std::move(newSession)));
+  return newSessionVersion;
 }
 
 bool CryptoModule::hasSessionFor(const std::string &targetDeviceId) {
