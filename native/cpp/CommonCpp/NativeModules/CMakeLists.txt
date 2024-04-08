@@ -23,6 +23,7 @@ set(NATIVE_HDRS
   "IntegrityStoreOperations.h"
   "SyncedMetadataStoreOperations.h"
   "AuxUserStoreOperations.h"
+  "ThreadActivityOperations.h"
 )
 
 set(NATIVE_SRCS
@@ -89,6 +90,7 @@ set(DATA_STORES_HDRS
   ${_data_stores_path}/IntegrityStore.h
   ${_data_stores_path}/SyncedMetadataStore.h
   ${_data_stores_path}/AuxUserStore.h
+  ${_data_stores_path}/ThreadActivityStore.h
 )
 set(DATA_STORES_SRCS
   ${_data_stores_path}/DraftStore.cpp
@@ -101,6 +103,7 @@ set(DATA_STORES_SRCS
   ${_data_stores_path}/IntegrityStore.cpp
   ${_data_stores_path}/SyncedMetadataStore.cpp
   ${_data_stores_path}/AuxUserStore.cpp
+  ${_data_stores_path}/ThreadActivityStore.cpp
 )
 
 set(_backup_op_path ./PersistentStorageUtilities/BackupOperationsUtilities)
