@@ -1482,6 +1482,7 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
         taskType job = [this, promise]() {
           std::string error;
           try {
+            this->clearCommServicesAuthMetadata();
             DatabaseManager::clearSensitiveData();
           } catch (const std::exception &e) {
             error = e.what();
@@ -1587,90 +1588,99 @@ jsi::Value CommCoreModule::setCommServicesAuthMetadata(
       rt,
       [this, userIDStr, deviceIDStr, accessTokenStr](
           jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job =
-            [this, promise, userIDStr, deviceIDStr, accessTokenStr]() {
-              std::string error;
-              try {
-                CommSecureStore::set(CommSecureStore::userID, userIDStr);
-                CommSecureStore::set(CommSecureStore::deviceID, deviceIDStr);
-                CommSecureStore::set(
-                    CommSecureStore::commServicesAccessToken, accessTokenStr);
-                CommServicesAuthMetadataEmitter::sendAuthMetadataToJS(
-                    accessTokenStr, userIDStr);
-              } catch (const std::exception &e) {
-                error = e.what();
-              }
-              this->jsInvoker_->invokeAsync([error, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                } else {
-                  promise->resolve(jsi::Value::undefined());
-                }
-              });
-            };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
+        std::string error;
+        try {
+          this->setCommServicesAuthMetadata(
+              userIDStr, deviceIDStr, accessTokenStr);
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+        this->jsInvoker_->invokeAsync([error, promise]() {
+          if (error.size()) {
+            promise->reject(error);
+          } else {
+            promise->resolve(jsi::Value::undefined());
+          }
+        });
       });
+}
+
+void CommCoreModule::setCommServicesAuthMetadata(
+    std::string userID,
+    std::string deviceID,
+    std::string accessToken) {
+  CommSecureStore::set(CommSecureStore::userID, userID);
+  CommSecureStore::set(CommSecureStore::deviceID, deviceID);
+  CommSecureStore::set(CommSecureStore::commServicesAccessToken, accessToken);
+  CommServicesAuthMetadataEmitter::sendAuthMetadataToJS(accessToken, userID);
 }
 
 jsi::Value CommCoreModule::getCommServicesAuthMetadata(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, &innerRt, promise]() {
-          std::string error;
-          std::string userID;
-          std::string deviceID;
-          std::string accessToken;
-          try {
-            folly::Optional<std::string> userIDOpt =
-                CommSecureStore::get(CommSecureStore::userID);
-            if (userIDOpt.hasValue()) {
-              userID = userIDOpt.value();
-            }
-            folly::Optional<std::string> deviceIDOpt =
-                CommSecureStore::get(CommSecureStore::deviceID);
-            if (deviceIDOpt.hasValue()) {
-              deviceID = deviceIDOpt.value();
-            }
-            folly::Optional<std::string> accessTokenOpt =
-                CommSecureStore::get(CommSecureStore::commServicesAccessToken);
-            if (accessTokenOpt.hasValue()) {
-              accessToken = accessTokenOpt.value();
-            }
-          } catch (const std::exception &e) {
-            error = e.what();
+        std::string error;
+        std::string userID;
+        std::string deviceID;
+        std::string accessToken;
+        try {
+          folly::Optional<std::string> userIDOpt =
+              CommSecureStore::get(CommSecureStore::userID);
+          if (userIDOpt.hasValue()) {
+            userID = userIDOpt.value();
           }
-          this->jsInvoker_->invokeAsync(
-              [&innerRt, error, userID, deviceID, accessToken, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                } else {
-                  auto authMetadata = jsi::Object(innerRt);
-                  if (!userID.empty()) {
-                    authMetadata.setProperty(
-                        innerRt,
-                        "userID",
-                        jsi::String::createFromUtf8(innerRt, userID));
-                  }
-                  if (!deviceID.empty()) {
-                    authMetadata.setProperty(
-                        innerRt,
-                        "deviceID",
-                        jsi::String::createFromUtf8(innerRt, deviceID));
-                  }
-                  if (!accessToken.empty()) {
-                    authMetadata.setProperty(
-                        innerRt,
-                        "accessToken",
-                        jsi::String::createFromUtf8(innerRt, accessToken));
-                  }
-                  promise->resolve(std::move(authMetadata));
+          folly::Optional<std::string> deviceIDOpt =
+              CommSecureStore::get(CommSecureStore::deviceID);
+          if (deviceIDOpt.hasValue()) {
+            deviceID = deviceIDOpt.value();
+          }
+          folly::Optional<std::string> accessTokenOpt =
+              CommSecureStore::get(CommSecureStore::commServicesAccessToken);
+          if (accessTokenOpt.hasValue()) {
+            accessToken = accessTokenOpt.value();
+          }
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+        this->jsInvoker_->invokeAsync(
+            [&innerRt, error, userID, deviceID, accessToken, promise]() {
+              if (error.size()) {
+                promise->reject(error);
+              } else {
+                auto authMetadata = jsi::Object(innerRt);
+                if (!userID.empty()) {
+                  authMetadata.setProperty(
+                      innerRt,
+                      "userID",
+                      jsi::String::createFromUtf8(innerRt, userID));
                 }
-              });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
+                if (!deviceID.empty()) {
+                  authMetadata.setProperty(
+                      innerRt,
+                      "deviceID",
+                      jsi::String::createFromUtf8(innerRt, deviceID));
+                }
+                if (!accessToken.empty()) {
+                  authMetadata.setProperty(
+                      innerRt,
+                      "accessToken",
+                      jsi::String::createFromUtf8(innerRt, accessToken));
+                }
+                promise->resolve(std::move(authMetadata));
+              }
+            });
       });
+}
+
+jsi::Value CommCoreModule::clearCommServicesAuthMetadata(jsi::Runtime &rt) {
+  return this->setCommServicesAuthMetadata(
+      rt,
+      jsi::String::createFromUtf8(rt, ""),
+      jsi::String::createFromUtf8(rt, ""),
+      jsi::String::createFromUtf8(rt, ""));
+}
+
+void CommCoreModule::clearCommServicesAuthMetadata() {
+  return this->setCommServicesAuthMetadata("", "", "");
 }
 
 jsi::Value CommCoreModule::setCommServicesAccessToken(
@@ -1681,47 +1691,39 @@ jsi::Value CommCoreModule::setCommServicesAccessToken(
       rt,
       [this, accessTokenStr](
           jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, promise, accessTokenStr]() {
-          std::string error;
-          try {
-            CommSecureStore::set(
-                CommSecureStore::commServicesAccessToken, accessTokenStr);
-          } catch (const std::exception &e) {
-            error = e.what();
+        std::string error;
+        try {
+          CommSecureStore::set(
+              CommSecureStore::commServicesAccessToken, accessTokenStr);
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+        this->jsInvoker_->invokeAsync([error, promise]() {
+          if (error.size()) {
+            promise->reject(error);
+          } else {
+            promise->resolve(jsi::Value::undefined());
           }
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
+        });
       });
 }
 
 jsi::Value CommCoreModule::clearCommServicesAccessToken(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [this, promise]() {
-          std::string error;
-          try {
-            CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
-          } catch (const std::exception &e) {
-            error = e.what();
+        std::string error;
+        try {
+          CommSecureStore::set(CommSecureStore::commServicesAccessToken, "");
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+        this->jsInvoker_->invokeAsync([error, promise]() {
+          if (error.size()) {
+            promise->reject(error);
+          } else {
+            promise->resolve(jsi::Value::undefined());
           }
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
+        });
       });
 }
 
