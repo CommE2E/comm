@@ -469,8 +469,10 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
                 crypto::OlmBuffer sessionDataBuffer(
                     sessionsDataItem.session_data.begin(),
                     sessionsDataItem.session_data.end());
+                crypto::SessionPersist sessionPersist{
+                    sessionDataBuffer, sessionsDataItem.version};
                 contentPersist.sessions.insert(std::make_pair(
-                    sessionsDataItem.target_device_id, sessionDataBuffer));
+                    sessionsDataItem.target_device_id, sessionPersist));
               }
             }
 
