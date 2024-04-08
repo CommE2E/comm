@@ -62,6 +62,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<AuxUserInfo>("AuxUserInfo")
       .field("id", &AuxUserInfo::id)
       .field("auxUserInfo", &AuxUserInfo::aux_user_info);
+  value_object<ThreadActivityEntry>("ThreadActivityEntry")
+      .field("id", &ThreadActivityEntry::id)
+      .field("threadActivityStoreEntry", &ThreadActivityEntry::thread_activity_store_entry);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -212,6 +215,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "removeAllAuxUserInfos", &SQLiteQueryExecutor::removeAllAuxUserInfos)
       .function("getAllAuxUserInfos", &SQLiteQueryExecutor::getAllAuxUserInfos)
+      .function(
+          "replaceThreadActivityEntry",
+          &SQLiteQueryExecutor::replaceThreadActivityEntry)
+      .function(
+          "removeThreadActivityEntries",
+          &SQLiteQueryExecutor::removeThreadActivityEntries)
+      .function(
+          "removeAllThreadActivityEntries",
+          &SQLiteQueryExecutor::removeAllThreadActivityEntries)
+      .function(
+          "getAllThreadActivityEntries",
+          &SQLiteQueryExecutor::getAllThreadActivityEntries)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
