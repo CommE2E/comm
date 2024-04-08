@@ -14,7 +14,6 @@
 
 #ifndef EMSCRIPTEN
 #include "../CryptoTools/CryptoModule.h"
-#include "../Notifications/BackgroundDataStorage/NotificationsCryptoModule.h"
 #include "CommSecureStore.h"
 #include "PlatformSpecificTools.h"
 #include "StaffUtils.h"
@@ -554,38 +553,10 @@ bool create_integrity_table(sqlite3 *db) {
 }
 
 bool migrate_notifs_crypto_account(sqlite3 *db) {
-#ifndef EMSCRIPTEN
-  std::string legacyCryptoAccountDataKey = "cryptoAccountDataKey";
-  folly::Optional<std::string> secretKey =
-      CommSecureStore::get(legacyCryptoAccountDataKey);
-
-  if (!secretKey.hasValue()) {
-    return false;
-  }
-
-  std::unique_ptr<crypto::CryptoModule> legacyNotifsAccount =
-      NotificationsCryptoModule::migrateLegacyNotificationsCryptoModule();
-
-  if (!legacyNotifsAccount) {
-    return true;
-  }
-
-  std::string insert_notifs_account_query =
-      "REPLACE INTO olm_persist_account (id, account_data) "
-      "VALUES (?, ?);";
-
-  crypto::Persist legacyNotifsPersist =
-      legacyNotifsAccount->storeAsB64(secretKey.value());
-  std::string notifsAccountData = std::string(
-      legacyNotifsPersist.account.begin(), legacyNotifsPersist.account.end());
-
-  replaceEntity<OlmPersistAccount>(
-      db, insert_notifs_account_query, {NOTIFS_ACCOUNT_ID, notifsAccountData});
-
+  // This migration was turned into no-op due to
+  // concerns outlined in the following issue:
+  // https://linear.app/comm/issue/ENG-7638/investigate-android-crash-on-sqlite-migration-38
   return true;
-#else
-  return true;
-#endif
 }
 
 bool create_synced_metadata_table(sqlite3 *db) {
