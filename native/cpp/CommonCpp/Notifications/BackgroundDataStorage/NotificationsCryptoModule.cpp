@@ -183,42 +183,6 @@ NotificationsCryptoModule::deserializeNotificationsSession(
   return {std::move(session), picklingKey};
 }
 
-std::unique_ptr<crypto::CryptoModule>
-NotificationsCryptoModule::migrateLegacyNotificationsCryptoModule() {
-  const std::string notificationsCryptoAccountPath =
-      PlatformSpecificTools::getNotificationsCryptoAccountPath();
-  std::ifstream notificationCryptoAccountCheck(notificationsCryptoAccountPath);
-
-  if (!notificationCryptoAccountCheck.good()) {
-    notificationCryptoAccountCheck.close();
-    return nullptr;
-  }
-  notificationCryptoAccountCheck.close();
-
-  std::string legacySecureStoreNotifsAccountKey =
-      "notificationsCryptoAccountDataKey";
-  folly::Optional<std::string> legacyPicklingKey =
-      CommSecureStore::get(legacySecureStoreNotifsAccountKey);
-  if (!legacyPicklingKey.hasValue()) {
-    throw std::runtime_error(
-        "Attempt to migrate legacy notifications account but pickling key "
-        "missing.");
-  }
-
-  std::unique_ptr<crypto::CryptoModule> legacyCryptoModule =
-      NotificationsCryptoModule::deserializeCryptoModule(
-          notificationsCryptoAccountPath, legacyPicklingKey.value());
-
-  std::string legacyNotificationsSessionID = "keyserverHostedNotificationsID";
-  std::shared_ptr<crypto::Session> legacyNotificationsSession =
-      legacyCryptoModule->getSessionByDeviceId(legacyNotificationsSessionID);
-
-  NotificationsCryptoModule::persistNotificationsSession(
-      ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage,
-      legacyNotificationsSession);
-  return legacyCryptoModule;
-}
-
 void NotificationsCryptoModule::clearSensitiveData() {
   std::string notificationsCryptoAccountPath =
       PlatformSpecificTools::getNotificationsCryptoAccountPath();
@@ -332,8 +296,17 @@ NotificationsCryptoModule::LegacyStatefulDecryptResult::
 }
 
 void NotificationsCryptoModule::LegacyStatefulDecryptResult::flushState() {
+  std::shared_ptr<crypto::Session> legacyNotificationsSession =
+      this->cryptoModule->getSessionByDeviceId(keyserverHostedNotificationsID);
   NotificationsCryptoModule::serializeAndFlushCryptoModule(
       std::move(this->cryptoModule), this->path, this->picklingKey);
+  try {
+    NotificationsCryptoModule::persistNotificationsSession(
+        ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage,
+        legacyNotificationsSession);
+  } catch (const CommMMKV::InitFromNSEForbiddenError &e) {
+    return;
+  }
 }
 
 std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>

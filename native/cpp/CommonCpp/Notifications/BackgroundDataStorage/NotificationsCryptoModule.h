@@ -39,8 +39,6 @@ public:
   const static std::string initialEncryptedMessageContent;
   const static int olmEncryptedTypeMessage;
 
-  static std::unique_ptr<crypto::CryptoModule>
-  migrateLegacyNotificationsCryptoModule();
   static void clearSensitiveData();
   static void persistNotificationsSession(
       const std::string &keyserverID,
