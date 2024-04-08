@@ -6,7 +6,7 @@ import * as React from 'react';
 import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 
-import { recordNotifPermissionAlertActionType } from 'lib/actions/alert-actions.js';
+import { recordAlertActionType } from 'lib/actions/alert-actions.js';
 import type {
   DeviceTokens,
   SetDeviceTokenActionPayload,
@@ -29,7 +29,11 @@ import {
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
-import { alertTypes, type AlertInfo } from 'lib/types/alert-types.js';
+import {
+  alertTypes,
+  type AlertInfo,
+  type RecordAlertActionPayload,
+} from 'lib/types/alert-types.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -566,9 +570,15 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (shouldSkipPushPermissionAlert(alertInfo)) {
       return;
     }
+
+    const payload: RecordAlertActionPayload = {
+      alertType: alertTypes.NOTIF_PERMISSION,
+      time: Date.now(),
+    };
+
     this.props.dispatch({
-      type: recordNotifPermissionAlertActionType,
-      payload: { time: Date.now() },
+      type: recordAlertActionType,
+      payload,
     });
 
     Alert.alert(

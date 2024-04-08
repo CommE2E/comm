@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { recordNotifPermissionAlertActionType } from 'lib/actions/alert-actions.js';
+import { recordAlertActionType } from 'lib/actions/alert-actions.js';
 import {
   useSetDeviceTokenFanout,
   setDeviceTokenActionTypes,
@@ -10,7 +10,10 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
-import { alertTypes } from 'lib/types/alert-types.js';
+import {
+  alertTypes,
+  type RecordAlertActionPayload,
+} from 'lib/types/alert-types.js';
 import { isDesktopPlatform } from 'lib/types/device-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
@@ -183,9 +186,15 @@ function PushNotificationsHandler(): React.Node {
       ) {
         // Ask existing users that are already logged in for permission
         modalContext.pushModal(<PushNotifModal />);
+
+        const payload: RecordAlertActionPayload = {
+          alertType: alertTypes.NOTIF_PERMISSION,
+          time: Date.now(),
+        };
+
         dispatch({
-          type: recordNotifPermissionAlertActionType,
-          payload: { time: Date.now() },
+          type: recordAlertActionType,
+          payload,
         });
       }
     })();
@@ -207,9 +216,15 @@ function PushNotificationsHandler(): React.Node {
         !shouldSkipPushPermissionAlert(notifPermissionAlertInfo)
       ) {
         modalContext.pushModal(<PushNotifModal />);
+
+        const payload: RecordAlertActionPayload = {
+          alertType: alertTypes.NOTIF_PERMISSION,
+          time: Date.now(),
+        };
+
         dispatch({
-          type: recordNotifPermissionAlertActionType,
-          payload: { time: Date.now() },
+          type: recordAlertActionType,
+          payload,
         });
       }
     }
