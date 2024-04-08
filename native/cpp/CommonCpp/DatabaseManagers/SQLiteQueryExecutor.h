@@ -8,6 +8,7 @@
 #include "entities/Draft.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
+#include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
 #include <mutex>
@@ -113,6 +114,12 @@ public:
   void removeAuxUserInfos(const std::vector<std::string> &ids) const override;
   void removeAllAuxUserInfos() const override;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const override;
+  void replaceThreadActivityEntry(
+      const ThreadActivityEntry &thread_activity_entry) const override;
+  void removeThreadActivityEntries(
+      const std::vector<std::string> &ids) const override;
+  void removeAllThreadActivityEntries() const override;
+  std::vector<ThreadActivityEntry> getAllThreadActivityEntries() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;
