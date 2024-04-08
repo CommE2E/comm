@@ -1,3 +1,4 @@
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 
 use commtest::identity::device::{
@@ -7,7 +8,9 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::get_auth_client;
-use grpc_clients::identity::protos::auth::UpdateDeviceListRequest;
+use grpc_clients::identity::protos::auth::{
+  PeersDeviceListsRequest, PeersDeviceListsResponse, UpdateDeviceListRequest,
+};
 use grpc_clients::identity::protos::authenticated::GetDeviceListRequest;
 use grpc_clients::identity::DeviceType;
 use serde::Deserialize;
@@ -221,6 +224,70 @@ async fn test_keyserver_force_login() {
   ];
 
   assert_eq!(device_lists_response, expected_device_list);
+}
+
+#[tokio::test]
+async fn test_device_list_multifetch() {
+  // Create viewer (user that only auths request)
+  let viewer = register_user_device(None, None).await;
+  let mut auth_client = get_auth_client(
+    &service_addr::IDENTITY_GRPC.to_string(),
+    viewer.user_id.clone(),
+    viewer.device_id,
+    viewer.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
+
+  // Register users and prepare expected device lists
+  let mut users = Vec::new();
+  for _ in 0..5 {
+    let user = register_user_device(None, None).await;
+    users.push(user);
+  }
+  let user_ids: Vec<_> =
+    users.iter().map(|user| user.user_id.clone()).collect();
+  let expected_device_lists: HashMap<String, Vec<String>> = users
+    .into_iter()
+    .map(|user| (user.user_id, vec![user.device_id]))
+    .collect();
+
+  // Fetch device lists from server
+  let request = PeersDeviceListsRequest { user_ids };
+  let response_device_lists = auth_client
+    .get_device_lists_for_users(request)
+    .await
+    .expect("GetDeviceListsForUser RPC failed")
+    .into_inner()
+    .users_device_lists;
+
+  // verify if response has the same user IDs as request
+  let expected_user_ids: HashSet<String> =
+    expected_device_lists.keys().cloned().collect();
+  let response_user_ids: HashSet<String> =
+    response_device_lists.keys().cloned().collect();
+  let difference: HashSet<_> = expected_user_ids
+    .symmetric_difference(&response_user_ids)
+    .collect();
+  assert!(difference.is_empty(), "User IDs differ: {:?}", difference);
+
+  // verify device list for each user
+  for (user_id, expected_devices) in expected_device_lists {
+    let response_payload = response_device_lists.get(&user_id).unwrap();
+
+    let returned_devices = SignedDeviceList::from_str(response_payload)
+      .expect("failed to deserialize signed device list")
+      .into_raw()
+      .devices;
+
+    assert_eq!(
+      returned_devices, expected_devices,
+      "Device list differs for user: {}, Expected {:?}, but got {:?}",
+      user_id, expected_devices, returned_devices
+    );
+  }
 }
 
 // See GetDeviceListResponse in identity_authenticated.proto

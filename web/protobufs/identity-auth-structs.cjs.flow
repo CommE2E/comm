@@ -379,6 +379,40 @@ export type GetDeviceListResponseObject = {
   deviceListUpdatesList: Array<string>,
 }
 
+declare export class PeersDeviceListsRequest extends Message {
+  getUserIdsList(): Array<string>;
+  setUserIdsList(value: Array<string>): PeersDeviceListsRequest;
+  clearUserIdsList(): PeersDeviceListsRequest;
+  addUserIds(value: string, index?: number): PeersDeviceListsRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PeersDeviceListsRequestObject;
+  static toObject(includeInstance: boolean, msg: PeersDeviceListsRequest): PeersDeviceListsRequestObject;
+  static serializeBinaryToWriter(message: PeersDeviceListsRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PeersDeviceListsRequest;
+  static deserializeBinaryFromReader(message: PeersDeviceListsRequest, reader: BinaryReader): PeersDeviceListsRequest;
+}
+
+export type PeersDeviceListsRequestObject = {
+  userIdsList: Array<string>,
+}
+
+declare export class PeersDeviceListsResponse extends Message {
+  getUsersDeviceListsMap(): ProtoMap<string, string>;
+  clearUsersDeviceListsMap(): PeersDeviceListsResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PeersDeviceListsResponseObject;
+  static toObject(includeInstance: boolean, msg: PeersDeviceListsResponse): PeersDeviceListsResponseObject;
+  static serializeBinaryToWriter(message: PeersDeviceListsResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PeersDeviceListsResponse;
+  static deserializeBinaryFromReader(message: PeersDeviceListsResponse, reader: BinaryReader): PeersDeviceListsResponse;
+}
+
+export type PeersDeviceListsResponseObject = {
+  usersDeviceListsMap: Array<[string, string]>,
+}
+
 declare export class UpdateDeviceListRequest extends Message {
   getNewDeviceList(): string;
   setNewDeviceList(value: string): UpdateDeviceListRequest;
