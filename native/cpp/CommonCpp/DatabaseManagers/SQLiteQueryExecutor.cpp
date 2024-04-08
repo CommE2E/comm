@@ -1974,7 +1974,10 @@ void SQLiteQueryExecutor::storeOlmPersistData(
 
   for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
     OlmPersistSession persistSession = {
-        it->first, std::string(it->second.begin(), it->second.end())};
+        it->first,
+        std::string(it->second.buffer.begin(), it->second.buffer.end()),
+        it->second.version};
+
     this->storeOlmPersistSession(persistSession);
   }
 }
