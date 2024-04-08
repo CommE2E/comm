@@ -691,6 +691,67 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.getDeviceListFo
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.PeersDeviceListsRequest,
+ *   !proto.identity.auth.PeersDeviceListsResponse>}
+ */
+const methodDescriptor_IdentityClientService_GetDeviceListsForUsers = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/GetDeviceListsForUsers',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.PeersDeviceListsRequest,
+  proto.identity.auth.PeersDeviceListsResponse,
+  /**
+   * @param {!proto.identity.auth.PeersDeviceListsRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.auth.PeersDeviceListsResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.PeersDeviceListsRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.PeersDeviceListsResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.PeersDeviceListsResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.getDeviceListsForUsers =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/GetDeviceListsForUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetDeviceListsForUsers,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.PeersDeviceListsRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.auth.PeersDeviceListsResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.getDeviceListsForUsers =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/GetDeviceListsForUsers',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_GetDeviceListsForUsers);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.UpdateDeviceListRequest,
  *   !proto.identity.unauth.Empty>}
  */

@@ -24,7 +24,10 @@ use super::protos::auth::{
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest,
 };
-use super::protos::auth::{UserIdentityRequest, UserIdentityResponse};
+use super::protos::auth::{
+  PeersDeviceListsRequest, PeersDeviceListsResponse, UserIdentityRequest,
+  UserIdentityResponse,
+};
 use super::protos::unauth::Empty;
 
 #[derive(derive_more::Constructor)]
@@ -364,16 +367,60 @@ impl IdentityClientService for AuthenticatedService {
 
     let stringified_updates = device_list_updates
       .iter()
-      .map(serde_json::to_string)
-      .collect::<Result<Vec<_>, _>>()
-      .map_err(|err| {
-        error!("Failed to serialize device list updates: {}", err);
-        tonic::Status::failed_precondition("unexpected error")
-      })?;
+      .map(SignedDeviceList::as_json_string)
+      .collect::<Result<Vec<_>, _>>()?;
 
     Ok(Response::new(GetDeviceListResponse {
       device_list_updates: stringified_updates,
     }))
+  }
+
+  async fn get_device_lists_for_users(
+    &self,
+    request: tonic::Request<PeersDeviceListsRequest>,
+  ) -> Result<tonic::Response<PeersDeviceListsResponse>, tonic::Status> {
+    let PeersDeviceListsRequest { user_ids } = request.into_inner();
+
+    // do all fetches concurrently
+    let mut fetch_tasks = tokio::task::JoinSet::new();
+    let mut device_lists = HashMap::with_capacity(user_ids.len());
+    for user_id in user_ids {
+      let db_client = self.db_client.clone();
+      fetch_tasks.spawn(async move {
+        let result = db_client.get_current_device_list(&user_id).await;
+        (user_id, result)
+      });
+    }
+
+    while let Some(task_result) = fetch_tasks.join_next().await {
+      match task_result {
+        Ok((user_id, Ok(Some(device_list_row)))) => {
+          let raw_list = RawDeviceList::from(device_list_row);
+          let signed_list = SignedDeviceList::try_from_raw(raw_list)?;
+          let serialized_list = signed_list.as_json_string()?;
+          device_lists.insert(user_id, serialized_list);
+        }
+        Ok((user_id, Ok(None))) => {
+          warn!(user_id, "User has no device list, skipping!");
+        }
+        Ok((user_id, Err(err))) => {
+          error!(user_id, "Failed fetching device list: {err}");
+          // abort fetching other users
+          fetch_tasks.abort_all();
+          return Err(handle_db_error(err));
+        }
+        Err(join_error) => {
+          error!("Failed to join device list task: {join_error}");
+          fetch_tasks.abort_all();
+          return Err(Status::aborted("unexpected error"));
+        }
+      }
+    }
+
+    let response = PeersDeviceListsResponse {
+      users_device_lists: device_lists,
+    };
+    Ok(Response::new(response))
   }
 
   async fn update_device_list(
@@ -512,6 +559,14 @@ impl SignedDeviceList {
         warn!("Failed to deserialize raw device list: {}", err);
         tonic::Status::invalid_argument("invalid device list payload")
       })
+  }
+
+  /// Serializes the signed device list to a JSON string
+  fn as_json_string(&self) -> Result<String, tonic::Status> {
+    serde_json::to_string(self).map_err(|err| {
+      error!("Failed to serialize device list updates: {}", err);
+      tonic::Status::failed_precondition("unexpected error")
+    })
   }
 }
 
