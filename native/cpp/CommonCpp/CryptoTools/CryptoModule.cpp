@@ -334,7 +334,8 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   std::unordered_map<std::string, std::shared_ptr<Session>>::iterator it;
   for (it = this->sessions.begin(); it != this->sessions.end(); ++it) {
     OlmBuffer buffer = it->second->storeAsB64(secretKey);
-    persist.sessions.insert(make_pair(it->first, buffer));
+    SessionPersist sessionPersist{buffer, it->second->getVersion()};
+    persist.sessions.insert(make_pair(it->first, sessionPersist));
   }
 
   return persist;
@@ -357,10 +358,11 @@ void CryptoModule::restoreFromB64(
         std::string{::olm_account_last_error(this->getOlmAccount())}};
   }
 
-  std::unordered_map<std::string, OlmBuffer>::iterator it;
+  std::unordered_map<std::string, SessionPersist>::iterator it;
   for (it = persist.sessions.begin(); it != persist.sessions.end(); ++it) {
     std::unique_ptr<Session> session =
-        session->restoreFromB64(secretKey, it->second);
+        session->restoreFromB64(secretKey, it->second.buffer);
+    session->setVersion(it->second.version);
     this->sessions.insert(make_pair(it->first, move(session)));
   }
 }

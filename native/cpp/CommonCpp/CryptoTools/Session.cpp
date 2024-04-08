@@ -157,5 +157,13 @@ std::string Session::decrypt(EncryptedData &encryptedData) {
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
+int Session::getVersion() {
+  return this->version;
+}
+
+void Session::setVersion(int newVersion) {
+  this->version = newVersion;
+}
+
 } // namespace crypto
 } // namespace comm
