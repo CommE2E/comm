@@ -75,6 +75,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processSyncedMet
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processAuxUserStoreOperations(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processAuxUserStoreOperations(rt, args[0].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadActivityStoreOperations(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadActivityStoreOperations(rt, args[0].asObject(rt).asArray(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeCryptoAccount(rt);
 }
@@ -210,6 +213,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["processIntegrityStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processIntegrityStoreOperations};
   methodMap_["processSyncedMetadataStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processSyncedMetadataStoreOperations};
   methodMap_["processAuxUserStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processAuxUserStoreOperations};
+  methodMap_["processThreadActivityStoreOperations"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadActivityStoreOperations};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getOneTimeKeys};
