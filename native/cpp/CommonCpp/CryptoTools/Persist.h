@@ -8,9 +8,14 @@
 namespace comm {
 namespace crypto {
 
+struct SessionPersist {
+  OlmBuffer buffer;
+  int version;
+};
+
 struct Persist {
   OlmBuffer account;
-  std::unordered_map<std::string, OlmBuffer> sessions;
+  std::unordered_map<std::string, SessionPersist> sessions;
 
   bool isEmpty() const {
     return (this->account.size() == 0);

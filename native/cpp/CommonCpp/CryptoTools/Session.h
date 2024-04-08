@@ -14,6 +14,8 @@ class Session {
   OlmBuffer olmSessionBuffer;
 
 public:
+  int version;
+
   static std::unique_ptr<Session> createSessionAsInitializer(
       OlmAccount *account,
       std::uint8_t *ownerIdentityKeys,
