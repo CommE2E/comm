@@ -1163,16 +1163,18 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
         taskType job = [=, &innerRt]() {
           std::string error;
           crypto::EncryptedData initialEncryptedData;
+          int sessionVersion;
           try {
-            this->contentCryptoModule->initializeOutboundForSendingSession(
-                deviceIDCpp,
-                std::vector<uint8_t>(
-                    identityKeysCpp.begin(), identityKeysCpp.end()),
-                std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
-                std::vector<uint8_t>(
-                    prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                std::vector<uint8_t>(
-                    oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
+            sessionVersion =
+                this->contentCryptoModule->initializeOutboundForSendingSession(
+                    deviceIDCpp,
+                    std::vector<uint8_t>(
+                        identityKeysCpp.begin(), identityKeysCpp.end()),
+                    std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
+                    std::vector<uint8_t>(
+                        prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
+                    std::vector<uint8_t>(
+                        oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
 
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedData =
@@ -1198,7 +1200,13 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
                 "messageType",
                 static_cast<int>(initialEncryptedData.messageType));
 
-            promise->resolve(std::move(initialEncryptedDataJSI));
+            auto outboundSessionCreationResultJSI = jsi::Object(innerRt);
+            outboundSessionCreationResultJSI.setProperty(
+                innerRt, "encryptedData", initialEncryptedDataJSI);
+            outboundSessionCreationResultJSI.setProperty(
+                innerRt, "sessionVersion", sessionVersion);
+
+            promise->resolve(std::move(outboundSessionCreationResultJSI));
           });
         };
         this->cryptoThread->scheduleTask(job);
@@ -1209,7 +1217,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
     jsi::Object encryptedDataJSI,
-    jsi::String deviceID) {
+    jsi::String deviceID,
+    double sessionVersion) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   size_t messageType =
       std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
@@ -1227,7 +1236,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
                 std::vector<uint8_t>(
                     encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
                 std::vector<uint8_t>(
-                    identityKeysCpp.begin(), identityKeysCpp.end()));
+                    identityKeysCpp.begin(), identityKeysCpp.end()),
+                static_cast<int>(sessionVersion));
             crypto::EncryptedData encryptedData{
                 std::vector<uint8_t>(
                     encryptedMessageCpp.begin(), encryptedMessageCpp.end()),

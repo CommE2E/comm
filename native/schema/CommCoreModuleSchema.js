@@ -19,6 +19,7 @@ import type {
   SignedPrekeys,
   ClientPublicKeys,
   EncryptedData,
+  OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
@@ -110,11 +111,12 @@ interface Spec extends TurboModule {
     prekeySignature: string,
     oneTimeKey: string,
     deviceID: string,
-  ) => Promise<EncryptedData>;
+  ) => Promise<OutboundSessionCreationResult>;
   +initializeContentInboundSession: (
     identityKeys: string,
     encryptedContent: Object,
     deviceID: string,
+    sessionVersion: number,
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +decrypt: (encryptedData: Object, deviceID: string) => Promise<string>;
@@ -160,6 +162,7 @@ export interface CoreModuleSpec extends Spec {
     identityKeys: string,
     encryptedContent: EncryptedData,
     deviceID: string,
+    sessionVersion: number,
   ) => Promise<string>;
 }
 
