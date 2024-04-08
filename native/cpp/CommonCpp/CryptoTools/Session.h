@@ -12,6 +12,7 @@ namespace crypto {
 
 class Session {
   OlmBuffer olmSessionBuffer;
+  int version;
 
 public:
   static std::unique_ptr<Session> createSessionAsInitializer(
@@ -31,6 +32,8 @@ public:
   restoreFromB64(const std::string &secretKey, OlmBuffer &b64);
   OlmSession *getOlmSession();
   std::string decrypt(EncryptedData &encryptedData);
+  int getVersion();
+  void setVersion(int newVersion);
 };
 
 } // namespace crypto

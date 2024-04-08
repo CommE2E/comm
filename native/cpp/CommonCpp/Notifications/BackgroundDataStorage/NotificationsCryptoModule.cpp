@@ -64,7 +64,7 @@ NotificationsCryptoModule::deserializeCryptoModule(
   std::string accountString = persistJSON["account"].asString();
   crypto::OlmBuffer account =
       std::vector<uint8_t>(accountString.begin(), accountString.end());
-  std::unordered_map<std::string, crypto::OlmBuffer> sessions;
+  std::unordered_map<std::string, crypto::SessionPersist> sessions;
 
   if (persistJSON["sessions"].isNull()) {
     return std::make_unique<crypto::CryptoModule>(
@@ -75,8 +75,8 @@ NotificationsCryptoModule::deserializeCryptoModule(
   for (auto &sessionKeyValuePair : persistJSON["sessions"].items()) {
     std::string targetUserID = sessionKeyValuePair.first.asString();
     std::string sessionData = sessionKeyValuePair.second.asString();
-    sessions[targetUserID] =
-        std::vector<uint8_t>(sessionData.begin(), sessionData.end());
+    sessions[targetUserID] = {
+        std::vector<uint8_t>(sessionData.begin(), sessionData.end()), 1};
   }
   return std::make_unique<crypto::CryptoModule>(
       notificationsCryptoAccountID,
@@ -93,7 +93,7 @@ void NotificationsCryptoModule::serializeAndFlushCryptoModule(
   folly::dynamic sessions = folly::dynamic::object;
   for (auto &sessionKeyValuePair : persist.sessions) {
     std::string targetUserID = sessionKeyValuePair.first;
-    crypto::OlmBuffer sessionData = sessionKeyValuePair.second;
+    crypto::OlmBuffer sessionData = sessionKeyValuePair.second.buffer;
     sessions[targetUserID] =
         std::string(sessionData.begin(), sessionData.end());
   }
