@@ -6,6 +6,7 @@ import type { ClientDBIntegrityThreadHash } from 'lib/ops/integrity-store-ops.js
 import type { ClientDBKeyserverInfo } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBReport } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-ops.js';
+import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
 
@@ -134,6 +135,13 @@ declare export class SQLiteQueryExecutor {
   removeAuxUserInfos(ids: $ReadOnlyArray<string>): void;
   removeAllAuxUserInfos(): void;
   getAllAuxUserInfos(): ClientDBAuxUserInfo[];
+
+  replaceThreadActivityEntry(
+    threadActivityEntry: ClientDBThreadActivityEntry,
+  ): void;
+  removeThreadActivityEntries(ids: $ReadOnlyArray<string>): void;
+  removeAllThreadActivityEntries(): void;
+  getAllThreadActivityEntries(): ClientDBThreadActivityEntry[];
 
   beginTransaction(): void;
   commitTransaction(): void;

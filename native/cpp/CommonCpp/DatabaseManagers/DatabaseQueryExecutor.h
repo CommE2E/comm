@@ -15,6 +15,7 @@
 #include "entities/Report.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/Thread.h"
+#include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
 #include <string>
@@ -99,6 +100,13 @@ public:
   removeAuxUserInfos(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllAuxUserInfos() const = 0;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const = 0;
+  virtual void replaceThreadActivityEntry(
+      const ThreadActivityEntry &thread_activity_entry) const = 0;
+  virtual void
+  removeThreadActivityEntries(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllThreadActivityEntries() const = 0;
+  virtual std::vector<ThreadActivityEntry>
+  getAllThreadActivityEntries() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
