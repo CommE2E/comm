@@ -1873,6 +1873,51 @@ std::vector<AuxUserInfo> SQLiteQueryExecutor::getAllAuxUserInfos() const {
       SQLiteQueryExecutor::getConnection(), getAllAuxUserInfosSQL);
 }
 
+void SQLiteQueryExecutor::replaceThreadActivityEntry(
+    const ThreadActivityEntry &thread_activity_entry) const {
+  static std::string replaceThreadActivityEntrySQL =
+      "REPLACE INTO thread_activity (id, thread_activity_store_entry) "
+      "VALUES (?, ?);";
+  replaceEntity<ThreadActivityEntry>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceThreadActivityEntrySQL,
+      thread_activity_entry);
+}
+
+void SQLiteQueryExecutor::removeAllThreadActivityEntries() const {
+  static std::string removeAllThreadActivityEntriesSQL =
+      "DELETE FROM thread_activity;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllThreadActivityEntriesSQL);
+}
+
+void SQLiteQueryExecutor::removeThreadActivityEntries(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeThreadActivityEntriesByKeysSQLStream;
+  removeThreadActivityEntriesByKeysSQLStream << "DELETE FROM thread_activity "
+                                                "WHERE id IN "
+                                             << getSQLStatementArray(ids.size())
+                                             << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeThreadActivityEntriesByKeysSQLStream.str(),
+      ids);
+}
+
+std::vector<ThreadActivityEntry>
+SQLiteQueryExecutor::getAllThreadActivityEntries() const {
+  static std::string getAllThreadActivityEntriesSQL =
+      "SELECT * "
+      "FROM thread_activity;";
+  return getAllEntities<ThreadActivityEntry>(
+      SQLiteQueryExecutor::getConnection(), getAllThreadActivityEntriesSQL);
+}
+
 void SQLiteQueryExecutor::beginTransaction() const {
   executeQuery(SQLiteQueryExecutor::getConnection(), "BEGIN TRANSACTION;");
 }
