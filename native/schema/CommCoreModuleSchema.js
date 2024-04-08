@@ -12,6 +12,7 @@ import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-op
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
+import type { ClientDBThreadActivityStoreOperation } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
 import type {
@@ -78,6 +79,9 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +processAuxUserStoreOperations: (
     operations: $ReadOnlyArray<ClientDBAuxUserStoreOperation>,
+  ) => Promise<void>;
+  +processThreadActivityStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
