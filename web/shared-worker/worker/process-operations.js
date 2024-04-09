@@ -7,6 +7,7 @@ import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-op
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
 import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
+import type { ClientDBThreadActivityStoreOperation } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops.js';
 import type {
@@ -360,6 +361,7 @@ function processDBStoreOperations(
     auxUserStoreOperations,
     userStoreOperations,
     messageStoreOperations,
+    threadActivityStoreOperations,
   } = storeOperations;
 
   try {
@@ -437,6 +439,16 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (
+      threadActivityStoreOperations &&
+      threadActivityStoreOperations.length > 0
+    ) {
+      processThreadActivityStoreOperations(
+        sqliteQueryExecutor,
+        threadActivityStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -476,6 +488,40 @@ function processAuxUserStoreOperations(
   }
 }
 
+function processThreadActivityStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBThreadActivityStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_thread_activity_entries') {
+        sqliteQueryExecutor.removeAllThreadActivityEntries();
+      } else if (operation.type === 'remove_thread_activity_entries') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeThreadActivityEntries(ids);
+      } else if (operation.type === 'replace_thread_activity_entry') {
+        const { id, threadActivityStoreEntry } = operation.payload;
+        sqliteQueryExecutor.replaceThreadActivityEntry({
+          id,
+          threadActivityStoreEntry,
+        });
+      } else {
+        throw new Error('Unsupported thread activity operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } thread activity operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function getClientStoreFromQueryExecutor(
   sqliteQueryExecutor: SQLiteQueryExecutor,
 ): ClientDBStore {
@@ -500,7 +546,7 @@ function getClientStoreFromQueryExecutor(
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
     syncedMetadata: sqliteQueryExecutor.getAllSyncedMetadata(),
     auxUserInfos: sqliteQueryExecutor.getAllAuxUserInfos(),
-    threadActivityEntries: [],
+    threadActivityEntries: sqliteQueryExecutor.getAllThreadActivityEntries(),
   };
 }
 
