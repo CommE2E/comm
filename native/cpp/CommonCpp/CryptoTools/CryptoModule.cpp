@@ -266,19 +266,13 @@ void CryptoModule::initializeInboundForReceivingSession(
   if (this->hasSessionFor(targetDeviceId)) {
     std::shared_ptr<Session> existingSession =
         getSessionByDeviceId(targetDeviceId);
-    if (existingSession->version > sessionVersion) {
+    if (!overwrite && existingSession->version > sessionVersion) {
       throw std::runtime_error{"OLM_SESSION_ALREADY_CREATED"};
-    } else if (existingSession->version == sessionVersion) {
+    } else if (!overwrite && existingSession->version == sessionVersion) {
       throw std::runtime_error{"OLM_SESSION_CREATION_RACE_CONDITION"};
     }
 
-    if (overwrite) {
-      this->sessions.erase(this->sessions.find(targetDeviceId));
-    } else {
-      throw std::runtime_error{
-          "error initializeInboundForReceivingSession => session already "
-          "initialized"};
-    }
+    this->sessions.erase(this->sessions.find(targetDeviceId));
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsResponder(
       this->getOlmAccount(),
