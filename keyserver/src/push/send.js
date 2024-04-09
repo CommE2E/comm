@@ -25,10 +25,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -1080,7 +1077,7 @@ async function prepareAPNsNotification(
   }
 
   const canQueryBlobService = hasMinCodeVersion(platformDetails, {
-    native: NEXT_CODE_VERSION,
+    native: 331,
   });
 
   let blobHash, blobHolders, encryptionKey, blobUploadError;
@@ -1282,7 +1279,7 @@ async function prepareAndroidNotification(
   }
 
   const canQueryBlobService = hasMinCodeVersion(platformDetails, {
-    native: NEXT_CODE_VERSION,
+    native: 331,
   });
 
   let blobHash, blobHolders, encryptionKey, blobUploadError;
