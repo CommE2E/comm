@@ -31,6 +31,7 @@ import {
   shouldForgetPrekey,
   shouldRotatePrekey,
   retrieveIdentityKeysAndPrekeys,
+  olmSessionErrors,
 } from 'lib/utils/olm-utils.js';
 
 import { getIdentityClient } from './identity-client.js';
@@ -417,6 +418,7 @@ const olmAPI: OlmAPI = {
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
     sessionVersion: number,
+    overwrite: boolean,
   ): Promise<string> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
@@ -424,10 +426,12 @@ const olmAPI: OlmAPI = {
     const { contentAccount, contentSessions } = cryptoStore;
 
     const existingSession = contentSessions[contentIdentityKeys.ed25519];
-    if (existingSession && existingSession.version > sessionVersion) {
-      throw new Error('OLM_SESSION_ALREADY_CREATED');
-    } else if (existingSession && existingSession.version === sessionVersion) {
-      throw new Error('OLM_SESSION_CREATION_RACE_CONDITION');
+    if (existingSession) {
+      if (!overwrite && existingSession.version > sessionVersion) {
+        throw new Error(olmSessionErrors.alreadyCreated);
+      } else if (!overwrite && existingSession.version === sessionVersion) {
+        throw new Error(olmSessionErrors.raceCondition);
+      }
     }
 
     const session = new olm.Session();

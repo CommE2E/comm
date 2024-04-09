@@ -59,7 +59,7 @@ public:
       const OlmBuffer &encryptedMessage,
       const OlmBuffer &idKeys,
       int sessionVersion,
-      const bool overwrite = true);
+      const bool overwrite);
   int initializeOutboundForSendingSession(
       const std::string &targetDeviceId,
       const OlmBuffer &idKeys,
