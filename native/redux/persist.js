@@ -59,7 +59,7 @@ import {
   DEPRECATED_unshimMessageStore,
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
-import { defaultAlertInfo } from 'lib/types/alert-types.js';
+import { defaultAlertInfo, defaultAlertInfos } from 'lib/types/alert-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -1208,6 +1208,17 @@ const migrations = {
     const { userStore, ...rest } = state;
     return rest;
   },
+  [69]: (state: any) => {
+    const { notifPermissionAlertInfo, ...rest } = state;
+    const newState = {
+      ...rest,
+      alertStore: {
+        alertInfos: defaultAlertInfos,
+      },
+    };
+
+    return newState;
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1229,7 +1240,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 68,
+  version: 69,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
