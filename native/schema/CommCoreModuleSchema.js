@@ -117,6 +117,7 @@ interface Spec extends TurboModule {
     encryptedContent: Object,
     deviceID: string,
     sessionVersion: number,
+    overwrite: boolean,
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +decrypt: (encryptedData: Object, deviceID: string) => Promise<string>;
@@ -163,6 +164,7 @@ export interface CoreModuleSpec extends Spec {
     encryptedContent: EncryptedData,
     deviceID: string,
     sessionVersion: number,
+    overwrite: boolean,
   ) => Promise<string>;
 }
 
