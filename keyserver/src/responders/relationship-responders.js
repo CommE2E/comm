@@ -3,7 +3,7 @@
 import t, { type TInterface } from 'tcomb';
 
 import {
-  type RelationshipRequest,
+  type TraditionalRelationshipRequest,
   type RelationshipErrors,
   relationshipActionsList,
 } from 'lib/types/relationship-types.js';
@@ -12,8 +12,8 @@ import { tShape } from 'lib/utils/validation-utils.js';
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
 
-export const updateRelationshipInputValidator: TInterface<RelationshipRequest> =
-  tShape<RelationshipRequest>({
+export const updateRelationshipInputValidator: TInterface<TraditionalRelationshipRequest> =
+  tShape<TraditionalRelationshipRequest>({
     action: t.enums.of(relationshipActionsList, 'relationship action'),
     userIDs: t.list(t.String),
   });
@@ -27,7 +27,7 @@ export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: TraditionalRelationshipRequest,
 ): Promise<RelationshipErrors> {
   return await updateRelationships(viewer, request);
 }
