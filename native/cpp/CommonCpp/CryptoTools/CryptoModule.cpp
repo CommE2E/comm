@@ -272,13 +272,7 @@ void CryptoModule::initializeInboundForReceivingSession(
       throw std::runtime_error{"OLM_SESSION_CREATION_RACE_CONDITION"};
     }
 
-    if (overwrite) {
-      this->sessions.erase(this->sessions.find(targetDeviceId));
-    } else {
-      throw std::runtime_error{
-          "error initializeInboundForReceivingSession => session already "
-          "initialized"};
-    }
+    this->sessions.erase(this->sessions.find(targetDeviceId));
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsResponder(
       this->getOlmAccount(),
