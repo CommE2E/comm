@@ -21,8 +21,22 @@ jsi::Array ThreadActivityStore::parseDBDataStore(
     jsi::Runtime &rt,
     std::shared_ptr<std::vector<ThreadActivityEntry>> threadActivityVectorPtr)
     const {
-  jsi::Array jsiThreadActivityEntries = jsi::Array(rt, 0);
-  return jsiThreadActivityEntries;
+  size_t numThreadActivityEntries = threadActivityVectorPtr->size();
+  jsi::Array jsiThreadActivitiyEntries =
+      jsi::Array(rt, numThreadActivityEntries);
+  size_t writeIdx = 0;
+  for (const ThreadActivityEntry &threadActivityEntry :
+       *threadActivityVectorPtr) {
+    jsi::Object jsiThreadActivityEntry = jsi::Object(rt);
+    jsiThreadActivityEntry.setProperty(rt, "id", threadActivityEntry.id);
+    jsiThreadActivityEntry.setProperty(
+        rt,
+        "thread_activity_store_entry",
+        threadActivityEntry.thread_activity_store_entry);
+    jsiThreadActivitiyEntries.setValueAtIndex(
+        rt, writeIdx++, jsiThreadActivityEntry);
+  }
+  return jsiThreadActivitiyEntries;
 }
 
 std::vector<std::unique_ptr<ThreadActivityStoreOperationBase>>
