@@ -24,6 +24,7 @@ const olmAPI: OlmAPI = {
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
     sessionVersion: number,
+    overwrite: boolean,
   ): Promise<string> {
     const identityKeys = JSON.stringify({
       curve25519: contentIdentityKeys.curve25519,
@@ -34,6 +35,7 @@ const olmAPI: OlmAPI = {
       initialEncryptedData,
       contentIdentityKeys.ed25519,
       sessionVersion,
+      overwrite,
     );
   },
   async contentOutboundSessionCreator(

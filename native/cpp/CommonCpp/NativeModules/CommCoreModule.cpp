@@ -1218,7 +1218,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
     jsi::String identityKeys,
     jsi::Object encryptedDataJSI,
     jsi::String deviceID,
-    double sessionVersion) {
+    double sessionVersion,
+    bool overwrite) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   size_t messageType =
       std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
@@ -1237,7 +1238,8 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
                     encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
                 std::vector<uint8_t>(
                     identityKeysCpp.begin(), identityKeysCpp.end()),
-                static_cast<int>(sessionVersion));
+                static_cast<int>(sessionVersion),
+                overwrite);
             crypto::EncryptedData encryptedData{
                 std::vector<uint8_t>(
                     encryptedMessageCpp.begin(), encryptedMessageCpp.end()),
