@@ -500,6 +500,7 @@ function getClientStoreFromQueryExecutor(
     integrityThreadHashes: sqliteQueryExecutor.getAllIntegrityThreadHashes(),
     syncedMetadata: sqliteQueryExecutor.getAllSyncedMetadata(),
     auxUserInfos: sqliteQueryExecutor.getAllAuxUserInfos(),
+    threadActivityEntries: [],
   };
 }
 
