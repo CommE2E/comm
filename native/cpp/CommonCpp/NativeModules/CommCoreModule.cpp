@@ -122,6 +122,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<IntegrityThreadHash> integrityStoreVector;
           std::vector<SyncedMetadataEntry> syncedMetadataStoreVector;
           std::vector<AuxUserInfo> auxUserStoreVector;
+          std::vector<ThreadActivityEntry> threadActivityStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -142,6 +143,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 DatabaseManager::getQueryExecutor().getAllSyncedMetadata();
             auxUserStoreVector =
                 DatabaseManager::getQueryExecutor().getAllAuxUserInfos();
+            threadActivityStoreVector = DatabaseManager::getQueryExecutor()
+                                            .getAllThreadActivityEntries();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -174,6 +177,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto auxUserStoreVectorPtr =
               std::make_shared<std::vector<AuxUserInfo>>(
                   std::move(auxUserStoreVector));
+          auto threadActivityStoreVectorPtr =
+              std::make_shared<std::vector<ThreadActivityEntry>>(
+                  std::move(threadActivityStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
@@ -186,6 +192,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          integrityStoreVectorPtr,
                                          syncedMetadataStoreVectorPtr,
                                          auxUserStoreVectorPtr,
+                                         threadActivityStoreVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
@@ -198,7 +205,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          integrityStore = this->integrityStore,
                                          syncedMetadataStore =
                                              this->syncedMetadataStore,
-                                         auxUserStore = this->auxUserStore]() {
+                                         auxUserStore = this->auxUserStore,
+                                         threadActivityStore =
+                                             this->threadActivityStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -227,6 +236,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                     innerRt, syncedMetadataStoreVectorPtr);
             jsi::Array jsiAuxUserStore =
                 auxUserStore.parseDBDataStore(innerRt, auxUserStoreVectorPtr);
+            jsi::Array jsiThreadActivityStore =
+                threadActivityStore.parseDBDataStore(
+                    innerRt, threadActivityStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -246,6 +258,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, "syncedMetadata", jsiSyncedMetadataStore);
             jsiClientDBStore.setProperty(
                 innerRt, "auxUserInfos", jsiAuxUserStore);
+            jsiClientDBStore.setProperty(
+                innerRt, "threadActivityEntries", jsiThreadActivityStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
