@@ -36,6 +36,11 @@ import {
   convertReportsToReplaceReportOps,
   reportStoreOpsHandlers,
 } from 'lib/ops/report-store-ops.js';
+import {
+  type ClientDBThreadActivityStoreOperation,
+  threadActivityStoreOpsHandlers,
+  type ReplaceThreadActivityEntryOperation,
+} from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import {
@@ -1219,6 +1224,32 @@ const migrations = {
 
     return newState;
   },
+  [70]: async (state: AppState) => {
+    const replaceOps: $ReadOnlyArray<ReplaceThreadActivityEntryOperation> =
+      entries(state.threadActivityStore).map(([threadID, entry]) => ({
+        type: 'replace_thread_activity_entry',
+        payload: {
+          id: threadID,
+          threadActivityStoreEntry: entry,
+        },
+      }));
+
+    const dbOperations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation> =
+      threadActivityStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_thread_activity_entries' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processThreadActivityStoreOperations(dbOperations);
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+    return state;
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1240,7 +1271,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 69,
+  version: 70,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
