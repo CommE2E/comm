@@ -1,17 +1,17 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
+import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import {
   keyserverRegisterActionTypes,
   keyserverRegister,
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
-import { FIDContext } from 'lib/components/fid-provider.react.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -74,10 +74,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const dispatchActionPromise = useDispatchActionPromise();
   const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
   const callIdentityPasswordRegister = useIdentityPasswordRegister();
-
-  const fidContext = React.useContext(FIDContext);
-  invariant(fidContext, 'FIDContext is missing');
-  const { setFID } = fidContext;
 
   const identityRegisterUsernameAccount = React.useCallback(
     async (
@@ -248,7 +244,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               type: setURLPrefix,
               payload: keyserverURL,
             });
-            setFID(farcasterID);
+            dispatch({
+              type: setSyncedMetadataEntryActionType,
+              payload: {
+                name: syncedMetadataNames.CURRENT_USER_FID,
+                data: farcasterID,
+              },
+            });
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
@@ -267,7 +269,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       legacySiweServerCall,
       dispatch,
       identityWalletRegisterCall,
-      setFID,
     ],
   );
 
