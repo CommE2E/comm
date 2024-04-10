@@ -47,6 +47,7 @@ import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import AccessTokenHandler from './components/access-token-handler.react.js';
+import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ReportHandler from './components/report-handler.react.js';
@@ -298,6 +299,7 @@ function Root() {
             </DeepLinksContextProvider>
           </ChatContextProvider>
           <NavigationHandler />
+          <ConnectFarcasterAlertHandler />
         </BottomSheetModalProvider>
       </NavigationContainer>
     );
