@@ -5,7 +5,7 @@ import t, { type TInterface } from 'tcomb';
 import {
   type TraditionalRelationshipRequest,
   type RelationshipErrors,
-  relationshipActionsList,
+  traditionalRelationshipActionsList,
 } from 'lib/types/relationship-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
@@ -14,7 +14,10 @@ import { updateRelationships } from '../updaters/relationship-updaters.js';
 
 export const updateRelationshipInputValidator: TInterface<TraditionalRelationshipRequest> =
   tShape<TraditionalRelationshipRequest>({
-    action: t.enums.of(relationshipActionsList, 'relationship action'),
+    action: t.enums.of(
+      traditionalRelationshipActionsList,
+      'relationship action',
+    ),
     userIDs: t.list(t.String),
   });
 
