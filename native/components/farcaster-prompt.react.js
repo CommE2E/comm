@@ -17,7 +17,7 @@ function FarcasterPrompt(props: Props): React.Node {
 
   const headerText = showDisconnectText
     ? 'Disconnect from Farcaster'
-    : 'Do you want to connect your Farcaster account';
+    : 'Do you want to connect your Farcaster account?';
 
   const bodyText = showDisconnectText
     ? 'You can disconnect your Farcaster account at any time.'
