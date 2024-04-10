@@ -161,6 +161,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     integrityStoreOperations: [],
     syncedMetadataStoreOperations: [],
     auxUserStoreOperations: [],
+    threadActivityStoreOperations: [],
   };
 
   if (
