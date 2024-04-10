@@ -6,17 +6,23 @@ import {
   type TraditionalRelationshipRequest,
   type RelationshipErrors,
   relationshipActionsList,
+  updateFarcasterRelationshipInputValidator,
 } from 'lib/types/relationship-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
 
-export const updateRelationshipInputValidator: TInterface<TraditionalRelationshipRequest> =
+export const traditionalRelationshipRequestInputValidator: TInterface<TraditionalRelationshipRequest> =
   tShape<TraditionalRelationshipRequest>({
     action: t.enums.of(relationshipActionsList, 'relationship action'),
     userIDs: t.list(t.String),
   });
+
+export const updateRelationshipInputValidator = t.union([
+  traditionalRelationshipRequestInputValidator,
+  updateFarcasterRelationshipInputValidator,
+]);
 
 export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
   tShape<RelationshipErrors>({
