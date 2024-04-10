@@ -7,6 +7,7 @@ import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
+import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
@@ -140,6 +141,7 @@ async function processDBStoreOperations(
     auxUserStoreOperations,
     userStoreOperations,
     messageStoreOperations,
+    threadActivityStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -165,6 +167,10 @@ async function processDBStoreOperations(
     userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
   const convertedMessageStoreOperations =
     messageStoreOpsHandlers.convertOpsToClientDBOps(messageStoreOperations);
+  const convertedThreadActivityStoreOperations =
+    threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
+      threadActivityStoreOperations,
+    );
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -176,7 +182,8 @@ async function processDBStoreOperations(
     convertedSyncedMetadataStoreOperations.length === 0 &&
     convertedAuxUserStoreOperations.length === 0 &&
     convertedUserStoreOperations.length === 0 &&
-    convertedMessageStoreOperations.length === 0
+    convertedMessageStoreOperations.length === 0 &&
+    convertedThreadActivityStoreOperations.length === 0
   ) {
     return;
   }
@@ -200,6 +207,7 @@ async function processDBStoreOperations(
         auxUserStoreOperations: convertedAuxUserStoreOperations,
         userStoreOperations: convertedUserStoreOperations,
         messageStoreOperations: convertedMessageStoreOperations,
+        threadActivityStoreOperations: convertedThreadActivityStoreOperations,
       },
     });
   } catch (e) {
