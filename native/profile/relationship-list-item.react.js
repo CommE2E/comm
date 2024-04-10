@@ -12,7 +12,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ReactRef } from 'lib/types/react-types.js';
 import {
-  type RelationshipAction,
+  type TraditionalRelationshipAction,
   type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
@@ -292,7 +292,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
     this.onPressUpdateFriendship(relationshipActions.UNFRIEND);
   };
 
-  onPressUpdateFriendship(action: RelationshipAction) {
+  onPressUpdateFriendship(action: TraditionalRelationshipAction) {
     const { id } = this.props.userInfo;
     const customKeyName = `${updateRelationshipsActionTypes.started}:${id}`;
     void this.props.dispatchActionPromise(
@@ -303,7 +303,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
   }
 
   async updateFriendship(
-    action: RelationshipAction,
+    action: TraditionalRelationshipAction,
   ): Promise<RelationshipErrors> {
     try {
       return await this.props.updateRelationships({

@@ -16,7 +16,7 @@ import {
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import {
-  type RelationshipAction,
+  type TraditionalRelationshipAction,
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
@@ -53,7 +53,7 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
       serverUpdateRelationships,
     );
     const updateRelationship = React.useCallback(
-      async (action: RelationshipAction) => {
+      async (action: TraditionalRelationshipAction) => {
         try {
           return await callUpdateRelationships({
             action,
