@@ -12,11 +12,11 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ReactRef } from 'lib/types/react-types.js';
 import {
-  type TraditionalRelationshipRequest,
   type RelationshipAction,
   type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
+  type RelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import type {
   AccountUserInfo,
@@ -111,7 +111,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +updateRelationships: (
-    request: TraditionalRelationshipRequest,
+    request: RelationshipRequest,
   ) => Promise<RelationshipErrors>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
