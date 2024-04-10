@@ -164,6 +164,7 @@ function InitialReduxStateGate(props: Props): React.Node {
               integrityStoreOperations: [],
               syncedMetadataStoreOperations: [],
               auxUserStoreOperations: [],
+              threadActivityStoreOperations: [],
             },
             currentLoggedInUserID,
           );
