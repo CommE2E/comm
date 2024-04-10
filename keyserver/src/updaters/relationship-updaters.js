@@ -11,6 +11,7 @@ import {
   relationshipActions,
   undirectedStatus,
   directedStatus,
+  type RelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResponse } from 'lib/types/thread-types.js';
@@ -323,7 +324,7 @@ async function updateChangedUndirectedRelationships(
 
 async function createPersonalThreads(
   viewer: Viewer,
-  request: TraditionalRelationshipRequest,
+  request: RelationshipRequest,
 ) {
   invariant(
     request.action === relationshipActions.FRIEND ||
@@ -333,6 +334,10 @@ async function createPersonalThreads(
       request.action,
   );
 
+  const userIDs: $ReadOnlyArray<string> = request.userIDsToFID
+    ? Object.keys(request.userIDsToFID)
+    : request.userIDs;
+
   const threadIDPerUser: { [string]: string } = {};
 
   const personalThreadsQuery = SQL`
@@ -341,7 +346,7 @@ async function createPersonalThreads(
     INNER JOIN memberships m1
       ON m1.thread = t.id AND m1.user = ${viewer.userID}
     INNER JOIN memberships m2
-      ON m2.thread = t.id AND m2.user IN (${request.userIDs})
+      ON m2.thread = t.id AND m2.user IN (${userIDs})
     WHERE t.type = ${threadTypes.PERSONAL}
       AND m1.role > 0
       AND m2.role > 0
@@ -354,7 +359,7 @@ async function createPersonalThreads(
   }
 
   const threadCreationPromises: { [string]: Promise<NewThreadResponse> } = {};
-  for (const userID of request.userIDs) {
+  for (const userID of userIDs) {
     if (threadIDPerUser[userID]) {
       continue;
     }
