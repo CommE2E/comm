@@ -5,8 +5,11 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { FIDContext } from 'lib/components/fid-provider.react.js';
+import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
+import { currentUserFIDSelector } from 'lib/selectors/synced-metadata-selectors.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -17,6 +20,7 @@ import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const bottomSheetPaddingTop = 32;
 const farcasterPromptHeight = 350;
@@ -31,13 +35,26 @@ type Props = {
 function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const { navigation } = props;
 
+  const dispatch = useDispatch();
+
+  const fid = useSelector(currentUserFIDSelector);
+
+  const onSuccess = React.useCallback(
+    (newFID: string) => {
+      dispatch({
+        type: setSyncedMetadataEntryActionType,
+        payload: {
+          name: syncedMetadataNames.CURRENT_USER_FID,
+          data: newFID,
+        },
+      });
+    },
+    [dispatch],
+  );
+
   const { goBack } = navigation;
 
   const bottomSheetRef = React.useRef(null);
-
-  const fidContext = React.useContext(FIDContext);
-  invariant(fidContext, 'fidContext is missing');
-  const { fid, setFID } = fidContext;
 
   const bottomSheetContext = React.useContext(BottomSheetContext);
   invariant(bottomSheetContext, 'bottomSheetContext should be set');
@@ -86,10 +103,10 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
             variant={connectButtonVariant}
           />
         </View>
-        <FarcasterWebView onSuccess={setFID} webViewState={webViewState} />
+        <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
       </BottomSheet>
     ),
-    [connectButtonVariant, goBack, onPressConnect, setFID, webViewState],
+    [connectButtonVariant, goBack, onPressConnect, onSuccess, webViewState],
   );
 
   return connectFarcasterBottomSheet;

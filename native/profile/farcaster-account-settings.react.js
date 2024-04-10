@@ -1,10 +1,15 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { FIDContext } from 'lib/components/fid-provider.react.js';
+import {
+  setSyncedMetadataEntryActionType,
+  clearSyncedMetadataEntryActionType,
+} from 'lib/actions/synced-metadata-actions.js';
+import { currentUserFIDSelector } from 'lib/selectors/synced-metadata-selectors.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
@@ -12,6 +17,7 @@ import FarcasterPrompt from '../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 
 type Props = {
@@ -21,16 +27,20 @@ type Props = {
 
 // eslint-disable-next-line no-unused-vars
 function FarcasterAccountSettings(props: Props): React.Node {
-  const fidContext = React.useContext(FIDContext);
-  invariant(fidContext, 'FIDContext is missing');
+  const dispatch = useDispatch();
 
-  const { fid, setFID } = fidContext;
+  const fid = useSelector(currentUserFIDSelector);
 
   const styles = useStyles(unboundStyles);
 
   const onPressDisconnect = React.useCallback(() => {
-    setFID(null);
-  }, [setFID]);
+    dispatch({
+      type: clearSyncedMetadataEntryActionType,
+      payload: {
+        name: syncedMetadataNames.CURRENT_USER_FID,
+      },
+    });
+  }, [dispatch]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -38,9 +48,15 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const onSuccess = React.useCallback(
     (newFID: string) => {
       setWebViewState('closed');
-      setFID(newFID);
+      dispatch({
+        type: setSyncedMetadataEntryActionType,
+        payload: {
+          name: syncedMetadataNames.CURRENT_USER_FID,
+          data: newFID,
+        },
+      });
     },
-    [setFID],
+    [dispatch],
   );
 
   const onPressConnectFarcaster = React.useCallback(() => {
