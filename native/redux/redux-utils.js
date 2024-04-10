@@ -12,6 +12,7 @@ import {
 import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
+import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
@@ -41,6 +42,7 @@ async function processDBStoreOperations(
     communityStoreOperations,
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
+    threadActivityStoreOperations,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
@@ -65,6 +67,10 @@ async function processDBStoreOperations(
     integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
   const convertedAuxUserStoreOperations =
     auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
+  const convertedThreadActivityStoreOperations =
+    threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
+      threadActivityStoreOperations,
+    );
 
   try {
     const promises = [];
@@ -138,6 +144,13 @@ async function processDBStoreOperations(
       promises.push(
         commCoreModule.processAuxUserStoreOperations(
           convertedAuxUserStoreOperations,
+        ),
+      );
+    }
+    if (convertedThreadActivityStoreOperations.length > 0) {
+      promises.push(
+        commCoreModule.processThreadActivityStoreOperations(
+          convertedThreadActivityStoreOperations,
         ),
       );
     }

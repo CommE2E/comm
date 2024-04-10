@@ -302,6 +302,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     integrityStoreOperations,
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
+    threadActivityStoreOperations,
   } = storeOperations;
 
   const fixUnreadActiveThreadResult = fixUnreadActiveThread(state, action);
@@ -323,6 +324,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     integrityStoreOperations,
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
+    threadActivityStoreOperations,
   };
   state = {
     ...state,
