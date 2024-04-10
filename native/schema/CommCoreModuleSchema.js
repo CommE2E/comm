@@ -126,8 +126,8 @@ interface Spec extends TurboModule {
   +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;
   +clearNotifyToken: () => Promise<void>;
-  +setCurrentUserID: (userID: string) => Promise<void>;
-  +getCurrentUserID: () => Promise<string>;
+  +stampSQLiteDBUserID: (userID: string) => Promise<void>;
+  +getSQLiteStampedUserID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;

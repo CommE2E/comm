@@ -1954,11 +1954,11 @@ void SQLiteQueryExecutor::clearNotifyToken() const {
   this->clearMetadata("notify_token");
 }
 
-void SQLiteQueryExecutor::setCurrentUserID(std::string userID) const {
+void SQLiteQueryExecutor::stampSQLiteDBUserID(std::string userID) const {
   this->setMetadata("current_user_id", userID);
 }
 
-std::string SQLiteQueryExecutor::getCurrentUserID() const {
+std::string SQLiteQueryExecutor::getSQLiteStampedUserID() const {
   return this->getMetadata("current_user_id");
 }
 

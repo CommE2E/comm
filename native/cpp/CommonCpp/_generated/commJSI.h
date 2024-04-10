@@ -59,8 +59,8 @@ public:
   virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
   virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
-  virtual jsi::Value setCurrentUserID(jsi::Runtime &rt, jsi::String userID) = 0;
-  virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) = 0;
+  virtual jsi::Value stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) = 0;
+  virtual jsi::Value getSQLiteStampedUserID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) = 0;
@@ -410,21 +410,21 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::clearNotifyToken, jsInvoker_, instance_);
     }
-    jsi::Value setCurrentUserID(jsi::Runtime &rt, jsi::String userID) override {
+    jsi::Value stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) override {
       static_assert(
-          bridging::getParameterCount(&T::setCurrentUserID) == 2,
-          "Expected setCurrentUserID(...) to have 2 parameters");
+          bridging::getParameterCount(&T::stampSQLiteDBUserID) == 2,
+          "Expected stampSQLiteDBUserID(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::setCurrentUserID, jsInvoker_, instance_, std::move(userID));
+          rt, &T::stampSQLiteDBUserID, jsInvoker_, instance_, std::move(userID));
     }
-    jsi::Value getCurrentUserID(jsi::Runtime &rt) override {
+    jsi::Value getSQLiteStampedUserID(jsi::Runtime &rt) override {
       static_assert(
-          bridging::getParameterCount(&T::getCurrentUserID) == 1,
-          "Expected getCurrentUserID(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getSQLiteStampedUserID) == 1,
+          "Expected getSQLiteStampedUserID(...) to have 1 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getCurrentUserID, jsInvoker_, instance_);
+          rt, &T::getSQLiteStampedUserID, jsInvoker_, instance_);
     }
     jsi::Value clearSensitiveData(jsi::Runtime &rt) override {
       static_assert(

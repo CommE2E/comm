@@ -116,8 +116,8 @@ public:
   storeOlmPersistData(int accountID, crypto::Persist persist) const = 0;
   virtual void setNotifyToken(std::string token) const = 0;
   virtual void clearNotifyToken() const = 0;
-  virtual void setCurrentUserID(std::string userID) const = 0;
-  virtual std::string getCurrentUserID() const = 0;
+  virtual void stampSQLiteDBUserID(std::string userID) const = 0;
+  virtual std::string getSQLiteStampedUserID() const = 0;
   virtual void setMetadata(std::string entry_name, std::string data) const = 0;
   virtual void clearMetadata(std::string entry_name) const = 0;
   virtual std::string getMetadata(std::string entry_name) const = 0;
