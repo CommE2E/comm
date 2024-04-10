@@ -18,6 +18,7 @@ import {
   type EncryptedData,
   type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   IdentityNewDeviceKeyUpload,
   IdentityExistingDeviceKeyUpload,
@@ -334,6 +335,31 @@ function getExistingDeviceKeyUpload(): IdentityExistingDeviceKeyUpload {
   };
 }
 
+function getPersistenceKeys(
+  cookie: ?string,
+  keyserverID: string,
+  platformDetails: PlatformDetails,
+) {
+  if (hasMinCodeVersion(platformDetails, { majorDesktop: 12 })) {
+    return {
+      notifsOlmDataEncryptionKeyDBLabel: getOlmEncryptionKeyDBLabelForCookie(
+        cookie,
+        keyserverID,
+      ),
+      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(
+        cookie,
+        keyserverID,
+      ),
+    };
+  } else {
+    return {
+      notifsOlmDataEncryptionKeyDBLabel:
+        getOlmEncryptionKeyDBLabelForCookie(cookie),
+      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(cookie),
+    };
+  }
+}
+
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -538,23 +564,8 @@ const olmAPI: OlmAPI = {
       encryptionKey,
     );
 
-    let notifsOlmDataContentKey;
-    let notifsOlmDataEncryptionKeyDBLabel;
-
-    if (hasMinCodeVersion(platformDetails, { majorDesktop: 12 })) {
-      notifsOlmDataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForCookie(
-        cookie,
-        keyserverID,
-      );
-      notifsOlmDataContentKey = getOlmDataContentKeyForCookie(
-        cookie,
-        keyserverID,
-      );
-    } else {
-      notifsOlmDataEncryptionKeyDBLabel =
-        getOlmEncryptionKeyDBLabelForCookie(cookie);
-      notifsOlmDataContentKey = getOlmDataContentKeyForCookie(cookie);
-    }
+    const { notifsOlmDataContentKey, notifsOlmDataEncryptionKeyDBLabel } =
+      getPersistenceKeys(cookie, keyserverID, platformDetails);
 
     const persistEncryptionKeyPromise = (async () => {
       let cryptoKeyPersistentForm;
