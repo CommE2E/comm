@@ -381,7 +381,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       ) => {
         await commCoreModule.initializeCryptoAccount();
         const [
-          { blobPayload, signature },
+          { blobPayload, signature, primaryIdentityPublicKeys },
           { contentOneTimeKeys, notificationsOneTimeKeys },
           prekeys,
         ] = await Promise.all([
@@ -409,10 +409,18 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           username: walletAddress,
         };
 
-        return assertWithValidator(
+        const validatedResult = assertWithValidator(
           identityAuthResult,
           identityAuthResultValidator,
         );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
       },
       logInWalletUser: async (
         walletAddress: string,
