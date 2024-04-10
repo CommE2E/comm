@@ -1,5 +1,4 @@
 #include "RustSecureStore.h"
-#include "../cpp/CommonCpp/NativeModules/InternalModules/GlobalDBSingleton.h"
 #include "../cpp/CommonCpp/Tools/CommSecureStore.h"
 #include "lib.rs.h"
 
