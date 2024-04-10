@@ -59,6 +59,7 @@ import {
   DEPRECATED_unshimMessageStore,
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
+import { defaultAlertInfo } from 'lib/types/alert-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -95,7 +96,6 @@ import {
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
-import { defaultNotifPermissionAlertInfo } from 'lib/utils/push-alerts.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import {
   deprecatedConvertClientDBThreadInfoToRawThreadInfo,
@@ -159,7 +159,7 @@ function handleReduxMigrationFailure(oldState: AppState): AppState {
 const migrations = {
   [1]: (state: AppState) => ({
     ...state,
-    notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
+    notifPermissionAlertInfo: defaultAlertInfo,
   }),
   [2]: (state: AppState) => ({
     ...state,
