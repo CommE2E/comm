@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  type TraditionalRelationshipRequest,
   type RelationshipErrors,
   type UndirectedRelationshipRow,
   relationshipActions,
@@ -31,15 +30,17 @@ import type { Viewer } from '../session/viewer.js';
 
 async function updateRelationships(
   viewer: Viewer,
-  request: TraditionalRelationshipRequest,
+  request: RelationshipRequest,
 ): Promise<RelationshipErrors> {
-  const { action } = request;
-
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
 
-  const uniqueUserIDs = [...new Set(request.userIDs)];
+  const requestUserIDs =
+    request.action === relationshipActions.FARCASTER_MUTUAL
+      ? Object.keys(request.userIDsToFID)
+      : request.userIDs;
+  const uniqueUserIDs = [...new Set(requestUserIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
   let errors: RelationshipErrors = {};
@@ -57,7 +58,7 @@ async function updateRelationships(
   }
 
   const updateIDs = [];
-  if (action === relationshipActions.FRIEND) {
+  if (request.action === relationshipActions.FRIEND) {
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
@@ -143,7 +144,7 @@ async function updateRelationships(
     }
 
     await Promise.all(promises);
-  } else if (action === relationshipActions.UNFRIEND) {
+  } else if (request.action === relationshipActions.UNFRIEND) {
     updateIDs.push(...userIDs);
 
     const updateRows = userIDs.map(userID => {
@@ -163,7 +164,7 @@ async function updateRelationships(
       updateUndirectedRelationships(updateRows, false),
       dbQuery(deleteQuery),
     ]);
-  } else if (action === relationshipActions.BLOCK) {
+  } else if (request.action === relationshipActions.BLOCK) {
     updateIDs.push(...userIDs);
 
     const directedRows = [];
@@ -190,7 +191,7 @@ async function updateRelationships(
       dbQuery(directedDeleteQuery),
       updateUndirectedRelationships(undirectedRows, false),
     ]);
-  } else if (action === relationshipActions.UNBLOCK) {
+  } else if (request.action === relationshipActions.UNBLOCK) {
     updateIDs.push(...userIDs);
 
     const query = SQL`
@@ -199,21 +200,24 @@ async function updateRelationships(
         user1 = ${viewer.userID} AND user2 IN (${userIDs})
     `;
     await dbQuery(query);
-  } else if (action === relationshipActions.FARCASTER_MUTUAL) {
+  } else if (request.action === relationshipActions.FARCASTER_MUTUAL) {
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
     await createPersonalThreads(viewer, request);
-    const insertRows = request.userIDs.map(otherUserID => {
+    const insertRows = Object.keys(request.userIDsToFID).map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
       return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
     await createUpdates(updateDatas);
   } else {
-    invariant(false, `action ${action} is invalid or not supported currently`);
+    invariant(
+      false,
+      `action ${request.action} is invalid or not supported currently`,
+    );
   }
 
   await createUpdates(
