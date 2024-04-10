@@ -139,12 +139,12 @@ function SQLiteDataHandler(): React.Node {
 
   const handleSensitiveData = React.useCallback(async () => {
     try {
-      const databaseCurrentUserInfoID = await commCoreModule.getCurrentUserID();
-      if (shouldClearData(databaseCurrentUserInfoID, currentLoggedInUserID)) {
+      const sqliteStampedUserID = await commCoreModule.getSQLiteStampedUserID();
+      if (shouldClearData(sqliteStampedUserID, currentLoggedInUserID)) {
         await callClearSensitiveData('change in logged-in user credentials');
       }
       if (currentLoggedInUserID) {
-        await commCoreModule.setCurrentUserID(currentLoggedInUserID);
+        await commCoreModule.stampSQLiteDBUserID(currentLoggedInUserID);
       }
     } catch (e) {
       if (isTaskCancelledError(e)) {

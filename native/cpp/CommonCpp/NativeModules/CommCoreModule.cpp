@@ -1439,7 +1439,7 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
 };
 
 jsi::Value
-CommCoreModule::setCurrentUserID(jsi::Runtime &rt, jsi::String userID) {
+CommCoreModule::stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) {
   auto currentUserID{userID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt,
@@ -1448,7 +1448,8 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, jsi::String userID) {
         taskType job = [this, promise, currentUserID]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
+            DatabaseManager::getQueryExecutor().stampSQLiteDBUserID(
+                currentUserID);
           } catch (const std::exception &e) {
             error = e.what();
           }
@@ -1465,14 +1466,15 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, jsi::String userID) {
       });
 }
 
-jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getSQLiteStampedUserID(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [this, &innerRt, promise]() {
           std::string error;
           std::string result;
           try {
-            result = DatabaseManager::getQueryExecutor().getCurrentUserID();
+            result =
+                DatabaseManager::getQueryExecutor().getSQLiteStampedUserID();
           } catch (const std::exception &e) {
             error = e.what();
           }

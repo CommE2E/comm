@@ -149,8 +149,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   setNotifyToken(jsi::Runtime &rt, jsi::String token) override;
   virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
   virtual jsi::Value
-  setCurrentUserID(jsi::Runtime &rt, jsi::String userID) override;
-  virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) override;
+  stampSQLiteDBUserID(jsi::Runtime &rt, jsi::String userID) override;
+  virtual jsi::Value getSQLiteStampedUserID(jsi::Runtime &rt) override;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
   virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override;
   virtual void reportDBOperationsFailure(jsi::Runtime &rt) override;
