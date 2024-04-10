@@ -16,6 +16,7 @@ import {
 } from 'lib/shared/create-async-migrate.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
+import { defaultAlertInfos } from 'lib/types/alert-types.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
@@ -47,7 +48,7 @@ declare var keyserverURL: string;
 
 const persistWhitelist = [
   'enabledApps',
-  'notifPermissionAlertInfo',
+  'alertStore',
   'commServicesAccessToken',
   'keyserverStore',
   'globalThemeInfo',
@@ -372,6 +373,17 @@ const migrations = {
       return handleReduxMigrationFailure(state);
     }
   },
+  [15]: (state: any) => {
+    const { notifPermissionAlertInfo, ...rest } = state;
+    const newState = {
+      ...rest,
+      alertStore: {
+        alertInfos: defaultAlertInfos,
+      },
+    };
+
+    return newState;
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -417,7 +429,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 14,
+  version: 15,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
