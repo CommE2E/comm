@@ -128,8 +128,8 @@ public:
   storeOlmPersistData(int accountID, crypto::Persist persist) const override;
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
-  void setCurrentUserID(std::string userID) const override;
-  std::string getCurrentUserID() const override;
+  void stampSQLiteDBUserID(std::string userID) const override;
+  std::string getSQLiteStampedUserID() const override;
   void setMetadata(std::string entry_name, std::string data) const override;
   void clearMetadata(std::string entry_name) const override;
   std::string getMetadata(std::string entry_name) const override;

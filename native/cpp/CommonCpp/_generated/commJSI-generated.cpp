@@ -133,11 +133,11 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setNotifyToken(j
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearNotifyToken(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearNotifyToken(rt);
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCurrentUserID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setCurrentUserID(rt, args[0].asString(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_stampSQLiteDBUserID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->stampSQLiteDBUserID(rt, args[0].asString(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCurrentUserID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getCurrentUserID(rt);
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSQLiteStampedUserID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getSQLiteStampedUserID(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearSensitiveData(rt);
@@ -232,8 +232,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["terminate"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate};
   methodMap_["setNotifyToken"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setNotifyToken};
   methodMap_["clearNotifyToken"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearNotifyToken};
-  methodMap_["setCurrentUserID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCurrentUserID};
-  methodMap_["getCurrentUserID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCurrentUserID};
+  methodMap_["stampSQLiteDBUserID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_stampSQLiteDBUserID};
+  methodMap_["getSQLiteStampedUserID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSQLiteStampedUserID};
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
   methodMap_["checkIfDatabaseNeedsDeletion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_checkIfDatabaseNeedsDeletion};
   methodMap_["reportDBOperationsFailure"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperationsFailure};
