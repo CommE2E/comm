@@ -6,6 +6,7 @@ import {
   type TraditionalRelationshipRequest,
   type RelationshipErrors,
   traditionalRelationshipActionsList,
+  RelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import { tShape } from 'lib/utils/validation-utils.js';
 
@@ -30,7 +31,7 @@ export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
 
 async function updateRelationshipsResponder(
   viewer: Viewer,
-  request: TraditionalRelationshipRequest,
+  request: RelationshipRequest,
 ): Promise<RelationshipErrors> {
   return await updateRelationships(viewer, request);
 }
