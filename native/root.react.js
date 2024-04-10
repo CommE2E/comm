@@ -26,7 +26,6 @@ import { PersistGate as ReduxPersistGate } from 'redux-persist/es/integration/re
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
-import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
 import { FIDProvider } from 'lib/components/fid-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
@@ -47,6 +46,7 @@ import { BottomSheetProvider } from './bottom-sheet/bottom-sheet-provider.react.
 import ChatContextProvider from './chat/chat-context-provider.react.js';
 import MessageEditingContextProvider from './chat/message-editing-context-provider.react.js';
 import AccessTokenHandler from './components/access-token-handler.react.js';
+import FarcasterHandler from './components/farcaster-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ReportHandler from './components/report-handler.react.js';
@@ -298,6 +298,7 @@ function Root() {
             </DeepLinksContextProvider>
           </ChatContextProvider>
           <NavigationHandler />
+          <FarcasterHandler />
         </BottomSheetModalProvider>
       </NavigationContainer>
     );
@@ -344,7 +345,6 @@ function Root() {
                                                   <VersionSupportedChecker />
                                                   <PrekeysHandler />
                                                   <ReportHandler />
-                                                  <FarcasterDataHandler />
                                                 </PersistedStateGate>
                                                 {navigation}
                                               </RegistrationContextProvider>
