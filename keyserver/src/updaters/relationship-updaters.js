@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  type RelationshipRequest,
+  type TraditionalRelationshipRequest,
   type RelationshipErrors,
   type UndirectedRelationshipRow,
   relationshipActions,
@@ -30,7 +30,7 @@ import type { Viewer } from '../session/viewer.js';
 
 async function updateRelationships(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: TraditionalRelationshipRequest,
 ): Promise<RelationshipErrors> {
   const { action } = request;
 
@@ -323,7 +323,7 @@ async function updateChangedUndirectedRelationships(
 
 async function createPersonalThreads(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: TraditionalRelationshipRequest,
 ) {
   invariant(
     request.action === relationshipActions.FRIEND ||
