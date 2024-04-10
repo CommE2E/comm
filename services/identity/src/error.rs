@@ -24,6 +24,8 @@ pub enum Error {
   Serde(serde_json::Error),
   #[display(...)]
   CannotOverwrite,
+  #[display(...)]
+  OneTimeKeyUploadLimitExceeded,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]

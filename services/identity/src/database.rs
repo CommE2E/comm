@@ -1,15 +1,25 @@
-use comm_lib::aws::ddb::{
-  operation::{
-    delete_item::DeleteItemOutput, get_item::GetItemOutput,
-    put_item::PutItemOutput, query::QueryOutput,
-  },
-  primitives::Blob,
-  types::{AttributeValue, PutRequest, ReturnConsumedCapacity, WriteRequest},
-};
+use comm_lib::aws::ddb::types::Delete;
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
 use comm_lib::database::{
   AttributeExtractor, AttributeMap, DBItemAttributeError, DBItemError,
   TryFromAttribute,
+};
+use comm_lib::{
+  aws::{
+    ddb::{
+      operation::{
+        delete_item::DeleteItemOutput, get_item::GetItemOutput,
+        put_item::PutItemOutput, query::QueryOutput,
+      },
+      primitives::Blob,
+      types::{
+        error::TransactionCanceledException, AttributeValue, PutRequest,
+        ReturnConsumedCapacity, TransactWriteItem, Update, WriteRequest,
+      },
+    },
+    DynamoDBError,
+  },
+  database::parse_int_attribute,
 };
 use constant_time_eq::constant_time_eq;
 use std::collections::{HashMap, HashSet};
@@ -282,6 +292,7 @@ impl DatabaseClient {
 
     self
       .append_one_time_prekeys(
+        user_id.clone(),
         flattened_device_key_upload.device_id_key,
         flattened_device_key_upload.content_one_time_keys,
         flattened_device_key_upload.notif_one_time_keys,
@@ -323,7 +334,7 @@ impl DatabaseClient {
     // add device to the new device list
     self
       .add_device(
-        user_id,
+        user_id.clone(),
         flattened_device_key_upload,
         code_version,
         access_token_creation_time,
@@ -332,6 +343,7 @@ impl DatabaseClient {
 
     self
       .append_one_time_prekeys(
+        user_id,
         device_id,
         content_one_time_keys,
         notif_one_time_keys,
@@ -359,7 +371,7 @@ impl DatabaseClient {
     let user_id: String = user_info.take_attr(USERS_TABLE_PARTITION_KEY)?;
     let social_proof: Option<String> =
       user_info.take_attr(USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME)?;
-    let user_devices = self.get_current_devices(user_id).await?;
+    let user_devices = self.get_current_devices(user_id.clone()).await?;
     let maybe_keyserver_device = user_devices
       .into_iter()
       .find(|device| device.device_type == GrpcDeviceType::Keyserver);
@@ -373,10 +385,14 @@ impl DatabaseClient {
     );
 
     let notif_one_time_key: Option<String> = self
-      .get_one_time_key(&keyserver.device_id, OlmAccountType::Notification)
+      .get_one_time_key(
+        &user_id,
+        &keyserver.device_id,
+        OlmAccountType::Notification,
+      )
       .await?;
     let content_one_time_key: Option<String> = self
-      .get_one_time_key(&keyserver.device_id, OlmAccountType::Content)
+      .get_one_time_key(&user_id, &keyserver.device_id, OlmAccountType::Content)
       .await?;
 
     debug!(
@@ -422,14 +438,18 @@ impl DatabaseClient {
   /// key
   pub async fn get_one_time_key(
     &self,
+    user_id: &str,
     device_id: &str,
     account_type: OlmAccountType,
   ) -> Result<Option<String>, Error> {
+    use crate::constants::devices_table;
     use crate::constants::one_time_keys_table as otk_table;
     use crate::constants::ONE_TIME_KEY_MINIMUM_THRESHOLD;
 
-    let query_result = self.get_one_time_keys(device_id, account_type).await?;
-    let items = query_result.items();
+    let attr_otk_count = match account_type {
+      OlmAccountType::Content => devices_table::ATTR_CONTENT_OTK_COUNT,
+      OlmAccountType::Notification => devices_table::ATTR_NOTIF_OTK_COUNT,
+    };
 
     fn spawn_refresh_keys_task(device_id: &str) {
       // Clone the string slice to move into the async block
@@ -442,70 +462,108 @@ impl DatabaseClient {
       });
     }
 
-    // If no one-time keys exist, or if there aren't enough, request more.
-    // Additionally, if no one-time keys exist, return early.
-    let item_vec = if let Some(items_list) = items {
-      if items_list.len() < ONE_TIME_KEY_MINIMUM_THRESHOLD {
+    loop {
+      let otk_count =
+        self.get_otk_count(user_id, device_id, account_type).await?;
+      if otk_count < ONE_TIME_KEY_MINIMUM_THRESHOLD {
         spawn_refresh_keys_task(device_id);
       }
-      items_list
-    } else {
-      debug!("Unable to find {:?} one-time key", account_type);
-      spawn_refresh_keys_task(device_id);
-      return Ok(None);
-    };
+      if otk_count < 1 {
+        return Ok(None);
+      }
 
-    let mut result = None;
-    // Attempt to delete the one-time keys individually, a successful delete
-    // mints the one-time key to the requester
-    for item in item_vec {
-      let pk: String = item.get_attr(otk_table::PARTITION_KEY)?;
-      let otk: String = item.get_attr(otk_table::SORT_KEY)?;
+      let query_result = self
+        .get_one_time_keys(user_id, device_id, account_type)
+        .await?;
+      let mut items = query_result.items.unwrap_or_default();
+      let mut item = items.pop().unwrap_or_default();
+      let pk = item.take_attr(otk_table::PARTITION_KEY)?;
+      let sk = item.take_attr(otk_table::SORT_KEY)?;
+      let otk: String = item.take_attr(otk_table::ATTR_ONE_TIME_KEY)?;
 
-      let composite_key = HashMap::from([
-        (otk_table::PARTITION_KEY.to_string(), AttributeValue::S(pk)),
-        (
-          otk_table::SORT_KEY.to_string(),
-          AttributeValue::S(otk.clone()),
-        ),
-      ]);
-
-      debug!("Attempting to delete a {:?} one time key", account_type);
-      match self
-        .client
-        .delete_item()
-        .set_key(Some(composite_key))
+      let delete_otk = Delete::builder()
         .table_name(otk_table::NAME)
+        .key(otk_table::PARTITION_KEY, AttributeValue::S(pk))
+        .key(otk_table::SORT_KEY, AttributeValue::S(sk))
+        .build();
+
+      let delete_otk_operation =
+        TransactWriteItem::builder().delete(delete_otk).build();
+
+      let update_otk_count = Update::builder()
+        .table_name(devices_table::NAME)
+        .key(
+          devices_table::ATTR_USER_ID,
+          AttributeValue::S(user_id.to_string()),
+        )
+        .key(
+          devices_table::ATTR_ITEM_ID,
+          AttributeValue::S(format!(
+            "{}{}",
+            devices_table::DEVICE_ITEM_KEY_PREFIX,
+            device_id
+          )),
+        )
+        .update_expression(format!("ADD {} :decrement_val", attr_otk_count))
+        .expression_attribute_values(
+          ":decrement_val",
+          AttributeValue::N("-1".to_string()),
+        )
+        .condition_expression(format!("{} = :old_val", attr_otk_count))
+        .expression_attribute_values(
+          ":old_val",
+          AttributeValue::N(otk_count.to_string()),
+        )
+        .build();
+
+      let update_otk_count_operation = TransactWriteItem::builder()
+        .update(update_otk_count)
+        .build();
+
+      let transaction = self
+        .client
+        .transact_write_items()
+        .set_transact_items(Some(vec![
+          delete_otk_operation,
+          update_otk_count_operation,
+        ]))
         .send()
-        .await
-      {
-        Ok(_) => {
-          result = Some(otk);
-          break;
-        }
-        // This err should only happen if a delete occurred between the read
-        // above and this delete
-        Err(e) => {
-          debug!("Unable to delete key: {:?}", e);
-          continue;
-        }
+        .await;
+
+      match transaction {
+        Ok(_) => return Ok(Some(otk)),
+        Err(e) => match DynamoDBError::from(e) {
+          DynamoDBError::TransactionCanceledException(
+            TransactionCanceledException {
+              cancellation_reasons: Some(reasons),
+              ..
+            },
+          ) if reasons.iter().any(|reason| {
+            reason.code() == Some("TransactionConflict")
+              || reason.code() == Some("ConditionalCheckFailed")
+          }) =>
+          {
+            info!("Encountered transaction conflict while retrieving one-time key - retrying");
+          }
+          other => {
+            error!("One-time key retrieval transaction failed: {:?}", other);
+            return Err(Error::AwsSdk(other));
+          }
+        },
       }
     }
-
-    // Return deleted key
-    Ok(result)
   }
 
   pub async fn get_one_time_keys(
     &self,
+    user_id: &str,
     device_id: &str,
     account_type: OlmAccountType,
   ) -> Result<QueryOutput, Error> {
     use crate::constants::one_time_keys_table::*;
 
-    // Add related prefix to partition key to grab the correct result set
     let partition_key =
-      create_one_time_key_partition_key(device_id, account_type);
+      create_one_time_key_partition_key(user_id, device_id, account_type);
 
     self
       .client
@@ -513,6 +571,7 @@ impl DatabaseClient {
       .table_name(NAME)
       .key_condition_expression(format!("{} = :pk", PARTITION_KEY))
       .expression_attribute_values(":pk", AttributeValue::S(partition_key))
+      .limit(1)
       .return_consumed_capacity(ReturnConsumedCapacity::Total)
       .send()
       .await
@@ -528,36 +587,225 @@ impl DatabaseClient {
 
   pub async fn append_one_time_prekeys(
     &self,
+    user_id: String,
     device_id: String,
     content_one_time_keys: Vec<String>,
     notif_one_time_keys: Vec<String>,
   ) -> Result<(), Error> {
-    use crate::constants::one_time_keys_table;
+    use crate::constants::devices_table;
 
-    let mut otk_requests = into_one_time_put_requests(
+    let current_time = chrono::Utc::now();
+
+    let content_otk_requests = into_one_time_put_requests(
+      &user_id,
       &device_id,
       content_one_time_keys,
       OlmAccountType::Content,
+      current_time,
     );
-    let notif_otk_requests: Vec<WriteRequest> = into_one_time_put_requests(
+    let notif_otk_requests = into_one_time_put_requests(
+      &user_id,
       &device_id,
       notif_one_time_keys,
       OlmAccountType::Notification,
+      current_time,
     );
-    otk_requests.extend(notif_otk_requests);
 
-    // BatchWriteItem has a hard limit of 25 writes per call
-    for requests in otk_requests.chunks(25) {
-      self
-        .client
-        .batch_write_item()
-        .request_items(one_time_keys_table::NAME, requests.to_vec())
-        .send()
-        .await
-        .map_err(|e| Error::AwsSdk(e.into()))?;
+    // TransactWriteItem has a hard limit of 100 action requests per call
+    for requests in content_otk_requests.chunks(99) {
+      let num_requests_in_chunk = requests.len();
+
+      let update_content_otk_count = Update::builder()
+        .table_name(devices_table::NAME)
+        .key(
+          devices_table::ATTR_USER_ID,
+          AttributeValue::S(user_id.clone()),
+        )
+        .key(
+          devices_table::ATTR_ITEM_ID,
+          AttributeValue::S(format!(
+            "{}{}",
+            devices_table::DEVICE_ITEM_KEY_PREFIX,
+            device_id
+          )),
+        )
+        .update_expression(format!(
+          "ADD {} :value",
+          devices_table::ATTR_CONTENT_OTK_COUNT
+        ))
+        .expression_attribute_values(
+          ":value",
+          AttributeValue::N(num_requests_in_chunk.to_string()),
+        )
+        .build();
+      let update_content_otk_count_operation = TransactWriteItem::builder()
+        .update(update_content_otk_count)
+        .build();
+
+      let mut operations = Vec::new();
+      operations.extend_from_slice(requests);
+      operations.push(update_content_otk_count_operation);
+
+      loop {
+        let transaction = self
+          .client
+          .transact_write_items()
+          .set_transact_items(Some(operations.clone()))
+          .send()
+          .await;
+
+        match transaction {
+          Ok(_) => break,
+          Err(e) => match DynamoDBError::from(e) {
+            DynamoDBError::TransactionCanceledException(
+              TransactionCanceledException {
+                cancellation_reasons: Some(reasons),
+                ..
+              },
+            ) if reasons
+              .iter()
+              .any(|reason| reason.code() == Some("TransactionConflict")) =>
+            {
+              info!("Encountered transaction conflict while uploading one-time keys - retrying");
+            }
+            other => {
+              error!("One-time key upload transaction failed: {:?}", other);
+              return Err(Error::AwsSdk(other));
+            }
+          },
+        }
+      }
+    }
+
+    // TransactWriteItem has a hard limit of 100 action requests per call
+    for requests in notif_otk_requests.chunks(99) {
+      let num_requests_in_chunk = requests.len();
+
+      let update_notif_otk_count = Update::builder()
+        .table_name(devices_table::NAME)
+        .key(
+          devices_table::ATTR_USER_ID,
+          AttributeValue::S(user_id.clone()),
+        )
+        .key(
+          devices_table::ATTR_ITEM_ID,
+          AttributeValue::S(format!(
+            "{}{}",
+            devices_table::DEVICE_ITEM_KEY_PREFIX,
+            device_id
+          )),
+        )
+        .update_expression(format!(
+          "ADD {} :value",
+          devices_table::ATTR_NOTIF_OTK_COUNT
+        ))
+        .expression_attribute_values(
+          ":value",
+          AttributeValue::N(num_requests_in_chunk.to_string()),
+        )
+        .build();
+      let update_notif_otk_count_operation = TransactWriteItem::builder()
+        .update(update_notif_otk_count)
+        .build();
+
+      let mut operations = Vec::new();
+      operations.extend_from_slice(requests);
+      operations.push(update_notif_otk_count_operation);
+
+      loop {
+        let transaction = self
+          .client
+          .transact_write_items()
+          .set_transact_items(Some(operations.clone()))
+          .send()
+          .await;
+
+        match transaction {
+          Ok(_) => break,
+          Err(e) => match DynamoDBError::from(e) {
+            DynamoDBError::TransactionCanceledException(
+              TransactionCanceledException {
+                cancellation_reasons: Some(reasons),
+                ..
+              },
+            ) if reasons
+              .iter()
+              .any(|reason| reason.code() == Some("TransactionConflict")) =>
+            {
+              info!("Encountered transaction conflict while uploading one-time keys - retrying");
+            }
+            other => {
+              error!("One-time key upload transaction failed: {:?}", other);
+              return Err(Error::AwsSdk(other));
+            }
+          },
+        }
+      }
     }
 
     Ok(())
+  }
+
+  async fn get_otk_count(
+    &self,
+    user_id: &str,
+    device_id: &str,
+    account_type: OlmAccountType,
+  ) -> Result<usize, Error> {
+    use crate::constants::devices_table;
+
+    let response = self
+      .client
+      .get_item()
+      .table_name(devices_table::NAME)
+      .key(
+        devices_table::ATTR_USER_ID,
+        AttributeValue::S(user_id.to_string()),
+      )
+      .key(
+        devices_table::ATTR_ITEM_ID,
+        AttributeValue::S(format!(
+          "{}{}",
+          devices_table::DEVICE_ITEM_KEY_PREFIX,
+          device_id
+        )),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to get user's OTK count: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    let mut user_item = response.item.unwrap_or_default();
+    match account_type {
+      OlmAccountType::Content => {
+        match parse_int_attribute(
+          devices_table::ATTR_CONTENT_OTK_COUNT,
+          user_item.remove(devices_table::ATTR_CONTENT_OTK_COUNT),
+        ) {
+          Ok(num) => Ok(num),
+          Err(DBItemError {
+            attribute_error: DBItemAttributeError::Missing,
+            ..
+          }) => Ok(0),
+          Err(e) => Err(Error::Attribute(e)),
+        }
+      }
+      OlmAccountType::Notification => {
+        match parse_int_attribute(
+          devices_table::ATTR_NOTIF_OTK_COUNT,
+          user_item.remove(devices_table::ATTR_NOTIF_OTK_COUNT),
+        ) {
+          Ok(num) => Ok(num),
+          Err(DBItemError {
+            attribute_error: DBItemAttributeError::Missing,
+            ..
+          }) => Ok(0),
+          Err(e) => Err(Error::Attribute(e)),
+        }
+      }
+    }
   }
 
   pub async fn update_user_password(
@@ -893,10 +1141,14 @@ impl DatabaseClient {
     if get_one_time_keys {
       for (device_id_key, device_keys) in devices_response.iter_mut() {
         device_keys.notif_one_time_key = self
-          .get_one_time_key(device_id_key, OlmAccountType::Notification)
+          .get_one_time_key(
+            user_id,
+            device_id_key,
+            OlmAccountType::Notification,
+          )
           .await?;
         device_keys.content_one_time_key = self
-          .get_one_time_key(device_id_key, OlmAccountType::Content)
+          .get_one_time_key(user_id, device_id_key, OlmAccountType::Content)
           .await?;
       }
     }

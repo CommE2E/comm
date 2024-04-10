@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use comm_lib::{
-  aws::ddb::types::{AttributeValue, PutRequest, WriteRequest},
+  aws::ddb::types::{AttributeValue, Put, TransactWriteItem},
   database::{AttributeExtractor, AttributeMap},
 };
 use std::collections::HashMap;
@@ -17,52 +17,79 @@ pub enum OlmAccountType {
   Notification,
 }
 
-// Prefix the one time keys with the olm account variant. This allows for a single
-// DDB table to contain both notification and content keys for a device.
 pub fn create_one_time_key_partition_key(
+  user_id: &str,
   device_id: &str,
   account_type: OlmAccountType,
 ) -> String {
   match account_type {
-    OlmAccountType::Content => format!("content_{device_id}"),
-    OlmAccountType::Notification => format!("notification_{device_id}"),
+    OlmAccountType::Content => format!("{user_id}#{device_id}#content"),
+    OlmAccountType::Notification => {
+      format!("{user_id}#{device_id}#notification")
+    }
   }
 }
 
+fn create_one_time_key_sort_key(
+  key_number: usize,
+  current_time: DateTime<Utc>,
+) -> String {
+  let timestamp = current_time.to_rfc3339();
+  format!("{timestamp}#{:02}", key_number)
+}
+
 fn create_one_time_key_put_request(
+  user_id: &str,
   device_id: &str,
   one_time_key: String,
+  key_number: usize,
   account_type: OlmAccountType,
-) -> WriteRequest {
+  current_time: DateTime<Utc>,
+) -> Put {
   use crate::constants::one_time_keys_table::*;
 
   let partition_key =
-    create_one_time_key_partition_key(device_id, account_type);
-  let builder = PutRequest::builder();
+    create_one_time_key_partition_key(user_id, device_id, account_type);
+  let sort_key = create_one_time_key_sort_key(key_number, current_time);
+
+  let builder = Put::builder();
   let attrs = HashMap::from([
     (PARTITION_KEY.to_string(), AttributeValue::S(partition_key)),
-    (SORT_KEY.to_string(), AttributeValue::S(one_time_key)),
+    (SORT_KEY.to_string(), AttributeValue::S(sort_key)),
+    (
+      ATTR_ONE_TIME_KEY.to_string(),
+      AttributeValue::S(one_time_key),
+    ),
   ]);
 
-  let put_request = builder.set_item(Some(attrs)).build();
-
-  WriteRequest::builder().put_request(put_request).build()
+  builder.set_item(Some(attrs)).build()
 }
 
 pub fn into_one_time_put_requests<T>(
+  user_id: &str,
   device_id: &str,
   one_time_keys: T,
   account_type: OlmAccountType,
-) -> Vec<WriteRequest>
+  current_time: DateTime<Utc>,
+) -> Vec<TransactWriteItem>
 where
   T: IntoIterator,
   <T as IntoIterator>::Item: ToString,
 {
   one_time_keys
     .into_iter()
-    .map(|otk| {
-      create_one_time_key_put_request(device_id, otk.to_string(), account_type)
+    .enumerate()
+    .map(|(index, otk)| {
+      create_one_time_key_put_request(
+        user_id,
+        device_id,
+        otk.to_string(),
+        index,
+        account_type,
+        current_time,
+      )
     })
+    .map(|put_request| TransactWriteItem::builder().put(put_request).build())
     .collect()
 }
 

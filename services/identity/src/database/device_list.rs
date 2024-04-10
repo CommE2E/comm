@@ -686,8 +686,9 @@ impl DatabaseClient {
   ) -> Result<(), Error> {
     let content_one_time_keys = device_key_upload.content_one_time_keys.clone();
     let notif_one_time_keys = device_key_upload.notif_one_time_keys.clone();
+    let user_id_string = user_id.into();
     let new_device = DeviceRow::from_device_key_upload(
-      user_id,
+      user_id_string.clone(),
       device_key_upload,
       code_version,
       login_time,
@@ -708,6 +709,7 @@ impl DatabaseClient {
 
     self
       .append_one_time_prekeys(
+        user_id_string,
         device_id,
         content_one_time_keys,
         notif_one_time_keys,

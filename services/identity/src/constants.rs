@@ -119,6 +119,10 @@ pub mod devices_table {
   // migration-specific attrs
   pub const ATTR_CODE_VERSION: &str = "codeVersion";
   pub const ATTR_LOGIN_TIME: &str = "loginTime";
+
+  // one-time key constants
+  pub const ATTR_CONTENT_OTK_COUNT: &str = "contentOTKCount";
+  pub const ATTR_NOTIF_OTK_COUNT: &str = "notifOTKCount";
 }
 
 // One time keys table, which need to exist in their own table to ensure
@@ -127,6 +131,7 @@ pub mod one_time_keys_table {
   pub const NAME: &str = "identity-one-time-keys";
   pub const PARTITION_KEY: &str = "userID#deviceID#olmAccount";
   pub const SORT_KEY: &str = "timestamp#keyNumber";
+  pub const ATTR_ONE_TIME_KEY: &str = "oneTimeKey";
 }
 
 // Tokio
