@@ -119,6 +119,10 @@ pub mod devices_table {
   // migration-specific attrs
   pub const ATTR_CODE_VERSION: &str = "codeVersion";
   pub const ATTR_LOGIN_TIME: &str = "loginTime";
+
+  // one-time key constants
+  pub const ATTR_CONTENT_OTK_COUNT: &str = "contentOTKCount";
+  pub const ATTR_NOTIF_OTK_COUNT: &str = "notifOTKCount";
 }
 
 // One time keys table, which need to exist in their own table to ensure
@@ -127,6 +131,7 @@ pub mod one_time_keys_table {
   pub const NAME: &str = "identity-one-time-keys";
   pub const PARTITION_KEY: &str = "userID#deviceID#olmAccount";
   pub const SORT_KEY: &str = "timestamp#keyNumber";
+  pub const ATTR_ONE_TIME_KEY: &str = "oneTimeKey";
 }
 
 // Tokio
@@ -227,3 +232,16 @@ pub mod cors {
 
 pub const VALID_USERNAME_REGEX_STRING: &str =
   r"^[a-zA-Z0-9][a-zA-Z0-9-_]{0,190}$";
+
+// Retry
+
+// TODO: Replace this with `ExponentialBackoffConfig` from `comm-lib`
+pub mod retry {
+  pub const MAX_ATTEMPTS: usize = 8;
+
+  pub const CONDITIONAL_CHECK_FAILED: &str = "ConditionalCheckFailed";
+  pub const TRANSACTION_CONFLICT: &str = "TransactionConflict";
+}
+
+// One-time keys
+pub const ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT: usize = 49;
