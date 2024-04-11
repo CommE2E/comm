@@ -14,10 +14,10 @@ import * as React from 'react';
 import { useAccount, useWalletClient, WagmiProvider } from 'wagmi';
 
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
-import type { SIWEWebViewMessage } from 'lib/types/siwe-types.js';
+import { type SIWEWebViewMessage } from 'lib/types/siwe-types.js';
 import {
   getSIWEStatementForPublicKey,
-  siweMessageSigningExplanationStatements,
+  userTextsForSIWEMessageTypes,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
 import {
@@ -64,7 +64,7 @@ const queryClient = new QueryClient();
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
-  const { siweNonce, siwePrimaryIdentityPublicKey } =
+  const { siweNonce, siwePrimaryIdentityPublicKey, siweMessageType } =
     React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
@@ -125,7 +125,13 @@ function SIWE(): React.Node {
     [],
   );
   useMonitorForWalletConnectModal(onWalletConnectModalUpdate);
-
+  if (!siweMessageType) {
+    return (
+      <div className={css.wrapper}>
+        <h1 className={css.h1}>Unable to proceed: message type not found</h1>
+      </div>
+    );
+  }
   if (!hasNonce) {
     return (
       <div className={css.wrapper}>
@@ -135,6 +141,20 @@ function SIWE(): React.Node {
   } else if (!signer) {
     return null;
   } else {
+    const { explanationStatement, buttonStatement, showTermsAgreement } =
+      userTextsForSIWEMessageTypes[siweMessageType];
+
+    let termsOfUseAndPolicyInfo = null;
+    if (showTermsAgreement) {
+      termsOfUseAndPolicyInfo = (
+        <p>
+          By signing up, you agree to our{' '}
+          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
+          <a href="https://comm.app/privacy">Privacy Policy</a>.
+        </p>
+      );
+    }
+
     return (
       <div className={css.wrapper}>
         <span className={css.walletDisplayText}>
@@ -143,14 +163,10 @@ function SIWE(): React.Node {
         <div className={css.connectedWalletInfo}>
           <ConnectedWalletInfo />
         </div>
-        <p>{siweMessageSigningExplanationStatements}</p>
-        <p>
-          By signing up, you agree to our{' '}
-          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
-          <a href="https://comm.app/privacy">Privacy Policy</a>.
-        </p>
+        <p>{explanationStatement}</p>
+        {termsOfUseAndPolicyInfo}
         <div className={css.button} onClick={onClick}>
-          Sign in using this wallet
+          {buttonStatement}
         </div>
       </div>
     );
