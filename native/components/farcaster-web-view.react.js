@@ -32,7 +32,7 @@ function FarcasterWebView(props: Props): React.Node {
       if (data.type === 'farcaster_url') {
         void Linking.openURL(data.url);
       } else if (data.type === 'farcaster_data') {
-        onSuccess(data.fid);
+        onSuccess(data.fid.toString());
       }
     },
     [onSuccess],
