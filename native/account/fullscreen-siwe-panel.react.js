@@ -6,7 +6,7 @@ import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -152,6 +152,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         onClosed={ifBeforeSuccessGoBackToPrompt}
         onClosing={ifBeforeSuccessGoBackToPrompt}
         onSuccessfulWalletSignature={onSuccess}
+        siweMessageType={SIWEMessageTypes.MSG_AUTH}
         setLoading={setLoading}
       />
     </>

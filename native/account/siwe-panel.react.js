@@ -17,7 +17,11 @@ import {
 import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
+import type {
+  SIWEWebViewMessage,
+  SIWEResult,
+  SIWEMessageType,
+} from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -45,6 +49,7 @@ type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
   +onSuccessfulWalletSignature: SIWEResult => mixed,
+  +siweMessageType: SIWEMessageType,
   +closing: boolean,
   +setLoading: boolean => mixed,
   +keyserverCallParamOverride?: Partial<ServerCallSelectorParams>,
@@ -65,6 +70,7 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const { onClosing } = props;
+  const { siweMessageType } = props;
 
   const legacySiweAuthCallLoading = useSelector(
     state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
@@ -186,9 +192,10 @@ function SIWEPanel(props: Props): React.Node {
       headers: {
         'siwe-nonce': nonce,
         'siwe-primary-identity-public-key': primaryIdentityPublicKey,
+        'siwe-message-type': siweMessageType,
       },
     }),
-    [nonce, primaryIdentityPublicKey],
+    [nonce, primaryIdentityPublicKey, siweMessageType],
   );
 
   const onWebViewLoaded = React.useCallback(() => {

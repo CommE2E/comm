@@ -11,6 +11,7 @@ import { promisify } from 'util';
 import {
   isValidPrimaryIdentityPublicKey,
   isValidSIWENonce,
+  isValidSIWEMessageType,
 } from 'lib/utils/siwe-utils.js';
 
 import { getMessageForException } from './utils.js';
@@ -138,6 +139,17 @@ async function landingResponder(req: $Request, res: $Response) {
     });
     return;
   }
+  const siweMessageType = req.header('siwe-message-type');
+  if (
+    siweMessageType !== null &&
+    siweMessageType !== undefined &&
+    !isValidSIWEMessageType(siweMessageType)
+  ) {
+    res.status(400).send({
+      message: 'Invalid siwe message type.',
+    });
+    return;
+  }
 
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
@@ -200,6 +212,7 @@ async function landingResponder(req: $Request, res: $Response) {
       basename={routerBasename}
       siweNonce={siweNonce}
       siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
+      siweMessageType={siweMessageType}
     />,
   );
   reactStream.pipe(res, { end: false });
@@ -209,11 +222,15 @@ async function landingResponder(req: $Request, res: $Response) {
   const siwePrimaryIdentityPublicKeyString = siwePrimaryIdentityPublicKey
     ? `"${siwePrimaryIdentityPublicKey}"`
     : 'null';
+  const siweMessageTypeString = siweMessageType
+    ? `"${siweMessageType}"`
+    : 'null';
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
         <script>var siweNonce = ${siweNonceString};</script>
         <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
+        <script>var siweMessageType = ${siweMessageTypeString};</script>
         <script src="${jsURL}"></script>
       </body>
     </html>
