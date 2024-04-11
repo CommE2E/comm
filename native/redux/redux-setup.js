@@ -178,14 +178,14 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       action.payload.sessionChange.currentUserInfo &&
       invalidSessionRecovery(
         state,
-        action.payload.sessionChange.currentUserInfo,
+        action.payload.preRequestUserState?.currentUserInfo,
         action.payload.authActionSource,
       )) ||
     ((action.type === logInActionTypes.success ||
       action.type === siweAuthActionTypes.success) &&
       invalidSessionRecovery(
         state,
-        action.payload.currentUserInfo,
+        action.payload.preRequestUserInfo,
         action.payload.authActionSource,
       )) ||
     (action.type === keyserverAuthActionTypes.success &&
