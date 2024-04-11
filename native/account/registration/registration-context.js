@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { SetState } from 'lib/types/hook-types.js';
+import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
 import type {
   RegistrationServerCallInput,
@@ -18,6 +19,8 @@ export type RegistrationContextType = {
   // skipping the login flow once, so that the user can back out and change it.
   +skipEthereumLoginOnce?: ?true,
   +setSkipEthereumLoginOnce: boolean => void,
+  +siweBackupSecrets?: ?SIWEBackupSecrets,
+  +setSIWEBackupSecrets: SetState<?SIWEBackupSecrets>,
 };
 
 const RegistrationContext: React.Context<?RegistrationContextType> =
