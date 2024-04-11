@@ -43,6 +43,8 @@ export type RegistrationServerCallInput = {
   +farcasterID: ?string,
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,
+  +siweBackupSecrets?: ?SIWEBackupSecrets,
+  +clearCachedSelections: () => void,
 };
 
 export type CachedUserSelections = {
