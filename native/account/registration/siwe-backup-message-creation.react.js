@@ -1,6 +1,7 @@
 // @flow
 
 import Icon from '@expo/vector-icons/MaterialIcons.js';
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
@@ -10,6 +11,7 @@ import RegistrationButtonContainer from './registration-button-container.react.j
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
+import { RegistrationContext } from './registration-context.js';
 import { type RegistrationNavigationProp } from './registration-navigator.react.js';
 import type {
   CoolOrNerdMode,
@@ -69,15 +71,23 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
     [panelState],
   );
 
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { setCachedSelections } = registrationContext;
+
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
-      console.log(result);
+      const { message, signature } = result;
+      setCachedSelections(oldUserSelections => ({
+        ...oldUserSelections,
+        siweBackupSecrets: { message, signature },
+      }));
       navigate<'RegistrationTerms'>({
         name: RegistrationTermsRouteName,
         params,
       });
     },
-    [navigate, params],
+    [navigate, params, setCachedSelections],
   );
 
   let siwePanel;
