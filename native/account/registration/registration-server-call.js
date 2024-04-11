@@ -11,6 +11,7 @@ import {
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -27,6 +28,7 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
+import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -57,6 +59,8 @@ type CurrentStep =
   | {
       +step: 'waiting_for_registration_call',
       +avatarData: ?AvatarData,
+      +siweBackupSecrets?: ?SIWEBackupSecrets,
+      +clearCachedSelections: () => void,
       +resolve: () => void,
       +reject: Error => void,
     };
@@ -197,8 +201,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData, keyserverURL, farcasterID } =
-              input;
+            const {
+              accountSelection,
+              avatarData,
+              keyserverURL,
+              farcasterID,
+              siweBackupSecrets,
+              clearCachedSelections,
+            } = input;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -256,6 +266,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
+              siweBackupSecrets,
+              clearCachedSelections,
               resolve,
               reject,
             });
@@ -274,7 +286,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     ],
   );
 
-  // STEP 2: SETTING AVATAR
+  // STEP 2: HANDLING USER SELECTIONS
 
   const uploadSelectedMedia = useUploadSelectedMedia();
   const nativeSetUserAvatar = useNativeSetUserAvatar();
@@ -283,33 +295,48 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
   );
 
-  const avatarBeingSetRef = React.useRef(false);
+  const userSelectionsBeingHandledRef = React.useRef(false);
   React.useEffect(() => {
     if (
       !hasCurrentUserInfo ||
       currentStep.step !== 'waiting_for_registration_call' ||
-      avatarBeingSetRef.current
+      userSelectionsBeingHandledRef.current
     ) {
       return;
     }
-    avatarBeingSetRef.current = true;
-    const { avatarData, resolve } = currentStep;
+    userSelectionsBeingHandledRef.current = true;
+    const { avatarData, siweBackupSecrets, clearCachedSelections, resolve } =
+      currentStep;
     void (async () => {
       try {
-        if (!avatarData) {
-          return;
-        }
-        let updateUserAvatarRequest;
-        if (!avatarData.needsUpload) {
-          ({ updateUserAvatarRequest } = avatarData);
-        } else {
-          const { mediaSelection } = avatarData;
-          updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
-          if (!updateUserAvatarRequest) {
+        const uploadAvatarPromise = (async () => {
+          if (!avatarData) {
             return;
           }
-        }
-        await nativeSetUserAvatar(updateUserAvatarRequest);
+          let updateUserAvatarRequest;
+          if (!avatarData.needsUpload) {
+            ({ updateUserAvatarRequest } = avatarData);
+          } else {
+            const { mediaSelection } = avatarData;
+            updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
+            if (!updateUserAvatarRequest) {
+              return;
+            }
+          }
+          await nativeSetUserAvatar(updateUserAvatarRequest);
+        })();
+
+        const persistSIWEBackupSecretsPromise = (async () => {
+          if (!siweBackupSecrets) {
+            return;
+          }
+          await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
+        })();
+
+        await Promise.all([
+          uploadAvatarPromise,
+          persistSIWEBackupSecretsPromise,
+        ]);
       } finally {
         dispatch({
           type: setDataLoadedActionType,
@@ -317,8 +344,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             dataLoaded: true,
           },
         });
+        clearCachedSelections();
         setCurrentStep(inactiveStep);
-        avatarBeingSetRef.current = false;
+        userSelectionsBeingHandledRef.current = false;
         resolve();
       }
     })();
