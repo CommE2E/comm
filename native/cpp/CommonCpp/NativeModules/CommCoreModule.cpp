@@ -1868,4 +1868,81 @@ CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) {
         ::retrieveBackupKeys(rust::string(backupSecretStr), currentID);
       });
 }
+
+jsi::Value CommCoreModule::setSIWEBackupSecrets(
+    jsi::Runtime &rt,
+    jsi::Object siweBackupSecrets) {
+  std::string message =
+      siweBackupSecrets.getProperty(rt, "message").asString(rt).utf8(rt);
+  std::string signature =
+      siweBackupSecrets.getProperty(rt, "signature").asString(rt).utf8(rt);
+  folly::dynamic backupSecretsJSON =
+      folly::dynamic::object("message", message)("signature", signature);
+  std::string backupSecrets = folly::toJson(backupSecretsJSON);
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, promise, backupSecrets]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().setMetadata(
+                "siweBackupSecrets", backupSecrets);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::getSIWEBackupSecrets(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise]() {
+          std::string error;
+          std::string backupSecrets;
+          try {
+            backupSecrets = DatabaseManager::getQueryExecutor().getMetadata(
+                "siweBackupSecrets");
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, error, backupSecrets, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                } else if (!backupSecrets.size()) {
+                  promise->resolve(jsi::Value::undefined());
+                } else {
+                  folly::dynamic backupSecretsJSON =
+                      folly::parseJson(backupSecrets);
+                  std::string message = backupSecretsJSON["message"].asString();
+                  std::string signature =
+                      backupSecretsJSON["signature"].asString();
+
+                  auto siweBackupSecrets = jsi::Object(innerRt);
+                  siweBackupSecrets.setProperty(
+                      innerRt,
+                      "message",
+                      jsi::String::createFromUtf8(innerRt, message));
+                  siweBackupSecrets.setProperty(
+                      innerRt,
+                      "signature",
+                      jsi::String::createFromUtf8(innerRt, signature));
+                  promise->resolve(std::move(siweBackupSecrets));
+                }
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
 } // namespace comm
