@@ -29,6 +29,7 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
+import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -58,6 +59,7 @@ type CurrentStep =
   | { +step: 'inactive' }
   | {
       +step: 'waiting_for_registration_call',
+      +clearCachedSelections: () => void,
       +avatarData: ?AvatarData,
       +resolve: () => void,
       +reject: Error => void,
@@ -199,8 +201,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData, keyserverURL, farcasterID } =
-              input;
+            const {
+              accountSelection,
+              avatarData,
+              keyserverURL,
+              farcasterID,
+              siweBackupSecrets,
+              clearCachedSelections,
+            } = input;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -255,9 +263,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 },
               });
             }
+            if (siweBackupSecrets) {
+              await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
+            }
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
+              clearCachedSelections,
               resolve,
               reject,
             });
@@ -295,7 +307,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       return;
     }
     avatarBeingSetRef.current = true;
-    const { avatarData, resolve } = currentStep;
+    const { avatarData, resolve, clearCachedSelections } = currentStep;
     void (async () => {
       try {
         if (!avatarData) {
@@ -319,6 +331,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             dataLoaded: true,
           },
         });
+        clearCachedSelections();
         setCurrentStep(inactiveStep);
         avatarBeingSetRef.current = false;
         resolve();
