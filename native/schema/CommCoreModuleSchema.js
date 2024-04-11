@@ -23,6 +23,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
+import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
@@ -152,6 +153,8 @@ interface Spec extends TurboModule {
     backupLogDataKey: string,
   ) => Promise<void>;
   +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
+  +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
+  +getSIWEBackupSecrets: () => Promise<?Object>;
 }
 
 export interface CoreModuleSpec extends Spec {
@@ -167,6 +170,10 @@ export interface CoreModuleSpec extends Spec {
     sessionVersion: number,
     overwrite: boolean,
   ) => Promise<string>;
+  +setSIWEBackupSecrets: (
+    siweBackupSecrets: SIWEBackupSecrets,
+  ) => Promise<void>;
+  +getSIWEBackupSecrets: () => Promise<?SIWEBackupSecrets>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
