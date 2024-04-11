@@ -44,6 +44,7 @@ type Props = {
 function CreateSIWEBackupMessage(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { params } = props.route;
+  const { userSelections } = params;
 
   const styles = useStyles(unboundStyles);
 
@@ -76,24 +77,36 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       const { message, signature } = result;
+      const newUserSelections = {
+        ...userSelections,
+        siweBackupSecrets: { message, signature },
+      };
       setCachedSelections(oldUserSelections => ({
         ...oldUserSelections,
         siweBackupSecrets: { message, signature },
       }));
       navigate<'RegistrationTerms'>({
         name: RegistrationTermsRouteName,
-        params,
+        params: { userSelections: newUserSelections },
       });
     },
-    [navigate, params, setCachedSelections],
+    [navigate, setCachedSelections, userSelections],
   );
 
+  const { siweBackupSecrets } = cachedSelections;
   const onExistingWalletSignature = React.useCallback(() => {
+    const registrationTermsParams = {
+      userSelections: {
+        ...userSelections,
+        siweBackupSecrets,
+      },
+    };
+
     navigate<'RegistrationTerms'>({
       name: RegistrationTermsRouteName,
-      params,
+      params: registrationTermsParams,
     });
-  }, [params, navigate]);
+  }, [navigate, siweBackupSecrets, userSelections]);
 
   let siwePanel;
   if (panelState !== 'closed') {
@@ -108,8 +121,6 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
       />
     );
   }
-
-  const { siweBackupSecrets } = cachedSelections;
 
   const newSignatureButtonText = siweBackupSecrets
     ? 'Encrypt with new signature'
