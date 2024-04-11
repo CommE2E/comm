@@ -5,7 +5,7 @@ import type {
   ClientAvatar,
 } from 'lib/types/avatar-types.js';
 import type { NativeMediaSelection } from 'lib/types/media-types.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
+import type { SIWEResult, SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
 export type CoolOrNerdMode = 'cool' | 'nerd';
 
@@ -53,6 +53,7 @@ export type CachedUserSelections = {
   +avatarData?: ?AvatarData,
   +ethereumAccount?: EthereumAccountSelection,
   +farcasterID?: string,
+  +siweBackupSecrets?: ?SIWEBackupSecrets,
 };
 
 export const ensAvatarSelection: AvatarData = {
@@ -62,3 +63,5 @@ export const ensAvatarSelection: AvatarData = {
 };
 
 export const enableNewRegistrationMode = __DEV__;
+
+export const enableSIWEBackupCreation = __DEV__;
