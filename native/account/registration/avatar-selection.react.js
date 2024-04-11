@@ -21,11 +21,13 @@ import {
   type AvatarData,
   ensAvatarSelection,
 } from './registration-types.js';
+import { enableSIWEBackupCreation } from './registration-types.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import { useCurrentLeafRouteName } from '../../navigation/nav-selectors.js';
 import {
   type NavigationRoute,
   RegistrationTermsRouteName,
+  CreateSIWEBackupMessageRouteName,
   AvatarSelectionRouteName,
   EmojiAvatarSelectionRouteName,
   RegistrationUserAvatarCameraModalRouteName,
@@ -144,6 +146,16 @@ function AvatarSelection(props: Props): React.Node {
       ...userSelections,
       avatarData,
     };
+    if (
+      userSelections.accountSelection.accountType === 'ethereum' &&
+      enableSIWEBackupCreation
+    ) {
+      navigate<'CreateSIWEBackupMessage'>({
+        name: CreateSIWEBackupMessageRouteName,
+        params: { userSelections: newUserSelections },
+      });
+      return;
+    }
     navigate<'RegistrationTerms'>({
       name: RegistrationTermsRouteName,
       params: { userSelections: newUserSelections },
