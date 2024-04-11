@@ -17,6 +17,7 @@ import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import PasswordSelection from './password-selection.react.js';
 import RegistrationTerms from './registration-terms.react.js';
+import CreateSIWEBackupMessage from './siwe-backup-message-creation.react.js';
 import UsernameSelection from './username-selection.react.js';
 import RegistrationUserAvatarCameraModal from '../../media/registration-user-avatar-camera-modal.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
@@ -24,6 +25,7 @@ import {
   KeyserverSelectionRouteName,
   CoolOrNerdModeSelectionRouteName,
   ConnectEthereumRouteName,
+  CreateSIWEBackupMessageRouteName,
   ExistingEthereumAccountRouteName,
   UsernameSelectionRouteName,
   ConnectFarcasterRouteName,
@@ -88,6 +90,10 @@ function RegistrationNavigator(props: Props): React.Node {
       <Registration.Screen
         name={ConnectFarcasterRouteName}
         component={ConnectFarcaster}
+      />
+      <Registration.Screen
+        name={CreateSIWEBackupMessageRouteName}
+        component={CreateSIWEBackupMessage}
       />
       <Registration.Screen
         name={UsernameSelectionRouteName}
