@@ -22,7 +22,7 @@ type OnSuccessCallbackArgs = {
 function onSuccessCallback({ fid }: OnSuccessCallbackArgs) {
   postMessageToNativeWebView({
     type: 'farcaster_data',
-    fid,
+    fid: fid.toString(),
   });
 }
 
