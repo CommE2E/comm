@@ -12,6 +12,7 @@ import {
 } from 'lib/actions/user-actions.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -29,6 +30,7 @@ import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
+import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -58,7 +60,25 @@ type CurrentStep =
   | { +step: 'inactive' }
   | {
       +step: 'waiting_for_registration_call',
+      +siweBackupSecrets?: ?SIWEBackupSecrets,
+      +clearCachedSelections: () => void,
       +avatarData: ?AvatarData,
+      +resolve: () => void,
+      +reject: Error => void,
+    }
+  | {
+      +step: 'waiting_for_keyserver_auth',
+      +avatarData: ?AvatarData,
+      +clearCachedSelections: () => void,
+      +sqlitePersistPromise: Promise<void>,
+      +resolve: () => void,
+      +reject: Error => void,
+    }
+  | {
+      +step: 'clear_cached_selections',
+      +sqlitePersistPromise: Promise<void>,
+      +uploadAvatarPromise: Promise<void>,
+      +clearCachedSelections: () => void,
       +resolve: () => void,
       +reject: Error => void,
     };
@@ -199,8 +219,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (currentStep.step !== 'inactive') {
               return;
             }
-            const { accountSelection, avatarData, keyserverURL, farcasterID } =
-              input;
+            const {
+              accountSelection,
+              avatarData,
+              keyserverURL,
+              farcasterID,
+              siweBackupSecrets,
+              clearCachedSelections,
+            } = input;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -258,6 +284,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
+              siweBackupSecrets,
+              clearCachedSelections,
               resolve,
               reject,
             });
@@ -276,42 +304,130 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     ],
   );
 
-  // STEP 2: SETTING AVATAR
+  // STEP 2: SET SQLITE DATA
+  const hasCurrentUserInfo = useSelector(
+    state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
+  );
 
-  const uploadSelectedMedia = useUploadSelectedMedia();
-  const nativeSetUserAvatar = useNativeSetUserAvatar();
+  const sqlitePersistenceBeingHandlerRef = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      !hasCurrentUserInfo ||
+      currentStep.step !== 'waiting_for_registration_call' ||
+      sqlitePersistenceBeingHandlerRef.current
+    ) {
+      return;
+    }
+
+    sqlitePersistenceBeingHandlerRef.current = true;
+    const {
+      siweBackupSecrets,
+      resolve,
+      reject,
+      avatarData,
+      clearCachedSelections,
+    } = currentStep;
+
+    const sqlitePersistPromise = (async () => {
+      if (siweBackupSecrets) {
+        await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
+      }
+      sqlitePersistenceBeingHandlerRef.current = false;
+    })();
+
+    setCurrentStep({
+      step: 'waiting_for_keyserver_auth',
+      avatarData,
+      sqlitePersistPromise,
+      clearCachedSelections,
+      resolve,
+      reject,
+    });
+  }, [hasCurrentUserInfo, currentStep]);
+
+  // STEP 3: SETTING AVATAR
 
   const isLoggedInToAuthoritativeKeyserver = useSelector(
     isLoggedInToKeyserver(authoritativeKeyserverID),
   );
 
+  const uploadSelectedMedia = useUploadSelectedMedia();
+  const nativeSetUserAvatar = useNativeSetUserAvatar();
+
   const avatarBeingSetRef = React.useRef(false);
   React.useEffect(() => {
     if (
       !isLoggedInToAuthoritativeKeyserver ||
-      currentStep.step !== 'waiting_for_registration_call' ||
+      currentStep.step !== 'waiting_for_keyserver_auth' ||
       avatarBeingSetRef.current
     ) {
       return;
     }
     avatarBeingSetRef.current = true;
-    const { avatarData, resolve } = currentStep;
-    void (async () => {
-      try {
-        if (!avatarData) {
+    const {
+      avatarData,
+      resolve,
+      reject,
+      clearCachedSelections,
+      sqlitePersistPromise,
+    } = currentStep;
+
+    const uploadAvatarPromise = (async () => {
+      if (!avatarData) {
+        return;
+      }
+      let updateUserAvatarRequest;
+      if (!avatarData.needsUpload) {
+        ({ updateUserAvatarRequest } = avatarData);
+      } else {
+        const { mediaSelection } = avatarData;
+        updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
+        if (!updateUserAvatarRequest) {
           return;
         }
-        let updateUserAvatarRequest;
-        if (!avatarData.needsUpload) {
-          ({ updateUserAvatarRequest } = avatarData);
-        } else {
-          const { mediaSelection } = avatarData;
-          updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
-          if (!updateUserAvatarRequest) {
-            return;
-          }
-        }
-        await nativeSetUserAvatar(updateUserAvatarRequest);
+      }
+      await nativeSetUserAvatar(updateUserAvatarRequest);
+
+      avatarBeingSetRef.current = false;
+    })();
+
+    setCurrentStep({
+      step: 'clear_cached_selections',
+      reject,
+      resolve,
+      uploadAvatarPromise,
+      clearCachedSelections,
+      sqlitePersistPromise,
+    });
+  }, [
+    currentStep,
+    isLoggedInToAuthoritativeKeyserver,
+    uploadSelectedMedia,
+    nativeSetUserAvatar,
+    dispatch,
+  ]);
+
+  // STEP 4: CLEAR CACHED SELECTIONS
+  const clearCachedSelectionsBeingHandledRef = React.useRef<boolean>(false);
+
+  React.useEffect(() => {
+    if (
+      currentStep.step !== 'clear_cached_selections' ||
+      clearCachedSelectionsBeingHandledRef.current
+    ) {
+      return;
+    }
+    clearCachedSelectionsBeingHandledRef.current = true;
+    const {
+      sqlitePersistPromise,
+      uploadAvatarPromise,
+      resolve,
+      clearCachedSelections,
+    } = currentStep;
+
+    void (async () => {
+      try {
+        await Promise.all([sqlitePersistPromise, uploadAvatarPromise]);
       } finally {
         dispatch({
           type: setDataLoadedActionType,
@@ -319,8 +435,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             dataLoaded: true,
           },
         });
+
         setCurrentStep(inactiveStep);
-        avatarBeingSetRef.current = false;
+        clearCachedSelections();
+        clearCachedSelectionsBeingHandledRef.current = false;
         resolve();
       }
     })();
