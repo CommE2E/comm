@@ -78,6 +78,8 @@ public:
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey) = 0;
   virtual jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) = 0;
+  virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
 
 };
 
@@ -562,6 +564,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::retrieveBackupKeys, jsInvoker_, instance_, std::move(backupSecret));
+    }
+    jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) override {
+      static_assert(
+          bridging::getParameterCount(&T::setSIWEBackupSecrets) == 2,
+          "Expected setSIWEBackupSecrets(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::setSIWEBackupSecrets, jsInvoker_, instance_, std::move(siweBackupSecrets));
+    }
+    jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getSIWEBackupSecrets) == 1,
+          "Expected getSIWEBackupSecrets(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getSIWEBackupSecrets, jsInvoker_, instance_);
     }
 
   private:
