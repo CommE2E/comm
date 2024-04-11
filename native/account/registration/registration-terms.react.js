@@ -4,6 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View, Image, Linking } from 'react-native';
 
+import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -26,6 +28,7 @@ export type RegistrationTermsParams = {
     +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
+    +siweBackupSecrets?: ?SIWEBackupSecrets,
   },
 };
 
@@ -44,20 +47,25 @@ type Props = {
 function RegistrationTerms(props: Props): React.Node {
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { register } = registrationContext;
+  const { register, setCachedSelections } = registrationContext;
 
   const [registrationInProgress, setRegistrationInProgress] =
     React.useState(false);
 
   const { userSelections } = props.route.params;
+
+  const clearCachedSelections = React.useCallback(() => {
+    setCachedSelections({});
+  }, [setCachedSelections]);
+
   const onProceed = React.useCallback(async () => {
     setRegistrationInProgress(true);
     try {
-      await register(userSelections);
+      await register({ ...userSelections, clearCachedSelections });
     } finally {
       setRegistrationInProgress(false);
     }
-  }, [register, userSelections]);
+  }, [register, userSelections, clearCachedSelections]);
 
   const styles = useStyles(unboundStyles);
 
