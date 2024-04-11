@@ -26,6 +26,7 @@ import { useCurrentLeafRouteName } from '../../navigation/nav-selectors.js';
 import {
   type NavigationRoute,
   RegistrationTermsRouteName,
+  CreateSIWEBackupMessageRouteName,
   AvatarSelectionRouteName,
   EmojiAvatarSelectionRouteName,
   RegistrationUserAvatarCameraModalRouteName,
@@ -144,6 +145,13 @@ function AvatarSelection(props: Props): React.Node {
       ...userSelections,
       avatarData,
     };
+    if (userSelections.accountSelection.accountType === 'ethereum') {
+      navigate<'CreateSIWEBackupMessage'>({
+        name: CreateSIWEBackupMessageRouteName,
+        params: { userSelections: newUserSelections },
+      });
+      return;
+    }
     navigate<'RegistrationTerms'>({
       name: RegistrationTermsRouteName,
       params: { userSelections: newUserSelections },
