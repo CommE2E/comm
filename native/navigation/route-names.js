@@ -12,6 +12,7 @@ import type { ExistingEthereumAccountParams } from '../account/registration/exis
 import type { KeyserverSelectionParams } from '../account/registration/keyserver-selection.react.js';
 import type { PasswordSelectionParams } from '../account/registration/password-selection.react.js';
 import type { RegistrationTermsParams } from '../account/registration/registration-terms.react.js';
+import type { CreateSIWEBackupMessageParams } from '../account/registration/siwe-backup-message-creation.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
@@ -121,6 +122,7 @@ export const RegistrationRouteName = 'Registration';
 export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
+export const CreateSIWEBackupMessageRouteName = 'CreateSIWEBackupMessage';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const ConnectFarcasterRouteName = 'ConnectFarcaster';
 export const UsernameSelectionRouteName = 'UsernameSelection';
@@ -265,6 +267,7 @@ export type RegistrationParamList = {
   +ConnectEthereum: ConnectEthereumParams,
   +ExistingEthereumAccount: ExistingEthereumAccountParams,
   +ConnectFarcaster: ConnectFarcasterParams,
+  +CreateSIWEBackupMessage: CreateSIWEBackupMessageParams,
   +UsernameSelection: UsernameSelectionParams,
   +PasswordSelection: PasswordSelectionParams,
   +AvatarSelection: AvatarSelectionParams,
