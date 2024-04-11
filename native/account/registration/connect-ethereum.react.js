@@ -9,7 +9,7 @@ import {
   exactSearchUserActionTypes,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -200,6 +200,7 @@ function ConnectEthereum(props: Props): React.Node {
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
         onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        siweMessageType={SIWEMessageTypes.MSG_AUTH}
         setLoading={siwePanelSetLoading}
         keyserverCallParamOverride={serverCallParamOverride}
       />
