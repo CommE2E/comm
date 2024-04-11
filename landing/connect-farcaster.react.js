@@ -22,7 +22,7 @@ type OnSuccessCallbackArgs = {
 function onSuccessCallback({ fid }: OnSuccessCallbackArgs) {
   postMessageToNativeWebView({
     type: 'farcaster_data',
-    fid,
+    fid: fid.toString(),
   });
 }
 
@@ -64,7 +64,7 @@ function ConnectFarcaster(): React.Node {
 
       postMessageToNativeWebView({
         type: 'farcaster_url',
-        url: url.toString(),
+        url,
       });
     }
   }, [authenticated, isError, reconnect, signIn, url]);
