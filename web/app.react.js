@@ -47,6 +47,7 @@ import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
+import MinVersionHandler from './components/version-handler.react.js';
 import { olmAPI } from './crypto/olm-api.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
@@ -226,6 +227,7 @@ class App extends React.PureComponent<Props> {
                     <PushNotificationsHandler />
                     <InviteLinkHandler />
                     <InviteLinksRefresher />
+                    <MinVersionHandler />
                     {content}
                   </ChatMentionContextProvider>
                 </MessageSearchStateProvider>
