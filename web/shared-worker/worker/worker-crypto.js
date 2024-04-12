@@ -360,6 +360,15 @@ function getNotifsPersistenceKeys(
   }
 }
 
+async function reassignLocalForageItem(source: string, destination: string) {
+  const value = await localforage.getItem<mixed>(source);
+  if (!value) {
+    return;
+  }
+  await localforage.setItem(destination, value);
+  await localforage.removeItem(source);
+}
+
 const olmAPI: OlmAPI = {
   async initializeCryptoAccount(): Promise<void> {
     const sqliteQueryExecutor = getSQLiteQueryExecutor();
@@ -589,6 +598,39 @@ const olmAPI: OlmAPI = {
     ]);
 
     return initialNotificationsEncryptedMessage;
+  },
+  async reassignNotificationsSession(
+    prevCookie: ?string,
+    newCookie: ?string,
+    keyserverID: string,
+  ): Promise<void> {
+    const platformDetails = getPlatformDetails();
+    if (!platformDetails) {
+      throw new Error('Worker not initialized');
+    }
+
+    const prevPersistenceKeys = getNotifsPersistenceKeys(
+      prevCookie,
+      keyserverID,
+      platformDetails,
+    );
+
+    const newPersistenceKeys = getNotifsPersistenceKeys(
+      newCookie,
+      keyserverID,
+      platformDetails,
+    );
+
+    await Promise.all([
+      reassignLocalForageItem(
+        prevPersistenceKeys.notifsOlmDataContentKey,
+        newPersistenceKeys.notifsOlmDataContentKey,
+      ),
+      reassignLocalForageItem(
+        prevPersistenceKeys.notifsOlmDataEncryptionKeyDBLabel,
+        newPersistenceKeys.notifsOlmDataEncryptionKeyDBLabel,
+      ),
+    ]);
   },
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
     if (!cryptoStore) {

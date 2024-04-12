@@ -49,6 +49,7 @@ const olmAPI: OlmAPI = {
   contentInboundSessionCreator: proxyToWorker('contentInboundSessionCreator'),
   contentOutboundSessionCreator: proxyToWorker('contentOutboundSessionCreator'),
   notificationsSessionCreator: proxyToWorker('notificationsSessionCreator'),
+  reassignNotificationsSession: proxyToWorker('reassignNotificationsSession'),
   getOneTimeKeys: proxyToWorker('getOneTimeKeys'),
   validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
   signMessage: proxyToWorker('signMessage'),
