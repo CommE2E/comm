@@ -27,7 +27,6 @@ import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
-import { FIDProvider } from 'lib/components/fid-provider.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
@@ -319,44 +318,42 @@ function Root() {
                           <ActionSheetProvider>
                             <ENSCacheProvider provider={provider}>
                               <NeynarClientProvider apiKey={neynarKey}>
-                                <FIDProvider>
-                                  <MediaCacheProvider
-                                    persistence={filesystemMediaCache}
-                                  >
-                                    <EditUserAvatarProvider>
-                                      <NativeEditThreadAvatarProvider>
-                                        <MarkdownContextProvider>
-                                          <MessageSearchProvider>
-                                            <BottomSheetProvider>
-                                              <RegistrationContextProvider>
-                                                <SQLiteDataHandler />
-                                                <ConnectedStatusBar />
-                                                <ReduxPersistGate
-                                                  persistor={getPersistor()}
-                                                >
-                                                  {gated}
-                                                </ReduxPersistGate>
-                                                <PersistedStateGate>
-                                                  <KeyserverConnectionsHandler
-                                                    socketComponent={Socket}
-                                                    detectUnsupervisedBackgroundRef={
-                                                      detectUnsupervisedBackgroundRef
-                                                    }
-                                                  />
-                                                  <VersionSupportedChecker />
-                                                  <PrekeysHandler />
-                                                  <ReportHandler />
-                                                  <FarcasterDataHandler />
-                                                </PersistedStateGate>
-                                                {navigation}
-                                              </RegistrationContextProvider>
-                                            </BottomSheetProvider>
-                                          </MessageSearchProvider>
-                                        </MarkdownContextProvider>
-                                      </NativeEditThreadAvatarProvider>
-                                    </EditUserAvatarProvider>
-                                  </MediaCacheProvider>
-                                </FIDProvider>
+                                <MediaCacheProvider
+                                  persistence={filesystemMediaCache}
+                                >
+                                  <EditUserAvatarProvider>
+                                    <NativeEditThreadAvatarProvider>
+                                      <MarkdownContextProvider>
+                                        <MessageSearchProvider>
+                                          <BottomSheetProvider>
+                                            <RegistrationContextProvider>
+                                              <SQLiteDataHandler />
+                                              <ConnectedStatusBar />
+                                              <ReduxPersistGate
+                                                persistor={getPersistor()}
+                                              >
+                                                {gated}
+                                              </ReduxPersistGate>
+                                              <PersistedStateGate>
+                                                <KeyserverConnectionsHandler
+                                                  socketComponent={Socket}
+                                                  detectUnsupervisedBackgroundRef={
+                                                    detectUnsupervisedBackgroundRef
+                                                  }
+                                                />
+                                                <VersionSupportedChecker />
+                                                <PrekeysHandler />
+                                                <ReportHandler />
+                                                <FarcasterDataHandler />
+                                              </PersistedStateGate>
+                                              {navigation}
+                                            </RegistrationContextProvider>
+                                          </BottomSheetProvider>
+                                        </MessageSearchProvider>
+                                      </MarkdownContextProvider>
+                                    </NativeEditThreadAvatarProvider>
+                                  </EditUserAvatarProvider>
+                                </MediaCacheProvider>
                               </NeynarClientProvider>
                             </ENSCacheProvider>
                           </ActionSheetProvider>
