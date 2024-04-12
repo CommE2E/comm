@@ -123,6 +123,8 @@ export const KeyserverSelectionRouteName = 'KeyserverSelection';
 export const CoolOrNerdModeSelectionRouteName = 'CoolOrNerdModeSelection';
 export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const CreateSIWEBackupMessageRouteName = 'CreateSIWEBackupMessage';
+export const CreateMissingSIWEBackupMessageRouteName =
+  'CreateMissingSIWEBackupMessage';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const ConnectFarcasterRouteName = 'ConnectFarcaster';
 export const UsernameSelectionRouteName = 'UsernameSelection';
@@ -181,6 +183,7 @@ export type RootParamList = {
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
+  +CreateMissingSIWEBackupMessage: void,
 };
 
 export type MessageTooltipRouteNames =
