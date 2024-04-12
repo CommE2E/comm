@@ -53,8 +53,10 @@ import {
   UserProfileBottomSheetNavigatorRouteName,
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
+  MissingSIWEBackupSecretsRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
+import MissingSIWEBackupSecrets from '../account/registration/missing-siwe-backup-secrets.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
@@ -290,6 +292,10 @@ function RootComponent(): React.Node {
         name={ConnectFarcasterBottomSheetRouteName}
         component={ConnectFarcasterBottomSheet}
         options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={MissingSIWEBackupSecretsRouteName}
+        component={MissingSIWEBackupSecrets}
       />
     </Root.Navigator>
   );

@@ -24,6 +24,7 @@ import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import TextInput from '../components/text-input.react.js';
 import { olmAPI } from '../crypto/olm-api.js';
+import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
@@ -192,6 +193,19 @@ function TunnelbrokerMenu(props: Props): React.Node {
         >
           <Text style={styles.submenuText}>
             Send encrypted message to recipient
+          </Text>
+        </Button>
+        <Button
+          onPress={async () => {
+            console.log(await commCoreModule.getSIWEBackupSecrets());
+          }}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>
+            Show SIWE backup secrets in the console
           </Text>
         </Button>
       </View>

@@ -10,6 +10,7 @@ import { useRegistrationServerCall } from './registration-server-call.js';
 import type { CachedUserSelections } from './registration-types.js';
 import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
+import Alert from '../../utils/alert.js';
 
 const emptyObj: CachedUserSelections = Object.freeze({});
 
@@ -48,22 +49,35 @@ function RegistrationContextProvider(props: Props): React.Node {
       setSIWEBackupSecrets,
     ],
   );
-  const storeLoaded = useSelector(state => state.storeLoaded);
+
   const loggedIn = useSelector(isLoggedIn);
-  const lastPersistedBackupSecret = React.useRef<?SIWEBackupSecrets>(undefined);
+  const persistSIWEBackupSecretsPromise = React.useRef<?Promise<void>>(null);
 
   React.useEffect(() => {
-    void (async () => {
-      if (!siweBackupSecrets || !storeLoaded || !loggedIn) {
-        return;
+    if (persistSIWEBackupSecretsPromise.current) {
+      return;
+    }
+    if (!siweBackupSecrets || !loggedIn) {
+      return;
+    }
+
+    persistSIWEBackupSecretsPromise.current = void (async () => {
+      try {
+        await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
+      } catch (e) {
+        console.log(e);
+        if (__DEV__) {
+          Alert.alert(
+            'Failed to persist SIWE backup secrets to SQLite.',
+            e.message,
+          );
+        }
+      } finally {
+        setSIWEBackupSecrets(undefined);
+        persistSIWEBackupSecretsPromise.current = null;
       }
-      if (lastPersistedBackupSecret.current === siweBackupSecrets) {
-        return;
-      }
-      lastPersistedBackupSecret.current = siweBackupSecrets;
-      await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
     })();
-  }, [storeLoaded, siweBackupSecrets, loggedIn]);
+  }, [siweBackupSecrets, loggedIn]);
 
   React.useEffect(() => {
     if (!loggedIn) {
