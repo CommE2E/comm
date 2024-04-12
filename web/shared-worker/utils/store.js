@@ -36,6 +36,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     threadHashes: null,
     syncedMetadata: null,
     auxUserInfos: null,
+    threadActivityStore: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -121,6 +122,17 @@ async function getClientDBStore(): Promise<ClientStore> {
     result = {
       ...result,
       messageStoreThreads: data.store.messageStoreThreads,
+    };
+  }
+  if (
+    data?.store?.threadActivityEntries &&
+    data.store.threadActivityEntries.length > 0
+  ) {
+    result = {
+      ...result,
+      threadActivityStore: threadActivityStoreOpsHandlers.translateClientDBData(
+        data.store.threadActivityEntries,
+      ),
     };
   }
   return result;
