@@ -1,0 +1,21 @@
+.modalContent {
+  color: var(--text-background-primary-default);
+  font-size: var(--s-font-14);
+  margin-top: 8px;
+  display: flex;
+}
+
+.wrapper {
+  display: flex;
+  flex-shrink: 1;
+  justify-content: center;
+}
+
+.ancestryContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  background-color: var(--frame-background-tertiary-default);
+  margin-top: 20px;
+}
