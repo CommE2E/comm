@@ -53,6 +53,7 @@ import {
   UserProfileBottomSheetNavigatorRouteName,
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
+  TagFarcasterChannelNavigatorRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
@@ -66,6 +67,7 @@ import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.re
 import SidebarListModal from '../chat/sidebar-list-modal.react.js';
 import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
 import CommunityCreationNavigator from '../community-creation/community-creation-navigator.react.js';
+import TagFarcasterChannelNavigator from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-navigator.react.js';
 import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-sheet.react.js';
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
@@ -290,6 +292,10 @@ function RootComponent(): React.Node {
         name={ConnectFarcasterBottomSheetRouteName}
         component={ConnectFarcasterBottomSheet}
         options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={TagFarcasterChannelNavigatorRouteName}
+        component={TagFarcasterChannelNavigator}
       />
     </Root.Navigator>
   );
