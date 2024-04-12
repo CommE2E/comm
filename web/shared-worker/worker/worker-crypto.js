@@ -365,7 +365,10 @@ async function reassignLocalForageItem(source: string, destination: string) {
   if (!value) {
     return;
   }
-  await localforage.setItem(destination, value);
+  const valueAtDestination = await localforage.getItem<mixed>(destination);
+  if (!valueAtDestination) {
+    await localforage.setItem(destination, value);
+  }
   await localforage.removeItem(source);
 }
 
