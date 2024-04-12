@@ -24,26 +24,16 @@ import {
 import { useStyles } from '../../themes/colors.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
-export type CreateSIWEBackupMessageParams = {
-  +userSelections: {
-    +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverURL: string,
-    +farcasterID: ?string,
-    +accountSelection: AccountSelection,
-    +avatarData: ?AvatarData,
-  },
-};
-
 type PanelState = 'closed' | 'opening' | 'open' | 'closing';
 
-type Props = {
-  +navigation: RegistrationNavigationProp<'CreateSIWEBackupMessage'>,
-  +route: NavigationRoute<'CreateSIWEBackupMessage'>,
+type CreateSIWEBackupMessageBaseProps = {
+  +onSuccessfulWalletSignature: (result: SIWEResult) => Promise<void>,
 };
-function CreateSIWEBackupMessage(props: Props): React.Node {
-  const { navigate } = props.navigation;
-  const { params } = props.route;
 
+function CreateSIWEBackupMessageBase(
+  props: CreateSIWEBackupMessageBaseProps,
+): React.Node {
+  const { onSuccessfulWalletSignature } = props;
   const styles = useStyles(unboundStyles);
 
   const secureWithEthereumWalletText = 'Secure with Ethereum Wallet';
@@ -68,25 +58,6 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
       setPanelState(loading ? 'opening' : 'open');
     },
     [panelState],
-  );
-
-  const registrationContext = React.useContext(RegistrationContext);
-  invariant(registrationContext, 'registrationContext should be set');
-  const { setSIWEBackupSecrets } = registrationContext;
-
-  const onSuccessfulWalletSignature = React.useCallback(
-    async (result: SIWEResult) => {
-      const { message, signature } = result;
-      setSIWEBackupSecrets({
-        message,
-        signature,
-      });
-      navigate<'RegistrationTerms'>({
-        name: RegistrationTermsRouteName,
-        params,
-      });
-    },
-    [navigate, params, setSIWEBackupSecrets],
   );
 
   let siwePanel;
@@ -129,6 +100,50 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
   );
 }
 
+export type CreateSIWEBackupMessageParams = {
+  +userSelections: {
+    +coolOrNerdMode: CoolOrNerdMode,
+    +keyserverURL: string,
+    +farcasterID: ?string,
+    +accountSelection: AccountSelection,
+    +avatarData: ?AvatarData,
+  },
+};
+
+type Props = {
+  +navigation: RegistrationNavigationProp<'CreateSIWEBackupMessage'>,
+  +route: NavigationRoute<'CreateSIWEBackupMessage'>,
+};
+function CreateSIWEBackupMessage(props: Props): React.Node {
+  const { navigate } = props.navigation;
+  const { params } = props.route;
+
+  const registrationContext = React.useContext(RegistrationContext);
+  invariant(registrationContext, 'registrationContext should be set');
+  const { setSIWEBackupSecrets } = registrationContext;
+
+  const onSuccessfulWalletSignature = React.useCallback(
+    async (result: SIWEResult) => {
+      const { message, signature } = result;
+      setSIWEBackupSecrets({
+        message,
+        signature,
+      });
+      navigate<'RegistrationTerms'>({
+        name: RegistrationTermsRouteName,
+        params,
+      });
+    },
+    [navigate, params, setSIWEBackupSecrets],
+  );
+
+  return (
+    <CreateSIWEBackupMessageBase
+      onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+    />
+  );
+}
+
 const unboundStyles = {
   scrollViewContentContainer: {
     flexGrow: 1,
@@ -147,4 +162,4 @@ const unboundStyles = {
   },
 };
 
-export default CreateSIWEBackupMessage;
+export { CreateSIWEBackupMessage, CreateSIWEBackupMessageBase };
