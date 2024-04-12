@@ -1,4 +1,5 @@
 use lazy_static::lazy_static;
+use rand::{distributions::Alphanumeric, Rng};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -45,4 +46,12 @@ lazy_static! {
       curve25519: "nRVVaf+Iz2MfEFtQtzrvV/EmTivqKpOeHlCt9OWYUxM".to_string(),
     },
   };
+}
+
+pub fn get_random_otk() -> String {
+  rand::thread_rng()
+    .sample_iter(&Alphanumeric)
+    .take(43)
+    .map(char::from)
+    .collect()
 }

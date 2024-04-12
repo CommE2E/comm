@@ -28,6 +28,8 @@ pub enum Error {
   OneTimeKeyUploadLimitExceeded,
   #[display(...)]
   MaxRetriesExceeded,
+  #[display(...)]
+  InvalidFormat,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]

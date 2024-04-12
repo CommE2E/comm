@@ -27,6 +27,7 @@ use std::sync::Arc;
 
 pub use crate::database::device_list::DeviceIDAttribute;
 use crate::ddb_utils::into_one_time_update_requests;
+use crate::olm::is_valid_olm_key;
 use crate::{
   constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
   ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
@@ -591,6 +592,15 @@ impl DatabaseClient {
       || num_notif_keys > ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT
     {
       return Err(Error::OneTimeKeyUploadLimitExceeded);
+    }
+
+    if content_one_time_keys
+      .iter()
+      .any(|otk| !is_valid_olm_key(otk))
+      || notif_one_time_keys.iter().any(|otk| !is_valid_olm_key(otk))
+    {
+      debug!("Invalid one-time key format");
+      return Err(Error::InvalidFormat);
     }
 
     let current_time = chrono::Utc::now();
