@@ -14,6 +14,7 @@ import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
+import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -238,6 +239,7 @@ function SQLiteDataHandler(): React.Node {
           integrityThreadHashes,
           syncedMetadata,
           auxUserInfos,
+          threadActivityEntries,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -256,7 +258,10 @@ function SQLiteDataHandler(): React.Node {
           syncedMetadataStoreOpsHandlers.translateClientDBData(syncedMetadata);
         const auxUserInfosFromDB =
           auxUserStoreOpsHandlers.translateClientDBData(auxUserInfos);
-
+        const threadActivityStoreFromDB =
+          threadActivityStoreOpsHandlers.translateClientDBData(
+            threadActivityEntries,
+          );
         dispatch({
           type: setClientDBStoreActionType,
           payload: {
@@ -272,6 +277,7 @@ function SQLiteDataHandler(): React.Node {
             threadHashes: threadHashesFromDB,
             syncedMetadata: syncedMetadataFromDB,
             auxUserInfos: auxUserInfosFromDB,
+            threadActivityStore: threadActivityStoreFromDB,
           },
         });
       } catch (setStoreException) {
