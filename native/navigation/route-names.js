@@ -151,6 +151,9 @@ export const AccountDoesNotExistRouteName = 'AccountDoesNotExist';
 export const FarcasterAccountSettingsRouteName = 'FarcasterAccountSettings';
 export const ConnectFarcasterBottomSheetRouteName =
   'ConnectFarcasterBottomSheet';
+export const TagFarcasterChannelNavigatorRouteName =
+  'TagFarcasterChannelNavigator';
+export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -175,6 +178,7 @@ export type RootParamList = {
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
+  +TagFarcasterChannelNavigator: void,
 };
 
 export type MessageTooltipRouteNames =
@@ -285,6 +289,10 @@ export type RolesParamList = {
   +CreateRolesScreen: CreateRolesScreenParams,
 };
 
+export type TagFarcasterChannelParamList = {
+  +TagFarcasterChannel: void,
+};
+
 export type QRCodeSignInParamList = {
   +QRCodeScreen: void,
 };
@@ -309,6 +317,7 @@ export type ScreenParamList = {
   ...RolesParamList,
   ...QRCodeSignInParamList,
   ...UserProfileBottomSheetParamList,
+  ...TagFarcasterChannelParamList,
 };
 
 export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> =
