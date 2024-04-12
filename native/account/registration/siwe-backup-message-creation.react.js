@@ -25,6 +25,109 @@ import {
 import { useStyles } from '../../themes/colors.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
+type PanelState = 'closed' | 'opening' | 'open' | 'closing';
+
+type CreateSIWEBackupMessageBaseProps = {
+  +onSuccessfulWalletSignature: (result: SIWEResult) => void,
+  +onExistingWalletSignature?: () => void,
+};
+
+const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBaseProps> =
+  React.memo<CreateSIWEBackupMessageBaseProps>(
+    function CreateSIWEBackupMessageBase(
+      props: CreateSIWEBackupMessageBaseProps,
+    ): React.Node {
+      const { onSuccessfulWalletSignature, onExistingWalletSignature } = props;
+      const styles = useStyles(unboundStyles);
+
+      const [panelState, setPanelState] = React.useState<PanelState>('closed');
+
+      const openPanel = React.useCallback(() => {
+        setPanelState('opening');
+      }, []);
+      const onPanelClosed = React.useCallback(() => {
+        setPanelState('closed');
+      }, []);
+      const onPanelClosing = React.useCallback(() => {
+        setPanelState('closing');
+      }, []);
+
+      const siwePanelSetLoading = React.useCallback(
+        (loading: boolean) => {
+          if (panelState === 'closing' || panelState === 'closed') {
+            return;
+          }
+          setPanelState(loading ? 'opening' : 'open');
+        },
+        [panelState],
+      );
+
+      let siwePanel;
+      if (panelState !== 'closed') {
+        siwePanel = (
+          <SIWEPanel
+            onClosing={onPanelClosing}
+            onClosed={onPanelClosed}
+            closing={panelState === 'closing'}
+            onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+            siweMessageType={SIWEMessageTypes.MSG_BACKUP}
+            setLoading={siwePanelSetLoading}
+          />
+        );
+      }
+
+      const newSignatureButtonText = onExistingWalletSignature
+        ? 'Encrypt with new signature'
+        : 'Encrypt with Ethereum Wallet';
+      const newSignatureButtonVariant = onExistingWalletSignature
+        ? 'outline'
+        : 'enabled';
+
+      let useExistingSignatureButton;
+      if (onExistingWalletSignature) {
+        useExistingSignatureButton = (
+          <RegistrationButton
+            onPress={onExistingWalletSignature}
+            label="Encrypt with existing signature"
+            variant="enabled"
+          />
+        );
+      }
+
+      const body = (
+        <Text style={styles.body}>
+          Comm encrypts user backups so that our backend is not able to see user
+          data.
+        </Text>
+      );
+
+      return (
+        <>
+          <RegistrationContainer>
+            <RegistrationContentContainer
+              style={styles.scrollViewContentContainer}
+            >
+              <Text style={styles.header}>Encrypting your Comm Backup</Text>
+              {body}
+              <View style={styles.siweBackupIconContainer}>
+                <Icon name="backup" size={200} style={styles.siweBackupIcon} />
+              </View>
+            </RegistrationContentContainer>
+            <RegistrationButtonContainer>
+              {useExistingSignatureButton}
+              <RegistrationButton
+                onPress={openPanel}
+                label={newSignatureButtonText}
+                variant={newSignatureButtonVariant}
+              />
+            </RegistrationButtonContainer>
+          </RegistrationContainer>
+          {siwePanel}
+        </>
+      );
+    },
+  );
+
 export type CreateSIWEBackupMessageParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
@@ -35,8 +138,6 @@ export type CreateSIWEBackupMessageParams = {
   },
 };
 
-type PanelState = 'closed' | 'opening' | 'open' | 'closing';
-
 type Props = {
   +navigation: RegistrationNavigationProp<'CreateSIWEBackupMessage'>,
   +route: NavigationRoute<'CreateSIWEBackupMessage'>,
@@ -45,30 +146,6 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { params } = props.route;
   const { userSelections } = params;
-
-  const styles = useStyles(unboundStyles);
-
-  const [panelState, setPanelState] = React.useState<PanelState>('closed');
-
-  const openPanel = React.useCallback(() => {
-    setPanelState('opening');
-  }, []);
-  const onPanelClosed = React.useCallback(() => {
-    setPanelState('closed');
-  }, []);
-  const onPanelClosing = React.useCallback(() => {
-    setPanelState('closing');
-  }, []);
-
-  const siwePanelSetLoading = React.useCallback(
-    (loading: boolean) => {
-      if (panelState === 'closing' || panelState === 'closed') {
-        return;
-      }
-      setPanelState(loading ? 'opening' : 'open');
-    },
-    [panelState],
-  );
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
@@ -108,64 +185,19 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
     });
   }, [navigate, siweBackupSecrets, userSelections]);
 
-  let siwePanel;
-  if (panelState !== 'closed') {
-    siwePanel = (
-      <SIWEPanel
-        onClosing={onPanelClosing}
-        onClosed={onPanelClosed}
-        closing={panelState === 'closing'}
-        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-        siweMessageType={SIWEMessageTypes.MSG_BACKUP}
-        setLoading={siwePanelSetLoading}
-      />
-    );
-  }
-
-  const newSignatureButtonText = siweBackupSecrets
-    ? 'Encrypt with new signature'
-    : 'Encrypt with Ethereum Wallet';
-  const newSignatureButtonVariant = siweBackupSecrets ? 'outline' : 'enabled';
-
-  let useExistingSignatureButton;
   if (siweBackupSecrets) {
-    useExistingSignatureButton = (
-      <RegistrationButton
-        onPress={onExistingWalletSignature}
-        label="Encrypt with existing signature"
-        variant="enabled"
+    return (
+      <CreateSIWEBackupMessageBase
+        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        onExistingWalletSignature={onExistingWalletSignature}
       />
     );
   }
-
-  const body = (
-    <Text style={styles.body}>
-      Comm encrypts user backups so that our backend is not able to see user
-      data.
-    </Text>
-  );
 
   return (
-    <>
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-          <Text style={styles.header}>Encrypting your Comm Backup</Text>
-          {body}
-          <View style={styles.siweBackupIconContainer}>
-            <Icon name="backup" size={200} style={styles.siweBackupIcon} />
-          </View>
-        </RegistrationContentContainer>
-        <RegistrationButtonContainer>
-          {useExistingSignatureButton}
-          <RegistrationButton
-            onPress={openPanel}
-            label={newSignatureButtonText}
-            variant={newSignatureButtonVariant}
-          />
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
-      {siwePanel}
-    </>
+    <CreateSIWEBackupMessageBase
+      onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+    />
   );
 }
 
@@ -195,4 +227,4 @@ const unboundStyles = {
   },
 };
 
-export default CreateSIWEBackupMessage;
+export { CreateSIWEBackupMessageBase, CreateSIWEBackupMessage };
