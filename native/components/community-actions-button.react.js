@@ -10,6 +10,9 @@ import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import {
@@ -18,6 +21,8 @@ import {
   ManagePublicLinkRouteName,
   RolesNavigatorRouteName,
   ViewInviteLinksRouteName,
+  TagFarcasterChannelNavigatorRouteName,
+  TagFarcasterChannelRouteName,
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -31,6 +36,9 @@ function CommunityActionsButton(props: Props): React.Node {
   const inviteLink = useSelector(primaryInviteLinksSelector)[community.id];
 
   const { navigate } = useNavigation();
+
+  const fid = useCurrentUserFID();
+
   const navigateToInviteLinksView = React.useCallback(() => {
     if (!inviteLink || !community) {
       return;
@@ -42,6 +50,7 @@ function CommunityActionsButton(props: Props): React.Node {
       },
     });
   }, [community, inviteLink, navigate]);
+
   const navigateToManagePublicLinkView = React.useCallback(() => {
     navigate<'InviteLinkNavigator'>(InviteLinkNavigatorRouteName, {
       screen: ManagePublicLinkRouteName,
@@ -50,6 +59,7 @@ function CommunityActionsButton(props: Props): React.Node {
       },
     });
   }, [community, navigate]);
+
   const navigateToCommunityRolesScreen = React.useCallback(() => {
     navigate<'RolesNavigator'>(RolesNavigatorRouteName, {
       screen: CommunityRolesScreenRouteName,
@@ -58,6 +68,15 @@ function CommunityActionsButton(props: Props): React.Node {
       },
     });
   }, [community, navigate]);
+
+  const navigateToTagFarcasterChannel = React.useCallback(() => {
+    navigate<'TagFarcasterChannelNavigator'>(
+      TagFarcasterChannelNavigatorRouteName,
+      {
+        screen: TagFarcasterChannelRouteName,
+      },
+    );
+  }, [navigate]);
 
   const insets = useSafeAreaInsets();
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
@@ -99,6 +118,18 @@ function CommunityActionsButton(props: Props): React.Node {
       });
     }
 
+    const canTagFarcasterChannel =
+      fid &&
+      community.type !== threadTypes.GENESIS &&
+      (usingCommServicesAccessToken || __DEV__);
+
+    if (canTagFarcasterChannel) {
+      result.push({
+        label: 'Tag Farcaster channel',
+        action: navigateToTagFarcasterChannel,
+      });
+    }
+
     if (result.length > 0) {
       return result;
     }
@@ -106,9 +137,11 @@ function CommunityActionsButton(props: Props): React.Node {
   }, [
     community,
     inviteLink,
-    navigateToInviteLinksView,
+    fid,
     navigateToManagePublicLinkView,
+    navigateToInviteLinksView,
     navigateToCommunityRolesScreen,
+    navigateToTagFarcasterChannel,
   ]);
 
   const openActionSheet = React.useCallback(() => {
