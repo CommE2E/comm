@@ -24,6 +24,87 @@ import {
 import { useStyles } from '../../themes/colors.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
+type PanelState = 'closed' | 'opening' | 'open' | 'closing';
+
+type CreateSIWEBackupMessageBaseProps = {
+  +onSuccessfulWalletSignature: (result: SIWEResult) => void,
+};
+
+const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBaseProps> =
+  React.memo<CreateSIWEBackupMessageBaseProps>(
+    function CreateSIWEBackupMessageBase(
+      props: CreateSIWEBackupMessageBaseProps,
+    ): React.Node {
+      const { onSuccessfulWalletSignature } = props;
+      const styles = useStyles(unboundStyles);
+
+      const secureWithEthereumWalletText = 'Secure with Ethereum Wallet';
+      const secureWithEthereumWalletVariant = 'enabled';
+      const [panelState, setPanelState] = React.useState<PanelState>('closed');
+
+      const openPanel = React.useCallback(() => {
+        setPanelState('opening');
+      }, []);
+      const onPanelClosed = React.useCallback(() => {
+        setPanelState('closed');
+      }, []);
+      const onPanelClosing = React.useCallback(() => {
+        setPanelState('closing');
+      }, []);
+
+      const siwePanelSetLoading = React.useCallback(
+        (loading: boolean) => {
+          if (panelState === 'closing' || panelState === 'closed') {
+            return;
+          }
+          setPanelState(loading ? 'opening' : 'open');
+        },
+        [panelState],
+      );
+
+      let siwePanel;
+      if (panelState !== 'closed') {
+        siwePanel = (
+          <SIWEPanel
+            onClosing={onPanelClosing}
+            onClosed={onPanelClosed}
+            closing={panelState === 'closing'}
+            onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+            siweMessageType={SIWEMessageTypes.MSG_BACKUP}
+            setLoading={siwePanelSetLoading}
+          />
+        );
+      }
+      const body = (
+        <Text style={styles.body}>
+          Comm encrypts user backup so that out backend is not able to see user
+          data.
+        </Text>
+      );
+
+      return (
+        <>
+          <RegistrationContainer>
+            <RegistrationContentContainer
+              style={styles.scrollViewContentContainer}
+            >
+              <Text style={styles.header}>Encrypting your Comm Backup</Text>
+              {body}
+            </RegistrationContentContainer>
+            <RegistrationButtonContainer>
+              <RegistrationButton
+                label={secureWithEthereumWalletText}
+                variant={secureWithEthereumWalletVariant}
+                onPress={openPanel}
+              />
+            </RegistrationButtonContainer>
+          </RegistrationContainer>
+          {siwePanel}
+        </>
+      );
+    },
+  );
+
 export type CreateSIWEBackupMessageParams = {
   +userSelections: {
     +coolOrNerdMode: CoolOrNerdMode,
@@ -34,8 +115,6 @@ export type CreateSIWEBackupMessageParams = {
   },
 };
 
-type PanelState = 'closed' | 'opening' | 'open' | 'closing';
-
 type Props = {
   +navigation: RegistrationNavigationProp<'CreateSIWEBackupMessage'>,
   +route: NavigationRoute<'CreateSIWEBackupMessage'>,
@@ -43,32 +122,6 @@ type Props = {
 function CreateSIWEBackupMessage(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { params } = props.route;
-
-  const styles = useStyles(unboundStyles);
-
-  const secureWithEthereumWalletText = 'Secure with Ethereum Wallet';
-  const secureWithEthereumWalletVariant = 'enabled';
-  const [panelState, setPanelState] = React.useState<PanelState>('closed');
-
-  const openPanel = React.useCallback(() => {
-    setPanelState('opening');
-  }, []);
-  const onPanelClosed = React.useCallback(() => {
-    setPanelState('closed');
-  }, []);
-  const onPanelClosing = React.useCallback(() => {
-    setPanelState('closing');
-  }, []);
-
-  const siwePanelSetLoading = React.useCallback(
-    (loading: boolean) => {
-      if (panelState === 'closing' || panelState === 'closed') {
-        return;
-      }
-      setPanelState(loading ? 'opening' : 'open');
-    },
-    [panelState],
-  );
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
@@ -89,43 +142,10 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
     [navigate, params, setCachedSelections],
   );
 
-  let siwePanel;
-  if (panelState !== 'closed') {
-    siwePanel = (
-      <SIWEPanel
-        onClosing={onPanelClosing}
-        onClosed={onPanelClosed}
-        closing={panelState === 'closing'}
-        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-        siweMessageType={SIWEMessageTypes.MSG_BACKUP}
-        setLoading={siwePanelSetLoading}
-      />
-    );
-  }
-  const body = (
-    <Text style={styles.body}>
-      Comm encrypts user backup so that out backend is not able to see user
-      data.
-    </Text>
-  );
-
   return (
-    <>
-      <RegistrationContainer>
-        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-          <Text style={styles.header}>Encrypting your Comm Backup</Text>
-          {body}
-        </RegistrationContentContainer>
-        <RegistrationButtonContainer>
-          <RegistrationButton
-            label={secureWithEthereumWalletText}
-            variant={secureWithEthereumWalletVariant}
-            onPress={openPanel}
-          />
-        </RegistrationButtonContainer>
-      </RegistrationContainer>
-      {siwePanel}
-    </>
+    <CreateSIWEBackupMessageBase
+      onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+    />
   );
 }
 
@@ -147,4 +167,4 @@ const unboundStyles = {
   },
 };
 
-export default CreateSIWEBackupMessage;
+export { CreateSIWEBackupMessageBase, CreateSIWEBackupMessage };
