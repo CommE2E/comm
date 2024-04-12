@@ -54,8 +54,10 @@ import {
   KeyserverSelectionBottomSheetRouteName,
   ConnectFarcasterBottomSheetRouteName,
   TagFarcasterChannelNavigatorRouteName,
+  CreateMissingSIWEBackupMessageRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
+import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
 import RegistrationNavigator from '../account/registration/registration-navigator.react.js';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
@@ -296,6 +298,10 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={TagFarcasterChannelNavigatorRouteName}
         component={TagFarcasterChannelNavigator}
+      />
+      <Root.Screen
+        name={CreateMissingSIWEBackupMessageRouteName}
+        component={CreateMissingSIWEBackupMessage}
       />
     </Root.Navigator>
   );
