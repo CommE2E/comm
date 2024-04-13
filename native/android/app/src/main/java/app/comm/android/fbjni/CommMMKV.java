@@ -1,5 +1,6 @@
 package app.comm.android.fbjni;
 
+import android.util.Log;
 import app.comm.android.MainApplication;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.PlatformSpecificTools;
@@ -54,10 +55,14 @@ public class CommMMKV {
         return;
       }
 
-      String encryptionKey =
-          CommSecureStore.get(SECURE_STORE_MMKV_ENCRYPTION_KEY_ID);
-      String identifier =
-          CommSecureStore.get(SECURE_STORE_MMKV_IDENTIFIER_KEY_ID);
+      String encryptionKey = null, identifier = null;
+      try {
+        encryptionKey =
+            CommSecureStore.get(SECURE_STORE_MMKV_ENCRYPTION_KEY_ID);
+        identifier = CommSecureStore.get(SECURE_STORE_MMKV_IDENTIFIER_KEY_ID);
+      } catch (Exception e) {
+        Log.w("COMM", "Failed to get MMKV keys from CommSecureStore", e);
+      }
 
       if (encryptionKey == null || identifier == null) {
         assignInitializationData();
