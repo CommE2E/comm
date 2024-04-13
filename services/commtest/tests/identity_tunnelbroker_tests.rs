@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::olm_account_infos::get_random_otk;
+use commtest::identity::olm_account_infos::generate_random_olm_key;
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::StreamExt;
@@ -48,8 +48,8 @@ async fn test_refresh_keys_request_upon_depletion() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let content_one_time_prekeys = vec![get_random_otk()];
-  let notif_one_time_prekeys = vec![get_random_otk()];
+  let content_one_time_prekeys = vec![generate_random_olm_key()];
+  let notif_one_time_prekeys = vec![generate_random_olm_key()];
   let upload_request = UploadOneTimeKeysRequest {
     content_one_time_prekeys,
     notif_one_time_prekeys,

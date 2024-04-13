@@ -48,7 +48,7 @@ lazy_static! {
   };
 }
 
-pub fn get_random_otk() -> String {
+pub fn generate_random_olm_key() -> String {
   rand::thread_rng()
     .sample_iter(&Alphanumeric)
     .take(43)
