@@ -26,6 +26,7 @@ use crate::{
   error::{DeviceListError, Error},
   grpc_services::protos::{self, unauth::DeviceType},
   grpc_utils::DeviceKeysInfo,
+  olm::is_valid_olm_key,
 };
 
 use super::DatabaseClient;
@@ -80,8 +81,14 @@ impl DeviceRow {
     upload: FlattenedDeviceKeyUpload,
     code_version: u64,
     login_time: DateTime<Utc>,
-  ) -> Self {
-    Self {
+  ) -> Result<Self, Error> {
+    if !is_valid_olm_key(&upload.content_prekey)
+      || !is_valid_olm_key(&upload.notif_prekey)
+    {
+      error!("Invalid prekey format");
+      return Err(Error::InvalidFormat);
+    }
+    let device_row = Self {
       user_id: user_id.into(),
       device_id: upload.device_id_key,
       device_type: DeviceType::from_str_name(upload.device_type.as_str_name())
@@ -100,7 +107,8 @@ impl DeviceRow {
       },
       code_version,
       login_time,
-    }
+    };
+    Ok(device_row)
   }
 }
 
@@ -503,6 +511,12 @@ impl DatabaseClient {
     content_prekey: Prekey,
     notif_prekey: Prekey,
   ) -> Result<(), Error> {
+    if !is_valid_olm_key(&content_prekey.prekey)
+      || !is_valid_olm_key(&notif_prekey.prekey)
+    {
+      error!("Invalid prekey format");
+      return Err(Error::InvalidFormat);
+    }
     self
       .client
       .update_item()
@@ -691,7 +705,7 @@ impl DatabaseClient {
       device_key_upload,
       code_version,
       login_time,
-    );
+    )?;
     let device_id = new_device.device_id.clone();
 
     self
@@ -735,7 +749,7 @@ impl DatabaseClient {
           device_key_upload,
           code_version,
           login_time,
-        );
+        )?;
 
         if device_ids.iter().any(|id| &new_device.device_id == id) {
           warn!(

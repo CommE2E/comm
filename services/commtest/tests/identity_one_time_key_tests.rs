@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::olm_account_infos::get_random_otk;
+use commtest::identity::olm_account_infos::generate_random_olm_key;
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client, protos::authenticated::UploadOneTimeKeysRequest,
@@ -23,8 +23,14 @@ async fn upload_one_time_keys() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = UploadOneTimeKeysRequest {
-    content_one_time_prekeys: vec![get_random_otk(), get_random_otk()],
-    notif_one_time_prekeys: vec![get_random_otk(), get_random_otk()],
+    content_one_time_prekeys: vec![
+      generate_random_olm_key(),
+      generate_random_olm_key(),
+    ],
+    notif_one_time_prekeys: vec![
+      generate_random_olm_key(),
+      generate_random_olm_key(),
+    ],
   };
 
   identity_client

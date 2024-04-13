@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::olm_account_infos::get_random_otk;
+use commtest::identity::olm_account_infos::generate_random_olm_key;
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client,
@@ -26,8 +26,8 @@ async fn set_prekey() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let content_one_time_prekey = get_random_otk();
-  let notif_one_time_prekey = get_random_otk();
+  let content_one_time_prekey = generate_random_olm_key();
+  let notif_one_time_prekey = generate_random_olm_key();
 
   let upload_request = UploadOneTimeKeysRequest {
     content_one_time_prekeys: vec![content_one_time_prekey.clone()],
