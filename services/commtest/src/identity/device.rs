@@ -2,6 +2,7 @@ use comm_opaque2::client::{Login, Registration};
 use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
 use rand::{distributions::Alphanumeric, Rng};
 
+use crate::identity::olm_account_infos::generate_random_olm_key;
 use crate::identity::olm_account_infos::{
   ClientPublicKeys, DEFAULT_CLIENT_KEYS,
 };
@@ -70,11 +71,11 @@ pub async fn register_user_device(
         social_proof: None,
       }),
       content_upload: Some(Prekey {
-        prekey: "content_prekey".to_string(),
+        prekey: generate_random_olm_key(),
         prekey_signature: "content_prekey_sig".to_string(),
       }),
       notif_upload: Some(Prekey {
-        prekey: "notif_prekey".to_string(),
+        prekey: generate_random_olm_key(),
         prekey_signature: "notif_prekey_sig".to_string(),
       }),
       one_time_content_prekeys: Vec::new(),
@@ -153,11 +154,11 @@ pub async fn login_user_device(
         social_proof: None,
       }),
       content_upload: Some(Prekey {
-        prekey: "content_prekey".to_string(),
+        prekey: generate_random_olm_key(),
         prekey_signature: "content_prekey_sig".to_string(),
       }),
       notif_upload: Some(Prekey {
-        prekey: "notif_prekey".to_string(),
+        prekey: generate_random_olm_key(),
         prekey_signature: "notif_prekey_sig".to_string(),
       }),
       one_time_content_prekeys: Vec::new(),

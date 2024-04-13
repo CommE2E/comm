@@ -26,6 +26,7 @@ use crate::{
   error::{DeviceListError, Error},
   grpc_services::protos::{self, unauth::DeviceType},
   grpc_utils::DeviceKeysInfo,
+  olm::is_valid_olm_key,
 };
 
 use super::DatabaseClient;
@@ -230,9 +231,17 @@ impl TryFrom<AttributeMap> for DeviceRow {
   }
 }
 
-impl From<DeviceRow> for AttributeMap {
-  fn from(value: DeviceRow) -> Self {
-    HashMap::from([
+impl TryFrom<DeviceRow> for AttributeMap {
+  type Error = Error;
+
+  fn try_from(value: DeviceRow) -> Result<Self, Self::Error> {
+    if !is_valid_olm_key(&value.content_prekey.prekey)
+      || !is_valid_olm_key(&value.notif_prekey.prekey)
+    {
+      error!("Invalid prekey format");
+      return Err(Error::InvalidFormat);
+    }
+    let attribute_map = HashMap::from([
       (ATTR_USER_ID.to_string(), AttributeValue::S(value.user_id)),
       (
         ATTR_ITEM_ID.to_string(),
@@ -257,7 +266,8 @@ impl From<DeviceRow> for AttributeMap {
         ATTR_LOGIN_TIME.to_string(),
         AttributeValue::S(value.login_time.to_rfc3339()),
       ),
-    ])
+    ]);
+    Ok(attribute_map)
   }
 }
 
@@ -506,6 +516,12 @@ impl DatabaseClient {
     content_prekey: Prekey,
     notif_prekey: Prekey,
   ) -> Result<(), Error> {
+    if !is_valid_olm_key(&content_prekey.prekey)
+      || !is_valid_olm_key(&notif_prekey.prekey)
+    {
+      error!("Invalid prekey format");
+      return Err(Error::InvalidFormat);
+    }
     self
       .client
       .update_item()
@@ -701,7 +717,7 @@ impl DatabaseClient {
       .client
       .put_item()
       .table_name(devices_table::NAME)
-      .set_item(Some(new_device.into()))
+      .set_item(Some(new_device.try_into()?))
       .send()
       .await
       .map_err(|e| {
@@ -757,7 +773,7 @@ impl DatabaseClient {
         // Put new device
         let put_device = Put::builder()
           .table_name(devices_table::NAME)
-          .set_item(Some(new_device.into()))
+          .set_item(Some(new_device.try_into()?))
           .condition_expression(
             "attribute_not_exists(#user_id) AND attribute_not_exists(#item_id)",
           )
