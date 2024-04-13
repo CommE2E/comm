@@ -54,10 +54,13 @@ public class CommMMKV {
         return;
       }
 
-      String encryptionKey =
-          CommSecureStore.get(SECURE_STORE_MMKV_ENCRYPTION_KEY_ID);
-      String identifier =
-          CommSecureStore.get(SECURE_STORE_MMKV_IDENTIFIER_KEY_ID);
+      String encryptionKey = null, identifier = null;
+      try {
+        encryptionKey =
+            CommSecureStore.get(SECURE_STORE_MMKV_ENCRYPTION_KEY_ID);
+        identifier = CommSecureStore.get(SECURE_STORE_MMKV_IDENTIFIER_KEY_ID);
+      } catch (Exception e) {
+      }
 
       if (encryptionKey == null || identifier == null) {
         assignInitializationData();
