@@ -30,12 +30,16 @@ use super::DatabaseClient;
 impl DatabaseClient {
   /// Gets the next one-time key for the account and then, in a transaction,
   /// deletes the key and updates the key count
+  ///
+  /// Returns the retrieved one-time key if it exists and a boolean indicating
+  /// whether the `spawn_refresh_keys_task`` was called
   pub(super) async fn get_one_time_key(
     &self,
     user_id: &str,
     device_id: &str,
     account_type: OlmAccountType,
-  ) -> Result<Option<String>, Error> {
+    can_request_more_keys: bool,
+  ) -> Result<(Option<String>, bool), Error> {
     use crate::constants::devices_table;
     use crate::constants::one_time_keys_table as otk_table;
     use crate::constants::retry;
@@ -61,6 +65,9 @@ impl DatabaseClient {
     // in `comm-lib` to handle transactions with retries
     let mut attempt = 0;
 
+    // TODO: Introduce nanny task that handles calling `spawn_refresh_keys_task`
+    let mut requested_more_keys = false;
+
     loop {
       attempt += 1;
       if attempt > retry::MAX_ATTEMPTS {
@@ -69,11 +76,12 @@ impl DatabaseClient {
 
       let otk_count =
         self.get_otk_count(user_id, device_id, account_type).await?;
-      if otk_count < ONE_TIME_KEY_MINIMUM_THRESHOLD {
+      if otk_count < ONE_TIME_KEY_MINIMUM_THRESHOLD && can_request_more_keys {
         spawn_refresh_keys_task(device_id);
+        requested_more_keys = true;
       }
       if otk_count < 1 {
-        return Ok(None);
+        return Ok((None, requested_more_keys));
       }
 
       let query_result = self
@@ -131,7 +139,7 @@ impl DatabaseClient {
         .await;
 
       match transaction {
-        Ok(_) => return Ok(Some(otk)),
+        Ok(_) => return Ok((Some(otk), requested_more_keys)),
         Err(e) => {
           let dynamo_db_error = DynamoDBError::from(e);
           let retryable_codes = HashSet::from([
