@@ -123,7 +123,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             oneTimeKey: resultObject?.oneTimeNotifPrekey,
           },
           payloadSignature: resultObject?.payloadSignature,
-          socialProof: resultObject?.socialProof,
         };
 
         if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
@@ -189,7 +188,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
                   oneTimeKey: outboundKeysInfo?.oneTimeNotifPrekey,
                 },
                 payloadSignature: outboundKeysInfo?.payloadSignature,
-                socialProof: outboundKeysInfo?.socialProof,
               };
 
               try {
