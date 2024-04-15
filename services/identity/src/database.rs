@@ -362,15 +362,21 @@ impl DatabaseClient {
       &keyserver.device_id
     );
 
-    let notif_one_time_key: Option<String> = self
+    let (notif_one_time_key, requested_more_keys) = self
       .get_one_time_key(
         user_id,
         &keyserver.device_id,
         OlmAccountType::Notification,
+        true,
       )
       .await?;
-    let content_one_time_key: Option<String> = self
-      .get_one_time_key(user_id, &keyserver.device_id, OlmAccountType::Content)
+    let (content_one_time_key, _) = self
+      .get_one_time_key(
+        user_id,
+        &keyserver.device_id,
+        OlmAccountType::Content,
+        !requested_more_keys,
+      )
       .await?;
 
     debug!(
@@ -743,15 +749,22 @@ impl DatabaseClient {
 
     if get_one_time_keys {
       for (device_id_key, device_keys) in devices_response.iter_mut() {
-        device_keys.notif_one_time_key = self
+        let requested_more_keys;
+        (device_keys.notif_one_time_key, requested_more_keys) = self
           .get_one_time_key(
             user_id,
             device_id_key,
             OlmAccountType::Notification,
+            true,
           )
           .await?;
-        device_keys.content_one_time_key = self
-          .get_one_time_key(user_id, device_id_key, OlmAccountType::Content)
+        (device_keys.content_one_time_key, _) = self
+          .get_one_time_key(
+            user_id,
+            device_id_key,
+            OlmAccountType::Content,
+            !requested_more_keys,
+          )
           .await?;
       }
     }
