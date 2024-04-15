@@ -5,17 +5,17 @@ import app.comm.android.fbjni.CommMMKV;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.DatabaseInitializer;
 import app.comm.android.fbjni.GlobalDBSingleton;
+import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.react.bridge.JSIModuleSpec;
 import com.facebook.react.bridge.JavaScriptContextHolder;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 import expo.modules.securestore.SecureStoreModule;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class CommCoreJSIModulePackage extends ReanimatedJSIModulePackage {
+public class CommCoreJSIModulePackage implements JSIModulePackage {
 
   @Override
   public List<JSIModuleSpec> getJSIModules(
@@ -25,7 +25,6 @@ public class CommCoreJSIModulePackage extends ReanimatedJSIModulePackage {
         ExpoUtils.createExpoSecureStoreSupplier(reactApplicationContext);
     CommSecureStore.getInstance().initialize(secureStoreModuleSupplier);
     CommHybrid.initHybrid(reactApplicationContext);
-    super.getJSIModules(reactApplicationContext, jsContext);
 
     File sqliteFile = reactApplicationContext.getDatabasePath("comm.sqlite");
     GlobalDBSingleton.scheduleOrRun(() -> {
