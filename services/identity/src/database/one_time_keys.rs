@@ -28,8 +28,8 @@ use crate::{
 use super::DatabaseClient;
 
 impl DatabaseClient {
-  /// Will "mint" a single one-time key by attempting to successfully delete a
-  /// key
+  /// Gets the next one-time key for the account and then, in a transaction,
+  /// deletes the key and updates the key count
   pub(super) async fn get_one_time_key(
     &self,
     user_id: &str,
@@ -77,7 +77,7 @@ impl DatabaseClient {
       }
 
       let query_result = self
-        .get_one_time_keys(user_id, device_id, account_type)
+        .get_next_one_time_key(user_id, device_id, account_type)
         .await?;
       let mut items = query_result.items.unwrap_or_default();
       let mut item = items.pop().unwrap_or_default();
@@ -152,7 +152,7 @@ impl DatabaseClient {
     }
   }
 
-  async fn get_one_time_keys(
+  async fn get_next_one_time_key(
     &self,
     user_id: &str,
     device_id: &str,
