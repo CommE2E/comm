@@ -25,7 +25,7 @@ function SQLiteDataHandler(): React.Node {
       errorGettingUserID = false;
     try {
       const currentUserData = await sharedWorker.schedule({
-        type: workerRequestMessageTypes.GET_CURRENT_USER_ID,
+        type: workerRequestMessageTypes.GET_SQLITE_STAMPED_USER_ID,
       });
       currentDBUserID = currentUserData?.userID;
     } catch (error) {
@@ -57,7 +57,7 @@ function SQLiteDataHandler(): React.Node {
     if (currentLoggedInUserID && currentLoggedInUserID !== currentDBUserID) {
       try {
         await sharedWorker.schedule({
-          type: workerRequestMessageTypes.SET_CURRENT_USER_ID,
+          type: workerRequestMessageTypes.STAMP_SQLITE_DB_USER_ID,
           userID: currentLoggedInUserID,
         });
       } catch (error) {
