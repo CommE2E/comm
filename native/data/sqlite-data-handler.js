@@ -15,6 +15,7 @@ import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
 import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
+import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import { shouldClearData } from 'lib/shared/data-utils.js';
@@ -137,14 +138,24 @@ function SQLiteDataHandler(): React.Node {
     [],
   );
 
+  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
+  const currentLoggedInToAuthKeyserverUserID =
+    cookie && cookie.startsWith('user=') ? currentLoggedInUserID : null;
   const handleSensitiveData = React.useCallback(async () => {
     try {
       const sqliteStampedUserID = await commCoreModule.getSQLiteStampedUserID();
-      if (shouldClearData(sqliteStampedUserID, currentLoggedInUserID)) {
+      if (
+        shouldClearData(
+          sqliteStampedUserID,
+          currentLoggedInToAuthKeyserverUserID,
+        )
+      ) {
         await callClearSensitiveData('change in logged-in user credentials');
       }
-      if (currentLoggedInUserID) {
-        await commCoreModule.stampSQLiteDBUserID(currentLoggedInUserID);
+      if (currentLoggedInToAuthKeyserverUserID) {
+        await commCoreModule.stampSQLiteDBUserID(
+          currentLoggedInToAuthKeyserverUserID,
+        );
       }
     } catch (e) {
       if (isTaskCancelledError(e)) {
@@ -158,7 +169,7 @@ function SQLiteDataHandler(): React.Node {
         commCoreModule.terminate();
       }
     }
-  }, [callClearSensitiveData, currentLoggedInUserID]);
+  }, [callClearSensitiveData, currentLoggedInToAuthKeyserverUserID]);
 
   React.useEffect(() => {
     if (!rehydrateConcluded) {
