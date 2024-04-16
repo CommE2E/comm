@@ -15,7 +15,7 @@ import {
   type TagFarcasterChannelParamList,
   type ScreenParamList,
 } from '../../navigation/route-names.js';
-import { useStyles } from '../../themes/colors.js';
+import { useStyles, useColors } from '../../themes/colors.js';
 
 const safeAreaEdges = ['bottom'];
 
@@ -29,6 +29,10 @@ const TagFarcasterChannelStack = createStackNavigator<
   StackNavigationHelpers<ScreenParamList>,
 >();
 
+const tagFarcasterChannelOptions = {
+  headerTitle: 'Tag a Farcaster channel',
+};
+
 type Props = {
   +navigation: RootNavigationProp<'TagFarcasterChannelNavigator'>,
   ...
@@ -38,18 +42,35 @@ type Props = {
 function TagFarcasterChannelNavigator(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
+  const colors = useColors();
+
+  const screenOptions = React.useMemo(
+    () => ({
+      headerBackTitleVisible: false,
+      headerTintColor: colors.panelForegroundLabel,
+      headerLeftContainerStyle: {
+        paddingLeft: 12,
+      },
+      headerStyle: {
+        backgroundColor: colors.modalBackground,
+      },
+    }),
+    [colors.modalBackground, colors.panelForegroundLabel],
+  );
+
   const tagFarcasterChannelNavigator = React.useMemo(
     () => (
       <SafeAreaView edges={safeAreaEdges} style={styles.container}>
-        <TagFarcasterChannelStack.Navigator>
+        <TagFarcasterChannelStack.Navigator screenOptions={screenOptions}>
           <TagFarcasterChannelStack.Screen
             name={TagFarcasterChannelRouteName}
             component={TagFarcasterChannel}
+            options={tagFarcasterChannelOptions}
           />
         </TagFarcasterChannelStack.Navigator>
       </SafeAreaView>
     ),
-    [styles.container],
+    [screenOptions, styles.container],
   );
 
   return tagFarcasterChannelNavigator;
