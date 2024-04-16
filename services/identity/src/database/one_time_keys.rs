@@ -97,6 +97,8 @@ impl DatabaseClient {
         .table_name(otk_table::NAME)
         .key(otk_table::PARTITION_KEY, AttributeValue::S(pk))
         .key(otk_table::SORT_KEY, AttributeValue::S(sk))
+        .condition_expression("attribute_exists(#otk)")
+        .expression_attribute_names("#otk", otk_table::ATTR_ONE_TIME_KEY)
         .build();
 
       let delete_otk_operation =
