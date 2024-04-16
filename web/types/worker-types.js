@@ -23,8 +23,8 @@ export const workerRequestMessageTypes = Object.freeze({
   GENERATE_DATABASE_ENCRYPTION_KEY: 2,
   PROCESS_STORE_OPERATIONS: 3,
   GET_CLIENT_STORE: 4,
-  SET_CURRENT_USER_ID: 5,
-  GET_CURRENT_USER_ID: 6,
+  STAMP_SQLITE_DB_USER_ID: 5,
+  GET_SQLITE_STAMPED_USER_ID: 6,
   GET_PERSIST_STORAGE_ITEM: 7,
   SET_PERSIST_STORAGE_ITEM: 8,
   REMOVE_PERSIST_STORAGE_ITEM: 9,
@@ -38,7 +38,7 @@ export const workerRequestMessageTypes = Object.freeze({
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-  workerRequestMessageTypes.SET_CURRENT_USER_ID,
+  workerRequestMessageTypes.STAMP_SQLITE_DB_USER_ID,
   workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.BACKUP_RESTORE,
@@ -178,7 +178,7 @@ export type WorkerRequestProxyMessage = {
 export const workerResponseMessageTypes = Object.freeze({
   PONG: 0,
   CLIENT_STORE: 1,
-  GET_CURRENT_USER_ID: 2,
+  GET_SQLITE_STAMPED_USER_ID: 2,
   GET_PERSIST_STORAGE_ITEM: 3,
   CALL_IDENTITY_CLIENT_METHOD: 4,
   CALL_OLM_API_METHOD: 5,

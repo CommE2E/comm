@@ -41,7 +41,7 @@ import { workerIdentityClientRequests } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
-  CURRENT_USER_ID_KEY,
+  SQLITE_STAMPED_USER_ID_KEY,
   localforageConfig,
   SQLITE_CONTENT,
   SQLITE_ENCRYPTION_KEY,
@@ -224,10 +224,12 @@ async function processAppRequest(
       type: workerResponseMessageTypes.CLIENT_STORE,
       store: getClientStoreFromQueryExecutor(sqliteQueryExecutor),
     };
-  } else if (message.type === workerRequestMessageTypes.GET_CURRENT_USER_ID) {
+  } else if (
+    message.type === workerRequestMessageTypes.GET_SQLITE_STAMPED_USER_ID
+  ) {
     return {
-      type: workerResponseMessageTypes.GET_CURRENT_USER_ID,
-      userID: sqliteQueryExecutor.getMetadata(CURRENT_USER_ID_KEY),
+      type: workerResponseMessageTypes.GET_SQLITE_STAMPED_USER_ID,
+      userID: sqliteQueryExecutor.getMetadata(SQLITE_STAMPED_USER_ID_KEY),
     };
   } else if (
     message.type === workerRequestMessageTypes.GET_PERSIST_STORAGE_ITEM
@@ -280,8 +282,10 @@ async function processAppRequest(
       message.storeOperations,
       dbModule,
     );
-  } else if (message.type === workerRequestMessageTypes.SET_CURRENT_USER_ID) {
-    sqliteQueryExecutor.setMetadata(CURRENT_USER_ID_KEY, message.userID);
+  } else if (
+    message.type === workerRequestMessageTypes.STAMP_SQLITE_DB_USER_ID
+  ) {
+    sqliteQueryExecutor.setMetadata(SQLITE_STAMPED_USER_ID_KEY, message.userID);
   } else if (
     message.type === workerRequestMessageTypes.SET_PERSIST_STORAGE_ITEM
   ) {
