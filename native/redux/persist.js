@@ -1219,6 +1219,36 @@ const migrations = {
 
     return newState;
   },
+  [70]: (state: any) => {
+    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+    const unsupportedMessageIDsToRemove = clientDBMessageInfos
+      .filter(
+        message =>
+          parseInt(message.type) === messageTypes.UNSUPPORTED &&
+          parseInt(message.future_type) === messageTypes.UPDATE_RELATIONSHIP,
+      )
+      .map(message => message.id);
+
+    const messageStoreOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      [
+        {
+          type: 'remove',
+          payload: { ids: unsupportedMessageIDsToRemove },
+        },
+      ];
+
+    try {
+      commCoreModule.processMessageStoreOperationsSync(messageStoreOperations);
+    } catch (exception) {
+      console.log(exception);
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1240,7 +1270,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 69,
+  version: 70,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
