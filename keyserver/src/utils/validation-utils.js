@@ -87,8 +87,9 @@ async function validateOutput<T>(
 }
 
 function checkInputValidator<T>(inputValidator: TType<T>, input: mixed): T {
-  if (inputValidator.is(input)) {
-    return assertWithValidator(input, inputValidator);
+  const { preRequestUserInfo, ...rest } = input;
+  if (inputValidator.is(rest)) {
+    return assertWithValidator(rest, inputValidator);
   }
   const error = new ServerError('invalid_parameters');
   error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
