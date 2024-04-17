@@ -244,13 +244,15 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               type: setURLPrefix,
               payload: keyserverURL,
             });
-            dispatch({
-              type: setSyncedMetadataEntryActionType,
-              payload: {
-                name: syncedMetadataNames.CURRENT_USER_FID,
-                data: farcasterID,
-              },
-            });
+            if (farcasterID) {
+              dispatch({
+                type: setSyncedMetadataEntryActionType,
+                payload: {
+                  name: syncedMetadataNames.CURRENT_USER_FID,
+                  data: farcasterID,
+                },
+              });
+            }
             setCurrentStep({
               step: 'waiting_for_registration_call',
               avatarData,
