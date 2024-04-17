@@ -10,6 +10,7 @@ import {
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
+import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
@@ -23,6 +24,7 @@ import type {
   UsernameAccountSelection,
   AvatarData,
 } from './registration-types.js';
+import { authoritativeKeyserverID } from '../../authoritative-keyserver.js';
 import {
   useNativeSetUserAvatar,
   useUploadSelectedMedia,
@@ -279,14 +281,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const uploadSelectedMedia = useUploadSelectedMedia();
   const nativeSetUserAvatar = useNativeSetUserAvatar();
 
-  const hasCurrentUserInfo = useSelector(
-    state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
+  const isLoggedInToAuthoritativeKeyserver = useSelector(
+    isLoggedInToKeyserver(authoritativeKeyserverID),
   );
 
   const avatarBeingSetRef = React.useRef(false);
   React.useEffect(() => {
     if (
-      !hasCurrentUserInfo ||
+      !isLoggedInToAuthoritativeKeyserver ||
       currentStep.step !== 'waiting_for_registration_call' ||
       avatarBeingSetRef.current
     ) {
@@ -324,7 +326,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     })();
   }, [
     currentStep,
-    hasCurrentUserInfo,
+    isLoggedInToAuthoritativeKeyserver,
     uploadSelectedMedia,
     nativeSetUserAvatar,
     dispatch,
