@@ -10,7 +10,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   UserRelationshipStatus,
-  RelationshipAction,
+  TraditionalRelationshipAction,
 } from 'lib/types/relationship-types.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -64,7 +64,7 @@ type Props = {
   +excludedStatuses: $ReadOnlySet<UserRelationshipStatus>,
   +confirmButtonContent: React.Node,
   +confirmButtonColor?: ButtonColor,
-  +relationshipAction: RelationshipAction,
+  +relationshipAction: TraditionalRelationshipAction,
 };
 
 function AddUsersListModal(props: Props): React.Node {
