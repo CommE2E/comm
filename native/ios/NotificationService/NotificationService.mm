@@ -19,6 +19,7 @@ NSString *const keyserverIDKey = @"keyserverID";
 NSString *const blobHashKey = @"blobHash";
 NSString *const blobHolderKey = @"blobHolder";
 NSString *const encryptionKeyLabel = @"encryptionKey";
+NSString *const needsSilentBadgeUpdateKey = @"needsSilentBadgeUpdate";
 
 // Those and future MMKV-related constants should match
 // similar constants in CommNotificationsHandler.java
@@ -560,18 +561,7 @@ std::string joinStrings(
 }
 
 - (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
-  // TODO: refactor this check by introducing
-  // badgeOnly property in iOS notification payload
-  if (!payload[@"threadID"]) {
-    // This notif only contains a badge update. We could let it go through
-    // normally, but for internal builds we set the BODY to "ENCRYPTED" for
-    // debugging purposes. So instead of letting the badge-only notif go
-    // through, we construct another notif that doesn't have a body.
-    return true;
-  }
-  // If the notif is a rescind, then we'll filter it out. So we need another
-  // notif to update the badge count.
-  return [self isRescind:payload];
+  return payload[needsSilentBadgeUpdateKey];
 }
 
 - (BOOL)isCollapsible:(NSDictionary *)payload {
@@ -648,6 +638,12 @@ std::string joinStrings(
     if (mutableAps && mutableAps[@"alert"]) {
       mutableAps[@"alert"] = body;
     }
+  } else {
+    // If the notif doesn't contain a body it is either
+    // a rescind or badge-only notif. Therefore we set
+    // this property so that rest of notif processing code
+    // knows that local badge-only notif must be created.
+    mutableUserInfo[needsSilentBadgeUpdateKey] = @(YES);
   }
 
   NSString *threadID = decryptedPayload[@"threadID"];
