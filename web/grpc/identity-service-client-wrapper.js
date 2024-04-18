@@ -380,8 +380,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       loginStartResponse =
         await client.logInPasswordUserStart(loginStartRequest);
     } catch (e) {
-      console.log('Error calling logInPasswordUserStart:', e);
-      throw new Error(getMessageForException(e) ?? 'unknown');
+      console.log(
+        'Error calling logInPasswordUserStart:',
+        getMessageForException(e) ?? 'unknown',
+      );
+      throw e;
     }
     const finishRequestBytes = opaqueLogin.finish(
       loginStartResponse.getOpaqueLoginResponse_asU8(),
@@ -396,8 +399,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       loginFinishResponse =
         await client.logInPasswordUserFinish(loginFinishRequest);
     } catch (e) {
-      console.log('Error calling logInPasswordUserFinish:', e);
-      throw new Error(getMessageForException(e) ?? 'unknown');
+      console.log(
+        'Error calling logInPasswordUserFinish:',
+        getMessageForException(e) ?? 'unknown',
+      );
+      throw e;
     }
 
     const userID = loginFinishResponse.getUserId();
@@ -430,8 +436,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     try {
       loginResponse = await this.unauthClient.logInWalletUser(loginRequest);
     } catch (e) {
-      console.log('Error calling logInWalletUser:', e);
-      throw new Error(getMessageForException(e) ?? 'unknown');
+      console.log(
+        'Error calling logInWalletUser:',
+        getMessageForException(e) ?? 'unknown',
+      );
+      throw e;
     }
 
     const userID = loginResponse.getUserId();
@@ -463,8 +472,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       response =
         await this.unauthClient.uploadKeysForRegisteredDeviceAndLogIn(request);
     } catch (e) {
-      console.log('Error calling uploadKeysForRegisteredDeviceAndLogIn:', e);
-      throw new Error(getMessageForException(e) ?? 'unknown');
+      console.log(
+        'Error calling uploadKeysForRegisteredDeviceAndLogIn:',
+        getMessageForException(e) ?? 'unknown',
+      );
+      throw e;
     }
 
     const userID = response.getUserId();
@@ -540,8 +552,11 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         getFarcasterUsersRequest,
       );
     } catch (e) {
-      console.log('Error calling getFarcasterUsers:', e);
-      throw new Error(getMessageForException(e) ?? 'unknown');
+      console.log(
+        'Error calling getFarcasterUsers:',
+        getMessageForException(e) ?? 'unknown',
+      );
+      throw e;
     }
 
     const farcasterUsersList =
