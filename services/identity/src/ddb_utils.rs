@@ -17,7 +17,7 @@ use crate::{
     USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
     USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
   },
-  database::DeviceIDAttribute,
+  database::{DeviceIDAttribute, OTKRow},
   siwe::SocialProof,
 };
 
@@ -102,13 +102,28 @@ where
     .collect()
 }
 
-pub fn into_one_time_update_requests(
+pub fn into_one_time_update_and_delete_requests(
   user_id: &str,
   device_id: &str,
-  num_content_keys: usize,
-  num_notif_keys: usize,
-) -> TransactWriteItem {
+  num_content_keys_to_append: usize,
+  num_notif_keys_to_append: usize,
+  content_keys_to_delete: Vec<OTKRow>,
+  notif_keys_to_delete: Vec<OTKRow>,
+) -> Vec<TransactWriteItem> {
   use crate::constants::devices_table;
+
+  let mut transactions = Vec::new();
+
+  for otk_row in content_keys_to_delete.iter().chain(&notif_keys_to_delete) {
+    let delete_otk_operation = otk_row.as_delete_request();
+    transactions.push(delete_otk_operation)
+  }
+
+  let content_key_count_delta =
+    num_content_keys_to_append - content_keys_to_delete.len();
+
+  let notif_key_count_delta =
+    num_notif_keys_to_append - notif_keys_to_delete.len();
 
   let update_otk_count = Update::builder()
     .table_name(devices_table::NAME)
@@ -127,17 +142,21 @@ pub fn into_one_time_update_requests(
     ))
     .expression_attribute_values(
       ":num_content",
-      AttributeValue::N(num_content_keys.to_string()),
+      AttributeValue::N(content_key_count_delta.to_string()),
     )
     .expression_attribute_values(
       ":num_notif",
-      AttributeValue::N(num_notif_keys.to_string()),
+      AttributeValue::N(notif_key_count_delta.to_string()),
     )
     .build();
 
-  TransactWriteItem::builder()
+  let update_otk_count_operation = TransactWriteItem::builder()
     .update(update_otk_count)
-    .build()
+    .build();
+
+  transactions.push(update_otk_count_operation);
+
+  transactions
 }
 
 pub trait DateTimeExt {

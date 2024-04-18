@@ -2,24 +2,23 @@ use std::collections::HashSet;
 
 use comm_lib::{
   aws::{
-    ddb::{
-      operation::query::QueryOutput,
-      types::{AttributeValue, Delete, TransactWriteItem, Update},
-    },
+    ddb::types::{AttributeValue, Delete, TransactWriteItem, Update},
     DynamoDBError,
   },
   database::{
-    parse_int_attribute, AttributeExtractor, DBItemAttributeError, DBItemError,
+    parse_int_attribute, AttributeExtractor, AttributeMap,
+    DBItemAttributeError, DBItemError,
   },
 };
 use tracing::{debug, error, info};
 
 use crate::{
-  constants::ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT,
+  constants::{MAX_ONE_TIME_KEYS, ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT},
   database::DeviceIDAttribute,
   ddb_utils::{
     create_one_time_key_partition_key, into_one_time_put_requests,
-    into_one_time_update_requests, is_transaction_retryable, OlmAccountType,
+    into_one_time_update_and_delete_requests, is_transaction_retryable,
+    OlmAccountType,
   },
   error::{consume_error, Error},
   olm::is_valid_olm_key,
@@ -41,7 +40,6 @@ impl DatabaseClient {
     can_request_more_keys: bool,
   ) -> Result<(Option<String>, bool), Error> {
     use crate::constants::devices_table;
-    use crate::constants::one_time_keys_table as otk_table;
     use crate::constants::retry;
     use crate::constants::ONE_TIME_KEY_MINIMUM_THRESHOLD;
 
@@ -84,25 +82,15 @@ impl DatabaseClient {
         return Ok((None, requested_more_keys));
       }
 
-      let query_result = self
-        .get_next_one_time_key(user_id, device_id, account_type)
-        .await?;
-      let mut items = query_result.items.unwrap_or_default();
-      let mut item = items.pop().unwrap_or_default();
-      let pk = item.take_attr(otk_table::PARTITION_KEY)?;
-      let sk = item.take_attr(otk_table::SORT_KEY)?;
-      let otk: String = item.take_attr(otk_table::ATTR_ONE_TIME_KEY)?;
+      let Some(otk_row) = self
+        .get_one_time_keys(user_id, device_id, account_type, 1)
+        .await?
+        .pop()
+      else {
+        return Err(Error::NotEnoughOneTimeKeys);
+      };
 
-      let delete_otk = Delete::builder()
-        .table_name(otk_table::NAME)
-        .key(otk_table::PARTITION_KEY, AttributeValue::S(pk))
-        .key(otk_table::SORT_KEY, AttributeValue::S(sk))
-        .condition_expression("attribute_exists(#otk)")
-        .expression_attribute_names("#otk", otk_table::ATTR_ONE_TIME_KEY)
-        .build();
-
-      let delete_otk_operation =
-        TransactWriteItem::builder().delete(delete_otk).build();
+      let delete_otk_operation = otk_row.as_delete_request();
 
       let update_otk_count = Update::builder()
         .table_name(devices_table::NAME)
@@ -141,7 +129,7 @@ impl DatabaseClient {
         .await;
 
       match transaction {
-        Ok(_) => return Ok((Some(otk), requested_more_keys)),
+        Ok(_) => return Ok((Some(otk_row.otk), requested_more_keys)),
         Err(e) => {
           let dynamo_db_error = DynamoDBError::from(e);
           let retryable_codes = HashSet::from([
@@ -162,28 +150,47 @@ impl DatabaseClient {
     }
   }
 
-  async fn get_next_one_time_key(
+  async fn get_one_time_keys(
     &self,
     user_id: &str,
     device_id: &str,
     account_type: OlmAccountType,
-  ) -> Result<QueryOutput, Error> {
+    num_keys: usize,
+  ) -> Result<Vec<OTKRow>, Error> {
     use crate::constants::one_time_keys_table::*;
+
+    // DynamoDB will reject the `query` request if `limit < 1`
+    if num_keys < 1 {
+      return Ok(Vec::new());
+    }
 
     let partition_key =
       create_one_time_key_partition_key(user_id, device_id, account_type);
 
-    self
+    let otk_rows = self
       .client
       .query()
       .table_name(NAME)
       .key_condition_expression("#pk = :pk")
       .expression_attribute_names("#pk", PARTITION_KEY)
       .expression_attribute_values(":pk", AttributeValue::S(partition_key))
-      .limit(1)
+      .limit(num_keys as i32)
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))
+      .map_err(|e| Error::AwsSdk(e.into()))?
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(OTKRow::try_from)
+      .collect::<Result<Vec<_>, _>>()
+      .map_err(Error::from)?;
+
+    if otk_rows.len() != num_keys {
+      error!("There are fewer one-time keys than the number requested");
+      return Err(Error::NotEnoughOneTimeKeys);
+    }
+
+    Ok(otk_rows)
   }
 
   pub async fn append_one_time_prekeys(
@@ -195,11 +202,11 @@ impl DatabaseClient {
   ) -> Result<(), Error> {
     use crate::constants::retry;
 
-    let num_content_keys = content_one_time_keys.len();
-    let num_notif_keys = notif_one_time_keys.len();
+    let num_content_keys_to_append = content_one_time_keys.len();
+    let num_notif_keys_to_append = notif_one_time_keys.len();
 
-    if num_content_keys > ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT
-      || num_notif_keys > ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT
+    if num_content_keys_to_append > ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT
+      || num_notif_keys_to_append > ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT
     {
       return Err(Error::OneTimeKeyUploadLimitExceeded);
     }
@@ -230,17 +237,54 @@ impl DatabaseClient {
       current_time,
     );
 
-    let update_otk_count_operation = into_one_time_update_requests(
-      user_id,
-      device_id,
-      num_content_keys,
-      num_notif_keys,
-    );
+    let current_content_otk_count = self
+      .get_otk_count(user_id, device_id, OlmAccountType::Content)
+      .await?;
+
+    let current_notif_otk_count = self
+      .get_otk_count(user_id, device_id, OlmAccountType::Notification)
+      .await?;
+
+    let num_content_keys_to_delete = (num_content_keys_to_append
+      + current_content_otk_count)
+      .saturating_sub(MAX_ONE_TIME_KEYS);
+
+    let num_notif_keys_to_delete = (num_notif_keys_to_append
+      + current_notif_otk_count)
+      .saturating_sub(MAX_ONE_TIME_KEYS);
+
+    let content_keys_to_delete = self
+      .get_one_time_keys(
+        user_id,
+        device_id,
+        OlmAccountType::Content,
+        num_content_keys_to_delete,
+      )
+      .await?;
+
+    let notif_keys_to_delete = self
+      .get_one_time_keys(
+        user_id,
+        device_id,
+        OlmAccountType::Notification,
+        num_notif_keys_to_delete,
+      )
+      .await?;
+
+    let update_and_delete_otk_count_operation =
+      into_one_time_update_and_delete_requests(
+        user_id,
+        device_id,
+        num_content_keys_to_append,
+        num_notif_keys_to_append,
+        content_keys_to_delete,
+        notif_keys_to_delete,
+      );
 
     let mut operations = Vec::new();
     operations.extend_from_slice(&content_otk_requests);
     operations.extend_from_slice(&notif_otk_requests);
-    operations.push(update_otk_count_operation);
+    operations.extend_from_slice(&update_and_delete_otk_count_operation);
 
     // TODO: Introduce `transact_write_helper` similar to `batch_write_helper`
     // in `comm-lib` to handle transactions with retries
@@ -322,5 +366,51 @@ impl DatabaseClient {
       }) => Ok(0),
       Err(e) => Err(Error::Attribute(e)),
     }
+  }
+}
+
+pub struct OTKRow {
+  pub partition_key: String,
+  pub sort_key: String,
+  pub otk: String,
+}
+
+impl OTKRow {
+  pub fn as_delete_request(&self) -> TransactWriteItem {
+    use crate::constants::one_time_keys_table as otk_table;
+
+    let delete_otk = Delete::builder()
+      .table_name(otk_table::NAME)
+      .key(
+        otk_table::PARTITION_KEY,
+        AttributeValue::S(self.partition_key.to_string()),
+      )
+      .key(
+        otk_table::SORT_KEY,
+        AttributeValue::S(self.sort_key.to_string()),
+      )
+      .condition_expression("attribute_exists(#otk)")
+      .expression_attribute_names("#otk", otk_table::ATTR_ONE_TIME_KEY)
+      .build();
+
+    TransactWriteItem::builder().delete(delete_otk).build()
+  }
+}
+
+impl TryFrom<AttributeMap> for OTKRow {
+  type Error = DBItemError;
+
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
+    use crate::constants::one_time_keys_table as otk_table;
+
+    let partition_key = attrs.take_attr(otk_table::PARTITION_KEY)?;
+    let sort_key = attrs.take_attr(otk_table::SORT_KEY)?;
+    let otk: String = attrs.take_attr(otk_table::ATTR_ONE_TIME_KEY)?;
+
+    Ok(Self {
+      partition_key,
+      sort_key,
+      otk,
+    })
   }
 }
