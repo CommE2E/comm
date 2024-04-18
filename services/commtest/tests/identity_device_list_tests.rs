@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use commtest::identity::device::{
   login_user_device, logout_user_device, register_user_device, DEVICE_TYPE,
@@ -125,9 +126,10 @@ async fn test_update_device_list_rpc() {
   let primary_device_id = initial_device_list[0].clone();
 
   // perform update by adding a new device
+  let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
   let raw_update_payload = json!({
     "devices": [primary_device_id, "device2"],
-    "timestamp": 123456789,
+    "timestamp": now.as_millis(),
   });
   let update_payload = json!({
     "rawDeviceList": serde_json::to_string(&raw_update_payload).unwrap(),

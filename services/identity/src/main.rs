@@ -10,6 +10,7 @@ pub mod constants;
 mod cors;
 mod database;
 pub mod ddb_utils;
+mod device_list;
 pub mod error;
 mod grpc_services;
 mod grpc_utils;
