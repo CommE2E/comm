@@ -827,6 +827,9 @@ impl DatabaseClient {
     &self,
     user_id: &str,
     update: DeviceListUpdate,
+    // A function that receives previous and new device IDs and
+    // returns boolean determining if the new device list is valid.
+    validator_fn: impl Fn(&[&str], &[&str]) -> bool,
   ) -> Result<DeviceListRow, Error> {
     let DeviceListUpdate {
       devices: new_list,
@@ -834,21 +837,18 @@ impl DatabaseClient {
     } = update;
     self
       .transact_update_devicelist(user_id, |current_list, _| {
-        // TODO: Add proper validation according to the whitepaper
-        // currently only adding new device is supported (new.len - old.len = 1)
-
-        let new_set: HashSet<_> = new_list.iter().collect();
-        let current_set: HashSet<_> = current_list.iter().collect();
-        // difference is A - B (only new devices)
-        let difference: HashSet<_> = new_set.difference(&current_set).collect();
-        if difference.len() != 1 {
+        let previous_device_ids: Vec<&str> =
+          current_list.iter().map(AsRef::as_ref).collect();
+        let new_device_ids: Vec<&str> =
+          new_list.iter().map(AsRef::as_ref).collect();
+        if !validator_fn(&previous_device_ids, &new_device_ids) {
           warn!("Received invalid device list update");
           return Err(Error::DeviceList(
             DeviceListError::InvalidDeviceListUpdate,
           ));
         }
 
-        debug!("Applying device list update. Difference: {:?}", difference);
+        debug!("Applying device list update");
         *current_list = new_list;
 
         Ok((None, Some(timestamp)))
