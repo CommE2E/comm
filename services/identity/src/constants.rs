@@ -160,6 +160,10 @@ pub const KEYSERVER_PUBLIC_KEY: &str = "KEYSERVER_PUBLIC_KEY";
 pub const NONCE_LENGTH: usize = 17;
 pub const NONCE_TTL_DURATION: Duration = Duration::from_secs(120); // seconds
 
+// Device list
+
+pub const DEVICE_LIST_TIMESTAMP_VALID_FOR: Duration = Duration::from_secs(300);
+
 // Workflows in progress
 
 pub const WORKFLOWS_IN_PROGRESS_TTL_DURATION: Duration =
