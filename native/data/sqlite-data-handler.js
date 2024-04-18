@@ -39,7 +39,16 @@ import { isTaskCancelledError } from '../utils/error-handling.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 async function clearSensitiveData() {
-  await commCoreModule.clearSensitiveData();
+  try {
+    await commCoreModule.clearSensitiveData();
+  } catch (error) {
+    console.log(
+      `Error clearing SQLite database: ${
+        getMessageForException(error) ?? 'unknown'
+      }`,
+    );
+    throw error;
+  }
   try {
     await filesystemMediaCache.clearCache();
   } catch {
@@ -139,11 +148,28 @@ function SQLiteDataHandler(): React.Node {
 
   const handleSensitiveData = React.useCallback(async () => {
     try {
-      const sqliteStampedUserID = await commCoreModule.getSQLiteStampedUserID();
-      if (shouldClearData(sqliteStampedUserID, currentLoggedInUserID)) {
+      let sqliteStampedUserID,
+        errorGettingStampedUserID = false;
+      try {
+        sqliteStampedUserID = await commCoreModule.getSQLiteStampedUserID();
+      } catch (error) {
+        errorGettingStampedUserID = true;
+        console.log(
+          `Error getting SQLite stamped user ID: ${
+            getMessageForException(error) ?? 'unknown'
+          }`,
+        );
+      }
+      if (
+        errorGettingStampedUserID ||
+        shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
+      ) {
         await callClearSensitiveData('change in logged-in user credentials');
       }
-      if (currentLoggedInUserID) {
+      if (
+        currentLoggedInUserID &&
+        currentLoggedInUserID !== sqliteStampedUserID
+      ) {
         await commCoreModule.stampSQLiteDBUserID(currentLoggedInUserID);
       }
     } catch (e) {
