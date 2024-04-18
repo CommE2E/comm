@@ -104,11 +104,15 @@ impl DeviceRow {
 
 impl DeviceListRow {
   /// Generates new device list row from given devices
-  fn new(user_id: impl Into<String>, device_ids: Vec<String>) -> Self {
+  fn new(
+    user_id: impl Into<String>,
+    device_ids: Vec<String>,
+    timestamp: Option<DateTime<Utc>>,
+  ) -> Self {
     Self {
       user_id: user_id.into(),
       device_ids,
-      timestamp: Utc::now(),
+      timestamp: timestamp.unwrap_or_else(Utc::now),
     }
   }
 }
@@ -760,7 +764,7 @@ impl DatabaseClient {
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
-        Ok(Some(put_device_operation))
+        Ok((Some(put_device_operation), None))
       })
       .await?;
 
@@ -811,7 +815,7 @@ impl DatabaseClient {
         let operation =
           TransactWriteItem::builder().delete(delete_device).build();
 
-        Ok(Some(operation))
+        Ok((Some(operation), None))
       })
       .await?;
 
@@ -825,7 +829,8 @@ impl DatabaseClient {
     update: DeviceListUpdate,
   ) -> Result<DeviceListRow, Error> {
     let DeviceListUpdate {
-      devices: new_list, ..
+      devices: new_list,
+      timestamp,
     } = update;
     self
       .transact_update_devicelist(user_id, |current_list, _| {
@@ -846,7 +851,7 @@ impl DatabaseClient {
         debug!("Applying device list update. Difference: {:?}", difference);
         *current_list = new_list;
 
-        Ok(None)
+        Ok((None, Some(timestamp)))
       })
       .await
   }
@@ -863,12 +868,17 @@ impl DatabaseClient {
     // It receives two arguments:
     // 1. A mutable reference to the current device list (ordered device IDs).
     // 2. Details (full data) of the current devices (unordered).
-    // The closure should return a transactional DDB
-    // operation to be performed when updating the device list.
+    // The closure should return a two-element tuple:
+    // - (optional) transactional DDB operation to be performed
+    //   when updating the device list.
+    // - (optional) new device list timestamp. Defaults to `Utc::now()`.
     action: impl FnOnce(
       &mut Vec<String>,
       Vec<DeviceRow>,
-    ) -> Result<Option<TransactWriteItem>, Error>,
+    ) -> Result<
+      (Option<TransactWriteItem>, Option<DateTime<Utc>>),
+      Error,
+    >,
   ) -> Result<DeviceListRow, Error> {
     let previous_timestamp =
       get_current_devicelist_timestamp(self, user_id).await?;
@@ -880,8 +890,13 @@ impl DatabaseClient {
       .unwrap_or_default();
 
     // Perform the update action, then generate new device list
-    let operation = action(&mut device_ids, current_devices_data)?;
-    let new_device_list = DeviceListRow::new(user_id, device_ids);
+    let (operation, timestamp) = action(&mut device_ids, current_devices_data)?;
+
+    crate::device_list::verify_device_list_timestamp(
+      previous_timestamp.as_ref(),
+      timestamp.as_ref(),
+    )?;
+    let new_device_list = DeviceListRow::new(user_id, device_ids, timestamp);
 
     // Update timestamp in users table
     let timestamp_update_operation = device_list_timestamp_update_operation(
