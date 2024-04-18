@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import { createTransform } from 'redux-persist';
-import type { Transform } from 'redux-persist/es/types.js';
+import type { Transform, Persistor } from 'redux-persist/es/types.js';
 
 import {
   convertEntryStoreToNewIDSchema,
@@ -1259,7 +1259,7 @@ let storedPersistor = null;
 function setPersistor(persistor: *) {
   storedPersistor = persistor;
 }
-function getPersistor(): empty {
+function getPersistor(): Persistor {
   invariant(storedPersistor, 'should be set');
   return storedPersistor;
 }
