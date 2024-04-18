@@ -21,25 +21,25 @@ function SQLiteDataHandler(): React.Node {
 
   const handleSensitiveData = React.useCallback(async () => {
     const sharedWorker = await getCommSharedWorker();
-    let currentDBUserID,
-      errorGettingUserID = false;
+    let sqliteStampedUserID,
+      errorGettingStampedUserID = false;
     try {
       const currentUserData = await sharedWorker.schedule({
         type: workerRequestMessageTypes.GET_SQLITE_STAMPED_USER_ID,
       });
-      currentDBUserID = currentUserData?.userID;
+      sqliteStampedUserID = currentUserData?.userID;
     } catch (error) {
-      errorGettingUserID = true;
+      errorGettingStampedUserID = true;
       console.error(
-        `Error setting current user ID: ${
+        `Error getting SQLite stamped user ID: ${
           getMessageForException(error) ?? 'unknown'
         }`,
       );
     }
 
     if (
-      errorGettingUserID ||
-      shouldClearData(currentDBUserID, currentLoggedInUserID)
+      errorGettingStampedUserID ||
+      shouldClearData(sqliteStampedUserID, currentLoggedInUserID)
     ) {
       try {
         await sharedWorker.init({ clearDatabase: true });
@@ -54,7 +54,10 @@ function SQLiteDataHandler(): React.Node {
       }
     }
 
-    if (currentLoggedInUserID && currentLoggedInUserID !== currentDBUserID) {
+    if (
+      currentLoggedInUserID &&
+      currentLoggedInUserID !== sqliteStampedUserID
+    ) {
       try {
         await sharedWorker.schedule({
           type: workerRequestMessageTypes.STAMP_SQLITE_DB_USER_ID,
@@ -62,7 +65,7 @@ function SQLiteDataHandler(): React.Node {
         });
       } catch (error) {
         console.error(
-          `Error setting current user ID: ${
+          `Error stamping SQLite database with user ID: ${
             getMessageForException(error) ?? 'unknown'
           }`,
         );
