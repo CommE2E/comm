@@ -19,6 +19,7 @@ NSString *const keyserverIDKey = @"keyserverID";
 NSString *const blobHashKey = @"blobHash";
 NSString *const blobHolderKey = @"blobHolder";
 NSString *const encryptionKeyLabel = @"encryptionKey";
+NSString *const needsSilentBadgeUpdateKey = @"needsSilentBadgeUpdate";
 
 // Those and future MMKV-related constants should match
 // similar constants in CommNotificationsHandler.java
@@ -255,11 +256,14 @@ std::string joinStrings(
 
   // Step 6: (optional) create empty notification that
   // only provides badge count.
-  if ([self needsSilentBadgeUpdate:content.userInfo]) {
-    UNMutableNotificationContent *badgeOnlyContent =
-        [[UNMutableNotificationContent alloc] init];
-    badgeOnlyContent.badge = content.badge;
-    publicUserContent = badgeOnlyContent;
+
+  // For notifs that only contain badge update the
+  // server sets BODY to "ENCRYPTED" for internal
+  // builds for debugging purposes. So instead of
+  // letting such notif go through, we construct
+  // another notif that doesn't have a body.
+  if (content.userInfo[needsSilentBadgeUpdateKey]) {
+    publicUserContent = [self getBadgeOnlyContentFor:content];
   }
 
   // Step 7: (optional) download notification paylaod
@@ -393,7 +397,7 @@ std::string joinStrings(
     // At this point we know that the content is at least
     // correctly decrypted so we can display it to the user.
     // Another operation, like persistence, had failed.
-    if ([self needsSilentBadgeUpdate:content.userInfo]) {
+    if (content.userInfo[needsSilentBadgeUpdateKey]) {
       UNNotificationContent *badgeOnlyContent =
           [self getBadgeOnlyContentFor:content];
       handler(badgeOnlyContent);
@@ -559,21 +563,6 @@ std::string joinStrings(
                          andHolder:content.userInfo[blobHolderKey]];
 }
 
-- (BOOL)needsSilentBadgeUpdate:(NSDictionary *)payload {
-  // TODO: refactor this check by introducing
-  // badgeOnly property in iOS notification payload
-  if (!payload[@"threadID"]) {
-    // This notif only contains a badge update. We could let it go through
-    // normally, but for internal builds we set the BODY to "ENCRYPTED" for
-    // debugging purposes. So instead of letting the badge-only notif go
-    // through, we construct another notif that doesn't have a body.
-    return true;
-  }
-  // If the notif is a rescind, then we'll filter it out. So we need another
-  // notif to update the badge count.
-  return [self isRescind:payload];
-}
-
 - (BOOL)isCollapsible:(NSDictionary *)payload {
   return payload[collapseIDKey];
 }
@@ -648,6 +637,8 @@ std::string joinStrings(
     if (mutableAps && mutableAps[@"alert"]) {
       mutableAps[@"alert"] = body;
     }
+  } else {
+    mutableUserInfo[needsSilentBadgeUpdateKey] = @(YES);
   }
 
   NSString *threadID = decryptedPayload[@"threadID"];
