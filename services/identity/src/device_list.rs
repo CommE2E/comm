@@ -50,16 +50,91 @@ pub fn verify_device_list_timestamp(
   Ok(())
 }
 
-/// Returns `true` if `new_device_list` contains exactly one more new device
-/// compared to `previous_device_list`
-pub fn is_device_added(
-  previous_device_list: &[&str],
-  new_device_list: &[&str],
-) -> bool {
-  let previous_set: HashSet<_> = previous_device_list.iter().collect();
-  let new_set: HashSet<_> = new_device_list.iter().collect();
+pub mod validation {
+  use super::*;
+  /// Returns `true` if `new_device_list` contains exactly one more new device
+  /// compared to `previous_device_list`
+  fn is_device_added(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    let previous_set: HashSet<_> = previous_device_list.iter().collect();
+    let new_set: HashSet<_> = new_device_list.iter().collect();
 
-  return new_set.difference(&previous_set).count() == 1;
+    return new_set.difference(&previous_set).count() == 1;
+  }
+
+  /// Returns `true` if `new_device_list` contains exactly one device removed
+  /// compared to `previous_device_list`
+  fn is_device_removed(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    let previous_set: HashSet<_> = previous_device_list.iter().collect();
+    let new_set: HashSet<_> = new_device_list.iter().collect();
+
+    return previous_set.difference(&new_set).count() == 1;
+  }
+
+  fn primary_device_changed(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    let previous_primary = previous_device_list.first();
+    let new_primary = new_device_list.first();
+
+    new_primary != previous_primary
+  }
+
+  /// The `UpdateDeviceList` RPC should be able to either add or remove
+  /// one device, and it cannot currently switch primary devices
+  pub fn update_device_list_rpc_validator(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    if primary_device_changed(previous_device_list, new_device_list) {
+      return false;
+    }
+
+    let is_added = is_device_added(previous_device_list, new_device_list);
+    let is_removed = is_device_removed(previous_device_list, new_device_list);
+
+    (is_added && !is_removed) || (is_removed && !is_added)
+  }
+
+  #[cfg(test)]
+  mod tests {
+    use super::*;
+
+    #[test]
+    fn test_device_added_or_removed() {
+      use std::ops::Not;
+
+      let list1 = vec!["device1"];
+      let list2 = vec!["device1", "device2"];
+
+      assert!(is_device_added(&list1, &list2));
+      assert!(is_device_removed(&list1, &list2).not());
+
+      assert!(is_device_added(&list2, &list1).not());
+      assert!(is_device_removed(&list2, &list1));
+
+      assert!(is_device_added(&list1, &list1).not());
+      assert!(is_device_removed(&list1, &list1).not());
+    }
+
+    #[test]
+    fn test_primary_device_changed() {
+      use std::ops::Not;
+
+      let list1 = vec!["device1"];
+      let list2 = vec!["device1", "device2"];
+      let list3 = vec!["device2"];
+
+      assert!(primary_device_changed(&list1, &list2).not());
+      assert!(primary_device_changed(&list1, &list3));
+    }
+  }
 }
 
 #[cfg(test)]
@@ -97,16 +172,5 @@ mod tests {
       verify_device_list_timestamp(None, None).is_ok(),
       "No provided timestamp should pass"
     );
-  }
-
-  #[test]
-  fn test_is_device_added_check() {
-    use std::ops::Not;
-
-    let list1 = vec!["device1"];
-    let list2 = vec!["device1", "device2"];
-
-    assert!(is_device_added(&list1, &list2));
-    assert!(is_device_added(&list2, &list1).not());
   }
 }
