@@ -508,6 +508,10 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
+    // TODO: Add proper validation according to the whitepaper
+    // currently only adding new device is supported (new.len - old.len = 1)
+    use crate::device_list::is_device_added as validator;
+
     let (user_id, _device_id) = get_user_and_device_id(&request)?;
     // TODO: when we stop doing "primary device rotation" (migration procedure)
     // we should verify if this RPC is called by primary device only
@@ -516,7 +520,7 @@ impl IdentityClientService for AuthenticatedService {
     let update = DeviceListUpdate::try_from(new_list)?;
     self
       .db_client
-      .apply_devicelist_update(&user_id, update)
+      .apply_devicelist_update(&user_id, update, validator)
       .await
       .map_err(handle_db_error)?;
 
