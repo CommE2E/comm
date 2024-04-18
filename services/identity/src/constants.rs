@@ -248,5 +248,6 @@ pub mod retry {
 }
 
 // One-time keys
-pub const ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT: usize = 49;
+pub const ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT: usize = 24;
 pub const ONE_TIME_KEY_SIZE: usize = 43; // as defined in olm
+pub const MAX_ONE_TIME_KEYS: usize = 100; // as defined in olm

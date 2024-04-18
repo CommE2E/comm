@@ -17,6 +17,7 @@ use std::str::FromStr;
 use std::sync::Arc;
 
 pub use crate::database::device_list::DeviceIDAttribute;
+pub use crate::database::one_time_keys::OTKRow;
 use crate::{
   constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
   ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
