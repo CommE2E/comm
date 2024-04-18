@@ -1,4 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
+use std::collections::HashSet;
 
 use crate::{
   constants::DEVICE_LIST_TIMESTAMP_VALID_FOR, error::DeviceListError,
@@ -49,6 +50,18 @@ pub fn verify_device_list_timestamp(
   Ok(())
 }
 
+/// Returns `true` if `new_device_list` contains exactly one more new device
+/// compared to `previous_device_list`
+pub fn is_device_added(
+  previous_device_list: &[&str],
+  new_device_list: &[&str],
+) -> bool {
+  let previous_set: HashSet<_> = previous_device_list.iter().collect();
+  let new_set: HashSet<_> = new_device_list.iter().collect();
+
+  return new_set.difference(&previous_set).count() == 1;
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -84,5 +97,16 @@ mod tests {
       verify_device_list_timestamp(None, None).is_ok(),
       "No provided timestamp should pass"
     );
+  }
+
+  #[test]
+  fn test_is_device_added_check() {
+    use std::ops::Not;
+
+    let list1 = vec!["device1"];
+    let list2 = vec!["device1", "device2"];
+
+    assert!(is_device_added(&list1, &list2));
+    assert!(is_device_added(&list2, &list1).not());
   }
 }
