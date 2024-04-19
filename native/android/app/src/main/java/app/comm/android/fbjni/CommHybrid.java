@@ -15,18 +15,10 @@ public class CommHybrid {
         (CallInvokerHolderImpl)context.getCatalystInstance()
             .getJSCallInvokerHolder();
     long contextPointer = context.getJavaScriptContextHolder().get();
-
-    // additional parameters
-    String sqliteFilePath = context.getDatabasePath("comm.sqlite").toString();
-    HashMap<String, Object> additionalParameters =
-        new HashMap<String, Object>();
-    additionalParameters.put("sqliteFilePath", sqliteFilePath);
-
-    new CommHybrid().initHybrid(contextPointer, holder, additionalParameters);
+    new CommHybrid().initHybrid(contextPointer, holder);
   }
 
   public native void initHybrid(
       long jsContextNativePointer,
-      CallInvokerHolderImpl jsCallInvokerHolder,
-      HashMap<String, Object> additionalParameters);
+      CallInvokerHolderImpl jsCallInvokerHolder);
 }
