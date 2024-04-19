@@ -1,13 +1,13 @@
 // @flow
 
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { useKeyserverCall } from 'lib/keyserver-conn/keyserver-call.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type {
   WebInitialKeyserverInfo,
   ClientWebInitialReduxStateResponse,
 } from 'lib/types/redux-types.js';
-import { useKeyserverCall } from 'lib/utils/keyserver-call.js';
 import type { URLInfo } from 'lib/utils/url-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
