@@ -8,9 +8,9 @@ import {
   exactSearchUser,
   exactSearchUserActionTypes,
 } from 'lib/actions/user-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';

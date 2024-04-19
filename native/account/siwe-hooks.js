@@ -10,6 +10,7 @@ import {
   useIdentityWalletRegister,
 } from 'lib/actions/user-actions.js';
 import type { CallSingleKeyserverEndpointOptions } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
   LogInStartingPayload,
@@ -19,7 +20,6 @@ import type {
   SIWEResult,
   IdentityWalletRegisterInput,
 } from 'lib/types/siwe-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';

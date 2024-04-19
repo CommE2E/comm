@@ -22,13 +22,13 @@ import {
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import stores from 'lib/facts/stores.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { getMessageForException, ServerError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';

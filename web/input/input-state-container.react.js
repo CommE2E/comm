@@ -39,6 +39,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
@@ -84,7 +85,6 @@ import {
   type ClientNewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   blobHashFromBlobServiceURI,
   isBlobServiceURI,

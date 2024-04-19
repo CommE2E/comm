@@ -10,10 +10,10 @@ import {
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';

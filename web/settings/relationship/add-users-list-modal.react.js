@@ -7,12 +7,12 @@ import {
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   UserRelationshipStatus,
   TraditionalRelationshipAction,
 } from 'lib/types/relationship-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { useAddUsersListContext } from './add-users-list-provider.react.js';

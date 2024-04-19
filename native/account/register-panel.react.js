@@ -18,6 +18,7 @@ import {
   keyserverRegister,
   getOlmSessionInitializationDataActionTypes,
 } from 'lib/actions/user-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -32,7 +33,6 @@ import type {
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,

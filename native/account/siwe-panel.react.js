@@ -15,9 +15,9 @@ import {
   useIdentityGenerateNonce,
 } from 'lib/actions/user-actions.js';
 import type { ServerCallSelectorParams } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEWebViewMessage, SIWEResult } from 'lib/types/siwe-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';

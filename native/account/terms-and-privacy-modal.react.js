@@ -16,8 +16,8 @@ import {
   policyAcknowledgmentActionTypes,
 } from 'lib/actions/user-actions.js';
 import { type PolicyType, policyTypes } from 'lib/facts/policies.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 

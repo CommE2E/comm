@@ -13,6 +13,7 @@ import {
   updateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   getRelationshipActionText,
@@ -24,7 +25,6 @@ import {
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-settings-relationship-tab.css';

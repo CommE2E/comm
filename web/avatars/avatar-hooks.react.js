@@ -6,8 +6,8 @@ import {
   uploadMultimedia,
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { encryptFile } from '../media/encryption-utils.js';
