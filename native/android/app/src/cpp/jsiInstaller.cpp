@@ -1,9 +1,7 @@
-#include "jniHelpers.h"
 #include <CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
 
-#include <DatabaseManagers/SQLiteQueryExecutor.h>
 #include <InternalModules/DatabaseInitializerJNIHelper.h>
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
 #include <NativeModules/CommConstants.h>
@@ -26,8 +24,8 @@ public:
   static void initHybrid(
       jni::alias_ref<jhybridobject> jThis,
       jlong jsContext,
-      jni::alias_ref<react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-      comm::HashMap additionalParameters) {
+      jni::alias_ref<react::CallInvokerHolder::javaobject>
+          jsCallInvokerHolder) {
     jsi::Runtime *rt = (jsi::Runtime *)jsContext;
     auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
     std::shared_ptr<comm::CommCoreModule> coreNativeModule =
@@ -57,12 +55,6 @@ public:
           jsi::PropNameID::forAscii(*rt, "CommConstants"),
           jsi::Object::createFromHostObject(*rt, nativeConstants));
     }
-
-    jni::local_ref<jni::JObject> sqliteFilePathObj =
-        additionalParameters.get("sqliteFilePath");
-    std::string sqliteFilePath = sqliteFilePathObj->toString();
-
-    comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
   }
 
   static void registerNatives() {
