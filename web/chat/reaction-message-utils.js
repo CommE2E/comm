@@ -8,11 +8,11 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { getNextLocalID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
-import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { cloneError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
