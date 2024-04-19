@@ -1,13 +1,13 @@
 // @flow
 
 import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
+import type { CallSingleKeyserverEndpoint } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import {
   type CallKeyserverEndpoint,
   CANCELLED_ERROR,
 } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import type { InitialNotifMessageOptions } from 'lib/shared/crypto-utils.js';
 import type { RecoveryActionSource } from 'lib/types/account-types.js';
-import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
 import type { DispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
