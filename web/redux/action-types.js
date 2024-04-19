@@ -45,18 +45,6 @@ const getInitialReduxState =
     const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
 
     for (const keyserverID of allKeyserverIDs) {
-      // As of Nov 2023, the only validation we have for adding a new keyserver
-      // is we check if the keyserver URL is valid. This is not a very
-      // extensive check, and gives the user the feeling of a false sucesses
-      // when they add new keyservers to the keyserver store. ENG-5371 tracks
-      // the task for initialzing a proper connection with the newly added
-      // keyserver, and at that point we can make the validation checks
-      // for adding a new keyserver more extensive. However, for the time being
-      // we need to add this check below so that we aren't trying to make calls
-      // to nonexistant keyservers that are in our keyserver store.
-      if (keyserverID !== authoritativeKeyserverID) {
-        continue;
-      }
       const clientUpdatesCurrentAsOf = allUpdatesCurrentAsOf[keyserverID];
       const keyserverExcludedData: ExcludedData = clientUpdatesCurrentAsOf
         ? excludedData
