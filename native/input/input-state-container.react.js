@@ -922,7 +922,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 'uploading',
                 percent,
               ),
-            uploadBlob: this.uploadBlob,
+            performHTTPMultipartUpload: this.performHTTPMultipartUpload,
           },
         );
 
@@ -947,7 +947,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 thumbHash: processedMedia.thumbHash,
               },
               {
-                uploadBlob: this.uploadBlob,
+                performHTTPMultipartUpload: this.performHTTPMultipartUpload,
               },
             );
           })();
@@ -1174,7 +1174,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  uploadBlob = async (
+  performHTTPMultipartUpload = async (
     url: string,
     cookie: ?string,
     sessionID: ?string,
@@ -1188,14 +1188,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         input.multimedia.length === 1 &&
         input.multimedia[0] &&
         typeof input.multimedia[0] === 'object',
-      'InputStateContainer.uploadBlob sent incorrect input',
+      'InputStateContainer.performHTTPMultipartUpload sent incorrect input',
     );
     const { uri, name, type } = input.multimedia[0];
     invariant(
       typeof uri === 'string' &&
         typeof name === 'string' &&
         typeof type === 'string',
-      'InputStateContainer.uploadBlob sent incorrect input',
+      'InputStateContainer.performHTTPMultipartUpload sent incorrect input',
     );
 
     const parameters: { [key: string]: mixed } = {};
@@ -1214,7 +1214,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const value = input[key];
       invariant(
         typeof value === 'string',
-        'blobUpload calls can only handle string values for non-multimedia keys',
+        'performHTTPMultipartUpload calls can only handle string values for ' +
+          'non-multimedia keys',
       );
       parameters[key] = value;
     }
