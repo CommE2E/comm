@@ -745,6 +745,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
     },
   ],
   [59, () => dbQuery(SQL`DROP TABLE one_time_keys`)],
+  [
+    60,
+    async () => {
+      await dbQuery(
+        SQL`
+          DELETE
+          FROM messages
+          WHERE type = 22
+            AND JSON_EXTRACT(content, '$.operation') = 'farcaster_mutual'
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
