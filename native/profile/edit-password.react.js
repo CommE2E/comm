@@ -15,10 +15,10 @@ import {
   changeKeyserverUserPasswordActionTypes,
   changeKeyserverUserPassword,
 } from 'lib/actions/user-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PasswordUpdate } from 'lib/types/user-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,

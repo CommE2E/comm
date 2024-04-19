@@ -7,9 +7,9 @@ import {
   updateRelationshipsActionTypes,
   updateRelationships,
 } from 'lib/actions/relationship-actions.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeUserInfo } from 'lib/types/user-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import PencilIcon from '../components/pencil-icon.react.js';

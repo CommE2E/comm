@@ -14,6 +14,7 @@ import {
 } from 'lib/actions/upload-actions.js';
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import {
   extensionFromFilename,
   filenameFromPathOrURI,
@@ -27,7 +28,6 @@ import type {
   MediaLibrarySelection,
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import CommIcon from '../components/comm-icon.react.js';

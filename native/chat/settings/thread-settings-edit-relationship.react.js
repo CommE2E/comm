@@ -9,6 +9,7 @@ import {
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import {
   getRelationshipActionText,
   getRelationshipDispatchAction,
@@ -19,7 +20,6 @@ import {
   type TraditionalRelationshipAction,
   type RelationshipButton,
 } from 'lib/types/relationship-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';

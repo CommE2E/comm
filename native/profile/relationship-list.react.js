@@ -10,6 +10,7 @@ import {
   updateRelationships,
 } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
@@ -22,7 +23,6 @@ import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
 } from 'lib/types/user-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { values } from 'lib/utils/objects.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 

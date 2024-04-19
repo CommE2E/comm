@@ -33,6 +33,7 @@ import type {
   CallSingleKeyserverEndpointOptions,
   CallSingleKeyserverEndpointResponse,
 } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
+import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
 import {
   getNextLocalUploadID,
@@ -87,7 +88,6 @@ import {
   type ClientNewThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/utils/action-utils.js';
 import { getConfig } from 'lib/utils/config.js';
 import { cloneError, getMessageForException } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
