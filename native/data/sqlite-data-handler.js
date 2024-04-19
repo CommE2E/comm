@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import type { CallSingleKeyserverEndpoint } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js';
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
@@ -22,7 +23,6 @@ import {
   recoveryFromDataHandlerActionSources,
   type RecoveryFromDataHandlerActionSource,
 } from 'lib/types/account-types.js';
-import type { CallSingleKeyserverEndpoint } from 'lib/utils/call-single-keyserver-endpoint.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
