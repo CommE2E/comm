@@ -10,6 +10,7 @@ import {
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
+import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
@@ -19,6 +20,8 @@ import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/me
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
+import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -384,6 +387,58 @@ const migrations = {
 
     return newState;
   },
+  [16]: async (state: AppState) => {
+    // 1. Check if `databaseModule` is supported and early-exit if not.
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    // 2. Get existing `stores` from SQLite.
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const messages: ?$ReadOnlyArray<ClientDBMessageInfo> =
+      stores?.store?.messages;
+
+    if (messages === null || messages === undefined || messages.length === 0) {
+      return state;
+    }
+
+    // 3. Filter out `UNSUPPORTED.UPDATE_RELATIONSHIP` `ClientDBMessageInfo`s.
+    const unsupportedMessageIDsToRemove = messages
+      .filter((message: ClientDBMessageInfo) => {
+        if (parseInt(message.type) !== messageTypes.UPDATE_RELATIONSHIP) {
+          return false;
+        }
+        if (message.content === null || message.content === undefined) {
+          return false;
+        }
+        const { operation } = JSON.parse(message.content);
+        return operation === 'farcaster_mutual';
+      })
+      .map(message => message.id);
+
+    // 4. Construct `ClientDBMessageStoreOperation`s
+    const messageStoreOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      [
+        {
+          type: 'remove',
+          payload: { ids: unsupportedMessageIDsToRemove },
+        },
+      ];
+
+    // 5. Process the constructed `messageStoreOperations`.
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { messageStoreOperations },
+    });
+
+    return state;
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -429,7 +484,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 15,
+  version: 16,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
