@@ -28,7 +28,6 @@ import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider
 import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
 import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
-import KeyserverConnectionsHandler from 'lib/components/keyserver-connections-handler.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
@@ -36,6 +35,7 @@ import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
+import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
