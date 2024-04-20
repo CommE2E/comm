@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   deleteAccountActionTypes,
-  useDeleteAccount,
+  useDeleteWalletAccount as useDeleteAccount,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';

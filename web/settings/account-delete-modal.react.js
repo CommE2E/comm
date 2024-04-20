@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  useDeleteAccount,
+  useDeleteWalletAccount as useDeleteAccount,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
