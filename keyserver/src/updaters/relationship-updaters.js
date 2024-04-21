@@ -36,10 +36,16 @@ async function updateRelationships(
     throw new ServerError('not_logged_in');
   }
 
-  const requestUserIDs =
-    request.action === relationshipActions.FARCASTER_MUTUAL
-      ? Object.keys(request.userIDsToFID)
-      : request.userIDs;
+  let requestUserIDs;
+  const viewerID = viewer.userID;
+  if (request.action === relationshipActions.FARCASTER_MUTUAL) {
+    requestUserIDs = Object.keys(request.userIDsToFID).filter(
+      userID => userID !== viewerID,
+    );
+  } else {
+    requestUserIDs = request.userIDs;
+  }
+
   const uniqueUserIDs = [...new Set(requestUserIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
@@ -64,7 +70,11 @@ async function updateRelationships(
     // reported to the caller and can be repeated - there should be only
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
-    const threadIDPerUser = await createPersonalThreads(viewer, request);
+    const threadIDPerUser = await createPersonalThreads(
+      viewer,
+      request,
+      userIDs,
+    );
     const { userRelationshipOperations, errors: friendRequestErrors } =
       await fetchFriendRequestRelationshipOperations(viewer, userIDs);
     errors = { ...errors, ...friendRequestErrors };
@@ -206,13 +216,36 @@ async function updateRelationships(
     // reported to the caller and can be repeated - there should be only
     // one PERSONAL thread per a pair of users and we can safely call it
     // repeatedly.
-    await createPersonalThreads(viewer, request);
-    const insertRows = Object.keys(request.userIDsToFID).map(otherUserID => {
+    const threadIDPerUser = await createPersonalThreads(
+      viewer,
+      request,
+      userIDs,
+    );
+
+    const viewerFID = request.userIDsToFID[viewerID];
+    if (!viewerFID) {
+      throw new ServerError('viewer_fid_missing');
+    }
+
+    const insertRows = userIDs.map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
       return { user1, user2, status: undirectedStatus.KNOW_OF };
     });
     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
     await createUpdates(updateDatas);
+
+    const now = Date.now();
+    const messageDatas = userIDs.map(otherUserID => ({
+      type: messageTypes.UPDATE_RELATIONSHIP,
+      threadID: threadIDPerUser[otherUserID],
+      creatorID: viewer.userID,
+      creatorFID: viewerFID,
+      targetID: otherUserID,
+      targetFID: request.userIDsToFID[otherUserID],
+      time: now,
+      operation: 'farcaster_mutual',
+    }));
+    await createMessages(viewer, messageDatas, 'broadcast');
   } else {
     invariant(
       false,
@@ -329,6 +362,7 @@ async function updateChangedUndirectedRelationships(
 async function createPersonalThreads(
   viewer: Viewer,
   request: RelationshipRequest,
+  userIDs: $ReadOnlyArray<string>,
 ) {
   invariant(
     request.action === relationshipActions.FRIEND ||
@@ -337,10 +371,6 @@ async function createPersonalThreads(
       'FARCASTER_MUTUAL requests, but we tried to do that for ' +
       request.action,
   );
-
-  const userIDs: $ReadOnlyArray<string> = request.userIDsToFID
-    ? Object.keys(request.userIDsToFID)
-    : request.userIDs;
 
   const threadIDPerUser: { [string]: string } = {};
 
