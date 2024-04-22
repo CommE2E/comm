@@ -10,9 +10,13 @@ import {
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
+import { useKeyserverAuth } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
-import type { LogInStartingPayload } from 'lib/types/account-types.js';
+import {
+  type LogInStartingPayload,
+  logInActionSources,
+} from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -58,7 +62,14 @@ import {
 type CurrentStep =
   | { +step: 'inactive' }
   | {
-      +step: 'waiting_for_registration_call',
+      +step: 'waiting_for_identity_registration_in_redux',
+      +clearCachedSelections: () => void,
+      +avatarData: ?AvatarData,
+      +resolve: () => void,
+      +reject: Error => void,
+    }
+  | {
+      +step: 'waiting_for_authoritative_keyserver_registration_in_redux',
       +clearCachedSelections: () => void,
       +avatarData: ?AvatarData,
       +resolve: () => void,
@@ -267,7 +278,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
             }
             setCurrentStep({
-              step: 'waiting_for_registration_call',
+              step: 'waiting_for_identity_registration_in_redux',
               avatarData,
               clearCachedSelections,
               resolve,
@@ -288,7 +299,55 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     ],
   );
 
-  // STEP 2: SETTING AVATAR
+  // STEP 2: REGISTERING ON AUTHORITATIVE KEYSERVER
+
+  const keyserverAuth = useKeyserverAuth(authoritativeKeyserverID);
+
+  const isRegisteredOnIdentity = useSelector(
+    state =>
+      !!state.commServicesAccessToken &&
+      !!state.currentUserInfo &&
+      !state.currentUserInfo.anonymous,
+  );
+
+  const registeringOnAuthoritativeKeyserverRef = React.useRef(false);
+  React.useEffect(() => {
+    if (
+      !isRegisteredOnIdentity ||
+      currentStep.step !== 'waiting_for_identity_registration_in_redux' ||
+      registeringOnAuthoritativeKeyserverRef.current
+    ) {
+      return;
+    }
+    registeringOnAuthoritativeKeyserverRef.current = true;
+    const { avatarData, clearCachedSelections, resolve, reject } = currentStep;
+    void (async () => {
+      try {
+        await keyserverAuth({
+          authActionSource: process.env.BROWSER
+            ? logInActionSources.keyserverAuthFromWeb
+            : logInActionSources.keyserverAuthFromNative,
+          setInProgress: () => {},
+          hasBeenCancelled: () => false,
+          doNotRegister: false,
+        });
+        setCurrentStep({
+          step: 'waiting_for_authoritative_keyserver_registration_in_redux',
+          avatarData,
+          clearCachedSelections,
+          resolve,
+          reject,
+        });
+      } catch (e) {
+        reject(e);
+        setCurrentStep(inactiveStep);
+      } finally {
+        registeringOnAuthoritativeKeyserverRef.current = false;
+      }
+    })();
+  }, [currentStep, isRegisteredOnIdentity, keyserverAuth]);
+
+  // STEP 3: SETTING AVATAR
 
   const uploadSelectedMedia = useUploadSelectedMedia();
   const nativeSetUserAvatar = useNativeSetUserAvatar();
@@ -301,7 +360,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   React.useEffect(() => {
     if (
       !isLoggedInToAuthoritativeKeyserver ||
-      currentStep.step !== 'waiting_for_registration_call' ||
+      currentStep.step !==
+        'waiting_for_authoritative_keyserver_registration_in_redux' ||
       avatarBeingSetRef.current
     ) {
       return;
