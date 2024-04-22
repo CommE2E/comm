@@ -86,14 +86,47 @@ pub mod validation {
     new_primary != previous_primary
   }
 
+  /// Verifies if exactly one device has been replaced.
+  /// No reorders are permitted. Both lists have to have the same length.
+  fn is_device_replaced(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    if previous_device_list.len() != new_device_list.len() {
+      return false;
+    }
+
+    // exactly 1 different device ID
+    std::iter::zip(previous_device_list, new_device_list)
+      .filter(|(a, b)| a != b)
+      .count()
+      == 1
+  }
+
+  // This is going to be used when doing primary devicd keys rotation
+  #[allow(unused)]
+  pub fn primary_device_rotation_validator(
+    previous_device_list: &[&str],
+    new_device_list: &[&str],
+  ) -> bool {
+    primary_device_changed(previous_device_list, new_device_list)
+      && !is_device_replaced(&previous_device_list[1..], &new_device_list[1..])
+  }
+
   /// The `UpdateDeviceList` RPC should be able to either add or remove
-  /// one device, and it cannot currently switch primary devices
+  /// one device, and it cannot currently switch primary devices.
+  /// The RPC is also able to replace a keyserver device
   pub fn update_device_list_rpc_validator(
     previous_device_list: &[&str],
     new_device_list: &[&str],
   ) -> bool {
     if primary_device_changed(previous_device_list, new_device_list) {
       return false;
+    }
+
+    // allow replacing a keyserver
+    if is_device_replaced(previous_device_list, new_device_list) {
+      return true;
     }
 
     let is_added = is_device_added(previous_device_list, new_device_list);
@@ -133,6 +166,23 @@ pub mod validation {
 
       assert!(primary_device_changed(&list1, &list2).not());
       assert!(primary_device_changed(&list1, &list3));
+    }
+
+    #[test]
+    fn test_device_replaced() {
+      use std::ops::Not;
+
+      let list1 = vec!["device1"];
+      let list2 = vec!["device2"];
+      let list3 = vec!["device1", "device2"];
+      let list4 = vec!["device2", "device1"];
+      let list5 = vec!["device2", "device3"];
+
+      assert!(is_device_replaced(&list1, &list2), "Singleton replacement");
+      assert!(is_device_replaced(&list4, &list5), "Standard replacement");
+      assert!(is_device_replaced(&list1, &list3).not(), "Length unequal");
+      assert!(is_device_replaced(&list3, &list3).not(), "Unchanged");
+      assert!(is_device_replaced(&list3, &list4).not(), "Reorder");
     }
   }
 }
