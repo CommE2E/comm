@@ -120,6 +120,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encrypt(jsi::Run
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decrypt(rt, args[0].asObject(rt), args[1].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptSequential(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decryptSequential(rt, args[0].asObject(rt), args[1].asString(rt), args[2].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->signMessage(rt, args[0].asString(rt));
 }
@@ -237,6 +240,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["initializeContentInboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentInboundSession};
   methodMap_["encrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encrypt};
   methodMap_["decrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt};
+  methodMap_["decryptSequential"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptSequential};
   methodMap_["signMessage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};
   methodMap_["terminate"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_terminate};
