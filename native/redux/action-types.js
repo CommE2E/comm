@@ -19,6 +19,7 @@ export const updateDeviceOrientationActionType = 'UPDATE_DEVICE_ORIENTATION';
 export const setStoreLoadedActionType = 'SET_STORE_LOADED';
 export const setReduxStateActionType = 'SET_REDUX_STATE';
 export const setLocalSettingsActionType = 'SET_LOCAL_SETTINGS';
+export const setAccessTokenActionType = 'SET_ACCESS_TOKEN';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
@@ -56,6 +57,7 @@ export type Action = $ReadOnly<
         | {
             +type: 'SET_STORE_LOADED',
           }
-        | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings },
+        | { +type: 'SET_LOCAL_SETTINGS', +payload: LocalSettings }
+        | { +type: 'SET_ACCESS_TOKEN', +payload: ?string },
     },
 >;

@@ -45,6 +45,7 @@ import {
   type Action,
   setLocalSettingsActionType,
 } from './action-types.js';
+import { setAccessTokenActionType } from './action-types.js';
 import { defaultState } from './default-state.js';
 import { remoteReduxDevServerConfig } from './dev-tools.js';
 import { persistConfig, setPersistor } from './persist.js';
@@ -229,6 +230,8 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
       ...state,
       localSettings: { ...state.localSettings, ...action.payload },
     };
+  } else if (action.type === setAccessTokenActionType) {
+    return { ...state, commServicesAccessToken: action.payload };
   }
 
   if (action.type === setNewSessionActionType) {
