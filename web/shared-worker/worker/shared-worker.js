@@ -238,6 +238,13 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_PERSIST_STORAGE_ITEM,
       item: sqliteQueryExecutor.getPersistStorageItem(message.key),
     };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_RECEIVED_MESSAGES_TO_DEVICE
+  ) {
+    return {
+      type: workerResponseMessageTypes.GET_RECEIVED_MESSAGES_TO_DEVICE,
+      result: sqliteQueryExecutor.getAllReceivedMessageToDevice(),
+    };
   }
 
   // write operations
@@ -303,6 +310,11 @@ async function processAppRequest(
       message.backupDataKey,
       message.backupLogDataKey,
     );
+  } else if (
+    message.type ===
+    workerRequestMessageTypes.REMOVE_RECEIVED_MESSAGES_TO_DEVICE
+  ) {
+    sqliteQueryExecutor.removeReceivedMessagesToDevice(message.ids);
   }
 
   persistNeeded = true;

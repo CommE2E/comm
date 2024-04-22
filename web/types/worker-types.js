@@ -11,6 +11,7 @@ import type {
   IdentityServiceClient,
   IdentityServiceAuthLayer,
 } from 'lib/types/identity-service-types.js';
+import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -34,6 +35,8 @@ export const workerRequestMessageTypes = Object.freeze({
   CREATE_IDENTITY_SERVICE_CLIENT: 13,
   CALL_IDENTITY_CLIENT_METHOD: 14,
   CALL_OLM_API_METHOD: 15,
+  GET_RECEIVED_MESSAGES_TO_DEVICE: 16,
+  REMOVE_RECEIVED_MESSAGES_TO_DEVICE: 17,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -43,6 +46,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.BACKUP_RESTORE,
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
+  workerRequestMessageTypes.REMOVE_RECEIVED_MESSAGES_TO_DEVICE,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -151,6 +155,15 @@ export type CallOLMApiMethodRequestMessage = {
   +args: $ReadOnlyArray<mixed>,
 };
 
+export type GetReceivedMessagesToDeviceRequestMessage = {
+  +type: 16,
+};
+
+export type RemoveReceivedMessagesToDeviceRequestMessage = {
+  +type: 17,
+  +ids: $ReadOnlyArray<string>,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -167,7 +180,9 @@ export type WorkerRequestMessage =
   | InitializeCryptoAccountRequestMessage
   | CreateIdentityServiceClientRequestMessage
   | CallIdentityClientMethodRequestMessage
-  | CallOLMApiMethodRequestMessage;
+  | CallOLMApiMethodRequestMessage
+  | GetReceivedMessagesToDeviceRequestMessage
+  | RemoveReceivedMessagesToDeviceRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -182,6 +197,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_PERSIST_STORAGE_ITEM: 3,
   CALL_IDENTITY_CLIENT_METHOD: 4,
   CALL_OLM_API_METHOD: 5,
+  GET_RECEIVED_MESSAGES_TO_DEVICE: 6,
 });
 
 export type PongWorkerResponseMessage = {
@@ -214,13 +230,19 @@ export type CallOLMApiMethodResponseMessage = {
   +result: mixed,
 };
 
+export type GetReceivedMessagesToDeviceResponseMessage = {
+  +type: 6,
+  +result: $ReadOnlyArray<ReceivedMessageToDevice>,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
   | GetCurrentUserIDResponseMessage
   | GetPersistStorageItemResponseMessage
   | CallIdentityClientMethodResponseMessage
-  | CallOLMApiMethodResponseMessage;
+  | CallOLMApiMethodResponseMessage
+  | GetReceivedMessagesToDeviceResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
