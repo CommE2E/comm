@@ -49,6 +49,7 @@ import {
   convertUserInfosToReplaceUserOps,
   userStoreOpsHandlers,
 } from 'lib/ops/user-store-ops.js';
+import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
@@ -111,6 +112,7 @@ import { getUUID } from 'lib/utils/uuid.js';
 import {
   createUpdateDBOpsForMessageStoreMessages,
   createUpdateDBOpsForMessageStoreThreads,
+  updateClientDBThreadStoreThreadInfos,
 } from './client-db-utils.js';
 import { defaultState } from './default-state.js';
 import {
@@ -1279,6 +1281,12 @@ const migrations = {
     }
     return state;
   },
+  [72]: (state: AppState) =>
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      patchRawThreadInfosWithSpecialRole,
+      handleReduxMigrationFailure,
+    ),
 };
 
 type PersistedReportStore = $Diff<
@@ -1300,7 +1308,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 71,
+  version: 72,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
