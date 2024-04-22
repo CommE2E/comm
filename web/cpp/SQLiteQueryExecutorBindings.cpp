@@ -1,6 +1,7 @@
 #include "SQLiteQueryExecutor.cpp"
 #include "entities/MessageToDevice.h"
 #include "entities/Nullable.h"
+#include "entities/ReceivedMessageToDevice.h"
 
 #include <emscripten/bind.h>
 #include <vector>
@@ -120,6 +121,12 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("timestamp", &ClientMessageToDevice::timestamp)
       .field("plaintext", &ClientMessageToDevice::plaintext)
       .field("ciphertext", &ClientMessageToDevice::ciphertext);
+
+  value_object<ReceivedMessageToDevice>("ReceivedMessageToDevice")
+      .field("messageID", &ReceivedMessageToDevice::message_id)
+      .field("senderDeviceID", &ReceivedMessageToDevice::sender_device_id)
+      .field("plaintext", &ReceivedMessageToDevice::plaintext)
+      .field("status", &ReceivedMessageToDevice::status);
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
@@ -264,7 +271,16 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           &SQLiteQueryExecutor::removeAllMessagesForDevice)
       .function(
           "getAllMessagesToDevice",
-          &SQLiteQueryExecutor::getAllMessagesToDevice);
+          &SQLiteQueryExecutor::getAllMessagesToDevice)
+      .function(
+          "addReceivedMessageToDevice",
+          &SQLiteQueryExecutor::addReceivedMessageToDevice)
+      .function(
+          "getAllReceivedMessageToDevice",
+          &SQLiteQueryExecutor::getAllReceivedMessageToDevice)
+      .function(
+          "removeReceivedMessagesToDevice",
+          &SQLiteQueryExecutor::removeReceivedMessagesToDevice);
 }
 
 } // namespace comm
