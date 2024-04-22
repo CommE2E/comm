@@ -401,6 +401,9 @@ mod ffi {
     #[cxx_name = "getBackupUserKeysFilePath"]
     fn get_backup_user_keys_file_path(backup_id: &str) -> Result<String>;
 
+    #[cxx_name = "getSIWEBackupMessagePath"]
+    fn get_siwe_backup_message_path(backup_id: &str) -> Result<String>;
+
     #[cxx_name = "createMainCompaction"]
     fn create_main_compaction(backup_id: &str, future_id: usize);
 

@@ -26,6 +26,11 @@ rust::String getBackupUserKeysFilePath(rust::Str backupID) {
       PlatformSpecificTools::getBackupUserKeysFilePath(std::string(backupID)));
 }
 
+rust::String getSIWEBackupMessagePath(rust::Str backupID) {
+  return rust::String(
+      PlatformSpecificTools::getSIWEBackupMessagePath(std::string(backupID)));
+}
+
 void createMainCompaction(rust::Str backupID, size_t futureID) {
   BackupOperationsExecutor::createMainCompaction(
       std::string(backupID), futureID);
