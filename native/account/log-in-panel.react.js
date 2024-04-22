@@ -6,8 +6,8 @@ import { View, StyleSheet, Keyboard, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import {
-  logInActionTypes,
-  useLogIn,
+  legacyLogInActionTypes,
+  useLegacyLogIn,
   getOlmSessionInitializationDataActionTypes,
   useIdentityPasswordLogIn,
   identityLogInActionTypes,
@@ -260,7 +260,7 @@ class LogInPanel extends React.PureComponent<Props> {
       );
     } else {
       void this.props.dispatchActionPromise(
-        logInActionTypes,
+        legacyLogInActionTypes,
         this.legacyLogInAction({
           ...extraInfo,
           initialNotificationsEncryptedMessage,
@@ -422,8 +422,9 @@ const styles = StyleSheet.create({
   },
 });
 
-const logInLoadingStatusSelector =
-  createLoadingStatusSelector(logInActionTypes);
+const logInLoadingStatusSelector = createLoadingStatusSelector(
+  legacyLogInActionTypes,
+);
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
@@ -441,7 +442,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
     const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLegacyLogIn = useLogIn();
+    const callLegacyLogIn = useLegacyLogIn();
     const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
