@@ -35,6 +35,7 @@ async fn backup_performance_test() -> Result<(), Error> {
         Some(i as u8),
       ),
       attachments: vec![],
+      siwe_backup_msg: None,
     });
   }
 

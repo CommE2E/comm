@@ -48,6 +48,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   void
   persistCryptoModules(bool persistContentModule, bool persistNotifsModule);
+  jsi::Value createNewBackupInternal(
+      jsi::Runtime &rt,
+      std::string backupSecret,
+      std::string backupMessage);
 
   virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
   virtual jsi::Value
@@ -169,6 +173,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void stopBackupHandler(jsi::Runtime &rt) override;
   virtual jsi::Value
   createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
+  virtual jsi::Value createNewSIWEBackup(
+      jsi::Runtime &rt,
+      jsi::String backupSecret,
+      jsi::String siweBackupMsg) override;
   virtual jsi::Value
   restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) override;
   virtual jsi::Value restoreBackupData(

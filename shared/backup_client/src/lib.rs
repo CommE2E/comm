@@ -53,10 +53,11 @@ impl BackupClient {
       user_keys,
       user_data,
       attachments,
+      siwe_backup_msg,
     } = backup_data;
 
     let client = reqwest::Client::new();
-    let form = Form::new()
+    let mut form = Form::new()
       .text("backup_id", backup_id)
       .text(
         "user_keys_hash",
@@ -69,6 +70,10 @@ impl BackupClient {
       )
       .part("user_data", Part::stream(Body::from(user_data)))
       .text("attachments", attachments.join("\n"));
+
+    if let Some(siwe_backup_msg_value) = siwe_backup_msg {
+      form = form.text("siwe_backup_msg", siwe_backup_msg_value);
+    }
 
     let response = client
       .post(self.url.join("backups")?)
@@ -309,6 +314,7 @@ pub struct BackupData {
   pub user_keys: Vec<u8>,
   pub user_data: Vec<u8>,
   pub attachments: Vec<String>,
+  pub siwe_backup_msg: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

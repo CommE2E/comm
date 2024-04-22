@@ -119,6 +119,10 @@ interface Spec extends TurboModule {
   +startBackupHandler: () => void;
   +stopBackupHandler: () => void;
   +createNewBackup: (backupSecret: string) => Promise<void>;
+  +createNewSIWEBackup: (
+    backupSecret: string,
+    siweBackupMsg: string,
+  ) => Promise<void>;
   +restoreBackup: (backupSecret: string) => Promise<string>;
   +restoreBackupData: (
     backupID: string,
