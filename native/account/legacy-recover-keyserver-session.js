@@ -1,6 +1,9 @@
 // @flow
 
-import { logInActionTypes, logInRawAction } from 'lib/actions/user-actions.js';
+import {
+  legacyLogInActionTypes,
+  legacyLogInRawAction,
+} from 'lib/actions/user-actions.js';
 import type { CallSingleKeyserverEndpoint } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import {
   type CallKeyserverEndpoint,
@@ -48,8 +51,8 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
     authActionSource: recoveryActionSource,
   };
   await dispatchActionPromise(
-    logInActionTypes,
-    logInRawAction(callKeyserverEndpoint)({
+    legacyLogInActionTypes,
+    legacyLogInRawAction(callKeyserverEndpoint)({
       ...keychainCredentials,
       ...extraInfo,
       authActionSource: recoveryActionSource,
