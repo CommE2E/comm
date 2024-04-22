@@ -119,6 +119,7 @@ function persistCryptoStore() {
   };
 
   try {
+    sqliteQueryExecutor.beginTransaction();
     sqliteQueryExecutor.storeOlmPersistAccount(
       sqliteQueryExecutor.getContentAccountID(),
       JSON.stringify(pickledContentAccount),
@@ -130,7 +131,9 @@ function persistCryptoStore() {
       sqliteQueryExecutor.getNotifsAccountID(),
       JSON.stringify(pickledNotificationAccount),
     );
+    sqliteQueryExecutor.commitTransaction();
   } catch (err) {
+    sqliteQueryExecutor.rollbackTransaction();
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 }
