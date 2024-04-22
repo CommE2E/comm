@@ -75,6 +75,7 @@ public:
   virtual void startBackupHandler(jsi::Runtime &rt) = 0;
   virtual void stopBackupHandler(jsi::Runtime &rt) = 0;
   virtual jsi::Value createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value createNewSIWEBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String siweBackupMsg) = 0;
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey) = 0;
   virtual jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) = 0;
@@ -540,6 +541,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::createNewBackup, jsInvoker_, instance_, std::move(backupSecret));
+    }
+    jsi::Value createNewSIWEBackup(jsi::Runtime &rt, jsi::String backupSecret, jsi::String siweBackupMsg) override {
+      static_assert(
+          bridging::getParameterCount(&T::createNewSIWEBackup) == 3,
+          "Expected createNewSIWEBackup(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::createNewSIWEBackup, jsInvoker_, instance_, std::move(backupSecret), std::move(siweBackupMsg));
     }
     jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) override {
       static_assert(

@@ -346,6 +346,7 @@ mod ffi {
       backup_secret: String,
       pickle_key: String,
       pickled_account: String,
+      siwe_backup_msg: String,
       promise_id: u32,
     );
 
