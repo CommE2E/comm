@@ -1910,4 +1910,85 @@ CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) {
         ::retrieveBackupKeys(rust::string(backupSecretStr), currentID);
       });
 }
+
+jsi::Value CommCoreModule::getAllReceivedMessageToDevice(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<ReceivedMessageToDevice> messages;
+
+          try {
+            messages = DatabaseManager::getQueryExecutor()
+                           .getAllReceivedMessageToDevice();
+
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          auto messagesPtr =
+              std::make_shared<std::vector<ReceivedMessageToDevice>>(
+                  std::move(messages));
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, messagesPtr, error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+
+                jsi::Array jsiMessages =
+                    jsi::Array(innerRt, messagesPtr->size());
+                size_t writeIdx = 0;
+                for (const ReceivedMessageToDevice &msg : *messagesPtr) {
+                  jsi::Object jsiMsg = jsi::Object(innerRt);
+                  jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
+                  jsiMsg.setProperty(
+                      innerRt, "senderDeviceID", msg.sender_device_id);
+                  jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
+                  jsiMsg.setProperty(innerRt, "status", msg.status);
+                  jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
+                }
+
+                promise->resolve(std::move(jsiMessages));
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::removeReceivedMessagesToDevice(
+    jsi::Runtime &rt,
+    jsi::Array ids) {
+  std::vector<std::string> msgIDsCPP{};
+  for (auto idx = 0; idx < ids.size(rt); idx++) {
+    std::string msgID = ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    msgIDsCPP.push_back(msgID);
+  }
+
+  return createPromiseAsJSIValue(
+      rt,
+      [this,
+       msgIDsCPP](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, promise, msgIDsCPP]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().removeReceivedMessagesToDevice(
+                msgIDsCPP);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm
