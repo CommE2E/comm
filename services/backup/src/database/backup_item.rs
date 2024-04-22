@@ -15,6 +15,7 @@ pub struct BackupItem {
   pub user_keys: BlobInfo,
   pub user_data: BlobInfo,
   pub attachments: Vec<BlobInfo>,
+  pub msg_backup: Option<String>,
 }
 
 impl BackupItem {
@@ -24,6 +25,7 @@ impl BackupItem {
     user_keys: BlobInfo,
     user_data: BlobInfo,
     attachments: Vec<BlobInfo>,
+    msg_backup: Option<String>,
   ) -> Self {
     BackupItem {
       user_id,
@@ -32,6 +34,7 @@ impl BackupItem {
       user_keys,
       user_data,
       attachments,
+      msg_backup,
     }
   }
 
@@ -109,6 +112,12 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
       );
     }
 
+    if let Some(msg_backup_value) = value.msg_backup {
+      attrs.insert(
+        backup_table::attr::MSG_BACKUP.to_string(),
+        AttributeValue::S(msg_backup_value),
+      );
+    }
     attrs
   }
 }
@@ -148,6 +157,16 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       Vec::new()
     };
 
+    let msg_backup = value.remove(backup_table::attr::MSG_BACKUP);
+    let msg_backup = if msg_backup.is_some() {
+      Some(String::try_from_attr(
+        backup_table::attr::MSG_BACKUP,
+        msg_backup,
+      )?)
+    } else {
+      None
+    };
+
     Ok(BackupItem {
       user_id,
       backup_id,
@@ -155,6 +174,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       user_keys,
       user_data,
       attachments,
+      msg_backup,
     })
   }
 }
