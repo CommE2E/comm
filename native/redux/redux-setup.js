@@ -10,7 +10,7 @@ import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
-  logInActionTypes,
+  legacyLogInActionTypes,
   keyserverAuthActionTypes,
   deleteKeyserverAccountActionTypes,
 } from 'lib/actions/user-actions.js';
@@ -181,7 +181,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
         action.payload.preRequestUserState?.currentUserInfo,
         action.payload.authActionSource,
       )) ||
-    ((action.type === logInActionTypes.success ||
+    ((action.type === legacyLogInActionTypes.success ||
       action.type === siweAuthActionTypes.success) &&
       invalidSessionRecovery(
         state,
