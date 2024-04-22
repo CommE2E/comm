@@ -122,6 +122,16 @@ PlatformSpecificTools::getBackupUserKeysFilePath(std::string backupID) {
   return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
 }
 
+std::string
+PlatformSpecificTools::getSIWEBackupMessagePath(std::string backupID) {
+  NSURL *backupDir = getBackupDirAsURL();
+  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
+                                              encoding:NSUTF8StringEncoding];
+  NSString *filename = [@[ @"backup", backupIDObjC, @"msgbackup" ]
+      componentsJoinedByString:@"-"];
+  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+}
+
 void PlatformSpecificTools::removeBackupDirectory() {
   NSURL *backupDir = getBackupDirAsURL();
   if (![NSFileManager.defaultManager fileExistsAtPath:backupDir.path]) {
