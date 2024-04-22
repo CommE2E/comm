@@ -17,6 +17,7 @@ public:
       std::string logID,
       bool isAttachments);
   static std::string getBackupUserKeysFilePath(std::string backupID);
+  static std::string getSIWEBackupMessagePath(std::string backupID);
   static void removeBackupDirectory();
 };
 
