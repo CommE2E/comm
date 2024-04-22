@@ -55,6 +55,7 @@ public:
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
+  virtual jsi::Value decryptSequential(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) = 0;
   virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
@@ -380,6 +381,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::decrypt, jsInvoker_, instance_, std::move(encryptedData), std::move(deviceID));
+    }
+    jsi::Value decryptSequential(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) override {
+      static_assert(
+          bridging::getParameterCount(&T::decryptSequential) == 4,
+          "Expected decryptSequential(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::decryptSequential, jsInvoker_, instance_, std::move(encryptedData), std::move(deviceID), std::move(messageID));
     }
     jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) override {
       static_assert(
