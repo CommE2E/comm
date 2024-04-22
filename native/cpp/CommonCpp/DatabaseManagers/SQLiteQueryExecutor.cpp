@@ -2155,6 +2155,41 @@ void SQLiteQueryExecutor::removeAllMessagesForDevice(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQL, keys);
 }
 
+void SQLiteQueryExecutor::addReceivedMessageToDevice(
+    ReceivedMessageToDevice message) const {
+  static std::string addMessage =
+      "REPLACE INTO received_messages_to_device ("
+      " message_id, sender_device_id, plaintext, status)"
+      "VALUES (?, ?, ?, ?);";
+
+  replaceEntity<ReceivedMessageToDevice>(
+      SQLiteQueryExecutor::getConnection(), addMessage, message);
+}
+
+std::vector<ReceivedMessageToDevice>
+SQLiteQueryExecutor::getAllReceivedMessageToDevice() const {
+  static std::string query =
+      "SELECT message_id, sender_device_id, plaintext, status "
+      "FROM received_messages_to_device;";
+  return getAllEntities<ReceivedMessageToDevice>(
+      SQLiteQueryExecutor::getConnection(), query);
+}
+
+void SQLiteQueryExecutor::removeReceivedMessagesToDevice(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeMessagesSQLStream;
+  removeMessagesSQLStream << "DELETE FROM received_messages_to_device "
+                             "WHERE message_id IN "
+                          << getSQLStatementArray(ids.size()) << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(), removeMessagesSQLStream.str(), ids);
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();

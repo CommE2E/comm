@@ -152,6 +152,12 @@ public:
   void removeMessagesToDeviceOlderThan(
       const ClientMessageToDevice &lastConfirmedMessage) const override;
   void removeAllMessagesForDevice(const std::string &deviceID) const override;
+  void
+  addReceivedMessageToDevice(ReceivedMessageToDevice message) const override;
+  std::vector<ReceivedMessageToDevice>
+  getAllReceivedMessageToDevice() const override;
+  void removeReceivedMessagesToDevice(
+      const std::vector<std::string> &ids) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;

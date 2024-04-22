@@ -12,6 +12,7 @@
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
 #include "entities/PersistItem.h"
+#include "entities/ReceivedMessageToDevice.h"
 #include "entities/Report.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/Thread.h"
@@ -142,6 +143,12 @@ public:
       const ClientMessageToDevice &lastConfirmedMessage) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
+  virtual void
+  addReceivedMessageToDevice(ReceivedMessageToDevice message) const = 0;
+  virtual std::vector<ReceivedMessageToDevice>
+  getAllReceivedMessageToDevice() const = 0;
+  virtual void
+  removeReceivedMessagesToDevice(const std::vector<std::string> &ids) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
