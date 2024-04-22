@@ -442,6 +442,7 @@ void CommCoreModule::persistCryptoModules(
   GlobalDBSingleton::instance.scheduleOrRunCancellable(
       [=, &persistencePromise]() {
         try {
+          DatabaseManager::getQueryExecutor().beginTransaction();
           if (persistContentModule) {
             DatabaseManager::getQueryExecutor().storeOlmPersistData(
                 DatabaseManager::getQueryExecutor().getContentAccountID(),
@@ -452,8 +453,10 @@ void CommCoreModule::persistCryptoModules(
                 DatabaseManager::getQueryExecutor().getNotifsAccountID(),
                 newNotifsPersist);
           }
+          DatabaseManager::getQueryExecutor().commitTransaction();
           persistencePromise.set_value();
         } catch (std::system_error &e) {
+          DatabaseManager::getQueryExecutor().rollbackTransaction();
           persistencePromise.set_exception(std::make_exception_ptr(e));
         }
       });
