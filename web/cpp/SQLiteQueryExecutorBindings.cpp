@@ -64,7 +64,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("auxUserInfo", &AuxUserInfo::aux_user_info);
   value_object<ThreadActivityEntry>("ThreadActivityEntry")
       .field("id", &ThreadActivityEntry::id)
-      .field("threadActivityStoreEntry", &ThreadActivityEntry::thread_activity_store_entry);
+      .field(
+          "threadActivityStoreEntry",
+          &ThreadActivityEntry::thread_activity_store_entry);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)

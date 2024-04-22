@@ -1361,6 +1361,45 @@ jsi::Value CommCoreModule::decrypt(
       });
 }
 
+jsi::Value CommCoreModule::decryptSequential(
+    jsi::Runtime &rt,
+    jsi::Object encryptedDataJSI,
+    jsi::String deviceID,
+    jsi::String messageID) {
+  size_t messageType =
+      std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
+  std::string message =
+      encryptedDataJSI.getProperty(rt, "message").asString(rt).utf8(rt);
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  auto messageIDCpp{messageID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string decryptedMessage;
+          try {
+            crypto::EncryptedData encryptedData{
+                std::vector<uint8_t>(message.begin(), message.end()),
+                messageType};
+            decryptedMessage = this->contentCryptoModule->decryptSequential(
+                deviceIDCpp, encryptedData);
+            this->persistCryptoModules(true, false);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(
+                jsi::String::createFromUtf8(innerRt, decryptedMessage));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::signMessage(jsi::Runtime &rt, jsi::String message) {
   std::string messageStr = message.utf8(rt);
   return createPromiseAsJSIValue(
