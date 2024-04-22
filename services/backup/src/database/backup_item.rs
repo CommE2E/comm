@@ -3,7 +3,9 @@ use aws_sdk_dynamodb::types::AttributeValue;
 use chrono::{DateTime, Utc};
 use comm_lib::{
   blob::{client::BlobServiceClient, types::BlobInfo},
-  database::{AttributeTryInto, DBItemError, TryFromAttribute},
+  database::{
+    AttributeExtractor, AttributeTryInto, DBItemError, TryFromAttribute,
+  },
 };
 use std::collections::HashMap;
 
@@ -15,6 +17,7 @@ pub struct BackupItem {
   pub user_keys: BlobInfo,
   pub user_data: BlobInfo,
   pub attachments: Vec<BlobInfo>,
+  pub siwe_backup_msg: Option<String>,
 }
 
 impl BackupItem {
@@ -24,6 +27,7 @@ impl BackupItem {
     user_keys: BlobInfo,
     user_data: BlobInfo,
     attachments: Vec<BlobInfo>,
+    siwe_backup_msg: Option<String>,
   ) -> Self {
     BackupItem {
       user_id,
@@ -32,6 +36,7 @@ impl BackupItem {
       user_keys,
       user_data,
       attachments,
+      siwe_backup_msg,
     }
   }
 
@@ -109,6 +114,12 @@ impl From<BackupItem> for HashMap<String, AttributeValue> {
       );
     }
 
+    if let Some(siwe_backup_msg_value) = value.siwe_backup_msg {
+      attrs.insert(
+        backup_table::attr::SIWE_BACKUP_MSG.to_string(),
+        AttributeValue::S(siwe_backup_msg_value),
+      );
+    }
     attrs
   }
 }
@@ -148,6 +159,9 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       Vec::new()
     };
 
+    let siwe_backup_msg: Option<String> =
+      value.take_attr(backup_table::attr::SIWE_BACKUP_MSG)?;
+
     Ok(BackupItem {
       user_id,
       backup_id,
@@ -155,6 +169,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for BackupItem {
       user_keys,
       user_data,
       attachments,
+      siwe_backup_msg,
     })
   }
 }
