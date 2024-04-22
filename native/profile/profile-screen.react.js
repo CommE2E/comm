@@ -174,7 +174,7 @@ class ProfileScreen extends React.PureComponent<Props> {
       defaultNotifications,
       keyserverSelection,
       tunnelbrokerMenu;
-    const { staffCanSee, isAccountWithPassword } = this.props;
+    const { staffCanSee } = this.props;
     if (staffCanSee) {
       developerTools = (
         <ProfileRow content="Developer tools" onPress={this.onPressDevTools} />
@@ -203,7 +203,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
 
     let backupMenu;
-    if (staffCanSee && isAccountWithPassword) {
+    if (staffCanSee) {
       backupMenu = (
         <ProfileRow content="Backup menu" onPress={this.onPressBackupMenu} />
       );
