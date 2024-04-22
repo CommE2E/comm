@@ -452,6 +452,30 @@ const olmAPI: OlmAPI = {
 
     return result;
   },
+  async decryptSequential(
+    encryptedData: EncryptedData,
+    deviceID: string,
+    // eslint-disable-next-line no-unused-vars
+    messageID: string,
+  ): Promise<string> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+
+    const { session } = cryptoStore.contentSessions[deviceID];
+    if (!session) {
+      throw new Error(`No session for deviceID: ${deviceID}`);
+    }
+
+    const result = session.decrypt(
+      encryptedData.messageType,
+      encryptedData.message,
+    );
+
+    persistCryptoStore();
+
+    return result;
+  },
   async contentInboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     initialEncryptedData: EncryptedData,
