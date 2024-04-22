@@ -87,6 +87,12 @@ public class PlatformSpecificTools {
     return String.join(File.separator, backupDirPath, filename);
   }
 
+  public static String getSIWEBackupMessagePath(String backupID) {
+    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
+    String filename = String.join("-", "backup", backupID, "siweBackupMsg");
+    return String.join(File.separator, backupDirPath, filename);
+  }
+
   public static void removeBackupDirectory() {
     String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
     try {
