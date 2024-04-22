@@ -628,6 +628,18 @@ bool create_thread_activity_table(sqlite3 *db) {
   return create_table(db, query, "thread_activity");
 }
 
+bool create_received_messages_to_device(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS received_messages_to_device ("
+      "  id INTEGER PRIMARY KEY,"
+      "  message_id TEXT NOT NULL,"
+      "  sender_device_id TEXT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  status TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "received_messages_to_device");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -755,6 +767,14 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS thread_activity ("
       "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  thread_activity_store_entry TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS received_messages_to_device ("
+      "  id INTEGER PRIMARY KEY,"
+      "  message_id TEXT NOT NULL,"
+      "  sender_device_id TEXT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  status TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -1009,7 +1029,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {40, {create_keyservers_synced, true}},
      {41, {create_aux_user_table, true}},
      {42, {add_version_column_to_olm_persist_sessions_table, true}},
-     {43, {create_thread_activity_table, true}}}};
+     {43, {create_thread_activity_table, true}},
+     {44, {create_received_messages_to_device, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
