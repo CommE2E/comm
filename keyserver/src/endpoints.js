@@ -45,6 +45,11 @@ import {
   restoreEntryResponseValidator,
   saveEntryRequestInputValidator,
 } from './responders/entry-responders.js';
+import {
+  createOrUpdateFarcasterChannelTagResponder,
+  createOrUpdateFarcasterChannelTagInputValidator,
+  createOrUpdateFarcasterChannelTagResponseValidator,
+} from './responders/farcaster-channel-tag-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
 import { createJSONResponder } from './responders/handlers.js';
 import { getOlmSessionInitializationDataResponder } from './responders/keys-responders.js';
@@ -574,6 +579,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     ignoredArgumentValidator,
     versionResponseValidator,
     [],
+  ),
+  create_or_update_farcaster_channel_tag: createJSONResponder(
+    createOrUpdateFarcasterChannelTagResponder,
+    createOrUpdateFarcasterChannelTagInputValidator,
+    createOrUpdateFarcasterChannelTagResponseValidator,
+    baseLegalPolicies,
   ),
 };
 
