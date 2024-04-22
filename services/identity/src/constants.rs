@@ -236,6 +236,10 @@ pub mod cors {
   pub const ALLOW_ORIGIN_LIST: &str = "ALLOW_ORIGIN_LIST";
 }
 
+// Tracing
+
+pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
+
 // Regex
 
 pub const VALID_USERNAME_REGEX_STRING: &str =
