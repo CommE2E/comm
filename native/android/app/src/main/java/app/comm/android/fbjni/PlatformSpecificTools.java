@@ -56,35 +56,29 @@ public class PlatformSpecificTools {
 
   public static String
   getBackupFilePath(String backupID, boolean isAttachments) {
-    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
-
-    String filename;
     if (isAttachments) {
-      filename = String.join("-", "backup", backupID, "attachments");
-    } else {
-      filename = String.join("-", "backup", backupID);
+      return getBackupFilePathInternal(backupID, "attachments");
     }
-    return String.join(File.separator, backupDirPath, filename);
+    return getBackupFilePathInternal(backupID, null);
   }
 
   public static String
   getBackupLogFilePath(String backupID, String logID, boolean isAttachments) {
-    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
-
-    String filename;
+    String suffix;
     if (isAttachments) {
-      filename =
-          String.join("-", "backup", backupID, "log", logID, "attachments");
+      suffix = String.join("-", "log", logID, "attachments");
     } else {
-      filename = String.join("-", "backup", backupID, "log", logID);
+      suffix = String.join("-", "log", logID);
     }
-    return String.join(File.separator, backupDirPath, filename);
+    return getBackupFilePathInternal(backupID, suffix);
   }
 
   public static String getBackupUserKeysFilePath(String backupID) {
-    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
-    String filename = String.join("-", "backup", backupID, "userkeys");
-    return String.join(File.separator, backupDirPath, filename);
+    return getBackupFilePathInternal(backupID, "userkeys");
+  }
+
+  public static String getSIWEBackupMessagePath(String backupID) {
+    return getBackupFilePathInternal(backupID, "siweBackupMsg");
   }
 
   public static void removeBackupDirectory() {
@@ -117,5 +111,18 @@ public class PlatformSpecificTools {
       throw new RuntimeException(
           "Failed to remove backup directory. Details: " + e.getMessage());
     }
+  }
+
+  private static String
+  getBackupFilePathInternal(String backupID, String suffix) {
+    String backupDirPath = PlatformSpecificTools.getBackupDirectoryPath();
+
+    String filename;
+    if (suffix != null) {
+      filename = String.join("-", "backup", backupID, suffix);
+    } else {
+      filename = String.join("-", "backup", backupID);
+    }
+    return String.join(File.separator, backupDirPath, filename);
   }
 }

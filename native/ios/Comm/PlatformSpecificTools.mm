@@ -69,6 +69,21 @@ NSURL *getBackupDirAsURL() {
   return backupDir;
 }
 
+std::string getBackupFilePathInternal(std::string backupID, NSString *suffix) {
+  NSURL *backupDir = getBackupDirAsURL();
+  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
+                                              encoding:NSUTF8StringEncoding];
+  NSString *filename;
+  if (suffix) {
+    filename =
+        [@[ @"backup", backupIDObjC, suffix ] componentsJoinedByString:@"-"];
+  } else {
+    filename = [@[ @"backup", backupIDObjC ] componentsJoinedByString:@"-"];
+  }
+
+  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+}
+
 std::string PlatformSpecificTools::getBackupDirectoryPath() {
   return [getBackupDirAsURL().path UTF8String];
 }
@@ -77,17 +92,10 @@ std::string PlatformSpecificTools::getBackupFilePath(
     std::string backupID,
     bool isAttachments) {
 
-  NSURL *backupDir = getBackupDirAsURL();
-  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
-                                              encoding:NSUTF8StringEncoding];
-  NSString *filename;
   if (isAttachments) {
-    filename = [@[ @"backup", backupIDObjC, @"attachments" ]
-        componentsJoinedByString:@"-"];
-  } else {
-    filename = [@[ @"backup", backupIDObjC ] componentsJoinedByString:@"-"];
+    return getBackupFilePathInternal(backupID, @"attachments");
   }
-  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+  return getBackupFilePathInternal(backupID, nil);
 }
 
 std::string PlatformSpecificTools::getBackupLogFilePath(
@@ -95,31 +103,26 @@ std::string PlatformSpecificTools::getBackupLogFilePath(
     std::string logID,
     bool isAttachments) {
 
-  NSURL *backupDir = getBackupDirAsURL();
-  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
-                                              encoding:NSUTF8StringEncoding];
   NSString *logIDObjC = [NSString stringWithCString:logID.c_str()
                                            encoding:NSUTF8StringEncoding];
-  NSString *filename;
+  NSString *suffix;
   if (isAttachments) {
-    filename = [@[ @"backup", backupIDObjC, @"log", logIDObjC, @"attachments" ]
-        componentsJoinedByString:@"-"];
+    suffix =
+        [@[ @"log", logIDObjC, @"attachments" ] componentsJoinedByString:@"-"];
   } else {
-    filename = [@[ @"backup", backupIDObjC, @"log", logIDObjC ]
-        componentsJoinedByString:@"-"];
+    suffix = [@[ @"log", logIDObjC ] componentsJoinedByString:@"-"];
   }
-  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+  return getBackupFilePathInternal(backupID, suffix);
 }
 
 std::string
 PlatformSpecificTools::getBackupUserKeysFilePath(std::string backupID) {
+  return getBackupFilePathInternal(backupID, @"userkeys");
+}
 
-  NSURL *backupDir = getBackupDirAsURL();
-  NSString *backupIDObjC = [NSString stringWithCString:backupID.c_str()
-                                              encoding:NSUTF8StringEncoding];
-  NSString *filename =
-      [@[ @"backup", backupIDObjC, @"userkeys" ] componentsJoinedByString:@"-"];
-  return [[backupDir URLByAppendingPathComponent:filename].path UTF8String];
+std::string
+PlatformSpecificTools::getSIWEBackupMessagePath(std::string backupID) {
+  return getBackupFilePathInternal(backupID, @"siweBackupMsg");
 }
 
 void PlatformSpecificTools::removeBackupDirectory() {
