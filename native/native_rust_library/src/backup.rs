@@ -6,9 +6,9 @@ use crate::argon2_tools::{compute_backup_key, compute_backup_key_str};
 use crate::constants::{aes, secure_store};
 use crate::ffi::{
   create_main_compaction, get_backup_directory_path,
-  get_backup_user_keys_file_path, restore_from_backup_log,
-  restore_from_main_compaction, secure_store_get, string_callback,
-  void_callback,
+  get_backup_user_keys_file_path, get_siwe_backup_message_path,
+  restore_from_backup_log, restore_from_main_compaction, secure_store_get,
+  string_callback, void_callback,
 };
 use crate::utils::future_manager;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
@@ -32,6 +32,7 @@ pub mod ffi {
     backup_secret: String,
     pickle_key: String,
     pickled_account: String,
+    backup_message: String,
     promise_id: u32,
   ) {
     compaction_upload_promises::insert(backup_id.clone(), promise_id);
@@ -45,6 +46,19 @@ pub mod ffi {
       )
       .await
       .map_err(|err| err.to_string());
+
+      if let Err(err) = result {
+        compaction_upload_promises::resolve(&backup_id, Err(err));
+        return;
+      }
+
+      let result = if !backup_message.is_empty() {
+        create_backup_message_compaction(backup_id.clone(), backup_message)
+          .await
+          .map_err(|err| err.to_string())
+      } else {
+        Ok(())
+      };
 
       if let Err(err) = result {
         compaction_upload_promises::resolve(&backup_id, Err(err));
@@ -196,6 +210,16 @@ pub async fn create_userkeys_compaction(
 
   let user_keys_file = get_backup_user_keys_file_path(&backup_id)?;
   tokio::fs::write(user_keys_file, encrypted_user_keys).await?;
+
+  Ok(())
+}
+
+pub async fn create_backup_message_compaction(
+  backup_id: String,
+  backup_message: String,
+) -> Result<(), Box<dyn Error>> {
+  let backup_message_file = get_siwe_backup_message_path(&backup_id)?;
+  tokio::fs::write(backup_message_file, backup_message).await?;
 
   Ok(())
 }
