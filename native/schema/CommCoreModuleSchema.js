@@ -25,6 +25,7 @@ import type {
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
@@ -164,6 +165,10 @@ interface Spec extends TurboModule {
   +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
+  +getAllReceivedMessageToDevice: () => Promise<ReceivedMessageToDevice[]>;
+  +removeReceivedMessagesToDevice: (
+    ids: $ReadOnlyArray<string>,
+  ) => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {

@@ -81,6 +81,8 @@ public:
   virtual jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) = 0;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) = 0;
+  virtual jsi::Value removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) = 0;
 
 };
 
@@ -589,6 +591,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getSIWEBackupSecrets, jsInvoker_, instance_);
+    }
+    jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getAllReceivedMessageToDevice) == 1,
+          "Expected getAllReceivedMessageToDevice(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getAllReceivedMessageToDevice, jsInvoker_, instance_);
+    }
+    jsi::Value removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) override {
+      static_assert(
+          bridging::getParameterCount(&T::removeReceivedMessagesToDevice) == 2,
+          "Expected removeReceivedMessagesToDevice(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::removeReceivedMessagesToDevice, jsInvoker_, instance_, std::move(ids));
     }
 
   private:
