@@ -53,6 +53,7 @@ impl BackupClient {
       user_keys,
       user_data,
       attachments,
+      message_backup,
     } = backup_data;
 
     let client = reqwest::Client::new();
@@ -69,6 +70,11 @@ impl BackupClient {
       )
       .part("user_data", Part::stream(Body::from(user_data)))
       .text("attachments", attachments.join("\n"));
+
+    let form = match message_backup {
+      Some(msg_backup) => form.text("msg_backup", msg_backup),
+      None => form,
+    };
 
     let response = client
       .post(self.url.join("backups")?)
@@ -309,6 +315,7 @@ pub struct BackupData {
   pub user_keys: Vec<u8>,
   pub user_data: Vec<u8>,
   pub attachments: Vec<String>,
+  pub message_backup: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

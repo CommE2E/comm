@@ -4,7 +4,7 @@ use crate::backup::compaction_upload_promises;
 use crate::constants::BACKUP_SERVICE_CONNECTION_RETRY_DELAY;
 use crate::ffi::{
   get_backup_directory_path, get_backup_file_path, get_backup_log_file_path,
-  get_backup_user_keys_file_path,
+  get_backup_user_keys_file_path, get_siwe_backup_message_path,
 };
 use crate::BACKUP_SOCKET_ADDR;
 use crate::RUNTIME;
@@ -103,6 +103,7 @@ pub fn start() -> Result<impl Future<Output = Infallible>, Box<dyn Error>> {
           | BackupHandlerError::LockError => break,
           BackupHandlerError::IoError(_)
           | BackupHandlerError::CxxException(_) => continue,
+          BackupHandlerError::FromUtf8Error(_) => break,
         }
       }
 
@@ -207,11 +208,22 @@ pub mod compaction {
       Err(err) => return Err(err.into()),
     };
 
+    let backup_message_path = get_siwe_backup_message_path(&backup_id)?;
+    let message_backup = match tokio::fs::read(&backup_message_path).await {
+      Ok(data) => match String::from_utf8(data) {
+        Ok(valid_string) => Some(valid_string),
+        Err(err) => return Err(err.into()),
+      },
+      Err(err) if err.kind() == ErrorKind::NotFound => None,
+      Err(err) => return Err(err.into()),
+    };
+
     let backup_data = BackupData {
       backup_id: backup_id.clone(),
       user_data,
       user_keys,
       attachments,
+      message_backup,
     };
 
     backup_client
@@ -232,6 +244,12 @@ pub mod compaction {
       tokio::fs::remove_file(&user_keys_path).await?;
       let attachments_path = get_backup_file_path(&backup_id, true)?;
       match tokio::fs::remove_file(&attachments_path).await {
+        Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
+        Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err.into()),
+      }?;
+      let backup_message_path = get_siwe_backup_message_path(&backup_id)?;
+      match tokio::fs::remove_file(&backup_message_path).await {
         Ok(()) => Result::<_, Box<dyn Error>>::Ok(()),
         Err(err) if err.kind() == ErrorKind::NotFound => Ok(()),
         Err(err) => Err(err.into()),
@@ -309,6 +327,7 @@ pub enum BackupHandlerError {
   IoError(std::io::Error),
   CxxException(cxx::Exception),
   LockError,
+  FromUtf8Error(std::string::FromUtf8Error),
 }
 
 impl<T> From<std::sync::PoisonError<T>> for BackupHandlerError {

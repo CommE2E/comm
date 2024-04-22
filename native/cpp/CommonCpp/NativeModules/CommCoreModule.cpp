@@ -1781,9 +1781,12 @@ void CommCoreModule::stopBackupHandler(jsi::Runtime &rt) {
   }
 }
 
-jsi::Value
-CommCoreModule::createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) {
+jsi::Value CommCoreModule::createNewBackup(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::String backupMessage) {
   std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string backupMessageStr = backupMessage.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         this->cryptoThread->scheduleTask([=, &innerRt]() {
@@ -1818,6 +1821,7 @@ CommCoreModule::createNewBackup(jsi::Runtime &rt, jsi::String backupSecret) {
                 rust::string(backupSecretStr),
                 rust::string(pickleKey),
                 rust::string(pickledAccount),
+                rust::string(backupMessageStr),
                 currentID);
           } else {
             this->jsInvoker_->invokeAsync(
