@@ -11,6 +11,8 @@ import {
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
+import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import {
   createAsyncMigrate,
   type StorageMigrationFunction,
@@ -25,6 +27,7 @@ import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
+import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
@@ -35,6 +38,10 @@ import {
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
+import {
+  convertClientDBThreadInfoToRawThreadInfo,
+  convertRawThreadInfoToClientDBThreadInfo,
+} from 'lib/utils/thread-ops-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
 import { defaultWebState } from './default-state.js';
@@ -439,6 +446,52 @@ const migrations = {
 
     return state;
   },
+  [17]: async (state: AppState) => {
+    // 1. Check if `databaseModule` is supported and early-exit if not.
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return state;
+    }
+
+    // 2. Get existing `stores` from SQLite.
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const threads: ?$ReadOnlyArray<ClientDBThreadInfo> = stores?.store?.threads;
+
+    if (threads === null || threads === undefined || threads.length === 0) {
+      return state;
+    }
+
+    // 3. Convert to `RawThreadInfo`, patch in `specialRole`, and convert back.
+    const patchedClientDBThreadInfos: $ReadOnlyArray<ClientDBThreadInfo> =
+      threads
+        .map(convertClientDBThreadInfoToRawThreadInfo)
+        .map(patchRawThreadInfoWithSpecialRole)
+        .map(convertRawThreadInfoToClientDBThreadInfo);
+
+    // 4. Construct operations to remove existing threads and replace them
+    //    with threads that have the `specialRole` field patched in.
+    const threadStoreOperations: ClientDBThreadStoreOperation[] = [];
+    threadStoreOperations.push({ type: 'remove_all' });
+    for (const clientDBThreadInfo: ClientDBThreadInfo of patchedClientDBThreadInfos) {
+      threadStoreOperations.push({
+        type: 'replace',
+        payload: clientDBThreadInfo,
+      });
+    }
+
+    // 5. Process the constructed `threadStoreOperations`.
+    await sharedWorker.schedule({
+      type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+      storeOperations: { threadStoreOperations },
+    });
+
+    return state;
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
@@ -484,7 +537,7 @@ const persistConfig: PersistConfig = {
     { debug: isDev },
     migrateStorageToSQLite,
   ): any),
-  version: 16,
+  version: 17,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
