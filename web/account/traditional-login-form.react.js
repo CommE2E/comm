@@ -4,8 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  useLogIn,
-  logInActionTypes,
+  useLegacyLogIn,
+  legacyLogInActionTypes,
   useIdentityPasswordLogIn,
   identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
@@ -34,11 +34,13 @@ import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
+const loadingStatusSelector = createLoadingStatusSelector(
+  legacyLogInActionTypes,
+);
 function TraditionalLoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(logInExtraInfoSelector);
-  const callLegacyLogIn = useLogIn();
+  const callLegacyLogIn = useLegacyLogIn();
   const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
 
   const dispatchActionPromise = useDispatchActionPromise();
@@ -153,7 +155,7 @@ function TraditionalLoginForm(): React.Node {
         );
       } else {
         void dispatchActionPromise(
-          logInActionTypes,
+          legacyLogInActionTypes,
           legacyLogInAction(loginExtraInfo),
           undefined,
           ({
