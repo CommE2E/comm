@@ -65,6 +65,13 @@ public:
     return method(cls, backupID)->toStdString();
   }
 
+  static std::string getSIWEBackupMessagePath(std::string backupID) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JString(std::string)>("getSIWEBackupMessagePath");
+    return method(cls, backupID)->toStdString();
+  }
+
   static void removeBackupDirectory() {
     static const auto cls = javaClassStatic();
     static auto method = cls->getStaticMethod<void()>("removeBackupDirectory");
@@ -131,6 +138,15 @@ PlatformSpecificTools::getBackupUserKeysFilePath(std::string backupID) {
   std::string path;
   NativeAndroidAccessProvider::runTask([&path, backupID]() {
     path = PlatformSpecificToolsJavaClass::getBackupUserKeysFilePath(backupID);
+  });
+  return path;
+}
+
+std::string
+PlatformSpecificTools::getSIWEBackupMessagePath(std::string backupID) {
+  std::string path;
+  NativeAndroidAccessProvider::runTask([&path, backupID]() {
+    path = PlatformSpecificToolsJavaClass::getSIWEBackupMessagePath(backupID);
   });
   return path;
 }
