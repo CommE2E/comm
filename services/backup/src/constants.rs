@@ -27,6 +27,7 @@ pub mod backup_table {
     pub const USER_DATA: &str = "userData";
     pub const USER_KEYS: &str = "userKeys";
     pub const ATTACHMENTS: &str = "attachments";
+    pub const SIWE_BACKUP_MSG: &str = "siweBackupMsg";
   }
 }
 

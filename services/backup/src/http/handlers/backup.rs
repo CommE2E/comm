@@ -76,12 +76,25 @@ pub async fn upload(
     attachments_revokes.push(revoke);
   }
 
+  let siwe_backup_msg_option: Option<String> =
+    match get_text_field(&mut multipart).await? {
+      Some((name, siwe_backup_msg)) => {
+        if name == "siwe_backup_msg" {
+          Some(siwe_backup_msg)
+        } else {
+          None
+        }
+      }
+      _ => None,
+    };
+
   let item = BackupItem::new(
     user.user_id.clone(),
     backup_id,
     user_keys_blob_info,
     user_data_blob_info,
     attachments,
+    siwe_backup_msg_option,
   );
 
   db_client
