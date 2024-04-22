@@ -9,7 +9,10 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  FUTURE_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -285,9 +288,10 @@ function rawThreadInfosFromServerThreadInfos(
     viewer.platformDetails,
     { native: 301, web: 56 },
   );
-  const specialRoleFieldSupported = hasMinCodeVersion(viewer.platformDetails, {
-    native: 336,
-    web: 79,
+  const futureCodeVersion = hasMinCodeVersion(viewer.platformDetails, {
+    native: FUTURE_CODE_VERSION,
+    web: FUTURE_CODE_VERSION,
+    majorDesktop: FUTURE_CODE_VERSION,
   });
 
   const threadInfos: {
@@ -304,7 +308,7 @@ function rawThreadInfosFromServerThreadInfos(
         filterManageInviteLinksPermission: codeVersionBelow221,
         filterVoicedInAnnouncementChannelsPermission: codeVersionBelow283,
         minimallyEncodePermissions: minimallyEncodedPermissionsSupported,
-        includeSpecialRoleFieldInRoles: specialRoleFieldSupported,
+        includeSpecialRoleFieldInRoles: futureCodeVersion,
       },
     );
     if (threadInfo) {
