@@ -25,9 +25,10 @@ mod token;
 mod tunnelbroker;
 mod websockets;
 
-use constants::IDENTITY_SERVICE_SOCKET_ADDR;
+use constants::{COMM_SERVICES_USE_JSON_LOGS, IDENTITY_SERVICE_SOCKET_ADDR};
 use cors::cors_layer;
 use keygen::generate_and_persist_keypair;
+use std::env;
 use sync_identity_search::sync_index;
 use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
@@ -44,9 +45,22 @@ async fn main() -> Result<(), BoxedError> {
     .with_env_var(EnvFilter::DEFAULT_ENV)
     .from_env_lossy();
 
-  let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
+  let use_json_logs: bool = env::var(COMM_SERVICES_USE_JSON_LOGS)
+    .unwrap_or("false".to_string())
+    .parse()
+    .unwrap_or_default();
 
-  tracing::subscriber::set_global_default(subscriber)?;
+  if use_json_logs {
+    let subscriber = tracing_subscriber::fmt()
+      .json()
+      .with_env_filter(filter)
+      .finish();
+    tracing::subscriber::set_global_default(subscriber)?;
+  } else {
+    let subscriber = tracing_subscriber::fmt().with_env_filter(filter).finish();
+    tracing::subscriber::set_global_default(subscriber)?;
+  }
+
   match config::parse_cli_command() {
     Command::Keygen { dir } => {
       generate_and_persist_keypair(dir)?;

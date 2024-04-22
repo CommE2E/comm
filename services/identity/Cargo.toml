@@ -17,7 +17,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
   "grpc_clients",
 ] }
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 chrono = "0.4.31"
 rand = "0.8"
 constant_time_eq = "0.2.2"
