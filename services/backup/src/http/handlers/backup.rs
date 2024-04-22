@@ -76,12 +76,25 @@ pub async fn upload(
     attachments_revokes.push(revoke);
   }
 
+  let msg_backup_option: Option<String> =
+    match get_text_field(&mut multipart).await.unwrap() {
+      Some((name, msg_backup)) => {
+        if name == "msg_backup" {
+          Some(msg_backup)
+        } else {
+          None
+        }
+      }
+      _ => None,
+    };
+
   let item = BackupItem::new(
     user.user_id.clone(),
     backup_id,
     user_keys_blob_info,
     user_data_blob_info,
     attachments,
+    msg_backup_option,
   );
 
   db_client
