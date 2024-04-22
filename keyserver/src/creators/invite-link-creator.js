@@ -30,7 +30,7 @@ import {
   type BlobOperationResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
-import { fetchIdentityInfo } from '../user/identity.js';
+import { thisKeyserverID } from '../user/identity.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 const secretRegex = /^[a-zA-Z0-9]+$/;
@@ -222,11 +222,7 @@ async function uploadInviteLinkBlob(
   linkSecret: string,
   holder: string,
 ): Promise<BlobOperationResult> {
-  const identityInfo = await fetchIdentityInfo();
-  const keyserverID = identityInfo?.userId;
-  if (!keyserverID) {
-    throw new ServerError('invalid_credentials');
-  }
+  const keyserverID = await thisKeyserverID();
 
   const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
   const keyserverURL = baseDomain + basePath;
