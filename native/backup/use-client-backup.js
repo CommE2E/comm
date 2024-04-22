@@ -51,7 +51,7 @@ function useClientBackup(): ClientBackup {
 
     await setMockCommServicesAuthMetadata();
     const backupSecret = await getBackupSecret();
-    await commCoreModule.createNewBackup(backupSecret);
+    await commCoreModule.createNewBackup(backupSecret, '');
 
     console.info('Backup uploaded.');
   }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);
