@@ -32,6 +32,7 @@ public:
   restoreFromB64(const std::string &secretKey, OlmBuffer &b64);
   OlmSession *getOlmSession();
   std::string decrypt(EncryptedData &encryptedData);
+  std::string decryptSequential(EncryptedData &encryptedData);
   int getVersion();
   void setVersion(int newVersion);
 };
