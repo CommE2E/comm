@@ -2,7 +2,10 @@
 
 import uuid from 'uuid';
 
-import { GATE_TAG_FARCASTER_CHANNEL } from 'lib/shared/community-utils.js';
+import {
+  GATE_TAG_FARCASTER_CHANNEL,
+  farcasterChannelTagBlobHash,
+} from 'lib/shared/community-utils.js';
 import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
@@ -54,10 +57,6 @@ async function createOrUpdateFarcasterChannelTag(
     commCommunityID,
     blobHolder,
   };
-}
-
-function farcasterChannelTagBlobHash(secret: string): string {
-  return `farcaster_channel_tag_${secret}`;
 }
 
 function getFarcasterChannelTagBlob(
