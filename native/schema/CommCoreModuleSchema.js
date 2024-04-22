@@ -24,6 +24,7 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
+import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
 import type { ClientDBStore } from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
@@ -161,6 +162,10 @@ interface Spec extends TurboModule {
     backupLogDataKey: string,
   ) => Promise<void>;
   +retrieveBackupKeys: (backupSecret: string) => Promise<string>;
+  +getAllReceivedMessageToDevice: () => Promise<ReceivedMessageToDevice[]>;
+  +removeReceivedMessagesToDevice: (
+    ids: $ReadOnlyArray<string>,
+  ) => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
