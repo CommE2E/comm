@@ -22,7 +22,7 @@ import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import {
   type EntryInfo,
   type CreateEntryInfo,
@@ -66,6 +66,7 @@ type Props = {
   ...BaseProps,
   +threadInfo: ResolvedThreadInfo,
   +loggedIn: boolean,
+  +currentUserCanEditEntry: boolean,
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
   +dispatch: Dispatch,
@@ -202,10 +203,6 @@ class Entry extends React.PureComponent<Props, State> {
     });
     const style = { backgroundColor: `#${this.props.threadInfo.color}` };
     const loadingIndicatorColor = darkColor ? 'white' : 'black';
-    const canEditEntry = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.EDIT_ENTRIES,
-    );
     return (
       <div
         className={entryClasses}
@@ -222,7 +219,7 @@ class Entry extends React.PureComponent<Props, State> {
           onBlur={this.onBlur}
           tabIndex={this.props.tabIndex}
           ref={this.textareaRef}
-          disabled={!canEditEntry}
+          disabled={!this.props.currentUserCanEditEntry}
         />
         <LoadingIndicator
           status={this.state.loadingStatus}
@@ -471,6 +468,10 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       state =>
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
+    const currentUserCanEditEntry = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_ENTRIES,
+    );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const keyserverID = extractKeyserverIDFromID(threadID);
     const connection = useSelector(connectionSelector(keyserverID));
@@ -492,6 +493,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         {...props}
         threadInfo={threadInfo}
         loggedIn={loggedIn}
+        currentUserCanEditEntry={currentUserCanEditEntry}
         calendarQuery={calendarQuery}
         online={online}
         createEntry={callCreateEntry}
