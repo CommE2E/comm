@@ -50,3 +50,14 @@ pub fn consume_error<T>(result: Result<T, Error>) {
     }
   }
 }
+
+impl From<comm_lib::database::Error> for Error {
+  fn from(value: comm_lib::database::Error) -> Self {
+    use comm_lib::database::Error as E;
+    match value {
+      E::AwsSdk(err) => Self::AwsSdk(err),
+      E::Attribute(err) => Self::Attribute(err),
+      E::MaxRetriesExceeded => Self::MaxRetriesExceeded,
+    }
+  }
+}
