@@ -70,6 +70,7 @@ public:
   virtual jsi::Value restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) = 0;
   virtual jsi::Value restoreBackupData(jsi::Runtime &rt, jsi::String backupID, jsi::String backupDataKey, jsi::String backupLogDataKey) = 0;
   virtual jsi::Value retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) = 0;
+  virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) = 0;
   virtual jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) = 0;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
   virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) = 0;
@@ -494,6 +495,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::retrieveBackupKeys, jsInvoker_, instance_, std::move(backupSecret));
+    }
+    jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::retrieveLatestSIWEBackupData) == 1,
+          "Expected retrieveLatestSIWEBackupData(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::retrieveLatestSIWEBackupData, jsInvoker_, instance_);
     }
     jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) override {
       static_assert(
