@@ -17,7 +17,6 @@ import { enableNewRegistrationMode } from './registration/registration-types.js'
 import {
   useLegacySIWEServerCall,
   useIdentityWalletLogInCall,
-  useIdentityWalletRegisterCall,
 } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { commRustModule } from '../native-modules.js';
@@ -27,6 +26,7 @@ import {
 } from '../navigation/route-names.js';
 import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
+import { defaultURLPrefix } from '../utils/url-utils.js';
 
 type Props = {
   +goBackToPrompt: () => mixed,
@@ -46,7 +46,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { setSkipEthereumLoginOnce } = registrationContext;
+  const { setSkipEthereumLoginOnce, register: registrationServerCall } =
+    registrationContext;
 
   const getEthereumAccountFromSIWEResult =
     useGetEthereumAccountFromSIWEResult();
@@ -71,7 +72,6 @@ function FullscreenSIWEPanel(props: Props): React.Node {
 
   const legacySiweServerCall = useLegacySIWEServerCall();
   const identityWalletLogInCall = useIdentityWalletLogInCall();
-  const identityWalletRegisterCall = useIdentityWalletRegisterCall();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
   const onSuccess = React.useCallback(
@@ -86,7 +86,18 @@ function FullscreenSIWEPanel(props: Props): React.Node {
           } else if (enableNewRegistrationMode) {
             await onAccountDoesNotExist(result);
           } else {
-            await identityWalletRegisterCall(result);
+            await registrationServerCall({
+              coolOrNerdMode: 'cool',
+              keyserverURL: defaultURLPrefix,
+              farcasterID: null,
+              accountSelection: {
+                accountType: 'ethereum',
+                ...result,
+                avatarURI: null,
+              },
+              avatarData: null,
+              clearCachedSelections: () => {},
+            });
           }
         } catch (e) {
           Alert.alert(
@@ -129,7 +140,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     },
     [
       identityWalletLogInCall,
-      identityWalletRegisterCall,
+      registrationServerCall,
       goBackToPrompt,
       dispatch,
       legacySiweServerCall,
