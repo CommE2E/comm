@@ -1367,7 +1367,7 @@ jsi::Value CommCoreModule::decrypt(
       });
 }
 
-jsi::Value CommCoreModule::decryptSequential(
+jsi::Value CommCoreModule::decryptSequentialAndPersist(
     jsi::Runtime &rt,
     jsi::Object encryptedDataJSI,
     jsi::String deviceID,

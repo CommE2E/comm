@@ -127,7 +127,7 @@ interface Spec extends TurboModule {
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +decrypt: (encryptedData: Object, deviceID: string) => Promise<string>;
-  +decryptSequential: (
+  +decryptSequentialAndPersist: (
     encryptedData: Object,
     deviceID: string,
     messageID: string,
@@ -177,7 +177,7 @@ export interface CoreModuleSpec extends Spec {
     backupID: string,
   ) => Promise<ArrayBuffer>;
   +decrypt: (encryptedData: EncryptedData, deviceID: string) => Promise<string>;
-  +decryptSequential: (
+  +decryptSequentialAndPersist: (
     encryptedData: EncryptedData,
     deviceID: string,
     messageID: string,
