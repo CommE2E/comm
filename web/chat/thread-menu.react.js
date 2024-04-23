@@ -11,8 +11,8 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
-  threadHasPermission,
   threadIsChannel,
+  useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -135,9 +135,9 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [hasSidebars, onClickSidebars]);
 
-  const canCreateSubchannels = React.useMemo(
-    () => threadHasPermission(threadInfo, threadPermissions.CREATE_SUBCHANNELS),
-    [threadInfo],
+  const canCreateSubchannels = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.CREATE_SUBCHANNELS,
   );
 
   const hasSubchannels = React.useMemo(() => {
@@ -214,11 +214,11 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     [popModal, onConfirmLeaveThread, pushModal, threadInfo],
   );
 
+  const canLeaveThread = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.LEAVE_THREAD,
+  );
   const leaveThreadItem = React.useMemo(() => {
-    const canLeaveThread = threadHasPermission(
-      threadInfo,
-      threadPermissions.LEAVE_THREAD,
-    );
     if (!viewerIsMember(threadInfo) || !canLeaveThread) {
       return null;
     }
@@ -231,7 +231,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
         onClick={onClickLeaveThread}
       />
     );
-  }, [onClickLeaveThread, threadInfo]);
+  }, [onClickLeaveThread, threadInfo, canLeaveThread]);
 
   const onClickPromoteSidebarToThread = React.useCallback(
     () =>
