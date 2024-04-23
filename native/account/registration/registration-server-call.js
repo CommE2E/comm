@@ -65,6 +65,7 @@ type CurrentStep =
       +step: 'waiting_for_identity_registration',
       +clearCachedSelections: () => void,
       +avatarData: ?AvatarData,
+      +credentialsToSave: ?{ +username: string, +password: string },
       +resolve: () => void,
       +reject: Error => void,
     }
@@ -72,6 +73,7 @@ type CurrentStep =
       +step: 'waiting_for_authoritative_keyserver_registration',
       +clearCachedSelections: () => void,
       +avatarData: ?AvatarData,
+      +credentialsToSave: ?{ +username: string, +password: string },
       +resolve: () => void,
       +reject: Error => void,
     };
@@ -97,16 +99,11 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     ) => {
       const identityRegisterPromise = (async () => {
         try {
-          const result = await callIdentityPasswordRegister(
+          return await callIdentityPasswordRegister(
             accountSelection.username,
             accountSelection.password,
             farcasterID,
           );
-          await setNativeCredentials({
-            username: accountSelection.username,
-            password: accountSelection.password,
-          });
-          return result;
         } catch (e) {
           if (e.message === 'username reserved') {
             Alert.alert(
@@ -149,7 +146,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       const extraInfo = await logInExtraInfo();
       const keyserverRegisterPromise = (async () => {
         try {
-          const result = await callKeyserverRegister(
+          return await callKeyserverRegister(
             {
               ...extraInfo,
               username: accountSelection.username,
@@ -159,11 +156,6 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               urlPrefixOverride: keyserverURL,
             },
           );
-          await setNativeCredentials({
-            username: result.currentUserInfo.username,
-            password: accountSelection.password,
-          });
-          return result;
         } catch (e) {
           if (e.message === 'username_reserved') {
             Alert.alert(
@@ -277,10 +269,18 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             if (siweBackupSecrets) {
               await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
             }
+            const credentialsToSave =
+              accountSelection.accountType === 'username'
+                ? {
+                    username: accountSelection.username,
+                    password: accountSelection.password,
+                  }
+                : null;
             setCurrentStep({
               step: 'waiting_for_identity_registration',
               avatarData,
               clearCachedSelections,
+              credentialsToSave,
               resolve,
               reject,
             });
@@ -320,7 +320,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       return;
     }
     registeringOnAuthoritativeKeyserverRef.current = true;
-    const { avatarData, clearCachedSelections, resolve, reject } = currentStep;
+    const {
+      avatarData,
+      clearCachedSelections,
+      credentialsToSave,
+      resolve,
+      reject,
+    } = currentStep;
     void (async () => {
       try {
         await keyserverAuth({
@@ -335,6 +341,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           step: 'waiting_for_authoritative_keyserver_registration',
           avatarData,
           clearCachedSelections,
+          credentialsToSave,
           resolve,
           reject,
         });
@@ -366,7 +373,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       return;
     }
     avatarBeingSetRef.current = true;
-    const { avatarData, resolve, clearCachedSelections } = currentStep;
+    const { avatarData, resolve, clearCachedSelections, credentialsToSave } =
+      currentStep;
     void (async () => {
       try {
         if (!avatarData) {
@@ -391,6 +399,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           },
         });
         clearCachedSelections();
+        if (credentialsToSave) {
+          void setNativeCredentials(credentialsToSave);
+        }
         setCurrentStep(inactiveStep);
         avatarBeingSetRef.current = false;
         resolve();
