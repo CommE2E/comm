@@ -87,6 +87,7 @@ pub fn get_user_and_device_id<T>(
 
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
+  #[tracing::instrument(skip_all)]
   async fn refresh_user_prekeys(
     &self,
     request: Request<RefreshUserPrekeysRequest>,
@@ -118,6 +119,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_outbound_keys_for_user(
     &self,
     request: tonic::Request<OutboundKeysForUserRequest>,
@@ -142,6 +144,7 @@ impl IdentityClientService for AuthenticatedService {
     }))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_inbound_keys_for_user(
     &self,
     request: tonic::Request<InboundKeysForUserRequest>,
@@ -174,6 +177,7 @@ impl IdentityClientService for AuthenticatedService {
     }))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_keyserver_keys(
     &self,
     request: Request<OutboundKeysForUserRequest>,
@@ -212,6 +216,7 @@ impl IdentityClientService for AuthenticatedService {
     return Ok(response);
   }
 
+  #[tracing::instrument(skip_all)]
   async fn upload_one_time_keys(
     &self,
     request: tonic::Request<UploadOneTimeKeysRequest>,
@@ -234,6 +239,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(tonic::Response::new(Empty {}))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn update_user_password_start(
     &self,
     request: tonic::Request<UpdateUserPasswordStartRequest>,
@@ -265,6 +271,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn update_user_password_finish(
     &self,
     request: tonic::Request<UpdateUserPasswordFinishRequest>,
@@ -295,6 +302,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn log_out_user(
     &self,
     request: tonic::Request<Empty>,
@@ -323,6 +331,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn delete_wallet_user(
     &self,
     request: tonic::Request<Empty>,
@@ -341,6 +350,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn delete_password_user_start(
     &self,
     request: tonic::Request<DeletePasswordUserStartRequest>,
@@ -389,6 +399,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn delete_password_user_finish(
     &self,
     request: tonic::Request<DeletePasswordUserFinishRequest>,
@@ -421,6 +432,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_device_list_for_user(
     &self,
     request: tonic::Request<GetDeviceListRequest>,
@@ -462,6 +474,7 @@ impl IdentityClientService for AuthenticatedService {
     }))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_device_lists_for_users(
     &self,
     request: tonic::Request<PeersDeviceListsRequest>,
@@ -510,6 +523,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn update_device_list(
     &self,
     request: tonic::Request<UpdateDeviceListRequest>,
@@ -533,6 +547,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(Empty {}))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn link_farcaster_account(
     &self,
     request: tonic::Request<LinkFarcasterAccountRequest>,
@@ -571,6 +586,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn unlink_farcaster_account(
     &self,
     request: tonic::Request<Empty>,
@@ -587,6 +603,7 @@ impl IdentityClientService for AuthenticatedService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn find_user_identity(
     &self,
     request: tonic::Request<UserIdentityRequest>,

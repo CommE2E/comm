@@ -99,6 +99,7 @@ pub struct ClientService {
 
 #[tonic::async_trait]
 impl IdentityClientService for ClientService {
+  #[tracing::instrument(skip_all)]
   async fn register_password_user_start(
     &self,
     request: tonic::Request<RegistrationStartRequest>,
@@ -160,6 +161,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn register_reserved_password_user_start(
     &self,
     request: tonic::Request<ReservedRegistrationStartRequest>,
@@ -216,6 +218,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn register_password_user_finish(
     &self,
     request: tonic::Request<RegistrationFinishRequest>,
@@ -274,6 +277,7 @@ impl IdentityClientService for ClientService {
     }
   }
 
+  #[tracing::instrument(skip_all)]
   async fn log_in_password_user_start(
     &self,
     request: tonic::Request<OpaqueLoginStartRequest>,
@@ -353,6 +357,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn log_in_password_user_finish(
     &self,
     request: tonic::Request<OpaqueLoginFinishRequest>,
@@ -418,6 +423,7 @@ impl IdentityClientService for ClientService {
     }
   }
 
+  #[tracing::instrument(skip_all)]
   async fn log_in_wallet_user(
     &self,
     request: tonic::Request<WalletAuthRequest>,
@@ -499,6 +505,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn register_wallet_user(
     &self,
     request: tonic::Request<WalletAuthRequest>,
@@ -595,6 +602,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn register_reserved_wallet_user(
     &self,
     request: tonic::Request<ReservedWalletRegistrationRequest>,
@@ -675,6 +683,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn upload_keys_for_registered_device_and_log_in(
     &self,
     request: tonic::Request<SecondaryDeviceKeysUploadRequest>,
@@ -748,6 +757,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn log_in_existing_device(
     &self,
     request: tonic::Request<ExistingDeviceLoginRequest>,
@@ -804,6 +814,7 @@ impl IdentityClientService for ClientService {
     Ok(Response::new(response))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn generate_nonce(
     &self,
     _request: tonic::Request<Empty>,
@@ -821,6 +832,7 @@ impl IdentityClientService for ClientService {
     }
   }
 
+  #[tracing::instrument(skip_all)]
   async fn verify_user_access_token(
     &self,
     request: tonic::Request<VerifyUserAccessTokenRequest>,
@@ -846,6 +858,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn add_reserved_usernames(
     &self,
     request: tonic::Request<AddReservedUsernamesRequest>,
@@ -873,6 +886,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn remove_reserved_username(
     &self,
     request: tonic::Request<RemoveReservedUsernameRequest>,
@@ -894,6 +908,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn ping(
     &self,
     _request: tonic::Request<Empty>,
@@ -902,6 +917,7 @@ impl IdentityClientService for ClientService {
     Ok(response)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn find_user_id(
     &self,
     request: tonic::Request<FindUserIdRequest>,
@@ -934,6 +950,7 @@ impl IdentityClientService for ClientService {
     }))
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_farcaster_users(
     &self,
     request: tonic::Request<GetFarcasterUsersRequest>,
@@ -1068,6 +1085,7 @@ impl ClientService {
   }
 }
 
+#[tracing::instrument(skip_all)]
 pub fn handle_db_error(db_error: DBError) -> tonic::Status {
   match db_error {
     DBError::AwsSdk(DynamoDBError::InternalServerError(_))
