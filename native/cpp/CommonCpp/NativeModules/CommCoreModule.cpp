@@ -410,16 +410,21 @@ void CommCoreModule::terminate(jsi::Runtime &rt) {
   TerminateApp::terminate();
 }
 
+const std::string
+getAccountDataKey(const std::string secureStoreAccountDataKey) {
+  folly::Optional<std::string> storedSecretKey =
+      CommSecureStore::get(secureStoreAccountDataKey);
+  if (!storedSecretKey.hasValue()) {
+    storedSecretKey = crypto::Tools::generateRandomString(64);
+    CommSecureStore::set(secureStoreAccountDataKey, storedSecretKey.value());
+  }
+  return storedSecretKey.value();
+}
+
 void CommCoreModule::persistCryptoModules(
     bool persistContentModule,
     bool persistNotifsModule) {
-  folly::Optional<std::string> storedSecretKey =
-      CommSecureStore::get(this->secureStoreAccountDataKey);
-  if (!storedSecretKey.hasValue()) {
-    storedSecretKey = crypto::Tools::generateRandomString(64);
-    CommSecureStore::set(
-        this->secureStoreAccountDataKey, storedSecretKey.value());
-  }
+  std::string storedSecretKey = getAccountDataKey(secureStoreAccountDataKey);
 
   if (!persistContentModule && !persistNotifsModule) {
     return;
@@ -427,14 +432,12 @@ void CommCoreModule::persistCryptoModules(
 
   crypto::Persist newContentPersist;
   if (persistContentModule) {
-    newContentPersist =
-        this->contentCryptoModule->storeAsB64(storedSecretKey.value());
+    newContentPersist = this->contentCryptoModule->storeAsB64(storedSecretKey);
   }
 
   crypto::Persist newNotifsPersist;
   if (persistNotifsModule) {
-    newNotifsPersist =
-        this->notifsCryptoModule->storeAsB64(storedSecretKey.value());
+    newNotifsPersist = this->notifsCryptoModule->storeAsB64(storedSecretKey);
   }
 
   std::promise<void> persistencePromise;
@@ -1386,7 +1389,40 @@ jsi::Value CommCoreModule::decryptSequential(
                 messageType};
             decryptedMessage = this->contentCryptoModule->decryptSequential(
                 deviceIDCpp, encryptedData);
-            this->persistCryptoModules(true, false);
+
+            std::string storedSecretKey =
+                getAccountDataKey(secureStoreAccountDataKey);
+            crypto::Persist newContentPersist =
+                this->contentCryptoModule->storeAsB64(storedSecretKey);
+
+            std::promise<void> persistencePromise;
+            std::future<void> persistenceFuture =
+                persistencePromise.get_future();
+            GlobalDBSingleton::instance.scheduleOrRunCancellable(
+                [=, &persistencePromise]() {
+                  try {
+                    ReceivedMessageToDevice message{
+                        messageIDCpp,
+                        deviceIDCpp,
+                        decryptedMessage,
+                        "decrypted"};
+
+                    DatabaseManager::getQueryExecutor().beginTransaction();
+                    DatabaseManager::getQueryExecutor()
+                        .addReceivedMessageToDevice(message);
+                    DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                        DatabaseManager::getQueryExecutor()
+                            .getContentAccountID(),
+                        newContentPersist);
+                    DatabaseManager::getQueryExecutor().commitTransaction();
+                    persistencePromise.set_value();
+                  } catch (std::system_error &e) {
+                    DatabaseManager::getQueryExecutor().rollbackTransaction();
+                    persistencePromise.set_exception(
+                        std::make_exception_ptr(e));
+                  }
+                });
+            persistenceFuture.get();
           } catch (const std::exception &e) {
             error = e.what();
           }
