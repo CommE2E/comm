@@ -34,6 +34,8 @@ locals {
     http://localhost:3009
   EOT
   production_allow_origin_list    = "https://web.comm.app"
+
+  comm_services_use_json_logs = "true"
 }
 
 data "aws_secretsmanager_secret" "identity_server_setup" {
@@ -81,6 +83,10 @@ resource "aws_ecs_task_definition" "identity_service" {
         {
           name  = "ALLOW_ORIGIN_LIST"
           value = local.is_staging ? local.staging_allow_origin_list : local.production_allow_origin_list
+        },
+        {
+          name  = "COMM_SERVICES_USE_JSON_LOGS",
+          value = local.comm_services_use_json_logs
         }
       ]
       secrets = [
