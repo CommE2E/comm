@@ -232,7 +232,7 @@ export type CallOLMApiMethodResponseMessage = {
 
 export type GetReceivedMessagesToDeviceResponseMessage = {
   +type: 6,
-  +result: $ReadOnlyArray<ReceivedMessageToDevice>,
+  +messages: $ReadOnlyArray<ReceivedMessageToDevice>,
 };
 
 export type WorkerResponseMessage =

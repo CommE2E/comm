@@ -7,6 +7,7 @@ import { registerConfig } from 'lib/utils/config.js';
 import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './account/legacy-recover-keyserver-session.js';
 import { authoritativeKeyserverID } from './authoritative-keyserver.js';
 import { olmAPI } from './crypto/olm-api.js';
+import { sqliteAPI } from './database/sqlite-api.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 
 registerConfig({
@@ -20,4 +21,5 @@ registerConfig({
   },
   authoritativeKeyserverID,
   olmAPI,
+  sqliteAPI,
 });
