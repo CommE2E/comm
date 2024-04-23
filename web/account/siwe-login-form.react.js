@@ -16,12 +16,11 @@ import {
 import {
   identityGenerateNonceActionTypes,
   useIdentityGenerateNonce,
-  identityLogInActionTypes,
-  useIdentityWalletLogIn,
 } from 'lib/actions/user-actions.js';
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import stores from 'lib/facts/stores.js';
+import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -79,7 +78,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const legacySiweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
   const logInExtraInfo = useSelector(logInExtraInfoSelector);
 
-  const identityWalletLogIn = useIdentityWalletLogIn();
+  const walletLogIn = useWalletLogIn();
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
@@ -156,27 +155,22 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     [callLegacySIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
   );
 
-  const attemptIdentityWalletLogIn = React.useCallback(
-    (walletAddress: string, siweMessage: string, siweSignature: string) => {
-      return dispatchActionPromise(
-        identityLogInActionTypes,
-        (async () => {
-          try {
-            return await identityWalletLogIn(
-              walletAddress,
-              siweMessage,
-              siweSignature,
-            );
-          } catch (e) {
-            if (getMessageForException(e) === 'user not found') {
-              setError('account_does_not_exist');
-            }
-            throw e;
-          }
-        })(),
-      );
+  const attemptWalletLogIn = React.useCallback(
+    async (
+      walletAddress: string,
+      siweMessage: string,
+      siweSignature: string,
+    ) => {
+      try {
+        return await walletLogIn(walletAddress, siweMessage, siweSignature);
+      } catch (e) {
+        if (getMessageForException(e) === 'user not found') {
+          setError('account_does_not_exist');
+        }
+        throw e;
+      }
     },
-    [dispatchActionPromise, identityWalletLogIn],
+    [walletLogIn],
   );
 
   const dispatch = useDispatch();
@@ -191,7 +185,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage({ message });
     if (usingCommServicesAccessToken) {
-      await attemptIdentityWalletLogIn(address, message, signature);
+      await attemptWalletLogIn(address, message, signature);
     } else {
       await attemptLegacySIWEAuth(message, signature);
       dispatch({
@@ -204,7 +198,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   }, [
     address,
     attemptLegacySIWEAuth,
-    attemptIdentityWalletLogIn,
+    attemptWalletLogIn,
     signer,
     siweNonce,
     dispatch,
