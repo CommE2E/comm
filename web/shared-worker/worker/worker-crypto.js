@@ -24,6 +24,7 @@ import type {
   IdentityExistingDeviceKeyUpload,
 } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
 import { entries } from 'lib/utils/objects.js';
 import {
   retrieveAccountKeysSet,
@@ -80,7 +81,7 @@ function clearCryptoStore() {
   cryptoStore = null;
 }
 
-function persistCryptoStore() {
+function persistCryptoStore(withoutTransaction: boolean = false) {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
   const dbModule = getDBModule();
   if (!sqliteQueryExecutor || !dbModule) {
@@ -119,7 +120,9 @@ function persistCryptoStore() {
   };
 
   try {
-    sqliteQueryExecutor.beginTransaction();
+    if (!withoutTransaction) {
+      sqliteQueryExecutor.beginTransaction();
+    }
     sqliteQueryExecutor.storeOlmPersistAccount(
       sqliteQueryExecutor.getContentAccountID(),
       JSON.stringify(pickledContentAccount),
@@ -131,9 +134,13 @@ function persistCryptoStore() {
       sqliteQueryExecutor.getNotifsAccountID(),
       JSON.stringify(pickledNotificationAccount),
     );
-    sqliteQueryExecutor.commitTransaction();
+    if (!withoutTransaction) {
+      sqliteQueryExecutor.commitTransaction();
+    }
   } catch (err) {
-    sqliteQueryExecutor.rollbackTransaction();
+    if (!withoutTransaction) {
+      sqliteQueryExecutor.rollbackTransaction();
+    }
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 }
@@ -458,7 +465,6 @@ const olmAPI: OlmAPI = {
   async decryptSequential(
     encryptedData: EncryptedData,
     deviceID: string,
-    // eslint-disable-next-line no-unused-vars
     messageID: string,
   ): Promise<string> {
     if (!cryptoStore) {
@@ -470,12 +476,35 @@ const olmAPI: OlmAPI = {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
 
-    const result = session.decrypt(
+    const result = session.decrypt_sequential(
       encryptedData.messageType,
       encryptedData.message,
     );
 
-    persistCryptoStore();
+    const sqliteQueryExecutor = getSQLiteQueryExecutor();
+    const dbModule = getDBModule();
+    if (!sqliteQueryExecutor || !dbModule) {
+      throw new Error(
+        "Couldn't persist crypto store because database is not initialized",
+      );
+    }
+
+    const receivedMessage: ReceivedMessageToDevice = {
+      messageID,
+      senderDeviceID: deviceID,
+      plaintext: result,
+      status: 'decrypted',
+    };
+
+    sqliteQueryExecutor.beginTransaction();
+    try {
+      sqliteQueryExecutor.addReceivedMessageToDevice(receivedMessage);
+      persistCryptoStore(true);
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      throw e;
+    }
 
     return result;
   },
