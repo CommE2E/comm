@@ -57,7 +57,7 @@ pub async fn clear_index(
     .json(&query)
     .send()
     .await
-    .unwrap();
+    .expect("Failed to send clear index request");
 
   if !response.status().is_success() {
     error!("Sync Error: Failed to clear index");
@@ -77,7 +77,10 @@ pub async fn restore_index(
     bulk_data.push_str(&action.to_string());
     bulk_data.push('\n');
 
-    bulk_data.push_str(&serde_json::to_string(&user).unwrap());
+    bulk_data.push_str(
+      &serde_json::to_string(&user)
+        .expect("Failed to serialize identity search index user"),
+    );
     bulk_data.push('\n');
   }
 
@@ -92,7 +95,7 @@ pub async fn restore_index(
     .body(bulk_data)
     .send()
     .await
-    .unwrap();
+    .expect("Failed to send restore index request");
 
   if !response.status().is_success() {
     error!("Sync Error: Failed to restore index");
