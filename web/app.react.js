@@ -49,6 +49,7 @@ import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-lis
 import NavigationArrows from './components/navigation-arrows.react.js';
 import MinVersionHandler from './components/version-handler.react.js';
 import { olmAPI } from './crypto/olm-api.js';
+import { sqliteAPI } from './database/sqlite-api.js';
 import electron from './electron.js';
 import InputStateContainer from './input/input-state-container.react.js';
 import InviteLinkHandler from './invite-links/invite-link-handler.react.js';
@@ -106,6 +107,7 @@ registerConfig({
   },
   authoritativeKeyserverID,
   olmAPI,
+  sqliteAPI,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
