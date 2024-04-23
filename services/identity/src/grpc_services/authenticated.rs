@@ -309,6 +309,12 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
+      .delete_otks_table_rows_for_user_device(&user_id, &device_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    self
+      .db_client
       .delete_access_token_data(user_id, device_id)
       .await
       .map_err(handle_db_error)?;
