@@ -14,8 +14,8 @@ import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
-  threadHasPermission,
   useSidebarExistsOrCanBeCreated,
+  useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -179,11 +179,12 @@ function useMessageTooltipReplyAction(
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'inputState is required');
   const { addReply } = inputState;
+  const currentUserIsVoiced = useThreadHasPermission(
+    threadInfo,
+    threadPermissions.VOICED,
+  );
   return React.useMemo(() => {
-    if (
-      item.messageInfo.type !== messageTypes.TEXT ||
-      !threadHasPermission(threadInfo, threadPermissions.VOICED)
-    ) {
+    if (item.messageInfo.type !== messageTypes.TEXT || !currentUserIsVoiced) {
       return null;
     }
     const buttonContent = <CommIcon icon="reply-filled" size={18} />;
@@ -200,7 +201,13 @@ function useMessageTooltipReplyAction(
       onClick,
       label: 'Reply',
     };
-  }, [popModal, addReply, item.messageInfo.type, messageInfo, threadInfo]);
+  }, [
+    popModal,
+    addReply,
+    item.messageInfo.type,
+    messageInfo,
+    currentUserIsVoiced,
+  ]);
 }
 
 const copiedMessageDurationMs = 2000;
