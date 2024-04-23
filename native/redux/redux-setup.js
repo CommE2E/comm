@@ -336,7 +336,7 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
   };
   state = {
     ...state,
-    dbOpsStore: queueDBOps(state.dbOpsStore, action.messageID, ops),
+    dbOpsStore: queueDBOps(state.dbOpsStore, action.messageSourceMetadata, ops),
   };
 
   return state;
