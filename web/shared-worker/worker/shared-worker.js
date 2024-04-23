@@ -243,7 +243,7 @@ async function processAppRequest(
   ) {
     return {
       type: workerResponseMessageTypes.GET_RECEIVED_MESSAGES_TO_DEVICE,
-      result: sqliteQueryExecutor.getAllReceivedMessageToDevice(),
+      messages: sqliteQueryExecutor.getAllReceivedMessageToDevice(),
     };
   }
 
