@@ -6,6 +6,7 @@ import { Text, View } from 'react-native';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
+import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -21,10 +22,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
-import {
-  useIdentityWalletLogInCall,
-  useLegacySIWEServerCall,
-} from '../siwe-hooks.js';
+import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
 const siweAuthLoadingStatusSelector =
   createLoadingStatusSelector(siweAuthActionTypes);
@@ -37,14 +35,14 @@ type Props = {
 };
 function ExistingEthereumAccount(props: Props): React.Node {
   const legacySiweServerCall = useLegacySIWEServerCall();
-  const identityWalletLogInCall = useIdentityWalletLogInCall();
+  const walletLogIn = useWalletLogIn();
 
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
     if (usingCommServicesAccessToken) {
       try {
-        await identityWalletLogInCall(params);
+        await walletLogIn(params.address, params.message, params.signature);
       } catch (e) {
         Alert.alert(
           UnknownErrorAlertDetails.title,
@@ -77,7 +75,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
         },
       });
     }
-  }, [legacySiweServerCall, identityWalletLogInCall, params, dispatch]);
+  }, [legacySiweServerCall, walletLogIn, params, dispatch]);
 
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
