@@ -6,6 +6,7 @@ import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
+import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -14,10 +15,7 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
 import { enableNewRegistrationMode } from './registration/registration-types.js';
-import {
-  useLegacySIWEServerCall,
-  useIdentityWalletLogInCall,
-} from './siwe-hooks.js';
+import { useLegacySIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { commRustModule } from '../native-modules.js';
 import {
@@ -71,7 +69,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
-  const identityWalletLogInCall = useIdentityWalletLogInCall();
+  const identityWalletLogInCall = useWalletLogIn();
   const successRef = React.useRef(false);
   const dispatch = useDispatch();
   const onSuccess = React.useCallback(
@@ -82,7 +80,11 @@ function FullscreenSIWEPanel(props: Props): React.Node {
           const findUserIDResponse =
             await commRustModule.findUserIDForWalletAddress(result.address);
           if (JSON.parse(findUserIDResponse).userID) {
-            await identityWalletLogInCall(result);
+            await identityWalletLogInCall(
+              result.address,
+              result.message,
+              result.signature,
+            );
           } else if (enableNewRegistrationMode) {
             await onAccountDoesNotExist(result);
           } else {

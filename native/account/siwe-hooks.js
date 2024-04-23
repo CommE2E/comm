@@ -4,8 +4,6 @@ import * as React from 'react';
 
 import { siweAuth, siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
-  identityLogInActionTypes,
-  useIdentityWalletLogIn,
   identityRegisterActionTypes,
   useIdentityWalletRegister,
 } from 'lib/actions/user-actions.js';
@@ -16,10 +14,7 @@ import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
-import type {
-  SIWEResult,
-  IdentityWalletRegisterInput,
-} from 'lib/types/siwe-types.js';
+import type { IdentityWalletRegisterInput } from 'lib/types/siwe-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -102,20 +97,6 @@ function useLegacySIWEServerCall(): (
   );
 }
 
-function useIdentityWalletLogInCall(): SIWEResult => Promise<void> {
-  const identityWalletLogIn = useIdentityWalletLogIn();
-  const dispatchActionPromise = useDispatchActionPromise();
-  return React.useCallback(
-    async ({ address, message, signature }) => {
-      const siwePromise = identityWalletLogIn(address, message, signature);
-      void dispatchActionPromise(identityLogInActionTypes, siwePromise);
-
-      await siwePromise;
-    },
-    [dispatchActionPromise, identityWalletLogIn],
-  );
-}
-
 function useIdentityWalletRegisterCall(): IdentityWalletRegisterInput => Promise<void> {
   const identityWalletRegister = useIdentityWalletRegister();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -135,8 +116,4 @@ function useIdentityWalletRegisterCall(): IdentityWalletRegisterInput => Promise
   );
 }
 
-export {
-  useLegacySIWEServerCall,
-  useIdentityWalletLogInCall,
-  useIdentityWalletRegisterCall,
-};
+export { useLegacySIWEServerCall, useIdentityWalletRegisterCall };
