@@ -193,6 +193,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupDat
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveBackupKeys(rt, args[0].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestSIWEBackupData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->retrieveLatestSIWEBackupData(rt);
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setSIWEBackupSecrets(rt, args[0].asObject(rt));
 }
@@ -260,6 +263,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["restoreBackup"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackup};
   methodMap_["restoreBackupData"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_restoreBackupData};
   methodMap_["retrieveBackupKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveBackupKeys};
+  methodMap_["retrieveLatestSIWEBackupData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_retrieveLatestSIWEBackupData};
   methodMap_["setSIWEBackupSecrets"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setSIWEBackupSecrets};
   methodMap_["getSIWEBackupSecrets"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSIWEBackupSecrets};
 }
