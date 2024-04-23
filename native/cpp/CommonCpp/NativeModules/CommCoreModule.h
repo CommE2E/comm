@@ -189,6 +189,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value setSIWEBackupSecrets(
       jsi::Runtime &rt,
       jsi::Object siweBackupSecrets) override;
+  virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) override;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) override;
   virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) override;
   virtual jsi::Value

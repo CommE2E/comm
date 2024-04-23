@@ -372,6 +372,9 @@ mod ffi {
 
     #[cxx_name = "retrieveBackupKeys"]
     fn retrieve_backup_keys(backup_secret: String, promise_id: u32);
+
+    #[cxx_name = "retrieveLatestSIWEBackupData"]
+    fn retrieve_latest_siwe_backup_data(promise_id: u32);
   }
 
   // Secure store
