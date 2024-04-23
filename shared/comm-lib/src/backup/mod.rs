@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 pub struct LatestBackupIDResponse {
   #[serde(rename = "backupID")]
   pub backup_id: String,
+
+  #[serde(rename = "msgBackup")]
+  pub msg_backup: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

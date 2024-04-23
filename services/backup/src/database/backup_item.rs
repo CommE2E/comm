@@ -187,6 +187,7 @@ pub struct OrderedBackupItem {
   pub created: DateTime<Utc>,
   pub backup_id: String,
   pub user_keys: BlobInfo,
+  pub msg_backup: Option<String>,
 }
 
 impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
@@ -213,11 +214,22 @@ impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
       value.remove(backup_table::attr::USER_KEYS),
     )?;
 
+    let msg_backup = value.remove(backup_table::attr::MSG_BACKUP);
+    let msg_backup = if msg_backup.is_some() {
+      Some(String::try_from_attr(
+        backup_table::attr::MSG_BACKUP,
+        msg_backup,
+      )?)
+    } else {
+      None
+    };
+
     Ok(OrderedBackupItem {
       user_id,
       created,
       backup_id,
       user_keys,
+      msg_backup,
     })
   }
 }
