@@ -11,7 +11,7 @@ variable "lambda_zip_dir" {
 check "lambda_zip_check" {
   assert {
     condition     = fileexists("${var.lambda_zip_dir}/bootstrap.zip")
-    error_message = "Lambda boostrap.zip not found at path. Please run 'terraform-init.sh' in remote or 'run.sh' in dev"
+    error_message = "Lambda bootstrap.zip not found at path. Please run 'terraform-init.sh' in remote or 'run.sh' in dev"
   }
 }
 
