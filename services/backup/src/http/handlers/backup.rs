@@ -291,6 +291,7 @@ pub async fn get_latest_backup_id(
 
   let response = LatestBackupIDResponse {
     backup_id: backup_item.backup_id,
+    siwe_backup_msg: backup_item.siwe_backup_msg,
   };
 
   Ok(web::Json(response))

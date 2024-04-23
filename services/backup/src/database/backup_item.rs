@@ -182,6 +182,7 @@ pub struct OrderedBackupItem {
   pub created: DateTime<Utc>,
   pub backup_id: String,
   pub user_keys: BlobInfo,
+  pub siwe_backup_msg: Option<String>,
 }
 
 impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
@@ -208,11 +209,15 @@ impl TryFrom<HashMap<String, AttributeValue>> for OrderedBackupItem {
       value.remove(backup_table::attr::USER_KEYS),
     )?;
 
+    let siwe_backup_msg: Option<String> =
+      value.take_attr(backup_table::attr::SIWE_BACKUP_MSG)?;
+
     Ok(OrderedBackupItem {
       user_id,
       created,
       backup_id,
       user_keys,
+      siwe_backup_msg,
     })
   }
 }
