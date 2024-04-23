@@ -2,9 +2,12 @@ use crate::auth::UserIdentity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LatestBackupIDResponse {
   #[serde(rename = "backupID")]
   pub backup_id: String,
+
+  pub siwe_backup_msg: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
