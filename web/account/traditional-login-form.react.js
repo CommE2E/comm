@@ -6,10 +6,9 @@ import * as React from 'react';
 import {
   useLegacyLogIn,
   legacyLogInActionTypes,
-  useIdentityPasswordLogIn,
-  identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
@@ -38,10 +37,13 @@ const loadingStatusSelector = createLoadingStatusSelector(
   legacyLogInActionTypes,
 );
 function TraditionalLoginForm(): React.Node {
-  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const legacyAuthInProgress = useSelector(loadingStatusSelector) === 'loading';
+  const [identityAuthInProgress, setIdentityAuthInProgress] =
+    React.useState(false);
+  const inputDisabled = legacyAuthInProgress || identityAuthInProgress;
+
   const loginExtraInfo = useSelector(logInExtraInfoSelector);
   const callLegacyLogIn = useLegacyLogIn();
-  const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
 
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
@@ -107,11 +109,16 @@ function TraditionalLoginForm(): React.Node {
     [callLegacyLogIn, modalContext, password, username],
   );
 
+  const callIdentityPasswordLogIn = usePasswordLogIn();
+
   const identityPasswordLogInAction = React.useCallback(async () => {
+    if (identityAuthInProgress) {
+      return;
+    }
+    setIdentityAuthInProgress(true);
     try {
-      const result = await callIdentityPasswordLogIn(username, password);
+      await callIdentityPasswordLogIn(username, password);
       modalContext.popModal();
-      return result;
     } catch (e) {
       setUsername('');
       setPassword('');
@@ -126,8 +133,16 @@ function TraditionalLoginForm(): React.Node {
       }
       usernameInputRef.current?.focus();
       throw e;
+    } finally {
+      setIdentityAuthInProgress(false);
     }
-  }, [callIdentityPasswordLogIn, modalContext, password, username]);
+  }, [
+    identityAuthInProgress,
+    callIdentityPasswordLogIn,
+    modalContext,
+    password,
+    username,
+  ]);
 
   const onSubmit = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
@@ -149,10 +164,7 @@ function TraditionalLoginForm(): React.Node {
         return;
       }
       if (usingCommServicesAccessToken) {
-        void dispatchActionPromise(
-          identityLogInActionTypes,
-          identityPasswordLogInAction(),
-        );
+        void identityPasswordLogInAction();
       } else {
         void dispatchActionPromise(
           legacyLogInActionTypes,
