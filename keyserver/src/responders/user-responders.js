@@ -752,6 +752,7 @@ async function keyserverAuthResponder(
       deviceID,
     );
   } catch (e) {
+    console.log(e);
     throw new ServerError('failed_to_retrieve_inbound_keys');
   }
 
