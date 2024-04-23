@@ -3,7 +3,7 @@
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -80,7 +80,7 @@ function ThreadSettingsGeneralTab(
     [setQueuedChanges, threadInfo.color],
   );
 
-  const threadNameInputDisabled = !threadHasPermission(
+  const threadNameInputDisabled = !useThreadHasPermission(
     threadInfo,
     threadPermissions.EDIT_THREAD_NAME,
   );
