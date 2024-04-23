@@ -46,6 +46,7 @@ import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
+import { DBOpsHandler } from './components/db-ops-handler.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import MinVersionHandler from './components/version-handler.react.js';
 import { olmAPI } from './crypto/olm-api.js';
@@ -541,6 +542,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
               dispatch={dispatch}
               modals={modals}
             />
+            <DBOpsHandler />
           </IdentitySearchProvider>
         </TunnelbrokerProvider>
       </AppThemeWrapper>
