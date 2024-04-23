@@ -37,7 +37,7 @@ import {
 import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
-import type { MessageID, DBOpsStore } from 'lib/types/db-ops-types.js';
+import type { MessageData, DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -133,7 +133,7 @@ export type AppState = {
 export type Action = $ReadOnly<
   | BaseAction
   | {
-      +messageID?: MessageID,
+      +messageData?: MessageData,
       ...
         | { +type: 'UPDATE_NAV_INFO', +payload: Partial<WebNavInfo> }
         | {
@@ -549,7 +549,11 @@ function validateStateAndQueueOpsProcessing(
 
   return {
     ...state,
-    dbOpsStore: queueDBOps(state.dbOpsStore, action.messageID, storeOperations),
+    dbOpsStore: queueDBOps(
+      state.dbOpsStore,
+      action.messageData,
+      storeOperations,
+    ),
   };
 }
 
