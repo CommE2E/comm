@@ -245,7 +245,7 @@ async fn download_backup_keys(
     .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
     .await?;
 
-  let LatestBackupIDResponse { backup_id } =
+  let LatestBackupIDResponse { backup_id, .. } =
     serde_json::from_slice(&backup_id_response)?;
 
   let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
