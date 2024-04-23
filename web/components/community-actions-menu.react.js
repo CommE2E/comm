@@ -6,7 +6,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
@@ -34,11 +34,11 @@ function CommunityActionsMenu(props: Props): React.Node {
   const community = useSelector(
     state => threadInfoSelector(state)[communityID],
   );
-  const canManageLinks = threadHasPermission(
+  const canManageLinks = useThreadHasPermission(
     community,
     threadPermissions.MANAGE_INVITE_LINKS,
   );
-  const canChangeRoles = threadHasPermission(
+  const canChangeRoles = useThreadHasPermission(
     community,
     threadPermissions.CHANGE_ROLE,
   );
