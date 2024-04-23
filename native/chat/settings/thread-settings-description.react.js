@@ -14,7 +14,7 @@ import {
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -107,6 +107,7 @@ type Props = {
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
+  +canEditThreadDescription: boolean,
 };
 class ThreadSettingsDescription extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof BaseTextInput>;
@@ -162,12 +163,8 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       );
     }
 
-    const canEditThreadDescription = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.EDIT_THREAD_DESCRIPTION,
-    );
     const { panelIosHighlightUnderlay } = this.props.colors;
-    if (canEditThreadDescription) {
+    if (this.props.canEditThreadDescription) {
       return (
         <View>
           <ThreadSettingsCategoryHeader type="outline" title="Description" />
@@ -310,6 +307,12 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callChangeThreadSettings = useChangeThreadSettings();
+
+    const canEditThreadDescription = useThreadHasPermission(
+      props.threadInfo,
+      threadPermissions.EDIT_THREAD_DESCRIPTION,
+    );
+
     return (
       <ThreadSettingsDescription
         {...props}
@@ -318,6 +321,7 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
         changeThreadSettings={callChangeThreadSettings}
+        canEditThreadDescription={canEditThreadDescription}
       />
     );
   });
