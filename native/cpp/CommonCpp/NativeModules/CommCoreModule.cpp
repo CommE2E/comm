@@ -1886,6 +1886,15 @@ CommCoreModule::retrieveBackupKeys(jsi::Runtime &rt, jsi::String backupSecret) {
       });
 }
 
+jsi::Value CommCoreModule::retrieveLatestSIWEBackupData(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        auto currentID = RustPromiseManager::instance.addPromise(
+            {promise, this->jsInvoker_, innerRt});
+        ::retrieveLatestSIWEBackupData(currentID);
+      });
+}
+
 jsi::Value CommCoreModule::setSIWEBackupSecrets(
     jsi::Runtime &rt,
     jsi::Object siweBackupSecrets) {

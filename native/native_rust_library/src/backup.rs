@@ -179,6 +179,45 @@ pub mod ffi {
       void_callback(String::new(), promise_id);
     });
   }
+
+  pub fn retrieve_latest_siwe_backup_data(promise_id: u32) {
+    RUNTIME.spawn(async move {
+      let result = download_latest_backup_id()
+        .await
+        .map_err(|err| err.to_string());
+
+      let result = match result {
+        Ok(result) => result,
+        Err(error) => {
+          string_callback(error, promise_id, "".to_string());
+          return;
+        }
+      };
+
+      let LatestBackupIDResponse {
+        backup_id,
+        siwe_backup_msg,
+      } = result;
+
+      let siwe_backup_data = match siwe_backup_msg {
+        Some(siwe_backup_msg_value) => SIWEBackupData {
+          backup_id,
+          siwe_backup_msg: siwe_backup_msg_value,
+        },
+        None => {
+          string_callback(
+            "Backup message unavailable".to_string(),
+            promise_id,
+            "".to_string(),
+          );
+          return;
+        }
+      };
+
+      let serialize_result = serde_json::to_string(&siwe_backup_data);
+      handle_string_result_as_callback(serialize_result, promise_id);
+    });
+  }
 }
 
 pub async fn create_userkeys_compaction(
@@ -225,6 +264,30 @@ async fn download_backup(
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
   let backup_keys = download_backup_keys(backup_secret).await?;
   download_backup_data(backup_keys).await
+}
+
+async fn download_latest_backup_id(
+) -> Result<LatestBackupIDResponse, Box<dyn Error>> {
+  let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
+  let user_identity = get_user_identity_from_secure_store()?;
+
+  let latest_backup_descriptor = BackupDescriptor::Latest {
+    username: user_identity.user_id.clone(),
+  };
+
+  let backup_id_response = backup_client
+    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
+    .await?;
+
+  let LatestBackupIDResponse {
+    backup_id,
+    siwe_backup_msg,
+  } = serde_json::from_slice(&backup_id_response)?;
+
+  Ok(LatestBackupIDResponse {
+    backup_id,
+    siwe_backup_msg,
+  })
 }
 
 async fn download_backup_keys(
@@ -334,6 +397,12 @@ struct BackupKeysResult {
   backup_id: String,
   backup_data_key: String,
   backup_log_data_key: String,
+}
+
+#[derive(Debug, Serialize)]
+struct SIWEBackupData {
+  backup_id: String,
+  siwe_backup_msg: String,
 }
 
 struct CompactionDownloadResult {
