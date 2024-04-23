@@ -330,6 +330,10 @@ class LogInPanel extends React.PureComponent<Props, State> {
         this.passwordInputText,
       );
       this.props.setActiveAlert(false);
+      await setNativeCredentials({
+        username: this.usernameInputText,
+        password: this.passwordInputText,
+      });
     } catch (e) {
       const messageForException = getMessageForException(e);
       if (
@@ -435,7 +439,6 @@ const logInLoadingStatusSelector = createLoadingStatusSelector(
 );
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
-const identityPasswordLogInInput = { saveCredentials: setNativeCredentials };
 
 const ConnectedLogInPanel: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
@@ -452,9 +455,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLegacyLogIn = useLegacyLogIn();
-    const callIdentityPasswordLogIn = usePasswordLogIn(
-      identityPasswordLogInInput,
-    );
+    const callIdentityPasswordLogIn = usePasswordLogIn();
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
