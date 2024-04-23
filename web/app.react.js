@@ -46,6 +46,7 @@ import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
+import { DBOpsHandler } from './components/db-ops-handler.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import MinVersionHandler from './components/version-handler.react.js';
 import { olmAPI } from './crypto/olm-api.js';
@@ -82,7 +83,6 @@ import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
-
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
 // icon flashes huge for a second before the CSS is loaded.
@@ -541,6 +541,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
               dispatch={dispatch}
               modals={modals}
             />
+            <DBOpsHandler />
           </IdentitySearchProvider>
         </TunnelbrokerProvider>
       </AppThemeWrapper>
