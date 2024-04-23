@@ -9,9 +9,8 @@ import {
   legacyLogInActionTypes,
   useLegacyLogIn,
   getOlmSessionInitializationDataActionTypes,
-  useIdentityPasswordLogIn,
-  identityLogInActionTypes,
 } from 'lib/actions/user-actions.js';
+import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
@@ -28,7 +27,6 @@ import {
   type LogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
-import type { IdentityAuthResult } from 'lib/types/identity-service-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import {
@@ -72,15 +70,16 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +legacyLogIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-  +identityPasswordLogIn: (
-    username: string,
-    password: string,
-  ) => Promise<IdentityAuthResult>,
+  +identityPasswordLogIn: (username: string, password: string) => Promise<void>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
-class LogInPanel extends React.PureComponent<Props> {
+type State = {
+  +logInPending: boolean,
+};
+class LogInPanel extends React.PureComponent<Props, State> {
   usernameInput: ?TextInput;
   passwordInput: ?PasswordInput;
+  state: State = { logInPending: false };
 
   componentDidMount() {
     void this.attemptToFetchCredentials();
@@ -142,7 +141,7 @@ class LogInPanel extends React.PureComponent<Props> {
             returnKeyType="next"
             blurOnSubmit={false}
             onSubmitEditing={this.focusPasswordInput}
-            editable={this.props.loadingStatus !== 'loading'}
+            editable={this.getLoadingStatus() !== 'loading'}
             ref={this.usernameInputRef}
           />
         </View>
@@ -164,19 +163,29 @@ class LogInPanel extends React.PureComponent<Props> {
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
-            editable={this.props.loadingStatus !== 'loading'}
+            editable={this.getLoadingStatus() !== 'loading'}
             ref={this.passwordInputRef}
           />
         </View>
         <View style={styles.footer}>
           <PanelButton
             text="LOG IN"
-            loadingStatus={this.props.loadingStatus}
+            loadingStatus={this.getLoadingStatus()}
             onSubmit={this.onSubmit}
           />
         </View>
       </Panel>
     );
+  }
+
+  getLoadingStatus(): LoadingStatus {
+    if (this.props.loadingStatus === 'loading') {
+      return 'loading';
+    }
+    if (this.state.logInPending) {
+      return 'loading';
+    }
+    return 'inactive';
   }
 
   usernameInputRef: (usernameInput: ?TextInput) => void = usernameInput => {
@@ -249,26 +258,24 @@ class LogInPanel extends React.PureComponent<Props> {
     }
 
     Keyboard.dismiss();
+    if (usingCommServicesAccessToken) {
+      await this.identityPasswordLogIn();
+      return;
+    }
+
     const extraInfo = await this.props.logInExtraInfo();
     const initialNotificationsEncryptedMessage =
       await this.props.getInitialNotificationsEncryptedMessage();
 
-    if (usingCommServicesAccessToken) {
-      void this.props.dispatchActionPromise(
-        identityLogInActionTypes,
-        this.identityPasswordLogInAction(),
-      );
-    } else {
-      void this.props.dispatchActionPromise(
-        legacyLogInActionTypes,
-        this.legacyLogInAction({
-          ...extraInfo,
-          initialNotificationsEncryptedMessage,
-        }),
-        undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
-      );
-    }
+    void this.props.dispatchActionPromise(
+      legacyLogInActionTypes,
+      this.legacyLogInAction({
+        ...extraInfo,
+        initialNotificationsEncryptedMessage,
+      }),
+      undefined,
+      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+    );
   };
 
   async legacyLogInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
@@ -312,18 +319,17 @@ class LogInPanel extends React.PureComponent<Props> {
     }
   }
 
-  async identityPasswordLogInAction(): Promise<IdentityAuthResult> {
+  async identityPasswordLogIn(): Promise<void> {
+    if (this.state.logInPending) {
+      return;
+    }
+    this.setState({ logInPending: true });
     try {
-      const result = await this.props.identityPasswordLogIn(
+      await this.props.identityPasswordLogIn(
         this.usernameInputText,
         this.passwordInputText,
       );
       this.props.setActiveAlert(false);
-      await setNativeCredentials({
-        username: this.usernameInputText,
-        password: this.passwordInputText,
-      });
-      return result;
     } catch (e) {
       const messageForException = getMessageForException(e);
       if (
@@ -352,6 +358,8 @@ class LogInPanel extends React.PureComponent<Props> {
         );
       }
       throw e;
+    } finally {
+      this.setState({ logInPending: false });
     }
   }
 
@@ -427,6 +435,7 @@ const logInLoadingStatusSelector = createLoadingStatusSelector(
 );
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
+const identityPasswordLogInInput = { saveCredentials: setNativeCredentials };
 
 const ConnectedLogInPanel: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLogInPanel(props: BaseProps) {
@@ -443,7 +452,9 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLegacyLogIn = useLegacyLogIn();
-    const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
+    const callIdentityPasswordLogIn = usePasswordLogIn(
+      identityPasswordLogInInput,
+    );
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
