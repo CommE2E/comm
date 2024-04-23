@@ -462,7 +462,7 @@ const olmAPI: OlmAPI = {
 
     return result;
   },
-  async decryptSequential(
+  async decryptSequentialAndPersist(
     encryptedData: EncryptedData,
     deviceID: string,
     messageID: string,
