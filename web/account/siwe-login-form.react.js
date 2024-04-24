@@ -29,6 +29,7 @@ import type {
   LogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
+import { SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { getMessageForException, ServerError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -187,7 +188,10 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     const {
       primaryIdentityPublicKeys: { ed25519 },
     } = await olmAPI.getUserPublicKey();
-    const statement = getSIWEStatementForPublicKey(ed25519);
+    const statement = getSIWEStatementForPublicKey(
+      ed25519,
+      SIWEMessageTypes.MSG_AUTH,
+    );
     const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage({ message });
     if (usingCommServicesAccessToken) {
