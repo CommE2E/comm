@@ -7,9 +7,10 @@ import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
+import type { FarcasterChannel } from 'lib/types/farcaster-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
-import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react';
+import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -29,10 +30,11 @@ function TagFarcasterChannel(props: Props): React.Node {
   const fid = useCurrentUserFID();
   invariant(fid, 'FID should be set');
 
-  const [selectedChannel, setSelectedChannel] = React.useState<?string>(null);
+  const [selectedChannel, setSelectedChannel] =
+    React.useState<?FarcasterChannel>(null);
 
   const [channelOptions, setChannelOptions] = React.useState<
-    $ReadOnlyArray<string>,
+    $ReadOnlyArray<FarcasterChannel>,
   >([]);
 
   const neynarClientContext = React.useContext(NeynarClientContext);
@@ -42,11 +44,9 @@ function TagFarcasterChannel(props: Props): React.Node {
 
   React.useEffect(() => {
     void (async () => {
-      const data = await client.fetchFollowedFarcasterChannels(fid);
+      const channels = await client.fetchFollowedFarcasterChannels(fid);
 
-      const result = data.map(channel => channel.name);
-
-      setChannelOptions(result);
+      setChannelOptions(channels);
     })();
   }, [client, fid]);
 
@@ -72,8 +72,10 @@ function TagFarcasterChannel(props: Props): React.Node {
   );
 
   const onPressSelectChannel = React.useCallback(() => {
+    const channelNames = channelOptions.map(channel => channel.name);
+
     const options =
-      Platform.OS === 'ios' ? [...channelOptions, 'Cancel'] : channelOptions;
+      Platform.OS === 'ios' ? [...channelNames, 'Cancel'] : channelNames;
 
     const cancelButtonIndex = Platform.OS === 'ios' ? options.length - 1 : -1;
 
@@ -103,8 +105,8 @@ function TagFarcasterChannel(props: Props): React.Node {
     [styles.sectionContainer, styles.touchableSectionContainer],
   );
 
-  const channelSelectionTextContent = selectedChannel
-    ? selectedChannel
+  const channelSelectionTextContent = selectedChannel?.name
+    ? selectedChannel.name
     : 'No Farcaster channel tagged';
 
   const tagFarcasterChannel = React.useMemo(
