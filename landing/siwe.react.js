@@ -68,15 +68,23 @@ function SIWE(): React.Node {
     React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
+    invariant(siweMessageType, 'message type must be set during SIWE attempt');
     invariant(
       siwePrimaryIdentityPublicKey,
       'primaryIdentityPublicKey must be present during SIWE attempt',
     );
     const statement = getSIWEStatementForPublicKey(
       siwePrimaryIdentityPublicKey,
+      siweMessageType,
     );
     void signInWithEthereum(address, signer, siweNonce, statement);
-  }, [address, signer, siweNonce, siwePrimaryIdentityPublicKey]);
+  }, [
+    address,
+    signer,
+    siweNonce,
+    siwePrimaryIdentityPublicKey,
+    siweMessageType,
+  ]);
 
   const { openConnectModal } = useConnectModal();
   const hasNonce = siweNonce !== null && siweNonce !== undefined;

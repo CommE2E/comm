@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { StaticRouter } from 'react-router';
 
+import { type SIWEMessageType } from 'lib/types/siwe-types.js';
+
 import Landing from './landing.react.js';
 import { SIWEContext } from './siwe-context.js';
 
@@ -11,7 +13,7 @@ export type LandingSSRProps = {
   +basename: string,
   +siweNonce: ?string,
   +siwePrimaryIdentityPublicKey: ?string,
-  +siweMessageType: ?string,
+  +siweMessageType: ?SIWEMessageType,
 };
 function LandingSSR(props: LandingSSRProps): React.Node {
   const {
