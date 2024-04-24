@@ -417,6 +417,26 @@ impl DatabaseClient {
 
     Ok(())
   }
+
+  /// Deletes all data for a user from one-time keys table
+  pub async fn delete_otks_table_rows_for_user(
+    &self,
+    user_id: &str,
+  ) -> Result<(), Error> {
+    let maybe_device_list_row = self.get_current_device_list(user_id).await?;
+    let Some(device_list_row) = maybe_device_list_row else {
+      info!("No devices associated with user. Skipping one-time key removal.");
+      return Ok(());
+    };
+
+    for device_id in device_list_row.device_ids {
+      self
+        .delete_otks_table_rows_for_user_device(user_id, &device_id)
+        .await?;
+    }
+
+    Ok(())
+  }
 }
 
 pub struct OTKRow {
