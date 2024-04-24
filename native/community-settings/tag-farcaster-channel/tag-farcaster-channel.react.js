@@ -16,6 +16,10 @@ import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
+export type TagFarcasterChannelParams = {
+  +communityID: string,
+};
+
 type Props = {
   +navigation: TagFarcasterChannelNavigationProp<'TagFarcasterChannel'>,
   +route: NavigationRoute<'TagFarcasterChannel'>,
