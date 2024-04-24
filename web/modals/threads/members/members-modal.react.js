@@ -7,7 +7,7 @@ import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   roleIsAdminRole,
-  threadHasPermission,
+  useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -121,7 +121,7 @@ function ThreadMembersModal(props: Props): React.Node {
     pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
   }, [popModal, pushModal, threadID]);
 
-  const canAddMembers = threadHasPermission(
+  const canAddMembers = useThreadHasPermission(
     threadInfo,
     threadPermissions.ADD_MEMBERS,
   );
