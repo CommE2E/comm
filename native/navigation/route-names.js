@@ -36,6 +36,7 @@ import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.r
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
+import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
@@ -296,7 +297,7 @@ export type RolesParamList = {
 };
 
 export type TagFarcasterChannelParamList = {
-  +TagFarcasterChannel: void,
+  +TagFarcasterChannel: TagFarcasterChannelParams,
 };
 
 export type QRCodeSignInParamList = {

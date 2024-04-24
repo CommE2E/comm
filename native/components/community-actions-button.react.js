@@ -74,9 +74,12 @@ function CommunityActionsButton(props: Props): React.Node {
       TagFarcasterChannelNavigatorRouteName,
       {
         screen: TagFarcasterChannelRouteName,
+        params: {
+          communityID: community.id,
+        },
       },
     );
-  }, [navigate]);
+  }, [community.id, navigate]);
 
   const insets = useSafeAreaInsets();
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
