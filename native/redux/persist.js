@@ -146,6 +146,7 @@ const persistBlacklist = [
   'syncedMetadataStore',
   'userStore',
   'auxUserStore',
+  'commServicesAccessToken',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
