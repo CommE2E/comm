@@ -8,6 +8,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { type SIWEMessageType } from 'lib/types/siwe-types.js';
 import {
   isValidPrimaryIdentityPublicKey,
   isValidSIWENonce,
@@ -139,17 +140,18 @@ async function landingResponder(req: $Request, res: $Response) {
     });
     return;
   }
-  const siweMessageType = req.header('siwe-message-type');
+  const siweMessageTypeRawString = req.header('siwe-message-type');
   if (
-    siweMessageType !== null &&
-    siweMessageType !== undefined &&
-    !isValidSIWEMessageType(siweMessageType)
+    siweMessageTypeRawString !== null &&
+    siweMessageTypeRawString !== undefined &&
+    !isValidSIWEMessageType(siweMessageTypeRawString)
   ) {
     res.status(400).send({
       message: 'Invalid siwe message type.',
     });
     return;
   }
+  const siweMessageType = ((siweMessageTypeRawString: any): SIWEMessageType);
 
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
