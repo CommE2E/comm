@@ -24,7 +24,10 @@ import {
   useMessageListData,
 } from 'lib/selectors/chat-selectors.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { threadIsPending } from 'lib/shared/thread-utils.js';
+import {
+  threadIsPending,
+  threadOtherMembers,
+} from 'lib/shared/thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -76,6 +79,7 @@ type Props = {
   +isEditState: boolean,
   +addScrollToMessageListener: ScrollToMessageCallback => mixed,
   +removeScrollToMessageListener: ScrollToMessageCallback => mixed,
+  +viewerID: ?string,
 };
 type Snapshot = {
   +scrollTop: number,
@@ -315,7 +319,22 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
     let relationshipPrompt = null;
     if (threadInfo.type === threadTypes.PERSONAL) {
-      relationshipPrompt = <RelationshipPrompt threadInfo={threadInfo} />;
+      const otherMember = threadOtherMembers(
+        threadInfo.members,
+        this.props.viewerID,
+      )[0];
+
+      const pendingPersonalThreadUserInfo = {
+        id: otherMember.id,
+        username: otherMember.username,
+      };
+
+      relationshipPrompt = (
+        <RelationshipPrompt
+          threadInfo={threadInfo}
+          pendingPersonalThreadUserInfo={pendingPersonalThreadUserInfo}
+        />
+      );
     }
 
     const messageContainerStyle = classNames({
@@ -462,6 +481,8 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
     } = useEditModalContext();
     const isEditState = editState !== null;
 
+    const viewerID = useSelector(state => state.currentUserInfo?.id);
+
     return (
       <MessageListContext.Provider value={messageListContext}>
         <ChatMessageList
@@ -478,6 +499,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           isEditState={isEditState}
           addScrollToMessageListener={addScrollToMessageListener}
           removeScrollToMessageListener={removeScrollToMessageListener}
+          viewerID={viewerID}
         />
       </MessageListContext.Provider>
     );
