@@ -6,11 +6,17 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import {
+  createOrUpdateFarcasterChannelTagActionTypes,
+  useCreateOrUpdateFarcasterChannelTag,
+} from 'lib/actions/community-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import type { FarcasterChannel } from 'lib/types/farcaster-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
+import RegistrationButton from '../../account/registration/registration-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -25,8 +31,11 @@ type Props = {
   +route: NavigationRoute<'TagFarcasterChannel'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function TagFarcasterChannel(props: Props): React.Node {
+  const { route } = props;
+
+  const { communityID } = route.params;
+
   const styles = useStyles(unboundStyles);
 
   const colors = useColors();
@@ -104,6 +113,34 @@ function TagFarcasterChannel(props: Props): React.Node {
     showActionSheetWithOptions,
   ]);
 
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const createOrUpdateFarcasterChannelTag =
+    useCreateOrUpdateFarcasterChannelTag();
+
+  const createCreateOrUpdateActionPromise = React.useCallback(async () => {
+    if (!selectedChannel) {
+      return undefined;
+    }
+
+    try {
+      return await createOrUpdateFarcasterChannelTag({
+        commCommunityID: communityID,
+        farcasterChannelID: selectedChannel.id,
+      });
+    } catch (e) {
+      console.log('error', e); // TODO: Improve error handling
+      throw e;
+    }
+  }, [communityID, createOrUpdateFarcasterChannelTag, selectedChannel]);
+
+  const onPressTag = React.useCallback(() => {
+    void dispatchActionPromise(
+      createOrUpdateFarcasterChannelTagActionTypes,
+      createCreateOrUpdateActionPromise(),
+    );
+  }, [createCreateOrUpdateActionPromise, dispatchActionPromise]);
+
   const channelSelectionStyles = React.useMemo(
     () => [styles.sectionContainer, styles.touchableSectionContainer],
     [styles.sectionContainer, styles.touchableSectionContainer],
@@ -112,6 +149,8 @@ function TagFarcasterChannel(props: Props): React.Node {
   const channelSelectionTextContent = selectedChannel?.name
     ? selectedChannel.name
     : 'No Farcaster channel tagged';
+
+  const buttonVariant = selectedChannel ? 'enabled' : 'disabled';
 
   const tagFarcasterChannel = React.useMemo(
     () => (
@@ -133,6 +172,11 @@ function TagFarcasterChannel(props: Props): React.Node {
             color={colors.panelForegroundSecondaryLabel}
           />
         </TouchableOpacity>
+        <RegistrationButton
+          onPress={onPressTag}
+          label="Tag channel"
+          variant={buttonVariant}
+        />
       </View>
     ),
     [
@@ -143,6 +187,8 @@ function TagFarcasterChannel(props: Props): React.Node {
       onPressSelectChannel,
       channelSelectionTextContent,
       colors.panelForegroundSecondaryLabel,
+      onPressTag,
+      buttonVariant,
     ],
   );
 
