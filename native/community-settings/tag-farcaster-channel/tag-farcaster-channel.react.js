@@ -22,6 +22,10 @@ import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
+const tagFarcasterErrorMessages: { +[string]: string } = {
+  already_in_use: 'This Farcaster channel is already tagged to a community.',
+};
+
 export type TagFarcasterChannelParams = {
   +communityID: string,
 };
@@ -49,6 +53,8 @@ function TagFarcasterChannel(props: Props): React.Node {
   const [channelOptions, setChannelOptions] = React.useState<
     $ReadOnlyArray<FarcasterChannel>,
   >([]);
+
+  const [error, setError] = React.useState<?string>(null);
 
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
@@ -85,6 +91,8 @@ function TagFarcasterChannel(props: Props): React.Node {
   );
 
   const onPressSelectChannel = React.useCallback(() => {
+    setError(null);
+
     const channelNames = channelOptions.map(channel => channel.name);
 
     const options =
@@ -129,7 +137,7 @@ function TagFarcasterChannel(props: Props): React.Node {
         farcasterChannelID: selectedChannel.id,
       });
     } catch (e) {
-      console.log('error', e); // TODO: Improve error handling
+      setError(e.message);
       throw e;
     }
   }, [communityID, createOrUpdateFarcasterChannelTag, selectedChannel]);
@@ -145,6 +153,18 @@ function TagFarcasterChannel(props: Props): React.Node {
     () => [styles.sectionContainer, styles.touchableSectionContainer],
     [styles.sectionContainer, styles.touchableSectionContainer],
   );
+
+  const errorMessage = React.useMemo(() => {
+    if (!error) {
+      return null;
+    }
+
+    return (
+      <Text style={styles.error}>
+        {tagFarcasterErrorMessages[error] ?? 'Unknown error.'}
+      </Text>
+    );
+  }, [error, styles.error]);
 
   const channelSelectionTextContent = selectedChannel?.name
     ? selectedChannel.name
@@ -172,6 +192,7 @@ function TagFarcasterChannel(props: Props): React.Node {
             color={colors.panelForegroundSecondaryLabel}
           />
         </TouchableOpacity>
+        <View style={styles.errorContainer}>{errorMessage}</View>
         <RegistrationButton
           onPress={onPressTag}
           label="Tag channel"
@@ -183,10 +204,12 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.sectionContainer,
       styles.sectionText,
       styles.sectionHeaderText,
+      styles.errorContainer,
       channelSelectionStyles,
       onPressSelectChannel,
       channelSelectionTextContent,
       colors.panelForegroundSecondaryLabel,
+      errorMessage,
       onPressTag,
       buttonVariant,
     ],
@@ -217,6 +240,16 @@ const unboundStyles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  errorContainer: {
+    height: 18,
+  },
+  error: {
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 18,
+    textAlign: 'center',
+    color: 'redText',
   },
 };
 
