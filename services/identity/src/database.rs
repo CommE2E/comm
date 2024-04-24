@@ -448,6 +448,11 @@ impl DatabaseClient {
     &self,
     user_id: String,
   ) -> Result<DeleteItemOutput, Error> {
+    // We must delete the one-time keys first because doing so requires device
+    // IDs from the devices table
+    debug!(user_id, "Attempting to delete user's one-time keys");
+    self.delete_otks_table_rows_for_user(&user_id).await?;
+
     debug!(user_id, "Attempting to delete user's devices");
     self.delete_devices_table_rows_for_user(&user_id).await?;
 
