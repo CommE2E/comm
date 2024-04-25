@@ -274,13 +274,7 @@ async function processOLMAccountCreation(
   viewer: Viewer,
   request: ProcessOLMAccountCreationRequest,
 ): Promise<void> {
-  const { calendarQuery, signedIdentityKeysBlob } = request;
-  await verifyCalendarQueryThreadIDs(calendarQuery);
-
   const time = Date.now();
-  const deviceToken = request.deviceTokenUpdateRequest
-    ? request.deviceTokenUpdateRequest.deviceToken
-    : viewer.deviceToken;
   const newUserRow = [
     request.userID,
     request.username,
@@ -291,20 +285,7 @@ async function processOLMAccountCreation(
     INSERT INTO users(id, username, ethereum_address, creation_time)
     VALUES ${[newUserRow]}
   `;
-  const [userViewerData] = await Promise.all([
-    createNewUserCookie(request.userID, {
-      platformDetails: request.platformDetails,
-      deviceToken,
-      signedIdentityKeysBlob,
-    }),
-    deleteCookie(viewer.cookieID),
-    dbQuery(newUserQuery),
-  ]);
-  viewer.setNewCookie(userViewerData);
-
-  await setNewSession(viewer, calendarQuery, 0);
-
-  await processAccountCreationCommon(viewer);
+  await dbQuery(newUserQuery);
 }
 
 async function processAccountCreationCommon(viewer: Viewer) {
@@ -375,4 +356,9 @@ async function createAndSendReservedUsernameMessage(
   await rustAPI.addReservedUsernames(stringifiedMessage, signature);
 }
 
-export { createAccount, processSIWEAccountCreation, processOLMAccountCreation };
+export {
+  createAccount,
+  processSIWEAccountCreation,
+  processOLMAccountCreation,
+  processAccountCreationCommon,
+};
