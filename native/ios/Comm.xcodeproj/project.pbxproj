@@ -66,6 +66,8 @@
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
 		CB24361829A39A2500FEC4E1 /* NotificationsCryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */; };
 		CB2689002A2DF58000EC7300 /* CommConstants.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */; };
+		CB3220922BDA66B900DB6C5C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CB3220912BDA66B900DB6C5C /* PrivacyInfo.xcprivacy */; };
+		CB3220932BDA66B900DB6C5C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CB3220912BDA66B900DB6C5C /* PrivacyInfo.xcprivacy */; };
 		CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47D2877194100171182 /* EncryptedFileUtils.mm */; };
@@ -278,6 +280,7 @@
 		CB2688FE2A2DF55F00EC7300 /* CommConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommConstants.h; sourceTree = "<group>"; };
 		CB2688FF2A2DF56000EC7300 /* CommConstants.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CommConstants.cpp; sourceTree = "<group>"; };
 		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
+		CB3220912BDA66B900DB6C5C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		CB38B4792877179A00171182 /* NonBlockingLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NonBlockingLock.h; path = Comm/TemporaryMessageStorage/NonBlockingLock.h; sourceTree = "<group>"; };
 		CB38B47B287718A200171182 /* NonBlockingLock.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NonBlockingLock.mm; path = Comm/TemporaryMessageStorage/NonBlockingLock.mm; sourceTree = "<group>"; };
 		CB38B47C2877190100171182 /* EncryptedFileUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EncryptedFileUtils.h; path = Comm/TemporaryMessageStorage/EncryptedFileUtils.h; sourceTree = "<group>"; };
@@ -618,6 +621,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				CB3220912BDA66B900DB6C5C /* PrivacyInfo.xcprivacy */,
 				8B99AF6B28D50D4800EB5ADB /* native_rust_library */,
 				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* Comm */,
@@ -980,6 +984,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */,
+				CB3220922BDA66B900DB6C5C /* PrivacyInfo.xcprivacy in Resources */,
 				7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */,
 				7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */,
 				7FA2DCDE293E62F500991BA4 /* CommIcons.ttf in Resources */,
@@ -1003,6 +1008,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB3220932BDA66B900DB6C5C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
