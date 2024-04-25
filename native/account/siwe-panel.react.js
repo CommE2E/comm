@@ -80,14 +80,7 @@ function SIWEPanel(props: Props): React.Node {
   const [primaryIdentityPublicKey, setPrimaryIdentityPublicKey] =
     React.useState<?string>(null);
 
-  const hasCurrentUserInfo = useSelector(
-    state => !!state.currentUserInfo && !state.currentUserInfo.anonymous,
-  );
-
   React.useEffect(() => {
-    if (hasCurrentUserInfo) {
-      return;
-    }
     const generateNonce = async (nonceFunction: () => Promise<string>) => {
       try {
         const response = await nonceFunction();
@@ -124,7 +117,6 @@ function SIWEPanel(props: Props): React.Node {
     getSIWENonceCall,
     identityGenerateNonce,
     onClosing,
-    hasCurrentUserInfo,
   ]);
 
   const [isLoading, setLoading] = React.useState(true);
