@@ -31,7 +31,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type {
   CalendarQuery,
   CreateEntryInfo,
@@ -209,6 +209,7 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +canEditEntry: boolean,
 };
 type State = {
   +editing: boolean,
@@ -478,15 +479,11 @@ class InternalEntry extends React.Component<Props, State> {
     const heightStyle = { height: this.state.height };
     const entryStyle = { backgroundColor: threadColor };
     const opacity = editing ? 1.0 : 0.6;
-    const canEditEntry = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.EDIT_ENTRIES,
-    );
     return (
       <TouchableWithoutFeedback onPress={this.props.onPressWhitespace}>
         <View style={this.props.styles.container}>
           <Button
-            disabled={!canEditEntry}
+            disabled={!this.props.canEditEntry}
             onPress={this.setActive}
             style={[this.props.styles.entry, entryStyle]}
             androidFormat="opacity"
@@ -590,8 +587,7 @@ class InternalEntry extends React.Component<Props, State> {
   };
 
   makeActive(active: boolean) {
-    const { threadInfo } = this.props;
-    if (!threadHasPermission(threadInfo, threadPermissions.EDIT_ENTRIES)) {
+    if (!this.props.canEditEntry) {
       return;
     }
     this.props.makeActive(entryKey(this.props.entryInfo), active);
@@ -804,6 +800,11 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
     const online = connection.status === 'connected';
 
+    const canEditEntry = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_ENTRIES,
+    );
+
     return (
       <InternalEntry
         {...restProps}
@@ -818,6 +819,7 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         saveEntry={callSaveEntry}
         deleteEntry={callDeleteEntry}
         threadInfo={threadInfo}
+        canEditEntry={canEditEntry}
       />
     );
   },
