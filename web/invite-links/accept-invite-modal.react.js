@@ -5,6 +5,7 @@ import * as React from 'react';
 import ModalOverlay from 'lib/components/modal-overlay.react.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
+import type { LinkStatus } from 'lib/hooks/invite-links.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 
@@ -21,12 +22,8 @@ type Props = {
 
 function AcceptInviteModal(props: Props): React.Node {
   const { verificationResponse, inviteSecret, keyserverOverride } = props;
-  const [isLinkValid, setIsLinkValid] = React.useState(
-    verificationResponse.status === 'valid',
-  );
-  const onInvalidLinkDetected = React.useCallback(
-    () => setIsLinkValid(false),
-    [],
+  const [linkStatus, setLinkStatus] = React.useState<LinkStatus>(
+    verificationResponse.status === 'valid' ? 'valid' : 'invalid',
   );
   const { popModal } = useModalContext();
   const calendarQuery = useSelector(nonThreadCalendarQuery);
@@ -37,11 +34,11 @@ function AcceptInviteModal(props: Props): React.Node {
     keyserverOverride,
     calendarQuery,
     onFinish: popModal,
-    onInvalidLinkDetected,
+    setLinkStatus,
   });
 
   let content;
-  if (verificationResponse.status === 'valid' && isLinkValid) {
+  if (verificationResponse.status === 'valid' && linkStatus === 'valid') {
     const { community } = verificationResponse;
     content = (
       <>
@@ -64,14 +61,17 @@ function AcceptInviteModal(props: Props): React.Node {
       </>
     );
   } else {
+    const header = linkStatus === 'invalid' ? 'Invite invalid' : 'Timeout';
+    const message =
+      linkStatus === 'invalid'
+        ? 'This invite link may be expired. Please try again with another ' +
+          'invite link.'
+        : 'The request has timed out.';
     content = (
       <>
         <div className={css.group}>
-          <div className={css.heading}>Invite invalid</div>
-          <div className={css.text}>
-            This invite link may be expired. Please try again with another
-            invite link.
-          </div>
+          <div className={css.heading}>{header}</div>
+          <div className={css.text}>{message}</div>
         </div>
         <hr />
         <Button
