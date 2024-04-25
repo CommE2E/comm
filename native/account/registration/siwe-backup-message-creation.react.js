@@ -30,6 +30,7 @@ type PanelState = 'closed' | 'opening' | 'open' | 'closing';
 type CreateSIWEBackupMessageBaseProps = {
   +onSuccessfulWalletSignature: (result: SIWEResult) => void,
   +onExistingWalletSignature?: () => void,
+  +onSkip?: () => void,
 };
 
 const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBaseProps> =
@@ -37,7 +38,8 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
     function CreateSIWEBackupMessageBase(
       props: CreateSIWEBackupMessageBaseProps,
     ): React.Node {
-      const { onSuccessfulWalletSignature, onExistingWalletSignature } = props;
+      const { onSuccessfulWalletSignature, onExistingWalletSignature, onSkip } =
+        props;
       const styles = useStyles(unboundStyles);
 
       const [panelState, setPanelState] = React.useState<PanelState>('closed');
@@ -94,6 +96,13 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
         );
       }
 
+      let onSkipButton;
+      if (onSkip) {
+        onSkipButton = (
+          <RegistrationButton onPress={onSkip} label="Skip" variant="outline" />
+        );
+      }
+
       const body = (
         <Text style={styles.body}>
           Comm encrypts user backups so that our backend is not able to see user
@@ -120,6 +129,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
                 label={newSignatureButtonText}
                 variant={newSignatureButtonVariant}
               />
+              {onSkipButton}
             </RegistrationButtonContainer>
           </RegistrationContainer>
           {siwePanel}

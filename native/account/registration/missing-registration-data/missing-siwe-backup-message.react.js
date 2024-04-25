@@ -18,30 +18,24 @@ type Props = {
 
 function CreateMissingSIWEBackupMessage(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const [siweBackupSecretsPersisted, setSIWEBackupSecretsPersisted] =
-    React.useState<boolean>(false);
+  const { goBack } = props.navigation;
 
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
         const { message, signature } = result;
         await commCoreModule.setSIWEBackupSecrets({ message, signature });
-        setSIWEBackupSecretsPersisted(true);
+        goBack();
       })();
     },
-    [setSIWEBackupSecretsPersisted],
+    [goBack],
   );
-
-  React.useEffect(() => {
-    if (siweBackupSecretsPersisted) {
-      props.navigation.goBack();
-    }
-  }, [siweBackupSecretsPersisted, props]);
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <CreateSIWEBackupMessageBase
         onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        onSkip={goBack}
       />
     </SafeAreaView>
   );
