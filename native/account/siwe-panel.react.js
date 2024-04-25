@@ -80,7 +80,14 @@ function SIWEPanel(props: Props): React.Node {
   const [primaryIdentityPublicKey, setPrimaryIdentityPublicKey] =
     React.useState<?string>(null);
 
+  // This is set if we either succeed or fail, at which point we expect
+  // to be unmounted/remounted by our parent component prior to a retry
+  const doneRef = React.useRef(false);
+
   React.useEffect(() => {
+    if (doneRef.current) {
+      return;
+    }
     const generateNonce = async (nonceFunction: () => Promise<string>) => {
       try {
         const response = await nonceFunction();
@@ -89,7 +96,15 @@ function SIWEPanel(props: Props): React.Node {
         Alert.alert(
           UnknownErrorAlertDetails.title,
           UnknownErrorAlertDetails.message,
-          [{ text: 'OK', onPress: onClosing }],
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                doneRef.current = true;
+                onClosing();
+              },
+            },
+          ],
           { cancelable: false },
         );
         throw e;
@@ -158,10 +173,12 @@ function SIWEPanel(props: Props): React.Node {
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;
         if (address && signature) {
+          doneRef.current = true;
           closeBottomSheet?.();
           await onSuccessfulWalletSignature({ address, message, signature });
         }
       } else if (data.type === 'siwe_closed') {
+        doneRef.current = true;
         onClosing();
         closeBottomSheet?.();
       } else if (data.type === 'walletconnect_modal_update') {
@@ -181,6 +198,7 @@ function SIWEPanel(props: Props): React.Node {
   const prevClosingRef = React.useRef<?boolean>();
   React.useEffect(() => {
     if (closing && !prevClosingRef.current) {
+      doneRef.current = true;
       closeBottomSheet?.();
     }
     prevClosingRef.current = closing;
