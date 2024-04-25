@@ -39,7 +39,6 @@ import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connection
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
 
-import { MissingRegistrationDataHandler } from './account/registration/missing-registration-data/missing-registration-data-handler.react.js';
 import { RegistrationContextProvider } from './account/registration/registration-context-provider.react.js';
 import NativeEditThreadAvatarProvider from './avatars/native-edit-thread-avatar-provider.react.js';
 import BackupHandler from './backup/backup-handler.js';
@@ -300,7 +299,6 @@ function Root() {
           </ChatContextProvider>
           <NavigationHandler />
           <ConnectFarcasterAlertHandler />
-          <MissingRegistrationDataHandler />
         </BottomSheetModalProvider>
       </NavigationContainer>
     );
