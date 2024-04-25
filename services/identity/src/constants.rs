@@ -58,13 +58,15 @@ pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
 pub const USERS_TABLE_FARCASTER_ID_INDEX: &str = "farcasterID-index";
 
-pub const ACCESS_TOKEN_TABLE: &str = "identity-tokens";
-pub const ACCESS_TOKEN_TABLE_PARTITION_KEY: &str = "userID";
-pub const ACCESS_TOKEN_SORT_KEY: &str = "signingPublicKey";
-pub const ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE: &str = "created";
-pub const ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE: &str = "authType";
-pub const ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE: &str = "valid";
-pub const ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE: &str = "token";
+pub mod token_table {
+  pub const NAME: &str = "identity-tokens";
+  pub const PARTITION_KEY: &str = "userID";
+  pub const SORT_KEY: &str = "signingPublicKey";
+  pub const ATTR_CREATED: &str = "created";
+  pub const ATTR_AUTH_TYPE: &str = "authType";
+  pub const ATTR_VALID: &str = "valid";
+  pub const ATTR_TOKEN: &str = "token";
+}
 
 pub const NONCE_TABLE: &str = "identity-nonces";
 pub const NONCE_TABLE_PARTITION_KEY: &str = "nonce";

@@ -453,6 +453,9 @@ impl DatabaseClient {
     debug!(user_id, "Attempting to delete user's devices");
     self.delete_devices_table_rows_for_user(&user_id).await?;
 
+    debug!(user_id, "Attempting to delete user's access tokens");
+    self.delete_all_tokens_for_user(&user_id).await?;
+
     debug!(user_id, "Attempting to delete user");
     match self
       .client

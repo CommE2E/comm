@@ -4,20 +4,17 @@ use chrono::{DateTime, Utc};
 use comm_lib::{
   aws::ddb::{
     operation::{get_item::GetItemOutput, put_item::PutItemOutput},
-    types::AttributeValue,
+    types::{AttributeValue, DeleteRequest, WriteRequest},
   },
-  database::{DBItemAttributeError, DBItemError, TryFromAttribute},
+  database::{
+    batch_operations::{batch_write, ExponentialBackoffConfig},
+    DBItemAttributeError, DBItemError, TryFromAttribute,
+  },
 };
 use constant_time_eq::constant_time_eq;
 use tracing::{error, info};
 
 use crate::{
-  constants::{
-    ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
-    ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE,
-    ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE, ACCESS_TOKEN_TABLE_PARTITION_KEY,
-    ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE, ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
-  },
   error::Error,
   token::{AccessTokenData, AuthType},
 };
@@ -30,20 +27,16 @@ impl DatabaseClient {
     user_id: String,
     signing_public_key: String,
   ) -> Result<Option<AccessTokenData>, Error> {
+    use crate::constants::token_table::*;
+
     let primary_key = create_composite_primary_key(
-      (
-        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
-        user_id.clone(),
-      ),
-      (
-        ACCESS_TOKEN_SORT_KEY.to_string(),
-        signing_public_key.clone(),
-      ),
+      (PARTITION_KEY.to_string(), user_id.clone()),
+      (SORT_KEY.to_string(), signing_public_key.clone()),
     );
     let get_item_result = self
       .client
       .get_item()
-      .table_name(ACCESS_TOKEN_TABLE)
+      .table_name(NAME)
       .set_key(Some(primary_key))
       .consistent_read(true)
       .send()
@@ -54,18 +47,12 @@ impl DatabaseClient {
         ..
       }) => {
         let created = DateTime::<Utc>::try_from_attr(
-          ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
-          item.remove(ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE),
+          ATTR_CREATED,
+          item.remove(ATTR_CREATED),
         )?;
-        let auth_type = parse_auth_type_attribute(
-          item.remove(ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE),
-        )?;
-        let valid = parse_valid_attribute(
-          item.remove(ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE),
-        )?;
-        let access_token = parse_token_attribute(
-          item.remove(ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE),
-        )?;
+        let auth_type = parse_auth_type_attribute(item.remove(ATTR_AUTH_TYPE))?;
+        let valid = parse_valid_attribute(item.remove(ATTR_VALID))?;
+        let access_token = parse_token_attribute(item.remove(ATTR_TOKEN))?;
         Ok(Some(AccessTokenData {
           user_id,
           signing_public_key,
@@ -116,39 +103,41 @@ impl DatabaseClient {
     &self,
     access_token_data: AccessTokenData,
   ) -> Result<PutItemOutput, Error> {
+    use crate::constants::token_table::*;
+
     let item = HashMap::from([
       (
-        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
+        PARTITION_KEY.to_string(),
         AttributeValue::S(access_token_data.user_id),
       ),
       (
-        ACCESS_TOKEN_SORT_KEY.to_string(),
+        SORT_KEY.to_string(),
         AttributeValue::S(access_token_data.signing_public_key),
       ),
       (
-        ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
+        ATTR_TOKEN.to_string(),
         AttributeValue::S(access_token_data.access_token),
       ),
       (
-        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
+        ATTR_CREATED.to_string(),
         AttributeValue::S(access_token_data.created.to_rfc3339()),
       ),
       (
-        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
+        ATTR_AUTH_TYPE.to_string(),
         AttributeValue::S(match access_token_data.auth_type {
           AuthType::Password => "password".to_string(),
           AuthType::Wallet => "wallet".to_string(),
         }),
       ),
       (
-        ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
+        ATTR_VALID.to_string(),
         AttributeValue::Bool(access_token_data.valid),
       ),
     ]);
     self
       .client
       .put_item()
-      .table_name(ACCESS_TOKEN_TABLE)
+      .table_name(NAME)
       .set_item(Some(item))
       .send()
       .await
@@ -160,21 +149,64 @@ impl DatabaseClient {
     user_id: String,
     device_id_key: String,
   ) -> Result<(), Error> {
+    use crate::constants::token_table::*;
+
     self
       .client
       .delete_item()
-      .table_name(ACCESS_TOKEN_TABLE)
-      .key(
-        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
-        AttributeValue::S(user_id),
-      )
-      .key(
-        ACCESS_TOKEN_SORT_KEY.to_string(),
-        AttributeValue::S(device_id_key),
-      )
+      .table_name(NAME)
+      .key(PARTITION_KEY.to_string(), AttributeValue::S(user_id))
+      .key(SORT_KEY.to_string(), AttributeValue::S(device_id_key))
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    Ok(())
+  }
+
+  pub async fn delete_all_tokens_for_user(
+    &self,
+    user_id: &str,
+  ) -> Result<(), Error> {
+    use crate::constants::token_table::*;
+
+    let primary_keys = self
+      .client
+      .query()
+      .table_name(NAME)
+      .projection_expression("#pk, #sk")
+      .key_condition_expression("#pk = :pk")
+      .expression_attribute_names("#pk", PARTITION_KEY)
+      .expression_attribute_names("#sk", SORT_KEY)
+      .expression_attribute_values(
+        ":pk",
+        AttributeValue::S(user_id.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("Failed to list user's items in tokens table: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?
+      .items
+      .unwrap_or_default();
+
+    let delete_requests = primary_keys
+      .into_iter()
+      .map(|item| {
+        let request = DeleteRequest::builder().set_key(Some(item)).build();
+        WriteRequest::builder().delete_request(request).build()
+      })
+      .collect::<Vec<_>>();
+
+    batch_write(
+      &self.client,
+      NAME,
+      delete_requests,
+      ExponentialBackoffConfig::default(),
+    )
+    .await
+    .map_err(Error::from)?;
 
     Ok(())
   }
@@ -183,19 +215,21 @@ impl DatabaseClient {
 fn parse_auth_type_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<AuthType, DBItemError> {
+  use crate::constants::token_table::ATTR_AUTH_TYPE;
+
   if let Some(AttributeValue::S(auth_type)) = &attribute {
     match auth_type.as_str() {
       "password" => Ok(AuthType::Password),
       "wallet" => Ok(AuthType::Wallet),
       _ => Err(DBItemError::new(
-        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
+        ATTR_AUTH_TYPE.to_string(),
         attribute.into(),
         DBItemAttributeError::IncorrectType,
       )),
     }
   } else {
     Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
+      ATTR_AUTH_TYPE.to_string(),
       attribute.into(),
       DBItemAttributeError::Missing,
     ))
@@ -205,15 +239,17 @@ fn parse_auth_type_attribute(
 fn parse_valid_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<bool, DBItemError> {
+  use crate::constants::token_table::ATTR_VALID;
+
   match attribute {
     Some(AttributeValue::Bool(valid)) => Ok(valid),
     Some(_) => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
+      ATTR_VALID.to_string(),
       attribute.into(),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
+      ATTR_VALID.to_string(),
       attribute.into(),
       DBItemAttributeError::Missing,
     )),
@@ -223,15 +259,17 @@ fn parse_valid_attribute(
 fn parse_token_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
+  use crate::constants::token_table::ATTR_TOKEN;
+
   match attribute {
     Some(AttributeValue::S(token)) => Ok(token),
     Some(_) => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
+      ATTR_TOKEN.to_string(),
       attribute.into(),
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
+      ATTR_TOKEN.to_string(),
       attribute.into(),
       DBItemAttributeError::Missing,
     )),
