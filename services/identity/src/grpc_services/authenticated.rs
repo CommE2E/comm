@@ -627,6 +627,17 @@ impl From<DeviceListRow> for RawDeviceList {
 struct SignedDeviceList {
   /// JSON-stringified [`RawDeviceList`]
   raw_device_list: String,
+  /// Current primary device signature.
+  /// NOTE: Present only when the payload is received from primary device.
+  /// It's `None` for Identity-generated device-lists
+  #[serde(default)]
+  #[serde(skip_serializing_if = "Option::is_none")]
+  cur_primary_signature: Option<String>,
+  /// Previous primary device signature. Present only
+  /// if primary device has changed since last update.
+  #[serde(default)]
+  #[serde(skip_serializing_if = "Option::is_none")]
+  last_primary_signature: Option<String>,
 }
 
 impl SignedDeviceList {
@@ -639,6 +650,8 @@ impl SignedDeviceList {
 
     Ok(Self {
       raw_device_list: stringified_list,
+      cur_primary_signature: None,
+      last_primary_signature: None,
     })
   }
 
@@ -703,6 +716,53 @@ fn construct_delete_password_user_info(
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn deserialize_device_list_signature() {
+    let payload_with_signature = r#"{"rawDeviceList":"{\"devices\":[\"device1\"],\"timestamp\":111111111}","curPrimarySignature":"foo"}"#;
+    let payload_without_signatures = r#"{"rawDeviceList":"{\"devices\":[\"device1\",\"device2\"],\"timestamp\":222222222}"}"#;
+
+    let list_with_signature: SignedDeviceList =
+      serde_json::from_str(payload_with_signature).unwrap();
+    let list_without_signatures: SignedDeviceList =
+      serde_json::from_str(payload_without_signatures).unwrap();
+
+    assert_eq!(
+      list_with_signature.cur_primary_signature,
+      Some("foo".to_string())
+    );
+    assert!(list_with_signature.last_primary_signature.is_none());
+
+    assert!(list_without_signatures.cur_primary_signature.is_none());
+    assert!(list_without_signatures.last_primary_signature.is_none());
+  }
+
+  #[test]
+  fn serialize_device_list_signatures() {
+    let raw_list = r#"{"devices":["device1"],"timestamp":111111111}"#;
+
+    let expected_payload_without_signatures = r#"{"rawDeviceList":"{\"devices\":[\"device1\"],\"timestamp\":111111111}"}"#;
+    let device_list_without_signature = SignedDeviceList {
+      raw_device_list: raw_list.to_string(),
+      cur_primary_signature: None,
+      last_primary_signature: None,
+    };
+    assert_eq!(
+      device_list_without_signature.as_json_string().unwrap(),
+      expected_payload_without_signatures
+    );
+
+    let expected_payload_with_signature = r#"{"rawDeviceList":"{\"devices\":[\"device1\"],\"timestamp\":111111111}","curPrimarySignature":"foo"}"#;
+    let device_list_with_cur_signature = SignedDeviceList {
+      raw_device_list: raw_list.to_string(),
+      cur_primary_signature: Some("foo".to_string()),
+      last_primary_signature: None,
+    };
+    assert_eq!(
+      device_list_with_cur_signature.as_json_string().unwrap(),
+      expected_payload_with_signature
+    );
+  }
 
   #[test]
   fn serialize_device_list_updates() {
