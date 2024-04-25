@@ -61,7 +61,7 @@ import {
   draftKeyFromThreadID,
   threadActualMembers,
   threadFrozenDueToViewerBlock,
-  threadHasPermission,
+  useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
@@ -313,6 +313,8 @@ type Props = {
   +setSelectionState: SetState<SyncedSelectionData>,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
+  +currentUserIsVoiced: boolean,
+  +currentUserCanJoin: boolean,
 };
 type State = {
   +text: string,
@@ -611,7 +613,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }
 
   get shouldShowTextInput(): boolean {
-    if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
+    if (this.props.currentUserIsVoiced) {
       return true;
     }
     // If the thread is created by somebody else while the viewer is attempting
@@ -629,14 +631,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
   render(): React.Node {
     const isMember = viewerIsMember(this.props.threadInfo);
-    const canJoin = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.JOIN_THREAD,
-    );
     let joinButton = null;
     const threadColor = `#${this.props.threadInfo.color}`;
     const isEditMode = this.isEditMode();
-    if (!isMember && canJoin && !this.props.threadCreationInProgress) {
+    if (
+      !isMember &&
+      this.props.currentUserCanJoin &&
+      !this.props.threadCreationInProgress
+    ) {
       let buttonContent;
       if (this.props.joinThreadLoadingStatus === 'loading') {
         buttonContent = (
@@ -718,7 +720,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           You don&rsquo;t have permission to send messages.
         </Text>
       );
-    } else if (defaultMembersAreVoiced && canJoin) {
+    } else if (defaultMembersAreVoiced && this.props.currentUserCanJoin) {
       content = null;
     } else {
       content = (
@@ -1330,6 +1332,16 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       [suggestedUsers, suggestedChats],
     );
 
+  const currentUserIsVoiced = useThreadHasPermission(
+    props.threadInfo,
+    threadPermissions.VOICED,
+  );
+
+  const currentUserCanJoin = useThreadHasPermission(
+    props.threadInfo,
+    threadPermissions.JOIN_THREAD,
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -1362,6 +1374,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       setSelectionState={setSelectionState}
       suggestions={suggestions}
       typeaheadMatchedStrings={typeaheadMatchedStrings}
+      currentUserIsVoiced={currentUserIsVoiced}
+      currentUserCanJoin={currentUserCanJoin}
     />
   );
 }
