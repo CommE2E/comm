@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
 import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
+import type { LinkStatus } from 'lib/hooks/invite-links.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 
@@ -30,6 +31,9 @@ type Props = {
 function InviteLinkModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { invitationDetails, secret, keyserverOverride } = props.route.params;
+  const [linkStatus, setLinkStatus] = React.useState<LinkStatus>(
+    invitationDetails.status === 'valid' ? 'valid' : 'invalid',
+  );
 
   const navContext = React.useContext(NavContext);
   const calendarQuery = useSelector(state =>
@@ -38,27 +42,18 @@ function InviteLinkModal(props: Props): React.Node {
       navContext,
     }),
   );
-  const onInvalidLinkDetected = React.useCallback(
-    () =>
-      props.navigation.setParams({
-        invitationDetails: {
-          status: 'invalid',
-        },
-        secret,
-      }),
-    [props.navigation, secret],
-  );
+
   const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
     verificationResponse: invitationDetails,
     inviteSecret: secret,
     keyserverOverride,
     calendarQuery,
     onFinish: props.navigation.goBack,
-    onInvalidLinkDetected,
+    setLinkStatus,
   });
 
   const header = React.useMemo(() => {
-    if (invitationDetails.status === 'valid') {
+    if (invitationDetails.status === 'valid' && linkStatus === 'valid') {
       return (
         <>
           <Text style={styles.invitation}>You have been invited to join</Text>
@@ -68,13 +63,16 @@ function InviteLinkModal(props: Props): React.Node {
         </>
       );
     }
+    const headerText = linkStatus === 'invalid' ? 'Invite invalid' : 'Timeout';
+    const message =
+      linkStatus === 'invalid'
+        ? 'This invite link may be expired. Please try again with another ' +
+          'invite link.'
+        : 'The request has timed out.';
     return (
       <>
-        <Text style={styles.invalidInviteTitle}>Invite invalid</Text>
-        <Text style={styles.invalidInviteExplanation}>
-          This invite link may be expired. Please try again with another invite
-          link.
-        </Text>
+        <Text style={styles.invalidInviteTitle}>{headerText}</Text>
+        <Text style={styles.invalidInviteExplanation}>{message}</Text>
       </>
     );
   }, [
@@ -83,10 +81,11 @@ function InviteLinkModal(props: Props): React.Node {
     styles.invalidInviteExplanation,
     styles.invalidInviteTitle,
     styles.invitation,
+    linkStatus,
   ]);
 
   const buttons = React.useMemo(() => {
-    if (invitationDetails.status === 'valid') {
+    if (linkStatus === 'valid') {
       const joinButtonContent =
         joinThreadLoadingStatus === 'loading' ? (
           <ActivityIndicator
@@ -124,7 +123,7 @@ function InviteLinkModal(props: Props): React.Node {
       </Button>
     );
   }, [
-    invitationDetails.status,
+    linkStatus,
     joinCommunity,
     joinThreadLoadingStatus,
     props.navigation.goBack,
