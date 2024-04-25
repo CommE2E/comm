@@ -7,7 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { inviteLinkURL } from 'lib/facts/links.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
-import { threadHasPermission } from 'lib/shared/thread-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -57,7 +57,7 @@ function ViewInviteLinksScreen(props: Props): React.Node {
       },
     });
   }, [community, navigate]);
-  const canManageLinks = threadHasPermission(
+  const canManageLinks = useThreadHasPermission(
     community,
     threadPermissions.MANAGE_INVITE_LINKS,
   );
