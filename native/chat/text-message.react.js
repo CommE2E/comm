@@ -6,8 +6,8 @@ import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
 import {
-  threadHasPermission,
   useCanCreateSidebarFromMessage,
+  useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
@@ -66,6 +66,7 @@ type Props = {
   +isLinkModalActive: boolean,
   +isUserProfileBottomSheetActive: boolean,
   +canEditMessage: boolean,
+  +currentUserIsVoiced: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -94,6 +95,7 @@ class TextMessage extends React.PureComponent<Props> {
       canCreateSidebarFromMessage,
       canEditMessage,
       canTogglePins,
+      currentUserIsVoiced,
       ...viewProps
     } = this.props;
 
@@ -137,10 +139,7 @@ class TextMessage extends React.PureComponent<Props> {
   };
 
   canReply(): boolean {
-    return threadHasPermission(
-      this.props.item.threadInfo,
-      threadPermissions.VOICED,
-    );
+    return this.props.currentUserIsVoiced;
   }
 
   canNavigateToSidebar(): boolean {
@@ -293,6 +292,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
 
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
+    const currentUserCanReply = useThreadHasPermission(
+      props.item.threadInfo,
+      threadPermissions.VOICED,
+    );
+
     return (
       <TextMessage
         {...props}
@@ -302,6 +306,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> =
         isLinkModalActive={isLinkModalActive}
         isUserProfileBottomSheetActive={isUserProfileBottomSheetActive}
         canEditMessage={canEditMessage}
+        currentUserIsVoiced={currentUserCanReply}
       />
     );
   });
