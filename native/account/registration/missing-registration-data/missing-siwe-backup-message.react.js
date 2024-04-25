@@ -21,6 +21,8 @@ function CreateMissingSIWEBackupMessage(props: Props): React.Node {
   const [siweBackupSecretsPersisted, setSIWEBackupSecretsPersisted] =
     React.useState<boolean>(false);
 
+  const [skippedByUser, setSkippedByUser] = React.useState<boolean>(false);
+
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
@@ -32,16 +34,21 @@ function CreateMissingSIWEBackupMessage(props: Props): React.Node {
     [setSIWEBackupSecretsPersisted],
   );
 
+  const onSkip = React.useCallback(() => {
+    setSkippedByUser(true);
+  }, []);
+
   React.useEffect(() => {
-    if (siweBackupSecretsPersisted) {
+    if (siweBackupSecretsPersisted || skippedByUser) {
       props.navigation.goBack();
     }
-  }, [siweBackupSecretsPersisted, props]);
+  }, [siweBackupSecretsPersisted, props, skippedByUser]);
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <CreateSIWEBackupMessageBase
         onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        onSkip={onSkip}
       />
     </SafeAreaView>
   );
