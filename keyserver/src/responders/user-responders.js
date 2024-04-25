@@ -11,6 +11,7 @@ import {
   baseLegalPolicies,
   policies,
   policyTypeValidator,
+  policyTypes,
 } from 'lib/facts/policies.js';
 import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
@@ -100,14 +101,13 @@ import {
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
 import {
-  processOLMAccountCreation,
+  processAccountCreationCommon,
   createAccount,
   processSIWEAccountCreation,
 } from '../creators/account-creator.js';
 import {
   createOlmSession,
   persistFreshOlmSession,
-  createAndPersistOlmSession,
 } from '../creators/olm-session-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteAccount } from '../deleters/account-deleters.js';
@@ -302,7 +302,7 @@ type ProcessSuccessfulLoginParams = {
   +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
   +initialNotificationsEncryptedMessage?: string,
   +pickledContentOlmSession?: string,
-  +cookieHasBeenSet?: boolean,
+  +markPoliciesAccepted?: (viewer: Viewer) => Promise<void>,
 };
 
 async function processSuccessfulLogin(
@@ -317,18 +317,27 @@ async function processSuccessfulLogin(
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
     pickledContentOlmSession,
-    cookieHasBeenSet,
+    markPoliciesAccepted,
   } = params;
+
+  // OLM sessions have to be created before createNewUserCookie is called,
+  // to avoid propagating a user cookie in case session creation fails
+  const olmNotifSession = await (async () => {
+    if (initialNotificationsEncryptedMessage && signedIdentityKeysBlob) {
+      return await createOlmSession(
+        initialNotificationsEncryptedMessage,
+        'notifications',
+      );
+    }
+    return null;
+  })();
 
   const request: LogInRequest = input;
   const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const setNewCookiePromise = (async () => {
-    if (cookieHasBeenSet) {
-      return;
-    }
+  await (async () => {
     const [userViewerData] = await Promise.all([
       createNewUserCookie(userID, {
         platformDetails: request.platformDetails,
@@ -340,10 +349,13 @@ async function processSuccessfulLogin(
     ]);
     viewer.setNewCookie(userViewerData);
   })();
-  const [notAcknowledgedPolicies] = await Promise.all([
-    fetchNotAcknowledgedPolicies(userID, baseLegalPolicies),
-    setNewCookiePromise,
-  ]);
+
+  await markPoliciesAccepted?.(viewer);
+
+  const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
+    userID,
+    baseLegalPolicies,
+  );
 
   if (
     notAcknowledgedPolicies.length &&
@@ -366,16 +378,13 @@ async function processSuccessfulLogin(
   }
 
   if (calendarQuery) {
+    await verifyCalendarQueryThreadIDs(calendarQuery);
     await setNewSession(viewer, calendarQuery, newServerTime);
   }
-  const olmNotifSessionPromise = (async () => {
-    if (
-      viewer.cookieID &&
-      initialNotificationsEncryptedMessage &&
-      signedIdentityKeysBlob
-    ) {
-      await createAndPersistOlmSession(
-        initialNotificationsEncryptedMessage,
+  const persistOlmNotifSessionPromise = (async () => {
+    if (olmNotifSession && viewer.cookieID) {
+      await persistFreshOlmSession(
+        olmNotifSession,
         'notifications',
         viewer.cookieID,
       );
@@ -384,7 +393,7 @@ async function processSuccessfulLogin(
   // `pickledContentOlmSession` is created in `keyserverAuthResponder(...)` in
   // order to authenticate the user. Here, we simply persist the session if it
   // exists.
-  const olmContentSessionPromise = (async () => {
+  const persistOlmContentSessionPromise = (async () => {
     if (viewer.cookieID && pickledContentOlmSession) {
       await persistFreshOlmSession(
         pickledContentOlmSession,
@@ -419,8 +428,8 @@ async function processSuccessfulLogin(
     entriesPromise,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
-    olmNotifSessionPromise,
-    olmContentSessionPromise,
+    persistOlmNotifSessionPromise,
+    persistOlmContentSessionPromise,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -501,11 +510,6 @@ async function logInResponder(
   const calendarQuery = request.calendarQuery
     ? normalizeCalendarQuery(request.calendarQuery)
     : null;
-  const verifyCalendarQueryThreadIDsPromise = (async () => {
-    if (calendarQuery) {
-      await verifyCalendarQueryThreadIDs(calendarQuery);
-    }
-  })();
 
   const username = request.username ?? request.usernameOrEmail;
   if (!username) {
@@ -520,11 +524,7 @@ async function logInResponder(
     FROM users
     WHERE LCASE(username) = LCASE(${username})
   `;
-  const userQueryPromise = dbQuery(userQuery);
-  const [[userResult]] = await Promise.all([
-    userQueryPromise,
-    verifyCalendarQueryThreadIDsPromise,
-  ]);
+  const [userResult] = await dbQuery(userQuery);
 
   if (userResult.length === 0) {
     if (hasMinCodeVersion(viewer.platformDetails, { native: 150 })) {
@@ -717,8 +717,6 @@ async function keyserverAuthResponder(
   const {
     userID,
     deviceID,
-    deviceTokenUpdateRequest,
-    platformDetails,
     initialContentEncryptedMessage,
     initialNotificationsEncryptedMessage,
     doNotRegister,
@@ -769,36 +767,44 @@ async function keyserverAuthResponder(
     throw new ServerError('invalid_identity_keys_blob');
   }
 
-  // 3. Create content olm session. (The notif session is not required for auth
-  //    and will be created later in `processSuccessfulLogin(...)`.)
+  // 3. Create content olm session. (The notif session was introduced first and
+  //    as such is created in legacy auth responders as well. It's factored out
+  //    into in the shared utility `processSuccessfulLogin(...)`.)
   const pickledContentOlmSessionPromise = createOlmSession(
     initialContentEncryptedMessage,
     'content',
     identityKeys.primaryIdentityPublicKeys.curve25519,
   );
 
-  // 4. Create account with call to `processOLMAccountCreation(...)`
-  //    if username does not correspond to an existing user. If we successfully
-  //    create a new account, we set `cookieHasBeenSet` to true to avoid
-  //    creating a new cookie again in `processSuccessfulLogin`.
+  // 4. Create account if username does not correspond to an existing user.
   const signedIdentityKeysBlob: SignedIdentityKeysBlob = {
     payload: inboundKeysForUser.payload,
     signature: inboundKeysForUser.payloadSignature,
   };
+  let markPoliciesAccepted;
   const olmAccountCreationPromise = (async () => {
     if (existingUsername) {
       return;
     }
-    const olmAccountCreationRequest = {
+    const time = Date.now();
+    const newUserRow = [
       userID,
-      username: username,
-      walletAddress: inboundKeysForUser.walletAddress,
-      signedIdentityKeysBlob,
-      calendarQuery,
-      deviceTokenUpdateRequest,
-      platformDetails,
+      username,
+      inboundKeysForUser.walletAddress,
+      time,
+    ];
+    const newUserQuery = SQL`
+    INSERT INTO users(id, username, ethereum_address, creation_time)
+    VALUES ${[newUserRow]}
+  `;
+    await dbQuery(newUserQuery);
+
+    markPoliciesAccepted = async (registeredViewer: Viewer) => {
+      await viewerAcknowledgmentUpdater(
+        registeredViewer,
+        policyTypes.tosAndPrivacyPolicy,
+      );
     };
-    await processOLMAccountCreation(viewer, olmAccountCreationRequest);
   })();
 
   const [pickledContentOlmSession] = await Promise.all([
@@ -807,7 +813,7 @@ async function keyserverAuthResponder(
   ]);
 
   // 5. Complete login with call to `processSuccessfulLogin(...)`.
-  return await processSuccessfulLogin({
+  const result = await processSuccessfulLogin({
     viewer,
     input: request,
     userID,
@@ -815,8 +821,16 @@ async function keyserverAuthResponder(
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
     pickledContentOlmSession,
-    cookieHasBeenSet: !existingUsername,
+    markPoliciesAccepted,
   });
+
+  // 6. Create threads with call to `processAccountCreationCommon(...)`,
+  //    if the account has just been registered.
+  if (!existingUsername) {
+    await processAccountCreationCommon(viewer);
+  }
+
+  return result;
 }
 
 export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordRequest> =
