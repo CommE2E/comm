@@ -65,7 +65,11 @@ import {
   DEPRECATED_unshimMessageStore,
   unshimFunc,
 } from 'lib/shared/unshim-utils.js';
-import { defaultAlertInfo, defaultAlertInfos } from 'lib/types/alert-types.js';
+import {
+  defaultAlertInfo,
+  defaultAlertInfos,
+  alertTypes,
+} from 'lib/types/alert-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -1288,6 +1292,18 @@ const migrations = {
       patchRawThreadInfosWithSpecialRole,
       handleReduxMigrationFailure,
     ),
+  [73]: (state: AppState) => {
+    return {
+      ...state,
+      alertStore: {
+        ...state.alertStore,
+        alertInfos: {
+          ...state.alertStore.alertInfos,
+          [alertTypes.SIWE_BACKUP_MESSAGE]: defaultAlertInfo,
+        },
+      },
+    };
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1309,7 +1325,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 72,
+  version: 73,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
