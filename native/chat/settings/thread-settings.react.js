@@ -27,9 +27,9 @@ import {
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   getSingleOtherUser,
-  threadHasPermission,
   threadInChatList,
   threadIsChannel,
+  useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
@@ -276,6 +276,14 @@ type Props = {
   // withKeyboardState
   +keyboardState: ?KeyboardState,
   +canPromoteSidebar: boolean,
+  +canEditThreadAvatar: boolean,
+  +canEditThreadName: boolean,
+  +canEditThreadDescription: boolean,
+  +canEditThreadColor: boolean,
+  +canCreateSubchannels: boolean,
+  +canAddMembers: boolean,
+  +canLeaveThread: boolean,
+  +canDeleteThread: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -344,6 +352,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
       (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
       (propsAndState: PropsAndState) => propsAndState.route.key,
+      (propsAndState: PropsAndState) => propsAndState.canEditThreadAvatar,
+      (propsAndState: PropsAndState) => propsAndState.canEditThreadName,
+      (propsAndState: PropsAndState) => propsAndState.canEditThreadDescription,
+      (propsAndState: PropsAndState) => propsAndState.canEditThreadColor,
       (
         threadInfo: ResolvedThreadInfo,
         parentThreadInfo: ?ResolvedThreadInfo,
@@ -354,24 +366,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         canStartEditing: boolean,
         navigate: ThreadSettingsNavigate,
         routeKey: string,
+        canEditThreadAvatar: boolean,
+        canEditThreadName: boolean,
+        canEditThreadDescription: boolean,
+        canEditThreadColor: boolean,
       ) => {
-        const canEditThreadAvatar = threadHasPermission(
-          threadInfo,
-          threadPermissions.EDIT_THREAD_AVATAR,
-        );
-        const canEditThreadName = threadHasPermission(
-          threadInfo,
-          threadPermissions.EDIT_THREAD_NAME,
-        );
-        const canEditThreadDescription = threadHasPermission(
-          threadInfo,
-          threadPermissions.EDIT_THREAD_DESCRIPTION,
-        );
-        const canEditThreadColor = threadHasPermission(
-          threadInfo,
-          threadPermissions.EDIT_THREAD_COLOR,
-        );
-
         const canChangeAvatar = canEditThreadAvatar && canStartEditing;
         const canChangeName = canEditThreadName && canStartEditing;
         const canChangeDescription =
@@ -500,19 +499,17 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
       (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
       (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
+      (propsAndState: PropsAndState) => propsAndState.canCreateSubchannels,
       (
         threadInfo: ResolvedThreadInfo,
         navigate: ThreadSettingsNavigate,
         childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
         numSubchannelsShowing: number,
+        canCreateSubchannels: boolean,
       ) => {
         const listData: ChatSettingsItem[] = [];
 
         const subchannels = childThreads?.filter(threadIsChannel) ?? [];
-        const canCreateSubchannels = threadHasPermission(
-          threadInfo,
-          threadPermissions.CREATE_SUBCHANNELS,
-        );
         if (subchannels.length === 0 && !canCreateSubchannels) {
           return listData;
         }
@@ -626,6 +623,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.route.key,
       (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
       (propsAndState: PropsAndState) => propsAndState.verticalBounds,
+      (propsAndState: PropsAndState) => propsAndState.canAddMembers,
       (
         threadInfo: ResolvedThreadInfo,
         canStartEditing: boolean,
@@ -633,13 +631,10 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         routeKey: string,
         numMembersShowing: number,
         verticalBounds: ?VerticalBounds,
+        canAddMembers: boolean,
       ) => {
         const listData: ChatSettingsItem[] = [];
 
-        const canAddMembers = threadHasPermission(
-          threadInfo,
-          threadPermissions.ADD_MEMBERS,
-        );
         if (threadInfo.members.length === 0 && !canAddMembers) {
           return listData;
         }
@@ -736,6 +731,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       (propsAndState: PropsAndState) => propsAndState.styles,
       (propsAndState: PropsAndState) => propsAndState.userInfos,
       (propsAndState: PropsAndState) => propsAndState.viewerID,
+      (propsAndState: PropsAndState) => propsAndState.canLeaveThread,
+      (propsAndState: PropsAndState) => propsAndState.canDeleteThread,
       (
         threadInfo: ResolvedThreadInfo,
         parentThreadInfo: ?ResolvedThreadInfo,
@@ -743,6 +740,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         styles: $ReadOnly<typeof unboundStyles>,
         userInfos: UserInfos,
         viewerID: ?string,
+        canLeaveThread: boolean,
+        canDeleteThread: boolean,
       ) => {
         const buttons = [];
 
@@ -755,11 +754,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           });
         }
 
-        const canLeaveThread = threadHasPermission(
-          threadInfo,
-          threadPermissions.LEAVE_THREAD,
-        );
-
         if (viewerIsMember(threadInfo) && canLeaveThread) {
           buttons.push({
             itemType: 'leaveThread',
@@ -769,10 +763,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           });
         }
 
-        const canDeleteThread = threadHasPermission(
-          threadInfo,
-          threadPermissions.DELETE_THREAD,
-        );
         if (canDeleteThread) {
           buttons.push({
             itemType: 'deleteThread',
@@ -1260,6 +1250,45 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     const keyboardState = React.useContext(KeyboardContext);
     const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
 
+    const canEditThreadAvatar = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_AVATAR,
+    );
+
+    const canEditThreadName = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_NAME,
+    );
+
+    const canEditThreadDescription = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_DESCRIPTION,
+    );
+
+    const canEditThreadColor = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_COLOR,
+    );
+
+    const canCreateSubchannels = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.CREATE_SUBCHANNELS,
+    );
+
+    const canAddMembers = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.ADD_MEMBERS,
+    );
+
+    const canLeaveThread = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.LEAVE_THREAD,
+    );
+
+    const canDeleteThread = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.DELETE_THREAD,
+    );
     return (
       <ThreadSettings
         {...props}
@@ -1274,6 +1303,14 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         overlayContext={overlayContext}
         keyboardState={keyboardState}
         canPromoteSidebar={canPromoteSidebar}
+        canEditThreadAvatar={canEditThreadAvatar}
+        canEditThreadName={canEditThreadName}
+        canEditThreadDescription={canEditThreadDescription}
+        canEditThreadColor={canEditThreadColor}
+        canCreateSubchannels={canCreateSubchannels}
+        canAddMembers={canAddMembers}
+        canLeaveThread={canLeaveThread}
+        canDeleteThread={canDeleteThread}
       />
     );
   });
