@@ -25,7 +25,7 @@ import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserve
 import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
-  LogInStartingPayload,
+  LegacyLogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import { getMessageForException, ServerError } from 'lib/utils/errors.js';
@@ -150,7 +150,9 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         legacySiweAuthActionTypes,
         callLegacySIWEAuthEndpoint(message, signature, logInExtraInfo),
         undefined,
-        ({ calendarQuery: logInExtraInfo.calendarQuery }: LogInStartingPayload),
+        ({
+          calendarQuery: logInExtraInfo.calendarQuery,
+        }: LegacyLogInStartingPayload),
       );
     },
     [callLegacySIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
