@@ -6,7 +6,7 @@ import {
   useUpdateSubscription,
   updateSubscriptionActionTypes,
 } from 'lib/actions/user-actions.js';
-import { canPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { useCanPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsSidebar } from 'lib/shared/thread-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -192,6 +192,7 @@ function NotificationsModal(props: Props): React.Node {
     ? 'Thread notifications'
     : 'Channel notifications';
 
+  const canPromoteSidebar = useCanPromoteSidebar(threadInfo, parentThreadInfo);
   const noticeText = React.useMemo(() => {
     if (!isSidebar) {
       return null;
@@ -207,7 +208,7 @@ function NotificationsModal(props: Props): React.Node {
             'must also be there.'}
         </p>
         <p className={css.notice}>
-          {canPromoteSidebar(threadInfo, parentThreadInfo)
+          {canPromoteSidebar
             ? 'If you want to move this thread to Background, ' +
               'you can either move the parent to Background, ' +
               'or you can promote the thread to a channel.'
@@ -216,7 +217,7 @@ function NotificationsModal(props: Props): React.Node {
         </p>
       </>
     );
-  }, [isSidebar, parentThreadInfo, threadInfo]);
+  }, [isSidebar, canPromoteSidebar]);
 
   const parentThreadIsInBackground =
     isSidebar && !parentThreadInfo?.currentUser.subscription.home;
@@ -233,7 +234,7 @@ function NotificationsModal(props: Props): React.Node {
               'thread must also be there.'}
           </p>
           <p>
-            {canPromoteSidebar(threadInfo, parentThreadInfo)
+            {canPromoteSidebar
               ? 'If you want to change the notif settings for this thread, ' +
                 'you can either change the notif settings for the parent, ' +
                 'or you can promote the thread to a channel.'
@@ -259,9 +260,8 @@ function NotificationsModal(props: Props): React.Node {
     focusedBadgeOnlyItem,
     focusedItem,
     noticeText,
-    parentThreadInfo,
     parentThreadIsInBackground,
-    threadInfo,
+    canPromoteSidebar,
   ]);
 
   const saveButton = React.useMemo(() => {
