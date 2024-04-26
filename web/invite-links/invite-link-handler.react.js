@@ -75,9 +75,6 @@ function InviteLinkHandler(): null {
         );
 
         result = await validateLinkPromise;
-        if (result.status === 'already_joined') {
-          return;
-        }
       } catch (e) {
         console.error('Error while verifying an invite link', e);
         result = {
