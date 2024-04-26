@@ -27,7 +27,7 @@ import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
   LegacyRegisterInfo,
-  LogInExtraInfo,
+  LegacyLogInExtraInfo,
   LegacyRegisterResult,
   LegacyLogInStartingPayload,
 } from 'lib/types/account-types.js';
@@ -45,7 +45,7 @@ import { PanelButton, Panel } from './panel-components.react.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
 import {
   AppOutOfDateAlertDetails,
@@ -70,7 +70,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
-  +logInExtraInfo: () => Promise<LogInExtraInfo>,
+  +legacyLogInExtraInfo: () => Promise<LegacyLogInExtraInfo>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +legacyRegister: (
@@ -310,7 +310,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
       );
     } else {
       Keyboard.dismiss();
-      const extraInfo = await this.props.logInExtraInfo();
+      const extraInfo = await this.props.legacyLogInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await this.props.getInitialNotificationsEncryptedMessage();
       void this.props.dispatchActionPromise(
@@ -355,7 +355,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
   };
 
   async legacyRegisterAction(
-    extraInfo: LogInExtraInfo,
+    extraInfo: LegacyLogInExtraInfo,
   ): Promise<LegacyRegisterResult> {
     try {
       const result = await this.props.legacyRegister({
@@ -491,7 +491,9 @@ const ConnectedLegacyRegisterPanel: React.ComponentType<BaseProps> =
       olmSessionInitializationDataLoadingStatus,
     );
 
-    const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
+    const legacyLogInExtraInfo = useSelector(
+      nativeLegacyLogInExtraInfoSelector,
+    );
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
@@ -505,7 +507,7 @@ const ConnectedLegacyRegisterPanel: React.ComponentType<BaseProps> =
       <LegacyRegisterPanel
         {...props}
         loadingStatus={loadingStatus}
-        logInExtraInfo={logInExtraInfo}
+        legacyLogInExtraInfo={legacyLogInExtraInfo}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         legacyRegister={callLegacyRegister}

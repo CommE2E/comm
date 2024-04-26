@@ -15,7 +15,7 @@ import type { DispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { fetchNativeKeychainCredentials } from './native-credentials.js';
 import { store } from '../redux/redux-setup.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
 async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
   callSingleKeyserverEndpoint: CallSingleKeyserverEndpoint,
@@ -35,7 +35,7 @@ async function resolveKeyserverSessionInvalidationUsingNativeCredentials(
 
   const [baseExtraInfo, initialNotificationsEncryptedMessage] =
     await Promise.all([
-      nativeLogInExtraInfoSelector(store.getState())(),
+      nativeLegacyLogInExtraInfoSelector(store.getState())(),
       getInitialNotificationsEncryptedMessage({
         callSingleKeyserverEndpoint,
       }),
