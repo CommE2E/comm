@@ -698,14 +698,15 @@ const olmAPI: OlmAPI = {
       throw new Error('Prekey signature is missing');
     }
 
+    contentAccount.mark_prekey_as_published();
+    notificationAccount.mark_prekey_as_published();
+
     await identityClient.publishWebPrekeys({
       contentPrekey,
       contentPrekeySignature,
       notifPrekey,
       notifPrekeySignature,
     });
-    contentAccount.mark_prekey_as_published();
-    notificationAccount.mark_prekey_as_published();
 
     persistCryptoStore();
   },

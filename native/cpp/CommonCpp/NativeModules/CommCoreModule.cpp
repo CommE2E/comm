@@ -814,48 +814,41 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
             notifsPrekeyToUpload = this->notifsCryptoModule->getPrekey();
           }
 
-          std::string prekeyUploadError;
-
           try {
             std::string contentPrekeySignature =
                 this->contentCryptoModule->getPrekeySignature();
             std::string notifsPrekeySignature =
                 this->notifsCryptoModule->getPrekeySignature();
 
-            try {
-              std::promise<folly::dynamic> prekeyPromise;
-              std::future<folly::dynamic> prekeyFuture =
-                  prekeyPromise.get_future();
-              RustPromiseManager::CPPPromiseInfo promiseInfo = {
-                  std::move(prekeyPromise)};
-              auto currentID = RustPromiseManager::instance.addPromise(
-                  std::move(promiseInfo));
-              auto contentPrekeyToUploadRust =
-                  rust::String(parseOLMPrekey(contentPrekeyToUpload));
-              auto prekeySignatureRust = rust::string(contentPrekeySignature);
-              auto notifsPrekeyToUploadRust =
-                  rust::String(parseOLMPrekey(notifsPrekeyToUpload));
-              auto notificationsPrekeySignatureRust =
-                  rust::string(notifsPrekeySignature);
-              ::identityRefreshUserPrekeys(
-                  authUserIDRust,
-                  authDeviceIDRust,
-                  authAccessTokenRust,
-                  contentPrekeyToUploadRust,
-                  prekeySignatureRust,
-                  notifsPrekeyToUploadRust,
-                  notificationsPrekeySignatureRust,
-                  currentID);
-              prekeyFuture.get();
-            } catch (const std::exception &e) {
-              prekeyUploadError = e.what();
-            }
+            std::promise<folly::dynamic> prekeyPromise;
+            std::future<folly::dynamic> prekeyFuture =
+                prekeyPromise.get_future();
+            RustPromiseManager::CPPPromiseInfo promiseInfo = {
+                std::move(prekeyPromise)};
+            auto currentID =
+                RustPromiseManager::instance.addPromise(std::move(promiseInfo));
+            auto contentPrekeyToUploadRust =
+                rust::String(parseOLMPrekey(contentPrekeyToUpload));
+            auto prekeySignatureRust = rust::string(contentPrekeySignature);
+            auto notifsPrekeyToUploadRust =
+                rust::String(parseOLMPrekey(notifsPrekeyToUpload));
+            auto notificationsPrekeySignatureRust =
+                rust::string(notifsPrekeySignature);
 
-            if (!prekeyUploadError.size()) {
-              this->contentCryptoModule->markPrekeyAsPublished();
-              this->notifsCryptoModule->markPrekeyAsPublished();
-              this->persistCryptoModules(true, true);
-            }
+            this->contentCryptoModule->markPrekeyAsPublished();
+            this->notifsCryptoModule->markPrekeyAsPublished();
+            this->persistCryptoModules(true, true);
+
+            ::identityRefreshUserPrekeys(
+                authUserIDRust,
+                authDeviceIDRust,
+                authAccessTokenRust,
+                contentPrekeyToUploadRust,
+                prekeySignatureRust,
+                notifsPrekeyToUploadRust,
+                notificationsPrekeySignatureRust,
+                currentID);
+            prekeyFuture.get();
           } catch (std::exception &e) {
             error = e.what();
           }
@@ -863,10 +856,6 @@ jsi::Value CommCoreModule::validateAndUploadPrekeys(
           this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
-              return;
-            }
-            if (prekeyUploadError.size()) {
-              promise->reject(prekeyUploadError);
               return;
             }
             promise->resolve(jsi::Value::undefined());
@@ -911,6 +900,9 @@ jsi::Value CommCoreModule::validateAndGetPrekeys(jsi::Runtime &rt) {
             if (!notifPrekeyBlob) {
               notifPrekeyBlob = this->notifsCryptoModule->getPrekey();
             }
+
+            this->contentCryptoModule->markPrekeyAsPublished();
+            this->notifsCryptoModule->markPrekeyAsPublished();
             this->persistCryptoModules(true, true);
 
             contentPrekeySignature =
