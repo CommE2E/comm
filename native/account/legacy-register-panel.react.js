@@ -29,7 +29,7 @@ import type {
   LegacyRegisterInfo,
   LogInExtraInfo,
   LegacyRegisterResult,
-  LogInStartingPayload,
+  LegacyLogInStartingPayload,
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -320,7 +320,9 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
           initialNotificationsEncryptedMessage,
         }),
         undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+        ({
+          calendarQuery: extraInfo.calendarQuery,
+        }: LegacyLogInStartingPayload),
       );
     }
   };

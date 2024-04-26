@@ -21,10 +21,10 @@ import {
 } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
-  type LogInInfo,
+  type LegacyLogInInfo,
   type LogInExtraInfo,
-  type LogInResult,
-  type LogInStartingPayload,
+  type LegacyLogInResult,
+  type LegacyLogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -69,7 +69,7 @@ type Props = {
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
-  +legacyLogIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +legacyLogIn: (logInInfo: LegacyLogInInfo) => Promise<LegacyLogInResult>,
   +identityPasswordLogIn: (username: string, password: string) => Promise<void>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
@@ -274,11 +274,13 @@ class LogInPanel extends React.PureComponent<Props, State> {
         initialNotificationsEncryptedMessage,
       }),
       undefined,
-      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+      ({ calendarQuery: extraInfo.calendarQuery }: LegacyLogInStartingPayload),
     );
   };
 
-  async legacyLogInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
+  async legacyLogInAction(
+    extraInfo: LogInExtraInfo,
+  ): Promise<LegacyLogInResult> {
     try {
       const result = await this.props.legacyLogIn({
         ...extraInfo,
