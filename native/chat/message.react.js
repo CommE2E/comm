@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import { canToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
+import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import MultimediaMessage from './multimedia-message.react.js';
@@ -92,9 +92,9 @@ function Message(props: Props): React.Node {
     [focused, item],
   );
 
-  const canTogglePins = React.useMemo(
-    () => canToggleMessagePin(props.item.messageInfo, props.item.threadInfo),
-    [props.item.messageInfo, props.item.threadInfo],
+  const canTogglePins = useCanToggleMessagePin(
+    props.item.messageInfo,
+    props.item.threadInfo,
   );
 
   const innerMessageNode = React.useMemo(() => {
