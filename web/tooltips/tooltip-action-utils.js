@@ -21,7 +21,7 @@ import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { longAbsoluteDate } from 'lib/utils/date-utils.js';
-import { canToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
+import { useCanToggleMessagePin } from 'lib/utils/message-pinning-utils.js';
 
 import LabelTooltip from './label-toolitp.react.js';
 import MessageTooltip from './message-tooltip.react.js';
@@ -284,7 +284,7 @@ function useMessageTogglePinAction(
   const { pushModal } = useModalContext();
   const { messageInfo, isPinned } = item;
 
-  const canTogglePin = canToggleMessagePin(messageInfo, threadInfo);
+  const canTogglePin = useCanToggleMessagePin(messageInfo, threadInfo);
 
   const inputState = React.useContext(InputStateContext);
 
