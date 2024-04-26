@@ -47,7 +47,9 @@ import {
 } from './responders/entry-responders.js';
 import {
   createOrUpdateFarcasterChannelTagResponder,
+  deleteFarcasterChannelTagResponder,
   createOrUpdateFarcasterChannelTagInputValidator,
+  deleteFarcasterChannelTagInputValidator,
   createOrUpdateFarcasterChannelTagResponseValidator,
 } from './responders/farcaster-channel-tag-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
@@ -584,6 +586,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     createOrUpdateFarcasterChannelTagResponder,
     createOrUpdateFarcasterChannelTagInputValidator,
     createOrUpdateFarcasterChannelTagResponseValidator,
+    baseLegalPolicies,
+  ),
+  delete_farcaster_channel_tag: createJSONResponder(
+    deleteFarcasterChannelTagResponder,
+    deleteFarcasterChannelTagInputValidator,
+    t.Nil,
     baseLegalPolicies,
   ),
 };
