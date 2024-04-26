@@ -22,10 +22,15 @@ import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { unpickleOlmAccount } from '../utils/olm-utils.js';
 import type { PickledOlmAccount } from '../utils/olm-utils.js';
 
-// After register or login is successful
+// Before attempting registration
 function markKeysAsPublished(account: OlmAccount) {
   account.mark_prekey_as_published();
   account.mark_keys_as_published();
+}
+
+// Before attempting login
+function markPrekeyAsPublished(account: OlmAccount) {
+  account.mark_prekey_as_published();
 }
 
 async function getUserCredentials(): Promise<UserCredentials> {
@@ -191,7 +196,11 @@ async function registerOrLogInBase<T>(
   ]);
 
   try {
-    const identity_info = await rustAPI.loginUser(
+    await Promise.all([
+      getUpdateContentAccount(markPrekeyAsPublished),
+      getUpdateNotificationsAccount(markPrekeyAsPublished),
+    ]);
+    return await rustAPI.loginUser(
       userInfo.username,
       userInfo.password,
       signedIdentityKeysBlob,
@@ -201,11 +210,6 @@ async function registerOrLogInBase<T>(
       notificationsPrekeySignature,
       userInfo.forceLogin,
     );
-    await Promise.all([
-      getUpdateContentAccount(markKeysAsPublished),
-      getUpdateNotificationsAccount(markKeysAsPublished),
-    ]);
-    return identity_info;
   } catch (e) {
     console.warn('Failed to login user: ' + getMessageForException(e));
     const [contentOneTimeKeys, notificationsOneTimeKeys] = await Promise.all([
@@ -217,7 +221,11 @@ async function registerOrLogInBase<T>(
       ),
     ]);
     try {
-      const identity_info = await rustAPI.registerUser(
+      await Promise.all([
+        getUpdateContentAccount(markKeysAsPublished),
+        getUpdateNotificationsAccount(markKeysAsPublished),
+      ]);
+      return await rustAPI.registerUser(
         userInfo.username,
         userInfo.password,
         signedIdentityKeysBlob,
@@ -228,11 +236,6 @@ async function registerOrLogInBase<T>(
         contentOneTimeKeys,
         notificationsOneTimeKeys,
       );
-      await Promise.all([
-        getUpdateContentAccount(markKeysAsPublished),
-        getUpdateNotificationsAccount(markKeysAsPublished),
-      ]);
-      return identity_info;
     } catch (err) {
       console.warn('Failed to register user: ' + getMessageForException(err));
       if (userInfo.usingIdentityCredentials) {

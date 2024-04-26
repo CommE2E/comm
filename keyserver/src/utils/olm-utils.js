@@ -164,8 +164,6 @@ async function validateAndUploadAccountPrekeys(
     contentAccount.generate_prekey();
     notifAccount.generate_prekey();
     await publishPrekeysToIdentity(contentAccount, notifAccount);
-    contentAccount.mark_prekey_as_published();
-    notifAccount.mark_prekey_as_published();
   }
   if (shouldForgetPrekey(contentAccount)) {
     contentAccount.forget_old_prekey();
@@ -202,6 +200,9 @@ async function publishPrekeysToIdentity(
     );
     return;
   }
+
+  contentAccount.mark_prekey_as_published();
+  notifAccount.mark_prekey_as_published();
 
   await rustAPI.publishPrekeys(
     identityInfo.userId,
