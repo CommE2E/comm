@@ -17,7 +17,7 @@ import {
 } from 'lib/shared/account-utils.js';
 import type {
   LogInExtraInfo,
-  LogInStartingPayload,
+  LegacyLogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -172,7 +172,7 @@ function TraditionalLoginForm(): React.Node {
           undefined,
           ({
             calendarQuery: loginExtraInfo.calendarQuery,
-          }: LogInStartingPayload),
+          }: LegacyLogInStartingPayload),
         );
       }
     },
