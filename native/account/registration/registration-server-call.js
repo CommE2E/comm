@@ -14,7 +14,7 @@ import { useKeyserverAuth } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import {
-  type LogInStartingPayload,
+  type LegacyLogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
@@ -187,7 +187,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         legacyKeyserverRegisterActionTypes,
         legacyKeyserverRegisterPromise,
         undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+        ({
+          calendarQuery: extraInfo.calendarQuery,
+        }: LegacyLogInStartingPayload),
       );
       await legacyKeyserverRegisterPromise;
     },

@@ -14,7 +14,7 @@ import type { CallSingleKeyserverEndpointOptions } from 'lib/keyserver-conn/call
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
-  LogInStartingPayload,
+  LegacyLogInStartingPayload,
   LogInExtraInfo,
 } from 'lib/types/account-types.js';
 import type { IdentityWalletRegisterInput } from 'lib/types/siwe-types.js';
@@ -86,7 +86,9 @@ function useLegacySIWEServerCall(): (
         legacySiweAuthActionTypes,
         siwePromise,
         undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+        ({
+          calendarQuery: extraInfo.calendarQuery,
+        }: LegacyLogInStartingPayload),
       );
 
       await siwePromise;
