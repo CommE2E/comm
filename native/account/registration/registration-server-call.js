@@ -5,8 +5,8 @@ import * as React from 'react';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import {
-  keyserverRegisterActionTypes,
-  keyserverRegister,
+  legacyKeyserverRegisterActionTypes,
+  legacyKeyserverRegister,
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
 } from 'lib/actions/user-actions.js';
@@ -89,7 +89,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callKeyserverRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
+  const callLegacyKeyserverRegister = useLegacyAshoatKeyserverCall(
+    legacyKeyserverRegister,
+  );
   const callIdentityPasswordRegister = useIdentityPasswordRegister();
 
   const identityRegisterUsernameAccount = React.useCallback(
@@ -138,15 +140,15 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     [callIdentityPasswordRegister, dispatchActionPromise],
   );
 
-  const keyserverRegisterUsernameAccount = React.useCallback(
+  const legacyKeyserverRegisterUsernameAccount = React.useCallback(
     async (
       accountSelection: UsernameAccountSelection,
       keyserverURL: string,
     ) => {
       const extraInfo = await logInExtraInfo();
-      const keyserverRegisterPromise = (async () => {
+      const legacyKeyserverRegisterPromise = (async () => {
         try {
-          return await callKeyserverRegister(
+          return await callLegacyKeyserverRegister(
             {
               ...extraInfo,
               username: accountSelection.username,
@@ -182,14 +184,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         }
       })();
       void dispatchActionPromise(
-        keyserverRegisterActionTypes,
-        keyserverRegisterPromise,
+        legacyKeyserverRegisterActionTypes,
+        legacyKeyserverRegisterPromise,
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
-      await keyserverRegisterPromise;
+      await legacyKeyserverRegisterPromise;
     },
-    [logInExtraInfo, callKeyserverRegister, dispatchActionPromise],
+    [logInExtraInfo, callLegacyKeyserverRegister, dispatchActionPromise],
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
@@ -216,7 +218,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
             ) {
-              await keyserverRegisterUsernameAccount(
+              await legacyKeyserverRegisterUsernameAccount(
                 accountSelection,
                 keyserverURL,
               );
@@ -291,7 +293,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       ),
     [
       currentStep,
-      keyserverRegisterUsernameAccount,
+      legacyKeyserverRegisterUsernameAccount,
       identityRegisterUsernameAccount,
       legacySiweServerCall,
       dispatch,

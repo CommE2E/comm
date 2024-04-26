@@ -26,11 +26,11 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
+import LegacyRegisterPanel from './legacy-register-panel.react.js';
+import type { LegacyRegisterState } from './legacy-register-panel.react.js';
 import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
-import RegisterPanel from './register-panel.react.js';
-import type { RegisterState } from './register-panel.react.js';
 import { enableNewRegistrationMode } from './registration/registration-types.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
@@ -249,7 +249,7 @@ type State = {
   +mode: LoggedOutMode,
   +nextMode: LoggedOutMode,
   +logInState: StateContainer<LogInState>,
-  +registerState: StateContainer<RegisterState>,
+  +legacyRegisterState: StateContainer<LegacyRegisterState>,
 };
 class LoggedOutModal extends React.PureComponent<Props, State> {
   keyboardShowListener: ?EventSubscription;
@@ -281,12 +281,15 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         },
       }),
     );
-    const setRegisterState = setStateForContainer<State, RegisterState>(
+    const setLegacyRegisterState = setStateForContainer<
+      State,
+      LegacyRegisterState,
+    >(
       this.guardedSetState,
-      (change: Partial<RegisterState>) => (fullState: State) => ({
-        registerState: {
-          ...fullState.registerState,
-          state: { ...fullState.registerState.state, ...change },
+      (change: Partial<LegacyRegisterState>) => (fullState: State) => ({
+        legacyRegisterState: {
+          ...fullState.legacyRegisterState,
+          state: { ...fullState.legacyRegisterState.state, ...change },
         },
       }),
     );
@@ -302,13 +305,13 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         },
         setState: setLogInState,
       },
-      registerState: {
+      legacyRegisterState: {
         state: {
           usernameInputText: '',
           passwordInputText: '',
           confirmPasswordInputText: '',
         },
-        setState: setRegisterState,
+        setState: setLegacyRegisterState,
       },
     };
     this.nextMode = initialMode;
@@ -613,10 +616,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       );
     } else if (this.state.mode === 'register') {
       panel = (
-        <RegisterPanel
+        <LegacyRegisterPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          registerState={this.state.registerState}
+          legacyRegisterState={this.state.legacyRegisterState}
         />
       );
     } else if (this.state.mode === 'prompt') {
