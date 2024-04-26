@@ -3,9 +3,9 @@
 import _memoize from 'lodash/memoize.js';
 import { createSelector } from 'reselect';
 
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import { legacyLogInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { currentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
-import type { LogInExtraInfo } from 'lib/types/account-types.js';
+import type { LegacyLogInExtraInfo } from 'lib/types/account-types.js';
 import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
 import { values } from 'lib/utils/objects.js';
@@ -14,11 +14,11 @@ import { commCoreModule } from '../native-modules.js';
 import type { AppState } from '../redux/state-types.js';
 import type { ConnectivityInfo } from '../types/connectivity.js';
 
-const nativeLogInExtraInfoSelector: (
+const nativeLegacyLogInExtraInfoSelector: (
   state: AppState,
-) => () => Promise<LogInExtraInfo> = createSelector(
-  logInExtraInfoSelector,
-  (logInExtraInfo: LogInExtraInfo) => {
+) => () => Promise<LegacyLogInExtraInfo> = createSelector(
+  legacyLogInExtraInfoSelector,
+  (logInExtraInfo: LegacyLogInExtraInfo) => {
     const loginExtraFuncWithIdentityKey = async () => {
       await commCoreModule.initializeCryptoAccount();
       const { blobPayload, signature } =
@@ -61,6 +61,6 @@ const noDataAfterPolicyAcknowledgmentSelector: (
 );
 
 export {
-  nativeLogInExtraInfoSelector,
+  nativeLegacyLogInExtraInfoSelector,
   noDataAfterPolicyAcknowledgmentSelector,
 };

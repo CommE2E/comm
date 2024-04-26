@@ -35,7 +35,7 @@ import {
 } from '../../avatars/avatar-hooks.js';
 import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
+import { nativeLegacyLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
   AppOutOfDateAlertDetails,
   UsernameReservedAlertDetails,
@@ -86,7 +86,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   // STEP 1: ACCOUNT REGISTRATION
 
-  const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
+  const legacyLogInExtraInfo = useSelector(nativeLegacyLogInExtraInfoSelector);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callLegacyKeyserverRegister = useLegacyAshoatKeyserverCall(
@@ -145,7 +145,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       accountSelection: UsernameAccountSelection,
       keyserverURL: string,
     ) => {
-      const extraInfo = await logInExtraInfo();
+      const extraInfo = await legacyLogInExtraInfo();
       const legacyKeyserverRegisterPromise = (async () => {
         try {
           return await callLegacyKeyserverRegister(
@@ -193,7 +193,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       );
       await legacyKeyserverRegisterPromise;
     },
-    [logInExtraInfo, callLegacyKeyserverRegister, dispatchActionPromise],
+    [legacyLogInExtraInfo, callLegacyKeyserverRegister, dispatchActionPromise],
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
