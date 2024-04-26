@@ -8,7 +8,7 @@ import WebView from 'react-native-webview';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  siweAuthActionTypes,
+  legacySiweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import {
   identityGenerateNonceActionTypes,
@@ -42,8 +42,9 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
   identityGenerateNonceActionTypes,
 );
-const legacySiweAuthLoadingStatusSelector =
-  createLoadingStatusSelector(siweAuthActionTypes);
+const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
+  legacySiweAuthActionTypes,
+);
 
 type Props = {
   +onClosed: () => mixed,

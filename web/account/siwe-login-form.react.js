@@ -10,8 +10,8 @@ import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js'
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  siweAuth,
-  siweAuthActionTypes,
+  legacySiweAuth,
+  legacySiweAuthActionTypes,
 } from 'lib/actions/siwe-actions.js';
 import {
   identityGenerateNonceActionTypes,
@@ -59,8 +59,9 @@ const legacyGetSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 const identityGenerateNonceLoadingStatusSelector = createLoadingStatusSelector(
   identityGenerateNonceActionTypes,
 );
-const legacySiweAuthLoadingStatusSelector =
-  createLoadingStatusSelector(siweAuthActionTypes);
+const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
+  legacySiweAuthActionTypes,
+);
 function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
@@ -76,7 +77,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const siweAuthLoadingStatus = useSelector(
     legacySiweAuthLoadingStatusSelector,
   );
-  const legacySiweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
+  const legacySiweAuthCall = useLegacyAshoatKeyserverCall(legacySiweAuth);
   const logInExtraInfo = useSelector(logInExtraInfoSelector);
 
   const walletLogIn = useWalletLogIn();
@@ -147,7 +148,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const attemptLegacySIWEAuth = React.useCallback(
     (message: string, signature: string) => {
       return dispatchActionPromise(
-        siweAuthActionTypes,
+        legacySiweAuthActionTypes,
         callLegacySIWEAuthEndpoint(message, signature, logInExtraInfo),
         undefined,
         ({ calendarQuery: logInExtraInfo.calendarQuery }: LogInStartingPayload),
