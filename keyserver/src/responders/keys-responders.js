@@ -45,13 +45,13 @@ async function getOlmSessionInitializationDataResponder(): Promise<GetOlmSession
     retrieveSessionInitializationKeysSet,
   );
 
-  const contentAccountCallback = async (account: OlmAccount) => {
+  const contentAccountCallback = (account: OlmAccount) => {
     const {
       identityKeys: contentIdentityKeys,
       oneTimeKey,
       prekey,
       prekeySignature,
-    } = await retrieveSessionInitializationKeysSet(account);
+    } = retrieveSessionInitializationKeysSet(account);
 
     const identityKeysBlob = {
       primaryIdentityPublicKeys: JSON.parse(contentIdentityKeys),
