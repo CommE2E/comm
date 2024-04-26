@@ -194,6 +194,7 @@ function PasswordSelection(props: Props): React.Node {
           secureTextEntry={true}
           textContentType="newPassword"
           autoComplete="password-new"
+          autoCapitalize="none"
           returnKeyType="next"
           onSubmitEditing={focusConfirmPasswordInput}
           onKeyPress={onPasswordKeyPress}
@@ -207,6 +208,7 @@ function PasswordSelection(props: Props): React.Node {
           secureTextEntry={true}
           textContentType="newPassword"
           autoComplete="password-new"
+          autoCapitalize="none"
           returnKeyType="go"
           onSubmitEditing={onProceed}
           onBlur={checkPasswordValidity}
