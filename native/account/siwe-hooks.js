@@ -15,14 +15,14 @@ import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserve
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
   LegacyLogInStartingPayload,
-  LogInExtraInfo,
+  LegacyLogInExtraInfo,
 } from 'lib/types/account-types.js';
 import type { IdentityWalletRegisterInput } from 'lib/types/siwe-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 
 type SIWEServerCallParams = {
   +message: string,
@@ -40,7 +40,10 @@ function useLegacySIWEServerCall(): (
     (
       message: string,
       signature: string,
-      extraInfo: $ReadOnly<{ ...LogInExtraInfo, +doNotRegister?: boolean }>,
+      extraInfo: $ReadOnly<{
+        ...LegacyLogInExtraInfo,
+        +doNotRegister?: boolean,
+      }>,
       callSingleKeyserverEndpointOptions: ?CallSingleKeyserverEndpointOptions,
     ) =>
       legacySiweAuthCall(
@@ -54,7 +57,7 @@ function useLegacySIWEServerCall(): (
     [legacySiweAuthCall],
   );
 
-  const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
+  const legacyLogInExtraInfo = useSelector(nativeLegacyLogInExtraInfoSelector);
 
   const getInitialNotificationsEncryptedMessage =
     useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
@@ -65,7 +68,7 @@ function useLegacySIWEServerCall(): (
       { message, signature, doNotRegister },
       callSingleKeyserverEndpointOptions,
     ) => {
-      const extraInfo = await logInExtraInfo();
+      const extraInfo = await legacyLogInExtraInfo();
       const initialNotificationsEncryptedMessage =
         await getInitialNotificationsEncryptedMessage({
           callSingleKeyserverEndpointOptions,
@@ -94,7 +97,7 @@ function useLegacySIWEServerCall(): (
       await siwePromise;
     },
     [
-      logInExtraInfo,
+      legacyLogInExtraInfo,
       dispatchActionPromise,
       callSIWE,
       getInitialNotificationsEncryptedMessage,

@@ -22,7 +22,7 @@ import {
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import {
   type LegacyLogInInfo,
-  type LogInExtraInfo,
+  type LegacyLogInExtraInfo,
   type LegacyLogInResult,
   type LegacyLogInStartingPayload,
   logInActionSources,
@@ -45,7 +45,7 @@ import PasswordInput from './password-input.react.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
 import {
   AppOutOfDateAlertDetails,
@@ -67,7 +67,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
-  +logInExtraInfo: () => Promise<LogInExtraInfo>,
+  +legacyLogInExtraInfo: () => Promise<LegacyLogInExtraInfo>,
   +dispatchActionPromise: DispatchActionPromise,
   +legacyLogIn: (logInInfo: LegacyLogInInfo) => Promise<LegacyLogInResult>,
   +identityPasswordLogIn: (username: string, password: string) => Promise<void>,
@@ -263,7 +263,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
       return;
     }
 
-    const extraInfo = await this.props.logInExtraInfo();
+    const extraInfo = await this.props.legacyLogInExtraInfo();
     const initialNotificationsEncryptedMessage =
       await this.props.getInitialNotificationsEncryptedMessage();
 
@@ -279,7 +279,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   async legacyLogInAction(
-    extraInfo: LogInExtraInfo,
+    extraInfo: LegacyLogInExtraInfo,
   ): Promise<LegacyLogInResult> {
     try {
       const result = await this.props.legacyLogIn({
@@ -453,7 +453,9 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
       olmSessionInitializationDataLoadingStatus,
     );
 
-    const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
+    const legacyLogInExtraInfo = useSelector(
+      nativeLegacyLogInExtraInfoSelector,
+    );
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callLegacyLogIn = useLegacyLogIn();
@@ -465,7 +467,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> =
       <LogInPanel
         {...props}
         loadingStatus={loadingStatus}
-        logInExtraInfo={logInExtraInfo}
+        legacyLogInExtraInfo={legacyLogInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         legacyLogIn={callLegacyLogIn}
         identityPasswordLogIn={callIdentityPasswordLogIn}

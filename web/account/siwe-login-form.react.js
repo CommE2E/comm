@@ -22,11 +22,11 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import stores from 'lib/facts/stores.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import { legacyLogInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   LegacyLogInStartingPayload,
-  LogInExtraInfo,
+  LegacyLogInExtraInfo,
 } from 'lib/types/account-types.js';
 import { SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { getMessageForException, ServerError } from 'lib/utils/errors.js';
@@ -78,7 +78,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     legacySiweAuthLoadingStatusSelector,
   );
   const legacySiweAuthCall = useLegacyAshoatKeyserverCall(legacySiweAuth);
-  const logInExtraInfo = useSelector(logInExtraInfoSelector);
+  const legacyLogInExtraInfo = useSelector(legacyLogInExtraInfoSelector);
 
   const walletLogIn = useWalletLogIn();
 
@@ -118,7 +118,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   ]);
 
   const callLegacySIWEAuthEndpoint = React.useCallback(
-    async (message: string, signature: string, extraInfo: LogInExtraInfo) => {
+    async (
+      message: string,
+      signature: string,
+      extraInfo: LegacyLogInExtraInfo,
+    ) => {
       await olmAPI.initializeCryptoAccount();
       const userPublicKey = await olmAPI.getUserPublicKey();
       try {
@@ -149,14 +153,14 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     (message: string, signature: string) => {
       return dispatchActionPromise(
         legacySiweAuthActionTypes,
-        callLegacySIWEAuthEndpoint(message, signature, logInExtraInfo),
+        callLegacySIWEAuthEndpoint(message, signature, legacyLogInExtraInfo),
         undefined,
         ({
-          calendarQuery: logInExtraInfo.calendarQuery,
+          calendarQuery: legacyLogInExtraInfo.calendarQuery,
         }: LegacyLogInStartingPayload),
       );
     },
-    [callLegacySIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
+    [callLegacySIWEAuthEndpoint, dispatchActionPromise, legacyLogInExtraInfo],
   );
 
   const attemptWalletLogIn = React.useCallback(

@@ -9,14 +9,14 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import { legacyLogInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils.js';
 import type {
-  LogInExtraInfo,
+  LegacyLogInExtraInfo,
   LegacyLogInStartingPayload,
 } from 'lib/types/account-types.js';
 import { logInActionSources } from 'lib/types/account-types.js';
@@ -42,7 +42,7 @@ function TraditionalLoginForm(): React.Node {
     React.useState(false);
   const inputDisabled = legacyAuthInProgress || identityAuthInProgress;
 
-  const loginExtraInfo = useSelector(logInExtraInfoSelector);
+  const legacyLoginExtraInfo = useSelector(legacyLogInExtraInfoSelector);
   const callLegacyLogIn = useLegacyLogIn();
 
   const dispatchActionPromise = useDispatchActionPromise();
@@ -78,7 +78,7 @@ function TraditionalLoginForm(): React.Node {
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const legacyLogInAction = React.useCallback(
-    async (extraInfo: LogInExtraInfo) => {
+    async (extraInfo: LegacyLogInExtraInfo) => {
       await olmAPI.initializeCryptoAccount();
       const userPublicKey = await olmAPI.getUserPublicKey();
       try {
@@ -168,10 +168,10 @@ function TraditionalLoginForm(): React.Node {
       } else {
         void dispatchActionPromise(
           legacyLogInActionTypes,
-          legacyLogInAction(loginExtraInfo),
+          legacyLogInAction(legacyLoginExtraInfo),
           undefined,
           ({
-            calendarQuery: loginExtraInfo.calendarQuery,
+            calendarQuery: legacyLoginExtraInfo.calendarQuery,
           }: LegacyLogInStartingPayload),
         );
       }
@@ -180,7 +180,7 @@ function TraditionalLoginForm(): React.Node {
       dispatchActionPromise,
       identityPasswordLogInAction,
       legacyLogInAction,
-      loginExtraInfo,
+      legacyLoginExtraInfo,
       username,
       password,
     ],
