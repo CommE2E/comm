@@ -3,7 +3,10 @@
 import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
-import { useAcceptInviteLink } from 'lib/hooks/invite-links.js';
+import {
+  inviteLinkTexts,
+  useAcceptInviteLink,
+} from 'lib/hooks/invite-links.js';
 import type { LinkStatus } from 'lib/hooks/invite-links.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
@@ -32,7 +35,9 @@ function InviteLinkModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { invitationDetails, secret, keyserverOverride } = props.route.params;
   const [linkStatus, setLinkStatus] = React.useState<LinkStatus>(
-    invitationDetails.status === 'valid' ? 'valid' : 'invalid',
+    invitationDetails.status === 'expired'
+      ? 'invalid'
+      : invitationDetails.status,
   );
 
   const navContext = React.useContext(NavContext);
@@ -63,16 +68,14 @@ function InviteLinkModal(props: Props): React.Node {
         </>
       );
     }
-    const headerText = linkStatus === 'invalid' ? 'Invite invalid' : 'Timeout';
-    const message =
-      linkStatus === 'invalid'
-        ? 'This invite link may be expired. Please try again with another ' +
-          'invite link.'
-        : 'The request has timed out.';
     return (
       <>
-        <Text style={styles.invalidInviteTitle}>{headerText}</Text>
-        <Text style={styles.invalidInviteExplanation}>{message}</Text>
+        <Text style={styles.invalidInviteTitle}>
+          {inviteLinkTexts[linkStatus].header}
+        </Text>
+        <Text style={styles.invalidInviteExplanation}>
+          {inviteLinkTexts[linkStatus].message}
+        </Text>
       </>
     );
   }, [

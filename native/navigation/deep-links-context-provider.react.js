@@ -146,9 +146,6 @@ function DeepLinksContextProvider(props: Props): React.Node {
           validateLinkPromise,
         );
         result = await validateLinkPromise;
-        if (result.status === 'already_joined') {
-          return;
-        }
       } catch (e) {
         console.log(e);
         result = {
