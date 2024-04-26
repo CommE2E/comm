@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import { legacySiweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -24,8 +24,9 @@ import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
-const siweAuthLoadingStatusSelector =
-  createLoadingStatusSelector(siweAuthActionTypes);
+const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
+  legacySiweAuthActionTypes,
+);
 
 export type ExistingEthereumAccountParams = SIWEResult;
 
@@ -77,8 +78,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
     }
   }, [legacySiweServerCall, walletLogIn, params, dispatch]);
 
-  const siweAuthCallLoading = useSelector(
-    state => siweAuthLoadingStatusSelector(state) === 'loading',
+  const legacySiweAuthCallLoading = useSelector(
+    state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
   );
 
   const { address } = params;
@@ -111,7 +112,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
         <RegistrationButton
           onPress={onProceedToLogIn}
           label="Log in to account"
-          variant={siweAuthCallLoading ? 'loading' : 'enabled'}
+          variant={legacySiweAuthCallLoading ? 'loading' : 'enabled'}
         />
         <RegistrationButton
           onPress={goBack}
