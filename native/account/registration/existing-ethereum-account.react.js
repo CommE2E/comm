@@ -4,10 +4,8 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { legacySiweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -18,15 +16,10 @@ import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
-import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { useLegacySIWEServerCall } from '../siwe-hooks.js';
-
-const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
-  legacySiweAuthActionTypes,
-);
 
 export type ExistingEthereumAccountParams = SIWEResult;
 
@@ -38,49 +31,41 @@ function ExistingEthereumAccount(props: Props): React.Node {
   const legacySiweServerCall = useLegacySIWEServerCall();
   const walletLogIn = useWalletLogIn();
 
+  const [logInPending, setLogInPending] = React.useState(false);
+
   const { params } = props.route;
   const dispatch = useDispatch();
   const onProceedToLogIn = React.useCallback(async () => {
-    if (usingCommServicesAccessToken) {
-      try {
-        await walletLogIn(params.address, params.message, params.signature);
-      } catch (e) {
-        Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
-          [{ text: 'OK' }],
-          {
-            cancelable: false,
-          },
-        );
-        throw e;
-      }
-    } else {
-      try {
-        await legacySiweServerCall({ ...params, doNotRegister: true });
-      } catch (e) {
-        Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
-          [{ text: 'OK' }],
-          {
-            cancelable: false,
-          },
-        );
-        throw e;
-      }
-      dispatch({
-        type: setDataLoadedActionType,
-        payload: {
-          dataLoaded: true,
-        },
-      });
+    if (logInPending) {
+      return;
     }
-  }, [legacySiweServerCall, walletLogIn, params, dispatch]);
-
-  const legacySiweAuthCallLoading = useSelector(
-    state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
-  );
+    setLogInPending(true);
+    try {
+      if (usingCommServicesAccessToken) {
+        await walletLogIn(params.address, params.message, params.signature);
+      } else {
+        await legacySiweServerCall({ ...params, doNotRegister: true });
+        dispatch({
+          type: setDataLoadedActionType,
+          payload: {
+            dataLoaded: true,
+          },
+        });
+      }
+    } catch (e) {
+      Alert.alert(
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
+        [{ text: 'OK' }],
+        {
+          cancelable: false,
+        },
+      );
+      throw e;
+    } finally {
+      setLogInPending(false);
+    }
+  }, [logInPending, legacySiweServerCall, walletLogIn, params, dispatch]);
 
   const { address } = params;
   const walletIdentifier = useENSName(address);
@@ -112,7 +97,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
         <RegistrationButton
           onPress={onProceedToLogIn}
           label="Log in to account"
-          variant={legacySiweAuthCallLoading ? 'loading' : 'enabled'}
+          variant={logInPending ? 'loading' : 'enabled'}
         />
         <RegistrationButton
           onPress={goBack}
