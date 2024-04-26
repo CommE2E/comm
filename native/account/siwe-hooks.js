@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-import { siweAuth, siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
+import {
+  legacySiweAuth,
+  legacySiweAuthActionTypes,
+} from 'lib/actions/siwe-actions.js';
 import {
   identityRegisterActionTypes,
   useIdentityWalletRegister,
@@ -31,7 +34,7 @@ function useLegacySIWEServerCall(): (
   SIWEServerCallParams,
   ?CallSingleKeyserverEndpointOptions,
 ) => Promise<void> {
-  const siweAuthCall = useLegacyAshoatKeyserverCall(siweAuth);
+  const legacySiweAuthCall = useLegacyAshoatKeyserverCall(legacySiweAuth);
 
   const callSIWE = React.useCallback(
     (
@@ -40,7 +43,7 @@ function useLegacySIWEServerCall(): (
       extraInfo: $ReadOnly<{ ...LogInExtraInfo, +doNotRegister?: boolean }>,
       callSingleKeyserverEndpointOptions: ?CallSingleKeyserverEndpointOptions,
     ) =>
-      siweAuthCall(
+      legacySiweAuthCall(
         {
           message,
           signature,
@@ -48,7 +51,7 @@ function useLegacySIWEServerCall(): (
         },
         callSingleKeyserverEndpointOptions,
       ),
-    [siweAuthCall],
+    [legacySiweAuthCall],
   );
 
   const logInExtraInfo = useSelector(nativeLogInExtraInfoSelector);
@@ -80,7 +83,7 @@ function useLegacySIWEServerCall(): (
       );
 
       void dispatchActionPromise(
-        siweAuthActionTypes,
+        legacySiweAuthActionTypes,
         siwePromise,
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
