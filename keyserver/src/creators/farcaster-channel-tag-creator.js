@@ -2,6 +2,7 @@
 
 import uuid from 'uuid';
 
+import { GATE_TAG_FARCASTER_CHANNEL } from 'lib/shared/community-utils.js';
 import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
@@ -22,6 +23,10 @@ async function createOrUpdateFarcasterChannelTag(
   request: CreateOrUpdateFarcasterChannelTagRequest,
 ): Promise<CreateOrUpdateFarcasterChannelTagResponse> {
   const { commCommunityID, farcasterChannelID } = request;
+
+  if (GATE_TAG_FARCASTER_CHANNEL) {
+    throw new ServerError('internal_error');
+  }
 
   const blobDownload = await getFarcasterChannelTagBlob(farcasterChannelID);
 

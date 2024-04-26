@@ -7,6 +7,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { GATE_TAG_FARCASTER_CHANNEL } from 'lib/shared/community-utils.js';
 import { threadHasPermission } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -119,6 +120,7 @@ function CommunityActionsButton(props: Props): React.Node {
     }
 
     const canTagFarcasterChannel =
+      !GATE_TAG_FARCASTER_CHANNEL &&
       fid &&
       community.type !== threadTypes.GENESIS &&
       (usingCommServicesAccessToken || __DEV__);
