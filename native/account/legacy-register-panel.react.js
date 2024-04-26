@@ -14,8 +14,8 @@ import Animated from 'react-native-reanimated';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
-  keyserverRegisterActionTypes,
-  keyserverRegister,
+  legacyKeyserverRegisterActionTypes,
+  legacyKeyserverRegister,
   getOlmSessionInitializationDataActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
@@ -26,9 +26,9 @@ import {
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import { useInitialNotificationsEncryptedMessage } from 'lib/shared/crypto-utils.js';
 import type {
-  RegisterInfo,
+  LegacyRegisterInfo,
   LogInExtraInfo,
-  RegisterResult,
+  LegacyRegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
@@ -56,16 +56,16 @@ import {
 import Alert from '../utils/alert.js';
 import { type StateContainer } from '../utils/state-container.js';
 
-type WritableRegisterState = {
+type WritableLegacyRegisterState = {
   usernameInputText: string,
   passwordInputText: string,
   confirmPasswordInputText: string,
 };
-export type RegisterState = $ReadOnly<WritableRegisterState>;
+export type LegacyRegisterState = $ReadOnly<WritableLegacyRegisterState>;
 type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Node,
-  +registerState: StateContainer<RegisterState>,
+  +legacyRegisterState: StateContainer<LegacyRegisterState>,
 };
 type Props = {
   ...BaseProps,
@@ -73,13 +73,15 @@ type Props = {
   +logInExtraInfo: () => Promise<LogInExtraInfo>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
-  +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+  +legacyRegister: (
+    registerInfo: LegacyRegisterInfo,
+  ) => Promise<LegacyRegisterResult>,
   +getInitialNotificationsEncryptedMessage: () => Promise<string>,
 };
 type State = {
   +confirmPasswordFocused: boolean,
 };
-class RegisterPanel extends React.PureComponent<Props, State> {
+class LegacyRegisterPanel extends React.PureComponent<Props, State> {
   state: State = {
     confirmPasswordFocused: false,
   };
@@ -93,7 +95,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     if (
       Platform.OS !== 'ios' ||
       this.state.confirmPasswordFocused ||
-      this.props.registerState.state.confirmPasswordInputText.length > 0
+      this.props.legacyRegisterState.state.confirmPasswordInputText.length > 0
     ) {
       confirmPasswordTextInputExtraProps = {
         secureTextEntry: true,
@@ -136,7 +138,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           />
           <TextInput
             style={styles.input}
-            value={this.props.registerState.state.usernameInputText}
+            value={this.props.legacyRegisterState.state.usernameInputText}
             onChangeText={this.onChangeUsernameInputText}
             placeholder="Username"
             autoFocus={true}
@@ -161,7 +163,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           />
           <TextInput
             style={styles.input}
-            value={this.props.registerState.state.passwordInputText}
+            value={this.props.legacyRegisterState.state.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             onKeyPress={onPasswordKeyPress}
             placeholder="Password"
@@ -178,7 +180,9 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         <View style={styles.row}>
           <TextInput
             style={styles.input}
-            value={this.props.registerState.state.confirmPasswordInputText}
+            value={
+              this.props.legacyRegisterState.state.confirmPasswordInputText
+            }
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
             autoComplete="password-new"
@@ -239,17 +243,17 @@ class RegisterPanel extends React.PureComponent<Props, State> {
   };
 
   onChangeUsernameInputText = (text: string) => {
-    this.props.registerState.setState({ usernameInputText: text });
+    this.props.legacyRegisterState.setState({ usernameInputText: text });
   };
 
   onChangePasswordInputText = (text: string) => {
-    const stateUpdate: Partial<WritableRegisterState> = {};
+    const stateUpdate: Partial<WritableLegacyRegisterState> = {};
     stateUpdate.passwordInputText = text;
     if (this.passwordBeingAutoFilled) {
       this.passwordBeingAutoFilled = false;
       stateUpdate.confirmPasswordInputText = text;
     }
-    this.props.registerState.setState(stateUpdate);
+    this.props.legacyRegisterState.setState(stateUpdate);
   };
 
   onPasswordKeyPress = (event: KeyPressEvent) => {
@@ -258,14 +262,14 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       key.length > 1 &&
       key !== 'Backspace' &&
       key !== 'Enter' &&
-      this.props.registerState.state.confirmPasswordInputText.length === 0
+      this.props.legacyRegisterState.state.confirmPasswordInputText.length === 0
     ) {
       this.passwordBeingAutoFilled = true;
     }
   };
 
   onChangeConfirmPasswordInputText = (text: string) => {
-    this.props.registerState.setState({ confirmPasswordInputText: text });
+    this.props.legacyRegisterState.setState({ confirmPasswordInputText: text });
   };
 
   onConfirmPasswordFocus = () => {
@@ -274,7 +278,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onSubmit = async () => {
     this.props.setActiveAlert(true);
-    if (this.props.registerState.state.passwordInputText === '') {
+    if (this.props.legacyRegisterState.state.passwordInputText === '') {
       Alert.alert(
         'Empty password',
         'Password cannot be empty',
@@ -282,8 +286,8 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         { cancelable: false },
       );
     } else if (
-      this.props.registerState.state.passwordInputText !==
-      this.props.registerState.state.confirmPasswordInputText
+      this.props.legacyRegisterState.state.passwordInputText !==
+      this.props.legacyRegisterState.state.confirmPasswordInputText
     ) {
       Alert.alert(
         'Passwords don’t match',
@@ -292,7 +296,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         { cancelable: false },
       );
     } else if (
-      this.props.registerState.state.usernameInputText.search(
+      this.props.legacyRegisterState.state.usernameInputText.search(
         validUsernameRegex,
       ) === -1
     ) {
@@ -310,8 +314,8 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       const initialNotificationsEncryptedMessage =
         await this.props.getInitialNotificationsEncryptedMessage();
       void this.props.dispatchActionPromise(
-        keyserverRegisterActionTypes,
-        this.registerAction({
+        legacyKeyserverRegisterActionTypes,
+        this.legacyRegisterAction({
           ...extraInfo,
           initialNotificationsEncryptedMessage,
         }),
@@ -323,7 +327,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onPasswordAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.registerState.setState(
+    this.props.legacyRegisterState.setState(
       {
         passwordInputText: '',
         confirmPasswordInputText: '',
@@ -337,7 +341,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onUsernameAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.registerState.setState(
+    this.props.legacyRegisterState.setState(
       {
         usernameInputText: '',
       },
@@ -348,12 +352,14 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     );
   };
 
-  async registerAction(extraInfo: LogInExtraInfo): Promise<RegisterResult> {
+  async legacyRegisterAction(
+    extraInfo: LogInExtraInfo,
+  ): Promise<LegacyRegisterResult> {
     try {
-      const result = await this.props.register({
+      const result = await this.props.legacyRegister({
         ...extraInfo,
-        username: this.props.registerState.state.usernameInputText,
-        password: this.props.registerState.state.passwordInputText,
+        username: this.props.legacyRegisterState.state.usernameInputText,
+        password: this.props.legacyRegisterState.state.passwordInputText,
       });
       this.props.setActiveAlert(false);
       this.props.dispatch({
@@ -364,7 +370,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       });
       await setNativeCredentials({
         username: result.currentUserInfo.username,
-        password: this.props.registerState.state.passwordInputText,
+        password: this.props.legacyRegisterState.state.passwordInputText,
       });
       return result;
     } catch (e) {
@@ -403,7 +409,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   onUnknownErrorAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
-    this.props.registerState.setState(
+    this.props.legacyRegisterState.setState(
       {
         usernameInputText: '',
         passwordInputText: '',
@@ -465,13 +471,15 @@ const styles = StyleSheet.create({
 });
 
 const registerLoadingStatusSelector = createLoadingStatusSelector(
-  keyserverRegisterActionTypes,
+  legacyKeyserverRegisterActionTypes,
 );
 const olmSessionInitializationDataLoadingStatusSelector =
   createLoadingStatusSelector(getOlmSessionInitializationDataActionTypes);
 
-const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedRegisterPanel(props: BaseProps) {
+const ConnectedLegacyRegisterPanel: React.ComponentType<BaseProps> =
+  React.memo<BaseProps>(function ConnectedLegacyRegisterPanel(
+    props: BaseProps,
+  ) {
     const registerLoadingStatus = useSelector(registerLoadingStatusSelector);
     const olmSessionInitializationDataLoadingStatus = useSelector(
       olmSessionInitializationDataLoadingStatusSelector,
@@ -485,18 +493,20 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
-    const callRegister = useLegacyAshoatKeyserverCall(keyserverRegister);
+    const callLegacyRegister = useLegacyAshoatKeyserverCall(
+      legacyKeyserverRegister,
+    );
     const getInitialNotificationsEncryptedMessage =
       useInitialNotificationsEncryptedMessage(authoritativeKeyserverID);
 
     return (
-      <RegisterPanel
+      <LegacyRegisterPanel
         {...props}
         loadingStatus={loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
-        register={callRegister}
+        legacyRegister={callLegacyRegister}
         getInitialNotificationsEncryptedMessage={
           getInitialNotificationsEncryptedMessage
         }
@@ -504,4 +514,4 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> =
     );
   });
 
-export default ConnectedRegisterPanel;
+export default ConnectedLegacyRegisterPanel;
