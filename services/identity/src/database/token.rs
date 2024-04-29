@@ -22,6 +22,7 @@ use crate::{
 use super::{create_composite_primary_key, DatabaseClient};
 
 impl DatabaseClient {
+  #[tracing::instrument(skip_all)]
   pub async fn get_access_token_data(
     &self,
     user_id: String,
@@ -164,6 +165,7 @@ impl DatabaseClient {
     Ok(())
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn delete_all_tokens_for_user(
     &self,
     user_id: &str,
