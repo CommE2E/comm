@@ -441,6 +441,7 @@ impl DatabaseClient {
     Ok(())
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn delete_user(
     &self,
     user_id: String,
@@ -514,6 +515,7 @@ impl DatabaseClient {
     Ok(available_user_details)
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_user_from_user_info(
     &self,
     user_info: String,
@@ -642,6 +644,7 @@ impl DatabaseClient {
     }
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn get_user_id_and_password_file_from_username(
     &self,
     username: &str,
@@ -711,6 +714,7 @@ impl DatabaseClient {
 
   /// Retrieves username for password users or wallet address for wallet users
   /// Returns `None` if user not found
+  #[tracing::instrument(skip_all)]
   pub async fn get_user_identifier(
     &self,
     user_id: &str,
@@ -928,6 +932,7 @@ impl DatabaseClient {
     Ok(())
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn delete_username_from_reserved_usernames_table(
     &self,
     username: String,
