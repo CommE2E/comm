@@ -37,6 +37,7 @@ import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
+import type { TagUnfollowedFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-unfollowed-farcaster-channel.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
@@ -159,6 +160,8 @@ export const ConnectFarcasterBottomSheetRouteName =
 export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
+export const TagUnfollowedFarcasterChannelRouteName =
+  'TagUnfollowedFarcasterChannel';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -298,6 +301,7 @@ export type RolesParamList = {
 
 export type TagFarcasterChannelParamList = {
   +TagFarcasterChannel: TagFarcasterChannelParams,
+  +TagUnfollowedFarcasterChannel: TagUnfollowedFarcasterChannelParams,
 };
 
 export type QRCodeSignInParamList = {
