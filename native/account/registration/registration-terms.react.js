@@ -7,7 +7,6 @@ import { Text, View, Image, Linking } from 'react-native';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -17,6 +16,7 @@ import type {
   AccountSelection,
   AvatarData,
 } from './registration-types.js';
+import SubmitButton from '../../components/submit-button.react.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
@@ -93,7 +93,7 @@ function RegistrationTerms(props: Props): React.Node {
         </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton
+        <SubmitButton
           onPress={onProceed}
           label="Register"
           variant={registrationInProgress ? 'loading' : 'enabled'}
