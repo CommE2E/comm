@@ -10,21 +10,23 @@ import {
   type OneTimeKeysResultValues,
 } from 'lib/types/crypto-types.js';
 import {
+  type DeviceOlmInboundKeys,
+  deviceOlmInboundKeysValidator,
+  type DeviceOlmOutboundKeys,
+  deviceOlmOutboundKeysValidator,
+  farcasterUsersValidator,
+  identityAuthResultValidator,
+  type IdentityServiceClient,
+  ONE_TIME_KEYS_NUMBER,
   type SignedDeviceList,
   signedDeviceListHistoryValidator,
   type SignedNonce,
-  type DeviceOlmOutboundKeys,
-  deviceOlmOutboundKeysValidator,
-  type IdentityServiceClient,
-  type UserDevicesOlmOutboundKeys,
   type UserAuthMetadata,
-  ONE_TIME_KEYS_NUMBER,
-  identityAuthResultValidator,
-  type DeviceOlmInboundKeys,
-  type UserDevicesOlmInboundKeys,
-  deviceOlmInboundKeysValidator,
   userDeviceOlmInboundKeysValidator,
-  farcasterUsersValidator,
+  type UserDevicesOlmInboundKeys,
+  type UserDevicesOlmOutboundKeys,
+  type UsersSignedDeviceLists,
+  usersSignedDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -543,6 +545,33 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         return assertWithValidator(
           deviceLists,
           signedDeviceListHistoryValidator,
+        );
+      },
+      getDeviceListsForUsers: async (userIDs: $ReadOnlyArray<string>) => {
+        const {
+          deviceID: authDeviceID,
+          userID: authUserID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        const result = await commRustModule.getDeviceListsForUsers(
+          authUserID,
+          authDeviceID,
+          token,
+          userIDs,
+        );
+        const rawPayloads: { +[userID: string]: string } = JSON.parse(result);
+
+        let usersDeviceLists: UsersSignedDeviceLists = {};
+        for (const userID in rawPayloads) {
+          usersDeviceLists = {
+            ...usersDeviceLists,
+            [userID]: JSON.parse(rawPayloads[userID]),
+          };
+        }
+
+        return assertWithValidator(
+          usersDeviceLists,
+          usersSignedDeviceListsValidator,
         );
       },
       updateDeviceList: async (newDeviceList: SignedDeviceList) => {
