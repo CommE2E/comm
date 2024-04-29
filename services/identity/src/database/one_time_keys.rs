@@ -36,6 +36,7 @@ impl DatabaseClient {
   ///
   /// Returns the retrieved one-time key if it exists and a boolean indicating
   /// whether the `spawn_refresh_keys_task`` was called
+  #[tracing::instrument(skip_all)]
   pub(super) async fn get_one_time_key(
     &self,
     user_id: &str,
@@ -154,6 +155,7 @@ impl DatabaseClient {
     }
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_one_time_keys(
     &self,
     user_id: &str,
@@ -203,6 +205,7 @@ impl DatabaseClient {
     Ok(otk_rows)
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn append_one_time_prekeys(
     &self,
     user_id: &str,
@@ -334,6 +337,7 @@ impl DatabaseClient {
     Ok(())
   }
 
+  #[tracing::instrument(skip_all)]
   async fn get_otk_count(
     &self,
     user_id: &str,
