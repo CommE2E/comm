@@ -15,9 +15,9 @@ import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
   type FarcasterWebViewState,
 } from './farcaster-web-view.react.js';
-import RegistrationButton from '../account/registration/registration-button.react.js';
 import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.js';
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
+import SubmitButton from '../components/submit-button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 
@@ -96,7 +96,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
           <View style={styles.promptContainer}>
             <FarcasterPrompt />
           </View>
-          <RegistrationButton
+          <SubmitButton
             onPress={onPressConnect}
             label="Connect Farcaster account"
             variant={connectButtonVariant}

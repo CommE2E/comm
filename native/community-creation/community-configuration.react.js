@@ -16,7 +16,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
 import type { CommunityCreationNavigationProp } from './community-creation-navigator.react.js';
 import RegistrationButtonContainer from '../account/registration/registration-button-container.react.js';
-import RegistrationButton from '../account/registration/registration-button.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
 import {
@@ -24,6 +23,7 @@ import {
   ThreadSettingsCategoryHeader,
 } from '../chat/settings/thread-settings-category.react.js';
 import EnumSettingsOption from '../components/enum-settings-option.react.js';
+import SubmitButton from '../components/submit-button.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import {
@@ -150,7 +150,7 @@ function CommunityConfiguration(props: Props): React.Node {
         />
         <ThreadSettingsCategoryFooter type="full" />
         <RegistrationButtonContainer>
-          <RegistrationButton
+          <SubmitButton
             onPress={createNewCommunity}
             label="Create community"
             variant={

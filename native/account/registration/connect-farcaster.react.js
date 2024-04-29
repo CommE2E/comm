@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -16,6 +15,7 @@ import type {
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../../components/farcaster-web-view.react.js';
+import SubmitButton from '../../components/submit-button.react.js';
 import {
   type NavigationRoute,
   UsernameSelectionRouteName,
@@ -127,7 +127,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     }
 
     return (
-      <RegistrationButton
+      <SubmitButton
         onPress={onUseAlreadyConnectedAccount}
         label="Use connected Farcaster account"
         variant="enabled"
@@ -144,12 +144,12 @@ function ConnectFarcaster(prop: Props): React.Node {
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
           {alreadyConnectedButton}
-          <RegistrationButton
+          <SubmitButton
             onPress={onPressConnectFarcaster}
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          <RegistrationButton
+          <SubmitButton
             onPress={onSkip}
             label="Do not connect"
             variant="outline"

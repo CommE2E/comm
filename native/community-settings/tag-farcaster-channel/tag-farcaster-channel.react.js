@@ -16,7 +16,7 @@ import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
-import RegistrationButton from '../../account/registration/registration-button.react.js';
+import SubmitButton from '../../components/submit-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -192,7 +192,7 @@ function TagFarcasterChannel(props: Props): React.Node {
           />
         </TouchableOpacity>
         <View style={styles.errorContainer}>{errorMessage}</View>
-        <RegistrationButton
+        <SubmitButton
           onPress={onPressTag}
           label="Tag channel"
           variant={buttonVariant}

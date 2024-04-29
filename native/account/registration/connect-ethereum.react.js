@@ -16,12 +16,12 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import SubmitButton from '../../components/submit-button.react.js';
 import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
@@ -242,7 +242,7 @@ function ConnectEthereum(props: Props): React.Node {
   let alreadyConnectedButton;
   if (alreadyHasConnected) {
     alreadyConnectedButton = (
-      <RegistrationButton
+      <SubmitButton
         onPress={onUseAlreadyConnectedWallet}
         label="Use connected Ethereum wallet"
         variant="enabled"
@@ -264,12 +264,12 @@ function ConnectEthereum(props: Props): React.Node {
         </RegistrationContentContainer>
         <RegistrationButtonContainer>
           {alreadyConnectedButton}
-          <RegistrationButton
+          <SubmitButton
             onPress={openPanel}
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          <RegistrationButton
+          <SubmitButton
             onPress={onSkip}
             label="Do not connect"
             variant="outline"
