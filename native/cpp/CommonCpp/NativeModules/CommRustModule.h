@@ -113,6 +113,12 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String authAccessToken,
       jsi::String userID,
       std::optional<double> sinceTimestamp) override;
+  virtual jsi::Value getDeviceListsForUsers(
+      jsi::Runtime &rt,
+      jsi::String authUserID,
+      jsi::String authDeviceID,
+      jsi::String authAccessToken,
+      jsi::Array userIDs) override;
   virtual jsi::Value updateDeviceList(
       jsi::Runtime &rt,
       jsi::String authUserID,
