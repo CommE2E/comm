@@ -12,10 +12,10 @@ import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import RegistrationButton from '../account/registration/registration-button.react.js';
 import FarcasterPrompt from '../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
+import SubmitButton from '../components/submit-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 
@@ -68,7 +68,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const button = React.useMemo(() => {
     if (fid) {
       return (
-        <RegistrationButton
+        <SubmitButton
           onPress={onPressDisconnect}
           label="Disconnect"
           variant="outline"
@@ -77,7 +77,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     }
 
     return (
-      <RegistrationButton
+      <SubmitButton
         onPress={onPressConnectFarcaster}
         label="Connect Farcaster account"
         variant={connectButtonVariant}
