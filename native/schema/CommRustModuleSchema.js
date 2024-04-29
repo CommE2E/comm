@@ -108,6 +108,12 @@ export interface Spec extends TurboModule {
     userID: string,
     sinceTimestamp: ?number,
   ) => Promise<string>;
+  +getDeviceListsForUsers: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    userIDs: $ReadOnlyArray<string>,
+  ) => Promise<string>;
   +updateDeviceList: (
     authUserID: string,
     authDeviceID: string,
