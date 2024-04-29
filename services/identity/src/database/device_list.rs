@@ -76,6 +76,7 @@ pub struct DeviceListUpdate {
 }
 
 impl DeviceRow {
+  #[tracing::instrument(skip_all)]
   pub fn from_device_key_upload(
     user_id: impl Into<String>,
     upload: FlattenedDeviceKeyUpload,
@@ -418,6 +419,7 @@ impl From<DeviceListRow> for AttributeMap {
 
 impl DatabaseClient {
   /// Retrieves user's current devices and their full data
+  #[tracing::instrument(skip_all)]
   pub async fn get_current_devices(
     &self,
     user_id: impl Into<String>,
@@ -443,6 +445,7 @@ impl DatabaseClient {
   }
 
   /// Gets user's device list history
+  #[tracing::instrument(skip_all)]
   pub async fn get_device_list_history(
     &self,
     user_id: impl Into<String>,
@@ -496,6 +499,7 @@ impl DatabaseClient {
 
   /// Returns all devices' keys for the given user. Response is in the same format
   /// as [DatabaseClient::get_keys_for_user] for compatibility reasons.
+  #[tracing::instrument(skip_all)]
   pub async fn get_keys_for_user_devices(
     &self,
     user_id: impl Into<String>,
@@ -508,6 +512,7 @@ impl DatabaseClient {
     Ok(user_devices_keys)
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn update_device_prekeys(
     &self,
     user_id: impl Into<String>,
@@ -550,6 +555,7 @@ impl DatabaseClient {
   }
 
   /// Checks if given device exists on user's current device list
+  #[tracing::instrument(skip_all)]
   pub async fn device_exists(
     &self,
     user_id: impl Into<String>,
@@ -573,6 +579,7 @@ impl DatabaseClient {
     Ok(item.is_some())
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn get_device_data(
     &self,
     user_id: impl Into<String>,
@@ -600,6 +607,7 @@ impl DatabaseClient {
   }
 
   /// Fails if the device list is empty
+  #[tracing::instrument(skip_all)]
   pub async fn get_primary_device_data(
     &self,
     user_id: &str,
@@ -626,6 +634,7 @@ impl DatabaseClient {
   }
 
   /// Required only for migration purposes (determining primary device)
+  #[tracing::instrument(skip_all)]
   pub async fn update_device_login_time(
     &self,
     user_id: impl Into<String>,
@@ -659,6 +668,7 @@ impl DatabaseClient {
     Ok(())
   }
 
+  #[tracing::instrument(skip_all)]
   pub async fn get_current_device_list(
     &self,
     user_id: impl Into<String>,
@@ -694,6 +704,7 @@ impl DatabaseClient {
   /// Adds device data to devices table. If the device already exists, its
   /// data is overwritten. This does not update the device list; the device ID
   /// should already be present in the device list.
+  #[tracing::instrument(skip_all)]
   pub async fn put_device_data(
     &self,
     user_id: impl Into<String>,
@@ -879,6 +890,7 @@ impl DatabaseClient {
   /// This is done in a transaction. Operation fails if the device list has been
   /// updated concurrently (timestamp mismatch).
   /// Returns the new device list row that has been saved to database.
+  #[tracing::instrument(skip_all)]
   async fn transact_update_devicelist(
     &self,
     user_id: &str,
@@ -974,6 +986,7 @@ impl DatabaseClient {
   }
 
   /// Deletes all user data from devices table
+  #[tracing::instrument(skip_all)]
   pub async fn delete_devices_table_rows_for_user(
     &self,
     user_id: impl Into<String>,
@@ -1034,6 +1047,7 @@ impl DatabaseClient {
 /// doesn't have a device list yet. Storing the timestamp in the users table is
 /// required for consistency. It's used as a condition when updating the device
 /// list.
+#[tracing::instrument(skip_all)]
 async fn get_current_devicelist_timestamp(
   db: &crate::database::DatabaseClient,
   user_id: impl Into<String>,
@@ -1136,6 +1150,7 @@ mod migration {
 
   use super::*;
 
+  #[tracing::instrument(skip_all)]
   pub(super) fn reorder_device_list(
     user_id: &str,
     list: &mut [String],
@@ -1179,6 +1194,7 @@ mod migration {
   }
 
   // checks if device list matches given devices data
+  #[tracing::instrument(skip_all)]
   fn verify_device_list_match(
     list: &[String],
     devices_data: &[DeviceRow],
