@@ -28,6 +28,8 @@ import {
   userDeviceOlmInboundKeysValidator,
   type FarcasterUser,
   farcasterUsersValidator,
+  type UsersSignedDeviceLists,
+  usersSignedDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -530,6 +532,32 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     return assertWithValidator(
       deviceListUpdates,
       signedDeviceListHistoryValidator,
+    );
+  };
+
+  getDeviceListsForUsers: (
+    userIDs: $ReadOnlyArray<string>,
+  ) => Promise<UsersSignedDeviceLists> = async userIDs => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    const request = new IdentityAuthStructs.PeersDeviceListsRequest();
+    request.setUserIdsList([...userIDs]);
+    const response = await client.getDeviceListsForUsers(request);
+    const rawPayloads = response.toObject()?.usersDeviceListsMap;
+
+    let usersDeviceLists: UsersSignedDeviceLists = {};
+    rawPayloads.forEach(([userID, rawPayload]) => {
+      usersDeviceLists = {
+        ...usersDeviceLists,
+        [userID]: JSON.parse(rawPayload),
+      };
+    });
+
+    return assertWithValidator(
+      usersDeviceLists,
+      usersSignedDeviceListsValidator,
     );
   };
 
