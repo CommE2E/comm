@@ -12,6 +12,7 @@ use crate::websockets::errors::WebsocketError;
 const PLACEHOLDER_CODE_VERSION: u64 = 0;
 const DEVICE_TYPE: &str = "service";
 
+#[tracing::instrument(skip_all)]
 async fn verify_user_access_token(
   user_id: &str,
   device_id: &str,
@@ -50,6 +51,7 @@ async fn verify_user_access_token(
   Ok(response.into_inner().token_valid)
 }
 
+#[tracing::instrument(skip_all)]
 pub async fn handle_auth_message(message: &str) -> Result<(), WebsocketError> {
   let auth_message = serde_json::from_str(message.trim());
 

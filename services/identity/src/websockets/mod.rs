@@ -100,6 +100,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
   }
 }
 
+#[tracing::instrument(skip_all)]
 pub async fn run_server() -> Result<(), errors::BoxedError> {
   let addr: SocketAddr = IDENTITY_SERVICE_WEBSOCKET_ADDR.parse()?;
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
@@ -125,6 +126,7 @@ pub async fn run_server() -> Result<(), errors::BoxedError> {
   Ok(())
 }
 
+#[tracing::instrument(skip_all)]
 async fn send_search_request<T: Serialize>(
   url: &str,
   json_body: T,
@@ -139,12 +141,14 @@ async fn send_search_request<T: Serialize>(
     .await
 }
 
+#[tracing::instrument(skip_all)]
 async fn close_connection(outgoing: WebsocketSink) {
   if let Err(e) = outgoing.lock().await.close().await {
     error!("Error closing connection: {}", e);
   }
 }
 
+#[tracing::instrument(skip_all)]
 async fn handle_prefix_search(
   request_id: &str,
   prefix_request: identity_search_messages::IdentitySearchPrefix,
@@ -183,6 +187,7 @@ async fn handle_prefix_search(
   Ok(search_result)
 }
 
+#[tracing::instrument(skip_all)]
 async fn handle_websocket_frame(
   text: String,
   outgoing: WebsocketSink,
@@ -222,6 +227,7 @@ async fn handle_websocket_frame(
   }
 }
 
+#[tracing::instrument(skip_all)]
 async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   debug!("Incoming WebSocket connection from {}", addr);
 
