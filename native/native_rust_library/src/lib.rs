@@ -203,6 +203,15 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityGetDeviceListsForUsers"]
+    fn get_device_lists_for_users(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      user_ids: Vec<String>,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityUpdateDeviceList"]
     fn update_device_list(
       auth_user_id: String,
