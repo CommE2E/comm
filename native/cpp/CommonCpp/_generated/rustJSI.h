@@ -35,6 +35,7 @@ public:
   virtual jsi::Value uploadOneTimeKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array contentOneTimePreKeys, jsi::Array notifOneTimePreKeys) = 0;
   virtual jsi::Value getKeyserverKeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String keyserverID) = 0;
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
+  virtual jsi::Value getDeviceListsForUsers(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array userIDs) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String nonce, jsi::String nonceSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
   virtual jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String nonce, jsi::String nonceSignature) = 0;
@@ -183,6 +184,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getDeviceListForUser, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userID), std::move(sinceTimestamp));
+    }
+    jsi::Value getDeviceListsForUsers(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array userIDs) override {
+      static_assert(
+          bridging::getParameterCount(&T::getDeviceListsForUsers) == 5,
+          "Expected getDeviceListsForUsers(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getDeviceListsForUsers, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(userIDs));
     }
     jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) override {
       static_assert(
