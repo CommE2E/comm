@@ -21,6 +21,7 @@ use super::Error;
 pub struct FarcasterUserData(pub FarcasterUser);
 
 impl DatabaseClient {
+  #[tracing::instrument(skip_all)]
   pub async fn get_farcaster_users(
     &self,
     farcaster_ids: Vec<String>,
