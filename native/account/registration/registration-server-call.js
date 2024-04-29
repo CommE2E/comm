@@ -9,6 +9,8 @@ import {
   legacyKeyserverRegister,
   useIdentityPasswordRegister,
   identityRegisterActionTypes,
+  deleteAccountActionTypes,
+  useDeleteDiscardedIdentityAccount,
 } from 'lib/actions/user-actions.js';
 import { useKeyserverAuth } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
@@ -314,6 +316,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       !state.currentUserInfo.anonymous,
   );
 
+  // We call deleteDiscardedIdentityAccount in order to reset state if identity
+  // registration succeeds but authoritative keyserver auth fails
+  const deleteDiscardedIdentityAccount = useDeleteDiscardedIdentityAccount();
+
   const registeringOnAuthoritativeKeyserverRef = React.useRef(false);
   React.useEffect(() => {
     if (
@@ -350,13 +356,23 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           reject,
         });
       } catch (e) {
+        void dispatchActionPromise(
+          deleteAccountActionTypes,
+          deleteDiscardedIdentityAccount(),
+        );
         reject(e);
         setCurrentStep(inactiveStep);
       } finally {
         registeringOnAuthoritativeKeyserverRef.current = false;
       }
     })();
-  }, [currentStep, isRegisteredOnIdentity, keyserverAuth]);
+  }, [
+    currentStep,
+    isRegisteredOnIdentity,
+    keyserverAuth,
+    dispatchActionPromise,
+    deleteDiscardedIdentityAccount,
+  ]);
 
   // STEP 3: SETTING AVATAR
 
