@@ -67,6 +67,27 @@ function RegistrationTerms(props: Props): React.Node {
     }
   }, [register, userSelections, clearCachedSelections]);
 
+  const { navigation } = props;
+  React.useEffect(() => {
+    if (!registrationInProgress) {
+      return undefined;
+    }
+    navigation.setOptions({
+      gestureEnabled: false,
+      headerLeft: null,
+    });
+    const removeListener = navigation.addListener('beforeRemove', e => {
+      e.preventDefault();
+    });
+    return () => {
+      navigation.setOptions({
+        gestureEnabled: true,
+        headerLeft: undefined,
+      });
+      removeListener();
+    };
+  }, [navigation, registrationInProgress]);
+
   const styles = useStyles(unboundStyles);
 
   const termsNotice = (
