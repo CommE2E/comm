@@ -9,6 +9,7 @@ use tonic::Status;
 use tracing::error;
 use tunnelbroker_messages as messages;
 
+use crate::constants::error_types;
 use crate::error::Error;
 
 pub async fn create_tunnelbroker_client(
@@ -16,7 +17,10 @@ pub async fn create_tunnelbroker_client(
   shared_tb_client(&CONFIG.tunnelbroker_endpoint)
     .await
     .map_err(|e| {
-      error!("Unable able to connect to tunnelbroker: {:?}", e);
+      error!(
+        errorType = error_types::TUNNELBROKER_LOG,
+        "Unable able to connect to tunnelbroker: {:?}", e
+      );
       Error::Status(Status::invalid_argument(format!("{}", e)))
     })
 }

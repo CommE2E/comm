@@ -18,7 +18,7 @@ use std::sync::Arc;
 pub use crate::database::device_list::DeviceIDAttribute;
 pub use crate::database::one_time_keys::OTKRow;
 use crate::{
-  constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
+  constants::error_types, constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
   ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
 };
 use crate::{
@@ -474,7 +474,10 @@ impl DatabaseClient {
         Ok(out)
       }
       Err(e) => {
-        error!("DynamoDB client failed to delete user {}", user_id);
+        error!(
+          errorType = error_types::GENERIC_DB_LOG,
+          "DynamoDB client failed to delete user {}", user_id
+        );
         Err(Error::AwsSdk(e.into()))
       }
     }
@@ -582,8 +585,11 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
+          errorType = error_types::GENERIC_DB_LOG,
           "DynamoDB client failed to get user from {} {}: {}",
-          attribute_name, user_info, e
+          attribute_name,
+          user_info,
+          e
         );
         Err(Error::AwsSdk(e.into()))
       }
@@ -670,8 +676,10 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
+          errorType = error_types::GENERIC_DB_LOG,
           "DynamoDB client failed to get registration data for user {}: {}",
-          username, e
+          username,
+          e
         );
         Err(e)
       }
@@ -726,7 +734,11 @@ impl DatabaseClient {
       .map(Identifier::try_from)
       .transpose()
       .map_err(|e| {
-        error!(user_id, "Database item is missing an identifier");
+        error!(
+          user_id,
+          errorType = error_types::GENERIC_DB_LOG,
+          "Database item is missing an identifier"
+        );
         e
       })
   }
@@ -961,7 +973,7 @@ impl DatabaseClient {
         Ok(out)
       }
       Err(e) => {
-        error!("DynamoDB client failed to delete username {} from reserved usernames table", username);
+        error!(errorType = error_types::GENERIC_DB_LOG, "DynamoDB client failed to delete username {} from reserved usernames table", username);
         Err(Error::AwsSdk(e.into()))
       }
     }
@@ -1041,7 +1053,7 @@ fn parse_map_attribute(
           attribute = attribute_name,
           value = ?attribute_value,
           error_type = "IncorrectType",
-          "Unexpected attribute type when parsing map attribute"
+          errorType = error_types::GENERIC_DB_LOG, "Unexpected attribute type when parsing map attribute"
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
@@ -1053,6 +1065,7 @@ fn parse_map_attribute(
       error!(
         attribute = attribute_name,
         error_type = "Missing",
+        errorType = error_types::GENERIC_DB_LOG,
         "Attribute is missing"
       );
       Err(DBItemError::new(

@@ -1,3 +1,5 @@
+use crate::constants::error_types;
+
 pub type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 #[derive(
@@ -13,14 +15,22 @@ pub enum WebsocketError {
 
 impl From<serde_json::Error> for WebsocketError {
   fn from(err: serde_json::Error) -> Self {
-    tracing::error!("Error serializing: {}", err);
+    tracing::error!(
+      errorType = error_types::SEARCH_LOG,
+      "Error serializing: {}",
+      err
+    );
     WebsocketError::SerializationError
   }
 }
 
 impl From<reqwest::Error> for WebsocketError {
   fn from(err: reqwest::Error) -> Self {
-    tracing::error!("Error with search request: {}", err);
+    tracing::error!(
+      errorType = error_types::SEARCH_LOG,
+      "Error with search request: {}",
+      err
+    );
     WebsocketError::SearchError
   }
 }
