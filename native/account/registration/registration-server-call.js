@@ -359,7 +359,12 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       } catch (keyserverAuthException) {
         const discardIdentityAccountPromise = (async () => {
           try {
-            return await deleteDiscardedIdentityAccount();
+            const deletionResult = await deleteDiscardedIdentityAccount();
+            Alert.alert(
+              UnknownErrorAlertDetails.title,
+              UnknownErrorAlertDetails.message,
+            );
+            return deletionResult;
           } catch (deleteException) {
             Alert.alert(
               'Account created but login failed',
