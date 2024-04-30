@@ -2,10 +2,12 @@
 
 import * as React from 'react';
 
+import { setPeerDeviceListsActionType } from 'lib/actions/aux-user-actions.js';
 import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { getRelativeUserIDs } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -13,7 +15,9 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
+import { convertSignedDeviceListsToRawDeviceLists } from 'lib/utils/device-list-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './account-settings.css';
 import AppearanceChangeModal from './appearance-change-modal.react.js';
@@ -109,6 +113,30 @@ function AccountSettings(): React.Node {
     }
   }, [identityContext, sendMessage]);
 
+  const dispatch = useDispatch();
+  const relativeUserIDs = useSelector(getRelativeUserIDs);
+
+  const onCreateInitialPeerList = React.useCallback(async () => {
+    if (!identityContext) {
+      return;
+    }
+
+    try {
+      const userDeviceLists =
+        await identityContext.identityClient.getDeviceListsForUsers(
+          relativeUserIDs,
+        );
+      const usersRawDeviceLists =
+        convertSignedDeviceListsToRawDeviceLists(userDeviceLists);
+      dispatch({
+        type: setPeerDeviceListsActionType,
+        payload: { deviceLists: usersRawDeviceLists },
+      });
+    } catch (e) {
+      console.log(`Error creating initial peer list: ${e.message}`);
+    }
+  }, [dispatch, identityContext, relativeUserIDs]);
+
   const openBackupTestRestoreModal = React.useCallback(
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
     [popModal, pushModal],
@@ -182,6 +210,12 @@ function AccountSettings(): React.Node {
             <li>
               <span>Create session with own devices</span>
               <Button variant="text" onClick={onCreateOlmSessions}>
+                <p className={css.buttonText}>Create</p>
+              </Button>
+            </li>
+            <li>
+              <span>Create initial peer list</span>
+              <Button variant="text" onClick={onCreateInitialPeerList}>
                 <p className={css.buttonText}>Create</p>
               </Button>
             </li>
