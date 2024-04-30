@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { setUsersDeviceListsActionType } from 'lib/actions/aux-user-actions.js';
+import { getRelativeUserIDs } from 'lib/selectors/user-selectors.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
@@ -19,6 +21,8 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
+import { convertSignedDeviceListsToRawDeviceLists } from 'lib/utils/device-list-utils.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
@@ -88,6 +92,29 @@ function TunnelbrokerMenu(props: Props): React.Node {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
   }, [identityContext, sendMessage]);
+
+  const dispatch = useDispatch();
+  const relativeUserIDs = useSelector(getRelativeUserIDs);
+
+  const onCreateInitialPeerList = React.useCallback(async () => {
+    if (!identityContext) {
+      return;
+    }
+    try {
+      const userDeviceLists =
+        await identityContext.identityClient.getDeviceListsForUsers(
+          relativeUserIDs,
+        );
+      const usersRawDeviceLists =
+        convertSignedDeviceListsToRawDeviceLists(userDeviceLists);
+      dispatch({
+        type: setUsersDeviceListsActionType,
+        payload: usersRawDeviceLists,
+      });
+    } catch (e) {
+      console.log(`Error creating initial peer list: ${e.message}`);
+    }
+  }, [dispatch, identityContext, relativeUserIDs]);
 
   const onSendEncryptedMessage = React.useCallback(async () => {
     try {
@@ -182,6 +209,15 @@ function TunnelbrokerMenu(props: Props): React.Node {
           <Text style={styles.submenuText}>
             Create session with own devices
           </Text>
+        </Button>
+        <Button
+          onPress={onCreateInitialPeerList}
+          style={styles.row}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+          iosActiveOpacity={0.85}
+        >
+          <Text style={styles.submenuText}>Create initial peer list</Text>
         </Button>
         <Button
           onPress={onSendEncryptedMessage}
