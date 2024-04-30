@@ -1373,7 +1373,7 @@ declare module '@react-navigation/core' {
     +headerTitleContainerStyle: AnimatedViewStyleProp,
     +headerTintColor: string,
     +headerTitleAllowFontScaling: boolean,
-    +headerLeft: NavHeaderLeftProps => React$Node,
+    +headerLeft: null | (NavHeaderLeftProps => React$Node),
     +headerLeftContainerStyle: AnimatedViewStyleProp,
     +headerRight: NavHeaderRightProps => React$Node,
     +headerRightContainerStyle: AnimatedViewStyleProp,
