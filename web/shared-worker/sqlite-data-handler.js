@@ -5,6 +5,7 @@ import * as React from 'react';
 import { shouldClearData } from 'lib/shared/data-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { reportDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
 
 import { getCommSharedWorker } from './shared-worker-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -43,6 +44,7 @@ function SQLiteDataHandler(): React.Node {
     ) {
       try {
         await sharedWorker.init({ clearDatabase: true });
+        reportDatabaseDeleted();
       } catch (error) {
         console.error(
           `Error clearing sensitive data: ${

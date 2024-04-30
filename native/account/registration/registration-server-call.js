@@ -24,6 +24,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
+import { waitUntilDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
 
 import type {
   RegistrationServerCallInput,
@@ -360,6 +361,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           deleteAccountActionTypes,
           deleteDiscardedIdentityAccount(),
         );
+        await waitUntilDatabaseDeleted();
         reject(e);
         setCurrentStep(inactiveStep);
       } finally {
