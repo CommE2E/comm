@@ -42,7 +42,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to query users by farcasterID: {:?}", e);
+          error!(
+            "Farcaster DB Error: Failed to query users by farcasterID: {:?}",
+            e
+          );
           Error::AwsSdk(e.into())
         })?
         .items

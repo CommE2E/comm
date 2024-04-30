@@ -19,25 +19,25 @@ pub fn parse_and_verify_siwe_message(
   siwe_signature: &str,
 ) -> Result<Message, Status> {
   let siwe_message: Message = siwe_message.parse().map_err(|e| {
-    error!("Failed to parse SIWE message: {}", e);
+    error!("SIWE Error: Failed to parse SIWE message: {}", e);
     Status::invalid_argument("invalid message")
   })?;
 
   let decoded_signature = hex::decode(siwe_signature.trim_start_matches("0x"))
     .map_err(|e| {
-      error!("Failed to decode SIWE signature: {}", e);
+      error!("SIWE Error: Failed to decode SIWE signature: {}", e);
       Status::invalid_argument("invalid signature")
     })?;
 
   let signature = decoded_signature.try_into().map_err(|e| {
-    error!("Conversion to SIWE signature failed: {:?}", e);
+    error!("SIWE Error: Conversion to SIWE signature failed: {:?}", e);
     Status::invalid_argument("invalid message")
   })?;
 
   siwe_message
     .verify(signature, None, None, Some(&Utc::now()))
     .map_err(|e| {
-      error!("Signature verification failed: {}", e);
+      error!("SIWE Error: Signature verification failed: {}", e);
       Status::unauthenticated("message not authenticated")
     })?;
 
