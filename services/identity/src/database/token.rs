@@ -72,7 +72,7 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get token for user {} with signing public key {}: {}",
+          "Token DB Error: DynamoDB client failed to get token for user {} with signing public key {}: {}",
           user_id, signing_public_key, e
         );
         Err(Error::AwsSdk(e.into()))
@@ -187,7 +187,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to list user's items in tokens table: {:?}", e);
+        error!(
+          "Token DB Error: Failed to list user's items in tokens table: {:?}",
+          e
+        );
         Error::AwsSdk(e.into())
       })?
       .items

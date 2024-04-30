@@ -1099,7 +1099,7 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
       tonic::Status::invalid_argument("invalid device list update")
     }
     e => {
-      error!("Encountered an unexpected error: {}", e);
+      error!("DB Error: Encountered an unexpected error: {}", e);
       tonic::Status::failed_precondition("unexpected error")
     }
   }

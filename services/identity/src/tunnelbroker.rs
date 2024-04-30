@@ -16,7 +16,10 @@ pub async fn create_tunnelbroker_client(
   shared_tb_client(&CONFIG.tunnelbroker_endpoint)
     .await
     .map_err(|e| {
-      error!("Unable able to connect to tunnelbroker: {:?}", e);
+      error!(
+        "Tunnelbroker Error: Unable able to connect to tunnelbroker: {:?}",
+        e
+      );
       Error::Status(Status::invalid_argument(format!("{}", e)))
     })
 }

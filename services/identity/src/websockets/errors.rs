@@ -13,14 +13,14 @@ pub enum WebsocketError {
 
 impl From<serde_json::Error> for WebsocketError {
   fn from(err: serde_json::Error) -> Self {
-    tracing::error!("Error serializing: {}", err);
+    tracing::error!("Search Error: Error serializing: {}", err);
     WebsocketError::SerializationError
   }
 }
 
 impl From<reqwest::Error> for WebsocketError {
   fn from(err: reqwest::Error) -> Self {
-    tracing::error!("Error with search request: {}", err);
+    tracing::error!("Search Error: Error with search request: {}", err);
     WebsocketError::SearchError
   }
 }
