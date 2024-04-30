@@ -13,7 +13,10 @@ use tracing::{debug, error, info, warn};
 
 // Workspace crate imports
 use crate::config::CONFIG;
-use crate::constants::request_metadata;
+use crate::constants::{
+  request_metadata,
+  error_types
+};
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
 };
@@ -1099,7 +1102,10 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
       tonic::Status::invalid_argument("invalid device list update")
     }
     e => {
-      error!("Encountered an unexpected error: {}", e);
+      error!(
+        errorType = error_types::GENERIC_DB_LOG,
+        "Encountered an unexpected error: {}", e
+      );
       tonic::Status::failed_precondition("unexpected error")
     }
   }

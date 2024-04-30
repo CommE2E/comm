@@ -7,6 +7,7 @@ use comm_lib::database::DBItemError;
 use comm_lib::database::Value;
 use tracing::error;
 
+use crate::constants::error_types;
 use crate::constants::USERS_TABLE;
 use crate::constants::USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME;
 use crate::constants::USERS_TABLE_FARCASTER_ID_INDEX;
@@ -42,7 +43,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to query users by farcasterID: {:?}", e);
+          error!(
+            errorType = error_types::FARCASTER_DB_LOG,
+            "Failed to query users by farcasterID: {:?}", e
+          );
           Error::AwsSdk(e.into())
         })?
         .items

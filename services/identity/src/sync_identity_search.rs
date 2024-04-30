@@ -1,5 +1,5 @@
 use crate::config::CONFIG;
-use crate::constants::IDENTITY_SEARCH_INDEX;
+use crate::constants::{error_types, IDENTITY_SEARCH_INDEX};
 use crate::database::DatabaseClient;
 use crate::error;
 use identity_search_messages::IdentitySearchUser;
@@ -60,7 +60,7 @@ pub async fn clear_index(
     .expect("Failed to send clear index request");
 
   if !response.status().is_success() {
-    error!("Sync Error: Failed to clear index");
+    error!(errorType = error_types::SYNC_LOG, "Failed to clear index");
   }
 
   Ok(())
@@ -98,7 +98,7 @@ pub async fn restore_index(
     .expect("Failed to send restore index request");
 
   if !response.status().is_success() {
-    error!("Sync Error: Failed to restore index");
+    error!(errorType = error_types::SYNC_LOG, "Failed to restore index");
   }
 
   Ok(())

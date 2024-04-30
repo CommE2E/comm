@@ -23,7 +23,7 @@ mod send;
 
 use crate::config::CONFIG;
 use crate::constants::{
-  IDENTITY_SEARCH_INDEX, IDENTITY_SEARCH_RESULT_SIZE,
+  error_types, IDENTITY_SEARCH_INDEX, IDENTITY_SEARCH_RESULT_SIZE,
   IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
 use opensearch::OpenSearchResponse;
@@ -113,7 +113,10 @@ pub async fn run_server() -> Result<(), errors::BoxedError> {
 
     tokio::spawn(async move {
       if let Err(err) = connection.await {
-        error!("Error serving HTTP/WebSocket connection: {:?}", err);
+        error!(
+          errorType = error_types::SEARCH_LOG,
+          "Error serving HTTP/WebSocket connection: {:?}", err
+        );
       }
     });
   }
@@ -139,7 +142,10 @@ async fn send_search_request<T: Serialize>(
 #[tracing::instrument(skip_all)]
 async fn close_connection(outgoing: WebsocketSink) {
   if let Err(e) = outgoing.lock().await.close().await {
-    error!("Error closing connection: {}", e);
+    error!(
+      errorType = error_types::SEARCH_LOG,
+      "Error closing connection: {}", e
+    );
   }
 }
 
@@ -229,7 +235,10 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   let ws_stream = match hyper_ws.await {
     Ok(stream) => stream,
     Err(e) => {
-      error!("WebSocket handshake error: {}", e);
+      error!(
+        errorType = error_types::SEARCH_LOG,
+        "WebSocket handshake error: {}", e
+      );
       return;
     }
   };
@@ -267,13 +276,19 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
         }
       }
       _ => {
-        error!("Invalid authentication message from {}", addr);
+        error!(
+          errorType = error_types::SEARCH_LOG,
+          "Invalid authentication message from {}", addr
+        );
         close_connection(outgoing).await;
         return;
       }
     }
   } else {
-    error!("No authentication message from {}", addr);
+    error!(
+      errorType = error_types::SEARCH_LOG,
+      "No authentication message from {}", addr
+    );
     close_connection(outgoing).await;
     return;
   }
@@ -309,19 +324,19 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
             ping_timeout = Box::pin(tokio::time::sleep(SOCKET_HEARTBEAT_TIMEOUT));
 
             if let Err(e) = handle_websocket_frame(text, outgoing.clone()).await {
-              error!("Error handling WebSocket frame: {}", e);
+              error!(errorType = error_types::SEARCH_LOG, "Error handling WebSocket frame: {}", e);
               continue;
             };
           }
           _ => {
-            error!("Client sent invalid message type");
+            error!(errorType = error_types::SEARCH_LOG, "Client sent invalid message type");
             break;
           }
         }
       }
       _ = &mut ping_timeout => {
         if !got_heartbeat_response {
-          error!("Connection to {} died.", addr);
+          error!(errorType = error_types::SEARCH_LOG, "Connection to {} died.", addr);
           break;
         }
         let serialized = serde_json::to_string(&Heartbeat {}).unwrap();

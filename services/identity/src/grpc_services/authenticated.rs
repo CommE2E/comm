@@ -4,7 +4,7 @@ use crate::config::CONFIG;
 use crate::database::{DeviceListRow, DeviceListUpdate};
 use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
-  constants::request_metadata,
+  constants::{error_types, request_metadata},
   database::DatabaseClient,
   ddb_utils::DateTimeExt,
   grpc_services::shared::get_value,
@@ -504,13 +504,20 @@ impl IdentityClientService for AuthenticatedService {
           warn!(user_id, "User has no device list, skipping!");
         }
         Ok((user_id, Err(err))) => {
-          error!(user_id, "Failed fetching device list: {err}");
+          error!(
+            user_id,
+            errorType = error_types::GRPC_SERVICES_LOG,
+            "Failed fetching device list: {err}"
+          );
           // abort fetching other users
           fetch_tasks.abort_all();
           return Err(handle_db_error(err));
         }
         Err(join_error) => {
-          error!("Failed to join device list task: {join_error}");
+          error!(
+            errorType = error_types::GRPC_SERVICES_LOG,
+            "Failed to join device list task: {join_error}"
+          );
           fetch_tasks.abort_all();
           return Err(Status::aborted("unexpected error"));
         }
@@ -562,7 +569,10 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     if get_farcaster_users_response.len() > 1 {
-      error!("multiple users associated with the same Farcaster ID");
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "multiple users associated with the same Farcaster ID"
+      );
       return Err(Status::failed_precondition("cannot link Farcaster ID"));
     }
 
@@ -661,7 +671,10 @@ impl SignedDeviceList {
   /// Serialize (and sign in the future) a [`RawDeviceList`]
   fn try_from_raw(raw: RawDeviceList) -> Result<Self, tonic::Status> {
     let stringified_list = serde_json::to_string(&raw).map_err(|err| {
-      error!("Failed to serialize raw device list: {}", err);
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Failed to serialize raw device list: {}", err
+      );
       tonic::Status::failed_precondition("unexpected error")
     })?;
 
@@ -685,7 +698,10 @@ impl SignedDeviceList {
   /// Serializes the signed device list to a JSON string
   fn as_json_string(&self) -> Result<String, tonic::Status> {
     serde_json::to_string(self).map_err(|err| {
-      error!("Failed to serialize device list updates: {}", err);
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Failed to serialize device list updates: {}", err
+      );
       tonic::Status::failed_precondition("unexpected error")
     })
   }
@@ -710,7 +726,10 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
     } = signed_list.as_raw()?;
     let timestamp = DateTime::<Utc>::from_utc_timestamp_millis(raw_timestamp)
       .ok_or_else(|| {
-      error!("Failed to parse RawDeviceList timestamp!");
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Failed to parse RawDeviceList timestamp!"
+      );
       tonic::Status::invalid_argument("invalid timestamp")
     })?;
     Ok(DeviceListUpdate::new(devices, timestamp))

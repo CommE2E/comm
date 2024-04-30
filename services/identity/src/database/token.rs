@@ -15,6 +15,7 @@ use constant_time_eq::constant_time_eq;
 use tracing::{error, info};
 
 use crate::{
+  constants::error_types,
   error::Error,
   token::{AccessTokenData, AuthType},
 };
@@ -72,7 +73,7 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get token for user {} with signing public key {}: {}",
+          errorType = error_types::TOKEN_DB_LOG, "DynamoDB client failed to get token for user {} with signing public key {}: {}",
           user_id, signing_public_key, e
         );
         Err(Error::AwsSdk(e.into()))
@@ -187,7 +188,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to list user's items in tokens table: {:?}", e);
+        error!(
+          errorType = error_types::TOKEN_DB_LOG,
+          "Failed to list user's items in tokens table: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?
       .items
