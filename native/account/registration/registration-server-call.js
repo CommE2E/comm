@@ -12,7 +12,7 @@ import {
   deleteAccountActionTypes,
   useDeleteDiscardedIdentityAccount,
 } from 'lib/actions/user-actions.js';
-import { useKeyserverAuth } from 'lib/keyserver-conn/keyserver-auth.js';
+import { useKeyserverAuthWithRetry } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import {
@@ -308,7 +308,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
 
   // STEP 2: REGISTERING ON AUTHORITATIVE KEYSERVER
 
-  const keyserverAuth = useKeyserverAuth(authoritativeKeyserverID);
+  const keyserverAuth = useKeyserverAuthWithRetry(authoritativeKeyserverID);
 
   const isRegisteredOnIdentity = useSelector(
     state =>
