@@ -20,7 +20,6 @@ import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { getWagmiConfig } from 'lib/utils/wagmi-utils.js';
 
 import App from './app.react.js';
-import LogOutIfMissingCSATHandler from './components/log-out-if-missing-csat-handler.react.js';
 import ErrorBoundary from './error-boundary.react.js';
 import IdentityServiceContextProvider from './grpc/identity-service-context-provider.react.js';
 import { defaultWebState } from './redux/default-state.js';
@@ -71,7 +70,6 @@ const RootProvider = (): React.Node => (
                   <Route path="*" component={App} />
                 </Router>
                 <KeyserverConnectionsHandler socketComponent={Socket} />
-                <LogOutIfMissingCSATHandler />
                 <PrekeysHandler />
                 <SQLiteDataHandler />
                 <IntegrityHandler />
