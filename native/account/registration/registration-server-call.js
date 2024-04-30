@@ -357,6 +357,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           reject,
         });
       } catch (e) {
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+        );
         void dispatchActionPromise(
           deleteAccountActionTypes,
           deleteDiscardedIdentityAccount(),
