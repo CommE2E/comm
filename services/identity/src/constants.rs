@@ -191,6 +191,20 @@ pub const DEFAULT_OPENSEARCH_ENDPOINT: &str =
 pub const IDENTITY_SEARCH_INDEX: &str = "users";
 pub const IDENTITY_SEARCH_RESULT_SIZE: u32 = 20;
 
+// Log Error Types
+
+pub const GENERIC_DB_LOG_ERROR_TYPE: &str = "DB Error";
+pub const OTK_DB_LOG_ERROR_TYPE: &str = "One-time Key DB Error";
+pub const DEVICE_LIST_DB_LOG_ERROR_TYPE: &str = "Device List DB Error";
+pub const TOKEN_DB_LOG_ERROR_TYPE: &str = "Token DB Error";
+pub const FARCASTER_DB_LOG_ERROR_TYPE: &str = "Farcaster DB Error";
+
+pub const SYNC_LOG_ERROR_TYPE: &str = "Sync Error";
+pub const SEARCH_LOG_ERROR_TYPE: &str = "Search Error";
+pub const SIWE_LOG_ERROR_TYPE: &str = "SIWE Error";
+pub const GRPC_SERVICES_LOG_ERROR_TYPE: &str = "gRPC Services Error";
+pub const TUNNELBROKER_LOG_ERROR_TYPE: &str = "Tunnelbroker Error";
+
 // Tunnelbroker
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
 pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";

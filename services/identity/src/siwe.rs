@@ -11,7 +11,8 @@ use tonic::Status;
 use tracing::error;
 
 use crate::constants::{
-  SOCIAL_PROOF_MESSAGE_ATTRIBUTE, SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
+  SIWE_LOG_ERROR_TYPE, SOCIAL_PROOF_MESSAGE_ATTRIBUTE,
+  SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
 };
 
 pub fn parse_and_verify_siwe_message(
@@ -19,25 +20,37 @@ pub fn parse_and_verify_siwe_message(
   siwe_signature: &str,
 ) -> Result<Message, Status> {
   let siwe_message: Message = siwe_message.parse().map_err(|e| {
-    error!("Failed to parse SIWE message: {}", e);
+    error!(
+      errorType = SIWE_LOG_ERROR_TYPE,
+      "Failed to parse SIWE message: {}", e
+    );
     Status::invalid_argument("invalid message")
   })?;
 
   let decoded_signature = hex::decode(siwe_signature.trim_start_matches("0x"))
     .map_err(|e| {
-      error!("Failed to decode SIWE signature: {}", e);
+      error!(
+        errorType = SIWE_LOG_ERROR_TYPE,
+        "Failed to decode SIWE signature: {}", e
+      );
       Status::invalid_argument("invalid signature")
     })?;
 
   let signature = decoded_signature.try_into().map_err(|e| {
-    error!("Conversion to SIWE signature failed: {:?}", e);
+    error!(
+      errorType = SIWE_LOG_ERROR_TYPE,
+      "Conversion to SIWE signature failed: {:?}", e
+    );
     Status::invalid_argument("invalid message")
   })?;
 
   siwe_message
     .verify(signature, None, None, Some(&Utc::now()))
     .map_err(|e| {
-      error!("Signature verification failed: {}", e);
+      error!(
+        errorType = SIWE_LOG_ERROR_TYPE,
+        "Signature verification failed: {}", e
+      );
       Status::unauthenticated("message not authenticated")
     })?;
 

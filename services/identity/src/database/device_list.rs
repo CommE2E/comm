@@ -20,8 +20,8 @@ use crate::{
   client_service::FlattenedDeviceKeyUpload,
   constants::{
     devices_table::{self, *},
-    USERS_TABLE, USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
-    USERS_TABLE_PARTITION_KEY,
+    DEVICE_LIST_DB_LOG_ERROR_TYPE, USERS_TABLE,
+    USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
   },
   error::{DeviceListError, Error},
   grpc_services::protos::{self, unauth::DeviceType},
@@ -86,7 +86,10 @@ impl DeviceRow {
     if !is_valid_olm_key(&upload.content_prekey)
       || !is_valid_olm_key(&upload.notif_prekey)
     {
-      error!("Invalid prekey format");
+      error!(
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Invalid prekey format"
+      );
       return Err(Error::InvalidFormat);
     }
     let device_row = Self {
@@ -429,7 +432,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to get current devices: {:?}", e);
+          error!(
+            errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+            "Failed to get current devices: {:?}", e
+          );
           Error::AwsSdk(e.into())
         })?;
 
@@ -473,7 +479,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to query device list updates by index: {:?}", e);
+          error!(
+            errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+            "Failed to query device list updates by index: {:?}", e
+          );
           Error::AwsSdk(e.into())
         })?
         .items
@@ -483,7 +492,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to query device list updates (all): {:?}", e);
+          error!(
+            errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+            "Failed to query device list updates (all): {:?}", e
+          );
           Error::AwsSdk(e.into())
         })?
         .items
@@ -523,7 +535,10 @@ impl DatabaseClient {
     if !is_valid_olm_key(&content_prekey.prekey)
       || !is_valid_olm_key(&notif_prekey.prekey)
     {
-      error!("Invalid prekey format");
+      error!(
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Invalid prekey format"
+      );
       return Err(Error::InvalidFormat);
     }
     self
@@ -547,7 +562,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to update device prekeys: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to update device prekeys: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -572,7 +590,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to check if device exists: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to check if device exists: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -594,7 +615,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to fetch device data: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to fetch device data: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -617,7 +641,11 @@ impl DatabaseClient {
       .as_ref()
       .and_then(|list| list.device_ids.first())
     else {
-      error!(user_id, "Device list is empty. Cannot fetch primary device");
+      error!(
+        user_id,
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Device list is empty. Cannot fetch primary device"
+      );
       return Err(Error::DeviceList(DeviceListError::DeviceNotFound));
     };
 
@@ -626,8 +654,8 @@ impl DatabaseClient {
       .await?
       .ok_or_else(|| {
         error!(
-          "Corrupt database. Missing primary device data for user {}",
-          user_id
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Corrupt database. Missing primary device data for user {}", user_id
         );
         Error::MissingItem
       })
@@ -661,7 +689,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to update device login time: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to update device login time: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -691,7 +722,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to query device list updates by index: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to query device list updates by index: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?
       .items
@@ -731,7 +765,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to put device data: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to put device data: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 
@@ -977,7 +1014,10 @@ impl DatabaseClient {
           Error::DeviceList(DeviceListError::ConcurrentUpdateError)
         }
         other => {
-          error!("Device list update transaction failed: {:?}", other);
+          error!(
+            errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+            "Device list update transaction failed: {:?}", other
+          );
           Error::AwsSdk(other)
         }
       })?;
@@ -1011,7 +1051,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to list user's items in devices table: {:?}", e);
+        error!(
+          errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+          "Failed to list user's items in devices table: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?
       .items
@@ -1034,7 +1077,10 @@ impl DatabaseClient {
         .send()
         .await
         .map_err(|e| {
-          error!("Failed to batch delete items from devices table: {:?}", e);
+          error!(
+            errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+            "Failed to batch delete items from devices table: {:?}", e
+          );
           Error::AwsSdk(e.into())
         })?;
     }
@@ -1061,7 +1107,10 @@ async fn get_current_devicelist_timestamp(
     .send()
     .await
     .map_err(|e| {
-      error!("Failed to get user's device list timestamp: {:?}", e);
+      error!(
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Failed to get user's device list timestamp: {:?}", e
+      );
       Error::AwsSdk(e.into())
     })?;
 
@@ -1157,7 +1206,10 @@ mod migration {
     devices_data: &[DeviceRow],
   ) {
     if !verify_device_list_match(list, devices_data) {
-      error!("Found corrupt device list for user (userID={})!", user_id);
+      error!(
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Found corrupt device list for user (userID={})!", user_id
+      );
       return;
     }
 
@@ -1184,8 +1236,8 @@ mod migration {
       list.iter().position(|id| id == &primary_device.device_id)
     else {
       error!(
-        "Primary device not found in device list (userID={})",
-        user_id
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Primary device not found in device list (userID={})", user_id
       );
       return;
     };
@@ -1200,7 +1252,10 @@ mod migration {
     devices_data: &[DeviceRow],
   ) -> bool {
     if list.len() != devices_data.len() {
-      error!("Device list length mismatch!");
+      error!(
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Device list length mismatch!"
+      );
       return false;
     }
 
@@ -1216,8 +1271,8 @@ mod migration {
       .next()
     {
       error!(
-        "Device list is corrupt (unknown deviceID={})",
-        corrupt_device_id
+        errorType = DEVICE_LIST_DB_LOG_ERROR_TYPE,
+        "Device list is corrupt (unknown deviceID={})", corrupt_device_id
       );
       return false;
     }

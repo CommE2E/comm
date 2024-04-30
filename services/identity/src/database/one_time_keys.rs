@@ -17,7 +17,10 @@ use comm_lib::{
 use tracing::{debug, error, info};
 
 use crate::{
-  constants::{MAX_ONE_TIME_KEYS, ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT},
+  constants::{
+    MAX_ONE_TIME_KEYS, ONE_TIME_KEY_UPLOAD_LIMIT_PER_ACCOUNT,
+    OTK_DB_LOG_ERROR_TYPE,
+  },
   database::DeviceIDAttribute,
   ddb_utils::{
     create_one_time_key_partition_key, into_one_time_put_requests,
@@ -145,6 +148,7 @@ impl DatabaseClient {
             info!("Encountered transaction conflict while retrieving one-time key - retrying");
           } else {
             error!(
+              errorType = OTK_DB_LOG_ERROR_TYPE,
               "One-time key retrieval transaction failed: {:?}",
               dynamo_db_error
             );
@@ -197,7 +201,10 @@ impl DatabaseClient {
 
     if let Some(limit) = num_keys {
       if otk_rows.len() != limit {
-        error!("There are fewer one-time keys than the number requested");
+        error!(
+          errorType = OTK_DB_LOG_ERROR_TYPE,
+          "There are fewer one-time keys than the number requested"
+        );
         return Err(Error::NotEnoughOneTimeKeys);
       }
     }
@@ -325,8 +332,8 @@ impl DatabaseClient {
             info!("Encountered transaction conflict while uploading one-time keys - retrying");
           } else {
             error!(
-              "One-time key upload transaction failed: {:?}",
-              dynamo_db_error
+              errorType = OTK_DB_LOG_ERROR_TYPE,
+              "One-time key upload transaction failed: {:?}", dynamo_db_error
             );
             return Err(Error::AwsSdk(dynamo_db_error));
           }
@@ -367,7 +374,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to get user's OTK count: {:?}", e);
+        error!(
+          errorType = OTK_DB_LOG_ERROR_TYPE,
+          "Failed to get user's OTK count: {:?}", e
+        );
         Error::AwsSdk(e.into())
       })?;
 

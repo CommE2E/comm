@@ -8,12 +8,17 @@ use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::WebSocketStream;
 use tracing::error;
 
+use crate::constants::SEARCH_LOG_ERROR_TYPE;
+
 pub type WebsocketSink =
   Arc<Mutex<SplitSink<WebSocketStream<Upgraded>, Message>>>;
 
 #[tracing::instrument(skip_all)]
 pub async fn send_message(message: Message, outgoing: WebsocketSink) {
   if let Err(e) = outgoing.lock().await.send(message).await {
-    error!("Failed to send message to device: {}", e);
+    error!(
+      errorType = SEARCH_LOG_ERROR_TYPE,
+      "Failed to send message to device: {}", e
+    );
   }
 }
