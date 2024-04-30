@@ -474,7 +474,10 @@ impl DatabaseClient {
         Ok(out)
       }
       Err(e) => {
-        error!("DynamoDB client failed to delete user {}", user_id);
+        error!(
+          "DB Error: DynamoDB client failed to delete user {}",
+          user_id
+        );
         Err(Error::AwsSdk(e.into()))
       }
     }
@@ -582,7 +585,7 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get user from {} {}: {}",
+          "DB Error: DynamoDB client failed to get user from {} {}: {}",
           attribute_name, user_info, e
         );
         Err(Error::AwsSdk(e.into()))
@@ -670,7 +673,7 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          "DynamoDB client failed to get registration data for user {}: {}",
+          "DB Error: DynamoDB client failed to get registration data for user {}: {}",
           username, e
         );
         Err(e)
@@ -726,7 +729,7 @@ impl DatabaseClient {
       .map(Identifier::try_from)
       .transpose()
       .map_err(|e| {
-        error!(user_id, "Database item is missing an identifier");
+        error!(user_id, "DB Error: Database item is missing an identifier");
         e
       })
   }
@@ -961,7 +964,7 @@ impl DatabaseClient {
         Ok(out)
       }
       Err(e) => {
-        error!("DynamoDB client failed to delete username {} from reserved usernames table", username);
+        error!("DB Error: DynamoDB client failed to delete username {} from reserved usernames table", username);
         Err(Error::AwsSdk(e.into()))
       }
     }
@@ -1042,7 +1045,7 @@ fn parse_map_attribute(
           attribute = attribute_name,
           value = ?attribute_value,
           error_type = "IncorrectType",
-          "Unexpected attribute type when parsing map attribute"
+          "DB Error: Unexpected attribute type when parsing map attribute"
       );
       Err(DBItemError::new(
         attribute_name.to_string(),
@@ -1054,7 +1057,7 @@ fn parse_map_attribute(
       error!(
         attribute = attribute_name,
         error_type = "Missing",
-        "Attribute is missing"
+        "DB Error: Attribute is missing"
       );
       Err(DBItemError::new(
         attribute_name.to_string(),

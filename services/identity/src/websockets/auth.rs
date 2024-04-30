@@ -28,7 +28,7 @@ async fn verify_user_access_token(
   let mut grpc_client = match grpc_client {
     Ok(grpc_client) => grpc_client,
     Err(e) => {
-      error!("Failed to get unauthenticated client: {}", e);
+      error!("Search Error: Failed to get unauthenticated client: {}", e);
       return Err(WebsocketError::AuthError);
     }
   };
@@ -43,7 +43,7 @@ async fn verify_user_access_token(
   let response = match grpc_client.verify_user_access_token(request).await {
     Ok(response) => response,
     Err(_) => {
-      error!("Failed to verify user access token");
+      error!("Search Error: Failed to verify user access token");
       return Err(WebsocketError::AuthError);
     }
   };
@@ -58,7 +58,7 @@ pub async fn handle_auth_message(message: &str) -> Result<(), WebsocketError> {
   let auth_message: IdentitySearchAuthMessage = match auth_message {
     Ok(auth_message) => auth_message,
     Err(_) => {
-      error!("Failed to parse auth message");
+      error!("Search Error: Failed to parse auth message");
       return Err(WebsocketError::InvalidMessage);
     }
   };
