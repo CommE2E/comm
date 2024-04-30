@@ -758,6 +758,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    61,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE uploads
+            MODIFY container varchar(255) CHARSET latin1 COLLATE latin1_bin
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
