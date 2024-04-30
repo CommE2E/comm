@@ -64,7 +64,7 @@ resource "aws_ecs_task_definition" "identity_service" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = local.is_staging ? "debug" : "info"
+          value = local.is_staging ? "info,identity=debug" : "info"
         },
         {
           name  = "KEYSERVER_PUBLIC_KEY"
