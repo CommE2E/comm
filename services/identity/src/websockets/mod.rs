@@ -67,11 +67,6 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
     let addr = self.addr;
 
     let future = async move {
-      tracing::debug!(
-        "Incoming HTTP request on WebSocket port: {} {}",
-        req.method(),
-        req.uri().path()
-      );
       if hyper_tungstenite::is_upgrade_request(&req) {
         let (response, websocket) = hyper_tungstenite::upgrade(&mut req, None)?;
 
