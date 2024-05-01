@@ -17,6 +17,11 @@ import TextInput from '../../components/text-input.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
+const errorMessages: { +[string]: string } = {
+  already_in_use: 'This Farcaster channel is already tagged to a community.',
+  channel_not_found: 'Cannot find a channel with the provided name.',
+};
+
 export type TagFarcasterChannelByNameParams = {
   +communityID: string,
 };
@@ -37,6 +42,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
 
   const [channelSelectionText, setChannelSelectionText] =
     React.useState<string>('');
+  const [error, setError] = React.useState<?string>(null);
 
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
@@ -54,8 +60,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
           farcasterChannelID: channelID,
         });
       } catch (e) {
-        // TODO: Improve error handling
-        console.log(e.message);
+        setError(e.message);
         throw e;
       }
     },
@@ -69,7 +74,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
       );
 
     if (!channelInfo) {
-      // TODO: Improve error handling
+      setError('channel_not_found');
       return;
     }
 
@@ -86,6 +91,18 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
     goBack,
     neynarClientContext.client,
   ]);
+
+  const errorMessage = React.useMemo(() => {
+    if (!error) {
+      return null;
+    }
+
+    return (
+      <Text style={styles.error}>
+        {errorMessages[error] ?? 'Unknown error.'}
+      </Text>
+    );
+  }, [error, styles.error]);
 
   const submitButtonVariant =
     channelSelectionText.length > 0 ? 'enabled' : 'disabled';
@@ -105,6 +122,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
             autoCapitalize="none"
           />
         </View>
+        {errorMessage}
         <View style={styles.buttonContainer}>
           <RegistrationButton
             onPress={onPressTagChannel}
@@ -148,6 +166,14 @@ const unboundStyles = {
   input: {
     color: 'panelForegroundLabel',
     fontSize: 16,
+  },
+  error: {
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 18,
+    textAlign: 'center',
+    color: 'redText',
+    marginTop: 8,
   },
   buttonContainer: {
     marginTop: 16,
