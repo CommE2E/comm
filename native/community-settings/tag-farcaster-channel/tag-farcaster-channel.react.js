@@ -16,15 +16,12 @@ import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
+import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
-
-const tagFarcasterErrorMessages: { +[string]: string } = {
-  already_in_use: 'This Farcaster channel is already tagged to a community.',
-};
 
 export type TagFarcasterChannelParams = {
   +communityID: string,
@@ -160,7 +157,7 @@ function TagFarcasterChannel(props: Props): React.Node {
 
     return (
       <Text style={styles.error}>
-        {tagFarcasterErrorMessages[error] ?? 'Unknown error.'}
+        {tagFarcasterChannelErrorMessages[error] ?? 'Unknown error.'}
       </Text>
     );
   }, [error, styles.error]);
