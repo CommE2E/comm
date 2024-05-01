@@ -2,6 +2,9 @@ locals {
   lambda_error_subscribed_email = "error-reports@comm.app"
   lambda_error_threshold        = "2"
 
+  identity_error_subscribed_email = "error-reports@comm.app"
+  identity_error_threshold        = "1"
+
   identity_error_patterns = {
     Search       = { name = "Search", pattern = "Search Error:*" },
     Database     = { name = "DB", pattern = "*DB Error:*" },
@@ -38,6 +41,16 @@ resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
   }
 }
 
+resource "aws_sns_topic" "identity_error_topic" {
+  name = "identity-error-topic"
+}
+
+resource "aws_sns_topic_subscription" "common_email_subscription" {
+  topic_arn = aws_sns_topic.identity_error_topic.arn
+  protocol  = "email"
+  endpoint  = local.identity_error_subscribed_email
+}
+
 resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
   for_each = local.identity_error_patterns
 
@@ -50,4 +63,20 @@ resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
     namespace = "IdentityServiceMetricFilters"
     value     = "1"
   }
+}
+
+resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
+  for_each = local.identity_error_patterns
+
+  alarm_name          = "Identity${each.value.name}ErrorAlarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "Identity${each.value.name}ErrorCount"
+  namespace           = "IdentityServiceMetricFilters"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = local.identity_error_threshold
+  alarm_description   = "Alarm when Identity ${each.value.name} errors exceed threshold"
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.identity_error_topic.arn]
 }
