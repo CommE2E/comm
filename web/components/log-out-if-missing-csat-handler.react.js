@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -11,30 +12,46 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 import css from './version-handler.css';
 import Modal from '../modals/modal.react.js';
 
-function MissingCSATModal(): React.Node {
+type Props = {
+  +isAccountWithPassword: boolean,
+};
+
+function MissingCSATModal(props: Props): React.Node {
   const { popModal } = useModalContext();
+  const { isAccountWithPassword } = props;
+
+  let modalContent;
+  if (isAccountWithPassword) {
+    modalContent = (
+      <p>
+        Unfortunately, we must log you out in order to generate a PAKE-derived
+        secret. You can learn more about PAKEs and the protocol we use (OPAQUE){' '}
+        <a
+          href="https://blog.cryptographyengineering.com/2018/10/19/lets-talk-about-pake/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          here
+        </a>
+        .
+      </p>
+    );
+  } else {
+    modalContent = (
+      <p>
+        Unfortunately, we must log you out as we perform an update to our
+        system.
+      </p>
+    );
+  }
 
   return (
     <Modal
-      name="We&rsquo;re improving our password security"
+      name="We&rsquo;re improving our security"
       onClose={popModal}
       size="large"
     >
-      <div className={css.modalContent}>
-        <p>
-          Unfortunately, we must log you out in order to generate a PAKE-derived
-          secret. You can learn more about PAKEs and the protocol we use
-          (OPAQUE){' '}
-          <a
-            href="https://blog.cryptographyengineering.com/2018/10/19/lets-talk-about-pake/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            here
-          </a>
-          .
-        </p>
-      </div>
+      <div className={css.modalContent}>{modalContent}</div>
     </Modal>
   );
 }
@@ -42,6 +59,9 @@ function MissingCSATModal(): React.Node {
 function LogOutIfMissingCSATHandler() {
   const dispatchActionPromise = useDispatchActionPromise();
   const callLogOut = useLogOut();
+  const isAccountWithPassword = useSelector(state =>
+    accountHasPassword(state.currentUserInfo),
+  );
 
   const hasAccessToken = useSelector(state => !!state.commServicesAccessToken);
   const dataLoaded = useSelector(state => state.dataLoaded);
@@ -51,13 +71,16 @@ function LogOutIfMissingCSATHandler() {
   React.useEffect(() => {
     if (!hasAccessToken && dataLoaded && usingCommServicesAccessToken) {
       void dispatchActionPromise(logOutActionTypes, callLogOut());
-      pushModal(<MissingCSATModal />);
+      pushModal(
+        <MissingCSATModal isAccountWithPassword={isAccountWithPassword} />,
+      );
     }
   }, [
     callLogOut,
     dataLoaded,
     dispatchActionPromise,
     hasAccessToken,
+    isAccountWithPassword,
     pushModal,
   ]);
 }
