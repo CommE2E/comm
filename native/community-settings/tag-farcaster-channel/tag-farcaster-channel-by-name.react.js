@@ -12,6 +12,7 @@ import { NeynarClientContext } from 'lib/components/neynar-client-provider.react
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
+import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
 import TextInput from '../../components/text-input.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
@@ -37,6 +38,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
 
   const [channelSelectionText, setChannelSelectionText] =
     React.useState<string>('');
+  const [error, setError] = React.useState<?string>(null);
 
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
@@ -54,8 +56,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
           farcasterChannelID: channelID,
         });
       } catch (e) {
-        // TODO: Improve error handling
-        console.log(e.message);
+        setError(e.message);
         throw e;
       }
     },
@@ -69,7 +70,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
       );
 
     if (!channelInfo) {
-      // TODO: Improve error handling
+      setError('channel_not_found');
       return;
     }
 
@@ -86,6 +87,18 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
     goBack,
     neynarClientContext.client,
   ]);
+
+  const errorMessage = React.useMemo(() => {
+    if (!error) {
+      return null;
+    }
+
+    return (
+      <Text style={styles.error}>
+        {tagFarcasterChannelErrorMessages[error] ?? 'Unknown error.'}
+      </Text>
+    );
+  }, [error, styles.error]);
 
   const submitButtonVariant =
     channelSelectionText.length > 0 ? 'enabled' : 'disabled';
@@ -105,13 +118,12 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
             autoCapitalize="none"
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <RegistrationButton
-            onPress={onPressTagChannel}
-            label="Tag channel"
-            variant={submitButtonVariant}
-          />
-        </View>
+        {errorMessage}
+        <RegistrationButton
+          onPress={onPressTagChannel}
+          label="Tag channel"
+          variant={submitButtonVariant}
+        />
       </View>
     </View>
   );
@@ -144,13 +156,18 @@ const unboundStyles = {
     borderWidth: 1,
     borderColor: 'panelSecondaryForegroundBorder',
     borderRadius: 8,
+    marginBottom: 8,
   },
   input: {
     color: 'panelForegroundLabel',
     fontSize: 16,
   },
-  buttonContainer: {
-    marginTop: 16,
+  error: {
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 18,
+    textAlign: 'center',
+    color: 'redText',
   },
 };
 
