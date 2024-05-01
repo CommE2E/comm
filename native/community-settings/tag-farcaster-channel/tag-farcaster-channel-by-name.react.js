@@ -1,7 +1,15 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+
+import {
+  createOrUpdateFarcasterChannelTagActionTypes,
+  useCreateOrUpdateFarcasterChannelTag,
+} from 'lib/actions/community-actions.js';
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
@@ -18,17 +26,66 @@ type Props = {
   +route: NavigationRoute<'TagFarcasterChannelByName'>,
 };
 
-// eslint-disable-next-line no-unused-vars
 function TagFarcasterChannelByName(prop: Props): React.Node {
+  const { navigation, route } = prop;
+
+  const { goBack } = navigation;
+  const { communityID } = route.params;
+
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
   const [channelSelectionText, setChannelSelectionText] =
     React.useState<string>('');
 
+  const neynarClientContext = React.useContext(NeynarClientContext);
+  invariant(neynarClientContext, 'NeynarClientContext is missing');
+
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const createOrUpdateFarcasterChannelTag =
+    useCreateOrUpdateFarcasterChannelTag();
+
+  const createCreateOrUpdateActionPromise = React.useCallback(
+    async (channelID: string) => {
+      try {
+        return await createOrUpdateFarcasterChannelTag({
+          commCommunityID: communityID,
+          farcasterChannelID: channelID,
+        });
+      } catch (e) {
+        // TODO: Improve error handling
+        console.log(e.message);
+        throw e;
+      }
+    },
+    [communityID, createOrUpdateFarcasterChannelTag],
+  );
+
   const onPressTagChannel = React.useCallback(async () => {
-    // TODO
-  }, []);
+    const channelInfo =
+      await neynarClientContext.client.fetchFarcasterChannelByName(
+        channelSelectionText,
+      );
+
+    if (!channelInfo) {
+      // TODO: Improve error handling
+      return;
+    }
+
+    await dispatchActionPromise(
+      createOrUpdateFarcasterChannelTagActionTypes,
+      createCreateOrUpdateActionPromise(channelInfo.id),
+    );
+
+    goBack();
+  }, [
+    channelSelectionText,
+    createCreateOrUpdateActionPromise,
+    dispatchActionPromise,
+    goBack,
+    neynarClientContext.client,
+  ]);
 
   const submitButtonVariant =
     channelSelectionText.length > 0 ? 'enabled' : 'disabled';
