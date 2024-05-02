@@ -5,11 +5,8 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -20,6 +17,7 @@ import { BottomSheetContext } from '../bottom-sheet/bottom-sheet-provider.react.
 import BottomSheet from '../bottom-sheet/bottom-sheet.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { useOnSuccessConnectToFarcaster } from '../utils/farcaster-utils.js';
 
 const bottomSheetPaddingTop = 32;
 const farcasterPromptHeight = 350;
@@ -34,24 +32,15 @@ type Props = {
 function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const { navigation } = props;
 
-  const dispatch = useDispatch();
+  const { goBack } = navigation;
+
+  const [webViewState, setWebViewState] =
+    React.useState<FarcasterWebViewState>('closed');
 
   const fid = useCurrentUserFID();
 
-  const onSuccess = React.useCallback(
-    (newFID: string) => {
-      dispatch({
-        type: setSyncedMetadataEntryActionType,
-        payload: {
-          name: syncedMetadataNames.CURRENT_USER_FID,
-          data: newFID,
-        },
-      });
-    },
-    [dispatch],
-  );
-
-  const { goBack } = navigation;
+  const onSuccessConnectToFarcaster =
+    useOnSuccessConnectToFarcaster(setWebViewState);
 
   const bottomSheetRef = React.useRef(null);
 
@@ -70,9 +59,6 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
         insets.bottom,
     );
   }, [insets.bottom, setContentHeight]);
-
-  const [webViewState, setWebViewState] =
-    React.useState<FarcasterWebViewState>('closed');
 
   const isAppForegrounded = useIsAppForegrounded();
 
@@ -102,10 +88,19 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
             variant={connectButtonVariant}
           />
         </View>
-        <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
+        <FarcasterWebView
+          onSuccess={onSuccessConnectToFarcaster}
+          webViewState={webViewState}
+        />
       </BottomSheet>
     ),
-    [connectButtonVariant, goBack, onPressConnect, onSuccess, webViewState],
+    [
+      connectButtonVariant,
+      goBack,
+      onPressConnect,
+      onSuccessConnectToFarcaster,
+      webViewState,
+    ],
   );
 
   return connectFarcasterBottomSheet;

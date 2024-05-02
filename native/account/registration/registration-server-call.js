@@ -202,6 +202,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const legacySiweServerCall = useLegacySIWEServerCall();
   const identityWalletRegisterCall = useIdentityWalletRegisterCall();
   const dispatch = useDispatch();
+
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
       new Promise<void>(
@@ -297,11 +298,11 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         },
       ),
     [
-      currentStep,
+      currentStep.step,
+      dispatch,
       legacyKeyserverRegisterUsernameAccount,
       identityRegisterUsernameAccount,
       legacySiweServerCall,
-      dispatch,
       identityWalletRegisterCall,
     ],
   );
