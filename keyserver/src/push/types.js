@@ -14,38 +14,49 @@ export type TargetedAPNsNotification = {
   +encryptionOrder?: number,
 };
 
-type AndroidNotificationPayloadBase = {
+export type AndroidVisualNotificationPayloadBase = $ReadOnly<{
   +badge: string,
-  +body?: string,
-  +title?: string,
+  +body: string,
+  +title: string,
   +prefix?: string,
-  +threadID?: string,
+  +threadID: string,
   +collapseKey?: string,
+  +badgeOnly?: '0',
   +encryptionFailed?: '1',
-};
+}>;
 
-export type AndroidNotificationPayload =
+export type AndroidVisualNotificationPayload = $ReadOnly<
   | {
-      ...AndroidNotificationPayloadBase,
+      ...AndroidVisualNotificationPayloadBase,
       +messageInfos?: string,
     }
   | {
-      ...AndroidNotificationPayloadBase,
+      ...AndroidVisualNotificationPayloadBase,
       +blobHash: string,
       +encryptionKey: string,
-    };
+    },
+>;
 
-export type AndroidNotification = {
-  +data: {
+export type AndroidVisualNotification = {
+  +data: $ReadOnly<{
     +id?: string,
-    +badgeOnly?: string,
     +keyserverID: string,
-    ...AndroidNotificationPayload | { +encryptedPayload: string },
-  },
+    ...
+      | {
+          ...AndroidVisualNotificationPayloadBase,
+          +messageInfos?: string,
+        }
+      | {
+          ...AndroidVisualNotificationPayloadBase,
+          +blobHash: string,
+          +encryptionKey: string,
+        }
+      | { +encryptedPayload: string },
+  }>,
 };
 
 export type AndroidNotificationRescind = {
-  +data: {
+  +data: $ReadOnly<{
     +keyserverID: string,
     ...
       | {
@@ -57,14 +68,37 @@ export type AndroidNotificationRescind = {
           +encryptionFailed?: string,
         }
       | { +encryptedPayload: string },
-  },
+  }>,
 };
 
-export type TargetedAndroidNotification = {
-  +notification: AndroidNotification | AndroidNotificationRescind,
+export type AndroidBadgeOnlyNotification = {
+  +data: $ReadOnly<{
+    +keyserverID: string,
+    ...
+      | {
+          +badge: string,
+          +badgeOnly: '1',
+          +encryptionFailed?: string,
+        }
+      | { +encryptedPayload: string },
+  }>,
+};
+
+type AndroidNotificationWithPriority =
+  | {
+      +notification: AndroidVisualNotification,
+      +priority: 'high',
+    }
+  | {
+      +notification: AndroidBadgeOnlyNotification | AndroidNotificationRescind,
+      +priority: 'normal',
+    };
+
+export type TargetedAndroidNotification = $ReadOnly<{
+  ...AndroidNotificationWithPriority,
   +deviceToken: string,
   +encryptionOrder?: number,
-};
+}>;
 
 export type TargetedWebNotification = {
   +notification: WebNotification,

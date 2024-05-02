@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Map;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +58,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String KEYSERVER_ID_KEY = "keyserverID";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
+  private static final Map<Integer, String> NOTIF_PRIORITY_VERBOSE =
+      Map.of(0, "UNKNOWN", 1, "HIGH", 2, "NORMAL");
 
   // Those and future MMKV-related constants should match
   // similar constants in NotificationService.mm
@@ -103,7 +106,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   @Override
   public void onMessageReceived(RemoteMessage message) {
-    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+    handleAlteredNotificationPriority(message);
+
+    if (StaffUtils.isStaffRelease() &&
+        message.getData().get(KEYSERVER_ID_KEY) == null) {
       displayErrorMessageNotification(
           "Received notification without keyserver ID.",
           "Missing keyserver ID.",
@@ -168,6 +174,32 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       return;
     }
     this.displayNotification(message);
+  }
+
+  private void handleAlteredNotificationPriority(RemoteMessage message) {
+    if (!StaffUtils.isStaffRelease()) {
+      return;
+    }
+
+    int originalPriority = message.getOriginalPriority();
+    int priority = message.getPriority();
+
+    String priorityName = NOTIF_PRIORITY_VERBOSE.get(priority);
+    String originalPriorityName = NOTIF_PRIORITY_VERBOSE.get(originalPriority);
+
+    if (priorityName == null || originalPriorityName == null) {
+      // Technically this will never happen as
+      // it would violate FCM documentation
+      return;
+    }
+
+    if (priority != originalPriority) {
+      displayErrorMessageNotification(
+          "System changed notification priority from " + priorityName + " to " +
+              originalPriorityName,
+          "Notification priority altered.",
+          null);
+    }
   }
 
   private boolean isAppInForeground() {
