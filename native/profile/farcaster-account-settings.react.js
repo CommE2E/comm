@@ -3,10 +3,11 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { clearSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
-import { useCurrentUserFID, useLinkFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
+import {
+  useCurrentUserFID,
+  useLinkFID,
+  useUnlinkFID,
+} from 'lib/utils/farcaster-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
@@ -23,20 +24,11 @@ type Props = {
 
 // eslint-disable-next-line no-unused-vars
 function FarcasterAccountSettings(props: Props): React.Node {
-  const dispatch = useDispatch();
-
   const fid = useCurrentUserFID();
 
   const styles = useStyles(unboundStyles);
 
-  const onPressDisconnect = React.useCallback(() => {
-    dispatch({
-      type: clearSyncedMetadataEntryActionType,
-      payload: {
-        name: syncedMetadataNames.CURRENT_USER_FID,
-      },
-    });
-  }, [dispatch]);
+  const unlinkFID = useUnlinkFID();
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -63,7 +55,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     if (fid) {
       return (
         <RegistrationButton
-          onPress={onPressDisconnect}
+          onPress={unlinkFID}
           label="Disconnect"
           variant="outline"
         />
@@ -77,7 +69,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
         variant={connectButtonVariant}
       />
     );
-  }, [connectButtonVariant, fid, onPressConnectFarcaster, onPressDisconnect]);
+  }, [connectButtonVariant, fid, onPressConnectFarcaster, unlinkFID]);
 
   const farcasterAccountSettings = React.useMemo(
     () => (
