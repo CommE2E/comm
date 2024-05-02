@@ -12,7 +12,7 @@ import { promiseAll } from 'lib/utils/promises.js';
 import { tID } from 'lib/utils/validation-utils.js';
 
 import {
-  prepareEncryptedAndroidNotificationRescinds,
+  prepareEncryptedAndroidSilentNotifications,
   prepareEncryptedIOSNotificationRescind,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
@@ -378,12 +378,16 @@ async function prepareAndroidNotification(
       keyserverID,
     },
   };
-  return await conditionallyEncryptNotification(
+  const targetedRescinds = await conditionallyEncryptNotification(
     notification,
     codeVersion,
     devices,
-    prepareEncryptedAndroidNotificationRescinds,
+    prepareEncryptedAndroidSilentNotifications,
   );
+  return targetedRescinds.map(targetedRescind => ({
+    ...targetedRescind,
+    priority: 'normal',
+  }));
 }
 
 export { rescindPushNotifs };
