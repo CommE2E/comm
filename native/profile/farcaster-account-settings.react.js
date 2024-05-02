@@ -3,12 +3,9 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import {
-  setSyncedMetadataEntryActionType,
-  clearSyncedMetadataEntryActionType,
-} from 'lib/actions/synced-metadata-actions.js';
+import { clearSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
+import { useCurrentUserFID, useLinkFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -44,18 +41,15 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
 
+  const linkFID = useLinkFID();
+
   const onSuccess = React.useCallback(
-    (newFID: string) => {
+    async (newFID: string) => {
       setWebViewState('closed');
-      dispatch({
-        type: setSyncedMetadataEntryActionType,
-        payload: {
-          name: syncedMetadataNames.CURRENT_USER_FID,
-          data: newFID,
-        },
-      });
+
+      await linkFID(newFID);
     },
-    [dispatch],
+    [linkFID],
   );
 
   const onPressConnectFarcaster = React.useCallback(() => {

@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
-import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import {
   legacyKeyserverRegisterActionTypes,
   legacyKeyserverRegister,
@@ -19,7 +18,7 @@ import {
   type LegacyLogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { useLinkFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -202,6 +201,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const legacySiweServerCall = useLegacySIWEServerCall();
   const identityWalletRegisterCall = useIdentityWalletRegisterCall();
   const dispatch = useDispatch();
+  const linkFID = useLinkFID();
+
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
       new Promise<void>(
@@ -265,13 +266,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               payload: keyserverURL,
             });
             if (farcasterID) {
-              dispatch({
-                type: setSyncedMetadataEntryActionType,
-                payload: {
-                  name: syncedMetadataNames.CURRENT_USER_FID,
-                  data: farcasterID,
-                },
-              });
+              await linkFID(farcasterID);
             }
             if (siweBackupSecrets) {
               await commCoreModule.setSIWEBackupSecrets(siweBackupSecrets);
@@ -297,12 +292,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         },
       ),
     [
-      currentStep,
+      currentStep.step,
+      dispatch,
       legacyKeyserverRegisterUsernameAccount,
       identityRegisterUsernameAccount,
       legacySiweServerCall,
-      dispatch,
       identityWalletRegisterCall,
+      linkFID,
     ],
   );
 
