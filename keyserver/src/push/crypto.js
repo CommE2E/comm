@@ -17,8 +17,9 @@ import type {
 import { toBase64URL } from 'lib/utils/base64.js';
 
 import type {
-  AndroidNotification,
-  AndroidNotificationPayload,
+  AndroidVisualNotification,
+  AndroidVisualNotificationPayload,
+  AndroidBadgeOnlyNotification,
   AndroidNotificationRescind,
   NotificationTargetDevice,
 } from './types.js';
@@ -197,17 +198,18 @@ async function encryptAndroidNotificationPayload<T>(
   }
 }
 
-async function encryptAndroidNotification(
+async function encryptAndroidVisualNotification(
   cookieID: string,
-  notification: AndroidNotification,
-  notificationSizeValidator?: AndroidNotification => boolean,
+  notification: AndroidVisualNotification,
+  notificationSizeValidator?: AndroidVisualNotification => boolean,
   blobHolder?: ?string,
 ): Promise<{
-  +notification: AndroidNotification,
+  +notification: AndroidVisualNotification,
   +payloadSizeExceeded: boolean,
   +encryptionOrder?: number,
 }> {
   const { id, keyserverID, badgeOnly, ...rest } = notification.data;
+
   let unencryptedData = { badgeOnly, keyserverID };
   if (id) {
     unencryptedData = { ...unencryptedData, id };
@@ -221,7 +223,7 @@ async function encryptAndroidNotification(
   let payloadSizeValidator;
   if (notificationSizeValidator) {
     payloadSizeValidator = (
-      payload: AndroidNotificationPayload | { +encryptedPayload: string },
+      payload: AndroidVisualNotificationPayload | { +encryptedPayload: string },
     ) => {
       return notificationSizeValidator({
         data: { ...unencryptedData, ...payload },
@@ -246,10 +248,10 @@ async function encryptAndroidNotification(
   };
 }
 
-async function encryptAndroidNotificationRescind(
+async function encryptAndroidSilentNotification(
   cookieID: string,
-  notification: AndroidNotificationRescind,
-): Promise<AndroidNotificationRescind> {
+  notification: AndroidNotificationRescind | AndroidBadgeOnlyNotification,
+): Promise<AndroidNotificationRescind | AndroidBadgeOnlyNotification> {
   // We don't validate payload size for rescind
   // since they are expected to be small and
   // never exceed any FCM limit
@@ -383,22 +385,24 @@ function prepareEncryptedIOSNotificationRescind(
   return Promise.all(notificationPromises);
 }
 
-function prepareEncryptedAndroidNotifications(
+function prepareEncryptedAndroidVisualNotifications(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
-  notification: AndroidNotification,
-  notificationSizeValidator?: (notification: AndroidNotification) => boolean,
+  notification: AndroidVisualNotification,
+  notificationSizeValidator?: (
+    notification: AndroidVisualNotification,
+  ) => boolean,
 ): Promise<
   $ReadOnlyArray<{
     +cookieID: string,
     +deviceToken: string,
-    +notification: AndroidNotification,
+    +notification: AndroidVisualNotification,
     +payloadSizeExceeded: boolean,
     +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID, blobHolder }) => {
-      const notif = await encryptAndroidNotification(
+      const notif = await encryptAndroidVisualNotification(
         cookieID,
         notification,
         notificationSizeValidator,
@@ -410,20 +414,20 @@ function prepareEncryptedAndroidNotifications(
   return Promise.all(notificationPromises);
 }
 
-function prepareEncryptedAndroidNotificationRescinds(
+function prepareEncryptedAndroidSilentNotifications(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
-  notification: AndroidNotificationRescind,
+  notification: AndroidNotificationRescind | AndroidBadgeOnlyNotification,
 ): Promise<
   $ReadOnlyArray<{
     +cookieID: string,
     +deviceToken: string,
-    +notification: AndroidNotificationRescind,
+    +notification: AndroidNotificationRescind | AndroidBadgeOnlyNotification,
     +encryptionOrder?: number,
   }>,
 > {
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
-      const notif = await encryptAndroidNotificationRescind(
+      const notif = await encryptAndroidSilentNotification(
         cookieID,
         notification,
       );
@@ -500,8 +504,8 @@ async function encryptBlobPayload(payload: string): Promise<{
 export {
   prepareEncryptedAPNsNotifications,
   prepareEncryptedIOSNotificationRescind,
-  prepareEncryptedAndroidNotifications,
-  prepareEncryptedAndroidNotificationRescinds,
+  prepareEncryptedAndroidVisualNotifications,
+  prepareEncryptedAndroidSilentNotifications,
   prepareEncryptedWebNotifications,
   prepareEncryptedWNSNotifications,
   encryptBlobPayload,

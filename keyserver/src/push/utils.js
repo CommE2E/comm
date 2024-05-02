@@ -119,9 +119,7 @@ async function fcmPush({
     return { success: true };
   }
   invariant(fcmProvider, `keyserver/secrets/${pushProfile}.json should exist`);
-  const options: Object = {
-    priority: 'high',
-  };
+  const options: Object = {};
   if (collapseKey) {
     options.collapseKey = collapseKey;
   }
@@ -130,9 +128,13 @@ async function fcmPush({
   // multicast messages and one of the device tokens is invalid, the resultant
   // won't explain which of the device tokens is invalid. So we're forced to
   // avoid the multicast functionality and call it once per deviceToken.
+
   const results = await Promise.all(
-    targetedNotifications.map(({ notification, deviceToken }) => {
-      return fcmSinglePush(fcmProvider, notification, deviceToken, options);
+    targetedNotifications.map(({ notification, deviceToken, priority }) => {
+      return fcmSinglePush(fcmProvider, notification, deviceToken, {
+        ...options,
+        priority,
+      });
     }),
   );
 

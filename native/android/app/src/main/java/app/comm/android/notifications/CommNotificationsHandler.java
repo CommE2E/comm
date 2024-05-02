@@ -103,7 +103,10 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
   @Override
   public void onMessageReceived(RemoteMessage message) {
-    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+    handleAlteredNotificationPriority(message);
+
+    if (StaffUtils.isStaffRelease() &&
+        message.getData().get(KEYSERVER_ID_KEY) == null) {
       displayErrorMessageNotification(
           "Received notification without keyserver ID.",
           "Missing keyserver ID.",
@@ -168,6 +171,23 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       return;
     }
     this.displayNotification(message);
+  }
+
+  private void handleAlteredNotificationPriority(RemoteMessage message) {
+    if (!StaffUtils.isStaffRelease()) {
+      return;
+    }
+
+    int originalPriority = message.getOriginalPriority();
+    int priority = message.getPriority();
+
+    if (priority != originalPriority &&
+        originalPriority == RemoteMessage.PRIORITY_HIGH) {
+      displayErrorMessageNotification(
+          "System changed notification priority from HIGH to NORMAL",
+          "Notification deprioritised.",
+          null);
+    }
   }
 
   private boolean isAppInForeground() {
