@@ -1,12 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 
-import { clearSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
+import { useCurrentUserFID, useUnlinkFID } from 'lib/utils/farcaster-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import RegistrationButton from '../account/registration/registration-button.react.js';
@@ -15,6 +12,7 @@ import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
+import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
 type Props = {
@@ -24,20 +22,27 @@ type Props = {
 
 // eslint-disable-next-line no-unused-vars
 function FarcasterAccountSettings(props: Props): React.Node {
-  const dispatch = useDispatch();
-
   const fid = useCurrentUserFID();
 
   const styles = useStyles(unboundStyles);
 
-  const onPressDisconnect = React.useCallback(() => {
-    dispatch({
-      type: clearSyncedMetadataEntryActionType,
-      payload: {
-        name: syncedMetadataNames.CURRENT_USER_FID,
-      },
-    });
-  }, [dispatch]);
+  const [unlinkIsLoading, setUnlinkIsLoading] = React.useState(false);
+
+  const unlinkFID = useUnlinkFID();
+
+  const onPressDisconnect = React.useCallback(async () => {
+    setUnlinkIsLoading(true);
+    try {
+      await unlinkFID();
+    } catch {
+      Alert.alert(
+        UnknownErrorAlertDetails.title,
+        UnknownErrorAlertDetails.message,
+      );
+    } finally {
+      setUnlinkIsLoading(false);
+    }
+  }, [unlinkFID]);
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
@@ -64,6 +69,8 @@ function FarcasterAccountSettings(props: Props): React.Node {
     setWebViewState('opening');
   }, []);
 
+  const disconnectButtonVariant = unlinkIsLoading ? 'loading' : 'enabled';
+
   const connectButtonVariant = isLoadingLinkFID ? 'loading' : 'enabled';
 
   const button = React.useMemo(() => {
@@ -72,7 +79,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
         <RegistrationButton
           onPress={onPressDisconnect}
           label="Disconnect"
-          variant="outline"
+          variant={disconnectButtonVariant}
         />
       );
     }
@@ -84,7 +91,13 @@ function FarcasterAccountSettings(props: Props): React.Node {
         variant={connectButtonVariant}
       />
     );
-  }, [connectButtonVariant, fid, onPressConnectFarcaster, onPressDisconnect]);
+  }, [
+    connectButtonVariant,
+    disconnectButtonVariant,
+    fid,
+    onPressConnectFarcaster,
+    onPressDisconnect,
+  ]);
 
   const farcasterPromptTextType = fid ? 'disconnect' : 'optional';
   const farcasterAccountSettings = React.useMemo(
