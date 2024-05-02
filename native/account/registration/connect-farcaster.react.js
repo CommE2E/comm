@@ -2,6 +2,10 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
+import { Alert } from 'react-native';
+
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
@@ -84,16 +88,55 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);
 
+  const identityServiceClient = React.useContext(IdentityClientContext);
+  const getFarcasterUsers =
+    identityServiceClient?.identityClient.getFarcasterUsers;
+  invariant(getFarcasterUsers, 'Could not get getFarcasterUsers');
+
+  const [queuedAlert, setQueuedAlert] = React.useState<?{
+    +title: string,
+    +body: string,
+  }>();
+
   const onSuccess = React.useCallback(
-    (fid: string) => {
-      goToNextStep(fid);
-      setCachedSelections(oldUserSelections => ({
-        ...oldUserSelections,
-        farcasterID: fid,
-      }));
+    async (fid: string) => {
+      try {
+        const commFCUsers = await getFarcasterUsers([fid]);
+        if (commFCUsers.length > 0 && commFCUsers[0].farcasterID === fid) {
+          const commUsername = commFCUsers[0].username;
+          setQueuedAlert({
+            title: 'Farcaster account already linked',
+            body: `That Farcaster account is already linked to ${commUsername}`,
+          });
+          setWebViewState('closed');
+        } else {
+          goToNextStep(fid);
+          setCachedSelections(oldUserSelections => ({
+            ...oldUserSelections,
+            farcasterID: fid,
+          }));
+        }
+      } catch (e) {
+        setQueuedAlert({
+          title: 'Failed to query Comm',
+          body:
+            'We failed to query Comm to see if that Farcaster account is ' +
+            'already linked',
+        });
+        setWebViewState('closed');
+      }
     },
-    [goToNextStep, setCachedSelections],
+    [goToNextStep, setCachedSelections, getFarcasterUsers],
   );
+
+  const isAppForegrounded = useIsAppForegrounded();
+  React.useEffect(() => {
+    if (!queuedAlert || !isAppForegrounded) {
+      return;
+    }
+    Alert.alert(queuedAlert.title, queuedAlert.body);
+    setQueuedAlert(null);
+  }, [queuedAlert, isAppForegrounded]);
 
   const { farcasterID } = cachedSelections;
   const alreadyHasConnected = !!farcasterID;
