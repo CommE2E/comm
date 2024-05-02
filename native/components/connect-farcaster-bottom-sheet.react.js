@@ -5,11 +5,8 @@ import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { setSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
-import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatch } from 'lib/utils/redux-utils.js';
+import { useCurrentUserFID, useLinkFID } from 'lib/utils/farcaster-utils.js';
 
 import FarcasterPrompt from './farcaster-prompt.react.js';
 import FarcasterWebView, {
@@ -34,21 +31,15 @@ type Props = {
 function ConnectFarcasterBottomSheet(props: Props): React.Node {
   const { navigation } = props;
 
-  const dispatch = useDispatch();
-
   const fid = useCurrentUserFID();
 
+  const linkFID = useLinkFID();
+
   const onSuccess = React.useCallback(
-    (newFID: string) => {
-      dispatch({
-        type: setSyncedMetadataEntryActionType,
-        payload: {
-          name: syncedMetadataNames.CURRENT_USER_FID,
-          data: newFID,
-        },
-      });
+    async (newFID: string) => {
+      await linkFID(newFID);
     },
-    [dispatch],
+    [linkFID],
   );
 
   const { goBack } = navigation;
