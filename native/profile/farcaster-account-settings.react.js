@@ -3,10 +3,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import {
-  setSyncedMetadataEntryActionType,
-  clearSyncedMetadataEntryActionType,
-} from 'lib/actions/synced-metadata-actions.js';
+import { clearSyncedMetadataEntryActionType } from 'lib/actions/synced-metadata-actions.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -18,6 +15,7 @@ import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
+import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'FarcasterAccountSettings'>,
@@ -44,26 +42,29 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
 
+  const [isLoadingLinkFID, setIsLoadingLinkFID] = React.useState(false);
+
+  const tryLinkFID = useTryLinkFID();
+
   const onSuccess = React.useCallback(
-    (newFID: string) => {
+    async (newFID: string) => {
       setWebViewState('closed');
-      dispatch({
-        type: setSyncedMetadataEntryActionType,
-        payload: {
-          name: syncedMetadataNames.CURRENT_USER_FID,
-          data: newFID,
-        },
-      });
+
+      try {
+        await tryLinkFID(newFID);
+      } finally {
+        setIsLoadingLinkFID(false);
+      }
     },
-    [dispatch],
+    [tryLinkFID],
   );
 
   const onPressConnectFarcaster = React.useCallback(() => {
+    setIsLoadingLinkFID(true);
     setWebViewState('opening');
   }, []);
 
-  const connectButtonVariant =
-    webViewState === 'opening' ? 'loading' : 'enabled';
+  const connectButtonVariant = isLoadingLinkFID ? 'loading' : 'enabled';
 
   const button = React.useMemo(() => {
     if (fid) {
