@@ -14,33 +14,33 @@ export type TargetedAPNsNotification = {
   +encryptionOrder?: number,
 };
 
-type AndroidNotificationPayloadBase = {
+type AndroidVisualNotificationPayloadBase = {
   +badge: string,
-  +body?: string,
-  +title?: string,
+  +body: string,
+  +title: string,
   +prefix?: string,
-  +threadID?: string,
+  +threadID: string,
   +collapseKey?: string,
+  +badgeOnly?: '0',
   +encryptionFailed?: '1',
 };
 
-export type AndroidNotificationPayload =
+export type AndroidVisualNotificationPayload =
   | {
-      ...AndroidNotificationPayloadBase,
+      ...AndroidVisualNotificationPayloadBase,
       +messageInfos?: string,
     }
   | {
-      ...AndroidNotificationPayloadBase,
+      ...AndroidVisualNotificationPayloadBase,
       +blobHash: string,
       +encryptionKey: string,
     };
 
-export type AndroidNotification = {
+export type AndroidVisualNotification = {
   +data: {
     +id?: string,
-    +badgeOnly?: string,
     +keyserverID: string,
-    ...AndroidNotificationPayload | { +encryptedPayload: string },
+    ...AndroidVisualNotificationPayload | { +encryptedPayload: string },
   },
 };
 
@@ -60,8 +60,30 @@ export type AndroidNotificationRescind = {
   },
 };
 
+export type AndroidBadgeOnlyNotification = {
+  +data: {
+    +keyserverID: string,
+    ...
+      | {
+          +badge: string,
+          +badgeOnly: '1',
+        }
+      | { +encryptedPayload: string },
+  },
+};
+
+type AndroidNotificationWithPriority =
+  | {
+      +notification: AndroidVisualNotification,
+      +priority: 'high',
+    }
+  | {
+      +notification: AndroidBadgeOnlyNotification | AndroidNotificationRescind,
+      +priority: 'normal',
+    };
+
 export type TargetedAndroidNotification = {
-  +notification: AndroidNotification | AndroidNotificationRescind,
+  ...AndroidNotificationWithPriority,
   +deviceToken: string,
   +encryptionOrder?: number,
 };

@@ -43,7 +43,8 @@ import { values } from 'lib/utils/objects.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import {
-  prepareEncryptedAndroidNotifications,
+  prepareEncryptedAndroidVisualNotifications,
+  prepareEncryptedAndroidSilentNotifications,
   prepareEncryptedAPNsNotifications,
   prepareEncryptedWebNotifications,
   prepareEncryptedWNSNotifications,
@@ -51,7 +52,7 @@ import {
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import type {
-  AndroidNotification,
+  AndroidVisualNotification,
   NotificationTargetDevice,
   TargetedAndroidNotification,
   TargetedAPNsNotification,
@@ -367,7 +368,7 @@ async function preparePushNotif(input: {
       );
       const preparePromise: Promise<$ReadOnlyArray<PreparePushResult>> =
         (async () => {
-          const targetedNotifications = await prepareAndroidNotification(
+          const targetedNotifications = await prepareAndroidVisualNotification(
             {
               keyserverID,
               notifTexts,
@@ -1167,7 +1168,7 @@ const androidNotifInputDataValidator = tShape<AndroidNotifInputData>({
   ...commonNativeNotifInputDataValidator.meta.props,
   dbID: t.String,
 });
-async function prepareAndroidNotification(
+async function prepareAndroidVisualNotification(
   inputData: AndroidNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
@@ -1205,6 +1206,7 @@ async function prepareAndroidNotification(
     (canDecryptNonCollapsibleTextNotifs && isNonCollapsibleTextNotif);
 
   const { merged, ...rest } = notifTexts;
+  const priority = 'high';
   const notification = {
     data: {
       keyserverID,
@@ -1247,12 +1249,13 @@ async function prepareAndroidNotification(
         : notification;
 
     return devices.map(({ deviceToken }) => ({
+      priority,
       notification: notificationToSend,
       deviceToken,
     }));
   }
 
-  const notificationsSizeValidator = (notif: AndroidNotification) => {
+  const notificationsSizeValidator = (notif: AndroidVisualNotification) => {
     const serializedNotif = JSON.stringify(notif);
     return (
       !serializedNotif ||
@@ -1260,11 +1263,12 @@ async function prepareAndroidNotification(
     );
   };
 
-  const notifsWithMessageInfos = await prepareEncryptedAndroidNotifications(
-    devices,
-    copyWithMessageInfos,
-    notificationsSizeValidator,
-  );
+  const notifsWithMessageInfos =
+    await prepareEncryptedAndroidVisualNotifications(
+      devices,
+      copyWithMessageInfos,
+      notificationsSizeValidator,
+    );
 
   const devicesWithExcessiveSizeNoHolders = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
@@ -1273,6 +1277,7 @@ async function prepareAndroidNotification(
   if (devicesWithExcessiveSizeNoHolders.length === 0) {
     return notifsWithMessageInfos.map(
       ({ notification: notif, deviceToken, encryptionOrder }) => ({
+        priority,
         notification: notif,
         deviceToken,
         encryptionOrder,
@@ -1319,14 +1324,16 @@ async function prepareAndroidNotification(
     }));
   }
 
-  const notifsWithoutMessageInfos = await prepareEncryptedAndroidNotifications(
-    devicesWithExcessiveSize,
-    notification,
-  );
+  const notifsWithoutMessageInfos =
+    await prepareEncryptedAndroidVisualNotifications(
+      devicesWithExcessiveSize,
+      notification,
+    );
 
   const targetedNotifsWithMessageInfos = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
     .map(({ notification: notif, deviceToken, encryptionOrder }) => ({
+      priority,
       notification: notif,
       deviceToken,
       encryptionOrder,
@@ -1334,6 +1341,7 @@ async function prepareAndroidNotification(
 
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
     ({ notification: notif, deviceToken, encryptionOrder }) => ({
+      priority,
       notification: notif,
       deviceToken,
       encryptionOrder,
@@ -1832,22 +1840,25 @@ async function updateBadgeCount(
   if (androidVersionsToTokens) {
     for (const [versionKey, deviceInfos] of androidVersionsToTokens) {
       const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-      const notificationData =
-        codeVersion < 69
-          ? { badge: unreadCount.toString() }
-          : { badge: unreadCount.toString(), badgeOnly: '1' };
+      const priority = 'normal';
+      const notificationData = {
+        badge: unreadCount.toString(),
+        badgeOnly: '1',
+      };
       const notification = {
         data: { ...notificationData, keyserverID },
       };
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>;
         if (codeVersion > 222) {
-          const notificationsArray = await prepareEncryptedAndroidNotifications(
-            deviceInfos,
-            notification,
-          );
+          const notificationsArray =
+            await prepareEncryptedAndroidSilentNotifications(
+              deviceInfos,
+              notification,
+            );
           targetedNotifications = notificationsArray.map(
             ({ notification: notif, deviceToken, encryptionOrder }) => ({
+              priority,
               notification: notif,
               deviceToken,
               encryptionOrder,
@@ -1855,6 +1866,7 @@ async function updateBadgeCount(
           );
         } else {
           targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
+            priority,
             deviceToken,
             notification,
           }));
