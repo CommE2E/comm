@@ -18,6 +18,7 @@ import type {
   AvatarData,
 } from './registration-types.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
+import { logInActionType } from '../../navigation/action-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -77,7 +78,9 @@ function RegistrationTerms(props: Props): React.Node {
       headerLeft: null,
     });
     const removeListener = navigation.addListener('beforeRemove', e => {
-      e.preventDefault();
+      if (e.data.action.type !== logInActionType) {
+        e.preventDefault();
+      }
     });
     return () => {
       navigation.setOptions({
