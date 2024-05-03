@@ -23,6 +23,7 @@ import {
   ConnectEthereumRouteName,
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
+import { getFarcasterAccountAlreadyLinkedAlertDetails } from '../../utils/alert-messages.js';
 import { useStaffCanSee } from '../../utils/staff-utils.js';
 
 export type ConnectFarcasterParams = ?{
@@ -112,7 +113,7 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const [queuedAlert, setQueuedAlert] = React.useState<?{
     +title: string,
-    +body: string,
+    +message: string,
   }>();
 
   const onSuccess = React.useCallback(
@@ -121,9 +122,13 @@ function ConnectFarcaster(prop: Props): React.Node {
         const commFCUsers = await getFarcasterUsers([fid]);
         if (commFCUsers.length > 0 && commFCUsers[0].farcasterID === fid) {
           const commUsername = commFCUsers[0].username;
+
+          const { title, message } =
+            getFarcasterAccountAlreadyLinkedAlertDetails(commUsername);
+
           setQueuedAlert({
-            title: 'Farcaster account already linked',
-            body: `That Farcaster account is already linked to ${commUsername}`,
+            title,
+            message,
           });
           setWebViewState('closed');
         } else {
@@ -136,7 +141,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       } catch (e) {
         setQueuedAlert({
           title: 'Failed to query Comm',
-          body:
+          message:
             'We failed to query Comm to see if that Farcaster account is ' +
             'already linked',
         });
@@ -151,7 +156,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     if (!queuedAlert || !isAppForegrounded) {
       return;
     }
-    Alert.alert(queuedAlert.title, queuedAlert.body);
+    Alert.alert(queuedAlert.title, queuedAlert.message);
     setQueuedAlert(null);
   }, [queuedAlert, isAppForegrounded]);
 
