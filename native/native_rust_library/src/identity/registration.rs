@@ -13,11 +13,15 @@ use grpc_clients::identity::{
 use tracing::instrument;
 
 use super::{
-  farcaster::farcaster_id_string_to_option, PasswordUserInfo,
-  UserIDAndDeviceAccessToken, WalletUserInfo,
+  farcaster::farcaster_id_string_to_option, RegisterPasswordUserInfo,
+  RegisterWalletUserInfo, UserIDAndDeviceAccessToken,
 };
 
 pub mod ffi {
+  use crate::identity::{
+    DeviceKeys, RegisterPasswordUserInfo, RegisterWalletUserInfo,
+  };
+
   use super::*;
 
   #[instrument]
@@ -37,22 +41,23 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let password_user_info = PasswordUserInfo {
+      let password_user_info = RegisterPasswordUserInfo {
         username,
         password,
-        key_payload,
-        key_payload_signature,
-        content_prekey,
-        content_prekey_signature,
-        notif_prekey,
-        notif_prekey_signature,
-        content_one_time_keys,
-        notif_one_time_keys,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
         farcaster_id: farcaster_id_string_to_option(&farcaster_id),
+        initial_device_list,
       };
-      let result =
-        register_password_user_helper(password_user_info, initial_device_list)
-          .await;
+      let result = register_password_user_helper(password_user_info).await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -74,30 +79,30 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let wallet_user_info = WalletUserInfo {
+      let wallet_user_info = RegisterWalletUserInfo {
         siwe_message,
         siwe_signature,
-        key_payload,
-        key_payload_signature,
-        content_prekey,
-        content_prekey_signature,
-        notif_prekey,
-        notif_prekey_signature,
-        content_one_time_keys,
-        notif_one_time_keys,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
         farcaster_id: farcaster_id_string_to_option(&farcaster_id),
+        initial_device_list,
       };
-      let result =
-        register_wallet_user_helper(wallet_user_info, initial_device_list)
-          .await;
+      let result = register_wallet_user_helper(wallet_user_info).await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
 }
 
 async fn register_password_user_helper(
-  password_user_info: PasswordUserInfo,
-  initial_device_list: String,
+  password_user_info: RegisterPasswordUserInfo,
 ) -> Result<String, Error> {
   let mut client_registration = Registration::new();
   let opaque_registration_request = client_registration
@@ -108,23 +113,29 @@ async fn register_password_user_helper(
     username: password_user_info.username,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
-        payload: password_user_info.key_payload,
-        payload_signature: password_user_info.key_payload_signature,
+        payload: password_user_info.device_keys.key_payload,
+        payload_signature: password_user_info.device_keys.key_payload_signature,
       }),
       content_upload: Some(Prekey {
-        prekey: password_user_info.content_prekey,
-        prekey_signature: password_user_info.content_prekey_signature,
+        prekey: password_user_info.device_keys.content_prekey,
+        prekey_signature: password_user_info
+          .device_keys
+          .content_prekey_signature,
       }),
       notif_upload: Some(Prekey {
-        prekey: password_user_info.notif_prekey,
-        prekey_signature: password_user_info.notif_prekey_signature,
+        prekey: password_user_info.device_keys.notif_prekey,
+        prekey_signature: password_user_info.device_keys.notif_prekey_signature,
       }),
-      one_time_content_prekeys: password_user_info.content_one_time_keys,
-      one_time_notif_prekeys: password_user_info.notif_one_time_keys,
+      one_time_content_prekeys: password_user_info
+        .device_keys
+        .content_one_time_keys,
+      one_time_notif_prekeys: password_user_info
+        .device_keys
+        .notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: password_user_info.farcaster_id,
-    initial_device_list,
+    initial_device_list: password_user_info.initial_device_list,
   };
 
   let mut identity_client = get_unauthenticated_client(
@@ -161,31 +172,32 @@ async fn register_password_user_helper(
 }
 
 async fn register_wallet_user_helper(
-  wallet_user_info: WalletUserInfo,
-  initial_device_list: String,
+  wallet_user_info: RegisterWalletUserInfo,
 ) -> Result<String, Error> {
   let registration_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
     siwe_signature: wallet_user_info.siwe_signature,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
-        payload: wallet_user_info.key_payload,
-        payload_signature: wallet_user_info.key_payload_signature,
+        payload: wallet_user_info.device_keys.key_payload,
+        payload_signature: wallet_user_info.device_keys.key_payload_signature,
       }),
       content_upload: Some(Prekey {
-        prekey: wallet_user_info.content_prekey,
-        prekey_signature: wallet_user_info.content_prekey_signature,
+        prekey: wallet_user_info.device_keys.content_prekey,
+        prekey_signature: wallet_user_info.device_keys.content_prekey_signature,
       }),
       notif_upload: Some(Prekey {
-        prekey: wallet_user_info.notif_prekey,
-        prekey_signature: wallet_user_info.notif_prekey_signature,
+        prekey: wallet_user_info.device_keys.notif_prekey,
+        prekey_signature: wallet_user_info.device_keys.notif_prekey_signature,
       }),
-      one_time_content_prekeys: wallet_user_info.content_one_time_keys,
-      one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
+      one_time_content_prekeys: wallet_user_info
+        .device_keys
+        .content_one_time_keys,
+      one_time_notif_prekeys: wallet_user_info.device_keys.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: wallet_user_info.farcaster_id,
-    initial_device_list,
+    initial_device_list: wallet_user_info.initial_device_list,
   };
 
   let mut identity_client = get_unauthenticated_client(

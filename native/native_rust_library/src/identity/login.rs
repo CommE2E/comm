@@ -9,11 +9,17 @@ use grpc_clients::identity::{
 };
 use tracing::instrument;
 
-use super::{PasswordUserInfo, UserIDAndDeviceAccessToken, WalletUserInfo};
+use super::{
+  LogInPasswordUserInfo, LogInWalletUserInfo, UserIDAndDeviceAccessToken,
+};
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
 pub mod ffi {
+  use crate::identity::{
+    DeviceKeys, LogInPasswordUserInfo, LogInWalletUserInfo,
+  };
+
   use super::*;
 
   #[instrument]
@@ -29,18 +35,19 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let password_user_info = PasswordUserInfo {
+      let password_user_info = LogInPasswordUserInfo {
         username,
         password,
-        key_payload,
-        key_payload_signature,
-        content_prekey,
-        content_prekey_signature,
-        notif_prekey,
-        notif_prekey_signature,
-        content_one_time_keys: Vec::new(),
-        notif_one_time_keys: Vec::new(),
-        farcaster_id: None,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys: Vec::new(),
+          notif_one_time_keys: Vec::new(),
+        },
       };
       let result = log_in_password_user_helper(password_user_info).await;
       handle_string_result_as_callback(result, promise_id);
@@ -60,18 +67,19 @@ pub mod ffi {
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
-      let wallet_user_info = WalletUserInfo {
+      let wallet_user_info = LogInWalletUserInfo {
         siwe_message,
         siwe_signature,
-        key_payload,
-        key_payload_signature,
-        content_prekey,
-        content_prekey_signature,
-        notif_prekey,
-        notif_prekey_signature,
-        content_one_time_keys: Vec::new(),
-        notif_one_time_keys: Vec::new(),
-        farcaster_id: None,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys: Vec::new(),
+          notif_one_time_keys: Vec::new(),
+        },
       };
       let result = log_in_wallet_user_helper(wallet_user_info).await;
       handle_string_result_as_callback(result, promise_id);
@@ -144,7 +152,7 @@ pub mod ffi {
 }
 
 async fn log_in_password_user_helper(
-  password_user_info: PasswordUserInfo,
+  password_user_info: LogInPasswordUserInfo,
 ) -> Result<String, Error> {
   let mut client_login = Login::new();
   let opaque_login_request = client_login
@@ -155,19 +163,25 @@ async fn log_in_password_user_helper(
     username: password_user_info.username,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
-        payload: password_user_info.key_payload,
-        payload_signature: password_user_info.key_payload_signature,
+        payload: password_user_info.device_keys.key_payload,
+        payload_signature: password_user_info.device_keys.key_payload_signature,
       }),
       content_upload: Some(Prekey {
-        prekey: password_user_info.content_prekey,
-        prekey_signature: password_user_info.content_prekey_signature,
+        prekey: password_user_info.device_keys.content_prekey,
+        prekey_signature: password_user_info
+          .device_keys
+          .content_prekey_signature,
       }),
       notif_upload: Some(Prekey {
-        prekey: password_user_info.notif_prekey,
-        prekey_signature: password_user_info.notif_prekey_signature,
+        prekey: password_user_info.device_keys.notif_prekey,
+        prekey_signature: password_user_info.device_keys.notif_prekey_signature,
       }),
-      one_time_content_prekeys: password_user_info.content_one_time_keys,
-      one_time_notif_prekeys: password_user_info.notif_one_time_keys,
+      one_time_content_prekeys: password_user_info
+        .device_keys
+        .content_one_time_keys,
+      one_time_notif_prekeys: password_user_info
+        .device_keys
+        .notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
     force: None,
@@ -205,26 +219,28 @@ async fn log_in_password_user_helper(
 }
 
 async fn log_in_wallet_user_helper(
-  wallet_user_info: WalletUserInfo,
+  wallet_user_info: LogInWalletUserInfo,
 ) -> Result<String, Error> {
   let login_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
     siwe_signature: wallet_user_info.siwe_signature,
     device_key_upload: Some(DeviceKeyUpload {
       device_key_info: Some(IdentityKeyInfo {
-        payload: wallet_user_info.key_payload,
-        payload_signature: wallet_user_info.key_payload_signature,
+        payload: wallet_user_info.device_keys.key_payload,
+        payload_signature: wallet_user_info.device_keys.key_payload_signature,
       }),
       content_upload: Some(Prekey {
-        prekey: wallet_user_info.content_prekey,
-        prekey_signature: wallet_user_info.content_prekey_signature,
+        prekey: wallet_user_info.device_keys.content_prekey,
+        prekey_signature: wallet_user_info.device_keys.content_prekey_signature,
       }),
       notif_upload: Some(Prekey {
-        prekey: wallet_user_info.notif_prekey,
-        prekey_signature: wallet_user_info.notif_prekey_signature,
+        prekey: wallet_user_info.device_keys.notif_prekey,
+        prekey_signature: wallet_user_info.device_keys.notif_prekey_signature,
       }),
-      one_time_content_prekeys: wallet_user_info.content_one_time_keys,
-      one_time_notif_prekeys: wallet_user_info.notif_one_time_keys,
+      one_time_content_prekeys: wallet_user_info
+        .device_keys
+        .content_one_time_keys,
+      one_time_notif_prekeys: wallet_user_info.device_keys.notif_one_time_keys,
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: None,

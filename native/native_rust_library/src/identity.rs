@@ -52,9 +52,7 @@ pub struct AuthInfo {
   pub access_token: String,
 }
 
-pub struct PasswordUserInfo {
-  pub username: String,
-  pub password: String,
+pub struct DeviceKeys {
   pub key_payload: String,
   pub key_payload_signature: String,
   pub content_prekey: String,
@@ -63,21 +61,52 @@ pub struct PasswordUserInfo {
   pub notif_prekey_signature: String,
   pub content_one_time_keys: Vec<String>,
   pub notif_one_time_keys: Vec<String>,
-  pub farcaster_id: Option<String>,
 }
 
-pub struct WalletUserInfo {
+pub struct LogInPasswordUserInfo {
+  pub username: String,
+  pub password: String,
+  pub device_keys: DeviceKeys,
+}
+
+pub struct RegisterPasswordUserInfo {
+  pub username: String,
+  pub password: String,
+  pub device_keys: DeviceKeys,
+  pub farcaster_id: Option<String>,
+  pub initial_device_list: String,
+}
+
+pub struct RegisterReservedPasswordUserInfo {
+  pub username: String,
+  pub password: String,
+  pub device_keys: DeviceKeys,
+  pub keyserver_message: String,
+  pub keyserver_signature: String,
+  pub initial_device_list: String,
+}
+
+pub struct LogInWalletUserInfo {
   pub siwe_message: String,
   pub siwe_signature: String,
-  pub key_payload: String,
-  pub key_payload_signature: String,
-  pub content_prekey: String,
-  pub content_prekey_signature: String,
-  pub notif_prekey: String,
-  pub notif_prekey_signature: String,
-  pub content_one_time_keys: Vec<String>,
-  pub notif_one_time_keys: Vec<String>,
+  pub device_keys: DeviceKeys,
+}
+
+pub struct RegisterWalletUserInfo {
+  pub siwe_message: String,
+  pub siwe_signature: String,
+  pub device_keys: DeviceKeys,
   pub farcaster_id: Option<String>,
+  pub initial_device_list: String,
+}
+
+pub struct RegisterReservedWalletUserInfo {
+  pub siwe_message: String,
+  pub siwe_signature: String,
+  pub device_keys: DeviceKeys,
+  pub keyserver_message: String,
+  pub keyserver_signature: String,
+  pub initial_device_list: String,
 }
 
 #[derive(Serialize)]
