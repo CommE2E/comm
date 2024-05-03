@@ -298,11 +298,6 @@ data "aws_iam_policy_document" "opensearch_domain_access" {
   statement {
     effect = "Allow"
 
-    principals {
-      type        = "*"
-      identifiers = ["${module.shared.search_index_lambda.arn}"]
-    }
-
     actions = [
       "es:ESHttpHead",
       "es:ESHttpPost",
@@ -315,9 +310,19 @@ data "aws_iam_policy_document" "opensearch_domain_access" {
   }
 }
 
+resource "aws_iam_policy" "opensearch_domain_access" {
+  name   = "opensearch-domain-access-policy"
+  policy = data.aws_iam_policy_document.opensearch_domain_access.json
+}
+
 resource "aws_opensearch_domain_policy" "opensearch_domain_access" {
   domain_name     = module.shared.opensearch_domain_identity.domain_name
   access_policies = data.aws_iam_policy_document.opensearch_domain_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "search_index_lambda_opensearch_access" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = aws_iam_policy.opensearch_domain_access.arn
 }
 
 resource "aws_iam_role" "task_scheduler" {
