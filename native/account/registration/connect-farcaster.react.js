@@ -23,6 +23,10 @@ import {
   ConnectEthereumRouteName,
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
+import {
+  getFarcasterAccountAlreadyLinkedAlertDetails,
+  type AlertDetails,
+} from '../../utils/alert-messages.js';
 import { useStaffCanSee } from '../../utils/staff-utils.js';
 
 export type ConnectFarcasterParams = ?{
@@ -110,10 +114,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     identityServiceClient?.identityClient.getFarcasterUsers;
   invariant(getFarcasterUsers, 'Could not get getFarcasterUsers');
 
-  const [queuedAlert, setQueuedAlert] = React.useState<?{
-    +title: string,
-    +body: string,
-  }>();
+  const [queuedAlert, setQueuedAlert] = React.useState<?AlertDetails>();
 
   const onSuccess = React.useCallback(
     async (fid: string) => {
@@ -121,10 +122,11 @@ function ConnectFarcaster(prop: Props): React.Node {
         const commFCUsers = await getFarcasterUsers([fid]);
         if (commFCUsers.length > 0 && commFCUsers[0].farcasterID === fid) {
           const commUsername = commFCUsers[0].username;
-          setQueuedAlert({
-            title: 'Farcaster account already linked',
-            body: `That Farcaster account is already linked to ${commUsername}`,
-          });
+
+          const alert =
+            getFarcasterAccountAlreadyLinkedAlertDetails(commUsername);
+
+          setQueuedAlert(alert);
           setWebViewState('closed');
         } else {
           goToNextStep(fid);
@@ -136,7 +138,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       } catch (e) {
         setQueuedAlert({
           title: 'Failed to query Comm',
-          body:
+          message:
             'We failed to query Comm to see if that Farcaster account is ' +
             'already linked',
         });
@@ -151,7 +153,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     if (!queuedAlert || !isAppForegrounded) {
       return;
     }
-    Alert.alert(queuedAlert.title, queuedAlert.body);
+    Alert.alert(queuedAlert.title, queuedAlert.message);
     setQueuedAlert(null);
   }, [queuedAlert, isAppForegrounded]);
 
