@@ -11,7 +11,7 @@ import {
   useCreateOrUpdateFarcasterChannelTag,
 } from 'lib/actions/community-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
-import type { FarcasterChannel } from 'lib/types/farcaster-types.js';
+import type { NeynarChannel } from 'lib/types/farcaster-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -48,10 +48,10 @@ function TagFarcasterChannel(props: Props): React.Node {
   invariant(fid, 'FID should be set');
 
   const [selectedChannel, setSelectedChannel] =
-    React.useState<?FarcasterChannel>(null);
+    React.useState<?NeynarChannel>(null);
 
   const [channelOptions, setChannelOptions] = React.useState<
-    $ReadOnlyArray<FarcasterChannel>,
+    $ReadOnlyArray<NeynarChannel>,
   >([]);
 
   const [error, setError] = React.useState<?string>(null);
