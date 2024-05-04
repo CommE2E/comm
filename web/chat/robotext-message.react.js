@@ -71,6 +71,9 @@ function RobotextMessage(props: Props): React.Node {
         <UserEntity userID={userID} usernameText={usernameText} />
       ),
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
+      renderFarcasterUser: ({ farcasterUsername }) => (
+        <span>{farcasterUsername}</span>
+      ),
     });
   }, [resolvedRobotext, threadID]);
 
