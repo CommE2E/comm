@@ -1304,6 +1304,8 @@ const migrations = {
       },
     };
   },
+  [74]: (state: AppState) =>
+    unshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
 };
 
 type PersistedReportStore = $Diff<
@@ -1325,7 +1327,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 73,
+  version: 74,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
