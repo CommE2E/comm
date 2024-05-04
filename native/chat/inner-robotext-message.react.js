@@ -11,7 +11,7 @@ import {
   type EntityText,
   entityTextToRawString,
   entityTextToReact,
-  useENSNamesForEntityText,
+  useResolvedEntityText,
 } from 'lib/utils/entity-text.js';
 
 import { DummyInlineEngagementNode } from './inline-engagement.react.js';
@@ -56,14 +56,14 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
 
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
-  const robotextWithENSNames = useENSNamesForEntityText(robotext);
+  const resolvedRobotext = useResolvedEntityText(robotext);
   invariant(
-    robotextWithENSNames,
-    'useENSNamesForEntityText only returns falsey when passed falsey',
+    resolvedRobotext,
+    'useResolvedEntityText only returns falsey when passed falsey',
   );
   const textParts = React.useMemo(() => {
     const darkColor = activeTheme === 'dark';
-    return entityTextToReact(robotextWithENSNames, threadID, {
+    return entityTextToReact(resolvedRobotext, threadID, {
       renderText: ({ text }) => (
         <Markdown
           style={styles.robotext}
@@ -78,7 +78,7 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       ),
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
-  }, [robotextWithENSNames, activeTheme, threadID, styles.robotext]);
+  }, [resolvedRobotext, activeTheme, threadID, styles.robotext]);
 
   return (
     <TouchableWithoutFeedback onPress={onPress} onLongPress={onLongPress}>
