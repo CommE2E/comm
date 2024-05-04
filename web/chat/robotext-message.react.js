@@ -9,7 +9,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   entityTextToReact,
-  useENSNamesForEntityText,
+  useResolvedEntityText,
 } from 'lib/utils/entity-text.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -56,13 +56,13 @@ function RobotextMessage(props: Props): React.Node {
 
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
-  const robotextWithENSNames = useENSNamesForEntityText(robotext);
+  const resolvedRobotext = useResolvedEntityText(robotext);
   invariant(
-    robotextWithENSNames,
-    'useENSNamesForEntityText only returns falsey when passed falsey',
+    resolvedRobotext,
+    'useResolvedEntityText only returns falsey when passed falsey',
   );
   const textParts = React.useMemo(() => {
-    return entityTextToReact(robotextWithENSNames, threadID, {
+    return entityTextToReact(resolvedRobotext, threadID, {
       renderText: ({ text }) => (
         <Markdown rules={linkRules(false)}>{text}</Markdown>
       ),
@@ -72,7 +72,7 @@ function RobotextMessage(props: Props): React.Node {
       ),
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
-  }, [robotextWithENSNames, threadID]);
+  }, [resolvedRobotext, threadID]);
 
   const { onMouseEnter, onMouseLeave } = useMessageTooltip({
     item,
