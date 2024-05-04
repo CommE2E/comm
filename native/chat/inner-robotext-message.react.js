@@ -77,6 +77,9 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
         <UserEntity userID={userID} usernameText={usernameText} />
       ),
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
+      renderFarcasterUser: ({ farcasterUsername }) => (
+        <Text>{farcasterUsername}</Text>
+      ),
     });
   }, [resolvedRobotext, activeTheme, threadID, styles.robotext]);
 
