@@ -24,6 +24,9 @@ COMM_JSONCONFIG_secrets_identity_service_config="{\"identitySocketAddr\":\"https
 COMM_JSONCONFIG_secrets_alchemy='{"key":"<alchemy key>"}'
 COMM_JSONCONFIG_secrets_walletconnect='{"key":"<wallet connect key>"}'
 
+# Required for Farcaster login
+COMM_JSONCONFIG_secrets_neynar='{"key":"<neynar key>"}'
+
 # Example backup configuration that stores up to 10 GiB of backups in /home/comm/backups
 COMM_JSONCONFIG_facts_backups='{"enabled":true,"directory":"/home/comm/backups","maxDirSizeMiB":10240}'
 ```
