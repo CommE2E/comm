@@ -9,6 +9,7 @@ services:
         - HOST_GID=${HOST_GID}
         - COMM_JSONCONFIG_secrets_alchemy=${COMM_JSONCONFIG_secrets_alchemy}
         - COMM_JSONCONFIG_secrets_walletconnect=${COMM_JSONCONFIG_secrets_walletconnect}
+        - COMM_JSONCONFIG_secrets_neynar=${COMM_JSONCONFIG_secrets_neynar}
         - COMM_JSONCONFIG_secrets_geoip_license=${COMM_JSONCONFIG_secrets_geoip_license}
     image: commapp/node-keyserver:1.0
     restart: always

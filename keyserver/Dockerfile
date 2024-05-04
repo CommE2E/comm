@@ -22,6 +22,7 @@ ARG HOST_UID
 ARG HOST_GID
 ARG COMM_JSONCONFIG_secrets_alchemy
 ARG COMM_JSONCONFIG_secrets_walletconnect
+ARG COMM_JSONCONFIG_secrets_neynar
 ARG COMM_JSONCONFIG_secrets_geoip_license
 
 USER root
