@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import {
@@ -14,6 +15,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { ChatMentionCandidates } from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';
 import type { GetENSNames } from 'lib/utils/ens-helpers.js';
+import type { GetFCNames } from 'lib/utils/farcaster-helpers.js';
 
 import { ChatContext } from './chat-context.js';
 import { useNavigateToThread } from './message-list-types.js';
@@ -51,6 +53,7 @@ function getUnresolvedSidebarThreadInfo(
 type GetSidebarThreadInfoInput = {
   ...GetUnresolvedSidebarThreadInfoInput,
   +getENSNames: ?GetENSNames,
+  +getFCNames: ?GetFCNames,
 };
 async function getSidebarThreadInfo(
   input: GetSidebarThreadInfoInput,
@@ -59,6 +62,7 @@ async function getSidebarThreadInfo(
     sourceMessage,
     loggedInUserInfo,
     getENSNames,
+    getFCNames,
     chatMentionCandidates,
   } = input;
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
@@ -78,6 +82,7 @@ async function getSidebarThreadInfo(
     markdownRules: getDefaultTextMessageRules(chatMentionCandidates)
       .simpleMarkdownRules,
     getENSNames,
+    getFCNames,
   });
 }
 
@@ -86,14 +91,20 @@ function useNavigateToSidebar(
 ): () => mixed {
   const loggedInUserInfo = useLoggedInUserInfo();
   const navigateToThread = useNavigateToThread();
-  const cacheContext = React.useContext(ENSCacheContext);
+
+  const { getENSNames } = React.useContext(ENSCacheContext);
+
   const chatMentionCandidates = useThreadChatMentionCandidates(item.threadInfo);
-  const { getENSNames } = cacheContext;
+
+  const neynarClientContext = React.useContext(NeynarClientContext);
+  const getFCNames = neynarClientContext?.getFCNames;
+
   return React.useCallback(async () => {
     const threadInfo = await getSidebarThreadInfo({
       sourceMessage: item,
       loggedInUserInfo,
       getENSNames,
+      getFCNames,
       chatMentionCandidates,
     });
     invariant(threadInfo, 'threadInfo should be set');
@@ -102,6 +113,7 @@ function useNavigateToSidebar(
     item,
     loggedInUserInfo,
     getENSNames,
+    getFCNames,
     chatMentionCandidates,
     navigateToThread,
   ]);
