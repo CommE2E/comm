@@ -5,6 +5,7 @@ import * as React from 'react';
 import { createSelector } from 'reselect';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
 import {
@@ -71,8 +72,10 @@ function useOnClickPendingSidebar(
   const dispatch = useDispatch();
   const loggedInUserInfo = useLoggedInUserInfo();
 
-  const cacheContext = React.useContext(ENSCacheContext);
-  const { getENSNames } = cacheContext;
+  const { getENSNames } = React.useContext(ENSCacheContext);
+
+  const neynarClientContext = React.useContext(NeynarClientContext);
+  const getFCNames = neynarClientContext?.getFCNames;
 
   const chatMentionCandidates = useThreadChatMentionCandidates(threadInfo);
   return React.useCallback(
@@ -88,6 +91,7 @@ function useOnClickPendingSidebar(
         markdownRules: getDefaultTextMessageRules(chatMentionCandidates)
           .simpleMarkdownRules,
         getENSNames,
+        getFCNames,
       });
       dispatch({
         type: updateNavInfoActionType,
@@ -103,6 +107,7 @@ function useOnClickPendingSidebar(
       threadInfo,
       messageInfo,
       getENSNames,
+      getFCNames,
       dispatch,
     ],
   );
