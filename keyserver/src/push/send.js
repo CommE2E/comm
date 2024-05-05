@@ -81,6 +81,7 @@ import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
 import { getENSNames } from '../utils/ens-cache.js';
+import { getFCNames } from '../utils/fc-cache.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
 export type Device = {
@@ -287,6 +288,7 @@ async function preparePushNotif(input: {
     parentThreadInfo,
     notifTargetUserInfo,
     getENSNames,
+    getFCNames,
   );
   if (!notifTexts) {
     return null;

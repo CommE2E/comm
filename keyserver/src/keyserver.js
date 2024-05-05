@@ -44,6 +44,7 @@ import {
 import { createAuthoritativeKeyserverConfigFiles } from './user/create-configs.js';
 import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
+import { initFCCache } from './utils/fc-cache.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
 import {
   prefetchAllURLFacts,
@@ -61,6 +62,7 @@ void (async () => {
     olm.init(),
     prefetchAllURLFacts(),
     initENSCache(),
+    initFCCache(),
   ]);
 
   const keyserverURLFacts = getKeyserverURLFacts();
