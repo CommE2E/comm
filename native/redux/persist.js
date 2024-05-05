@@ -95,7 +95,6 @@ import type {
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
-import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -106,7 +105,6 @@ import {
   convertThreadStoreThreadInfosToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
-import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import {
   deprecatedConvertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
@@ -124,49 +122,20 @@ import {
   deprecatedUpdateClientDBThreadStoreThreadInfos,
 } from './deprecated-client-db-utils.js';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration.js';
+import {
+  handleReduxMigrationFailure,
+  persistBlacklist,
+} from './handle-redux-migration-failure.js';
 import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
-import { nonUserSpecificFieldsNative } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
-
-const persistBlacklist = [
-  'loadingStatuses',
-  'lifecycleState',
-  'dimensions',
-  'draftStore',
-  'connectivity',
-  'deviceOrientation',
-  'frozen',
-  'threadStore',
-  'storeLoaded',
-  'dbOpsStore',
-  'syncedMetadataStore',
-  'userStore',
-  'auxUserStore',
-  'commServicesAccessToken',
-];
-
-function handleReduxMigrationFailure(oldState: AppState): AppState {
-  const persistedNonUserSpecificFields = nonUserSpecificFieldsNative.filter(
-    field => !persistBlacklist.includes(field) || field === '_persist',
-  );
-  const stateAfterReset = resetUserSpecificState(
-    oldState,
-    defaultState,
-    persistedNonUserSpecificFields,
-  );
-  return {
-    ...stateAfterReset,
-    keyserverStore: wipeKeyserverStore(stateAfterReset.keyserverStore),
-  };
-}
 
 const migrations = {
   [1]: (state: AppState) => ({
