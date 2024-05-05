@@ -19,6 +19,7 @@ import {
   ModalProvider,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
+import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import {
@@ -222,21 +223,23 @@ class App extends React.PureComponent<Props> {
         <EditModalProvider>
           <MenuProvider>
             <AlchemyENSCacheProvider>
-              <TooltipProvider>
-                <MessageSearchStateProvider>
-                  <ChatMentionContextProvider>
-                    <FocusHandler />
-                    <VisibilityHandler />
-                    <PolicyAcknowledgmentHandler />
-                    <PushNotificationsHandler />
-                    <InviteLinkHandler />
-                    <InviteLinksRefresher />
-                    <MinVersionHandler />
-                    <LogOutIfMissingCSATHandler />
-                    {content}
-                  </ChatMentionContextProvider>
-                </MessageSearchStateProvider>
-              </TooltipProvider>
+              <NeynarClientProvider apiKey={process.env.COMM_NEYNAR_KEY}>
+                <TooltipProvider>
+                  <MessageSearchStateProvider>
+                    <ChatMentionContextProvider>
+                      <FocusHandler />
+                      <VisibilityHandler />
+                      <PolicyAcknowledgmentHandler />
+                      <PushNotificationsHandler />
+                      <InviteLinkHandler />
+                      <InviteLinksRefresher />
+                      <MinVersionHandler />
+                      <LogOutIfMissingCSATHandler />
+                      {content}
+                    </ChatMentionContextProvider>
+                  </MessageSearchStateProvider>
+                </TooltipProvider>
+              </NeynarClientProvider>
             </AlchemyENSCacheProvider>
           </MenuProvider>
         </EditModalProvider>
