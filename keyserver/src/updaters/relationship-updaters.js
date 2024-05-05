@@ -229,7 +229,7 @@ async function updateRelationships(
 
     const insertRows = userIDs.map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
-      return { user1, user2, status: undirectedStatus.KNOW_OF };
+      return { user1, user2, status: undirectedStatus.FRIEND };
     });
     const updateDatas = await updateChangedUndirectedRelationships(insertRows);
     await createUpdates(updateDatas);
