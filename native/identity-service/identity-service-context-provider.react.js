@@ -353,6 +353,53 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return validatedResult;
       },
+      registerReservedPasswordUser: async (
+        username: string,
+        password: string,
+        keyserverMessage: string,
+        keyserverSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const registrationResult =
+          await commRustModule.registerReservedPasswordUser(
+            username,
+            password,
+            blobPayload,
+            signature,
+            prekeys.contentPrekey,
+            prekeys.contentPrekeySignature,
+            prekeys.notifPrekey,
+            prekeys.notifPrekeySignature,
+            getOneTimeKeyValues(contentOneTimeKeys),
+            getOneTimeKeyValues(notificationsOneTimeKeys),
+            keyserverMessage,
+            keyserverSignature,
+          );
+        const { userID, accessToken: token } = JSON.parse(registrationResult);
+        const identityAuthResult = { accessToken: token, userID, username };
+
+        const validatedResult = assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
+      },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
         const [{ blobPayload, signature, primaryIdentityPublicKeys }, prekeys] =
@@ -415,6 +462,58 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
         );
+        const { userID, accessToken: token } = JSON.parse(registrationResult);
+        const identityAuthResult = {
+          accessToken: token,
+          userID,
+          username: walletAddress,
+        };
+
+        const validatedResult = assertWithValidator(
+          identityAuthResult,
+          identityAuthResultValidator,
+        );
+
+        await commCoreModule.setCommServicesAuthMetadata(
+          validatedResult.userID,
+          primaryIdentityPublicKeys.ed25519,
+          validatedResult.accessToken,
+        );
+
+        return validatedResult;
+      },
+      registerReservedWalletUser: async (
+        walletAddress: string,
+        siweMessage: string,
+        siweSignature: string,
+        keyserverMessage: string,
+        keyserverSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const registrationResult =
+          await commRustModule.registerReservedWalletUser(
+            siweMessage,
+            siweSignature,
+            blobPayload,
+            signature,
+            prekeys.contentPrekey,
+            prekeys.contentPrekeySignature,
+            prekeys.notifPrekey,
+            prekeys.notifPrekeySignature,
+            getOneTimeKeyValues(contentOneTimeKeys),
+            getOneTimeKeyValues(notificationsOneTimeKeys),
+            keyserverMessage,
+            keyserverSignature,
+          );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = {
           accessToken: token,
