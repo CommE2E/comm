@@ -31,23 +31,23 @@ import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
-import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
-import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 import {
   convertClientDBThreadInfoToRawThreadInfo,
   convertRawThreadInfoToClientDBThreadInfo,
 } from 'lib/utils/thread-ops-utils.js';
 
 import commReduxStorageEngine from './comm-redux-storage-engine.js';
-import { defaultWebState } from './default-state.js';
+import {
+  handleReduxMigrationFailure,
+  persistWhitelist,
+} from './handle-redux-migration-failure.js';
 import { rootKey, rootKeyPrefix } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
-import { nonUserSpecificFieldsWeb } from './redux-setup.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
 import { getOlmWasmPath } from '../shared-worker/utils/constants.js';
@@ -55,31 +55,6 @@ import { isSQLiteSupported } from '../shared-worker/utils/db-utils.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var keyserverURL: string;
-
-const persistWhitelist = [
-  'enabledApps',
-  'alertStore',
-  'commServicesAccessToken',
-  'keyserverStore',
-  'globalThemeInfo',
-  'customServer',
-  'messageStore',
-];
-
-function handleReduxMigrationFailure(oldState: AppState): AppState {
-  const persistedNonUserSpecificFields = nonUserSpecificFieldsWeb.filter(
-    field => persistWhitelist.includes(field) || field === '_persist',
-  );
-  const stateAfterReset = resetUserSpecificState(
-    oldState,
-    defaultWebState,
-    persistedNonUserSpecificFields,
-  );
-  return {
-    ...stateAfterReset,
-    keyserverStore: wipeKeyserverStore(stateAfterReset.keyserverStore),
-  };
-}
 
 const migrations = {
   [1]: async (state: any) => {
