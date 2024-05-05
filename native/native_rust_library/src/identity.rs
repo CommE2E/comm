@@ -1,5 +1,7 @@
 use grpc_clients::identity::get_unauthenticated_client;
-use grpc_clients::identity::protos::unauth::{AuthResponse, Empty};
+use grpc_clients::identity::protos::unauth::{
+  AuthResponse, DeviceKeyUpload, Empty, IdentityKeyInfo, Prekey,
+};
 use serde::Serialize;
 
 use crate::utils::jsi_callbacks::{
@@ -61,6 +63,38 @@ pub struct DeviceKeys {
   pub notif_prekey_signature: String,
   pub content_one_time_keys: Vec<String>,
   pub notif_one_time_keys: Vec<String>,
+}
+
+impl From<DeviceKeys> for DeviceKeyUpload {
+  fn from(value: DeviceKeys) -> Self {
+    let DeviceKeys {
+      key_payload,
+      key_payload_signature,
+      content_prekey,
+      content_prekey_signature,
+      notif_prekey,
+      notif_prekey_signature,
+      content_one_time_keys,
+      notif_one_time_keys,
+    } = value;
+    Self {
+      device_key_info: Some(IdentityKeyInfo {
+        payload: key_payload,
+        payload_signature: key_payload_signature,
+      }),
+      content_upload: Some(Prekey {
+        prekey: content_prekey,
+        prekey_signature: content_prekey_signature,
+      }),
+      notif_upload: Some(Prekey {
+        prekey: notif_prekey,
+        prekey_signature: notif_prekey_signature,
+      }),
+      one_time_content_prekeys: content_one_time_keys,
+      one_time_notif_prekeys: notif_one_time_keys,
+      device_type: DEVICE_TYPE.into(),
+    }
+  }
 }
 
 pub struct LogInPasswordUserInfo {

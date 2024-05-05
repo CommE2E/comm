@@ -63,6 +63,24 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityRegisterReservedPasswordUser"]
+    fn register_reserved_password_user(
+      username: String,
+      password: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      keyserver_message: String,
+      keyserver_signature: String,
+      initial_device_list: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityLogInPasswordUser"]
     fn log_in_password_user(
       username: String,
@@ -89,6 +107,24 @@ mod ffi {
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
       farcaster_id: String,
+      initial_device_list: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityRegisterReservedWalletUser"]
+    fn register_reserved_wallet_user(
+      siwe_message: String,
+      siwe_signature: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      keyserver_message: String,
+      keyserver_signature: String,
       initial_device_list: String,
       promise_id: u32,
     );

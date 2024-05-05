@@ -161,29 +161,7 @@ async fn log_in_password_user_helper(
   let login_start_request = OpaqueLoginStartRequest {
     opaque_login_request,
     username: password_user_info.username,
-    device_key_upload: Some(DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: password_user_info.device_keys.key_payload,
-        payload_signature: password_user_info.device_keys.key_payload_signature,
-      }),
-      content_upload: Some(Prekey {
-        prekey: password_user_info.device_keys.content_prekey,
-        prekey_signature: password_user_info
-          .device_keys
-          .content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: password_user_info.device_keys.notif_prekey,
-        prekey_signature: password_user_info.device_keys.notif_prekey_signature,
-      }),
-      one_time_content_prekeys: password_user_info
-        .device_keys
-        .content_one_time_keys,
-      one_time_notif_prekeys: password_user_info
-        .device_keys
-        .notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    }),
+    device_key_upload: Some(password_user_info.device_keys.into()),
     force: None,
   };
 
@@ -224,25 +202,7 @@ async fn log_in_wallet_user_helper(
   let login_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
     siwe_signature: wallet_user_info.siwe_signature,
-    device_key_upload: Some(DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: wallet_user_info.device_keys.key_payload,
-        payload_signature: wallet_user_info.device_keys.key_payload_signature,
-      }),
-      content_upload: Some(Prekey {
-        prekey: wallet_user_info.device_keys.content_prekey,
-        prekey_signature: wallet_user_info.device_keys.content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: wallet_user_info.device_keys.notif_prekey,
-        prekey_signature: wallet_user_info.device_keys.notif_prekey_signature,
-      }),
-      one_time_content_prekeys: wallet_user_info
-        .device_keys
-        .content_one_time_keys,
-      one_time_notif_prekeys: wallet_user_info.device_keys.notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    }),
+    device_key_upload: Some(wallet_user_info.device_keys.into()),
     farcaster_id: None,
     initial_device_list: "".to_string(),
   };
