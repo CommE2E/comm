@@ -79,6 +79,32 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return { deviceID, userID, accessToken };
   }, [accessToken]);
 
+  const processAuthResult = async (
+    authResult: string,
+    username: string,
+    deviceID: string,
+  ) => {
+    const { userID, accessToken: token } = JSON.parse(authResult);
+    const identityAuthResult = {
+      accessToken: token,
+      userID,
+      username,
+    };
+
+    const validatedResult = assertWithValidator(
+      identityAuthResult,
+      identityAuthResultValidator,
+    );
+
+    await commCoreModule.setCommServicesAuthMetadata(
+      validatedResult.userID,
+      deviceID,
+      validatedResult.accessToken,
+    );
+
+    return validatedResult;
+  };
+
   const client = React.useMemo<IdentityServiceClient>(
     () => ({
       deleteWalletUser: async () => {
@@ -343,21 +369,54 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           fid ?? '',
           JSON.stringify(initialDeviceList),
         );
-        const { userID, accessToken: token } = JSON.parse(registrationResult);
-        const identityAuthResult = { accessToken: token, userID, username };
 
-        const validatedResult = assertWithValidator(
-          identityAuthResult,
-          identityAuthResultValidator,
-        );
-
-        await commCoreModule.setCommServicesAuthMetadata(
-          validatedResult.userID,
+        return await processAuthResult(
+          registrationResult,
+          username,
           primaryIdentityPublicKeys.ed25519,
-          validatedResult.accessToken,
         );
+      },
+      registerReservedPasswordUser: async (
+        username: string,
+        password: string,
+        keyserverMessage: string,
+        keyserverSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const initialDeviceList = await createAndSignInitialDeviceList(
+          primaryIdentityPublicKeys.ed25519,
+        );
+        const registrationResult =
+          await commRustModule.registerReservedPasswordUser(
+            username,
+            password,
+            blobPayload,
+            signature,
+            prekeys.contentPrekey,
+            prekeys.contentPrekeySignature,
+            prekeys.notifPrekey,
+            prekeys.notifPrekeySignature,
+            getOneTimeKeyValues(contentOneTimeKeys),
+            getOneTimeKeyValues(notificationsOneTimeKeys),
+            keyserverMessage,
+            keyserverSignature,
+            JSON.stringify(initialDeviceList),
+          );
 
-        return validatedResult;
+        return await processAuthResult(
+          registrationResult,
+          username,
+          primaryIdentityPublicKeys.ed25519,
+        );
       },
       logInPasswordUser: async (username: string, password: string) => {
         await commCoreModule.initializeCryptoAccount();
@@ -376,21 +435,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
         );
-        const { userID, accessToken: token } = JSON.parse(loginResult);
-        const identityAuthResult = { accessToken: token, userID, username };
 
-        const validatedResult = assertWithValidator(
-          identityAuthResult,
-          identityAuthResultValidator,
-        );
-
-        await commCoreModule.setCommServicesAuthMetadata(
-          validatedResult.userID,
+        return await processAuthResult(
+          loginResult,
+          username,
           primaryIdentityPublicKeys.ed25519,
-          validatedResult.accessToken,
         );
-
-        return validatedResult;
       },
       registerWalletUser: async (
         walletAddress: string,
@@ -425,25 +475,55 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           fid ?? '',
           JSON.stringify(initialDeviceList),
         );
-        const { userID, accessToken: token } = JSON.parse(registrationResult);
-        const identityAuthResult = {
-          accessToken: token,
-          userID,
-          username: walletAddress,
-        };
 
-        const validatedResult = assertWithValidator(
-          identityAuthResult,
-          identityAuthResultValidator,
-        );
-
-        await commCoreModule.setCommServicesAuthMetadata(
-          validatedResult.userID,
+        return await processAuthResult(
+          registrationResult,
+          walletAddress,
           primaryIdentityPublicKeys.ed25519,
-          validatedResult.accessToken,
         );
+      },
+      registerReservedWalletUser: async (
+        walletAddress: string,
+        siweMessage: string,
+        siweSignature: string,
+        keyserverMessage: string,
+        keyserverSignature: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const initialDeviceList = await createAndSignInitialDeviceList(
+          primaryIdentityPublicKeys.ed25519,
+        );
+        const registrationResult =
+          await commRustModule.registerReservedWalletUser(
+            siweMessage,
+            siweSignature,
+            blobPayload,
+            signature,
+            prekeys.contentPrekey,
+            prekeys.contentPrekeySignature,
+            prekeys.notifPrekey,
+            prekeys.notifPrekeySignature,
+            getOneTimeKeyValues(contentOneTimeKeys),
+            getOneTimeKeyValues(notificationsOneTimeKeys),
+            keyserverMessage,
+            keyserverSignature,
+            JSON.stringify(initialDeviceList),
+          );
 
-        return validatedResult;
+        return await processAuthResult(
+          registrationResult,
+          walletAddress,
+          primaryIdentityPublicKeys.ed25519,
+        );
       },
       logInWalletUser: async (
         walletAddress: string,
@@ -466,25 +546,12 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           prekeys.notifPrekey,
           prekeys.notifPrekeySignature,
         );
-        const { userID, accessToken: token } = JSON.parse(loginResult);
-        const identityAuthResult = {
-          accessToken: token,
-          userID,
-          username: walletAddress,
-        };
 
-        const validatedResult = assertWithValidator(
-          identityAuthResult,
-          identityAuthResultValidator,
-        );
-
-        await commCoreModule.setCommServicesAuthMetadata(
-          validatedResult.userID,
+        return await processAuthResult(
+          loginResult,
+          walletAddress,
           primaryIdentityPublicKeys.ed25519,
-          validatedResult.accessToken,
         );
-
-        return validatedResult;
       },
       uploadKeysForRegisteredDeviceAndLogIn: async (
         userID: string,
