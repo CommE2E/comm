@@ -21,6 +21,21 @@ export interface Spec extends TurboModule {
     farcasterID: string,
     initialDeviceList: string,
   ) => Promise<string>;
+  +registerReservedPasswordUser: (
+    username: string,
+    password: string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+    keyserverMessage: string,
+    keyserverSignature: string,
+    initialDeviceList: string,
+  ) => Promise<string>;
   +logInPasswordUser: (
     username: string,
     password: string,
@@ -43,6 +58,21 @@ export interface Spec extends TurboModule {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
     farcasterID: string,
+    initialDeviceList: string,
+  ) => Promise<string>;
+  +registerReservedWalletUser: (
+    siweMessage: string,
+    siweSignature: string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+    keyserverMessage: string,
+    keyserverSignature: string,
     initialDeviceList: string,
   ) => Promise<string>;
   +logInWalletUser: (

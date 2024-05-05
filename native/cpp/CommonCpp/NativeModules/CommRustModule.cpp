@@ -90,6 +90,68 @@ jsi::Value CommRustModule::registerPasswordUser(
       });
 }
 
+jsi::Value CommRustModule::registerReservedPasswordUser(
+    jsi::Runtime &rt,
+    jsi::String username,
+    jsi::String password,
+    jsi::String keyPayload,
+    jsi::String keyPayloadSignature,
+    jsi::String contentPrekey,
+    jsi::String contentPrekeySignature,
+    jsi::String notifPrekey,
+    jsi::String notifPrekeySignature,
+    jsi::Array contentOneTimeKeys,
+    jsi::Array notifOneTimeKeys,
+    jsi::String keyserverMessage,
+    jsi::String keyserverSignature,
+    jsi::String initialDeviceList) {
+  auto usernameRust = jsiStringToRustString(username, rt);
+  auto passwordRust = jsiStringToRustString(password, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+  auto keyserverMessageRust = jsiStringToRustString(keyserverMessage, rt);
+  auto keyserverSignatureRust = jsiStringToRustString(keyserverSignature, rt);
+  auto initialDeviceListRust = jsiStringToRustString(initialDeviceList, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityRegisterReservedPasswordUser(
+              usernameRust,
+              passwordRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
+              keyserverMessageRust,
+              keyserverSignatureRust,
+              initialDeviceListRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 jsi::Value CommRustModule::logInPasswordUser(
     jsi::Runtime &rt,
     jsi::String username,
@@ -184,6 +246,68 @@ jsi::Value CommRustModule::registerWalletUser(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               farcasterIDRust,
+              initialDeviceListRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
+jsi::Value CommRustModule::registerReservedWalletUser(
+    jsi::Runtime &rt,
+    jsi::String siweMessage,
+    jsi::String siweSignature,
+    jsi::String keyPayload,
+    jsi::String keyPayloadSignature,
+    jsi::String contentPrekey,
+    jsi::String contentPrekeySignature,
+    jsi::String notifPrekey,
+    jsi::String notifPrekeySignature,
+    jsi::Array contentOneTimeKeys,
+    jsi::Array notifOneTimeKeys,
+    jsi::String keyserverMessage,
+    jsi::String keyserverSignature,
+    jsi::String initialDeviceList) {
+  auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
+  auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
+  auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
+  auto keyPayloadSignatureRust = jsiStringToRustString(keyPayloadSignature, rt);
+  auto contentPrekeyRust = jsiStringToRustString(contentPrekey, rt);
+  auto contentPrekeySignatureRust =
+      jsiStringToRustString(contentPrekeySignature, rt);
+  auto notifPrekeyRust = jsiStringToRustString(notifPrekey, rt);
+  auto notifPrekeySignatureRust =
+      jsiStringToRustString(notifPrekeySignature, rt);
+  auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
+  auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
+  auto keyserverMessageRust = jsiStringToRustString(keyserverMessage, rt);
+  auto keyserverSignatureRust = jsiStringToRustString(keyserverSignature, rt);
+  auto initialDeviceListRust = jsiStringToRustString(initialDeviceList, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityRegisterReservedWalletUser(
+              siweMessageRust,
+              siweSignatureRust,
+              keyPayloadRust,
+              keyPayloadSignatureRust,
+              contentPrekeyRust,
+              contentPrekeySignatureRust,
+              notifPrekeyRust,
+              notifPrekeySignatureRust,
+              contentOneTimeKeysRust,
+              notifOneTimeKeysRust,
+              keyserverMessageRust,
+              keyserverSignatureRust,
               initialDeviceListRust,
               currentID);
         } catch (const std::exception &e) {
