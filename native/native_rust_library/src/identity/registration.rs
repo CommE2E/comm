@@ -6,20 +6,23 @@ use comm_opaque2::client::Registration;
 use grpc_clients::identity::{
   get_unauthenticated_client,
   protos::unauth::{
-    DeviceKeyUpload, IdentityKeyInfo, Prekey, RegistrationFinishRequest,
-    RegistrationStartRequest, WalletAuthRequest,
+    RegistrationFinishRequest, RegistrationStartRequest,
+    ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
+    WalletAuthRequest,
   },
 };
 use tracing::instrument;
 
 use super::{
   farcaster::farcaster_id_string_to_option, RegisterPasswordUserInfo,
+  RegisterReservedPasswordUserInfo, RegisterReservedWalletUserInfo,
   RegisterWalletUserInfo, UserIDAndDeviceAccessToken,
 };
 
 pub mod ffi {
   use crate::identity::{
-    DeviceKeys, RegisterPasswordUserInfo, RegisterWalletUserInfo,
+    DeviceKeys, RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
+    RegisterWalletUserInfo,
   };
 
   use super::*;
@@ -53,10 +56,48 @@ pub mod ffi {
           content_one_time_keys,
           notif_one_time_keys,
         },
-
         farcaster_id: farcaster_id_string_to_option(&farcaster_id),
       };
       let result = register_password_user_helper(password_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  #[instrument]
+  pub fn register_reserved_password_user(
+    username: String,
+    password: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    keyserver_message: String,
+    keyserver_signature: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let password_user_info = RegisterReservedPasswordUserInfo {
+        username,
+        password,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
+        keyserver_message,
+        keyserver_signature,
+      };
+      let result =
+        register_reserved_password_user_helper(password_user_info).await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -96,6 +137,44 @@ pub mod ffi {
       handle_string_result_as_callback(result, promise_id);
     });
   }
+
+  #[instrument]
+  pub fn register_reserved_wallet_user(
+    siwe_message: String,
+    siwe_signature: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    keyserver_message: String,
+    keyserver_signature: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let wallet_user_info = RegisterReservedWalletUserInfo {
+        siwe_message,
+        siwe_signature,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
+        keyserver_message,
+        keyserver_signature,
+      };
+      let result = register_reserved_wallet_user_helper(wallet_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
 }
 
 async fn register_password_user_helper(
@@ -108,29 +187,7 @@ async fn register_password_user_helper(
   let registration_start_request = RegistrationStartRequest {
     opaque_registration_request,
     username: password_user_info.username,
-    device_key_upload: Some(DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: password_user_info.device_keys.key_payload,
-        payload_signature: password_user_info.device_keys.key_payload_signature,
-      }),
-      content_upload: Some(Prekey {
-        prekey: password_user_info.device_keys.content_prekey,
-        prekey_signature: password_user_info
-          .device_keys
-          .content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: password_user_info.device_keys.notif_prekey,
-        prekey_signature: password_user_info.device_keys.notif_prekey_signature,
-      }),
-      one_time_content_prekeys: password_user_info
-        .device_keys
-        .content_one_time_keys,
-      one_time_notif_prekeys: password_user_info
-        .device_keys
-        .notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    }),
+    device_key_upload: Some(password_user_info.device_keys.into()),
     farcaster_id: password_user_info.farcaster_id,
   };
 
@@ -167,31 +224,61 @@ async fn register_password_user_helper(
   Ok(serde_json::to_string(&user_id_and_access_token)?)
 }
 
+async fn register_reserved_password_user_helper(
+  password_user_info: RegisterReservedPasswordUserInfo,
+) -> Result<String, Error> {
+  let mut client_registration = Registration::new();
+  let opaque_registration_request = client_registration
+    .start(&password_user_info.password)
+    .map_err(crate::handle_error)?;
+  let registration_start_request = ReservedRegistrationStartRequest {
+    opaque_registration_request,
+    username: password_user_info.username,
+    device_key_upload: Some(password_user_info.device_keys.into()),
+    keyserver_message: password_user_info.keyserver_message,
+    keyserver_signature: password_user_info.keyserver_signature,
+  };
+
+  let mut identity_client = get_unauthenticated_client(
+    IDENTITY_SOCKET_ADDR,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+  let response = identity_client
+    .register_reserved_password_user_start(registration_start_request)
+    .await?;
+
+  let registration_start_response = response.into_inner();
+
+  let opaque_registration_upload = client_registration
+    .finish(
+      &password_user_info.password,
+      &registration_start_response.opaque_registration_response,
+    )
+    .map_err(crate::handle_error)?;
+
+  let registration_finish_request = RegistrationFinishRequest {
+    session_id: registration_start_response.session_id,
+    opaque_registration_upload,
+  };
+
+  let registration_finish_response = identity_client
+    .register_password_user_finish(registration_finish_request)
+    .await?
+    .into_inner();
+  let user_id_and_access_token =
+    UserIDAndDeviceAccessToken::from(registration_finish_response);
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
+}
+
 async fn register_wallet_user_helper(
   wallet_user_info: RegisterWalletUserInfo,
 ) -> Result<String, Error> {
   let registration_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
     siwe_signature: wallet_user_info.siwe_signature,
-    device_key_upload: Some(DeviceKeyUpload {
-      device_key_info: Some(IdentityKeyInfo {
-        payload: wallet_user_info.device_keys.key_payload,
-        payload_signature: wallet_user_info.device_keys.key_payload_signature,
-      }),
-      content_upload: Some(Prekey {
-        prekey: wallet_user_info.device_keys.content_prekey,
-        prekey_signature: wallet_user_info.device_keys.content_prekey_signature,
-      }),
-      notif_upload: Some(Prekey {
-        prekey: wallet_user_info.device_keys.notif_prekey,
-        prekey_signature: wallet_user_info.device_keys.notif_prekey_signature,
-      }),
-      one_time_content_prekeys: wallet_user_info
-        .device_keys
-        .content_one_time_keys,
-      one_time_notif_prekeys: wallet_user_info.device_keys.notif_one_time_keys,
-      device_type: DEVICE_TYPE.into(),
-    }),
+    device_key_upload: Some(wallet_user_info.device_keys.into()),
     farcaster_id: wallet_user_info.farcaster_id,
   };
 
@@ -204,6 +291,36 @@ async fn register_wallet_user_helper(
 
   let registration_response = identity_client
     .register_wallet_user(registration_request)
+    .await?
+    .into_inner();
+
+  let user_id_and_access_token = UserIDAndDeviceAccessToken {
+    user_id: registration_response.user_id,
+    access_token: registration_response.access_token,
+  };
+  Ok(serde_json::to_string(&user_id_and_access_token)?)
+}
+
+async fn register_reserved_wallet_user_helper(
+  wallet_user_info: RegisterReservedWalletUserInfo,
+) -> Result<String, Error> {
+  let registration_request = ReservedWalletRegistrationRequest {
+    siwe_message: wallet_user_info.siwe_message,
+    siwe_signature: wallet_user_info.siwe_signature,
+    device_key_upload: Some(wallet_user_info.device_keys.into()),
+    keyserver_message: wallet_user_info.keyserver_message,
+    keyserver_signature: wallet_user_info.keyserver_signature,
+  };
+
+  let mut identity_client = get_unauthenticated_client(
+    IDENTITY_SOCKET_ADDR,
+    CODE_VERSION,
+    DEVICE_TYPE.as_str_name().to_lowercase(),
+  )
+  .await?;
+
+  let registration_response = identity_client
+    .register_reserved_wallet_user(registration_request)
     .await?
     .into_inner();
 
