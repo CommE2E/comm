@@ -1,16 +1,23 @@
 // @flow
 
-import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import {
+  type MessageStoreOperation,
+  messageStoreOpsHandlers,
+} from 'lib/ops/message-store-ops.js';
+import { messageID } from 'lib/shared/message-utils.js';
 import { unshimFunc } from 'lib/shared/unshim-utils.js';
 import { type MessageType } from 'lib/types/message-types-enum.js';
-import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
-import {
-  translateClientDBMessageInfoToRawMessageInfo,
-  translateRawMessageInfoToClientDBMessageInfo,
-} from 'lib/utils/message-ops-utils.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
+import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
 
+import { handleReduxMigrationFailure } from './handle-redux-migration-failure.js';
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
+
+const {
+  processStoreOperations: processMessageStoreOperations,
+  convertOpsToClientDBOps: convertMessageOpsToClientDBOps,
+} = messageStoreOpsHandlers;
 
 function unshimClientDB(
   state: AppState,
@@ -29,41 +36,38 @@ function unshimClientDB(
     unshimFunc(messageInfo, new Set(unshimTypes)),
   );
 
-  // 4. Translate unshimmed `RawMessageInfo`s back to `ClientDBMessageInfo`s.
-  const unshimmedClientDBMessageInfos = unshimmedRawMessageInfos.map(
-    translateRawMessageInfoToClientDBMessageInfo,
-  );
-
-  // 5. Construct `ClientDBMessageStoreOperation`s to clear SQLite `messages`
-  //    table and repopulate with unshimmed `ClientDBMessageInfo`s.
-  const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+  // 4. Construct `MessageStoreOperation`s to clear SQLite `messages` table and
+  //    repopulate with unshimmed `RawMessageInfo`s.
+  const operations: $ReadOnlyArray<MessageStoreOperation> = [
     {
       type: 'remove_all',
     },
-    ...unshimmedClientDBMessageInfos.map((message: ClientDBMessageInfo) => ({
+    ...unshimmedRawMessageInfos.map((message: RawMessageInfo) => ({
       type: 'replace',
-      payload: message,
+      payload: { id: messageID(message), messageInfo: message },
     })),
   ];
 
-  // 6. Try processing `ClientDBMessageStoreOperation`s and log out if
+  // 5. Try processing `ClientDBMessageStoreOperation`s and log out if
   //    `processMessageStoreOperationsSync(...)` throws an exception.
   try {
-    commCoreModule.processMessageStoreOperationsSync(operations);
-  } catch (exception) {
-    console.log(exception);
-    const keyserverInfos = { ...state.keyserverStore.keyserverInfos };
-    for (const key in keyserverInfos) {
-      keyserverInfos[key] = { ...keyserverInfos[key], cookie: null };
-    }
-    const keyserverStore = { ...state.keyserverStore, keyserverInfos };
+    const convertedMessageStoreOperations =
+      convertMessageOpsToClientDBOps(operations);
+    commCoreModule.processMessageStoreOperationsSync(
+      convertedMessageStoreOperations,
+    );
+    const processedMessageStore = processMessageStoreOperations(
+      state.messageStore,
+      operations,
+    );
     return {
       ...state,
-      keyserverStore,
+      messageStore: processedMessageStore,
     };
+  } catch (exception) {
+    console.log(exception);
+    return handleReduxMigrationFailure(state);
   }
-
-  return state;
 }
 
 export { unshimClientDB };
