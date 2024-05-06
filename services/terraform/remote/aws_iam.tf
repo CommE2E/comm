@@ -148,7 +148,8 @@ data "aws_iam_policy_document" "manage_backup_ddb" {
     ]
     resources = [
       module.shared.dynamodb_tables["backup-service-backup"].arn,
-      "${module.shared.dynamodb_tables["backup-service-backup"].arn}/index/*"
+      "${module.shared.dynamodb_tables["backup-service-backup"].arn}/index/*",
+      module.shared.dynamodb_tables["backup-service-log"].arn,
     ]
   }
 }
