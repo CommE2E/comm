@@ -77,9 +77,10 @@ function FullscreenSIWEPanel(props: Props): React.Node {
       successRef.current = true;
       if (usingCommServicesAccessToken) {
         try {
-          const findUserIDResponse =
+          const findUserIDResponseString =
             await commRustModule.findUserIDForWalletAddress(result.address);
-          if (JSON.parse(findUserIDResponse).userID) {
+          const findUserIDResponse = JSON.parse(findUserIDResponseString);
+          if (findUserIDResponse.userID || findUserIDResponse.isReserved) {
             await walletLogIn(result.address, result.message, result.signature);
           } else if (enableNewRegistrationMode) {
             await onAccountDoesNotExist(result);
