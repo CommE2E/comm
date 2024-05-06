@@ -16,7 +16,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
-import { getAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
+import { useAvailableThreadMemberActions } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type {
@@ -111,6 +111,7 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +navigateToUserProfileBottomSheet: (userID: string) => mixed,
+  +availableThreadMemberActions: $ReadOnlyArray<'change_role' | 'remove_user'>,
 };
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
@@ -144,13 +145,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           color={this.props.colors.panelForegroundSecondaryLabel}
         />
       );
-    } else if (
-      getAvailableThreadMemberActions(
-        this.props.memberInfo,
-        this.props.threadInfo,
-        this.props.canEdit,
-      ).length !== 0
-    ) {
+    } else if (this.props.availableThreadMemberActions.length !== 0) {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressEdit}
@@ -232,11 +227,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           presentedFrom: this.props.threadSettingsRouteKey,
           initialCoordinates: coordinates,
           verticalBounds,
-          visibleEntryIDs: getAvailableThreadMemberActions(
-            this.props.memberInfo,
-            this.props.threadInfo,
-            this.props.canEdit,
-          ),
+          visibleEntryIDs: this.props.availableThreadMemberActions,
           memberInfo: this.props.memberInfo,
           threadInfo: this.props.threadInfo,
         },
@@ -283,6 +274,12 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
     ]);
     const roleName = roles.get(props.memberInfo.id)?.name;
 
+    const availableThreadMemberActions = useAvailableThreadMemberActions(
+      props.memberInfo,
+      props.threadInfo,
+      props.canEdit,
+    );
+
     return (
       <ThreadSettingsMember
         {...props}
@@ -295,6 +292,7 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> =
         keyboardState={keyboardState}
         overlayContext={overlayContext}
         navigateToUserProfileBottomSheet={navigateToUserProfileBottomSheet}
+        availableThreadMemberActions={availableThreadMemberActions}
       />
     );
   });
