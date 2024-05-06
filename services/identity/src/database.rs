@@ -22,7 +22,7 @@ use crate::{
   ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
 };
 use crate::{
-  ddb_utils::{Identifier, OlmAccountType},
+  ddb_utils::{DBIdentity, OlmAccountType},
   grpc_services::protos,
 };
 use crate::{error::Error, grpc_utils::DeviceKeysInfo};
@@ -723,15 +723,15 @@ impl DatabaseClient {
   /// Retrieves username for password users or wallet address for wallet users
   /// Returns `None` if user not found
   #[tracing::instrument(skip_all)]
-  pub async fn get_user_identifier(
+  pub async fn get_user_identity(
     &self,
     user_id: &str,
-  ) -> Result<Option<Identifier>, Error> {
+  ) -> Result<Option<DBIdentity>, Error> {
     self
       .get_item_from_users_table(user_id)
       .await?
       .item
-      .map(Identifier::try_from)
+      .map(DBIdentity::try_from)
       .transpose()
       .map_err(|e| {
         error!(
