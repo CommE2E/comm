@@ -121,6 +121,8 @@ pub mod devices_table {
   // device-list-specific attrs
   pub const ATTR_TIMESTAMP: &str = "timestamp";
   pub const ATTR_DEVICE_IDS: &str = "deviceIDs";
+  pub const ATTR_CURRENT_SIGNATURE: &str = "curPrimarySignature";
+  pub const ATTR_LAST_SIGNATURE: &str = "lastPrimarySignature";
 
   // migration-specific attrs
   pub const ATTR_CODE_VERSION: &str = "codeVersion";
