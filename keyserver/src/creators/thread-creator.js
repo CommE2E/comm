@@ -323,12 +323,26 @@ async function createThread(
     }
   } else {
     const query = SQL`
+      START TRANSACTION;
+
       INSERT INTO threads(id, type, name, description, creator, creation_time,
         color, parent_thread_id, containing_thread_id, community, depth,
         source_message)
-      VALUES ${[row]}
+      VALUES ${[row]};
     `;
-    await dbQuery(query);
+
+    if (threadTypeIsCommunityRoot(threadType)) {
+      query.append(SQL`
+        INSERT INTO communities (id)
+        VALUES (${id});
+      `);
+    }
+
+    query.append(SQL`
+      COMMIT;
+    `);
+
+    await dbQuery(query, { multipleStatements: true });
   }
 
   const initialMemberPromise: Promise<?MembershipChangeset> = initialMemberIDs

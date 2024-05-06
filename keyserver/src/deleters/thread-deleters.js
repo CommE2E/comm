@@ -95,6 +95,7 @@ function deleteThreadsFromDB(
   const deletionQuery = SQL`
     START TRANSACTION;
     DELETE FROM threads WHERE id IN (${threadIDs});
+    DELETE FROM communities WHERE id IN (${threadIDs});
     DELETE FROM ids WHERE id IN (${threadIDs});
     DELETE d, id, e, ie, r, ir
       FROM days d
