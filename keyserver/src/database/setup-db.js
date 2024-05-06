@@ -298,6 +298,12 @@ async function createTables() {
           COLLATE latin1_bin NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
+      CREATE TABLE communities (
+        id bigint(20) NOT NULL,
+        farcaster_channel_id varchar(255) CHARSET latin1 DEFAULT NULL,
+        blob_holder char(36) CHARSET latin1 DEFAULT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token(512)),
@@ -426,6 +432,9 @@ async function createTables() {
        
       ALTER TABLE olm_accounts
         ADD PRIMARY KEY (is_content);
+
+      ALTER TABLE communities
+        ADD PRIMARY KEY (id);
     `,
     { multipleStatements: true },
   );
