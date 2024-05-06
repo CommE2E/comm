@@ -1,17 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/KeyserverInfo.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class KeyserverStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~KeyserverStoreOperationBase(){};
-};
 
-class RemoveKeyserversOperation : public KeyserverStoreOperationBase {
+class RemoveKeyserversOperation : public DBOperationBase {
 public:
   RemoveKeyserversOperation(std::vector<std::string> ids) : ids{ids} {
   }
@@ -24,7 +20,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceKeyserverOperation : public KeyserverStoreOperationBase {
+class ReplaceKeyserverOperation : public DBOperationBase {
 public:
   ReplaceKeyserverOperation(KeyserverInfo &&keyserver)
       : keyserver{std::move(keyserver)} {
@@ -38,7 +34,7 @@ private:
   KeyserverInfo keyserver;
 };
 
-class RemoveAllKeyserversOperation : public KeyserverStoreOperationBase {
+class RemoveAllKeyserversOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllKeyservers();

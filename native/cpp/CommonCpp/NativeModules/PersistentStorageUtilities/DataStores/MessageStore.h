@@ -11,8 +11,7 @@ namespace comm {
 
 using MessageEntity = std::pair<Message, std::vector<Media>>;
 
-class MessageStore
-    : public BaseDataStore<MessageStoreOperationBase, MessageEntity> {
+class MessageStore : public BaseDataStore<DBOperationBase, MessageEntity> {
 private:
   static OperationType REKEY_OPERATION;
   static OperationType REMOVE_OPERATION;
@@ -27,7 +26,7 @@ private:
 public:
   MessageStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<MessageStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 
