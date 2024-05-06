@@ -48,6 +48,7 @@ import {
   exportKeyToJWK,
   generateCryptoKey,
 } from '../../crypto/aes-gcm-crypto-utils.js';
+import { olmUtility } from '../../olm/olm-utils.js';
 import {
   getOlmDataContentKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
@@ -771,6 +772,19 @@ const olmAPI: OlmAPI = {
     }
     const { contentAccount } = cryptoStore;
     return contentAccount.sign(message);
+  },
+  async verifyMessage(
+    message: string,
+    signature: string,
+    signingPublicKey: string,
+  ): Promise<boolean> {
+    const util = await olmUtility();
+    try {
+      util.ed25519_verify(signingPublicKey, message, signature);
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 
