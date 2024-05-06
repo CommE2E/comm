@@ -704,9 +704,9 @@ impl IdentityClientService for ClientService {
     let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
 
-    let user_identifier = self
+    let user_identity = self
       .client
-      .get_user_identifier(&user_id)
+      .get_user_identity(&user_id)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
@@ -728,11 +728,12 @@ impl IdentityClientService for ClientService {
     }
 
     let login_time = chrono::Utc::now();
+    let identifier = user_identity.identifier;
     let token = AccessTokenData::with_created_time(
       user_id.clone(),
       device_id,
       login_time,
-      user_identifier.into(),
+      identifier.into(),
       &mut OsRng,
     );
     let access_token = token.access_token.clone();
@@ -774,11 +775,11 @@ impl IdentityClientService for ClientService {
     let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
 
-    let (identifier_response, device_list_response) = tokio::join!(
-      self.client.get_user_identifier(&user_id),
+    let (identity_response, device_list_response) = tokio::join!(
+      self.client.get_user_identity(&user_id),
       self.client.get_current_device_list(&user_id)
     );
-    let user_identifier = identifier_response
+    let user_identity = identity_response
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
@@ -796,11 +797,12 @@ impl IdentityClientService for ClientService {
     }
 
     let login_time = chrono::Utc::now();
+    let identifier = user_identity.identifier;
     let token = AccessTokenData::with_created_time(
       user_id.clone(),
       device_id,
       login_time,
-      user_identifier.into(),
+      identifier.into(),
       &mut OsRng,
     );
     let access_token = token.access_token.clone();
