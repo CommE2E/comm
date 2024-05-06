@@ -12,10 +12,10 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   threadInBackgroundChatList,
   threadInHomeChatList,
-  threadInChatList,
   getThreadListSearchResults,
   useThreadListSearch,
   threadIsPending,
+  useThreadInChatList,
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
@@ -66,9 +66,8 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     (activeTab === 'Focus' && activeTopLevelThreadIsFromHomeTab) ||
     (activeTab === 'Background' && !activeTopLevelThreadIsFromHomeTab);
 
-  const activeTopLevelThreadIsInChatList = React.useMemo(
-    () => threadInChatList(activeTopLevelThreadInfo),
-    [activeTopLevelThreadInfo],
+  const activeTopLevelThreadIsInChatList = useThreadInChatList(
+    activeTopLevelThreadInfo,
   );
 
   const shouldChangeTab =
