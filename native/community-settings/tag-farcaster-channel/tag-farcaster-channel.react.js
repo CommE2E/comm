@@ -18,7 +18,10 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
 import SWMansionIcon from '../../components/swmansion-icon.react.js';
-import { type NavigationRoute } from '../../navigation/route-names.js';
+import {
+  TagFarcasterChannelByNameRouteName,
+  type NavigationRoute,
+} from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
 
@@ -36,8 +39,9 @@ type Props = {
 };
 
 function TagFarcasterChannel(props: Props): React.Node {
-  const { route } = props;
+  const { navigation, route } = props;
 
+  const { navigate } = navigation;
   const { communityID } = route.params;
 
   const styles = useStyles(unboundStyles);
@@ -148,11 +152,6 @@ function TagFarcasterChannel(props: Props): React.Node {
     );
   }, [createCreateOrUpdateActionPromise, dispatchActionPromise]);
 
-  const channelSelectionStyles = React.useMemo(
-    () => [styles.sectionContainer, styles.touchableSectionContainer],
-    [styles.sectionContainer, styles.touchableSectionContainer],
-  );
-
   const errorMessage = React.useMemo(() => {
     if (!error) {
       return null;
@@ -171,46 +170,71 @@ function TagFarcasterChannel(props: Props): React.Node {
 
   const buttonVariant = selectedChannel ? 'enabled' : 'disabled';
 
+  const onPressTagChannelByName = React.useCallback(() => {
+    navigate<'TagFarcasterChannelByName'>({
+      name: TagFarcasterChannelByNameRouteName,
+      params: { communityID },
+    });
+  }, [communityID, navigate]);
+
   const tagFarcasterChannel = React.useMemo(
     () => (
       <View>
-        <View style={styles.sectionContainer}>
+        <View style={styles.panelSectionContainer}>
           <Text style={styles.sectionText}>
             Tag a Farcaster channel so followers can find your Comm community!
           </Text>
         </View>
         <Text style={styles.sectionHeaderText}>FARCASTER CHANNEL</Text>
-        <TouchableOpacity
-          style={channelSelectionStyles}
-          onPress={onPressSelectChannel}
-        >
-          <Text style={styles.sectionText}>{channelSelectionTextContent}</Text>
-          <SWMansionIcon
-            name="edit-1"
-            size={20}
-            color={colors.panelForegroundSecondaryLabel}
+        <View style={styles.panelSectionContainer}>
+          <View style={styles.channelSelectionContainer}>
+            <Text style={styles.sectionText}>
+              {channelSelectionTextContent}
+            </Text>
+            <TouchableOpacity
+              onPress={onPressSelectChannel}
+              style={styles.editButtonContainer}
+            >
+              <SWMansionIcon
+                name="edit-1"
+                size={20}
+                color={colors.panelForegroundSecondaryLabel}
+              />
+            </TouchableOpacity>
+          </View>
+          <RegistrationButton
+            onPress={onPressTag}
+            label="Tag channel"
+            variant={buttonVariant}
           />
-        </TouchableOpacity>
+          <View style={styles.tagChannelByNameLinkContainer}>
+            <Text style={styles.sectionText}>Can’t find a channel? </Text>
+            <TouchableOpacity onPress={onPressTagChannelByName}>
+              <Text style={styles.tagChannelByNameLink}>
+                Tag channel by name
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
-        <RegistrationButton
-          onPress={onPressTag}
-          label="Tag channel"
-          variant={buttonVariant}
-        />
       </View>
     ),
     [
-      styles.sectionContainer,
+      styles.panelSectionContainer,
       styles.sectionText,
       styles.sectionHeaderText,
+      styles.channelSelectionContainer,
+      styles.editButtonContainer,
+      styles.tagChannelByNameLinkContainer,
+      styles.tagChannelByNameLink,
       styles.errorContainer,
-      channelSelectionStyles,
-      onPressSelectChannel,
       channelSelectionTextContent,
+      onPressSelectChannel,
       colors.panelForegroundSecondaryLabel,
-      errorMessage,
       onPressTag,
       buttonVariant,
+      onPressTagChannelByName,
+      errorMessage,
     ],
   );
 
@@ -218,10 +242,13 @@ function TagFarcasterChannel(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  sectionContainer: {
+  panelSectionContainer: {
     backgroundColor: 'panelForeground',
-    marginBottom: 24,
     padding: 16,
+    borderBottomColor: 'panelSeparator',
+    borderBottomWidth: 1,
+    borderTopColor: 'panelSeparator',
+    borderTopWidth: 1,
   },
   sectionText: {
     color: 'panelForegroundLabel',
@@ -234,11 +261,25 @@ const unboundStyles = {
     color: 'panelForegroundLabel',
     paddingHorizontal: 16,
     paddingBottom: 4,
+    marginTop: 24,
   },
-  touchableSectionContainer: {
+  channelSelectionContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
+  },
+  editButtonContainer: {
+    paddingLeft: 16,
+  },
+  tagChannelByNameLinkContainer: {
+    flexDirection: 'row',
+    marginTop: 24,
+  },
+  tagChannelByNameLink: {
+    color: 'purpleLink',
+    fontSize: 14,
+    fontWeight: '600',
   },
   errorContainer: {
     height: 18,
