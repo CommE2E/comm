@@ -33,6 +33,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
+  signDeviceListUpdate,
 } from '../qr-code/qr-code-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -121,9 +122,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         devices: [...devices, newDeviceID],
         timestamp: Date.now(),
       };
-      await updateDeviceList({
-        rawDeviceList: JSON.stringify(newDeviceList),
-      });
+      const signedDeviceList = await signDeviceListUpdate(newDeviceList);
+      await updateDeviceList(signedDeviceList);
     },
     [identityContext],
   );
