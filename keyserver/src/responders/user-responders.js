@@ -43,7 +43,11 @@ import type {
   IdentityKeysBlob,
   SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
-import type { DeviceType } from 'lib/types/device-types';
+import type {
+  DeviceType,
+  DeviceTokenUpdateRequest,
+  PlatformDetails,
+} from 'lib/types/device-types';
 import {
   type CalendarQuery,
   rawEntryInfoValidator,
@@ -295,7 +299,9 @@ async function accountCreationResponder(
 
 type ProcessSuccessfulLoginParams = {
   +viewer: Viewer,
-  +input: any,
+  +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+  +platformDetails: PlatformDetails,
+  +watchedIDs: $ReadOnlyArray<string>,
   +userID: string,
   +calendarQuery: ?CalendarQuery,
   +socialProof?: ?SIWESocialProof,
@@ -310,7 +316,9 @@ async function processSuccessfulLogin(
 ): Promise<ServerLogInResponse> {
   const {
     viewer,
-    input,
+    deviceTokenUpdateRequest,
+    platformDetails,
+    watchedIDs,
     userID,
     calendarQuery,
     socialProof,
@@ -320,10 +328,9 @@ async function processSuccessfulLogin(
     cookieHasBeenSet,
   } = params;
 
-  const request: LogInRequest = input;
   const newServerTime = Date.now();
-  const deviceToken = request.deviceTokenUpdateRequest
-    ? request.deviceTokenUpdateRequest.deviceToken
+  const deviceToken = deviceTokenUpdateRequest
+    ? deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const setNewCookiePromise = (async () => {
     if (cookieHasBeenSet) {
@@ -331,7 +338,7 @@ async function processSuccessfulLogin(
     }
     const [userViewerData] = await Promise.all([
       createNewUserCookie(userID, {
-        platformDetails: request.platformDetails,
+        platformDetails: platformDetails,
         deviceToken,
         socialProof,
         signedIdentityKeysBlob,
@@ -395,7 +402,7 @@ async function processSuccessfulLogin(
   })();
 
   const threadCursors: { [string]: null } = {};
-  for (const watchedThreadID of request.watchedIDs) {
+  for (const watchedThreadID of watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
   const messageSelectionCriteria = { threadCursors, joinedThreads: true };
@@ -544,7 +551,9 @@ async function logInResponder(
 
   return await processSuccessfulLogin({
     viewer,
-    input: request,
+    platformDetails: request.platformDetails,
+    deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
+    watchedIDs: request.watchedIDs,
     userID: id,
     calendarQuery,
     signedIdentityKeysBlob,
@@ -687,7 +696,9 @@ async function siweAuthResponder(
   // 10. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
-    input: request,
+    platformDetails: request.platformDetails,
+    deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
+    watchedIDs: request.watchedIDs,
     userID,
     calendarQuery,
     socialProof,
@@ -809,7 +820,9 @@ async function keyserverAuthResponder(
   // 5. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin({
     viewer,
-    input: request,
+    platformDetails: request.platformDetails,
+    deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
+    watchedIDs: request.watchedIDs,
     userID,
     calendarQuery,
     signedIdentityKeysBlob,
