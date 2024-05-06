@@ -96,6 +96,11 @@ interface Spec extends TurboModule {
     messageID: string,
   ) => Promise<string>;
   +signMessage: (message: string) => Promise<string>;
+  +verifySignature: (
+    publicKey: string,
+    message: string,
+    signature: string,
+  ) => Promise<void>;
   +getCodeVersion: () => number;
   +terminate: () => void;
   +setNotifyToken: (token: string) => Promise<void>;
