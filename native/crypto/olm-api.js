@@ -93,6 +93,22 @@ const olmAPI: OlmAPI = {
     );
   },
   signMessage: commCoreModule.signMessage,
+  async verifyMessage(
+    message: string,
+    signature: string,
+    signingPublicKey: string,
+  ): Promise<boolean> {
+    try {
+      await commCoreModule.verifySignature(
+        signingPublicKey,
+        message,
+        signature,
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };
 
 export { olmAPI };
