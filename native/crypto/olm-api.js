@@ -10,6 +10,7 @@ import {
   type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import { commCoreModule } from '../native-modules.js';
 
@@ -93,6 +94,27 @@ const olmAPI: OlmAPI = {
     );
   },
   signMessage: commCoreModule.signMessage,
+  async verifyMessage(
+    message: string,
+    signature: string,
+    signingPublicKey: string,
+  ): Promise<boolean> {
+    try {
+      await commCoreModule.verifySignature(
+        signingPublicKey,
+        message,
+        signature,
+      );
+      return true;
+    } catch (err) {
+      const isSignatureInvalid =
+        getMessageForException(err)?.includes('BAD_MESSAGE_MAC');
+      if (isSignatureInvalid) {
+        return false;
+      }
+      throw err;
+    }
+  },
 };
 
 export { olmAPI };
