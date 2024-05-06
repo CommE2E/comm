@@ -1,5 +1,6 @@
 #include "MessageStore.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -73,11 +74,11 @@ jsi::Array MessageStore::parseDBDataStore(
   return jsiMessages;
 }
 
-std::vector<std::unique_ptr<MessageStoreOperationBase>>
-MessageStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
+std::vector<std::unique_ptr<DBOperationBase>> MessageStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
 
-  std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
+  std::vector<std::unique_ptr<DBOperationBase>> messageStoreOps;
 
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);

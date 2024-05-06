@@ -1,6 +1,7 @@
 #include "IntegrityStore.h"
 #include "../../../DatabaseManagers/entities/IntegrityThreadHash.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -38,10 +39,10 @@ jsi::Array IntegrityStore::parseDBDataStore(
   return jsiIntegrityThreadHashes;
 }
 
-std::vector<std::unique_ptr<IntegrityStoreOperationBase>>
-IntegrityStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<IntegrityStoreOperationBase>> integrityStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> IntegrityStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> integrityStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

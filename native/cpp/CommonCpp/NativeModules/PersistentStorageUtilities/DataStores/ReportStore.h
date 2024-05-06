@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../DatabaseManagers/entities/Report.h"
+#include "../../DBOperationBase.h"
 #include "BaseDataStore.h"
 #include "ReportStoreOperations.h"
 
@@ -8,7 +9,7 @@
 
 namespace comm {
 
-class ReportStore : public BaseDataStore<ReportStoreOperationBase, Report> {
+class ReportStore : public BaseDataStore<DBOperationBase, Report> {
 private:
   static OperationType REPLACE_REPORT_OPERATION;
   static OperationType REMOVE_REPORTS_OPERATION;
@@ -17,7 +18,7 @@ private:
 public:
   ReportStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<ReportStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 

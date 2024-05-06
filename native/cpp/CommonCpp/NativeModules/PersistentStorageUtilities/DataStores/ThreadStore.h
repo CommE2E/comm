@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../../DatabaseManagers/entities/Thread.h"
+#include "../../DBOperationBase.h"
 #include "BaseDataStore.h"
 #include "ThreadStoreOperations.h"
 
@@ -8,7 +9,7 @@
 
 namespace comm {
 
-class ThreadStore : public BaseDataStore<ThreadStoreOperationBase, Thread> {
+class ThreadStore : public BaseDataStore<DBOperationBase, Thread> {
 private:
   static OperationType REMOVE_OPERATION;
   static OperationType REMOVE_ALL_OPERATION;
@@ -17,7 +18,7 @@ private:
 public:
   ThreadStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<ThreadStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 
