@@ -482,6 +482,15 @@ async function createThread(
     updatesForCurrentSession,
   );
 
+  if (threadTypeIsCommunityRoot(threadType)) {
+    const query = SQL`
+      INSERT INTO communities (id)
+      VALUES (${id})
+    `;
+
+    await dbQuery(query);
+  }
+
   return {
     newThreadID: id,
     updatesResult: {
