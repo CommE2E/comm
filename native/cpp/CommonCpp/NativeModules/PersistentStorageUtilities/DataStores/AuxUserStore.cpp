@@ -30,10 +30,10 @@ jsi::Array AuxUserStore::parseDBDataStore(
   return jsiAuxUserInfos;
 }
 
-std::vector<std::unique_ptr<AuxUserStoreOperationBase>>
-AuxUserStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<AuxUserStoreOperationBase>> auxUserStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> AuxUserStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> auxUserStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

@@ -8,7 +8,7 @@
 
 namespace comm {
 
-class UserStore : public BaseDataStore<UserStoreOperationBase, UserInfo> {
+class UserStore : public BaseDataStore<DBOperationBase, UserInfo> {
 private:
   static OperationType REMOVE_OPERATION;
   static OperationType REMOVE_ALL_OPERATION;
@@ -17,7 +17,7 @@ private:
 public:
   UserStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<UserStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 
