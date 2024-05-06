@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::config::CONFIG;
 use crate::database::DeviceListUpdate;
-use crate::device_list::{RawDeviceList, SignedDeviceList};
+use crate::device_list::SignedDeviceList;
 use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
   constants::{error_types, request_metadata},
@@ -461,8 +461,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let device_list_updates: Vec<SignedDeviceList> = db_result
       .into_iter()
-      .map(RawDeviceList::from)
-      .map(SignedDeviceList::try_from_raw)
+      .map(SignedDeviceList::try_from)
       .collect::<Result<Vec<_>, _>>()?;
 
     let stringified_updates = device_list_updates
@@ -496,8 +495,7 @@ impl IdentityClientService for AuthenticatedService {
     while let Some(task_result) = fetch_tasks.join_next().await {
       match task_result {
         Ok((user_id, Ok(Some(device_list_row)))) => {
-          let raw_list = RawDeviceList::from(device_list_row);
-          let signed_list = SignedDeviceList::try_from_raw(raw_list)?;
+          let signed_list = SignedDeviceList::try_from(device_list_row)?;
           let serialized_list = signed_list.as_json_string()?;
           device_lists.insert(user_id, serialized_list);
         }

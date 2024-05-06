@@ -72,12 +72,17 @@ pub struct Prekey {
   pub prekey_signature: String,
 }
 
-/// A struct representing device list update request
-/// payload; issued by the primary device
-#[derive(derive_more::Constructor)]
+/// A struct representing device list update payload
+/// issued by the primary device.
+/// For the JSON payload, see [`crate::device_list::SignedDeviceList`]
 pub struct DeviceListUpdate {
   pub devices: Vec<String>,
   pub timestamp: DateTime<Utc>,
+  /// Primary device signature. This is `None` for Identity-generated lists.
+  pub current_primary_signature: Option<String>,
+  /// Last primary device signature, in case the primary device has changed
+  /// since last device list update.
+  pub last_primary_signature: Option<String>,
 }
 
 impl DeviceRow {
@@ -925,6 +930,7 @@ impl DatabaseClient {
     let DeviceListUpdate {
       devices: new_list,
       timestamp,
+      ..
     } = update;
     self
       .transact_update_devicelist(user_id, |current_list, _| {

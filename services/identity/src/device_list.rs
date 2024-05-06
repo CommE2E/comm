@@ -10,22 +10,16 @@ use crate::{
   grpc_services::protos::auth::UpdateDeviceListRequest,
 };
 
-// raw device list that can be serialized to JSON (and then signed in the future)
+// serde helper for serializing/deserializing
+// device list JSON payload
 #[derive(serde::Serialize, serde::Deserialize)]
-pub struct RawDeviceList {
+struct RawDeviceList {
   devices: Vec<String>,
   timestamp: i64,
 }
 
-impl From<DeviceListRow> for RawDeviceList {
-  fn from(row: DeviceListRow) -> Self {
-    Self {
-      devices: row.device_ids,
-      timestamp: row.timestamp.timestamp_millis(),
-    }
-  }
-}
-
+/// Signed device list payload that is serializable to JSON.
+/// For the DDB payload, see [`DeviceListUpdate`]
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SignedDeviceList {
@@ -45,23 +39,6 @@ pub struct SignedDeviceList {
 }
 
 impl SignedDeviceList {
-  /// Serialize (and sign in the future) a [`RawDeviceList`]
-  pub fn try_from_raw(raw: RawDeviceList) -> Result<Self, tonic::Status> {
-    let stringified_list = serde_json::to_string(&raw).map_err(|err| {
-      error!(
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "Failed to serialize raw device list: {}", err
-      );
-      tonic::Status::failed_precondition("unexpected error")
-    })?;
-
-    Ok(Self {
-      raw_device_list: stringified_list,
-      cur_primary_signature: None,
-      last_primary_signature: None,
-    })
-  }
-
   fn as_raw(&self) -> Result<RawDeviceList, tonic::Status> {
     // The device list payload is sent as an escaped JSON payload.
     // Escaped double quotes need to be trimmed before attempting to deserialize
@@ -80,6 +57,30 @@ impl SignedDeviceList {
         "Failed to serialize device list updates: {}", err
       );
       tonic::Status::failed_precondition("unexpected error")
+    })
+  }
+}
+
+impl TryFrom<DeviceListRow> for SignedDeviceList {
+  type Error = tonic::Status;
+
+  fn try_from(row: DeviceListRow) -> Result<Self, Self::Error> {
+    let raw_list = RawDeviceList {
+      devices: row.device_ids,
+      timestamp: row.timestamp.timestamp_millis(),
+    };
+    let stringified_list = serde_json::to_string(&raw_list).map_err(|err| {
+      error!(
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "Failed to serialize raw device list: {}", err
+      );
+      tonic::Status::failed_precondition("unexpected error")
+    })?;
+
+    Ok(Self {
+      raw_device_list: stringified_list,
+      cur_primary_signature: row.current_primary_signature,
+      last_primary_signature: row.last_primary_signature,
     })
   }
 }
@@ -109,7 +110,12 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
       );
       tonic::Status::invalid_argument("invalid timestamp")
     })?;
-    Ok(DeviceListUpdate::new(devices, timestamp))
+    Ok(DeviceListUpdate {
+      devices,
+      timestamp,
+      current_primary_signature: signed_list.cur_primary_signature,
+      last_primary_signature: signed_list.last_primary_signature,
+    })
   }
 }
 
@@ -349,14 +355,14 @@ mod tests {
   #[test]
   fn serialize_device_list_updates() {
     let raw_updates = vec![
-      RawDeviceList {
+      create_db_row(RawDeviceList {
         devices: vec!["device1".into()],
         timestamp: 111111111,
-      },
-      RawDeviceList {
+      }),
+      create_db_row(RawDeviceList {
         devices: vec!["device1".into(), "device2".into()],
         timestamp: 222222222,
-      },
+      }),
     ];
 
     let expected_raw_list1 = r#"{"devices":["device1"],"timestamp":111111111}"#;
@@ -365,7 +371,7 @@ mod tests {
 
     let signed_updates = raw_updates
       .into_iter()
-      .map(SignedDeviceList::try_from_raw)
+      .map(SignedDeviceList::try_from)
       .collect::<Result<Vec<_>, _>>()
       .expect("signing device list updates failed");
 
@@ -438,5 +444,17 @@ mod tests {
       verify_device_list_timestamp(None, None).is_ok(),
       "No provided timestamp should pass"
     );
+  }
+
+  /// helper for mocking DB rows from raw device list payloads
+  fn create_db_row(raw_list: RawDeviceList) -> DeviceListRow {
+    DeviceListRow {
+      user_id: "".to_string(),
+      device_ids: raw_list.devices,
+      timestamp: DateTime::<Utc>::from_utc_timestamp_millis(raw_list.timestamp)
+        .unwrap(),
+      current_primary_signature: None,
+      last_primary_signature: None,
+    }
   }
 }
