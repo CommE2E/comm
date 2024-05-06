@@ -769,6 +769,47 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    62,
+    async () => {
+      const selectCommunitesQuery = SQL`
+            SELECT t.id
+            FROM threads t
+            WHERE t.depth = 0
+          `;
+      const createTableQuery = SQL`
+            CREATE TABLE IF NOT EXISTS communities (
+              id bigint(20) NOT NULL,
+              farcaster_channel_id varchar(255) CHARSET latin1 DEFAULT NULL,
+              blob_holder char(36) CHARSET latin1 DEFAULT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+    
+            ALTER TABLE communities
+              ADD PRIMARY KEY (id);
+          `;
+
+      const [selectCommunitesQueryResult] = await Promise.all([
+        dbQuery(selectCommunitesQuery),
+        dbQuery(createTableQuery, { multipleStatements: true }),
+      ]);
+
+      const communityIDs = selectCommunitesQueryResult[0].map(({ id }) =>
+        id.toString(),
+      );
+
+      const newRows = [];
+      for (const id of communityIDs) {
+        newRows.push([id]);
+      }
+
+      const insertCommunitiesQuery = SQL`
+            INSERT INTO communities (id)
+            VALUES ${newRows}
+          `;
+
+      await dbQuery(insertCommunitiesQuery);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
