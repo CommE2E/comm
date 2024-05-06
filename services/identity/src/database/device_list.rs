@@ -132,14 +132,14 @@ impl DeviceListRow {
   fn new(
     user_id: impl Into<String>,
     device_ids: Vec<String>,
-    timestamp: Option<DateTime<Utc>>,
+    update_info: &UpdateOperationInfo,
   ) -> Self {
     Self {
       user_id: user_id.into(),
       device_ids,
-      timestamp: timestamp.unwrap_or_else(Utc::now),
-      current_primary_signature: None,
-      last_primary_signature: None,
+      timestamp: update_info.timestamp.unwrap_or_else(Utc::now),
+      current_primary_signature: update_info.current_signature.clone(),
+      last_primary_signature: update_info.last_signature.clone(),
     }
   }
 }
@@ -860,7 +860,9 @@ impl DatabaseClient {
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
-        Ok((Some(put_device_operation), None))
+        let update_info = UpdateOperationInfo::identity_generated()
+          .with_ddb_operation(put_device_operation);
+        Ok(update_info)
       })
       .await?;
 
@@ -911,7 +913,9 @@ impl DatabaseClient {
         let operation =
           TransactWriteItem::builder().delete(delete_device).build();
 
-        Ok((Some(operation), None))
+        let update_info = UpdateOperationInfo::identity_generated()
+          .with_ddb_operation(operation);
+        Ok(update_info)
       })
       .await?;
 
@@ -927,11 +931,7 @@ impl DatabaseClient {
     // returns boolean determining if the new device list is valid.
     validator_fn: impl Fn(&[&str], &[&str]) -> bool,
   ) -> Result<DeviceListRow, Error> {
-    let DeviceListUpdate {
-      devices: new_list,
-      timestamp,
-      ..
-    } = update;
+    let new_list = update.devices.clone();
     self
       .transact_update_devicelist(user_id, |current_list, _| {
         let previous_device_ids: Vec<&str> =
@@ -948,7 +948,7 @@ impl DatabaseClient {
         debug!("Applying device list update");
         *current_list = new_list;
 
-        Ok((None, Some(timestamp)))
+        Ok(UpdateOperationInfo::primary_device_issued(update))
       })
       .await
   }
@@ -966,17 +966,11 @@ impl DatabaseClient {
     // It receives two arguments:
     // 1. A mutable reference to the current device list (ordered device IDs).
     // 2. Details (full data) of the current devices (unordered).
-    // The closure should return a two-element tuple:
-    // - (optional) transactional DDB operation to be performed
-    //   when updating the device list.
-    // - (optional) new device list timestamp. Defaults to `Utc::now()`.
+    // The closure should return a [`UpdateOperationInfo`] object.
     action: impl FnOnce(
       &mut Vec<String>,
       Vec<DeviceRow>,
-    ) -> Result<
-      (Option<TransactWriteItem>, Option<DateTime<Utc>>),
-      Error,
-    >,
+    ) -> Result<UpdateOperationInfo, Error>,
   ) -> Result<DeviceListRow, Error> {
     let previous_timestamp =
       get_current_devicelist_timestamp(self, user_id).await?;
@@ -988,13 +982,13 @@ impl DatabaseClient {
       .unwrap_or_default();
 
     // Perform the update action, then generate new device list
-    let (operation, timestamp) = action(&mut device_ids, current_devices_data)?;
+    let update_info = action(&mut device_ids, current_devices_data)?;
 
     crate::device_list::verify_device_list_timestamp(
       previous_timestamp.as_ref(),
-      timestamp.as_ref(),
+      update_info.timestamp.as_ref(),
     )?;
-    let new_device_list = DeviceListRow::new(user_id, device_ids, timestamp);
+    let new_device_list = DeviceListRow::new(user_id, device_ids, &update_info);
 
     // Update timestamp in users table
     let timestamp_update_operation = device_list_timestamp_update_operation(
@@ -1016,7 +1010,7 @@ impl DatabaseClient {
     let put_device_list_operation =
       TransactWriteItem::builder().put(put_device_list).build();
 
-    let operations = if let Some(operation) = operation {
+    let operations = if let Some(operation) = update_info.ddb_operation {
       vec![
         operation,
         put_device_list_operation,
@@ -1219,6 +1213,43 @@ fn query_rows_with_prefix(
       AttributeValue::S(prefix.to_string()),
     )
     .consistent_read(true)
+}
+
+/// [`transact_update_devicelist()`] closure result
+struct UpdateOperationInfo {
+  /// (optional) transactional DDB operation to be performed
+  /// when updating the device list.
+  ddb_operation: Option<TransactWriteItem>,
+  /// new device list timestamp. Defaults to `Utc::now()`
+  /// for Identity-generated device lists.
+  timestamp: Option<DateTime<Utc>>,
+  current_signature: Option<String>,
+  last_signature: Option<String>,
+}
+
+impl UpdateOperationInfo {
+  fn identity_generated() -> Self {
+    Self {
+      ddb_operation: None,
+      timestamp: None,
+      current_signature: None,
+      last_signature: None,
+    }
+  }
+
+  fn primary_device_issued(source: DeviceListUpdate) -> Self {
+    Self {
+      ddb_operation: None,
+      timestamp: Some(source.timestamp),
+      current_signature: source.current_primary_signature,
+      last_signature: source.last_primary_signature,
+    }
+  }
+
+  fn with_ddb_operation(mut self, operation: TransactWriteItem) -> Self {
+    self.ddb_operation = Some(operation);
+    self
+  }
 }
 
 // Helper module for "migration" code into new device list schema.
