@@ -5,6 +5,7 @@ use tonic::Status;
 
 use crate::{
   database::DeviceRow,
+  ddb_utils::DBIdentity,
   ddb_utils::Identifier as DBIdentifier,
   grpc_services::protos::{
     auth::{EthereumIdentity, Identity, InboundKeyInfo, OutboundKeyInfo},
@@ -238,9 +239,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
   }
 }
 
-impl From<DBIdentifier> for Identity {
-  fn from(value: DBIdentifier) -> Self {
-    match value {
+impl From<DBIdentity> for Identity {
+  fn from(value: DBIdentity) -> Self {
+    match value.identifier {
       DBIdentifier::Username(username) => Identity {
         username,
         eth_identity: None,
