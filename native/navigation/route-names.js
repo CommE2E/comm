@@ -36,6 +36,7 @@ import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.r
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
+import type { TagFarcasterChannelByNameParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-by-name.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
@@ -159,6 +160,7 @@ export const ConnectFarcasterBottomSheetRouteName =
 export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
+export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -298,6 +300,7 @@ export type RolesParamList = {
 
 export type TagFarcasterChannelParamList = {
   +TagFarcasterChannel: TagFarcasterChannelParams,
+  +TagFarcasterChannelByName: TagFarcasterChannelByNameParams,
 };
 
 export type QRCodeSignInParamList = {

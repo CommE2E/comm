@@ -8,10 +8,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import TagFarcasterChannelByName from './tag-farcaster-channel-by-name.react.js';
 import TagFarcasterChannel from './tag-farcaster-channel.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import {
   TagFarcasterChannelRouteName,
+  TagFarcasterChannelByNameRouteName,
   type TagFarcasterChannelParamList,
   type ScreenParamList,
 } from '../../navigation/route-names.js';
@@ -28,10 +30,6 @@ const TagFarcasterChannelStack = createStackNavigator<
   TagFarcasterChannelParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
-
-const tagFarcasterChannelOptions = {
-  headerTitle: 'Tag a Farcaster channel',
-};
 
 type Props = {
   +navigation: RootNavigationProp<'TagFarcasterChannelNavigator'>,
@@ -54,6 +52,7 @@ function TagFarcasterChannelNavigator(props: Props): React.Node {
       headerStyle: {
         backgroundColor: colors.modalBackground,
       },
+      headerTitle: 'Tag a Farcaster channel',
     }),
     [colors.modalBackground, colors.panelForegroundLabel],
   );
@@ -65,7 +64,10 @@ function TagFarcasterChannelNavigator(props: Props): React.Node {
           <TagFarcasterChannelStack.Screen
             name={TagFarcasterChannelRouteName}
             component={TagFarcasterChannel}
-            options={tagFarcasterChannelOptions}
+          />
+          <TagFarcasterChannelStack.Screen
+            name={TagFarcasterChannelByNameRouteName}
+            component={TagFarcasterChannelByName}
           />
         </TagFarcasterChannelStack.Navigator>
       </SafeAreaView>
