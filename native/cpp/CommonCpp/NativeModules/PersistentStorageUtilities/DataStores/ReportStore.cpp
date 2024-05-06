@@ -30,10 +30,10 @@ jsi::Array ReportStore::parseDBDataStore(
   return jsiReports;
 }
 
-std::vector<std::unique_ptr<ReportStoreOperationBase>>
-ReportStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<ReportStoreOperationBase>> reportStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> ReportStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> reportStoreOps;
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);

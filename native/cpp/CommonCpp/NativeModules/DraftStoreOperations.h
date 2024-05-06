@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <jsi/jsi.h>
 
@@ -7,13 +8,7 @@ namespace comm {
 
 namespace jsi = facebook::jsi;
 
-class DraftStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~DraftStoreOperationBase(){};
-};
-
-class UpdateDraftOperation : public DraftStoreOperationBase {
+class UpdateDraftOperation : public DBOperationBase {
 public:
   UpdateDraftOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : key{payload.getProperty(rt, "key").asString(rt).utf8(rt)},
@@ -28,7 +23,7 @@ private:
   std::string text;
 };
 
-class MoveDraftOperation : public DraftStoreOperationBase {
+class MoveDraftOperation : public DBOperationBase {
 public:
   MoveDraftOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : oldKey{payload.getProperty(rt, "oldKey").asString(rt).utf8(rt)},
@@ -43,14 +38,14 @@ private:
   std::string newKey;
 };
 
-class RemoveAllDraftsOperation : public DraftStoreOperationBase {
+class RemoveAllDraftsOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllDrafts();
   }
 };
 
-class RemoveDraftsOperation : public DraftStoreOperationBase {
+class RemoveDraftsOperation : public DBOperationBase {
 public:
   RemoveDraftsOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : idsToRemove{} {

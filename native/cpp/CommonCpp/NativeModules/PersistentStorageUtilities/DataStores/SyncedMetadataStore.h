@@ -8,9 +8,8 @@
 
 namespace comm {
 
-class SyncedMetadataStore : public BaseDataStore<
-                                SyncedMetadataStoreOperationBase,
-                                SyncedMetadataEntry> {
+class SyncedMetadataStore
+    : public BaseDataStore<DBOperationBase, SyncedMetadataEntry> {
 private:
   static OperationType REMOVE_OPERATION;
   static OperationType REMOVE_ALL_OPERATION;
@@ -19,9 +18,9 @@ private:
 public:
   SyncedMetadataStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<SyncedMetadataStoreOperationBase>>
-  createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-      const override;
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) const override;
 
   jsi::Array parseDBDataStore(
       jsi::Runtime &rt,

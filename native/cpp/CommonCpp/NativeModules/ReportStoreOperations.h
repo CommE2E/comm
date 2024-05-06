@@ -2,17 +2,13 @@
 
 #include "../DatabaseManagers/entities/Media.h"
 #include "../DatabaseManagers/entities/Report.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class ReportStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~ReportStoreOperationBase(){};
-};
 
-class RemoveReportsOperation : public ReportStoreOperationBase {
+class RemoveReportsOperation : public DBOperationBase {
 public:
   RemoveReportsOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : ids_to_remove{} {
@@ -31,7 +27,7 @@ private:
   std::vector<std::string> ids_to_remove;
 };
 
-class ReplaceReportOperation : public ReportStoreOperationBase {
+class ReplaceReportOperation : public DBOperationBase {
 public:
   ReplaceReportOperation(jsi::Runtime &rt, const jsi::Object &payload) {
     auto report_id = payload.getProperty(rt, "id").asString(rt).utf8(rt);
@@ -47,7 +43,7 @@ private:
   std::unique_ptr<Report> report;
 };
 
-class RemoveAllReportsOperation : public ReportStoreOperationBase {
+class RemoveAllReportsOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllReports();

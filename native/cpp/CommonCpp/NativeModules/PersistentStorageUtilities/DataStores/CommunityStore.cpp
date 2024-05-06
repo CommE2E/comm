@@ -29,10 +29,10 @@ jsi::Array CommunityStore::parseDBDataStore(
   return jsiCommunities;
 }
 
-std::vector<std::unique_ptr<CommunityStoreOperationBase>>
-CommunityStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<CommunityStoreOperationBase>> communityStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> CommunityStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> communityStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

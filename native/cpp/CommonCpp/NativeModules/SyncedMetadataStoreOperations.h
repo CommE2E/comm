@@ -1,18 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/SyncedMetadataEntry.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
 
-class SyncedMetadataStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~SyncedMetadataStoreOperationBase(){};
-};
-
-class RemoveSyncedMetadataOperation : public SyncedMetadataStoreOperationBase {
+class RemoveSyncedMetadataOperation : public DBOperationBase {
 public:
   RemoveSyncedMetadataOperation(std::vector<std::string> names) : names{names} {
   }
@@ -25,7 +20,7 @@ private:
   std::vector<std::string> names;
 };
 
-class ReplaceSyncedMetadataOperation : public SyncedMetadataStoreOperationBase {
+class ReplaceSyncedMetadataOperation : public DBOperationBase {
 public:
   ReplaceSyncedMetadataOperation(SyncedMetadataEntry &&syncedMetadataEntry)
       : syncedMetadataEntry{std::move(syncedMetadataEntry)} {
@@ -40,8 +35,7 @@ private:
   SyncedMetadataEntry syncedMetadataEntry;
 };
 
-class RemoveAllSyncedMetadataOperation
-    : public SyncedMetadataStoreOperationBase {
+class RemoveAllSyncedMetadataOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllSyncedMetadata();
