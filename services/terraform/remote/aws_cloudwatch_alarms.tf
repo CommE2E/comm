@@ -81,3 +81,48 @@ resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
   actions_enabled     = true
   alarm_actions       = [aws_sns_topic.identity_error_topic.arn]
 }
+
+resource "aws_cloudwatch_event_rule" "ecs_task_stop" {
+  name        = "ecs-task-stop-rule"
+  description = "Trigger when ECS tasks are stopped"
+
+  event_pattern = jsonencode({
+    source      = ["aws.ecs"],
+    detail-type = ["ECS Task State Change"],
+    detail = {
+      lastStatus = ["STOPPED"],
+      clusterArn = [aws_ecs_cluster.comm_services.arn]
+      group      = ["service:${aws_ecs_service.identity_service.name}"]
+    }
+  })
+}
+
+resource "aws_sns_topic" "ecs_task_stop_topic" {
+  name = "ecs-task-stopped-topic"
+}
+
+resource "aws_sns_topic_subscription" "ecs_task_stop_subscription" {
+  topic_arn = aws_sns_topic.ecs_task_stop_topic.arn
+  protocol  = "email"
+  endpoint  = local.identity_error_subscribed_email
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_stop" {
+  alarm_name          = "ecs-task-stop"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "TaskStop"
+  namespace           = "AWS/ECS"
+  period              = "60"
+  statistic           = "SampleCount"
+  threshold           = "1"
+  alarm_description   = "This metric monitors ECS tasks stops"
+
+  dimensions = {
+    ClusterName = aws_ecs_cluster.comm_services.name
+    ServiceName = aws_ecs_service.identity_service.name
+  }
+
+  actions_enabled = true
+  alarm_actions   = [aws_sns_topic.ecs_task_stop_topic.arn]
+}
