@@ -57,6 +57,7 @@ public:
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
   virtual jsi::Value decryptSequentialAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) = 0;
   virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
+  virtual jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
   virtual void terminate(jsi::Runtime &rt) = 0;
   virtual jsi::Value setNotifyToken(jsi::Runtime &rt, jsi::String token) = 0;
@@ -399,6 +400,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::signMessage, jsInvoker_, instance_, std::move(message));
+    }
+    jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) override {
+      static_assert(
+          bridging::getParameterCount(&T::verifySignature) == 4,
+          "Expected verifySignature(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::verifySignature, jsInvoker_, instance_, std::move(publicKey), std::move(message), std::move(signature));
     }
     double getCodeVersion(jsi::Runtime &rt) override {
       static_assert(
