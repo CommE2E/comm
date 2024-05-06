@@ -3,7 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -18,10 +18,12 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
-import SWMansionIcon from '../../components/swmansion-icon.react.js';
-import { type NavigationRoute } from '../../navigation/route-names.js';
+import {
+  TagFarcasterChannelByNameRouteName,
+  type NavigationRoute,
+} from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
-import { useStyles, useColors } from '../../themes/colors.js';
+import { useStyles } from '../../themes/colors.js';
 
 export type TagFarcasterChannelParams = {
   +communityID: string,
@@ -33,19 +35,15 @@ type Props = {
 };
 
 function TagFarcasterChannel(props: Props): React.Node {
-  const { route } = props;
+  const { navigation, route } = props;
 
+  const { navigate } = navigation;
   const { communityID } = route.params;
 
   const styles = useStyles(unboundStyles);
 
-  const colors = useColors();
-
   const fid = useCurrentUserFID();
   invariant(fid, 'FID should be set');
-
-  const [selectedChannel, setSelectedChannel] =
-    React.useState<?NeynarChannel>(null);
 
   const [channelOptions, setChannelOptions] = React.useState<
     $ReadOnlyArray<NeynarChannel>,
@@ -72,27 +70,71 @@ function TagFarcasterChannel(props: Props): React.Node {
 
   const insets = useSafeAreaInsets();
 
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const createOrUpdateFarcasterChannelTag =
+    useCreateOrUpdateFarcasterChannelTag();
+
+  const createCreateOrUpdateActionPromise = React.useCallback(
+    async (channelID: string) => {
+      try {
+        return await createOrUpdateFarcasterChannelTag({
+          commCommunityID: communityID,
+          farcasterChannelID: channelID,
+        });
+      } catch (e) {
+        setError(e.message);
+        throw e;
+      }
+    },
+    [communityID, createOrUpdateFarcasterChannelTag],
+  );
+
   const onOptionSelected = React.useCallback(
     (selectedIndex: ?number) => {
       if (
         selectedIndex === undefined ||
         selectedIndex === null ||
-        selectedIndex === channelOptions.length
+        selectedIndex > channelOptions.length
       ) {
         return;
       }
 
+      // This is the "Other" option
+      if (selectedIndex === channelOptions.length) {
+        navigate<'TagFarcasterChannelByName'>({
+          name: TagFarcasterChannelByNameRouteName,
+          params: { communityID },
+        });
+
+        return;
+      }
+
       setError(null);
-      setSelectedChannel(channelOptions[selectedIndex]);
+
+      const channel = channelOptions[selectedIndex];
+
+      void dispatchActionPromise(
+        createOrUpdateFarcasterChannelTagActionTypes,
+        createCreateOrUpdateActionPromise(channel.id),
+      );
     },
-    [channelOptions],
+    [
+      channelOptions,
+      communityID,
+      createCreateOrUpdateActionPromise,
+      dispatchActionPromise,
+      navigate,
+    ],
   );
 
-  const onPressSelectChannel = React.useCallback(() => {
+  const onPressTag = React.useCallback(() => {
     const channelNames = channelOptions.map(channel => channel.name);
 
     const options =
-      Platform.OS === 'ios' ? [...channelNames, 'Cancel'] : channelNames;
+      Platform.OS === 'ios'
+        ? [...channelNames, 'Other', 'Cancel']
+        : channelNames;
 
     const cancelButtonIndex = Platform.OS === 'ios' ? options.length - 1 : -1;
 
@@ -117,39 +159,6 @@ function TagFarcasterChannel(props: Props): React.Node {
     showActionSheetWithOptions,
   ]);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  const createOrUpdateFarcasterChannelTag =
-    useCreateOrUpdateFarcasterChannelTag();
-
-  const createCreateOrUpdateActionPromise = React.useCallback(async () => {
-    if (!selectedChannel) {
-      return undefined;
-    }
-
-    try {
-      return await createOrUpdateFarcasterChannelTag({
-        commCommunityID: communityID,
-        farcasterChannelID: selectedChannel.id,
-      });
-    } catch (e) {
-      setError(e.message);
-      throw e;
-    }
-  }, [communityID, createOrUpdateFarcasterChannelTag, selectedChannel]);
-
-  const onPressTag = React.useCallback(() => {
-    void dispatchActionPromise(
-      createOrUpdateFarcasterChannelTagActionTypes,
-      createCreateOrUpdateActionPromise(),
-    );
-  }, [createCreateOrUpdateActionPromise, dispatchActionPromise]);
-
-  const channelSelectionStyles = React.useMemo(
-    () => [styles.sectionContainer, styles.touchableSectionContainer],
-    [styles.sectionContainer, styles.touchableSectionContainer],
-  );
-
   const errorMessage = React.useMemo(() => {
     if (!error) {
       return null;
@@ -162,52 +171,32 @@ function TagFarcasterChannel(props: Props): React.Node {
     );
   }, [error, styles.error]);
 
-  const channelSelectionTextContent = selectedChannel?.name
-    ? selectedChannel.name
-    : 'No Farcaster channel tagged';
-
-  const buttonVariant = selectedChannel ? 'enabled' : 'disabled';
-
   const tagFarcasterChannel = React.useMemo(
     () => (
       <View>
-        <View style={styles.sectionContainer}>
+        <View style={styles.panelSectionContainer}>
           <Text style={styles.sectionText}>
             Tag a Farcaster channel so followers can find your Comm community!
           </Text>
         </View>
         <Text style={styles.sectionHeaderText}>FARCASTER CHANNEL</Text>
-        <TouchableOpacity
-          style={channelSelectionStyles}
-          onPress={onPressSelectChannel}
-        >
-          <Text style={styles.sectionText}>{channelSelectionTextContent}</Text>
-          <SWMansionIcon
-            name="edit-1"
-            size={20}
-            color={colors.panelForegroundSecondaryLabel}
+        <View style={styles.panelSectionContainer}>
+          <RegistrationButton
+            onPress={onPressTag}
+            label="Tag channel"
+            variant="enabled"
           />
-        </TouchableOpacity>
+        </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
-        <RegistrationButton
-          onPress={onPressTag}
-          label="Tag channel"
-          variant={buttonVariant}
-        />
       </View>
     ),
     [
-      styles.sectionContainer,
+      styles.panelSectionContainer,
       styles.sectionText,
       styles.sectionHeaderText,
       styles.errorContainer,
-      channelSelectionStyles,
-      onPressSelectChannel,
-      channelSelectionTextContent,
-      colors.panelForegroundSecondaryLabel,
-      errorMessage,
       onPressTag,
-      buttonVariant,
+      errorMessage,
     ],
   );
 
@@ -215,10 +204,13 @@ function TagFarcasterChannel(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  sectionContainer: {
+  panelSectionContainer: {
     backgroundColor: 'panelForeground',
-    marginBottom: 24,
     padding: 16,
+    borderBottomColor: 'panelSeparator',
+    borderBottomWidth: 1,
+    borderTopColor: 'panelSeparator',
+    borderTopWidth: 1,
   },
   sectionText: {
     color: 'panelForegroundLabel',
@@ -231,11 +223,7 @@ const unboundStyles = {
     color: 'panelForegroundLabel',
     paddingHorizontal: 16,
     paddingBottom: 4,
-  },
-  touchableSectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    marginTop: 24,
   },
   errorContainer: {
     height: 18,
