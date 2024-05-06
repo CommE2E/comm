@@ -166,7 +166,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let identifier = self
       .db_client
-      .get_user_identifier(user_id)
+      .get_user_identity(user_id)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
@@ -186,7 +186,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let identifier = self
       .db_client
-      .get_user_identifier(&message.user_id)
+      .get_user_identity(&message.user_id)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;
@@ -621,7 +621,7 @@ impl IdentityClientService for AuthenticatedService {
     let message = request.into_inner();
     let identifier = self
       .db_client
-      .get_user_identifier(&message.user_id)
+      .get_user_identity(&message.user_id)
       .await
       .map_err(handle_db_error)?
       .ok_or_else(|| tonic::Status::not_found("user not found"))?;

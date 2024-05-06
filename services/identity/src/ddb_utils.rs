@@ -14,6 +14,7 @@ use std::iter::IntoIterator;
 
 use crate::{
   constants::{
+    USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
     USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME, USERS_TABLE_USERNAME_ATTRIBUTE,
     USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
   },
@@ -170,6 +171,11 @@ impl DateTimeExt for DateTime<Utc> {
   }
 }
 
+pub struct DBIdentity {
+  pub identifier: Identifier,
+  pub farcaster_id: Option<String>,
+}
+
 pub enum Identifier {
   Username(String),
   WalletAddress(EthereumIdentity),
@@ -180,14 +186,21 @@ pub struct EthereumIdentity {
   pub social_proof: SocialProof,
 }
 
-impl TryFrom<AttributeMap> for Identifier {
+impl TryFrom<AttributeMap> for DBIdentity {
   type Error = crate::error::Error;
 
   fn try_from(mut value: AttributeMap) -> Result<Self, Self::Error> {
+    let farcaster_id_result =
+      value.take_attr(USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME);
+    let farcaster_id = farcaster_id_result.ok();
+
     let username_result = value.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE);
 
     if let Ok(username) = username_result {
-      return Ok(Identifier::Username(username));
+      return Ok(DBIdentity {
+        identifier: Identifier::Username(username),
+        farcaster_id,
+      });
     }
 
     let wallet_address_result =
@@ -198,10 +211,13 @@ impl TryFrom<AttributeMap> for Identifier {
     if let (Ok(wallet_address), Ok(social_proof)) =
       (wallet_address_result, social_proof_result)
     {
-      Ok(Identifier::WalletAddress(EthereumIdentity {
-        wallet_address,
-        social_proof,
-      }))
+      Ok(DBIdentity {
+        identifier: Identifier::WalletAddress(EthereumIdentity {
+          wallet_address,
+          social_proof,
+        }),
+        farcaster_id,
+      })
     } else {
       Err(Self::Error::MalformedItem)
     }
