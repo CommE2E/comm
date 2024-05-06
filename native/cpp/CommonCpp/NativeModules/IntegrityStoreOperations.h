@@ -1,18 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/IntegrityThreadHash.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class IntegrityStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~IntegrityStoreOperationBase(){};
-};
 
-class RemoveIntegrityThreadHashesOperation
-    : public IntegrityStoreOperationBase {
+class RemoveIntegrityThreadHashesOperation : public DBOperationBase {
 public:
   RemoveIntegrityThreadHashesOperation(std::vector<std::string> ids)
       : ids{ids} {
@@ -26,8 +21,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceIntegrityThreadHashesOperation
-    : public IntegrityStoreOperationBase {
+class ReplaceIntegrityThreadHashesOperation : public DBOperationBase {
 public:
   ReplaceIntegrityThreadHashesOperation(
       std::vector<IntegrityThreadHash> &&threadHashes)
@@ -43,8 +37,7 @@ private:
   std::vector<IntegrityThreadHash> threadHashes;
 };
 
-class RemoveAllIntegrityThreadHashesOperation
-    : public IntegrityStoreOperationBase {
+class RemoveAllIntegrityThreadHashesOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllIntegrityThreadHashes();

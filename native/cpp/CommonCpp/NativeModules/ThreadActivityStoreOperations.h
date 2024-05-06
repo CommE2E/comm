@@ -1,18 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/ThreadActivityEntry.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class ThreadActivityStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~ThreadActivityStoreOperationBase(){};
-};
 
-class RemoveThreadActivityEntriesOperation
-    : public ThreadActivityStoreOperationBase {
+class RemoveThreadActivityEntriesOperation : public DBOperationBase {
 public:
   RemoveThreadActivityEntriesOperation(std::vector<std::string> ids)
       : ids{ids} {
@@ -26,8 +21,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceThreadActivityEntryOperation
-    : public ThreadActivityStoreOperationBase {
+class ReplaceThreadActivityEntryOperation : public DBOperationBase {
 public:
   ReplaceThreadActivityEntryOperation(ThreadActivityEntry &&threadActivityEntry)
       : threadActivityEntry{std::move(threadActivityEntry)} {
@@ -42,8 +36,7 @@ private:
   ThreadActivityEntry threadActivityEntry;
 };
 
-class RemoveAllThreadActivityEntriesOperation
-    : public ThreadActivityStoreOperationBase {
+class RemoveAllThreadActivityEntriesOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllThreadActivityEntries();

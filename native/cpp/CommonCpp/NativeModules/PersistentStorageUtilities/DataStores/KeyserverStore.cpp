@@ -1,5 +1,6 @@
 #include "KeyserverStore.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -31,10 +32,10 @@ jsi::Array KeyserverStore::parseDBDataStore(
   return jsiKeyservers;
 }
 
-std::vector<std::unique_ptr<KeyserverStoreOperationBase>>
-KeyserverStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<KeyserverStoreOperationBase>> keyserverStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> KeyserverStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> keyserverStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

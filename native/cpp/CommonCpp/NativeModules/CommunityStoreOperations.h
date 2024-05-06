@@ -1,17 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/CommunityInfo.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class CommunityStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~CommunityStoreOperationBase(){};
-};
 
-class RemoveCommunitiesOperation : public CommunityStoreOperationBase {
+class RemoveCommunitiesOperation : public DBOperationBase {
 public:
   RemoveCommunitiesOperation(std::vector<std::string> ids) : ids{ids} {
   }
@@ -24,7 +20,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceCommunityOperation : public CommunityStoreOperationBase {
+class ReplaceCommunityOperation : public DBOperationBase {
 public:
   ReplaceCommunityOperation(CommunityInfo &&community)
       : community{std::move(community)} {
@@ -38,7 +34,7 @@ private:
   CommunityInfo community;
 };
 
-class RemoveAllCommunitiesOperation : public CommunityStoreOperationBase {
+class RemoveAllCommunitiesOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllCommunities();

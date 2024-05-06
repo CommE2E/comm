@@ -1,5 +1,6 @@
 #include "DraftStore.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -36,10 +37,10 @@ jsi::Array DraftStore::parseDBDataStore(
   return jsiDrafts;
 }
 
-std::vector<std::unique_ptr<DraftStoreOperationBase>>
-DraftStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<DraftStoreOperationBase>> draftStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> DraftStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> draftStoreOps;
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);

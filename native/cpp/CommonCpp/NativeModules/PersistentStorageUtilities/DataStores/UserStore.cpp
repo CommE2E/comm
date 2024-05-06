@@ -1,5 +1,6 @@
 #include "UserStore.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -28,10 +29,10 @@ jsi::Array UserStore::parseDBDataStore(
   return jsiUsers;
 }
 
-std::vector<std::unique_ptr<UserStoreOperationBase>>
-UserStore::createOperations(jsi::Runtime &rt, const jsi::Array &operations)
-    const {
-  std::vector<std::unique_ptr<UserStoreOperationBase>> userStoreOps;
+std::vector<std::unique_ptr<DBOperationBase>> UserStore::createOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) const {
+  std::vector<std::unique_ptr<DBOperationBase>> userStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

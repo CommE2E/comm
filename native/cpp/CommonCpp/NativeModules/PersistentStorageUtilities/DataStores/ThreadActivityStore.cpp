@@ -1,5 +1,6 @@
 #include "ThreadActivityStore.h"
 
+#include "../../DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -39,12 +40,11 @@ jsi::Array ThreadActivityStore::parseDBDataStore(
   return jsiThreadActivitiyEntries;
 }
 
-std::vector<std::unique_ptr<ThreadActivityStoreOperationBase>>
+std::vector<std::unique_ptr<DBOperationBase>>
 ThreadActivityStore::createOperations(
     jsi::Runtime &rt,
     const jsi::Array &operations) const {
-  std::vector<std::unique_ptr<ThreadActivityStoreOperationBase>>
-      threadActivityStoreOps;
+  std::vector<std::unique_ptr<DBOperationBase>> threadActivityStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);
