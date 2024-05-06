@@ -53,6 +53,11 @@ pub struct DeviceListRow {
   pub user_id: String,
   pub timestamp: DateTime<Utc>,
   pub device_ids: Vec<String>,
+  /// Primary device signature. This is `None` for Identity-generated lists.
+  pub current_primary_signature: Option<String>,
+  /// Last primary device signature, in case the primary device has changed
+  /// since last device list update.
+  pub last_primary_signature: Option<String>,
 }
 
 #[derive(Clone, Debug)]
@@ -113,7 +118,8 @@ impl DeviceRow {
 }
 
 impl DeviceListRow {
-  /// Generates new device list row from given devices
+  /// Generates new device list row from given devices.
+  /// Used only for Identity-generated (unsigned) device lists.
   fn new(
     user_id: impl Into<String>,
     device_ids: Vec<String>,
@@ -123,6 +129,8 @@ impl DeviceListRow {
       user_id: user_id.into(),
       device_ids,
       timestamp: timestamp.unwrap_or_else(Utc::now),
+      current_primary_signature: None,
+      last_primary_signature: None,
     }
   }
 }
@@ -379,10 +387,15 @@ impl TryFrom<AttributeMap> for DeviceListRow {
 
     let device_ids: Vec<String> = attrs.take_attr(ATTR_DEVICE_IDS)?;
 
+    let current_primary_signature = attrs.take_attr(ATTR_CURRENT_SIGNATURE)?;
+    let last_primary_signature = attrs.take_attr(ATTR_LAST_SIGNATURE)?;
+
     Ok(Self {
       user_id,
       timestamp,
       device_ids,
+      current_primary_signature,
+      last_primary_signature,
     })
   }
 }
@@ -412,6 +425,18 @@ impl From<DeviceListRow> for AttributeMap {
           .collect(),
       ),
     );
+    if let Some(current_signature) = device_list.current_primary_signature {
+      attrs.insert(
+        ATTR_CURRENT_SIGNATURE.to_string(),
+        AttributeValue::S(current_signature),
+      );
+    }
+    if let Some(last_signature) = device_list.last_primary_signature {
+      attrs.insert(
+        ATTR_CURRENT_SIGNATURE.to_string(),
+        AttributeValue::S(last_signature),
+      );
+    }
     attrs
   }
 }
