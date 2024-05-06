@@ -27,9 +27,9 @@ import {
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   getSingleOtherUser,
-  threadInChatList,
   threadIsChannel,
   useThreadHasPermission,
+  useThreadInChatList,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
 import threadWatcher from 'lib/shared/thread-watcher.js';
@@ -1163,15 +1163,16 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       reduxThreadInfo ?? props.route.params.threadInfo;
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
+    const threadInChatList = useThreadInChatList(threadInfo);
     React.useEffect(() => {
-      if (threadInChatList(threadInfo)) {
+      if (threadInChatList) {
         return undefined;
       }
       threadWatcher.watchID(threadInfo.id);
       return () => {
         threadWatcher.removeID(threadInfo.id);
       };
-    }, [threadInfo]);
+    }, [threadInChatList, threadInfo.id]);
 
     const parentThreadID = threadInfo.parentThreadID;
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
