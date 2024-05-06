@@ -1,6 +1,10 @@
 // @flow
 
 import { hexToUintArray } from 'lib/media/data-utils.js';
+import type {
+  RawDeviceList,
+  SignedDeviceList,
+} from 'lib/types/identity-service-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -9,6 +13,8 @@ import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { getConfig } from 'lib/utils/config.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import {
   convertBytesToObj,
@@ -52,4 +58,29 @@ function parseTunnelbrokerQRAuthMessage(
   return Promise.resolve(payload);
 }
 
-export { composeTunnelbrokerQRAuthMessage, parseTunnelbrokerQRAuthMessage };
+async function signDeviceListUpdate(
+  deviceListPayload: RawDeviceList,
+): Promise<SignedDeviceList> {
+  const deviceID = await getContentSigningKey();
+  const rawDeviceList = JSON.stringify(deviceListPayload);
+
+  // don't sign device list if current device is not a primary one
+  if (deviceListPayload.devices[0] !== deviceID) {
+    return {
+      rawDeviceList,
+    };
+  }
+
+  const { olmAPI } = getConfig();
+  const curPrimarySignature = await olmAPI.signMessage(rawDeviceList);
+  return {
+    rawDeviceList,
+    curPrimarySignature,
+  };
+}
+
+export {
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+  signDeviceListUpdate,
+};
