@@ -1,5 +1,6 @@
 #include "SyncedMetadataStore.h"
 
+#include "DBOperationBase.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 
@@ -33,12 +34,11 @@ jsi::Array SyncedMetadataStore::parseDBDataStore(
   return jsiSyncedMetadata;
 }
 
-std::vector<std::unique_ptr<SyncedMetadataStoreOperationBase>>
+std::vector<std::unique_ptr<DBOperationBase>>
 SyncedMetadataStore::createOperations(
     jsi::Runtime &rt,
     const jsi::Array &operations) const {
-  std::vector<std::unique_ptr<SyncedMetadataStoreOperationBase>>
-      syncedMetadataStoreOps;
+  std::vector<std::unique_ptr<DBOperationBase>> syncedMetadataStoreOps;
 
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);

@@ -1,17 +1,13 @@
 #pragma once
 
 #include "../DatabaseManagers/entities/UserInfo.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class UserStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~UserStoreOperationBase(){};
-};
 
-class RemoveUsersOperation : public UserStoreOperationBase {
+class RemoveUsersOperation : public DBOperationBase {
 public:
   RemoveUsersOperation(std::vector<std::string> ids) : ids{ids} {
   }
@@ -24,7 +20,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceUserOperation : public UserStoreOperationBase {
+class ReplaceUserOperation : public DBOperationBase {
 public:
   ReplaceUserOperation(UserInfo &&user) : user{std::move(user)} {
   }
@@ -37,7 +33,7 @@ private:
   UserInfo user;
 };
 
-class RemoveAllUsersOperation : public UserStoreOperationBase {
+class RemoveAllUsersOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllUsers();

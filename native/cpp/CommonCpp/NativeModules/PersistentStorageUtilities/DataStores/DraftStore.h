@@ -2,13 +2,14 @@
 
 #include "../../../DatabaseManagers/entities/Draft.h"
 #include "BaseDataStore.h"
+#include "DBOperationBase.h"
 #include "DraftStoreOperations.h"
 
 #include <jsi/jsi.h>
 
 namespace comm {
 
-class DraftStore : public BaseDataStore<DraftStoreOperationBase, Draft> {
+class DraftStore : public BaseDataStore<DBOperationBase, Draft> {
 private:
   static OperationType UPDATE_DRAFT_OPERATION;
   static OperationType MOVE_DRAFT_OPERATION;
@@ -18,7 +19,7 @@ private:
 public:
   DraftStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<DraftStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 

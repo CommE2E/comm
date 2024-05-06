@@ -2,17 +2,13 @@
 
 #include "../DatabaseManagers/entities/Media.h"
 #include "../DatabaseManagers/entities/Message.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class MessageStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~MessageStoreOperationBase(){};
-};
 
-class RemoveMessagesOperation : public MessageStoreOperationBase {
+class RemoveMessagesOperation : public DBOperationBase {
 public:
   RemoveMessagesOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : msg_ids_to_remove{} {
@@ -33,7 +29,7 @@ private:
   std::vector<std::string> msg_ids_to_remove;
 };
 
-class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
+class RemoveMessagesForThreadsOperation : public DBOperationBase {
 public:
   RemoveMessagesForThreadsOperation(
       jsi::Runtime &rt,
@@ -57,7 +53,7 @@ private:
   std::vector<std::string> thread_ids;
 };
 
-class ReplaceMessageOperation : public MessageStoreOperationBase {
+class ReplaceMessageOperation : public DBOperationBase {
 public:
   ReplaceMessageOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : media_vector{} {
@@ -133,7 +129,7 @@ private:
   std::vector<std::unique_ptr<Media>> media_vector;
 };
 
-class RekeyMessageOperation : public MessageStoreOperationBase {
+class RekeyMessageOperation : public DBOperationBase {
 public:
   RekeyMessageOperation(jsi::Runtime &rt, const jsi::Object &payload) {
     this->from = payload.getProperty(rt, "from").asString(rt).utf8(rt);
@@ -151,7 +147,7 @@ private:
   std::string to;
 };
 
-class RemoveAllMessagesOperation : public MessageStoreOperationBase {
+class RemoveAllMessagesOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllMessages();
@@ -159,7 +155,7 @@ public:
   }
 };
 
-class ReplaceMessageThreadsOperation : public MessageStoreOperationBase {
+class ReplaceMessageThreadsOperation : public DBOperationBase {
 public:
   ReplaceMessageThreadsOperation(jsi::Runtime &rt, const jsi::Object &payload)
       : msg_threads{} {
@@ -185,14 +181,14 @@ private:
   std::vector<MessageStoreThread> msg_threads;
 };
 
-class RemoveAllMessageStoreThreadsOperation : public MessageStoreOperationBase {
+class RemoveAllMessageStoreThreadsOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllMessageStoreThreads();
   }
 };
 
-class RemoveMessageStoreThreadsOperation : public MessageStoreOperationBase {
+class RemoveMessageStoreThreadsOperation : public DBOperationBase {
 public:
   RemoveMessageStoreThreadsOperation(
       jsi::Runtime &rt,

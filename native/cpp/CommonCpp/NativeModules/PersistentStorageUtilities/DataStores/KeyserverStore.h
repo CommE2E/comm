@@ -2,14 +2,14 @@
 
 #include "../../../DatabaseManagers/entities/KeyserverInfo.h"
 #include "BaseDataStore.h"
+#include "DBOperationBase.h"
 #include "KeyserverStoreOperations.h"
 
 #include <jsi/jsi.h>
 
 namespace comm {
 
-class KeyserverStore
-    : public BaseDataStore<KeyserverStoreOperationBase, KeyserverInfo> {
+class KeyserverStore : public BaseDataStore<DBOperationBase, KeyserverInfo> {
 private:
   static OperationType REMOVE_OPERATION;
   static OperationType REMOVE_ALL_OPERATION;
@@ -18,7 +18,7 @@ private:
 public:
   KeyserverStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
-  std::vector<std::unique_ptr<KeyserverStoreOperationBase>> createOperations(
+  std::vector<std::unique_ptr<DBOperationBase>> createOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) const override;
 

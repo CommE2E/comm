@@ -2,17 +2,13 @@
 
 #include "../DatabaseManagers/entities/Media.h"
 #include "../DatabaseManagers/entities/Thread.h"
+#include "DBOperationBase.h"
 #include "DatabaseManager.h"
 #include <vector>
 
 namespace comm {
-class ThreadStoreOperationBase {
-public:
-  virtual void execute() = 0;
-  virtual ~ThreadStoreOperationBase(){};
-};
 
-class RemoveThreadsOperation : public ThreadStoreOperationBase {
+class RemoveThreadsOperation : public DBOperationBase {
 public:
   RemoveThreadsOperation(std::vector<std::string> ids) : ids{ids} {
   }
@@ -25,7 +21,7 @@ private:
   std::vector<std::string> ids;
 };
 
-class ReplaceThreadOperation : public ThreadStoreOperationBase {
+class ReplaceThreadOperation : public DBOperationBase {
 public:
   ReplaceThreadOperation(Thread &&thread) : thread{std::move(thread)} {
   }
@@ -38,7 +34,7 @@ private:
   Thread thread;
 };
 
-class RemoveAllThreadsOperation : public ThreadStoreOperationBase {
+class RemoveAllThreadsOperation : public DBOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllThreads();
