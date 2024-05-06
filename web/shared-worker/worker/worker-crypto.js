@@ -1,6 +1,6 @@
 // @flow
 
-import olm from '@commapp/olm';
+import olm, { type Utility } from '@commapp/olm';
 import localforage from 'localforage';
 import uuid from 'uuid';
 
@@ -25,6 +25,7 @@ import type {
 } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
 import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
 import {
   retrieveAccountKeysSet,
@@ -76,6 +77,7 @@ type WorkerCryptoStore = {
 };
 
 let cryptoStore: ?WorkerCryptoStore = null;
+let olmUtility: ?Utility = null;
 
 function clearCryptoStore() {
   cryptoStore = null;
@@ -227,6 +229,7 @@ async function initializeCryptoAccount(
   }
 
   await olm.init({ locateFile: () => olmWasmPath });
+  olmUtility = new olm.Utility();
 
   if (initialCryptoStore) {
     cryptoStore = {
@@ -771,6 +774,26 @@ const olmAPI: OlmAPI = {
     }
     const { contentAccount } = cryptoStore;
     return contentAccount.sign(message);
+  },
+  async verifyMessage(
+    message: string,
+    signature: string,
+    signingPublicKey: string,
+  ): Promise<boolean> {
+    if (!olmUtility) {
+      throw new Error('Crypto account not initialized');
+    }
+    try {
+      olmUtility.ed25519_verify(signingPublicKey, message, signature);
+      return true;
+    } catch (err) {
+      const isSignatureInvalid =
+        getMessageForException(err)?.includes('BAD_MESSAGE_MAC');
+      if (isSignatureInvalid) {
+        return false;
+      }
+      throw err;
+    }
   },
 };
 

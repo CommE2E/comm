@@ -54,6 +54,7 @@ const olmAPI: OlmAPI = {
   getOneTimeKeys: proxyToWorker('getOneTimeKeys'),
   validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
   signMessage: proxyToWorker('signMessage'),
+  verifyMessage: proxyToWorker('verifyMessage'),
 };
 
 export { olmAPI };
