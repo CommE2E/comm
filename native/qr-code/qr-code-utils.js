@@ -1,6 +1,10 @@
 // @flow
 
 import { hexToUintArray } from 'lib/media/data-utils.js';
+import type {
+  RawDeviceList,
+  SignedDeviceList,
+} from 'lib/types/identity-service-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -9,12 +13,13 @@ import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import {
   convertBytesToObj,
   convertObjToBytes,
 } from '../backup/conversion-utils.js';
-import { commUtilsModule } from '../native-modules.js';
+import { commCoreModule, commUtilsModule } from '../native-modules.js';
 import * as AES from '../utils/aes-crypto-module.js';
 
 function composeTunnelbrokerQRAuthMessage(
@@ -52,4 +57,28 @@ function parseTunnelbrokerQRAuthMessage(
   return Promise.resolve(payload);
 }
 
-export { composeTunnelbrokerQRAuthMessage, parseTunnelbrokerQRAuthMessage };
+async function signDeviceListUpdate(
+  deviceListPayload: RawDeviceList,
+): Promise<SignedDeviceList> {
+  const deviceID = await getContentSigningKey();
+  const rawDeviceList = JSON.stringify(deviceListPayload);
+
+  // don't sign device list if current device is not a primary one
+  if (deviceListPayload.devices[0] !== deviceID) {
+    return {
+      rawDeviceList,
+    };
+  }
+
+  const curPrimarySignature = await commCoreModule.signMessage(rawDeviceList);
+  return {
+    rawDeviceList,
+    curPrimarySignature,
+  };
+}
+
+export {
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+  signDeviceListUpdate,
+};
