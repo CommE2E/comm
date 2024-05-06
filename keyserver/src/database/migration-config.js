@@ -800,6 +800,29 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    64,
+    async () => {
+      await dbQuery(
+        SQL`
+        CREATE TABLE IF NOT EXISTS communities (
+          id bigint(20) NOT NULL,
+          farcaster_channel_id varchar(255) CHARSET latin1 DEFAULT NULL,
+          blob_holder char(36) CHARSET latin1 DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+        ALTER TABLE communities
+          ADD PRIMARY KEY (id);
+
+        INSERT INTO communities (id)
+        SELECT id
+        FROM threads t
+        WHERE t.depth = 0;
+      `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
