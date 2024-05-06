@@ -1525,6 +1525,37 @@ jsi::Value CommCoreModule::signMessage(jsi::Runtime &rt, jsi::String message) {
       });
 }
 
+jsi::Value CommCoreModule::verifySignature(
+    jsi::Runtime &rt,
+    jsi::String publicKey,
+    jsi::String message,
+    jsi::String signature) {
+  std::string keyStr = publicKey.utf8(rt);
+  std::string messageStr = message.utf8(rt);
+  std::string signatureStr = signature.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            crypto::CryptoModule::verifySignature(
+                keyStr, messageStr, signatureStr);
+          } catch (const std::exception &e) {
+            error = "verifying signature failed with: " + std::string(e.what());
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
