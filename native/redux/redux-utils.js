@@ -16,6 +16,7 @@ import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-op
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
+import { values } from 'lib/utils/objects.js';
 
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
@@ -74,51 +75,6 @@ async function processDBStoreOperations(
 
   try {
     const promises = [];
-    if (convertedThreadStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processThreadStoreOperations(
-          convertedThreadStoreOperations,
-        ),
-      );
-    }
-    if (convertedMessageStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processMessageStoreOperations(
-          convertedMessageStoreOperations,
-        ),
-      );
-    }
-    if (draftStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processDraftStoreOperations(draftStoreOperations),
-      );
-    }
-    if (convertedReportStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processReportStoreOperations(
-          convertedReportStoreOperations,
-        ),
-      );
-    }
-    if (convertedUserStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processUserStoreOperations(convertedUserStoreOperations),
-      );
-    }
-    if (convertedKeyserverStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processKeyserverStoreOperations(
-          convertedKeyserverStoreOperations,
-        ),
-      );
-    }
-    if (convertedCommunityStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processCommunityStoreOperations(
-          convertedCommunityStoreOperations,
-        ),
-      );
-    }
     if (keyserversToRemoveFromNotifsStore.length > 0) {
       promises.push(
         commCoreModule.removeKeyserverDataFromNotifStorage(
@@ -126,33 +82,22 @@ async function processDBStoreOperations(
         ),
       );
     }
-    if (convertedIntegrityStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processIntegrityStoreOperations(
-          convertedIntegrityStoreOperations,
-        ),
-      );
-    }
-    if (convertedSyncedMetadataStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processSyncedMetadataStoreOperations(
-          convertedSyncedMetadataStoreOperations,
-        ),
-      );
-    }
-    if (convertedAuxUserStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processAuxUserStoreOperations(
-          convertedAuxUserStoreOperations,
-        ),
-      );
-    }
-    if (convertedThreadActivityStoreOperations.length > 0) {
-      promises.push(
-        commCoreModule.processThreadActivityStoreOperations(
-          convertedThreadActivityStoreOperations,
-        ),
-      );
+
+    const dbOps = {
+      draftStoreOperations,
+      threadStoreOperations: convertedThreadStoreOperations,
+      messageStoreOperations: convertedMessageStoreOperations,
+      reportStoreOperations: convertedReportStoreOperations,
+      userStoreOperations: convertedUserStoreOperations,
+      keyserverStoreOperations: convertedKeyserverStoreOperations,
+      communityStoreOperations: convertedCommunityStoreOperations,
+      integrityStoreOperations: convertedIntegrityStoreOperations,
+      syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
+      auxUserStoreOperations: convertedAuxUserStoreOperations,
+      threadActivityStoreOperations: convertedThreadActivityStoreOperations,
+    };
+    if (values(dbOps).some(ops => ops.length > 0)) {
+      promises.push(commCoreModule.processDBStoreOperations(dbOps));
     }
     await Promise.all(promises);
   } catch (e) {
