@@ -14,15 +14,8 @@ import type {
 import type {
   UserDetail,
   ReservedUsernameMessage,
-  SignedIdentityKeysBlob,
 } from 'lib/types/crypto-types.js';
-import type {
-  PlatformDetails,
-  DeviceTokenUpdateRequest,
-} from 'lib/types/device-types.js';
-import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -222,57 +215,6 @@ async function createAccount(
   };
 }
 
-export type ProcessSIWEAccountCreationRequest = {
-  +address: string,
-  +calendarQuery: CalendarQuery,
-  +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
-  +platformDetails: PlatformDetails,
-  +socialProof: SIWESocialProof,
-  +signedIdentityKeysBlob?: ?SignedIdentityKeysBlob,
-};
-// Note: `processSIWEAccountCreation(...)` assumes that the validity of
-//       `ProcessSIWEAccountCreationRequest` was checked at call site.
-async function processSIWEAccountCreation(
-  viewer: Viewer,
-  request: ProcessSIWEAccountCreationRequest,
-): Promise<string> {
-  const { calendarQuery, signedIdentityKeysBlob } = request;
-  await verifyCalendarQueryThreadIDs(calendarQuery);
-
-  const time = Date.now();
-  const deviceToken = request.deviceTokenUpdateRequest
-    ? request.deviceTokenUpdateRequest.deviceToken
-    : viewer.deviceToken;
-  const [id] = await createIDs('users', 1);
-  const newUserRow = [id, request.address, request.address, time];
-  const newUserQuery = SQL`
-    INSERT INTO users(id, username, ethereum_address, creation_time)
-    VALUES ${[newUserRow]}
-  `;
-  const [userViewerData] = await Promise.all([
-    createNewUserCookie(id, {
-      platformDetails: request.platformDetails,
-      deviceToken,
-      socialProof: request.socialProof,
-      signedIdentityKeysBlob,
-    }),
-    deleteCookie(viewer.cookieID),
-    dbQuery(newUserQuery),
-  ]);
-  viewer.setNewCookie(userViewerData);
-
-  await setNewSession(viewer, calendarQuery, 0);
-  await processAccountCreationCommon(viewer);
-
-  ignorePromiseRejections(
-    createAndSendReservedUsernameMessage([
-      { username: request.address, userID: id },
-    ]),
-  );
-
-  return id;
-}
-
 async function processAccountCreationCommon(viewer: Viewer) {
   const admin = await thisKeyserverAdmin();
 
@@ -340,6 +282,6 @@ async function createAndSendReservedUsernameMessage(
 
 export {
   createAccount,
-  processSIWEAccountCreation,
   processAccountCreationCommon,
+  createAndSendReservedUsernameMessage,
 };
