@@ -21,7 +21,7 @@ regex = "1.10"
 
 [target.'cfg(target_os = "android")'.dependencies]
 backup_client = { path = "../../shared/backup_client", default-features = false, features = [
-  "rustls-tls",
+  "rustls-tls-webpki-roots",
 ] }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
