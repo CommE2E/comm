@@ -720,6 +720,7 @@ async function siweAuthResponder(
     socialProof,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
+    shouldMarkPoliciesAsAcceptedAfterCookieCreation: !existingUserID,
   });
 }
 

@@ -262,10 +262,7 @@ async function processSIWEAccountCreation(
   viewer.setNewCookie(userViewerData);
 
   await setNewSession(viewer, calendarQuery, 0);
-  await Promise.all([
-    viewerAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy),
-    processAccountCreationCommon(viewer),
-  ]);
+  await processAccountCreationCommon(viewer);
 
   ignorePromiseRejections(
     createAndSendReservedUsernameMessage([
