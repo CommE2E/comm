@@ -5,16 +5,9 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport.js';
 
-import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.js';
-import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
-import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
-import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBReportStoreOperation } from 'lib/ops/report-store-ops.js';
-import type { ClientDBSyncedMetadataStoreOperation } from 'lib/ops/synced-metadata-store-ops.js';
-import type { ClientDBThreadActivityStoreOperation } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
-import type { ClientDBUserStoreOperation } from 'lib/ops/user-store-ops';
 import type {
   OneTimeKeysResult,
   SignedPrekeys,
@@ -22,7 +15,6 @@ import type {
   EncryptedData,
   OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
-import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
@@ -45,49 +37,16 @@ interface Spec extends TurboModule {
   +getClientDBStore: () => Promise<ClientDBStore>;
   +removeAllDrafts: () => Promise<void>;
   +getAllMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
-  +processDraftStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
-  ) => Promise<void>;
-  +processMessageStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
-  ) => Promise<void>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => void;
   +getAllThreadsSync: () => $ReadOnlyArray<ClientDBThreadInfo>;
-  +processThreadStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
-  ) => Promise<void>;
-  +processReportStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
-  ) => Promise<void>;
   +processReportStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBReportStoreOperation>,
   ) => void;
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
-  +processUserStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBUserStoreOperation>,
-  ) => Promise<void>;
-  +processKeyserverStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBKeyserverStoreOperation>,
-  ) => Promise<void>;
-  +processCommunityStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBCommunityStoreOperation>,
-  ) => Promise<void>;
-  +processIntegrityStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBIntegrityStoreOperation>,
-  ) => Promise<void>;
-  +processSyncedMetadataStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBSyncedMetadataStoreOperation>,
-  ) => Promise<void>;
-  +processAuxUserStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBAuxUserStoreOperation>,
-  ) => Promise<void>;
-  +processThreadActivityStoreOperations: (
-    operations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation>,
-  ) => Promise<void>;
   +processDBStoreOperations: (operations: Object) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;

@@ -57,45 +57,14 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) override;
   virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
   virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
-  virtual jsi::Value
-  processDraftStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
-  virtual jsi::Value processReportStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
   virtual void processReportStoreOperationsSync(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
   virtual void processMessageStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) override;
-  virtual jsi::Value processThreadStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
   virtual void processThreadStoreOperationsSync(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value
-  processUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
-  virtual jsi::Value processKeyserverStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processCommunityStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processIntegrityStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processSyncedMetadataStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processAuxUserStoreOperations(
-      jsi::Runtime &rt,
-      jsi::Array operations) override;
-  virtual jsi::Value processThreadActivityStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
   virtual jsi::Value

@@ -34,56 +34,6 @@ public:
       jsi::Runtime &rt,
       std::shared_ptr<std::vector<Entity>> dataVectorPtr) const = 0;
 
-  jsi::Value processStoreOperations(jsi::Runtime &rt, jsi::Array &&operations) {
-    std::string createOperationsError;
-    std::shared_ptr<std::vector<std::unique_ptr<Operation>>> storeOpsPtr;
-
-    try {
-      auto storeOps = createOperations(rt, operations);
-      storeOpsPtr = std::make_shared<std::vector<std::unique_ptr<Operation>>>(
-          std::move(storeOps));
-    } catch (std::runtime_error &e) {
-      createOperationsError = e.what();
-    }
-
-    return facebook::react::createPromiseAsJSIValue(
-        rt,
-        [=](jsi::Runtime &innerRt,
-            std::shared_ptr<facebook::react::Promise> promise) {
-          taskType job = [=]() {
-            std::string error = createOperationsError;
-
-            if (!error.size()) {
-              try {
-                DatabaseManager::getQueryExecutor().beginTransaction();
-                for (const auto &operation : *storeOpsPtr) {
-                  operation->execute();
-                }
-                DatabaseManager::getQueryExecutor().captureBackupLogs();
-                DatabaseManager::getQueryExecutor().commitTransaction();
-              } catch (std::system_error &e) {
-                error = e.what();
-                DatabaseManager::getQueryExecutor().rollbackTransaction();
-              }
-            }
-
-            if (!error.size()) {
-              ::triggerBackupFileUpload();
-            }
-
-            this->jsInvoker->invokeAsync([=]() {
-              if (error.size()) {
-                promise->reject(error);
-              } else {
-                promise->resolve(jsi::Value::undefined());
-              }
-            });
-          };
-          GlobalDBSingleton::instance.scheduleOrRunCancellable(
-              job, promise, this->jsInvoker);
-        });
-  }
-
   void processStoreOperationsSync(jsi::Runtime &rt, jsi::Array &&operations) {
     std::vector<std::unique_ptr<Operation>> storeOps;
 
