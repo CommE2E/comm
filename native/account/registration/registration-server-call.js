@@ -283,14 +283,25 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                     password: accountSelection.password,
                   }
                 : null;
-            setCurrentStep({
-              step: 'identity_registration_dispatched',
-              avatarData,
-              clearCachedSelections,
-              credentialsToSave,
-              resolve,
-              reject,
-            });
+            if (usingCommServicesAccessToken) {
+              setCurrentStep({
+                step: 'identity_registration_dispatched',
+                avatarData,
+                clearCachedSelections,
+                credentialsToSave,
+                resolve,
+                reject,
+              });
+            } else {
+              setCurrentStep({
+                step: 'authoritative_keyserver_registration_dispatched',
+                avatarData,
+                clearCachedSelections,
+                credentialsToSave,
+                resolve,
+                reject,
+              });
+            }
           } catch (e) {
             reject(e);
           }
