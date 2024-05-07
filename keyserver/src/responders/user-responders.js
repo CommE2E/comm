@@ -82,6 +82,7 @@ import {
 } from 'lib/utils/crypto-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
+import { ignorePromiseRejections } from 'lib/utils/promises.js';
 import {
   getPublicKeyFromSIWEStatement,
   isValidSIWEMessage,
@@ -105,10 +106,11 @@ import {
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
 import {
+  createAndSendReservedUsernameMessage,
   processAccountCreationCommon,
   createAccount,
-  processSIWEAccountCreation,
 } from '../creators/account-creator.js';
+import createIDs from '../creators/id-creator.js';
 import {
   createOlmSession,
   persistFreshOlmSession,
@@ -602,6 +604,7 @@ async function siweAuthResponder(
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
     doNotRegister,
+    watchedIDs,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -692,29 +695,30 @@ async function siweAuthResponder(
     siweMessageSignature: signature,
   };
 
-  // 9. Create account with call to `processSIWEAccountCreation(...)`
-  //    if address does not correspond to an existing user.
-  let userID = existingUserID;
-  if (!userID) {
-    const siweAccountCreationRequest = {
-      address: siweMessage.address,
-      calendarQuery,
-      deviceTokenUpdateRequest,
-      platformDetails,
-      socialProof,
-    };
-    userID = await processSIWEAccountCreation(
-      viewer,
-      siweAccountCreationRequest,
-    );
-  }
+  // 9. Create account if address does not correspond to an existing user.
+  const userID = await (async () => {
+    if (existingUserID) {
+      return existingUserID;
+    }
+    await verifyCalendarQueryThreadIDs(calendarQuery);
+    const time = Date.now();
+    const [id] = await createIDs('users', 1);
+    const newUserRow = [id, siweMessage.address, siweMessage.address, time];
+    const newUserQuery = SQL`
+      INSERT INTO users(id, username, ethereum_address, creation_time)
+      VALUES ${[newUserRow]}
+    `;
+
+    await dbQuery(newUserQuery);
+    return id;
+  })();
 
   // 10. Complete login with call to `processSuccessfulLogin(...)`.
-  return await processSuccessfulLogin({
+  const result = await processSuccessfulLogin({
     viewer,
-    platformDetails: request.platformDetails,
-    deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
-    watchedIDs: request.watchedIDs,
+    platformDetails,
+    deviceTokenUpdateRequest,
+    watchedIDs,
     userID,
     calendarQuery,
     socialProof,
@@ -722,6 +726,21 @@ async function siweAuthResponder(
     initialNotificationsEncryptedMessage,
     shouldMarkPoliciesAsAcceptedAfterCookieCreation: !existingUserID,
   });
+
+  // 11. Create threads with call to `processAccountCreationCommon(...)`,
+  //     if the account has just been registered. Also, set the username as
+  //     reserved.
+  if (!existingUserID) {
+    await processAccountCreationCommon(viewer);
+
+    ignorePromiseRejections(
+      createAndSendReservedUsernameMessage([
+        { username: siweMessage.address, userID },
+      ]),
+    );
+  }
+
+  return result;
 }
 
 export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest> =
