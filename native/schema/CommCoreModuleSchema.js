@@ -26,7 +26,10 @@ import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
-import type { ClientDBStore } from 'lib/types/store-ops-types';
+import type {
+  ClientDBStore,
+  ClientDBStoreOperations,
+} from 'lib/types/store-ops-types';
 import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 
 type CommServicesAuthMetadata = {
@@ -85,6 +88,7 @@ interface Spec extends TurboModule {
   +processThreadActivityStoreOperations: (
     operations: $ReadOnlyArray<ClientDBThreadActivityStoreOperation>,
   ) => Promise<void>;
+  +processDBStoreOperations: (operations: Object) => Promise<void>;
   +initializeCryptoAccount: () => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getOneTimeKeys: (oneTimeKeysAmount: number) => Promise<OneTimeKeysResult>;
@@ -193,6 +197,9 @@ export interface CoreModuleSpec extends Spec {
     siweBackupSecrets: SIWEBackupSecrets,
   ) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?SIWEBackupSecrets>;
+  +processDBStoreOperations: (
+    operations: ClientDBStoreOperations,
+  ) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
