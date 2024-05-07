@@ -32,7 +32,10 @@ import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import createIDs from './id-creator.js';
 import createMessages from './message-creator.js';
-import { createAndPersistOlmSession } from './olm-session-creator.js';
+import {
+  persistFreshOlmSession,
+  createOlmSession,
+} from './olm-session-creator.js';
 import {
   createThread,
   createPrivateThread,
@@ -97,6 +100,18 @@ async function createAccount(
     throw new ServerError('username_taken');
   }
 
+  // OLM sessions have to be created before createNewUserCookie is called,
+  // to avoid propagating a user cookie in case session creation fails
+  const olmNotifSession = await (async () => {
+    if (initialNotificationsEncryptedMessage) {
+      return await createOlmSession(
+        initialNotificationsEncryptedMessage,
+        'notifications',
+      );
+    }
+    return null;
+  })();
+
   const hash = bcrypt.hashSync(request.password);
   const time = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
@@ -124,10 +139,10 @@ async function createAccount(
     await setNewSession(viewer, calendarQuery, 0);
   }
 
-  const olmSessionPromise = (async () => {
-    if (userViewerData.cookieID && initialNotificationsEncryptedMessage) {
-      await createAndPersistOlmSession(
-        initialNotificationsEncryptedMessage,
+  const persistOlmNotifSessionPromise = (async () => {
+    if (olmNotifSession && userViewerData.cookieID) {
+      await persistFreshOlmSession(
+        olmNotifSession,
         'notifications',
         userViewerData.cookieID,
       );
@@ -144,7 +159,7 @@ async function createAccount(
       { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
     ),
     viewerAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy),
-    olmSessionPromise,
+    persistOlmNotifSessionPromise,
   ]);
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
