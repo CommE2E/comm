@@ -306,18 +306,6 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   return jsiMessages;
 }
 
-jsi::Value CommCoreModule::processDraftStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->draftStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processMessageStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->messageStore.processStoreOperations(rt, std::move(operations));
-}
-
 void CommCoreModule::processMessageStoreOperationsSync(
     jsi::Runtime &rt,
     jsi::Array operations) {
@@ -339,72 +327,16 @@ jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
   return jsiThreads;
 }
 
-jsi::Value CommCoreModule::processThreadStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->threadStore.processStoreOperations(rt, std::move(operations));
-}
-
 void CommCoreModule::processThreadStoreOperationsSync(
     jsi::Runtime &rt,
     jsi::Array operations) {
   this->threadStore.processStoreOperationsSync(rt, std::move(operations));
 }
 
-jsi::Value CommCoreModule::processReportStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->reportStore.processStoreOperations(rt, std::move(operations));
-}
-
 void CommCoreModule::processReportStoreOperationsSync(
     jsi::Runtime &rt,
     jsi::Array operations) {
   this->reportStore.processStoreOperationsSync(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processUserStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->userStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processKeyserverStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->keyserverStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processCommunityStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->communityStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processIntegrityStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->integrityStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processSyncedMetadataStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->syncedMetadataStore.processStoreOperations(
-      rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processAuxUserStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->auxUserStore.processStoreOperations(rt, std::move(operations));
-}
-
-jsi::Value CommCoreModule::processThreadActivityStoreOperations(
-    jsi::Runtime &rt,
-    jsi::Array operations) {
-  return this->threadActivityStore.processStoreOperations(
-      rt, std::move(operations));
 }
 
 template <typename T>

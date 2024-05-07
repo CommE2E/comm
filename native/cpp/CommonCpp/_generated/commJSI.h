@@ -26,21 +26,10 @@ public:
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
   virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) = 0;
-  virtual jsi::Value processDraftStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processMessageStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
-  virtual jsi::Value processThreadStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processReportStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processReportStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processKeyserverStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processCommunityStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processIntegrityStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processSyncedMetadataStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processAuxUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value processThreadActivityStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) = 0;
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
@@ -153,22 +142,6 @@ private:
       return bridging::callFromJs<jsi::Array>(
           rt, &T::getAllMessagesSync, jsInvoker_, instance_);
     }
-    jsi::Value processDraftStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processDraftStoreOperations) == 2,
-          "Expected processDraftStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processDraftStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processMessageStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processMessageStoreOperations) == 2,
-          "Expected processMessageStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processMessageStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
     void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) override {
       static_assert(
           bridging::getParameterCount(&T::processMessageStoreOperationsSync) == 2,
@@ -185,22 +158,6 @@ private:
       return bridging::callFromJs<jsi::Array>(
           rt, &T::getAllThreadsSync, jsInvoker_, instance_);
     }
-    jsi::Value processThreadStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processThreadStoreOperations) == 2,
-          "Expected processThreadStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processThreadStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processReportStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processReportStoreOperations) == 2,
-          "Expected processReportStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processReportStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
     void processReportStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) override {
       static_assert(
           bridging::getParameterCount(&T::processReportStoreOperationsSync) == 2,
@@ -216,62 +173,6 @@ private:
 
       return bridging::callFromJs<void>(
           rt, &T::processThreadStoreOperationsSync, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processUserStoreOperations) == 2,
-          "Expected processUserStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processUserStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processKeyserverStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processKeyserverStoreOperations) == 2,
-          "Expected processKeyserverStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processKeyserverStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processCommunityStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processCommunityStoreOperations) == 2,
-          "Expected processCommunityStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processCommunityStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processIntegrityStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processIntegrityStoreOperations) == 2,
-          "Expected processIntegrityStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processIntegrityStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processSyncedMetadataStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processSyncedMetadataStoreOperations) == 2,
-          "Expected processSyncedMetadataStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processSyncedMetadataStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processAuxUserStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processAuxUserStoreOperations) == 2,
-          "Expected processAuxUserStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processAuxUserStoreOperations, jsInvoker_, instance_, std::move(operations));
-    }
-    jsi::Value processThreadActivityStoreOperations(jsi::Runtime &rt, jsi::Array operations) override {
-      static_assert(
-          bridging::getParameterCount(&T::processThreadActivityStoreOperations) == 2,
-          "Expected processThreadActivityStoreOperations(...) to have 2 parameters");
-
-      return bridging::callFromJs<jsi::Value>(
-          rt, &T::processThreadActivityStoreOperations, jsInvoker_, instance_, std::move(operations));
     }
     jsi::Value processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override {
       static_assert(
