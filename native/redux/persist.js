@@ -721,14 +721,14 @@ const migrations = {
     const draftOperations = generateIDSchemaMigrationOpsForDrafts(drafts);
 
     try {
-      await Promise.all([
-        commCoreModule.processMessageStoreOperations([
+      await commCoreModule.processDBStoreOperations({
+        messageStoreOperations: [
           ...messageStoreMessagesOperations,
           ...messageStoreThreadsOperations,
-        ]),
-        commCoreModule.processThreadStoreOperations(threadOperations),
-        commCoreModule.processDraftStoreOperations(draftOperations),
-      ]);
+        ],
+        threadStoreOperations: threadOperations,
+        draftStoreOperations: draftOperations,
+      });
     } catch (exception) {
       console.log(exception);
       return { ...state, cookie: null };
@@ -994,7 +994,9 @@ const migrations = {
       userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
 
     try {
-      await commCoreModule.processUserStoreOperations(dbOperations);
+      await commCoreModule.processDBStoreOperations({
+        userStoreOperations: dbOperations,
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return state;
@@ -1096,7 +1098,9 @@ const migrations = {
       ]);
 
     try {
-      await commCoreModule.processKeyserverStoreOperations(dbOperations);
+      await commCoreModule.processDBStoreOperations({
+        keyserverStoreOperations: dbOperations,
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return state;
@@ -1136,7 +1140,9 @@ const migrations = {
       ),
     };
     try {
-      await commCoreModule.processKeyserverStoreOperations(dbOperations);
+      await commCoreModule.processDBStoreOperations({
+        keyserverStoreOperations: dbOperations,
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return newState;
@@ -1164,7 +1170,9 @@ const migrations = {
       ]);
 
     try {
-      await commCoreModule.processIntegrityStoreOperations(dbOperations);
+      await commCoreModule.processDBStoreOperations({
+        integrityStoreOperations: dbOperations,
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return state;
@@ -1200,9 +1208,9 @@ const migrations = {
       ]);
 
     try {
-      await commCoreModule.processKeyserverStoreOperations(
+      await commCoreModule.processDBStoreOperations({
         keyserverStoreOperations,
-      );
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return state;
@@ -1277,7 +1285,9 @@ const migrations = {
       ]);
 
     try {
-      await commCoreModule.processThreadActivityStoreOperations(dbOperations);
+      await commCoreModule.processDBStoreOperations({
+        threadActivityStoreOperations: dbOperations,
+      });
     } catch (exception) {
       if (isTaskCancelledError(exception)) {
         return state;
