@@ -15,6 +15,7 @@
 
 #include "JSIRust.h"
 #include "lib.rs.h"
+#include <algorithm>
 #include <string>
 
 namespace comm {
@@ -404,6 +405,132 @@ jsi::Value CommCoreModule::processThreadActivityStoreOperations(
     jsi::Array operations) {
   return this->threadActivityStore.processStoreOperations(
       rt, std::move(operations));
+}
+
+template <typename T>
+void CommCoreModule::appendDBStoreOps(
+    jsi::Runtime &rt,
+    jsi::Object &operations,
+    const char *key,
+    T &store,
+    std::shared_ptr<std::vector<std::unique_ptr<DBOperationBase>>>
+        &destination) {
+  auto opsObject = operations.getProperty(rt, key);
+  if (opsObject.isObject()) {
+    auto ops = store.createOperations(rt, opsObject.asObject(rt).asArray(rt));
+    std::move(
+        std::make_move_iterator(ops.begin()),
+        std::make_move_iterator(ops.end()),
+        std::back_inserter(*destination));
+  }
+}
+
+jsi::Value CommCoreModule::processDBStoreOperations(
+    jsi::Runtime &rt,
+    jsi::Object operations) {
+  std::string createOperationsError;
+
+  auto storeOpsPtr =
+      std::make_shared<std::vector<std::unique_ptr<DBOperationBase>>>();
+  try {
+    this->appendDBStoreOps(
+        rt, operations, "draftStoreOperations", this->draftStore, storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "threadStoreOperations",
+        this->threadStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "messageStoreOperations",
+        this->messageStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "reportStoreOperations",
+        this->reportStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt, operations, "userStoreOperations", this->userStore, storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "keyserverStoreOperations",
+        this->keyserverStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "communityStoreOperations",
+        this->communityStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "integrityStoreOperations",
+        this->integrityStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "syncedMetadataStoreOperations",
+        this->syncedMetadataStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "auxUserStoreOperations",
+        this->auxUserStore,
+        storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "threadActivityStoreOperations",
+        this->threadActivityStore,
+        storeOpsPtr);
+  } catch (std::runtime_error &e) {
+    createOperationsError = e.what();
+  }
+
+  return facebook::react::createPromiseAsJSIValue(
+      rt,
+      [=](jsi::Runtime &innerRt,
+          std::shared_ptr<facebook::react::Promise> promise) {
+        taskType job = [=]() {
+          std::string error = createOperationsError;
+
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().beginTransaction();
+              for (const auto &operation : *storeOpsPtr) {
+                operation->execute();
+              }
+              DatabaseManager::getQueryExecutor().captureBackupLogs();
+              DatabaseManager::getQueryExecutor().commitTransaction();
+            } catch (std::system_error &e) {
+              error = e.what();
+              DatabaseManager::getQueryExecutor().rollbackTransaction();
+            }
+          }
+
+          if (!error.size()) {
+            ::triggerBackupFileUpload();
+          }
+
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
 }
 
 void CommCoreModule::terminate(jsi::Runtime &rt) {
