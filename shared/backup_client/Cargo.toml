@@ -34,4 +34,4 @@ web-sys = { version = "0.3.68", features = ["Window"] }
 [features]
 default = ["native-tls"]
 native-tls = ["reqwest/native-tls", "tokio-tungstenite/native-tls"]
-rustls-tls = ["reqwest/rustls-tls", "tokio-tungstenite/rustls-tls-native-roots"]
+rustls-tls-webpki-roots = ["reqwest/rustls-tls-webpki-roots", "tokio-tungstenite/rustls-tls-webpki-roots"]
