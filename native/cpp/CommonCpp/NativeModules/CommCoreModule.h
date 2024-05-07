@@ -98,6 +98,16 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value processThreadActivityStoreOperations(
       jsi::Runtime &rt,
       jsi::Array operations) override;
+  virtual jsi::Value
+  processDBStoreOperations(jsi::Runtime &rt, jsi::Object operations) override;
+  template <typename T>
+  void appendDBStoreOps(
+      jsi::Runtime &rt,
+      jsi::Object &operations,
+      const char *key,
+      T &store,
+      std::shared_ptr<std::vector<std::unique_ptr<DBOperationBase>>>
+          &destination);
   virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value
