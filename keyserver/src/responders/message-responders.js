@@ -23,8 +23,6 @@ import {
   type SendEditMessageResponse,
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
-  messageTruncationStatusesValidator,
-  rawMessageInfoValidator,
   type SearchMessagesResponse,
   type SearchMessagesRequest,
 } from 'lib/types/message-types.js';
@@ -32,7 +30,6 @@ import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
 import type { TextMessageData } from 'lib/types/messages/text.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { userInfosValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import {
@@ -71,9 +68,6 @@ export const sendTextMessageRequestInputValidator: TInterface<SendTextMessageReq
     text: t.String,
     sidebarCreation: t.maybe(t.Boolean),
   });
-
-export const sendMessageResponseValidator: TInterface<SendMessageResponse> =
-  tShape<SendMessageResponse>({ newMessageInfo: rawMessageInfoValidator });
 
 async function textMessageCreationResponder(
   viewer: Viewer,
@@ -125,13 +119,6 @@ export const fetchMessageInfosRequestInputValidator: TInterface<FetchMessageInfo
   tShape<FetchMessageInfosRequest>({
     cursors: t.dict(tID, t.maybe(tID)),
     numberPerThread: t.maybe(t.Number),
-  });
-
-export const fetchMessageInfosResponseValidator: TInterface<FetchMessageInfosResponse> =
-  tShape<FetchMessageInfosResponse>({
-    rawMessageInfos: t.list(rawMessageInfoValidator),
-    truncationStatuses: messageTruncationStatusesValidator,
-    userInfos: userInfosValidator,
   });
 
 async function messageFetchResponder(
@@ -316,11 +303,6 @@ export const editMessageRequestInputValidator: TInterface<SendEditMessageRequest
     text: t.String,
   });
 
-export const sendEditMessageResponseValidator: TInterface<SendEditMessageResponse> =
-  tShape<SendEditMessageResponse>({
-    newMessageInfos: t.list(rawMessageInfoValidator),
-  });
-
 async function editMessageCreationResponder(
   viewer: Viewer,
   request: SendEditMessageRequest,
@@ -404,11 +386,6 @@ export const fetchPinnedMessagesResponderInputValidator: TInterface<FetchPinnedM
     threadID: tID,
   });
 
-export const fetchPinnedMessagesResultValidator: TInterface<FetchPinnedMessagesResult> =
-  tShape<FetchPinnedMessagesResult>({
-    pinnedMessages: t.list(rawMessageInfoValidator),
-  });
-
 async function fetchPinnedMessagesResponder(
   viewer: Viewer,
   request: FetchPinnedMessagesRequest,
@@ -421,12 +398,6 @@ export const searchMessagesResponderInputValidator: TInterface<SearchMessagesReq
     query: t.String,
     threadID: tID,
     cursor: t.maybe(tID),
-  });
-
-export const searchMessagesResponseValidator: TInterface<SearchMessagesResponse> =
-  tShape<SearchMessagesResponse>({
-    messages: t.list(rawMessageInfoValidator),
-    endReached: t.Boolean,
   });
 
 async function searchMessagesResponder(
