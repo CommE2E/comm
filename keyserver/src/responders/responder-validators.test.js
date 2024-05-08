@@ -35,13 +35,13 @@ import {
   threadJoinResultValidator,
   toggleMessagePinResultValidator,
 } from 'lib/types/validators/thread-validators.js';
-
-import { roleChangeRequestInputValidator } from './thread-responders.js';
 import {
   logInResponseValidator,
   registerResponseValidator,
   logOutResponseValidator,
-} from './user-responders.js';
+} from 'lib/types/validators/user-validators.js';
+
+import { roleChangeRequestInputValidator } from './thread-responders.js';
 
 describe('user responder validators', () => {
   it('should validate logout response', () => {
