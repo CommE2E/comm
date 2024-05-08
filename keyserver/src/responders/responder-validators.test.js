@@ -24,9 +24,9 @@ import {
   sendMessageResponseValidator,
 } from 'lib/types/validators/message-validators.js';
 import { relationshipErrorsValidator } from 'lib/types/validators/relationship-validators.js';
+import { reportCreationResponseValidator } from 'lib/types/validators/report-validators.js';
+import { userSearchResultValidator } from 'lib/types/validators/search-validators.js';
 
-import { reportCreationResponseValidator } from './report-responders.js';
-import { userSearchResultValidator } from './search-responders.js';
 import { siweNonceResponseValidator } from './siwe-nonce-responders.js';
 import {
   changeThreadSettingsResultValidator,
