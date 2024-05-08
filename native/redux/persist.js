@@ -59,7 +59,9 @@ import {
 import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
+import { updateThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
 import { legacyUpdateRolesAndPermissions } from 'lib/shared/redux/legacy-update-roles-and-permissions.js';
+import { updateRolesAndPermissions } from 'lib/shared/redux/update-roles-and-permissions.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
@@ -1383,6 +1385,20 @@ const migrations = {
       ops: dbOperations,
     };
   },
+  [77]: (state: AppState) => {
+    const { newThreadStore, dbOperations } = updateThreadStoreThreadInfos(
+      state.threadStore,
+      updateRolesAndPermissions,
+    );
+
+    return {
+      state: {
+        ...state,
+        threadStore: newThreadStore,
+      },
+      ops: dbOperations,
+    };
+  },
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1393,7 +1409,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 76,
+  version: 77,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
