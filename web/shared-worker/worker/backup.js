@@ -9,7 +9,10 @@ import {
   BackupClient,
   RequestedData,
 } from '../../backup-client-wasm/wasm/backup-client-wasm.js';
-import { completeRootKey } from '../../redux/persist-constants.js';
+import {
+  completeRootKey,
+  storeVersion,
+} from '../../redux/persist-constants.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH } from '../utils/constants.js';
@@ -53,6 +56,7 @@ async function restoreBackup(
     sqliteQueryExecutor.restoreFromMainCompaction(
       COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
       backupDataKey,
+      `${storeVersion ?? -1}`,
     );
 
     sqliteQueryExecutor.setPersistStorageItem(
