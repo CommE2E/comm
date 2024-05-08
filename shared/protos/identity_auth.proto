@@ -80,7 +80,7 @@ service IdentityClientService {
 
   /* Miscellaneous actions */
 
-  rpc FindUserIdentity(UserIdentityRequest) returns (UserIdentityResponse) {}
+  rpc FindUserIdentities(UserIdentitiesRequest) returns (UserIdentitiesResponse) {}
 }
 
 // Helper types
@@ -95,6 +95,7 @@ message Identity {
   // this is wallet address for Ethereum users
   string username = 1;
   optional EthereumIdentity eth_identity = 2;
+  optional string farcaster_id = 3;
 }
 
 // UploadOneTimeKeys
@@ -258,13 +259,13 @@ message LinkFarcasterAccountRequest {
   string farcaster_id = 1;
 }
 
-// FindUserIdentity
+// FindUserIdentities
 
-message UserIdentityRequest {
-  // user ID for which we want to get the identity
-  string user_id = 1;
+message UserIdentitiesRequest {
+  // user IDs for which we want to get the identity
+  repeated string user_ids = 1;
 }
 
-message UserIdentityResponse {
-  Identity identity = 1;
+message UserIdentitiesResponse {
+  map<string, Identity> identities = 1;
 }
