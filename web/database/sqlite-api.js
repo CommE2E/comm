@@ -6,6 +6,7 @@ import type {
 } from 'lib/types/sqlite-types.js';
 
 import { getCommSharedWorker } from '../shared-worker/shared-worker-provider.js';
+import { processDBStoreOperations } from '../shared-worker/utils/store.js';
 import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 const sqliteAPI: SQLiteAPI = {
@@ -31,6 +32,8 @@ const sqliteAPI: SQLiteAPI = {
       ids,
     });
   },
+
+  processDBStoreOperations,
 };
 
 export { sqliteAPI };

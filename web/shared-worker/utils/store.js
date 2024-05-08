@@ -140,7 +140,7 @@ async function getClientDBStore(): Promise<ClientStore> {
 
 async function processDBStoreOperations(
   storeOperations: StoreOperations,
-  userID: null | string,
+  userID?: ?string,
 ): Promise<void> {
   const {
     draftStoreOperations,
