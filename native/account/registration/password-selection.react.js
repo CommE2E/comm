@@ -23,8 +23,8 @@ import type { KeyPressEvent } from '../../types/react-native.js';
 
 export type PasswordSelectionParams = {
   +userSelections: {
-    +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverURL: string,
+    +coolOrNerdMode?: CoolOrNerdMode,
+    +keyserverURL?: string,
     +farcasterID: ?string,
     +username: string,
   },

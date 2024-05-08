@@ -28,8 +28,8 @@ import {
 
 export type ConnectFarcasterParams = {
   +userSelections: {
-    +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverURL: string,
+    +coolOrNerdMode?: CoolOrNerdMode,
+    +keyserverURL?: string,
     +ethereumAccount?: EthereumAccountSelection,
   },
 };
