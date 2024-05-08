@@ -30,6 +30,7 @@ import {
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
+import { defaultURLPrefix } from '../../utils/url-utils.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
@@ -37,8 +38,8 @@ const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
   exactSearchUserActionTypes,
 );
 
-export type ConnectEthereumParams = {
-  +userSelections: {
+export type ConnectEthereumParams = ?{
+  +userSelections?: {
     +coolOrNerdMode: CoolOrNerdMode,
     +keyserverURL: string,
   },
@@ -52,13 +53,13 @@ type Props = {
 };
 function ConnectEthereum(props: Props): React.Node {
   const { params } = props.route;
-  const { userSelections } = params;
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
   const { cachedSelections } = registrationContext;
 
-  const isNerdMode = userSelections.coolOrNerdMode === 'nerd';
+  const userSelections = params?.userSelections;
+  const isNerdMode = userSelections?.coolOrNerdMode === 'nerd';
   const styles = useStyles(unboundStyles);
 
   let body;
@@ -127,11 +128,15 @@ function ConnectEthereum(props: Props): React.Node {
   const onSkip = React.useCallback(() => {
     navigate<'ConnectFarcaster'>({
       name: ConnectFarcasterRouteName,
-      params,
+      params: {
+        userSelections: {
+          ...userSelections,
+        },
+      },
     });
-  }, [navigate, params]);
+  }, [navigate, userSelections]);
 
-  const { keyserverURL } = userSelections;
+  const keyserverURL = userSelections?.keyserverURL ?? defaultURLPrefix;
   const serverCallParamOverride = React.useMemo(
     () => ({
       urlPrefix: keyserverURL,
