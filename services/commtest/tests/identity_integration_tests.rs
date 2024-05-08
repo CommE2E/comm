@@ -4,7 +4,7 @@ use commtest::identity::device::{
 use commtest::service_addr;
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
-  protos::auth::{Identity, UserIdentityRequest},
+  protos::auth::{Identity, UserIdentitiesRequest},
   protos::unauthenticated::{
     find_user_id_request::Identifier, FindUserIdRequest,
   },
@@ -54,11 +54,11 @@ async fn find_username_for_user() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let request = UserIdentityRequest {
-    user_id: device_info.user_id,
+  let request = UserIdentitiesRequest {
+    user_ids: vec![device_info.user_id.clone()],
   };
   let response = client
-    .find_user_identity(request)
+    .find_user_identities(request)
     .await
     .expect("request failed")
     .into_inner();
@@ -66,10 +66,10 @@ async fn find_username_for_user() {
   let expected_username = device_info.username;
   assert!(
     matches!(
-      response.identity,
+      response.identities.get(&device_info.user_id),
       Some(Identity {
         username, ..
-      }) if username == expected_username
+      }) if *username == expected_username
     ),
     "username doesn't match"
   );
