@@ -38,8 +38,8 @@ export type AvatarData =
     };
 
 export type RegistrationServerCallInput = {
-  +coolOrNerdMode: CoolOrNerdMode,
-  +keyserverURL: string,
+  +coolOrNerdMode?: CoolOrNerdMode,
+  +keyserverURL?: string,
   +farcasterID: ?string,
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,

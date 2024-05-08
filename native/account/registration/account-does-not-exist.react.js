@@ -11,7 +11,7 @@ import type { RegistrationNavigationProp } from './registration-navigator.react.
 import commSwooshSource from '../../img/comm-swoosh.png';
 import {
   type NavigationRoute,
-  CoolOrNerdModeSelectionRouteName,
+  ConnectEthereumRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -22,7 +22,7 @@ type Props = {
 function AccountDoesNotExist(props: Props): React.Node {
   const { navigate } = props.navigation;
   const onSubmit = React.useCallback(() => {
-    navigate(CoolOrNerdModeSelectionRouteName);
+    navigate(ConnectEthereumRouteName);
   }, [navigate]);
 
   const styles = useStyles(unboundStyles);
