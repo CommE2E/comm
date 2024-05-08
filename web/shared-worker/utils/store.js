@@ -159,35 +159,47 @@ async function processDBStoreOperations(
   const canUseDatabase = canUseDatabaseOnWeb(userID);
 
   const convertedThreadStoreOperations = canUseDatabase
-    ? threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations)
+    ? threadStoreOpsHandlers.convertOpsToClientDBOps(
+        threadStoreOperations ?? [],
+      )
     : [];
   const convertedReportStoreOperations =
-    reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+    reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations ?? []);
   const convertedKeyserverStoreOperations =
-    keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
+    keyserverStoreOpsHandlers.convertOpsToClientDBOps(
+      keyserverStoreOperations ?? [],
+    );
   const convertedCommunityStoreOperations =
-    communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
+    communityStoreOpsHandlers.convertOpsToClientDBOps(
+      communityStoreOperations ?? [],
+    );
   const convertedIntegrityStoreOperations =
-    integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
+    integrityStoreOpsHandlers.convertOpsToClientDBOps(
+      integrityStoreOperations ?? [],
+    );
   const convertedSyncedMetadataStoreOperations =
     syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
-      syncedMetadataStoreOperations,
+      syncedMetadataStoreOperations ?? [],
     );
   const convertedAuxUserStoreOperations =
-    auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
+    auxUserStoreOpsHandlers.convertOpsToClientDBOps(
+      auxUserStoreOperations ?? [],
+    );
   const convertedUserStoreOperations =
-    userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+    userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations ?? []);
   const convertedMessageStoreOperations =
-    messageStoreOpsHandlers.convertOpsToClientDBOps(messageStoreOperations);
+    messageStoreOpsHandlers.convertOpsToClientDBOps(
+      messageStoreOperations ?? [],
+    );
   const convertedThreadActivityStoreOperations =
     threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
-      threadActivityStoreOperations,
+      threadActivityStoreOperations ?? [],
     );
 
   if (
     convertedThreadStoreOperations.length === 0 &&
     convertedReportStoreOperations.length === 0 &&
-    draftStoreOperations.length === 0 &&
+    (!draftStoreOperations || draftStoreOperations.length === 0) &&
     convertedKeyserverStoreOperations.length === 0 &&
     convertedCommunityStoreOperations.length === 0 &&
     convertedIntegrityStoreOperations.length === 0 &&

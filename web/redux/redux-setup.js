@@ -157,19 +157,7 @@ export type Action = $ReadOnly<
 function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
-  let storeOperations: StoreOperations = {
-    draftStoreOperations: [],
-    threadStoreOperations: [],
-    messageStoreOperations: [],
-    reportStoreOperations: [],
-    userStoreOperations: [],
-    keyserverStoreOperations: [],
-    communityStoreOperations: [],
-    integrityStoreOperations: [],
-    syncedMetadataStoreOperations: [],
-    auxUserStoreOperations: [],
-    threadActivityStoreOperations: [],
-  };
+  let storeOperations: StoreOperations = {};
 
   if (
     (action.type === setNewSessionActionType &&
@@ -237,7 +225,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     return validateStateAndQueueOpsProcessing(action, oldState, newState, {
       ...storeOperations,
       keyserverStoreOperations: [
-        ...storeOperations.keyserverStoreOperations,
+        ...(storeOperations.keyserverStoreOperations ?? []),
         ...replaceOperations,
       ],
     });
@@ -307,7 +295,7 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     storeOperations = {
       ...storeOperations,
       keyserverStoreOperations: [
-        ...storeOperations.keyserverStoreOperations,
+        ...(storeOperations.keyserverStoreOperations ?? []),
         replaceOperation,
       ],
     };
@@ -375,8 +363,8 @@ function reducer(oldState: AppState | void, action: Action): AppState {
     storeOperations = {
       ...baseReducerResult.storeOperations,
       keyserverStoreOperations: [
-        ...storeOperations.keyserverStoreOperations,
-        ...baseReducerResult.storeOperations.keyserverStoreOperations,
+        ...(storeOperations.keyserverStoreOperations ?? []),
+        ...(baseReducerResult.storeOperations.keyserverStoreOperations ?? []),
       ],
     };
   }
@@ -516,7 +504,7 @@ function validateStateAndQueueOpsProcessing(
     storeOperations = {
       ...storeOperations,
       threadActivityStoreOperations: [
-        ...storeOperations.threadActivityStoreOperations,
+        ...(storeOperations.threadActivityStoreOperations ?? []),
         replaceOperation,
       ],
     };
@@ -533,7 +521,7 @@ function validateStateAndQueueOpsProcessing(
     storeOperations = {
       ...storeOperations,
       threadStoreOperations: [
-        ...storeOperations.threadStoreOperations,
+        ...(storeOperations.threadStoreOperations ?? []),
         ...updateActiveThreadOps,
       ],
     };

@@ -47,30 +47,40 @@ async function processDBStoreOperations(
   } = storeOperations;
 
   const convertedThreadStoreOperations =
-    threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations);
+    threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations ?? []);
   const convertedMessageStoreOperations =
-    messageStoreOpsHandlers.convertOpsToClientDBOps(messageStoreOperations);
+    messageStoreOpsHandlers.convertOpsToClientDBOps(
+      messageStoreOperations ?? [],
+    );
   const convertedReportStoreOperations =
-    reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
+    reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations ?? []);
   const convertedUserStoreOperations =
-    userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
+    userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations ?? []);
   const convertedKeyserverStoreOperations =
-    keyserverStoreOpsHandlers.convertOpsToClientDBOps(keyserverStoreOperations);
+    keyserverStoreOpsHandlers.convertOpsToClientDBOps(
+      keyserverStoreOperations ?? [],
+    );
   const convertedCommunityStoreOperations =
-    communityStoreOpsHandlers.convertOpsToClientDBOps(communityStoreOperations);
+    communityStoreOpsHandlers.convertOpsToClientDBOps(
+      communityStoreOperations ?? [],
+    );
   const convertedSyncedMetadataStoreOperations =
     syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
-      syncedMetadataStoreOperations,
+      syncedMetadataStoreOperations ?? [],
     );
   const keyserversToRemoveFromNotifsStore =
-    getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations);
+    getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations ?? []);
   const convertedIntegrityStoreOperations =
-    integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
+    integrityStoreOpsHandlers.convertOpsToClientDBOps(
+      integrityStoreOperations ?? [],
+    );
   const convertedAuxUserStoreOperations =
-    auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
+    auxUserStoreOpsHandlers.convertOpsToClientDBOps(
+      auxUserStoreOperations ?? [],
+    );
   const convertedThreadActivityStoreOperations =
     threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
-      threadActivityStoreOperations,
+      threadActivityStoreOperations ?? [],
     );
 
   try {
@@ -96,7 +106,7 @@ async function processDBStoreOperations(
       auxUserStoreOperations: convertedAuxUserStoreOperations,
       threadActivityStoreOperations: convertedThreadActivityStoreOperations,
     };
-    if (values(dbOps).some(ops => ops.length > 0)) {
+    if (values(dbOps).some(ops => ops && ops.length > 0)) {
       promises.push(commCoreModule.processDBStoreOperations(dbOps));
     }
     await Promise.all(promises);
