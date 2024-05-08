@@ -24,6 +24,7 @@ import { defaultCalendarQuery } from 'lib/types/entry-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
+import type { WebNavInfo } from 'lib/types/nav-types.js';
 import { cookieTypes } from 'lib/types/session-types.js';
 import { defaultConnectionInfo } from 'lib/types/socket-types.js';
 import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
@@ -57,7 +58,7 @@ import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var keyserverURL: string;
 
-const migrations = {
+const legacyMigrations = {
   [1]: async (state: any) => {
     const {
       primaryIdentityPublicKey,
@@ -472,7 +473,10 @@ const migrations = {
     unshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
 };
 
-const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
+const migrateStorageToSQLite: StorageMigrationFunction<
+  WebNavInfo,
+  AppState,
+> = async debug => {
   const sharedWorker = await getCommSharedWorker();
   const isSupported = await sharedWorker.isSupported();
   if (!isSupported) {
@@ -503,6 +507,15 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   return newStorage;
 };
 
+const migrations = {
+  // This migration doesn't change the store but sets a persisted version
+  // in the DB
+  [75]: (state: AppState) => ({
+    state,
+    ops: [],
+  }),
+};
+
 const persistConfig: PersistConfig = {
   keyPrefix: rootKeyPrefix,
   key: rootKey,
@@ -511,11 +524,13 @@ const persistConfig: PersistConfig = {
     ? persistWhitelist
     : [...persistWhitelist, 'draftStore'],
   migrate: (createAsyncMigrate(
-    migrations,
+    legacyMigrations,
     { debug: isDev },
+    migrations,
+    (error: Error, state: AppState) => handleReduxMigrationFailure(state),
     migrateStorageToSQLite,
   ): any),
-  version: 17,
+  version: 75,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
