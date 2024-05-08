@@ -131,6 +131,7 @@ import { persistMigrationForManagePinsThreadPermission } from './manage-pins-per
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
+import { updateRolesAndPermissions } from './update-roles-and-permissions.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { commCoreModule } from '../native-modules.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
@@ -1289,6 +1290,13 @@ const migrations = {
       [messageTypes.UPDATE_RELATIONSHIP],
       handleReduxMigrationFailure,
     ),
+  [75]: (state: AppState) => {
+    updateClientDBThreadStoreThreadInfos(
+      state,
+      updateRolesAndPermissions,
+      handleReduxMigrationFailure,
+    );
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1310,7 +1318,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 74,
+  version: 75,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
