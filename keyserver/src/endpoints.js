@@ -15,16 +15,14 @@ import {
   setThreadUnreadStatusValidator,
   updateActivityResponderInputValidator,
 } from 'lib/types/validators/activity-validators.js';
+import { deviceTokenUpdateRequestInputValidator } from 'lib/types/validators/device-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
   updateActivityResponder,
   threadSetUnreadStatusResponder,
 } from './responders/activity-responders.js';
-import {
-  deviceTokenUpdateResponder,
-  deviceTokenUpdateRequestInputValidator,
-} from './responders/device-responders.js';
+import { deviceTokenUpdateResponder } from './responders/device-responders.js';
 import {
   entryFetchResponder,
   entryRevisionFetchResponder,
