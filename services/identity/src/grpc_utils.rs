@@ -50,26 +50,36 @@ impl SignedNonce {
     self,
     signing_public_key: &str,
   ) -> Result<String, Status> {
-    let signature_bytes = general_purpose::STANDARD_NO_PAD
-      .decode(&self.signature)
-      .map_err(|_| Status::invalid_argument("signature invalid"))?;
-
-    let signature = Signature::from_bytes(&signature_bytes)
-      .map_err(|_| Status::invalid_argument("signature invalid"))?;
-
-    let public_key_bytes = general_purpose::STANDARD_NO_PAD
-      .decode(signing_public_key)
-      .map_err(|_| Status::failed_precondition("malformed key"))?;
-
-    let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
-      .map_err(|_| Status::failed_precondition("malformed key"))?;
-
-    public_key
-      .verify(self.nonce.as_bytes(), &signature)
-      .map_err(|_| Status::permission_denied("verification failed"))?;
-
+    ed25519_verify(signing_public_key, &self.nonce, &self.signature)?;
     Ok(self.nonce)
   }
+}
+
+/// Verifies ed25519-signed message. Returns Ok if the signature is valid.
+/// Public key and signature should be base64-encoded strings.
+pub fn ed25519_verify(
+  signing_public_key: &str,
+  message: &str,
+  signature: &str,
+) -> Result<(), Status> {
+  let signature_bytes = general_purpose::STANDARD_NO_PAD
+    .decode(signature)
+    .map_err(|_| Status::invalid_argument("signature invalid"))?;
+
+  let signature = Signature::from_bytes(&signature_bytes)
+    .map_err(|_| Status::invalid_argument("signature invalid"))?;
+
+  let public_key_bytes = general_purpose::STANDARD_NO_PAD
+    .decode(signing_public_key)
+    .map_err(|_| Status::failed_precondition("malformed key"))?;
+
+  let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
+    .map_err(|_| Status::failed_precondition("malformed key"))?;
+
+  public_key
+    .verify(message.as_bytes(), &signature)
+    .map_err(|_| Status::permission_denied("verification failed"))?;
+  Ok(())
 }
 
 pub struct DeviceKeysInfo {

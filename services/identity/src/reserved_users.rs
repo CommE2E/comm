@@ -1,7 +1,5 @@
-use base64::{engine::general_purpose, Engine as _};
 use chrono::{DateTime, Utc};
 use constant_time_eq::constant_time_eq;
-use ed25519_dalek::{PublicKey, Signature, Verifier};
 use serde::Deserialize;
 use tonic::Status;
 
@@ -53,28 +51,16 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
     return Err(Status::invalid_argument("message invalid"));
   }
 
-  let signature_bytes = general_purpose::STANDARD_NO_PAD
-    .decode(keyserver_signature)
-    .map_err(|_| Status::invalid_argument("signature invalid"))?;
-
-  let signature = Signature::from_bytes(&signature_bytes)
-    .map_err(|_| Status::invalid_argument("signature invalid"))?;
-
   let public_key_string = CONFIG
     .keyserver_public_key
-    .clone()
+    .as_deref()
     .ok_or_else(|| Status::failed_precondition("missing key"))?;
 
-  let public_key_bytes = general_purpose::STANDARD_NO_PAD
-    .decode(public_key_string)
-    .map_err(|_| Status::failed_precondition("malformed key"))?;
-
-  let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
-    .map_err(|_| Status::failed_precondition("malformed key"))?;
-
-  public_key
-    .verify(keyserver_message.as_bytes(), &signature)
-    .map_err(|_| Status::permission_denied("verification failed"))?;
+  crate::grpc_utils::ed25519_verify(
+    public_key_string,
+    keyserver_message,
+    keyserver_signature,
+  )?;
 
   Ok(deserialized_message)
 }
