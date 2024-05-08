@@ -10,7 +10,6 @@ import { type MessageType } from 'lib/types/message-types-enum.js';
 import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { translateClientDBMessageInfoToRawMessageInfo } from 'lib/utils/message-ops-utils.js';
 
-import { handleReduxMigrationFailure } from './handle-redux-migration-failure.js';
 import type { AppState } from './state-types.js';
 import { commCoreModule } from '../native-modules.js';
 
@@ -22,6 +21,7 @@ const {
 function unshimClientDB(
   state: AppState,
   unshimTypes: $ReadOnlyArray<MessageType>,
+  handleMigrationFailure?: AppState => AppState,
 ): AppState {
   // 1. Get messages from SQLite `messages` table.
   const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
@@ -66,7 +66,10 @@ function unshimClientDB(
     };
   } catch (exception) {
     console.log(exception);
-    return handleReduxMigrationFailure(state);
+    if (handleMigrationFailure) {
+      return handleMigrationFailure(state);
+    }
+    return ({ ...state, cookie: null }: any);
   }
 }
 

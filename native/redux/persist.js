@@ -1274,7 +1274,11 @@ const migrations = {
     };
   },
   [74]: (state: AppState) =>
-    unshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
+    unshimClientDB(
+      state,
+      [messageTypes.UPDATE_RELATIONSHIP],
+      handleReduxMigrationFailure,
+    ),
 };
 
 type PersistedReportStore = $Diff<
