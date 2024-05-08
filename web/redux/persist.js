@@ -57,7 +57,7 @@ import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 declare var keyserverURL: string;
 
-const migrations = {
+const legacyMigrations = {
   [1]: async (state: any) => {
     const {
       primaryIdentityPublicKey,
@@ -503,6 +503,13 @@ const migrateStorageToSQLite: StorageMigrationFunction = async debug => {
   return newStorage;
 };
 
+const migrations = {
+  [75]: (state: AppState) => ({
+    state,
+    ops: [],
+  }),
+};
+
 const persistConfig: PersistConfig = {
   keyPrefix: rootKeyPrefix,
   key: rootKey,
@@ -511,11 +518,12 @@ const persistConfig: PersistConfig = {
     ? persistWhitelist
     : [...persistWhitelist, 'draftStore'],
   migrate: (createAsyncMigrate(
-    migrations,
+    legacyMigrations,
     { debug: isDev },
+    migrations,
     migrateStorageToSQLite,
   ): any),
-  version: 17,
+  version: 75,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
