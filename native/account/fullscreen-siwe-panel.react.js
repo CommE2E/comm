@@ -24,7 +24,6 @@ import {
 } from '../navigation/route-names.js';
 import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
-import { defaultURLPrefix } from '../utils/url-utils.js';
 
 type Props = {
   +goBackToPrompt: () => mixed,
@@ -86,8 +85,6 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             await onAccountDoesNotExist(result);
           } else {
             await registrationServerCall({
-              coolOrNerdMode: 'cool',
-              keyserverURL: defaultURLPrefix,
               farcasterID: null,
               accountSelection: {
                 accountType: 'ethereum',

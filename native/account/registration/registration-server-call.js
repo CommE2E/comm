@@ -46,6 +46,7 @@ import {
   UnknownErrorAlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
+import { defaultURLPrefix } from '../../utils/url-utils.js';
 import { setNativeCredentials } from '../native-credentials.js';
 import {
   useLegacySIWEServerCall,
@@ -214,11 +215,12 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             const {
               accountSelection,
               avatarData,
-              keyserverURL,
+              keyserverURL: passedKeyserverURL,
               farcasterID,
               siweBackupSecrets,
               clearCachedSelections,
             } = input;
+            const keyserverURL = passedKeyserverURL ?? defaultURLPrefix;
             if (
               accountSelection.accountType === 'username' &&
               !usingCommServicesAccessToken
@@ -260,10 +262,12 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 throw e;
               }
             }
-            dispatch({
-              type: setURLPrefix,
-              payload: keyserverURL,
-            });
+            if (passedKeyserverURL) {
+              dispatch({
+                type: setURLPrefix,
+                payload: passedKeyserverURL,
+              });
+            }
             if (farcasterID) {
               dispatch({
                 type: setSyncedMetadataEntryActionType,

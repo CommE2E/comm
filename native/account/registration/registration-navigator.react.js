@@ -70,7 +70,10 @@ type Props = {
 // eslint-disable-next-line no-unused-vars
 function RegistrationNavigator(props: Props): React.Node {
   return (
-    <Registration.Navigator screenOptions={screenOptions}>
+    <Registration.Navigator
+      screenOptions={screenOptions}
+      initialRouteName={ConnectEthereumRouteName}
+    >
       <Registration.Screen
         name={CoolOrNerdModeSelectionRouteName}
         component={CoolOrNerdModeSelection}
