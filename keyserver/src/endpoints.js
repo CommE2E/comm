@@ -19,6 +19,11 @@ import {
   deltaEntryInfosResultValidator,
   restoreEntryResponseValidator,
 } from 'lib/types/validators/entry-validators.js';
+import { createOrUpdateFarcasterChannelTagResponseValidator } from 'lib/types/validators/farcaster-channel-tag-validators.js';
+import {
+  fetchInviteLinksResponseValidator,
+  inviteLinkVerificationResponseValidator,
+} from 'lib/types/validators/link-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -52,7 +57,6 @@ import {
   deleteFarcasterChannelTagResponder,
   createOrUpdateFarcasterChannelTagInputValidator,
   deleteFarcasterChannelTagInputValidator,
-  createOrUpdateFarcasterChannelTagResponseValidator,
 } from './responders/farcaster-channel-tag-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
 import { createJSONResponder } from './responders/handlers.js';
@@ -64,9 +68,7 @@ import {
   inviteLinkVerificationResponder,
   createOrUpdatePublicLinkInputValidator,
   disableInviteLinkInputValidator,
-  fetchInviteLinksResponseValidator,
   inviteLinkVerificationRequestInputValidator,
-  inviteLinkVerificationResponseValidator,
 } from './responders/link-responders.js';
 import {
   messageReportCreationResponder,

@@ -12,11 +12,11 @@ import {
   deltaEntryInfosResultValidator,
   restoreEntryResponseValidator,
 } from 'lib/types/validators/entry-validators.js';
-
 import {
   inviteLinkVerificationResponseValidator,
   fetchInviteLinksResponseValidator,
-} from './link-responders.js';
+} from 'lib/types/validators/link-validators.js';
+
 import { messageReportCreationResultValidator } from './message-report-responder.js';
 import {
   fetchMessageInfosResponseValidator,
