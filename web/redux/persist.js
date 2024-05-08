@@ -46,7 +46,7 @@ import {
   handleReduxMigrationFailure,
   persistWhitelist,
 } from './handle-redux-migration-failure.js';
-import { rootKey, rootKeyPrefix } from './persist-constants.js';
+import { rootKey, rootKeyPrefix, storeVersion } from './persist-constants.js';
 import type { AppState } from './redux-setup.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
@@ -523,7 +523,7 @@ const persistConfig: PersistConfig = {
     migrations,
     migrateStorageToSQLite,
   ): any),
-  version: 75,
+  version: storeVersion,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
 };
 
