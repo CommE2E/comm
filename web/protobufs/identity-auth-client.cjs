@@ -1057,61 +1057,61 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.unlinkFarcaster
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.auth.UserIdentityRequest,
- *   !proto.identity.auth.UserIdentityResponse>}
+ *   !proto.identity.auth.UserIdentitiesRequest,
+ *   !proto.identity.auth.UserIdentitiesResponse>}
  */
-const methodDescriptor_IdentityClientService_FindUserIdentity = new grpc.web.MethodDescriptor(
-  '/identity.auth.IdentityClientService/FindUserIdentity',
+const methodDescriptor_IdentityClientService_FindUserIdentities = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/FindUserIdentities',
   grpc.web.MethodType.UNARY,
-  proto.identity.auth.UserIdentityRequest,
-  proto.identity.auth.UserIdentityResponse,
+  proto.identity.auth.UserIdentitiesRequest,
+  proto.identity.auth.UserIdentitiesResponse,
   /**
-   * @param {!proto.identity.auth.UserIdentityRequest} request
+   * @param {!proto.identity.auth.UserIdentitiesRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.identity.auth.UserIdentityResponse.deserializeBinary
+  proto.identity.auth.UserIdentitiesResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.identity.auth.UserIdentityRequest} request The
+ * @param {!proto.identity.auth.UserIdentitiesRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.auth.UserIdentityResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.identity.auth.UserIdentitiesResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.UserIdentityResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.auth.UserIdentitiesResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.identity.auth.IdentityClientServiceClient.prototype.findUserIdentity =
+proto.identity.auth.IdentityClientServiceClient.prototype.findUserIdentities =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/FindUserIdentity',
+      '/identity.auth.IdentityClientService/FindUserIdentities',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_FindUserIdentity,
+      methodDescriptor_IdentityClientService_FindUserIdentities,
       callback);
 };
 
 
 /**
- * @param {!proto.identity.auth.UserIdentityRequest} request The
+ * @param {!proto.identity.auth.UserIdentitiesRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.identity.auth.UserIdentityResponse>}
+ * @return {!Promise<!proto.identity.auth.UserIdentitiesResponse>}
  *     Promise that resolves to the response
  */
-proto.identity.auth.IdentityClientServicePromiseClient.prototype.findUserIdentity =
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.findUserIdentities =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/identity.auth.IdentityClientService/FindUserIdentity',
+      '/identity.auth.IdentityClientService/FindUserIdentities',
       request,
       metadata || {},
-      methodDescriptor_IdentityClientService_FindUserIdentity);
+      methodDescriptor_IdentityClientService_FindUserIdentities);
 };
 
 
