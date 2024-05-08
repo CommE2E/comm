@@ -23,8 +23,8 @@ import {
   sendEditMessageResponseValidator,
   sendMessageResponseValidator,
 } from 'lib/types/validators/message-validators.js';
+import { relationshipErrorsValidator } from 'lib/types/validators/relationship-validators.js';
 
-import { relationshipErrorsValidator } from './relationship-responders.js';
 import { reportCreationResponseValidator } from './report-responders.js';
 import { userSearchResultValidator } from './search-responders.js';
 import { siweNonceResponseValidator } from './siwe-nonce-responders.js';

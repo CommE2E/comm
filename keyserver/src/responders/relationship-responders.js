@@ -29,13 +29,6 @@ export const updateRelationshipInputValidator: TUnion<RelationshipRequest> =
     farcasterRelationshipRequestValidator,
   ]);
 
-export const relationshipErrorsValidator: TInterface<RelationshipErrors> =
-  tShape<RelationshipErrors>({
-    invalid_user: t.maybe(t.list(t.String)),
-    already_friends: t.maybe(t.list(t.String)),
-    user_blocked: t.maybe(t.list(t.String)),
-  });
-
 async function updateRelationshipsResponder(
   viewer: Viewer,
   request: RelationshipRequest,
