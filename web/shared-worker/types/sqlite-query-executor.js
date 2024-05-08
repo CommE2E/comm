@@ -159,6 +159,7 @@ declare export class SQLiteQueryExecutor {
   restoreFromMainCompaction(
     mainCompactionPath: string,
     mainCompactionEncryptionKey: string,
+    maxVersion: string,
   ): void;
 
   restoreFromBackupLog(backupLog: Uint8Array): void;
