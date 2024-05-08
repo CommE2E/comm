@@ -29,6 +29,7 @@ import {
   type ServerCheckStateServerRequest,
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
+import { activityUpdatesInputValidator } from 'lib/types/validators/activity-validators.js';
 import { signedIdentityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
 import { hash, values } from 'lib/utils/objects.js';
 import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
@@ -41,7 +42,6 @@ import {
 import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
 import createReport from '../creators/report-creator.js';
 import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
-import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,

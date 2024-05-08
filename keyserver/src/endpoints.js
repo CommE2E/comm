@@ -11,13 +11,15 @@ import type { Endpoint } from 'lib/types/endpoints.js';
 import { inviteLinkValidator } from 'lib/types/link-types.js';
 import { uploadMultimediaResultValidator } from 'lib/types/media-types.js';
 import { getOlmSessionInitializationDataResponseValidator } from 'lib/types/request-types.js';
+import {
+  setThreadUnreadStatusValidator,
+  updateActivityResponderInputValidator,
+} from 'lib/types/validators/activity-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
   updateActivityResponder,
   threadSetUnreadStatusResponder,
-  setThreadUnreadStatusValidator,
-  updateActivityResponderInputValidator,
 } from './responders/activity-responders.js';
 import {
   deviceTokenUpdateResponder,
