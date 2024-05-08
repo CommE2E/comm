@@ -4,7 +4,6 @@ import {
   setThreadUnreadStatusResultValidator,
   updateActivityResultValidator,
 } from 'lib/types/activity-types.js';
-
 import {
   fetchEntryInfosResponseValidator,
   fetchEntryRevisionInfosResultValidator,
@@ -12,7 +11,8 @@ import {
   deleteEntryResponseValidator,
   deltaEntryInfosResultValidator,
   restoreEntryResponseValidator,
-} from './entry-responders.js';
+} from 'lib/types/validators/entry-validators.js';
+
 import {
   inviteLinkVerificationResponseValidator,
   fetchInviteLinksResponseValidator,
