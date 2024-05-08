@@ -3,13 +3,17 @@
 import backupService from 'lib/facts/backup-service.js';
 import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
   BackupClient,
   RequestedData,
 } from '../../backup-client-wasm/wasm/backup-client-wasm.js';
-import { completeRootKey } from '../../redux/persist-constants.js';
+import {
+  completeRootKey,
+  storeVersion,
+} from '../../redux/persist-constants.js';
 import type { EmscriptenModule } from '../types/module.js';
 import type { SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH } from '../utils/constants.js';
@@ -54,6 +58,13 @@ async function restoreBackup(
       COMM_SQLITE_BACKUP_RESTORE_DATABASE_PATH,
       backupDataKey,
     );
+
+    const backupVersion = sqliteQueryExecutor
+      .getAllSyncedMetadata()
+      .find(entry => entry.name === syncedMetadataNames.DB_VERSION)?.data;
+    if (!backupVersion || parseInt(backupVersion) > (storeVersion ?? 0)) {
+      throw new Error(`Incompatible backup version ${backupVersion ?? -1}`);
+    }
 
     sqliteQueryExecutor.setPersistStorageItem(
       completeRootKey,
