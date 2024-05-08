@@ -137,7 +137,7 @@ import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
 
-const migrations = {
+const legacyMigrations = {
   [1]: (state: AppState) => ({
     ...state,
     notifPermissionAlertInfo: defaultAlertInfo,
@@ -1305,18 +1305,37 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
+const migrations = {
+  // This migration doesn't change the store but sets a persisted version
+  // in the DB
+  [75]: (state: AppState) => ({
+    state,
+    ops: [],
+  }),
+};
+
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 74,
+  version: 75,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
     keyserverStoreTransform,
   ],
-  migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
+  migrate: (createAsyncMigrate(
+    legacyMigrations,
+    { debug: __DEV__ },
+    migrations,
+    (error: Error, state: AppState) => {
+      if (isTaskCancelledError(error)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    },
+  ): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
