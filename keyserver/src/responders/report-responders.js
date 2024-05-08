@@ -18,9 +18,7 @@ import {
   type MediaMissionReportCreationRequest,
   type UserInconsistencyReportCreationRequest,
   reportTypes,
-  reportInfoValidator,
 } from 'lib/types/report-types.js';
-import { userInfoValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { tShape, tPlatformDetails } from 'lib/utils/validation-utils.js';
 
@@ -141,9 +139,6 @@ export const reportCreationRequestInputValidator: TUnion<ReportCreationRequest> 
     userInconsistencyReportCreationRequest,
   ]);
 
-export const reportCreationResponseValidator: TInterface<ReportCreationResponse> =
-  tShape<ReportCreationResponse>({ id: t.String });
-
 async function reportCreationResponder(
   viewer: Viewer,
   request: ReportCreationRequest,
@@ -187,12 +182,6 @@ async function reportMultiCreationResponder(
 export const fetchErrorReportInfosRequestInputValidator: TInterface<FetchErrorReportInfosRequest> =
   tShape<FetchErrorReportInfosRequest>({
     cursor: t.maybe(t.String),
-  });
-
-export const fetchErrorReportInfosResponseValidator: TInterface<FetchErrorReportInfosResponse> =
-  tShape<FetchErrorReportInfosResponse>({
-    reports: t.list(reportInfoValidator),
-    userInfos: t.list(userInfoValidator),
   });
 
 async function errorReportFetchInfosResponder(

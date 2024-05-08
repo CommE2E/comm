@@ -34,6 +34,14 @@ import {
 } from 'lib/types/validators/message-validators.js';
 import { initialReduxStateValidator } from 'lib/types/validators/redux-state-validators.js';
 import { relationshipErrorsValidator } from 'lib/types/validators/relationship-validators.js';
+import {
+  fetchErrorReportInfosResponseValidator,
+  reportCreationResponseValidator,
+} from 'lib/types/validators/report-validators.js';
+import {
+  exactUserSearchResultValidator,
+  userSearchResultValidator,
+} from 'lib/types/validators/search-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -113,18 +121,14 @@ import {
   reportMultiCreationResponder,
   errorReportFetchInfosResponder,
   reportCreationRequestInputValidator,
-  reportCreationResponseValidator,
   fetchErrorReportInfosRequestInputValidator,
-  fetchErrorReportInfosResponseValidator,
   reportMultiCreationRequestInputValidator,
 } from './responders/report-responders.js';
 import {
   userSearchResponder,
   exactUserSearchResponder,
   exactUserSearchRequestInputValidator,
-  exactUserSearchResultValidator,
   userSearchRequestInputValidator,
-  userSearchResultValidator,
 } from './responders/search-responders.js';
 import {
   siweNonceResponder,
