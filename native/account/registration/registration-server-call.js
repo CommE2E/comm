@@ -38,6 +38,7 @@ import {
   useUploadSelectedMedia,
 } from '../../avatars/avatar-hooks.js';
 import { commCoreModule } from '../../native-modules.js';
+import { persistConfig } from '../../redux/persist.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLegacyLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
@@ -454,6 +455,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         }
         await nativeSetUserAvatar(updateUserAvatarRequest);
       } finally {
+        dispatch({
+          type: setSyncedMetadataEntryActionType,
+          payload: {
+            name: syncedMetadataNames.DB_VERSION,
+            data: `${persistConfig.version}`,
+          },
+        });
         dispatch({
           type: setDataLoadedActionType,
           payload: {
