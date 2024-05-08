@@ -24,6 +24,14 @@ import {
   fetchInviteLinksResponseValidator,
   inviteLinkVerificationResponseValidator,
 } from 'lib/types/validators/link-validators.js';
+import { messageReportCreationResultValidator } from 'lib/types/validators/message-report-validators.js';
+import {
+  fetchMessageInfosResponseValidator,
+  fetchPinnedMessagesResultValidator,
+  searchMessagesResponseValidator,
+  sendEditMessageResponseValidator,
+  sendMessageResponseValidator,
+} from 'lib/types/validators/message-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -73,7 +81,6 @@ import {
 import {
   messageReportCreationResponder,
   messageReportCreationRequestInputValidator,
-  messageReportCreationResultValidator,
 } from './responders/message-report-responder.js';
 import {
   textMessageCreationResponder,
@@ -83,18 +90,13 @@ import {
   editMessageCreationResponder,
   fetchPinnedMessagesResponder,
   searchMessagesResponder,
-  sendMessageResponseValidator,
   sendMultimediaMessageRequestInputValidator,
   sendReactionMessageRequestInputValidator,
   editMessageRequestInputValidator,
-  sendEditMessageResponseValidator,
   sendTextMessageRequestInputValidator,
   fetchMessageInfosRequestInputValidator,
-  fetchMessageInfosResponseValidator,
   fetchPinnedMessagesResponderInputValidator,
-  fetchPinnedMessagesResultValidator,
   searchMessagesResponderInputValidator,
-  searchMessagesResponseValidator,
 } from './responders/message-responders.js';
 import {
   getInitialReduxStateResponder,

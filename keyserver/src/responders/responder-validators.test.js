@@ -16,14 +16,14 @@ import {
   inviteLinkVerificationResponseValidator,
   fetchInviteLinksResponseValidator,
 } from 'lib/types/validators/link-validators.js';
-
-import { messageReportCreationResultValidator } from './message-report-responder.js';
+import { messageReportCreationResultValidator } from 'lib/types/validators/message-report-validators.js';
 import {
   fetchMessageInfosResponseValidator,
   fetchPinnedMessagesResultValidator,
   sendEditMessageResponseValidator,
   sendMessageResponseValidator,
-} from './message-responders.js';
+} from 'lib/types/validators/message-validators.js';
+
 import { relationshipErrorsValidator } from './relationship-responders.js';
 import { reportCreationResponseValidator } from './report-responders.js';
 import { userSearchResultValidator } from './search-responders.js';
