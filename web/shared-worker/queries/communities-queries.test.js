@@ -14,21 +14,11 @@ import { clearSensitiveData } from '../utils/db-utils.js';
 const FILE_PATH = 'test.sqlite';
 
 const TEST_COMMUNITY_1: CommunityInfo = {
-  enabledApps: {
-    calendar: false,
-    wiki: false,
-    tasks: true,
-    files: true,
-  },
+  farcasterChannelID: null,
 };
 
 const TEST_COMMUNITY_2: CommunityInfo = {
-  enabledApps: {
-    calendar: true,
-    wiki: false,
-    tasks: false,
-    files: false,
-  },
+  farcasterChannelID: 'test',
 };
 
 describe('Community Store queries', () => {
@@ -82,14 +72,9 @@ describe('Community Store queries', () => {
     expect(communities).toHaveLength(0);
   });
 
-  it('should update community enabled apps', () => {
+  it('should update community farcaster ID', () => {
     const community2Updated: CommunityInfo = {
-      enabledApps: {
-        calendar: true,
-        wiki: true,
-        tasks: true,
-        files: true,
-      },
+      farcasterChannelID: 'test2',
     };
 
     queryExecutor?.replaceCommunity(
@@ -110,10 +95,7 @@ describe('Community Store queries', () => {
       communityStoreOpsHandlers.translateClientDBData(communities);
 
     expect(communitiesFromDB['2']).toBeDefined();
-    expect(communitiesFromDB['2'].enabledApps.calendar).toBe(true);
-    expect(communitiesFromDB['2'].enabledApps.wiki).toBe(true);
-    expect(communitiesFromDB['2'].enabledApps.tasks).toBe(true);
-    expect(communitiesFromDB['2'].enabledApps.files).toBe(true);
+    expect(communitiesFromDB['2'].farcasterChannelID).toBe('test2');
   });
 
   it('should remove community', () => {
