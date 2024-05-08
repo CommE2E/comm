@@ -833,6 +833,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
           ADD INDEX IF NOT EXISTS community_thread (community, thread);
       `),
   ],
+  [66, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
