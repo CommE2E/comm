@@ -42,6 +42,17 @@ import {
   exactUserSearchResultValidator,
   userSearchResultValidator,
 } from 'lib/types/validators/search-validators.js';
+import { siweNonceResponseValidator } from 'lib/types/validators/siwe-nonce-validators.js';
+import {
+  changeThreadSettingsResultValidator,
+  leaveThreadResultValidator,
+  newThreadResponseValidator,
+  threadFetchMediaResultValidator,
+  threadJoinResultValidator,
+  toggleMessagePinResultValidator,
+  roleModificationResultValidator,
+  roleDeletionResultValidator,
+} from 'lib/types/validators/thread-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -130,10 +141,7 @@ import {
   exactUserSearchRequestInputValidator,
   userSearchRequestInputValidator,
 } from './responders/search-responders.js';
-import {
-  siweNonceResponder,
-  siweNonceResponseValidator,
-} from './responders/siwe-nonce-responders.js';
+import { siweNonceResponder } from './responders/siwe-nonce-responders.js';
 import {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -146,25 +154,17 @@ import {
   toggleMessagePinResponder,
   roleModificationResponder,
   roleDeletionResponder,
-  leaveThreadResultValidator,
   newThreadRequestInputValidator,
-  newThreadResponseValidator,
   threadDeletionRequestInputValidator,
   joinThreadRequestInputValidator,
   leaveThreadRequestInputValidator,
   threadFetchMediaRequestInputValidator,
-  threadFetchMediaResultValidator,
-  threadJoinResultValidator,
-  changeThreadSettingsResultValidator,
   removeMembersRequestInputValidator,
   roleChangeRequestInputValidator,
   toggleMessagePinRequestInputValidator,
-  toggleMessagePinResultValidator,
   updateThreadRequestInputValidator,
   roleDeletionRequestInputValidator,
-  roleDeletionResultValidator,
   roleModificationRequestInputValidator,
-  roleModificationResultValidator,
 } from './responders/thread-responders.js';
 import {
   keyserverAuthRequestInputValidator,

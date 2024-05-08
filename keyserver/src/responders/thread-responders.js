@@ -3,12 +3,6 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
-import { mediaValidator } from 'lib/types/media-types.js';
-import {
-  rawMessageInfoValidator,
-  messageTruncationStatusesValidator,
-} from 'lib/types/message-types.js';
 import { userSurfacedPermissionValidator } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -32,8 +26,6 @@ import {
   type RoleDeletionRequest,
   type RoleDeletionResult,
 } from 'lib/types/thread-types.js';
-import { serverUpdateInfoValidator } from 'lib/types/update-types.js';
-import { userInfosValidator } from 'lib/types/user-types.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 import { values } from 'lib/utils/objects.js';
 import {
@@ -69,13 +61,6 @@ export const threadDeletionRequestInputValidator: TInterface<ThreadDeletionReque
     accountPassword: t.maybe(tPassword),
   });
 
-export const leaveThreadResultValidator: TInterface<LeaveThreadResult> =
-  tShape<LeaveThreadResult>({
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
-    }),
-  });
-
 async function threadDeletionResponder(
   viewer: Viewer,
   request: ThreadDeletionRequest,
@@ -93,14 +78,6 @@ export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
       }
       const int = parseInt(str, 10);
       return String(int) === str && int > 0;
-    }),
-  });
-
-export const changeThreadSettingsResultValidator: TInterface<ChangeThreadSettingsResult> =
-  tShape<ChangeThreadSettingsResult>({
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
     }),
   });
 
@@ -187,16 +164,6 @@ const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
   }),
 ]);
 
-export const newThreadResponseValidator: TInterface<NewThreadResponse> =
-  tShape<NewThreadResponse>({
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
-    }),
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    userInfos: userInfosValidator,
-    newThreadID: tID,
-  });
-
 async function threadCreationResponder(
   viewer: Viewer,
   request: ServerNewThreadRequest,
@@ -211,16 +178,6 @@ export const joinThreadRequestInputValidator: TInterface<ServerThreadJoinRequest
     threadID: tID,
     calendarQuery: t.maybe(entryQueryInputValidator),
     inviteLinkSecret: t.maybe(t.String),
-  });
-
-export const threadJoinResultValidator: TInterface<ThreadJoinResult> =
-  tShape<ThreadJoinResult>({
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
-    }),
-    rawMessageInfos: t.list(rawMessageInfoValidator),
-    truncationStatuses: messageTruncationStatusesValidator,
-    userInfos: userInfosValidator,
   });
 
 async function threadJoinResponder(
@@ -241,9 +198,6 @@ export const threadFetchMediaRequestInputValidator: TInterface<ThreadFetchMediaR
     offset: t.Number,
   });
 
-export const threadFetchMediaResultValidator: TInterface<ThreadFetchMediaResult> =
-  tShape<ThreadFetchMediaResult>({ media: t.list(mediaValidator) });
-
 async function threadFetchMediaResponder(
   viewer: Viewer,
   request: ThreadFetchMediaRequest,
@@ -255,12 +209,6 @@ export const toggleMessagePinRequestInputValidator: TInterface<ToggleMessagePinR
   tShape<ToggleMessagePinRequest>({
     messageID: tID,
     action: t.enums.of(['pin', 'unpin']),
-  });
-
-export const toggleMessagePinResultValidator: TInterface<ToggleMessagePinResult> =
-  tShape<ToggleMessagePinResult>({
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    threadID: tID,
   });
 
 async function toggleMessagePinResponder(
@@ -287,14 +235,6 @@ export const roleModificationRequestInputValidator: TUnion<RoleModificationReque
     }),
   ]);
 
-export const roleModificationResultValidator: TInterface<RoleModificationResult> =
-  tShape<RoleModificationResult>({
-    threadInfo: t.maybe(mixedRawThreadInfoValidator),
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
-    }),
-  });
-
 async function roleModificationResponder(
   viewer: Viewer,
   request: RoleModificationRequest,
@@ -306,14 +246,6 @@ export const roleDeletionRequestInputValidator: TInterface<RoleDeletionRequest> 
   tShape<RoleDeletionRequest>({
     community: tID,
     roleID: tID,
-  });
-
-export const roleDeletionResultValidator: TInterface<RoleDeletionResult> =
-  tShape<RoleDeletionResult>({
-    threadInfo: t.maybe(mixedRawThreadInfoValidator),
-    updatesResult: tShape({
-      newUpdates: t.list(serverUpdateInfoValidator),
-    }),
   });
 
 async function roleDeletionResponder(
