@@ -4,7 +4,6 @@ import {
   useConnectModal,
   RainbowKitProvider,
   darkTheme,
-  useModalState,
 } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -86,7 +85,7 @@ function SIWE(): React.Node {
     siweMessageType,
   ]);
 
-  const { openConnectModal } = useConnectModal();
+  const { openConnectModal, connectModalOpen } = useConnectModal();
   const hasNonce = siweNonce !== null && siweNonce !== undefined;
   React.useEffect(() => {
     if (hasNonce && openConnectModal) {
@@ -97,19 +96,10 @@ function SIWE(): React.Node {
   const [wcModalOpen, setWCModalOpen] = React.useState(false);
 
   const prevModalOpen = React.useRef(false);
-  const modalState = useModalState();
-  const closeTimeoutRef = React.useRef<?TimeoutID>();
-  const { connectModalOpen } = modalState;
   const modalOpen = connectModalOpen || wcModalOpen;
   React.useEffect(() => {
     if (!modalOpen && prevModalOpen.current && !signer) {
-      closeTimeoutRef.current = setTimeout(
-        () => postMessageToNativeWebView({ type: 'siwe_closed' }),
-        500,
-      );
-    } else if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = undefined;
+      postMessageToNativeWebView({ type: 'siwe_closed' });
     }
     prevModalOpen.current = modalOpen;
   }, [modalOpen, signer]);
