@@ -187,7 +187,7 @@ async function processDBStoreOperations(
   if (
     convertedThreadStoreOperations.length === 0 &&
     convertedReportStoreOperations.length === 0 &&
-    draftStoreOperations.length === 0 &&
+    (!draftStoreOperations || draftStoreOperations.length === 0) &&
     convertedKeyserverStoreOperations.length === 0 &&
     convertedCommunityStoreOperations.length === 0 &&
     convertedIntegrityStoreOperations.length === 0 &&

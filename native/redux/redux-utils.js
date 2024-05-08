@@ -63,7 +63,7 @@ async function processDBStoreOperations(
       syncedMetadataStoreOperations,
     );
   const keyserversToRemoveFromNotifsStore =
-    getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations);
+    getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations ?? []);
   const convertedIntegrityStoreOperations =
     integrityStoreOpsHandlers.convertOpsToClientDBOps(integrityStoreOperations);
   const convertedAuxUserStoreOperations =
@@ -96,7 +96,7 @@ async function processDBStoreOperations(
       auxUserStoreOperations: convertedAuxUserStoreOperations,
       threadActivityStoreOperations: convertedThreadActivityStoreOperations,
     };
-    if (values(dbOps).some(ops => ops.length > 0)) {
+    if (values(dbOps).some(ops => ops && ops.length > 0)) {
       promises.push(commCoreModule.processDBStoreOperations(dbOps));
     }
     await Promise.all(promises);
