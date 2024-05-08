@@ -4,16 +4,14 @@ import type { Utility as OlmUtility } from '@commapp/olm';
 import invariant from 'invariant';
 import { getRustAPI } from 'rust-node-addon';
 import { SiweErrorType, SiweMessage } from 'siwe';
-import t, { type TInterface, type TUnion, type TEnums } from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
 import {
   baseLegalPolicies,
   policies,
-  policyTypeValidator,
   policyTypes,
 } from 'lib/facts/policies.js';
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   KeyserverAuthRequest,
@@ -35,7 +33,6 @@ import {
 } from 'lib/types/account-types.js';
 import {
   type ClientAvatar,
-  clientAvatarValidator,
   type UpdateUserAvatarResponse,
   type UpdateUserAvatarRequest,
 } from 'lib/types/avatar-types.js';
@@ -51,14 +48,9 @@ import type {
 } from 'lib/types/device-types';
 import {
   type CalendarQuery,
-  rawEntryInfoValidator,
   type FetchEntryInfosBase,
 } from 'lib/types/entry-types.js';
-import {
-  defaultNumberPerThread,
-  rawMessageInfoValidator,
-  messageTruncationStatusesValidator,
-} from 'lib/types/message-types.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type {
   SIWEAuthRequest,
   SIWEMessage,
@@ -67,15 +59,8 @@ import type {
 import {
   type SubscriptionUpdateRequest,
   type SubscriptionUpdateResponse,
-  threadSubscriptionValidator,
 } from 'lib/types/subscription-types.js';
-import { createUpdatesResultValidator } from 'lib/types/update-types.js';
-import {
-  type PasswordUpdate,
-  loggedOutUserInfoValidator,
-  loggedInUserInfoValidator,
-  userInfoValidator,
-} from 'lib/types/user-types.js';
+import { type PasswordUpdate } from 'lib/types/user-types.js';
 import {
   identityKeysBlobValidator,
   signedIdentityKeysBlobValidator,
@@ -158,11 +143,6 @@ export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpd
     }),
   });
 
-export const subscriptionUpdateResponseValidator: TInterface<SubscriptionUpdateResponse> =
-  tShape<SubscriptionUpdateResponse>({
-    threadSubscription: threadSubscriptionValidator,
-  });
-
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
   request: SubscriptionUpdateRequest,
@@ -204,11 +184,6 @@ async function sendPasswordResetEmailResponder(
 ): Promise<void> {
   await checkAndSendPasswordResetEmail(request);
 }
-
-export const logOutResponseValidator: TInterface<LogOutResponse> =
-  tShape<LogOutResponse>({
-    currentUserInfo: loggedOutUserInfoValidator,
-  });
 
 async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
   if (viewer.loggedIn) {
@@ -259,17 +234,6 @@ export const registerRequestInputValidator: TInterface<RegisterRequest> =
     primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
     signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
     initialNotificationsEncryptedMessage: t.maybe(t.String),
-  });
-
-export const registerResponseValidator: TInterface<RegisterResponse> =
-  tShape<RegisterResponse>({
-    id: t.String,
-    rawMessageInfos: t.list(rawMessageInfoValidator),
-    currentUserInfo: loggedInUserInfoValidator,
-    cookieChange: tShape({
-      threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
-      userInfos: t.list(userInfoValidator),
-    }),
   });
 
 async function accountCreationResponder(
@@ -484,21 +448,6 @@ export const logInRequestInputValidator: TInterface<LogInRequest> =
     primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
     signedIdentityKeysBlob: t.maybe(signedIdentityKeysBlobValidator),
     initialNotificationsEncryptedMessage: t.maybe(t.String),
-  });
-
-export const logInResponseValidator: TInterface<ServerLogInResponse> =
-  tShape<ServerLogInResponse>({
-    currentUserInfo: loggedInUserInfoValidator,
-    rawMessageInfos: t.list(rawMessageInfoValidator),
-    truncationStatuses: messageTruncationStatusesValidator,
-    userInfos: t.list(userInfoValidator),
-    rawEntryInfos: t.maybe(t.list(rawEntryInfoValidator)),
-    serverTime: t.Number,
-    cookieChange: tShape({
-      threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
-      userInfos: t.list(userInfoValidator),
-    }),
-    notAcknowledgedPolicies: t.maybe(t.list<TEnums>(policyTypeValidator)),
   });
 
 async function logInResponder(
@@ -925,30 +874,12 @@ async function policyAcknowledgmentResponder(
   await viewerAcknowledgmentUpdater(viewer, request.policy);
 }
 
-export const updateUserAvatarResponseValidator: TInterface<UpdateUserAvatarResponse> =
-  tShape<UpdateUserAvatarResponse>({
-    updates: createUpdatesResultValidator,
-  });
-
-export const updateUserAvatarResponderValidator: TUnion<
-  ?ClientAvatar | UpdateUserAvatarResponse,
-> = t.union([
-  t.maybe(clientAvatarValidator),
-  updateUserAvatarResponseValidator,
-]);
-
 async function updateUserAvatarResponder(
   viewer: Viewer,
   request: UpdateUserAvatarRequest,
 ): Promise<?ClientAvatar | UpdateUserAvatarResponse> {
   return await updateUserAvatar(viewer, request);
 }
-
-export const claimUsernameResponseValidator: TInterface<ClaimUsernameResponse> =
-  tShape<ClaimUsernameResponse>({
-    message: t.String,
-    signature: t.String,
-  });
 
 async function claimUsernameResponder(
   viewer: Viewer,

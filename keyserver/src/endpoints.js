@@ -53,6 +53,15 @@ import {
   roleModificationResultValidator,
   roleDeletionResultValidator,
 } from 'lib/types/validators/thread-validators.js';
+import {
+  logInResponseValidator,
+  registerResponseValidator,
+  logOutResponseValidator,
+  claimUsernameResponseValidator,
+  subscriptionUpdateResponseValidator,
+  updateUserAvatarResponderValidator,
+} from 'lib/types/validators/user-validators.js';
+import { versionResponseValidator } from 'lib/types/validators/version-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -183,30 +192,21 @@ import {
   policyAcknowledgmentResponder,
   updateUserAvatarResponder,
   registerRequestInputValidator,
-  registerResponseValidator,
-  logOutResponseValidator,
   logInRequestInputValidator,
-  logInResponseValidator,
   policyAcknowledgmentRequestInputValidator,
   accountUpdateInputValidator,
   resetPasswordRequestInputValidator,
   siweAuthRequestInputValidator,
   subscriptionUpdateRequestInputValidator,
-  subscriptionUpdateResponseValidator,
   updatePasswordRequestInputValidator,
-  updateUserAvatarResponderValidator,
   updateUserSettingsInputValidator,
   claimUsernameResponder,
-  claimUsernameResponseValidator,
 } from './responders/user-responders.js';
 import {
   codeVerificationResponder,
   codeVerificationRequestInputValidator,
 } from './responders/verification-responders.js';
-import {
-  versionResponder,
-  versionResponseValidator,
-} from './responders/version-responders.js';
+import { versionResponder } from './responders/version-responders.js';
 import {
   uploadMediaMetadataResponder,
   uploadDeletionResponder,
