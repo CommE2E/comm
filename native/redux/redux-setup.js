@@ -299,40 +299,18 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
   state = baseReducerResult.state;
 
   const { storeOperations } = baseReducerResult;
-  const {
-    draftStoreOperations,
-    threadStoreOperations,
-    messageStoreOperations,
-    reportStoreOperations,
-    userStoreOperations,
-    keyserverStoreOperations,
-    communityStoreOperations,
-    integrityStoreOperations,
-    syncedMetadataStoreOperations,
-    auxUserStoreOperations,
-    threadActivityStoreOperations,
-  } = storeOperations;
 
   const fixUnreadActiveThreadResult = fixUnreadActiveThread(state, action);
   state = fixUnreadActiveThreadResult.state;
 
   const threadStoreOperationsWithUnreadFix = [
-    ...threadStoreOperations,
+    ...(storeOperations.threadStoreOperations ?? []),
     ...fixUnreadActiveThreadResult.threadStoreOperations,
   ];
 
   const ops = {
-    draftStoreOperations,
-    messageStoreOperations,
+    ...storeOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
-    reportStoreOperations,
-    userStoreOperations,
-    keyserverStoreOperations,
-    communityStoreOperations,
-    integrityStoreOperations,
-    syncedMetadataStoreOperations,
-    auxUserStoreOperations,
-    threadActivityStoreOperations,
   };
   state = {
     ...state,
