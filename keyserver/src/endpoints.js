@@ -32,6 +32,8 @@ import {
   sendEditMessageResponseValidator,
   sendMessageResponseValidator,
 } from 'lib/types/validators/message-validators.js';
+import { initialReduxStateValidator } from 'lib/types/validators/redux-state-validators.js';
+import { relationshipErrorsValidator } from 'lib/types/validators/relationship-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -101,11 +103,9 @@ import {
 import {
   getInitialReduxStateResponder,
   initialReduxStateRequestValidator,
-  initialReduxStateValidator,
 } from './responders/redux-state-responders.js';
 import {
   updateRelationshipsResponder,
-  relationshipErrorsValidator,
   updateRelationshipInputValidator,
 } from './responders/relationship-responders.js';
 import {
