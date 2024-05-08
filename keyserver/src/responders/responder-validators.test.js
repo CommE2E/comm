@@ -26,8 +26,7 @@ import {
 import { relationshipErrorsValidator } from 'lib/types/validators/relationship-validators.js';
 import { reportCreationResponseValidator } from 'lib/types/validators/report-validators.js';
 import { userSearchResultValidator } from 'lib/types/validators/search-validators.js';
-
-import { siweNonceResponseValidator } from './siwe-nonce-responders.js';
+import { siweNonceResponseValidator } from 'lib/types/validators/siwe-nonce-validators.js';
 import {
   changeThreadSettingsResultValidator,
   leaveThreadResultValidator,
@@ -35,8 +34,9 @@ import {
   threadFetchMediaResultValidator,
   threadJoinResultValidator,
   toggleMessagePinResultValidator,
-  roleChangeRequestInputValidator,
-} from './thread-responders.js';
+} from 'lib/types/validators/thread-validators.js';
+
+import { roleChangeRequestInputValidator } from './thread-responders.js';
 import {
   logInResponseValidator,
   registerResponseValidator,
