@@ -1,13 +1,12 @@
 // @flow
 
-import t, { type TUnion, type TInterface } from 'tcomb';
+import t, { type TInterface } from 'tcomb';
 
 import {
   type InviteLinkVerificationRequest,
   type InviteLinkVerificationResponse,
   type FetchInviteLinksResponse,
   type InviteLink,
-  inviteLinkValidator,
   type CreateOrUpdatePublicLinkRequest,
   type DisableInviteLinkRequest,
   type InviteLinkWithHolder,
@@ -27,31 +26,12 @@ export const inviteLinkVerificationRequestInputValidator: TInterface<InviteLinkV
     secret: t.String,
   });
 
-export const inviteLinkVerificationResponseValidator: TUnion<InviteLinkVerificationResponse> =
-  t.union([
-    tShape({
-      status: t.enums.of(['valid', 'already_joined']),
-      community: tShape({
-        name: t.String,
-        id: tID,
-      }),
-    }),
-    tShape({
-      status: t.enums.of(['invalid', 'expired']),
-    }),
-  ]);
-
 async function inviteLinkVerificationResponder(
   viewer: Viewer,
   request: InviteLinkVerificationRequest,
 ): Promise<InviteLinkVerificationResponse> {
   return await verifyInviteLink(viewer, request);
 }
-
-export const fetchInviteLinksResponseValidator: TInterface<FetchInviteLinksResponse> =
-  tShape<FetchInviteLinksResponse>({
-    links: t.list(inviteLinkValidator),
-  });
 
 async function fetchPrimaryInviteLinksResponder(
   viewer: Viewer,
