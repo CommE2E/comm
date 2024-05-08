@@ -4,7 +4,6 @@ import _keyBy from 'lodash/fp/keyBy.js';
 import t, { type TInterface } from 'tcomb';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
-import { mixedRawThreadInfoValidator } from 'lib/permissions/minimally-encoded-raw-thread-info-validators.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer.js';
 import { freshMessageStore } from 'lib/reducers/message-reducer.js';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors.js';
@@ -16,36 +15,24 @@ import {
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
-import { entryStoreValidator } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
-  inviteLinksStoreValidator,
   type CommunityLinks,
   type InviteLinkWithHolder,
 } from 'lib/types/link-types.js';
 import {
   defaultNumberPerThread,
-  messageStoreValidator,
   type MessageStore,
 } from 'lib/types/message-types.js';
-import { webNavInfoValidator } from 'lib/types/nav-types.js';
-import type {
-  WebInitialKeyserverInfo,
-  ServerWebInitialReduxStateResponse,
-} from 'lib/types/redux-types.js';
+import type { ServerWebInitialReduxStateResponse } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadStore } from 'lib/types/thread-types.js';
-import {
-  currentUserInfoValidator,
-  userInfosValidator,
-  type GlobalAccountUserInfo,
-} from 'lib/types/user-types.js';
+import { type GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { currentDateInTimeZone } from 'lib/utils/date-utils.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { urlInfoValidator } from 'lib/utils/url-utils.js';
-import { tShape, tID } from 'lib/utils/validation-utils.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 import type {
   InitialReduxStateRequest,
   ExcludedData,
@@ -78,29 +65,6 @@ export const initialReduxStateRequestValidator: TInterface<InitialReduxStateRequ
     urlInfo: urlInfoValidator,
     excludedData: excludedDataValidator,
     clientUpdatesCurrentAsOf: t.Number,
-  });
-
-const initialKeyserverInfoValidator = tShape<WebInitialKeyserverInfo>({
-  sessionID: t.maybe(t.String),
-  updatesCurrentAsOf: t.Number,
-});
-
-export const threadStoreValidator: TInterface<ThreadStore> =
-  tShape<ThreadStore>({
-    threadInfos: t.dict(tID, mixedRawThreadInfoValidator),
-  });
-
-export const initialReduxStateValidator: TInterface<ServerWebInitialReduxStateResponse> =
-  tShape<ServerWebInitialReduxStateResponse>({
-    navInfo: webNavInfoValidator,
-    currentUserInfo: currentUserInfoValidator,
-    entryStore: entryStoreValidator,
-    threadStore: threadStoreValidator,
-    userInfos: userInfosValidator,
-    messageStore: messageStoreValidator,
-    pushApiPublicKey: t.maybe(t.String),
-    inviteLinksStore: inviteLinksStoreValidator,
-    keyserverInfo: initialKeyserverInfoValidator,
   });
 
 async function getInitialReduxStateResponder(
