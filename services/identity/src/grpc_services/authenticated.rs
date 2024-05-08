@@ -25,7 +25,7 @@ use super::protos::auth::{
   PeersDeviceListsRequest, PeersDeviceListsResponse, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, UserIdentityRequest, UserIdentityResponse,
+  UploadOneTimeKeysRequest, UserIdentitiesRequest, UserIdentitiesResponse,
 };
 use super::protos::unauth::Empty;
 
@@ -613,20 +613,25 @@ impl IdentityClientService for AuthenticatedService {
   }
 
   #[tracing::instrument(skip_all)]
-  async fn find_user_identity(
+  async fn find_user_identities(
     &self,
-    request: tonic::Request<UserIdentityRequest>,
-  ) -> Result<Response<UserIdentityResponse>, tonic::Status> {
+    request: tonic::Request<UserIdentitiesRequest>,
+  ) -> Result<Response<UserIdentitiesResponse>, tonic::Status> {
     let message = request.into_inner();
-    let identifier = self
-      .db_client
-      .get_user_identity(&message.user_id)
-      .await
-      .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
 
-    let response = UserIdentityResponse {
-      identity: Some(identifier.into()),
+    let results = self
+      .db_client
+      .find_db_user_identities(message.user_ids)
+      .await
+      .map_err(handle_db_error)?;
+
+    let mapped_results = results
+      .into_iter()
+      .map(|(user_id, identifier)| (user_id, identifier.into()))
+      .collect();
+
+    let response = UserIdentitiesResponse {
+      identities: mapped_results,
     };
     return Ok(Response::new(response));
   }
