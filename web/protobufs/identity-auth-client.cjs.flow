@@ -123,12 +123,12 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
-  findUserIdentity(
-    request: identityAuthStructs.UserIdentityRequest,
+  findUserIdentities(
+    request: identityAuthStructs.UserIdentitiesRequest,
     metadata: grpcWeb.Metadata | void,
     callback: (err: grpcWeb.RpcError,
-               response: identityAuthStructs.UserIdentityResponse) => void
-  ): grpcWeb.ClientReadableStream<identityAuthStructs.UserIdentityResponse>;
+               response: identityAuthStructs.UserIdentitiesResponse) => void
+  ): grpcWeb.ClientReadableStream<identityAuthStructs.UserIdentitiesResponse>;
 }
 
 declare export class IdentityClientServicePromiseClient {
@@ -216,8 +216,10 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
-  findUserIdentity(
-    request: identityAuthStructs.UserIdentityRequest,
+  findUserIdentities(
+    request: identityAuthStructs.UserIdentitiesRequest,
     metadata?: grpcWeb.Metadata
-  ): Promise<identityAuthStructs.UserIdentityResponse>;
+  ): Promise<identityAuthStructs.UserIdentitiesResponse>;
+
 }
+
