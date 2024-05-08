@@ -15,7 +15,6 @@ import {
   type FetchEntryInfosResponse,
   type DeltaEntryInfosResult,
   type SaveEntryResponse,
-  rawEntryInfoValidator,
 } from 'lib/types/entry-types.js';
 import {
   type CalendarFilter,
@@ -24,11 +23,7 @@ import {
 import {
   type FetchEntryRevisionInfosResult,
   type FetchEntryRevisionInfosRequest,
-  historyRevisionInfoValidator,
 } from 'lib/types/history-types.js';
-import { rawMessageInfoValidator } from 'lib/types/message-types.js';
-import { serverCreateUpdatesResponseValidator } from 'lib/types/update-types.js';
-import { accountUserInfoValidator } from 'lib/types/user-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { tString, tShape, tDate, tID } from 'lib/utils/validation-utils.js';
 
@@ -128,12 +123,6 @@ async function verifyCalendarQueryThreadIDs(
   }
 }
 
-export const fetchEntryInfosResponseValidator: TInterface<FetchEntryInfosResponse> =
-  tShape<FetchEntryInfosResponse>({
-    rawEntryInfos: t.list(rawEntryInfoValidator),
-    userInfos: t.dict(t.String, accountUserInfoValidator),
-  });
-
 async function entryFetchResponder(
   viewer: Viewer,
   inputQuery: EntryQueryInput,
@@ -154,11 +143,6 @@ export const entryRevisionHistoryFetchInputValidator: TInterface<FetchEntryRevis
     id: tID,
   });
 
-export const fetchEntryRevisionInfosResultValidator: TInterface<FetchEntryRevisionInfosResult> =
-  tShape<FetchEntryRevisionInfosResult>({
-    result: t.list(historyRevisionInfoValidator),
-  });
-
 async function entryRevisionFetchResponder(
   viewer: Viewer,
   request: FetchEntryRevisionInfosRequest,
@@ -176,13 +160,6 @@ export const createEntryRequestInputValidator: TInterface<CreateEntryRequest> =
     threadID: tID,
     localID: t.maybe(t.String),
     calendarQuery: t.maybe(newEntryQueryInputValidator),
-  });
-
-export const saveEntryResponseValidator: TInterface<SaveEntryResponse> =
-  tShape<SaveEntryResponse>({
-    entryID: tID,
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    updatesResult: serverCreateUpdatesResponseValidator,
   });
 
 async function entryCreationResponder(
@@ -218,13 +195,6 @@ export const deleteEntryRequestInputValidator: TInterface<DeleteEntryRequest> =
     calendarQuery: t.maybe(newEntryQueryInputValidator),
   });
 
-export const deleteEntryResponseValidator: TInterface<DeleteEntryResponse> =
-  tShape<DeleteEntryResponse>({
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    threadID: tID,
-    updatesResult: serverCreateUpdatesResponseValidator,
-  });
-
 async function entryDeletionResponder(
   viewer: Viewer,
   request: DeleteEntryRequest,
@@ -240,25 +210,12 @@ export const restoreEntryRequestInputValidator: TInterface<RestoreEntryRequest> 
     calendarQuery: t.maybe(newEntryQueryInputValidator),
   });
 
-export const restoreEntryResponseValidator: TInterface<RestoreEntryResponse> =
-  tShape<RestoreEntryResponse>({
-    newMessageInfos: t.list(rawMessageInfoValidator),
-    updatesResult: serverCreateUpdatesResponseValidator,
-  });
-
 async function entryRestorationResponder(
   viewer: Viewer,
   request: RestoreEntryRequest,
 ): Promise<RestoreEntryResponse> {
   return await restoreEntry(viewer, request);
 }
-
-export const deltaEntryInfosResultValidator: TInterface<DeltaEntryInfosResult> =
-  tShape<DeltaEntryInfosResult>({
-    rawEntryInfos: t.list(rawEntryInfoValidator),
-    deletedEntryIDs: t.list(tID),
-    userInfos: t.list(accountUserInfoValidator),
-  });
 
 async function calendarQueryUpdateResponder(
   viewer: Viewer,

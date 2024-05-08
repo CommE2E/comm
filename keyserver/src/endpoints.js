@@ -11,6 +11,14 @@ import type { Endpoint } from 'lib/types/endpoints.js';
 import { inviteLinkValidator } from 'lib/types/link-types.js';
 import { uploadMultimediaResultValidator } from 'lib/types/media-types.js';
 import { getOlmSessionInitializationDataResponseValidator } from 'lib/types/request-types.js';
+import {
+  saveEntryResponseValidator,
+  deleteEntryResponseValidator,
+  fetchEntryInfosResponseValidator,
+  fetchEntryRevisionInfosResultValidator,
+  deltaEntryInfosResultValidator,
+  restoreEntryResponseValidator,
+} from 'lib/types/validators/entry-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
 import {
@@ -32,17 +40,11 @@ import {
   entryRestorationResponder,
   calendarQueryUpdateResponder,
   createEntryRequestInputValidator,
-  saveEntryResponseValidator,
   deleteEntryRequestInputValidator,
-  deleteEntryResponseValidator,
   entryQueryInputValidator,
   entryRevisionHistoryFetchInputValidator,
-  fetchEntryInfosResponseValidator,
-  fetchEntryRevisionInfosResultValidator,
-  deltaEntryInfosResultValidator,
   newEntryQueryInputValidator,
   restoreEntryRequestInputValidator,
-  restoreEntryResponseValidator,
   saveEntryRequestInputValidator,
 } from './responders/entry-responders.js';
 import {
