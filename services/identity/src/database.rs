@@ -720,6 +720,54 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  pub async fn find_db_user_identities(
+    &self,
+    user_ids: impl IntoIterator<Item = String>,
+  ) -> Result<HashMap<String, DBIdentity>, Error> {
+    use comm_lib::database::batch_operations::{
+      batch_get, ExponentialBackoffConfig,
+    };
+    let primary_keys = user_ids.into_iter().map(|user_id| {
+      create_simple_primary_key((
+        USERS_TABLE_PARTITION_KEY.to_string(),
+        user_id,
+      ))
+    });
+    let projection_expression = [
+      USERS_TABLE_PARTITION_KEY,
+      USERS_TABLE_USERNAME_ATTRIBUTE,
+      USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+      USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
+      USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME,
+    ]
+    .join(", ");
+    debug!(
+      num_requests = primary_keys.size_hint().0,
+      "Attempting to batch get user identifiers"
+    );
+
+    let responses = batch_get(
+      &self.client,
+      USERS_TABLE,
+      primary_keys,
+      Some(projection_expression),
+      ExponentialBackoffConfig::default(),
+    )
+    .await
+    .map_err(Error::from)?;
+    debug!("Found {} matching user identifiers in DDB", responses.len());
+
+    let mut results = HashMap::with_capacity(responses.len());
+    for response in responses {
+      let user_id = response.get_attr(USERS_TABLE_PARTITION_KEY)?;
+      // if this fails, it means that projection expression didnt have all attrs it needed
+      let identity = DBIdentity::try_from(response)?;
+      results.insert(user_id, identity);
+    }
+
+    Ok(results)
+  }
+
   /// Retrieves username for password users or wallet address for wallet users
   /// Returns `None` if user not found
   #[tracing::instrument(skip_all)]
