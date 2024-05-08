@@ -42,6 +42,11 @@ declare export class Identity extends Message {
   hasEthIdentity(): boolean;
   clearEthIdentity(): Identity;
 
+  getFarcasterId(): string;
+  setFarcasterId(value: string): Identity;
+  hasFarcasterId(): boolean;
+  clearFarcasterId(): Identity;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): IdentityObject;
   static toObject(includeInstance: boolean, msg: Identity): IdentityObject;
@@ -53,6 +58,7 @@ declare export class Identity extends Message {
 export type IdentityObject = {
   username: string,
   ethIdentity: ?EthereumIdentityObject,
+  farcasterId: ?string,
 }
 
 declare export class UploadOneTimeKeysRequest extends Message {
@@ -507,36 +513,36 @@ export type LinkFarcasterAccountRequestObject = {
   farcasterId: string,
 }
 
-declare export class UserIdentityRequest extends Message {
-  getUserId(): string;
-  setUserId(value: string): UserIdentityRequest;
+declare export class UserIdentitiesRequest extends Message {
+  getUserIdsList(): Array<string>;
+  setUserIdsList(value: Array<string>): UserIdentitiesRequest;
+  clearUserIdsList(): UserIdentitiesRequest;
+  addUserIds(value: string, index?: number): UserIdentitiesRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): UserIdentityRequestObject;
-  static toObject(includeInstance: boolean, msg: UserIdentityRequest): UserIdentityRequestObject;
-  static serializeBinaryToWriter(message: UserIdentityRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): UserIdentityRequest;
-  static deserializeBinaryFromReader(message: UserIdentityRequest, reader: BinaryReader): UserIdentityRequest;
+  toObject(includeInstance?: boolean): UserIdentitiesRequestObject;
+  static toObject(includeInstance: boolean, msg: UserIdentitiesRequest): UserIdentitiesRequestObject;
+  static serializeBinaryToWriter(message: UserIdentitiesRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UserIdentitiesRequest;
+  static deserializeBinaryFromReader(message: UserIdentitiesRequest, reader: BinaryReader): UserIdentitiesRequest;
 }
 
-export type UserIdentityRequestObject = {
-  userId: string,
+export type UserIdentitiesRequestObject = {
+  userIdsList: Array<string>,
 }
 
-declare export class UserIdentityResponse extends Message {
-  getIdentity(): Identity | void;
-  setIdentity(value?: Identity): UserIdentityResponse;
-  hasIdentity(): boolean;
-  clearIdentity(): UserIdentityResponse;
+declare export class UserIdentitiesResponse extends Message {
+  getIdentitiesMap(): Map<string, Identity>;
+  clearIdentitiesMap(): UserIdentitiesResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): UserIdentityResponseObject;
-  static toObject(includeInstance: boolean, msg: UserIdentityResponse): UserIdentityResponseObject;
-  static serializeBinaryToWriter(message: UserIdentityResponse, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): UserIdentityResponse;
-  static deserializeBinaryFromReader(message: UserIdentityResponse, reader: BinaryReader): UserIdentityResponse;
+  toObject(includeInstance?: boolean): UserIdentitiesResponseObject;
+  static toObject(includeInstance: boolean, msg: UserIdentitiesResponse): UserIdentitiesResponseObject;
+  static serializeBinaryToWriter(message: UserIdentitiesResponse, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UserIdentitiesResponse;
+  static deserializeBinaryFromReader(message: UserIdentitiesResponse, reader: BinaryReader): UserIdentitiesResponse;
 }
 
-export type UserIdentityResponseObject = {
-  identity: ?IdentityObject,
+export type UserIdentitiesResponseObject = {
+  identitiesMap: Array<[string, IdentityObject]>,
 }
