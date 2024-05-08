@@ -39,7 +39,7 @@
     "@fortawesome/react-fontawesome": "0.1.5",
     "@lottiefiles/lottie-interactivity": "^1.6.2",
     "@lottiefiles/lottie-player": "^2.0.2",
-    "@rainbow-me/rainbowkit": "^2.0.4",
+    "@rainbow-me/rainbowkit": "^2.0.7",
     "@tanstack/react-query": "^5.28.9",
     "buffer": "^6.0.3",
     "classnames": "^2.2.5",
