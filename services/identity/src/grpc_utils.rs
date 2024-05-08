@@ -255,6 +255,7 @@ impl From<DBIdentity> for Identity {
       DBIdentifier::Username(username) => Identity {
         username,
         eth_identity: None,
+        farcaster_id: value.farcaster_id,
       },
       DBIdentifier::WalletAddress(eth_identity) => Identity {
         username: eth_identity.wallet_address.clone(),
@@ -263,6 +264,7 @@ impl From<DBIdentity> for Identity {
           siwe_message: eth_identity.social_proof.message,
           siwe_signature: eth_identity.social_proof.signature,
         }),
+        farcaster_id: value.farcaster_id,
       },
     }
   }
