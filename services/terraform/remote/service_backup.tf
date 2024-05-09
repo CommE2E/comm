@@ -1,5 +1,5 @@
 locals {
-  backup_service_image_tag           = local.is_staging ? "0.3-staging" : "0.3"
+  backup_service_image_tag           = local.is_staging ? "0.4-staging" : "0.4"
   backup_service_container_name      = "backup-service-server"
   backup_service_server_image        = "commapp/backup-server:${local.backup_service_image_tag}"
   backup_service_container_http_port = 50052
