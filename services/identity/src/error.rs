@@ -40,6 +40,7 @@ pub enum DeviceListError {
   DeviceNotFound,
   ConcurrentUpdateError,
   InvalidDeviceListUpdate,
+  InvalidSignature,
 }
 
 pub fn consume_error<T>(result: Result<T, Error>) {

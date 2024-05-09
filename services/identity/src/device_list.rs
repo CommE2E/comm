@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use std::collections::HashSet;
-use tracing::{error, warn};
+use tracing::{debug, error, warn};
 
 use crate::{
   constants::{error_types, DEVICE_LIST_TIMESTAMP_VALID_FOR},
@@ -115,6 +115,7 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
       timestamp,
       current_primary_signature: signed_list.cur_primary_signature,
       last_primary_signature: signed_list.last_primary_signature,
+      raw_payload: signed_list.raw_device_list,
     })
   }
 }
@@ -161,6 +162,46 @@ pub fn verify_device_list_timestamp(
   if !is_new_timestamp_valid(previous_timestamp, new_timestamp) {
     return Err(DeviceListError::InvalidDeviceListUpdate);
   }
+  Ok(())
+}
+
+pub fn verify_device_list_signatures(
+  previous_primary_device_id: Option<&String>,
+  new_device_list: &DeviceListUpdate,
+) -> Result<(), DeviceListError> {
+  let Some(primary_device_id) = new_device_list.devices.first() else {
+    return Ok(());
+  };
+
+  // verify current signature
+  if let Some(signature) = &new_device_list.current_primary_signature {
+    crate::grpc_utils::ed25519_verify(
+      primary_device_id,
+      &new_device_list.raw_payload,
+      signature,
+    )
+    .map_err(|err| {
+      debug!("curPrimarySignature verification failed: {err}");
+      DeviceListError::InvalidSignature
+    })?;
+  }
+
+  // verify last signature if primary device changed
+  if let (Some(previous_primary_id), Some(last_signature)) = (
+    previous_primary_device_id.filter(|prev| *prev != primary_device_id),
+    &new_device_list.last_primary_signature,
+  ) {
+    crate::grpc_utils::ed25519_verify(
+      previous_primary_id,
+      &new_device_list.raw_payload,
+      last_signature,
+    )
+    .map_err(|err| {
+      debug!("lastPrimarySignature verification failed: {err}");
+      DeviceListError::InvalidSignature
+    })?;
+  }
+
   Ok(())
 }
 
