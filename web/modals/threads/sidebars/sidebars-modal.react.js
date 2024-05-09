@@ -3,7 +3,11 @@
 import * as React from 'react';
 
 import { useFilteredChildThreads } from 'lib/hooks/child-threads.js';
-import { threadInChatList, threadIsSidebar } from 'lib/shared/thread-utils.js';
+import {
+  threadIsSidebar,
+  useThreadsInChatList,
+} from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import SidebarList from './sidebar-list.react.js';
 import css from './sidebars-modal.css';
@@ -43,17 +47,28 @@ function SidebarsModalContent(props: ContentProps): React.Node {
     searchText,
   });
 
+  const sidebarThreadInfos: $ReadOnlyArray<ThreadInfo> = React.useMemo(
+    () => sidebarList.map(chatItem => chatItem.threadInfo),
+    [sidebarList],
+  );
+
+  const visibleSidebarThreadInfos = useThreadsInChatList(sidebarThreadInfos);
+  const visibleSidebarThreadIDs = React.useMemo(
+    () => new Set(visibleSidebarThreadInfos.map(thread => thread.id)),
+    [visibleSidebarThreadInfos],
+  );
+
   const tabContent = React.useMemo(() => {
     if (tab === 'All Threads') {
       return <SidebarList sidebars={sidebarList} />;
     }
 
     const sidebarsChatListVisibleInChat = sidebarList.filter(chatItem =>
-      threadInChatList(chatItem.threadInfo),
+      visibleSidebarThreadIDs.has(chatItem.threadInfo.id),
     );
 
     return <SidebarList sidebars={sidebarsChatListVisibleInChat} />;
-  }, [sidebarList, tab]);
+  }, [sidebarList, tab, visibleSidebarThreadIDs]);
 
   const sidebarsModalContent = React.useMemo(
     () => (
