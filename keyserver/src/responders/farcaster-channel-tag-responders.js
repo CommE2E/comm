@@ -22,7 +22,7 @@ const createOrUpdateFarcasterChannelTagInputValidator: TInterface<CreateOrUpdate
 const createOrUpdateFarcasterChannelTagResponseValidator: TInterface<CreateOrUpdateFarcasterChannelTagResponse> =
   tShape<CreateOrUpdateFarcasterChannelTagResponse>({
     commCommunityID: tID,
-    blobHolder: t.String,
+    farcasterChannelID: t.String,
   });
 
 async function createOrUpdateFarcasterChannelTagResponder(
