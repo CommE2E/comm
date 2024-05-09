@@ -6,25 +6,40 @@ import { View, Text } from 'react-native';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
+type TextType = 'required' | 'optional' | 'disconnect';
+
 type Props = {
-  +showDisconnectText?: boolean,
+  +textType: TextType,
 };
 
 function FarcasterPrompt(props: Props): React.Node {
-  const { showDisconnectText } = props;
+  const { textType } = props;
+
+  let headerText;
+  if (textType === 'required') {
+    headerText = 'Connect your Farcaster account';
+  } else if (textType === 'disconnect') {
+    headerText = 'Disconnect from Farcaster';
+  } else {
+    headerText = 'Do you want to connect your Farcaster account?';
+  }
+
+  let bodyText;
+  if (textType === 'required') {
+    bodyText =
+      'Connecting a Farcaster account is currently required. We use ' +
+      'it to boostrap your social graph, and to surface communities based on ';
+    ('your Farcaster channels.');
+  } else if (textType === 'disconnect') {
+    bodyText = 'You can disconnect your Farcaster account at any time.';
+  } else {
+    bodyText =
+      'Connecting your Farcaster account lets us bootstrap your ' +
+      'social graph. We’ll also surface communities based on your ' +
+      'Farcaster channels.';
+  }
 
   const styles = useStyles(unboundStyles);
-
-  const headerText = showDisconnectText
-    ? 'Disconnect from Farcaster'
-    : 'Do you want to connect your Farcaster account?';
-
-  const bodyText = showDisconnectText
-    ? 'You can disconnect your Farcaster account at any time.'
-    : 'Connecting your Farcaster account lets you see your mutual follows ' +
-      'on Comm. We’ll also surface communities based on your Farcaster ' +
-      'channels.';
-
   const farcasterPrompt = React.useMemo(
     () => (
       <>
