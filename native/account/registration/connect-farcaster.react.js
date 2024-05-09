@@ -13,24 +13,20 @@ import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import type {
-  CoolOrNerdMode,
-  EthereumAccountSelection,
-} from './registration-types.js';
+import type { CoolOrNerdMode } from './registration-types.js';
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../../components/farcaster-web-view.react.js';
 import {
   type NavigationRoute,
-  UsernameSelectionRouteName,
+  ConnectEthereumRouteName,
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 
-export type ConnectFarcasterParams = {
-  +userSelections: {
+export type ConnectFarcasterParams = ?{
+  +userSelections?: {
     +coolOrNerdMode?: CoolOrNerdMode,
     +keyserverURL?: string,
-    +ethereumAccount?: EthereumAccountSelection,
   },
 };
 
@@ -43,47 +39,56 @@ function ConnectFarcaster(prop: Props): React.Node {
   const { navigation, route } = prop;
 
   const { navigate } = navigation;
-  const { params } = route;
+  const userSelections = route.params?.userSelections;
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { cachedSelections, setCachedSelections } = registrationContext;
+  const {
+    cachedSelections,
+    setCachedSelections,
+    skipEthereumLoginOnce,
+    setSkipEthereumLoginOnce,
+  } = registrationContext;
 
   const [webViewState, setWebViewState] =
     React.useState<FarcasterWebViewState>('closed');
 
+  const { ethereumAccount } = cachedSelections;
   const goToNextStep = React.useCallback(
     (fid?: ?string) => {
       setWebViewState('closed');
 
-      const { ethereumAccount, ...restUserSelections } = params.userSelections;
-
-      if (ethereumAccount) {
-        navigate<'AvatarSelection'>({
-          name: AvatarSelectionRouteName,
+      if (!skipEthereumLoginOnce || !ethereumAccount) {
+        navigate<'ConnectEthereum'>({
+          name: ConnectEthereumRouteName,
           params: {
-            ...params,
             userSelections: {
-              ...restUserSelections,
-              accountSelection: ethereumAccount,
+              ...userSelections,
               farcasterID: fid,
             },
           },
         });
-      } else {
-        navigate<'UsernameSelection'>({
-          name: UsernameSelectionRouteName,
-          params: {
-            ...params,
-            userSelections: {
-              ...restUserSelections,
-              farcasterID: fid,
-            },
-          },
-        });
+        return;
       }
+
+      const newUserSelections = {
+        ...userSelections,
+        farcasterID: fid,
+        accountSelection: ethereumAccount,
+      };
+      setSkipEthereumLoginOnce(false);
+      navigate<'AvatarSelection'>({
+        name: AvatarSelectionRouteName,
+        params: { userSelections: newUserSelections },
+      });
     },
-    [navigate, params],
+    [
+      navigate,
+      skipEthereumLoginOnce,
+      setSkipEthereumLoginOnce,
+      ethereumAccount,
+      userSelections,
+    ],
   );
 
   const onSkip = React.useCallback(() => goToNextStep(), [goToNextStep]);

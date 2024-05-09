@@ -26,7 +26,8 @@ import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
   ExistingEthereumAccountRouteName,
-  ConnectFarcasterRouteName,
+  UsernameSelectionRouteName,
+  AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
@@ -38,10 +39,11 @@ const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
   exactSearchUserActionTypes,
 );
 
-export type ConnectEthereumParams = ?{
-  +userSelections?: {
-    +coolOrNerdMode: CoolOrNerdMode,
-    +keyserverURL: string,
+export type ConnectEthereumParams = {
+  +userSelections: {
+    +coolOrNerdMode?: CoolOrNerdMode,
+    +keyserverURL?: string,
+    +farcasterID: ?string,
   },
 };
 
@@ -126,12 +128,10 @@ function ConnectEthereum(props: Props): React.Node {
 
   const { navigate } = props.navigation;
   const onSkip = React.useCallback(() => {
-    navigate<'ConnectFarcaster'>({
-      name: ConnectFarcasterRouteName,
+    navigate<'UsernameSelection'>({
+      name: UsernameSelectionRouteName,
       params: {
-        userSelections: {
-          ...userSelections,
-        },
+        userSelections,
       },
     });
   }, [navigate, userSelections]);
@@ -181,11 +181,13 @@ function ConnectEthereum(props: Props): React.Node {
 
       const newUserSelections = {
         ...userSelections,
-        ethereumAccount,
+        accountSelection: ethereumAccount,
       };
-      navigate<'ConnectFarcaster'>({
-        name: ConnectFarcasterRouteName,
-        params: { userSelections: newUserSelections },
+      navigate<'AvatarSelection'>({
+        name: AvatarSelectionRouteName,
+        params: {
+          userSelections: newUserSelections,
+        },
       });
     },
     [
@@ -236,11 +238,13 @@ function ConnectEthereum(props: Props): React.Node {
     );
     const newUserSelections = {
       ...userSelections,
-      ethereumAccount,
+      accountSelection: ethereumAccount,
     };
-    navigate<'ConnectFarcaster'>({
-      name: ConnectFarcasterRouteName,
-      params: { userSelections: newUserSelections },
+    navigate<'AvatarSelection'>({
+      name: AvatarSelectionRouteName,
+      params: {
+        userSelections: newUserSelections,
+      },
     });
   }, [ethereumAccount, userSelections, navigate]);
 

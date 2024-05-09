@@ -11,7 +11,7 @@ import type { RegistrationNavigationProp } from './registration-navigator.react.
 import commSwooshSource from '../../img/comm-swoosh.png';
 import {
   type NavigationRoute,
-  ConnectEthereumRouteName,
+  ConnectFarcasterRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
@@ -22,7 +22,7 @@ type Props = {
 function AccountDoesNotExist(props: Props): React.Node {
   const { navigate } = props.navigation;
   const onSubmit = React.useCallback(() => {
-    navigate(ConnectEthereumRouteName);
+    navigate(ConnectFarcasterRouteName);
   }, [navigate]);
 
   const styles = useStyles(unboundStyles);
