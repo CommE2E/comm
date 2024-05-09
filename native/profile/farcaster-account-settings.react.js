@@ -85,11 +85,12 @@ function FarcasterAccountSettings(props: Props): React.Node {
     );
   }, [connectButtonVariant, fid, onPressConnectFarcaster, onPressDisconnect]);
 
+  const farcasterPromptTextType = fid ? 'disconnect' : 'optional';
   const farcasterAccountSettings = React.useMemo(
     () => (
       <View style={styles.connectContainer}>
         <View style={styles.promptContainer}>
-          <FarcasterPrompt showDisconnectText={!!fid} />
+          <FarcasterPrompt textType={farcasterPromptTextType} />
         </View>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <View style={styles.buttonContainer}>{button}</View>
@@ -97,7 +98,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     ),
     [
       button,
-      fid,
+      farcasterPromptTextType,
       onSuccess,
       styles.buttonContainer,
       styles.connectContainer,

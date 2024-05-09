@@ -22,6 +22,7 @@ import {
   ConnectEthereumRouteName,
   AvatarSelectionRouteName,
 } from '../../navigation/route-names.js';
+import { useStaffCanSee } from '../../utils/staff-utils.js';
 
 export type ConnectFarcasterParams = ?{
   +userSelections?: {
@@ -183,11 +184,26 @@ function ConnectFarcaster(prop: Props): React.Node {
     );
   }, [alreadyHasConnected, onUseAlreadyConnectedAccount]);
 
+  const staffCanSee = useStaffCanSee();
+  const skipButton = React.useMemo(() => {
+    if (!staffCanSee) {
+      return undefined;
+    }
+    return (
+      <RegistrationButton
+        onPress={onSkip}
+        label="Do not connect"
+        variant="outline"
+      />
+    );
+  }, [staffCanSee, onSkip]);
+
+  const farcasterPromptTextType = staffCanSee ? 'optional' : 'required';
   const connectFarcaster = React.useMemo(
     () => (
       <RegistrationContainer>
         <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-          <FarcasterPrompt />
+          <FarcasterPrompt textType={farcasterPromptTextType} />
         </RegistrationContentContainer>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
@@ -197,11 +213,7 @@ function ConnectFarcaster(prop: Props): React.Node {
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          <RegistrationButton
-            onPress={onSkip}
-            label="Do not connect"
-            variant="outline"
-          />
+          {skipButton}
         </RegistrationButtonContainer>
       </RegistrationContainer>
     ),
@@ -210,9 +222,10 @@ function ConnectFarcaster(prop: Props): React.Node {
       connectButtonText,
       connectButtonVariant,
       onPressConnectFarcaster,
-      onSkip,
       onSuccess,
       webViewState,
+      farcasterPromptTextType,
+      skipButton,
     ],
   );
 
