@@ -71,6 +71,10 @@ import {
   updateActivityResponderInputValidator,
 } from './responders/activity-responders.js';
 import {
+  fetchCommunityInfosResponder,
+  fetchCommunityInfosResponseValidator,
+} from './responders/community-responders.js';
+import {
   deviceTokenUpdateResponder,
   deviceTokenUpdateRequestInputValidator,
 } from './responders/device-responders.js';
@@ -591,6 +595,12 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
     ignoredArgumentValidator,
     versionResponseValidator,
     [],
+  ),
+  fetch_community_infos: createJSONResponder(
+    fetchCommunityInfosResponder,
+    ignoredArgumentValidator,
+    fetchCommunityInfosResponseValidator,
+    baseLegalPolicies,
   ),
   create_or_update_farcaster_channel_tag: createJSONResponder(
     createOrUpdateFarcasterChannelTagResponder,
