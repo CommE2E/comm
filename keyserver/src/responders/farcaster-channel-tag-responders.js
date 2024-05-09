@@ -36,7 +36,6 @@ const deleteFarcasterChannelTagInputValidator: TInterface<DeleteFarcasterChannel
   tShape<DeleteFarcasterChannelTagRequest>({
     commCommunityID: tID,
     farcasterChannelID: t.String,
-    blobHolder: t.String,
   });
 
 async function deleteFarcasterChannelTagResponder(
