@@ -23,7 +23,6 @@ import type { CoolOrNerdMode } from './registration-types.js';
 import CommIcon from '../../components/comm-icon.react.js';
 import {
   type NavigationRoute,
-  ConnectEthereumRouteName,
   ConnectFarcasterRouteName,
 } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -51,12 +50,7 @@ type Props = {
 function KeyserverSelection(props: Props): React.Node {
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const {
-    cachedSelections,
-    setCachedSelections,
-    skipEthereumLoginOnce,
-    setSkipEthereumLoginOnce,
-  } = registrationContext;
+  const { cachedSelections, setCachedSelections } = registrationContext;
 
   const initialKeyserverURL = cachedSelections.keyserverURL;
   const [customKeyserver, setCustomKeyserver] = React.useState(
@@ -117,7 +111,6 @@ function KeyserverSelection(props: Props): React.Node {
   const { navigate } = props.navigation;
   const { coolOrNerdMode } = props.route.params.userSelections;
 
-  const { ethereumAccount } = cachedSelections;
   const onSubmit = React.useCallback(async () => {
     setError(undefined);
 
@@ -134,22 +127,9 @@ function KeyserverSelection(props: Props): React.Node {
     }));
 
     const userSelections = { coolOrNerdMode, keyserverURL };
-    if (!skipEthereumLoginOnce || !ethereumAccount) {
-      navigate<'ConnectEthereum'>({
-        name: ConnectEthereumRouteName,
-        params: { userSelections },
-      });
-      return;
-    }
-
-    const userSelectionsWithAccount = {
-      ...userSelections,
-      ethereumAccount,
-    };
-    setSkipEthereumLoginOnce(false);
     navigate<'ConnectFarcaster'>({
       name: ConnectFarcasterRouteName,
-      params: { userSelections: userSelectionsWithAccount },
+      params: { userSelections },
     });
   }, [
     keyserverURL,
@@ -157,9 +137,6 @@ function KeyserverSelection(props: Props): React.Node {
     setCachedSelections,
     navigate,
     coolOrNerdMode,
-    skipEthereumLoginOnce,
-    ethereumAccount,
-    setSkipEthereumLoginOnce,
   ]);
 
   const styles = useStyles(unboundStyles);

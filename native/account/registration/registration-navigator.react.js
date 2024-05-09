@@ -72,7 +72,7 @@ function RegistrationNavigator(props: Props): React.Node {
   return (
     <Registration.Navigator
       screenOptions={screenOptions}
-      initialRouteName={ConnectEthereumRouteName}
+      initialRouteName={ConnectFarcasterRouteName}
     >
       <Registration.Screen
         name={CoolOrNerdModeSelectionRouteName}
