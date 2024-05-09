@@ -83,6 +83,8 @@ pub struct DeviceListUpdate {
   /// Last primary device signature, in case the primary device has changed
   /// since last device list update.
   pub last_primary_signature: Option<String>,
+  /// Raw update payload to verify signatures
+  pub raw_payload: String,
 }
 
 impl DeviceRow {
@@ -934,6 +936,11 @@ impl DatabaseClient {
     let new_list = update.devices.clone();
     self
       .transact_update_devicelist(user_id, |current_list, _| {
+        crate::device_list::verify_device_list_signatures(
+          current_list.first(),
+          &update,
+        )?;
+
         let previous_device_ids: Vec<&str> =
           current_list.iter().map(AsRef::as_ref).collect();
         let new_device_ids: Vec<&str> =

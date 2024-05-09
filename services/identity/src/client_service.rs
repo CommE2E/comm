@@ -1101,6 +1101,9 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
     DBError::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
       tonic::Status::invalid_argument("invalid device list update")
     }
+    DBError::DeviceList(DeviceListError::InvalidSignature) => {
+      tonic::Status::invalid_argument("invalid device list signature")
+    }
     e => {
       error!(
         errorType = error_types::GENERIC_DB_LOG,
