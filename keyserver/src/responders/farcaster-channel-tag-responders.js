@@ -19,6 +19,12 @@ const createOrUpdateFarcasterChannelTagInputValidator: TInterface<CreateOrUpdate
     farcasterChannelID: t.String,
   });
 
+const createOrUpdateFarcasterChannelTagResponseValidator: TInterface<CreateOrUpdateFarcasterChannelTagResponse> =
+  tShape<CreateOrUpdateFarcasterChannelTagResponse>({
+    commCommunityID: tID,
+    farcasterChannelID: t.String,
+  });
+
 async function createOrUpdateFarcasterChannelTagResponder(
   viewer: Viewer,
   request: CreateOrUpdateFarcasterChannelTagRequest,
@@ -43,6 +49,7 @@ async function deleteFarcasterChannelTagResponder(
 export {
   createOrUpdateFarcasterChannelTagResponder,
   createOrUpdateFarcasterChannelTagInputValidator,
+  createOrUpdateFarcasterChannelTagResponseValidator,
   deleteFarcasterChannelTagResponder,
   deleteFarcasterChannelTagInputValidator,
 };
