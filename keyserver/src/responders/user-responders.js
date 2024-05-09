@@ -82,6 +82,7 @@ import {
   tOldValidUsername,
   tRegex,
   tID,
+  tUserID,
 } from 'lib/utils/validation-utils.js';
 
 import {
@@ -695,7 +696,7 @@ async function siweAuthResponder(
 
 export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest> =
   tShape<KeyserverAuthRequest>({
-    userID: t.String,
+    userID: tUserID,
     deviceID: t.String,
     calendarQuery: entryQueryInputValidator,
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
