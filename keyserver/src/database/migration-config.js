@@ -769,6 +769,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    62,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE uploads
+            MODIFY container bigint(20)
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
