@@ -35,7 +35,12 @@ function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
 
-const wagmiConfig = getWagmiConfig(['rainbow', 'metamask', 'walletconnect']);
+const wagmiConfig = getWagmiConfig([
+  'rainbow',
+  'metamask',
+  'walletconnect',
+  'coinbase',
+]);
 
 type Signer = {
   +signMessage: ({ +message: string, ... }) => Promise<string>,
