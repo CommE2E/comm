@@ -34,6 +34,7 @@ import {
   tColor,
   tPassword,
   tID,
+  tUserID,
 } from 'lib/utils/validation-utils.js';
 
 import {
@@ -71,7 +72,7 @@ async function threadDeletionResponder(
 export const roleChangeRequestInputValidator: TInterface<RoleChangeRequest> =
   tShape<RoleChangeRequest>({
     threadID: tID,
-    memberIDs: t.list(t.String),
+    memberIDs: t.list(tUserID),
     role: t.refinement(tID, str => {
       if (str.indexOf('|') !== -1) {
         str = str.split('|')[1];
@@ -91,7 +92,7 @@ async function roleUpdateResponder(
 export const removeMembersRequestInputValidator: TInterface<RemoveMembersRequest> =
   tShape<RemoveMembersRequest>({
     threadID: tID,
-    memberIDs: t.list(t.String),
+    memberIDs: t.list(tUserID),
   });
 
 async function memberRemovalResponder(
@@ -122,7 +123,7 @@ export const updateThreadRequestInputValidator: TInterface<UpdateThreadRequest> 
       description: t.maybe(t.String),
       color: t.maybe(tColor),
       parentThreadID: t.maybe(tID),
-      newMemberIDs: t.maybe(t.list(t.String)),
+      newMemberIDs: t.maybe(t.list(tUserID)),
       avatar: t.maybe(updateUserAvatarRequestValidator),
     }),
     accountPassword: t.maybe(tPassword),
@@ -140,7 +141,7 @@ const threadRequestValidationShape = {
   description: t.maybe(t.String),
   color: t.maybe(tColor),
   parentThreadID: t.maybe(tID),
-  initialMemberIDs: t.maybe(t.list(t.String)),
+  initialMemberIDs: t.maybe(t.list(tUserID)),
   calendarQuery: t.maybe(entryQueryInputValidator),
 };
 const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
