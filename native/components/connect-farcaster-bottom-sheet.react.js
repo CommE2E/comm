@@ -94,7 +94,7 @@ function ConnectFarcasterBottomSheet(props: Props): React.Node {
       <BottomSheet ref={bottomSheetRef} onClosed={goBack}>
         <View style={styles.container}>
           <View style={styles.promptContainer}>
-            <FarcasterPrompt />
+            <FarcasterPrompt textType="optional" />
           </View>
           <RegistrationButton
             onPress={onPressConnect}
