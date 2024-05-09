@@ -183,11 +183,25 @@ function ConnectFarcaster(prop: Props): React.Node {
     );
   }, [alreadyHasConnected, onUseAlreadyConnectedAccount]);
 
+  const farcasterPromptTextType = __DEV__ ? 'optional' : 'required';
+  const skipButton = React.useMemo(() => {
+    if (!__DEV__) {
+      return undefined;
+    }
+    return (
+      <RegistrationButton
+        onPress={onSkip}
+        label="Do not connect"
+        variant="outline"
+      />
+    );
+  }, [onSkip]);
+
   const connectFarcaster = React.useMemo(
     () => (
       <RegistrationContainer>
         <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-          <FarcasterPrompt />
+          <FarcasterPrompt textType={farcasterPromptTextType} />
         </RegistrationContentContainer>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
@@ -197,11 +211,7 @@ function ConnectFarcaster(prop: Props): React.Node {
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          <RegistrationButton
-            onPress={onSkip}
-            label="Do not connect"
-            variant="outline"
-          />
+          {skipButton}
         </RegistrationButtonContainer>
       </RegistrationContainer>
     ),
@@ -210,9 +220,10 @@ function ConnectFarcaster(prop: Props): React.Node {
       connectButtonText,
       connectButtonVariant,
       onPressConnectFarcaster,
-      onSkip,
       onSuccess,
       webViewState,
+      farcasterPromptTextType,
+      skipButton,
     ],
   );
 
