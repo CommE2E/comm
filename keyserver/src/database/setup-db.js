@@ -196,7 +196,7 @@ async function createTables() {
         id bigint(20) NOT NULL,
         thread bigint(20) DEFAULT NULL,
         uploader varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
-        container varchar(255) CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
+        container bigint(20) DEFAULT NULL,
         type varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
         filename varchar(255) NOT NULL,
         mime varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
