@@ -9,7 +9,7 @@ import {
   type RelationshipRequest,
   farcasterRelationshipRequestValidator,
 } from 'lib/types/relationship-types.js';
-import { tShape } from 'lib/utils/validation-utils.js';
+import { tShape, tUserID } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
@@ -20,7 +20,7 @@ export const traditionalRelationshipRequestValidator: TInterface<TraditionalRela
       traditionalRelationshipActionsList,
       'relationship action',
     ),
-    userIDs: t.list(t.String),
+    userIDs: t.list(tUserID),
   });
 
 export const updateRelationshipInputValidator: TUnion<RelationshipRequest> =
