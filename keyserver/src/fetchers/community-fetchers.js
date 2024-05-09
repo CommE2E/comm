@@ -1,13 +1,12 @@
 // @flow
 
-import type { CommunityInfo } from 'lib/types/community-types.js';
+import type { ServerCommunityInfo } from 'lib/types/community-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { Viewer } from '../session/viewer.js';
 
 type ServerCommunityInfoWithHolder = $ReadOnly<{
-  ...CommunityInfo,
-  +id: string,
+  ...ServerCommunityInfo,
   +blobHolder: ?string,
 }>;
 

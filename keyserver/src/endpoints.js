@@ -15,6 +15,7 @@ import {
   setThreadUnreadStatusValidator,
   updateActivityResponderInputValidator,
 } from './responders/activity-responders.js';
+import { fetchCommunityInfosResponder } from './responders/community-responders.js';
 import {
   deviceTokenUpdateResponder,
   deviceTokenUpdateRequestInputValidator,
@@ -482,6 +483,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
     responder: versionResponder,
     inputValidator: ignoredArgumentValidator,
     policies: [],
+  },
+  fetch_community_infos: {
+    responder: fetchCommunityInfosResponder,
+    inputValidator: ignoredArgumentValidator,
+    policies: baseLegalPolicies,
   },
   create_or_update_farcaster_channel_tag: {
     responder: createOrUpdateFarcasterChannelTagResponder,
