@@ -103,21 +103,21 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
         );
       }
 
-      const body = (
-        <Text style={styles.body}>
-          Comm encrypts user backups so that our backend is not able to see user
-          data.
-        </Text>
-      );
-
       return (
         <>
           <RegistrationContainer>
             <RegistrationContentContainer
               style={styles.scrollViewContentContainer}
             >
-              <Text style={styles.header}>Encrypting your Comm Backup</Text>
-              {body}
+              <Text style={styles.header}>Encrypting your Comm backup</Text>
+              <Text style={styles.body}>
+                To make sure we can’t see your data, Comm encrypts your backup
+                using a signature from your wallet.
+              </Text>
+              <Text style={styles.body}>
+                You can always recover your data as long as you still control
+                your wallet.
+              </Text>
               <View style={styles.siweBackupIconContainer}>
                 <Icon name="backup" size={200} style={styles.siweBackupIcon} />
               </View>
