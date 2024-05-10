@@ -22,6 +22,7 @@ import {
 import { olmAPI } from '../crypto/olm-api.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { persistConfig } from '../redux/persist.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
 import Alert from '../utils/alert.js';
@@ -37,6 +38,7 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
     backupID,
     backupDataKey,
     backupLogDataKey,
+    persistConfig.version.toString(),
   );
 }
 
