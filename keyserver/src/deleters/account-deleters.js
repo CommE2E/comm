@@ -63,7 +63,7 @@ async function deleteAccount(viewer: Viewer): Promise<?LogOutResponse> {
     DELETE u, i
       FROM uploads u
       LEFT JOIN ids i on i.id = u.id
-      WHERE u.container = ${deletedUserID};
+      WHERE u.user_container = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user1 = ${deletedUserID};
     DELETE FROM relationships_undirected WHERE user2 = ${deletedUserID};
     DELETE FROM relationships_directed WHERE user1 = ${deletedUserID};
