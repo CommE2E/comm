@@ -202,6 +202,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PM
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeOutboundP2PMessagesOlderThan(rt, args[0].asString(rt), args[1].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getSyncedDatabaseVersion(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -266,6 +269,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getAllOutboundP2PMessage"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllOutboundP2PMessage};
   methodMap_["markOutboundP2PMessageAsSent"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PMessageAsSent};
   methodMap_["removeOutboundP2PMessagesOlderThan"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessagesOlderThan};
+  methodMap_["getSyncedDatabaseVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion};
 }
 
 
