@@ -273,6 +273,15 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityFindUserIdentities"]
+    fn find_user_identities(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      user_ids: Vec<String>,
+      promise_id: u32,
+    );
+
     // Argon2
     #[cxx_name = "compute_backup_key"]
     fn compute_backup_key_str(
