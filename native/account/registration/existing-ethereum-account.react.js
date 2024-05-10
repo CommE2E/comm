@@ -1,5 +1,10 @@
 // @flow
 
+import type {
+  StackNavigationEventMap,
+  StackNavigationState,
+  StackOptions,
+} from '@react-navigation/core';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
@@ -7,6 +12,7 @@ import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js'
 import { useENSName } from 'lib/hooks/ens-cache.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import type { SIWEResult } from 'lib/types/siwe-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
@@ -15,7 +21,11 @@ import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
+import type {
+  NavigationRoute,
+  ScreenParamList,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
@@ -35,6 +45,15 @@ function ExistingEthereumAccount(props: Props): React.Node {
 
   const { params } = props.route;
   const dispatch = useDispatch();
+  const { navigation } = props;
+  const goBackToHome = navigation.getParent<
+    ScreenParamList,
+    'Registration',
+    StackNavigationState,
+    StackOptions,
+    StackNavigationEventMap,
+    RootNavigationProp<'Registration'>,
+  >()?.goBack;
   const onProceedToLogIn = React.useCallback(async () => {
     if (logInPending) {
       return;
@@ -53,26 +72,45 @@ function ExistingEthereumAccount(props: Props): React.Node {
         });
       }
     } catch (e) {
-      Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
-        [{ text: 'OK' }],
-        {
-          cancelable: false,
-        },
-      );
+      const messageForException = getMessageForException(e);
+      if (messageForException === 'nonce expired') {
+        Alert.alert(
+          'Login attempt timed out',
+          'Try logging in from the main SIWE button on the home screen',
+          [{ text: 'OK', onPress: goBackToHome }],
+          {
+            cancelable: false,
+          },
+        );
+      } else {
+        Alert.alert(
+          UnknownErrorAlertDetails.title,
+          UnknownErrorAlertDetails.message,
+          [{ text: 'OK' }],
+          {
+            cancelable: false,
+          },
+        );
+      }
       throw e;
     } finally {
       setLogInPending(false);
     }
-  }, [logInPending, legacySiweServerCall, walletLogIn, params, dispatch]);
+  }, [
+    logInPending,
+    legacySiweServerCall,
+    walletLogIn,
+    params,
+    dispatch,
+    goBackToHome,
+  ]);
 
   const { address } = params;
   const walletIdentifier = useENSName(address);
   const walletIdentifierTitle =
     walletIdentifier === address ? 'Ethereum wallet' : 'ENS name';
 
-  const { goBack } = props.navigation;
+  const { goBack } = navigation;
   const styles = useStyles(unboundStyles);
   return (
     <RegistrationContainer>
