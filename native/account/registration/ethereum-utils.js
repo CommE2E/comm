@@ -4,7 +4,12 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
-import type { SIWEResult } from 'lib/types/siwe-types.js';
+import {
+  type SIWEResult,
+  identitySIWENonceLifetime,
+  legacyKeyserverSIWENonceLifetime,
+} from 'lib/types/siwe-types.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { RegistrationContext } from './registration-context.js';
 import {
@@ -57,4 +62,11 @@ function useGetEthereumAccountFromSIWEResult(): (
   );
 }
 
-export { useGetEthereumAccountFromSIWEResult };
+function siweNonceExpired(nonceTimestamp: number): boolean {
+  const nonceLifetime = usingCommServicesAccessToken
+    ? identitySIWENonceLifetime
+    : legacyKeyserverSIWENonceLifetime;
+  return Date.now() > nonceTimestamp + nonceLifetime;
+}
+
+export { useGetEthereumAccountFromSIWEResult, siweNonceExpired };
