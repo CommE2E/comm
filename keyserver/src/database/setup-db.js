@@ -197,6 +197,8 @@ async function createTables() {
         thread bigint(20) DEFAULT NULL,
         uploader varchar(255) CHARSET latin1 COLLATE latin1_bin NOT NULL,
         container bigint(20) DEFAULT NULL,
+        user_container varchar(255)
+          CHARSET latin1 COLLATE latin1_bin DEFAULT NULL,
         type varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
         filename varchar(255) NOT NULL,
         mime varchar(255) CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL,
@@ -374,6 +376,7 @@ async function createTables() {
       ALTER TABLE uploads
         ADD PRIMARY KEY (id),
         ADD INDEX container (container),
+        ADD INDEX user_container (user_container),
         ADD INDEX thread (thread);
 
       ALTER TABLE users
