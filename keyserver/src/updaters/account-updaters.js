@@ -128,9 +128,9 @@ async function updateUserAvatar(
     START TRANSACTION;
 
     UPDATE uploads
-    SET container = NULL
+    SET user_container = NULL
     WHERE uploader = ${viewer.userID}
-      AND container = ${viewer.userID}
+      AND user_container = ${viewer.userID}
       AND (
         ${mediaID} IS NULL
         OR EXISTS (
@@ -139,15 +139,17 @@ async function updateUserAvatar(
           WHERE id = ${mediaID}
             AND uploader = ${viewer.userID}
             AND container IS NULL
+            AND user_container IS NULL
             AND thread IS NULL
         )
       );
 
     UPDATE uploads
-    SET container = ${viewer.userID}
+    SET user_container = ${viewer.userID}
     WHERE id = ${mediaID}
       AND uploader = ${viewer.userID}
       AND container IS NULL
+      AND user_container IS NULL
       AND thread IS NULL;
       
     UPDATE users
@@ -160,7 +162,7 @@ async function updateUserAvatar(
           FROM uploads
           WHERE id = ${mediaID}
             AND uploader = ${viewer.userID}
-            AND container = ${viewer.userID}
+            AND user_container = ${viewer.userID}
             AND thread IS NULL
         )
       );
@@ -171,7 +173,7 @@ async function updateUserAvatar(
     FROM uploads
       WHERE id = ${mediaID}
         AND uploader = ${viewer.userID}
-        AND container = ${viewer.userID};
+        AND user_container = ${viewer.userID};
   `;
 
   const [resultSet] = await dbQuery(query, { multipleStatements: true });
