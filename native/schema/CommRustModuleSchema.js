@@ -153,6 +153,12 @@ export interface Spec extends TurboModule {
     deviceID: string,
     accessToken: string,
   ) => Promise<void>;
+  +findUserIdentities: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+    userIDs: $ReadOnlyArray<string>,
+  ) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
