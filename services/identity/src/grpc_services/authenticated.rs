@@ -13,7 +13,7 @@ use crate::{
 use chrono::{DateTime, Utc};
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, trace, warn};
 
 use super::protos::auth::{
   identity_client_service_server::IdentityClientService,
@@ -35,7 +35,7 @@ pub struct AuthenticatedService {
 }
 
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
-  debug!("Retrieving auth info for request: {:?}", req);
+  trace!("Retrieving auth info for request: {:?}", req);
 
   let user_id = get_value(req, request_metadata::USER_ID)?;
   let device_id = get_value(req, request_metadata::DEVICE_ID)?;
@@ -48,7 +48,7 @@ pub fn auth_interceptor(
   req: Request<()>,
   db_client: &DatabaseClient,
 ) -> Result<Request<()>, Status> {
-  debug!("Intercepting request to check auth info: {:?}", req);
+  trace!("Intercepting request to check auth info: {:?}", req);
 
   let (user_id, device_id, access_token) = get_auth_info(&req)
     .ok_or_else(|| Status::unauthenticated("Missing credentials"))?;
