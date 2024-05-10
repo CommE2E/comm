@@ -1,6 +1,7 @@
 // @flow
 
 import BottomSheet from '@gorhom/bottom-sheet';
+import invariant from 'invariant';
 import * as React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
@@ -46,6 +47,11 @@ const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
   legacySiweAuthActionTypes,
 );
 
+type NonceInfo = {
+  +nonce: string,
+  +nonceTimestamp: number,
+};
+
 type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
@@ -77,7 +83,7 @@ function SIWEPanel(props: Props): React.Node {
     state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
   );
 
-  const [nonce, setNonce] = React.useState<?string>(null);
+  const [nonceInfo, setNonceInfo] = React.useState<?NonceInfo>(null);
   const [primaryIdentityPublicKey, setPrimaryIdentityPublicKey] =
     React.useState<?string>(null);
 
@@ -92,7 +98,7 @@ function SIWEPanel(props: Props): React.Node {
     const generateNonce = async (nonceFunction: () => Promise<string>) => {
       try {
         const response = await nonceFunction();
-        setNonce(response);
+        setNonceInfo({ nonce: response, nonceTimestamp: Date.now() });
       } catch (e) {
         Alert.alert(
           UnknownErrorAlertDetails.title,
@@ -168,6 +174,7 @@ function SIWEPanel(props: Props): React.Node {
 
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { closing, onSuccessfulWalletSignature } = props;
+  const nonceTimestamp = nonceInfo?.nonceTimestamp;
   const handleMessage = React.useCallback(
     async (event: WebViewMessageEvent) => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
@@ -176,7 +183,13 @@ function SIWEPanel(props: Props): React.Node {
         if (address && signature) {
           nonceNotNeededRef.current = true;
           closeBottomSheet?.();
-          await onSuccessfulWalletSignature({ address, message, signature });
+          invariant(nonceTimestamp, 'nonceTimestamp should be set');
+          await onSuccessfulWalletSignature({
+            address,
+            message,
+            signature,
+            nonceTimestamp,
+          });
         }
       } else if (data.type === 'siwe_closed') {
         nonceNotNeededRef.current = true;
@@ -194,6 +207,7 @@ function SIWEPanel(props: Props): React.Node {
       onClosing,
       closeBottomSheet,
       walletConnectModalHeight,
+      nonceTimestamp,
     ],
   );
   const prevClosingRef = React.useRef<?boolean>();
@@ -205,6 +219,7 @@ function SIWEPanel(props: Props): React.Node {
     prevClosingRef.current = closing;
   }, [closing, closeBottomSheet]);
 
+  const nonce = nonceInfo?.nonce;
   const source = React.useMemo(
     () => ({
       uri: commSIWE,
