@@ -20,6 +20,7 @@ import {
 } from './qr-code-utils.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { persistConfig } from '../redux/persist.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
 import {
@@ -39,6 +40,7 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
     backupID,
     backupDataKey,
     backupLogDataKey,
+    persistConfig.version.toString(),
   );
 }
 

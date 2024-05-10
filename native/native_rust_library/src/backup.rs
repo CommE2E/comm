@@ -79,6 +79,7 @@ pub mod ffi {
   pub fn restore_backup(
     backup_secret: String,
     backup_id: String,
+    max_version: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -99,6 +100,7 @@ pub mod ffi {
       restore_from_main_compaction(
         &result.backup_restoration_path.to_string_lossy(),
         &result.backup_data_key,
+        &max_version,
         future_id,
       );
 
@@ -154,6 +156,7 @@ pub mod ffi {
     backup_id: String,
     backup_data_key: String,
     backup_log_data_key: String,
+    max_version: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -178,6 +181,7 @@ pub mod ffi {
       restore_from_main_compaction(
         &result.backup_restoration_path.to_string_lossy(),
         &result.backup_data_key,
+        &max_version,
         future_id,
       );
 
