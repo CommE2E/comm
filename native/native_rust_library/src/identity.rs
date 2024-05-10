@@ -12,6 +12,7 @@ pub mod account_actions;
 pub mod device_list;
 pub mod exact_user_search;
 pub mod farcaster;
+pub mod find_user_identities;
 pub mod login;
 pub mod registration;
 pub mod x3dh;
@@ -23,6 +24,7 @@ pub mod ffi {
   pub use device_list::ffi::*;
   pub use exact_user_search::ffi::*;
   pub use farcaster::ffi::*;
+  pub use find_user_identities::ffi::*;
   pub use login::ffi::*;
   pub use registration::ffi::*;
   pub use x3dh::ffi::*;
