@@ -137,7 +137,8 @@ public:
   virtual std::string getMetadata(std::string entry_name) const = 0;
   virtual void restoreFromMainCompaction(
       std::string mainCompactionPath,
-      std::string mainCompactionEncryptionKey) const = 0;
+      std::string mainCompactionEncryptionKey,
+      std::string maxVersion) const = 0;
   virtual void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
   virtual void addOutboundP2PMessages(
