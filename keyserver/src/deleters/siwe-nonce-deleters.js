@@ -1,12 +1,12 @@
 // @flow
 
+import { legacyKeyserverSIWENonceLifetime } from 'lib/types/siwe-types.js';
+
 import { dbQuery, SQL } from '../database/database.js';
 
-// 30 minutes = 30min * 60sec * 1000ms
-export const nonceLifetime = 30 * 60 * 1000;
-
 async function deleteStaleSIWENonceEntries(): Promise<void> {
-  const earliestValidCreationTime = Date.now() - nonceLifetime;
+  const earliestValidCreationTime =
+    Date.now() - legacyKeyserverSIWENonceLifetime;
   const query = SQL`
     DELETE FROM siwe_nonces
     WHERE creation_time < ${earliestValidCreationTime}
@@ -17,7 +17,8 @@ async function deleteStaleSIWENonceEntries(): Promise<void> {
 async function checkAndInvalidateSIWENonceEntry(
   nonce: string,
 ): Promise<boolean> {
-  const earliestValidCreationTime = Date.now() - nonceLifetime;
+  const earliestValidCreationTime =
+    Date.now() - legacyKeyserverSIWENonceLifetime;
   const query = SQL`
     DELETE FROM siwe_nonces
     WHERE nonce = ${nonce} AND creation_time > ${earliestValidCreationTime}
