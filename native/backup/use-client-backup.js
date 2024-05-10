@@ -9,6 +9,7 @@ import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
+import { persistConfig } from '../redux/persist.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type ClientBackup = {
@@ -87,7 +88,10 @@ function useClientBackup(): ClientBackup {
 
     await setMockCommServicesAuthMetadata();
     const backupSecret = await getBackupSecret();
-    await commCoreModule.restoreBackup(backupSecret);
+    await commCoreModule.restoreBackup(
+      backupSecret,
+      persistConfig.version.toString(),
+    );
 
     console.info('Backup restored.');
   }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);

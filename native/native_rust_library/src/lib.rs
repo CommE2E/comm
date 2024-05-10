@@ -360,13 +360,18 @@ mod ffi {
     );
 
     #[cxx_name = "restoreBackup"]
-    fn restore_backup(backup_secret: String, promise_id: u32);
+    fn restore_backup(
+      backup_secret: String,
+      max_version: String,
+      promise_id: u32,
+    );
 
     #[cxx_name = "restoreBackupData"]
     fn restore_backup_data(
       backup_id: String,
       backup_data_key: String,
       backup_log_data_key: String,
+      max_version: String,
       promise_id: u32,
     );
 
@@ -424,6 +429,7 @@ mod ffi {
     fn restore_from_main_compaction(
       main_compaction_path: &str,
       main_compaction_encryption_key: &str,
+      max_version: &str,
       future_id: usize,
     );
 
