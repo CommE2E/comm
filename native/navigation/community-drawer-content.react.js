@@ -8,6 +8,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
 import {
+  fetchCommunityInfosActionTypes,
+  useFetchCommunityInfos,
+} from 'lib/actions/community-actions.js';
+import {
   fetchPrimaryInviteLinkActionTypes,
   useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
@@ -47,6 +51,8 @@ function CommunityDrawerContent(): React.Node {
   const styles = useStyles(unboundStyles);
 
   const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
+  const fetchCommunityInfos = useFetchCommunityInfos();
+
   const dispatchActionPromise = useDispatchActionPromise();
   const drawerStatus = useDrawerStatus();
   React.useEffect(() => {
@@ -57,7 +63,16 @@ function CommunityDrawerContent(): React.Node {
       fetchPrimaryInviteLinkActionTypes,
       callFetchPrimaryLinks(),
     );
-  }, [callFetchPrimaryLinks, dispatchActionPromise, drawerStatus]);
+    void dispatchActionPromise(
+      fetchCommunityInfosActionTypes,
+      fetchCommunityInfos(),
+    );
+  }, [
+    callFetchPrimaryLinks,
+    dispatchActionPromise,
+    drawerStatus,
+    fetchCommunityInfos,
+  ]);
 
   const [expanded, setExpanded] = React.useState<Set<string>>(() => {
     if (communitiesSuffixed.length === 1) {
