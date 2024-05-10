@@ -39,6 +39,8 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static SQLiteConnectionManager connectionManager;
 #endif
 
+  std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
+
 public:
   static std::string sqliteFilePath;
   static std::string encryptionKey;
@@ -146,7 +148,8 @@ public:
   std::string getMetadata(std::string entry_name) const override;
   void restoreFromMainCompaction(
       std::string mainCompactionPath,
-      std::string mainCompactionEncryptionKey) const override;
+      std::string mainCompactionEncryptionKey,
+      std::string maxVersion) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
   void addOutboundP2PMessages(

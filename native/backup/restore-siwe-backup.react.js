@@ -11,6 +11,7 @@ import { SignSIWEBackupMessageForRestore } from '../account/registration/siwe-ba
 import { commCoreModule } from '../native-modules.js';
 import { type RootNavigationProp } from '../navigation/root-navigator.react.js';
 import { type NavigationRoute } from '../navigation/route-names.js';
+import { persistConfig } from '../redux/persist.js';
 import { useStyles } from '../themes/colors.js';
 
 export type RestoreSIWEBackupParams = {
@@ -39,7 +40,11 @@ function RestoreSIWEBackup(props: Props): React.Node {
         const { signature } = result;
         let message = 'success';
         try {
-          await commCoreModule.restoreSIWEBackup(signature, backupID);
+          await commCoreModule.restoreSIWEBackup(
+            signature,
+            backupID,
+            persistConfig.version.toString(),
+          );
         } catch (e) {
           message = `Backup restore error: ${String(
             getMessageForException(e),

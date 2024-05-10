@@ -26,11 +26,15 @@ void BackupOperationsExecutor::createMainCompaction(
 void BackupOperationsExecutor::restoreFromMainCompaction(
     std::string mainCompactionPath,
     std::string mainCompactionEncryptionKey,
+    std::string maxVersion,
     size_t futureID) {
-  taskType job = [mainCompactionPath, mainCompactionEncryptionKey, futureID]() {
+  taskType job = [mainCompactionPath,
+                  mainCompactionEncryptionKey,
+                  maxVersion,
+                  futureID]() {
     try {
       DatabaseManager::getQueryExecutor().restoreFromMainCompaction(
-          mainCompactionPath, mainCompactionEncryptionKey);
+          mainCompactionPath, mainCompactionEncryptionKey, maxVersion);
       ::resolveUnitFuture(futureID);
     } catch (const std::exception &e) {
       std::string errorDetails = std::string(e.what());
