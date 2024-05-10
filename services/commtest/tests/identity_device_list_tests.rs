@@ -6,6 +6,7 @@ use commtest::identity::device::{
   login_user_device, logout_user_device, register_user_device, DEVICE_TYPE,
   PLACEHOLDER_CODE_VERSION,
 };
+use commtest::identity::SigningCapableAccount;
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::get_auth_client;
@@ -14,8 +15,7 @@ use grpc_clients::identity::protos::auth::{
 };
 use grpc_clients::identity::protos::authenticated::GetDeviceListRequest;
 use grpc_clients::identity::DeviceType;
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 
 // 1. register user with android device
 // 2. register a web device
@@ -82,7 +82,7 @@ async fn test_device_list_rotation() {
 
   // Get device list updates for the user
   let device_lists_response: Vec<Vec<String>> =
-    get_device_list_history(&mut auth_client, &user_id)
+    get_raw_device_list_history(&mut auth_client, &user_id)
       .await
       .into_iter()
       .map(|device_list| device_list.devices)
@@ -115,7 +115,7 @@ async fn test_update_device_list_rpc() {
 
   // Initial device list check
   let initial_device_list =
-    get_device_list_history(&mut auth_client, &primary_device.user_id)
+    get_raw_device_list_history(&mut auth_client, &primary_device.user_id)
       .await
       .into_iter()
       .map(|device_list| device_list.devices)
@@ -127,17 +127,13 @@ async fn test_update_device_list_rpc() {
 
   // perform update by adding a new device
   let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-  let raw_update_payload = json!({
-    "devices": [primary_device_id, "device2"],
-    "timestamp": now.as_millis(),
+  let devices_payload = vec![primary_device_id, "device2".to_string()];
+
+  let update_payload = SignedDeviceList::from_raw_unsigned(&RawDeviceList {
+    devices: devices_payload.clone(),
+    timestamp: now.as_millis() as i64,
   });
-  let update_payload = json!({
-    "rawDeviceList": serde_json::to_string(&raw_update_payload).unwrap(),
-  });
-  let update_request = UpdateDeviceListRequest {
-    new_device_list: serde_json::to_string(&update_payload)
-      .expect("failed to serialize payload"),
-  };
+  let update_request = UpdateDeviceListRequest::from(&update_payload);
   auth_client
     .update_device_list(update_request)
     .await
@@ -145,16 +141,123 @@ async fn test_update_device_list_rpc() {
 
   // get device list again
   let last_device_list =
-    get_device_list_history(&mut auth_client, &primary_device.user_id).await;
+    get_raw_device_list_history(&mut auth_client, &primary_device.user_id)
+      .await;
   let last_device_list = last_device_list
     .last()
     .expect("Failed to get last device list update");
 
   // check that the device list is properly updated
-  assert_eq!(
-    last_device_list.devices,
-    vec![primary_device_id, "device2".into()]
-  );
+  assert_eq!(last_device_list.devices, devices_payload);
+  assert_eq!(last_device_list.timestamp, now.as_millis() as i64);
+}
+
+#[tokio::test]
+async fn test_device_list_signatures() {
+  // device list history as list of tuples: (signature, devices)
+  type DeviceListHistoryItem = (Option<String>, Vec<String>);
+
+  // Register user with primary device
+  let mut primary_account = SigningCapableAccount::new();
+  let primary_device_keys = primary_account.public_keys();
+  let primary_device_id = primary_device_keys.device_id();
+  let user =
+    register_user_device(Some(&primary_device_keys), Some(DeviceType::Ios))
+      .await;
+
+  let mut auth_client = get_auth_client(
+    &service_addr::IDENTITY_GRPC.to_string(),
+    user.user_id.clone(),
+    user.device_id,
+    user.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
+
+  // Perform unsigned update (add a new device)
+  let first_update: DeviceListHistoryItem = {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let update_payload = SignedDeviceList::from_raw_unsigned(&RawDeviceList {
+      devices: vec![primary_device_id.clone(), "device2".to_string()],
+      timestamp: now.as_millis() as i64,
+    });
+    let update_request = UpdateDeviceListRequest::from(&update_payload);
+    auth_client
+      .update_device_list(update_request)
+      .await
+      .expect("Unsigned device list update failed");
+
+    (
+      update_payload.cur_primary_signature.clone(),
+      update_payload.into_raw().devices,
+    )
+  };
+
+  // now perform a update (remove a device), but sign the device list
+  let second_update: DeviceListHistoryItem = {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let update_payload = SignedDeviceList::create_signed(
+      &RawDeviceList {
+        devices: vec![primary_device_id.clone()],
+        timestamp: now.as_millis() as i64,
+      },
+      &mut primary_account,
+      None,
+    );
+    let update_request = UpdateDeviceListRequest::from(&update_payload);
+    auth_client
+      .update_device_list(update_request)
+      .await
+      .expect("Unsigned device list update failed");
+
+    (
+      update_payload.cur_primary_signature.clone(),
+      update_payload.into_raw().devices,
+    )
+  };
+
+  // now perform a signed update (add a device), but with invalid signature
+  {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let mut update_payload = SignedDeviceList::create_signed(
+      &RawDeviceList {
+        devices: vec![primary_device_id.clone(), "device3".to_string()],
+        timestamp: now.as_millis() as i64,
+      },
+      &mut primary_account,
+      None,
+    );
+    // malfolm signature by replacing first characters
+    update_payload
+      .cur_primary_signature
+      .as_mut()
+      .expect("signature should be present")
+      .replace_range(0..3, "foo");
+
+    let update_request = UpdateDeviceListRequest::from(&update_payload);
+    auth_client
+      .update_device_list(update_request)
+      .await
+      .expect_err("RPC should fail for invalid signature");
+  }
+
+  // check the history to make sure our updates are correct
+  let device_list_history =
+    get_device_list_history(&mut auth_client, &user.user_id).await;
+
+  let expected_devices_lists: Vec<DeviceListHistoryItem> = vec![
+    (None, vec![primary_device_id.clone()]), // auto-generated during registration
+    first_update,
+    second_update,
+  ];
+  let actual_device_lists: Vec<DeviceListHistoryItem> = device_list_history
+    .into_iter()
+    .map(|list| (list.cur_primary_signature.clone(), list.into_raw().devices))
+    .collect();
+
+  assert_eq!(actual_device_lists, expected_devices_lists);
 }
 
 #[tokio::test]
@@ -212,7 +315,7 @@ async fn test_keyserver_force_login() {
 
   // Get device list updates for the user
   let device_lists_response: Vec<Vec<String>> =
-    get_device_list_history(&mut auth_client, &user_id)
+    get_raw_device_list_history(&mut auth_client, &user_id)
       .await
       .into_iter()
       .map(|device_list| device_list.devices)
@@ -289,25 +392,66 @@ async fn test_device_list_multifetch() {
 
 // See GetDeviceListResponse in identity_authenticated.proto
 // for details on the response format.
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[allow(unused)]
 struct RawDeviceList {
   devices: Vec<String>,
   timestamp: i64,
 }
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SignedDeviceList {
   raw_device_list: String,
+  #[serde(default)]
+  #[serde(skip_serializing_if = "Option::is_none")]
+  cur_primary_signature: Option<String>,
+  #[serde(default)]
+  #[serde(skip_serializing_if = "Option::is_none")]
+  last_primary_signature: Option<String>,
+}
+
+impl RawDeviceList {
+  fn as_json_string(&self) -> String {
+    serde_json::to_string(self).expect("Failed to serialize RawDeviceList")
+  }
 }
 
 impl SignedDeviceList {
+  fn from_raw_unsigned(raw: &RawDeviceList) -> Self {
+    Self {
+      raw_device_list: raw.as_json_string(),
+      cur_primary_signature: None,
+      last_primary_signature: None,
+    }
+  }
+
+  fn create_signed(
+    raw: &RawDeviceList,
+    cur_primary_account: &mut SigningCapableAccount,
+    last_primary_account: Option<&mut SigningCapableAccount>,
+  ) -> Self {
+    let raw_device_list = raw.as_json_string();
+    let cur_primary_signature =
+      cur_primary_account.sign_message(&raw_device_list);
+    let last_primary_signature = last_primary_account
+      .map(|account| account.sign_message(&raw_device_list));
+    Self {
+      raw_device_list,
+      cur_primary_signature: Some(cur_primary_signature),
+      last_primary_signature,
+    }
+  }
+
   fn into_raw(self) -> RawDeviceList {
     self
       .raw_device_list
       .parse()
       .expect("Failed to parse raw device list")
+  }
+
+  fn as_json_string(&self) -> String {
+    serde_json::to_string(self).expect("Failed to serialize SignedDeviceList")
   }
 }
 
@@ -327,10 +471,18 @@ impl FromStr for RawDeviceList {
   }
 }
 
+impl From<&SignedDeviceList> for UpdateDeviceListRequest {
+  fn from(value: &SignedDeviceList) -> Self {
+    Self {
+      new_device_list: value.as_json_string(),
+    }
+  }
+}
+
 async fn get_device_list_history(
   client: &mut ChainedInterceptedAuthClient,
   user_id: &str,
-) -> Vec<RawDeviceList> {
+) -> Vec<SignedDeviceList> {
   let request = GetDeviceListRequest {
     user_id: user_id.to_string(),
     since_timestamp: None,
@@ -348,7 +500,17 @@ async fn get_device_list_history(
     .map(|update| {
       SignedDeviceList::from_str(&update)
         .expect("Failed to parse device list update")
-        .into_raw()
     })
+    .collect()
+}
+
+async fn get_raw_device_list_history(
+  client: &mut ChainedInterceptedAuthClient,
+  user_id: &str,
+) -> Vec<RawDeviceList> {
+  get_device_list_history(client, user_id)
+    .await
+    .into_iter()
+    .map(|signed| signed.into_raw())
     .collect()
 }
