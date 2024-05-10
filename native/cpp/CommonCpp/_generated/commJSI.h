@@ -76,6 +76,7 @@ public:
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
   virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) = 0;
+  virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
 
 };
 
@@ -544,6 +545,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeReceivedMessagesToDevice, jsInvoker_, instance_, std::move(ids));
+    }
+    jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getSyncedDatabaseVersion) == 1,
+          "Expected getSyncedDatabaseVersion(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getSyncedDatabaseVersion, jsInvoker_, instance_);
     }
 
   private:
