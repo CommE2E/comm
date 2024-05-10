@@ -11,7 +11,7 @@ async function deleteUpload(viewer: Viewer, id: string): Promise<void> {
   }
 
   const fetchQuery = SQL`
-    SELECT uploader, container
+    SELECT uploader, container, user_container AS userContainer
     FROM uploads
     WHERE id = ${id}
   `;
@@ -21,9 +21,13 @@ async function deleteUpload(viewer: Viewer, id: string): Promise<void> {
     throw new ServerError('invalid_parameters');
   }
   const [row] = result;
-  const { uploader, container } = row;
+  const { uploader, container, userContainer } = row;
 
-  if (uploader.toString() !== viewer.userID || container !== null) {
+  if (
+    uploader.toString() !== viewer.userID ||
+    container !== null ||
+    userContainer !== null
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -44,6 +48,7 @@ async function deleteUnassignedUploads(): Promise<void> {
     FROM uploads u
     LEFT JOIN ids i ON i.id = u.id
     WHERE u.container IS NULL
+      AND u.user_container IS NULL
       AND creation_time < ${oldestUnassignedUploadToKeep}
   `);
 }
