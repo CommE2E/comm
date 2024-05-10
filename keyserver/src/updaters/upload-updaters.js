@@ -15,8 +15,11 @@ async function assignImages(
   const query = SQL`
     UPDATE uploads
     SET container = ${containerID}, thread = ${threadID}
-    WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} 
-      AND container IS NULL AND thread IS NULL
+    WHERE id IN (${mediaIDs})
+      AND uploader = ${viewer.id}
+      AND container IS NULL
+      AND user_container IS NULL
+      AND thread IS NULL
   `;
   await dbQuery(query);
 }
@@ -32,8 +35,11 @@ async function assignMessageContainerToMedia(
   const query = SQL`
     UPDATE uploads
     SET container = ${containerID}, thread = ${threadID}
-    WHERE id IN (${uploadIDs}) AND uploader = ${viewer.id} 
-      AND container IS NULL AND thread IS NULL
+    WHERE id IN (${uploadIDs})
+      AND uploader = ${viewer.id}
+      AND container IS NULL
+      AND user_container IS NULL
+      AND thread IS NULL
   `;
   await dbQuery(query);
 }
