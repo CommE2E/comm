@@ -142,6 +142,7 @@ interface Spec extends TurboModule {
   +removeReceivedMessagesToDevice: (
     ids: $ReadOnlyArray<string>,
   ) => Promise<void>;
+  +getStoredVersion: () => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {
