@@ -10,6 +10,7 @@ public:
   static void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
+      std::string maxVersion,
       size_t futureID);
   static void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog,

@@ -39,10 +39,12 @@ void createMainCompaction(rust::Str backupID, size_t futureID) {
 void restoreFromMainCompaction(
     rust::Str mainCompactionPath,
     rust::Str mainCompactionEncryptionKey,
+    rust::Str maxVersion,
     size_t futureID) {
   BackupOperationsExecutor::restoreFromMainCompaction(
       std::string(mainCompactionPath),
       std::string(mainCompactionEncryptionKey),
+      std::string(maxVersion),
       futureID);
 }
 

@@ -14,6 +14,7 @@ void createMainCompaction(rust::Str backupID, size_t futureID);
 void restoreFromMainCompaction(
     rust::Str mainCompactionPath,
     rust::Str mainCompactionEncryptionKey,
+    rust::Str maxVersion,
     size_t futureID);
 void restoreFromBackupLog(rust::Vec<std::uint8_t> backupLog, size_t futureID);
 

@@ -1881,6 +1881,20 @@ SQLiteQueryExecutor::getAllSyncedMetadata() const {
       SQLiteQueryExecutor::getConnection(), getAllSyncedMetadataSQL);
 }
 
+std::optional<int>
+SQLiteQueryExecutor::getSyncedDatabaseVersion(sqlite3 *db) const {
+  static std::string getDBVersionSyncedMetadataSQL =
+      "SELECT * "
+      "FROM synced_metadata "
+      "WHERE name=\"db_version\";";
+  std::vector<SyncedMetadataEntry> entries =
+      getAllEntities<SyncedMetadataEntry>(db, getDBVersionSyncedMetadataSQL);
+  for (auto &entry : entries) {
+    return std::stoi(entry.data);
+  }
+  return std::nullopt;
+}
+
 void SQLiteQueryExecutor::replaceAuxUserInfo(
     const AuxUserInfo &aux_user_info) const {
   static std::string replaceAuxUserInfoSQL =
@@ -2549,7 +2563,8 @@ void SQLiteQueryExecutor::captureBackupLogs() const {
 
 void SQLiteQueryExecutor::restoreFromMainCompaction(
     std::string mainCompactionPath,
-    std::string mainCompactionEncryptionKey) const {
+    std::string mainCompactionEncryptionKey,
+    std::string maxVersion) const {
 
   if (!file_exists(mainCompactionPath)) {
     throw std::runtime_error("Restore attempt but backup file does not exist.");
@@ -2608,6 +2623,17 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   sqlite3_open(mainCompactionPath.c_str(), &backupDB);
   set_encryption_key(backupDB, mainCompactionEncryptionKey);
 #endif
+
+  int version = this->getSyncedDatabaseVersion(backupDB).value_or(-1);
+  if (version > std::stoi(maxVersion)) {
+    std::stringstream error_message;
+    error_message << "Failed to restore a backup because it was created "
+                  << "with version " << version
+                  << " that is newer than the max supported version "
+                  << maxVersion << std::endl;
+    sqlite3_close(backupDB);
+    throw std::runtime_error(error_message.str());
+  }
 
   sqlite3_backup *backupObj = sqlite3_backup_init(
       SQLiteQueryExecutor::getConnection(), "main", backupDB, "main");
