@@ -14,7 +14,10 @@ import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
-import { useGetEthereumAccountFromSIWEResult } from './ethereum-utils.js';
+import {
+  useGetEthereumAccountFromSIWEResult,
+  siweNonceExpired,
+} from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -58,7 +61,7 @@ function ConnectEthereum(props: Props): React.Node {
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { cachedSelections } = registrationContext;
+  const { cachedSelections, setCachedSelections } = registrationContext;
 
   const userSelections = params?.userSelections;
   const isNerdMode = userSelections?.coolOrNerdMode === 'nerd';
@@ -215,7 +218,17 @@ function ConnectEthereum(props: Props): React.Node {
   }
 
   const { ethereumAccount } = cachedSelections;
-  const alreadyHasConnected = !!ethereumAccount;
+  const nonceExpired =
+    ethereumAccount && siweNonceExpired(ethereumAccount.nonceTimestamp);
+  const alreadyHasConnected = !!ethereumAccount && !nonceExpired;
+  React.useEffect(() => {
+    if (nonceExpired) {
+      setCachedSelections(oldUserSelections => ({
+        ...oldUserSelections,
+        ethereumAccount: undefined,
+      }));
+    }
+  }, [nonceExpired, setCachedSelections]);
 
   const exactSearchUserCallLoading = useSelector(
     state => exactSearchUserLoadingStatusSelector(state) === 'loading',
