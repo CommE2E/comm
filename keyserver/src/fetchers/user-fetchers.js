@@ -39,7 +39,7 @@ async function fetchUserInfos(
       up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
     FROM users u
     LEFT JOIN uploads up
-      ON up.container = u.id
+      ON up.user_container = u.id
     WHERE u.id IN (${userIDs})
   `;
   const [result] = await dbQuery(query);
@@ -123,10 +123,12 @@ async function fetchKnownUserInfos(
   }
 
   const query = SQL`
-    SELECT ru.user1, ru.user2, u.username, u.avatar, ru.status AS undirected_status,
-      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status,
-      up1.id AS user1_upload_id, up1.secret AS user1_upload_secret, up1.extra AS user1_upload_extra,
-      up2.id AS user2_upload_id, up2.secret AS user2_upload_secret, up2.extra AS user2_upload_extra
+    SELECT ru.user1, ru.user2, u.username, u.avatar,
+      ru.status AS undirected_status, rd1.status AS user1_directed_status,
+      rd2.status AS user2_directed_status, up1.id AS user1_upload_id,
+      up1.secret AS user1_upload_secret, up1.extra AS user1_upload_extra,
+      up2.id AS user2_upload_id, up2.secret AS user2_upload_secret,
+      up2.extra AS user2_upload_extra
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
       ON rd1.user1 = ru.user1 AND rd1.user2 = ru.user2
@@ -135,9 +137,11 @@ async function fetchKnownUserInfos(
     LEFT JOIN users u
       ON u.id != ${viewer.userID} AND (u.id = ru.user1 OR u.id = ru.user2)
     LEFT JOIN uploads up1
-      ON up1.container != ${viewer.userID} AND up1.container = ru.user1
+      ON up1.user_container != ${viewer.userID}
+        AND up1.user_container = ru.user1
     LEFT JOIN uploads up2
-      ON up2.container != ${viewer.userID} AND up2.container = ru.user2
+      ON up2.user_container != ${viewer.userID}
+        AND up2.user_container = ru.user2
   `;
   if (userIDs) {
     query.append(SQL`
@@ -154,11 +158,12 @@ async function fetchKnownUserInfos(
       CAST(NULL AS UNSIGNED) AS undirected_status,
       CAST(NULL AS UNSIGNED) AS user1_directed_status,
       CAST(NULL AS UNSIGNED) AS user2_directed_status,
-      up.id AS user1_upload_id, up.secret AS user1_upload_secret, up.extra AS user1_upload_extra,
-      NULL AS user2_upload_id, NULL AS user2_upload_secret, NULL AS user2_upload_extra
+      up.id AS user1_upload_id, up.secret AS user1_upload_secret,
+      up.extra AS user1_upload_extra, NULL AS user2_upload_id,
+      NULL AS user2_upload_secret, NULL AS user2_upload_extra
     FROM users u
     LEFT JOIN uploads up
-      ON up.container = u.id
+      ON up.user_container = u.id
     WHERE u.id = ${viewer.userID}
   `);
   const [result] = await dbQuery(query);
@@ -344,7 +349,7 @@ async function fetchLoggedInUserInfo(
       up.id AS upload_id, up.secret AS upload_secret, up.extra AS upload_extra
     FROM users u
     LEFT JOIN uploads up
-      ON up.container = u.id
+      ON up.user_container = u.id
     WHERE u.id = ${viewer.userID}
   `;
 
