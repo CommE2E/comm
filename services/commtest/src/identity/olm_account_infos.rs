@@ -15,6 +15,12 @@ pub struct ClientPublicKeys {
   pub notification_identity_public_keys: IdentityPublicKeys,
 }
 
+impl ClientPublicKeys {
+  pub fn device_id(&self) -> String {
+    self.primary_identity_public_keys.ed25519.clone()
+  }
+}
+
 lazy_static! {
   pub static ref DEFAULT_CLIENT_KEYS: ClientPublicKeys = ClientPublicKeys {
     primary_identity_public_keys: IdentityPublicKeys {
