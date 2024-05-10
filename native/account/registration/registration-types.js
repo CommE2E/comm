@@ -53,7 +53,7 @@ export type CachedUserSelections = {
   +username?: string,
   +password?: string,
   +avatarData?: ?AvatarData,
-  +ethereumAccount?: EthereumAccountSelection,
+  +ethereumAccount?: ?EthereumAccountSelection,
   +farcasterID?: string,
   +siweBackupSecrets?: ?SIWEBackupSecrets,
 };
