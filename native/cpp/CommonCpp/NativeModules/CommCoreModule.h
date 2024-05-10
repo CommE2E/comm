@@ -223,6 +223,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String messageID,
       jsi::String deviceID) override;
+  virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
