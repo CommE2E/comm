@@ -7,6 +7,7 @@ import { Alert } from 'react-native';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
+import { siweNonceExpired } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
 import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
@@ -59,7 +60,16 @@ function ConnectFarcaster(prop: Props): React.Node {
     (fid?: ?string) => {
       setWebViewState('closed');
 
-      if (!skipEthereumLoginOnce || !ethereumAccount) {
+      const nonceExpired =
+        ethereumAccount && siweNonceExpired(ethereumAccount.nonceTimestamp);
+      if (nonceExpired) {
+        setCachedSelections(oldUserSelections => ({
+          ...oldUserSelections,
+          ethereumAccount: undefined,
+        }));
+      }
+
+      if (!skipEthereumLoginOnce || !ethereumAccount || nonceExpired) {
         navigate<'ConnectEthereum'>({
           name: ConnectEthereumRouteName,
           params: {
@@ -89,6 +99,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       setSkipEthereumLoginOnce,
       ethereumAccount,
       userSelections,
+      setCachedSelections,
     ],
   );
 
