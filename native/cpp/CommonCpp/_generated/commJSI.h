@@ -81,6 +81,7 @@ public:
   virtual jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) = 0;
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
+  virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
 
 };
 
@@ -589,6 +590,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeOutboundP2PMessagesOlderThan, jsInvoker_, instance_, std::move(messageID), std::move(deviceID));
+    }
+    jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getSyncedDatabaseVersion) == 1,
+          "Expected getSyncedDatabaseVersion(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getSyncedDatabaseVersion, jsInvoker_, instance_);
     }
 
   private:

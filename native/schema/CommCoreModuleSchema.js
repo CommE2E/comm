@@ -161,6 +161,7 @@ interface Spec extends TurboModule {
     messageID: string,
     deviceID: string,
   ) => Promise<void>;
+  +getSyncedDatabaseVersion: () => Promise<string>;
 }
 
 export interface CoreModuleSpec extends Spec {
