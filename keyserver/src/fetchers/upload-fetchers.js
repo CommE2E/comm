@@ -146,7 +146,9 @@ function imagesFromRow(row: Object): Image | EncryptedImage {
   };
 }
 
-async function fetchImages(
+// This function technically fetches all kinds of unassigned media,
+// but it's only called by legacy clients that only support images
+async function fetchUnassignedImages(
   viewer: Viewer,
   mediaIDs: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<Media>> {
@@ -154,7 +156,10 @@ async function fetchImages(
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
     FROM uploads
-    WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
+    WHERE id IN (${mediaIDs})
+      AND uploader = ${viewer.id}
+      AND container IS NULL
+      AND user_container IS NULL
   `;
   const [result] = await dbQuery(query);
   return result.map(imagesFromRow);
@@ -279,7 +284,7 @@ async function fetchMediaForThread(
   return { media };
 }
 
-async function fetchUploadsForMessage(
+async function fetchUnassignedUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
 ): Promise<$ReadOnlyArray<Object>> {
@@ -289,18 +294,24 @@ async function fetchUploadsForMessage(
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
     FROM uploads
-    WHERE id IN (${uploadIDs}) AND uploader = ${viewer.id} AND container IS NULL
+    WHERE id IN (${uploadIDs})
+      AND uploader = ${viewer.id}
+      AND container IS NULL
+      AND user_container IS NULL
   `;
 
   const [uploads] = await dbQuery(query);
   return uploads;
 }
 
-async function fetchMediaFromMediaMessageContent(
+async function fetchUnassignedMediaFromMediaMessageContent(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
 ): Promise<$ReadOnlyArray<Media>> {
-  const uploads = await fetchUploadsForMessage(viewer, mediaMessageContents);
+  const uploads = await fetchUnassignedUploadsForMessage(
+    viewer,
+    mediaMessageContents,
+  );
 
   return constructMediaFromMediaMessageContentsAndUploadRows(
     mediaMessageContents,
@@ -401,8 +412,8 @@ export {
   getUploadURL,
   makeUploadURI,
   imagesFromRow,
-  fetchImages,
+  fetchUnassignedImages,
   fetchMediaForThread,
-  fetchMediaFromMediaMessageContent,
+  fetchUnassignedMediaFromMediaMessageContent,
   constructMediaFromMediaMessageContentsAndUploadRows,
 };

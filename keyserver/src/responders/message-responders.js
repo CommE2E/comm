@@ -51,8 +51,8 @@ import {
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
-  fetchImages,
-  fetchMediaFromMediaMessageContent,
+  fetchUnassignedImages,
+  fetchUnassignedMediaFromMediaMessageContent,
 } from '../fetchers/upload-fetchers.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
@@ -178,8 +178,11 @@ async function multimediaMessageCreationResponder(
     localID,
   );
   const mediaPromise: Promise<$ReadOnlyArray<Media>> = request.mediaIDs
-    ? fetchImages(viewer, request.mediaIDs)
-    : fetchMediaFromMediaMessageContent(viewer, request.mediaMessageContents);
+    ? fetchUnassignedImages(viewer, request.mediaIDs)
+    : fetchUnassignedMediaFromMediaMessageContent(
+        viewer,
+        request.mediaMessageContents,
+      );
 
   const [existingMessageInfo, media] = await Promise.all([
     existingMessageInfoPromise,
