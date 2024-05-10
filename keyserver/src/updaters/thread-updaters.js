@@ -660,6 +660,7 @@ async function updateThread(
                 AND ${avatarUploadID} IS NOT NULL
                 AND uploader = ${viewer.userID}
                 AND container IS NULL
+                AND user_container IS NULL
                 AND thread IS NULL
              )
           );
@@ -670,6 +671,7 @@ async function updateThread(
           AND ${avatarUploadID} IS NOT NULL
           AND uploader = ${viewer.userID}
           AND container IS NULL
+          AND user_container IS NULL
           AND thread IS NULL;
 
         UPDATE threads
