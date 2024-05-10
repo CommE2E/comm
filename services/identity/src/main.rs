@@ -90,6 +90,12 @@ async fn main() -> Result<(), BoxedError> {
         .accept_http1(true)
         .layer(cors_layer())
         .layer(GrpcWebLayer::new())
+        .trace_fn(|_| {
+          tracing::info_span!(
+            "grpc_request",
+            request_id = uuid::Uuid::new_v4().to_string()
+          )
+        })
         .add_service(client_service)
         .add_service(auth_service)
         .serve(addr);
