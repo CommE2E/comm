@@ -23,7 +23,7 @@ resource "aws_ecs_task_definition" "backup_service" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = "info"
+          value = local.is_staging ? "info,backup=debug,comm_lib=debug" : "info"
         },
         {
           name  = "BLOB_SERVICE_URL",
