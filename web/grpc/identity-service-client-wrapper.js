@@ -30,6 +30,8 @@ import {
   farcasterUsersValidator,
   type UsersSignedDeviceLists,
   usersSignedDeviceListsValidator,
+  type Identities,
+  identitiesValidator,
 } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -615,6 +617,28 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     }
     await client.unlinkFarcasterAccount(new Empty());
   };
+
+  findUserIdentities: (userIDs: $ReadOnlyArray<string>) => Promise<Identities> =
+    async userIDs => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
+      const request = new IdentityAuthStructs.UserIdentitiesRequest();
+      request.setUserIdsList([...userIDs]);
+      const response = await client.findUserIdentities(request);
+      const identityObjects = response.toObject()?.identitiesMap;
+
+      let identities: Identities = {};
+      identityObjects.forEach(([userID, identityObject]) => {
+        identities = {
+          ...identities,
+          [userID]: identityObject,
+        };
+      });
+
+      return assertWithValidator(identities, identitiesValidator);
+    };
 }
 
 function authNewDeviceKeyUpload(
