@@ -68,7 +68,7 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = "info"
+          value = local.is_staging ? "info,tunnelbroker=debug,comm_lib=debug" : "info"
         },
         {
           name  = "AMQP_URI",
