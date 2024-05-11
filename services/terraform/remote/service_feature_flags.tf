@@ -26,7 +26,7 @@ resource "aws_ecs_task_definition" "feature_flags" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = "info"
+          value = local.is_staging ? "info,feature-flags=debug,comm-lib=debug" : "info"
         }
       ]
       logConfiguration = {

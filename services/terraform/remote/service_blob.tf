@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "blob_service" {
       environment = [
         {
           name  = "RUST_LOG"
-          value = "info"
+          value = local.is_staging ? "info,blob=debug,comm-lib=debug" : "info"
         },
         {
           name  = "BLOB_S3_BUCKET_NAME",
