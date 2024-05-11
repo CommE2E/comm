@@ -336,7 +336,7 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
       }
       _ = &mut ping_timeout => {
         if !got_heartbeat_response {
-          error!(errorType = error_types::SEARCH_LOG, "Connection to {} died.", addr);
+          debug!("Connection to {} died.", addr);
           break;
         }
         let serialized = serde_json::to_string(&Heartbeat {}).unwrap();
