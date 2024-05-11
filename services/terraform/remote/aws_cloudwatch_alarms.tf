@@ -26,7 +26,7 @@ resource "aws_sns_topic_subscription" "email_subscription" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
-  alarm_name          = "search-index-lambda-error-alarm"
+  alarm_name          = "SearchIndexLambdaErrorAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "LambdaErrors"
@@ -107,8 +107,8 @@ resource "aws_sns_topic_subscription" "ecs_task_stop_subscription" {
   endpoint  = local.identity_error_subscribed_email
 }
 
-resource "aws_cloudwatch_metric_alarm" "ecs_task_stop" {
-  alarm_name          = "ecs-task-stop"
+resource "aws_cloudwatch_metric_alarm" "identity_ecs_task_stop" {
+  alarm_name          = "IdentityECSTaskStop"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "TaskStop"
