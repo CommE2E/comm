@@ -27,6 +27,7 @@ import {
   type UserDevicesOlmOutboundKeys,
   type UsersSignedDeviceLists,
   usersSignedDeviceListsValidator,
+  identitiesValidator,
 } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -614,6 +615,21 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           accessToken: token,
         } = await getAuthMetadata();
         return commRustModule.unlinkFarcasterAccount(userID, deviceID, token);
+      },
+      findUserIdentities: async (userIDs: $ReadOnlyArray<string>) => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        const result = await commRustModule.findUserIdentities(
+          userID,
+          deviceID,
+          token,
+          userIDs,
+        );
+        const identities = JSON.parse(result);
+        return assertWithValidator(identities, identitiesValidator);
       },
     }),
     [getAuthMetadata],
