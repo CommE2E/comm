@@ -103,6 +103,8 @@ import {
   convertMessageStoreThreadsToNewIDSchema,
   convertThreadStoreThreadInfosToNewIDSchema,
   createAsyncMigrate,
+  type LegacyMigrationManifest,
+  type MigrationManifest,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
@@ -137,7 +139,7 @@ import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
 
-const legacyMigrations = {
+const legacyMigrations: LegacyMigrationManifest = {
   [1]: (state: AppState) => ({
     ...state,
     notifPermissionAlertInfo: defaultAlertInfo,
@@ -1305,7 +1307,7 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
-const migrations = {
+const migrations: MigrationManifest = {
   [75]: (state: AppState) => ({
     state,
     ops: [],
@@ -1345,4 +1347,11 @@ function getPersistor(): Persistor {
   return storedPersistor;
 }
 
-export { persistConfig, codeVersion, setPersistor, getPersistor };
+export {
+  persistConfig,
+  codeVersion,
+  setPersistor,
+  getPersistor,
+  migrations,
+  legacyMigrations,
+};
