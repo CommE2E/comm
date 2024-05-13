@@ -46,10 +46,15 @@ function TagFarcasterChannel(props: Props): React.Node {
   const [selectedChannel, setSelectedChannel] =
     React.useState<?NeynarChannel>(farcasterChannel);
 
+  const [isLoadingChannelInfo, setIsLoadingChannelInfo] = React.useState(false);
+
   React.useEffect(() => {
     void (async () => {
+      setIsLoadingChannelInfo(true);
+
       if (!communityInfo?.farcasterChannelID) {
         setSelectedChannel(null);
+        setIsLoadingChannelInfo(false);
         return;
       }
 
@@ -59,6 +64,7 @@ function TagFarcasterChannel(props: Props): React.Node {
       );
 
       setSelectedChannel(channel);
+      setIsLoadingChannelInfo(false);
     })();
   }, [client, communityInfo?.farcasterChannelID, fid]);
 
@@ -94,7 +100,11 @@ function TagFarcasterChannel(props: Props): React.Node {
         <View style={styles.panelSectionContainer}>
           <Text style={styles.sectionText}>Selected channel:</Text>
           <Text style={styles.channelNameText}>{channelNameTextContent}</Text>
-          <TagChannelButton communityID={communityID} setError={setError} />
+          <TagChannelButton
+            communityID={communityID}
+            isLoadingChannelInfo={isLoadingChannelInfo}
+            setError={setError}
+          />
         </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
       </View>
@@ -107,6 +117,7 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.errorContainer,
       channelNameTextContent,
       communityID,
+      isLoadingChannelInfo,
       errorMessage,
     ],
   );
