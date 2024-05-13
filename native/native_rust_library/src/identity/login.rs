@@ -228,6 +228,7 @@ async fn log_in_wallet_user_helper(
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: None,
+    initial_device_list: "".to_string(),
   };
 
   let mut identity_client = get_unauthenticated_client(

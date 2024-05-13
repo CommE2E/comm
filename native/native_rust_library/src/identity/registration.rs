@@ -117,6 +117,7 @@ async fn register_password_user_helper(
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: password_user_info.farcaster_id,
+    initial_device_list: "".to_string(),
   };
 
   let mut identity_client = get_unauthenticated_client(
@@ -176,6 +177,7 @@ async fn register_wallet_user_helper(
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: wallet_user_info.farcaster_id,
+    initial_device_list: "".to_string(),
   };
 
   let mut identity_client = get_unauthenticated_client(
