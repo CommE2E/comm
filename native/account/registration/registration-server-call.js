@@ -20,6 +20,7 @@ import {
   logInActionSources,
 } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -219,6 +220,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               farcasterID,
               siweBackupSecrets,
               clearCachedSelections,
+              onNonceExpired,
             } = input;
             const keyserverURL = passedKeyserverURL ?? defaultURLPrefix;
             if (
@@ -255,10 +257,15 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   fid: farcasterID,
                 });
               } catch (e) {
-                Alert.alert(
-                  UnknownErrorAlertDetails.title,
-                  UnknownErrorAlertDetails.message,
-                );
+                const messageForException = getMessageForException(e);
+                if (messageForException === 'nonce expired') {
+                  onNonceExpired();
+                } else {
+                  Alert.alert(
+                    UnknownErrorAlertDetails.title,
+                    UnknownErrorAlertDetails.message,
+                  );
+                }
                 throw e;
               }
             }

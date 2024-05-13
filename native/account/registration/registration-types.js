@@ -45,6 +45,7 @@ export type RegistrationServerCallInput = {
   +avatarData: ?AvatarData,
   +siweBackupSecrets?: ?SIWEBackupSecrets,
   +clearCachedSelections: () => void,
+  +onNonceExpired: () => mixed,
 };
 
 export type CachedUserSelections = {

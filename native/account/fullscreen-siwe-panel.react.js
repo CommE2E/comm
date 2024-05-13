@@ -8,7 +8,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import { useWalletLogIn } from 'lib/hooks/login-hooks.js';
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
-import { ServerError } from 'lib/utils/errors.js';
+import { ServerError, getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
@@ -67,6 +67,20 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     ],
   );
 
+  const onNonceExpired = React.useCallback(
+    (registrationOrLogin: 'registration' | 'login') => {
+      Alert.alert(
+        registrationOrLogin === 'registration'
+          ? 'Registration attempt timed out'
+          : 'Login attempt timed out',
+        'Please try again',
+        [{ text: 'OK', onPress: goBackToPrompt }],
+        { cancelable: false },
+      );
+    },
+    [goBackToPrompt],
+  );
+
   const legacySiweServerCall = useLegacySIWEServerCall();
   const walletLogIn = useWalletLogIn();
   const successRef = React.useRef(false);
@@ -80,20 +94,39 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             await commRustModule.findUserIDForWalletAddress(result.address);
           const findUserIDResponse = JSON.parse(findUserIDResponseString);
           if (findUserIDResponse.userID || findUserIDResponse.isReserved) {
-            await walletLogIn(result.address, result.message, result.signature);
+            try {
+              await walletLogIn(
+                result.address,
+                result.message,
+                result.signature,
+              );
+            } catch (e) {
+              const messageForException = getMessageForException(e);
+              if (messageForException === 'nonce expired') {
+                onNonceExpired('login');
+              } else {
+                throw e;
+              }
+            }
           } else if (enableNewRegistrationMode) {
             await onAccountDoesNotExist(result);
           } else {
-            await registrationServerCall({
-              farcasterID: null,
-              accountSelection: {
-                accountType: 'ethereum',
-                ...result,
-                avatarURI: null,
-              },
-              avatarData: null,
-              clearCachedSelections: () => {},
-            });
+            try {
+              await registrationServerCall({
+                farcasterID: null,
+                accountSelection: {
+                  accountType: 'ethereum',
+                  ...result,
+                  avatarURI: null,
+                },
+                avatarData: null,
+                clearCachedSelections: () => {},
+                onNonceExpired: () => onNonceExpired('registration'),
+              });
+            } catch {
+              // We swallow exceptions here because registrationServerCall
+              // already handles showing Alerts, and we don't want to show two
+            }
           }
         } catch (e) {
           Alert.alert(
@@ -102,7 +135,6 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             [{ text: 'OK', onPress: goBackToPrompt }],
             { cancelable: false },
           );
-          throw e;
         }
       } else {
         try {
@@ -124,7 +156,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             [{ text: 'OK', onPress: goBackToPrompt }],
             { cancelable: false },
           );
-          throw e;
+          return;
         }
         dispatch({
           type: setDataLoadedActionType,
@@ -141,6 +173,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
       dispatch,
       legacySiweServerCall,
       onAccountDoesNotExist,
+      onNonceExpired,
     ],
   );
 
