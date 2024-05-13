@@ -6,10 +6,16 @@ import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
+import { runMigrations } from 'lib/utils/migration-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
-import { persistConfig } from '../redux/persist.js';
+import { defaultState } from '../redux/default-state.js';
+import {
+  legacyMigrations,
+  migrations,
+  persistConfig,
+} from '../redux/persist.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type ClientBackup = {
@@ -91,9 +97,26 @@ function useClientBackup(): ClientBackup {
     await commCoreModule.restoreBackup(backupSecret);
 
     const backupVersion = await commCoreModule.getSyncedDatabaseVersion();
-    if (!backupVersion || parseInt(backupVersion) > persistConfig.version) {
+    const backupVersionNumber = parseInt(backupVersion);
+    if (!backupVersion || backupVersionNumber > persistConfig.version) {
       throw new Error(`Incompatible backup version ${backupVersion ?? -1}`);
     }
+
+    console.info('Running backup migrations...');
+    await runMigrations(
+      legacyMigrations,
+      migrations,
+      {
+        ...defaultState,
+        _persist: {
+          version: backupVersionNumber,
+          rehydrated: true,
+        },
+      },
+      backupVersionNumber,
+      persistConfig.version,
+      process.env.NODE_ENV !== 'production',
+    );
 
     console.info('Backup restored.');
   }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);
