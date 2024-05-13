@@ -1,8 +1,13 @@
 // @flow
 
+import type {
+  StackNavigationEventMap,
+  StackNavigationState,
+  StackOptions,
+} from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View, Image, Linking } from 'react-native';
+import { Text, View, Image, Linking, Alert } from 'react-native';
 
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
@@ -19,7 +24,11 @@ import type {
 } from './registration-types.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
 import { logInActionType } from '../../navigation/action-types.js';
-import type { NavigationRoute } from '../../navigation/route-names.js';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
+import type {
+  NavigationRoute,
+  ScreenParamList,
+} from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 
 export type RegistrationTermsParams = {
@@ -59,16 +68,43 @@ function RegistrationTerms(props: Props): React.Node {
     setCachedSelections({});
   }, [setCachedSelections]);
 
+  const { navigation } = props;
+  const goBackToHome = navigation.getParent<
+    ScreenParamList,
+    'Registration',
+    StackNavigationState,
+    StackOptions,
+    StackNavigationEventMap,
+    RootNavigationProp<'Registration'>,
+  >()?.goBack;
+  const onNonceExpired = React.useCallback(() => {
+    setCachedSelections(oldUserSelections => ({
+      ...oldUserSelections,
+      ethereumAccount: undefined,
+    }));
+    Alert.alert(
+      'Registration attempt timed out',
+      'Please try to connect your Ethereum wallet again',
+      [{ text: 'OK', onPress: goBackToHome }],
+      {
+        cancelable: false,
+      },
+    );
+  }, [goBackToHome, setCachedSelections]);
+
   const onProceed = React.useCallback(async () => {
     setRegistrationInProgress(true);
     try {
-      await register({ ...userSelections, clearCachedSelections });
+      await register({
+        ...userSelections,
+        clearCachedSelections,
+        onNonceExpired,
+      });
     } finally {
       setRegistrationInProgress(false);
     }
-  }, [register, userSelections, clearCachedSelections]);
+  }, [register, userSelections, clearCachedSelections, onNonceExpired]);
 
-  const { navigation } = props;
   React.useEffect(() => {
     if (!registrationInProgress) {
       return undefined;
