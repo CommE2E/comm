@@ -121,6 +121,19 @@ in writeShellApplication {
       "${gnused}/bin/sed" -i -e "s|PASS|$PASS|g" "$KEYSERVER_DB_CONFIG"
     fi
 
+    # check if MariaDB requires an upgrade
+    "${lib.getBin mariadb}/bin/mariadb-upgrade" -u "$USER" \
+      --socket="$MYSQL_UNIX_PORT" \
+      --check-if-upgrade-is-needed >/dev/null 2>&1
+
+    exit_code=$?
+    if [[ $exit_code -eq 0 ]]; then
+      "${lib.getBin mariadb}/bin/mariadb-upgrade" -u "$USER" \
+        --socket="$MYSQL_UNIX_PORT" \
+
+      echo "Upgrade complete" >&2
+    fi
+
     # Explicitly exit this script so the parent shell can determine
     # when it's safe to return control of terminal to user
     exit 0
