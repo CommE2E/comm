@@ -15,3 +15,6 @@ export const clearScreensActionType = 'CLEAR_SCREENS';
 export const replaceWithThreadActionType = 'REPLACE_WITH_THREAD';
 export const clearThreadsActionType = 'CLEAR_THREADS';
 export const pushNewThreadActionType = 'PUSH_NEW_THREAD';
+
+// RegistrationRouter
+export const reconnectEthereumActionType = 'RECONNECT_ETHEREUM';
