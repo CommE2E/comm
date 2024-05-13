@@ -4,15 +4,15 @@ import invariant from 'invariant';
 import type { PersistState } from 'redux-persist/es/types.js';
 
 import {
-  logOutActionTypes,
-  deleteKeyserverAccountActionTypes,
   deleteAccountActionTypes,
+  deleteKeyserverAccountActionTypes,
   keyserverAuthActionTypes,
+  logOutActionTypes,
 } from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import {
-  type ReplaceKeyserverOperation,
   keyserverStoreOpsHandlers,
+  type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
 import {
   type ReplaceThreadActivityEntryOperation,
@@ -30,16 +30,16 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.j
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { shouldClearData } from 'lib/shared/data-utils.js';
 import {
-  invalidSessionDowngrade,
   identityInvalidSessionDowngrade,
+  invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/session-utils.js';
 import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type {
-  MessageSourceMetadata,
   DBOpsStore,
+  MessageSourceMetadata,
 } from 'lib/types/db-ops-types.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
@@ -64,14 +64,15 @@ import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 
 import {
-  updateWindowActiveActionType,
-  updateNavInfoActionType,
-  updateWindowDimensionsActionType,
   setInitialReduxState,
+  updateNavInfoActionType,
+  updateWindowActiveActionType,
+  updateWindowDimensionsActionType,
 } from './action-types.js';
 import { reduceCommunityPickerStore } from './community-picker-reducer.js';
 import { defaultWebState } from './default-state.js';
 import reduceNavInfo from './nav-reducer.js';
+import { nonUserSpecificFieldsWeb } from './persist-constants.js';
 import { onStateDifference } from './redux-debug-utils.js';
 import { reduceServicesAccessToken } from './services-access-token-reducer.js';
 import { getVisibility } from './visibility.js';
@@ -84,18 +85,6 @@ export type CommunityPickerStore = {
   +chat: ?string,
   +calendar: ?string,
 };
-
-const nonUserSpecificFieldsWeb = [
-  'loadingStatuses',
-  'windowDimensions',
-  'lifecycleState',
-  'windowActive',
-  'pushApiPublicKey',
-  'keyserverStore',
-  'initialStateLoaded',
-  '_persist',
-  'customServer',
-];
 
 export type AppState = {
   +navInfo: WebNavInfo,
@@ -548,4 +537,4 @@ function validateStateAndQueueOpsProcessing(
   };
 }
 
-export { nonUserSpecificFieldsWeb, reducer };
+export { reducer };
