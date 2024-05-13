@@ -37,7 +37,6 @@
             (_: _: {
               emscripten = oldNixpkgs.emscripten; # Changed signficantly
               php80 = oldNixpkgs.php80; # Used for arcanist
-              mariadb = oldNixpkgs.mariadb_108;
             })
           ];
         };
