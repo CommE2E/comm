@@ -40,7 +40,10 @@ const defaultWebState: AppState = Object.freeze({
   },
   windowActive: true,
   pushApiPublicKey: null,
-  windowDimensions: { width: window.width, height: window.height },
+  windowDimensions: {
+    width: typeof window !== 'undefined' ? window.width : 0,
+    height: typeof window !== 'undefined' ? window.height : 0,
+  },
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
   dataLoaded: false,
@@ -68,7 +71,7 @@ const defaultWebState: AppState = Object.freeze({
   keyserverStore: {
     keyserverInfos: {
       [authoritativeKeyserverID]: defaultKeyserverInfo(
-        keyserverURL,
+        typeof keyserverURL !== 'undefined' ? keyserverURL : '',
         electron?.platform ?? 'web',
       ),
     },
