@@ -13,10 +13,6 @@ import {
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
-import {
-  createAsyncMigrate,
-  type StorageMigrationFunction,
-} from 'lib/shared/create-async-migrate.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
@@ -34,6 +30,8 @@ import { isDev } from 'lib/utils/dev-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
+  createAsyncMigrate,
+  type StorageMigrationFunction,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
