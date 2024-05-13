@@ -108,6 +108,8 @@ import {
   convertMessageStoreThreadsToNewIDSchema,
   convertThreadStoreThreadInfosToNewIDSchema,
   createAsyncMigrate,
+  type LegacyMigrationManifest,
+  type MigrationManifest,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
@@ -138,11 +140,12 @@ import type { AppState } from './state-types.js';
 import { unshimClientDB } from './unshim-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { commCoreModule } from '../native-modules.js';
+import type { NavInfo } from '../navigation/default-state.js';
 import { defaultDeviceCameraInfo } from '../types/camera.js';
 import { isTaskCancelledError } from '../utils/error-handling.js';
 import { defaultURLPrefix } from '../utils/url-utils.js';
 
-const legacyMigrations = {
+const legacyMigrations: LegacyMigrationManifest<NavInfo, AppState> = {
   [1]: (state: AppState) => ({
     ...state,
     notifPermissionAlertInfo: defaultAlertInfo,
@@ -1339,7 +1342,7 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
-const migrations = {
+const migrations: MigrationManifest<NavInfo, AppState> = {
   // This migration doesn't change the store but sets a persisted version
   // in the DB
   [75]: (state: AppState) => ({
@@ -1387,4 +1390,11 @@ function getPersistor(): Persistor {
   return storedPersistor;
 }
 
-export { persistConfig, codeVersion, setPersistor, getPersistor };
+export {
+  persistConfig,
+  codeVersion,
+  setPersistor,
+  getPersistor,
+  migrations,
+  legacyMigrations,
+};
