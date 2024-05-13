@@ -3,10 +3,13 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import type { CommunityInfo } from 'lib/types/community-types.js';
+
 import TagChannelButton from './tag-channel-button.react.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 
 export type TagFarcasterChannelParams = {
@@ -22,6 +25,10 @@ function TagFarcasterChannel(props: Props): React.Node {
   const { route } = props;
 
   const { communityID } = route.params;
+
+  const communityInfo: ?CommunityInfo = useSelector(
+    state => state.communityStore.communityInfos[communityID],
+  );
 
   const styles = useStyles(unboundStyles);
 
@@ -39,6 +46,24 @@ function TagFarcasterChannel(props: Props): React.Node {
     );
   }, [error, styles.error]);
 
+  const channelNameTextContent = React.useMemo(() => {
+    if (!communityInfo?.farcasterChannelID) {
+      return (
+        <Text style={styles.noChannelText}>No Farcaster channel tagged</Text>
+      );
+    }
+
+    return (
+      <Text style={styles.channelNameText}>
+        {`/${communityInfo.farcasterChannelID}`}
+      </Text>
+    );
+  }, [
+    communityInfo?.farcasterChannelID,
+    styles.channelNameText,
+    styles.noChannelText,
+  ]);
+
   const tagFarcasterChannel = React.useMemo(
     () => (
       <View>
@@ -49,6 +74,10 @@ function TagFarcasterChannel(props: Props): React.Node {
         </View>
         <Text style={styles.sectionHeaderText}>FARCASTER CHANNEL</Text>
         <View style={styles.panelSectionContainer}>
+          <Text style={styles.sectionText}>Selected channel:</Text>
+          <View style={styles.channelNameContainer}>
+            {channelNameTextContent}
+          </View>
           <TagChannelButton communityID={communityID} setError={setError} />
         </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
@@ -58,7 +87,9 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.panelSectionContainer,
       styles.sectionText,
       styles.sectionHeaderText,
+      styles.channelNameContainer,
       styles.errorContainer,
+      channelNameTextContent,
       communityID,
       errorMessage,
     ],
@@ -88,6 +119,20 @@ const unboundStyles = {
     paddingHorizontal: 16,
     paddingBottom: 4,
     marginTop: 24,
+  },
+  channelNameContainer: {
+    marginTop: 8,
+    marginBottom: 24,
+    height: 20,
+  },
+  channelNameText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'panelForegroundLabel',
+  },
+  noChannelText: {
+    fontSize: 16,
+    color: 'panelForegroundLabel',
   },
   errorContainer: {
     height: 18,
