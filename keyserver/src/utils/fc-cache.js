@@ -12,6 +12,7 @@ import { NeynarClient } from 'lib/utils/neynar-client.js';
 type NeynarConfig = { +key: string };
 
 let getFCNames: ?GetFCNames;
+let neynarClient: ?NeynarClient;
 async function initFCCache() {
   const neynarSecret = await getCommConfig<NeynarConfig>({
     folder: 'secrets',
@@ -21,10 +22,10 @@ async function initFCCache() {
   if (!neynarKey) {
     return;
   }
-  const neynarClient = new NeynarClient(neynarKey);
+  neynarClient = new NeynarClient(neynarKey);
   const fcCache = new FCCache(neynarClient);
   getFCNames = <T: ?BaseFCInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
     baseGetFCNames(fcCache, users);
 }
 
-export { initFCCache, getFCNames };
+export { initFCCache, getFCNames, neynarClient };
