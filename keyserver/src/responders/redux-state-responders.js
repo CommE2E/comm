@@ -15,6 +15,7 @@ import {
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
+import type { CommunityInfo } from 'lib/types/community-types';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
   type CommunityLinks,
@@ -39,6 +40,7 @@ import type {
 } from 'web/types/redux-types.js';
 import { navInfoFromURL } from 'web/url-utils.js';
 
+import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import { fetchPrimaryInviteLinks } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
@@ -333,6 +335,23 @@ async function getInitialReduxStateResponder(
     };
   })();
 
+  const communityStorePromise = (async () => {
+    const serverCommunityInfos = await fetchCommunityInfos(viewer);
+
+    const communityInfos: { [string]: CommunityInfo } = {};
+
+    for (const serverCommunityInfo of serverCommunityInfos) {
+      const communityInfo: CommunityInfo = {
+        farcasterChannelID: serverCommunityInfo.farcasterChannelID,
+      };
+      communityInfos[serverCommunityInfo.id] = communityInfo;
+    }
+
+    return {
+      communityInfos,
+    };
+  })();
+
   const keyserverInfoPromise = (async () => {
     const { sessionID, updatesCurrentAsOf } = await promiseAll({
       sessionID: sessionIDPromise,
@@ -356,6 +375,7 @@ async function getInitialReduxStateResponder(
       pushApiPublicKey: pushApiPublicKeyPromise,
       inviteLinksStore: inviteLinksStorePromise,
       keyserverInfo: keyserverInfoPromise,
+      communityStore: communityStorePromise,
     });
 
   return initialReduxState;

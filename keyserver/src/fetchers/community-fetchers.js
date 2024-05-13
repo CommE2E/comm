@@ -13,7 +13,7 @@ type ServerCommunityInfoWithHolder = $ReadOnly<{
 async function fetchCommunityInfos(
   viewer: Viewer,
 ): Promise<$ReadOnlyArray<ServerCommunityInfoWithHolder>> {
-  if (!viewer) {
+  if (!viewer.loggedIn) {
     return [];
   }
 

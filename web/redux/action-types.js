@@ -99,6 +99,9 @@ const getInitialReduxState =
       links: {},
     };
     let keyserverInfos: { [keyserverID: string]: WebInitialKeyserverInfo } = {};
+    const communityStore = {
+      communityInfos: {},
+    };
 
     for (const keyserverID in responses) {
       entryStore.daysToEntries = {
@@ -141,6 +144,11 @@ const getInitialReduxState =
         ...keyserverInfos,
         [keyserverID]: responses[keyserverID].keyserverInfo,
       };
+
+      communityStore.communityInfos = {
+        ...communityStore.communityInfos,
+        ...responses[keyserverID].communityStore.communityInfos,
+      };
     }
 
     return {
@@ -158,6 +166,7 @@ const getInitialReduxState =
       pushApiPublicKey,
       inviteLinksStore,
       keyserverInfos,
+      communityStore,
     };
   };
 
