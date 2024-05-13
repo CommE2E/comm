@@ -416,8 +416,7 @@ The DB config file should look like this:
   "host": "127.0.0.1",
   "user": "comm",
   "password": "password",
-  "database": "comm",
-  "dbType": "mariadb10.8"
+  "database": "comm"
 }
 ```
 

@@ -44,7 +44,6 @@ let
         "user": "comm",
         "password": "PASS",
         "database": "comm",
-        "dbType": "mariadb${mariadb-version}"
       }
     '';
   };
