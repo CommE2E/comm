@@ -1,16 +1,24 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
+
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
+import type { NeynarChannel } from 'lib/types/farcaster-types.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import TagChannelButton from './tag-channel-button.react.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 
 export type TagFarcasterChannelParams = {
   +communityID: string,
+  +farcasterChannel: ?NeynarChannel,
 };
 
 type Props = {
@@ -21,7 +29,38 @@ type Props = {
 function TagFarcasterChannel(props: Props): React.Node {
   const { route } = props;
 
-  const { communityID } = route.params;
+  const { communityID, farcasterChannel } = route.params;
+
+  const fid = useCurrentUserFID();
+  invariant(fid, 'FID should be set');
+
+  const neynarClientContext = React.useContext(NeynarClientContext);
+  invariant(neynarClientContext, 'NeynarClientContext is missing');
+
+  const { client } = neynarClientContext;
+
+  const communityInfo: ?CommunityInfo = useSelector(
+    state => state.communityStore.communityInfos[communityID],
+  );
+
+  const [selectedChannel, setSelectedChannel] =
+    React.useState<?NeynarChannel>(farcasterChannel);
+
+  React.useEffect(() => {
+    void (async () => {
+      if (!communityInfo?.farcasterChannelID) {
+        setSelectedChannel(null);
+        return;
+      }
+
+      const channel = await client.fetchFarcasterChannelInfo(
+        communityInfo.farcasterChannelID,
+        fid,
+      );
+
+      setSelectedChannel(channel);
+    })();
+  }, [client, communityInfo?.farcasterChannelID, fid]);
 
   const styles = useStyles(unboundStyles);
 
@@ -39,6 +78,10 @@ function TagFarcasterChannel(props: Props): React.Node {
     );
   }, [error, styles.error]);
 
+  const channelNameTextContent = selectedChannel?.name
+    ? selectedChannel.name
+    : 'No Farcaster channel tagged';
+
   const tagFarcasterChannel = React.useMemo(
     () => (
       <View>
@@ -49,6 +92,8 @@ function TagFarcasterChannel(props: Props): React.Node {
         </View>
         <Text style={styles.sectionHeaderText}>FARCASTER CHANNEL</Text>
         <View style={styles.panelSectionContainer}>
+          <Text style={styles.sectionText}>Selected channel:</Text>
+          <Text style={styles.channelNameText}>{channelNameTextContent}</Text>
           <TagChannelButton communityID={communityID} setError={setError} />
         </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
@@ -58,7 +103,9 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.panelSectionContainer,
       styles.sectionText,
       styles.sectionHeaderText,
+      styles.channelNameText,
       styles.errorContainer,
+      channelNameTextContent,
       communityID,
       errorMessage,
     ],
@@ -88,6 +135,13 @@ const unboundStyles = {
     paddingHorizontal: 16,
     paddingBottom: 4,
     marginTop: 24,
+  },
+  channelNameText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'panelForegroundLabel',
+    marginTop: 8,
+    marginBottom: 24,
   },
   errorContainer: {
     height: 18,

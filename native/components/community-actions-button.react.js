@@ -2,13 +2,17 @@
 
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { useNavigation } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { DISABLE_TAGGING_FARCASTER_CHANNEL } from 'lib/shared/community-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import type { CommunityInfo } from 'lib/types/community-types.js';
+import type { NeynarChannel } from 'lib/types/farcaster-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
@@ -38,7 +42,34 @@ function CommunityActionsButton(props: Props): React.Node {
 
   const { navigate } = useNavigation();
 
+  const neynarClientContext = React.useContext(NeynarClientContext);
+  invariant(neynarClientContext, 'NeynarClientContext is missing');
+
+  const { client } = neynarClientContext;
+
+  const communityInfo: ?CommunityInfo = useSelector(
+    state => state.communityStore.communityInfos[community.id],
+  );
+
   const fid = useCurrentUserFID();
+
+  const [farcasterChannel, setFarcasterChannel] =
+    React.useState<?NeynarChannel>(null);
+
+  React.useEffect(() => {
+    void (async () => {
+      if (!communityInfo?.farcasterChannelID || !fid) {
+        return;
+      }
+
+      const channel = await client.fetchFarcasterChannelInfo(
+        communityInfo.farcasterChannelID,
+        fid,
+      );
+
+      setFarcasterChannel(channel);
+    })();
+  }, [client, communityInfo?.farcasterChannelID, fid]);
 
   const navigateToInviteLinksView = React.useCallback(() => {
     if (!inviteLink || !community) {
@@ -77,10 +108,11 @@ function CommunityActionsButton(props: Props): React.Node {
         screen: TagFarcasterChannelRouteName,
         params: {
           communityID: community.id,
+          farcasterChannel,
         },
       },
     );
-  }, [community.id, navigate]);
+  }, [community.id, farcasterChannel, navigate]);
 
   const insets = useSafeAreaInsets();
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
