@@ -1,5 +1,6 @@
 // @flow
 
+import type { CommunityStore } from 'lib/types/community-types.js';
 import type { EntryStore, CalendarQuery } from 'lib/types/entry-types.js';
 import type { InviteLinksStore } from 'lib/types/link-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
@@ -21,6 +22,7 @@ export type InitialReduxState = {
   +dataLoaded: boolean,
   +actualizedCalendarQuery: CalendarQuery,
   +keyserverInfos: { +[keyserverID: string]: WebInitialKeyserverInfo },
+  +communityStore: CommunityStore,
 };
 
 export type InitialReduxStateActionPayload = $ReadOnly<{
