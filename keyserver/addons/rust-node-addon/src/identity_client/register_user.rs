@@ -47,6 +47,7 @@ pub async fn register_user(
     username,
     device_key_upload: Some(device_key_upload),
     farcaster_id: None,
+    initial_device_list: "".to_string(),
   };
 
   // Finish OPAQUE registration and send final registration request

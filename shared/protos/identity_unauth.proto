@@ -121,6 +121,16 @@ message RegistrationStartRequest {
   // Information needed to open a new channel to current user's device
   DeviceKeyUpload device_key_upload = 3;
   optional string farcaster_id = 4;
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded primary device signature"
+  // }
+  // It's an empty string for older clients which don't sign device lists yet.
+  string initial_device_list = 5;
 }
 
 message ReservedRegistrationStartRequest {
@@ -134,6 +144,16 @@ message ReservedRegistrationStartRequest {
   string keyserver_message = 4;
   // Above message signed with authoritative keyserver's signing ed25519 key
   string keyserver_signature = 5;
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded primary device signature"
+  // }
+  // It's an empty string for older clients which don't sign device lists yet.
+  string initial_device_list = 6;
 }
 
 // Messages sent from a client to Identity Service
@@ -196,6 +216,17 @@ message WalletAuthRequest {
   // communication with this user
   DeviceKeyUpload device_key_upload = 3;
   optional string farcaster_id = 4;
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded primary device signature"
+  // }
+  // It's an empty string when used outside `RegisterWalletUser` RPC
+  // and for older clients which don't sign device lists yet.
+  string initial_device_list = 5;
 }
 
 message ReservedWalletRegistrationRequest {
@@ -209,6 +240,17 @@ message ReservedWalletRegistrationRequest {
   string keyserver_message = 4;
   // Above message signed with authoritative keyserver's signing ed25519 key
   string keyserver_signature = 5;
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded primary device signature"
+  // }
+  // It's an empty string when used for older clients 
+  // which don't sign device lists yet.
+  string initial_device_list = 6;
 }
 
 // UploadKeysForRegisteredDeviceAndLogIn

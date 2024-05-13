@@ -82,6 +82,7 @@ pub async fn register_user_device(
       device_type: device_type.into(),
     }),
     farcaster_id: None,
+    initial_device_list: "".to_string(),
   };
 
   let mut identity_client = get_unauthenticated_client(

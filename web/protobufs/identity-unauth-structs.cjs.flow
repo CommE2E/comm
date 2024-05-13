@@ -121,6 +121,9 @@ declare export class RegistrationStartRequest extends Message {
   hasFarcasterId(): boolean;
   clearFarcasterId(): RegistrationStartRequest;
 
+  getInitialDeviceList(): string;
+  setInitialDeviceList(value: string): RegistrationStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RegistrationStartRequestObject;
   static toObject(includeInstance: boolean, msg: RegistrationStartRequest): RegistrationStartRequestObject;
@@ -134,6 +137,7 @@ export type RegistrationStartRequestObject = {
   username: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
   farcasterId?: string,
+  initialDeviceList: string,
 };
 
 declare export class ReservedRegistrationStartRequest extends Message {
@@ -156,6 +160,9 @@ declare export class ReservedRegistrationStartRequest extends Message {
   getKeyserverSignature(): string;
   setKeyserverSignature(value: string): ReservedRegistrationStartRequest;
 
+  getInitialDeviceList(): string;
+  setInitialDeviceList(value: string): ReservedRegistrationStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReservedRegistrationStartRequestObject;
   static toObject(includeInstance: boolean, msg: ReservedRegistrationStartRequest): ReservedRegistrationStartRequestObject;
@@ -170,6 +177,7 @@ export type ReservedRegistrationStartRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
   keyserverMessage: string,
   keyserverSignature: string,
+  initialDeviceList: string,
 };
 
 declare export class RegistrationFinishRequest extends Message {
@@ -331,6 +339,9 @@ declare export class WalletAuthRequest extends Message {
   hasFarcasterId(): boolean;
   clearFarcasterId(): WalletAuthRequest;
 
+  getInitialDeviceList(): string;
+  setInitialDeviceList(value: string): WalletAuthRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WalletAuthRequestObject;
   static toObject(includeInstance: boolean, msg: WalletAuthRequest): WalletAuthRequestObject;
@@ -344,6 +355,7 @@ export type WalletAuthRequestObject = {
   siweSignature: string,
   deviceKeyUpload?: DeviceKeyUploadObject,
   farcasterId?: string,
+  initialDeviceList: string,
 };
 
 declare export class ReservedWalletRegistrationRequest extends Message {
@@ -364,6 +376,9 @@ declare export class ReservedWalletRegistrationRequest extends Message {
   getKeyserverSignature(): string;
   setKeyserverSignature(value: string): ReservedWalletRegistrationRequest;
 
+  getInitialDeviceList(): string;
+  setInitialDeviceList(value: string): ReservedWalletRegistrationRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ReservedWalletRegistrationRequestObject;
   static toObject(includeInstance: boolean, msg: ReservedWalletRegistrationRequest): ReservedWalletRegistrationRequestObject;
@@ -378,6 +393,7 @@ export type ReservedWalletRegistrationRequestObject = {
   deviceKeyUpload?: DeviceKeyUploadObject,
   keyserverMessage: string,
   keyserverSignature: string,
+  initialDeviceList: string,
 };
 
 declare export class SecondaryDeviceKeysUploadRequest extends Message {

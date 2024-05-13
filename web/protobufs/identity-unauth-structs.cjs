@@ -1440,7 +1440,8 @@ proto.identity.unauth.RegistrationStartRequest.toObject = function(includeInstan
     opaqueRegistrationRequest: msg.getOpaqueRegistrationRequest_asB64(),
     username: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
-    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, "")
+    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -1493,6 +1494,10 @@ proto.identity.unauth.RegistrationStartRequest.deserializeBinaryFromReader = fun
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setFarcasterId(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setInitialDeviceList(value);
       break;
     default:
       reader.skipField();
@@ -1549,6 +1554,13 @@ proto.identity.unauth.RegistrationStartRequest.serializeBinaryToWriter = functio
   if (f != null) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getInitialDeviceList();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -1688,6 +1700,24 @@ proto.identity.unauth.RegistrationStartRequest.prototype.hasFarcasterId = functi
 };
 
 
+/**
+ * optional string initial_device_list = 5;
+ * @return {string}
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.getInitialDeviceList = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.RegistrationStartRequest} returns this
+ */
+proto.identity.unauth.RegistrationStartRequest.prototype.setInitialDeviceList = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
 
 
 
@@ -1724,7 +1754,8 @@ proto.identity.unauth.ReservedRegistrationStartRequest.toObject = function(inclu
     username: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
     keyserverMessage: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    keyserverSignature: jspb.Message.getFieldWithDefault(msg, 5, "")
+    keyserverSignature: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -1781,6 +1812,10 @@ proto.identity.unauth.ReservedRegistrationStartRequest.deserializeBinaryFromRead
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setKeyserverSignature(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setInitialDeviceList(value);
       break;
     default:
       reader.skipField();
@@ -1844,6 +1879,13 @@ proto.identity.unauth.ReservedRegistrationStartRequest.serializeBinaryToWriter =
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getInitialDeviceList();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -1980,6 +2022,24 @@ proto.identity.unauth.ReservedRegistrationStartRequest.prototype.getKeyserverSig
  */
 proto.identity.unauth.ReservedRegistrationStartRequest.prototype.setKeyserverSignature = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string initial_device_list = 6;
+ * @return {string}
+ */
+proto.identity.unauth.ReservedRegistrationStartRequest.prototype.getInitialDeviceList = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.ReservedRegistrationStartRequest} returns this
+ */
+proto.identity.unauth.ReservedRegistrationStartRequest.prototype.setInitialDeviceList = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
@@ -3197,7 +3257,8 @@ proto.identity.unauth.WalletAuthRequest.toObject = function(includeInstance, msg
     siweMessage: jspb.Message.getFieldWithDefault(msg, 1, ""),
     siweSignature: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
-    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, "")
+    farcasterId: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 5, "")
   };
 
   if (includeInstance) {
@@ -3250,6 +3311,10 @@ proto.identity.unauth.WalletAuthRequest.deserializeBinaryFromReader = function(m
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setFarcasterId(value);
+      break;
+    case 5:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setInitialDeviceList(value);
       break;
     default:
       reader.skipField();
@@ -3306,6 +3371,13 @@ proto.identity.unauth.WalletAuthRequest.serializeBinaryToWriter = function(messa
   if (f != null) {
     writer.writeString(
       4,
+      f
+    );
+  }
+  f = message.getInitialDeviceList();
+  if (f.length > 0) {
+    writer.writeString(
+      5,
       f
     );
   }
@@ -3421,6 +3493,24 @@ proto.identity.unauth.WalletAuthRequest.prototype.hasFarcasterId = function() {
 };
 
 
+/**
+ * optional string initial_device_list = 5;
+ * @return {string}
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.getInitialDeviceList = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.WalletAuthRequest} returns this
+ */
+proto.identity.unauth.WalletAuthRequest.prototype.setInitialDeviceList = function(value) {
+  return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
 
 
 
@@ -3457,7 +3547,8 @@ proto.identity.unauth.ReservedWalletRegistrationRequest.toObject = function(incl
     siweSignature: jspb.Message.getFieldWithDefault(msg, 2, ""),
     deviceKeyUpload: (f = msg.getDeviceKeyUpload()) && proto.identity.unauth.DeviceKeyUpload.toObject(includeInstance, f),
     keyserverMessage: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    keyserverSignature: jspb.Message.getFieldWithDefault(msg, 5, "")
+    keyserverSignature: jspb.Message.getFieldWithDefault(msg, 5, ""),
+    initialDeviceList: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -3514,6 +3605,10 @@ proto.identity.unauth.ReservedWalletRegistrationRequest.deserializeBinaryFromRea
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setKeyserverSignature(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setInitialDeviceList(value);
       break;
     default:
       reader.skipField();
@@ -3577,6 +3672,13 @@ proto.identity.unauth.ReservedWalletRegistrationRequest.serializeBinaryToWriter 
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getInitialDeviceList();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -3689,6 +3791,24 @@ proto.identity.unauth.ReservedWalletRegistrationRequest.prototype.getKeyserverSi
  */
 proto.identity.unauth.ReservedWalletRegistrationRequest.prototype.setKeyserverSignature = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string initial_device_list = 6;
+ * @return {string}
+ */
+proto.identity.unauth.ReservedWalletRegistrationRequest.prototype.getInitialDeviceList = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.ReservedWalletRegistrationRequest} returns this
+ */
+proto.identity.unauth.ReservedWalletRegistrationRequest.prototype.setInitialDeviceList = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 
