@@ -5,6 +5,7 @@ import { View, Text } from 'react-native';
 
 import type { CommunityInfo } from 'lib/types/community-types.js';
 
+import RemoveTagButton from './remove-tag-button.react.js';
 import TagChannelButton from './tag-channel-button.react.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
@@ -64,6 +65,20 @@ function TagFarcasterChannel(props: Props): React.Node {
     styles.noChannelText,
   ]);
 
+  const sectionButton = React.useMemo(
+    () =>
+      communityInfo?.farcasterChannelID ? (
+        <RemoveTagButton
+          channelID={communityInfo.farcasterChannelID}
+          communityID={communityID}
+          setError={setError}
+        />
+      ) : (
+        <TagChannelButton communityID={communityID} setError={setError} />
+      ),
+    [communityID, communityInfo?.farcasterChannelID],
+  );
+
   const tagFarcasterChannel = React.useMemo(
     () => (
       <View>
@@ -78,7 +93,7 @@ function TagFarcasterChannel(props: Props): React.Node {
           <View style={styles.channelNameContainer}>
             {channelNameTextContent}
           </View>
-          <TagChannelButton communityID={communityID} setError={setError} />
+          {sectionButton}
         </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
       </View>
@@ -90,7 +105,7 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.channelNameContainer,
       styles.errorContainer,
       channelNameTextContent,
-      communityID,
+      sectionButton,
       errorMessage,
     ],
   );
