@@ -37,8 +37,8 @@ const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
 
 export type UsernameSelectionParams = {
   +userSelections: {
-    +coolOrNerdMode?: CoolOrNerdMode,
-    +keyserverURL?: string,
+    +coolOrNerdMode?: ?CoolOrNerdMode,
+    +keyserverURL?: ?string,
     +farcasterID: ?string,
   },
 };
@@ -73,12 +73,12 @@ function UsernameSelection(props: Props): React.Node {
 
   const { userSelections } = props.route.params;
   const { keyserverURL } = userSelections;
-  const serverCallParamOverride = React.useMemo(
-    () => ({
-      urlPrefix: keyserverURL,
-    }),
-    [keyserverURL],
-  );
+  const serverCallParamOverride = React.useMemo(() => {
+    if (keyserverURL) {
+      return { urlPrefix: keyserverURL };
+    }
+    return undefined;
+  }, [keyserverURL]);
 
   const exactSearchUserCall = useLegacyAshoatKeyserverCall(
     exactSearchUser,
