@@ -28,11 +28,12 @@ const createOrUpdateFarcasterChannelTagStatusSelector =
 
 type Props = {
   +communityID: string,
+  +isLoadingChannelInfo: boolean,
   +setError: SetState<?string>,
 };
 
 function TagChannelButton(props: Props): React.Node {
-  const { communityID, setError } = props;
+  const { communityID, isLoadingChannelInfo, setError } = props;
 
   const { navigate } = useNavigation();
 
@@ -159,7 +160,8 @@ function TagChannelButton(props: Props): React.Node {
     createOrUpdateFarcasterChannelTagStatusSelector,
   );
   const isLoadingCreateOrUpdateFarcasterChannelTag =
-    createOrUpdateFarcasterChannelTagStatus === 'loading';
+    createOrUpdateFarcasterChannelTagStatus === 'loading' ||
+    isLoadingChannelInfo;
 
   const buttonContent = React.useMemo(() => {
     if (isLoadingCreateOrUpdateFarcasterChannelTag) {
