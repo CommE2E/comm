@@ -22,7 +22,7 @@ async function getMigrationConnection() {
   if (migrationConnection) {
     return migrationConnection;
   }
-  const { dbType, ...dbConfig } = await getDBConfig();
+  const dbConfig = await getDBConfig();
   const options: ConnectionOptions = dbConfig;
   migrationConnection = await mysqlPromise.createConnection(options);
   return migrationConnection;
@@ -34,7 +34,7 @@ async function loadPool(): Promise<Pool> {
     return pool;
   }
   const scriptContext = getScriptContext();
-  const { dbType, ...dbConfig } = await getDBConfig();
+  const dbConfig = await getDBConfig();
   const options: PoolOptions = {
     ...dbConfig,
     connectionLimit,
@@ -187,7 +187,7 @@ function rawSQL(statement: SQLStatementType): string {
 }
 
 async function getMultipleStatementsConnection() {
-  const { dbType, ...dbConfig } = await getDBConfig();
+  const dbConfig = await getDBConfig();
   const options: ConnectionOptions = {
     ...dbConfig,
     multipleStatements: true,
