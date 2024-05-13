@@ -3,12 +3,16 @@
 import backupService from 'lib/facts/backup-service.js';
 import { decryptCommon } from 'lib/media/aes-crypto-utils-common.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
+import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
+import { runMigrations } from 'lib/utils/migration-utils.js';
 
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
 import {
   BackupClient,
   RequestedData,
 } from '../../backup-client-wasm/wasm/backup-client-wasm.js';
+import { defaultWebState } from '../../redux/default-state.js';
+import { legacyMigrations, migrations } from '../../redux/migrations.js';
 import {
   completeRootKey,
   storeVersion,
@@ -75,6 +79,32 @@ async function restoreBackup(
       throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
     }
   });
+
+  const versionAfterLogsDownload = getStoredVersion(sqliteQueryExecutor);
+  if (!versionAfterLogsDownload) {
+    throw new Error('Missing backup version after log download');
+  }
+  const versionNumberAfterLogsDownload = parseInt(versionAfterLogsDownload);
+  await runMigrations(
+    legacyMigrations,
+    migrations,
+    {
+      ...defaultWebState,
+      _persist: {
+        version: versionNumberAfterLogsDownload,
+        rehydrated: true,
+      },
+    },
+    versionNumberAfterLogsDownload,
+    storeVersion,
+    process.env.NODE_ENV !== 'production',
+  );
+}
+
+function getStoredVersion(sqliteQueryExecutor: SQLiteQueryExecutor) {
+  return sqliteQueryExecutor
+    .getAllSyncedMetadata()
+    .find(entry => entry.name === syncedMetadataNames.DB_VERSION)?.data;
 }
 
 export { restoreBackup };

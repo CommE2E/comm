@@ -4,7 +4,8 @@ import { wipeKeyserverStore } from 'lib/utils/keyserver-store-utils.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 
 import { defaultWebState } from './default-state.js';
-import { nonUserSpecificFieldsWeb, type AppState } from './redux-setup.js';
+import { nonUserSpecificFieldsWeb } from './persist-constants.js';
+import { type AppState } from './redux-setup.js';
 
 const persistWhitelist = [
   'enabledApps',
