@@ -3,8 +3,19 @@
 import type {
   StackNavigationProp,
   StackNavigationHelpers,
+  ParamListBase,
+  StackNavigatorProps,
+  StackNavigationState,
+  StackOptions,
+  StackRouterOptions,
+  StackNavigationEventMap,
+  ExtraStackNavigatorProps,
 } from '@react-navigation/core';
-import { createStackNavigator } from '@react-navigation/stack';
+import {
+  createNavigatorFactory,
+  useNavigationBuilder,
+} from '@react-navigation/native';
+import { StackView } from '@react-navigation/stack';
 import * as React from 'react';
 
 import AccountDoesNotExist from './account-does-not-exist.react.js';
@@ -16,6 +27,10 @@ import EmojiAvatarSelection from './emoji-avatar-selection.react.js';
 import ExistingEthereumAccount from './existing-ethereum-account.react.js';
 import KeyserverSelection from './keyserver-selection.react.js';
 import PasswordSelection from './password-selection.react.js';
+import RegistrationRouter, {
+  type RegistrationRouterExtraNavigationHelpers,
+  type RegistrationRouterNavigationAction,
+} from './registration-router.js';
 import RegistrationTerms from './registration-terms.react.js';
 import { CreateSIWEBackupMessage } from './siwe-backup-message-creation.react.js';
 import UsernameSelection from './username-selection.react.js';
@@ -39,17 +54,73 @@ import {
   type RegistrationParamList,
 } from '../../navigation/route-names.js';
 
+export type RegistrationNavigationHelpers<
+  ParamList: ParamListBase = ParamListBase,
+> = {
+  ...$Exact<StackNavigationHelpers<ParamList>>,
+  ...RegistrationRouterExtraNavigationHelpers,
+};
+
+type RegistrationNavigatorProps = StackNavigatorProps<
+  RegistrationNavigationHelpers<>,
+>;
+function RegistrationNavigator({
+  initialRouteName,
+  children,
+  screenOptions,
+  defaultScreenOptions,
+  screenListeners,
+  id,
+  ...rest
+}: RegistrationNavigatorProps) {
+  const { state, descriptors, navigation } = useNavigationBuilder<
+    StackNavigationState,
+    RegistrationRouterNavigationAction,
+    StackOptions,
+    StackRouterOptions,
+    RegistrationNavigationHelpers<>,
+    StackNavigationEventMap,
+    ExtraStackNavigatorProps,
+  >(RegistrationRouter, {
+    id,
+    initialRouteName,
+    children,
+    screenOptions,
+    defaultScreenOptions,
+    screenListeners,
+  });
+  return (
+    <StackView
+      {...rest}
+      state={state}
+      descriptors={descriptors}
+      navigation={navigation}
+    />
+  );
+}
+const createRegistrationNavigator = createNavigatorFactory<
+  StackNavigationState,
+  StackOptions,
+  StackNavigationEventMap,
+  RegistrationNavigationHelpers<>,
+  ExtraStackNavigatorProps,
+>(RegistrationNavigator);
+
 export type RegistrationNavigationProp<
   RouteName: $Keys<RegistrationParamList> = $Keys<RegistrationParamList>,
-> = StackNavigationProp<ScreenParamList, RouteName>;
+> = {
+  ...StackNavigationProp<ScreenParamList, RouteName>,
+  ...RegistrationRouterExtraNavigationHelpers,
+};
 
-const Registration = createStackNavigator<
+const Registration = createRegistrationNavigator<
   ScreenParamList,
   RegistrationParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
 
 const screenOptions = {
+  headerShown: true,
   headerTransparent: true,
   headerBackTitleVisible: false,
   headerTitle: '',
@@ -68,7 +139,7 @@ type Props = {
   ...
 };
 // eslint-disable-next-line no-unused-vars
-function RegistrationNavigator(props: Props): React.Node {
+function RegistrationComponent(props: Props): React.Node {
   return (
     <Registration.Navigator
       screenOptions={screenOptions}
@@ -131,4 +202,4 @@ function RegistrationNavigator(props: Props): React.Node {
   );
 }
 
-export default RegistrationNavigator;
+export default RegistrationComponent;
