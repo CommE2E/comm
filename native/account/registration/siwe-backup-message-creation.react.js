@@ -140,8 +140,8 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
 
 export type CreateSIWEBackupMessageParams = {
   +userSelections: {
-    +coolOrNerdMode?: CoolOrNerdMode,
-    +keyserverURL?: string,
+    +coolOrNerdMode?: ?CoolOrNerdMode,
+    +keyserverURL?: ?string,
     +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,

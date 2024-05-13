@@ -33,8 +33,8 @@ import { useStyles } from '../../themes/colors.js';
 
 export type RegistrationTermsParams = {
   +userSelections: {
-    +coolOrNerdMode?: CoolOrNerdMode,
-    +keyserverURL?: string,
+    +coolOrNerdMode?: ?CoolOrNerdMode,
+    +keyserverURL?: ?string,
     +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
