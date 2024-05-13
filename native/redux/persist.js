@@ -52,7 +52,6 @@ import {
 import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
-import { createAsyncMigrate } from 'lib/shared/create-async-migrate.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
@@ -103,6 +102,7 @@ import {
   generateIDSchemaMigrationOpsForDrafts,
   convertMessageStoreThreadsToNewIDSchema,
   convertThreadStoreThreadInfosToNewIDSchema,
+  createAsyncMigrate,
 } from 'lib/utils/migration-utils.js';
 import { entries } from 'lib/utils/objects.js';
 import {
