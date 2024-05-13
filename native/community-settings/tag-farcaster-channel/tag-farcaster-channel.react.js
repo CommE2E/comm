@@ -9,6 +9,7 @@ import type { CommunityInfo } from 'lib/types/community-types.js';
 import type { NeynarChannel } from 'lib/types/farcaster-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
+import RemoveTagButton from './remove-tag-button.react.js';
 import TagChannelButton from './tag-channel-button.react.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
@@ -84,6 +85,25 @@ function TagFarcasterChannel(props: Props): React.Node {
     );
   }, [error, styles.error]);
 
+  const sectionButton = React.useMemo(
+    () =>
+      selectedChannel ? (
+        <RemoveTagButton
+          channelID={selectedChannel.id}
+          communityID={communityID}
+          isLoadingChannelInfo={isLoadingChannelInfo}
+          setError={setError}
+        />
+      ) : (
+        <TagChannelButton
+          communityID={communityID}
+          isLoadingChannelInfo={isLoadingChannelInfo}
+          setError={setError}
+        />
+      ),
+    [communityID, isLoadingChannelInfo, selectedChannel],
+  );
+
   const channelNameTextContent = selectedChannel?.name
     ? selectedChannel.name
     : 'No Farcaster channel tagged';
@@ -100,11 +120,7 @@ function TagFarcasterChannel(props: Props): React.Node {
         <View style={styles.panelSectionContainer}>
           <Text style={styles.sectionText}>Selected channel:</Text>
           <Text style={styles.channelNameText}>{channelNameTextContent}</Text>
-          <TagChannelButton
-            communityID={communityID}
-            isLoadingChannelInfo={isLoadingChannelInfo}
-            setError={setError}
-          />
+          {sectionButton}
         </View>
         <View style={styles.errorContainer}>{errorMessage}</View>
       </View>
@@ -116,8 +132,7 @@ function TagFarcasterChannel(props: Props): React.Node {
       styles.channelNameText,
       styles.errorContainer,
       channelNameTextContent,
-      communityID,
-      isLoadingChannelInfo,
+      sectionButton,
       errorMessage,
     ],
   );
