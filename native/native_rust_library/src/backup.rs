@@ -75,9 +75,13 @@ pub mod ffi {
     });
   }
 
-  pub fn restore_backup(backup_secret: String, promise_id: u32) {
+  pub fn restore_backup(
+    backup_secret: String,
+    backup_id: String,
+    promise_id: u32,
+  ) {
     RUNTIME.spawn(async move {
-      let result = download_backup(backup_secret)
+      let result = download_backup(backup_secret, backup_id)
         .await
         .map_err(|err| err.to_string());
 
@@ -115,7 +119,7 @@ pub mod ffi {
 
   pub fn retrieve_backup_keys(backup_secret: String, promise_id: u32) {
     RUNTIME.spawn(async move {
-      let result = download_backup_keys(backup_secret)
+      let result = download_backup_keys(backup_secret, "".to_string())
         .await
         .map_err(|err| err.to_string());
 
@@ -261,8 +265,16 @@ pub async fn create_siwe_backup_msg_compaction(
 
 async fn download_backup(
   backup_secret: String,
+  backup_id: String,
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
-  let backup_keys = download_backup_keys(backup_secret).await?;
+  let backup_id = if !backup_id.is_empty() {
+    backup_id
+  } else {
+    let latest_backup_id_response = download_latest_backup_id().await?;
+    latest_backup_id_response.backup_id
+  };
+
+  let backup_keys = download_backup_keys(backup_id, backup_secret).await?;
   download_backup_data(backup_keys).await
 }
 
@@ -291,6 +303,7 @@ async fn download_latest_backup_id(
 }
 
 async fn download_backup_keys(
+  backup_id: String,
   backup_secret: String,
 ) -> Result<BackupKeysResult, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
@@ -300,19 +313,10 @@ async fn download_backup_keys(
     username: user_identity.user_id.clone(),
   };
 
-  let backup_id_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
-    .await?;
-
-  let LatestBackupIDResponse { backup_id, .. } =
-    serde_json::from_slice(&backup_id_response)?;
-
-  let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
-
   let mut encrypted_user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
     .await?;
-
+  let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
   let user_keys =
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
@@ -393,14 +397,18 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct BackupKeysResult {
+  #[serde(rename = "backupID")]
   backup_id: String,
   backup_data_key: String,
   backup_log_data_key: String,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct SIWEBackupData {
+  #[serde(rename = "backupID")]
   backup_id: String,
   siwe_backup_msg: String,
 }
