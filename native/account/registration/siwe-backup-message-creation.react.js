@@ -42,9 +42,9 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
     function CreateSIWEBackupMessageBase(
       props: CreateSIWEBackupMessageBaseProps,
     ): React.Node {
+      const styles = useStyles(unboundStyles);
       const { onSuccessfulWalletSignature, onExistingWalletSignature, onSkip } =
         props;
-      const styles = useStyles(unboundStyles);
 
       const {
         panelState,
@@ -215,6 +215,84 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
   );
 }
 
+type SignSIWEBackupMessageForRestoreBaseProps = {
+  +siweNonce: string,
+  +siweIssuedAt: string,
+  +siweStatement: string,
+  +onSuccessfulWalletSignature: (result: SIWEResult) => void,
+  +onSkip: () => void,
+};
+
+function SignSIWEBackupMessageForRestore(
+  props: SignSIWEBackupMessageForRestoreBaseProps,
+): React.Node {
+  const styles = useStyles(unboundStyles);
+  const {
+    panelState,
+    openPanel,
+    onPanelClosed,
+    onPanelClosing,
+    siwePanelSetLoading,
+  } = useSIWEPanelState();
+
+  const {
+    siweIssuedAt,
+    siweNonce,
+    siweStatement,
+    onSuccessfulWalletSignature,
+    onSkip,
+  } = props;
+  const siweSignatureRequestData = React.useMemo(
+    () => ({
+      messageType: SIWEMessageTypes.MSG_BACKUP_RESTORE,
+      siweNonce,
+      siweStatement,
+      siweIssuedAt,
+    }),
+    [siweStatement, siweIssuedAt, siweNonce],
+  );
+
+  let siwePanel;
+  if (panelState !== 'closed') {
+    siwePanel = (
+      <SIWEPanel
+        onClosing={onPanelClosing}
+        onClosed={onPanelClosed}
+        closing={panelState === 'closing'}
+        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        siweSignatureRequestData={siweSignatureRequestData}
+        setLoading={siwePanelSetLoading}
+      />
+    );
+  }
+
+  return (
+    <>
+      <RegistrationContainer>
+        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+          <Text style={styles.header}>Decrypting your Comm backup</Text>
+          <Text style={styles.body}>
+            To make sure we can’t see your data, Comm encrypts your backup using
+            a signature from your wallet.
+          </Text>
+          <View style={styles.siweBackupIconContainer}>
+            <Icon name="backup" size={200} style={styles.siweBackupIcon} />
+          </View>
+        </RegistrationContentContainer>
+        <RegistrationButtonContainer>
+          <RegistrationButton
+            onPress={openPanel}
+            label="Decrypt with Ethereum signature"
+            variant="enabled"
+          />
+          <RegistrationButton onPress={onSkip} label="Skip" variant="outline" />
+        </RegistrationButtonContainer>
+      </RegistrationContainer>
+      {siwePanel}
+    </>
+  );
+}
+
 const unboundStyles = {
   scrollViewContentContainer: {
     flexGrow: 1,
@@ -241,4 +319,8 @@ const unboundStyles = {
   },
 };
 
-export { CreateSIWEBackupMessageBase, CreateSIWEBackupMessage };
+export {
+  CreateSIWEBackupMessageBase,
+  CreateSIWEBackupMessage,
+  SignSIWEBackupMessageForRestore,
+};

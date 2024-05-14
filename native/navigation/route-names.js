@@ -15,6 +15,7 @@ import type { RegistrationTermsParams } from '../account/registration/registrati
 import type { CreateSIWEBackupMessageParams } from '../account/registration/siwe-backup-message-creation.react.js';
 import type { UsernameSelectionParams } from '../account/registration/username-selection.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
+import type { RestoreSIWEBackupParams } from '../backup/restore-siwe-backup.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
 import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
@@ -127,6 +128,7 @@ export const ConnectEthereumRouteName = 'ConnectEthereum';
 export const CreateSIWEBackupMessageRouteName = 'CreateSIWEBackupMessage';
 export const CreateMissingSIWEBackupMessageRouteName =
   'CreateMissingSIWEBackupMessage';
+export const RestoreSIWEBackupRouteName = 'RestoreSIWEBackup';
 export const ExistingEthereumAccountRouteName = 'ExistingEthereumAccount';
 export const ConnectFarcasterRouteName = 'ConnectFarcaster';
 export const UsernameSelectionRouteName = 'UsernameSelection';
@@ -187,6 +189,7 @@ export type RootParamList = {
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
+  +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
 export type MessageTooltipRouteNames =

@@ -11,9 +11,18 @@ import { fetchNativeKeychainCredentials } from '../account/native-credentials.js
 import { commCoreModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 
+type SIWEBackupData = {
+  +backupID: string,
+  +siweBackupMsg: string,
+  +siweBackupMsgNonce: string,
+  +siweBackupMsgStatement: string,
+  +siweBackupMsgIssuedAt: string,
+};
+
 type ClientBackup = {
   +uploadBackupProtocol: () => Promise<void>,
-  +restoreBackupProtocol: () => Promise<void>,
+  +restorePasswordUserBackupProtocol: () => Promise<void>,
+  +retrieveLatestSIWEBackupData: () => Promise<SIWEBackupData>,
 };
 
 async function getBackupSecret(): Promise<string> {
@@ -78,21 +87,60 @@ function useClientBackup(): ClientBackup {
     currentUserInfo,
   ]);
 
-  const restoreBackupProtocol = React.useCallback(async () => {
+  const restorePasswordUserBackupProtocol = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
       throw new Error('Attempt to restore backup for not logged in user.');
     }
 
-    console.info('Start restoring backup...');
+    if (!accountHasPassword(currentUserInfo)) {
+      throw new Error(
+        'Attempt to restore from password for non-password user.',
+      );
+    }
 
+    console.info('Start restoring backup...');
     await setMockCommServicesAuthMetadata();
+
     const backupSecret = await getBackupSecret();
     await commCoreModule.restoreBackup(backupSecret);
 
     console.info('Backup restored.');
-  }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);
+    return;
+  }, [
+    currentUserID,
+    loggedIn,
+    setMockCommServicesAuthMetadata,
+    currentUserInfo,
+  ]);
 
-  return { uploadBackupProtocol, restoreBackupProtocol };
+  const retrieveLatestSIWEBackupData = React.useCallback(async () => {
+    if (!loggedIn || !currentUserID) {
+      throw new Error('Attempt to restore backup for not logged in user.');
+    }
+
+    if (accountHasPassword(currentUserInfo)) {
+      throw new Error(
+        'Attempt to retrieve siwe backup data for password user.',
+      );
+    }
+
+    await setMockCommServicesAuthMetadata();
+    const serializedBackupData =
+      await commCoreModule.retrieveLatestSIWEBackupData();
+    const siweBackupData: SIWEBackupData = JSON.parse(serializedBackupData);
+    return siweBackupData;
+  }, [
+    currentUserID,
+    currentUserInfo,
+    loggedIn,
+    setMockCommServicesAuthMetadata,
+  ]);
+
+  return {
+    uploadBackupProtocol,
+    restorePasswordUserBackupProtocol,
+    retrieveLatestSIWEBackupData,
+  };
 }
 
 export { getBackupSecret, useClientBackup };
