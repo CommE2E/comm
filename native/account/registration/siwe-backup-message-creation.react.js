@@ -24,9 +24,8 @@ import {
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
 import Alert from '../../utils/alert.js';
+import { useSIWEPanelState } from '../siwe-hooks.js';
 import SIWEPanel from '../siwe-panel.react.js';
-
-type PanelState = 'closed' | 'opening' | 'open' | 'closing';
 
 type CreateSIWEBackupMessageBaseProps = {
   +onSuccessfulWalletSignature: (result: SIWEResult) => void,
@@ -43,27 +42,13 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
         props;
       const styles = useStyles(unboundStyles);
 
-      const [panelState, setPanelState] = React.useState<PanelState>('closed');
-
-      const openPanel = React.useCallback(() => {
-        setPanelState('opening');
-      }, []);
-      const onPanelClosed = React.useCallback(() => {
-        setPanelState('closed');
-      }, []);
-      const onPanelClosing = React.useCallback(() => {
-        setPanelState('closing');
-      }, []);
-
-      const siwePanelSetLoading = React.useCallback(
-        (loading: boolean) => {
-          if (panelState === 'closing' || panelState === 'closed') {
-            return;
-          }
-          setPanelState(loading ? 'opening' : 'open');
-        },
-        [panelState],
-      );
+      const {
+        panelState,
+        onPanelClosed,
+        onPanelClosing,
+        openPanel,
+        siwePanelSetLoading,
+      } = useSIWEPanelState();
 
       let siwePanel;
       if (panelState !== 'closed') {
