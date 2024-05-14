@@ -14,6 +14,7 @@ export type LandingSSRProps = {
   +siweNonce: ?string,
   +siwePrimaryIdentityPublicKey: ?string,
   +siweMessageType: ?SIWEMessageType,
+  +siweMessageToSign: ?string,
 };
 function LandingSSR(props: LandingSSRProps): React.Node {
   const {
@@ -22,6 +23,7 @@ function LandingSSR(props: LandingSSRProps): React.Node {
     siweNonce,
     siwePrimaryIdentityPublicKey,
     siweMessageType,
+    siweMessageToSign,
   } = props;
 
   const siweContextValue = React.useMemo(
@@ -29,8 +31,14 @@ function LandingSSR(props: LandingSSRProps): React.Node {
       siweNonce,
       siwePrimaryIdentityPublicKey,
       siweMessageType,
+      siweMessageToSign,
     }),
-    [siweNonce, siwePrimaryIdentityPublicKey, siweMessageType],
+    [
+      siweNonce,
+      siwePrimaryIdentityPublicKey,
+      siweMessageType,
+      siweMessageToSign,
+    ],
   );
   const routerContext = React.useMemo(() => ({}), []);
   return (

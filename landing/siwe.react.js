@@ -63,40 +63,72 @@ async function signInWithEthereum(
   });
 }
 
+async function signCompleteMessageWithEthereum(
+  address: string,
+  message: string,
+  signer: Signer,
+) {
+  const decodedMessage = decodeURIComponent(message);
+  const signature = await signer.signMessage({ message: decodedMessage });
+  postMessageToNativeWebView({
+    type: 'siwe_success',
+    address,
+    message: decodedMessage,
+    signature,
+  });
+}
+
 const queryClient = new QueryClient();
 
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
-  const { siweNonce, siwePrimaryIdentityPublicKey, siweMessageType } =
-    React.useContext(SIWEContext);
+  const {
+    siweNonce,
+    siwePrimaryIdentityPublicKey,
+    siweMessageType,
+    siweMessageToSign,
+  } = React.useContext(SIWEContext);
+
   const onClick = React.useCallback(() => {
-    invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(siweMessageType, 'message type must be set during SIWE attempt');
     invariant(
-      siwePrimaryIdentityPublicKey,
-      'primaryIdentityPublicKey must be present during SIWE attempt',
+      siweMessageToSign || (siwePrimaryIdentityPublicKey && siweNonce),
+      'nonce with primaryIdentityPublicKey or complete message to sign must be ' +
+        'present during SIWE attempt',
     );
-    const statement = getSIWEStatementForPublicKey(
-      siwePrimaryIdentityPublicKey,
-      siweMessageType,
-    );
-    void signInWithEthereum(address, signer, siweNonce, statement);
+
+    if (siweMessageToSign) {
+      void signCompleteMessageWithEthereum(address, siweMessageToSign, signer);
+      return;
+    }
+
+    if (siweNonce && siwePrimaryIdentityPublicKey) {
+      const statement = getSIWEStatementForPublicKey(
+        siwePrimaryIdentityPublicKey,
+        siweMessageType,
+      );
+      void signInWithEthereum(address, signer, siweNonce, statement);
+    }
   }, [
     address,
     signer,
     siweNonce,
     siwePrimaryIdentityPublicKey,
     siweMessageType,
+    siweMessageToSign,
   ]);
 
   const { openConnectModal, connectModalOpen } = useConnectModal();
-  const hasNonce = siweNonce !== null && siweNonce !== undefined;
+  const hasNonceOrCompleteMessage =
+    (siweNonce !== null && siweNonce !== undefined) ||
+    (siweMessageToSign !== null && siweMessageToSign !== undefined);
+
   React.useEffect(() => {
-    if (hasNonce && openConnectModal) {
+    if (hasNonceOrCompleteMessage && openConnectModal) {
       openConnectModal();
     }
-  }, [hasNonce, openConnectModal]);
+  }, [hasNonceOrCompleteMessage, openConnectModal]);
 
   const [wcModalOpen, setWCModalOpen] = React.useState(false);
 
@@ -135,10 +167,12 @@ function SIWE(): React.Node {
       </div>
     );
   }
-  if (!hasNonce) {
+  if (!hasNonceOrCompleteMessage) {
     return (
       <div className={css.wrapper}>
-        <h1 className={css.h1}>Unable to proceed: nonce not found.</h1>
+        <h1 className={css.h1}>
+          Unable to proceed: neither nonce nor complete message found.
+        </h1>
       </div>
     );
   } else if (!signer) {
