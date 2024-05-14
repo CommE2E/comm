@@ -124,4 +124,49 @@ function useIdentityWalletRegisterCall(): IdentityWalletRegisterInput => Promise
   );
 }
 
-export { useLegacySIWEServerCall, useIdentityWalletRegisterCall };
+type PanelState = 'closed' | 'opening' | 'open' | 'closing';
+
+function useSIWEPanelState(): {
+  +panelState: PanelState,
+  +openPanel: () => void,
+  +onPanelClosed: () => void,
+  +onPanelClosing: () => void,
+  +siwePanelSetLoading: (loading: boolean) => void,
+} {
+  const [panelState, setPanelState] = React.useState<PanelState>('closed');
+
+  const openPanel = React.useCallback(() => {
+    setPanelState('opening');
+  }, []);
+
+  const onPanelClosed = React.useCallback(() => {
+    setPanelState('closed');
+  }, []);
+  const onPanelClosing = React.useCallback(() => {
+    setPanelState('closing');
+  }, []);
+
+  const siwePanelSetLoading = React.useCallback(
+    (loading: boolean) => {
+      if (panelState === 'closing' || panelState === 'closed') {
+        return;
+      }
+      setPanelState(loading ? 'opening' : 'open');
+    },
+    [panelState],
+  );
+
+  return {
+    panelState,
+    openPanel,
+    onPanelClosed,
+    onPanelClosing,
+    siwePanelSetLoading,
+  };
+}
+
+export {
+  useLegacySIWEServerCall,
+  useIdentityWalletRegisterCall,
+  useSIWEPanelState,
+};
