@@ -51,9 +51,10 @@ async function signInWithEthereum(
   signer: Signer,
   nonce: string,
   statement: string,
+  issuedAt: ?string,
 ) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
-  const message = createSIWEMessage(address, statement, nonce);
+  const message = createSIWEMessage(address, statement, nonce, issuedAt);
   const signature = await signer.signMessage({ message });
   postMessageToNativeWebView({
     type: 'siwe_success',
@@ -68,8 +69,13 @@ const queryClient = new QueryClient();
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
-  const { siweNonce, siwePrimaryIdentityPublicKey, siweMessageType } =
-    React.useContext(SIWEContext);
+  const {
+    siweNonce,
+    siwePrimaryIdentityPublicKey,
+    siweMessageType,
+    siweMessageIssuedAt,
+  } = React.useContext(SIWEContext);
+
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(siweMessageType, 'message type must be set during SIWE attempt');
@@ -81,13 +87,20 @@ function SIWE(): React.Node {
       siwePrimaryIdentityPublicKey,
       siweMessageType,
     );
-    void signInWithEthereum(address, signer, siweNonce, statement);
+    void signInWithEthereum(
+      address,
+      signer,
+      siweNonce,
+      statement,
+      siweMessageIssuedAt,
+    );
   }, [
     address,
     signer,
     siweNonce,
     siwePrimaryIdentityPublicKey,
     siweMessageType,
+    siweMessageIssuedAt,
   ]);
 
   const { openConnectModal, connectModalOpen } = useConnectModal();
@@ -138,7 +151,9 @@ function SIWE(): React.Node {
   if (!hasNonce) {
     return (
       <div className={css.wrapper}>
-        <h1 className={css.h1}>Unable to proceed: nonce not found.</h1>
+        <h1 className={css.h1}>
+          Unable to proceed: neither nonce nor complete message found.
+        </h1>
       </div>
     );
   } else if (!signer) {
