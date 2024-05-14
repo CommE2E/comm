@@ -28,6 +28,8 @@ import {
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
+const siweSignatureRequestData = { messageType: SIWEMessageTypes.MSG_AUTH };
+
 type Props = {
   +goBackToPrompt: () => mixed,
   +closing: boolean,
@@ -216,7 +218,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         onClosed={ifBeforeSuccessGoBackToPrompt}
         onClosing={ifBeforeSuccessGoBackToPrompt}
         onSuccessfulWalletSignature={onSuccess}
-        siweMessageType={SIWEMessageTypes.MSG_AUTH}
+        siweSignatureRequestData={siweSignatureRequestData}
         setLoading={setLoading}
       />
     </>

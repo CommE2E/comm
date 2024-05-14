@@ -27,6 +27,10 @@ import Alert from '../../utils/alert.js';
 import { useSIWEPanelState } from '../siwe-hooks.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
+const siweBackupSignatureRequestData = {
+  messageType: SIWEMessageTypes.MSG_BACKUP,
+};
+
 type CreateSIWEBackupMessageBaseProps = {
   +onSuccessfulWalletSignature: (result: SIWEResult) => void,
   +onExistingWalletSignature?: () => void,
@@ -58,7 +62,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
             onClosed={onPanelClosed}
             closing={panelState === 'closing'}
             onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-            siweMessageType={SIWEMessageTypes.MSG_BACKUP}
+            siweSignatureRequestData={siweBackupSignatureRequestData}
             setLoading={siwePanelSetLoading}
           />
         );
