@@ -13,6 +13,7 @@ tracing = "0.1"
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
 derive_more = "0.99"
 serde = { version = "1.0", features = ["derive"] }
+siwe = "0.3"
 serde_json = "1.0"
 argon2 = { version = "0.5.1", features = ["std"] }
 grpc_clients = { path = "../../shared/grpc_clients" }
