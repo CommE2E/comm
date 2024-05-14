@@ -1,7 +1,6 @@
 // @flow
 
 import BottomSheet from '@gorhom/bottom-sheet';
-import invariant from 'invariant';
 import * as React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
@@ -21,7 +20,7 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type {
   SIWEWebViewMessage,
   SIWEResult,
-  SIWEMessageType,
+  SIWESignatureRequestData,
 } from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -56,7 +55,7 @@ type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
   +onSuccessfulWalletSignature: SIWEResult => mixed,
-  +siweMessageType: SIWEMessageType,
+  +siweSignatureRequestData: SIWESignatureRequestData,
   +closing: boolean,
   +setLoading: boolean => mixed,
   +keyserverCallParamOverride?: Partial<ServerCallSelectorParams>,
@@ -77,7 +76,9 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const { onClosing } = props;
-  const { siweMessageType } = props;
+  const {
+    siweSignatureRequestData: { messageType, messageToSign },
+  } = props;
 
   const legacySiweAuthCallLoading = useSelector(
     state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
@@ -92,6 +93,9 @@ function SIWEPanel(props: Props): React.Node {
   const nonceNotNeededRef = React.useRef(false);
 
   React.useEffect(() => {
+    if (messageToSign) {
+      return;
+    }
     if (nonceNotNeededRef.current) {
       return;
     }
@@ -139,6 +143,7 @@ function SIWEPanel(props: Props): React.Node {
     getSIWENonceCall,
     identityGenerateNonce,
     onClosing,
+    messageToSign,
   ]);
 
   const [isLoading, setLoading] = React.useState(true);
@@ -183,7 +188,6 @@ function SIWEPanel(props: Props): React.Node {
         if (address && signature) {
           nonceNotNeededRef.current = true;
           closeBottomSheet?.();
-          invariant(nonceTimestamp, 'nonceTimestamp should be set');
           await onSuccessfulWalletSignature({
             address,
             message,
@@ -220,17 +224,23 @@ function SIWEPanel(props: Props): React.Node {
   }, [closing, closeBottomSheet]);
 
   const nonce = nonceInfo?.nonce;
-  const source = React.useMemo(
-    () => ({
-      uri: commSIWE,
-      headers: {
+  const source = React.useMemo(() => {
+    let headers;
+    if (messageToSign) {
+      headers = {
+        'siwe-message-type': messageType,
+        'siwe-message-to-sign': encodeURIComponent(messageToSign),
+      };
+    } else {
+      headers = {
         'siwe-nonce': nonce,
         'siwe-primary-identity-public-key': primaryIdentityPublicKey,
-        'siwe-message-type': siweMessageType,
-      },
-    }),
-    [nonce, primaryIdentityPublicKey, siweMessageType],
-  );
+        'siwe-message-type': messageType,
+      };
+    }
+
+    return { uri: commSIWE, headers };
+  }, [nonce, primaryIdentityPublicKey, messageType, messageToSign]);
 
   const onWebViewLoaded = React.useCallback(() => {
     setLoading(false);
@@ -262,7 +272,7 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   let bottomSheet;
-  if (nonce && primaryIdentityPublicKey) {
+  if ((nonce && primaryIdentityPublicKey) || messageToSign) {
     bottomSheet = (
       <BottomSheet
         snapPoints={snapPoints}
