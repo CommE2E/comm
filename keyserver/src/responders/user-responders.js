@@ -25,7 +25,7 @@ import type {
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
   ClaimUsernameResponse,
-} from 'lib/types/account-types';
+} from 'lib/types/account-types.js';
 import {
   userSettingsTypes,
   notificationTypeValues,
@@ -93,7 +93,7 @@ import {
 } from './entry-responders.js';
 import {
   createAndSendReservedUsernameMessage,
-  processAccountCreationCommon,
+  sendMessagesOnAccountCreation,
   createAccount,
 } from '../creators/account-creator.js';
 import createIDs from '../creators/id-creator.js';
@@ -678,11 +678,11 @@ async function siweAuthResponder(
     shouldMarkPoliciesAsAcceptedAfterCookieCreation: !existingUserID,
   });
 
-  // 11. Create threads with call to `processAccountCreationCommon(...)`,
+  // 11. Create messages with call to `sendMessagesOnAccountCreation(...)`,
   //     if the account has just been registered. Also, set the username as
   //     reserved.
   if (!existingUserID) {
-    await processAccountCreationCommon(viewer);
+    await sendMessagesOnAccountCreation(viewer);
 
     ignorePromiseRejections(
       createAndSendReservedUsernameMessage([
@@ -818,10 +818,10 @@ async function keyserverAuthResponder(
     shouldMarkPoliciesAsAcceptedAfterCookieCreation: !existingUsername,
   });
 
-  // 6. Create threads with call to `processAccountCreationCommon(...)`,
+  // 6. Create messages with call to `sendMessagesOnAccountCreation(...)`,
   //    if the account has just been registered.
   if (!existingUsername) {
-    await processAccountCreationCommon(viewer);
+    await sendMessagesOnAccountCreation(viewer);
   }
 
   return result;

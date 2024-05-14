@@ -16,6 +16,7 @@ import type {
   ReservedUsernameMessage,
 } from 'lib/types/crypto-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -75,7 +76,7 @@ async function createAccount(
     throw new ServerError('invalid_username');
   }
 
-  const promises = [searchForUser(request.username), thisKeyserverAdmin()];
+  const promises = [searchForUser(request.username)];
   const {
     calendarQuery,
     signedIdentityKeysBlob,
@@ -85,7 +86,7 @@ async function createAccount(
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
 
-  const [existingUser, admin] = await Promise.all(promises);
+  const [existingUser] = await Promise.all(promises);
   if (reservedUsernamesSet.has(request.username.toLowerCase())) {
     throw new ServerError('username_reserved');
   }
@@ -143,60 +144,17 @@ async function createAccount(
   })();
 
   await Promise.all([
-    updateThread(
-      createScriptViewer(admin.id),
-      {
-        threadID: genesis().id,
-        changes: { newMemberIDs: [id] },
-      },
-      { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
-    ),
     viewerAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy),
     persistOlmNotifSessionPromise,
   ]);
 
-  const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer),
-    createThread(
-      viewer,
-      {
-        type: threadTypes.PERSONAL,
-        initialMemberIDs: [admin.id],
-      },
-      { forceAddMembers: true },
-    ),
-  ]);
-  const ashoatThreadID = ashoatThreadResult.newThreadID;
-  const privateThreadID = privateThreadResult.newThreadID;
+  const rawMessageInfos = await sendMessagesOnAccountCreation(viewer);
 
-  let messageTime = Date.now();
-  const ashoatMessageDatas = ashoatMessages.map(message => ({
-    type: messageTypes.TEXT,
-    threadID: ashoatThreadID,
-    creatorID: admin.id,
-    time: messageTime++,
-    text: message,
-  }));
-  const privateMessageDatas = privateMessages.map(message => ({
-    type: messageTypes.TEXT,
-    threadID: privateThreadID,
-    creatorID: commbot.userID,
-    time: messageTime++,
-    text: message,
-  }));
-  const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const [messageInfos, threadsResult, userInfos, currentUserInfo] =
-    await Promise.all([
-      createMessages(viewer, messageDatas),
-      fetchThreadInfos(viewer),
-      fetchKnownUserInfos(viewer),
-      fetchLoggedInUserInfo(viewer),
-    ]);
-  const rawMessageInfos = [
-    ...ashoatThreadResult.newMessageInfos,
-    ...privateThreadResult.newMessageInfos,
-    ...messageInfos,
-  ];
+  const [threadsResult, userInfos, currentUserInfo] = await Promise.all([
+    fetchThreadInfos(viewer),
+    fetchKnownUserInfos(viewer),
+    fetchLoggedInUserInfo(viewer),
+  ]);
 
   ignorePromiseRejections(
     createAndSendReservedUsernameMessage([
@@ -215,7 +173,9 @@ async function createAccount(
   };
 }
 
-async function processAccountCreationCommon(viewer: Viewer) {
+async function sendMessagesOnAccountCreation(
+  viewer: Viewer,
+): Promise<RawMessageInfo[]> {
   const admin = await thisKeyserverAdmin();
 
   await updateThread(
@@ -257,7 +217,13 @@ async function processAccountCreationCommon(viewer: Viewer) {
     text: message,
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  await Promise.all([createMessages(viewer, messageDatas)]);
+  const messageInfos = await createMessages(viewer, messageDatas);
+
+  return [
+    ...ashoatThreadResult.newMessageInfos,
+    ...privateThreadResult.newMessageInfos,
+    ...messageInfos,
+  ];
 }
 
 async function createAndSendReservedUsernameMessage(
@@ -282,6 +248,6 @@ async function createAndSendReservedUsernameMessage(
 
 export {
   createAccount,
-  processAccountCreationCommon,
+  sendMessagesOnAccountCreation,
   createAndSendReservedUsernameMessage,
 };
