@@ -13,7 +13,10 @@ import * as React from 'react';
 import { useAccount, useWalletClient, WagmiProvider } from 'wagmi';
 
 import ConnectedWalletInfo from 'lib/components/connected-wallet-info.react.js';
-import { type SIWEWebViewMessage } from 'lib/types/siwe-types.js';
+import {
+  type SIWEWebViewMessage,
+  SIWEMessageTypes,
+} from 'lib/types/siwe-types.js';
 import {
   getSIWEStatementForPublicKey,
   userTextsForSIWEMessageTypes,
@@ -51,9 +54,10 @@ async function signInWithEthereum(
   signer: Signer,
   nonce: string,
   statement: string,
+  issuedAt: ?string,
 ) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
-  const message = createSIWEMessage(address, statement, nonce);
+  const message = createSIWEMessage(address, statement, nonce, issuedAt);
   const signature = await signer.signMessage({ message });
   postMessageToNativeWebView({
     type: 'siwe_success',
@@ -68,8 +72,13 @@ const queryClient = new QueryClient();
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useWalletClient();
-  const { siweNonce, siwePrimaryIdentityPublicKey, siweMessageType } =
-    React.useContext(SIWEContext);
+  const {
+    siweNonce,
+    siwePrimaryIdentityPublicKey,
+    siweMessageType,
+    siweMessageIssuedAt,
+  } = React.useContext(SIWEContext);
+
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(siweMessageType, 'message type must be set during SIWE attempt');
@@ -81,13 +90,20 @@ function SIWE(): React.Node {
       siwePrimaryIdentityPublicKey,
       siweMessageType,
     );
-    void signInWithEthereum(address, signer, siweNonce, statement);
+    void signInWithEthereum(
+      address,
+      signer,
+      siweNonce,
+      statement,
+      siweMessageIssuedAt,
+    );
   }, [
     address,
     signer,
     siweNonce,
     siwePrimaryIdentityPublicKey,
     siweMessageType,
+    siweMessageIssuedAt,
   ]);
 
   const { openConnectModal, connectModalOpen } = useConnectModal();
@@ -139,6 +155,18 @@ function SIWE(): React.Node {
     return (
       <div className={css.wrapper}>
         <h1 className={css.h1}>Unable to proceed: nonce not found.</h1>
+      </div>
+    );
+  }
+  if (
+    siweMessageType === SIWEMessageTypes.MSG_BACKUP_RESTORE &&
+    !siweMessageIssuedAt
+  ) {
+    return (
+      <div className={css.wrapper}>
+        <h1 className={css.h1}>
+          Unable to proceed: message issuedAt type not found
+        </h1>
       </div>
     );
   } else if (!signer) {

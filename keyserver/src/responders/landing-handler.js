@@ -13,6 +13,7 @@ import {
   isValidPrimaryIdentityPublicKey,
   isValidSIWENonce,
   isValidSIWEMessageType,
+  isValidSIWEIssuedAt,
 } from 'lib/utils/siwe-utils.js';
 
 import { getMessageForException } from './utils.js';
@@ -153,6 +154,18 @@ async function landingResponder(req: $Request, res: $Response) {
   }
   const siweMessageType = ((siweMessageTypeRawString: any): SIWEMessageType);
 
+  const siweMessageIssuedAt = req.header('siwe-message-issued-at');
+  if (
+    siweMessageIssuedAt !== null &&
+    siweMessageIssuedAt !== undefined &&
+    !isValidSIWEIssuedAt(siweMessageIssuedAt)
+  ) {
+    res.status(400).send({
+      message: 'Invalid siwe message issued at.',
+    });
+    return;
+  }
+
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
@@ -215,6 +228,7 @@ async function landingResponder(req: $Request, res: $Response) {
       siweNonce={siweNonce}
       siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
       siweMessageType={siweMessageType}
+      siweMessageIssuedAt={siweMessageIssuedAt}
     />,
   );
   reactStream.pipe(res, { end: false });
@@ -227,12 +241,16 @@ async function landingResponder(req: $Request, res: $Response) {
   const siweMessageTypeString = siweMessageType
     ? `"${siweMessageType}"`
     : 'null';
+  const siweMessageIssuedAtString = siweMessageIssuedAt
+    ? `"${siweMessageIssuedAt}"`
+    : 'null';
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
         <script>var siweNonce = ${siweNonceString};</script>
         <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
         <script>var siweMessageType = ${siweMessageTypeString};</script>
+        <script>var siweMessageIssuedAt = ${siweMessageIssuedAtString};</script>
         <script src="${jsURL}"></script>
       </body>
     </html>
