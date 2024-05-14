@@ -13,6 +13,7 @@ import {
   isValidPrimaryIdentityPublicKey,
   isValidSIWENonce,
   isValidSIWEMessageType,
+  isValidSIWEMessageString,
 } from 'lib/utils/siwe-utils.js';
 
 import { getMessageForException } from './utils.js';
@@ -152,6 +153,25 @@ async function landingResponder(req: $Request, res: $Response) {
     return;
   }
   const siweMessageType = ((siweMessageTypeRawString: any): SIWEMessageType);
+  const siweMessageToSign = req.header('siwe-message-to-sign');
+
+  if (
+    siweMessageToSign !== null &&
+    siweMessageToSign !== undefined &&
+    !isValidSIWEMessageString(decodeURIComponent(siweMessageToSign))
+  ) {
+    res.status(400).send({
+      message: 'Invalid siwe message to sign.',
+    });
+    return;
+  }
+
+  if (siweMessageToSign && (siweNonce || siwePrimaryIdentityPublicKey)) {
+    res.status(400).send({
+      message:
+        'Nonce and complete message to sign cannot be provided at the same time.',
+    });
+  }
 
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
@@ -215,6 +235,7 @@ async function landingResponder(req: $Request, res: $Response) {
       siweNonce={siweNonce}
       siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
       siweMessageType={siweMessageType}
+      siweMessageToSign={siweMessageToSign}
     />,
   );
   reactStream.pipe(res, { end: false });
@@ -227,12 +248,16 @@ async function landingResponder(req: $Request, res: $Response) {
   const siweMessageTypeString = siweMessageType
     ? `"${siweMessageType}"`
     : 'null';
+  const siweMessageToSignString = siweMessageToSign
+    ? `"${siweMessageToSign}"`
+    : 'null';
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
         <script>var siweNonce = ${siweNonceString};</script>
         <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
         <script>var siweMessageType = ${siweMessageTypeString};</script>
+        <script>var siweMessageToSign = ${siweMessageToSignString};</script>
         <script src="${jsURL}"></script>
       </body>
     </html>
