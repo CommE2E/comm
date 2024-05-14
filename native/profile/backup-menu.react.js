@@ -1,9 +1,11 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { Alert, Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -11,6 +13,7 @@ import type { ProfileNavigationProp } from './profile.react.js';
 import { useClientBackup } from '../backup/use-client-backup.js';
 import Button from '../components/button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
+import { RestoreSIWEBackupRouteName } from '../navigation/route-names.js';
 import { setLocalSettingsActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
@@ -24,12 +27,18 @@ function BackupMenu(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const dispatch = useDispatch();
   const colors = useColors();
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const navigation = useNavigation();
 
   const isBackupEnabled = useSelector(
     state => state.localSettings.isBackupEnabled,
   );
 
-  const { uploadBackupProtocol, restoreBackupProtocol } = useClientBackup();
+  const {
+    uploadBackupProtocol,
+    restorePasswordUserBackupProtocol,
+    retrieveLatestSIWEBackupData,
+  } = useClientBackup();
 
   const uploadBackup = React.useCallback(async () => {
     let message = 'Success';
@@ -42,16 +51,34 @@ function BackupMenu(props: Props): React.Node {
     Alert.alert('Upload protocol result', message);
   }, [uploadBackupProtocol]);
 
-  const testRestore = React.useCallback(async () => {
+  const testRestoreForPasswordUser = React.useCallback(async () => {
     let message = 'success';
     try {
-      await restoreBackupProtocol();
+      await restorePasswordUserBackupProtocol();
     } catch (e) {
       message = `Backup restore error: ${String(getMessageForException(e))}`;
       console.error(message);
     }
     Alert.alert('Restore protocol result', message);
-  }, [restoreBackupProtocol]);
+  }, [restorePasswordUserBackupProtocol]);
+
+  const testRestoreForSIWEUser = React.useCallback(async () => {
+    let message = 'success';
+    try {
+      const { backupID, siweBackupMsg } = await retrieveLatestSIWEBackupData();
+
+      navigation.navigate<'RestoreSIWEBackup'>({
+        name: RestoreSIWEBackupRouteName,
+        params: {
+          backupID,
+          siweBackupMsg,
+        },
+      });
+    } catch (e) {
+      message = `Backup restore error: ${String(getMessageForException(e))}`;
+      console.error(message);
+    }
+  }, [navigation, retrieveLatestSIWEBackupData]);
 
   const onBackupToggled = React.useCallback(
     (value: boolean) => {
@@ -62,6 +89,10 @@ function BackupMenu(props: Props): React.Node {
     },
     [dispatch],
   );
+
+  const onPressRestoreButton = accountHasPassword(currentUserInfo)
+    ? testRestoreForPasswordUser
+    : testRestoreForSIWEUser;
 
   return (
     <ScrollView
@@ -90,7 +121,7 @@ function BackupMenu(props: Props): React.Node {
       </View>
       <View style={styles.section}>
         <Button
-          onPress={testRestore}
+          onPress={onPressRestoreButton}
           style={styles.row}
           iosFormat="highlight"
           iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
