@@ -12,6 +12,7 @@ declare var routerBasename: string;
 declare var siweNonce: ?string;
 declare var siwePrimaryIdentityPublicKey: ?string;
 declare var siweMessageType: ?SIWEMessageType;
+declare var siweMessageIssuedAt: ?string;
 
 function RootComponent(): React.Node {
   const siweContextValue = React.useMemo(
@@ -19,6 +20,7 @@ function RootComponent(): React.Node {
       siweNonce,
       siwePrimaryIdentityPublicKey,
       siweMessageType,
+      siweMessageIssuedAt,
     }),
     [],
   );
