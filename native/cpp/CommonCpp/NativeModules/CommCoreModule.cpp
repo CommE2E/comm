@@ -2012,15 +2012,32 @@ jsi::Value CommCoreModule::createNewSIWEBackup(
   return createNewBackupInternal(rt, backupSecretStr, siweBackupMsgStr);
 }
 
-jsi::Value
-CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
-  std::string backupSecretStr = backupSecret.utf8(rt);
+jsi::Value CommCoreModule::restoreBackupInternal(
+    jsi::Runtime &rt,
+    std::string backupSecret,
+    std::string backupID) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
             {promise, this->jsInvoker_, innerRt});
-        ::restoreBackup(rust::string(backupSecretStr), currentID);
+        ::restoreBackup(
+            rust::string(backupSecret), rust::string(backupID), currentID);
       });
+}
+
+jsi::Value
+CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  return restoreBackupInternal(rt, backupSecretStr, "");
+}
+
+jsi::Value CommCoreModule::restoreSIWEBackup(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::String backupID) {
+  std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string backupIDStr = backupID.utf8(rt);
+  return restoreBackupInternal(rt, backupSecretStr, backupIDStr);
 }
 
 jsi::Value CommCoreModule::restoreBackupData(
