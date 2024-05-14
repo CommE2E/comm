@@ -26,7 +26,7 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
-  const int codeVersion{343};
+  const int codeVersion{344};
   std::unique_ptr<WorkerThread> cryptoThread;
 
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
