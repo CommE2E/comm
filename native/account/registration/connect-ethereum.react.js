@@ -36,6 +36,7 @@ import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
 import { defaultURLPrefix } from '../../utils/url-utils.js';
 import EthereumLogoDark from '../../vectors/ethereum-logo-dark.react.js';
+import { useSIWEPanelState } from '../siwe-hooks.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
 const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
@@ -49,8 +50,6 @@ export type ConnectEthereumParams = {
     +farcasterID: ?string,
   },
 };
-
-type PanelState = 'closed' | 'opening' | 'open' | 'closing';
 
 type Props = {
   +navigation: RegistrationNavigationProp<'ConnectEthereum'>,
@@ -107,27 +106,6 @@ function ConnectEthereum(props: Props): React.Node {
       </>
     );
   }
-
-  const [panelState, setPanelState] = React.useState<PanelState>('closed');
-  const openPanel = React.useCallback(() => {
-    setPanelState('opening');
-  }, []);
-  const onPanelClosed = React.useCallback(() => {
-    setPanelState('closed');
-  }, []);
-  const onPanelClosing = React.useCallback(() => {
-    setPanelState('closing');
-  }, []);
-
-  const siwePanelSetLoading = React.useCallback(
-    (loading: boolean) => {
-      if (panelState === 'closing' || panelState === 'closed') {
-        return;
-      }
-      setPanelState(loading ? 'opening' : 'open');
-    },
-    [panelState],
-  );
 
   const { navigate } = props.navigation;
   const onSkip = React.useCallback(() => {
@@ -201,6 +179,14 @@ function ConnectEthereum(props: Props): React.Node {
       getEthereumAccountFromSIWEResult,
     ],
   );
+
+  const {
+    panelState,
+    onPanelClosed,
+    onPanelClosing,
+    siwePanelSetLoading,
+    openPanel,
+  } = useSIWEPanelState();
 
   let siwePanel;
   if (panelState !== 'closed') {
