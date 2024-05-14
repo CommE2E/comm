@@ -115,8 +115,12 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
                 using a signature from your wallet.
               </Text>
               <Text style={styles.body}>
-                You can always recover your data as long as you still control
-                your wallet.
+                The signature is private and never leaves your device, unlike
+                the prior signature, which is public.
+              </Text>
+              <Text style={styles.body}>
+                This signature ensures that you can always recover your data as
+                long as you still control your wallet.
               </Text>
               <View style={styles.siweBackupIconContainer}>
                 <Icon name="backup" size={200} style={styles.siweBackupIcon} />
