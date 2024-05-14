@@ -6,8 +6,8 @@ import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
-  getAvailableThreadMemberActions,
   removeMemberFromThread,
+  useAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -74,9 +74,14 @@ function ThreadMember(props: Props): React.Node {
     );
   }, [memberInfo, pushModal, threadInfo]);
 
+  const availableThreadMemberActions = useAvailableThreadMemberActions(
+    memberInfo,
+    threadInfo,
+  );
+
   const menuItems = React.useMemo(
     () =>
-      getAvailableThreadMemberActions(memberInfo, threadInfo).map(action => {
+      availableThreadMemberActions.map(action => {
         if (action === 'change_role') {
           return (
             <MenuItem
@@ -100,7 +105,7 @@ function ThreadMember(props: Props): React.Node {
         }
         return null;
       }),
-    [memberInfo, onClickRemoveUser, onClickChangeRole, threadInfo],
+    [onClickRemoveUser, onClickChangeRole, availableThreadMemberActions],
   );
 
   const userSettingsIcon = React.useMemo(
