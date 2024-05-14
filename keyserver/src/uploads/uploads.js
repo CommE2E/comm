@@ -9,10 +9,11 @@ import t, { type TInterface } from 'tcomb';
 import {
   type UploadMediaMetadataRequest,
   type UploadMultimediaResult,
-  uploadMultimediaResultValidator,
   type UploadDeletionRequest,
   type Dimensions,
+  type MultimediaUploadResult,
 } from 'lib/types/media-types.js';
+import { MultimediaUploadResultValidator } from 'lib/types/validators/upload-validators.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -31,13 +32,6 @@ import { validateOutput } from '../utils/validation-utils.js';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
-
-type MultimediaUploadResult = {
-  results: UploadMultimediaResult[],
-};
-const MultimediaUploadResultValidator = tShape<MultimediaUploadResult>({
-  results: t.list(uploadMultimediaResultValidator),
-});
 
 async function multimediaUploadResponder(
   viewer: Viewer,
