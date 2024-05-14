@@ -5,6 +5,7 @@ import * as React from 'react';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
+import type { CurrentUserInfo } from 'lib/types/user-types';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { runMigrations } from 'lib/utils/migration-utils.js';
 
@@ -39,6 +40,17 @@ async function getSIWEBackupSecrets(): Promise<SIWEBackupSecrets> {
   return siweBackupSecrets;
 }
 
+async function createBackup(currentUserInfo: ?CurrentUserInfo): Promise<void> {
+  commCoreModule.startBackupHandler();
+  if (accountHasPassword(currentUserInfo)) {
+    const backupSecret = await getBackupSecret();
+    await commCoreModule.createNewBackup(backupSecret);
+  } else {
+    const { message, signature } = await getSIWEBackupSecrets();
+    await commCoreModule.createNewSIWEBackup(signature, message);
+  }
+}
+
 function useClientBackup(): ClientBackup {
   const accessToken = useSelector(state => state.commServicesAccessToken);
   const currentUserID = useSelector(
@@ -69,13 +81,7 @@ function useClientBackup(): ClientBackup {
 
     await setMockCommServicesAuthMetadata();
 
-    if (accountHasPassword(currentUserInfo)) {
-      const backupSecret = await getBackupSecret();
-      await commCoreModule.createNewBackup(backupSecret);
-    } else {
-      const { message, signature } = await getSIWEBackupSecrets();
-      await commCoreModule.createNewSIWEBackup(signature, message);
-    }
+    await createBackup(currentUserInfo);
 
     console.info('Backup uploaded.');
   }, [
@@ -112,6 +118,7 @@ function useClientBackup(): ClientBackup {
           version: backupVersionNumber,
           rehydrated: true,
         },
+        currentUserInfo,
       },
       backupVersionNumber,
       persistConfig.version,
@@ -119,9 +126,14 @@ function useClientBackup(): ClientBackup {
     );
 
     console.info('Backup restored.');
-  }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);
+  }, [
+    currentUserID,
+    currentUserInfo,
+    loggedIn,
+    setMockCommServicesAuthMetadata,
+  ]);
 
   return { uploadBackupProtocol, restoreBackupProtocol };
 }
 
-export { getBackupSecret, useClientBackup };
+export { getBackupSecret, useClientBackup, createBackup };
