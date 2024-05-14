@@ -360,7 +360,11 @@ mod ffi {
     );
 
     #[cxx_name = "restoreBackup"]
-    fn restore_backup(backup_secret: String, promise_id: u32);
+    fn restore_backup(
+      backup_secret: String,
+      backup_id: String,
+      promise_id: u32,
+    );
 
     #[cxx_name = "restoreBackupData"]
     fn restore_backup_data(
