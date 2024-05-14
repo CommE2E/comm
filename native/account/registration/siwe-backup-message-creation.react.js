@@ -37,9 +37,9 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
     function CreateSIWEBackupMessageBase(
       props: CreateSIWEBackupMessageBaseProps,
     ): React.Node {
+      const styles = useStyles(unboundStyles);
       const { onSuccessfulWalletSignature, onExistingWalletSignature, onSkip } =
         props;
-      const styles = useStyles(unboundStyles);
 
       const {
         panelState,
@@ -198,6 +198,74 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
   );
 }
 
+type SignSIWEBackupMessageForRestoreBaseProps = {
+  +messageToSign: string,
+  +onSuccessfulWalletSignature: (result: SIWEResult) => void,
+  +onSkip: () => void,
+};
+
+function SignSIWEBackupMessageForRestore(
+  props: SignSIWEBackupMessageForRestoreBaseProps,
+): React.Node {
+  const styles = useStyles(unboundStyles);
+  const {
+    panelState,
+    openPanel,
+    onPanelClosed,
+    onPanelClosing,
+    siwePanelSetLoading,
+  } = useSIWEPanelState();
+
+  const { messageToSign, onSuccessfulWalletSignature, onSkip } = props;
+
+  let siwePanel;
+  if (panelState !== 'closed') {
+    siwePanel = (
+      <SIWEPanel
+        onClosing={onPanelClosing}
+        onClosed={onPanelClosed}
+        closing={panelState === 'closing'}
+        onSuccessfulWalletSignature={onSuccessfulWalletSignature}
+        siweSignatureRequestData={{
+          messageType: SIWEMessageTypes.MSG_BACKUP_RESTORE,
+          messageToSign,
+        }}
+        setLoading={siwePanelSetLoading}
+      />
+    );
+  }
+
+  return (
+    <>
+      <RegistrationContainer>
+        <RegistrationContentContainer style={styles.scrollViewContentContainer}>
+          <Text style={styles.header}>Decrypting your Comm backup</Text>
+          <Text style={styles.body}>
+            Comm user backups are encrypted so that our backend is not able to
+            see user data.
+          </Text>
+          <View style={styles.siweBackupIconContainer}>
+            <Icon name="backup" size={200} style={styles.siweBackupIcon} />
+          </View>
+        </RegistrationContentContainer>
+        <RegistrationButtonContainer>
+          <RegistrationButton
+            onPress={openPanel}
+            label="Decrypt with Ethereum signature"
+            variant="enabled"
+          />
+          <RegistrationButton
+            onPress={onSkip}
+            label="Discard"
+            variant="outline"
+          />
+        </RegistrationButtonContainer>
+      </RegistrationContainer>
+      {siwePanel}
+    </>
+  );
+}
+
 const unboundStyles = {
   scrollViewContentContainer: {
     flexGrow: 1,
@@ -224,4 +292,8 @@ const unboundStyles = {
   },
 };
 
-export { CreateSIWEBackupMessageBase, CreateSIWEBackupMessage };
+export {
+  CreateSIWEBackupMessageBase,
+  CreateSIWEBackupMessage,
+  SignSIWEBackupMessageForRestore,
+};
