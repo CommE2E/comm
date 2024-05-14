@@ -19,6 +19,7 @@ use backup_client::{
   TryStreamExt, UserIdentity,
 };
 use serde::{Deserialize, Serialize};
+use siwe::Message;
 use std::error::Error;
 use std::path::PathBuf;
 
@@ -75,9 +76,14 @@ pub mod ffi {
     });
   }
 
-  pub fn restore_backup(backup_secret: String, promise_id: u32) {
+  pub fn restore_backup(
+    backup_secret: String,
+    backup_id: String,
+    promise_id: u32,
+  ) {
     RUNTIME.spawn(async move {
-      let result = download_backup(backup_secret)
+      let backup_id = Option::from(backup_id).filter(|it| !it.is_empty());
+      let result = download_backup(backup_secret, backup_id)
         .await
         .map_err(|err| err.to_string());
 
@@ -115,7 +121,19 @@ pub mod ffi {
 
   pub fn retrieve_backup_keys(backup_secret: String, promise_id: u32) {
     RUNTIME.spawn(async move {
-      let result = download_backup_keys(backup_secret)
+      let latest_backup_id_response = download_latest_backup_id()
+        .await
+        .map_err(|err| err.to_string());
+
+      let backup_id = match latest_backup_id_response {
+        Ok(result) => result.backup_id,
+        Err(error) => {
+          string_callback(error, promise_id, "".to_string());
+          return;
+        }
+      };
+
+      let result = download_backup_keys(backup_id, backup_secret)
         .await
         .map_err(|err| err.to_string());
 
@@ -199,11 +217,8 @@ pub mod ffi {
         siwe_backup_msg,
       } = result;
 
-      let siwe_backup_data = match siwe_backup_msg {
-        Some(siwe_backup_msg_value) => SIWEBackupData {
-          backup_id,
-          siwe_backup_msg: siwe_backup_msg_value,
-        },
+      let siwe_backup_msg_string = match siwe_backup_msg {
+        Some(siwe_backup_msg_value) => siwe_backup_msg_value,
         None => {
           string_callback(
             "Backup message unavailable".to_string(),
@@ -212,6 +227,37 @@ pub mod ffi {
           );
           return;
         }
+      };
+
+      let siwe_backup_msg_obj: Message = match siwe_backup_msg_string.parse() {
+        Ok(siwe_backup_msg_obj) => siwe_backup_msg_obj,
+        Err(error) => {
+          string_callback(error.to_string(), promise_id, "".to_string());
+          return;
+        }
+      };
+
+      let siwe_backup_msg_nonce = siwe_backup_msg_obj.nonce;
+      let siwe_backup_msg_statement = match siwe_backup_msg_obj.statement {
+        Some(statement) => statement,
+        None => {
+          string_callback(
+            "Backup message invalid: missing statement".to_string(),
+            promise_id,
+            "".to_string(),
+          );
+          return;
+        }
+      };
+
+      let siwe_backup_msg_issued_at = siwe_backup_msg_obj.issued_at.to_string();
+
+      let siwe_backup_data = SIWEBackupData {
+        backup_id: backup_id,
+        siwe_backup_msg: siwe_backup_msg_string,
+        siwe_backup_msg_nonce: siwe_backup_msg_nonce,
+        siwe_backup_msg_statement: siwe_backup_msg_statement,
+        siwe_backup_msg_issued_at: siwe_backup_msg_issued_at,
       };
 
       let serialize_result = serde_json::to_string(&siwe_backup_data);
@@ -261,8 +307,17 @@ pub async fn create_siwe_backup_msg_compaction(
 
 async fn download_backup(
   backup_secret: String,
+  backup_id: Option<String>,
 ) -> Result<CompactionDownloadResult, Box<dyn Error>> {
-  let backup_keys = download_backup_keys(backup_secret).await?;
+  let backup_id = match backup_id {
+    Some(backup_id) => backup_id,
+    None => {
+      let latest_backup_id_response = download_latest_backup_id().await?;
+      latest_backup_id_response.backup_id
+    }
+  };
+
+  let backup_keys = download_backup_keys(backup_id, backup_secret).await?;
   download_backup_data(backup_keys).await
 }
 
@@ -291,6 +346,7 @@ async fn download_latest_backup_id(
 }
 
 async fn download_backup_keys(
+  backup_id: String,
   backup_secret: String,
 ) -> Result<BackupKeysResult, Box<dyn Error>> {
   let backup_client = BackupClient::new(BACKUP_SOCKET_ADDR)?;
@@ -300,19 +356,10 @@ async fn download_backup_keys(
     username: user_identity.user_id.clone(),
   };
 
-  let backup_id_response = backup_client
-    .download_backup_data(&latest_backup_descriptor, RequestedData::BackupID)
-    .await?;
-
-  let LatestBackupIDResponse { backup_id, .. } =
-    serde_json::from_slice(&backup_id_response)?;
-
-  let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
-
   let mut encrypted_user_keys = backup_client
     .download_backup_data(&latest_backup_descriptor, RequestedData::UserKeys)
     .await?;
-
+  let mut backup_key = compute_backup_key_str(&backup_secret, &backup_id)?;
   let user_keys =
     UserKeys::from_encrypted(&mut encrypted_user_keys, &mut backup_key)?;
 
@@ -393,16 +440,23 @@ fn get_user_identity_from_secure_store() -> Result<UserIdentity, cxx::Exception>
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct BackupKeysResult {
+  #[serde(rename = "backupID")]
   backup_id: String,
   backup_data_key: String,
   backup_log_data_key: String,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct SIWEBackupData {
+  #[serde(rename = "backupID")]
   backup_id: String,
   siwe_backup_msg: String,
+  siwe_backup_msg_statement: String,
+  siwe_backup_msg_nonce: String,
+  siwe_backup_msg_issued_at: String,
 }
 
 struct CompactionDownloadResult {
