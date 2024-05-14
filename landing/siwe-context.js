@@ -8,12 +8,14 @@ export type SIWEContextType = {
   +siweNonce: ?string,
   +siwePrimaryIdentityPublicKey: ?string,
   +siweMessageType: ?SIWEMessageType,
+  +siweMessageIssuedAt: ?string,
 };
 
 const SIWEContext: React.Context<SIWEContextType> = React.createContext({
   siweNonce: null,
   siwePrimaryIdentityPublicKey: null,
   siweMessageType: null,
+  siweMessageIssuedAt: null,
 });
 
 export { SIWEContext };
