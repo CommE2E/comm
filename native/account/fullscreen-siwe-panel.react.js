@@ -183,6 +183,11 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     }
   }, [goBackToPrompt]);
 
+  const siweSignatureRequestData = React.useMemo(
+    () => ({ messageType: SIWEMessageTypes.MSG_AUTH }),
+    [],
+  );
+
   const { closing } = props;
   return (
     <>
@@ -192,7 +197,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         onClosed={ifBeforeSuccessGoBackToPrompt}
         onClosing={ifBeforeSuccessGoBackToPrompt}
         onSuccessfulWalletSignature={onSuccess}
-        siweMessageType={SIWEMessageTypes.MSG_AUTH}
+        siweSignatureRequestData={siweSignatureRequestData}
         setLoading={setLoading}
       />
     </>

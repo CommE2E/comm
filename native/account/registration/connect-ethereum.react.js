@@ -188,6 +188,13 @@ function ConnectEthereum(props: Props): React.Node {
     openPanel,
   } = useSIWEPanelState();
 
+  const siweSignatureRequestData = React.useMemo(
+    () => ({
+      messageType: SIWEMessageTypes.MSG_AUTH,
+    }),
+    [],
+  );
+
   let siwePanel;
   if (panelState !== 'closed') {
     siwePanel = (
@@ -196,7 +203,7 @@ function ConnectEthereum(props: Props): React.Node {
         onClosed={onPanelClosed}
         closing={panelState === 'closing'}
         onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-        siweMessageType={SIWEMessageTypes.MSG_AUTH}
+        siweSignatureRequestData={siweSignatureRequestData}
         setLoading={siwePanelSetLoading}
         keyserverCallParamOverride={serverCallParamOverride}
       />
@@ -204,8 +211,14 @@ function ConnectEthereum(props: Props): React.Node {
   }
 
   const { ethereumAccount } = cachedSelections;
+  invariant(
+    !ethereumAccount || ethereumAccount.nonceTimestamp,
+    'nonceTimestamp must be set after connecting to ethereum account',
+  );
   const nonceExpired =
-    ethereumAccount && siweNonceExpired(ethereumAccount.nonceTimestamp);
+    ethereumAccount &&
+    ethereumAccount.nonceTimestamp &&
+    siweNonceExpired(ethereumAccount.nonceTimestamp);
   const alreadyHasConnected = !!ethereumAccount && !nonceExpired;
   React.useEffect(() => {
     if (nonceExpired) {

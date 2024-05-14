@@ -1,7 +1,6 @@
 // @flow
 
 import BottomSheet from '@gorhom/bottom-sheet';
-import invariant from 'invariant';
 import * as React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
@@ -21,11 +20,12 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js'
 import type {
   SIWEWebViewMessage,
   SIWEResult,
-  SIWEMessageType,
+  SIWESignatureRequestData,
 } from 'lib/types/siwe-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
+import { getPublicKeyFromSIWEStatement } from 'lib/utils/siwe-utils.js';
 
 import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -49,14 +49,15 @@ const legacySiweAuthLoadingStatusSelector = createLoadingStatusSelector(
 
 type NonceInfo = {
   +nonce: string,
-  +nonceTimestamp: number,
+  +nonceTimestamp?: number,
+  +issuedAt?: string,
 };
 
 type Props = {
   +onClosed: () => mixed,
   +onClosing: () => mixed,
   +onSuccessfulWalletSignature: SIWEResult => mixed,
-  +siweMessageType: SIWEMessageType,
+  +siweSignatureRequestData: SIWESignatureRequestData,
   +closing: boolean,
   +setLoading: boolean => mixed,
   +keyserverCallParamOverride?: Partial<ServerCallSelectorParams>,
@@ -77,7 +78,14 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const { onClosing } = props;
-  const { siweMessageType } = props;
+  const {
+    siweSignatureRequestData: {
+      messageType,
+      siweNonce,
+      siweStatement,
+      siweIssuedAt,
+    },
+  } = props;
 
   const legacySiweAuthCallLoading = useSelector(
     state => legacySiweAuthLoadingStatusSelector(state) === 'loading',
@@ -92,6 +100,14 @@ function SIWEPanel(props: Props): React.Node {
   const nonceNotNeededRef = React.useRef(false);
 
   React.useEffect(() => {
+    if (siweNonce && siweStatement) {
+      setNonceInfo({ nonce: siweNonce, issuedAt: siweIssuedAt });
+      const siwePrimaryIdentityPublicKey =
+        getPublicKeyFromSIWEStatement(siweStatement);
+      setPrimaryIdentityPublicKey(siwePrimaryIdentityPublicKey);
+      nonceNotNeededRef.current = true;
+      return;
+    }
     if (nonceNotNeededRef.current) {
       return;
     }
@@ -139,6 +155,9 @@ function SIWEPanel(props: Props): React.Node {
     getSIWENonceCall,
     identityGenerateNonce,
     onClosing,
+    siweNonce,
+    siweStatement,
+    siweIssuedAt,
   ]);
 
   const [isLoading, setLoading] = React.useState(true);
@@ -183,7 +202,6 @@ function SIWEPanel(props: Props): React.Node {
         if (address && signature) {
           nonceNotNeededRef.current = true;
           closeBottomSheet?.();
-          invariant(nonceTimestamp, 'nonceTimestamp should be set');
           await onSuccessfulWalletSignature({
             address,
             message,
@@ -220,16 +238,18 @@ function SIWEPanel(props: Props): React.Node {
   }, [closing, closeBottomSheet]);
 
   const nonce = nonceInfo?.nonce;
+  const issuedAt = nonceInfo?.issuedAt;
   const source = React.useMemo(
     () => ({
       uri: commSIWE,
       headers: {
         'siwe-nonce': nonce,
         'siwe-primary-identity-public-key': primaryIdentityPublicKey,
-        'siwe-message-type': siweMessageType,
+        'siwe-message-type': messageType,
+        'siwe-message-issued-at': issuedAt,
       },
     }),
-    [nonce, primaryIdentityPublicKey, siweMessageType],
+    [nonce, primaryIdentityPublicKey, messageType, issuedAt],
   );
 
   const onWebViewLoaded = React.useCallback(() => {

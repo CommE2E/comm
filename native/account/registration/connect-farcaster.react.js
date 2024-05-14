@@ -63,9 +63,14 @@ function ConnectFarcaster(prop: Props): React.Node {
   const goToNextStep = React.useCallback(
     (fid?: ?string) => {
       setWebViewState('closed');
-
+      invariant(
+        !ethereumAccount || ethereumAccount.nonceTimestamp,
+        'nonceTimestamp must be set after connecting to ethereum account',
+      );
       const nonceExpired =
-        ethereumAccount && siweNonceExpired(ethereumAccount.nonceTimestamp);
+        ethereumAccount &&
+        ethereumAccount.nonceTimestamp &&
+        siweNonceExpired(ethereumAccount.nonceTimestamp);
       if (nonceExpired) {
         setCachedSelections(oldUserSelections => ({
           ...oldUserSelections,

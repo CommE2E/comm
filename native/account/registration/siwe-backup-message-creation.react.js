@@ -49,6 +49,13 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
         siwePanelSetLoading,
       } = useSIWEPanelState();
 
+      const siweSignatureRequestData = React.useMemo(
+        () => ({
+          messageType: SIWEMessageTypes.MSG_BACKUP,
+        }),
+        [],
+      );
+
       let siwePanel;
       if (panelState !== 'closed') {
         siwePanel = (
@@ -57,7 +64,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
             onClosed={onPanelClosed}
             closing={panelState === 'closing'}
             onSuccessfulWalletSignature={onSuccessfulWalletSignature}
-            siweMessageType={SIWEMessageTypes.MSG_BACKUP}
+            siweSignatureRequestData={siweSignatureRequestData}
             setLoading={siwePanelSetLoading}
           />
         );
