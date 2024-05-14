@@ -15,7 +15,7 @@ import {
   getThreadListSearchResults,
   useThreadListSearch,
   threadIsPending,
-  useThreadInChatList,
+  useIsThreadInChatList,
 } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 
@@ -66,7 +66,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     (activeTab === 'Focus' && activeTopLevelThreadIsFromHomeTab) ||
     (activeTab === 'Background' && !activeTopLevelThreadIsFromHomeTab);
 
-  const activeTopLevelThreadIsInChatList = useThreadInChatList(
+  const activeTopLevelThreadIsInChatList = useIsThreadInChatList(
     activeTopLevelThreadInfo,
   );
 
