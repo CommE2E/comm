@@ -11,6 +11,7 @@ import {
   baseLegalPolicies,
   policies,
   policyTypes,
+  type PolicyType,
 } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
@@ -268,7 +269,6 @@ type ProcessSuccessfulLoginParams = {
   +viewer: Viewer,
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
-  +watchedIDs: $ReadOnlyArray<string>,
   +userID: string,
   +calendarQuery: ?CalendarQuery,
   +socialProof?: ?SIWESocialProof,
@@ -278,14 +278,23 @@ type ProcessSuccessfulLoginParams = {
   +shouldMarkPoliciesAsAcceptedAfterCookieCreation?: boolean,
 };
 
+type ProcessSuccessfulLoginResult =
+  | {
+      +success: true,
+      +newServerTime: number,
+    }
+  | {
+      +success: false,
+      +notAcknowledgedPolicies: $ReadOnlyArray<PolicyType>,
+    };
+
 async function processSuccessfulLogin(
   params: ProcessSuccessfulLoginParams,
-): Promise<ServerLogInResponse> {
+): Promise<ProcessSuccessfulLoginResult> {
   const {
     viewer,
     deviceTokenUpdateRequest,
     platformDetails,
-    watchedIDs,
     userID,
     calendarQuery,
     socialProof,
@@ -343,25 +352,13 @@ async function processSuccessfulLogin(
     notAcknowledgedPolicies.length &&
     hasMinCodeVersion(viewer.platformDetails, { native: 181 })
   ) {
-    const currentUserInfo = await fetchLoggedInUserInfo(viewer);
-    return {
-      notAcknowledgedPolicies,
-      currentUserInfo: currentUserInfo,
-      rawMessageInfos: [],
-      truncationStatuses: {},
-      userInfos: [],
-      rawEntryInfos: [],
-      serverTime: 0,
-      cookieChange: {
-        threadInfos: {},
-        userInfos: [],
-      },
-    };
+    return { success: false, notAcknowledgedPolicies };
   }
 
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
   }
+
   const persistOlmNotifSessionPromise = (async () => {
     if (olmNotifSession && viewer.cookieID) {
       await persistFreshOlmSession(
@@ -371,6 +368,7 @@ async function processSuccessfulLogin(
       );
     }
   })();
+
   // `pickledContentOlmSession` is created in `keyserverAuthResponder(...)` in
   // order to authenticate the user. Here, we simply persist the session if it
   // exists.
@@ -383,6 +381,26 @@ async function processSuccessfulLogin(
       );
     }
   })();
+
+  await Promise.all([
+    persistOlmNotifSessionPromise,
+    persistOlmContentSessionPromise,
+  ]);
+
+  return { success: true, newServerTime };
+}
+
+type FetchRegistrationResultParams = {
+  +viewer: Viewer,
+  +watchedIDs: $ReadOnlyArray<string>,
+  +calendarQuery: ?CalendarQuery,
+  +newServerTime: number,
+};
+
+async function fetchRegistrationResult(
+  params: FetchRegistrationResultParams,
+): Promise<ServerLogInResponse> {
+  const { viewer, watchedIDs, calendarQuery } = params;
 
   const threadCursors: { [string]: null } = {};
   for (const watchedThreadID of watchedIDs) {
@@ -409,8 +427,6 @@ async function processSuccessfulLogin(
     entriesPromise,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
-    persistOlmNotifSessionPromise,
-    persistOlmContentSessionPromise,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
@@ -418,7 +434,7 @@ async function processSuccessfulLogin(
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
-    serverTime: newServerTime,
+    serverTime: params.newServerTime,
     userInfos: values(userInfos),
     cookieChange: {
       threadInfos: threadsResult.threadInfos,
@@ -432,6 +448,43 @@ async function processSuccessfulLogin(
     };
   }
   return response;
+}
+
+type HandleSuccessfulLoginResultParams = {
+  +viewer: Viewer,
+  +watchedIDs: $ReadOnlyArray<string>,
+  +calendarQuery: ?CalendarQuery,
+};
+
+async function handleSuccessfulLoginResult(
+  result: ProcessSuccessfulLoginResult,
+  params: HandleSuccessfulLoginResultParams,
+): Promise<ServerLogInResponse> {
+  const { viewer, watchedIDs, calendarQuery } = params;
+
+  if (!result.success) {
+    const currentUserInfo = await fetchLoggedInUserInfo(viewer);
+    return {
+      notAcknowledgedPolicies: result.notAcknowledgedPolicies,
+      currentUserInfo: currentUserInfo,
+      rawMessageInfos: [],
+      truncationStatuses: {},
+      userInfos: [],
+      rawEntryInfos: [],
+      serverTime: 0,
+      cookieChange: {
+        threadInfos: {},
+        userInfos: [],
+      },
+    };
+  }
+
+  return await fetchRegistrationResult({
+    viewer,
+    watchedIDs,
+    calendarQuery,
+    newServerTime: result.newServerTime,
+  });
 }
 
 export const logInRequestInputValidator: TInterface<LogInRequest> =
@@ -517,15 +570,19 @@ async function logInResponder(
 
   const id = userRow.id.toString();
 
-  return await processSuccessfulLogin({
+  const processSuccessfulLoginResult = await processSuccessfulLogin({
     viewer,
     platformDetails: request.platformDetails,
     deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
-    watchedIDs: request.watchedIDs,
     userID: id,
     calendarQuery,
     signedIdentityKeysBlob,
     initialNotificationsEncryptedMessage,
+  });
+  return await handleSuccessfulLoginResult(processSuccessfulLoginResult, {
+    viewer,
+    watchedIDs: request.watchedIDs,
+    calendarQuery,
   });
 }
 
@@ -665,11 +722,10 @@ async function siweAuthResponder(
   })();
 
   // 10. Complete login with call to `processSuccessfulLogin(...)`.
-  const result = await processSuccessfulLogin({
+  const processSuccessfulLoginResult = await processSuccessfulLogin({
     viewer,
     platformDetails,
     deviceTokenUpdateRequest,
-    watchedIDs,
     userID,
     calendarQuery,
     socialProof,
@@ -691,7 +747,12 @@ async function siweAuthResponder(
     );
   }
 
-  return result;
+  // 12. Fetch data from MariaDB for the response.
+  return await handleSuccessfulLoginResult(processSuccessfulLoginResult, {
+    viewer,
+    watchedIDs,
+    calendarQuery,
+  });
 }
 
 export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest> =
@@ -805,11 +866,10 @@ async function keyserverAuthResponder(
   ]);
 
   // 5. Complete login with call to `processSuccessfulLogin(...)`.
-  const result = await processSuccessfulLogin({
+  const processSuccessfulLoginResult = await processSuccessfulLogin({
     viewer,
     platformDetails: request.platformDetails,
     deviceTokenUpdateRequest: request.deviceTokenUpdateRequest,
-    watchedIDs: request.watchedIDs,
     userID,
     calendarQuery,
     signedIdentityKeysBlob,
@@ -824,7 +884,12 @@ async function keyserverAuthResponder(
     await sendMessagesOnAccountCreation(viewer);
   }
 
-  return result;
+  // 7. Fetch data from MariaDB for the response.
+  return await handleSuccessfulLoginResult(processSuccessfulLoginResult, {
+    viewer,
+    watchedIDs: request.watchedIDs,
+    calendarQuery,
+  });
 }
 
 export const updatePasswordRequestInputValidator: TInterface<UpdatePasswordRequest> =
