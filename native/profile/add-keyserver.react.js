@@ -17,7 +17,7 @@ import HeaderRightTextButton from '../navigation/header-right-text-button.react.
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
-import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
+import { appOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
 type KeyserverCheckStatus =
@@ -114,7 +114,7 @@ function AddKeyserver(props: Props): React.Node {
   const errorMessage = React.useMemo(() => {
     let errorText;
     if (error === 'client_version_unsupported') {
-      errorText = AppOutOfDateAlertDetails.message;
+      errorText = appOutOfDateAlertDetails.message;
     } else if (error) {
       errorText =
         'Cannot connect to keyserver. Please check the URL or your ' +
