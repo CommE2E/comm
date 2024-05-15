@@ -9,7 +9,7 @@ import {
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions.js';
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
+import { useOnScreenEntryEditableThreadInfos } from 'lib/shared/thread-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import Modal from '../components/modal.react.js';
@@ -72,9 +72,7 @@ function ThreadPickerModal(props: Props): React.Node {
   );
 
   const index = useGlobalThreadSearchIndex();
-  const onScreenThreadInfos = useSelector(state =>
-    onScreenEntryEditableThreadInfos(state),
-  );
+  const onScreenThreadInfos = useOnScreenEntryEditableThreadInfos();
   return (
     <Modal>
       <ThreadList
