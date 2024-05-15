@@ -27,6 +27,7 @@ import {
   type BlobDownloadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
+import { thisKeyserverID } from '../user/identity.js';
 
 async function createOrUpdateFarcasterChannelTag(
   viewer: Viewer,
@@ -36,9 +37,12 @@ async function createOrUpdateFarcasterChannelTag(
     throw new ServerError('internal_error');
   }
 
+  const keyserverID = await thisKeyserverID();
+
   const fetchCommunityInfosPromise = fetchCommunityInfos(viewer);
   const blobDownloadPromise = getFarcasterChannelTagBlob(
     request.farcasterChannelID,
+    keyserverID,
   );
 
   const [serverCommunityInfos, blobDownload] = await Promise.all([
@@ -63,6 +67,7 @@ async function createOrUpdateFarcasterChannelTag(
   const blobResult = await uploadFarcasterChannelTagBlob(
     request.commCommunityID,
     request.farcasterChannelID,
+    keyserverID,
     blobHolder,
   );
 
@@ -90,7 +95,7 @@ async function createOrUpdateFarcasterChannelTag(
     if (channelID && holder) {
       await deleteBlob(
         {
-          hash: farcasterChannelTagBlobHash(channelID),
+          hash: farcasterChannelTagBlobHash(channelID, keyserverID),
           holder,
         },
         true,
@@ -99,7 +104,10 @@ async function createOrUpdateFarcasterChannelTag(
   } catch (error) {
     await deleteBlob(
       {
-        hash: farcasterChannelTagBlobHash(request.farcasterChannelID),
+        hash: farcasterChannelTagBlobHash(
+          request.farcasterChannelID,
+          keyserverID,
+        ),
         holder: blobHolder,
       },
       true,
@@ -118,9 +126,10 @@ async function createOrUpdateFarcasterChannelTag(
 }
 
 function getFarcasterChannelTagBlob(
-  secret: string,
+  farcasterChannelID: string,
+  keyserverID: string,
 ): Promise<BlobDownloadResult> {
-  const hash = farcasterChannelTagBlobHash(secret);
+  const hash = farcasterChannelTagBlobHash(farcasterChannelID, keyserverID);
 
   return download(hash);
 }
@@ -128,6 +137,7 @@ function getFarcasterChannelTagBlob(
 async function uploadFarcasterChannelTagBlob(
   commCommunityID: string,
   farcasterChannelID: string,
+  keyserverID: string,
   holder: string,
 ): Promise<BlobOperationResult> {
   const payload = {
@@ -136,7 +146,7 @@ async function uploadFarcasterChannelTagBlob(
   };
   const payloadString = JSON.stringify(payload);
 
-  const hash = farcasterChannelTagBlobHash(farcasterChannelID);
+  const hash = farcasterChannelTagBlobHash(farcasterChannelID, keyserverID);
   const blob = new Blob([payloadString]);
 
   const uploadResult = await uploadBlob(blob, hash);
