@@ -1,6 +1,6 @@
 // @flow
 
-import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
+import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 
 import { getDatabaseModule } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
@@ -12,21 +12,21 @@ const FILE_PATH = 'test.sqlite';
 const device1 = 'device-1';
 const device2 = 'device-2';
 
-const TEST_MSG_1: ReceivedMessageToDevice = {
+const TEST_MSG_1: InboundP2PMessage = {
   messageID: 'id-1',
   senderDeviceID: device1,
   plaintext: 'decrypted-1',
   status: 'none',
 };
 
-const TEST_MSG_2: ReceivedMessageToDevice = {
+const TEST_MSG_2: InboundP2PMessage = {
   messageID: 'id-2',
   senderDeviceID: device2,
   plaintext: 'decrypted-2',
   status: 'none',
 };
 
-const TEST_MSG_3: ReceivedMessageToDevice = {
+const TEST_MSG_3: InboundP2PMessage = {
   messageID: 'id-3',
   senderDeviceID: device1,
   plaintext: 'decrypted-3',
@@ -35,7 +35,7 @@ const TEST_MSG_3: ReceivedMessageToDevice = {
 
 const messagesOrdered = [TEST_MSG_1, TEST_MSG_2, TEST_MSG_3];
 
-describe('Received messages to device queries', () => {
+describe('Inbound P2P message queries', () => {
   let queryExecutor: ?SQLiteQueryExecutor = null;
   let dbModule: ?EmscriptenModule = null;
 
@@ -51,9 +51,9 @@ describe('Received messages to device queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor?.addReceivedMessageToDevice(TEST_MSG_1);
-    queryExecutor?.addReceivedMessageToDevice(TEST_MSG_2);
-    queryExecutor?.addReceivedMessageToDevice(TEST_MSG_3);
+    queryExecutor?.addInboundP2PMessage(TEST_MSG_1);
+    queryExecutor?.addInboundP2PMessage(TEST_MSG_2);
+    queryExecutor?.addInboundP2PMessage(TEST_MSG_3);
   });
 
   afterEach(() => {
@@ -64,13 +64,13 @@ describe('Received messages to device queries', () => {
   });
 
   it('should return all messages', () => {
-    const messages = queryExecutor?.getAllReceivedMessageToDevice() ?? [];
+    const messages = queryExecutor?.getAllInboundP2PMessage() ?? [];
     expect(messages.length).toBe(3);
     expect(messages).toStrictEqual(messagesOrdered);
   });
   it('should remove messages', () => {
-    queryExecutor?.removeReceivedMessagesToDevice([TEST_MSG_2.messageID]);
-    const messages = queryExecutor?.getAllReceivedMessageToDevice() ?? [];
+    queryExecutor?.removeInboundP2PMessages([TEST_MSG_2.messageID]);
+    const messages = queryExecutor?.getAllInboundP2PMessage() ?? [];
     expect(messages.length).toBe(2);
     expect(messages).toStrictEqual([TEST_MSG_1, TEST_MSG_3]);
   });

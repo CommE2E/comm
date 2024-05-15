@@ -9,7 +9,7 @@ import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-
 import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
-import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
+import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 
 import {
   type WebClientDBThreadInfo,
@@ -172,9 +172,9 @@ declare export class SQLiteQueryExecutor {
     deviceID: string,
   ): $ReadOnlyArray<ClientMessageToDevice>;
 
-  addReceivedMessageToDevice(message: ReceivedMessageToDevice): void;
-  getAllReceivedMessageToDevice(): $ReadOnlyArray<ReceivedMessageToDevice>;
-  removeReceivedMessagesToDevice(ids: $ReadOnlyArray<string>): void;
+  addInboundP2PMessage(message: InboundP2PMessage): void;
+  getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
+  removeInboundP2PMessages(ids: $ReadOnlyArray<string>): void;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted

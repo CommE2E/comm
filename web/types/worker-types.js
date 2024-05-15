@@ -11,7 +11,7 @@ import type {
   IdentityServiceClient,
   IdentityServiceAuthLayer,
 } from 'lib/types/identity-service-types.js';
-import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
+import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -35,8 +35,8 @@ export const workerRequestMessageTypes = Object.freeze({
   CREATE_IDENTITY_SERVICE_CLIENT: 13,
   CALL_IDENTITY_CLIENT_METHOD: 14,
   CALL_OLM_API_METHOD: 15,
-  GET_RECEIVED_MESSAGES_TO_DEVICE: 16,
-  REMOVE_RECEIVED_MESSAGES_TO_DEVICE: 17,
+  GET_INBOUND_P2P_MESSAGES: 16,
+  REMOVE_INBOUND_P2P_MESSAGES: 17,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -46,7 +46,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.REMOVE_PERSIST_STORAGE_ITEM,
   workerRequestMessageTypes.BACKUP_RESTORE,
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
-  workerRequestMessageTypes.REMOVE_RECEIVED_MESSAGES_TO_DEVICE,
+  workerRequestMessageTypes.REMOVE_INBOUND_P2P_MESSAGES,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -155,11 +155,11 @@ export type CallOLMApiMethodRequestMessage = {
   +args: $ReadOnlyArray<mixed>,
 };
 
-export type GetReceivedMessagesToDeviceRequestMessage = {
+export type GetInboundP2PMessagesRequestMessage = {
   +type: 16,
 };
 
-export type RemoveReceivedMessagesToDeviceRequestMessage = {
+export type RemoveInboundP2PMessagesRequestMessage = {
   +type: 17,
   +ids: $ReadOnlyArray<string>,
 };
@@ -181,8 +181,8 @@ export type WorkerRequestMessage =
   | CreateIdentityServiceClientRequestMessage
   | CallIdentityClientMethodRequestMessage
   | CallOLMApiMethodRequestMessage
-  | GetReceivedMessagesToDeviceRequestMessage
-  | RemoveReceivedMessagesToDeviceRequestMessage;
+  | GetInboundP2PMessagesRequestMessage
+  | RemoveInboundP2PMessagesRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -197,7 +197,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_PERSIST_STORAGE_ITEM: 3,
   CALL_IDENTITY_CLIENT_METHOD: 4,
   CALL_OLM_API_METHOD: 5,
-  GET_RECEIVED_MESSAGES_TO_DEVICE: 6,
+  GET_INBOUND_P2P_MESSAGES: 6,
 });
 
 export type PongWorkerResponseMessage = {
@@ -230,9 +230,9 @@ export type CallOLMApiMethodResponseMessage = {
   +result: mixed,
 };
 
-export type GetReceivedMessagesToDeviceResponseMessage = {
+export type GetInboundP2PMessagesResponseMessage = {
   +type: 6,
-  +messages: $ReadOnlyArray<ReceivedMessageToDevice>,
+  +messages: $ReadOnlyArray<InboundP2PMessage>,
 };
 
 export type WorkerResponseMessage =
@@ -242,7 +242,7 @@ export type WorkerResponseMessage =
   | GetPersistStorageItemResponseMessage
   | CallIdentityClientMethodResponseMessage
   | CallOLMApiMethodResponseMessage
-  | GetReceivedMessagesToDeviceResponseMessage;
+  | GetInboundP2PMessagesResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,

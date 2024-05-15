@@ -239,11 +239,11 @@ async function processAppRequest(
       item: sqliteQueryExecutor.getPersistStorageItem(message.key),
     };
   } else if (
-    message.type === workerRequestMessageTypes.GET_RECEIVED_MESSAGES_TO_DEVICE
+    message.type === workerRequestMessageTypes.GET_INBOUND_P2P_MESSAGES
   ) {
     return {
-      type: workerResponseMessageTypes.GET_RECEIVED_MESSAGES_TO_DEVICE,
-      messages: sqliteQueryExecutor.getAllReceivedMessageToDevice(),
+      type: workerResponseMessageTypes.GET_INBOUND_P2P_MESSAGES,
+      messages: sqliteQueryExecutor.getAllInboundP2PMessage(),
     };
   }
 
@@ -311,10 +311,9 @@ async function processAppRequest(
       message.backupLogDataKey,
     );
   } else if (
-    message.type ===
-    workerRequestMessageTypes.REMOVE_RECEIVED_MESSAGES_TO_DEVICE
+    message.type === workerRequestMessageTypes.REMOVE_INBOUND_P2P_MESSAGES
   ) {
-    sqliteQueryExecutor.removeReceivedMessagesToDevice(message.ids);
+    sqliteQueryExecutor.removeInboundP2PMessages(message.ids);
   }
 
   persistNeeded = true;
