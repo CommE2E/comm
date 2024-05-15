@@ -4,28 +4,18 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { allConnectionInfosSelector } from 'lib/selectors/keyserver-selectors.js';
-import { isDesktopPlatform } from 'lib/types/device-types.js';
-import { getConfig } from 'lib/utils/config.js';
 
 import css from './version-handler.css';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { getVersionUnsupportedError } from '../utils/version-utils.js';
 
 function VersionUnsupportedModal(): React.Node {
   const { popModal } = useModalContext();
-
-  const actionRequestMessage = isDesktopPlatform(
-    getConfig().platformDetails.platform,
-  )
-    ? 'Please reload the app'
-    : 'Please refresh the page';
-
+  const message = getVersionUnsupportedError();
   return (
     <Modal name="App version unsupported" onClose={popModal} size="large">
-      <div className={css.modalContent}>
-        Your app version is pretty old, and the server doesn’t know how to speak
-        to it anymore. {actionRequestMessage}.
-      </div>
+      <div className={css.modalContent}>{message}</div>
     </Modal>
   );
 }
