@@ -430,11 +430,11 @@ const olmAPI: OlmAPI = {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const { session } = cryptoStore.contentSessions[deviceID];
-    if (!session) {
+    const olmSession = cryptoStore.contentSessions[deviceID];
+    if (!olmSession) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
-    const encryptedContent = session.encrypt(content);
+    const encryptedContent = olmSession.session.encrypt(content);
 
     persistCryptoStore();
 
@@ -451,12 +451,12 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
 
-    const { session } = cryptoStore.contentSessions[deviceID];
-    if (!session) {
+    const olmSession = cryptoStore.contentSessions[deviceID];
+    if (!olmSession) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
 
-    const result = session.decrypt(
+    const result = olmSession.session.decrypt(
       encryptedData.messageType,
       encryptedData.message,
     );
@@ -474,12 +474,12 @@ const olmAPI: OlmAPI = {
       throw new Error('Crypto account not initialized');
     }
 
-    const { session } = cryptoStore.contentSessions[deviceID];
-    if (!session) {
+    const olmSession = cryptoStore.contentSessions[deviceID];
+    if (!olmSession) {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
 
-    const result = session.decrypt_sequential(
+    const result = olmSession.session.decrypt_sequential(
       encryptedData.messageType,
       encryptedData.message,
     );
