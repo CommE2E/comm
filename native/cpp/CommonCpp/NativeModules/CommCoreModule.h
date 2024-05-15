@@ -196,9 +196,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Object siweBackupSecrets) override;
   virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) override;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) override;
-  virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) override;
+  virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) override;
   virtual jsi::Value
-  removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) override;
+  removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

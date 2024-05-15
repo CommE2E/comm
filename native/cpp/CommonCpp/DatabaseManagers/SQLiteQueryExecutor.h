@@ -152,12 +152,10 @@ public:
   void removeMessagesToDeviceOlderThan(
       const ClientMessageToDevice &lastConfirmedMessage) const override;
   void removeAllMessagesForDevice(const std::string &deviceID) const override;
+  void addInboundP2PMessage(InboundP2PMessage message) const override;
+  std::vector<InboundP2PMessage> getAllInboundP2PMessage() const override;
   void
-  addReceivedMessageToDevice(ReceivedMessageToDevice message) const override;
-  std::vector<ReceivedMessageToDevice>
-  getAllReceivedMessageToDevice() const override;
-  void removeReceivedMessagesToDevice(
-      const std::vector<std::string> &ids) const override;
+  removeInboundP2PMessages(const std::vector<std::string> &ids) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
