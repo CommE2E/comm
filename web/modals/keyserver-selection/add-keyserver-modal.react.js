@@ -7,22 +7,28 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useIsKeyserverURLValid } from 'lib/shared/keyserver-utils.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import { defaultKeyserverInfo } from 'lib/types/keyserver-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './add-keyserver-modal.css';
 import Button, { buttonThemes } from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStaffCanSee } from '../../utils/staff-utils.js';
+import { getVersionUnsupportedError } from '../../utils/version-utils.js';
 import Input from '../input.react.js';
 import Modal from '../modal.react.js';
 
 type KeyserverCheckStatus =
   | { +status: 'inactive' }
   | { +status: 'loading' }
-  | { +status: 'error' };
+  | { +status: 'error', +error: 'generic' | 'client_version_unsupported' };
 const keyserverCheckStatusInactive = { status: 'inactive' };
 const keyserverCheckStatusLoading = { status: 'loading' };
-const keyserverCheckStatusError = { status: 'error' };
+const keyserverCheckStatusGenericError = { status: 'error', error: 'generic' };
+const keyserverCheckStatusVersionError = {
+  status: 'error',
+  error: 'client_version_unsupported',
+};
 
 function AddKeyserverModal(): React.Node {
   const { popModal } = useModalContext();
@@ -55,9 +61,16 @@ function AddKeyserverModal(): React.Node {
     }
     setStatus(keyserverCheckStatusLoading);
 
-    const keyserverVersionData = await isKeyserverURLValidCallback();
-    if (!keyserverVersionData) {
-      setStatus(keyserverCheckStatusError);
+    let keyserverVersionData;
+    try {
+      keyserverVersionData = await isKeyserverURLValidCallback();
+    } catch (e) {
+      const message = getMessageForException(e);
+      if (message === 'client_version_unsupported') {
+        setStatus(keyserverCheckStatusVersionError);
+      } else {
+        setStatus(keyserverCheckStatusGenericError);
+      }
       return;
     }
     setStatus(keyserverCheckStatusInactive);
@@ -81,16 +94,18 @@ function AddKeyserverModal(): React.Node {
     isKeyserverURLValidCallback,
   ]);
 
-  const showErrorMessage = status.status === 'error';
+  const { error } = status;
   const errorMessage = React.useMemo(() => {
     let errorText;
-    if (showErrorMessage) {
+    if (error === 'client_version_unsupported') {
+      errorText = getVersionUnsupportedError();
+    } else if (error) {
       errorText =
         'Cannot connect to keyserver. Please check the URL or your ' +
         'connection and try again.';
     }
     return <div className={css.errorMessage}>{errorText}</div>;
-  }, [showErrorMessage]);
+  }, [error]);
 
   const buttonDisabled = !keyserverURL || status.status === 'loading';
   const addKeyserverButton = React.useMemo(
