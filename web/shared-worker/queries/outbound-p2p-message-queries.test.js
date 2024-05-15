@@ -1,11 +1,10 @@
 // @flow
 
+import type { OutboundP2PMessage } from 'lib/types/sqlite-types.js';
+
 import { getDatabaseModule } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
-import {
-  type ClientMessageToDevice,
-  type SQLiteQueryExecutor,
-} from '../types/sqlite-query-executor.js';
+import { type SQLiteQueryExecutor } from '../types/sqlite-query-executor.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -18,7 +17,7 @@ const timestamp4 = new Date('2023-01-04T00:00:00').getTime().toString();
 const device1 = 'device-1';
 const device2 = 'device-2';
 
-const TEST_MSG_1: ClientMessageToDevice = {
+const TEST_MSG_1: OutboundP2PMessage = {
   messageID: 'id-1',
   deviceID: device1,
   userID: 'user-1',
@@ -26,7 +25,7 @@ const TEST_MSG_1: ClientMessageToDevice = {
   plaintext: 'decrypted-1',
   ciphertext: 'encrypted-1',
 };
-const TEST_MSG_2: ClientMessageToDevice = {
+const TEST_MSG_2: OutboundP2PMessage = {
   messageID: 'id-2',
   deviceID: device2,
   userID: 'user-2',
@@ -35,7 +34,7 @@ const TEST_MSG_2: ClientMessageToDevice = {
   ciphertext: 'encrypted-2',
 };
 
-const TEST_MSG_3: ClientMessageToDevice = {
+const TEST_MSG_3: OutboundP2PMessage = {
   messageID: 'id-3',
   deviceID: device1,
   userID: 'user-1',
@@ -44,7 +43,7 @@ const TEST_MSG_3: ClientMessageToDevice = {
   ciphertext: 'encrypted-3',
 };
 
-const TEST_MSG_4: ClientMessageToDevice = {
+const TEST_MSG_4: OutboundP2PMessage = {
   messageID: 'id-4',
   deviceID: device1,
   userID: 'user-1',
@@ -55,7 +54,7 @@ const TEST_MSG_4: ClientMessageToDevice = {
 
 const device1MessagesOrdered = [TEST_MSG_3, TEST_MSG_1, TEST_MSG_4];
 
-describe('Message to device queries', () => {
+describe('Outbound P2P messages queries', () => {
   let queryExecutor: ?SQLiteQueryExecutor = null;
   let dbModule: ?EmscriptenModule = null;
 
@@ -71,7 +70,7 @@ describe('Message to device queries', () => {
     if (!queryExecutor) {
       throw new Error('SQLiteQueryExecutor is missing');
     }
-    queryExecutor?.addMessagesToDevice([
+    queryExecutor?.addOutboundP2PMessages([
       TEST_MSG_1,
       TEST_MSG_2,
       TEST_MSG_3,
@@ -87,31 +86,31 @@ describe('Message to device queries', () => {
   });
 
   it('should return all messages', () => {
-    expect(queryExecutor?.getAllMessagesToDevice(device1).length).toBe(3);
-    expect(queryExecutor?.getAllMessagesToDevice(device2).length).toBe(1);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device1).length).toBe(3);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(1);
   });
 
   it('should return messages in correct order', () => {
-    const messages = queryExecutor?.getAllMessagesToDevice(device1);
+    const messages = queryExecutor?.getAllOutboundP2PMessages(device1);
     expect(messages).toStrictEqual(device1MessagesOrdered);
   });
 
   it('should remove when there is only one message', () => {
-    queryExecutor?.removeMessagesToDeviceOlderThan(TEST_MSG_2);
-    expect(queryExecutor?.getAllMessagesToDevice(device2).length).toBe(0);
+    queryExecutor?.removeOutboundP2PMessagesOlderThan(TEST_MSG_2);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
   });
 
   it('should remove older messages', () => {
-    queryExecutor?.removeMessagesToDeviceOlderThan(TEST_MSG_1);
-    expect(queryExecutor?.getAllMessagesToDevice(device1)).toStrictEqual([
+    queryExecutor?.removeOutboundP2PMessagesOlderThan(TEST_MSG_1);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device1)).toStrictEqual([
       TEST_MSG_4,
     ]);
   });
 
   it('should remove all messages for given device', () => {
-    queryExecutor?.removeAllMessagesForDevice(device1);
-    expect(queryExecutor?.getAllMessagesToDevice(device1).length).toBe(0);
-    queryExecutor?.removeAllMessagesForDevice(device2);
-    expect(queryExecutor?.getAllMessagesToDevice(device2).length).toBe(0);
+    queryExecutor?.removeAllOutboundP2PMessages(device1);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device1).length).toBe(0);
+    queryExecutor?.removeAllOutboundP2PMessages(device2);
+    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
   });
 });
