@@ -145,13 +145,13 @@ public:
       std::string mainCompactionEncryptionKey) const override;
   void restoreFromBackupLog(
       const std::vector<std::uint8_t> &backupLog) const override;
-  void addMessagesToDevice(
-      const std::vector<ClientMessageToDevice> &messages) const override;
-  std::vector<ClientMessageToDevice>
-  getAllMessagesToDevice(const std::string &deviceID) const override;
-  void removeMessagesToDeviceOlderThan(
-      const ClientMessageToDevice &lastConfirmedMessage) const override;
-  void removeAllMessagesForDevice(const std::string &deviceID) const override;
+  void addOutboundP2PMessages(
+      const std::vector<OutboundP2PMessage> &messages) const override;
+  std::vector<OutboundP2PMessage>
+  getAllOutboundP2PMessages(const std::string &deviceID) const override;
+  void removeOutboundP2PMessagesOlderThan(
+      const OutboundP2PMessage &lastConfirmedMessage) const override;
+  void removeAllOutboundP2PMessages(const std::string &deviceID) const override;
   void addInboundP2PMessage(InboundP2PMessage message) const override;
   std::vector<InboundP2PMessage> getAllInboundP2PMessage() const override;
   void
