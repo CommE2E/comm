@@ -2155,27 +2155,27 @@ void SQLiteQueryExecutor::removeAllMessagesForDevice(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQL, keys);
 }
 
-void SQLiteQueryExecutor::addReceivedMessageToDevice(
-    ReceivedMessageToDevice message) const {
+void SQLiteQueryExecutor::addInboundP2PMessage(
+    InboundP2PMessage message) const {
   static std::string addMessage =
       "REPLACE INTO received_messages_to_device ("
       " message_id, sender_device_id, plaintext, status)"
       "VALUES (?, ?, ?, ?);";
 
-  replaceEntity<ReceivedMessageToDevice>(
+  replaceEntity<InboundP2PMessage>(
       SQLiteQueryExecutor::getConnection(), addMessage, message);
 }
 
-std::vector<ReceivedMessageToDevice>
-SQLiteQueryExecutor::getAllReceivedMessageToDevice() const {
+std::vector<InboundP2PMessage>
+SQLiteQueryExecutor::getAllInboundP2PMessage() const {
   static std::string query =
       "SELECT message_id, sender_device_id, plaintext, status "
       "FROM received_messages_to_device;";
-  return getAllEntities<ReceivedMessageToDevice>(
+  return getAllEntities<InboundP2PMessage>(
       SQLiteQueryExecutor::getConnection(), query);
 }
 
-void SQLiteQueryExecutor::removeReceivedMessagesToDevice(
+void SQLiteQueryExecutor::removeInboundP2PMessages(
     const std::vector<std::string> &ids) const {
   if (!ids.size()) {
     return;

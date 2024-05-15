@@ -74,8 +74,8 @@ public:
   virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) = 0;
   virtual jsi::Value setSIWEBackupSecrets(jsi::Runtime &rt, jsi::Object siweBackupSecrets) = 0;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
-  virtual jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) = 0;
-  virtual jsi::Value removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) = 0;
+  virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) = 0;
+  virtual jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) = 0;
 
 };
 
@@ -529,21 +529,21 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getSIWEBackupSecrets, jsInvoker_, instance_);
     }
-    jsi::Value getAllReceivedMessageToDevice(jsi::Runtime &rt) override {
+    jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) override {
       static_assert(
-          bridging::getParameterCount(&T::getAllReceivedMessageToDevice) == 1,
-          "Expected getAllReceivedMessageToDevice(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getAllInboundP2PMessage) == 1,
+          "Expected getAllInboundP2PMessage(...) to have 1 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::getAllReceivedMessageToDevice, jsInvoker_, instance_);
+          rt, &T::getAllInboundP2PMessage, jsInvoker_, instance_);
     }
-    jsi::Value removeReceivedMessagesToDevice(jsi::Runtime &rt, jsi::Array ids) override {
+    jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) override {
       static_assert(
-          bridging::getParameterCount(&T::removeReceivedMessagesToDevice) == 2,
-          "Expected removeReceivedMessagesToDevice(...) to have 2 parameters");
+          bridging::getParameterCount(&T::removeInboundP2PMessages) == 2,
+          "Expected removeInboundP2PMessages(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::removeReceivedMessagesToDevice, jsInvoker_, instance_, std::move(ids));
+          rt, &T::removeInboundP2PMessages, jsInvoker_, instance_, std::move(ids));
     }
 
   private:

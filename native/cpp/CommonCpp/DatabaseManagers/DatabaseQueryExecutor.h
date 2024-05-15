@@ -4,6 +4,7 @@
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
+#include "entities/InboundP2PMessage.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Message.h"
@@ -12,7 +13,6 @@
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
 #include "entities/PersistItem.h"
-#include "entities/ReceivedMessageToDevice.h"
 #include "entities/Report.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/Thread.h"
@@ -143,12 +143,10 @@ public:
       const ClientMessageToDevice &lastConfirmedMessage) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
+  virtual void addInboundP2PMessage(InboundP2PMessage message) const = 0;
+  virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
-  addReceivedMessageToDevice(ReceivedMessageToDevice message) const = 0;
-  virtual std::vector<ReceivedMessageToDevice>
-  getAllReceivedMessageToDevice() const = 0;
-  virtual void
-  removeReceivedMessagesToDevice(const std::vector<std::string> &ids) const = 0;
+  removeInboundP2PMessages(const std::vector<std::string> &ids) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
