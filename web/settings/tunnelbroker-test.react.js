@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { type ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import { type TunnelbrokerClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   type EncryptedMessage,
   peerToPeerMessageTypes,
@@ -18,7 +18,7 @@ import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
-  +sendMessage: (message: ClientMessageToDevice) => Promise<void>,
+  +sendMessage: (message: TunnelbrokerClientMessageToDevice) => Promise<void>,
   +onClose: () => void,
 };
 
