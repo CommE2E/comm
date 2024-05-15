@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors.js';
+import { useOnScreenEntryEditableThreadInfos } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -12,7 +12,6 @@ import css from './thread-picker-modal.css';
 import ThreadAvatar from '../../avatars/thread-avatar.react.js';
 import Button from '../../components/button.react.js';
 import Search from '../../components/search.react.js';
-import { useSelector } from '../../redux/redux-utils.js';
 import Modal, { type ModalOverridableProps } from '../modal.react.js';
 
 type OptionProps = {
@@ -52,7 +51,7 @@ type Props = {
 function ThreadPickerModal(props: Props): React.Node {
   const { createNewEntry, ...modalProps } = props;
 
-  const onScreenThreadInfos = useSelector(onScreenEntryEditableThreadInfos);
+  const onScreenThreadInfos = useOnScreenEntryEditableThreadInfos();
   const searchIndex = useGlobalThreadSearchIndex();
 
   invariant(
