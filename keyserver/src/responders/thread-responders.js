@@ -179,6 +179,7 @@ export const joinThreadRequestInputValidator: TInterface<ServerThreadJoinRequest
     threadID: tID,
     calendarQuery: t.maybe(entryQueryInputValidator),
     inviteLinkSecret: t.maybe(t.String),
+    farcasterChannelID: t.maybe(t.String),
   });
 
 async function threadJoinResponder(

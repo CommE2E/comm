@@ -37,4 +37,18 @@ async function fetchCommunityInfos(
   return communityInfos;
 }
 
-export { fetchCommunityInfos };
+async function checkIfFarcasterChannelTagIsValid(
+  farcasterChannelID: string,
+): Promise<boolean> {
+  const query = SQL`
+    SELECT id
+    FROM communities
+    WHERE farcaster_channel_id = ${farcasterChannelID}
+  `;
+
+  const [result] = await dbQuery(query);
+
+  return result.length === 1;
+}
+
+export { fetchCommunityInfos, checkIfFarcasterChannelTagIsValid };
