@@ -5,7 +5,7 @@ import uuid from 'uuid';
 import WebSocket from 'ws';
 
 import { tunnelbrokerHeartbeatTimeout } from 'lib/shared/timeouts.js';
-import type { ClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { TunnelbrokerClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { MessageReceiveConfirmation } from 'lib/types/tunnelbroker/message-receive-confirmation-types.js';
 import type { MessageSentStatus } from 'lib/types/tunnelbroker/message-to-device-request-status-types.js';
 import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
@@ -175,8 +175,8 @@ class TunnelbrokerSocket {
     { leading: true, trailing: true },
   );
 
-  sendMessage: (message: ClientMessageToDevice) => Promise<void> = (
-    message: ClientMessageToDevice,
+  sendMessage: (message: TunnelbrokerClientMessageToDevice) => Promise<void> = (
+    message: TunnelbrokerClientMessageToDevice,
   ) => {
     if (!this.connected) {
       throw new Error('Tunnelbroker not connected');
