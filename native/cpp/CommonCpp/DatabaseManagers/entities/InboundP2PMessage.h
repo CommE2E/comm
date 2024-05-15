@@ -8,14 +8,14 @@
 
 namespace comm {
 
-struct ReceivedMessageToDevice {
+struct InboundP2PMessage {
   std::string message_id;
   std::string sender_device_id;
   std::string plaintext;
   std::string status;
 
-  static ReceivedMessageToDevice fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
-    return ReceivedMessageToDevice{
+  static InboundP2PMessage fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
+    return InboundP2PMessage{
         getStringFromSQLRow(sqlRow, idx),
         getStringFromSQLRow(sqlRow, idx + 1),
         getStringFromSQLRow(sqlRow, idx + 2),

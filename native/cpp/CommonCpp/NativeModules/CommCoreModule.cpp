@@ -1460,15 +1460,15 @@ jsi::Value CommCoreModule::decryptSequentialAndPersist(
             GlobalDBSingleton::instance.scheduleOrRunCancellable(
                 [=, &persistencePromise]() {
                   try {
-                    ReceivedMessageToDevice message{
+                    InboundP2PMessage message{
                         messageIDCpp,
                         deviceIDCpp,
                         decryptedMessage,
                         "decrypted"};
 
                     DatabaseManager::getQueryExecutor().beginTransaction();
-                    DatabaseManager::getQueryExecutor()
-                        .addReceivedMessageToDevice(message);
+                    DatabaseManager::getQueryExecutor().addInboundP2PMessage(
+                        message);
                     DatabaseManager::getQueryExecutor().storeOlmPersistData(
                         DatabaseManager::getQueryExecutor()
                             .getContentAccountID(),
@@ -2140,23 +2140,22 @@ jsi::Value CommCoreModule::getSIWEBackupSecrets(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getAllReceivedMessageToDevice(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getAllInboundP2PMessage(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::vector<ReceivedMessageToDevice> messages;
+          std::vector<InboundP2PMessage> messages;
 
           try {
-            messages = DatabaseManager::getQueryExecutor()
-                           .getAllReceivedMessageToDevice();
+            messages =
+                DatabaseManager::getQueryExecutor().getAllInboundP2PMessage();
 
           } catch (std::system_error &e) {
             error = e.what();
           }
-          auto messagesPtr =
-              std::make_shared<std::vector<ReceivedMessageToDevice>>(
-                  std::move(messages));
+          auto messagesPtr = std::make_shared<std::vector<InboundP2PMessage>>(
+              std::move(messages));
 
           this->jsInvoker_->invokeAsync(
               [&innerRt, messagesPtr, error, promise]() {
@@ -2168,7 +2167,7 @@ jsi::Value CommCoreModule::getAllReceivedMessageToDevice(jsi::Runtime &rt) {
                 jsi::Array jsiMessages =
                     jsi::Array(innerRt, messagesPtr->size());
                 size_t writeIdx = 0;
-                for (const ReceivedMessageToDevice &msg : *messagesPtr) {
+                for (const InboundP2PMessage &msg : *messagesPtr) {
                   jsi::Object jsiMsg = jsi::Object(innerRt);
                   jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
                   jsiMsg.setProperty(
@@ -2186,9 +2185,8 @@ jsi::Value CommCoreModule::getAllReceivedMessageToDevice(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::removeReceivedMessagesToDevice(
-    jsi::Runtime &rt,
-    jsi::Array ids) {
+jsi::Value
+CommCoreModule::removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) {
   std::vector<std::string> msgIDsCPP{};
   for (auto idx = 0; idx < ids.size(rt); idx++) {
     std::string msgID = ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
@@ -2202,7 +2200,7 @@ jsi::Value CommCoreModule::removeReceivedMessagesToDevice(
         taskType job = [this, promise, msgIDsCPP]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor().removeReceivedMessagesToDevice(
+            DatabaseManager::getQueryExecutor().removeInboundP2PMessages(
                 msgIDsCPP);
           } catch (std::system_error &e) {
             error = e.what();

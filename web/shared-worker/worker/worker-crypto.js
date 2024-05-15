@@ -24,7 +24,7 @@ import type {
   IdentityExistingDeviceKeyUpload,
 } from 'lib/types/identity-service-types.js';
 import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
-import type { ReceivedMessageToDevice } from 'lib/types/sqlite-types.js';
+import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
 import {
@@ -492,7 +492,7 @@ const olmAPI: OlmAPI = {
       );
     }
 
-    const receivedMessage: ReceivedMessageToDevice = {
+    const receivedMessage: InboundP2PMessage = {
       messageID,
       senderDeviceID: deviceID,
       plaintext: result,
@@ -501,7 +501,7 @@ const olmAPI: OlmAPI = {
 
     sqliteQueryExecutor.beginTransaction();
     try {
-      sqliteQueryExecutor.addReceivedMessageToDevice(receivedMessage);
+      sqliteQueryExecutor.addInboundP2PMessage(receivedMessage);
       persistCryptoStore(true);
       sqliteQueryExecutor.commitTransaction();
     } catch (e) {

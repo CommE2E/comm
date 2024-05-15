@@ -1,7 +1,7 @@
 #include "SQLiteQueryExecutor.cpp"
+#include "entities/InboundP2PMessage.h"
 #include "entities/MessageToDevice.h"
 #include "entities/Nullable.h"
-#include "entities/ReceivedMessageToDevice.h"
 
 #include <emscripten/bind.h>
 #include <vector>
@@ -122,11 +122,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("plaintext", &ClientMessageToDevice::plaintext)
       .field("ciphertext", &ClientMessageToDevice::ciphertext);
 
-  value_object<ReceivedMessageToDevice>("ReceivedMessageToDevice")
-      .field("messageID", &ReceivedMessageToDevice::message_id)
-      .field("senderDeviceID", &ReceivedMessageToDevice::sender_device_id)
-      .field("plaintext", &ReceivedMessageToDevice::plaintext)
-      .field("status", &ReceivedMessageToDevice::status);
+  value_object<InboundP2PMessage>("InboundP2PMessage")
+      .field("messageID", &InboundP2PMessage::message_id)
+      .field("senderDeviceID", &InboundP2PMessage::sender_device_id)
+      .field("plaintext", &InboundP2PMessage::plaintext)
+      .field("status", &InboundP2PMessage::status);
 
   class_<SQLiteQueryExecutor>("SQLiteQueryExecutor")
       .constructor<std::string>()
@@ -273,14 +273,13 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "getAllMessagesToDevice",
           &SQLiteQueryExecutor::getAllMessagesToDevice)
       .function(
-          "addReceivedMessageToDevice",
-          &SQLiteQueryExecutor::addReceivedMessageToDevice)
+          "addInboundP2PMessage", &SQLiteQueryExecutor::addInboundP2PMessage)
       .function(
-          "getAllReceivedMessageToDevice",
-          &SQLiteQueryExecutor::getAllReceivedMessageToDevice)
+          "getAllInboundP2PMessage",
+          &SQLiteQueryExecutor::getAllInboundP2PMessage)
       .function(
-          "removeReceivedMessagesToDevice",
-          &SQLiteQueryExecutor::removeReceivedMessagesToDevice);
+          "removeInboundP2PMessages",
+          &SQLiteQueryExecutor::removeInboundP2PMessages);
 }
 
 } // namespace comm
