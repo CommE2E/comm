@@ -29,7 +29,7 @@ import type {
   ScreenParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
@@ -94,8 +94,8 @@ function ExistingEthereumAccount(props: Props): React.Node {
         );
       } else {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [{ text: 'OK' }],
           {
             cancelable: false,

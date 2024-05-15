@@ -42,7 +42,7 @@ import type {
   ContentSizeChangeEvent,
   LayoutEvent,
 } from '../../types/react-native.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 const unboundStyles = {
@@ -271,8 +271,8 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
+        unknownErrorAlertDetails.title,
+        unknownErrorAlertDetails.message,
         [{ text: 'OK', onPress: this.onErrorAcknowledged }],
         { cancelable: false },
       );

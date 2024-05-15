@@ -48,10 +48,10 @@ import { useSelector } from '../redux/redux-utils.js';
 import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
 import {
-  AppOutOfDateAlertDetails,
-  UsernameReservedAlertDetails,
-  UsernameTakenAlertDetails,
-  UnknownErrorAlertDetails,
+  appOutOfDateAlertDetails,
+  usernameReservedAlertDetails,
+  usernameTakenAlertDetails,
+  unknownErrorAlertDetails,
 } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { type StateContainer } from '../utils/state-container.js';
@@ -378,29 +378,29 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
     } catch (e) {
       if (e.message === 'username_reserved') {
         Alert.alert(
-          UsernameReservedAlertDetails.title,
-          UsernameReservedAlertDetails.message,
+          usernameReservedAlertDetails.title,
+          usernameReservedAlertDetails.message,
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'username_taken') {
         Alert.alert(
-          UsernameTakenAlertDetails.title,
-          UsernameTakenAlertDetails.message,
+          usernameTakenAlertDetails.title,
+          usernameTakenAlertDetails.message,
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
         Alert.alert(
-          AppOutOfDateAlertDetails.title,
-          AppOutOfDateAlertDetails.message,
+          appOutOfDateAlertDetails.title,
+          appOutOfDateAlertDetails.message,
           [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );

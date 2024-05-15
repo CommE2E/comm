@@ -23,7 +23,7 @@ import {
   type TooltipRoute,
 } from '../tooltip/tooltip.react.js';
 import type { UserProfileBottomSheetNavigationProp } from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Action = 'unfriend' | 'block' | 'unblock';
@@ -53,8 +53,8 @@ function useRelationshipAction(input: OnRemoveUserProps) {
         });
       } catch (e) {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [{ text: 'OK' }],
           {
             cancelable: true,

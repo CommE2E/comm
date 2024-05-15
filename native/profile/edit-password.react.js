@@ -31,7 +31,7 @@ import TextInput from '../components/text-input.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const unboundStyles = {
@@ -311,8 +311,8 @@ class EditPassword extends React.PureComponent<Props, State> {
         );
       } else {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );

@@ -12,31 +12,31 @@ const platformStore: string = Platform.select({
   android: 'Play Store',
 });
 
-const AppOutOfDateAlertDetails: AlertDetails = {
+const appOutOfDateAlertDetails: AlertDetails = {
   title: 'App out of date',
   message:
     'Your app version is pretty old, and the server doesn’t know how ' +
     `to speak to it anymore. Please use the ${platformStore} to update!`,
 };
 
-const UsernameReservedAlertDetails: AlertDetails = {
+const usernameReservedAlertDetails: AlertDetails = {
   title: 'Username reserved',
   message:
     'This username is currently reserved. Please contact support@' +
     'comm.app if you would like to claim this account.',
 };
 
-const UsernameTakenAlertDetails: AlertDetails = {
+const usernameTakenAlertDetails: AlertDetails = {
   title: 'Username taken',
   message: 'An account with that username already exists',
 };
 
-const UserNotFoundAlertDetails: AlertDetails = {
+const userNotFoundAlertDetails: AlertDetails = {
   title: 'Incorrect username or password',
   message: "Either that user doesn't exist, or the password is incorrect",
 };
 
-const UnknownErrorAlertDetails: AlertDetails = {
+const unknownErrorAlertDetails: AlertDetails = {
   title: 'Unknown error',
   message: 'Uhh... try again?',
 };
@@ -51,10 +51,10 @@ const getFarcasterAccountAlreadyLinkedAlertDetails = (
 });
 
 export {
-  AppOutOfDateAlertDetails,
-  UsernameReservedAlertDetails,
-  UsernameTakenAlertDetails,
-  UserNotFoundAlertDetails,
-  UnknownErrorAlertDetails,
+  appOutOfDateAlertDetails,
+  usernameReservedAlertDetails,
+  usernameTakenAlertDetails,
+  userNotFoundAlertDetails,
+  unknownErrorAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };
