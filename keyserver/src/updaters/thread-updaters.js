@@ -45,6 +45,7 @@ import {
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { checkIfFarcasterChannelTagIsValid } from '../fetchers/community-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
@@ -816,17 +817,28 @@ async function joinThread(
     throw new ServerError('not_logged_in');
   }
 
-  const permissionCheck = request.inviteLinkSecret
-    ? checkIfInviteLinkIsValid(request.inviteLinkSecret, request.threadID)
-    : checkThreadPermission(
-        viewer,
-        request.threadID,
-        threadPermissions.JOIN_THREAD,
-      );
+  let permissionCheckPromise = checkThreadPermission(
+    viewer,
+    request.threadID,
+    threadPermissions.JOIN_THREAD,
+  );
+
+  if (request.inviteLinkSecret) {
+    permissionCheckPromise = checkIfInviteLinkIsValid(
+      request.inviteLinkSecret,
+      request.threadID,
+    );
+  } else if (request.farcasterChannelID) {
+    permissionCheckPromise = checkIfFarcasterChannelTagIsValid(
+      request.farcasterChannelID,
+    );
+  }
+
   const [isMember, hasPermission] = await Promise.all([
     fetchViewerIsMember(viewer, request.threadID),
-    permissionCheck,
+    permissionCheckPromise,
   ]);
+
   if (!hasPermission) {
     throw new ServerError('invalid_parameters');
   }
