@@ -72,16 +72,13 @@ function AddKeyserverModal(): React.Node {
   ]);
 
   const errorMessage = React.useMemo(() => {
-    if (!showErrorMessage) {
-      return null;
+    let errorText;
+    if (showErrorMessage) {
+      errorText =
+        'Cannot connect to keyserver. Please check the URL or your ' +
+        'connection and try again.';
     }
-
-    return (
-      <div className={css.errorMessage}>
-        Cannot connect to keyserver. Please check the URL or your connection and
-        try again.
-      </div>
-    );
+    return <div className={css.errorMessage}>{errorText}</div>;
   }, [showErrorMessage]);
 
   const addKeyserverButton = React.useMemo(
