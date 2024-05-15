@@ -16,6 +16,14 @@ import { useStaffCanSee } from '../../utils/staff-utils.js';
 import Input from '../input.react.js';
 import Modal from '../modal.react.js';
 
+type KeyserverCheckStatus =
+  | { +status: 'inactive' }
+  | { +status: 'loading' }
+  | { +status: 'error' };
+const keyserverCheckStatusInactive = { status: 'inactive' };
+const keyserverCheckStatusLoading = { status: 'loading' };
+const keyserverCheckStatusError = { status: 'error' };
+
 function AddKeyserverModal(): React.Node {
   const { popModal } = useModalContext();
 
@@ -29,8 +37,9 @@ function AddKeyserverModal(): React.Node {
   const [keyserverURL, setKeyserverURL] = React.useState<string>(
     customServer && staffCanSee ? customServer : '',
   );
-  const [showErrorMessage, setShowErrorMessage] =
-    React.useState<boolean>(false);
+  const [status, setStatus] = React.useState<KeyserverCheckStatus>(
+    keyserverCheckStatusInactive,
+  );
 
   const onChangeKeyserverURL = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) =>
@@ -41,16 +50,17 @@ function AddKeyserverModal(): React.Node {
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(keyserverURL);
 
   const onClickAddKeyserver = React.useCallback(async () => {
-    setShowErrorMessage(false);
     if (!currentUserID || !keyserverURL) {
       return;
     }
+    setStatus(keyserverCheckStatusLoading);
 
     const keyserverVersionData = await isKeyserverURLValidCallback();
     if (!keyserverVersionData) {
-      setShowErrorMessage(true);
+      setStatus(keyserverCheckStatusError);
       return;
     }
+    setStatus(keyserverCheckStatusInactive);
 
     const newKeyserverInfo: KeyserverInfo = defaultKeyserverInfo(keyserverURL);
 
@@ -71,6 +81,7 @@ function AddKeyserverModal(): React.Node {
     isKeyserverURLValidCallback,
   ]);
 
+  const showErrorMessage = status.status === 'error';
   const errorMessage = React.useMemo(() => {
     let errorText;
     if (showErrorMessage) {
@@ -81,6 +92,7 @@ function AddKeyserverModal(): React.Node {
     return <div className={css.errorMessage}>{errorText}</div>;
   }, [showErrorMessage]);
 
+  const buttonDisabled = !keyserverURL || status.status === 'loading';
   const addKeyserverButton = React.useMemo(
     () => (
       <Button
@@ -88,12 +100,12 @@ function AddKeyserverModal(): React.Node {
         buttonColor={buttonThemes.primary}
         className={css.button}
         onClick={onClickAddKeyserver}
-        disabled={!keyserverURL}
+        disabled={buttonDisabled}
       >
         Add keyserver
       </Button>
     ),
-    [keyserverURL, onClickAddKeyserver],
+    [buttonDisabled, onClickAddKeyserver],
   );
 
   const addKeyserverModal = React.useMemo(
