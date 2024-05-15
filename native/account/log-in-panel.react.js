@@ -348,7 +348,10 @@ class LogInPanel extends React.PureComponent<Props, State> {
           [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
           { cancelable: false },
         );
-      } else if (messageForException === 'Unsupported version') {
+      } else if (
+        messageForException === 'Unsupported version' ||
+        messageForException === 'client_version_unsupported'
+      ) {
         Alert.alert(
           appOutOfDateAlertDetails.title,
           appOutOfDateAlertDetails.message,

@@ -29,7 +29,10 @@ import type {
   ScreenParamList,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
-import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import {
+  unknownErrorAlertDetails,
+  appOutOfDateAlertDetails,
+} from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { useLegacySIWEServerCall } from '../siwe-hooks.js';
 
@@ -91,6 +94,16 @@ function ExistingEthereumAccount(props: Props): React.Node {
           {
             cancelable: false,
           },
+        );
+      } else if (
+        messageForException === 'Unsupported version' ||
+        messageForException === 'client_version_unsupported'
+      ) {
+        Alert.alert(
+          appOutOfDateAlertDetails.title,
+          appOutOfDateAlertDetails.message,
+          [{ text: 'OK', onPress: goBackToHome }],
+          { cancelable: false },
         );
       } else {
         Alert.alert(
