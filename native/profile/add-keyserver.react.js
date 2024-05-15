@@ -18,6 +18,14 @@ import { useSelector } from '../redux/redux-utils.js';
 import { useStyles, useColors } from '../themes/colors.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
 
+type KeyserverCheckStatus =
+  | { +status: 'inactive' }
+  | { +status: 'loading' }
+  | { +status: 'error' };
+const keyserverCheckStatusInactive = { status: 'inactive' };
+const keyserverCheckStatusLoading = { status: 'loading' };
+const keyserverCheckStatusError = { status: 'error' };
+
 type Props = {
   +navigation: ProfileNavigationProp<'AddKeyserver'>,
   +route: NavigationRoute<'AddKeyserver'>,
@@ -39,21 +47,24 @@ function AddKeyserver(props: Props): React.Node {
   const [urlInput, setUrlInput] = React.useState(
     customServer && staffCanSee ? customServer : '',
   );
-  const [showErrorMessage, setShowErrorMessage] = React.useState(false);
+  const [status, setStatus] = React.useState<KeyserverCheckStatus>(
+    keyserverCheckStatusInactive,
+  );
 
   const isKeyserverURLValidCallback = useIsKeyserverURLValid(urlInput);
 
   const onPressSave = React.useCallback(async () => {
-    setShowErrorMessage(false);
     if (!currentUserID || !urlInput) {
       return;
     }
+    setStatus(keyserverCheckStatusLoading);
 
     const keyserverVersionData = await isKeyserverURLValidCallback();
     if (!keyserverVersionData) {
-      setShowErrorMessage(true);
+      setStatus(keyserverCheckStatusError);
       return;
     }
+    setStatus(keyserverCheckStatusInactive);
 
     const newKeyserverInfo: KeyserverInfo = defaultKeyserverInfo(urlInput);
 
@@ -68,19 +79,25 @@ function AddKeyserver(props: Props): React.Node {
     goBack();
   }, [currentUserID, dispatch, goBack, isKeyserverURLValidCallback, urlInput]);
 
+  const buttonDisabled = !urlInput || status.status === 'loading';
   React.useEffect(() => {
     setOptions({
       headerRight: () => (
-        <HeaderRightTextButton label="Save" onPress={onPressSave} />
+        <HeaderRightTextButton
+          label="Save"
+          onPress={onPressSave}
+          disabled={buttonDisabled}
+        />
       ),
     });
-  }, [onPressSave, setOptions, styles.header]);
+  }, [onPressSave, setOptions, buttonDisabled]);
 
   const onChangeText = React.useCallback(
     (text: string) => setUrlInput(text),
     [],
   );
 
+  const showErrorMessage = status.status === 'error';
   const errorMessage = React.useMemo(() => {
     if (!showErrorMessage) {
       return null;
