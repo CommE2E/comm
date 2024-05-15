@@ -12,13 +12,13 @@ import type { UserInfo } from 'lib/types/user-types';
 import { userProfileActionButtonHeight } from './user-profile-constants.js';
 import RelationshipButton from '../components/relationship-button.react.js';
 import { useStyles } from '../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 const onErrorCallback = () => {
   Alert.alert(
-    UnknownErrorAlertDetails.title,
-    UnknownErrorAlertDetails.message,
+    unknownErrorAlertDetails.title,
+    unknownErrorAlertDetails.message,
     [{ text: 'OK' }],
   );
 };

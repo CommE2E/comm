@@ -8,7 +8,7 @@ import { useLinkFID } from 'lib/utils/farcaster-utils.js';
 
 import {
   getFarcasterAccountAlreadyLinkedAlertDetails,
-  UnknownErrorAlertDetails,
+  unknownErrorAlertDetails,
 } from './alert-messages.js';
 
 function useTryLinkFID(): (newFID: string) => Promise<void> {
@@ -28,8 +28,8 @@ function useTryLinkFID(): (newFID: string) => Promise<void> {
           Alert.alert(title, message);
         } else {
           Alert.alert(
-            UnknownErrorAlertDetails.title,
-            UnknownErrorAlertDetails.message,
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
           );
         }
       }

@@ -12,7 +12,7 @@ import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
 type Props = {
@@ -36,8 +36,8 @@ function FarcasterAccountSettings(props: Props): React.Node {
       await unlinkFID();
     } catch {
       Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
+        unknownErrorAlertDetails.title,
+        unknownErrorAlertDetails.message,
       );
     } finally {
       setIsLoadingUnlinkFID(false);

@@ -33,7 +33,7 @@ import SingleLine from '../../components/single-line.react.js';
 import TextInput from '../../components/text-input.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useStyles, useColors } from '../../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 const unboundStyles = {
@@ -199,8 +199,8 @@ class ThreadSettingsName extends React.PureComponent<Props> {
       });
     } catch (e) {
       Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
+        unknownErrorAlertDetails.title,
+        unknownErrorAlertDetails.message,
         [{ text: 'OK', onPress: this.onErrorAcknowledged }],
         { cancelable: false },
       );

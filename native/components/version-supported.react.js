@@ -8,7 +8,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import { commRustModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
+import { appOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 function VersionSupportedChecker(): React.Node {
@@ -31,8 +31,8 @@ function VersionSupportedChecker(): React.Node {
         return;
       }
       Alert.alert(
-        AppOutOfDateAlertDetails.title,
-        AppOutOfDateAlertDetails.message,
+        appOutOfDateAlertDetails.title,
+        appOutOfDateAlertDetails.message,
         [
           {
             text: 'OK',
