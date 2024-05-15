@@ -2077,22 +2077,23 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
   return (entry == nullptr) ? "" : entry->data;
 }
 
-void SQLiteQueryExecutor::addMessagesToDevice(
-    const std::vector<ClientMessageToDevice> &messages) const {
-  static std::string addMessageToDevice =
+void SQLiteQueryExecutor::addOutboundP2PMessages(
+    const std::vector<OutboundP2PMessage> &messages) const {
+  static std::string addMessage =
       "REPLACE INTO messages_to_device ("
       " message_id, device_id, user_id, timestamp, plaintext, ciphertext) "
       "VALUES (?, ?, ?, ?, ?, ?);";
 
-  for (const ClientMessageToDevice &clientMessage : messages) {
-    MessageToDevice message = clientMessage.toMessageToDevice();
-    replaceEntity<MessageToDevice>(
-        SQLiteQueryExecutor::getConnection(), addMessageToDevice, message);
+  for (const OutboundP2PMessage &clientMessage : messages) {
+    SQLiteOutboundP2PMessage message =
+        clientMessage.toSQLiteOutboundP2PMessage();
+    replaceEntity<SQLiteOutboundP2PMessage>(
+        SQLiteQueryExecutor::getConnection(), addMessage, message);
   }
 }
 
-std::vector<ClientMessageToDevice>
-SQLiteQueryExecutor::getAllMessagesToDevice(const std::string &deviceID) const {
+std::vector<OutboundP2PMessage> SQLiteQueryExecutor::getAllOutboundP2PMessages(
+    const std::string &deviceID) const {
   std::string query =
       "SELECT * FROM messages_to_device "
       "WHERE device_id = ? "
@@ -2105,24 +2106,24 @@ SQLiteQueryExecutor::getAllMessagesToDevice(const std::string &deviceID) const {
 
   sqlite3_bind_text(preparedSQL, 1, deviceID.c_str(), -1, SQLITE_TRANSIENT);
 
-  std::vector<ClientMessageToDevice> messages;
+  std::vector<OutboundP2PMessage> messages;
   for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
        stepResult = sqlite3_step(preparedSQL)) {
-    messages.emplace_back(
-        ClientMessageToDevice(MessageToDevice::fromSQLResult(preparedSQL, 0)));
+    messages.emplace_back(OutboundP2PMessage(
+        SQLiteOutboundP2PMessage::fromSQLResult(preparedSQL, 0)));
   }
 
   return messages;
 }
 
-void SQLiteQueryExecutor::removeMessagesToDeviceOlderThan(
-    const ClientMessageToDevice &lastConfirmedMessageClient) const {
+void SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan(
+    const OutboundP2PMessage &lastConfirmedMessageClient) const {
   static std::string query =
       "DELETE FROM messages_to_device "
       "WHERE timestamp <= ? AND device_id IN (?);";
 
-  MessageToDevice lastConfirmedMessage =
-      lastConfirmedMessageClient.toMessageToDevice();
+  SQLiteOutboundP2PMessage lastConfirmedMessage =
+      lastConfirmedMessageClient.toSQLiteOutboundP2PMessage();
 
   comm::SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
@@ -2140,7 +2141,7 @@ void SQLiteQueryExecutor::removeMessagesToDeviceOlderThan(
   int result = sqlite3_step(preparedSQL);
   if (result != SQLITE_DONE) {
     throw std::runtime_error(
-        "Failed to execute removeMessagesToDeviceOlderThan statement: " +
+        "Failed to execute removeOutboundP2PMessagesOlderThan statement: " +
         std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
   }
 }

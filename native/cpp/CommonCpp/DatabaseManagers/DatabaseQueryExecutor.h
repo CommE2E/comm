@@ -9,9 +9,9 @@
 #include "entities/KeyserverInfo.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
-#include "entities/MessageToDevice.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
+#include "entities/OutboundP2PMessage.h"
 #include "entities/PersistItem.h"
 #include "entities/Report.h"
 #include "entities/SyncedMetadataEntry.h"
@@ -135,12 +135,12 @@ public:
       std::string mainCompactionEncryptionKey) const = 0;
   virtual void
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
-  virtual void addMessagesToDevice(
-      const std::vector<ClientMessageToDevice> &messages) const = 0;
-  virtual std::vector<ClientMessageToDevice>
-  getAllMessagesToDevice(const std::string &deviceID) const = 0;
-  virtual void removeMessagesToDeviceOlderThan(
-      const ClientMessageToDevice &lastConfirmedMessage) const = 0;
+  virtual void addOutboundP2PMessages(
+      const std::vector<OutboundP2PMessage> &messages) const = 0;
+  virtual std::vector<OutboundP2PMessage>
+  getAllOutboundP2PMessages(const std::string &deviceID) const = 0;
+  virtual void removeOutboundP2PMessagesOlderThan(
+      const OutboundP2PMessage &lastConfirmedMessage) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
   virtual void addInboundP2PMessage(InboundP2PMessage message) const = 0;
