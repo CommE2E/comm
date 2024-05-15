@@ -1,13 +1,17 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
+import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type SIWEResult } from 'lib/types/siwe-types.js';
+import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import { commCoreModule } from '../../../native-modules.js';
 import { type RootNavigationProp } from '../../../navigation/root-navigator.react.js';
 import { type NavigationRoute } from '../../../navigation/route-names.js';
+import { useSelector } from '../../../redux/redux-utils.js';
 import { useStyles } from '../../../themes/colors.js';
 import { CreateSIWEBackupMessageBase } from '../siwe-backup-message-creation.react.js';
 
@@ -19,16 +23,33 @@ type Props = {
 function CreateMissingSIWEBackupMessage(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { goBack } = props.navigation;
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const loggedInEthereumAccountAddress = currentUserInfo?.username;
+
+  invariant(
+    loggedInEthereumAccountAddress &&
+      isValidEthereumAddress(loggedInEthereumAccountAddress),
+    'current username must be valid ethereum address to attempt ' +
+      'backup message generation',
+  );
 
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
       void (async () => {
-        const { message, signature } = result;
+        const { message, signature, address } = result;
+        if (loggedInEthereumAccountAddress !== address) {
+          Alert.alert(
+            'Mismatched Ethereum address',
+            'You picked a different wallet than the one you use to sign in.',
+          );
+          return;
+        }
+
         await commCoreModule.setSIWEBackupSecrets({ message, signature });
         goBack();
       })();
     },
-    [goBack],
+    [goBack, loggedInEthereumAccountAddress],
   );
 
   return (

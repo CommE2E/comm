@@ -3,7 +3,7 @@
 import Icon from '@expo/vector-icons/MaterialIcons.js';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 
@@ -163,7 +163,17 @@ function CreateSIWEBackupMessage(props: Props): React.Node {
 
   const onSuccessfulWalletSignature = React.useCallback(
     (result: SIWEResult) => {
-      const { message, signature } = result;
+      const selectedEthereumAddress = userSelections.accountSelection.address;
+      const { message, signature, address } = result;
+
+      if (address !== selectedEthereumAddress) {
+        Alert.alert(
+          'Mismatched Ethereum address',
+          'You picked a different wallet than the one you use to sign in.',
+        );
+        return;
+      }
+
       const newUserSelections = {
         ...userSelections,
         siweBackupSecrets: { message, signature },
