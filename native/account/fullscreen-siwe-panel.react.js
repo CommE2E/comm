@@ -22,7 +22,10 @@ import {
   AccountDoesNotExistRouteName,
   RegistrationRouteName,
 } from '../navigation/route-names.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import {
+  UnknownErrorAlertDetails,
+  AppOutOfDateAlertDetails,
+} from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -104,6 +107,16 @@ function FullscreenSIWEPanel(props: Props): React.Node {
               const messageForException = getMessageForException(e);
               if (messageForException === 'nonce expired') {
                 onNonceExpired('login');
+              } else if (
+                messageForException === 'Unsupported version' ||
+                messageForException === 'client_version_unsupported'
+              ) {
+                Alert.alert(
+                  AppOutOfDateAlertDetails.title,
+                  AppOutOfDateAlertDetails.message,
+                  [{ text: 'OK', onPress: goBackToPrompt }],
+                  { cancelable: false },
+                );
               } else {
                 throw e;
               }
@@ -148,14 +161,24 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             e.message === 'account_does_not_exist'
           ) {
             await onAccountDoesNotExist(result);
-            return;
+          } else if (
+            e instanceof ServerError &&
+            e.message === 'client_version_unsupported'
+          ) {
+            Alert.alert(
+              AppOutOfDateAlertDetails.title,
+              AppOutOfDateAlertDetails.message,
+              [{ text: 'OK', onPress: goBackToPrompt }],
+              { cancelable: false },
+            );
+          } else {
+            Alert.alert(
+              UnknownErrorAlertDetails.title,
+              UnknownErrorAlertDetails.message,
+              [{ text: 'OK', onPress: goBackToPrompt }],
+              { cancelable: false },
+            );
           }
-          Alert.alert(
-            UnknownErrorAlertDetails.title,
-            UnknownErrorAlertDetails.message,
-            [{ text: 'OK', onPress: goBackToPrompt }],
-            { cancelable: false },
-          );
           return;
         }
         dispatch({
