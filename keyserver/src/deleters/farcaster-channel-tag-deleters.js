@@ -10,6 +10,7 @@ import { ServerError } from 'lib/utils/errors.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteBlob } from '../services/blob.js';
 import type { Viewer } from '../session/viewer';
+import { thisKeyserverID } from '../user/identity.js';
 
 async function deleteFarcasterChannelTag(
   viewer: Viewer,
@@ -18,6 +19,8 @@ async function deleteFarcasterChannelTag(
   if (DISABLE_TAGGING_FARCASTER_CHANNEL) {
     throw new ServerError('internal_error');
   }
+
+  const keyserverIDPromise = thisKeyserverID();
 
   const selectBlobHolderQuery = SQL`
     SELECT blob_holder AS blobHolder
@@ -33,7 +36,8 @@ async function deleteFarcasterChannelTag(
       AND farcaster_channel_id = ${request.farcasterChannelID}
   `;
 
-  const [[[row]]] = await Promise.all([
+  const [keyserverID, [[row]]] = await Promise.all([
+    keyserverIDPromise,
     dbQuery(selectBlobHolderQuery),
     dbQuery(deleteQuery),
   ]);
@@ -41,7 +45,10 @@ async function deleteFarcasterChannelTag(
   if (row?.blobHolder) {
     await deleteBlob(
       {
-        hash: farcasterChannelTagBlobHash(request.farcasterChannelID),
+        hash: farcasterChannelTagBlobHash(
+          request.farcasterChannelID,
+          keyserverID,
+        ),
         holder: row.blobHolder,
       },
       true,
