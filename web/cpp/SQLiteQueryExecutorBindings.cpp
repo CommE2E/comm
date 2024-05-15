@@ -1,7 +1,7 @@
 #include "SQLiteQueryExecutor.cpp"
 #include "entities/InboundP2PMessage.h"
-#include "entities/MessageToDevice.h"
 #include "entities/Nullable.h"
+#include "entities/OutboundP2PMessage.h"
 
 #include <emscripten/bind.h>
 #include <vector>
@@ -114,13 +114,13 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("sessionData", &OlmPersistSession::session_data)
       .field("version", &OlmPersistSession::version);
 
-  value_object<ClientMessageToDevice>("ClientMessageToDevice")
-      .field("messageID", &ClientMessageToDevice::message_id)
-      .field("deviceID", &ClientMessageToDevice::device_id)
-      .field("userID", &ClientMessageToDevice::user_id)
-      .field("timestamp", &ClientMessageToDevice::timestamp)
-      .field("plaintext", &ClientMessageToDevice::plaintext)
-      .field("ciphertext", &ClientMessageToDevice::ciphertext);
+  value_object<OutboundP2PMessage>("OutboundP2PMessage")
+      .field("messageID", &OutboundP2PMessage::message_id)
+      .field("deviceID", &OutboundP2PMessage::device_id)
+      .field("userID", &OutboundP2PMessage::user_id)
+      .field("timestamp", &OutboundP2PMessage::timestamp)
+      .field("plaintext", &OutboundP2PMessage::plaintext)
+      .field("ciphertext", &OutboundP2PMessage::ciphertext);
 
   value_object<InboundP2PMessage>("InboundP2PMessage")
       .field("messageID", &InboundP2PMessage::message_id)
@@ -262,16 +262,17 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "restoreFromBackupLog", &SQLiteQueryExecutor::restoreFromBackupLog)
       .function(
-          "addMessagesToDevice", &SQLiteQueryExecutor::addMessagesToDevice)
+          "addOutboundP2PMessages",
+          &SQLiteQueryExecutor::addOutboundP2PMessages)
       .function(
-          "removeMessagesToDeviceOlderThan",
-          &SQLiteQueryExecutor::removeMessagesToDeviceOlderThan)
+          "removeOutboundP2PMessagesOlderThan",
+          &SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan)
       .function(
           "removeAllMessagesForDevice",
           &SQLiteQueryExecutor::removeAllMessagesForDevice)
       .function(
-          "getAllMessagesToDevice",
-          &SQLiteQueryExecutor::getAllMessagesToDevice)
+          "getAllOutboundP2PMessages",
+          &SQLiteQueryExecutor::getAllOutboundP2PMessages)
       .function(
           "addInboundP2PMessage", &SQLiteQueryExecutor::addInboundP2PMessage)
       .function(

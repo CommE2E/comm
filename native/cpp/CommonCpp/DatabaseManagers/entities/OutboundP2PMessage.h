@@ -8,7 +8,7 @@
 
 namespace comm {
 
-struct MessageToDevice {
+struct SQLiteOutboundP2PMessage {
   std::string message_id;
   std::string device_id;
   std::string user_id;
@@ -16,8 +16,8 @@ struct MessageToDevice {
   std::string plaintext;
   std::string ciphertext;
 
-  static MessageToDevice fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
-    return MessageToDevice{
+  static SQLiteOutboundP2PMessage fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
+    return SQLiteOutboundP2PMessage{
         getStringFromSQLRow(sqlRow, idx),
         getStringFromSQLRow(sqlRow, idx + 1),
         getStringFromSQLRow(sqlRow, idx + 2),
@@ -37,7 +37,7 @@ struct MessageToDevice {
   }
 };
 
-struct ClientMessageToDevice {
+struct OutboundP2PMessage {
   std::string message_id;
   std::string device_id;
   std::string user_id;
@@ -45,9 +45,9 @@ struct ClientMessageToDevice {
   std::string plaintext;
   std::string ciphertext;
 
-  ClientMessageToDevice() = default;
+  OutboundP2PMessage() = default;
 
-  ClientMessageToDevice(const MessageToDevice &msg) {
+  OutboundP2PMessage(const SQLiteOutboundP2PMessage &msg) {
     message_id = msg.message_id;
     device_id = msg.device_id;
     user_id = msg.user_id;
@@ -56,8 +56,8 @@ struct ClientMessageToDevice {
     ciphertext = msg.ciphertext;
   }
 
-  MessageToDevice toMessageToDevice() const {
-    MessageToDevice msg;
+  SQLiteOutboundP2PMessage toSQLiteOutboundP2PMessage() const {
+    SQLiteOutboundP2PMessage msg;
     msg.message_id = message_id;
     msg.device_id = device_id;
     msg.user_id = user_id;

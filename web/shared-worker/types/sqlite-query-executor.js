@@ -9,12 +9,15 @@ import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-
 import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
-import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
+import type {
+  OutboundP2PMessage,
+  InboundP2PMessage,
+} from 'lib/types/sqlite-types.js';
 
 import {
-  type WebClientDBThreadInfo,
-  type NullableString,
   type NullableInt,
+  type NullableString,
+  type WebClientDBThreadInfo,
 } from './entities.js';
 
 export type WebMessage = {
@@ -41,15 +44,6 @@ export type OlmPersistSession = {
   +targetDeviceID: string,
   +sessionData: string,
   +version: number,
-};
-
-export type ClientMessageToDevice = {
-  +messageID: string,
-  +deviceID: string,
-  +userID: string,
-  +timestamp: string,
-  +plaintext: string,
-  +ciphertext: string,
 };
 
 declare export class SQLiteQueryExecutor {
@@ -163,14 +157,14 @@ declare export class SQLiteQueryExecutor {
 
   restoreFromBackupLog(backupLog: Uint8Array): void;
 
-  addMessagesToDevice(messages: $ReadOnlyArray<ClientMessageToDevice>): void;
-  removeMessagesToDeviceOlderThan(
-    lastConfirmedMessage: ClientMessageToDevice,
+  addOutboundP2PMessages(messages: $ReadOnlyArray<OutboundP2PMessage>): void;
+  removeOutboundP2PMessagesOlderThan(
+    lastConfirmedMessage: OutboundP2PMessage,
   ): void;
   removeAllMessagesForDevice(deviceID: string): void;
-  getAllMessagesToDevice(
+  getAllOutboundP2PMessages(
     deviceID: string,
-  ): $ReadOnlyArray<ClientMessageToDevice>;
+  ): $ReadOnlyArray<OutboundP2PMessage>;
 
   addInboundP2PMessage(message: InboundP2PMessage): void;
   getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
