@@ -26,7 +26,7 @@ import Button from '../../components/button.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 type Props = {
@@ -61,8 +61,8 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
           });
         } catch (e) {
           Alert.alert(
-            UnknownErrorAlertDetails.title,
-            UnknownErrorAlertDetails.message,
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
             [{ text: 'OK' }],
             {
               cancelable: true,

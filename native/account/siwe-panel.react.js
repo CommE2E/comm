@@ -31,7 +31,7 @@ import { useKeyboardHeight } from '../keyboard/keyboard-hooks.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { BottomSheetRef } from '../types/bottom-sheet.js';
 import type { WebViewMessageEvent } from '../types/web-view-types.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 import { defaultLandingURLPrefix } from '../utils/url-utils.js';
 
@@ -101,8 +101,8 @@ function SIWEPanel(props: Props): React.Node {
         setNonceInfo({ nonce: response, nonceTimestamp: Date.now() });
       } catch (e) {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [
             {
               text: 'OK',

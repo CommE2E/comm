@@ -11,7 +11,7 @@ import type { UserInfo } from 'lib/types/user-types.js';
 
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -26,8 +26,8 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
   }: Props) {
     const onErrorCallback = React.useCallback(() => {
       Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
+        unknownErrorAlertDetails.title,
+        unknownErrorAlertDetails.message,
         [{ text: 'OK' }],
       );
     }, []);

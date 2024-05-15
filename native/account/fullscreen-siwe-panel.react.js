@@ -22,7 +22,7 @@ import {
   AccountDoesNotExistRouteName,
   RegistrationRouteName,
 } from '../navigation/route-names.js';
-import { UnknownErrorAlertDetails } from '../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type Props = {
@@ -130,8 +130,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
           }
         } catch (e) {
           Alert.alert(
-            UnknownErrorAlertDetails.title,
-            UnknownErrorAlertDetails.message,
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
             [{ text: 'OK', onPress: goBackToPrompt }],
             { cancelable: false },
           );
@@ -151,8 +151,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             return;
           }
           Alert.alert(
-            UnknownErrorAlertDetails.title,
-            UnknownErrorAlertDetails.message,
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
             [{ text: 'OK', onPress: goBackToPrompt }],
             { cancelable: false },
           );

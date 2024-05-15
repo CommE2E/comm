@@ -29,7 +29,7 @@ import {
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
 import type { ViewStyle } from '../../types/styles.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 
 const unboundStyles = {
@@ -143,8 +143,8 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
       return result;
     } catch (e) {
       Alert.alert(
-        UnknownErrorAlertDetails.title,
-        UnknownErrorAlertDetails.message,
+        unknownErrorAlertDetails.title,
+        unknownErrorAlertDetails.message,
         undefined,
         {
           cancelable: true,

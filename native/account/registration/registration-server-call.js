@@ -41,10 +41,10 @@ import { commCoreModule } from '../../native-modules.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { nativeLegacyLogInExtraInfoSelector } from '../../selectors/account-selectors.js';
 import {
-  AppOutOfDateAlertDetails,
-  UsernameReservedAlertDetails,
-  UsernameTakenAlertDetails,
-  UnknownErrorAlertDetails,
+  appOutOfDateAlertDetails,
+  usernameReservedAlertDetails,
+  usernameTakenAlertDetails,
+  unknownErrorAlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import { defaultURLPrefix } from '../../utils/url-utils.js';
@@ -114,23 +114,23 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         } catch (e) {
           if (e.message === 'username reserved') {
             Alert.alert(
-              UsernameReservedAlertDetails.title,
-              UsernameReservedAlertDetails.message,
+              usernameReservedAlertDetails.title,
+              usernameReservedAlertDetails.message,
             );
           } else if (e.message === 'username already exists') {
             Alert.alert(
-              UsernameTakenAlertDetails.title,
-              UsernameTakenAlertDetails.message,
+              usernameTakenAlertDetails.title,
+              usernameTakenAlertDetails.message,
             );
           } else if (e.message === 'Unsupported version') {
             Alert.alert(
-              AppOutOfDateAlertDetails.title,
-              AppOutOfDateAlertDetails.message,
+              appOutOfDateAlertDetails.title,
+              appOutOfDateAlertDetails.message,
             );
           } else {
             Alert.alert(
-              UnknownErrorAlertDetails.title,
-              UnknownErrorAlertDetails.message,
+              unknownErrorAlertDetails.title,
+              unknownErrorAlertDetails.message,
             );
           }
           throw e;
@@ -166,23 +166,23 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         } catch (e) {
           if (e.message === 'username_reserved') {
             Alert.alert(
-              UsernameReservedAlertDetails.title,
-              UsernameReservedAlertDetails.message,
+              usernameReservedAlertDetails.title,
+              usernameReservedAlertDetails.message,
             );
           } else if (e.message === 'username_taken') {
             Alert.alert(
-              UsernameTakenAlertDetails.title,
-              UsernameTakenAlertDetails.message,
+              usernameTakenAlertDetails.title,
+              usernameTakenAlertDetails.message,
             );
           } else if (e.message === 'client_version_unsupported') {
             Alert.alert(
-              AppOutOfDateAlertDetails.title,
-              AppOutOfDateAlertDetails.message,
+              appOutOfDateAlertDetails.title,
+              appOutOfDateAlertDetails.message,
             );
           } else {
             Alert.alert(
-              UnknownErrorAlertDetails.title,
-              UnknownErrorAlertDetails.message,
+              unknownErrorAlertDetails.title,
+              unknownErrorAlertDetails.message,
             );
           }
           throw e;
@@ -243,8 +243,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 });
               } catch (e) {
                 Alert.alert(
-                  UnknownErrorAlertDetails.title,
-                  UnknownErrorAlertDetails.message,
+                  unknownErrorAlertDetails.title,
+                  unknownErrorAlertDetails.message,
                 );
                 throw e;
               }
@@ -262,8 +262,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   onNonceExpired();
                 } else {
                   Alert.alert(
-                    UnknownErrorAlertDetails.title,
-                    UnknownErrorAlertDetails.message,
+                    unknownErrorAlertDetails.title,
+                    unknownErrorAlertDetails.message,
                   );
                 }
                 throw e;
@@ -383,8 +383,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           try {
             const deletionResult = await deleteDiscardedIdentityAccount();
             Alert.alert(
-              UnknownErrorAlertDetails.title,
-              UnknownErrorAlertDetails.message,
+              unknownErrorAlertDetails.title,
+              unknownErrorAlertDetails.message,
             );
             return deletionResult;
           } catch (deleteException) {

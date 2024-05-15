@@ -55,7 +55,7 @@ import { nonUserSpecificFieldsNative } from './state-types.js';
 import { getGlobalNavContext } from '../navigation/icky-global.js';
 import { activeMessageListSelector } from '../navigation/nav-selectors.js';
 import reactotron from '../reactotron.js';
-import { AppOutOfDateAlertDetails } from '../utils/alert-messages.js';
+import { appOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import { isStaffRelease } from '../utils/staff-utils.js';
 import { getDevServerHostname } from '../utils/url-utils.js';
 
@@ -331,8 +331,8 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
   }
   if (payload.error === 'client_version_unsupported') {
     Alert.alert(
-      AppOutOfDateAlertDetails.title,
-      AppOutOfDateAlertDetails.message,
+      appOutOfDateAlertDetails.title,
+      appOutOfDateAlertDetails.message,
       [{ text: 'OK' }],
       {
         cancelable: true,

@@ -45,7 +45,7 @@ import {
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../../themes/colors.js';
-import { UnknownErrorAlertDetails } from '../../utils/alert-messages.js';
+import { unknownErrorAlertDetails } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
 import type { ChatNavigationProp } from '../chat.react.js';
 
@@ -230,8 +230,8 @@ class DeleteThread extends React.PureComponent<Props> {
         );
       } else {
         Alert.alert(
-          UnknownErrorAlertDetails.title,
-          UnknownErrorAlertDetails.message,
+          unknownErrorAlertDetails.title,
+          unknownErrorAlertDetails.message,
           [{ text: 'OK' }],
           {
             cancelable: false,
