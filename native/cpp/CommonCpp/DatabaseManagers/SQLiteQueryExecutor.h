@@ -156,6 +156,8 @@ public:
       std::string messageID,
       std::string deviceID,
       std::string ciphertext) const override;
+  void markOutboundP2PMessageAsSent(std::string messageID, std::string deviceID)
+      const override;
   void addInboundP2PMessage(InboundP2PMessage message) const override;
   std::vector<InboundP2PMessage> getAllInboundP2PMessage() const override;
   void

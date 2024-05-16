@@ -133,4 +133,17 @@ describe('Outbound P2P messages queries', () => {
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.ciphertext,
     ).toBe(ciphertext);
   });
+
+  it('should mark message status as sent', () => {
+    queryExecutor?.markOutboundP2PMessageAsSent(
+      TEST_MSG_4.messageID,
+      TEST_MSG_4.deviceID,
+    );
+
+    const messages = queryExecutor?.getAllOutboundP2PMessages(device1) ?? [];
+    expect(messages.length).toBe(3);
+    expect(
+      messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.status,
+    ).toBe('sent');
+  });
 });
