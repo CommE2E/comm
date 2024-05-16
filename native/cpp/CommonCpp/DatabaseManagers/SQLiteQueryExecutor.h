@@ -150,7 +150,8 @@ public:
   std::vector<OutboundP2PMessage>
   getAllOutboundP2PMessages(const std::string &deviceID) const override;
   void removeOutboundP2PMessagesOlderThan(
-      const OutboundP2PMessage &lastConfirmedMessage) const override;
+      std::string lastConfirmedMessageID,
+      std::string deviceID) const override;
   void removeAllMessagesForDevice(const std::string &deviceID) const override;
   void setCiphertextForOutboundP2PMessage(
       std::string messageID,

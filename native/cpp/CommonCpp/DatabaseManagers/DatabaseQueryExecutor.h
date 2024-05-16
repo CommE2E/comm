@@ -140,7 +140,8 @@ public:
   virtual std::vector<OutboundP2PMessage>
   getAllOutboundP2PMessages(const std::string &deviceID) const = 0;
   virtual void removeOutboundP2PMessagesOlderThan(
-      const OutboundP2PMessage &lastConfirmedMessage) const = 0;
+      std::string lastConfirmedMessageID,
+      std::string deviceID) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
   virtual void setCiphertextForOutboundP2PMessage(
