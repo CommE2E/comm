@@ -147,8 +147,7 @@ public:
       const std::vector<std::uint8_t> &backupLog) const override;
   void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const override;
-  std::vector<OutboundP2PMessage>
-  getAllOutboundP2PMessages(const std::string &deviceID) const override;
+  std::vector<OutboundP2PMessage> getAllOutboundP2PMessages() const override;
   void removeOutboundP2PMessagesOlderThan(
       std::string lastConfirmedMessageID,
       std::string deviceID) const override;

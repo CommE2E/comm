@@ -2116,19 +2116,16 @@ void SQLiteQueryExecutor::addOutboundP2PMessages(
   }
 }
 
-std::vector<OutboundP2PMessage> SQLiteQueryExecutor::getAllOutboundP2PMessages(
-    const std::string &deviceID) const {
+std::vector<OutboundP2PMessage>
+SQLiteQueryExecutor::getAllOutboundP2PMessages() const {
   std::string query =
       "SELECT * FROM outbound_p2p_messages "
-      "WHERE device_id = ? "
       "ORDER BY timestamp;";
 
   SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       query,
       "Failed to get all messages to device");
-
-  sqlite3_bind_text(preparedSQL, 1, deviceID.c_str(), -1, SQLITE_TRANSIENT);
 
   std::vector<OutboundP2PMessage> messages;
   for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
