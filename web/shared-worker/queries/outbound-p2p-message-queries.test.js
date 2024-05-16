@@ -52,7 +52,7 @@ const TEST_MSG_4: OutboundP2PMessage = {
   userID: 'user-1',
   timestamp: timestamp4,
   plaintext: 'decrypted-4',
-  ciphertext: 'encrypted-4',
+  ciphertext: '',
   status: 'encrypted',
 };
 
@@ -117,5 +117,21 @@ describe('Outbound P2P messages queries', () => {
     expect(queryExecutor?.getAllOutboundP2PMessages(device1).length).toBe(0);
     queryExecutor?.removeAllMessagesForDevice(device2);
     expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
+  });
+
+  it('should set ciphertext for given message', () => {
+    const ciphertext = 'updated';
+
+    queryExecutor?.setCiphertextForOutboundP2PMessage(
+      TEST_MSG_4.messageID,
+      TEST_MSG_4.deviceID,
+      ciphertext,
+    );
+
+    const messages = queryExecutor?.getAllOutboundP2PMessages(device1) ?? [];
+    expect(messages.length).toBe(3);
+    expect(
+      messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.ciphertext,
+    ).toBe(ciphertext);
   });
 });
