@@ -199,6 +199,15 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) override;
   virtual jsi::Value
   removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) override;
+  virtual jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) override;
+  virtual jsi::Value markOutboundP2PMessageAsSent(
+      jsi::Runtime &rt,
+      jsi::String messageID,
+      jsi::String deviceID) override;
+  virtual jsi::Value removeOutboundP2PMessagesOlderThan(
+      jsi::Runtime &rt,
+      jsi::String messageID,
+      jsi::String deviceID) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
