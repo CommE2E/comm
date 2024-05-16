@@ -2,10 +2,12 @@ use base64::{engine::general_purpose, Engine as _};
 use ed25519_dalek::{PublicKey, Signature, Verifier};
 use serde::Deserialize;
 use tonic::Status;
+use tracing::warn;
 
 use crate::{
-  database::DeviceRow,
+  database::{DeviceListUpdate, DeviceRow, KeyPayload},
   ddb_utils::Identifier as DBIdentifier,
+  device_list::SignedDeviceList,
   grpc_services::protos::{
     auth::{EthereumIdentity, Identity, InboundKeyInfo, OutboundKeyInfo},
     unauth::{
@@ -245,6 +247,68 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .map(|upload| upload.device_type)
       .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+  }
+}
+
+/// Common functionality for registration request messages
+trait RegistrationData {
+  fn initial_device_list(&self) -> &str;
+}
+
+impl RegistrationData for RegistrationStartRequest {
+  fn initial_device_list(&self) -> &str {
+    &self.initial_device_list
+  }
+}
+impl RegistrationData for ReservedRegistrationStartRequest {
+  fn initial_device_list(&self) -> &str {
+    &self.initial_device_list
+  }
+}
+impl RegistrationData for WalletAuthRequest {
+  fn initial_device_list(&self) -> &str {
+    &self.initial_device_list
+  }
+}
+impl RegistrationData for ReservedWalletRegistrationRequest {
+  fn initial_device_list(&self) -> &str {
+    &self.initial_device_list
+  }
+}
+
+/// Similar to `[DeviceKeyUploadActions]` but only for registration requests
+pub trait RegistrationActions {
+  fn get_and_verify_initial_device_list(
+    &self,
+  ) -> Result<Option<SignedDeviceList>, tonic::Status>;
+}
+
+impl<T: RegistrationData + DeviceKeyUploadActions> RegistrationActions for T {
+  fn get_and_verify_initial_device_list(
+    &self,
+  ) -> Result<Option<SignedDeviceList>, tonic::Status> {
+    let payload = self.initial_device_list();
+    if payload.is_empty() {
+      return Ok(None);
+    }
+    let signed_list: SignedDeviceList = payload.parse().map_err(|err| {
+      warn!("Failed to deserialize initial device list: {}", err);
+      tonic::Status::invalid_argument("invalid device list payload")
+    })?;
+
+    let key_info = self
+      .payload()?
+      .parse::<KeyPayload>()
+      .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+    let primary_device_id = key_info.primary_identity_public_keys.ed25519;
+
+    let update_payload = DeviceListUpdate::try_from(signed_list.clone())?;
+    crate::device_list::verify_initial_device_list(
+      &update_payload,
+      &primary_device_id,
+    )?;
+
+    Ok(Some(signed_list))
   }
 }
 
