@@ -55,6 +55,7 @@ div.modal_form_error {
   font-style: italic;
   padding-left: 6px;
   align-self: center;
+  height: 0;
 }
 
 div.modal_body .input[type='text'],
