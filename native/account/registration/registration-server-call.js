@@ -266,12 +266,22 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   urlPrefixOverride: keyserverURL,
                 });
               } catch (e) {
-                Alert.alert(
-                  unknownErrorAlertDetails.title,
-                  unknownErrorAlertDetails.message,
-                  [{ text: 'OK', onPress: onAlertAcknowledged }],
-                  { cancelable: !onAlertAcknowledged },
-                );
+                const messageForException = getMessageForException(e);
+                if (messageForException === 'client_version_unsupported') {
+                  Alert.alert(
+                    appOutOfDateAlertDetails.title,
+                    appOutOfDateAlertDetails.message,
+                    [{ text: 'OK', onPress: onAlertAcknowledged }],
+                    { cancelable: !onAlertAcknowledged },
+                  );
+                } else {
+                  Alert.alert(
+                    unknownErrorAlertDetails.title,
+                    unknownErrorAlertDetails.message,
+                    [{ text: 'OK', onPress: onAlertAcknowledged }],
+                    { cancelable: !onAlertAcknowledged },
+                  );
+                }
                 throw e;
               }
             } else {
@@ -286,6 +296,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 const messageForException = getMessageForException(e);
                 if (messageForException === 'nonce expired') {
                   onNonceExpired();
+                } else if (messageForException === 'Unsupported version') {
+                  Alert.alert(
+                    appOutOfDateAlertDetails.title,
+                    appOutOfDateAlertDetails.message,
+                    [{ text: 'OK', onPress: onAlertAcknowledged }],
+                    { cancelable: !onAlertAcknowledged },
+                  );
                 } else {
                   Alert.alert(
                     unknownErrorAlertDetails.title,
@@ -409,15 +426,27 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           reject,
         });
       } catch (keyserverAuthException) {
+        const messageForException = getMessageForException(
+          keyserverAuthException,
+        );
         const discardIdentityAccountPromise = (async () => {
           try {
             const deletionResult = await deleteDiscardedIdentityAccount();
-            Alert.alert(
-              unknownErrorAlertDetails.title,
-              unknownErrorAlertDetails.message,
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
+            if (messageForException === 'client_version_unsupported') {
+              Alert.alert(
+                appOutOfDateAlertDetails.title,
+                appOutOfDateAlertDetails.message,
+                [{ text: 'OK', onPress: onAlertAcknowledged }],
+                { cancelable: !onAlertAcknowledged },
+              );
+            } else {
+              Alert.alert(
+                unknownErrorAlertDetails.title,
+                unknownErrorAlertDetails.message,
+                [{ text: 'OK', onPress: onAlertAcknowledged }],
+                { cancelable: !onAlertAcknowledged },
+              );
+            }
             return deletionResult;
           } catch (deleteException) {
             Alert.alert(
