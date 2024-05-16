@@ -36,8 +36,17 @@ div.form_footer {
 }
 
 div.form_footer > button:disabled {
-  min-height: 48px;
   opacity: 0.5;
+}
+
+div.loadingIndicator {
+  position: absolute;
+}
+div.hiddenLoadingIndicator {
+  display: none;
+}
+div.invisibleButtonText {
+  visibility: hidden;
 }
 
 div.modal_form_error {
