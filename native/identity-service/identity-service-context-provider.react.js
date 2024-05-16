@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
+import { createAndSignInitialDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
@@ -325,6 +326,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
+        const initialDeviceList = await createAndSignInitialDeviceList(
+          primaryIdentityPublicKeys.ed25519,
+        );
         const registrationResult = await commRustModule.registerPasswordUser(
           username,
           password,
@@ -337,7 +341,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
-          '', // initialDeviceList
+          JSON.stringify(initialDeviceList),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = { accessToken: token, userID, username };
@@ -404,6 +408,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
+        const initialDeviceList = await createAndSignInitialDeviceList(
+          primaryIdentityPublicKeys.ed25519,
+        );
         const registrationResult = await commRustModule.registerWalletUser(
           siweMessage,
           siweSignature,
@@ -416,7 +423,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
-          '', // initialDeviceList
+          JSON.stringify(initialDeviceList),
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = {
