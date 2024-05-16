@@ -24,6 +24,7 @@ const TEST_MSG_1: OutboundP2PMessage = {
   timestamp: timestamp2,
   plaintext: 'decrypted-1',
   ciphertext: 'encrypted-1',
+  status: 'encrypted',
 };
 const TEST_MSG_2: OutboundP2PMessage = {
   messageID: 'id-2',
@@ -32,6 +33,7 @@ const TEST_MSG_2: OutboundP2PMessage = {
   timestamp: timestamp3,
   plaintext: 'decrypted-2',
   ciphertext: 'encrypted-2',
+  status: 'encrypted',
 };
 
 const TEST_MSG_3: OutboundP2PMessage = {
@@ -41,6 +43,7 @@ const TEST_MSG_3: OutboundP2PMessage = {
   timestamp: timestamp1,
   plaintext: 'decrypted-3',
   ciphertext: 'encrypted-3',
+  status: 'encrypted',
 };
 
 const TEST_MSG_4: OutboundP2PMessage = {
@@ -50,6 +53,7 @@ const TEST_MSG_4: OutboundP2PMessage = {
   timestamp: timestamp4,
   plaintext: 'decrypted-4',
   ciphertext: 'encrypted-4',
+  status: 'encrypted',
 };
 
 const device1MessagesOrdered = [TEST_MSG_3, TEST_MSG_1, TEST_MSG_4];
@@ -92,6 +96,7 @@ describe('Outbound P2P messages queries', () => {
 
   it('should return messages in correct order', () => {
     const messages = queryExecutor?.getAllOutboundP2PMessages(device1);
+    console.log(messages);
     expect(messages).toStrictEqual(device1MessagesOrdered);
   });
 
