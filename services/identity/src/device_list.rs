@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 use tracing::{debug, error, warn};
 
 use crate::{
@@ -20,7 +20,7 @@ struct RawDeviceList {
 
 /// Signed device list payload that is serializable to JSON.
 /// For the DDB payload, see [`DeviceListUpdate`]
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SignedDeviceList {
   /// JSON-stringified [`RawDeviceList`]
@@ -88,10 +88,17 @@ impl TryFrom<DeviceListRow> for SignedDeviceList {
 impl TryFrom<UpdateDeviceListRequest> for SignedDeviceList {
   type Error = tonic::Status;
   fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
-    serde_json::from_str(&request.new_device_list).map_err(|err| {
+    request.new_device_list.parse().map_err(|err| {
       warn!("Failed to deserialize device list update: {}", err);
       tonic::Status::invalid_argument("invalid device list payload")
     })
+  }
+}
+
+impl FromStr for SignedDeviceList {
+  type Err = serde_json::Error;
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    serde_json::from_str(s)
   }
 }
 
