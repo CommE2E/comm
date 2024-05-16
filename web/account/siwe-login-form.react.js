@@ -29,7 +29,7 @@ import type {
   LegacyLogInExtraInfo,
 } from 'lib/types/account-types.js';
 import { SIWEMessageTypes } from 'lib/types/siwe-types.js';
-import { getMessageForException, ServerError } from 'lib/utils/errors.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -46,8 +46,9 @@ import OrBreak from '../components/or-break.react.js';
 import { olmAPI } from '../crypto/olm-api.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { getVersionUnsupportedError } from '../utils/version-utils.js';
 
-type SIWELogInError = 'account_does_not_exist';
+type SIWELogInError = 'account_does_not_exist' | 'client_version_unsupported';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -137,11 +138,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
           ...extraInfo,
         });
       } catch (e) {
-        if (
-          e instanceof ServerError &&
-          e.message === 'account_does_not_exist'
-        ) {
+        const messageForException = getMessageForException(e);
+        if (messageForException === 'account_does_not_exist') {
           setError('account_does_not_exist');
+        } else if (messageForException === 'client_version_unsupported') {
+          setError('client_version_unsupported');
         }
         throw e;
       }
@@ -172,8 +173,14 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       try {
         return await walletLogIn(walletAddress, siweMessage, siweSignature);
       } catch (e) {
-        if (getMessageForException(e) === 'user not found') {
+        const messageForException = getMessageForException(e);
+        if (messageForException === 'user not found') {
           setError('account_does_not_exist');
+        } else if (
+          messageForException === 'client_version_unsupported' ||
+          messageForException === 'Unsupported version'
+        ) {
+          setError('client_version_unsupported');
         }
         throw e;
       }
@@ -271,6 +278,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         </p>
       </>
     );
+  } else if (error === 'client_version_unsupported') {
+    errorText = <p className={css.redText}>{getVersionUnsupportedError()}</p>;
   }
 
   return (

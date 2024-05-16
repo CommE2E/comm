@@ -32,6 +32,7 @@ import { olmAPI } from '../crypto/olm-api.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
+import { getShortVersionUnsupportedError } from '../utils/version-utils.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(
   legacyLogInActionTypes,
@@ -97,8 +98,11 @@ function TraditionalLoginForm(): React.Node {
       } catch (e) {
         setUsername('');
         setPassword('');
-        if (getMessageForException(e) === 'invalid_credentials') {
+        const messageForException = getMessageForException(e);
+        if (messageForException === 'invalid_credentials') {
           setErrorMessage('incorrect username or password');
+        } else if (messageForException === 'client_version_unsupported') {
+          setErrorMessage(getShortVersionUnsupportedError());
         } else {
           setErrorMessage('unknown error');
         }
@@ -128,6 +132,11 @@ function TraditionalLoginForm(): React.Node {
         messageForException === 'login failed'
       ) {
         setErrorMessage('incorrect username or password');
+      } else if (
+        messageForException === 'client_version_unsupported' ||
+        messageForException === 'Unsupported version'
+      ) {
+        setErrorMessage(getShortVersionUnsupportedError());
       } else {
         setErrorMessage('unknown error');
       }
