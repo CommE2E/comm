@@ -17,7 +17,10 @@ import type {
 } from 'lib/types/crypto-types.js';
 import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
-import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
+import type {
+  InboundP2PMessage,
+  OutboundP2PMessage,
+} from 'lib/types/sqlite-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -140,6 +143,15 @@ interface Spec extends TurboModule {
   +getSIWEBackupSecrets: () => Promise<?Object>;
   +getAllInboundP2PMessage: () => Promise<InboundP2PMessage[]>;
   +removeInboundP2PMessages: (ids: $ReadOnlyArray<string>) => Promise<void>;
+  +getAllOutboundP2PMessage: () => Promise<OutboundP2PMessage[]>;
+  +markOutboundP2PMessageAsSent: (
+    messageID: string,
+    deviceID: string,
+  ) => Promise<void>;
+  +removeOutboundP2PMessagesOlderThan: (
+    messageID: string,
+    deviceID: string,
+  ) => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
