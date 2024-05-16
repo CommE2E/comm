@@ -43,6 +43,7 @@ std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesBlocklist = {
     "olm_persist_sessions",
     "metadata",
     "outbound_p2p_messages",
+    "received_messages_to_device",
     "integrity_store",
     "persist_storage",
     "keyservers",
