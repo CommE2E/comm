@@ -2218,4 +2218,111 @@ CommCoreModule::removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) {
       });
 }
 
+jsi::Value CommCoreModule::getAllOutboundP2PMessage(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<OutboundP2PMessage> messages;
+
+          try {
+            messages =
+                DatabaseManager::getQueryExecutor().getAllOutboundP2PMessages();
+
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          auto messagesPtr = std::make_shared<std::vector<OutboundP2PMessage>>(
+              std::move(messages));
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, messagesPtr, error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+
+                jsi::Array jsiMessages =
+                    jsi::Array(innerRt, messagesPtr->size());
+                size_t writeIdx = 0;
+                for (const OutboundP2PMessage &msg : *messagesPtr) {
+                  jsi::Object jsiMsg = jsi::Object(innerRt);
+                  jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
+                  jsiMsg.setProperty(innerRt, "deviceID", msg.device_id);
+                  jsiMsg.setProperty(innerRt, "userID", msg.user_id);
+                  jsiMsg.setProperty(innerRt, "timestamp", msg.timestamp);
+                  jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
+                  jsiMsg.setProperty(innerRt, "ciphertext", msg.ciphertext);
+                  jsiMsg.setProperty(innerRt, "status", msg.status);
+                  jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
+                }
+
+                promise->resolve(std::move(jsiMessages));
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::markOutboundP2PMessageAsSent(
+    jsi::Runtime &rt,
+    jsi::String messageID,
+    jsi::String deviceID) {
+  auto messageIDCpp{messageID.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor()
+                .removeOutboundP2PMessagesOlderThan(messageIDCpp, deviceIDCpp);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
+jsi::Value CommCoreModule::removeOutboundP2PMessagesOlderThan(
+    jsi::Runtime &rt,
+    jsi::String messageID,
+    jsi::String deviceID) {
+  auto messageIDCpp{messageID.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().markOutboundP2PMessageAsSent(
+                messageIDCpp, deviceIDCpp);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm

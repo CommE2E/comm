@@ -76,6 +76,9 @@ public:
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
   virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) = 0;
+  virtual jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) = 0;
+  virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
+  virtual jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
 
 };
 
@@ -544,6 +547,30 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeInboundP2PMessages, jsInvoker_, instance_, std::move(ids));
+    }
+    jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getAllOutboundP2PMessage) == 1,
+          "Expected getAllOutboundP2PMessage(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getAllOutboundP2PMessage, jsInvoker_, instance_);
+    }
+    jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::markOutboundP2PMessageAsSent) == 3,
+          "Expected markOutboundP2PMessageAsSent(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::markOutboundP2PMessageAsSent, jsInvoker_, instance_, std::move(messageID), std::move(deviceID));
+    }
+    jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::removeOutboundP2PMessagesOlderThan) == 3,
+          "Expected removeOutboundP2PMessagesOlderThan(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::removeOutboundP2PMessagesOlderThan, jsInvoker_, instance_, std::move(messageID), std::move(deviceID));
     }
 
   private:
