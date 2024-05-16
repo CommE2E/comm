@@ -205,6 +205,53 @@ pub fn verify_device_list_signatures(
   Ok(())
 }
 
+pub fn verify_initial_device_list(
+  device_list: &DeviceListUpdate,
+  expected_primary_device_id: &str,
+) -> Result<(), tonic::Status> {
+  use tonic::Status;
+  if device_list.last_primary_signature.is_some() {
+    debug!("Received lastPrimarySignature for initial device list");
+    return Err(Status::invalid_argument(
+      "invalid device list: unexpected lastPrimarySignature",
+    ));
+  }
+
+  let Some(signature) = &device_list.current_primary_signature else {
+    debug!("Missing curPrimarySignature for initial device list");
+    return Err(Status::invalid_argument(
+      "invalid device list: signature missing",
+    ));
+  };
+
+  crate::grpc_utils::ed25519_verify(
+    expected_primary_device_id,
+    &device_list.raw_payload,
+    signature,
+  )?;
+
+  if device_list.devices.len() != 1 {
+    debug!("Invalid device list length");
+    return Err(Status::invalid_argument(
+      "invalid device list: invalid length",
+    ));
+  }
+
+  if device_list
+    .devices
+    .first()
+    .filter(|it| **it == expected_primary_device_id)
+    .is_none()
+  {
+    debug!("Invalid primary device ID for initial device list");
+    return Err(Status::invalid_argument(
+      "invalid device list: invalid primary device",
+    ));
+  }
+
+  Ok(())
+}
+
 pub mod validation {
   use super::*;
   /// Returns `true` if `new_device_list` contains exactly one more new device
