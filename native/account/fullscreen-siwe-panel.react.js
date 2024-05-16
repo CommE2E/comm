@@ -135,6 +135,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
                 avatarData: null,
                 clearCachedSelections: () => {},
                 onNonceExpired: () => onNonceExpired('registration'),
+                onAlertAcknowledged: goBackToPrompt,
               });
             } catch {
               // We swallow exceptions here because registrationServerCall
