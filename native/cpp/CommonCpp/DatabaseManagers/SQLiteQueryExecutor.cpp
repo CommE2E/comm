@@ -2141,33 +2141,26 @@ std::vector<OutboundP2PMessage> SQLiteQueryExecutor::getAllOutboundP2PMessages(
 }
 
 void SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan(
-    const OutboundP2PMessage &lastConfirmedMessageClient) const {
-  static std::string query =
+    std::string lastConfirmedMessageID,
+    std::string deviceID) const {
+  std::string query =
       "DELETE FROM outbound_p2p_messages "
-      "WHERE timestamp <= ? AND device_id IN (?);";
-
-  SQLiteOutboundP2PMessage lastConfirmedMessage =
-      lastConfirmedMessageClient.toSQLiteOutboundP2PMessage();
+      "WHERE timestamp <= ("
+      "   SELECT timestamp "
+      "   FROM outbound_p2p_messages"
+      "   WHERE message_id = ?"
+      ") "
+      "AND device_id IN (?);";
 
   comm::SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       query,
       "Failed to remove messages to device");
 
-  sqlite3_bind_int64(preparedSQL, 1, lastConfirmedMessage.timestamp);
-  sqlite3_bind_text(
-      preparedSQL,
-      2,
-      lastConfirmedMessage.device_id.c_str(),
-      -1,
-      SQLITE_TRANSIENT);
+  bindStringToSQL(lastConfirmedMessageID.c_str(), preparedSQL, 1);
+  bindStringToSQL(deviceID.c_str(), preparedSQL, 2);
 
-  int result = sqlite3_step(preparedSQL);
-  if (result != SQLITE_DONE) {
-    throw std::runtime_error(
-        "Failed to execute removeOutboundP2PMessagesOlderThan statement: " +
-        std::string(sqlite3_errmsg(SQLiteQueryExecutor::getConnection())));
-  }
+  sqlite3_step(preparedSQL);
 }
 
 void SQLiteQueryExecutor::removeAllOutboundP2PMessages(

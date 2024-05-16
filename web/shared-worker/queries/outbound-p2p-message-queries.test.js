@@ -100,12 +100,19 @@ describe('Outbound P2P messages queries', () => {
   });
 
   it('should remove when there is only one message', () => {
-    queryExecutor?.removeOutboundP2PMessagesOlderThan(TEST_MSG_2);
+    queryExecutor?.removeOutboundP2PMessagesOlderThan(
+      TEST_MSG_2.messageID,
+      TEST_MSG_2.deviceID,
+    );
+
     expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
   });
 
   it('should remove older messages', () => {
-    queryExecutor?.removeOutboundP2PMessagesOlderThan(TEST_MSG_1);
+    queryExecutor?.removeOutboundP2PMessagesOlderThan(
+      TEST_MSG_1.messageID,
+      TEST_MSG_1.deviceID,
+    );
     expect(queryExecutor?.getAllOutboundP2PMessages(device1)).toStrictEqual([
       TEST_MSG_4,
     ]);
