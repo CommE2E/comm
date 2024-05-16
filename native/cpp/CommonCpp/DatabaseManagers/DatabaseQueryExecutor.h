@@ -143,6 +143,10 @@ public:
       const OutboundP2PMessage &lastConfirmedMessage) const = 0;
   virtual void
   removeAllMessagesForDevice(const std::string &deviceID) const = 0;
+  virtual void setCiphertextForOutboundP2PMessage(
+      std::string messageID,
+      std::string deviceID,
+      std::string ciphertext) const = 0;
   virtual void addInboundP2PMessage(InboundP2PMessage message) const = 0;
   virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
