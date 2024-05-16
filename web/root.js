@@ -14,7 +14,9 @@ import { WagmiProvider } from 'wagmi';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
+import { httpMessageUserInfosHandler } from 'lib/handlers/http-message-user-infos-handler.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
+import { registerJsonUserInfoHandler } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
 import { getWagmiConfig } from 'lib/utils/wagmi-utils.js';
@@ -36,6 +38,8 @@ import { localforageConfig } from './shared-worker/utils/constants.js';
 import Socket from './socket.react.js';
 
 localforage.config(localforageConfig);
+
+registerJsonUserInfoHandler(httpMessageUserInfosHandler);
 
 const persistedReducer = persistReducer(persistConfig, reducer);
 const store: Store<AppState, Action> = createStore(

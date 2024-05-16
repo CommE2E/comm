@@ -33,8 +33,10 @@ import { NeynarClientProvider } from 'lib/components/neynar-client-provider.reac
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
+import { httpMessageUserInfosHandler } from 'lib/handlers/http-message-user-infos-handler.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
+import { registerJsonUserInfoHandler } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { TunnelbrokerProvider } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import { actionLogger } from 'lib/utils/action-logger.js';
@@ -94,6 +96,8 @@ const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
 SplashScreen.preventAutoHideAsync().catch(console.log);
+
+registerJsonUserInfoHandler(httpMessageUserInfosHandler);
 
 function Root() {
   const navStateRef = React.useRef<?PossiblyStaleNavigationState>();
