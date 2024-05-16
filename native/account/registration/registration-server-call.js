@@ -114,21 +114,22 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             farcasterID,
           );
         } catch (e) {
-          if (e.message === 'username reserved') {
+          const messageForException = getMessageForException(e);
+          if (messageForException === 'username reserved') {
             Alert.alert(
               usernameReservedAlertDetails.title,
               usernameReservedAlertDetails.message,
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (e.message === 'username already exists') {
+          } else if (messageForException === 'username already exists') {
             Alert.alert(
               usernameTakenAlertDetails.title,
               usernameTakenAlertDetails.message,
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (e.message === 'Unsupported version') {
+          } else if (messageForException === 'Unsupported version') {
             Alert.alert(
               appOutOfDateAlertDetails.title,
               appOutOfDateAlertDetails.message,
@@ -175,21 +176,22 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             },
           );
         } catch (e) {
-          if (e.message === 'username_reserved') {
+          const messageForException = getMessageForException(e);
+          if (messageForException === 'username_reserved') {
             Alert.alert(
               usernameReservedAlertDetails.title,
               usernameReservedAlertDetails.message,
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (e.message === 'username_taken') {
+          } else if (messageForException === 'username_taken') {
             Alert.alert(
               usernameTakenAlertDetails.title,
               usernameTakenAlertDetails.message,
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (e.message === 'client_version_unsupported') {
+          } else if (messageForException === 'client_version_unsupported') {
             Alert.alert(
               appOutOfDateAlertDetails.title,
               appOutOfDateAlertDetails.message,
