@@ -336,6 +336,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
+          '', // initialDeviceList
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = { accessToken: token, userID, username };
@@ -414,6 +415,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           getOneTimeKeyValues(contentOneTimeKeys),
           getOneTimeKeyValues(notificationsOneTimeKeys),
           fid ?? '',
+          '', // initialDeviceList
         );
         const { userID, accessToken: token } = JSON.parse(registrationResult);
         const identityAuthResult = {

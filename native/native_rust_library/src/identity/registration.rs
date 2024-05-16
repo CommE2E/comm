@@ -33,6 +33,7 @@ pub mod ffi {
     content_one_time_keys: Vec<String>,
     notif_one_time_keys: Vec<String>,
     farcaster_id: String,
+    initial_device_list: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -49,7 +50,9 @@ pub mod ffi {
         notif_one_time_keys,
         farcaster_id: farcaster_id_string_to_option(&farcaster_id),
       };
-      let result = register_password_user_helper(password_user_info).await;
+      let result =
+        register_password_user_helper(password_user_info, initial_device_list)
+          .await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -67,6 +70,7 @@ pub mod ffi {
     content_one_time_keys: Vec<String>,
     notif_one_time_keys: Vec<String>,
     farcaster_id: String,
+    initial_device_list: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -83,7 +87,9 @@ pub mod ffi {
         notif_one_time_keys,
         farcaster_id: farcaster_id_string_to_option(&farcaster_id),
       };
-      let result = register_wallet_user_helper(wallet_user_info).await;
+      let result =
+        register_wallet_user_helper(wallet_user_info, initial_device_list)
+          .await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -91,6 +97,7 @@ pub mod ffi {
 
 async fn register_password_user_helper(
   password_user_info: PasswordUserInfo,
+  initial_device_list: String,
 ) -> Result<String, Error> {
   let mut client_registration = Registration::new();
   let opaque_registration_request = client_registration
@@ -117,7 +124,7 @@ async fn register_password_user_helper(
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: password_user_info.farcaster_id,
-    initial_device_list: "".to_string(),
+    initial_device_list,
   };
 
   let mut identity_client = get_unauthenticated_client(
@@ -155,6 +162,7 @@ async fn register_password_user_helper(
 
 async fn register_wallet_user_helper(
   wallet_user_info: WalletUserInfo,
+  initial_device_list: String,
 ) -> Result<String, Error> {
   let registration_request = WalletAuthRequest {
     siwe_message: wallet_user_info.siwe_message,
@@ -177,7 +185,7 @@ async fn register_wallet_user_helper(
       device_type: DEVICE_TYPE.into(),
     }),
     farcaster_id: wallet_user_info.farcaster_id,
-    initial_device_list: "".to_string(),
+    initial_device_list,
   };
 
   let mut identity_client = get_unauthenticated_client(
