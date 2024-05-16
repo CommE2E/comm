@@ -243,7 +243,14 @@ async function processAppRequest(
   ) {
     return {
       type: workerResponseMessageTypes.GET_INBOUND_P2P_MESSAGES,
-      messages: sqliteQueryExecutor.getAllInboundP2PMessage(),
+      inboundP2PMessages: sqliteQueryExecutor.getAllInboundP2PMessage(),
+    };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_OUTBOUND_P2P_MESSAGES
+  ) {
+    return {
+      type: workerResponseMessageTypes.GET_OUTBOUND_P2P_MESSAGES,
+      outboundP2PMessages: sqliteQueryExecutor.getAllOutboundP2PMessages(),
     };
   }
 
@@ -314,6 +321,20 @@ async function processAppRequest(
     message.type === workerRequestMessageTypes.REMOVE_INBOUND_P2P_MESSAGES
   ) {
     sqliteQueryExecutor.removeInboundP2PMessages(message.ids);
+  } else if (
+    message.type === workerRequestMessageTypes.MARK_OUTBOUND_P2P_MESSAGE_AS_SENT
+  ) {
+    sqliteQueryExecutor.markOutboundP2PMessageAsSent(
+      message.messageID,
+      message.deviceID,
+    );
+  } else if (
+    message.type === workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGES
+  ) {
+    sqliteQueryExecutor.removeOutboundP2PMessagesOlderThan(
+      message.messageID,
+      message.deviceID,
+    );
   }
 
   persistNeeded = true;

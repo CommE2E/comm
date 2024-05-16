@@ -11,7 +11,10 @@ import type {
   IdentityServiceClient,
   IdentityServiceAuthLayer,
 } from 'lib/types/identity-service-types.js';
-import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
+import type {
+  InboundP2PMessage,
+  OutboundP2PMessage,
+} from 'lib/types/sqlite-types.js';
 import type {
   ClientDBStore,
   ClientDBStoreOperations,
@@ -37,6 +40,9 @@ export const workerRequestMessageTypes = Object.freeze({
   CALL_OLM_API_METHOD: 15,
   GET_INBOUND_P2P_MESSAGES: 16,
   REMOVE_INBOUND_P2P_MESSAGES: 17,
+  GET_OUTBOUND_P2P_MESSAGES: 18,
+  MARK_OUTBOUND_P2P_MESSAGE_AS_SENT: 19,
+  REMOVE_OUTBOUND_P2P_MESSAGES: 20,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -47,6 +53,8 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.BACKUP_RESTORE,
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
   workerRequestMessageTypes.REMOVE_INBOUND_P2P_MESSAGES,
+  workerRequestMessageTypes.MARK_OUTBOUND_P2P_MESSAGE_AS_SENT,
+  workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGES,
 ];
 
 export const workerOlmAPIRequests: $ReadOnlyArray<number> = [
@@ -164,6 +172,22 @@ export type RemoveInboundP2PMessagesRequestMessage = {
   +ids: $ReadOnlyArray<string>,
 };
 
+export type GetOutboundP2PMessagesRequestMessage = {
+  +type: 18,
+};
+
+export type MarkOutboundP2PMessageAsSentRequestMessage = {
+  +type: 19,
+  +messageID: string,
+  +deviceID: string,
+};
+
+export type RemoveOutboundP2PMessagesRequestMessage = {
+  +type: 20,
+  +messageID: string,
+  +deviceID: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -182,7 +206,10 @@ export type WorkerRequestMessage =
   | CallIdentityClientMethodRequestMessage
   | CallOLMApiMethodRequestMessage
   | GetInboundP2PMessagesRequestMessage
-  | RemoveInboundP2PMessagesRequestMessage;
+  | RemoveInboundP2PMessagesRequestMessage
+  | GetOutboundP2PMessagesRequestMessage
+  | MarkOutboundP2PMessageAsSentRequestMessage
+  | RemoveOutboundP2PMessagesRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -198,6 +225,7 @@ export const workerResponseMessageTypes = Object.freeze({
   CALL_IDENTITY_CLIENT_METHOD: 4,
   CALL_OLM_API_METHOD: 5,
   GET_INBOUND_P2P_MESSAGES: 6,
+  GET_OUTBOUND_P2P_MESSAGES: 7,
 });
 
 export type PongWorkerResponseMessage = {
@@ -232,7 +260,12 @@ export type CallOLMApiMethodResponseMessage = {
 
 export type GetInboundP2PMessagesResponseMessage = {
   +type: 6,
-  +messages: $ReadOnlyArray<InboundP2PMessage>,
+  +inboundP2PMessages: $ReadOnlyArray<InboundP2PMessage>,
+};
+
+export type GetOutboundP2PMessagesResponseMessage = {
+  +type: 7,
+  +outboundP2PMessages: $ReadOnlyArray<OutboundP2PMessage>,
 };
 
 export type WorkerResponseMessage =
@@ -242,7 +275,8 @@ export type WorkerResponseMessage =
   | GetPersistStorageItemResponseMessage
   | CallIdentityClientMethodResponseMessage
   | CallOLMApiMethodResponseMessage
-  | GetInboundP2PMessagesResponseMessage;
+  | GetInboundP2PMessagesResponseMessage
+  | GetOutboundP2PMessagesResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
