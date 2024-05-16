@@ -15,4 +15,13 @@ function getVersionUnsupportedError(): string {
   );
 }
 
-export { getVersionUnsupportedError };
+function getShortVersionUnsupportedError(): string {
+  const actionRequestMessage = isDesktopPlatform(
+    getConfig().platformDetails.platform,
+  )
+    ? 'please reload'
+    : 'please refresh';
+  return `client version unsupported. ${actionRequestMessage}`;
+}
+
+export { getVersionUnsupportedError, getShortVersionUnsupportedError };
