@@ -2201,6 +2201,25 @@ void SQLiteQueryExecutor::setCiphertextForOutboundP2PMessage(
   sqlite3_step(preparedSQL);
 }
 
+void SQLiteQueryExecutor::markOutboundP2PMessageAsSent(
+    std::string messageID,
+    std::string deviceID) const {
+  static std::string query =
+      "UPDATE outbound_p2p_messages "
+      "SET status = 'sent' "
+      "WHERE message_id = ? AND device_id = ?;";
+
+  comm::SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      query,
+      "Failed to mark OutboundP2PMessage as sent");
+
+  bindStringToSQL(messageID.c_str(), preparedSQL, 1);
+  bindStringToSQL(deviceID.c_str(), preparedSQL, 2);
+
+  sqlite3_step(preparedSQL);
+}
+
 void SQLiteQueryExecutor::addInboundP2PMessage(
     InboundP2PMessage message) const {
   static std::string addMessage =
