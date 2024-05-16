@@ -18,8 +18,9 @@ use crate::constants::{
   error_types
 };
 use crate::database::{
-  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload,
+  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload
 };
+use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError};
 use crate::grpc_services::authenticated::DeletePasswordUserInfo;
 use crate::grpc_services::protos::unauth::{
@@ -35,7 +36,7 @@ use crate::grpc_services::protos::unauth::{
 };
 use crate::grpc_services::shared::get_value;
 use crate::grpc_utils::{
-  SignedNonce, DeviceKeyUploadActions,
+  DeviceKeyUploadActions, RegistrationActions, SignedNonce
 };
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
@@ -66,6 +67,7 @@ pub struct UserRegistrationInfo {
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub user_id: Option<String>,
   pub farcaster_id: Option<String>,
+  pub initial_device_list: Option<SignedDeviceList>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -433,6 +435,13 @@ impl IdentityClientService for ClientService {
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
     let code_version = get_code_version(&request);
     let message = request.into_inner();
+
+    // WalletAuthRequest is used for both log_in_wallet_user and register_wallet_user
+    if !message.initial_device_list.is_empty() {
+      return Err(tonic::Status::invalid_argument(
+        "unexpected initial device list",
+      ));
+    }
 
     let parsed_message = parse_and_verify_siwe_message(
       &message.siwe_message,
@@ -1115,7 +1124,7 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
 }
 
 fn construct_user_registration_info(
-  message: &impl DeviceKeyUploadActions,
+  message: &(impl DeviceKeyUploadActions + RegistrationActions),
   user_id: Option<String>,
   username: String,
   farcaster_id: Option<String>,
@@ -1127,6 +1136,7 @@ fn construct_user_registration_info(
     )?,
     user_id,
     farcaster_id,
+    initial_device_list: message.get_and_verify_initial_device_list()?,
   })
 }
 
