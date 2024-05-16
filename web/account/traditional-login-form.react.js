@@ -186,12 +186,23 @@ function TraditionalLoginForm(): React.Node {
     ],
   );
 
-  const loginButtonContent = React.useMemo(() => {
-    if (inputDisabled) {
-      return <LoadingIndicator status="loading" />;
-    }
-    return 'Sign in';
-  }, [inputDisabled]);
+  const loadingIndicatorClassName = inputDisabled
+    ? css.loadingIndicator
+    : css.hiddenLoadingIndicator;
+  const buttonTextClassName = inputDisabled
+    ? css.invisibleButtonText
+    : undefined;
+  const loginButtonContent = React.useMemo(
+    () => (
+      <>
+        <div className={loadingIndicatorClassName}>
+          <LoadingIndicator status="loading" />
+        </div>
+        <div className={buttonTextClassName}>Sign in</div>
+      </>
+    ),
+    [loadingIndicatorClassName, buttonTextClassName],
+  );
 
   const signInButtonColor = React.useMemo(
     () => ({ backgroundColor: '#6A20E3' }),
