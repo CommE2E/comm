@@ -43,7 +43,8 @@ jsi::Value CommRustModule::registerPasswordUser(
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys,
-    jsi::String farcasterID) {
+    jsi::String farcasterID,
+    jsi::String initialDeviceList) {
   auto usernameRust = jsiStringToRustString(username, rt);
   auto passwordRust = jsiStringToRustString(password, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -57,6 +58,7 @@ jsi::Value CommRustModule::registerPasswordUser(
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
   auto farcasterIDRust = jsiStringToRustString(farcasterID, rt);
+  auto initialDeviceListRust = jsiStringToRustString(initialDeviceList, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -76,6 +78,7 @@ jsi::Value CommRustModule::registerPasswordUser(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               farcasterIDRust,
+              initialDeviceListRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
@@ -146,7 +149,8 @@ jsi::Value CommRustModule::registerWalletUser(
     jsi::String notifPrekeySignature,
     jsi::Array contentOneTimeKeys,
     jsi::Array notifOneTimeKeys,
-    jsi::String farcasterID) {
+    jsi::String farcasterID,
+    jsi::String initialDeviceList) {
   auto siweMessageRust = jsiStringToRustString(siweMessage, rt);
   auto siweSignatureRust = jsiStringToRustString(siweSignature, rt);
   auto keyPayloadRust = jsiStringToRustString(keyPayload, rt);
@@ -160,6 +164,7 @@ jsi::Value CommRustModule::registerWalletUser(
   auto contentOneTimeKeysRust = jsiStringArrayToRustVec(contentOneTimeKeys, rt);
   auto notifOneTimeKeysRust = jsiStringArrayToRustVec(notifOneTimeKeys, rt);
   auto farcasterIDRust = jsiStringToRustString(farcasterID, rt);
+  auto initialDeviceListRust = jsiStringToRustString(initialDeviceList, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -179,6 +184,7 @@ jsi::Value CommRustModule::registerWalletUser(
               contentOneTimeKeysRust,
               notifOneTimeKeysRust,
               farcasterIDRust,
+              initialDeviceListRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();
