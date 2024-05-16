@@ -24,12 +24,11 @@ services:
       - COMM_DATABASE_DATABASE
       - COMM_DATABASE_USER
       - COMM_DATABASE_PASSWORD
-      - COMM_DATABASE_TYPE=mariadb10.8
     depends_on:
       - cache
       - database
   database:
-    image: mariadb:10.8.3-jammy
+    image: mariadb:10.11-jammy
     restart: always
     expose:
       - '3306'
@@ -46,6 +45,7 @@ services:
       - MARIADB_DATABASE=$COMM_DATABASE_DATABASE
       - MARIADB_USER=$COMM_DATABASE_USER
       - MARIADB_PASSWORD=$COMM_DATABASE_PASSWORD
+      - MARIADB_AUTO_UPGRADE=1
     volumes:
       - mysqldata:/var/lib/mysql
   cache:
