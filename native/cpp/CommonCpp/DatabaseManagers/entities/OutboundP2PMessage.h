@@ -15,6 +15,7 @@ struct SQLiteOutboundP2PMessage {
   int64_t timestamp;
   std::string plaintext;
   std::string ciphertext;
+  std::string status;
 
   static SQLiteOutboundP2PMessage fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return SQLiteOutboundP2PMessage{
@@ -24,6 +25,7 @@ struct SQLiteOutboundP2PMessage {
         getInt64FromSQLRow(sqlRow, idx + 3),
         getStringFromSQLRow(sqlRow, idx + 4),
         getStringFromSQLRow(sqlRow, idx + 5),
+        getStringFromSQLRow(sqlRow, idx + 6),
     };
   }
 
@@ -33,7 +35,8 @@ struct SQLiteOutboundP2PMessage {
     bindStringToSQL(user_id, sql, idx + 2);
     bindInt64ToSQL(timestamp, sql, idx + 3);
     bindStringToSQL(plaintext, sql, idx + 4);
-    return bindStringToSQL(ciphertext, sql, idx + 5);
+    bindStringToSQL(ciphertext, sql, idx + 5);
+    return bindStringToSQL(status, sql, idx + 6);
   }
 };
 
@@ -44,6 +47,7 @@ struct OutboundP2PMessage {
   std::string timestamp;
   std::string plaintext;
   std::string ciphertext;
+  std::string status;
 
   OutboundP2PMessage() = default;
 
@@ -54,6 +58,7 @@ struct OutboundP2PMessage {
     timestamp = std::to_string(msg.timestamp);
     plaintext = msg.plaintext;
     ciphertext = msg.ciphertext;
+    status = msg.status;
   }
 
   SQLiteOutboundP2PMessage toSQLiteOutboundP2PMessage() const {
@@ -64,6 +69,7 @@ struct OutboundP2PMessage {
     msg.timestamp = std::stoll(timestamp);
     msg.plaintext = plaintext;
     msg.ciphertext = ciphertext;
+    msg.status = status;
     return msg;
   }
 };
