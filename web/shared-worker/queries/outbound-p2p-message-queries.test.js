@@ -56,7 +56,7 @@ const TEST_MSG_4: OutboundP2PMessage = {
   status: 'encrypted',
 };
 
-const device1MessagesOrdered = [TEST_MSG_3, TEST_MSG_1, TEST_MSG_4];
+const messagesOrdered = [TEST_MSG_3, TEST_MSG_1, TEST_MSG_2, TEST_MSG_4];
 
 describe('Outbound P2P messages queries', () => {
   let queryExecutor: ?SQLiteQueryExecutor = null;
@@ -90,22 +90,24 @@ describe('Outbound P2P messages queries', () => {
   });
 
   it('should return all messages', () => {
-    expect(queryExecutor?.getAllOutboundP2PMessages(device1).length).toBe(3);
-    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(1);
+    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(4);
   });
 
   it('should return messages in correct order', () => {
-    const messages = queryExecutor?.getAllOutboundP2PMessages(device1);
-    expect(messages).toStrictEqual(device1MessagesOrdered);
+    const messages = queryExecutor?.getAllOutboundP2PMessages();
+    expect(messages).toStrictEqual(messagesOrdered);
   });
 
-  it('should remove when there is only one message', () => {
+  it('should not remove messages for a different deviceID', () => {
     queryExecutor?.removeOutboundP2PMessagesOlderThan(
-      TEST_MSG_2.messageID,
-      TEST_MSG_2.deviceID,
+      TEST_MSG_4.messageID,
+      TEST_MSG_4.deviceID,
     );
 
-    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
+    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(1);
+    expect(queryExecutor?.getAllOutboundP2PMessages()).toStrictEqual([
+      TEST_MSG_2,
+    ]);
   });
 
   it('should remove older messages', () => {
@@ -113,16 +115,16 @@ describe('Outbound P2P messages queries', () => {
       TEST_MSG_1.messageID,
       TEST_MSG_1.deviceID,
     );
-    expect(queryExecutor?.getAllOutboundP2PMessages(device1)).toStrictEqual([
+    expect(queryExecutor?.getAllOutboundP2PMessages()).toStrictEqual([
+      TEST_MSG_2,
       TEST_MSG_4,
     ]);
   });
 
   it('should remove all messages for given device', () => {
     queryExecutor?.removeAllOutboundP2PMessages(device1);
-    expect(queryExecutor?.getAllOutboundP2PMessages(device1).length).toBe(0);
     queryExecutor?.removeAllOutboundP2PMessages(device2);
-    expect(queryExecutor?.getAllOutboundP2PMessages(device2).length).toBe(0);
+    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(0);
   });
 
   it('should set ciphertext for given message', () => {
@@ -134,8 +136,8 @@ describe('Outbound P2P messages queries', () => {
       ciphertext,
     );
 
-    const messages = queryExecutor?.getAllOutboundP2PMessages(device1) ?? [];
-    expect(messages.length).toBe(3);
+    const messages = queryExecutor?.getAllOutboundP2PMessages() ?? [];
+    expect(messages.length).toBe(4);
     expect(
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.ciphertext,
     ).toBe(ciphertext);
@@ -147,8 +149,8 @@ describe('Outbound P2P messages queries', () => {
       TEST_MSG_4.deviceID,
     );
 
-    const messages = queryExecutor?.getAllOutboundP2PMessages(device1) ?? [];
-    expect(messages.length).toBe(3);
+    const messages = queryExecutor?.getAllOutboundP2PMessages() ?? [];
+    expect(messages.length).toBe(4);
     expect(
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.status,
     ).toBe('sent');
