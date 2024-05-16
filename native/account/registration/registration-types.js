@@ -46,6 +46,7 @@ export type RegistrationServerCallInput = {
   +siweBackupSecrets?: ?SIWEBackupSecrets,
   +clearCachedSelections: () => void,
   +onNonceExpired: () => mixed,
+  +onAlertAcknowledged?: () => mixed,
 };
 
 export type CachedUserSelections = {

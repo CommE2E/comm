@@ -69,6 +69,7 @@ type CurrentStep =
   | {
       +step: 'identity_registration_dispatched',
       +clearCachedSelections: () => void,
+      +onAlertAcknowledged: ?() => mixed,
       +avatarData: ?AvatarData,
       +credentialsToSave: ?{ +username: string, +password: string },
       +resolve: () => void,
@@ -103,6 +104,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     async (
       accountSelection: UsernameAccountSelection,
       farcasterID: ?string,
+      onAlertAcknowledged: ?() => mixed,
     ) => {
       const identityRegisterPromise = (async () => {
         try {
@@ -116,21 +118,29 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             Alert.alert(
               usernameReservedAlertDetails.title,
               usernameReservedAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else if (e.message === 'username already exists') {
             Alert.alert(
               usernameTakenAlertDetails.title,
               usernameTakenAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else if (e.message === 'Unsupported version') {
             Alert.alert(
               appOutOfDateAlertDetails.title,
               appOutOfDateAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else {
             Alert.alert(
               unknownErrorAlertDetails.title,
               unknownErrorAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           }
           throw e;
@@ -149,6 +159,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     async (
       accountSelection: UsernameAccountSelection,
       keyserverURL: string,
+      onAlertAcknowledged: ?() => mixed,
     ) => {
       const extraInfo = await legacyLogInExtraInfo();
       const legacyKeyserverRegisterPromise = (async () => {
@@ -168,21 +179,29 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             Alert.alert(
               usernameReservedAlertDetails.title,
               usernameReservedAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else if (e.message === 'username_taken') {
             Alert.alert(
               usernameTakenAlertDetails.title,
               usernameTakenAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else if (e.message === 'client_version_unsupported') {
             Alert.alert(
               appOutOfDateAlertDetails.title,
               appOutOfDateAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           } else {
             Alert.alert(
               unknownErrorAlertDetails.title,
               unknownErrorAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
           }
           throw e;
@@ -221,6 +240,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               siweBackupSecrets,
               clearCachedSelections,
               onNonceExpired,
+              onAlertAcknowledged,
             } = input;
             const keyserverURL = passedKeyserverURL ?? defaultURLPrefix;
             if (
@@ -230,11 +250,13 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               await legacyKeyserverRegisterUsernameAccount(
                 accountSelection,
                 keyserverURL,
+                onAlertAcknowledged,
               );
             } else if (accountSelection.accountType === 'username') {
               await identityRegisterUsernameAccount(
                 accountSelection,
                 farcasterID,
+                onAlertAcknowledged,
               );
             } else if (!usingCommServicesAccessToken) {
               try {
@@ -245,6 +267,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 Alert.alert(
                   unknownErrorAlertDetails.title,
                   unknownErrorAlertDetails.message,
+                  [{ text: 'OK', onPress: onAlertAcknowledged }],
+                  { cancelable: !onAlertAcknowledged },
                 );
                 throw e;
               }
@@ -264,6 +288,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                   Alert.alert(
                     unknownErrorAlertDetails.title,
                     unknownErrorAlertDetails.message,
+                    [{ text: 'OK', onPress: onAlertAcknowledged }],
+                    { cancelable: !onAlertAcknowledged },
                   );
                 }
                 throw e;
@@ -299,6 +325,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 step: 'identity_registration_dispatched',
                 avatarData,
                 clearCachedSelections,
+                onAlertAcknowledged,
                 credentialsToSave,
                 resolve,
                 reject,
@@ -356,6 +383,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     const {
       avatarData,
       clearCachedSelections,
+      onAlertAcknowledged,
       credentialsToSave,
       resolve,
       reject,
@@ -385,6 +413,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
             Alert.alert(
               unknownErrorAlertDetails.title,
               unknownErrorAlertDetails.message,
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
             return deletionResult;
           } catch (deleteException) {
@@ -393,6 +423,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               'We were able to create your account, but were unable to log ' +
                 'you in. Try going back to the login screen and logging in ' +
                 'with your new credentials.',
+              [{ text: 'OK', onPress: onAlertAcknowledged }],
+              { cancelable: !onAlertAcknowledged },
             );
             throw deleteException;
           }
