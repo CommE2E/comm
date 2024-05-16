@@ -59,6 +59,7 @@ mod ffi {
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
       farcaster_id: String,
+      initial_device_list: String,
       promise_id: u32,
     );
 
@@ -88,6 +89,7 @@ mod ffi {
       content_one_time_keys: Vec<String>,
       notif_one_time_keys: Vec<String>,
       farcaster_id: String,
+      initial_device_list: String,
       promise_id: u32,
     );
 
