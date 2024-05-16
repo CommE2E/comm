@@ -14,7 +14,8 @@ const sqliteAPI: SQLiteAPI = {
     const data = await sharedWorker.schedule({
       type: workerRequestMessageTypes.GET_INBOUND_P2P_MESSAGES,
     });
-    const messages: ?$ReadOnlyArray<InboundP2PMessage> = data?.messages;
+    const messages: ?$ReadOnlyArray<InboundP2PMessage> =
+      data?.inboundP2PMessages;
     return messages ? [...messages] : [];
   },
 
