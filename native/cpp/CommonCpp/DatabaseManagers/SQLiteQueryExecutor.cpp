@@ -2180,6 +2180,27 @@ void SQLiteQueryExecutor::removeAllOutboundP2PMessages(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQL, keys);
 }
 
+void SQLiteQueryExecutor::setCiphertextForOutboundP2PMessage(
+    std::string messageID,
+    std::string deviceID,
+    std::string ciphertext) const {
+  static std::string query =
+      "UPDATE outbound_p2p_messages "
+      "SET ciphertext = ?, status = 'encrypted' "
+      "WHERE message_id = ? AND device_id = ?;";
+
+  comm::SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      query,
+      "Failed to set ciphertext for OutboundP2PMessage");
+
+  bindStringToSQL(ciphertext.c_str(), preparedSQL, 1);
+  bindStringToSQL(messageID.c_str(), preparedSQL, 2);
+  bindStringToSQL(deviceID.c_str(), preparedSQL, 3);
+
+  sqlite3_step(preparedSQL);
+}
+
 void SQLiteQueryExecutor::addInboundP2PMessage(
     InboundP2PMessage message) const {
   static std::string addMessage =
