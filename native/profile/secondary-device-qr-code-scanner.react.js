@@ -13,7 +13,6 @@ import {
   backupKeysValidator,
   type BackupKeys,
 } from 'lib/types/backup-types.js';
-import type { RawDeviceList } from 'lib/types/identity-service-types.js';
 import {
   tunnelbrokerMessageTypes,
   type TunnelbrokerMessage,
@@ -24,6 +23,10 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import {
+  composeRawDeviceList,
+  rawDeviceListFromSignedList,
+} from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -72,9 +75,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     invariant(deviceLists.length > 0, 'received empty device list history');
 
     const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
-    const deviceList: RawDeviceList = JSON.parse(
-      lastSignedDeviceList.rawDeviceList,
-    );
+    const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
 
     const promises = deviceList.devices.map(recipient =>
       tunnelbrokerContext.sendMessage({
@@ -109,19 +110,14 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       invariant(deviceLists.length > 0, 'received empty device list history');
 
       const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
-      const deviceList: RawDeviceList = JSON.parse(
-        lastSignedDeviceList.rawDeviceList,
-      );
+      const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
 
       const { devices } = deviceList;
       if (devices.includes(newDeviceID)) {
         return;
       }
 
-      const newDeviceList: RawDeviceList = {
-        devices: [...devices, newDeviceID],
-        timestamp: Date.now(),
-      };
+      const newDeviceList = composeRawDeviceList([...devices, newDeviceID]);
       const signedDeviceList = await signDeviceListUpdate(newDeviceList);
       await updateDeviceList(signedDeviceList);
     },
