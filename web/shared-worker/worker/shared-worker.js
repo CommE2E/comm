@@ -329,7 +329,7 @@ async function processAppRequest(
       message.deviceID,
     );
   } else if (
-    message.type === workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGE
+    message.type === workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGES
   ) {
     sqliteQueryExecutor.removeOutboundP2PMessagesOlderThan(
       message.messageID,
