@@ -579,6 +579,7 @@ impl IdentityClientService for ClientService {
 
     let login_time = chrono::Utc::now();
 
+    let initial_device_list = message.get_and_verify_initial_device_list()?;
     let social_proof =
       SocialProof::new(message.siwe_message, message.siwe_signature);
 
@@ -592,6 +593,7 @@ impl IdentityClientService for ClientService {
         code_version,
         login_time,
         message.farcaster_id,
+        initial_device_list,
       )
       .await
       .map_err(handle_db_error)?;
@@ -660,6 +662,7 @@ impl IdentityClientService for ClientService {
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
 
+    let initial_device_list = message.get_and_verify_initial_device_list()?;
     let social_proof =
       SocialProof::new(message.siwe_message, message.siwe_signature);
 
@@ -674,6 +677,7 @@ impl IdentityClientService for ClientService {
         code_version,
         login_time,
         None,
+        initial_device_list,
       )
       .await
       .map_err(handle_db_error)?;

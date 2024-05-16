@@ -816,6 +816,60 @@ impl DatabaseClient {
     Ok(())
   }
 
+  /// Registers primary device for user, stores its signed device list
+  pub async fn register_primary_device(
+    &self,
+    user_id: impl Into<String>,
+    device_key_upload: FlattenedDeviceKeyUpload,
+    code_version: u64,
+    login_time: DateTime<Utc>,
+    initial_device_list: DeviceListUpdate,
+  ) -> Result<(), Error> {
+    let user_id: String = user_id.into();
+    self
+      .transact_update_devicelist(&user_id, |device_ids, devices_data| {
+        if !device_ids.is_empty() || !devices_data.is_empty() {
+          warn!(
+            "Tried creating initial device list for already existing user
+              (userID={})",
+            &user_id,
+          );
+          return Err(Error::DeviceList(DeviceListError::DeviceAlreadyExists));
+        }
+
+        // Set device list
+        *device_ids = initial_device_list.devices.clone();
+
+        let primary_device = DeviceRow::from_device_key_upload(
+          &user_id,
+          device_key_upload,
+          code_version,
+          login_time,
+        )?;
+
+        // Put device keys into DDB
+        let put_device = Put::builder()
+          .table_name(devices_table::NAME)
+          .set_item(Some(primary_device.into()))
+          .condition_expression(
+            "attribute_not_exists(#user_id) AND attribute_not_exists(#item_id)",
+          )
+          .expression_attribute_names("#user_id", ATTR_USER_ID)
+          .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+          .build();
+        let put_device_operation =
+          TransactWriteItem::builder().put(put_device).build();
+
+        let update_info =
+          UpdateOperationInfo::primary_device_issued(initial_device_list)
+            .with_ddb_operation(put_device_operation);
+        Ok(update_info)
+      })
+      .await?;
+
+    Ok(())
+  }
+
   /// Adds new device to user's device list. If the device already exists, the
   /// operation fails. Transactionally generates new device list version.
   pub async fn add_device(

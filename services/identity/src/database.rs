@@ -18,8 +18,11 @@ use std::sync::Arc;
 pub use crate::database::device_list::DeviceIDAttribute;
 pub use crate::database::one_time_keys::OTKRow;
 use crate::{
-  constants::error_types, constants::USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
-  ddb_utils::EthereumIdentity, reserved_users::UserDetail, siwe::SocialProof,
+  constants::{error_types, USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME},
+  ddb_utils::EthereumIdentity,
+  device_list::SignedDeviceList,
+  reserved_users::UserDetail,
+  siwe::SocialProof,
 };
 use crate::{
   ddb_utils::{DBIdentity, OlmAccountType},
@@ -168,14 +171,29 @@ impl DatabaseClient {
       )
       .await?;
 
-    self
-      .add_device(
-        &user_id,
-        device_key_upload.clone(),
-        code_version,
-        access_token_creation_time,
-      )
-      .await?;
+    // When initial device list is present, we should apply it
+    // instead of auto-creating one.
+    if let Some(device_list) = registration_state.initial_device_list {
+      let initial_device_list = DeviceListUpdate::try_from(device_list)?;
+      self
+        .register_primary_device(
+          &user_id,
+          device_key_upload.clone(),
+          code_version,
+          access_token_creation_time,
+          initial_device_list,
+        )
+        .await?;
+    } else {
+      self
+        .add_device(
+          &user_id,
+          device_key_upload.clone(),
+          code_version,
+          access_token_creation_time,
+        )
+        .await?;
+    }
 
     self
       .append_one_time_prekeys(
@@ -198,6 +216,7 @@ impl DatabaseClient {
     code_version: u64,
     access_token_creation_time: DateTime<Utc>,
     farcaster_id: Option<String>,
+    initial_device_list: Option<SignedDeviceList>,
   ) -> Result<String, Error> {
     let wallet_identity = EthereumIdentity {
       wallet_address,
@@ -212,14 +231,29 @@ impl DatabaseClient {
       )
       .await?;
 
-    self
-      .add_device(
-        &user_id,
-        flattened_device_key_upload.clone(),
-        code_version,
-        access_token_creation_time,
-      )
-      .await?;
+    // When initial device list is present, we should apply it
+    // instead of auto-creating one.
+    if let Some(device_list) = initial_device_list {
+      let initial_device_list = DeviceListUpdate::try_from(device_list)?;
+      self
+        .register_primary_device(
+          &user_id,
+          flattened_device_key_upload.clone(),
+          code_version,
+          access_token_creation_time,
+          initial_device_list,
+        )
+        .await?;
+    } else {
+      self
+        .add_device(
+          &user_id,
+          flattened_device_key_upload.clone(),
+          code_version,
+          access_token_creation_time,
+        )
+        .await?;
+    }
 
     self
       .append_one_time_prekeys(
