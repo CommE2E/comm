@@ -3,8 +3,8 @@ use std::str::FromStr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use commtest::identity::device::{
-  login_user_device, logout_user_device, register_user_device, DEVICE_TYPE,
-  PLACEHOLDER_CODE_VERSION,
+  login_user_device, logout_user_device, register_user_device,
+  register_user_device_with_device_list, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::identity::SigningCapableAccount;
 use commtest::service_addr;
@@ -178,11 +178,11 @@ async fn test_device_list_signatures() {
 
   // Perform unsigned update (add a new device)
   let first_update: DeviceListHistoryItem = {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
-    let update_payload = SignedDeviceList::from_raw_unsigned(&RawDeviceList {
-      devices: vec![primary_device_id.clone(), "device2".to_string()],
-      timestamp: now.as_millis() as i64,
-    });
+    let update_payload =
+      SignedDeviceList::from_raw_unsigned(&RawDeviceList::new(vec![
+        primary_device_id.clone(),
+        "device2".to_string(),
+      ]));
     let update_request = UpdateDeviceListRequest::from(&update_payload);
     auth_client
       .update_device_list(update_request)
@@ -197,12 +197,8 @@ async fn test_device_list_signatures() {
 
   // now perform a update (remove a device), but sign the device list
   let second_update: DeviceListHistoryItem = {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let update_payload = SignedDeviceList::create_signed(
-      &RawDeviceList {
-        devices: vec![primary_device_id.clone()],
-        timestamp: now.as_millis() as i64,
-      },
+      &RawDeviceList::new(vec![primary_device_id.clone()]),
       &mut primary_account,
       None,
     );
@@ -220,12 +216,11 @@ async fn test_device_list_signatures() {
 
   // now perform a signed update (add a device), but with invalid signature
   {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
     let mut update_payload = SignedDeviceList::create_signed(
-      &RawDeviceList {
-        devices: vec![primary_device_id.clone(), "device3".to_string()],
-        timestamp: now.as_millis() as i64,
-      },
+      &RawDeviceList::new(vec![
+        primary_device_id.clone(),
+        "device3".to_string(),
+      ]),
       &mut primary_account,
       None,
     );
@@ -390,9 +385,61 @@ async fn test_device_list_multifetch() {
   }
 }
 
+#[tokio::test]
+async fn test_initial_device_list() {
+  // create signing account
+  let mut primary_account = SigningCapableAccount::new();
+  let primary_device_keys = primary_account.public_keys();
+  let primary_device_id = primary_device_keys.device_id();
+
+  // create initial device list
+  let raw_device_list = RawDeviceList::new(vec![primary_device_id]);
+  let signed_list = SignedDeviceList::create_signed(
+    &raw_device_list,
+    &mut primary_account,
+    None,
+  );
+
+  // register user with initial list
+  let user = register_user_device_with_device_list(
+    Some(&primary_device_keys),
+    Some(DeviceType::Ios),
+    Some(signed_list.as_json_string()),
+  )
+  .await;
+
+  let mut auth_client = get_auth_client(
+    &service_addr::IDENTITY_GRPC.to_string(),
+    user.user_id.clone(),
+    user.device_id,
+    user.access_token,
+    PLACEHOLDER_CODE_VERSION,
+    DEVICE_TYPE.to_string(),
+  )
+  .await
+  .expect("Couldn't connect to identity service");
+
+  let mut history =
+    get_device_list_history(&mut auth_client, &user.user_id).await;
+
+  let received_list =
+    history.pop().expect("Received empty device list history");
+
+  assert!(
+    history.is_empty(),
+    "Device list history should have no more updates"
+  );
+  assert_eq!(
+    received_list.cur_primary_signature, signed_list.cur_primary_signature,
+    "Signature mismatch"
+  );
+  assert!(received_list.last_primary_signature.is_none());
+  assert_eq!(received_list.into_raw(), raw_device_list);
+}
+
 // See GetDeviceListResponse in identity_authenticated.proto
 // for details on the response format.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 #[allow(unused)]
 struct RawDeviceList {
@@ -412,6 +459,14 @@ struct SignedDeviceList {
 }
 
 impl RawDeviceList {
+  fn new(devices: Vec<String>) -> Self {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    RawDeviceList {
+      devices,
+      timestamp: now.as_millis() as i64,
+    }
+  }
+
   fn as_json_string(&self) -> String {
     serde_json::to_string(self).expect("Failed to serialize RawDeviceList")
   }
