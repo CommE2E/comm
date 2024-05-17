@@ -44,6 +44,16 @@ pub async fn register_user_device(
   keys: Option<&ClientPublicKeys>,
   device_type: Option<DeviceType>,
 ) -> DeviceInfo {
+  register_user_device_with_device_list(keys, device_type, None).await
+}
+
+/// Same as [`register_user_device`] but with third param being a
+/// stringified signed device list JSON
+pub async fn register_user_device_with_device_list(
+  keys: Option<&ClientPublicKeys>,
+  device_type: Option<DeviceType>,
+  initial_device_list: Option<String>,
+) -> DeviceInfo {
   let username: String = rand::thread_rng()
     .sample_iter(&Alphanumeric)
     .take(7)
@@ -82,7 +92,7 @@ pub async fn register_user_device(
       device_type: device_type.into(),
     }),
     farcaster_id: None,
-    initial_device_list: "".to_string(),
+    initial_device_list: initial_device_list.unwrap_or_default(),
   };
 
   let mut identity_client = get_unauthenticated_client(
