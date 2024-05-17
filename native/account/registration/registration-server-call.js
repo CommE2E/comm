@@ -30,6 +30,7 @@ import { waitUntilDatabaseDeleted } from 'lib/utils/wait-until-db-deleted.js';
 import type {
   RegistrationServerCallInput,
   UsernameAccountSelection,
+  EthereumAccountSelection,
   AvatarData,
 } from './registration-types.js';
 import { authoritativeKeyserverID } from '../../authoritative-keyserver.js';
@@ -223,7 +224,79 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   );
 
   const legacySiweServerCall = useLegacySIWEServerCall();
+  const legacyKeyserverRegisterEthereumAccount = React.useCallback(
+    async (
+      accountSelection: EthereumAccountSelection,
+      keyserverURL: string,
+      onAlertAcknowledged: ?() => mixed,
+    ) => {
+      try {
+        await legacySiweServerCall(accountSelection, {
+          urlPrefixOverride: keyserverURL,
+        });
+      } catch (e) {
+        const messageForException = getMessageForException(e);
+        if (messageForException === 'client_version_unsupported') {
+          Alert.alert(
+            appOutOfDateAlertDetails.title,
+            appOutOfDateAlertDetails.message,
+            [{ text: 'OK', onPress: onAlertAcknowledged }],
+            { cancelable: !onAlertAcknowledged },
+          );
+        } else {
+          Alert.alert(
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
+            [{ text: 'OK', onPress: onAlertAcknowledged }],
+            { cancelable: !onAlertAcknowledged },
+          );
+        }
+        throw e;
+      }
+    },
+    [legacySiweServerCall],
+  );
+
   const identityWalletRegisterCall = useIdentityWalletRegisterCall();
+  const identityRegisterEthereumAccount = React.useCallback(
+    async (
+      accountSelection: EthereumAccountSelection,
+      farcasterID: ?string,
+      onNonceExpired: () => mixed,
+      onAlertAcknowledged: ?() => mixed,
+    ) => {
+      try {
+        await identityWalletRegisterCall({
+          address: accountSelection.address,
+          message: accountSelection.message,
+          signature: accountSelection.signature,
+          fid: farcasterID,
+        });
+      } catch (e) {
+        const messageForException = getMessageForException(e);
+        if (messageForException === 'nonce expired') {
+          onNonceExpired();
+        } else if (messageForException === 'Unsupported version') {
+          Alert.alert(
+            appOutOfDateAlertDetails.title,
+            appOutOfDateAlertDetails.message,
+            [{ text: 'OK', onPress: onAlertAcknowledged }],
+            { cancelable: !onAlertAcknowledged },
+          );
+        } else {
+          Alert.alert(
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
+            [{ text: 'OK', onPress: onAlertAcknowledged }],
+            { cancelable: !onAlertAcknowledged },
+          );
+        }
+        throw e;
+      }
+    },
+    [identityWalletRegisterCall],
+  );
+
   const dispatch = useDispatch();
   const returnedFunc = React.useCallback(
     (input: RegistrationServerCallInput) =>
@@ -261,58 +334,18 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
                 onAlertAcknowledged,
               );
             } else if (!usingCommServicesAccessToken) {
-              try {
-                await legacySiweServerCall(accountSelection, {
-                  urlPrefixOverride: keyserverURL,
-                });
-              } catch (e) {
-                const messageForException = getMessageForException(e);
-                if (messageForException === 'client_version_unsupported') {
-                  Alert.alert(
-                    appOutOfDateAlertDetails.title,
-                    appOutOfDateAlertDetails.message,
-                    [{ text: 'OK', onPress: onAlertAcknowledged }],
-                    { cancelable: !onAlertAcknowledged },
-                  );
-                } else {
-                  Alert.alert(
-                    unknownErrorAlertDetails.title,
-                    unknownErrorAlertDetails.message,
-                    [{ text: 'OK', onPress: onAlertAcknowledged }],
-                    { cancelable: !onAlertAcknowledged },
-                  );
-                }
-                throw e;
-              }
+              await legacyKeyserverRegisterEthereumAccount(
+                accountSelection,
+                keyserverURL,
+                onAlertAcknowledged,
+              );
             } else {
-              try {
-                await identityWalletRegisterCall({
-                  address: accountSelection.address,
-                  message: accountSelection.message,
-                  signature: accountSelection.signature,
-                  fid: farcasterID,
-                });
-              } catch (e) {
-                const messageForException = getMessageForException(e);
-                if (messageForException === 'nonce expired') {
-                  onNonceExpired();
-                } else if (messageForException === 'Unsupported version') {
-                  Alert.alert(
-                    appOutOfDateAlertDetails.title,
-                    appOutOfDateAlertDetails.message,
-                    [{ text: 'OK', onPress: onAlertAcknowledged }],
-                    { cancelable: !onAlertAcknowledged },
-                  );
-                } else {
-                  Alert.alert(
-                    unknownErrorAlertDetails.title,
-                    unknownErrorAlertDetails.message,
-                    [{ text: 'OK', onPress: onAlertAcknowledged }],
-                    { cancelable: !onAlertAcknowledged },
-                  );
-                }
-                throw e;
-              }
+              await identityRegisterEthereumAccount(
+                accountSelection,
+                farcasterID,
+                onNonceExpired,
+                onAlertAcknowledged,
+              );
             }
             if (passedKeyserverURL) {
               dispatch({
@@ -368,9 +401,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
       currentStep,
       legacyKeyserverRegisterUsernameAccount,
       identityRegisterUsernameAccount,
-      legacySiweServerCall,
+      legacyKeyserverRegisterEthereumAccount,
+      identityRegisterEthereumAccount,
       dispatch,
-      identityWalletRegisterCall,
     ],
   );
 
