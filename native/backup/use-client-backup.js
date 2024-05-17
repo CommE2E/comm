@@ -88,12 +88,10 @@ function useClientBackup(): ClientBackup {
 
     await setMockCommServicesAuthMetadata();
     const backupSecret = await getBackupSecret();
-    await commCoreModule.restoreBackup(backupSecret);
-
-    const backupVersion = await commCoreModule.getSyncedDatabaseVersion();
-    if (!backupVersion || parseInt(backupVersion) > persistConfig.version) {
-      throw new Error(`Incompatible backup version ${backupVersion ?? -1}`);
-    }
+    await commCoreModule.restoreBackup(
+      backupSecret,
+      persistConfig.version.toString(),
+    );
 
     console.info('Backup restored.');
   }, [currentUserID, loggedIn, setMockCommServicesAuthMetadata]);

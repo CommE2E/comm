@@ -2012,14 +2012,20 @@ jsi::Value CommCoreModule::createNewSIWEBackup(
   return createNewBackupInternal(rt, backupSecretStr, siweBackupMsgStr);
 }
 
-jsi::Value
-CommCoreModule::restoreBackup(jsi::Runtime &rt, jsi::String backupSecret) {
+jsi::Value CommCoreModule::restoreBackup(
+    jsi::Runtime &rt,
+    jsi::String backupSecret,
+    jsi::String maxVersion) {
   std::string backupSecretStr = backupSecret.utf8(rt);
+  std::string maxVersionStr = maxVersion.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
             {promise, this->jsInvoker_, innerRt});
-        ::restoreBackup(rust::string(backupSecretStr), currentID);
+        ::restoreBackup(
+            rust::string(backupSecretStr),
+            rust::string(maxVersionStr),
+            currentID);
       });
 }
 
@@ -2027,10 +2033,12 @@ jsi::Value CommCoreModule::restoreBackupData(
     jsi::Runtime &rt,
     jsi::String backupID,
     jsi::String backupDataKey,
-    jsi::String backupLogDataKey) {
+    jsi::String backupLogDataKey,
+    jsi::String maxVersion) {
   std::string backupIDStr = backupID.utf8(rt);
   std::string backupDataKeyStr = backupDataKey.utf8(rt);
   std::string backupLogDataKeyStr = backupLogDataKey.utf8(rt);
+  std::string maxVersionStr = maxVersion.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         auto currentID = RustPromiseManager::instance.addPromise(
@@ -2039,6 +2047,7 @@ jsi::Value CommCoreModule::restoreBackupData(
             rust::string(backupIDStr),
             rust::string(backupDataKeyStr),
             rust::string(backupLogDataKeyStr),
+            rust::string(maxVersionStr),
             currentID);
       });
 }
