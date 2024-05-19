@@ -230,7 +230,7 @@ class ProfileScreen extends React.PureComponent<Props> {
     }
 
     let linkedDevices;
-    if (__DEV__) {
+    if (true || __DEV__) {
       linkedDevices = (
         <ProfileRow content="Linked devices" onPress={this.onPressDevices} />
       );

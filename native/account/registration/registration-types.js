@@ -66,6 +66,6 @@ export const ensAvatarSelection: AvatarData = {
   clientAvatar: { type: 'ens' },
 };
 
-export const enableNewRegistrationMode = __DEV__;
+export const enableNewRegistrationMode = true;
 
 export const enableSIWEBackupCreation = __DEV__;
