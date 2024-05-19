@@ -148,17 +148,19 @@ impl DatabaseClient {
 
   pub async fn delete_access_token_data(
     &self,
-    user_id: String,
-    device_id_key: String,
+    user_id: impl Into<String>,
+    device_id_key: impl Into<String>,
   ) -> Result<(), Error> {
     use crate::constants::token_table::*;
+    let user_id = user_id.into();
+    let device_id = device_id_key.into();
 
     self
       .client
       .delete_item()
       .table_name(NAME)
       .key(PARTITION_KEY.to_string(), AttributeValue::S(user_id))
-      .key(SORT_KEY.to_string(), AttributeValue::S(device_id_key))
+      .key(SORT_KEY.to_string(), AttributeValue::S(device_id))
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;

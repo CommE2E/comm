@@ -337,7 +337,40 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
-    Err(tonic::Status::unimplemented(""))
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+
+    debug!(
+      "Secondary device logout request for user_id={}, device_id={}",
+      user_id, device_id
+    );
+    self
+      .verify_device_on_device_list(
+        &user_id,
+        &device_id,
+        DeviceListItemKind::Secondary,
+      )
+      .await?;
+
+    self
+      .db_client
+      .delete_access_token_data(&user_id, &device_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    self
+      .db_client
+      .remove_device_data(&user_id, &device_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    self
+      .db_client
+      .delete_otks_table_rows_for_user_device(&user_id, &device_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = Empty {};
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
@@ -642,6 +675,60 @@ impl IdentityClientService for AuthenticatedService {
       identities: mapped_results,
     };
     return Ok(Response::new(response));
+  }
+}
+
+enum DeviceListItemKind {
+  Any,
+  Primary,
+  Secondary,
+}
+
+impl AuthenticatedService {
+  async fn verify_device_on_device_list(
+    &self,
+    user_id: &String,
+    device_id: &String,
+    device_kind: DeviceListItemKind,
+  ) -> Result<(), tonic::Status> {
+    let device_list = self
+      .db_client
+      .get_current_device_list(user_id)
+      .await
+      .map_err(|err| {
+        error!(
+          user_id,
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "Failed fetching device list: {err}"
+        );
+        handle_db_error(err)
+      })?;
+
+    let Some(device_list) = device_list else {
+      error!(
+        user_id,
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "User has no device list!"
+      );
+      return Err(Status::failed_precondition("no device list"));
+    };
+
+    use DeviceListItemKind as DeviceKind;
+    let device_on_list = match device_kind {
+      DeviceKind::Any => device_list.has_device(device_id),
+      DeviceKind::Primary => device_list.is_primary_device(device_id),
+      DeviceKind::Secondary => device_list.has_secondary_device(device_id),
+    };
+
+    if !device_on_list {
+      debug!(
+        "Device {} not on device list for user {}",
+        device_id, user_id
+      );
+      return Err(Status::permission_denied("device not on device list"));
+    }
+
+    Ok(())
   }
 }
 
