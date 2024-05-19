@@ -333,6 +333,14 @@ impl IdentityClientService for AuthenticatedService {
   }
 
   #[tracing::instrument(skip_all)]
+  async fn log_out_secondary_device(
+    &self,
+    request: tonic::Request<Empty>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    Err(tonic::Status::unimplemented(""))
+  }
+
+  #[tracing::instrument(skip_all)]
   async fn delete_wallet_user(
     &self,
     request: tonic::Request<Empty>,
