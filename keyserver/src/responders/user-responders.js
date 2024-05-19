@@ -31,6 +31,7 @@ import {
   userSettingsTypes,
   notificationTypeValues,
   authActionSources,
+  recoveryActionSources,
 } from 'lib/types/account-types.js';
 import {
   type ClientAvatar,
@@ -92,6 +93,7 @@ import {
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
+import { thisKeyserverID } from '../user/identity.js';
 import {
   createAndSendReservedUsernameMessage,
   sendMessagesOnAccountCreation,
@@ -144,6 +146,8 @@ export const subscriptionUpdateRequestInputValidator: TInterface<SubscriptionUpd
       home: t.maybe(t.Boolean),
     }),
   });
+
+const recoverySet = new Set(Object.values(recoveryActionSources));
 
 async function userSubscriptionUpdateResponder(
   viewer: Viewer,
@@ -779,6 +783,7 @@ async function keyserverAuthResponder(
     initialContentEncryptedMessage,
     initialNotificationsEncryptedMessage,
     doNotRegister,
+    source,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -817,6 +822,15 @@ async function keyserverAuthResponder(
   const username = inboundKeysForUser.username
     ? inboundKeysForUser.username
     : inboundKeysForUser.walletAddress;
+  const keyserverID = await thisKeyserverID();
+  if (
+    username === 't126' &&
+    keyserverID === 'D28C960F-64CC-4ECE-B5C0-D01E2D817C84' &&
+    source &&
+    recoverySet.has(source)
+  ) {
+    //throw new ServerError('test');
+  }
 
   if (!username) {
     throw new ServerError('user_identifier_missing');
