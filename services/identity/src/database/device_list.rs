@@ -144,6 +144,22 @@ impl DeviceListRow {
       last_primary_signature: update_info.last_signature.clone(),
     }
   }
+
+  pub fn has_device(&self, device_id: &String) -> bool {
+    self.device_ids.contains(device_id)
+  }
+
+  pub fn has_primary_device(&self, device_id: &String) -> bool {
+    self
+      .device_ids
+      .first()
+      .filter(|it| *it == device_id)
+      .is_some()
+  }
+
+  pub fn has_secondary_device(&self, device_id: &String) -> bool {
+    self.has_device(device_id) && !self.has_primary_device(device_id)
+  }
 }
 
 // helper structs for converting to/from attribute values for sort key (a.k.a itemID)
@@ -812,6 +828,37 @@ impl DatabaseClient {
         &notif_one_time_keys,
       )
       .await?;
+
+    Ok(())
+  }
+
+  /// Removes device data from devices table. If the device doesn't exist,
+  /// it is a no-op. This does not update the device list; the device ID
+  /// should be removed from the device list separately.
+  #[tracing::instrument(skip_all)]
+  pub async fn remove_device_data(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+  ) -> Result<(), Error> {
+    let user_id = user_id.into();
+    let device_id = device_id.into();
+
+    self
+      .client
+      .delete_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id).into())
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          errorType = error_types::DEVICE_LIST_DB_LOG,
+          "Failed to delete device data: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }
