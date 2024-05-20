@@ -1389,6 +1389,86 @@ jsi::Value CommCoreModule::encrypt(
       });
 }
 
+jsi::Value CommCoreModule::encryptAndPersist(
+    jsi::Runtime &rt,
+    jsi::String message,
+    jsi::String deviceID,
+    jsi::String messageID) {
+  auto messageCpp{message.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  auto messageIDCpp{messageID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData encryptedMessage;
+          try {
+            encryptedMessage =
+                contentCryptoModule->encrypt(deviceIDCpp, messageCpp);
+
+            std::string storedSecretKey =
+                getAccountDataKey(secureStoreAccountDataKey);
+            crypto::Persist newContentPersist =
+                this->contentCryptoModule->storeAsB64(storedSecretKey);
+
+            std::promise<void> persistencePromise;
+            std::future<void> persistenceFuture =
+                persistencePromise.get_future();
+            GlobalDBSingleton::instance.scheduleOrRunCancellable(
+                [=, &persistencePromise]() {
+                  try {
+
+                    folly::dynamic jsonObject = folly::dynamic::object;
+                    std::string messageStr(
+                        encryptedMessage.message.begin(),
+                        encryptedMessage.message.end());
+                    jsonObject["message"] = messageStr;
+                    jsonObject["messageType"] = encryptedMessage.messageType;
+                    std::string ciphertext = folly::toJson(jsonObject);
+
+                    DatabaseManager::getQueryExecutor().beginTransaction();
+                    DatabaseManager::getQueryExecutor()
+                        .setCiphertextForOutboundP2PMessage(
+                            messageIDCpp, deviceIDCpp, ciphertext);
+                    DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                        DatabaseManager::getQueryExecutor()
+                            .getContentAccountID(),
+                        newContentPersist);
+                    DatabaseManager::getQueryExecutor().commitTransaction();
+                    persistencePromise.set_value();
+                  } catch (std::system_error &e) {
+                    DatabaseManager::getQueryExecutor().rollbackTransaction();
+                    persistencePromise.set_exception(
+                        std::make_exception_ptr(e));
+                  }
+                });
+            persistenceFuture.get();
+
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            auto encryptedDataJSI = jsi::Object(innerRt);
+            auto message = std::string{
+                encryptedMessage.message.begin(),
+                encryptedMessage.message.end()};
+            auto messageJSI = jsi::String::createFromUtf8(innerRt, message);
+            encryptedDataJSI.setProperty(innerRt, "message", messageJSI);
+            encryptedDataJSI.setProperty(
+                innerRt,
+                "messageType",
+                static_cast<int>(encryptedMessage.messageType));
+            promise->resolve(std::move(encryptedDataJSI));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::decrypt(
     jsi::Runtime &rt,
     jsi::Object encryptedDataJSI,
