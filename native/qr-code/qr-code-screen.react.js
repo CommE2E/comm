@@ -11,6 +11,7 @@ import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { BackupKeys } from 'lib/types/backup-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import {
@@ -21,6 +22,10 @@ import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
+import {
+  appOutOfDateAlertDetails,
+  unknownErrorAlertDetails,
+} from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
 
 type QRCodeScreenProps = {
@@ -65,9 +70,21 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         await logInSecondaryDevice(userID);
       } catch (err) {
         console.error('Secondary device registration error:', err);
-        Alert.alert('Registration failed', 'Failed to upload device keys', [
-          { text: 'OK' },
-        ]);
+        const messageForException = getMessageForException(err);
+        if (
+          messageForException === 'client_version_unsupported' ||
+          messageForException === 'Unsupported version'
+        ) {
+          Alert.alert(
+            appOutOfDateAlertDetails.title,
+            appOutOfDateAlertDetails.message,
+          );
+        } else {
+          Alert.alert(
+            unknownErrorAlertDetails.title,
+            unknownErrorAlertDetails.message,
+          );
+        }
         void generateQRCode();
       }
     },
