@@ -82,6 +82,11 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String userID,
       jsi::String deviceID,
       jsi::String accessToken) override;
+  virtual jsi::Value logOutSecondaryDevice(
+      jsi::Runtime &rt,
+      jsi::String userID,
+      jsi::String deviceID,
+      jsi::String accessToken) override;
   virtual jsi::Value getOutboundKeysForUser(
       jsi::Runtime &rt,
       jsi::String authUserID,
