@@ -71,6 +71,7 @@ pub struct UserRegistrationInfo {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct UserLoginInfo {
   pub user_id: String,
+  pub username: String,
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub opaque_server_login: comm_opaque2::server::Login,
   pub device_to_remove: Option<String>,
@@ -242,6 +243,7 @@ impl IdentityClientService for ClientService {
 
       let login_time = chrono::Utc::now();
       let device_id = state.flattened_device_key_upload.device_id_key.clone();
+      let username = state.username.clone();
       let user_id = self
         .client
         .add_password_user_to_users_table(
@@ -273,6 +275,7 @@ impl IdentityClientService for ClientService {
       let response = AuthResponse {
         user_id,
         access_token,
+        username,
       };
       Ok(Response::new(response))
     } else {
@@ -342,6 +345,7 @@ impl IdentityClientService for ClientService {
 
     let login_state = construct_user_login_info(
       user_id,
+      message.username,
       server_login,
       flattened_device_key_upload,
       maybe_device_to_remove,
@@ -419,6 +423,7 @@ impl IdentityClientService for ClientService {
       let response = AuthResponse {
         user_id: state.user_id,
         access_token,
+        username: state.username,
       };
       Ok(Response::new(response))
     } else {
@@ -504,6 +509,7 @@ impl IdentityClientService for ClientService {
     let response = AuthResponse {
       user_id,
       access_token,
+      username: wallet_address,
     };
     Ok(Response::new(response))
   }
@@ -571,7 +577,7 @@ impl IdentityClientService for ClientService {
       .client
       .add_wallet_user_to_users_table(
         flattened_device_key_upload.clone(),
-        wallet_address,
+        wallet_address.clone(),
         social_proof,
         None,
         code_version,
@@ -601,6 +607,7 @@ impl IdentityClientService for ClientService {
     let response = AuthResponse {
       user_id,
       access_token,
+      username: wallet_address,
     };
     Ok(Response::new(response))
   }
@@ -652,7 +659,7 @@ impl IdentityClientService for ClientService {
       .client
       .add_wallet_user_to_users_table(
         flattened_device_key_upload.clone(),
-        wallet_address,
+        wallet_address.clone(),
         social_proof,
         Some(user_id.clone()),
         code_version,
@@ -681,6 +688,7 @@ impl IdentityClientService for ClientService {
     let response = AuthResponse {
       user_id,
       access_token,
+      username: wallet_address,
     };
 
     Ok(Response::new(response))
@@ -729,6 +737,7 @@ impl IdentityClientService for ClientService {
 
     let login_time = chrono::Utc::now();
     let identifier = user_identity.identifier;
+    let username = identifier.username().to_string();
     let token = AccessTokenData::with_created_time(
       user_id.clone(),
       device_id,
@@ -757,6 +766,7 @@ impl IdentityClientService for ClientService {
     let response = AuthResponse {
       user_id,
       access_token,
+      username,
     };
     Ok(Response::new(response))
   }
@@ -798,6 +808,7 @@ impl IdentityClientService for ClientService {
 
     let login_time = chrono::Utc::now();
     let identifier = user_identity.identifier;
+    let username = identifier.username().to_string();
     let token = AccessTokenData::with_created_time(
       user_id.clone(),
       device_id,
@@ -815,6 +826,7 @@ impl IdentityClientService for ClientService {
     let response = AuthResponse {
       user_id,
       access_token,
+      username,
     };
     Ok(Response::new(response))
   }
@@ -1134,12 +1146,14 @@ fn construct_user_registration_info(
 
 fn construct_user_login_info(
   user_id: String,
+  username: String,
   opaque_server_login: comm_opaque2::server::Login,
   flattened_device_key_upload: FlattenedDeviceKeyUpload,
   device_to_remove: Option<String>,
 ) -> Result<UserLoginInfo, tonic::Status> {
   Ok(UserLoginInfo {
     user_id,
+    username,
     flattened_device_key_upload,
     opaque_server_login,
     device_to_remove,

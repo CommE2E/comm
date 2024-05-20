@@ -156,6 +156,7 @@ impl From<AuthResponse> for UserIDAndDeviceAccessToken {
     let AuthResponse {
       user_id,
       access_token,
+      ..
     } = value;
     Self {
       user_id,
