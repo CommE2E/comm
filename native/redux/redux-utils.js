@@ -44,6 +44,7 @@ async function processDBStoreOperations(
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
     threadActivityStoreOperations,
+    outboundP2PMessages,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
@@ -95,6 +96,7 @@ async function processDBStoreOperations(
       syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
       auxUserStoreOperations: convertedAuxUserStoreOperations,
       threadActivityStoreOperations: convertedThreadActivityStoreOperations,
+      outboundP2PMessages,
     };
     if (values(dbOps).some(ops => ops && ops.length > 0)) {
       promises.push(commCoreModule.processDBStoreOperations(dbOps));
