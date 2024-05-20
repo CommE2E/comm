@@ -51,6 +51,23 @@ struct OutboundP2PMessage {
 
   OutboundP2PMessage() = default;
 
+  OutboundP2PMessage(
+      const std::string &message_id,
+      const std::string &device_id,
+      const std::string &user_id,
+      const std::string &timestamp,
+      const std::string &plaintext,
+      const std::string &ciphertext,
+      const std::string &status)
+      : message_id(message_id),
+        device_id(device_id),
+        user_id(user_id),
+        timestamp(timestamp),
+        plaintext(plaintext),
+        ciphertext(ciphertext),
+        status(status) {
+  }
+
   OutboundP2PMessage(const SQLiteOutboundP2PMessage &msg) {
     message_id = msg.message_id;
     device_id = msg.device_id;
