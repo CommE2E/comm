@@ -11,14 +11,14 @@ public class AESCryptoModule: Module {
     Name("AESCrypto")
 
     Function("generateKey") { (destination: Uint8Array) throws in
-        try! generateKey(destinationPtr: destination.rawBufferPtr(),
+        try generateKey(destinationPtr: destination.rawBufferPtr(),
                          byteLength: destination.byteLength)
     }
 
     Function("encrypt") { (rawKey: Uint8Array,
                            plaintext: Uint8Array,
                            destination: Uint8Array) throws in
-        try! encrypt(rawKey: rawKey.data(),
+        try encrypt(rawKey: rawKey.data(),
                      plaintext: plaintext.data(),
                      plaintextLength: plaintext.byteLength,
                      destinationPtr: destination.rawBufferPtr(),
@@ -28,7 +28,7 @@ public class AESCryptoModule: Module {
     Function("decrypt") { (rawKey: Uint8Array,
                             sealedData: Uint8Array,
                             destination: Uint8Array) throws in
-        try! decrypt(rawKey: rawKey.data(),
+        try decrypt(rawKey: rawKey.data(),
                      sealedData: sealedData.data(),
                      sealedDataLength: sealedData.byteLength,
                      destinationPtr: destination.rawBufferPtr(),
@@ -102,7 +102,7 @@ public class AESCryptoModuleObjCCompat: NSObject {
                             destination: NSMutableData) throws {
     let destinationPtr = UnsafeMutableRawBufferPointer(start: destination.mutableBytes,
                                                        count: destination.length)
-    try! decrypt(rawKey: rawKey,
+    try decrypt(rawKey: rawKey,
                  sealedData: sealedData,
                  sealedDataLength: sealedData.count,
                  destinationPtr: destinationPtr,
