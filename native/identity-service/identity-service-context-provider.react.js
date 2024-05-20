@@ -110,6 +110,14 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         } = await getAuthMetadata();
         return commRustModule.logOut(userID, deviceID, token);
       },
+      logOutSecondaryDevice: async () => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        return commRustModule.logOutSecondaryDevice(userID, deviceID, token);
+      },
       getKeyserverKeys: async (
         keyserverID: string,
       ): Promise<DeviceOlmOutboundKeys> => {
