@@ -23,6 +23,7 @@ import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import css from './qr-code-login.css';
+import Alert from '../modals/alert.react.js';
 import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import {
   base64DecodeBuffer,
@@ -100,6 +101,8 @@ function QRCodeLogin(): React.Node {
           messageForException === 'Unsupported version'
         ) {
           pushModal(<VersionUnsupportedModal />);
+        } else {
+          pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
         }
         void generateQRCode();
       }
