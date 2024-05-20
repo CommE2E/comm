@@ -1,0 +1,6 @@
+.modalContent {
+  color: var(--text-background-primary-default);
+  font-size: var(--s-font-14);
+  margin-top: 8px;
+  display: flex;
+}
