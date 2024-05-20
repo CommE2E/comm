@@ -5,8 +5,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
 import { identityLogInActionTypes } from 'lib/actions/user-actions.js';
-import { QRAuthHandler } from 'lib/components/qr-auth-handler.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
 import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
@@ -126,35 +126,38 @@ function QRCodeLogin(): React.Node {
     [qrData],
   );
 
+  const qrAuthInput = React.useMemo(
+    () => ({
+      secondaryDeviceID: qrData?.deviceID,
+      aesKey: qrData?.aesKey,
+      performSecondaryDeviceRegistration: performRegistration,
+      composeMessage: composeTunnelbrokerMessage,
+      processMessage: parseTunnelbrokerMessage,
+    }),
+    [qrData, performRegistration],
+  );
+  useQRAuth(qrAuthInput);
+
   return (
-    <>
-      <QRAuthHandler
-        secondaryDeviceID={qrData?.deviceID}
-        aesKey={qrData?.aesKey}
-        performSecondaryDeviceRegistration={performRegistration}
-        composeMessage={composeTunnelbrokerMessage}
-        processMessage={parseTunnelbrokerMessage}
-      />
-      <div className={css.qrContainer}>
-        <div className={css.title}>Log in to Comm</div>
-        <div className={css.scanInstructions}>
-          Open the Comm app on your phone and scan the QR code below
+    <div className={css.qrContainer}>
+      <div className={css.title}>Log in to Comm</div>
+      <div className={css.scanInstructions}>
+        Open the Comm app on your phone and scan the QR code below
+      </div>
+      <QRCodeSVG value={qrCodeURL} size={300} marginSize={4} level="L" />
+      <div className={css.instructionsContainer}>
+        <div className={css.instructionsTitle}>How to find the scanner:</div>
+        <div className={css.instructionsStep}>
+          Go to <strong>Profile</strong>
         </div>
-        <QRCodeSVG value={qrCodeURL} size={300} marginSize={4} level="L" />
-        <div className={css.instructionsContainer}>
-          <div className={css.instructionsTitle}>How to find the scanner:</div>
-          <div className={css.instructionsStep}>
-            Go to <strong>Profile</strong>
-          </div>
-          <div className={css.instructionsStep}>
-            Select <strong>Linked devices</strong>
-          </div>
-          <div className={css.instructionsStep}>
-            Click <strong>Add</strong> on the top right
-          </div>
+        <div className={css.instructionsStep}>
+          Select <strong>Linked devices</strong>
+        </div>
+        <div className={css.instructionsStep}>
+          Click <strong>Add</strong> on the top right
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

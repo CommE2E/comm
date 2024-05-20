@@ -5,8 +5,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { QRAuthHandler } from 'lib/components/qr-auth-handler.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -99,41 +99,44 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     [qrData],
   );
 
+  const qrAuthInput = React.useMemo(
+    () => ({
+      secondaryDeviceID: qrData?.deviceID,
+      aesKey: qrData?.aesKey,
+      performSecondaryDeviceRegistration: performRegistration,
+      composeMessage: composeTunnelbrokerQRAuthMessage,
+      processMessage: parseTunnelbrokerQRAuthMessage,
+      performBackupRestore,
+    }),
+    [qrData, performRegistration],
+  );
+  useQRAuth(qrAuthInput);
+
   const styles = useStyles(unboundStyles);
   return (
-    <>
-      <QRAuthHandler
-        secondaryDeviceID={qrData?.deviceID}
-        aesKey={qrData?.aesKey}
-        performSecondaryDeviceRegistration={performRegistration}
-        composeMessage={composeTunnelbrokerQRAuthMessage}
-        processMessage={parseTunnelbrokerQRAuthMessage}
-        performBackupRestore={performBackupRestore}
-      />
-      <View style={styles.container}>
-        <Text style={styles.heading}>Log in to Comm</Text>
-        <Text style={styles.headingSubtext}>
-          Open the Comm app on your phone and scan the QR code below
+    <View style={styles.container}>
+      <Text style={styles.heading}>Log in to Comm</Text>
+      <Text style={styles.headingSubtext}>
+        Open the Comm app on your phone and scan the QR code below
+      </Text>
+      <QRCode value={qrCodeURL} size={200} />
+      <View style={styles.instructionsBox}>
+        <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
+        <Text style={styles.instructionsStep}>
+          <Text>Go to </Text>
+          <Text style={styles.instructionsBold}>Profile</Text>
         </Text>
-        <QRCode value={qrCodeURL} size={200} />
-        <View style={styles.instructionsBox}>
-          <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
-          <Text style={styles.instructionsStep}>
-            <Text>Go to </Text>
-            <Text style={styles.instructionsBold}>Profile</Text>
-          </Text>
-          <Text style={styles.instructionsStep}>
-            <Text>Select </Text>
-            <Text style={styles.instructionsBold}>Linked devices </Text>
-          </Text>
-          <Text style={styles.instructionsStep}>
-            <Text>Click </Text>
-            <Text style={styles.instructionsBold}>Add </Text>
-            <Text>on the top right</Text>
-          </Text>
-        </View>
+        <Text style={styles.instructionsStep}>
+          <Text>Select </Text>
+          <Text style={styles.instructionsBold}>Linked devices </Text>
+        </Text>
+        <Text style={styles.instructionsStep}>
+          <Text>Click </Text>
+          <Text style={styles.instructionsBold}>Add </Text>
+          <Text>on the top right</Text>
+        </Text>
       </View>
-    </>
+    </View>
   );
 }
 
