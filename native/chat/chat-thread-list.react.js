@@ -22,6 +22,7 @@ import {
 import { FloatingAction } from 'react-native-floating-action';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
@@ -29,7 +30,6 @@ import {
 import {
   createPendingThread,
   getThreadListSearchResults,
-  useThreadListSearch,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
