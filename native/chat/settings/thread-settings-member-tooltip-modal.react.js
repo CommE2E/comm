@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useRemoveUsersFromThread } from 'lib/actions/thread-actions.js';
-import { removeMemberFromThread } from 'lib/shared/thread-utils.js';
+import { removeMemberFromThread } from 'lib/shared/thread-actions-utils.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type {
   RelativeMemberInfo,
