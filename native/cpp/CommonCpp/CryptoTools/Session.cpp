@@ -154,7 +154,7 @@ std::string Session::decrypt(EncryptedData &encryptedData) {
         ". Hash: " +
         std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
   }
-  return std::string{decryptedMessage.begin(), decryptedMessage.end()};
+  return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
 std::string Session::decryptSequential(EncryptedData &encryptedData) {
@@ -199,7 +199,7 @@ std::string Session::decryptSequential(EncryptedData &encryptedData) {
         std::string{::olm_session_last_error(session)} + ". Hash: " +
         std::string{messageHashBuffer.begin(), messageHashBuffer.end()}};
   }
-  return std::string{decryptedMessage.begin(), decryptedMessage.end()};
+  return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
 int Session::getVersion() {
