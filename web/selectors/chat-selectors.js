@@ -8,10 +8,8 @@ import {
   createChatThreadItem,
   messageInfoSelector,
 } from 'lib/selectors/chat-selectors.js';
-import {
-  sidebarInfoSelector,
-  threadInfoSelector,
-} from 'lib/selectors/thread-selectors.js';
+import { sidebarInfoSelector } from 'lib/selectors/sidebar-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { threadIsPending } from 'lib/shared/thread-utils.js';
 import type { MessageInfo, MessageStore } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
