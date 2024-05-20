@@ -181,6 +181,15 @@ pub enum Identifier {
   WalletAddress(EthereumIdentity),
 }
 
+impl Identifier {
+  pub fn username(&self) -> &str {
+    match self {
+      Identifier::Username(username) => username,
+      Identifier::WalletAddress(eth_identity) => &eth_identity.wallet_address,
+    }
+  }
+}
+
 pub struct EthereumIdentity {
   pub wallet_address: String,
   pub social_proof: SocialProof,

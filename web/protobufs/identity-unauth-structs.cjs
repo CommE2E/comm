@@ -2444,7 +2444,8 @@ proto.identity.unauth.AuthResponse.prototype.toObject = function(opt_includeInst
 proto.identity.unauth.AuthResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     userId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    accessToken: jspb.Message.getFieldWithDefault(msg, 2, "")
+    accessToken: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    username: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -2489,6 +2490,10 @@ proto.identity.unauth.AuthResponse.deserializeBinaryFromReader = function(msg, r
       var value = /** @type {string} */ (reader.readString());
       msg.setAccessToken(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUsername(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2532,6 +2537,13 @@ proto.identity.unauth.AuthResponse.serializeBinaryToWriter = function(message, w
       f
     );
   }
+  f = message.getUsername();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
 };
 
 
@@ -2568,6 +2580,24 @@ proto.identity.unauth.AuthResponse.prototype.getAccessToken = function() {
  */
 proto.identity.unauth.AuthResponse.prototype.setAccessToken = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string username = 3;
+ * @return {string}
+ */
+proto.identity.unauth.AuthResponse.prototype.getUsername = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.identity.unauth.AuthResponse} returns this
+ */
+proto.identity.unauth.AuthResponse.prototype.setUsername = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
