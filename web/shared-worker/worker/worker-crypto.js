@@ -443,6 +443,50 @@ const olmAPI: OlmAPI = {
       messageType: encryptedContent.type,
     };
   },
+  async encryptAndPersist(
+    content: string,
+    deviceID: string,
+    messageID: string,
+  ): Promise<EncryptedData> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const olmSession = cryptoStore.contentSessions[deviceID];
+    if (!olmSession) {
+      throw new Error(`No session for deviceID: ${deviceID}`);
+    }
+
+    const encryptedContent = olmSession.session.encrypt(content);
+
+    const sqliteQueryExecutor = getSQLiteQueryExecutor();
+    const dbModule = getDBModule();
+    if (!sqliteQueryExecutor || !dbModule) {
+      throw new Error(
+        "Couldn't persist crypto store because database is not initialized",
+      );
+    }
+
+    const result: EncryptedData = {
+      message: encryptedContent.body,
+      messageType: encryptedContent.type,
+    };
+
+    sqliteQueryExecutor.beginTransaction();
+    try {
+      sqliteQueryExecutor.setCiphertextForOutboundP2PMessage(
+        messageID,
+        deviceID,
+        JSON.stringify(result),
+      );
+      persistCryptoStore(true);
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      throw e;
+    }
+
+    return result;
+  },
   async decrypt(
     encryptedData: EncryptedData,
     deviceID: string,
