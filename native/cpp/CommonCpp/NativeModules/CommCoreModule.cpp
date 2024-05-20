@@ -427,6 +427,47 @@ jsi::Value CommCoreModule::processDBStoreOperations(
     createOperationsError = e.what();
   }
 
+
+  std::vector<OutboundP2PMessage> messages;
+  try {
+    auto messagesJSIObj = operations.getProperty(rt, "outboundP2PMessages");
+
+    if (messagesJSIObj.isObject()) {
+      auto messagesJSI = messagesJSIObj.asObject(rt).asArray(rt);
+      for (size_t idx = 0; idx < messagesJSI.size(rt); idx++) {
+        jsi::Object msgObj = messagesJSI.getValueAtIndex(rt, idx).asObject(rt);
+
+        std::string messageID =
+            msgObj.getProperty(rt, "messageID").asString(rt).utf8(rt);
+        std::string deviceID =
+            msgObj.getProperty(rt, "deviceID").asString(rt).utf8(rt);
+        std::string userID =
+            msgObj.getProperty(rt, "userID").asString(rt).utf8(rt);
+        std::string timestamp =
+            msgObj.getProperty(rt, "timestamp").asString(rt).utf8(rt);
+        std::string plaintext =
+            msgObj.getProperty(rt, "plaintext").asString(rt).utf8(rt);
+        std::string ciphertext =
+            msgObj.getProperty(rt, "ciphertext").asString(rt).utf8(rt);
+        std::string status =
+            msgObj.getProperty(rt, "status").asString(rt).utf8(rt);
+
+        OutboundP2PMessage outboundMessage{
+            messageID,
+            deviceID,
+            userID,
+            timestamp,
+            plaintext,
+            ciphertext,
+            status};
+        messages.push_back(outboundMessage);
+      }
+    }
+
+  } catch (std::runtime_error &e) {
+    createOperationsError = e.what();
+  }
+
   return facebook::react::createPromiseAsJSIValue(
       rt,
       [=](jsi::Runtime &innerRt,
@@ -439,6 +480,10 @@ jsi::Value CommCoreModule::processDBStoreOperations(
               DatabaseManager::getQueryExecutor().beginTransaction();
               for (const auto &operation : *storeOpsPtr) {
                 operation->execute();
+              }
+              if (messages.size() > 0) {
+                DatabaseManager::getQueryExecutor().addOutboundP2PMessages(
+                    messages);
               }
               DatabaseManager::getQueryExecutor().captureBackupLogs();
               DatabaseManager::getQueryExecutor().commitTransaction();

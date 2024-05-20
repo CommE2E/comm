@@ -362,6 +362,7 @@ function processDBStoreOperations(
     userStoreOperations,
     messageStoreOperations,
     threadActivityStoreOperations,
+    outboundP2PMessages,
   } = storeOperations;
 
   try {
@@ -448,6 +449,9 @@ function processDBStoreOperations(
         threadActivityStoreOperations,
         module,
       );
+    }
+    if (outboundP2PMessages && outboundP2PMessages.length > 0) {
+      sqliteQueryExecutor.addOutboundP2PMessages(outboundP2PMessages);
     }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
