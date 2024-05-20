@@ -9,10 +9,11 @@ use tracing::{error, info};
 use url::Url;
 
 use crate::constants::{
-  cors::ALLOW_ORIGIN_LIST, DEFAULT_OPENSEARCH_ENDPOINT,
-  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
-  OPAQUE_SERVER_SETUP, OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY,
-  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
+  cors::ALLOW_ORIGIN_LIST, cors::PROD_ORIGIN_HOST_STR,
+  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
+  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
+  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
+  TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -208,9 +209,12 @@ fn validate_origin(origin_str: &str) -> Result<(), Error> {
   if !matches!(url.scheme(), "http" | "https") {
     return Err(Error::InvalidOrigin(InvalidOriginError::InvalidScheme));
   };
-  if url.host_str().is_none() {
+  let Some(host_str) = url.host_str() else {
     return Err(Error::InvalidOrigin(InvalidOriginError::MissingHost));
   };
+  if host_str == PROD_ORIGIN_HOST_STR {
+    return Ok(());
+  }
   if url.port().is_none() {
     return Err(Error::InvalidOrigin(InvalidOriginError::MissingPort));
   };
@@ -249,8 +253,18 @@ mod tests {
   }
 
   #[test]
+  fn test_valid_origin_missing_port() {
+    // If the host is web.comm.app, we do not require a port
+    let valid_origin = "https://web.comm.app";
+    assert!(
+      validate_origin(valid_origin).is_ok(),
+      "Expected origin missing port to be valid"
+    );
+  }
+
+  #[test]
   fn test_invalid_origin_missing_port() {
-    // We require that the port always be specified in origins
+    // If the host is not web.comm.app, we require a port
     let invalid_origin = "http://localhost";
     assert!(
       validate_origin(invalid_origin).is_err(),
