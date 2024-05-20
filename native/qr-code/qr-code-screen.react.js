@@ -77,13 +77,14 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
   const generateQRCode = React.useCallback(async () => {
     try {
-      const rawAESKey: Uint8Array = await AES.generateKey();
+      const [ed25519, rawAESKey] = await Promise.all([
+        getContentSigningKey(),
+        AES.generateKey(),
+      ]);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
-      const ed25519Key: string = await getContentSigningKey();
-
-      setUnauthorizedDeviceID(ed25519Key);
-      setQRData({ deviceID: ed25519Key, aesKey: aesKeyAsHexString });
+      setUnauthorizedDeviceID(ed25519);
+      setQRData({ deviceID: ed25519, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
     }
