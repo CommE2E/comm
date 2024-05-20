@@ -79,7 +79,24 @@ pub mod ffi {
         user_id,
         device_id,
       };
-      let result = log_out_helper(auth_info).await;
+      let result = log_out_helper(auth_info, LogOutType::Legacy).await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn log_out_secondary_device(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let auth_info = AuthInfo {
+        access_token,
+        user_id,
+        device_id,
+      };
+      let result = log_out_helper(auth_info, LogOutType::SecondaryDevice).await;
       handle_void_result_as_callback(result, promise_id);
     });
   }
@@ -196,7 +213,15 @@ async fn delete_password_user_helper(
   Ok(())
 }
 
-async fn log_out_helper(auth_info: AuthInfo) -> Result<(), Error> {
+enum LogOutType {
+  Legacy,
+  SecondaryDevice,
+}
+
+async fn log_out_helper(
+  auth_info: AuthInfo,
+  log_out_type: LogOutType,
+) -> Result<(), Error> {
   let mut identity_client = get_auth_client(
     IDENTITY_SOCKET_ADDR,
     auth_info.user_id,
@@ -206,7 +231,13 @@ async fn log_out_helper(auth_info: AuthInfo) -> Result<(), Error> {
     DEVICE_TYPE.as_str_name().to_lowercase(),
   )
   .await?;
-  identity_client.log_out_user(Empty {}).await?;
+
+  match log_out_type {
+    LogOutType::Legacy => identity_client.log_out_user(Empty {}).await?,
+    LogOutType::SecondaryDevice => {
+      identity_client.log_out_secondary_device(Empty {}).await?
+    }
+  };
 
   Ok(())
 }
