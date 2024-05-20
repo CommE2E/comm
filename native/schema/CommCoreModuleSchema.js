@@ -92,6 +92,11 @@ interface Spec extends TurboModule {
     overwrite: boolean,
   ) => Promise<string>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
+  +encryptAndPersist: (
+    message: string,
+    deviceID: string,
+    messageID: string,
+  ) => Promise<EncryptedData>;
   +decrypt: (encryptedData: Object, deviceID: string) => Promise<string>;
   +decryptSequentialAndPersist: (
     encryptedData: Object,
