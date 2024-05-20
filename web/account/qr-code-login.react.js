@@ -67,8 +67,8 @@ async function parseTunnelbrokerMessage(
   return payload;
 }
 
-function QrCodeLogin(): React.Node {
-  const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
+function QRCodeLogin(): React.Node {
+  const [qrCodeValue, setQRCodeValue] = React.useState<?string>();
 
   const [deviceKeys, setDeviceKeys] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
@@ -116,7 +116,7 @@ function QrCodeLogin(): React.Node {
 
       const url = qrCodeLinkURL(aesKeyAsHexString, ed25519);
       setUnauthorizedDeviceID(ed25519);
-      setQrCodeValue(url);
+      setQRCodeValue(url);
       setDeviceKeys({ deviceID: ed25519, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
@@ -159,4 +159,4 @@ function QrCodeLogin(): React.Node {
   );
 }
 
-export default QrCodeLogin;
+export default QRCodeLogin;
