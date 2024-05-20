@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Alert } from 'react-native';
+import { View } from 'react-native';
 
 import { useCurrentUserFID, useUnlinkFID } from 'lib/utils/farcaster-utils.js';
 
@@ -13,6 +13,7 @@ import type { FarcasterWebViewState } from '../components/farcaster-web-view.rea
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
+import Alert from '../utils/alert.js';
 import { useTryLinkFID } from '../utils/farcaster-utils.js';
 
 type Props = {

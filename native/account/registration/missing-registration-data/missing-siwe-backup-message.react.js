@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { type SIWEResult } from 'lib/types/siwe-types.js';
@@ -13,6 +12,7 @@ import { type RootNavigationProp } from '../../../navigation/root-navigator.reac
 import { type NavigationRoute } from '../../../navigation/route-names.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import { useStyles } from '../../../themes/colors.js';
+import Alert from '../../../utils/alert.js';
 import { CreateSIWEBackupMessageBase } from '../siwe-backup-message-creation.react.js';
 
 type Props = {

@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { getMessageForException } from 'lib/utils/errors.js';
 import { useLinkFID } from 'lib/utils/farcaster-utils.js';
@@ -10,6 +9,7 @@ import {
   getFarcasterAccountAlreadyLinkedAlertDetails,
   unknownErrorAlertDetails,
 } from './alert-messages.js';
+import Alert from '../utils/alert.js';
 
 function useTryLinkFID(): (newFID: string) => Promise<void> {
   const linkFID = useLinkFID();

@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Alert, Switch, Text, View } from 'react-native';
+import { Switch, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -14,6 +14,7 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import { setLocalSettingsActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
+import Alert from '../utils/alert.js';
 
 type Props = {
   +navigation: ProfileNavigationProp<'BackupMenu'>,
