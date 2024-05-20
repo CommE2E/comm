@@ -177,6 +177,8 @@ message AuthResponse {
   // Unique identifier for user
   string user_id = 1;
   string access_token = 2;
+  // This is wallet address for wallet users
+  string username = 3;
 }
 
 // LoginUser

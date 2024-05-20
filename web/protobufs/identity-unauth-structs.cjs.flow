@@ -231,6 +231,9 @@ declare export class AuthResponse extends Message {
   getAccessToken(): string;
   setAccessToken(value: string): AuthResponse;
 
+  getUsername(): string;
+  setUsername(value: string): AuthResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): AuthResponseObject;
   static toObject(includeInstance: boolean, msg: AuthResponse): AuthResponseObject;
@@ -242,6 +245,7 @@ declare export class AuthResponse extends Message {
 export type AuthResponseObject = {
   userId: string,
   accessToken: string,
+  username: string,
 };
 
 declare export class OpaqueLoginStartRequest extends Message {
