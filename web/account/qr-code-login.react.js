@@ -104,12 +104,10 @@ function QRCodeLogin(): React.Node {
 
   const generateQRCode = React.useCallback(async () => {
     try {
-      const ed25519 = await getContentSigningKey();
-      if (!ed25519) {
-        return;
-      }
-
-      const rawAESKey: Uint8Array = await generateKeyCommon(crypto);
+      const [ed25519, rawAESKey] = await Promise.all([
+        getContentSigningKey(),
+        generateKeyCommon(crypto),
+      ]);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
       setUnauthorizedDeviceID(ed25519);
