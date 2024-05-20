@@ -120,6 +120,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       deleteWalletUser: proxyMethodToWorker('deleteWalletUser'),
       deletePasswordUser: proxyMethodToWorker('deletePasswordUser'),
       logOut: proxyMethodToWorker('logOut'),
+      logOutSecondaryDevice: proxyMethodToWorker('logOutSecondaryDevice'),
       getKeyserverKeys: proxyMethodToWorker('getKeyserverKeys'),
       getOutboundKeysForUser: proxyMethodToWorker('getOutboundKeysForUser'),
       getInboundKeysForUser: proxyMethodToWorker('getInboundKeysForUser'),
