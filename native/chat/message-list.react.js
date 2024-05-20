@@ -17,7 +17,7 @@ import {
 import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { messageKey } from 'lib/shared/message-utils.js';
-import { useWatchThread } from 'lib/shared/thread-utils.js';
+import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
