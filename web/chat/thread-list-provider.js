@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
@@ -13,7 +14,6 @@ import {
   threadInBackgroundChatList,
   threadInHomeChatList,
   getThreadListSearchResults,
-  useThreadListSearch,
   threadIsPending,
   useIsThreadInChatList,
 } from 'lib/shared/thread-utils.js';
