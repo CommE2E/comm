@@ -13,10 +13,8 @@ import type {
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
-import {
-  useSidebarExistsOrCanBeCreated,
-  useThreadHasPermission,
-} from 'lib/shared/thread-utils.js';
+import { useSidebarExistsOrCanBeCreated } from 'lib/shared/sidebar-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';

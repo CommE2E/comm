@@ -10,7 +10,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
 import ComposedMessage from './composed-message.react.js';

@@ -5,7 +5,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
 
 import { inlineEngagementCenterStyle } from './chat-constants.js';
 import type { ChatNavigationProp } from './chat.react.js';
