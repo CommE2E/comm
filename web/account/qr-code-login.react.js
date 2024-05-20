@@ -1,18 +1,15 @@
 // @flow
 
-import invariant from 'invariant';
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
-import { identityLogInActionTypes } from 'lib/actions/user-actions.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
 import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
 import * as AES from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { SignedNonce } from 'lib/types/identity-service-types.js';
 import {
   peerToPeerMessageTypes,
   type QRCodeAuthMessage,
@@ -22,10 +19,8 @@ import {
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './qr-code-login.css';
-import { olmAPI } from '../crypto/olm-api.js';
 import {
   base64DecodeBuffer,
   base64EncodeBuffer,
@@ -72,34 +67,17 @@ function QRCodeLogin(): React.Node {
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
 
-  const identityContext = React.useContext(IdentityClientContext);
-  const identityClient = identityContext?.identityClient;
-
-  const dispatchActionPromise = useDispatchActionPromise();
+  const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
     async (userID: string) => {
-      invariant(identityClient, 'identity context not set');
       try {
-        const nonce = await identityClient.generateNonce();
-        const nonceSignature = await olmAPI.signMessage(nonce);
-        const challengeResponse: SignedNonce = {
-          nonce,
-          nonceSignature,
-        };
-
-        await dispatchActionPromise(
-          identityLogInActionTypes,
-          identityClient.uploadKeysForRegisteredDeviceAndLogIn(
-            userID,
-            challengeResponse,
-          ),
-        );
+        await secondaryDeviceLogIn(userID);
         setUnauthorizedDeviceID(null);
       } catch (err) {
         console.error('Secondary device registration error:', err);
       }
     },
-    [dispatchActionPromise, identityClient, setUnauthorizedDeviceID],
+    [secondaryDeviceLogIn, setUnauthorizedDeviceID],
   );
 
   const generateQRCode = React.useCallback(async () => {
