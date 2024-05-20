@@ -3,7 +3,7 @@
 import Icon from '@expo/vector-icons/MaterialIcons.js';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 
@@ -23,6 +23,7 @@ import {
   RegistrationTermsRouteName,
 } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 import SIWEPanel from '../siwe-panel.react.js';
 
 type PanelState = 'closed' | 'opening' | 'open' | 'closing';

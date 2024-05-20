@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Alert } from 'react-native';
 
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
@@ -27,6 +26,7 @@ import {
   getFarcasterAccountAlreadyLinkedAlertDetails,
   type AlertDetails,
 } from '../../utils/alert-messages.js';
+import Alert from '../../utils/alert.js';
 import { useStaffCanSee } from '../../utils/staff-utils.js';
 
 export type ConnectFarcasterParams = ?{
