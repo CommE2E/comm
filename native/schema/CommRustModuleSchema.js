@@ -77,6 +77,11 @@ export interface Spec extends TurboModule {
     deviceID: string,
     accessToken: string,
   ) => Promise<void>;
+  +logOutSecondaryDevice: (
+    userID: string,
+    deviceID: string,
+    accessToken: string,
+  ) => Promise<void>;
   +getOutboundKeysForUser: (
     authUserID: string,
     authDeviceID: string,

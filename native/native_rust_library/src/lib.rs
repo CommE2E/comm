@@ -140,6 +140,14 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityLogOutSecondaryDevice"]
+    fn log_out_secondary_device(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityGetOutboundKeysForUser"]
     fn get_outbound_keys_for_user(
       auth_user_id: String,
