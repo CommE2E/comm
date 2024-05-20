@@ -42,7 +42,6 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const [qrCodeValue, setQRCodeValue] = React.useState<?string>();
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
@@ -83,9 +82,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
       const ed25519Key: string = await getContentSigningKey();
 
-      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);
       setUnauthorizedDeviceID(ed25519Key);
-      setQRCodeValue(url);
       setQRData({ deviceID: ed25519Key, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
@@ -95,6 +92,11 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   React.useEffect(() => {
     void generateQRCode();
   }, [generateQRCode]);
+
+  const qrCodeURL = React.useMemo(
+    () => (qrData ? qrCodeLinkURL(qrData.aesKey, qrData.deviceID) : undefined),
+    [qrData],
+  );
 
   const styles = useStyles(unboundStyles);
   return (
@@ -112,7 +114,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         <Text style={styles.headingSubtext}>
           Open the Comm app on your phone and scan the QR code below
         </Text>
-        <QRCode value={qrCodeValue} size={200} />
+        <QRCode value={qrCodeURL} size={200} />
         <View style={styles.instructionsBox}>
           <Text style={styles.instructionsTitle}>How to find the scanner:</Text>
           <Text style={styles.instructionsStep}>

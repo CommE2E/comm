@@ -68,8 +68,6 @@ async function parseTunnelbrokerMessage(
 }
 
 function QRCodeLogin(): React.Node {
-  const [qrCodeValue, setQRCodeValue] = React.useState<?string>();
-
   const [deviceKeys, setDeviceKeys] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
@@ -114,9 +112,7 @@ function QRCodeLogin(): React.Node {
       const rawAESKey: Uint8Array = await generateKeyCommon(crypto);
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
-      const url = qrCodeLinkURL(aesKeyAsHexString, ed25519);
       setUnauthorizedDeviceID(ed25519);
-      setQRCodeValue(url);
       setDeviceKeys({ deviceID: ed25519, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
@@ -126,6 +122,14 @@ function QRCodeLogin(): React.Node {
   React.useEffect(() => {
     void generateQRCode();
   }, [generateQRCode]);
+
+  const qrCodeURL = React.useMemo(
+    () =>
+      deviceKeys
+        ? qrCodeLinkURL(deviceKeys.aesKey, deviceKeys.deviceID)
+        : undefined,
+    [deviceKeys],
+  );
 
   return (
     <>
@@ -141,7 +145,7 @@ function QRCodeLogin(): React.Node {
         <div className={css.scanInstructions}>
           Open the Comm app on your phone and scan the QR code below
         </div>
-        <QRCodeSVG value={qrCodeValue} size={300} marginSize={4} level="L" />
+        <QRCodeSVG value={qrCodeURL} size={300} marginSize={4} level="L" />
         <div className={css.instructionsContainer}>
           <div className={css.instructionsTitle}>How to find the scanner:</div>
           <div className={css.instructionsStep}>
