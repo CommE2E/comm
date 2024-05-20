@@ -6,7 +6,8 @@ import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
 
-import { useWatchThread, threadIsPending } from 'lib/shared/thread-utils.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import ChatInputBar from './chat-input-bar.react.js';
