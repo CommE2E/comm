@@ -3,6 +3,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
 import { useQRAuth } from 'lib/hooks/qr-auth.js';
@@ -19,8 +20,10 @@ import {
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import css from './qr-code-login.css';
+import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import {
   base64DecodeBuffer,
   base64EncodeBuffer,
@@ -82,6 +85,8 @@ function QRCodeLogin(): React.Node {
     }
   }, [setUnauthorizedDeviceID]);
 
+  const { pushModal } = useModalContext();
+
   const logInSecondaryDevice = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
     async (userID: string) => {
@@ -89,10 +94,17 @@ function QRCodeLogin(): React.Node {
         await logInSecondaryDevice(userID);
       } catch (err) {
         console.error('Secondary device registration error:', err);
+        const messageForException = getMessageForException(err);
+        if (
+          messageForException === 'client_version_unsupported' ||
+          messageForException === 'Unsupported version'
+        ) {
+          pushModal(<VersionUnsupportedModal />);
+        }
         void generateQRCode();
       }
     },
-    [logInSecondaryDevice, generateQRCode],
+    [logInSecondaryDevice, pushModal, generateQRCode],
   );
 
   React.useEffect(() => {

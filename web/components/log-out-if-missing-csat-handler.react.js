@@ -10,7 +10,7 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useSelector } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
-import css from './version-handler.css';
+import css from './missing-csat-modal.css';
 import Modal from '../modals/modal.react.js';
 
 type Props = {
