@@ -1,17 +1,15 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
 import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
-import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { BackupKeys } from 'lib/types/backup-types.js';
-import type { SignedNonce } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
@@ -19,7 +17,6 @@ import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
 } from './qr-code-utils.js';
-import { olmAPI } from '../crypto/olm-api.js';
 import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
@@ -46,24 +43,11 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
 
-  const identityContext = React.useContext(IdentityClientContext);
-  const identityClient = identityContext?.identityClient;
-
+  const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
     async (userID: string) => {
-      invariant(identityClient, 'identity context not set');
       try {
-        const nonce = await identityClient.generateNonce();
-        const nonceSignature = await olmAPI.signMessage(nonce);
-        const challengeResponse: SignedNonce = {
-          nonce,
-          nonceSignature,
-        };
-
-        await identityClient.uploadKeysForRegisteredDeviceAndLogIn(
-          userID,
-          challengeResponse,
-        );
+        await secondaryDeviceLogIn(userID);
         setUnauthorizedDeviceID(null);
       } catch (err) {
         console.error('Secondary device registration error:', err);
@@ -72,7 +56,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         ]);
       }
     },
-    [setUnauthorizedDeviceID, identityClient],
+    [secondaryDeviceLogIn, setUnauthorizedDeviceID],
   );
 
   const generateQRCode = React.useCallback(async () => {
