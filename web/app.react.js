@@ -39,7 +39,7 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
 import { AlchemyENSCacheProvider } from 'lib/utils/wagmi-utils.js';
 
-import QrCodeLogin from './account/qr-code-login.react.js';
+import QRCodeLogin from './account/qr-code-login.react.js';
 import AppThemeWrapper from './app-theme-wrapper.react.js';
 import { authoritativeKeyserverID } from './authoritative-keyserver.js';
 import WebEditThreadAvatarProvider from './avatars/web-edit-thread-avatar-provider.react.js';
@@ -255,7 +255,7 @@ class App extends React.PureComponent<Props> {
     const { loginMethod } = this.props.navInfo;
 
     if (loginMethod === 'qr-code') {
-      return <QrCodeLogin />;
+      return <QRCodeLogin />;
     }
 
     return <Splash />;

@@ -42,7 +42,7 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const [qrCodeValue, setQrCodeValue] = React.useState<?string>();
+  const [qrCodeValue, setQRCodeValue] = React.useState<?string>();
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
@@ -85,7 +85,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
       const url = qrCodeLinkURL(aesKeyAsHexString, ed25519Key);
       setUnauthorizedDeviceID(ed25519Key);
-      setQrCodeValue(url);
+      setQRCodeValue(url);
       setQRData({ deviceID: ed25519Key, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
