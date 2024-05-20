@@ -50,8 +50,8 @@ import {
   getNextLocalID,
 } from 'lib/shared/message-utils.js';
 import type { CreationSideEffectsFunc } from 'lib/shared/messages/message-spec.js';
+import { createRealThreadFromPendingThread } from 'lib/shared/thread-actions-utils.js';
 import {
-  createRealThreadFromPendingThread,
   patchThreadInfoToIncludeMentionedMembersOfParent,
   threadInfoInsideCommunity,
   threadIsPending,
