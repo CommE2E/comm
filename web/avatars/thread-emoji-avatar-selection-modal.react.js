@@ -4,10 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { EditThreadAvatarContext } from 'lib/components/base-edit-thread-avatar-provider.react.js';
-import {
-  getDefaultAvatar,
-  useAvatarForThread,
-} from 'lib/shared/avatar-utils.js';
+import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
+import { getDefaultAvatar } from 'lib/shared/avatar-utils.js';
 import type {
   ClientAvatar,
   ClientEmojiAvatar,

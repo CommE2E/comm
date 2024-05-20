@@ -2,10 +2,8 @@
 
 import * as React from 'react';
 
-import {
-  useAvatarForThread,
-  useENSResolvedAvatar,
-} from 'lib/shared/avatar-utils.js';
+import { useAvatarForThread } from 'lib/hooks/avatar-hooks.js';
+import { useENSResolvedAvatar } from 'lib/shared/avatar-utils.js';
 import { getSingleOtherUser } from 'lib/shared/thread-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 import type {
