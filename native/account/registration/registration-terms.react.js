@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, View, Image, Linking, Alert } from 'react-native';
+import { Text, View, Image, Linking } from 'react-native';
 
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
 
@@ -21,6 +21,7 @@ import commSwooshSource from '../../img/comm-swoosh.png';
 import { logInActionType } from '../../navigation/action-types.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles } from '../../themes/colors.js';
+import Alert from '../../utils/alert.js';
 
 export type RegistrationTermsParams = {
   +userSelections: {
