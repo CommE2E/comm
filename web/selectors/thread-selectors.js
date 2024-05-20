@@ -8,10 +8,8 @@ import { ENSCacheContext } from 'lib/components/ens-cache-provider.react.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
-import {
-  createPendingSidebar,
-  threadInHomeChatList,
-} from 'lib/shared/thread-utils.js';
+import { createPendingSidebar } from 'lib/shared/sidebar-utils.js';
+import { threadInHomeChatList } from 'lib/shared/thread-utils.js';
 import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
