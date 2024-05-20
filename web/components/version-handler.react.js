@@ -5,20 +5,8 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { allConnectionInfosSelector } from 'lib/selectors/keyserver-selectors.js';
 
-import css from './version-handler.css';
-import Modal from '../modals/modal.react.js';
+import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { getVersionUnsupportedError } from '../utils/version-utils.js';
-
-function VersionUnsupportedModal(): React.Node {
-  const { popModal } = useModalContext();
-  const message = getVersionUnsupportedError();
-  return (
-    <Modal name="App version unsupported" onClose={popModal} size="large">
-      <div className={css.modalContent}>{message}</div>
-    </Modal>
-  );
-}
 
 function MinVersionHandler(): null {
   const connections = useSelector(allConnectionInfosSelector);
