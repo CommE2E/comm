@@ -10,7 +10,7 @@ import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js'
 import {
   createPendingSidebar,
   createUnresolvedPendingSidebar,
-} from 'lib/shared/thread-utils.js';
+} from 'lib/shared/sidebar-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { ChatMentionCandidates } from 'lib/types/thread-types.js';
 import type { LoggedInUserInfo } from 'lib/types/user-types.js';

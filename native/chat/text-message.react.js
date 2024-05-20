@@ -5,10 +5,8 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils.js';
-import {
-  useCanCreateSidebarFromMessage,
-  useThreadHasPermission,
-} from 'lib/shared/thread-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/sidebar-utils.js';
+import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
