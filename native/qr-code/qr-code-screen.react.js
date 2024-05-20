@@ -41,14 +41,12 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
-  const { setUnauthorizedDeviceID } = useTunnelbroker();
 
   const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
     async (userID: string) => {
       try {
         await secondaryDeviceLogIn(userID);
-        setUnauthorizedDeviceID(null);
       } catch (err) {
         console.error('Secondary device registration error:', err);
         Alert.alert('Registration failed', 'Failed to upload device keys', [
@@ -56,9 +54,10 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
         ]);
       }
     },
-    [secondaryDeviceLogIn, setUnauthorizedDeviceID],
+    [secondaryDeviceLogIn],
   );
 
+  const { setUnauthorizedDeviceID } = useTunnelbroker();
   const generateQRCode = React.useCallback(async () => {
     try {
       const [ed25519, rawAESKey] = await Promise.all([

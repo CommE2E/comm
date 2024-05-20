@@ -65,21 +65,20 @@ async function parseTunnelbrokerMessage(
 function QRCodeLogin(): React.Node {
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
-  const { setUnauthorizedDeviceID } = useTunnelbroker();
 
   const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
     async (userID: string) => {
       try {
         await secondaryDeviceLogIn(userID);
-        setUnauthorizedDeviceID(null);
       } catch (err) {
         console.error('Secondary device registration error:', err);
       }
     },
-    [secondaryDeviceLogIn, setUnauthorizedDeviceID],
+    [secondaryDeviceLogIn],
   );
 
+  const { setUnauthorizedDeviceID } = useTunnelbroker();
   const generateQRCode = React.useCallback(async () => {
     try {
       const [ed25519, rawAESKey] = await Promise.all([
