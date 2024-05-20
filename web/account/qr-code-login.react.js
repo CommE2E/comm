@@ -66,18 +66,6 @@ function QRCodeLogin(): React.Node {
   const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
 
-  const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
-  const performRegistration = React.useCallback(
-    async (userID: string) => {
-      try {
-        await secondaryDeviceLogIn(userID);
-      } catch (err) {
-        console.error('Secondary device registration error:', err);
-      }
-    },
-    [secondaryDeviceLogIn],
-  );
-
   const { setUnauthorizedDeviceID } = useTunnelbroker();
   const generateQRCode = React.useCallback(async () => {
     try {
@@ -93,6 +81,19 @@ function QRCodeLogin(): React.Node {
       console.error('Failed to generate QR Code:', err);
     }
   }, [setUnauthorizedDeviceID]);
+
+  const secondaryDeviceLogIn = useSecondaryDeviceLogIn();
+  const performRegistration = React.useCallback(
+    async (userID: string) => {
+      try {
+        await secondaryDeviceLogIn(userID);
+      } catch (err) {
+        console.error('Secondary device registration error:', err);
+        void generateQRCode();
+      }
+    },
+    [secondaryDeviceLogIn, generateQRCode],
+  );
 
   React.useEffect(() => {
     void generateQRCode();
