@@ -68,7 +68,7 @@ async function parseTunnelbrokerMessage(
 }
 
 function QRCodeLogin(): React.Node {
-  const [deviceKeys, setDeviceKeys] =
+  const [qrData, setQRData] =
     React.useState<?{ +deviceID: string, +aesKey: string }>();
   const { setUnauthorizedDeviceID } = useTunnelbroker();
 
@@ -111,7 +111,7 @@ function QRCodeLogin(): React.Node {
       const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
 
       setUnauthorizedDeviceID(ed25519);
-      setDeviceKeys({ deviceID: ed25519, aesKey: aesKeyAsHexString });
+      setQRData({ deviceID: ed25519, aesKey: aesKeyAsHexString });
     } catch (err) {
       console.error('Failed to generate QR Code:', err);
     }
@@ -122,18 +122,15 @@ function QRCodeLogin(): React.Node {
   }, [generateQRCode]);
 
   const qrCodeURL = React.useMemo(
-    () =>
-      deviceKeys
-        ? qrCodeLinkURL(deviceKeys.aesKey, deviceKeys.deviceID)
-        : undefined,
-    [deviceKeys],
+    () => (qrData ? qrCodeLinkURL(qrData.aesKey, qrData.deviceID) : undefined),
+    [qrData],
   );
 
   return (
     <>
       <QRAuthHandler
-        secondaryDeviceID={deviceKeys?.deviceID}
-        aesKey={deviceKeys?.aesKey}
+        secondaryDeviceID={qrData?.deviceID}
+        aesKey={qrData?.aesKey}
         performSecondaryDeviceRegistration={performRegistration}
         composeMessage={composeTunnelbrokerMessage}
         processMessage={parseTunnelbrokerMessage}
