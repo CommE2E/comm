@@ -19,6 +19,13 @@ OperationType MessageStore::REMOVE_MESSAGE_THREADS_OPERATION = "remove_threads";
 OperationType MessageStore::REMOVE_ALL_MESSAGE_THREADS_OPERATION =
     "remove_all_threads";
 
+OperationType MessageStore::REPLACE_MESSAGE_LOCAL_MESSAGE_INFO_OPERATION =
+    "replace_local_message_info";
+OperationType MessageStore::REMOVE_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION =
+    "remove_local_message_infos";
+OperationType MessageStore::REMOVE_ALL_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION =
+    "remove_all_local_message_infos";
+
 MessageStore::MessageStore(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : BaseDataStore(jsInvoker) {
@@ -93,6 +100,11 @@ std::vector<std::unique_ptr<DBOperationBase>> MessageStore::createOperations(
           std::make_unique<RemoveAllMessageStoreThreadsOperation>());
       continue;
     }
+    if (op_type == REMOVE_ALL_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<RemoveAllMessageStoreLocalMessageInfosOperation>());
+      continue;
+    }
 
     auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
     if (op_type == REMOVE_OPERATION) {
@@ -106,17 +118,23 @@ std::vector<std::unique_ptr<DBOperationBase>> MessageStore::createOperations(
     } else if (op_type == REPLACE_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<ReplaceMessageOperation>(rt, payload_obj));
-
     } else if (op_type == REKEY_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RekeyMessageOperation>(rt, payload_obj));
-
     } else if (op_type == REPLACE_MESSAGE_THREADS_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<ReplaceMessageThreadsOperation>(rt, payload_obj));
     } else if (op_type == REMOVE_MESSAGE_THREADS_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RemoveMessageStoreThreadsOperation>(
+              rt, payload_obj));
+    } else if (op_type == REPLACE_MESSAGE_LOCAL_MESSAGE_INFO_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<ReplaceMessageStoreLocalMessageInfoOperation>(
+              rt, payload_obj));
+    } else if (op_type == REMOVE_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION) {
+      messageStoreOps.push_back(
+          std::make_unique<RemoveMessageStoreLocalMessageInfosOperation>(
               rt, payload_obj));
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
