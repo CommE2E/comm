@@ -15,16 +15,17 @@ RUN mkdir -p /home/comm/app/identity
 WORKDIR /home/comm/app/identity
 RUN cargo init --bin
 
-COPY services/identity/Cargo.toml services/identity/Cargo.lock ./
+# Copy and prepare cargo workspace
+COPY Cargo.toml ../../Cargo.toml
+COPY Cargo.lock ../../Cargo.lock
+# Remove rust-node-addon and native_rust_library from cargo workspace
+RUN sed -i -E '/rust-node-addon|native_rust_library/d' ../../Cargo.toml
+
+# Copy actual application sources
 COPY shared/ ../../shared/
-
-# Cache build dependencies in a new layer
-RUN cargo build --release
-RUN rm src/*.rs
-
 COPY services/identity .
 
-RUN cargo install --locked --path .
+RUN cargo build --release --target-dir /out
 
 FROM debian:bullseye-slim
 
@@ -35,7 +36,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 WORKDIR /home/comm/app/identity
 
-COPY --from=builder /usr/local/cargo/bin/identity \
+COPY --from=builder /out/release/identity \
   /usr/local/bin/identity
 
 # For test/debug builds, optionally generate OPAQUE keypair file

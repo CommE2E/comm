@@ -5,17 +5,22 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /home/root/app/
 
-WORKDIR /home/root/app
+WORKDIR /home/root/services/tunnelbroker
 
 # Install more recent version of protobuf, must be ran as root
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
 RUN ../../scripts/install_protobuf.sh
 
-COPY services/tunnelbroker .
+# Copy and prepare cargo workspace
+COPY Cargo.toml ../../Cargo.toml
+COPY Cargo.lock ../../Cargo.lock
+# Remove rust-node-addon and native_rust_library from cargo workspace
+RUN sed -i -E '/rust-node-addon|native_rust_library/d' ../../Cargo.toml
 
+COPY services/tunnelbroker .
 COPY shared ../../shared/
 
-RUN cargo install --locked --path .
+RUN cargo build --release --target-dir /out
 
 FROM debian:bullseye-slim as runner
 
@@ -27,7 +32,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 
 WORKDIR /home/comm/app/tunnelbroker
 
-COPY --from=builder /usr/local/cargo/bin/tunnelbroker \
+COPY --from=builder /out/release/tunnelbroker \
   /usr/local/bin/tunnelbroker
 
 USER comm
