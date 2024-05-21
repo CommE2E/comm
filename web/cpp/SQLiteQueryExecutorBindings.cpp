@@ -68,6 +68,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field(
           "threadActivityStoreEntry",
           &ThreadActivityEntry::thread_activity_store_entry);
+  value_object<EntryInfo>("EntryInfo")
+      .field("id", &EntryInfo::id)
+      .field("entry", &EntryInfo::entry);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -237,6 +240,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "getAllThreadActivityEntries",
           &SQLiteQueryExecutor::getAllThreadActivityEntries)
+      .function("replaceEntry", &SQLiteQueryExecutor::replaceEntry)
+      .function("removeEntries", &SQLiteQueryExecutor::removeEntries)
+      .function("removeAllEntries", &SQLiteQueryExecutor::removeAllEntries)
+      .function("getAllEntries", &SQLiteQueryExecutor::getAllEntries)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
