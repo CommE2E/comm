@@ -143,24 +143,28 @@ pub struct RegisterReservedWalletUserInfo {
   pub initial_device_list: String,
 }
 
+/// Counterpart of proto [`AuthResponse`] message
+/// that implements the `Serialize` trait.
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UserIDAndDeviceAccessToken {
+pub struct IdentityAuthResult {
   #[serde(rename = "userID")]
   user_id: String,
   access_token: String,
+  username: String,
 }
 
-impl From<AuthResponse> for UserIDAndDeviceAccessToken {
+impl From<AuthResponse> for IdentityAuthResult {
   fn from(value: AuthResponse) -> Self {
     let AuthResponse {
       user_id,
       access_token,
-      ..
+      username,
     } = value;
     Self {
       user_id,
       access_token,
+      username,
     }
   }
 }

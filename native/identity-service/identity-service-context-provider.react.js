@@ -79,12 +79,8 @@ function IdentityServiceContextProvider(props: Props): React.Node {
     return { deviceID, userID, accessToken };
   }, [accessToken]);
 
-  const processAuthResult = async (
-    authResult: string,
-    username: string,
-    deviceID: string,
-  ) => {
-    const { userID, accessToken: token } = JSON.parse(authResult);
+  const processAuthResult = async (authResult: string, deviceID: string) => {
+    const { userID, accessToken: token, username } = JSON.parse(authResult);
     const identityAuthResult = {
       accessToken: token,
       userID,
@@ -372,7 +368,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           registrationResult,
-          username,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -414,7 +409,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           registrationResult,
-          username,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -438,7 +432,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           loginResult,
-          username,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -478,7 +471,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           registrationResult,
-          walletAddress,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -521,7 +513,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           registrationResult,
-          walletAddress,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -549,7 +540,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
 
         return await processAuthResult(
           loginResult,
-          walletAddress,
           primaryIdentityPublicKeys.ed25519,
         );
       },
@@ -582,21 +572,11 @@ function IdentityServiceContextProvider(props: Props): React.Node {
             getOneTimeKeyValues(contentOneTimeKeys),
             getOneTimeKeyValues(notificationsOneTimeKeys),
           );
-        const { accessToken: token } = JSON.parse(registrationResult);
 
-        const identityAuthResult = { accessToken: token, userID, username: '' };
-        const validatedResult = assertWithValidator(
-          identityAuthResult,
-          identityAuthResultValidator,
-        );
-
-        await commCoreModule.setCommServicesAuthMetadata(
-          validatedResult.userID,
+        return await processAuthResult(
+          registrationResult,
           primaryIdentityPublicKeys.ed25519,
-          validatedResult.accessToken,
         );
-
-        return validatedResult;
       },
       generateNonce: commRustModule.generateNonce,
       getDeviceListHistoryForUser: async (
