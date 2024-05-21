@@ -20,14 +20,18 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       ErrorConflict("blob already exists")
     }
     BlobServiceError::DB(db_err) => match db_err {
-      DBError::AwsSdk(DynamoDBError::InternalServerError(_))
-      | DBError::AwsSdk(
-        DynamoDBError::ProvisionedThroughputExceededException(_),
-      )
-      | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
-        warn!("AWS transient error occurred");
-        ErrorServiceUnavailable("please retry")
-      }
+      DBError::AwsSdk(aws_err) => match aws_err.as_ref() {
+        DynamoDBError::InternalServerError(_)
+        | DynamoDBError::ProvisionedThroughputExceededException(_)
+        | DynamoDBError::RequestLimitExceeded(_) => {
+          warn!("AWS transient error occurred");
+          ErrorServiceUnavailable("please retry")
+        }
+        unexpected => {
+          error!("Received an unexpected AWS error: {0:?} - {0}", unexpected);
+          ErrorInternalServerError("server error")
+        }
+      },
       DBError::Blob(BlobDBError::InvalidInput(_)) => {
         ErrorBadRequest("bad request")
       }
@@ -37,11 +41,16 @@ pub(super) fn handle_blob_service_error(err: &BlobServiceError) -> HttpError {
       }
     },
     BlobServiceError::S3(s3_err) => match s3_err {
-      S3Error::AwsSdk(aws_sdk_s3::Error::NotFound(_))
-      | S3Error::AwsSdk(aws_sdk_s3::Error::NoSuchKey(_)) => {
-        error!("Data inconsistency! Blob is present in database but not present in S3!");
-        ErrorInternalServerError("server error")
-      }
+      S3Error::AwsSdk(aws_err) => match aws_err.as_ref() {
+        aws_sdk_s3::Error::NotFound(_) | aws_sdk_s3::Error::NoSuchKey(_) => {
+          error!("Data inconsistency! Blob is present in database but not present in S3!");
+          ErrorInternalServerError("server error")
+        }
+        err => {
+          error!("Received an unexpected AWS S3 error: {0:?} - {0}", err);
+          ErrorInternalServerError("server error")
+        }
+      },
       S3Error::EmptyUpload => ErrorBadRequest("empty upload"),
       unexpected => {
         error!("Received an unexpected S3 error: {0:?} - {0}", unexpected);
