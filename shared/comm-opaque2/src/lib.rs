@@ -22,7 +22,7 @@ pub fn test_register_and_login() {
   let mut client_register = client::Registration::new();
   let client_message = client_register.start(pass).unwrap();
 
-  let mut server_register = server::Registration::new();
+  let server_register = server::Registration::new();
   let server_response = server_register
     .start(&server_setup, &client_message, username.as_bytes())
     .unwrap();
