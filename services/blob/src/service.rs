@@ -168,7 +168,7 @@ impl BlobService {
     if let Some(invite_secret) =
       blob_hash.strip_prefix(INVITE_LINK_BLOB_HASH_PREFIX)
     {
-      Self::validate_invite_link_blob_hash(&invite_secret)?;
+      Self::validate_invite_link_blob_hash(invite_secret)?;
     }
 
     let mut upload_session =

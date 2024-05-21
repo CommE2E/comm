@@ -5,7 +5,6 @@ use tracing::{debug, error, warn};
 use crate::{
   constants::{error_types, DEVICE_LIST_TIMESTAMP_VALID_FOR},
   database::{DeviceListRow, DeviceListUpdate},
-  ddb_utils::DateTimeExt,
   error::DeviceListError,
   grpc_services::protos::auth::UpdateDeviceListRequest,
 };
@@ -102,14 +101,14 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
       devices,
       timestamp: raw_timestamp,
     } = signed_list.as_raw()?;
-    let timestamp = DateTime::<Utc>::from_utc_timestamp_millis(raw_timestamp)
-      .ok_or_else(|| {
-      error!(
-        errorType = error_types::GRPC_SERVICES_LOG,
-        "Failed to parse RawDeviceList timestamp!"
-      );
-      tonic::Status::invalid_argument("invalid timestamp")
-    })?;
+    let timestamp =
+      DateTime::from_timestamp_millis(raw_timestamp).ok_or_else(|| {
+        error!(
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "Failed to parse RawDeviceList timestamp!"
+        );
+        tonic::Status::invalid_argument("invalid timestamp")
+      })?;
     Ok(DeviceListUpdate {
       devices,
       timestamp,
@@ -445,7 +444,7 @@ mod tests {
       .expect("Failed to parse DeviceListUpdate from signed list");
 
     let expected_timestamp =
-      DateTime::<Utc>::from_utc_timestamp_millis(123456789).unwrap();
+      DateTime::from_timestamp_millis(123456789).unwrap();
 
     assert_eq!(update.timestamp, expected_timestamp);
     assert_eq!(
@@ -492,8 +491,7 @@ mod tests {
     DeviceListRow {
       user_id: "".to_string(),
       device_ids: raw_list.devices,
-      timestamp: DateTime::<Utc>::from_utc_timestamp_millis(raw_list.timestamp)
-        .unwrap(),
+      timestamp: DateTime::from_timestamp_millis(raw_list.timestamp).unwrap(),
       current_primary_signature: None,
       last_primary_signature: None,
     }

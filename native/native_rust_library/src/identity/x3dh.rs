@@ -86,6 +86,7 @@ pub mod ffi {
     });
   }
 
+  #[allow(clippy::too_many_arguments)]
   pub fn refresh_user_prekeys(
     auth_user_id: String,
     auth_device_id: String,

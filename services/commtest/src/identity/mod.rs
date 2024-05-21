@@ -1,5 +1,5 @@
 use base64::Engine;
-use ed25519_dalek::{ed25519::signature::SignerMut, Keypair, Signature};
+use ed25519_dalek::{ed25519::signature::Signer, Keypair, Signature};
 use rand::rngs::OsRng;
 
 use self::olm_account_infos::{
@@ -37,7 +37,7 @@ impl SigningCapableAccount {
   }
 
   /// signs message, returns signature
-  pub fn sign_message(&mut self, message: &str) -> String {
+  pub fn sign_message(&self, message: &str) -> String {
     let signature: Signature = self.signing_key.sign(message.as_bytes());
     base64::engine::general_purpose::STANDARD_NO_PAD
       .encode(signature.to_bytes())
