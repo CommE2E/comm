@@ -640,6 +640,15 @@ bool create_received_messages_to_device(sqlite3 *db) {
   return create_table(db, query, "received_messages_to_device");
 }
 
+bool create_message_store_local_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS message_store_local ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   local_message_info TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "message_store_local");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -775,6 +784,11 @@ bool create_schema(sqlite3 *db) {
       "  sender_device_id TEXT NOT NULL,"
       "  plaintext TEXT NOT NULL,"
       "  status TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS message_store_local ("
+      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "   local_message_info TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -1030,7 +1044,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {41, {create_aux_user_table, true}},
      {42, {add_version_column_to_olm_persist_sessions_table, true}},
      {43, {create_thread_activity_table, true}},
-     {44, {create_received_messages_to_device, true}}}};
+     {44, {create_received_messages_to_device, true}},
+     {45, {create_message_store_local_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
