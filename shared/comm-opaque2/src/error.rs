@@ -8,15 +8,15 @@ use wasm_bindgen::{JsError, JsValue};
 #[derive(Debug)]
 pub struct OpaqueError(ProtocolError);
 
-impl Into<JsValue> for OpaqueError {
-  fn into(self) -> JsValue {
-    JsValue::from(protocol_error_to_js_error(self.0))
+impl From<OpaqueError> for JsValue {
+  fn from(value: OpaqueError) -> Self {
+    Self::from(protocol_error_to_js_error(value.0))
   }
 }
 
-impl Into<ProtocolError> for OpaqueError {
-  fn into(self) -> ProtocolError {
-    self.0
+impl From<OpaqueError> for ProtocolError {
+  fn from(value: OpaqueError) -> Self {
+    value.0
   }
 }
 
