@@ -3,6 +3,7 @@ pub mod config;
 pub mod get_farcaster_users;
 pub mod get_inbound_keys_for_user;
 pub mod login;
+pub mod nonce;
 pub mod prekey;
 pub mod register_user;
 pub mod remove_reserved_usernames;
