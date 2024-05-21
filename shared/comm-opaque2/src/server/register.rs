@@ -38,3 +38,9 @@ impl Registration {
     )
   }
 }
+
+impl Default for Registration {
+  fn default() -> Self {
+    Self::new()
+  }
+}

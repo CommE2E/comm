@@ -45,11 +45,8 @@ impl Login {
     let password = self
       .password
       .take()
-      .ok_or_else(|| ProtocolError::InvalidLoginError)?;
-    let state = self
-      .state
-      .take()
-      .ok_or_else(|| ProtocolError::InvalidLoginError)?;
+      .ok_or(ProtocolError::InvalidLoginError)?;
+    let state = self.state.take().ok_or(ProtocolError::InvalidLoginError)?;
     let result = state.finish(
       password.as_bytes(),
       response,
@@ -68,5 +65,11 @@ impl Login {
       Some(v) => Ok(v.clone()),
       None => Err(ProtocolError::InvalidLoginError.into()),
     }
+  }
+}
+
+impl Default for Login {
+  fn default() -> Self {
+    Self::new()
   }
 }

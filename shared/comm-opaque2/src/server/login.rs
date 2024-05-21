@@ -55,12 +55,15 @@ impl Login {
     let finalization_payload =
       CredentialFinalization::deserialize(response_payload)?;
 
-    let state = self
-      .state
-      .take()
-      .ok_or_else(|| ProtocolError::InvalidLoginError)?;
+    let state = self.state.take().ok_or(ProtocolError::InvalidLoginError)?;
     let result = state.finish(finalization_payload)?;
     self.session_key = Some(result.session_key.to_vec());
     Ok(())
+  }
+}
+
+impl Default for Login {
+  fn default() -> Self {
+    Self::new()
   }
 }
