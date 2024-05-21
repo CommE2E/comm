@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
+  useValue,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
 
@@ -51,210 +52,215 @@ type Props = {
   +setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
   +dimensions: DimensionsInfo,
 };
-class MediaGalleryMedia extends React.PureComponent<Props> {
-  focusProgress: Reanimated.Value = new Reanimated.Value(0);
-  buttonsStyle: AnimatedViewStyle;
-  mediaStyle: AnimatedStyleObj;
-  checkProgress: AnimatedValue = new Animated.Value(0);
+function MediaGalleryMedia(props: Props): React.Node {
+  const {
+    setMediaQueued,
+    sendMedia,
+    setFocus,
+    isFocused,
+    isQueued,
+    selection,
+    containerHeight,
+    queueModeActive,
+    dimensions,
+  } = props;
+  const focusProgress: Reanimated.Value = useValue(0);
+  const checkProgress: AnimatedValue = React.useMemo(
+    () => new Animated.Value(0),
+    [],
+  );
 
-  constructor(props: Props) {
-    super(props);
-
-    const buttonsScale = Reanimated.interpolateNode(this.focusProgress, {
+  const buttonsStyle: AnimatedViewStyle = React.useMemo(() => {
+    const buttonsScale = Reanimated.interpolateNode(focusProgress, {
       inputRange: [0, 1],
       outputRange: [1.3, 1],
     });
-    this.buttonsStyle = {
+    return {
       ...styles.buttons,
-      opacity: this.focusProgress,
+      opacity: focusProgress,
       transform: [{ scale: buttonsScale }],
-      marginBottom: this.props.dimensions.bottomInset,
+      marginBottom: dimensions.bottomInset,
     };
+  }, [focusProgress, dimensions.bottomInset]);
 
-    const mediaScale = Reanimated.interpolateNode(this.focusProgress, {
+  const mediaStyle: AnimatedStyleObj = React.useMemo(() => {
+    const mediaScale = Reanimated.interpolateNode(focusProgress, {
       inputRange: [0, 1],
       outputRange: [1, 1.3],
     });
-    this.mediaStyle = {
+    return {
       transform: [{ scale: mediaScale }],
     };
-  }
+  }, [focusProgress]);
 
-  static isActive(props: Props): boolean {
-    return props.isFocused || props.isQueued;
-  }
+  const prevActivityStatus = React.useRef({
+    isFocused: false,
+    isQueued: false,
+  });
 
-  componentDidMount() {
-    const isActive = MediaGalleryMedia.isActive(this.props);
-    if (isActive) {
-      Reanimated.timing(this.focusProgress, {
-        ...reanimatedSpec,
-        toValue: 1,
-      }).start();
-    }
+  React.useEffect(() => {
+    const isActive = isFocused || isQueued;
+    const wasActive =
+      prevActivityStatus.current.isFocused ||
+      prevActivityStatus.current.isQueued;
 
-    if (this.props.isQueued) {
-      // When I updated to React Native 0.60, I also updated Lottie. At that
-      // time, on iOS the last frame of the animation drops the circle outlining
-      // the checkmark. This is a hack to get around that
-      const maxValue = Platform.OS === 'ios' ? 0.99 : 1;
-      Animated.timing(this.checkProgress, {
-        ...animatedSpec,
-        toValue: maxValue,
-      }).start();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const isActive = MediaGalleryMedia.isActive(this.props);
-    const wasActive = MediaGalleryMedia.isActive(prevProps);
     if (isActive && !wasActive) {
-      Reanimated.timing(this.focusProgress, {
+      Reanimated.timing(focusProgress, {
         ...reanimatedSpec,
         toValue: 1,
       }).start();
     } else if (!isActive && wasActive) {
-      Reanimated.timing(this.focusProgress, {
+      Reanimated.timing(focusProgress, {
         ...reanimatedSpec,
         toValue: 0,
       }).start();
     }
 
-    if (this.props.isQueued && !prevProps.isQueued) {
+    if (isQueued && !prevActivityStatus.current.isQueued) {
       // When I updated to React Native 0.60, I also updated Lottie. At that
       // time, on iOS the last frame of the animation drops the circle outlining
       // the checkmark. This is a hack to get around that
       const maxValue = Platform.OS === 'ios' ? 0.99 : 1;
-      Animated.timing(this.checkProgress, {
+      Animated.timing(checkProgress, {
         ...animatedSpec,
         toValue: maxValue,
       }).start();
-    } else if (!this.props.isQueued && prevProps.isQueued) {
-      Animated.timing(this.checkProgress, {
+    } else if (!isQueued && prevActivityStatus.current.isQueued) {
+      Animated.timing(checkProgress, {
         ...animatedSpec,
         toValue: 0,
       }).start();
     }
+
+    prevActivityStatus.current = {
+      isFocused: isFocused,
+      isQueued: isQueued,
+    };
+  }, [checkProgress, focusProgress, isFocused, isQueued]);
+
+  const onPressBackdrop = React.useCallback(() => {
+    if (isQueued) {
+      setMediaQueued(selection, false);
+    } else if (queueModeActive) {
+      setMediaQueued(selection, true);
+    } else {
+      setFocus(selection, !isFocused);
+    }
+  }, [
+    isQueued,
+    queueModeActive,
+    setMediaQueued,
+    selection,
+    setFocus,
+    isFocused,
+  ]);
+
+  const onPressSend = React.useCallback(() => {
+    sendMedia(selection);
+  }, [selection, sendMedia]);
+
+  const onPressEnqueue = React.useCallback(() => {
+    setMediaQueued(selection, true);
+  }, [selection, setMediaQueued]);
+
+  const {
+    uri,
+    dimensions: { width, height },
+    step,
+  } = selection;
+  const active = isFocused || isQueued;
+
+  const dimensionsStyle: { +height: number, +width: number } =
+    React.useMemo(() => {
+      const scaledWidth = height ? (width * containerHeight) / height : 0;
+
+      return {
+        height: containerHeight,
+        width: Math.max(Math.min(scaledWidth, width), 150),
+      };
+    }, [containerHeight, height, width]);
+
+  let buttons = null;
+  if (!queueModeActive) {
+    buttons = (
+      <>
+        <TouchableOpacity
+          onPress={onPressSend}
+          style={styles.sendButton}
+          activeOpacity={0.6}
+          disabled={!active}
+        >
+          <Icon name="send" style={styles.buttonIcon} />
+          <Text style={styles.buttonText}>Send</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onPressEnqueue}
+          style={styles.enqueueButton}
+          activeOpacity={0.6}
+          disabled={!active}
+        >
+          <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
+          <Text style={styles.buttonText}>Queue</Text>
+        </TouchableOpacity>
+      </>
+    );
   }
 
-  render(): React.Node {
-    const { selection, containerHeight } = this.props;
-    const {
-      uri,
-      dimensions: { width, height },
-      step,
-    } = selection;
-    const active = MediaGalleryMedia.isActive(this.props);
-    const scaledWidth = height ? (width * containerHeight) / height : 0;
-    const dimensionsStyle: { +height: number, +width: number } = {
-      height: containerHeight,
-      width: Math.max(Math.min(scaledWidth, this.props.dimensions.width), 150),
-    };
-
-    let buttons = null;
-    const { queueModeActive } = this.props;
-    if (!queueModeActive) {
-      buttons = (
-        <>
-          <TouchableOpacity
-            onPress={this.onPressSend}
-            style={styles.sendButton}
-            activeOpacity={0.6}
-            disabled={!active}
-          >
-            <Icon name="send" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Send</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={this.onPressEnqueue}
-            style={styles.enqueueButton}
-            activeOpacity={0.6}
-            disabled={!active}
-          >
-            <MaterialIcon name="add-to-photos" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Queue</Text>
-          </TouchableOpacity>
-        </>
-      );
-    }
-
-    let media;
-    const source = { uri };
-    if (step === 'video_library') {
-      let resizeMode = 'contain';
-      if (Platform.OS === 'ios') {
-        const [major, minor] = Platform.Version.split('.');
-        if (parseInt(major, 10) === 14 && parseInt(minor, 10) < 2) {
-          resizeMode = 'stretch';
-        }
+  let media;
+  const source = { uri };
+  if (step === 'video_library') {
+    let resizeMode = 'contain';
+    if (Platform.OS === 'ios') {
+      const [major, minor] = Platform.Version.split('.');
+      if (parseInt(major, 10) === 14 && parseInt(minor, 10) < 2) {
+        resizeMode = 'stretch';
       }
-      media = (
-        <AnimatedView style={this.mediaStyle}>
-          <Video
-            source={source}
-            repeat={true}
-            muted={true}
-            resizeMode={resizeMode}
-            style={dimensionsStyle}
-          />
-        </AnimatedView>
-      );
-    } else {
-      media = (
-        <AnimatedImage
-          source={source}
-          style={[this.mediaStyle, dimensionsStyle]}
-        />
-      );
     }
-
-    const overlay = (
-      <AnimatedView style={this.buttonsStyle}>
-        <LottieView
-          source={require('../animations/check.json')}
-          progress={this.checkProgress}
-          style={styles.checkAnimation}
-          resizeMode="cover"
+    media = (
+      <AnimatedView style={mediaStyle}>
+        <Video
+          source={source}
+          repeat={true}
+          muted={true}
+          resizeMode={resizeMode}
+          style={dimensionsStyle}
         />
       </AnimatedView>
     );
-
-    return (
-      <View style={[styles.container, dimensionsStyle]}>
-        <GestureTouchableOpacity
-          onPress={this.onPressBackdrop}
-          overlay={overlay}
-          stickyActive={active}
-        >
-          {media}
-        </GestureTouchableOpacity>
-        <AnimatedView
-          style={this.buttonsStyle}
-          pointerEvents={active ? 'box-none' : 'none'}
-        >
-          {buttons}
-        </AnimatedView>
-      </View>
+  } else {
+    media = (
+      <AnimatedImage source={source} style={[mediaStyle, dimensionsStyle]} />
     );
   }
 
-  onPressBackdrop: () => void = () => {
-    if (this.props.isQueued) {
-      this.props.setMediaQueued(this.props.selection, false);
-    } else if (this.props.queueModeActive) {
-      this.props.setMediaQueued(this.props.selection, true);
-    } else {
-      this.props.setFocus(this.props.selection, !this.props.isFocused);
-    }
-  };
+  const overlay = (
+    <AnimatedView style={buttonsStyle}>
+      <LottieView
+        source={require('../animations/check.json')}
+        progress={checkProgress}
+        style={styles.checkAnimation}
+        resizeMode="cover"
+      />
+    </AnimatedView>
+  );
 
-  onPressSend: () => void = () => {
-    this.props.sendMedia(this.props.selection);
-  };
-
-  onPressEnqueue: () => void = () => {
-    this.props.setMediaQueued(this.props.selection, true);
-  };
+  return (
+    <View style={[styles.container, dimensionsStyle]}>
+      <GestureTouchableOpacity
+        onPress={onPressBackdrop}
+        overlay={overlay}
+        stickyActive={active}
+      >
+        {media}
+      </GestureTouchableOpacity>
+      <AnimatedView
+        style={buttonsStyle}
+        pointerEvents={active ? 'box-none' : 'none'}
+      >
+        {buttons}
+      </AnimatedView>
+    </View>
+  );
 }
 
 const buttonStyle = {
