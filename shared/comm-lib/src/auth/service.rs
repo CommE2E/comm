@@ -131,8 +131,7 @@ async fn time_since_rotation(
   let duration = result
     .last_rotated_date()
     .and_then(|date| date.to_millis().ok())
-    .and_then(NaiveDateTime::from_timestamp_millis)
-    .map(|naive| DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
+    .and_then(DateTime::from_timestamp_millis)
     .map(|last_rotated| Utc::now().signed_duration_since(last_rotated));
   Ok(duration)
 }

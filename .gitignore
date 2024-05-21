@@ -55,3 +55,6 @@ desktop/out/
 desktop/assets/
 desktop/dist/
 desktop/*.provisionprofile
+
+# Cargo workspace
+target/

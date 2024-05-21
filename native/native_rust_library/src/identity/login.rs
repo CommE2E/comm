@@ -15,6 +15,7 @@ use super::{
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
+#[allow(clippy::too_many_arguments)]
 pub mod ffi {
   use crate::identity::{
     DeviceKeys, LogInPasswordUserInfo, LogInWalletUserInfo,

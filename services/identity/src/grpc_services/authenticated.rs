@@ -7,10 +7,9 @@ use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
   constants::{error_types, request_metadata},
   database::DatabaseClient,
-  ddb_utils::DateTimeExt,
   grpc_services::shared::get_value,
 };
-use chrono::{DateTime, Utc};
+use chrono::DateTime;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, trace, warn};
@@ -445,7 +444,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let since = since_timestamp
       .map(|timestamp| {
-        DateTime::<Utc>::from_utc_timestamp_millis(timestamp)
+        DateTime::from_timestamp_millis(timestamp)
           .ok_or_else(|| tonic::Status::invalid_argument("Invalid timestamp"))
       })
       .transpose()?;

@@ -121,6 +121,7 @@ mod tests {
     ));
   }
 
+  #[allow(clippy::bool_assert_comparison)]
   #[test]
   fn test_invalid_ethereum_address() {
     // Shorter than 42 characters
