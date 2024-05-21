@@ -9,6 +9,7 @@ use tracing::debug;
 
 #[napi]
 #[instrument(skip_all)]
+#[allow(clippy::too_many_arguments)]
 pub async fn login_user(
   username: String,
   password: String,

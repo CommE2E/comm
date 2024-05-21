@@ -29,11 +29,13 @@ mod tests {
     ));
   }
 
+  #[allow(clippy::bool_assert_comparison)]
   #[test]
   fn test_invalid_username_too_short() {
     assert_eq!(is_valid_username(""), false);
   }
 
+  #[allow(clippy::bool_assert_comparison)]
   #[test]
   fn test_invalid_username_too_long() {
     assert_eq!(
@@ -42,11 +44,13 @@ mod tests {
     );
   }
 
+  #[allow(clippy::bool_assert_comparison)]
   #[test]
   fn test_invalid_username_first_char_non_alphanumeric() {
     assert_eq!(is_valid_username("-asdf"), false);
   }
 
+  #[allow(clippy::bool_assert_comparison)]
   #[test]
   fn test_invalid_username_invalid_symbol() {
     assert_eq!(is_valid_username("asdf$"), false);
