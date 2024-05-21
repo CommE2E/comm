@@ -11,7 +11,6 @@ anyhow = { workspace = true }
 async-stream = { workspace = true }
 aws-config = { workspace = true }
 aws-sdk-dynamodb = { workspace = true }
-aws-types = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true, features = ["derive", "env"] }
 comm-lib = { path = "../../shared/comm-lib", features = [
