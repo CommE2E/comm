@@ -2310,7 +2310,6 @@ dependencies = [
  "anyhow",
  "aws-config",
  "aws-sdk-dynamodb",
- "aws-types",
  "clap",
  "comm-lib",
  "http",
