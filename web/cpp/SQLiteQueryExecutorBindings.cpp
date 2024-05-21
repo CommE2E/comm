@@ -68,6 +68,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field(
           "threadActivityStoreEntry",
           &ThreadActivityEntry::thread_activity_store_entry);
+  value_object<LocalMessageInfo>("LocalMessageInfo")
+      .field("id", &LocalMessageInfo::id)
+      .field("localMessageInfo", &LocalMessageInfo::local_message_info);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -237,6 +240,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "getAllThreadActivityEntries",
           &SQLiteQueryExecutor::getAllThreadActivityEntries)
+      .function("replaceMessageStoreLocalMessageInfo", &SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo)
+      .function("removeMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos)
+      .function(
+          "removeAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos)
+      .function("getAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(

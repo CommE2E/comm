@@ -9,6 +9,7 @@ import type { ClientDBSyncedMetadataEntry } from 'lib/ops/synced-metadata-store-
 import type { ClientDBThreadActivityEntry } from 'lib/ops/thread-activity-store-ops.js';
 import type { ClientDBUserInfo } from 'lib/ops/user-store-ops.js';
 import type { ClientDBDraftInfo } from 'lib/types/draft-types.js';
+import type { ClientDBLocalMessageInfo } from 'lib/types/message-types.js';
 import type {
   OutboundP2PMessage,
   InboundP2PMessage,
@@ -138,6 +139,13 @@ declare export class SQLiteQueryExecutor {
   removeThreadActivityEntries(ids: $ReadOnlyArray<string>): void;
   removeAllThreadActivityEntries(): void;
   getAllThreadActivityEntries(): ClientDBThreadActivityEntry[];
+
+  replaceMessageStoreLocalMessageInfo(
+    localMessageInfo: ClientDBLocalMessageInfo,
+  ): void;
+  removeMessageStoreLocalMessageInfos(ids: $ReadOnlyArray<string>): void;
+  removeAllMessageStoreLocalMessageInfos(): void;
+  getAllMessageStoreLocalMessageInfos(): ClientDBLocalMessageInfo[];
 
   beginTransaction(): void;
   commitTransaction(): void;

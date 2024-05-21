@@ -8,6 +8,7 @@
 #include "entities/Draft.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
+#include "entities/LocalMessageInfo.h"
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
@@ -120,6 +121,13 @@ public:
       const std::vector<std::string> &ids) const override;
   void removeAllThreadActivityEntries() const override;
   std::vector<ThreadActivityEntry> getAllThreadActivityEntries() const override;
+  void replaceMessageStoreLocalMessageInfo(
+      const LocalMessageInfo &local_message_info) const override;
+  void removeMessageStoreLocalMessageInfos(
+      const std::vector<std::string> &ids) const override;
+  void removeAllMessageStoreLocalMessageInfos() const override;
+  virtual std::vector<LocalMessageInfo>
+  getAllMessageStoreLocalMessageInfos() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;

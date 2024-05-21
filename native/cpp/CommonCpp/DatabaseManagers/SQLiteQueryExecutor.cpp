@@ -5,6 +5,7 @@
 #include "entities/EntityQueryHelpers.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
+#include "entities/LocalMessageInfo.h"
 #include "entities/Metadata.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/UserInfo.h"
@@ -1942,6 +1943,51 @@ SQLiteQueryExecutor::getAllThreadActivityEntries() const {
       "FROM thread_activity;";
   return getAllEntities<ThreadActivityEntry>(
       SQLiteQueryExecutor::getConnection(), getAllThreadActivityEntriesSQL);
+}
+
+void SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo(
+    const LocalMessageInfo &local_message_info) const {
+  static std::string replaceLocalMessageInfoSQL =
+      "REPLACE INTO message_store_local (id, local_message_info) "
+      "VALUES (?, ?);";
+  replaceEntity<LocalMessageInfo>(
+      SQLiteQueryExecutor::getConnection(),
+      replaceLocalMessageInfoSQL,
+      local_message_info);
+}
+
+void SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeLocalMessageInfosByKeysSQLStream;
+  removeLocalMessageInfosByKeysSQLStream << "DELETE FROM message_store_local "
+                                            "WHERE id IN "
+                                         << getSQLStatementArray(ids.size())
+                                         << ";";
+
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeLocalMessageInfosByKeysSQLStream.str(),
+      ids);
+}
+
+void SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos() const {
+  static std::string removeAllLocalMessageInfosSQL =
+      "DELETE FROM message_store_local;";
+  removeAllEntities(
+      SQLiteQueryExecutor::getConnection(), removeAllLocalMessageInfosSQL);
+}
+
+std::vector<LocalMessageInfo>
+SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos() const {
+  static std::string getAllLocalMessageInfosSQL =
+      "SELECT * "
+      "FROM message_store_local;";
+  return getAllEntities<LocalMessageInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllLocalMessageInfosSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
