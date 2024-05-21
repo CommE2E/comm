@@ -45,3 +45,5 @@ services/electron-update-server/node_modules
 services/reports/email-config.json
 
 native/cpp/**/build
+
+target

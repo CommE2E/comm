@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+
+# We prefer the wildcard approach because it's easier to exclude 
+# these from Dockerfiles with `sed`
+members = [
+  "services/*",
+  "shared/*",
+  # Other packages
+  "keyserver/addons/rust-node-addon",
+]
+
+exclude = [
+  # These directories are not Rust services
+  "services/electron-update-server",
+  "services/terraform",
+  "services/scripts",
+  "services/node_modules",
+  "shared/protos",
+  "shared/cmake",
+  # search-index-lambda has no common dependencies
+  "services/search-index-lambda",
+  # These fails to compile while in workspace
+  "web/backup-client-wasm",
+  "native/native_rust_library",
+]
+
+[workspace.package]
+edition = "2021"
+license = "BSD-3-Clause"
+homepage = "https://comm.app"
+
+[workspace.dependencies]
+chrono = "0.4.38"
+tokio = { version = "1.37" }
+
+# [profile.release.package.rust-node-addon]
+# lto = true
+# Optimize for small code size
