@@ -1,5 +1,6 @@
 // @flow
 
+import * as MediaLibrary from 'expo-media-library';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
@@ -68,6 +69,15 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     }
     if (this.state.mediaGalleryOpen && !prevState.mediaGalleryOpen) {
       void (async () => {
+        if (Platform.OS === 'android') {
+          // The promise returned from MediaLibrary.requestPermissionsAsync
+          // never resolves on Android if it's invoked from
+          // MediaGalleryKeyboard, which runs in a special environment via
+          // react-native-keyboard-input. To get around this, we invoke it
+          // here, and then use MediaLibrary.getPermissionsAsync in
+          // MediaGalleryKeyboard
+          void MediaLibrary.requestPermissionsAsync();
+        }
         await sleep(tabBarAnimationDuration);
         await waitForInteractions();
         this.setState({ renderKeyboardInputHost: true });

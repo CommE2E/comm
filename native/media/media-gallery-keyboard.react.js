@@ -419,7 +419,14 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   };
 
   async getPermissions(): Promise<boolean> {
-    const { granted } = await MediaLibrary.requestPermissionsAsync();
+    let granted = false;
+    if (Platform.OS === 'android') {
+      const result = await MediaLibrary.getPermissionsAsync();
+      granted = result.granted;
+    } else {
+      const result = await MediaLibrary.requestPermissionsAsync();
+      granted = result.granted;
+    }
     if (!granted) {
       this.guardedSetState({ error: "don't have permission :(" });
     }
