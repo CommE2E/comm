@@ -244,6 +244,7 @@ function SQLiteDataHandler(): React.Node {
           auxUserInfos,
           threadActivityEntries,
           entries,
+          messageStoreLocalMessageInfos,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -285,6 +286,7 @@ function SQLiteDataHandler(): React.Node {
             auxUserInfos: auxUserInfosFromDB,
             threadActivityStore: threadActivityStoreFromDB,
             entries: entriesFromDB,
+            messageStoreLocalMessageInfos,
           },
         });
       } catch (setStoreException) {
