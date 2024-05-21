@@ -125,6 +125,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<AuxUserInfo> auxUserStoreVector;
           std::vector<ThreadActivityEntry> threadActivityStoreVector;
           std::vector<EntryInfo> entryStoreVector;
+          std::vector<LocalMessageInfo> messageStoreLocalMessageInfosVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -149,6 +150,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                             .getAllThreadActivityEntries();
             entryStoreVector =
                 DatabaseManager::getQueryExecutor().getAllEntries();
+            messageStoreLocalMessageInfosVector =
+                DatabaseManager::getQueryExecutor()
+                    .getAllMessageStoreLocalMessageInfos();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -186,6 +190,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                   std::move(threadActivityStoreVector));
           auto entryStoreVectorPtr = std::make_shared<std::vector<EntryInfo>>(
               std::move(entryStoreVector));
+          auto messageStoreLocalMessageInfosVectorPtr =
+              std::make_shared<std::vector<LocalMessageInfo>>(
+                  std::move(messageStoreLocalMessageInfosVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
@@ -200,6 +207,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          auxUserStoreVectorPtr,
                                          threadActivityStoreVectorPtr,
                                          entryStoreVectorPtr,
+                                         messageStoreLocalMessageInfosVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
@@ -249,6 +257,9 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                     innerRt, threadActivityStoreVectorPtr);
             jsi::Array jsiEntryStore =
                 entryStore.parseDBDataStore(innerRt, entryStoreVectorPtr);
+            jsi::Array jsiMessageStoreLocalMessageInfos =
+                messageStore.parseDBMessageStoreLocalMessageInfos(
+                    innerRt, messageStoreLocalMessageInfosVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -271,6 +282,10 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsiClientDBStore.setProperty(
                 innerRt, "threadActivityEntries", jsiThreadActivityStore);
             jsiClientDBStore.setProperty(innerRt, "entries", jsiEntryStore);
+            jsiClientDBStore.setProperty(
+                innerRt,
+                "messageStoreLocalMessageInfos",
+                jsiMessageStoreLocalMessageInfos);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
