@@ -142,6 +142,10 @@ RUN cargo init web/backup-client-wasm/ --lib
 COPY --chown=comm web/backup-client-wasm/Cargo.toml \
   web/backup-client-wasm/
 
+# Copy cargo workspace root Cargo.toml
+COPY --chown=comm Cargo.toml Cargo.toml
+RUN sed -i -E '/services\/\*/d' Cargo.toml
+
 # Copy in local dependencies of rust-node-addon
 COPY --chown=comm shared/comm-opaque2 shared/comm-opaque2/
 
