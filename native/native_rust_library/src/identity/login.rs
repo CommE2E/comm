@@ -9,9 +9,7 @@ use grpc_clients::identity::{
 };
 use tracing::instrument;
 
-use super::{
-  LogInPasswordUserInfo, LogInWalletUserInfo, UserIDAndDeviceAccessToken,
-};
+use super::{IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo};
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
@@ -191,9 +189,8 @@ async fn log_in_password_user_helper(
     .log_in_password_user_finish(login_finish_request)
     .await?
     .into_inner();
-  let user_id_and_access_token =
-    UserIDAndDeviceAccessToken::from(login_finish_response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(login_finish_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn log_in_wallet_user_helper(
@@ -219,9 +216,8 @@ async fn log_in_wallet_user_helper(
     .await?
     .into_inner();
 
-  let user_id_and_access_token =
-    UserIDAndDeviceAccessToken::from(login_response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(login_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn upload_secondary_device_keys_and_log_in_helper(
@@ -249,8 +245,8 @@ async fn upload_secondary_device_keys_and_log_in_helper(
     .await?
     .into_inner();
 
-  let user_id_and_access_token = UserIDAndDeviceAccessToken::from(response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn log_in_existing_device_helper(
@@ -278,6 +274,6 @@ async fn log_in_existing_device_helper(
     .await?
     .into_inner();
 
-  let user_id_and_access_token = UserIDAndDeviceAccessToken::from(response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
