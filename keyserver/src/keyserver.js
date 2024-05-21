@@ -35,7 +35,10 @@ import {
 } from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
-import { createAndMaintainTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
+import {
+  createAndMaintainTunnelbrokerWebsocket,
+  createAndMaintainAnonymousTunnelbrokerWebsocket,
+} from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -97,31 +100,12 @@ void (async () => {
       process.exit(2);
     }
 
-    // Allow login to be optional until staging environment is available
-    try {
-      // We await here to ensure that the keyserver has been provisioned a
-      // commServicesAccessToken. In the future, this will be necessary for
-      // many keyserver operations.
-      const identityInfo = await verifyUserLoggedIn();
-      // We don't await here, as Tunnelbroker communication is not needed for
-      // normal keyserver behavior yet. In addition, this doesn't return
-      // information useful for other keyserver functions.
-      ignorePromiseRejections(
-        createAndMaintainTunnelbrokerWebsocket(identityInfo),
-      );
-      if (process.env.NODE_ENV === 'development') {
-        await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
-      }
-    } catch (e) {
-      console.warn(
-        'Failed identity login. Login optional until staging environment is available',
-      );
-    }
-
     if (shouldDisplayQRCodeInTerminal) {
       try {
         const aes256Key = crypto.randomBytes(32).toString('hex');
         const ed25519Key = await getContentSigningKey();
+
+        await createAndMaintainAnonymousTunnelbrokerWebsocket(aes256Key);
 
         console.log(
           '\nOpen the Comm app on your phone and scan the QR code below\n',
@@ -135,6 +119,27 @@ void (async () => {
         qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
       } catch (e) {
         console.log('Error generating QR code', e);
+      }
+    } else {
+      // Allow login to be optional until staging environment is available
+      try {
+        // We await here to ensure that the keyserver has been provisioned a
+        // commServicesAccessToken. In the future, this will be necessary for
+        // many keyserver operations.
+        const identityInfo = await verifyUserLoggedIn();
+        // We don't await here, as Tunnelbroker communication is not needed for
+        // normal keyserver behavior yet. In addition, this doesn't return
+        // information useful for other keyserver functions.
+        ignorePromiseRejections(
+          createAndMaintainTunnelbrokerWebsocket(identityInfo),
+        );
+        if (process.env.NODE_ENV === 'development') {
+          await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
+        }
+      } catch (e) {
+        console.warn(
+          'Failed identity login. Login optional until staging environment is available',
+        );
       }
     }
 
