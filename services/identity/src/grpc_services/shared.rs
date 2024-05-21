@@ -1,6 +1,6 @@
 use grpc_clients::error::unsupported_version;
-use tonic::{IntoRequest, Request, Status};
-use tracing::{trace, Instrument};
+use tonic::{Request, Status};
+use tracing::trace;
 
 use crate::constants::{request_metadata, MIN_SUPPORTED_NATIVE_VERSION};
 

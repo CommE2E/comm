@@ -8,7 +8,7 @@ license = "BSD-3-Clause"
 tonic = "0.9.1"
 prost = "0.11"
 futures-util = "0.3"
-tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 ed25519-dalek = "1"
 clap = { version = "4.4", features = ["derive", "env"] }
 derive_more = "0.99"
@@ -18,7 +18,7 @@ comm-lib = { path = "../../shared/comm-lib", features = [
 ] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-chrono = "0.4.31"
+chrono.workspace = true
 rand = "0.8"
 constant_time_eq = "0.2.2"
 siwe = "0.3"
