@@ -1,5 +1,5 @@
 use base64::Engine;
-use ed25519_dalek::{ed25519::signature::SignerMut, Keypair, Signature};
+use ed25519_dalek::{ed25519::signature::Signer, Keypair, Signature};
 use rand::rngs::OsRng;
 
 use self::olm_account_infos::{

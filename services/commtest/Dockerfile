@@ -24,7 +24,7 @@ RUN if [ $(echo $TARGETPLATFORM | cut -d / -f2) = "arm64" ]; then \
 RUN unzip -q awscliv2.zip && ./aws/install \
   && rm -rf awscliv2.zip aws
 
-WORKDIR /home/root/app/commtest
+WORKDIR /home/root/services/commtest
 
 # Install cargo lambda
 RUN pip3 install cargo-lambda
@@ -33,6 +33,12 @@ RUN pip3 install cargo-lambda
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
 RUN ../../scripts/install_protobuf.sh
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
+# Copy and prepare cargo workspace
+COPY Cargo.toml ../../Cargo.toml
+COPY Cargo.lock ../../Cargo.lock
+# Remove rust-node-addon from cargo workspace
+RUN sed -i -E '/rust-node-addon/d' ../../Cargo.toml
 
 # Copy actual application sources
 COPY shared ../../shared/
