@@ -1,5 +1,5 @@
 use aws_sdk_secretsmanager::Client as SecretsManagerClient;
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use grpc_clients::identity::unauthenticated::client as identity_client;
 
 use super::{AuthorizationCredential, ServicesAuthToken, UserIdentity};
@@ -131,8 +131,7 @@ async fn time_since_rotation(
   let duration = result
     .last_rotated_date()
     .and_then(|date| date.to_millis().ok())
-    .and_then(NaiveDateTime::from_timestamp_millis)
-    .map(|naive| DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
+    .and_then(DateTime::from_timestamp_millis)
     .map(|last_rotated| Utc::now().signed_duration_since(last_rotated));
   Ok(duration)
 }
