@@ -39,10 +39,7 @@ impl Registration {
     response_payload: &[u8],
   ) -> Result<Vec<u8>, OpaqueError> {
     let response = RegistrationResponse::deserialize(response_payload)?;
-    let state = self
-      .state
-      .take()
-      .ok_or_else(|| ProtocolError::InvalidLoginError)?;
+    let state = self.state.take().ok_or(ProtocolError::InvalidLoginError)?;
     let result = state.finish(
       &mut self.rng,
       password.as_bytes(),
@@ -53,5 +50,11 @@ impl Registration {
     self.export_key = Some(result.export_key.to_vec());
 
     Ok(result.message.serialize().to_vec())
+  }
+}
+
+impl Default for Registration {
+  fn default() -> Self {
+    Self::new()
   }
 }
