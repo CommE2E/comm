@@ -4,6 +4,7 @@ use tracing::{debug, warn};
 
 #[napi]
 #[instrument(skip_all)]
+#[allow(clippy::too_many_arguments)]
 pub async fn register_user(
   username: String,
   password: String,

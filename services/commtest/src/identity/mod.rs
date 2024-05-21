@@ -37,7 +37,7 @@ impl SigningCapableAccount {
   }
 
   /// signs message, returns signature
-  pub fn sign_message(&mut self, message: &str) -> String {
+  pub fn sign_message(&self, message: &str) -> String {
     let signature: Signature = self.signing_key.sign(message.as_bytes());
     base64::engine::general_purpose::STANDARD_NO_PAD
       .encode(signature.to_bytes())
