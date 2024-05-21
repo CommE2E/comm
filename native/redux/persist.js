@@ -72,6 +72,7 @@ import {
 } from 'lib/types/alert-types.js';
 import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
 import { defaultCalendarQuery } from 'lib/types/entry-types.js';
+import type { EntryStore } from 'lib/types/entry-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import type { KeyserverInfo } from 'lib/types/keyserver-types.js';
 import {
@@ -1305,6 +1306,19 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
+type PersistedEntryStore = {
+  +lastUserInteractionCalendar: number,
+};
+const entryStoreTransform: Transform = createTransform(
+  (state: EntryStore): PersistedEntryStore => {
+    return { lastUserInteractionCalendar: state.lastUserInteractionCalendar };
+  },
+  (state: PersistedEntryStore): EntryStore => {
+    return { ...state, entryInfos: {}, daysToEntries: {} };
+  },
+  { whitelist: ['entryStore'] },
+);
+
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
@@ -1315,6 +1329,7 @@ const persistConfig = {
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
     keyserverStoreTransform,
+    entryStoreTransform,
   ],
   migrate: (createAsyncMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
