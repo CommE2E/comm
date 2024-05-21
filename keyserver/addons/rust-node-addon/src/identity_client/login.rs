@@ -1,8 +1,9 @@
 use super::*;
 
 use comm_opaque2::client::Login;
-use grpc_clients::identity::protos::unauthenticated::{
-  OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
+use grpc_clients::identity::protos::{
+  unauth::SecondaryDeviceKeysUploadRequest,
+  unauthenticated::{OpaqueLoginFinishRequest, OpaqueLoginStartRequest},
 };
 use tracing::debug;
 
@@ -81,6 +82,66 @@ pub async fn login_user(
   let user_info = UserLoginInfo {
     user_id: login_finish_response.user_id,
     access_token: login_finish_response.access_token,
+  };
+
+  Ok(user_info)
+}
+
+#[napi]
+#[instrument(skip_all)]
+#[allow(clippy::too_many_arguments)]
+pub async fn upload_secondary_device_keys_and_log_in(
+  user_id: String,
+  nonce: String,
+  nonce_signature: String,
+  signed_identity_keys_blob: SignedIdentityKeysBlob,
+  content_prekey: String,
+  content_prekey_signature: String,
+  notif_prekey: String,
+  notif_prekey_signature: String,
+  content_one_time_keys: Vec<String>,
+  notif_one_time_keys: Vec<String>,
+) -> Result<UserLoginInfo> {
+  let device_key_upload = DeviceKeyUpload {
+    device_key_info: Some(IdentityKeyInfo {
+      payload: signed_identity_keys_blob.payload,
+      payload_signature: signed_identity_keys_blob.signature,
+    }),
+    content_upload: Some(Prekey {
+      prekey: content_prekey,
+      prekey_signature: content_prekey_signature,
+    }),
+    notif_upload: Some(Prekey {
+      prekey: notif_prekey,
+      prekey_signature: notif_prekey_signature,
+    }),
+    one_time_content_prekeys: content_one_time_keys,
+    one_time_notif_prekeys: notif_one_time_keys,
+    device_type: DeviceType::Keyserver.into(),
+  };
+
+  let mut identity_client = get_identity_client().await?;
+
+  let request = SecondaryDeviceKeysUploadRequest {
+    user_id,
+    nonce,
+    nonce_signature,
+    device_key_upload: Some(device_key_upload),
+  };
+
+  let response = identity_client
+    .upload_keys_for_registered_device_and_log_in(request)
+    .await
+    .map_err(|_| {
+      Error::from_reason(
+        "Failed to upload keys for registered device and log in",
+      )
+    })?
+    .into_inner();
+
+  let user_info = UserLoginInfo {
+    user_id: response.user_id,
+    access_token: response.access_token,
   };
 
   Ok(user_info)
