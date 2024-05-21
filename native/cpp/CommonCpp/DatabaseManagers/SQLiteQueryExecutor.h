@@ -120,6 +120,10 @@ public:
       const std::vector<std::string> &ids) const override;
   void removeAllThreadActivityEntries() const override;
   std::vector<ThreadActivityEntry> getAllThreadActivityEntries() const override;
+  void replaceEntry(const EntryInfo &entry_info) const override;
+  void removeEntries(const std::vector<std::string> &ids) const override;
+  void removeAllEntries() const override;
+  std::vector<EntryInfo> getAllEntries() const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;

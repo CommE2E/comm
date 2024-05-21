@@ -4,6 +4,7 @@
 #include "entities/AuxUserInfo.h"
 #include "entities/CommunityInfo.h"
 #include "entities/Draft.h"
+#include "entities/EntryInfo.h"
 #include "entities/InboundP2PMessage.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
@@ -108,6 +109,10 @@ public:
   virtual void removeAllThreadActivityEntries() const = 0;
   virtual std::vector<ThreadActivityEntry>
   getAllThreadActivityEntries() const = 0;
+  virtual void replaceEntry(const EntryInfo &entry_info) const = 0;
+  virtual void removeEntries(const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllEntries() const = 0;
+  virtual std::vector<EntryInfo> getAllEntries() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
