@@ -24,6 +24,10 @@ private:
   static OperationType REMOVE_MESSAGE_THREADS_OPERATION;
   static OperationType REMOVE_ALL_MESSAGE_THREADS_OPERATION;
 
+  static OperationType REPLACE_MESSAGE_LOCAL_MESSAGE_INFO_OPERATION;
+  static OperationType REMOVE_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION;
+  static OperationType REMOVE_ALL_MESSAGE_LOCAL_MESSAGE_INFOS_OPERATION;
+
 public:
   MessageStore(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
 
@@ -38,6 +42,11 @@ public:
   jsi::Array parseDBMessageStoreThreads(
       jsi::Runtime &rt,
       std::shared_ptr<std::vector<MessageStoreThread>> threadsVectorPtr) const;
+
+  jsi::Array parseDBMessageStoreLocalMessageInfos(
+      jsi::Runtime &rt,
+      std::shared_ptr<std::vector<LocalMessageInfo>> localMessageInfosVectorPtr)
+      const;
 };
 
 } // namespace comm
