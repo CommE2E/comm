@@ -7,6 +7,8 @@ import Animated, {
   type NodeParam,
   type SpringConfig,
   type TimingConfig,
+  useSharedValue,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 const {
@@ -179,16 +181,12 @@ function ratchetAlongWithKeyboardHeight(
   ]);
 }
 
-function useReanimatedValueForBoolean(booleanValue: boolean): Value {
-  const reanimatedValueRef = React.useRef<?Value>();
-  if (!reanimatedValueRef.current) {
-    reanimatedValueRef.current = new Value(booleanValue ? 1 : 0);
-  }
-  const val = reanimatedValueRef.current;
+function useSharedValueForBoolean(booleanValue: boolean): SharedValue<boolean> {
+  const sharedValue = useSharedValue(booleanValue);
   React.useEffect(() => {
-    reanimatedValueRef.current?.setValue(booleanValue ? 1 : 0);
-  }, [booleanValue]);
-  return val;
+    sharedValue.value = booleanValue;
+  }, [sharedValue, booleanValue]);
+  return sharedValue;
 }
 
 // Target can be either 0 or 1. Caller handles interpolating
@@ -249,6 +247,6 @@ export {
   runTiming,
   runSpring,
   ratchetAlongWithKeyboardHeight,
-  useReanimatedValueForBoolean,
+  useSharedValueForBoolean,
   animateTowards,
 };
