@@ -10,7 +10,7 @@ use crate::s3::S3PathError;
 )]
 pub enum Error {
   #[display(...)]
-  AwsSdk(DynamoDBError),
+  AwsSdk(Box<DynamoDBError>),
   #[display(...)]
   Attribute(DBItemError),
   #[display(...)]
@@ -25,7 +25,7 @@ impl From<comm_lib::database::Error> for Error {
   fn from(value: comm_lib::database::Error) -> Self {
     use comm_lib::database::Error as E;
     match value {
-      E::AwsSdk(err) => Self::AwsSdk(err),
+      E::AwsSdk(err) => Self::AwsSdk(Box::new(err)),
       E::Attribute(err) => Self::Attribute(err),
       E::MaxRetriesExceeded => Self::MaxRetriesExceeded,
     }

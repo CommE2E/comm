@@ -12,7 +12,7 @@ use tracing::{debug, error, trace};
 )]
 pub enum Error {
   #[display(...)]
-  AwsSdk(S3Error),
+  AwsSdk(Box<S3Error>),
   #[display(...)]
   ByteStream(std::io::Error),
   #[display(...)]
@@ -133,7 +133,7 @@ impl S3Client {
       .await
       .map_err(|e| {
         error!("S3 failed to get object metadata");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     Ok(response)
@@ -172,7 +172,7 @@ impl S3Client {
 
     let response = request.send().await.map_err(|e| {
       error!("S3 failed to get object");
-      Error::AwsSdk(e.into())
+      Error::AwsSdk(Box::new(e.into()))
     })?;
     let data = response.body.collect().await.map_err(|e| {
       error!("S3 failed to stream object bytes");
@@ -192,7 +192,7 @@ impl S3Client {
       .await
       .map_err(|e| {
         error!("S3 failed to delete object");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     Ok(())
@@ -219,7 +219,7 @@ impl S3Client {
       .await
       .map_err(|e| {
         error!("S3 failed to batch delete objects");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     Ok(())
@@ -250,7 +250,7 @@ impl MultiPartUploadSession {
       .await
       .map_err(|e| {
         error!("S3 failed to start upload session");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     let upload_id = multipart_upload_res.upload_id().ok_or_else(|| {
@@ -284,7 +284,7 @@ impl MultiPartUploadSession {
       .await
       .map_err(|e| {
         error!("Failed to add upload part");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     let completed_part = CompletedPart::builder()
@@ -322,7 +322,7 @@ impl MultiPartUploadSession {
       .await
       .map_err(|e| {
         error!("Failed to finish upload session");
-        Error::AwsSdk(e.into())
+        Error::AwsSdk(Box::new(e.into()))
       })?;
 
     debug!(upload_id = self.upload_id, "Multipart upload complete");
