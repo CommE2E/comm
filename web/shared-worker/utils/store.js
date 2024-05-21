@@ -2,6 +2,7 @@
 
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
@@ -37,6 +38,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     syncedMetadata: null,
     auxUserInfos: null,
     threadActivityStore: null,
+    entries: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
@@ -135,6 +137,13 @@ async function getClientDBStore(): Promise<ClientStore> {
       ),
     };
   }
+
+  if (data?.store?.entries && data.store.entries.length > 0) {
+    result = {
+      ...result,
+      entries: entryStoreOpsHandlers.translateClientDBData(data.store.entries),
+    };
+  }
   return result;
 }
 
@@ -154,6 +163,7 @@ async function processDBStoreOperations(
     userStoreOperations,
     messageStoreOperations,
     threadActivityStoreOperations,
+    entryStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -183,6 +193,8 @@ async function processDBStoreOperations(
     threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
       threadActivityStoreOperations,
     );
+  const convertedEntryStoreOperations =
+    entryStoreOpsHandlers.convertOpsToClientDBOps(entryStoreOperations);
 
   if (
     convertedThreadStoreOperations.length === 0 &&
@@ -195,7 +207,8 @@ async function processDBStoreOperations(
     convertedAuxUserStoreOperations.length === 0 &&
     convertedUserStoreOperations.length === 0 &&
     convertedMessageStoreOperations.length === 0 &&
-    convertedThreadActivityStoreOperations.length === 0
+    convertedThreadActivityStoreOperations.length === 0 &&
+    convertedEntryStoreOperations.length === 0
   ) {
     return;
   }
@@ -220,6 +233,7 @@ async function processDBStoreOperations(
         userStoreOperations: convertedUserStoreOperations,
         messageStoreOperations: convertedMessageStoreOperations,
         threadActivityStoreOperations: convertedThreadActivityStoreOperations,
+        entryStoreOperations: convertedEntryStoreOperations,
       },
     });
   } catch (e) {
