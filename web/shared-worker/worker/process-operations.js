@@ -2,6 +2,7 @@
 
 import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
+import type { ClientDBEntryStoreOperation } from 'lib/ops/entries-store-ops.js';
 import type { ClientDBIntegrityStoreOperation } from 'lib/ops/integrity-store-ops.js';
 import type { ClientDBKeyserverStoreOperation } from 'lib/ops/keyserver-store-ops.js';
 import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
@@ -362,6 +363,7 @@ function processDBStoreOperations(
     userStoreOperations,
     messageStoreOperations,
     threadActivityStoreOperations,
+    entryStoreOperations,
   } = storeOperations;
 
   try {
@@ -449,6 +451,13 @@ function processDBStoreOperations(
         module,
       );
     }
+    if (entryStoreOperations && entryStoreOperations.length > 0) {
+      processEntryStoreOperations(
+        sqliteQueryExecutor,
+        entryStoreOperations,
+        module,
+      );
+    }
     sqliteQueryExecutor.commitTransaction();
   } catch (e) {
     sqliteQueryExecutor.rollbackTransaction();
@@ -522,6 +531,37 @@ function processThreadActivityStoreOperations(
   }
 }
 
+function processEntryStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBEntryStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBEntryStoreOperation of operations) {
+    try {
+      if (operation.type === 'remove_all_entries') {
+        sqliteQueryExecutor.removeAllEntries();
+      } else if (operation.type === 'remove_entries') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeEntries(ids);
+      } else if (operation.type === 'replace_entry') {
+        const { id, entry } = operation.payload;
+        sqliteQueryExecutor.replaceEntry({ id, entry });
+      } else {
+        throw new Error('Unsupported thread activity operation');
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing &{
+          operation.type
+        } entry store operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
 function getClientStoreFromQueryExecutor(
   sqliteQueryExecutor: SQLiteQueryExecutor,
 ): ClientDBStore {
@@ -547,6 +587,7 @@ function getClientStoreFromQueryExecutor(
     syncedMetadata: sqliteQueryExecutor.getAllSyncedMetadata(),
     auxUserInfos: sqliteQueryExecutor.getAllAuxUserInfos(),
     threadActivityEntries: sqliteQueryExecutor.getAllThreadActivityEntries(),
+    entries: sqliteQueryExecutor.getAllEntries(),
   };
 }
 

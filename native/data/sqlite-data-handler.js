@@ -10,6 +10,7 @@ import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-ty
 import { useKeyserverRecoveryLogIn } from 'lib/keyserver-conn/recovery-utils.js';
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import { keyserverStoreOpsHandlers } from 'lib/ops/keyserver-store-ops.js';
 import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
@@ -242,6 +243,7 @@ function SQLiteDataHandler(): React.Node {
           syncedMetadata,
           auxUserInfos,
           threadActivityEntries,
+          entries,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -264,6 +266,8 @@ function SQLiteDataHandler(): React.Node {
           threadActivityStoreOpsHandlers.translateClientDBData(
             threadActivityEntries,
           );
+        const entriesFromDB =
+          entryStoreOpsHandlers.translateClientDBData(entries);
         dispatch({
           type: setClientDBStoreActionType,
           payload: {
@@ -280,6 +284,7 @@ function SQLiteDataHandler(): React.Node {
             syncedMetadata: syncedMetadataFromDB,
             auxUserInfos: auxUserInfosFromDB,
             threadActivityStore: threadActivityStoreFromDB,
+            entries: entriesFromDB,
           },
         });
       } catch (setStoreException) {
