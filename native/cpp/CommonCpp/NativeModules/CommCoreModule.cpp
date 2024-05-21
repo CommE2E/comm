@@ -124,6 +124,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::vector<SyncedMetadataEntry> syncedMetadataStoreVector;
           std::vector<AuxUserInfo> auxUserStoreVector;
           std::vector<ThreadActivityEntry> threadActivityStoreVector;
+          std::vector<EntryInfo> entryStoreVector;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
@@ -146,6 +147,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 DatabaseManager::getQueryExecutor().getAllAuxUserInfos();
             threadActivityStoreVector = DatabaseManager::getQueryExecutor()
                                             .getAllThreadActivityEntries();
+            entryStoreVector =
+                DatabaseManager::getQueryExecutor().getAllEntries();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -181,6 +184,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           auto threadActivityStoreVectorPtr =
               std::make_shared<std::vector<ThreadActivityEntry>>(
                   std::move(threadActivityStoreVector));
+          auto entryStoreVectorPtr = std::make_shared<std::vector<EntryInfo>>(
+              std::move(entryStoreVector));
           this->jsInvoker_->invokeAsync([&innerRt,
                                          draftsVectorPtr,
                                          messagesVectorPtr,
@@ -194,6 +199,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                          syncedMetadataStoreVectorPtr,
                                          auxUserStoreVectorPtr,
                                          threadActivityStoreVectorPtr,
+                                         entryStoreVectorPtr,
                                          error,
                                          promise,
                                          draftStore = this->draftStore,
@@ -208,7 +214,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                                              this->syncedMetadataStore,
                                          auxUserStore = this->auxUserStore,
                                          threadActivityStore =
-                                             this->threadActivityStore]() {
+                                             this->threadActivityStore,
+                                         entryStore = this->entryStore]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -240,6 +247,8 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
             jsi::Array jsiThreadActivityStore =
                 threadActivityStore.parseDBDataStore(
                     innerRt, threadActivityStoreVectorPtr);
+            jsi::Array jsiEntryStore =
+                entryStore.parseDBDataStore(innerRt, entryStoreVectorPtr);
 
             auto jsiClientDBStore = jsi::Object(innerRt);
             jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
@@ -261,6 +270,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
                 innerRt, "auxUserInfos", jsiAuxUserStore);
             jsiClientDBStore.setProperty(
                 innerRt, "threadActivityEntries", jsiThreadActivityStore);
+            jsiClientDBStore.setProperty(innerRt, "entries", jsiEntryStore);
 
             promise->resolve(std::move(jsiClientDBStore));
           });
@@ -423,6 +433,8 @@ jsi::Value CommCoreModule::processDBStoreOperations(
         "threadActivityStoreOperations",
         this->threadActivityStore,
         storeOpsPtr);
+    this->appendDBStoreOps(
+        rt, operations, "entryStoreOperations", this->entryStore, storeOpsPtr);
   } catch (std::runtime_error &e) {
     createOperationsError = e.what();
   }
@@ -1694,7 +1706,8 @@ CommCoreModule::CommCoreModule(
       integrityStore(jsInvoker),
       syncedMetadataStore(jsInvoker),
       auxUserStore(jsInvoker),
-      threadActivityStore(jsInvoker) {
+      threadActivityStore(jsInvoker),
+      entryStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 
