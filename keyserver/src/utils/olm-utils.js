@@ -12,11 +12,13 @@ import uuid from 'uuid';
 
 import { getOneTimeKeyValuesFromBlob } from 'lib/shared/crypto-utils.js';
 import { olmEncryptedMessageTypes } from 'lib/types/crypto-types.js';
+import type { IdentityNewDeviceKeyUpload } from 'lib/types/identity-service-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   getAccountPrekeysSet,
   shouldForgetPrekey,
   shouldRotatePrekey,
+  retrieveAccountKeysSet,
 } from 'lib/utils/olm-utils.js';
 
 import {
@@ -99,6 +101,99 @@ function getOlmUtility(): OlmUtility {
   }
   cachedOLMUtility = new olm.Utility();
   return cachedOLMUtility;
+}
+
+async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
+  let contentIdentityKeys: string;
+  let contentOneTimeKeys: $ReadOnlyArray<string>;
+  let contentPrekey: string;
+  let contentPrekeySignature: string;
+
+  let notifIdentityKeys: string;
+  let notifOneTimeKeys: $ReadOnlyArray<string>;
+  let notifPrekey: string;
+  let notifPrekeySignature: string;
+
+  let contentAccountInfo: OlmAccount;
+
+  await Promise.all([
+    fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
+      const { identityKeys, oneTimeKeys, prekey, prekeySignature } =
+        retrieveAccountKeysSet(contentAccount);
+      contentIdentityKeys = identityKeys;
+      contentOneTimeKeys = oneTimeKeys;
+      contentPrekey = prekey;
+      contentPrekeySignature = prekeySignature;
+      contentAccountInfo = contentAccount;
+      contentAccount.mark_keys_as_published();
+    }),
+    fetchCallUpdateOlmAccount('notifications', (notifAccount: OlmAccount) => {
+      const { identityKeys, oneTimeKeys, prekey, prekeySignature } =
+        retrieveAccountKeysSet(notifAccount);
+      notifIdentityKeys = identityKeys;
+      notifOneTimeKeys = oneTimeKeys;
+      notifPrekey = prekey;
+      notifPrekeySignature = prekeySignature;
+
+      notifAccount.mark_keys_as_published();
+    }),
+  ]);
+
+  invariant(
+    contentIdentityKeys,
+    'content identity keys not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    notifIdentityKeys,
+    'notif identity keys not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    contentPrekey,
+    'content prekey not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    notifPrekey,
+    'notif prekey not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    contentPrekeySignature,
+    'content prekey signature not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    notifPrekeySignature,
+    'notfi prekey signature not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    contentOneTimeKeys,
+    'content one-time keys not set after fetchCallUpdateOlmAccount',
+  );
+  invariant(
+    notifOneTimeKeys,
+    'notif one-time keys not set after fetchCallUpdateOlmAccount',
+  );
+
+  invariant(
+    contentAccountInfo,
+    'content account info not set after fetchCallUpdateOlmAccount',
+  );
+
+  const identityKeysBlob = {
+    primaryIdentityPublicKeys: JSON.parse(contentIdentityKeys),
+    notificationIdentityPublicKeys: JSON.parse(notifIdentityKeys),
+  };
+  const keyPayload = JSON.stringify(identityKeysBlob);
+  const keyPayloadSignature = contentAccountInfo.sign(keyPayload);
+
+  return {
+    keyPayload,
+    keyPayloadSignature,
+    contentPrekey,
+    contentPrekeySignature,
+    notifPrekey,
+    notifPrekeySignature,
+    contentOneTimeKeys,
+    notifOneTimeKeys,
+  };
 }
 
 async function uploadNewOneTimeKeys(numberOfKeys: number) {
@@ -224,4 +319,5 @@ export {
   getContentSigningKey,
   validateAndUploadAccountPrekeys,
   publishPrekeysToIdentity,
+  getNewDeviceKeyUpload,
 };
