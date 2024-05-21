@@ -4,6 +4,7 @@ import { useSelector as reactReduxUseSelector } from 'react-redux';
 
 import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
 import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
+import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
 import {
   keyserverStoreOpsHandlers,
@@ -44,6 +45,7 @@ async function processDBStoreOperations(
     syncedMetadataStoreOperations,
     auxUserStoreOperations,
     threadActivityStoreOperations,
+    entryStoreOperations,
   } = storeOperations;
 
   const convertedThreadStoreOperations =
@@ -72,6 +74,8 @@ async function processDBStoreOperations(
     threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
       threadActivityStoreOperations,
     );
+  const convertedEntryStoreOperations =
+    entryStoreOpsHandlers.convertOpsToClientDBOps(entryStoreOperations);
 
   try {
     const promises = [];
@@ -95,6 +99,7 @@ async function processDBStoreOperations(
       syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
       auxUserStoreOperations: convertedAuxUserStoreOperations,
       threadActivityStoreOperations: convertedThreadActivityStoreOperations,
+      entryStoreOperations: convertedEntryStoreOperations,
     };
     if (values(dbOps).some(ops => ops && ops.length > 0)) {
       promises.push(commCoreModule.processDBStoreOperations(dbOps));
