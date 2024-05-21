@@ -28,15 +28,15 @@ ARG COMM_JSONCONFIG_secrets_geoip_license
 USER root
 RUN \
   if [ -z "`getent group $HOST_GID`" ]; then \
-    addgroup --system --gid $HOST_GID comm; \
+  addgroup --system --gid $HOST_GID comm; \
   else \
-    groupmod --new-name comm `getent group $HOST_GID | cut -d: -f1`; \
+  groupmod --new-name comm `getent group $HOST_GID | cut -d: -f1`; \
   fi && \
   if [ -z "`getent passwd $HOST_UID`" ]; then \
-    adduser --system --uid $HOST_UID --ingroup comm --shell /bin/bash comm; \
+  adduser --system --uid $HOST_UID --ingroup comm --shell /bin/bash comm; \
   else \
-    usermod --login comm --gid $HOST_GID --home /home/comm --move-home \
-      `getent passwd $HOST_UID | cut -d: -f1`; \
+  usermod --login comm --gid $HOST_GID --home /home/comm --move-home \
+  `getent passwd $HOST_UID | cut -d: -f1`; \
   fi
 
 #-------------------------------------------------------------------------------
@@ -141,6 +141,10 @@ COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
 RUN cargo init web/backup-client-wasm/ --lib
 COPY --chown=comm web/backup-client-wasm/Cargo.toml \
   web/backup-client-wasm/
+
+# Copy cargo workspace root Cargo.toml
+COPY --chown=comm Cargo.toml Cargo.toml
+RUN sed -i -E '/services\/\*|native_rust_library/d' Cargo.toml
 
 # Copy in local dependencies of rust-node-addon
 COPY --chown=comm shared/comm-opaque2 shared/comm-opaque2/

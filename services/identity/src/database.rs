@@ -189,6 +189,7 @@ impl DatabaseClient {
     Ok(user_id)
   }
 
+  #[allow(clippy::too_many_arguments)]
   pub async fn add_wallet_user_to_users_table(
     &self,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,

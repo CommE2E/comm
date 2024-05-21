@@ -11,6 +11,7 @@ pub mod http;
 pub mod shared;
 pub mod tools;
 
+#[allow(unused_imports)]
 mod reexports {
   #[cfg(feature = "blob-client")]
   pub use {bytes, reqwest};

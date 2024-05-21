@@ -19,6 +19,7 @@ use super::{
   RegisterWalletUserInfo, UserIDAndDeviceAccessToken,
 };
 
+#[allow(clippy::too_many_arguments)]
 pub mod ffi {
   use crate::identity::{
     DeviceKeys, RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
