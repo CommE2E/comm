@@ -162,6 +162,7 @@ async function checkThreadsFrozen(
       threadInfos[threadID],
       viewer.id,
       userInfos,
+      false,
     );
     if (blockedThread) {
       threadIDsWithDisabledPermissions.add(threadID);
