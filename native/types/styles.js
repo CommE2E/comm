@@ -5,6 +5,7 @@ import { View, Text, Image } from 'react-native';
 import Animated, {
   type ReanimatedAnimationBuilder,
   type EntryExitAnimationFunction,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 import type { ViewStyleObj } from './react-native.js';
@@ -18,23 +19,25 @@ export type TextStyle = $PropertyType<TextProps, 'style'>;
 type ImageProps = React.ElementConfig<typeof Image>;
 export type ImageStyle = $PropertyType<ImageProps, 'style'>;
 
+type Value = ?number | Animated.Node | SharedValue<number>;
+
 export type ReanimatedTransform = {
-  +scale?: ?number | Animated.Node,
-  +translateX?: ?number | Animated.Node,
-  +translateY?: ?number | Animated.Node,
+  +scale?: Value,
+  +translateX?: Value,
+  +translateY?: Value,
   ...
 };
 
 export type WritableAnimatedStyleObj = {
   ...ViewStyleObj,
-  opacity?: ?number | Animated.Node,
-  height?: ?number | Animated.Node,
-  width?: ?number | Animated.Node,
-  marginTop?: ?number | Animated.Node,
-  marginRight?: ?number | Animated.Node,
-  marginLeft?: ?number | Animated.Node,
-  backgroundColor?: ?string | Animated.Node,
-  bottom?: ?number | Animated.Node,
+  opacity?: Value,
+  height?: Value,
+  width?: Value,
+  marginTop?: Value,
+  marginRight?: Value,
+  marginLeft?: Value,
+  backgroundColor?: ?string | Animated.Node | SharedValue<string>,
+  bottom?: Value,
   transform?: $ReadOnlyArray<ReanimatedTransform>,
   ...
 };
