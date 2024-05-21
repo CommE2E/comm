@@ -13,9 +13,12 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import Reanimated, {
-  EasingNode as ReanimatedEasing,
-  useValue,
+import {
+  Easing as ReanimatedEasing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
 
@@ -27,7 +30,6 @@ import type { AnimatedValue } from '../types/react-native.js';
 import {
   AnimatedView,
   AnimatedImage,
-  type AnimatedViewStyle,
   type AnimatedStyleObj,
 } from '../types/styles.js';
 
@@ -64,34 +66,33 @@ function MediaGalleryMedia(props: Props): React.Node {
     setFocus,
     dimensions,
   } = props;
-  const focusProgress: Reanimated.Value = useValue(0);
+  const focusProgress = useSharedValue(0);
   const checkProgress: AnimatedValue = React.useMemo(
     () => new Animated.Value(0),
     [],
   );
 
-  const buttonsStyle: AnimatedViewStyle = React.useMemo(() => {
-    const buttonsScale = Reanimated.interpolateNode(focusProgress, {
-      inputRange: [0, 1],
-      outputRange: [1.3, 1],
-    });
+  const buttonsStyleAnimated: AnimatedStyleObj = useAnimatedStyle(() => {
+    const buttonsScale = interpolate(focusProgress.value, [0, 1], [1.3, 1]);
+
     return {
-      ...styles.buttons,
-      opacity: focusProgress,
+      opacity: focusProgress.value,
       transform: [{ scale: buttonsScale }],
       marginBottom: dimensions.bottomInset,
     };
-  }, [focusProgress, dimensions.bottomInset]);
+  });
 
-  const mediaStyle: AnimatedStyleObj = React.useMemo(() => {
-    const mediaScale = Reanimated.interpolateNode(focusProgress, {
-      inputRange: [0, 1],
-      outputRange: [1, 1.3],
-    });
+  const buttonsStyle = React.useMemo(
+    () => [buttonsStyleAnimated, styles.buttons],
+    [buttonsStyleAnimated],
+  );
+
+  const mediaStyle: AnimatedStyleObj = useAnimatedStyle(() => {
+    const mediaScale = interpolate(focusProgress.value, [0, 1], [1, 1.3]);
     return {
       transform: [{ scale: mediaScale }],
     };
-  }, [focusProgress]);
+  });
 
   const prevActivityStatus = React.useRef({
     isFocused: false,
@@ -105,15 +106,9 @@ function MediaGalleryMedia(props: Props): React.Node {
       prevActivityStatus.current.isQueued;
 
     if (isActive && !wasActive) {
-      Reanimated.timing(focusProgress, {
-        ...reanimatedSpec,
-        toValue: 1,
-      }).start();
+      focusProgress.value = withTiming(1, reanimatedSpec);
     } else if (!isActive && wasActive) {
-      Reanimated.timing(focusProgress, {
-        ...reanimatedSpec,
-        toValue: 0,
-      }).start();
+      focusProgress.value = withTiming(0, reanimatedSpec);
     }
 
     if (isQueued && !prevActivityStatus.current.isQueued) {
