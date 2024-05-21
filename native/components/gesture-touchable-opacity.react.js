@@ -9,39 +9,27 @@ import {
   type LongPressGestureEvent,
   type TapGestureEvent,
 } from 'react-native-gesture-handler';
-import Animated, { EasingNode } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useSharedValue,
+  useAnimatedGestureHandler,
+  runOnJS,
+  withTiming,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
 import type { ReactRefSetter } from 'lib/types/react-types.js';
 
 import type { AnimatedViewStyle, ViewStyle } from '../types/styles.js';
-import {
-  runTiming,
-  useReanimatedValueForBoolean,
-} from '../utils/animation-utils.js';
-
-const {
-  Clock,
-  block,
-  event,
-  set,
-  call,
-  cond,
-  not,
-  and,
-  or,
-  eq,
-  stopClock,
-  clockRunning,
-  useValue,
-} = Animated;
+import { useSharedValueForBoolean } from '../utils/animation-utils.js';
 
 const pressAnimationSpec = {
   duration: 150,
-  easing: EasingNode.inOut(EasingNode.quad),
+  easing: Easing.inOut(Easing.quad),
 };
 const resetAnimationSpec = {
   duration: 250,
-  easing: EasingNode.inOut(EasingNode.quad),
+  easing: Easing.inOut(Easing.quad),
 };
 
 type Props = {
@@ -72,130 +60,89 @@ function ForwardedGestureTouchableOpacity(
   const activeOpacity = props.activeOpacity ?? 0.2;
 
   const { stickyActive, disabled } = props;
-  const activeValue = useReanimatedValueForBoolean(!!stickyActive);
-  const disabledValue = useReanimatedValueForBoolean(!!disabled);
+  const activeValue = useSharedValueForBoolean(!!stickyActive);
+  const disabledValue = useSharedValueForBoolean(!!disabled);
   const stickyActiveEnabled =
     stickyActive !== null && stickyActive !== undefined;
 
-  const longPressState = useValue(-1);
-  const tapState = useValue(-1);
-  const longPressEvent = React.useMemo(
-    () =>
-      event<LongPressGestureEvent>([
-        {
-          nativeEvent: {
-            state: longPressState,
-          },
-        },
-      ]),
-    [longPressState],
+  const longPressState = useSharedValue(-1);
+  const tapState = useSharedValue(-1);
+  const longPressEvent = useAnimatedGestureHandler<LongPressGestureEvent>(
+    {
+      onStart: () => {
+        longPressState.value = GestureState.BEGAN;
+      },
+      onActive: () => {
+        longPressState.value = GestureState.ACTIVE;
+        if (disabledValue.value) {
+          return;
+        }
+        if (stickyActiveEnabled) {
+          activeValue.value = true;
+        }
+        runOnJS(onLongPress)();
+      },
+      onEnd: () => {
+        longPressState.value = GestureState.END;
+      },
+      onFail: () => {
+        longPressState.value = GestureState.FAILED;
+      },
+      onCancel: () => {
+        longPressState.value = GestureState.CANCELLED;
+      },
+      onFinish: () => {
+        longPressState.value = GestureState.END;
+      },
+    },
+    [stickyActiveEnabled, onLongPress],
   );
-  const tapEvent = React.useMemo(
-    () =>
-      event<TapGestureEvent>([
-        {
-          nativeEvent: {
-            state: tapState,
-          },
-        },
-      ]),
-    [tapState],
-  );
-  const gestureActive = React.useMemo(
-    () =>
-      or(
-        eq(longPressState, GestureState.ACTIVE),
-        eq(tapState, GestureState.BEGAN),
-        eq(tapState, GestureState.ACTIVE),
-        activeValue,
-      ),
-    [longPressState, tapState, activeValue],
-  );
-
-  const curOpacity = useValue(1);
-
-  const pressClockRef = React.useRef<?Clock>();
-  if (!pressClockRef.current) {
-    pressClockRef.current = new Clock();
-  }
-  const pressClock = pressClockRef.current;
-  const resetClockRef = React.useRef<?Clock>();
-  if (!resetClockRef.current) {
-    resetClockRef.current = new Clock();
-  }
-  const resetClock = resetClockRef.current;
-
-  const animationCode = React.useMemo(
-    () => [
-      cond(or(gestureActive, clockRunning(pressClock)), [
-        set(
-          curOpacity,
-          runTiming(
-            pressClock,
-            curOpacity,
-            activeOpacity,
-            true,
-            pressAnimationSpec,
-          ),
-        ),
-        stopClock(resetClock),
-      ]),
-      // We have to do two separate conds here even though the condition is the
-      // same because if runTiming stops the pressClock, we need to immediately
-      // start the resetClock or Reanimated won't keep running the code because
-      // it will think there is nothing left to do
-      cond(
-        not(or(gestureActive, clockRunning(pressClock))),
-        set(
-          curOpacity,
-          runTiming(resetClock, curOpacity, 1, true, resetAnimationSpec),
-        ),
-      ),
-    ],
-    [gestureActive, curOpacity, pressClock, resetClock, activeOpacity],
+  const tapEvent = useAnimatedGestureHandler<TapGestureEvent>(
+    {
+      onStart: () => {
+        tapState.value = GestureState.BEGAN;
+      },
+      onActive: () => {
+        tapState.value = GestureState.ACTIVE;
+      },
+      onEnd: () => {
+        tapState.value = GestureState.END;
+        if (disabledValue.value) {
+          return;
+        }
+        if (stickyActiveEnabled) {
+          activeValue.value = true;
+        }
+        runOnJS(onPress)();
+      },
+      onFail: () => {
+        tapState.value = GestureState.FAILED;
+      },
+      onCancel: () => {
+        tapState.value = GestureState.CANCELLED;
+      },
+      onFinish: () => {
+        tapState.value = GestureState.END;
+      },
+    },
+    [stickyActiveEnabled, onPress],
   );
 
-  const prevTapSuccess = useValue(0);
-  const prevLongPressSuccess = useValue(0);
+  const curOpacity = useSharedValue(1);
 
-  const transformStyle = React.useMemo(() => {
-    const tapSuccess = eq(tapState, GestureState.END);
-    const longPressSuccess = eq(longPressState, GestureState.ACTIVE);
-    const opacity = block([
-      ...animationCode,
-      [
-        cond(and(tapSuccess, not(prevTapSuccess), not(disabledValue)), [
-          stickyActiveEnabled ? set(activeValue, 1) : undefined,
-          call([], onPress),
-        ]),
-        set(prevTapSuccess, tapSuccess),
-      ],
-      [
-        cond(
-          and(longPressSuccess, not(prevLongPressSuccess), not(disabledValue)),
-          [
-            stickyActiveEnabled ? set(activeValue, 1) : undefined,
-            call([], onLongPress),
-          ],
-        ),
-        set(prevLongPressSuccess, longPressSuccess),
-      ],
-      curOpacity,
-    ]);
-    return { opacity };
-  }, [
-    animationCode,
-    tapState,
-    longPressState,
-    prevTapSuccess,
-    prevLongPressSuccess,
-    curOpacity,
-    onPress,
-    onLongPress,
-    activeValue,
-    disabledValue,
-    stickyActiveEnabled,
-  ]);
+  const transformStyle = useAnimatedStyle(() => {
+    const gestureActive =
+      longPressState.value === GestureState.ACTIVE ||
+      tapState.value === GestureState.BEGAN ||
+      tapState.value === GestureState.ACTIVE ||
+      activeValue.value;
+    if (gestureActive) {
+      curOpacity.value = withTiming(activeOpacity, pressAnimationSpec);
+    } else {
+      curOpacity.value = withTiming(1, resetAnimationSpec);
+    }
+    return { opacity: curOpacity.value };
+  });
 
   const fillStyle = React.useMemo(() => {
     const result = StyleSheet.flatten<ViewStyle>(props.style);
