@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+
+# We prefer the wildcard approach because it's easier to exclude 
+# these from Dockerfiles with `sed`
+members = [
+  # All packages in these directories, except explicitly excluded
+  "services/*",
+  "shared/*",
+  # Other packages
+  "keyserver/addons/rust-node-addon",
+]
+
+exclude = [
+  # These directories are not Rust services
+  "services/electron-update-server",
+  "services/terraform",
+  "services/scripts",
+  "services/node_modules",
+  "shared/protos",
+  "shared/cmake",
+  # search-index-lambda has no common dependencies
+  "services/search-index-lambda",
+  # These fail to compile while in workspace
+  "web/backup-client-wasm",
+  "web/opaque-ke-wasm",
+  "native/native_rust_library",
+]
+
+[workspace.package]
+edition = "2021"
+license = "BSD-3-Clause"
+homepage = "https://comm.app"
+
+[workspace.dependencies]
+aws-config = "0.55.3"
+aws-sdk-dynamodb = "0.27.0"
+chrono = "0.4.38"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_json = "1.0.117"
+tokio = "1.37.0"
+tonic = "0.8.3"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
