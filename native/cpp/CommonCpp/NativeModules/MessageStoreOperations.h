@@ -210,4 +210,56 @@ private:
   std::vector<std::string> thread_ids;
 };
 
+class RemoveMessageStoreLocalMessageInfosOperation : public DBOperationBase {
+public:
+  RemoveMessageStoreLocalMessageInfosOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload)
+      : ids{} {
+    auto payload_ids = payload.getProperty(rt, "ids").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < payload_ids.size(rt); idx++) {
+      this->ids.push_back(
+          payload_ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt));
+    }
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeMessageStoreLocalMessageInfos(
+        this->ids);
+  }
+
+private:
+  std::vector<std::string> ids;
+};
+
+class ReplaceMessageStoreLocalMessageInfoOperation : public DBOperationBase {
+public:
+  ReplaceMessageStoreLocalMessageInfoOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload)
+      : localMessageInfo{} {
+    std::string id = payload.getProperty(rt, "id").asString(rt).utf8(rt);
+    std::string local_message_info =
+        payload.getProperty(rt, "localMessageInfo").asString(rt).utf8(rt);
+
+    this->localMessageInfo = LocalMessageInfo{id, local_message_info};
+  }
+
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().replaceMessageStoreLocalMessageInfo(
+        this->localMessageInfo);
+  }
+
+private:
+  LocalMessageInfo localMessageInfo;
+};
+
+class RemoveAllMessageStoreLocalMessageInfosOperation : public DBOperationBase {
+public:
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor()
+        .removeAllMessageStoreLocalMessageInfos();
+  }
+};
+
 } // namespace comm
