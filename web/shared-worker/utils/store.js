@@ -16,6 +16,7 @@ import type {
   ClientStore,
   StoreOperations,
 } from 'lib/types/store-ops-types.js';
+import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 import { entries } from 'lib/utils/objects.js';
 
 import { defaultWebState } from '../../redux/default-state.js';
@@ -143,6 +144,18 @@ async function getClientDBStore(): Promise<ClientStore> {
     result = {
       ...result,
       entries: entryStoreOpsHandlers.translateClientDBData(data.store.entries),
+    };
+  }
+
+  if (
+    data?.store?.messageStoreLocalMessageInfos &&
+    data.store.messageStoreLocalMessageInfos.length > 0
+  ) {
+    result = {
+      ...result,
+      messageStoreLocalMessageInfos: translateClientDBLocalMessageInfos(
+        data.store.messageStoreLocalMessageInfos,
+      ),
     };
   }
   return result;
