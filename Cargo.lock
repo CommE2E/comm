@@ -1248,7 +1248,6 @@ dependencies = [
  "async-stream",
  "aws-config",
  "aws-sdk-dynamodb",
- "aws-types",
  "bincode",
  "chrono",
  "clap",
