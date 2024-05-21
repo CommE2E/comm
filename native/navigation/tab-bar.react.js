@@ -3,7 +3,13 @@
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
-import Animated, { EasingNode } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  interpolate,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeArea } from 'react-native-safe-area-context';
 
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -16,17 +22,11 @@ import { updateDimensionsActiveType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import type { LayoutEvent } from '../types/react-native.js';
 
-const { Value, timing, interpolateNode } = Animated;
-
 const tabBarAnimationDuration = 200;
 
 type Props = React.ElementConfig<typeof BottomTabBar>;
 function TabBar(props: Props) {
-  const tabBarVisibleRef = React.useRef<?Value>();
-  if (!tabBarVisibleRef.current) {
-    tabBarVisibleRef.current = new Value(1);
-  }
-  const tabBarVisible = tabBarVisibleRef.current;
+  const tabBarVisible = useSharedValue(1);
 
   const keyboardState = React.useContext(KeyboardContext);
   const shouldHideTabBar = keyboardState?.mediaGalleryOpen;
@@ -43,14 +43,13 @@ function TabBar(props: Props) {
       const keyboardWasShowing =
         prevKeyboardState && prevKeyboardState.keyboardShowing;
       if (keyboardIsShowing === keyboardWasShowing) {
-        tabBarVisible.setValue(toValue);
+        tabBarVisible.value = toValue;
         return;
       }
-      timing(tabBarVisible, {
-        toValue,
+      tabBarVisible.value = withTiming(toValue, {
         duration: tabBarAnimationDuration,
-        easing: EasingNode.inOut(EasingNode.ease),
-      }).start();
+        easing: Easing.inOut(Easing.ease),
+      });
     },
     [keyboardState, prevKeyboardState, tabBarVisible],
   );
@@ -100,20 +99,17 @@ function TabBar(props: Props) {
     [setTabBarHeight, setReduxTabBarHeight, insets],
   );
 
-  const containerHeight = React.useMemo(
-    () =>
-      interpolateNode(tabBarVisible, {
-        inputRange: [0, 1],
-        outputRange: [0, tabBarHeight],
-      }),
-    [tabBarVisible, tabBarHeight],
-  );
+  const animatedStyle = useAnimatedStyle(() => {
+    if (!tabBarHeight) {
+      return { height: undefined };
+    }
+    const height = interpolate(tabBarVisible.value, [0, 1], [0, tabBarHeight]);
+    return { height };
+  });
+
   const containerStyle = React.useMemo(
-    () => ({
-      height: tabBarHeight ? containerHeight : undefined,
-      ...styles.container,
-    }),
-    [tabBarHeight, containerHeight],
+    () => [animatedStyle, styles.container],
+    [animatedStyle],
   );
 
   if (Platform.OS !== 'android') {
