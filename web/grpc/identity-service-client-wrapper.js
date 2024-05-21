@@ -405,7 +405,12 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const userID = loginFinishResponse.getUserId();
     const accessToken = loginFinishResponse.getAccessToken();
-    const identityAuthResult = { accessToken, userID, username };
+    const usernameResponse = loginFinishResponse.getUsername();
+    const identityAuthResult = {
+      accessToken,
+      userID,
+      username: usernameResponse,
+    };
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
@@ -442,7 +447,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const userID = loginResponse.getUserId();
     const accessToken = loginResponse.getAccessToken();
-    const identityAuthResult = { accessToken, userID, username: walletAddress };
+    const username = loginResponse.getUsername();
+    const identityAuthResult = { accessToken, userID, username };
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
@@ -478,7 +484,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
     const userID = response.getUserId();
     const accessToken = response.getAccessToken();
-    const identityAuthResult = { accessToken, userID, username: '' };
+    const username = response.getUsername();
+    const identityAuthResult = { accessToken, userID, username };
 
     return assertWithValidator(identityAuthResult, identityAuthResultValidator);
   };
