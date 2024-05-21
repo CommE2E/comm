@@ -1,6 +1,6 @@
 // @flow
 
-import Alert from '../utils/alert.js';
+import { Alert } from 'react-native';
 
 function onStateDifference(message: string) {
   Alert.alert('State difference found', message);
