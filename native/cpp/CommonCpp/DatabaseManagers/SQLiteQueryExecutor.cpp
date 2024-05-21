@@ -3,6 +3,7 @@
 
 #include "entities/CommunityInfo.h"
 #include "entities/EntityQueryHelpers.h"
+#include "entities/EntryInfo.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/Metadata.h"
@@ -640,6 +641,15 @@ bool create_received_messages_to_device(sqlite3 *db) {
   return create_table(db, query, "received_messages_to_device");
 }
 
+bool create_entries_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS entries ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  entry_info TEXT NOT NULL"
+      ");";
+  return create_table(db, query, "entries");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -775,6 +785,11 @@ bool create_schema(sqlite3 *db) {
       "  sender_device_id TEXT NOT NULL,"
       "  plaintext TEXT NOT NULL,"
       "  status TEXT NOT NULL"
+      ");"
+
+      "CREATE TABLE IF NOT EXISTS entries ("
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  entry_info TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -1030,7 +1045,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {41, {create_aux_user_table, true}},
      {42, {add_version_column_to_olm_persist_sessions_table, true}},
      {43, {create_thread_activity_table, true}},
-     {44, {create_received_messages_to_device, true}}}};
+     {44, {create_received_messages_to_device, true}},
+     {45, {create_entries_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -1927,6 +1943,43 @@ SQLiteQueryExecutor::getAllThreadActivityEntries() const {
       "FROM thread_activity;";
   return getAllEntities<ThreadActivityEntry>(
       SQLiteQueryExecutor::getConnection(), getAllThreadActivityEntriesSQL);
+}
+
+void SQLiteQueryExecutor::replaceEntry(const EntryInfo &entry_info) const {
+  static std::string replaceEntrySQL =
+      "REPLACE INTO entries (id, entry_info) "
+      "VALUES (?, ?);";
+  replaceEntity<EntryInfo>(
+      SQLiteQueryExecutor::getConnection(), replaceEntrySQL, entry_info);
+}
+
+void SQLiteQueryExecutor::removeAllEntries() const {
+  static std::string removeAllEntriesSQL = "DELETE FROM entries;";
+  removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllEntriesSQL);
+}
+
+void SQLiteQueryExecutor::removeEntries(
+    const std::vector<std::string> &ids) const {
+  if (!ids.size()) {
+    return;
+  }
+
+  std::stringstream removeEntriesByKeysSQLStream;
+  removeEntriesByKeysSQLStream << "DELETE FROM entries "
+                                  "WHERE id IN "
+                               << getSQLStatementArray(ids.size()) << ";";
+  removeEntitiesByKeys(
+      SQLiteQueryExecutor::getConnection(),
+      removeEntriesByKeysSQLStream.str(),
+      ids);
+}
+
+std::vector<EntryInfo> SQLiteQueryExecutor::getAllEntries() const {
+  static std::string getAllEntriesSQL =
+      "SELECT * "
+      "FROM entries;";
+  return getAllEntities<EntryInfo>(
+      SQLiteQueryExecutor::getConnection(), getAllEntriesSQL);
 }
 
 void SQLiteQueryExecutor::beginTransaction() const {
