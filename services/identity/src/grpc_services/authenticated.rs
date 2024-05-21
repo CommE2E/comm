@@ -677,6 +677,7 @@ impl IdentityClientService for AuthenticatedService {
   }
 }
 
+#[allow(dead_code)]
 enum DeviceListItemKind {
   Any,
   Primary,

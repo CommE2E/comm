@@ -296,10 +296,10 @@ pub async fn create_userkeys_compaction(
 }
 
 pub async fn create_siwe_backup_msg_compaction(
-  backup_id: &String,
+  backup_id: &str,
   siwe_backup_msg: String,
 ) -> Result<(), Box<dyn Error>> {
-  let siwe_backup_msg_file = get_siwe_backup_message_path(&backup_id)?;
+  let siwe_backup_msg_file = get_siwe_backup_message_path(backup_id)?;
   tokio::fs::write(siwe_backup_msg_file, siwe_backup_msg).await?;
 
   Ok(())

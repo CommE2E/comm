@@ -212,6 +212,7 @@ mod tests {
   use super::CODE_VERSION;
 
   #[test]
+  #[allow(clippy::assertions_on_constants)]
   fn test_code_version_exists() {
     assert!(CODE_VERSION > 0);
   }
