@@ -26,6 +26,7 @@ import {
   type RecoveryFromDataHandlerActionSource,
 } from 'lib/types/account-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { translateClientDBLocalMessageInfos } from 'lib/utils/message-ops-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { supportingMultipleKeyservers } from 'lib/utils/services-utils.js';
@@ -244,6 +245,7 @@ function SQLiteDataHandler(): React.Node {
           auxUserInfos,
           threadActivityEntries,
           entries,
+          messageStoreLocalMessageInfos,
         } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB =
           threadStoreOpsHandlers.translateClientDBData(threads);
@@ -268,6 +270,9 @@ function SQLiteDataHandler(): React.Node {
           );
         const entriesFromDB =
           entryStoreOpsHandlers.translateClientDBData(entries);
+        const localMessageInfosFromDB = translateClientDBLocalMessageInfos(
+          messageStoreLocalMessageInfos,
+        );
         dispatch({
           type: setClientDBStoreActionType,
           payload: {
@@ -285,6 +290,7 @@ function SQLiteDataHandler(): React.Node {
             auxUserInfos: auxUserInfosFromDB,
             threadActivityStore: threadActivityStoreFromDB,
             entries: entriesFromDB,
+            messageStoreLocalMessageInfos: localMessageInfosFromDB,
           },
         });
       } catch (setStoreException) {
