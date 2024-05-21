@@ -41,6 +41,7 @@ use backup::ffi::*;
 use identity::ffi::*;
 use utils::future_manager::ffi::*;
 
+#[allow(clippy::too_many_arguments)]
 #[cxx::bridge]
 mod ffi {
 

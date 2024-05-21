@@ -1,8 +1,9 @@
 [package]
-edition = "2021"
 name = "rust-node-addon"
 version = "0.1.0"
-license = "BSD-3-Clause"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
@@ -14,12 +15,12 @@ napi = { version = "2.10.1", default-features = false, features = [
   "tokio_rt",
 ] }
 napi-derive = { version = "2.9.1", default-features = false }
-tonic = { version = "0.9.1", features = ["tls"]}
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tonic = { version = "0.9.1", features = ["tls"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
-comm-opaque2 = {path = "../../../shared/comm-opaque2"}
+comm-opaque2 = { path = "../../../shared/comm-opaque2" }
 grpc_clients = { path = "../../../shared/grpc_clients" }
 lazy_static = "1.4"
 serde_json = "1.0"
@@ -29,5 +30,5 @@ serde = { version = "1.0", features = ["derive"] }
 napi-build = "2.0.1"
 regex = "1"
 
-[profile.release]
-lto = true
+# [profile.release]
+# lto = true

@@ -81,8 +81,8 @@ async fn max_hundred_keys_in_ddb() {
       (0..20).map(|_| generate_random_olm_key()).collect();
 
     if request_num == 0 {
-      expected_first_retrieved_content_key = content_keys.get(0).cloned();
-      expected_first_retrieved_notif_key = notif_keys.get(0).cloned();
+      expected_first_retrieved_content_key = content_keys.first().cloned();
+      expected_first_retrieved_notif_key = notif_keys.first().cloned();
       expected_second_retrieved_content_key = content_keys.get(5).cloned();
       expected_second_retrieved_notif_key = notif_keys.get(5).cloned();
     }

@@ -4,7 +4,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   build-essential cmake git libgtest-dev libssl-dev zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /home/root/app/reports
+WORKDIR /home/root/services/reports
 
 # Install more recent version of protobuf, must be ran as root
 COPY scripts/install_protobuf.sh ../../scripts/install_protobuf.sh
@@ -12,11 +12,17 @@ RUN ../../scripts/install_protobuf.sh
 
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
+# Copy and prepare cargo workspace
+COPY Cargo.toml ../../Cargo.toml
+COPY Cargo.lock ../../Cargo.lock
+# Remove rust-node-addon and native_rust_library from cargo workspace
+RUN sed -i -E '/rust-node-addon|native_rust_library|web/d' ../../Cargo.toml
+
 # Copy actual application sources
 COPY shared ../../shared/
 COPY services/reports ./
 
-RUN cargo install --locked --path .
+RUN cargo build --release --target-dir /out
 
 # Runner stage
 FROM debian:bullseye-slim as runner
@@ -27,7 +33,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Only copy built binary from builder stage
-COPY --from=builder /usr/local/cargo/bin/reports /usr/local/bin/reports
+COPY --from=builder /out/release/reports /usr/local/bin/reports
 WORKDIR /home/comm/app/reports
 
 # Create a new user comm and use it to run subsequent commands
