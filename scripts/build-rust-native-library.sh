@@ -46,6 +46,6 @@ fi
 unset CXXFLAGS
 # Copy the CXX files to the cargo project root to make them
 # available to XCode
-cp "$(readlink target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.cc)" .
-cp "$(readlink target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.h)" .
-cp "$(readlink target/${TARGET}/cxxbridge/rust/cxx.h)" .
+cp "${PRJ_ROOT}/target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.cc" .
+cp "${PRJ_ROOT}/target/${TARGET}/cxxbridge/native_rust_library/src/lib.rs.h" .
+cp "${PRJ_ROOT}/target/${TARGET}/cxxbridge/rust/cxx.h" .
