@@ -76,7 +76,7 @@ pub struct DatabaseClient {
 }
 
 impl DatabaseClient {
-  pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+  pub fn new(aws_config: &aws_config::SdkConfig) -> Self {
     DatabaseClient {
       client: Arc::new(aws_sdk_dynamodb::Client::new(aws_config)),
     }
