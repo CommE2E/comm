@@ -156,7 +156,7 @@ declare module 'react-native-reanimated' {
   ) => T;
 
   declare type EasingType = { ... };
-  declare type EasingModule = {
+  declare type EasingNodeModule = {
     +ease: EasingType,
     +quad: EasingType,
     +in: EasingType => EasingType,
@@ -164,9 +164,19 @@ declare module 'react-native-reanimated' {
     +inOut: EasingType => EasingType,
     ...
   };
-  declare export var EasingNode: EasingModule;
+  declare export var EasingNode: EasingNodeModule;
+
   declare type EasingFn = (t: number) => number;
   declare type EasingFnFactory = { +factory: () => EasingFn };
+  declare type EasingModule = {
+    +ease: EasingFn,
+    +quad: EasingFn,
+    +in: EasingFn => EasingFn,
+    +out: EasingFn => EasingFn,
+    +inOut: EasingFn => EasingFn,
+    ...
+  };
+  declare export var Easing: EasingModule;
 
   declare export type TimingState = {
     +finished: ValueImpl,
