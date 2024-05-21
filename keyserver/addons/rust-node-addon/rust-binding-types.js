@@ -61,6 +61,7 @@ type RustNativeBindingAPI = {
   +getFarcasterUsers: (
     farcasterIds: $ReadOnlyArray<string>,
   ) => Promise<$ReadOnlyArray<FarcasterUser>>,
+  +generateNonce: () => Promise<string>,
 };
 
 export type { RustNativeBindingAPI };
