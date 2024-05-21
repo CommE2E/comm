@@ -83,7 +83,7 @@ impl DatabaseClient {
       .await
       .map_err(|err| {
         debug!("DynamoDB client failed to delete blob item: {:?}", err);
-        DBError::AwsSdk(err.into())
+        DBError::AwsSdk(Box::new(err.into()))
       })?;
     Ok(())
   }
@@ -170,7 +170,7 @@ impl DatabaseClient {
       .await
       .map_err(|err| {
         debug!("DynamoDB client failed to run transaction: {:?}", err);
-        DBError::AwsSdk(err.into())
+        DBError::AwsSdk(Box::new(err.into()))
       })?;
     Ok(())
   }
@@ -202,7 +202,7 @@ impl DatabaseClient {
       .await
       .map_err(|err| {
         error!("DynamoDB client failed to query holders: {:?}", err);
-        DBError::AwsSdk(err.into())
+        DBError::AwsSdk(Box::new(err.into()))
       })?;
 
     let Some(items) = response.items else {
@@ -271,7 +271,7 @@ impl DatabaseClient {
       .await
       .map_err(|err| {
         error!("DynamoDB client failed to query unchecked items: {:?}", err);
-        DBError::AwsSdk(err.into())
+        DBError::AwsSdk(Box::new(err.into()))
       })?;
 
     let Some(items) = response.items else {
@@ -383,7 +383,7 @@ impl DatabaseClient {
         }
         err => {
           debug!("DynamoDB client failed to insert: {:?}", err);
-          DBError::AwsSdk(err)
+          DBError::AwsSdk(Box::new(err))
         }
       })
   }
@@ -402,7 +402,7 @@ impl DatabaseClient {
       .await
       .map_err(|err| {
         debug!("DynamoDB client failed to get item: {:?}", err);
-        DBError::AwsSdk(err.into())
+        DBError::AwsSdk(Box::new(err.into()))
       })
       .map(|response| response.item)
   }
