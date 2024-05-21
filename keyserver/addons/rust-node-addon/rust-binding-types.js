@@ -62,6 +62,18 @@ type RustNativeBindingAPI = {
     farcasterIds: $ReadOnlyArray<string>,
   ) => Promise<$ReadOnlyArray<FarcasterUser>>,
   +generateNonce: () => Promise<string>,
+  +uploadSecondaryDeviceKeysAndLogIn: (
+    userId: string,
+    nonce: string,
+    nonceSignature: string,
+    signedIdentityKeysBlob: SignedIdentityKeysBlob,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+  ) => Promise<IdentityInfo>,
 };
 
 export type { RustNativeBindingAPI };
