@@ -16,6 +16,11 @@ import {
   convertConnectionInfoToNewIDSchema,
 } from 'lib/_generated/migration-utils.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import type {
+  ClientDBEntryStoreOperation,
+  ReplaceEntryOperation,
+} from 'lib/ops/entries-store-ops';
+import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
 import {
   type ClientDBIntegrityStoreOperation,
   integrityStoreOpsHandlers,
@@ -1289,6 +1294,35 @@ const migrations = {
       [messageTypes.UPDATE_RELATIONSHIP],
       handleReduxMigrationFailure,
     ),
+  [75]: async (state: AppState) => {
+    const replaceOps: $ReadOnlyArray<ReplaceEntryOperation> = entries(
+      state.entryStore.entryInfos,
+    ).map(([id, entry]) => ({
+      type: 'replace_entry',
+      payload: {
+        id,
+        entry,
+      },
+    }));
+
+    const dbOperations: $ReadOnlyArray<ClientDBEntryStoreOperation> =
+      entryStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_entries' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processDBStoreOperations({
+        entryStoreOperations: dbOperations,
+      });
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+    return state;
+  },
 };
 
 type PersistedReportStore = $Diff<
@@ -1310,7 +1344,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 74,
+  version: 75,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
