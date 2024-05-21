@@ -8,6 +8,7 @@
 #include "entities/InboundP2PMessage.h"
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
+#include "entities/LocalMessageInfo.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
@@ -113,6 +114,13 @@ public:
   virtual void removeEntries(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllEntries() const = 0;
   virtual std::vector<EntryInfo> getAllEntries() const = 0;
+  virtual void replaceMessageStoreLocalMessageInfo(
+      const LocalMessageInfo &local_message_info) const = 0;
+  virtual void removeMessageStoreLocalMessageInfos(
+      const std::vector<std::string> &ids) const = 0;
+  virtual void removeAllMessageStoreLocalMessageInfos() const = 0;
+  virtual std::vector<LocalMessageInfo>
+  getAllMessageStoreLocalMessageInfos() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;
