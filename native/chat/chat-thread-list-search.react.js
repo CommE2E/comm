@@ -2,7 +2,13 @@
 
 import * as React from 'react';
 import { TextInput as BaseTextInput } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  interpolate,
+  useAnimatedStyle,
+  withTiming,
+  useDerivedValue,
+} from 'react-native-reanimated';
 
 import type { ReactRefSetter } from 'lib/types/react-types.js';
 
@@ -10,10 +16,7 @@ import type { SearchStatus } from './chat-thread-list.react.js';
 import Button from '../components/button.react.js';
 import Search from '../components/search.react.js';
 import { useStyles } from '../themes/colors.js';
-import { AnimatedView, type AnimatedStyleObj } from '../types/styles.js';
-import { animateTowards } from '../utils/animation-utils.js';
-
-const { Node, Value, interpolateNode, useValue } = Animated;
+import { AnimatedView } from '../types/styles.js';
 
 type Props = {
   +searchText: string,
@@ -40,48 +43,40 @@ function ForwardedChatThreadListSearch(
   } = props;
   const styles = useStyles(unboundStyles);
 
-  const searchCancelButtonOpen: Value = useValue(0);
-  const searchCancelButtonProgress: Node = React.useMemo(
-    () => animateTowards(searchCancelButtonOpen, 100),
-    [searchCancelButtonOpen],
+  const searchCancelButtonOpen = useSharedValue(false);
+  const searchCancelButtonProgress = useDerivedValue(() =>
+    withTiming(searchCancelButtonOpen.value ? 1 : 0),
   );
-  const searchCancelButtonOffset: Node = React.useMemo(
-    () =>
-      interpolateNode(searchCancelButtonProgress, {
-        inputRange: [0, 1],
-        outputRange: [0, 56],
-      }),
-    [searchCancelButtonProgress],
+
+  const searchCancelButtonOffset = useDerivedValue(() =>
+    interpolate(searchCancelButtonProgress.value, [0, 1], [0, 56]),
   );
 
   const isActiveOrActivating =
     searchStatus === 'active' || searchStatus === 'activating';
   React.useEffect(() => {
     if (isActiveOrActivating) {
-      searchCancelButtonOpen.setValue(1);
+      searchCancelButtonOpen.value = true;
     } else {
-      searchCancelButtonOpen.setValue(0);
+      searchCancelButtonOpen.value = false;
     }
   }, [isActiveOrActivating, searchCancelButtonOpen]);
 
-  const animatedSearchBoxStyle: AnimatedStyleObj = React.useMemo(
-    () => ({
-      marginRight: searchCancelButtonOffset,
-    }),
-    [searchCancelButtonOffset],
-  );
+  const animatedSearchBoxStyle = useAnimatedStyle(() => ({
+    marginRight: searchCancelButtonOffset.value,
+  }));
 
   const searchBoxStyle = React.useMemo(
     () => [styles.searchBox, animatedSearchBoxStyle],
     [animatedSearchBoxStyle, styles.searchBox],
   );
 
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    opacity: searchCancelButtonProgress.value,
+  }));
   const buttonStyle = React.useMemo(
-    () => [
-      styles.cancelSearchButtonText,
-      { opacity: searchCancelButtonProgress },
-    ],
-    [searchCancelButtonProgress, styles.cancelSearchButtonText],
+    () => [styles.cancelSearchButtonText, animatedButtonStyle],
+    [animatedButtonStyle, styles.cancelSearchButtonText],
   );
 
   const innerSearchNode = React.useMemo(
