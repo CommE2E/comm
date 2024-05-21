@@ -43,7 +43,7 @@ async fn refresh_token_test() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let mut account = SigningCapableAccount::new();
+  let account = SigningCapableAccount::new();
   let client_keys = account.public_keys();
   let user = register_user_device(Some(&client_keys), None).await;
 
