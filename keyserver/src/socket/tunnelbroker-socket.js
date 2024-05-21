@@ -1,6 +1,7 @@
 // @flow
 
 import _debounce from 'lodash/debounce.js';
+import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
 import WebSocket from 'ws';
 
@@ -33,8 +34,12 @@ import type {
 import type { Heartbeat } from 'lib/types/websocket/heartbeat-types.js';
 import { convertBytesToObj } from 'lib/utils/conversion-utils.js';
 
+import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { decrypt } from '../utils/aes-crypto-utils.js';
-import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
+import {
+  uploadNewOneTimeKeys,
+  getNewDeviceKeyUpload,
+} from '../utils/olm-utils.js';
 
 type PromiseCallbacks = {
   +resolve: () => void,
@@ -145,7 +150,11 @@ class TunnelbrokerSocket {
         const messageToKeyserver = JSON.parse(payload);
         if (qrCodeAuthMessageValidator.is(messageToKeyserver)) {
           const request: QRCodeAuthMessage = messageToKeyserver;
-          const qrCodeAuthMessage = await this.parseQRCodeAuthMessage(request);
+          const [qrCodeAuthMessage, rustAPI, accountInfo] = await Promise.all([
+            this.parseQRCodeAuthMessage(request),
+            getRustAPI(),
+            fetchOlmAccount('content'),
+          ]);
           if (
             !qrCodeAuthMessage ||
             qrCodeAuthMessage.type !==
@@ -153,6 +162,32 @@ class TunnelbrokerSocket {
           ) {
             return;
           }
+          const { primaryDeviceID: receivedPrimaryDeviceID, userID } =
+            qrCodeAuthMessage;
+          console.log(receivedPrimaryDeviceID, userID);
+          const [nonce, deviceKeyUpload] = await Promise.all([
+            rustAPI.generateNonce(),
+            getNewDeviceKeyUpload(),
+          ]);
+          console.log(deviceKeyUpload);
+          const signedIdentityKeysBlob = {
+            payload: deviceKeyUpload.keyPayload,
+            signature: deviceKeyUpload.keyPayloadSignature,
+          };
+          const nonceSignature = accountInfo.account.sign(nonce);
+
+          await rustAPI.uploadSecondaryDeviceKeysAndLogIn(
+            userID,
+            nonce,
+            nonceSignature,
+            signedIdentityKeysBlob,
+            deviceKeyUpload.contentPrekey,
+            deviceKeyUpload.contentPrekeySignature,
+            deviceKeyUpload.notifPrekey,
+            deviceKeyUpload.notifPrekeySignature,
+            deviceKeyUpload.contentOneTimeKeys,
+            deviceKeyUpload.notifOneTimeKeys,
+          );
         } else if (refreshKeysRequestValidator.is(messageToKeyserver)) {
           const request: RefreshKeyRequest = messageToKeyserver;
           this.debouncedRefreshOneTimeKeys(request.numberOfKeys);
