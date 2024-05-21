@@ -14,9 +14,9 @@ use grpc_clients::identity::{
 use tracing::instrument;
 
 use super::{
-  farcaster::farcaster_id_string_to_option, RegisterPasswordUserInfo,
-  RegisterReservedPasswordUserInfo, RegisterReservedWalletUserInfo,
-  RegisterWalletUserInfo, UserIDAndDeviceAccessToken,
+  farcaster::farcaster_id_string_to_option, IdentityAuthResult,
+  RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
+  RegisterReservedWalletUserInfo, RegisterWalletUserInfo,
 };
 
 pub mod ffi {
@@ -228,9 +228,8 @@ async fn register_password_user_helper(
     .register_password_user_finish(registration_finish_request)
     .await?
     .into_inner();
-  let user_id_and_access_token =
-    UserIDAndDeviceAccessToken::from(registration_finish_response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(registration_finish_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn register_reserved_password_user_helper(
@@ -277,9 +276,8 @@ async fn register_reserved_password_user_helper(
     .register_password_user_finish(registration_finish_request)
     .await?
     .into_inner();
-  let user_id_and_access_token =
-    UserIDAndDeviceAccessToken::from(registration_finish_response);
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(registration_finish_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn register_wallet_user_helper(
@@ -305,11 +303,8 @@ async fn register_wallet_user_helper(
     .await?
     .into_inner();
 
-  let user_id_and_access_token = UserIDAndDeviceAccessToken {
-    user_id: registration_response.user_id,
-    access_token: registration_response.access_token,
-  };
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(registration_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
 
 async fn register_reserved_wallet_user_helper(
@@ -336,9 +331,6 @@ async fn register_reserved_wallet_user_helper(
     .await?
     .into_inner();
 
-  let user_id_and_access_token = UserIDAndDeviceAccessToken {
-    user_id: registration_response.user_id,
-    access_token: registration_response.access_token,
-  };
-  Ok(serde_json::to_string(&user_id_and_access_token)?)
+  let auth_result = IdentityAuthResult::from(registration_response);
+  Ok(serde_json::to_string(&auth_result)?)
 }
