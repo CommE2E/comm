@@ -71,6 +71,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<EntryInfo>("EntryInfo")
       .field("id", &EntryInfo::id)
       .field("entry", &EntryInfo::entry);
+  value_object<LocalMessageInfo>("LocalMessageInfo")
+      .field("id", &LocalMessageInfo::id)
+      .field("localMessageInfo", &LocalMessageInfo::local_message_info);
 
   value_object<WebThread>("WebThread")
       .field("id", &WebThread::id)
@@ -245,6 +248,11 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("removeEntries", &SQLiteQueryExecutor::removeEntries)
       .function("removeAllEntries", &SQLiteQueryExecutor::removeAllEntries)
       .function("getAllEntries", &SQLiteQueryExecutor::getAllEntries)
+      .function("replaceMessageStoreLocalMessageInfo", &SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo)
+      .function("removeMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos)
+      .function(
+          "removeAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos)
+      .function("getAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
