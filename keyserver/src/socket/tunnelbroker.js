@@ -1,7 +1,10 @@
 // @flow
 
 import { clientTunnelbrokerSocketReconnectDelay } from 'lib/shared/timeouts.js';
-import type { ConnectionInitializationMessage } from 'lib/types/tunnelbroker/session-types.js';
+import type {
+  ConnectionInitializationMessage,
+  AnonymousInitializationMessage,
+} from 'lib/types/tunnelbroker/session-types.js';
 import { getCommConfig } from 'lib/utils/comm-config.js';
 import sleep from 'lib/utils/sleep.js';
 
@@ -45,13 +48,50 @@ async function createAndMaintainTunnelbrokerWebsocket(
     deviceType: 'keyserver',
   };
 
+  createAndMaintainTunnelbrokerWebsocketBase(tbConnectionInfo.url, initMessage);
+}
+
+async function createAndMaintainAnonymousTunnelbrokerWebsocket(
+  encryptionKey: string,
+) {
+  const [deviceID, tbConnectionInfo] = await Promise.all([
+    getContentSigningKey(),
+    getTBConnectionInfo(),
+  ]);
+
+  const initMessage: AnonymousInitializationMessage = {
+    type: 'AnonymousInitializationMessage',
+    deviceID: deviceID,
+    deviceType: 'keyserver',
+  };
+
+  createAndMaintainTunnelbrokerWebsocketBase(
+    tbConnectionInfo.url,
+    initMessage,
+    encryptionKey,
+  );
+}
+
+function createAndMaintainTunnelbrokerWebsocketBase(
+  url: string,
+  initMessage: ConnectionInitializationMessage | AnonymousInitializationMessage,
+  encryptionKey?: string,
+) {
   const createNewTunnelbrokerSocket = () => {
-    new TunnelbrokerSocket(tbConnectionInfo.url, initMessage, async () => {
-      await sleep(clientTunnelbrokerSocketReconnectDelay);
-      createNewTunnelbrokerSocket();
-    });
+    new TunnelbrokerSocket(
+      url,
+      initMessage,
+      async () => {
+        await sleep(clientTunnelbrokerSocketReconnectDelay);
+        createNewTunnelbrokerSocket();
+      },
+      encryptionKey,
+    );
   };
   createNewTunnelbrokerSocket();
 }
 
-export { createAndMaintainTunnelbrokerWebsocket };
+export {
+  createAndMaintainTunnelbrokerWebsocket,
+  createAndMaintainAnonymousTunnelbrokerWebsocket,
+};

@@ -19,6 +19,10 @@ import {
   qrCodeAuthMessagePayloadValidator,
   type QRCodeAuthMessagePayload,
 } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import {
+  convertBytesToObj,
+  convertObjToBytes,
+} from 'lib/utils/conversion-utils.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
@@ -29,10 +33,6 @@ import {
   base64DecodeBuffer,
   base64EncodeBuffer,
 } from '../utils/base64-utils.js';
-import {
-  convertBytesToObj,
-  convertObjToBytes,
-} from '../utils/conversion-utils.js';
 
 async function composeTunnelbrokerMessage(
   encryptionKey: string,

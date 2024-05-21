@@ -4,6 +4,7 @@ import _debounce from 'lodash/debounce.js';
 import uuid from 'uuid';
 import WebSocket from 'ws';
 
+import { hexToUintArray } from 'lib/media/data-utils.js';
 import { tunnelbrokerHeartbeatTimeout } from 'lib/shared/timeouts.js';
 import type { TunnelbrokerClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type { MessageReceiveConfirmation } from 'lib/types/tunnelbroker/message-receive-confirmation-types.js';
@@ -15,12 +16,24 @@ import {
   tunnelbrokerMessageValidator,
 } from 'lib/types/tunnelbroker/messages.js';
 import {
+  qrCodeAuthMessageValidator,
   type RefreshKeyRequest,
   refreshKeysRequestValidator,
+  type QRCodeAuthMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
-import type { ConnectionInitializationMessage } from 'lib/types/tunnelbroker/session-types.js';
+import {
+  type QRCodeAuthMessagePayload,
+  qrCodeAuthMessagePayloadValidator,
+  qrCodeAuthMessageTypes,
+} from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
+import type {
+  ConnectionInitializationMessage,
+  AnonymousInitializationMessage,
+} from 'lib/types/tunnelbroker/session-types.js';
 import type { Heartbeat } from 'lib/types/websocket/heartbeat-types.js';
+import { convertBytesToObj } from 'lib/utils/conversion-utils.js';
 
+import { decrypt } from '../utils/aes-crypto-utils.js';
 import { uploadNewOneTimeKeys } from '../utils/olm-utils.js';
 
 type PromiseCallbacks = {
@@ -36,11 +49,16 @@ class TunnelbrokerSocket {
   promises: Promises = {};
   heartbeatTimeoutID: ?TimeoutID;
   oneTimeKeysPromise: ?Promise<void>;
+  anonymous: boolean = false;
+  qrAuthEncryptionKey: ?string;
 
   constructor(
     socketURL: string,
-    initMessage: ConnectionInitializationMessage,
+    initMessage:
+      | ConnectionInitializationMessage
+      | AnonymousInitializationMessage,
     onClose: () => mixed,
+    qrAuthEncryptionKey?: string,
   ) {
     const socket = new WebSocket(socketURL);
 
@@ -68,6 +86,10 @@ class TunnelbrokerSocket {
     socket.on('message', this.onMessage);
 
     this.ws = socket;
+    this.anonymous = !initMessage.accessToken;
+    if (qrAuthEncryptionKey) {
+      this.qrAuthEncryptionKey = qrAuthEncryptionKey;
+    }
   }
 
   onMessage: (event: ArrayBuffer) => Promise<void> = async (
@@ -95,7 +117,11 @@ class TunnelbrokerSocket {
     ) {
       if (message.status.type === 'Success' && !this.connected) {
         this.connected = true;
-        console.info('session with Tunnelbroker created');
+        console.info(
+          this.anonymous
+            ? 'anonymous session with Tunnelbroker created'
+            : 'session with Tunnelbroker created',
+        );
       } else if (message.status.type === 'Success' && this.connected) {
         console.info(
           'received ConnectionInitializationResponse with status: Success for already connected socket',
@@ -117,7 +143,17 @@ class TunnelbrokerSocket {
       const { payload } = message;
       try {
         const messageToKeyserver = JSON.parse(payload);
-        if (refreshKeysRequestValidator.is(messageToKeyserver)) {
+        if (qrCodeAuthMessageValidator.is(messageToKeyserver)) {
+          const request: QRCodeAuthMessage = messageToKeyserver;
+          const qrCodeAuthMessage = await this.parseQRCodeAuthMessage(request);
+          if (
+            !qrCodeAuthMessage ||
+            qrCodeAuthMessage.type !==
+              qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS
+          ) {
+            return;
+          }
+        } else if (refreshKeysRequestValidator.is(messageToKeyserver)) {
           const request: RefreshKeyRequest = messageToKeyserver;
           this.debouncedRefreshOneTimeKeys(request.numberOfKeys);
         }
@@ -212,6 +248,26 @@ class TunnelbrokerSocket {
       this.connected = false;
     }, tunnelbrokerHeartbeatTimeout);
   }
+
+  parseQRCodeAuthMessage: (
+    message: QRCodeAuthMessage,
+  ) => Promise<?QRCodeAuthMessagePayload> = async message => {
+    const encryptionKey = this.qrAuthEncryptionKey;
+    if (!encryptionKey) {
+      return null;
+    }
+    const encryptedData = Buffer.from(message.encryptedContent, 'base64');
+    const decryptedData = await decrypt(
+      hexToUintArray(encryptionKey),
+      new Uint8Array(encryptedData),
+    );
+    const payload = convertBytesToObj<QRCodeAuthMessagePayload>(decryptedData);
+    if (!qrCodeAuthMessagePayloadValidator.is(payload)) {
+      return null;
+    }
+
+    return payload;
+  };
 }
 
 export default TunnelbrokerSocket;
