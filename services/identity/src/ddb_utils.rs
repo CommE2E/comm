@@ -1,4 +1,4 @@
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use comm_lib::{
   aws::{
     ddb::types::{
@@ -158,17 +158,6 @@ pub fn into_one_time_update_and_delete_requests(
   transactions.push(update_otk_count_operation);
 
   transactions
-}
-
-pub trait DateTimeExt {
-  fn from_utc_timestamp_millis(timestamp: i64) -> Option<DateTime<Utc>>;
-}
-
-impl DateTimeExt for DateTime<Utc> {
-  fn from_utc_timestamp_millis(timestamp: i64) -> Option<Self> {
-    let naive = NaiveDateTime::from_timestamp_millis(timestamp)?;
-    Some(Self::from_naive_utc_and_offset(naive, Utc))
-  }
 }
 
 pub struct DBIdentity {
