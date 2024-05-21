@@ -408,15 +408,13 @@ pub fn parse_timestamp_attribute(
     attribute_name.clone(),
     attribute_value.clone(),
   )?;
-  let naive_datetime = chrono::NaiveDateTime::from_timestamp_millis(timestamp)
-    .ok_or_else(|| {
-      DBItemError::new(
-        attribute_name,
-        Value::AttributeValue(attribute_value),
-        DBItemAttributeError::TimestampOutOfRange,
-      )
-    })?;
-  Ok(DateTime::from_naive_utc_and_offset(naive_datetime, Utc))
+  chrono::DateTime::from_timestamp_millis(timestamp).ok_or_else(|| {
+    DBItemError::new(
+      attribute_name,
+      Value::AttributeValue(attribute_value),
+      DBItemAttributeError::TimestampOutOfRange,
+    )
+  })
 }
 
 pub fn parse_integer<T>(
