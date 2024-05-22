@@ -232,14 +232,14 @@ type Props = {
   +logInStateContainer: StateContainer<LogInState>,
   +legacyRegisterStateContainer: StateContainer<LegacyRegisterState>,
   +mode: Mode,
-  +setMode: (Partial<Mode>) => void,
   +nextModeRef: { current: LoggedOutMode },
   +contentHeight: Value,
   +keyboardHeightValue: Value,
-  +modeValue: Value,
   +buttonOpacity: Value,
   +panelPaddingTop: Node,
   +panelOpacity: Node,
+  +combinedSetMode: LoggedOutMode => void,
+  +goBackToPrompt: () => void,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -259,12 +259,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   activeAlert = false;
 
-  setMode(newMode: LoggedOutMode) {
-    this.props.nextModeRef.current = newMode;
-    this.props.setMode({ curMode: newMode, nextMode: newMode });
-    this.props.modeValue.setValue(modeNumbers[newMode]);
-  }
-
   componentDidMount() {
     if (this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
@@ -282,7 +276,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.persistedStateLoaded && this.props.persistedStateLoaded) {
-      this.setMode('prompt');
+      this.props.combinedSetMode('prompt');
     }
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
@@ -362,7 +356,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   hardwareBack: () => boolean = () => {
     if (this.props.nextModeRef.current !== 'prompt') {
-      this.goBackToPrompt();
+      this.props.goBackToPrompt();
       return true;
     }
     return false;
@@ -394,14 +388,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   setActiveAlert = (activeAlert: boolean) => {
     this.activeAlert = activeAlert;
-  };
-
-  goBackToPrompt = () => {
-    this.props.nextModeRef.current = 'prompt';
-    this.props.setMode({ nextMode: 'prompt' });
-    this.props.keyboardHeightValue.setValue(0);
-    this.props.modeValue.setValue(modeNumbers['prompt']);
-    Keyboard.dismiss();
   };
 
   render(): React.Node {
@@ -549,7 +535,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
     if (this.props.mode.curMode === 'siwe') {
       siwePanel = (
         <FullscreenSIWEPanel
-          goBackToPrompt={this.goBackToPrompt}
+          goBackToPrompt={this.props.goBackToPrompt}
           closing={this.props.mode.nextMode === 'prompt'}
         />
       );
@@ -575,7 +561,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
   }
 
   onPressSIWE = () => {
-    this.setMode('siwe');
+    this.props.combinedSetMode('siwe');
   };
 
   onPressLogIn = () => {
@@ -591,7 +577,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
       // behavior on iOS.
       this.props.keyboardHeightValue.setValue(-1);
     }
-    this.setMode('log-in');
+    this.props.combinedSetMode('log-in');
   };
 
   onPressQRCodeSignIn = () => {
@@ -600,7 +586,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   onPressRegister = () => {
     this.props.keyboardHeightValue.setValue(-1);
-    this.setMode('register');
+    this.props.combinedSetMode('register');
   };
 
   onPressNewRegister = () => {
@@ -812,6 +798,23 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       ]);
     }, [modeValue, keyboardHeightValue, proceedToNextMode]);
 
+    const combinedSetMode = React.useCallback(
+      (newMode: LoggedOutMode) => {
+        nextModeRef.current = newMode;
+        setMode({ curMode: newMode, nextMode: newMode });
+        modeValue.setValue(modeNumbers[newMode]);
+      },
+      [setMode, modeValue],
+    );
+
+    const goBackToPrompt = React.useCallback(() => {
+      nextModeRef.current = 'prompt';
+      setMode({ nextMode: 'prompt' });
+      keyboardHeightValue.setValue(0);
+      modeValue.setValue(modeNumbers['prompt']);
+      Keyboard.dismiss();
+    }, [setMode, keyboardHeightValue, modeValue]);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
@@ -830,14 +833,14 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         logInStateContainer={logInStateContainer}
         legacyRegisterStateContainer={legacyRegisterStateContainer}
         mode={mode}
-        setMode={setMode}
         nextModeRef={nextModeRef}
         contentHeight={contentHeight}
         keyboardHeightValue={keyboardHeightValue}
-        modeValue={modeValue}
         buttonOpacity={buttonOpacity}
         panelPaddingTop={panelPaddingTop}
         panelOpacity={panelOpacity}
+        combinedSetMode={combinedSetMode}
+        goBackToPrompt={goBackToPrompt}
         isForeground={isForeground}
         persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
