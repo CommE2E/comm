@@ -28,12 +28,14 @@ export type InitialReduxStateActionPayload = $ReadOnly<{
   +threadStore?: ThreadStore,
   +userInfos?: UserInfos,
   +messageStore?: MessageStore,
+  +entryStore?: EntryStore,
 }>;
 
 export type ExcludedData = {
   +userStore?: boolean,
   +messageStore?: boolean,
   +threadStore?: boolean,
+  +entryStore?: boolean,
 };
 
 export type InitialReduxStateRequest = {
