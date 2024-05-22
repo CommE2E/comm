@@ -605,28 +605,6 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       navigate(RegistrationRouteName);
     }, [navigate]);
 
-    const siweButton = (
-      <>
-        <TouchableOpacity
-          onPress={onPressSIWE}
-          style={[styles.button, styles.siweButton]}
-          activeOpacity={0.6}
-        >
-          <View style={styles.siweIcon}>
-            <EthereumLogo />
-          </View>
-          <Text style={[styles.buttonText, styles.siweButtonText]}>
-            Sign in with Ethereum
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.siweOr}>
-          <View style={styles.siweOrLeftHR} />
-          <Text style={styles.siweOrText}>or</Text>
-          <View style={styles.siweOrRightHR} />
-        </View>
-      </>
-    );
-
     let panel = null;
     let buttons = null;
     if (mode.curMode === 'log-in') {
@@ -707,7 +685,23 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
           <LoggedOutStaffInfo />
-          {siweButton}
+          <TouchableOpacity
+            onPress={onPressSIWE}
+            style={[styles.button, styles.siweButton]}
+            activeOpacity={0.6}
+          >
+            <View style={styles.siweIcon}>
+              <EthereumLogo />
+            </View>
+            <Text style={[styles.buttonText, styles.siweButtonText]}>
+              Sign in with Ethereum
+            </Text>
+          </TouchableOpacity>
+          <View style={styles.siweOr}>
+            <View style={styles.siweOrLeftHR} />
+            <Text style={styles.siweOrText}>or</Text>
+            <View style={styles.siweOrRightHR} />
+          </View>
           <View style={styles.signInButtons}>{signInButtons}</View>
           <View style={styles.registerButtons}>{registerButtons}</View>
         </Animated.View>
