@@ -282,24 +282,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
     } else if (prevProps.isForeground && !this.props.isForeground) {
       this.onBackground();
     }
-
-    if (
-      this.props.mode.curMode === 'prompt' &&
-      prevProps.mode.curMode !== 'prompt'
-    ) {
-      this.props.buttonOpacity.setValue(0);
-      Animated.timing(this.props.buttonOpacity, {
-        easing: EasingNode.out(EasingNode.ease),
-        duration: 250,
-        toValue: 1.0,
-      }).start();
-    }
-
-    const newContentHeight = this.props.dimensions.safeAreaHeight;
-    const oldContentHeight = prevProps.dimensions.safeAreaHeight;
-    if (newContentHeight !== oldContentHeight) {
-      this.props.contentHeight.setValue(newContentHeight);
-    }
   }
 
   onForeground() {
@@ -793,6 +775,30 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         panelOpacityValue,
       ]);
     }, [modeValue, keyboardHeightValue, proceedToNextMode]);
+
+    const onPrompt = mode.curMode === 'prompt';
+    const prevOnPromptRef = React.useRef(onPrompt);
+    React.useEffect(() => {
+      if (onPrompt && !prevOnPromptRef.current) {
+        buttonOpacity.setValue(0);
+        Animated.timing(buttonOpacity, {
+          easing: EasingNode.out(EasingNode.ease),
+          duration: 250,
+          toValue: 1.0,
+        }).start();
+      }
+      prevOnPromptRef.current = onPrompt;
+    }, [onPrompt, buttonOpacity]);
+
+    const curContentHeight = dimensions.safeAreaHeight;
+    const prevContentHeightRef = React.useRef(curContentHeight);
+    React.useEffect(() => {
+      if (curContentHeight === prevContentHeightRef.current) {
+        return;
+      }
+      prevContentHeightRef.current = curContentHeight;
+      contentHeight.setValue(curContentHeight);
+    }, [curContentHeight, contentHeight]);
 
     const combinedSetMode = React.useCallback(
       (newMode: LoggedOutMode) => {
