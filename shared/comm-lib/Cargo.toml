@@ -1,8 +1,9 @@
 [package]
 name = "comm-lib"
 version = "0.1.0"
-edition = "2021"
-license = "BSD-3-Clause"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [features]
 blob-client = [

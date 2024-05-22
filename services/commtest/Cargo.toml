@@ -1,8 +1,9 @@
 [package]
 name = "commtest"
 version = "0.1.0"
-edition = "2021"
-license = "BSD-3-Clause"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [dependencies]
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
