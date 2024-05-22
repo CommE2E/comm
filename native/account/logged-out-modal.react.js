@@ -69,7 +69,6 @@ import {
 import {
   type StateContainer,
   type StateChange,
-  setStateForContainer,
 } from '../utils/state-container.js';
 import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
@@ -232,6 +231,8 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
+  +logInStateContainer: StateContainer<LogInState>,
+  +legacyRegisterStateContainer: StateContainer<LegacyRegisterState>,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -248,8 +249,6 @@ type Props = {
 type State = {
   +mode: LoggedOutMode,
   +nextMode: LoggedOutMode,
-  +logInState: StateContainer<LogInState>,
-  +legacyRegisterState: StateContainer<LegacyRegisterState>,
 };
 class LoggedOutModal extends React.PureComponent<Props, State> {
   keyboardShowListener: ?EventSubscription;
@@ -270,49 +269,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    // Man, this is a lot of boilerplate just to containerize some state.
-    // Mostly due to Flow typing requirements...
-    const setLogInState = setStateForContainer(
-      this.guardedSetState,
-      (change: Partial<LogInState>) => (fullState: State) => ({
-        logInState: {
-          ...fullState.logInState,
-          state: { ...fullState.logInState.state, ...change },
-        },
-      }),
-    );
-    const setLegacyRegisterState = setStateForContainer<
-      State,
-      LegacyRegisterState,
-    >(
-      this.guardedSetState,
-      (change: Partial<LegacyRegisterState>) => (fullState: State) => ({
-        legacyRegisterState: {
-          ...fullState.legacyRegisterState,
-          state: { ...fullState.legacyRegisterState.state, ...change },
-        },
-      }),
-    );
-
     const initialMode = props.persistedStateLoaded ? 'prompt' : 'loading';
     this.state = {
       mode: initialMode,
       nextMode: initialMode,
-      logInState: {
-        state: {
-          usernameInputText: null,
-          passwordInputText: null,
-        },
-        setState: setLogInState,
-      },
-      legacyRegisterState: {
-        state: {
-          usernameInputText: '',
-          passwordInputText: '',
-          confirmPasswordInputText: '',
-        },
-        setState: setLegacyRegisterState,
-      },
     };
     this.nextMode = initialMode;
 
@@ -611,7 +571,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <LogInPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          logInState={this.state.logInState}
+          logInState={this.props.logInStateContainer}
         />
       );
     } else if (this.state.mode === 'register') {
@@ -619,7 +579,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <LegacyRegisterPanel
           setActiveAlert={this.setActiveAlert}
           opacityValue={this.panelOpacityValue}
-          legacyRegisterState={this.state.legacyRegisterState}
+          legacyRegisterState={this.props.legacyRegisterStateContainer}
         />
       );
     } else if (this.state.mode === 'prompt') {
@@ -787,8 +747,70 @@ const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
 
+const initialLogInState = {
+  usernameInputText: null,
+  passwordInputText: null,
+};
+const initialLegacyRegisterState = {
+  usernameInputText: '',
+  passwordInputText: '',
+  confirmPasswordInputText: '',
+};
+
 const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLoggedOutModal(props: BaseProps) {
+    const mountedRef = React.useRef(false);
+    React.useEffect(() => {
+      mountedRef.current = true;
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
+
+    const [logInState, baseSetLogInState] =
+      React.useState<LogInState>(initialLogInState);
+    const setLogInState = React.useCallback(
+      (newLogInState: Partial<LogInState>) => {
+        if (!mountedRef.current) {
+          return;
+        }
+        baseSetLogInState(prevLogInState => ({
+          ...prevLogInState,
+          ...newLogInState,
+        }));
+      },
+      [],
+    );
+    const logInStateContainer = React.useMemo(
+      () => ({
+        state: logInState,
+        setState: setLogInState,
+      }),
+      [logInState, setLogInState],
+    );
+
+    const [legacyRegisterState, baseSetLegacyRegisterState] =
+      React.useState<LegacyRegisterState>(initialLegacyRegisterState);
+    const setLegacyRegisterState = React.useCallback(
+      (newLegacyRegisterState: Partial<LegacyRegisterState>) => {
+        if (!mountedRef.current) {
+          return;
+        }
+        baseSetLegacyRegisterState(prevLegacyRegisterState => ({
+          ...prevLegacyRegisterState,
+          ...newLegacyRegisterState,
+        }));
+      },
+      [],
+    );
+    const legacyRegisterStateContainer = React.useMemo(
+      () => ({
+        state: legacyRegisterState,
+        setState: setLegacyRegisterState,
+      }),
+      [legacyRegisterState, setLegacyRegisterState],
+    );
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
@@ -806,6 +828,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     return (
       <LoggedOutModal
         {...props}
+        logInStateContainer={logInStateContainer}
+        legacyRegisterStateContainer={legacyRegisterStateContainer}
         isForeground={isForeground}
         persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
