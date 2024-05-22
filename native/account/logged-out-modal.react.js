@@ -92,6 +92,7 @@ const {
   max,
   stopClock,
   clockRunning,
+  useValue,
 } = Animated;
 
 export type LoggedOutMode =
@@ -233,6 +234,12 @@ type Props = {
   +mode: Mode,
   +setMode: (Partial<Mode>) => void,
   +nextModeRef: { current: LoggedOutMode },
+  +contentHeight: Value,
+  +keyboardHeightValue: Value,
+  +modeValue: Value,
+  +buttonOpacity: Value,
+  +panelPaddingTop: Node,
+  +panelOpacity: Node,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -252,34 +259,11 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
   activeAlert = false;
 
-  contentHeight: Value;
-  keyboardHeightValue: Value = new Value(0);
-  modeValue: Value;
-
-  buttonOpacity: Value;
-  panelPaddingTopValue: Node;
-  panelOpacityValue: Node;
-
-  constructor(props: Props) {
-    super(props);
-
-    this.contentHeight = new Value(props.dimensions.safeAreaHeight);
-    this.modeValue = new Value(modeNumbers[this.props.mode.curMode]);
-
-    this.buttonOpacity = new Value(props.persistedStateLoaded ? 1 : 0);
-    this.panelPaddingTopValue = this.panelPaddingTop();
-    this.panelOpacityValue = this.panelOpacity();
-  }
-
   setMode(newMode: LoggedOutMode) {
     this.props.nextModeRef.current = newMode;
     this.props.setMode({ curMode: newMode, nextMode: newMode });
-    this.modeValue.setValue(modeNumbers[newMode]);
+    this.props.modeValue.setValue(modeNumbers[newMode]);
   }
-
-  proceedToNextMode = () => {
-    this.props.setMode({ curMode: this.props.nextModeRef.current });
-  };
 
   componentDidMount() {
     if (this.props.rehydrateConcluded) {
@@ -313,8 +297,8 @@ class LoggedOutModal extends React.PureComponent<Props> {
       this.props.mode.curMode === 'prompt' &&
       prevProps.mode.curMode !== 'prompt'
     ) {
-      this.buttonOpacity.setValue(0);
-      Animated.timing(this.buttonOpacity, {
+      this.props.buttonOpacity.setValue(0);
+      Animated.timing(this.props.buttonOpacity, {
         easing: EasingNode.out(EasingNode.ease),
         duration: 250,
         toValue: 1.0,
@@ -324,7 +308,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
     const newContentHeight = this.props.dimensions.safeAreaHeight;
     const oldContentHeight = prevProps.dimensions.safeAreaHeight;
     if (newContentHeight !== oldContentHeight) {
-      this.contentHeight.setValue(newContentHeight);
+      this.props.contentHeight.setValue(newContentHeight);
     }
   }
 
@@ -384,109 +368,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
     return false;
   };
 
-  panelPaddingTop(): Node {
-    const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
-    const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
-    const logInContainerSize = 140;
-    const registerPanelSize = Platform.OS === 'ios' ? 181 : 180;
-    const siwePanelSize = 250;
-
-    const containerSize = add(
-      headerHeight,
-      cond(not(isPastPrompt(this.modeValue)), promptButtonsSize, 0),
-      cond(eq(this.modeValue, modeNumbers['log-in']), logInContainerSize, 0),
-      cond(eq(this.modeValue, modeNumbers['register']), registerPanelSize, 0),
-      cond(eq(this.modeValue, modeNumbers['siwe']), siwePanelSize, 0),
-    );
-    const potentialPanelPaddingTop = divide(
-      max(sub(this.contentHeight, this.keyboardHeightValue, containerSize), 0),
-      2,
-    );
-
-    const panelPaddingTop = new Value(-1);
-    const targetPanelPaddingTop = new Value(-1);
-    const prevModeValue = new Value(
-      modeNumbers[this.props.nextModeRef.current],
-    );
-    const clock = new Clock();
-    const keyboardTimeoutClock = new Clock();
-    return block([
-      cond(lessThan(panelPaddingTop, 0), [
-        set(panelPaddingTop, potentialPanelPaddingTop),
-        set(targetPanelPaddingTop, potentialPanelPaddingTop),
-      ]),
-      cond(
-        lessThan(this.keyboardHeightValue, 0),
-        [
-          runTiming(keyboardTimeoutClock, 0, 1, true, { duration: 500 }),
-          cond(
-            not(clockRunning(keyboardTimeoutClock)),
-            set(this.keyboardHeightValue, 0),
-          ),
-        ],
-        stopClock(keyboardTimeoutClock),
-      ),
-      cond(
-        and(
-          greaterOrEq(this.keyboardHeightValue, 0),
-          neq(prevModeValue, this.modeValue),
-        ),
-        [
-          stopClock(clock),
-          cond(
-            neq(isPastPrompt(prevModeValue), isPastPrompt(this.modeValue)),
-            set(targetPanelPaddingTop, potentialPanelPaddingTop),
-          ),
-          set(prevModeValue, this.modeValue),
-        ],
-      ),
-      ratchetAlongWithKeyboardHeight(this.keyboardHeightValue, [
-        stopClock(clock),
-        set(targetPanelPaddingTop, potentialPanelPaddingTop),
-      ]),
-      cond(
-        neq(panelPaddingTop, targetPanelPaddingTop),
-        set(
-          panelPaddingTop,
-          runTiming(clock, panelPaddingTop, targetPanelPaddingTop),
-        ),
-      ),
-      panelPaddingTop,
-    ]);
-  }
-
-  panelOpacity(): Node {
-    const targetPanelOpacity = isPastPrompt(this.modeValue);
-
-    const panelOpacity = new Value(-1);
-    const prevPanelOpacity = new Value(-1);
-    const prevTargetPanelOpacity = new Value(-1);
-    const clock = new Clock();
-    return block([
-      cond(lessThan(panelOpacity, 0), [
-        set(panelOpacity, targetPanelOpacity),
-        set(prevPanelOpacity, targetPanelOpacity),
-        set(prevTargetPanelOpacity, targetPanelOpacity),
-      ]),
-      cond(greaterOrEq(this.keyboardHeightValue, 0), [
-        cond(neq(targetPanelOpacity, prevTargetPanelOpacity), [
-          stopClock(clock),
-          set(prevTargetPanelOpacity, targetPanelOpacity),
-        ]),
-        cond(
-          neq(panelOpacity, targetPanelOpacity),
-          set(panelOpacity, runTiming(clock, panelOpacity, targetPanelOpacity)),
-        ),
-      ]),
-      cond(
-        and(eq(panelOpacity, 0), neq(prevPanelOpacity, 0)),
-        call([], this.proceedToNextMode),
-      ),
-      set(prevPanelOpacity, panelOpacity),
-      panelOpacity,
-    ]);
-  }
-
   keyboardShow = (event: KeyboardEvent) => {
     if (
       event.startCoordinates &&
@@ -502,12 +383,12 @@ class LoggedOutModal extends React.PureComponent<Props> {
         0,
       ),
     });
-    this.keyboardHeightValue.setValue(keyboardHeight);
+    this.props.keyboardHeightValue.setValue(keyboardHeight);
   };
 
   keyboardHide = () => {
     if (!this.activeAlert) {
-      this.keyboardHeightValue.setValue(0);
+      this.props.keyboardHeightValue.setValue(0);
     }
   };
 
@@ -518,8 +399,8 @@ class LoggedOutModal extends React.PureComponent<Props> {
   goBackToPrompt = () => {
     this.props.nextModeRef.current = 'prompt';
     this.props.setMode({ nextMode: 'prompt' });
-    this.keyboardHeightValue.setValue(0);
-    this.modeValue.setValue(modeNumbers['prompt']);
+    this.props.keyboardHeightValue.setValue(0);
+    this.props.modeValue.setValue(modeNumbers['prompt']);
     Keyboard.dismiss();
   };
 
@@ -554,7 +435,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
       panel = (
         <LogInPanel
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.panelOpacityValue}
+          opacityValue={this.props.panelOpacity}
           logInState={this.props.logInStateContainer}
         />
       );
@@ -562,12 +443,12 @@ class LoggedOutModal extends React.PureComponent<Props> {
       panel = (
         <LegacyRegisterPanel
           setActiveAlert={this.setActiveAlert}
-          opacityValue={this.panelOpacityValue}
+          opacityValue={this.props.panelOpacity}
           legacyRegisterState={this.props.legacyRegisterStateContainer}
         />
       );
     } else if (this.props.mode.curMode === 'prompt') {
-      const opacityStyle = { opacity: this.buttonOpacity };
+      const opacityStyle = { opacity: this.props.buttonOpacity };
 
       const registerButtons = [];
       registerButtons.push(
@@ -645,10 +526,10 @@ class LoggedOutModal extends React.PureComponent<Props> {
 
     const windowWidth = this.props.dimensions.width;
     const buttonStyle = {
-      opacity: this.panelOpacityValue,
+      opacity: this.props.panelOpacity,
       left: windowWidth < 360 ? 28 : 40,
     };
-    const padding = { paddingTop: this.panelPaddingTopValue };
+    const padding = { paddingTop: this.props.panelPaddingTop };
 
     const animatedContent = (
       <Animated.View style={[styles.animationContainer, padding]}>
@@ -708,7 +589,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
       // keyboard appears before showing LogInPanel. Since we need LogInPanel
       // to appear before the username field is focused, we need to avoid this
       // behavior on iOS.
-      this.keyboardHeightValue.setValue(-1);
+      this.props.keyboardHeightValue.setValue(-1);
     }
     this.setMode('log-in');
   };
@@ -718,7 +599,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
   };
 
   onPressRegister = () => {
-    this.keyboardHeightValue.setValue(-1);
+    this.props.keyboardHeightValue.setValue(-1);
     this.setMode('register');
   };
 
@@ -818,6 +699,119 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
 
     const nextModeRef = React.useRef<LoggedOutMode>(initialMode);
 
+    const dimensions = useSelector(derivedDimensionsInfoSelector);
+    const contentHeight = useValue(dimensions.safeAreaHeight);
+    const keyboardHeightValue = useValue(0);
+    const modeValue = useValue(modeNumbers[initialMode]);
+    const buttonOpacity = useValue(persistedStateLoaded ? 1 : 0);
+
+    const prevModeValue = useValue(modeNumbers[initialMode]);
+    const panelPaddingTop = React.useMemo(() => {
+      const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
+      const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
+      const logInContainerSize = 140;
+      const registerPanelSize = Platform.OS === 'ios' ? 181 : 180;
+      const siwePanelSize = 250;
+
+      const containerSize = add(
+        headerHeight,
+        cond(not(isPastPrompt(modeValue)), promptButtonsSize, 0),
+        cond(eq(modeValue, modeNumbers['log-in']), logInContainerSize, 0),
+        cond(eq(modeValue, modeNumbers['register']), registerPanelSize, 0),
+        cond(eq(modeValue, modeNumbers['siwe']), siwePanelSize, 0),
+      );
+      const potentialPanelPaddingTop = divide(
+        max(sub(contentHeight, keyboardHeightValue, containerSize), 0),
+        2,
+      );
+
+      const panelPaddingTopValue = new Value(-1);
+      const targetPanelPaddingTop = new Value(-1);
+      const clock = new Clock();
+      const keyboardTimeoutClock = new Clock();
+      return block([
+        cond(lessThan(panelPaddingTopValue, 0), [
+          set(panelPaddingTopValue, potentialPanelPaddingTop),
+          set(targetPanelPaddingTop, potentialPanelPaddingTop),
+        ]),
+        cond(
+          lessThan(keyboardHeightValue, 0),
+          [
+            runTiming(keyboardTimeoutClock, 0, 1, true, { duration: 500 }),
+            cond(
+              not(clockRunning(keyboardTimeoutClock)),
+              set(keyboardHeightValue, 0),
+            ),
+          ],
+          stopClock(keyboardTimeoutClock),
+        ),
+        cond(
+          and(
+            greaterOrEq(keyboardHeightValue, 0),
+            neq(prevModeValue, modeValue),
+          ),
+          [
+            stopClock(clock),
+            cond(
+              neq(isPastPrompt(prevModeValue), isPastPrompt(modeValue)),
+              set(targetPanelPaddingTop, potentialPanelPaddingTop),
+            ),
+            set(prevModeValue, modeValue),
+          ],
+        ),
+        ratchetAlongWithKeyboardHeight(keyboardHeightValue, [
+          stopClock(clock),
+          set(targetPanelPaddingTop, potentialPanelPaddingTop),
+        ]),
+        cond(
+          neq(panelPaddingTopValue, targetPanelPaddingTop),
+          set(
+            panelPaddingTopValue,
+            runTiming(clock, panelPaddingTopValue, targetPanelPaddingTop),
+          ),
+        ),
+        panelPaddingTopValue,
+      ]);
+    }, [modeValue, contentHeight, keyboardHeightValue, prevModeValue]);
+
+    const proceedToNextMode = React.useCallback(() => {
+      setMode({ curMode: nextModeRef.current });
+    }, [setMode]);
+    const panelOpacity = React.useMemo(() => {
+      const targetPanelOpacity = isPastPrompt(modeValue);
+
+      const panelOpacityValue = new Value(-1);
+      const prevPanelOpacity = new Value(-1);
+      const prevTargetPanelOpacity = new Value(-1);
+      const clock = new Clock();
+      return block([
+        cond(lessThan(panelOpacityValue, 0), [
+          set(panelOpacityValue, targetPanelOpacity),
+          set(prevPanelOpacity, targetPanelOpacity),
+          set(prevTargetPanelOpacity, targetPanelOpacity),
+        ]),
+        cond(greaterOrEq(keyboardHeightValue, 0), [
+          cond(neq(targetPanelOpacity, prevTargetPanelOpacity), [
+            stopClock(clock),
+            set(prevTargetPanelOpacity, targetPanelOpacity),
+          ]),
+          cond(
+            neq(panelOpacityValue, targetPanelOpacity),
+            set(
+              panelOpacityValue,
+              runTiming(clock, panelOpacityValue, targetPanelOpacity),
+            ),
+          ),
+        ]),
+        cond(
+          and(eq(panelOpacityValue, 0), neq(prevPanelOpacity, 0)),
+          call([], proceedToNextMode),
+        ),
+        set(prevPanelOpacity, panelOpacityValue),
+        panelOpacityValue,
+      ]);
+    }, [modeValue, keyboardHeightValue, proceedToNextMode]);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
@@ -826,7 +820,6 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     );
     const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
     const loggedIn = useSelector(isLoggedIn);
-    const dimensions = useSelector(derivedDimensionsInfoSelector);
     const splashStyle = useSelector(splashStyleSelector);
     const styles = useStyles(unboundStyles);
 
@@ -839,6 +832,12 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         mode={mode}
         setMode={setMode}
         nextModeRef={nextModeRef}
+        contentHeight={contentHeight}
+        keyboardHeightValue={keyboardHeightValue}
+        modeValue={modeValue}
+        buttonOpacity={buttonOpacity}
+        panelPaddingTop={panelPaddingTop}
+        panelOpacity={panelOpacity}
         isForeground={isForeground}
         persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
