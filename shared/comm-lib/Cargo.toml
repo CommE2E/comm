@@ -28,41 +28,41 @@ grpc_clients = ["dep:grpc_clients"]
 web = ["uuid/js"]
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-base64 = "0.21"
-chrono = "0.4.31"
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+base64 = { workspace = true }
+chrono = { workspace = true }
 constant_time_eq = "0.3"
-derive_more = "0.99"
+derive_more = { workspace = true }
 grpc_clients = { path = "../grpc_clients", optional = true }
 rand = "0.8"
-tokio = "1.32"
-tracing = "0.1"
-anyhow = "1.0.74"
-hex = "0.4"
-uuid = { version = "1.2", features = ["v4"] }
-sha2 = "0.10"
+tokio = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+hex = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
+sha2 = { workspace = true }
 # aws dependencies
-aws-config = { version = "0.55", optional = true }
-aws-sdk-dynamodb = { version = "0.27", optional = true }
-aws-sdk-secretsmanager = { version = "0.27", optional = true }
+aws-config = { workspace = true, optional = true }
+aws-sdk-dynamodb = { workspace = true, optional = true }
+aws-sdk-secretsmanager = { workspace = true, optional = true }
 # blob client dependencies
-bytes = { version = "1.4", optional = true }
-futures-core = { version = "0.3", optional = true }
-futures-util = { version = "0.3", optional = true }
-reqwest = { version = "0.11", features = [
+bytes = { workspace = true, optional = true }
+futures-core = { workspace = true, optional = true }
+futures-util = { workspace = true, optional = true }
+reqwest = { workspace = true, features = [
   "json",
   "multipart",
   "stream",
 ], optional = true }
 # http dependencies
-actix-cors = { version = "0.6", optional = true }
-actix-web = { version = "4.3", optional = true }
-http = { version = "0.2.9", optional = true }
-actix-web-httpauth = { version = "0.8.0", optional = true }
-actix-multipart = { version = "0.6", optional = true }
-tokio-stream = { version = "0.1.14", optional = true }
+actix-cors = { workspace = true, optional = true }
+actix-web = { workspace = true, optional = true }
+http = { workspace = true, optional = true }
+actix-web-httpauth = { workspace = true, optional = true }
+actix-multipart = { workspace = true, optional = true }
+tokio-stream = { workspace = true, optional = true }
 # crypto dependencies
-aes-gcm = { version = "0.10", optional = true }
-aead = { version = "0.5", features = ["bytes"], optional = true }
-once_cell = "1.17"
+aes-gcm = { workspace = true, optional = true }
+aead = { workspace = true, features = ["bytes"], optional = true }
+once_cell = { workspace = true }
