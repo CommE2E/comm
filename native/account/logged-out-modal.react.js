@@ -57,10 +57,7 @@ import {
 } from '../selectors/dimensions-selectors.js';
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';
-import type {
-  EventSubscription,
-  KeyboardEvent,
-} from '../types/react-native.js';
+import type { KeyboardEvent } from '../types/react-native.js';
 import type { ImageStyle } from '../types/styles.js';
 import {
   runTiming,
@@ -255,9 +252,6 @@ type Props = {
   +dispatch: Dispatch,
 };
 class LoggedOutModal extends React.PureComponent<Props> {
-  keyboardShowListener: ?EventSubscription;
-  keyboardHideListener: ?EventSubscription;
-
   componentDidMount() {
     if (this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
@@ -285,20 +279,10 @@ class LoggedOutModal extends React.PureComponent<Props> {
   }
 
   onForeground() {
-    this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
-    this.keyboardHideListener = addKeyboardDismissListener(this.keyboardHide);
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   onBackground() {
-    if (this.keyboardShowListener) {
-      removeKeyboardListener(this.keyboardShowListener);
-      this.keyboardShowListener = null;
-    }
-    if (this.keyboardHideListener) {
-      removeKeyboardListener(this.keyboardHideListener);
-      this.keyboardHideListener = null;
-    }
     BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
@@ -338,30 +322,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
       return true;
     }
     return false;
-  };
-
-  keyboardShow = (event: KeyboardEvent) => {
-    if (
-      event.startCoordinates &&
-      _isEqual(event.startCoordinates)(event.endCoordinates)
-    ) {
-      return;
-    }
-    const keyboardHeight: number = Platform.select({
-      // Android doesn't include the bottomInset in this height measurement
-      android: event.endCoordinates.height,
-      default: Math.max(
-        event.endCoordinates.height - this.props.dimensions.bottomInset,
-        0,
-      ),
-    });
-    this.props.keyboardHeightValue.setValue(keyboardHeight);
-  };
-
-  keyboardHide = () => {
-    if (!this.props.activeAlertRef.current) {
-      this.props.keyboardHeightValue.setValue(0);
-    }
   };
 
   render(): React.Node {
@@ -826,8 +786,46 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       activeAlertRef.current = activeAlert;
     }, []);
 
+    const keyboardShow = React.useCallback(
+      (event: KeyboardEvent) => {
+        if (
+          event.startCoordinates &&
+          _isEqual(event.startCoordinates)(event.endCoordinates)
+        ) {
+          return;
+        }
+        const keyboardHeight: number = Platform.select({
+          // Android doesn't include the bottomInset in this height measurement
+          android: event.endCoordinates.height,
+          default: Math.max(
+            event.endCoordinates.height - dimensions.bottomInset,
+            0,
+          ),
+        });
+        keyboardHeightValue.setValue(keyboardHeight);
+      },
+      [dimensions.bottomInset, keyboardHeightValue],
+    );
+    const keyboardHide = React.useCallback(() => {
+      if (!activeAlertRef.current) {
+        keyboardHeightValue.setValue(0);
+      }
+    }, [keyboardHeightValue]);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
+
+    React.useEffect(() => {
+      if (!isForeground) {
+        return undefined;
+      }
+      const keyboardShowListener = addKeyboardShowListener(keyboardShow);
+      const keyboardHideListener = addKeyboardDismissListener(keyboardHide);
+      return () => {
+        removeKeyboardListener(keyboardShowListener);
+        removeKeyboardListener(keyboardHideListener);
+      };
+    }, [isForeground, keyboardShow, keyboardHide]);
 
     const rehydrateConcluded = useSelector(
       state => !!(state._persist && state._persist.rehydrated && navContext),
