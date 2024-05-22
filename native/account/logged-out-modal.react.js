@@ -793,15 +793,19 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       ],
     );
 
-    let siwePanel;
-    if (mode.curMode === 'siwe') {
-      siwePanel = (
+    const curModeIsSIWE = mode.curMode === 'siwe';
+    const nextModeIsPrompt = mode.nextMode === 'prompt';
+    const siwePanel = React.useMemo(() => {
+      if (!curModeIsSIWE) {
+        return null;
+      }
+      return (
         <FullscreenSIWEPanel
           goBackToPrompt={goBackToPrompt}
-          closing={mode.nextMode === 'prompt'}
+          closing={nextModeIsPrompt}
         />
       );
-    }
+    }, [curModeIsSIWE, goBackToPrompt, nextModeIsPrompt]);
 
     const backgroundSource = { uri: splashBackgroundURI };
     return (
