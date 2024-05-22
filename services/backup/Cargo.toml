@@ -2,9 +2,9 @@
 name = "backup"
 version = "0.1.0"
 description = "Backup service"
-homepage = "https://comm.app"
-license = "BSD-3-Clause"
-edition = "2021"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [dependencies]
 anyhow = "1.0"
