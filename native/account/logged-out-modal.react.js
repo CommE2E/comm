@@ -66,10 +66,7 @@ import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils.js';
-import {
-  type StateContainer,
-  type StateChange,
-} from '../utils/state-container.js';
+import type { StateContainer } from '../utils/state-container.js';
 import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
 let initialAppLoad = true;
@@ -233,6 +230,8 @@ type Props = {
   ...BaseProps,
   +logInStateContainer: StateContainer<LogInState>,
   +legacyRegisterStateContainer: StateContainer<LegacyRegisterState>,
+  +mode: Mode,
+  +setMode: (Partial<Mode>) => void,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -246,15 +245,10 @@ type Props = {
   // Redux dispatch functions
   +dispatch: Dispatch,
 };
-type State = {
-  +mode: LoggedOutMode,
-  +nextMode: LoggedOutMode,
-};
-class LoggedOutModal extends React.PureComponent<Props, State> {
+class LoggedOutModal extends React.PureComponent<Props> {
   keyboardShowListener: ?EventSubscription;
   keyboardHideListener: ?EventSubscription;
 
-  mounted = false;
   nextMode: LoggedOutMode = 'loading';
   activeAlert = false;
 
@@ -269,12 +263,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const initialMode = props.persistedStateLoaded ? 'prompt' : 'loading';
-    this.state = {
-      mode: initialMode,
-      nextMode: initialMode,
-    };
-    this.nextMode = initialMode;
+    this.nextMode = props.mode.curMode;
 
     this.contentHeight = new Value(props.dimensions.safeAreaHeight);
     this.modeValue = new Value(modeNumbers[this.nextMode]);
@@ -284,24 +273,17 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.panelOpacityValue = this.panelOpacity();
   }
 
-  guardedSetState = (change: StateChange<State>, callback?: () => mixed) => {
-    if (this.mounted) {
-      this.setState(change, callback);
-    }
-  };
-
   setMode(newMode: LoggedOutMode) {
     this.nextMode = newMode;
-    this.guardedSetState({ mode: newMode, nextMode: newMode });
+    this.props.setMode({ curMode: newMode, nextMode: newMode });
     this.modeValue.setValue(modeNumbers[newMode]);
   }
 
   proceedToNextMode = () => {
-    this.guardedSetState({ mode: this.nextMode });
+    this.props.setMode({ curMode: this.nextMode });
   };
 
   componentDidMount() {
-    this.mounted = true;
     if (this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
     }
@@ -311,13 +293,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    this.mounted = false;
     if (this.props.isForeground) {
       this.onBackground();
     }
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: Props) {
     if (!prevProps.persistedStateLoaded && this.props.persistedStateLoaded) {
       this.setMode('prompt');
     }
@@ -330,7 +311,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       this.onBackground();
     }
 
-    if (this.state.mode === 'prompt' && prevState.mode !== 'prompt') {
+    if (
+      this.props.mode.curMode === 'prompt' &&
+      prevProps.mode.curMode !== 'prompt'
+    ) {
       this.buttonOpacity.setValue(0);
       Animated.timing(this.buttonOpacity, {
         easing: EasingNode.out(EasingNode.ease),
@@ -533,7 +517,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   goBackToPrompt = () => {
     this.nextMode = 'prompt';
-    this.guardedSetState({ nextMode: 'prompt' });
+    this.props.setMode({ nextMode: 'prompt' });
     this.keyboardHeightValue.setValue(0);
     this.modeValue.setValue(modeNumbers['prompt']);
     Keyboard.dismiss();
@@ -566,7 +550,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     let panel = null;
     let buttons = null;
-    if (this.state.mode === 'log-in') {
+    if (this.props.mode.curMode === 'log-in') {
       panel = (
         <LogInPanel
           setActiveAlert={this.setActiveAlert}
@@ -574,7 +558,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           logInState={this.props.logInStateContainer}
         />
       );
-    } else if (this.state.mode === 'register') {
+    } else if (this.props.mode.curMode === 'register') {
       panel = (
         <LegacyRegisterPanel
           setActiveAlert={this.setActiveAlert}
@@ -582,7 +566,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           legacyRegisterState={this.props.legacyRegisterStateContainer}
         />
       );
-    } else if (this.state.mode === 'prompt') {
+    } else if (this.props.mode.curMode === 'prompt') {
       const opacityStyle = { opacity: this.buttonOpacity };
 
       const registerButtons = [];
@@ -649,7 +633,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           <View style={styles.registerButtons}>{registerButtons}</View>
         </Animated.View>
       );
-    } else if (this.state.mode === 'loading') {
+    } else if (this.props.mode.curMode === 'loading') {
       panel = (
         <ActivityIndicator
           color="white"
@@ -681,11 +665,11 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     );
 
     let siwePanel;
-    if (this.state.mode === 'siwe') {
+    if (this.props.mode.curMode === 'siwe') {
       siwePanel = (
         <FullscreenSIWEPanel
           goBackToPrompt={this.goBackToPrompt}
-          closing={this.state.nextMode === 'prompt'}
+          closing={this.props.mode.nextMode === 'prompt'}
         />
       );
     }
@@ -757,6 +741,11 @@ const initialLegacyRegisterState = {
   confirmPasswordInputText: '',
 };
 
+type Mode = {
+  +curMode: LoggedOutMode,
+  +nextMode: LoggedOutMode,
+};
+
 const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedLoggedOutModal(props: BaseProps) {
     const mountedRef = React.useRef(false);
@@ -811,13 +800,28 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       [legacyRegisterState, setLegacyRegisterState],
     );
 
+    const persistedStateLoaded = usePersistedStateLoaded();
+    const initialMode = persistedStateLoaded ? 'prompt' : 'loading';
+    const [mode, baseSetMode] = React.useState(() => ({
+      curMode: initialMode,
+      nextMode: initialMode,
+    }));
+    const setMode = React.useCallback((newMode: Partial<Mode>) => {
+      if (!mountedRef.current) {
+        return;
+      }
+      baseSetMode(prevMode => ({
+        ...prevMode,
+        ...newMode,
+      }));
+    }, []);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
     const rehydrateConcluded = useSelector(
       state => !!(state._persist && state._persist.rehydrated && navContext),
     );
-    const persistedStateLoaded = usePersistedStateLoaded();
     const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
     const loggedIn = useSelector(isLoggedIn);
     const dimensions = useSelector(derivedDimensionsInfoSelector);
@@ -830,6 +834,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         {...props}
         logInStateContainer={logInStateContainer}
         legacyRegisterStateContainer={legacyRegisterStateContainer}
+        mode={mode}
+        setMode={setMode}
         isForeground={isForeground}
         persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
