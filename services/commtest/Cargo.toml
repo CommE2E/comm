@@ -9,28 +9,28 @@ homepage.workspace = true
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
 grpc_clients = { path = "../../shared/grpc_clients" }
 backup_client = { path = "../../shared/backup_client" }
-base64 = "0.21.2"
-ed25519-dalek = "1"
+base64 = { workspace = true }
+ed25519-dalek = { workspace = true }
 tonic = "0.8"
-tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
-prost = "0.11"
-async-stream = "0.3.2"
-derive_more = "0.99.16"
-bytesize = "1.1.0"
-lazy_static = "1.4.0"
-num_cpus = "1.13.1"
-sha2 = "0.10.2"
-hex = "0.4.3"
-tokio-tungstenite = "0.18.0"
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+prost = { workspace = true }
+async-stream = { workspace = true }
+derive_more = { workspace = true }
+bytesize = { workspace = true }
+lazy_static = { workspace = true }
+num_cpus = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+tokio-tungstenite = { workspace = true }
 tunnelbroker_messages = { path = "../../shared/tunnelbroker_messages" }
-url = "2.3.1"
-futures-util = "0.3.28"
-serde_json = "1.0.96"
+url = { workspace = true }
+futures-util = { workspace = true }
+serde_json = { workspace = true }
 rand = "0.7.3"
-reqwest = { version = "0.11", features = ["json", "multipart", "stream"] }
-serde = "1.0"
+reqwest = { workspace = true, features = ["json", "multipart", "stream"] }
+serde = { workspace = true }
 comm-lib = { path = "../../shared/comm-lib" }
-uuid = { version = "1.2", features = ["v4"] }
+uuid = { workspace = true, features = ["v4"] }
 
 [build-dependencies]
 tonic-build = "0.8"
