@@ -50,19 +50,14 @@ import {
 } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
-import {
-  type DerivedDimensionsInfo,
-  derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors.js';
+import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';
 import type { KeyboardEvent } from '../types/react-native.js';
-import type { ImageStyle } from '../types/styles.js';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils.js';
-import type { StateContainer } from '../utils/state-container.js';
 import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
 let initialAppLoad = true;
@@ -218,238 +213,10 @@ const unboundStyles = {
   },
 };
 
-type BaseProps = {
+type Props = {
   +navigation: RootNavigationProp<'LoggedOutModal'>,
   +route: NavigationRoute<'LoggedOutModal'>,
 };
-
-type Props = {
-  ...BaseProps,
-  +logInStateContainer: StateContainer<LogInState>,
-  +legacyRegisterStateContainer: StateContainer<LegacyRegisterState>,
-  +mode: Mode,
-  +contentHeight: Value,
-  +keyboardHeightValue: Value,
-  +buttonOpacity: Value,
-  +panelPaddingTop: Node,
-  +panelOpacity: Node,
-  +combinedSetMode: LoggedOutMode => void,
-  +goBackToPrompt: () => void,
-  +activeAlertRef: { current: boolean },
-  +setActiveAlert: boolean => void,
-  +resetToPrompt: () => boolean,
-  // Redux state
-  +dimensions: DerivedDimensionsInfo,
-  +splashStyle: ImageStyle,
-  +styles: $ReadOnly<typeof unboundStyles>,
-};
-class LoggedOutModal extends React.PureComponent<Props> {
-  render(): React.Node {
-    const { styles } = this.props;
-
-    const siweButton = (
-      <>
-        <TouchableOpacity
-          onPress={this.onPressSIWE}
-          style={[styles.button, styles.siweButton]}
-          activeOpacity={0.6}
-        >
-          <View style={styles.siweIcon}>
-            <EthereumLogo />
-          </View>
-          <Text style={[styles.buttonText, styles.siweButtonText]}>
-            Sign in with Ethereum
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.siweOr}>
-          <View style={styles.siweOrLeftHR} />
-          <Text style={styles.siweOrText}>or</Text>
-          <View style={styles.siweOrRightHR} />
-        </View>
-      </>
-    );
-
-    let panel = null;
-    let buttons = null;
-    if (this.props.mode.curMode === 'log-in') {
-      panel = (
-        <LogInPanel
-          setActiveAlert={this.props.setActiveAlert}
-          opacityValue={this.props.panelOpacity}
-          logInState={this.props.logInStateContainer}
-        />
-      );
-    } else if (this.props.mode.curMode === 'register') {
-      panel = (
-        <LegacyRegisterPanel
-          setActiveAlert={this.props.setActiveAlert}
-          opacityValue={this.props.panelOpacity}
-          legacyRegisterState={this.props.legacyRegisterStateContainer}
-        />
-      );
-    } else if (this.props.mode.curMode === 'prompt') {
-      const opacityStyle = { opacity: this.props.buttonOpacity };
-
-      const registerButtons = [];
-      registerButtons.push(
-        <TouchableOpacity
-          onPress={this.onPressRegister}
-          style={[styles.button, styles.classicAuthButton]}
-          activeOpacity={0.6}
-          key="old"
-        >
-          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-            Register
-          </Text>
-        </TouchableOpacity>,
-      );
-      if (enableNewRegistrationMode) {
-        registerButtons.push(
-          <TouchableOpacity
-            onPress={this.onPressNewRegister}
-            style={[styles.button, styles.classicAuthButton]}
-            activeOpacity={0.6}
-            key="new"
-          >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Register (new)
-            </Text>
-          </TouchableOpacity>,
-        );
-      }
-
-      const signInButtons = [];
-      signInButtons.push(
-        <TouchableOpacity
-          onPress={this.onPressLogIn}
-          style={[styles.button, styles.classicAuthButton]}
-          activeOpacity={0.6}
-          key="login-form"
-        >
-          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-            Sign in
-          </Text>
-        </TouchableOpacity>,
-      );
-      if (__DEV__) {
-        signInButtons.push(
-          <TouchableOpacity
-            onPress={this.onPressQRCodeSignIn}
-            style={[styles.button, styles.classicAuthButton]}
-            activeOpacity={0.6}
-            key="qr-code-login"
-          >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Sign in (QR)
-            </Text>
-          </TouchableOpacity>,
-        );
-      }
-
-      buttons = (
-        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
-          <LoggedOutStaffInfo />
-          {siweButton}
-          <View style={styles.signInButtons}>{signInButtons}</View>
-          <View style={styles.registerButtons}>{registerButtons}</View>
-        </Animated.View>
-      );
-    } else if (this.props.mode.curMode === 'loading') {
-      panel = (
-        <ActivityIndicator
-          color="white"
-          size="large"
-          style={styles.loadingIndicator}
-        />
-      );
-    }
-
-    const windowWidth = this.props.dimensions.width;
-    const buttonStyle = {
-      opacity: this.props.panelOpacity,
-      left: windowWidth < 360 ? 28 : 40,
-    };
-    const padding = { paddingTop: this.props.panelPaddingTop };
-
-    const animatedContent = (
-      <Animated.View style={[styles.animationContainer, padding]}>
-        <View>
-          <Text style={styles.header}>Comm</Text>
-          <Animated.View style={[styles.backButton, buttonStyle]}>
-            <TouchableOpacity
-              activeOpacity={0.6}
-              onPress={this.props.resetToPrompt}
-            >
-              <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-        {panel}
-      </Animated.View>
-    );
-
-    let siwePanel;
-    if (this.props.mode.curMode === 'siwe') {
-      siwePanel = (
-        <FullscreenSIWEPanel
-          goBackToPrompt={this.props.goBackToPrompt}
-          closing={this.props.mode.nextMode === 'prompt'}
-        />
-      );
-    }
-
-    const backgroundSource = { uri: splashBackgroundURI };
-    return (
-      <React.Fragment>
-        <ConnectedStatusBar barStyle="light-content" />
-        <Image
-          source={backgroundSource}
-          style={[styles.modalBackground, this.props.splashStyle]}
-        />
-        <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-          <KeyboardAvoidingView behavior="padding" style={styles.container}>
-            {animatedContent}
-            {buttons}
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-        {siwePanel}
-      </React.Fragment>
-    );
-  }
-
-  onPressSIWE = () => {
-    this.props.combinedSetMode('siwe');
-  };
-
-  onPressLogIn = () => {
-    if (Platform.OS !== 'ios') {
-      // For some strange reason, iOS's password management logic doesn't
-      // realize that the username and password fields in LogInPanel are related
-      // if the username field gets focused on mount. To avoid this issue we
-      // need the username and password fields to both appear on-screen before
-      // we focus the username field. However, when we set keyboardHeightValue
-      // to -1 here, we are telling our Reanimated logic to wait until the
-      // keyboard appears before showing LogInPanel. Since we need LogInPanel
-      // to appear before the username field is focused, we need to avoid this
-      // behavior on iOS.
-      this.props.keyboardHeightValue.setValue(-1);
-    }
-    this.props.combinedSetMode('log-in');
-  };
-
-  onPressQRCodeSignIn = () => {
-    this.props.navigation.navigate(QRCodeSignInNavigatorRouteName);
-  };
-
-  onPressRegister = () => {
-    this.props.keyboardHeightValue.setValue(-1);
-    this.props.combinedSetMode('register');
-  };
-
-  onPressNewRegister = () => {
-    this.props.navigation.navigate(RegistrationRouteName);
-  };
-}
 
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
@@ -470,8 +237,8 @@ type Mode = {
   +nextMode: LoggedOutMode,
 };
 
-const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
-  React.memo<BaseProps>(function ConnectedLoggedOutModal(props: BaseProps) {
+const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
+  function ConnectedLoggedOutModal(props: Props) {
     const mountedRef = React.useRef(false);
     React.useEffect(() => {
       mountedRef.current = true;
@@ -804,27 +571,207 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
 
     const splashStyle = useSelector(splashStyleSelector);
     const styles = useStyles(unboundStyles);
-    return (
-      <LoggedOutModal
-        {...props}
-        logInStateContainer={logInStateContainer}
-        legacyRegisterStateContainer={legacyRegisterStateContainer}
-        mode={mode}
-        contentHeight={contentHeight}
-        keyboardHeightValue={keyboardHeightValue}
-        buttonOpacity={buttonOpacity}
-        panelPaddingTop={panelPaddingTop}
-        panelOpacity={panelOpacity}
-        combinedSetMode={combinedSetMode}
-        goBackToPrompt={goBackToPrompt}
-        activeAlertRef={activeAlertRef}
-        setActiveAlert={setActiveAlert}
-        resetToPrompt={resetToPrompt}
-        dimensions={dimensions}
-        splashStyle={splashStyle}
-        styles={styles}
-      />
+
+    const onPressSIWE = React.useCallback(() => {
+      combinedSetMode('siwe');
+    }, [combinedSetMode]);
+
+    const onPressLogIn = React.useCallback(() => {
+      if (Platform.OS !== 'ios') {
+        // For some strange reason, iOS's password management logic doesn't
+        // realize that the username and password fields in LogInPanel are
+        // related if the username field gets focused on mount. To avoid this
+        // issue we need the username and password fields to both appear
+        // on-screen before we focus the username field. However, when we set
+        // keyboardHeightValue to -1 here, we are telling our Reanimated logic
+        // to wait until the keyboard appears before showing LogInPanel. Since
+        // we need LogInPanel to appear before the username field is focused, we
+        //need to avoid this behavior on iOS.
+        keyboardHeightValue.setValue(-1);
+      }
+      combinedSetMode('log-in');
+    }, [keyboardHeightValue, combinedSetMode]);
+
+    const { navigate } = props.navigation;
+    const onPressQRCodeSignIn = React.useCallback(() => {
+      navigate(QRCodeSignInNavigatorRouteName);
+    }, [navigate]);
+
+    const onPressRegister = React.useCallback(() => {
+      keyboardHeightValue.setValue(-1);
+      combinedSetMode('register');
+    }, [keyboardHeightValue, combinedSetMode]);
+
+    const onPressNewRegister = React.useCallback(() => {
+      navigate(RegistrationRouteName);
+    }, [navigate]);
+
+    const siweButton = (
+      <>
+        <TouchableOpacity
+          onPress={onPressSIWE}
+          style={[styles.button, styles.siweButton]}
+          activeOpacity={0.6}
+        >
+          <View style={styles.siweIcon}>
+            <EthereumLogo />
+          </View>
+          <Text style={[styles.buttonText, styles.siweButtonText]}>
+            Sign in with Ethereum
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.siweOr}>
+          <View style={styles.siweOrLeftHR} />
+          <Text style={styles.siweOrText}>or</Text>
+          <View style={styles.siweOrRightHR} />
+        </View>
+      </>
     );
-  });
+
+    let panel = null;
+    let buttons = null;
+    if (mode.curMode === 'log-in') {
+      panel = (
+        <LogInPanel
+          setActiveAlert={setActiveAlert}
+          opacityValue={panelOpacity}
+          logInState={logInStateContainer}
+        />
+      );
+    } else if (mode.curMode === 'register') {
+      panel = (
+        <LegacyRegisterPanel
+          setActiveAlert={setActiveAlert}
+          opacityValue={panelOpacity}
+          legacyRegisterState={legacyRegisterStateContainer}
+        />
+      );
+    } else if (mode.curMode === 'prompt') {
+      const opacityStyle = { opacity: buttonOpacity };
+
+      const registerButtons = [];
+      registerButtons.push(
+        <TouchableOpacity
+          onPress={onPressRegister}
+          style={[styles.button, styles.classicAuthButton]}
+          activeOpacity={0.6}
+          key="old"
+        >
+          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+            Register
+          </Text>
+        </TouchableOpacity>,
+      );
+      if (enableNewRegistrationMode) {
+        registerButtons.push(
+          <TouchableOpacity
+            onPress={onPressNewRegister}
+            style={[styles.button, styles.classicAuthButton]}
+            activeOpacity={0.6}
+            key="new"
+          >
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Register (new)
+            </Text>
+          </TouchableOpacity>,
+        );
+      }
+
+      const signInButtons = [];
+      signInButtons.push(
+        <TouchableOpacity
+          onPress={onPressLogIn}
+          style={[styles.button, styles.classicAuthButton]}
+          activeOpacity={0.6}
+          key="login-form"
+        >
+          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+            Sign in
+          </Text>
+        </TouchableOpacity>,
+      );
+      if (__DEV__) {
+        signInButtons.push(
+          <TouchableOpacity
+            onPress={onPressQRCodeSignIn}
+            style={[styles.button, styles.classicAuthButton]}
+            activeOpacity={0.6}
+            key="qr-code-login"
+          >
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Sign in (QR)
+            </Text>
+          </TouchableOpacity>,
+        );
+      }
+
+      buttons = (
+        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
+          <LoggedOutStaffInfo />
+          {siweButton}
+          <View style={styles.signInButtons}>{signInButtons}</View>
+          <View style={styles.registerButtons}>{registerButtons}</View>
+        </Animated.View>
+      );
+    } else if (mode.curMode === 'loading') {
+      panel = (
+        <ActivityIndicator
+          color="white"
+          size="large"
+          style={styles.loadingIndicator}
+        />
+      );
+    }
+
+    const windowWidth = dimensions.width;
+    const buttonStyle = {
+      opacity: panelOpacity,
+      left: windowWidth < 360 ? 28 : 40,
+    };
+    const padding = { paddingTop: panelPaddingTop };
+
+    const animatedContent = (
+      <Animated.View style={[styles.animationContainer, padding]}>
+        <View>
+          <Text style={styles.header}>Comm</Text>
+          <Animated.View style={[styles.backButton, buttonStyle]}>
+            <TouchableOpacity activeOpacity={0.6} onPress={resetToPrompt}>
+              <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+        {panel}
+      </Animated.View>
+    );
+
+    let siwePanel;
+    if (mode.curMode === 'siwe') {
+      siwePanel = (
+        <FullscreenSIWEPanel
+          goBackToPrompt={goBackToPrompt}
+          closing={mode.nextMode === 'prompt'}
+        />
+      );
+    }
+
+    const backgroundSource = { uri: splashBackgroundURI };
+    return (
+      <React.Fragment>
+        <ConnectedStatusBar barStyle="light-content" />
+        <Image
+          source={backgroundSource}
+          style={[styles.modalBackground, splashStyle]}
+        />
+        <SafeAreaView style={styles.container} edges={safeAreaEdges}>
+          <KeyboardAvoidingView behavior="padding" style={styles.container}>
+            {animatedContent}
+            {buttons}
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+        {siwePanel}
+      </React.Fragment>
+    );
+  },
+);
 
 export default ConnectedLoggedOutModal;
