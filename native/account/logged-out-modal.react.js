@@ -240,6 +240,8 @@ type Props = {
   +panelOpacity: Node,
   +combinedSetMode: LoggedOutMode => void,
   +goBackToPrompt: () => void,
+  +activeAlertRef: { current: boolean },
+  +setActiveAlert: boolean => void,
   // Navigation state
   +isForeground: boolean,
   // Redux state
@@ -255,8 +257,6 @@ type Props = {
 class LoggedOutModal extends React.PureComponent<Props> {
   keyboardShowListener: ?EventSubscription;
   keyboardHideListener: ?EventSubscription;
-
-  activeAlert = false;
 
   componentDidMount() {
     if (this.props.rehydrateConcluded) {
@@ -359,13 +359,9 @@ class LoggedOutModal extends React.PureComponent<Props> {
   };
 
   keyboardHide = () => {
-    if (!this.activeAlert) {
+    if (!this.props.activeAlertRef.current) {
       this.props.keyboardHeightValue.setValue(0);
     }
-  };
-
-  setActiveAlert = (activeAlert: boolean) => {
-    this.activeAlert = activeAlert;
   };
 
   render(): React.Node {
@@ -398,7 +394,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
     if (this.props.mode.curMode === 'log-in') {
       panel = (
         <LogInPanel
-          setActiveAlert={this.setActiveAlert}
+          setActiveAlert={this.props.setActiveAlert}
           opacityValue={this.props.panelOpacity}
           logInState={this.props.logInStateContainer}
         />
@@ -406,7 +402,7 @@ class LoggedOutModal extends React.PureComponent<Props> {
     } else if (this.props.mode.curMode === 'register') {
       panel = (
         <LegacyRegisterPanel
-          setActiveAlert={this.setActiveAlert}
+          setActiveAlert={this.props.setActiveAlert}
           opacityValue={this.props.panelOpacity}
           legacyRegisterState={this.props.legacyRegisterStateContainer}
         />
@@ -825,6 +821,11 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       }
     }, [persistedStateLoaded, combinedSetMode]);
 
+    const activeAlertRef = React.useRef(false);
+    const setActiveAlert = React.useCallback((activeAlert: boolean) => {
+      activeAlertRef.current = activeAlert;
+    }, []);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
@@ -851,6 +852,8 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         panelOpacity={panelOpacity}
         combinedSetMode={combinedSetMode}
         goBackToPrompt={goBackToPrompt}
+        activeAlertRef={activeAlertRef}
+        setActiveAlert={setActiveAlert}
         isForeground={isForeground}
         rehydrateConcluded={rehydrateConcluded}
         cookie={cookie}
