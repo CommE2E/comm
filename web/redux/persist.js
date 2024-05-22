@@ -10,7 +10,10 @@ import {
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
-import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import {
+  messageStoreOpsHandlers,
+  type ClientDBMessageStoreOperation,
+} from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import {
@@ -470,6 +473,47 @@ const migrations = {
   },
   [18]: (state: AppState) =>
     unshimClientDB(state, [messageTypes.UPDATE_RELATIONSHIP]),
+
+  [19]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+
+    if (!isSupported) {
+      return state;
+    }
+
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const localMessagesDBInfo = stores?.store?.messageStoreLocalMessageInfos;
+    if (!localMessagesDBInfo) {
+      return state;
+    }
+
+    // todo: figure this out
+    // const replaceOps: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+    //   localMessagesDBInfo.map(localMessage => {
+    //     return {
+    //       type: 'replace_local_message_info',
+    //       payload: localMessage,
+    //     };
+    //   });
+
+    try {
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: {
+          messageStoreOperations:
+            messageStoreOpsHandlers.convertOpsToClientDBOps([]),
+        },
+      });
+      return state;
+    } catch (e) {
+      console.log(e);
+      return handleReduxMigrationFailure(state);
+    }
+  },
 };
 
 const migrateStorageToSQLite: StorageMigrationFunction = async debug => {

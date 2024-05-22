@@ -133,7 +133,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           const { messageStore, ...rest } = initialReduxState;
           initialReduxState = rest;
         } else {
-          const { messages, threads } = payload.messageStore;
+          const { messages, threads, local } = payload.messageStore;
 
           messageStoreOperations = [
             ...entries(messages).map(([id, messageInfo]) => ({
@@ -144,6 +144,10 @@ function InitialReduxStateGate(props: Props): React.Node {
               type: 'replace_threads',
               payload: { threads },
             },
+            ...entries(local).map(([id, localMessageInfo]) => ({
+              type: 'replace_local_message_info',
+              payload: { id, localMessageInfo },
+            })),
           ];
         }
 
