@@ -13,6 +13,7 @@ import {
 import {
   messageStoreOpsHandlers,
   type ClientDBMessageStoreOperation,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
 } from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
@@ -482,33 +483,36 @@ const migrations = {
       return state;
     }
 
-    const stores = await sharedWorker.schedule({
-      type: workerRequestMessageTypes.GET_CLIENT_STORE,
-    });
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(state.messageStore.local).map(([id, localMessageInfo]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo,
+        },
+      }));
 
-    const localMessagesDBInfo = stores?.store?.messageStoreLocalMessageInfos;
-    if (!localMessagesDBInfo) {
+    if (replaceOps.length === 0) {
       return state;
     }
 
-    // todo: figure this out
-    // const replaceOps: $ReadOnlyArray<ClientDBMessageStoreOperation> =
-    //   localMessagesDBInfo.map(localMessage => {
-    //     return {
-    //       type: 'replace_local_message_info',
-    //       payload: localMessage,
-    //     };
-    //   });
+    const newState = {
+      ...state,
+      messageStore: messageStoreOpsHandlers.processStoreOperations(
+        state.messageStore,
+        replaceOps,
+      ),
+    };
+
+    const messageStoreOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps(replaceOps);
 
     try {
       await sharedWorker.schedule({
         type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
-        storeOperations: {
-          messageStoreOperations:
-            messageStoreOpsHandlers.convertOpsToClientDBOps([]),
-        },
+        storeOperations: { messageStoreOperations },
       });
-      return state;
+      return newState;
     } catch (e) {
       console.log(e);
       return handleReduxMigrationFailure(state);
