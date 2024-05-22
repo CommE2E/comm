@@ -758,24 +758,39 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
     ]);
 
     const windowWidth = dimensions.width;
-    const buttonStyle = {
-      opacity: panelOpacity,
-      left: windowWidth < 360 ? 28 : 40,
-    };
-    const padding = { paddingTop: panelPaddingTop };
+    const backButtonStyle = React.useMemo(
+      () => [
+        styles.backButton,
+        { opacity: panelOpacity, left: windowWidth < 360 ? 28 : 40 },
+      ],
+      [styles.backButton, panelOpacity, windowWidth],
+    );
 
-    const animatedContent = (
-      <Animated.View style={[styles.animationContainer, padding]}>
-        <View>
-          <Text style={styles.header}>Comm</Text>
-          <Animated.View style={[styles.backButton, buttonStyle]}>
-            <TouchableOpacity activeOpacity={0.6} onPress={resetToPrompt}>
-              <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-        {panel}
-      </Animated.View>
+    const animatedContentStyle = React.useMemo(
+      () => [styles.animationContainer, { paddingTop: panelPaddingTop }],
+      [styles.animationContainer, panelPaddingTop],
+    );
+    const animatedContent = React.useMemo(
+      () => (
+        <Animated.View style={animatedContentStyle}>
+          <View>
+            <Text style={styles.header}>Comm</Text>
+            <Animated.View style={backButtonStyle}>
+              <TouchableOpacity activeOpacity={0.6} onPress={resetToPrompt}>
+                <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+          {panel}
+        </Animated.View>
+      ),
+      [
+        animatedContentStyle,
+        styles.header,
+        backButtonStyle,
+        resetToPrompt,
+        panel,
+      ],
     );
 
     let siwePanel;
