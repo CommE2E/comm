@@ -243,7 +243,6 @@ type Props = {
   // Navigation state
   +isForeground: boolean,
   // Redux state
-  +persistedStateLoaded: boolean,
   +rehydrateConcluded: boolean,
   +cookie: ?string,
   +loggedIn: boolean,
@@ -275,9 +274,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (!prevProps.persistedStateLoaded && this.props.persistedStateLoaded) {
-      this.props.combinedSetMode('prompt');
-    }
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
     }
@@ -815,6 +811,14 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       Keyboard.dismiss();
     }, [setMode, keyboardHeightValue, modeValue]);
 
+    const loadingCompleteRef = React.useRef(persistedStateLoaded);
+    React.useEffect(() => {
+      if (!loadingCompleteRef.current && persistedStateLoaded) {
+        combinedSetMode('prompt');
+        loadingCompleteRef.current = true;
+      }
+    }, [persistedStateLoaded, combinedSetMode]);
+
     const navContext = React.useContext(NavContext);
     const isForeground = isForegroundSelector(navContext);
 
@@ -842,7 +846,6 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         combinedSetMode={combinedSetMode}
         goBackToPrompt={goBackToPrompt}
         isForeground={isForeground}
-        persistedStateLoaded={persistedStateLoaded}
         rehydrateConcluded={rehydrateConcluded}
         cookie={cookie}
         loggedIn={loggedIn}
