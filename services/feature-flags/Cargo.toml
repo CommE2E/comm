@@ -1,10 +1,10 @@
 [package]
 name = "feature-flags"
-description = "Feature Flags service"
-homepage = "https://comm.app"
-license = "BSD-3-Clause"
 version = "0.1.0"
-edition = "2021"
+description = "Feature Flags service"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [dependencies]
 actix-web = "4.3"

@@ -1,11 +1,11 @@
 [package]
 name = "tunnelbroker"
-description = "Tunnelbroker server"
-homepage = "https://comm.app"
-license = "BSD-3-Clause"
 version = "0.5.0"
-edition = "2021"
 links = "tunnelbroker"
+description = "Tunnelbroker server"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [dependencies]
 anyhow = "1.0"

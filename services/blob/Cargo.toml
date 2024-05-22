@@ -1,10 +1,10 @@
 [package]
 name = "blob"
-description = "Blob service"
-homepage = "https://comm.app"
-license = "BSD-3-Clause"
 version = "1.0.0"
-edition = "2021"
+description = "Blob service"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [dependencies]
 actix-multipart = "0.6"
