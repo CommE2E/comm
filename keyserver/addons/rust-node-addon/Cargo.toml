@@ -1,8 +1,9 @@
 [package]
-edition = "2021"
 name = "rust-node-addon"
 version = "0.1.0"
-license = "BSD-3-Clause"
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
