@@ -20,7 +20,6 @@ import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
-import type { Dispatch } from 'lib/types/redux-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
@@ -240,58 +239,11 @@ type Props = {
   +setActiveAlert: boolean => void,
   +resetToPrompt: () => boolean,
   // Redux state
-  +rehydrateConcluded: boolean,
-  +cookie: ?string,
-  +loggedIn: boolean,
   +dimensions: DerivedDimensionsInfo,
   +splashStyle: ImageStyle,
   +styles: $ReadOnly<typeof unboundStyles>,
-  // Redux dispatch functions
-  +dispatch: Dispatch,
 };
 class LoggedOutModal extends React.PureComponent<Props> {
-  componentDidMount() {
-    if (this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
-    }
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
-      this.onInitialAppLoad();
-    }
-  }
-
-  // This gets triggered when an app is killed and restarted
-  // Not when it is returned from being backgrounded
-  onInitialAppLoad() {
-    if (!initialAppLoad) {
-      return;
-    }
-    initialAppLoad = false;
-
-    if (usingCommServicesAccessToken || __DEV__) {
-      return;
-    }
-
-    const { loggedIn, cookie, dispatch } = this.props;
-    const hasUserCookie = cookie && cookie.startsWith('user=');
-    if (loggedIn === !!hasUserCookie) {
-      return;
-    }
-
-    const actionSource = loggedIn
-      ? recoveryFromReduxActionSources.appStartReduxLoggedInButInvalidCookie
-      : recoveryFromReduxActionSources.appStartCookieLoggedInButInvalidRedux;
-    dispatch({
-      type: setActiveSessionRecoveryActionType,
-      payload: {
-        activeSessionRecovery: actionSource,
-        keyserverID: authoritativeKeyserverID,
-      },
-    });
-  }
-
   render(): React.Node {
     const { styles } = this.props;
 
@@ -820,10 +772,38 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
     );
     const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
     const loggedIn = useSelector(isLoggedIn);
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+      // This gets triggered when an app is killed and restarted
+      // Not when it is returned from being backgrounded
+      if (!initialAppLoad || !rehydrateConcluded) {
+        return;
+      }
+      initialAppLoad = false;
+
+      if (usingCommServicesAccessToken || __DEV__) {
+        return;
+      }
+
+      const hasUserCookie = cookie && cookie.startsWith('user=');
+      if (loggedIn === !!hasUserCookie) {
+        return;
+      }
+
+      const actionSource = loggedIn
+        ? recoveryFromReduxActionSources.appStartReduxLoggedInButInvalidCookie
+        : recoveryFromReduxActionSources.appStartCookieLoggedInButInvalidRedux;
+      dispatch({
+        type: setActiveSessionRecoveryActionType,
+        payload: {
+          activeSessionRecovery: actionSource,
+          keyserverID: authoritativeKeyserverID,
+        },
+      });
+    }, [rehydrateConcluded, loggedIn, cookie, dispatch]);
+
     const splashStyle = useSelector(splashStyleSelector);
     const styles = useStyles(unboundStyles);
-
-    const dispatch = useDispatch();
     return (
       <LoggedOutModal
         {...props}
@@ -840,13 +820,9 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         activeAlertRef={activeAlertRef}
         setActiveAlert={setActiveAlert}
         resetToPrompt={resetToPrompt}
-        rehydrateConcluded={rehydrateConcluded}
-        cookie={cookie}
-        loggedIn={loggedIn}
         dimensions={dimensions}
         splashStyle={splashStyle}
         styles={styles}
-        dispatch={dispatch}
       />
     );
   });
