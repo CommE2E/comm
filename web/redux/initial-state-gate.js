@@ -81,6 +81,7 @@ function InitialReduxStateGate(props: Props): React.Node {
             threadStore: !!clientDBStore.threadStore,
             messageStore: !!clientDBStore.messages,
             userStore: !!clientDBStore.users,
+            entryStore: !!clientDBStore.entries,
           },
           allUpdatesCurrentAsOf,
         });
@@ -148,13 +149,18 @@ function InitialReduxStateGate(props: Props): React.Node {
           ];
         }
 
-        const entryStoreOperations: Array<EntryStoreOperation> = [
-          { type: 'remove_all_entries' },
-          ...entries(payload.entryStore.entryInfos).map(([id, entry]) => ({
-            type: 'replace_entry',
-            payload: { id, entry },
-          })),
-        ];
+        let entryStoreOperations: Array<EntryStoreOperation> = [];
+        if (clientDBStore.entries) {
+          const { entryStore, ...rest } = initialReduxState;
+          initialReduxState = rest;
+        } else {
+          entryStoreOperations = entries(payload.entryStore.entryInfos).map(
+            ([id, entry]) => ({
+              type: 'replace_entry',
+              payload: { id, entry },
+            }),
+          );
+        }
 
         if (
           threadStoreOperations.length > 0 ||

@@ -58,6 +58,7 @@ const excludedDataValidator: TInterface<ExcludedData> = tShape<ExcludedData>({
   userStore: t.maybe(t.Bool),
   messageStore: t.maybe(t.Bool),
   threadStore: t.maybe(t.Bool),
+  entryStore: t.maybe(t.Bool),
 });
 
 export const initialReduxStateRequestValidator: TInterface<InitialReduxStateRequest> =
@@ -214,6 +215,16 @@ async function getInitialReduxStateResponder(
       lastUserInteractionCalendar: serverUpdatesCurrentAsOf,
     };
   })();
+  const finalEntryStorePromise = (async () => {
+    if (excludedData.entryStore && useDatabase) {
+      return {
+        entryInfos: {},
+        daysToEntries: {},
+        lastUserInteractionCalendar: 0,
+      };
+    }
+    return await entryStorePromise;
+  })();
   const userInfosPromise = (async () => {
     const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
       userInfoPromise,
@@ -349,7 +360,7 @@ async function getInitialReduxStateResponder(
     await promiseAll({
       navInfo: navInfoPromise,
       currentUserInfo: currentUserInfoPromise,
-      entryStore: entryStorePromise,
+      entryStore: finalEntryStorePromise,
       threadStore: threadStorePromise,
       userInfos: finalUserInfosPromise,
       messageStore: finalMessageStorePromise,
