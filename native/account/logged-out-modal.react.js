@@ -605,51 +605,87 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       navigate(RegistrationRouteName);
     }, [navigate]);
 
-    let panel = null;
-    let buttons = null;
-    if (mode.curMode === 'log-in') {
-      panel = (
-        <LogInPanel
-          setActiveAlert={setActiveAlert}
-          opacityValue={panelOpacity}
-          logInState={logInStateContainer}
-        />
-      );
-    } else if (mode.curMode === 'register') {
-      panel = (
-        <LegacyRegisterPanel
-          setActiveAlert={setActiveAlert}
-          opacityValue={panelOpacity}
-          legacyRegisterState={legacyRegisterStateContainer}
-        />
-      );
-    } else if (mode.curMode === 'prompt') {
-      const opacityStyle = { opacity: buttonOpacity };
+    const panel = React.useMemo(() => {
+      if (mode.curMode === 'log-in') {
+        return (
+          <LogInPanel
+            setActiveAlert={setActiveAlert}
+            opacityValue={panelOpacity}
+            logInState={logInStateContainer}
+          />
+        );
+      } else if (mode.curMode === 'register') {
+        return (
+          <LegacyRegisterPanel
+            setActiveAlert={setActiveAlert}
+            opacityValue={panelOpacity}
+            legacyRegisterState={legacyRegisterStateContainer}
+          />
+        );
+      } else if (mode.curMode === 'loading') {
+        return (
+          <ActivityIndicator
+            color="white"
+            size="large"
+            style={styles.loadingIndicator}
+          />
+        );
+      }
+      return null;
+    }, [
+      mode.curMode,
+      setActiveAlert,
+      panelOpacity,
+      logInStateContainer,
+      legacyRegisterStateContainer,
+      styles.loadingIndicator,
+    ]);
+
+    const classicAuthButtonStyle = React.useMemo(
+      () => [styles.button, styles.classicAuthButton],
+      [styles.button, styles.classicAuthButton],
+    );
+    const classicAuthButtonTextStyle = React.useMemo(
+      () => [styles.buttonText, styles.classicAuthButtonText],
+      [styles.buttonText, styles.classicAuthButtonText],
+    );
+    const siweAuthButtonStyle = React.useMemo(
+      () => [styles.button, styles.siweButton],
+      [styles.button, styles.siweButton],
+    );
+    const siweAuthButtonTextStyle = React.useMemo(
+      () => [styles.buttonText, styles.siweButtonText],
+      [styles.buttonText, styles.siweButtonText],
+    );
+    const buttonsViewStyle = React.useMemo(
+      () => [styles.buttonContainer, { opacity: buttonOpacity }],
+      [styles.buttonContainer, buttonOpacity],
+    );
+    const buttons = React.useMemo(() => {
+      if (mode.curMode !== 'prompt') {
+        return null;
+      }
 
       const registerButtons = [];
       registerButtons.push(
         <TouchableOpacity
           onPress={onPressRegister}
-          style={[styles.button, styles.classicAuthButton]}
+          style={classicAuthButtonStyle}
           activeOpacity={0.6}
           key="old"
         >
-          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-            Register
-          </Text>
+          <Text style={classicAuthButtonTextStyle}>Register</Text>
         </TouchableOpacity>,
       );
       if (enableNewRegistrationMode) {
         registerButtons.push(
           <TouchableOpacity
             onPress={onPressNewRegister}
-            style={[styles.button, styles.classicAuthButton]}
+            style={classicAuthButtonStyle}
             activeOpacity={0.6}
             key="new"
           >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Register (new)
-            </Text>
+            <Text style={classicAuthButtonTextStyle}>Register (new)</Text>
           </TouchableOpacity>,
         );
       }
@@ -658,44 +694,38 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       signInButtons.push(
         <TouchableOpacity
           onPress={onPressLogIn}
-          style={[styles.button, styles.classicAuthButton]}
+          style={classicAuthButtonStyle}
           activeOpacity={0.6}
           key="login-form"
         >
-          <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-            Sign in
-          </Text>
+          <Text style={classicAuthButtonTextStyle}>Sign in</Text>
         </TouchableOpacity>,
       );
       if (__DEV__) {
         signInButtons.push(
           <TouchableOpacity
             onPress={onPressQRCodeSignIn}
-            style={[styles.button, styles.classicAuthButton]}
+            style={classicAuthButtonStyle}
             activeOpacity={0.6}
             key="qr-code-login"
           >
-            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
-              Sign in (QR)
-            </Text>
+            <Text style={classicAuthButtonTextStyle}>Sign in (QR)</Text>
           </TouchableOpacity>,
         );
       }
 
-      buttons = (
-        <Animated.View style={[styles.buttonContainer, opacityStyle]}>
+      return (
+        <Animated.View style={buttonsViewStyle}>
           <LoggedOutStaffInfo />
           <TouchableOpacity
             onPress={onPressSIWE}
-            style={[styles.button, styles.siweButton]}
+            style={siweAuthButtonStyle}
             activeOpacity={0.6}
           >
             <View style={styles.siweIcon}>
               <EthereumLogo />
             </View>
-            <Text style={[styles.buttonText, styles.siweButtonText]}>
-              Sign in with Ethereum
-            </Text>
+            <Text style={siweAuthButtonTextStyle}>Sign in with Ethereum</Text>
           </TouchableOpacity>
           <View style={styles.siweOr}>
             <View style={styles.siweOrLeftHR} />
@@ -706,15 +736,26 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
           <View style={styles.registerButtons}>{registerButtons}</View>
         </Animated.View>
       );
-    } else if (mode.curMode === 'loading') {
-      panel = (
-        <ActivityIndicator
-          color="white"
-          size="large"
-          style={styles.loadingIndicator}
-        />
-      );
-    }
+    }, [
+      mode.curMode,
+      onPressRegister,
+      onPressNewRegister,
+      onPressLogIn,
+      onPressQRCodeSignIn,
+      onPressSIWE,
+      classicAuthButtonStyle,
+      classicAuthButtonTextStyle,
+      siweAuthButtonStyle,
+      siweAuthButtonTextStyle,
+      buttonsViewStyle,
+      styles.siweIcon,
+      styles.siweOr,
+      styles.siweOrLeftHR,
+      styles.siweOrText,
+      styles.siweOrRightHR,
+      styles.signInButtons,
+      styles.registerButtons,
+    ]);
 
     const windowWidth = dimensions.width;
     const buttonStyle = {
