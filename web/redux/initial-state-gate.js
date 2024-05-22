@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import type { EntryStoreOperation } from 'lib/ops/entries-store-ops.js';
 import type { MessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
@@ -147,6 +148,14 @@ function InitialReduxStateGate(props: Props): React.Node {
           ];
         }
 
+        const entryStoreOperations: Array<EntryStoreOperation> = [
+          { type: 'remove_all_entries' },
+          ...entries(payload.entryStore.entryInfos).map(([id, entry]) => ({
+            type: 'replace_entry',
+            payload: { id, entry },
+          })),
+        ];
+
         if (
           threadStoreOperations.length > 0 ||
           userStoreOperations.length > 0 ||
@@ -165,6 +174,7 @@ function InitialReduxStateGate(props: Props): React.Node {
               syncedMetadataStoreOperations: [],
               auxUserStoreOperations: [],
               threadActivityStoreOperations: [],
+              entryStoreOperations,
             },
             currentLoggedInUserID,
           );
