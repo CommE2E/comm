@@ -28,6 +28,7 @@ import {
 } from 'lib/ops/keyserver-store-ops.js';
 import {
   type ClientDBMessageStoreOperation,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
 import {
@@ -1289,6 +1290,38 @@ const migrations = {
       [messageTypes.UPDATE_RELATIONSHIP],
       handleReduxMigrationFailure,
     ),
+  [75]: async (state: AppState) => {
+    // TODO: make sure migration works and
+    // fix merge conflicts with tomek's + marcin's work
+    const localMessageInfos = state.messageStore.local;
+
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(localMessageInfos).map(([id, message]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo: message,
+        },
+      }));
+
+    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_local_message_infos' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processDBStoreOperations({
+        messageStoreOperations: dbOperations,
+      });
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
+      return handleReduxMigrationFailure(state);
+    }
+    return state;
+  },
 };
 
 type PersistedReportStore = $Diff<
