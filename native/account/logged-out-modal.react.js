@@ -213,11 +213,6 @@ const unboundStyles = {
   },
 };
 
-type Props = {
-  +navigation: RootNavigationProp<'LoggedOutModal'>,
-  +route: NavigationRoute<'LoggedOutModal'>,
-};
-
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
@@ -237,6 +232,10 @@ type Mode = {
   +nextMode: LoggedOutMode,
 };
 
+type Props = {
+  +navigation: RootNavigationProp<'LoggedOutModal'>,
+  +route: NavigationRoute<'LoggedOutModal'>,
+};
 const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
   function ConnectedLoggedOutModal(props: Props) {
     const mountedRef = React.useRef(false);
