@@ -217,6 +217,8 @@ const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
 
+const backgroundSource = { uri: splashBackgroundURI };
+
 const initialLogInState = {
   usernameInputText: null,
   passwordInputText: null,
@@ -568,9 +570,6 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       });
     }, [rehydrateConcluded, loggedIn, cookie, dispatch]);
 
-    const splashStyle = useSelector(splashStyleSelector);
-    const styles = useStyles(unboundStyles);
-
     const onPressSIWE = React.useCallback(() => {
       combinedSetMode('siwe');
     }, [combinedSetMode]);
@@ -605,6 +604,7 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       navigate(RegistrationRouteName);
     }, [navigate]);
 
+    const styles = useStyles(unboundStyles);
     const panel = React.useMemo(() => {
       if (mode.curMode === 'log-in') {
         return (
@@ -807,22 +807,26 @@ const ConnectedLoggedOutModal: React.ComponentType<Props> = React.memo<Props>(
       );
     }, [curModeIsSIWE, goBackToPrompt, nextModeIsPrompt]);
 
-    const backgroundSource = { uri: splashBackgroundURI };
-    return (
-      <React.Fragment>
-        <ConnectedStatusBar barStyle="light-content" />
-        <Image
-          source={backgroundSource}
-          style={[styles.modalBackground, splashStyle]}
-        />
-        <SafeAreaView style={styles.container} edges={safeAreaEdges}>
-          <KeyboardAvoidingView behavior="padding" style={styles.container}>
-            {animatedContent}
-            {buttons}
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-        {siwePanel}
-      </React.Fragment>
+    const splashStyle = useSelector(splashStyleSelector);
+    const backgroundStyle = React.useMemo(
+      () => [styles.modalBackground, splashStyle],
+      [styles.modalBackground, splashStyle],
+    );
+    return React.useMemo(
+      () => (
+        <>
+          <ConnectedStatusBar barStyle="light-content" />
+          <Image source={backgroundSource} style={backgroundStyle} />
+          <SafeAreaView style={styles.container} edges={safeAreaEdges}>
+            <KeyboardAvoidingView behavior="padding" style={styles.container}>
+              {animatedContent}
+              {buttons}
+            </KeyboardAvoidingView>
+          </SafeAreaView>
+          {siwePanel}
+        </>
+      ),
+      [backgroundStyle, styles.container, animatedContent, buttons, siwePanel],
     );
   },
 );
