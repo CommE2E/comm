@@ -229,7 +229,6 @@ type Props = {
   +logInStateContainer: StateContainer<LogInState>,
   +legacyRegisterStateContainer: StateContainer<LegacyRegisterState>,
   +mode: Mode,
-  +nextModeRef: { current: LoggedOutMode },
   +contentHeight: Value,
   +keyboardHeightValue: Value,
   +buttonOpacity: Value,
@@ -239,8 +238,7 @@ type Props = {
   +goBackToPrompt: () => void,
   +activeAlertRef: { current: boolean },
   +setActiveAlert: boolean => void,
-  // Navigation state
-  +isForeground: boolean,
+  +resetToPrompt: () => boolean,
   // Redux state
   +rehydrateConcluded: boolean,
   +cookie: ?string,
@@ -256,34 +254,12 @@ class LoggedOutModal extends React.PureComponent<Props> {
     if (this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
     }
-    if (this.props.isForeground) {
-      this.onForeground();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.props.isForeground) {
-      this.onBackground();
-    }
   }
 
   componentDidUpdate(prevProps: Props) {
     if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
     }
-    if (!prevProps.isForeground && this.props.isForeground) {
-      this.onForeground();
-    } else if (prevProps.isForeground && !this.props.isForeground) {
-      this.onBackground();
-    }
-  }
-
-  onForeground() {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
-  }
-
-  onBackground() {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   // This gets triggered when an app is killed and restarted
@@ -315,14 +291,6 @@ class LoggedOutModal extends React.PureComponent<Props> {
       },
     });
   }
-
-  hardwareBack: () => boolean = () => {
-    if (this.props.nextModeRef.current !== 'prompt') {
-      this.props.goBackToPrompt();
-      return true;
-    }
-    return false;
-  };
 
   render(): React.Node {
     const { styles } = this.props;
@@ -456,7 +424,10 @@ class LoggedOutModal extends React.PureComponent<Props> {
         <View>
           <Text style={styles.header}>Comm</Text>
           <Animated.View style={[styles.backButton, buttonStyle]}>
-            <TouchableOpacity activeOpacity={0.6} onPress={this.hardwareBack}>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={this.props.resetToPrompt}
+            >
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
           </Animated.View>
@@ -827,6 +798,23 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
       };
     }, [isForeground, keyboardShow, keyboardHide]);
 
+    const resetToPrompt = React.useCallback(() => {
+      if (nextModeRef.current !== 'prompt') {
+        goBackToPrompt();
+        return true;
+      }
+      return false;
+    }, [goBackToPrompt]);
+    React.useEffect(() => {
+      if (!isForeground) {
+        return undefined;
+      }
+      BackHandler.addEventListener('hardwareBackPress', resetToPrompt);
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', resetToPrompt);
+      };
+    }, [isForeground, resetToPrompt]);
+
     const rehydrateConcluded = useSelector(
       state => !!(state._persist && state._persist.rehydrated && navContext),
     );
@@ -842,7 +830,6 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         logInStateContainer={logInStateContainer}
         legacyRegisterStateContainer={legacyRegisterStateContainer}
         mode={mode}
-        nextModeRef={nextModeRef}
         contentHeight={contentHeight}
         keyboardHeightValue={keyboardHeightValue}
         buttonOpacity={buttonOpacity}
@@ -852,7 +839,7 @@ const ConnectedLoggedOutModal: React.ComponentType<BaseProps> =
         goBackToPrompt={goBackToPrompt}
         activeAlertRef={activeAlertRef}
         setActiveAlert={setActiveAlert}
-        isForeground={isForeground}
+        resetToPrompt={resetToPrompt}
         rehydrateConcluded={rehydrateConcluded}
         cookie={cookie}
         loggedIn={loggedIn}
