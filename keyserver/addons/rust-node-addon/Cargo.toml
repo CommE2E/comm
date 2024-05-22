@@ -10,25 +10,22 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.10.1", default-features = false, features = [
-  "napi4",
-  "tokio_rt",
-] }
-napi-derive = { version = "2.9.1", default-features = false }
-tonic = { version = "0.9.1", features = ["tls"]}
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
-tokio-stream = "0.1"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
-comm-opaque2 = {path = "../../../shared/comm-opaque2"}
+napi = { workspace = true, features = ["napi4", "tokio_rt"] }
+napi-derive = { workspace = true }
+tonic = { version = "0.9.1", features = ["tls"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tokio-stream = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter"] }
+comm-opaque2 = { path = "../../../shared/comm-opaque2" }
 grpc_clients = { path = "../../../shared/grpc_clients" }
-lazy_static = "1.4"
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+lazy_static = { workspace = true }
+serde_json = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 
 [build-dependencies]
-napi-build = "2.0.1"
-regex = "1"
+napi-build = { workspace = true }
+regex = { workspace = true }
 
 [profile.release]
 lto = true
