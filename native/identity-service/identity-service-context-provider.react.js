@@ -172,13 +172,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           payloadSignature: resultObject?.payloadSignature,
         };
 
-        if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
-          throw new Error('Missing content one time key');
-        }
-        if (!keyserverKeys.notifInitializationInfo.oneTimeKey) {
-          throw new Error('Missing notif one time key');
-        }
-
         return assertWithValidator(
           keyserverKeys,
           deviceOlmOutboundKeysValidator,
@@ -210,17 +203,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
               );
               const deviceID =
                 identityKeysBlob.primaryIdentityPublicKeys.ed25519;
-
-              if (
-                !outboundKeysInfo.oneTimeContentPrekey ||
-                !outboundKeysInfo.oneTimeNotifPrekey
-              ) {
-                console.log(`Missing one time key for device ${deviceID}`);
-                return {
-                  deviceID,
-                  keys: null,
-                };
-              }
 
               const deviceKeys = {
                 identityKeysBlob,
