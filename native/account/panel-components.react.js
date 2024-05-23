@@ -9,13 +9,12 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 
 import Button from '../components/button.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import type { ViewStyle } from '../types/styles.js';
+import { type ViewStyle, AnimatedView } from '../types/styles.js';
 
 type ButtonProps = {
   +text: string,
@@ -59,7 +58,7 @@ function PanelButton(props: ButtonProps): React.Node {
 }
 
 type PanelProps = {
-  +opacityValue: Animated.Node,
+  +opacityStyle: ViewStyle,
   +children: React.Node,
   +style?: ViewStyle,
 };
@@ -68,17 +67,17 @@ function Panel(props: PanelProps): React.Node {
   const containerStyle = React.useMemo(
     () => [
       styles.container,
+      props.opacityStyle,
       {
-        opacity: props.opacityValue,
         marginTop: dimensions.height < 641 ? 15 : 40,
       },
       props.style,
     ],
-    [props.opacityValue, props.style, dimensions.height],
+    [props.opacityStyle, props.style, dimensions.height],
   );
   return (
     <ScrollView bounces={false} keyboardShouldPersistTaps="handled">
-      <Animated.View style={containerStyle}>{props.children}</Animated.View>
+      <AnimatedView style={containerStyle}>{props.children}</AnimatedView>
     </ScrollView>
   );
 }
