@@ -1026,19 +1026,30 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
     jsi::String identityKeys,
     jsi::String prekey,
     jsi::String prekeySignature,
-    jsi::String oneTimeKey,
+    std::optional<jsi::String> oneTimeKey,
     jsi::String keyserverID) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
-  auto oneTimeKeyCpp{oneTimeKey.utf8(rt)};
   auto keyserverIDCpp{keyserverID.utf8(rt)};
+
+  std::optional<std::string> oneTimeKeyCpp;
+  if (oneTimeKey) {
+    oneTimeKeyCpp = oneTimeKey->utf8(rt);
+  }
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
           crypto::EncryptedData result;
           try {
+            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
+            if (oneTimeKeyCpp) {
+              oneTimeKeyBuffer = crypto::OlmBuffer(
+                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
+            }
+
             this->notifsCryptoModule->initializeOutboundForSendingSession(
                 keyserverIDCpp,
                 std::vector<uint8_t>(
@@ -1046,8 +1057,7 @@ jsi::Value CommCoreModule::initializeNotificationsSession(
                 std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
                 std::vector<uint8_t>(
                     prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                std::vector<uint8_t>(
-                    oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
+                oneTimeKeyBuffer);
 
             result = this->notifsCryptoModule->encrypt(
                 keyserverIDCpp,
@@ -1237,13 +1247,18 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::String identityKeys,
     jsi::String prekey,
     jsi::String prekeySignature,
-    jsi::String oneTimeKey,
+    std::optional<jsi::String> oneTimeKey,
     jsi::String deviceID) {
   auto identityKeysCpp{identityKeys.utf8(rt)};
   auto prekeyCpp{prekey.utf8(rt)};
   auto prekeySignatureCpp{prekeySignature.utf8(rt)};
-  auto oneTimeKeyCpp{oneTimeKey.utf8(rt)};
   auto deviceIDCpp{deviceID.utf8(rt)};
+
+  std::optional<std::string> oneTimeKeyCpp;
+  if (oneTimeKey) {
+    oneTimeKeyCpp = oneTimeKey->utf8(rt);
+  }
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -1251,6 +1266,11 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
           crypto::EncryptedData initialEncryptedData;
           int sessionVersion;
           try {
+            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
+            if (oneTimeKeyCpp) {
+              oneTimeKeyBuffer = crypto::OlmBuffer(
+                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
+            }
             sessionVersion =
                 this->contentCryptoModule->initializeOutboundForSendingSession(
                     deviceIDCpp,
@@ -1259,8 +1279,7 @@ jsi::Value CommCoreModule::initializeContentOutboundSession(
                     std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
                     std::vector<uint8_t>(
                         prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
-                    std::vector<uint8_t>(
-                        oneTimeKeyCpp.begin(), oneTimeKeyCpp.end()));
+                    oneTimeKeyBuffer);
 
             const std::string initMessage = "{\"type\": \"init\"}";
             initialEncryptedData =
