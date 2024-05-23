@@ -9,33 +9,51 @@ import { ashoatKeyserverID } from 'lib/utils/validation-utils.js';
 import type { UserCredentials } from './checks';
 import { SQL, dbQuery } from '../database/database.js';
 
-const userIDMetadataKey = 'user_id';
-const accessTokenMetadataKey = 'access_token';
+const metadataKeys = Object.freeze({
+  USER_ID: 'user_id',
+  ACCESS_TOKEN: 'access_token',
+});
+
+type MetadataKey = $Values<typeof metadataKeys>;
 
 // This information is minted when registering with identity service
 // Naming should reflect the rust-bindings: userId -> user_id
 export type IdentityInfo = { +userId: string, +accessToken: string };
 
-async function fetchIdentityInfo(): Promise<?IdentityInfo> {
-  const versionQuery = SQL`
+// This function should only be used to fetch string values from the metadata
+// table
+async function fetchMetadata(
+  keys: $ReadOnlyArray<MetadataKey>,
+): Promise<Map<MetadataKey, string>> {
+  const metadataQuery = SQL`
     SELECT name, data
     FROM metadata
-    WHERE name IN (${userIDMetadataKey}, ${accessTokenMetadataKey})
+    WHERE name IN (${keys})
   `;
 
-  const [result] = await dbQuery(versionQuery);
-  let userID, accessToken;
+  const [result] = await dbQuery(metadataQuery);
+
+  const metadataMap = new Map<MetadataKey, string>();
+
   for (const row of result) {
-    if (row.name === userIDMetadataKey) {
-      userID = row.data;
-    } else if (row.name === accessTokenMetadataKey) {
-      accessToken = row.data;
-    }
+    metadataMap.set(row.name, row.data);
   }
+
+  return metadataMap;
+}
+
+async function fetchIdentityInfo(): Promise<?IdentityInfo> {
+  const keys = [metadataKeys.USER_ID, metadataKeys.ACCESS_TOKEN];
+
+  const metadataMap = await fetchMetadata(keys);
+
+  const userID = metadataMap.get(metadataKeys.USER_ID);
+  const accessToken = metadataMap.get(metadataKeys.ACCESS_TOKEN);
 
   if (!userID || !accessToken) {
     return null;
   }
+
   return { userId: userID, accessToken };
 }
 
@@ -82,14 +100,24 @@ async function thisKeyserverAdmin(): Promise<AdminData> {
   };
 }
 
-function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
+function saveMetadata(
+  metadataMap: Map<MetadataKey, string>,
+): Promise<QueryResults> {
+  const entries = [...metadataMap.entries()];
   const updateQuery = SQL`
     REPLACE INTO metadata (name, data)
-    VALUES (${userIDMetadataKey}, ${userInfo.userId}),
-      (${accessTokenMetadataKey}, ${userInfo.accessToken})
+    VALUES ${entries}
   `;
 
   return dbQuery(updateQuery);
+}
+
+function saveIdentityInfo(userInfo: IdentityInfo): Promise<QueryResults> {
+  const metadataMap = new Map<MetadataKey, string>();
+  metadataMap.set(metadataKeys.USER_ID, userInfo.userId);
+  metadataMap.set(metadataKeys.ACCESS_TOKEN, userInfo.accessToken);
+
+  return saveMetadata(metadataMap);
 }
 
 export {
