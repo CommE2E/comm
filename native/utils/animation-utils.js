@@ -4,7 +4,6 @@ import * as React from 'react';
 import { State as GestureState } from 'react-native-gesture-handler';
 import Animated, {
   EasingNode,
-  type NodeParam,
   type SpringConfig,
   type TimingConfig,
   useSharedValue,
@@ -18,8 +17,6 @@ const {
   block,
   cond,
   not,
-  and,
-  or,
   greaterThan,
   lessThan,
   eq,
@@ -28,7 +25,6 @@ const {
   sub,
   divide,
   set,
-  max,
   startClock,
   stopClock,
   clockRunning,
@@ -152,35 +148,6 @@ function runSpring(
   ]);
 }
 
-// You provide a node that performs a "ratchet",
-// and this function will call it as keyboard height increases
-function ratchetAlongWithKeyboardHeight(
-  keyboardHeight: Node,
-  ratchetFunction: NodeParam,
-): Node {
-  const prevKeyboardHeightValue = new Value(-1);
-  // In certain situations, iOS will send multiple keyboardShows in rapid
-  // succession with increasing height values. Only the final value has any
-  // semblance of reality. I've encountered this when using the native
-  // password management integration
-  const whenToUpdate = greaterThan(
-    keyboardHeight,
-    max(prevKeyboardHeightValue, 0),
-  );
-  const whenToReset = and(
-    eq(keyboardHeight, 0),
-    greaterThan(prevKeyboardHeightValue, 0),
-  );
-  return block([
-    cond(
-      lessThan(prevKeyboardHeightValue, 0),
-      set(prevKeyboardHeightValue, keyboardHeight),
-    ),
-    cond(or(whenToUpdate, whenToReset), ratchetFunction),
-    set(prevKeyboardHeightValue, keyboardHeight),
-  ]);
-}
-
 function useSharedValueForBoolean(booleanValue: boolean): SharedValue<boolean> {
   const sharedValue = useSharedValue(booleanValue);
   React.useEffect(() => {
@@ -246,7 +213,6 @@ export {
   gestureJustEnded,
   runTiming,
   runSpring,
-  ratchetAlongWithKeyboardHeight,
   useSharedValueForBoolean,
   animateTowards,
 };

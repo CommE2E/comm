@@ -545,6 +545,19 @@ declare module 'react-native-reanimated' {
 
   declare type CancelAnimation = (animation: number) => void;
 
+  declare type AnimatedKeyboardObject = {|
+    +height: SharedValue<number>,
+    +state: SharedValue<0 | 1 | 2 | 3 | 4>,
+  |};
+  declare type UseAnimatedKeyboard = (config?: {|
+    +isStatusBarTranslucentAndroid?: boolean,
+  |}) => AnimatedKeyboardObject;
+
+  declare type UseAnimatedReaction = <T: AnimatableValue>(
+    () => T,
+    (currentValue: T, previousValue: T) => mixed,
+  ) => void;
+
   declare export var Node: typeof NodeImpl;
   declare export var Value: typeof ValueImpl;
   declare export var Clock: typeof ClockImpl;
@@ -599,6 +612,8 @@ declare module 'react-native-reanimated' {
   declare export var withTiming: WithTiming;
   declare export var runOnJS: RunOnJS;
   declare export var cancelAnimation: CancelAnimation;
+  declare export var useAnimatedKeyboard: UseAnimatedKeyboard;
+  declare export var useAnimatedReaction: UseAnimatedReaction;
 
   declare export default {
     +Node: typeof NodeImpl,
