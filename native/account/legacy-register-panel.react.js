@@ -10,7 +10,6 @@ import {
   Keyboard,
   Linking,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import { setDataLoadedActionType } from 'lib/actions/client-db-store-actions.js';
 import {
@@ -47,6 +46,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
+import type { ViewStyle } from '../types/styles.js';
 import {
   appOutOfDateAlertDetails,
   usernameReservedAlertDetails,
@@ -64,7 +64,7 @@ type WritableLegacyRegisterState = {
 export type LegacyRegisterState = $ReadOnly<WritableLegacyRegisterState>;
 type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityValue: Animated.Node,
+  +opacityStyle: ViewStyle,
   +legacyRegisterState: StateContainer<LegacyRegisterState>,
 };
 type Props = {
@@ -128,7 +128,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
     );
 
     return (
-      <Panel opacityValue={this.props.opacityValue} style={styles.container}>
+      <Panel opacityStyle={this.props.opacityStyle} style={styles.container}>
         <View style={styles.row}>
           <SWMansionIcon
             name="user-1"
