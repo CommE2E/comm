@@ -12,7 +12,13 @@ import {
   BackHandler,
   ActivityIndicator,
 } from 'react-native';
-import Animated, { EasingNode } from 'react-native-reanimated';
+import {
+  Easing,
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  runOnJS,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
@@ -33,7 +39,7 @@ import { enableNewRegistrationMode } from './registration/registration-types.js'
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
-import { useKeyboardHeight } from '../keyboard/animated-keyboard.js';
+import { useRatchetingKeyboardHeight } from '../keyboard/animated-keyboard.js';
 import { createIsForegroundSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -48,37 +54,11 @@ import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';
-import {
-  runTiming,
-  ratchetAlongWithKeyboardHeight,
-} from '../utils/animation-utils.js';
+import { AnimatedView } from '../types/styles.js';
 import EthereumLogo from '../vectors/ethereum-logo.react.js';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
-
-const {
-  Value,
-  Node,
-  Clock,
-  block,
-  set,
-  call,
-  cond,
-  not,
-  and,
-  eq,
-  neq,
-  lessThan,
-  greaterOrEq,
-  add,
-  sub,
-  divide,
-  max,
-  stopClock,
-  clockRunning,
-  useValue,
-} = Animated;
 
 export type LoggedOutMode =
   | 'loading'
@@ -86,17 +66,52 @@ export type LoggedOutMode =
   | 'log-in'
   | 'register'
   | 'siwe';
-const modeNumbers: { [LoggedOutMode]: number } = {
-  'loading': 0,
-  'prompt': 1,
-  'log-in': 2,
-  'register': 3,
-  'siwe': 4,
+
+const timingConfig = {
+  duration: 250,
+  easing: Easing.out(Easing.ease),
 };
-function isPastPrompt(modeValue: Node) {
-  return and(
-    neq(modeValue, modeNumbers['loading']),
-    neq(modeValue, modeNumbers['prompt']),
+
+// prettier-ignore
+function getPanelPaddingTop(
+  modeValue /*: string */,
+  keyboardHeightValue /*: number */,
+  contentHeightValue /*: number */,
+) /*: number */ {
+  'worklet';
+  const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
+  let containerSize = headerHeight;
+  if (modeValue === 'loading' || modeValue === 'prompt') {
+    containerSize += Platform.OS === 'ios' ? 40 : 61;
+  } else if (modeValue === 'log-in') {
+    containerSize += 140;
+  } else if (modeValue === 'register') {
+    containerSize += Platform.OS === 'ios' ? 181 : 180;
+  } else if (modeValue === 'siwe') {
+    containerSize += 250;
+  }
+
+  const freeSpace = contentHeightValue - keyboardHeightValue - containerSize;
+  const targetPanelPaddingTop = Math.max(freeSpace, 0) / 2;
+  return withTiming(targetPanelPaddingTop, timingConfig);
+}
+
+// prettier-ignore
+function getPanelOpacity(
+  modeValue /*: string */,
+  proceedToNextMode /*: () => void */,
+) /*: number */ {
+  'worklet';
+  const targetPanelOpacity =
+    modeValue === 'loading' || modeValue === 'prompt' ? 0 : 1;
+  return withTiming(
+    targetPanelOpacity,
+    timingConfig,
+    (succeeded /*?: boolean */) => {
+      if (succeeded && targetPanelOpacity === 0) {
+        runOnJS(proceedToNextMode)();
+      }
+    },
   );
 }
 
@@ -304,138 +319,21 @@ function LoggedOutModal(props: Props) {
   const nextModeRef = React.useRef<LoggedOutMode>(initialMode);
 
   const dimensions = useSelector(derivedDimensionsInfoSelector);
-  const contentHeight = useValue(dimensions.safeAreaHeight);
-  const modeValue = useValue(modeNumbers[initialMode]);
-  const buttonOpacity = useValue(persistedStateLoaded ? 1 : 0);
-
-  const [activeAlert, setActiveAlert] = React.useState(false);
-
-  const navContext = React.useContext(NavContext);
-  const isForeground = isForegroundSelector(navContext);
-
-  const keyboardHeightInput = React.useMemo(
-    () => ({
-      ignoreKeyboardDismissal: activeAlert,
-      disabled: !isForeground,
-    }),
-    [activeAlert, isForeground],
-  );
-  const keyboardHeightValue = useKeyboardHeight(keyboardHeightInput);
-
-  const prevModeValue = useValue(modeNumbers[initialMode]);
-  const panelPaddingTop = React.useMemo(() => {
-    const headerHeight = Platform.OS === 'ios' ? 62.33 : 58.54;
-    const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
-    const logInContainerSize = 140;
-    const registerPanelSize = Platform.OS === 'ios' ? 181 : 180;
-    const siwePanelSize = 250;
-
-    const containerSize = add(
-      headerHeight,
-      cond(not(isPastPrompt(modeValue)), promptButtonsSize, 0),
-      cond(eq(modeValue, modeNumbers['log-in']), logInContainerSize, 0),
-      cond(eq(modeValue, modeNumbers['register']), registerPanelSize, 0),
-      cond(eq(modeValue, modeNumbers['siwe']), siwePanelSize, 0),
-    );
-    const potentialPanelPaddingTop = divide(
-      max(sub(contentHeight, keyboardHeightValue, containerSize), 0),
-      2,
-    );
-
-    const panelPaddingTopValue = new Value(-1);
-    const targetPanelPaddingTop = new Value(-1);
-    const clock = new Clock();
-    const keyboardTimeoutClock = new Clock();
-    return block([
-      cond(lessThan(panelPaddingTopValue, 0), [
-        set(panelPaddingTopValue, potentialPanelPaddingTop),
-        set(targetPanelPaddingTop, potentialPanelPaddingTop),
-      ]),
-      cond(
-        lessThan(keyboardHeightValue, 0),
-        [
-          runTiming(keyboardTimeoutClock, 0, 1, true, { duration: 500 }),
-          cond(
-            not(clockRunning(keyboardTimeoutClock)),
-            set(keyboardHeightValue, 0),
-          ),
-        ],
-        stopClock(keyboardTimeoutClock),
-      ),
-      cond(
-        and(greaterOrEq(keyboardHeightValue, 0), neq(prevModeValue, modeValue)),
-        [
-          stopClock(clock),
-          cond(
-            neq(isPastPrompt(prevModeValue), isPastPrompt(modeValue)),
-            set(targetPanelPaddingTop, potentialPanelPaddingTop),
-          ),
-          set(prevModeValue, modeValue),
-        ],
-      ),
-      ratchetAlongWithKeyboardHeight(keyboardHeightValue, [
-        stopClock(clock),
-        set(targetPanelPaddingTop, potentialPanelPaddingTop),
-      ]),
-      cond(
-        neq(panelPaddingTopValue, targetPanelPaddingTop),
-        set(
-          panelPaddingTopValue,
-          runTiming(clock, panelPaddingTopValue, targetPanelPaddingTop),
-        ),
-      ),
-      panelPaddingTopValue,
-    ]);
-  }, [modeValue, contentHeight, keyboardHeightValue, prevModeValue]);
+  const contentHeight = useSharedValue(dimensions.safeAreaHeight);
+  const modeValue = useSharedValue(initialMode);
+  const buttonOpacity = useSharedValue(persistedStateLoaded ? 1 : 0);
 
   const proceedToNextMode = React.useCallback(() => {
     setMode({ curMode: nextModeRef.current });
   }, [setMode]);
-  const panelOpacity = React.useMemo(() => {
-    const targetPanelOpacity = isPastPrompt(modeValue);
-
-    const panelOpacityValue = new Value(-1);
-    const prevPanelOpacity = new Value(-1);
-    const prevTargetPanelOpacity = new Value(-1);
-    const clock = new Clock();
-    return block([
-      cond(lessThan(panelOpacityValue, 0), [
-        set(panelOpacityValue, targetPanelOpacity),
-        set(prevPanelOpacity, targetPanelOpacity),
-        set(prevTargetPanelOpacity, targetPanelOpacity),
-      ]),
-      cond(greaterOrEq(keyboardHeightValue, 0), [
-        cond(neq(targetPanelOpacity, prevTargetPanelOpacity), [
-          stopClock(clock),
-          set(prevTargetPanelOpacity, targetPanelOpacity),
-        ]),
-        cond(
-          neq(panelOpacityValue, targetPanelOpacity),
-          set(
-            panelOpacityValue,
-            runTiming(clock, panelOpacityValue, targetPanelOpacity),
-          ),
-        ),
-      ]),
-      cond(
-        and(eq(panelOpacityValue, 0), neq(prevPanelOpacity, 0)),
-        call([], proceedToNextMode),
-      ),
-      set(prevPanelOpacity, panelOpacityValue),
-      panelOpacityValue,
-    ]);
-  }, [modeValue, keyboardHeightValue, proceedToNextMode]);
 
   const onPrompt = mode.curMode === 'prompt';
   const prevOnPromptRef = React.useRef(onPrompt);
   React.useEffect(() => {
     if (onPrompt && !prevOnPromptRef.current) {
-      buttonOpacity.setValue(0);
-      Animated.timing(buttonOpacity, {
-        easing: EasingNode.out(EasingNode.ease),
-        duration: 250,
-        toValue: 1.0,
-      }).start();
+      buttonOpacity.value = withTiming(1, {
+        easing: Easing.out(Easing.ease),
+      });
     }
     prevOnPromptRef.current = onPrompt;
   }, [onPrompt, buttonOpacity]);
@@ -447,14 +345,14 @@ function LoggedOutModal(props: Props) {
       return;
     }
     prevContentHeightRef.current = curContentHeight;
-    contentHeight.setValue(curContentHeight);
+    contentHeight.value = curContentHeight;
   }, [curContentHeight, contentHeight]);
 
   const combinedSetMode = React.useCallback(
     (newMode: LoggedOutMode) => {
       nextModeRef.current = newMode;
       setMode({ curMode: newMode, nextMode: newMode });
-      modeValue.setValue(modeNumbers[newMode]);
+      modeValue.value = newMode;
     },
     [setMode, modeValue],
   );
@@ -462,10 +360,9 @@ function LoggedOutModal(props: Props) {
   const goBackToPrompt = React.useCallback(() => {
     nextModeRef.current = 'prompt';
     setMode({ nextMode: 'prompt' });
-    keyboardHeightValue.setValue(0);
-    modeValue.setValue(modeNumbers['prompt']);
+    modeValue.value = 'prompt';
     Keyboard.dismiss();
-  }, [setMode, keyboardHeightValue, modeValue]);
+  }, [setMode, modeValue]);
 
   const loadingCompleteRef = React.useRef(persistedStateLoaded);
   React.useEffect(() => {
@@ -474,6 +371,22 @@ function LoggedOutModal(props: Props) {
       loadingCompleteRef.current = true;
     }
   }, [persistedStateLoaded, combinedSetMode]);
+
+  const [activeAlert, setActiveAlert] = React.useState(false);
+
+  const navContext = React.useContext(NavContext);
+  const isForeground = isForegroundSelector(navContext);
+
+  const ratchetingKeyboardHeightInput = React.useMemo(
+    () => ({
+      ignoreKeyboardDismissal: activeAlert,
+      disabled: !isForeground,
+    }),
+    [activeAlert, isForeground],
+  );
+  const keyboardHeightValue = useRatchetingKeyboardHeight(
+    ratchetingKeyboardHeightInput,
+  );
 
   const resetToPrompt = React.useCallback(() => {
     if (nextModeRef.current !== 'prompt') {
@@ -532,20 +445,8 @@ function LoggedOutModal(props: Props) {
   }, [combinedSetMode]);
 
   const onPressLogIn = React.useCallback(() => {
-    if (Platform.OS !== 'ios') {
-      // For some strange reason, iOS's password management logic doesn't
-      // realize that the username and password fields in LogInPanel are related
-      // if the username field gets focused on mount. To avoid this  issue we
-      // need the username and password fields to both appear on-screen before
-      // we focus the username field. However, when we set keyboardHeightValue
-      // to -1 here, we are telling our Reanimated logic to wait until the
-      // keyboard appears before showing LogInPanel. Since we need LogInPanel to
-      // appear before the username field is focused, we need to avoid this
-      // behavior on iOS.
-      keyboardHeightValue.setValue(-1);
-    }
     combinedSetMode('log-in');
-  }, [keyboardHeightValue, combinedSetMode]);
+  }, [combinedSetMode]);
 
   const { navigate } = props.navigation;
   const onPressQRCodeSignIn = React.useCallback(() => {
@@ -553,13 +454,16 @@ function LoggedOutModal(props: Props) {
   }, [navigate]);
 
   const onPressRegister = React.useCallback(() => {
-    keyboardHeightValue.setValue(-1);
     combinedSetMode('register');
-  }, [keyboardHeightValue, combinedSetMode]);
+  }, [combinedSetMode]);
 
   const onPressNewRegister = React.useCallback(() => {
     navigate(RegistrationRouteName);
   }, [navigate]);
+
+  const opacityStyle = useAnimatedStyle(() => ({
+    opacity: getPanelOpacity(modeValue.value, proceedToNextMode),
+  }));
 
   const styles = useStyles(unboundStyles);
   const panel = React.useMemo(() => {
@@ -567,7 +471,7 @@ function LoggedOutModal(props: Props) {
       return (
         <LogInPanel
           setActiveAlert={setActiveAlert}
-          opacityValue={panelOpacity}
+          opacityStyle={opacityStyle}
           logInState={logInStateContainer}
         />
       );
@@ -575,7 +479,7 @@ function LoggedOutModal(props: Props) {
       return (
         <LegacyRegisterPanel
           setActiveAlert={setActiveAlert}
-          opacityValue={panelOpacity}
+          opacityStyle={opacityStyle}
           legacyRegisterState={legacyRegisterStateContainer}
         />
       );
@@ -592,7 +496,7 @@ function LoggedOutModal(props: Props) {
   }, [
     mode.curMode,
     setActiveAlert,
-    panelOpacity,
+    opacityStyle,
     logInStateContainer,
     legacyRegisterStateContainer,
     styles.loadingIndicator,
@@ -615,7 +519,7 @@ function LoggedOutModal(props: Props) {
     [styles.buttonText, styles.siweButtonText],
   );
   const buttonsViewStyle = React.useMemo(
-    () => [styles.buttonContainer, { opacity: buttonOpacity }],
+    () => [styles.buttonContainer, { opacity: buttonOpacity.value }],
     [styles.buttonContainer, buttonOpacity],
   );
   const buttons = React.useMemo(() => {
@@ -672,7 +576,7 @@ function LoggedOutModal(props: Props) {
     }
 
     return (
-      <Animated.View style={buttonsViewStyle}>
+      <AnimatedView style={buttonsViewStyle}>
         <LoggedOutStaffInfo />
         <TouchableOpacity
           onPress={onPressSIWE}
@@ -691,7 +595,7 @@ function LoggedOutModal(props: Props) {
         </View>
         <View style={styles.signInButtons}>{signInButtons}</View>
         <View style={styles.registerButtons}>{registerButtons}</View>
-      </Animated.View>
+      </AnimatedView>
     );
   }, [
     mode.curMode,
@@ -718,28 +622,36 @@ function LoggedOutModal(props: Props) {
   const backButtonStyle = React.useMemo(
     () => [
       styles.backButton,
-      { opacity: panelOpacity, left: windowWidth < 360 ? 28 : 40 },
+      opacityStyle,
+      { left: windowWidth < 360 ? 28 : 40 },
     ],
-    [styles.backButton, panelOpacity, windowWidth],
+    [styles.backButton, opacityStyle, windowWidth],
   );
 
+  const paddingTopStyle = useAnimatedStyle(() => ({
+    paddingTop: getPanelPaddingTop(
+      modeValue.value,
+      keyboardHeightValue.value,
+      contentHeight.value,
+    ),
+  }));
   const animatedContentStyle = React.useMemo(
-    () => [styles.animationContainer, { paddingTop: panelPaddingTop }],
-    [styles.animationContainer, panelPaddingTop],
+    () => [styles.animationContainer, paddingTopStyle],
+    [styles.animationContainer, paddingTopStyle],
   );
   const animatedContent = React.useMemo(
     () => (
-      <Animated.View style={animatedContentStyle}>
+      <AnimatedView style={animatedContentStyle}>
         <View>
           <Text style={styles.header}>Comm</Text>
-          <Animated.View style={backButtonStyle}>
+          <AnimatedView style={backButtonStyle}>
             <TouchableOpacity activeOpacity={0.6} onPress={resetToPrompt}>
               <Icon name="arrow-circle-o-left" size={36} color="#FFFFFFAA" />
             </TouchableOpacity>
-          </Animated.View>
+          </AnimatedView>
         </View>
         {panel}
-      </Animated.View>
+      </AnimatedView>
     ),
     [
       animatedContentStyle,

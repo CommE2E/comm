@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet, Keyboard, Platform } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import {
   legacyLogInActionTypes,
@@ -47,6 +46,7 @@ import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nativeLegacyLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import type { KeyPressEvent } from '../types/react-native.js';
+import type { ViewStyle } from '../types/styles.js';
 import {
   appOutOfDateAlertDetails,
   unknownErrorAlertDetails,
@@ -61,7 +61,7 @@ export type LogInState = {
 };
 type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityValue: Animated.Node,
+  +opacityStyle: ViewStyle,
   +logInState: StateContainer<LogInState>,
 };
 type Props = {
@@ -118,7 +118,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
 
   render(): React.Node {
     return (
-      <Panel opacityValue={this.props.opacityValue}>
+      <Panel opacityStyle={this.props.opacityStyle}>
         <View style={styles.row}>
           <SWMansionIcon
             name="user-1"
