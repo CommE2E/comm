@@ -86,6 +86,22 @@ describe('olm.Account', () => {
     return aliceSession;
   };
 
+  const createSessionWithoutOTK = (
+    aliceSession: olm.Session,
+    aliceAccount: olm.Account,
+    bobAccount: olm.Account,
+  ) => {
+    aliceSession.create_outbound_without_otk(
+      aliceAccount,
+      JSON.parse(bobAccount.identity_keys()).curve25519,
+      JSON.parse(bobAccount.identity_keys()).ed25519,
+      String(Object.values(JSON.parse(bobAccount.prekey()).curve25519)[0]),
+      String(bobAccount.prekey_signature()),
+    );
+
+    return aliceSession;
+  };
+
   const testRatchet = (
     aliceSession: olm.Session,
     bobSession: olm.Session,
@@ -305,5 +321,17 @@ describe('olm.Account', () => {
     expect(
       createSession(aliceSession, aliceAccount, bobAccount, false, false, true),
     ).toBeFalse;
+  });
+
+  it('should create session without one-time key', async () => {
+    await olm.init();
+    const aliceAccount = initAccount();
+    const bobAccount = initAccount();
+    const aliceSession = new olm.Session();
+    const bobSession = new olm.Session();
+
+    expect(createSessionWithoutOTK(aliceSession, aliceAccount, bobAccount))
+      .toBeTrue;
+    expect(testRatchet(aliceSession, bobSession, bobAccount, 100)).toBeTrue;
   });
 });
