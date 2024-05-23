@@ -1,6 +1,7 @@
 #include "Session.h"
 #include "PlatformSpecificTools.h"
 
+#include <optional>
 #include <stdexcept>
 
 namespace comm {
@@ -16,7 +17,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
-    const OlmBuffer &oneTimeKey) {
+    const std::optional<OlmBuffer> &oneTimeKey) {
   std::unique_ptr<Session> session(new Session());
 
   session->olmSessionBuffer.resize(::olm_session_size());
@@ -27,8 +28,31 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
       randomBuffer,
       ::olm_create_outbound_session_random_length(session->getOlmSession()));
 
+  if (oneTimeKey) {
+    if (-1 ==
+        ::olm_create_outbound_session(
+            session->getOlmSession(),
+            account,
+            idKeys.data() + ID_KEYS_PREFIX_OFFSET,
+            KEYSIZE,
+            idKeys.data() + SIGNING_KEYS_PREFIX_OFFSET,
+            KEYSIZE,
+            preKeys.data(),
+            KEYSIZE,
+            preKeySignature.data(),
+            SIGNATURESIZE,
+            oneTimeKey->data(),
+            KEYSIZE,
+            randomBuffer.data(),
+            randomBuffer.size())) {
+      throw std::runtime_error(
+          "error createOutbound => " +
+          std::string{::olm_session_last_error(session->getOlmSession())});
+    }
+    return session;
+  }
   if (-1 ==
-      ::olm_create_outbound_session(
+      ::olm_create_outbound_session_without_otk(
           session->getOlmSession(),
           account,
           idKeys.data() + ID_KEYS_PREFIX_OFFSET,
@@ -39,8 +63,6 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
           KEYSIZE,
           preKeySignature.data(),
           SIGNATURESIZE,
-          oneTimeKey.data(),
-          KEYSIZE,
           randomBuffer.data(),
           randomBuffer.size())) {
     throw std::runtime_error(

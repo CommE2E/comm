@@ -288,7 +288,7 @@ int CryptoModule::initializeOutboundForSendingSession(
     const OlmBuffer &idKeys,
     const OlmBuffer &preKeys,
     const OlmBuffer &preKeySignature,
-    const OlmBuffer &oneTimeKey) {
+    const std::optional<OlmBuffer> &oneTimeKey) {
   int newSessionVersion = 1;
   if (this->hasSessionFor(targetDeviceId)) {
     std::shared_ptr<Session> existingSession =

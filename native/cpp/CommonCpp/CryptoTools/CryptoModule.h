@@ -65,7 +65,7 @@ public:
       const OlmBuffer &idKeys,
       const OlmBuffer &preKeys,
       const OlmBuffer &preKeySignature,
-      const OlmBuffer &oneTimeKey);
+      const std::optional<OlmBuffer> &oneTimeKey);
   bool hasSessionFor(const std::string &targetDeviceId);
   std::shared_ptr<Session> getSessionByDeviceId(const std::string &deviceId);
   void removeSessionByDeviceId(const std::string &deviceId);

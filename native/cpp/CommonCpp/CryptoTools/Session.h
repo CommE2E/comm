@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "Tools.h"
@@ -21,7 +22,7 @@ public:
       const OlmBuffer &idKeys,
       const OlmBuffer &preKeys,
       const OlmBuffer &preKeySignature,
-      const OlmBuffer &oneTimeKey);
+      const std::optional<OlmBuffer> &oneTimeKey);
   static std::unique_ptr<Session> createSessionAsResponder(
       OlmAccount *account,
       std::uint8_t *ownerIdentityKeys,

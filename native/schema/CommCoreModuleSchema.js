@@ -61,7 +61,7 @@ interface Spec extends TurboModule {
     identityKeys: string,
     prekey: string,
     prekeySignature: string,
-    oneTimeKey: string,
+    oneTimeKey: ?string,
     keyserverID: string,
   ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
@@ -78,7 +78,7 @@ interface Spec extends TurboModule {
     identityKeys: string,
     prekey: string,
     prekeySignature: string,
-    oneTimeKey: string,
+    oneTimeKey: ?string,
     deviceID: string,
   ) => Promise<OutboundSessionCreationResult>;
   +initializeContentInboundSession: (
