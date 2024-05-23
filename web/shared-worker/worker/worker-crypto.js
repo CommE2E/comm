@@ -607,14 +607,24 @@ const olmAPI: OlmAPI = {
     const existingSession = contentSessions[contentIdentityKeys.ed25519];
 
     const session = new olm.Session();
-    session.create_outbound(
-      contentAccount,
-      contentIdentityKeys.curve25519,
-      contentIdentityKeys.ed25519,
-      contentInitializationInfo.prekey,
-      contentInitializationInfo.prekeySignature,
-      contentInitializationInfo.oneTimeKey,
-    );
+    if (contentInitializationInfo.oneTimeKey) {
+      session.create_outbound(
+        contentAccount,
+        contentIdentityKeys.curve25519,
+        contentIdentityKeys.ed25519,
+        contentInitializationInfo.prekey,
+        contentInitializationInfo.prekeySignature,
+        contentInitializationInfo.oneTimeKey,
+      );
+    } else {
+      session.create_outbound_without_otk(
+        contentAccount,
+        contentIdentityKeys.curve25519,
+        contentIdentityKeys.ed25519,
+        contentInitializationInfo.prekey,
+        contentInitializationInfo.prekeySignature,
+      );
+    }
     const initialEncryptedData = session.encrypt(
       JSON.stringify(initialEncryptedMessageContent),
     );
@@ -655,14 +665,24 @@ const olmAPI: OlmAPI = {
 
     const notificationsPrekey = notificationsInitializationInfo.prekey;
     const session = new olm.Session();
-    session.create_outbound(
-      notificationAccount,
-      notificationsIdentityKeys.curve25519,
-      notificationsIdentityKeys.ed25519,
-      notificationsPrekey,
-      notificationsInitializationInfo.prekeySignature,
-      notificationsInitializationInfo.oneTimeKey,
-    );
+    if (notificationsInitializationInfo.oneTimeKey) {
+      session.create_outbound(
+        notificationAccount,
+        notificationsIdentityKeys.curve25519,
+        notificationsIdentityKeys.ed25519,
+        notificationsPrekey,
+        notificationsInitializationInfo.prekeySignature,
+        notificationsInitializationInfo.oneTimeKey,
+      );
+    } else {
+      session.create_outbound_without_otk(
+        notificationAccount,
+        notificationsIdentityKeys.curve25519,
+        notificationsIdentityKeys.ed25519,
+        notificationsPrekey,
+        notificationsInitializationInfo.prekeySignature,
+      );
+    }
     const { body: initialNotificationsEncryptedMessage } = session.encrypt(
       JSON.stringify(initialEncryptedMessageContent),
     );
