@@ -173,13 +173,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         payloadSignature: identityInfo?.getPayloadSignature(),
       };
 
-      if (!keyserverKeys.contentInitializationInfo.oneTimeKey) {
-        throw new Error('Missing content one time key');
-      }
-      if (!keyserverKeys.notifInitializationInfo.oneTimeKey) {
-        throw new Error('Missing notif one time key');
-      }
-
       return assertWithValidator(keyserverKeys, deviceOlmOutboundKeysValidator);
     };
 
@@ -210,17 +203,6 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
         if (typeof deviceID !== 'string') {
           console.log(`Invalid deviceID in devicesMap: ${deviceID}`);
           return null;
-        }
-
-        if (
-          !outboundKeysInfo.oneTimeContentPrekey ||
-          !outboundKeysInfo.oneTimeNotifPrekey
-        ) {
-          console.log(`Missing one time key for device ${deviceID}`);
-          return {
-            deviceID,
-            keys: null,
-          };
         }
 
         const deviceKeys = {
