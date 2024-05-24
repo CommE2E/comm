@@ -2,6 +2,6 @@
 
 namespace comm {
 bool StaffUtils::isStaffRelease() {
-  return false;
+  return true;
 }
 } // namespace comm
