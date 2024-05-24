@@ -20,6 +20,7 @@ import {
   View,
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
+import { useSharedValue } from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
@@ -213,6 +214,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     return true;
   }, [navigation, onSearchCancel, searchStatus]);
 
+  const cancelButtonExpansion = useSharedValue(0);
   const searchItem = React.useMemo(
     () => (
       <TouchableWithoutFeedback onPress={onSearchFocus}>
@@ -224,6 +226,7 @@ function ChatThreadList(props: BaseProps): React.Node {
             searchStatus={searchStatus}
             onSearchCancel={onSearchCancel}
             innerSearchActive={false}
+            cancelButtonExpansion={cancelButtonExpansion}
             ref={searchInputRef}
           />
         </View>
@@ -237,6 +240,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       searchStatus,
       searchText,
       styles.searchContainer,
+      cancelButtonExpansion,
     ],
   );
 
@@ -340,6 +344,7 @@ function ChatThreadList(props: BaseProps): React.Node {
           searchStatus={searchStatus}
           onSearchCancel={onSearchCancel}
           innerSearchAutoFocus={true}
+          cancelButtonExpansion={cancelButtonExpansion}
           ref={searchInputRef}
         />
       </View>
@@ -351,6 +356,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     searchStatus,
     searchText,
     styles.searchContainer,
+    cancelButtonExpansion,
   ]);
 
   const scrollEnabled =
