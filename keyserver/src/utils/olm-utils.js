@@ -103,6 +103,17 @@ function getOlmUtility(): OlmUtility {
   return cachedOLMUtility;
 }
 
+async function markPrekeysAsPublished(): Promise<void> {
+  await Promise.all([
+    fetchCallUpdateOlmAccount('content', (contentAccount: OlmAccount) => {
+      contentAccount.mark_prekey_as_published();
+    }),
+    fetchCallUpdateOlmAccount('notifications', (notifAccount: OlmAccount) => {
+      notifAccount.mark_prekey_as_published();
+    }),
+  ]);
+}
+
 async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
   let contentIdentityKeys: string;
   let contentOneTimeKeys: $ReadOnlyArray<string>;
@@ -324,4 +335,5 @@ export {
   validateAndUploadAccountPrekeys,
   publishPrekeysToIdentity,
   getNewDeviceKeyUpload,
+  markPrekeysAsPublished,
 };
