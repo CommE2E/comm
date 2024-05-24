@@ -99,7 +99,7 @@ function getPanelPaddingTop(
 // prettier-ignore
 function getPanelOpacity(
   modeValue /*: string */,
-  proceedToNextMode /*: () => void */,
+  finishResettingToPrompt/*: () => void */,
 ) /*: number */ {
   'worklet';
   const targetPanelOpacity =
@@ -109,7 +109,7 @@ function getPanelOpacity(
     timingConfig,
     (succeeded /*?: boolean */) => {
       if (succeeded && targetPanelOpacity === 0) {
-        runOnJS(proceedToNextMode)();
+        runOnJS(finishResettingToPrompt)();
       }
     },
   );
@@ -323,10 +323,6 @@ function LoggedOutModal(props: Props) {
   const modeValue = useSharedValue(initialMode);
   const buttonOpacity = useSharedValue(persistedStateLoaded ? 1 : 0);
 
-  const proceedToNextMode = React.useCallback(() => {
-    setMode({ curMode: nextModeRef.current });
-  }, [setMode]);
-
   const onPrompt = mode.curMode === 'prompt';
   const prevOnPromptRef = React.useRef(onPrompt);
   React.useEffect(() => {
@@ -388,13 +384,33 @@ function LoggedOutModal(props: Props) {
     ratchedKeyboardHeightInput,
   );
 
+  // We remove the password from the TextInput on iOS before dismissing it,
+  // because otherwise iOS will prompt the user to save the password if the
+  // iCloud password manager is enabled. We'll put the password back after the
+  // dismissal concludes.
+  const temporarilyHiddenPassword = React.useRef<?string>();
+
+  const curLogInPassword = logInState.passwordInputText;
   const resetToPrompt = React.useCallback(() => {
-    if (nextModeRef.current !== 'prompt') {
-      goBackToPrompt();
-      return true;
+    if (nextModeRef.current === 'prompt') {
+      return false;
     }
-    return false;
-  }, [goBackToPrompt]);
+    if (Platform.OS === 'ios' && curLogInPassword) {
+      temporarilyHiddenPassword.current = curLogInPassword;
+      setLogInState({ passwordInputText: null });
+    }
+    goBackToPrompt();
+    return true;
+  }, [goBackToPrompt, curLogInPassword, setLogInState]);
+
+  const finishResettingToPrompt = React.useCallback(() => {
+    setMode({ curMode: nextModeRef.current });
+    if (temporarilyHiddenPassword.current) {
+      setLogInState({ passwordInputText: temporarilyHiddenPassword.current });
+      temporarilyHiddenPassword.current = null;
+    }
+  }, [setMode, setLogInState]);
+
   React.useEffect(() => {
     if (!isForeground) {
       return undefined;
@@ -462,7 +478,7 @@ function LoggedOutModal(props: Props) {
   }, [navigate]);
 
   const opacityStyle = useAnimatedStyle(() => ({
-    opacity: getPanelOpacity(modeValue.value, proceedToNextMode),
+    opacity: getPanelOpacity(modeValue.value, finishResettingToPrompt),
   }));
 
   const styles = useStyles(unboundStyles);
