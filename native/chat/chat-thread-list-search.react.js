@@ -3,11 +3,11 @@
 import * as React from 'react';
 import { TextInput as BaseTextInput } from 'react-native';
 import Animated, {
-  useSharedValue,
   interpolate,
   useAnimatedStyle,
   withTiming,
   useDerivedValue,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 import type { ReactRefSetter } from 'lib/types/react-types.js';
@@ -27,6 +27,7 @@ type Props = {
   +searchStatus: SearchStatus,
   +innerSearchAutoFocus?: boolean,
   +innerSearchActive?: boolean,
+  +cancelButtonExpansion: SharedValue<number>,
 };
 function ForwardedChatThreadListSearch(
   props: Props,
@@ -40,10 +41,10 @@ function ForwardedChatThreadListSearch(
     searchStatus,
     innerSearchActive,
     innerSearchAutoFocus,
+    cancelButtonExpansion,
   } = props;
   const styles = useStyles(unboundStyles);
 
-  const cancelButtonExpansion = useSharedValue(0);
   const isActiveOrActivating =
     searchStatus === 'active' || searchStatus === 'activating';
   React.useEffect(() => {
