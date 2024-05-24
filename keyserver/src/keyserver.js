@@ -35,10 +35,7 @@ import {
 } from './responders/website-responders.js';
 import { webWorkerResponder } from './responders/webworker-responders.js';
 import { onConnection } from './socket/socket.js';
-import {
-  createAndMaintainTunnelbrokerWebsocket,
-  createAndMaintainAnonymousTunnelbrokerWebsocket,
-} from './socket/tunnelbroker.js';
+import { createAndMaintainTunnelbrokerWebsocket } from './socket/tunnelbroker.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
@@ -105,7 +102,7 @@ void (async () => {
         const aes256Key = crypto.randomBytes(32).toString('hex');
         const ed25519Key = await getContentSigningKey();
 
-        await createAndMaintainAnonymousTunnelbrokerWebsocket(aes256Key);
+        await createAndMaintainTunnelbrokerWebsocket(aes256Key);
 
         console.log(
           '\nOpen the Comm app on your phone and scan the QR code below\n',
@@ -130,9 +127,7 @@ void (async () => {
         // We don't await here, as Tunnelbroker communication is not needed for
         // normal keyserver behavior yet. In addition, this doesn't return
         // information useful for other keyserver functions.
-        ignorePromiseRejections(
-          createAndMaintainTunnelbrokerWebsocket(identityInfo),
-        );
+        ignorePromiseRejections(createAndMaintainTunnelbrokerWebsocket(null));
         if (process.env.NODE_ENV === 'development') {
           await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
         }
