@@ -1,7 +1,6 @@
 // @flow
 
 import Icon from '@expo/vector-icons/FontAwesome.js';
-import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
   View,
@@ -34,11 +33,7 @@ import { enableNewRegistrationMode } from './registration/registration-types.js'
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
-import {
-  addKeyboardShowListener,
-  addKeyboardDismissListener,
-  removeKeyboardListener,
-} from '../keyboard/keyboard.js';
+import { useKeyboardHeight } from '../keyboard/animated-keyboard.js';
 import { createIsForegroundSelector } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -53,7 +48,6 @@ import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors.js';
 import { splashStyleSelector } from '../splash.js';
 import { useStyles } from '../themes/colors.js';
-import type { KeyboardEvent } from '../types/react-native.js';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
@@ -311,9 +305,22 @@ function LoggedOutModal(props: Props) {
 
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const contentHeight = useValue(dimensions.safeAreaHeight);
-  const keyboardHeightValue = useValue(0);
   const modeValue = useValue(modeNumbers[initialMode]);
   const buttonOpacity = useValue(persistedStateLoaded ? 1 : 0);
+
+  const [activeAlert, setActiveAlert] = React.useState(false);
+
+  const navContext = React.useContext(NavContext);
+  const isForeground = isForegroundSelector(navContext);
+
+  const keyboardHeightInput = React.useMemo(
+    () => ({
+      ignoreKeyboardDismissal: activeAlert,
+      disabled: !isForeground,
+    }),
+    [activeAlert, isForeground],
+  );
+  const keyboardHeightValue = useKeyboardHeight(keyboardHeightInput);
 
   const prevModeValue = useValue(modeNumbers[initialMode]);
   const panelPaddingTop = React.useMemo(() => {
@@ -467,52 +474,6 @@ function LoggedOutModal(props: Props) {
       loadingCompleteRef.current = true;
     }
   }, [persistedStateLoaded, combinedSetMode]);
-
-  const activeAlertRef = React.useRef(false);
-  const setActiveAlert = React.useCallback((activeAlert: boolean) => {
-    activeAlertRef.current = activeAlert;
-  }, []);
-
-  const keyboardShow = React.useCallback(
-    (event: KeyboardEvent) => {
-      if (
-        event.startCoordinates &&
-        _isEqual(event.startCoordinates)(event.endCoordinates)
-      ) {
-        return;
-      }
-      const keyboardHeight: number = Platform.select({
-        // Android doesn't include the bottomInset in this height measurement
-        android: event.endCoordinates.height,
-        default: Math.max(
-          event.endCoordinates.height - dimensions.bottomInset,
-          0,
-        ),
-      });
-      keyboardHeightValue.setValue(keyboardHeight);
-    },
-    [dimensions.bottomInset, keyboardHeightValue],
-  );
-  const keyboardHide = React.useCallback(() => {
-    if (!activeAlertRef.current) {
-      keyboardHeightValue.setValue(0);
-    }
-  }, [keyboardHeightValue]);
-
-  const navContext = React.useContext(NavContext);
-  const isForeground = isForegroundSelector(navContext);
-
-  React.useEffect(() => {
-    if (!isForeground) {
-      return undefined;
-    }
-    const keyboardShowListener = addKeyboardShowListener(keyboardShow);
-    const keyboardHideListener = addKeyboardDismissListener(keyboardHide);
-    return () => {
-      removeKeyboardListener(keyboardShowListener);
-      removeKeyboardListener(keyboardHideListener);
-    };
-  }, [isForeground, keyboardShow, keyboardHide]);
 
   const resetToPrompt = React.useCallback(() => {
     if (nextModeRef.current !== 'prompt') {
