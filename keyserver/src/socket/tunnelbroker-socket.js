@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import { getRustAPI } from 'rust-node-addon';
 import uuid from 'uuid';
@@ -22,6 +23,7 @@ import {
   refreshKeysRequestValidator,
   type QRCodeAuthMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
+import { peerToPeerMessageTypes } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import {
   type QRCodeAuthMessagePayload,
   qrCodeAuthMessagePayloadValidator,
@@ -32,13 +34,18 @@ import type {
   AnonymousInitializationMessage,
 } from 'lib/types/tunnelbroker/session-types.js';
 import type { Heartbeat } from 'lib/types/websocket/heartbeat-types.js';
-import { convertBytesToObj } from 'lib/utils/conversion-utils.js';
+import {
+  convertBytesToObj,
+  convertObjToBytes,
+} from 'lib/utils/conversion-utils.js';
 
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
-import { decrypt } from '../utils/aes-crypto-utils.js';
+import { saveIdentityInfo } from '../user/identity.js';
+import { encrypt, decrypt } from '../utils/aes-crypto-utils.js';
 import {
   uploadNewOneTimeKeys,
   getNewDeviceKeyUpload,
+  markPrekeysAsPublished,
 } from '../utils/olm-utils.js';
 
 type PromiseCallbacks = {
@@ -54,22 +61,59 @@ class TunnelbrokerSocket {
   promises: Promises = {};
   heartbeatTimeoutID: ?TimeoutID;
   oneTimeKeysPromise: ?Promise<void>;
-  anonymous: boolean = false;
+  userID: ?string;
+  accessToken: ?string;
   encryptionKey: ?string;
+  primaryDeviceID: ?string;
+  justSuccessfullyAuthenticated: boolean = false;
+  shouldNotifyPrimary: boolean = false;
 
   constructor(
     socketURL: string,
-    initMessage:
-      | ConnectionInitializationMessage
-      | AnonymousInitializationMessage,
-    onClose: () => mixed,
-    encryptionKey?: string,
+    onClose: (boolean, ?string) => mixed,
+    userID: ?string,
+    deviceID: string,
+    accessToken: ?string,
+    encryptionKey: ?string,
+    primaryDeviceID: ?string,
+    justSuccessfullyAuthenticated: boolean,
   ) {
+    this.userID = userID;
+    this.accessToken = accessToken;
+    this.encryptionKey = encryptionKey;
+    this.primaryDeviceID = primaryDeviceID;
+
+    if (justSuccessfullyAuthenticated) {
+      this.shouldNotifyPrimary = true;
+    }
+
     const socket = new WebSocket(socketURL);
 
     socket.on('open', () => {
       if (!this.closed) {
-        socket.send(JSON.stringify(initMessage));
+        let initMessageString;
+
+        if (userID && accessToken) {
+          console.log('Creating authenticated tunnelbroker connection');
+          const initMessage: ConnectionInitializationMessage = {
+            type: 'ConnectionInitializationMessage',
+            deviceID,
+            accessToken: accessToken,
+            userID: userID,
+            deviceType: 'keyserver',
+          };
+          initMessageString = JSON.stringify(initMessage);
+        } else {
+          console.log('Creating anonymous tunnelbroker connection');
+          const initMessage: AnonymousInitializationMessage = {
+            type: 'AnonymousInitializationMessage',
+            deviceID,
+            deviceType: 'keyserver',
+          };
+          initMessageString = JSON.stringify(initMessage);
+        }
+
+        socket.send(initMessageString);
       }
     });
 
@@ -81,7 +125,7 @@ class TunnelbrokerSocket {
       this.connected = false;
       this.stopHeartbeatTimeout();
       console.error('Connection to Tunnelbroker closed');
-      onClose();
+      onClose(this.justSuccessfullyAuthenticated, this.primaryDeviceID);
     });
 
     socket.on('error', (error: Error) => {
@@ -91,10 +135,6 @@ class TunnelbrokerSocket {
     socket.on('message', this.onMessage);
 
     this.ws = socket;
-    this.anonymous = !initMessage.accessToken;
-    if (encryptionKey) {
-      this.encryptionKey = encryptionKey;
-    }
   }
 
   onMessage: (event: ArrayBuffer) => Promise<void> = async (
@@ -123,10 +163,29 @@ class TunnelbrokerSocket {
       if (message.status.type === 'Success' && !this.connected) {
         this.connected = true;
         console.info(
-          this.anonymous
-            ? 'anonymous session with Tunnelbroker created'
-            : 'session with Tunnelbroker created',
+          this.userID && this.accessToken
+            ? 'session with Tunnelbroker created'
+            : 'anonymous session with Tunnelbroker created',
         );
+        if (!this.shouldNotifyPrimary) {
+          return;
+        }
+        const primaryDeviceID = this.primaryDeviceID;
+        invariant(
+          primaryDeviceID,
+          'Primary device ID is not set but should be',
+        );
+        const payload = await this.encodeQRAuthMessage({
+          type: qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS,
+        });
+        if (!payload) {
+          this.closeConnection();
+          return;
+        }
+        await this.sendMessage({
+          deviceID: primaryDeviceID,
+          payload: JSON.stringify(payload),
+        });
       } else if (message.status.type === 'Success' && this.connected) {
         console.info(
           'received ConnectionInitializationResponse with status: Success for already connected socket',
@@ -162,21 +221,21 @@ class TunnelbrokerSocket {
           ) {
             return;
           }
-          const { primaryDeviceID: receivedPrimaryDeviceID, userID } =
-            qrCodeAuthMessage;
-          console.log(receivedPrimaryDeviceID, userID);
+          const { primaryDeviceID, userID } = qrCodeAuthMessage;
+          this.primaryDeviceID = primaryDeviceID;
+
           const [nonce, deviceKeyUpload] = await Promise.all([
             rustAPI.generateNonce(),
             getNewDeviceKeyUpload(),
           ]);
-          console.log(deviceKeyUpload);
+
           const signedIdentityKeysBlob = {
             payload: deviceKeyUpload.keyPayload,
             signature: deviceKeyUpload.keyPayloadSignature,
           };
           const nonceSignature = accountInfo.account.sign(nonce);
 
-          await rustAPI.uploadSecondaryDeviceKeysAndLogIn(
+          const identityInfo = await rustAPI.uploadSecondaryDeviceKeysAndLogIn(
             userID,
             nonce,
             nonceSignature,
@@ -188,6 +247,12 @@ class TunnelbrokerSocket {
             deviceKeyUpload.contentOneTimeKeys,
             deviceKeyUpload.notifOneTimeKeys,
           );
+          await Promise.all([
+            markPrekeysAsPublished(),
+            saveIdentityInfo(identityInfo),
+          ]);
+          this.justSuccessfullyAuthenticated = true;
+          this.closeConnection();
         } else if (refreshKeysRequestValidator.is(messageToKeyserver)) {
           const request: RefreshKeyRequest = messageToKeyserver;
           this.debouncedRefreshOneTimeKeys(request.numberOfKeys);
@@ -284,6 +349,11 @@ class TunnelbrokerSocket {
     }, tunnelbrokerHeartbeatTimeout);
   }
 
+  closeConnection() {
+    this.ws.close();
+    this.connected = false;
+  }
+
   parseQRCodeAuthMessage: (
     message: QRCodeAuthMessage,
   ) => Promise<?QRCodeAuthMessagePayload> = async message => {
@@ -302,6 +372,24 @@ class TunnelbrokerSocket {
     }
 
     return payload;
+  };
+
+  encodeQRAuthMessage: (
+    payload: QRCodeAuthMessagePayload,
+  ) => Promise<?QRCodeAuthMessage> = async payload => {
+    const encryptionKey = this.encryptionKey;
+    if (!encryptionKey) {
+      console.error('Encryption key missing - cannot send QR auth message.');
+      return null;
+    }
+    const payloadBytes = convertObjToBytes(payload);
+    const keyBytes = hexToUintArray(encryptionKey);
+    const encryptedBytes = await encrypt(keyBytes, payloadBytes);
+    const encryptedContent = Buffer.from(encryptedBytes).toString('base64');
+    return Promise.resolve({
+      type: peerToPeerMessageTypes.QR_CODE_AUTH_MESSAGE,
+      encryptedContent,
+    });
   };
 }
 
