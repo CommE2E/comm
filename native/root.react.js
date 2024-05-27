@@ -33,6 +33,7 @@ import { NeynarClientProvider } from 'lib/components/neynar-client-provider.reac
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
+import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
@@ -274,6 +275,7 @@ function Root() {
       <IntegrityHandler />
       <AccessTokenHandler />
       <DBOpsHandler processDBStoreOperations={processDBStoreOperations} />
+      <UserInfosHandler />
     </>
   );
   let navigation;
