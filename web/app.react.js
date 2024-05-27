@@ -21,6 +21,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import {
   createLoadingStatusSelector,
@@ -235,6 +236,7 @@ class App extends React.PureComponent<Props> {
                       <InviteLinksRefresher />
                       <MinVersionHandler />
                       <LogOutIfMissingCSATHandler />
+                      <UserInfosHandler />
                       {content}
                     </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
