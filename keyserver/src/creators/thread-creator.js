@@ -55,6 +55,7 @@ import {
   type MembershipChangeset,
 } from '../updaters/thread-permission-updaters.js';
 import { joinThread } from '../updaters/thread-updaters.js';
+import { isAuthoritativeKeyserver } from '../user/identity.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
 const { commbot } = bots;
@@ -147,6 +148,10 @@ async function createThread(
   // keyserver, so we set them to the have the Genesis community as their
   // parent thread.
   if (!parentThreadID && !threadTypeIsCommunityRoot(threadType)) {
+    const isAuthoritative = await isAuthoritativeKeyserver();
+    if (!isAuthoritative) {
+      throw new ServerError('invalid_parameters');
+    }
     parentThreadID = genesis().id;
   }
 
