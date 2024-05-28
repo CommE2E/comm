@@ -2,7 +2,11 @@
 
 import * as React from 'react';
 
-import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
+import {
+  useLogOut,
+  logOutActionTypes,
+  useSecondaryDeviceLogOut,
+} from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -14,6 +18,7 @@ import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
 } from 'lib/utils/crypto-utils.js';
+import { isDev } from 'lib/utils/dev-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './account-settings.css';
@@ -31,10 +36,19 @@ import { useStaffCanSee } from '../utils/staff-utils.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useLogOut();
+  const sendSecondaryDeviceLogoutRequest = useSecondaryDeviceLogOut();
   const dispatchActionPromise = useDispatchActionPromise();
   const logOutUser = React.useCallback(
     () => dispatchActionPromise(logOutActionTypes, sendLogoutRequest()),
     [dispatchActionPromise, sendLogoutRequest],
+  );
+  const logOutSecondaryDevice = React.useCallback(
+    () =>
+      dispatchActionPromise(
+        logOutActionTypes,
+        sendSecondaryDeviceLogoutRequest(),
+      ),
+    [dispatchActionPromise, sendSecondaryDeviceLogoutRequest],
   );
   const identityContext = React.useContext(IdentityClientContext);
 
@@ -137,6 +151,18 @@ function AccountSettings(): React.Node {
             <SWMansionIcon icon="edit-1" size={22} />
           </a>
         </span>
+      </li>
+    );
+  }
+
+  let experimentalLogOutSection;
+  if (isDev) {
+    experimentalLogOutSection = (
+      <li>
+        <span>Log out secondary device</span>
+        <Button variant="text" onClick={logOutSecondaryDevice}>
+          <p className={css.buttonText}>Log out</p>
+        </Button>
       </li>
     );
   }
@@ -257,6 +283,7 @@ function AccountSettings(): React.Node {
                 <p className={css.buttonText}>Log out</p>
               </Button>
             </li>
+            {experimentalLogOutSection}
             {changePasswordSection}
             <li>
               <span>Friend List</span>
