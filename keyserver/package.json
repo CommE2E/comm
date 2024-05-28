@@ -15,7 +15,7 @@
     "profile-prod": "KEYSERVER=true KEYSERVER_CPU_PROFILING_ENABLED=true 0x --output-dir cpu_profiling_logs/{pid}.0x -o -- node --trace-warnings --loader=./loader.mjs dist/keyserver",
     "clear-profile-logs": "rm -rf cpu_profiling_logs/",
     "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
-    "dev": ". bash/source-nvm.sh && yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && KEYSERVER=true NODE_ENV=development nodemon -e js,json,cjs --watch dist --no-warnings=ExperimentalWarning --loader=./loader.mjs dist/keyserver\"",
+    "dev": ". bash/source-nvm.sh && yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && KEYSERVER=true AUTHORITATIVE_KEYSERVER=true NODE_ENV=development nodemon -e js,json,cjs --watch dist --no-warnings=ExperimentalWarning --loader=./loader.mjs dist/keyserver\"",
     "dev-log-metrics": "KEYSERVER_ENDPOINT_METRICS_ENABLED=true yarn dev",
     "script": ". bash/source-nvm.sh && NODE_ENV=development node --loader=./loader.mjs",
     "test": "jest"

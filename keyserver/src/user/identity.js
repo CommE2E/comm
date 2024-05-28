@@ -57,6 +57,19 @@ async function thisKeyserverID(): Promise<string> {
   return cachedKeyserverID;
 }
 
+async function isAuthoritativeKeyserver(): Promise<boolean> {
+  if (process.env.AUTHORITATIVE_KEYSERVER) {
+    return true;
+  }
+
+  const id = await thisKeyserverID();
+  if (id === ashoat.id) {
+    return true;
+  }
+
+  return false;
+}
+
 export type AdminData = {
   +username: string,
   +id: string,
@@ -97,4 +110,5 @@ export {
   thisKeyserverID,
   thisKeyserverAdmin,
   saveIdentityInfo,
+  isAuthoritativeKeyserver,
 };
