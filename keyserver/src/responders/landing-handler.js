@@ -85,7 +85,8 @@ async function getAssetInfo() {
       `,
     }: AssetInfo);
     return assetInfo;
-  } catch {
+  } catch (e) {
+    console.warn(e);
     throw new Error(
       'Could not load manifest.json for landing build. ' +
         'Did you forget to run `yarn dev` in the landing folder?',
@@ -104,7 +105,8 @@ async function getWebpackCompiledRootComponentForSSR() {
     const webpackBuild = await import('landing/dist/landing.build.cjs');
     webpackCompiledRootComponent = webpackBuild.landing.default;
     return webpackCompiledRootComponent;
-  } catch {
+  } catch (e) {
+    console.warn(e);
     throw new Error(
       'Could not load landing.build.cjs. ' +
         'Did you forget to run `yarn dev` in the landing folder?',
