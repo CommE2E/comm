@@ -58,29 +58,4 @@ function parseTunnelbrokerQRAuthMessage(
   return Promise.resolve(payload);
 }
 
-async function signDeviceListUpdate(
-  deviceListPayload: RawDeviceList,
-): Promise<SignedDeviceList> {
-  const deviceID = await getContentSigningKey();
-  const rawDeviceList = JSON.stringify(deviceListPayload);
-
-  // don't sign device list if current device is not a primary one
-  if (deviceListPayload.devices[0] !== deviceID) {
-    return {
-      rawDeviceList,
-    };
-  }
-
-  const { olmAPI } = getConfig();
-  const curPrimarySignature = await olmAPI.signMessage(rawDeviceList);
-  return {
-    rawDeviceList,
-    curPrimarySignature,
-  };
-}
-
-export {
-  composeTunnelbrokerQRAuthMessage,
-  parseTunnelbrokerQRAuthMessage,
-  signDeviceListUpdate,
-};
+export { composeTunnelbrokerQRAuthMessage, parseTunnelbrokerQRAuthMessage };

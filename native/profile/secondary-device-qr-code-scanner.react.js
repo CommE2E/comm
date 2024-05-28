@@ -7,6 +7,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { signDeviceListUpdate } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
@@ -36,7 +37,6 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
-  signDeviceListUpdate,
 } from '../qr-code/qr-code-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
