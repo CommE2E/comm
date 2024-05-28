@@ -6,6 +6,7 @@ import { usernameMaxLength } from 'lib/shared/account-utils.js';
 import { sortUserIDs } from 'lib/shared/relationship-utils.js';
 import { undirectedStatus } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import type { NewThreadResponse } from 'lib/types/thread-types.js';
 
 import { createThread } from '../creators/thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -16,7 +17,11 @@ import {
 } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { ensureUserCredentials } from '../user/checks.js';
-import { thisKeyserverAdmin, saveIdentityInfo } from '../user/identity.js';
+import {
+  thisKeyserverAdmin,
+  saveIdentityInfo,
+  isAuthoritativeKeyserver,
+} from '../user/identity.js';
 import { verifyUserLoggedInWithoutDB } from '../user/login.js';
 import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
@@ -468,27 +473,31 @@ async function createUsers() {
 const createThreadOptions = { forceAddMembers: true };
 
 async function createThreads() {
+  const shouldCreateGenesis = await isAuthoritativeKeyserver();
   const insertIDsPromise = dbQuery(SQL`
     INSERT INTO ids (id, table_name)
     VALUES
-      (${genesis().id}, 'threads'),
+      ${shouldCreateGenesis ? `(${genesis().id}, 'threads'),` : ''}
       (${bots.commbot.staffThreadID}, 'threads')
   `);
 
   const admin = await thisKeyserverAdmin();
 
-  const ashoatViewer = createScriptViewer(admin.id);
-  const createGenesisPromise = createThread(
-    ashoatViewer,
-    {
-      id: genesis().id,
-      type: threadTypes.GENESIS,
-      name: genesis().name,
-      description: genesis().description,
-      initialMemberIDs: [bots.commbot.userID],
-    },
-    createThreadOptions,
-  );
+  const adminViewer = createScriptViewer(admin.id);
+  let createGenesisPromise: Promise<?NewThreadResponse> = Promise.resolve(null);
+  if (shouldCreateGenesis) {
+    createGenesisPromise = createThread(
+      adminViewer,
+      {
+        id: genesis().id,
+        type: threadTypes.GENESIS,
+        name: genesis().name,
+        description: genesis().description,
+        initialMemberIDs: [bots.commbot.userID],
+      },
+      createThreadOptions,
+    );
+  }
   await Promise.all([insertIDsPromise, createGenesisPromise]);
 
   const commbotViewer = createScriptViewer(bots.commbot.userID);
