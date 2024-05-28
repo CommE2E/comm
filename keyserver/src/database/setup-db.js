@@ -16,7 +16,11 @@ import {
 } from '../database/migration-config.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { ensureUserCredentials } from '../user/checks.js';
-import { thisKeyserverAdmin, saveIdentityInfo } from '../user/identity.js';
+import {
+  thisKeyserverAdmin,
+  saveIdentityInfo,
+  isAuthoritativeKeyserver,
+} from '../user/identity.js';
 import { verifyUserLoggedInWithoutDB } from '../user/login.js';
 import { createPickledOlmAccount } from '../utils/olm-utils.js';
 
@@ -468,6 +472,12 @@ async function createUsers() {
 const createThreadOptions = { forceAddMembers: true };
 
 async function createThreads() {
+  const isAuthoritative = await isAuthoritativeKeyserver();
+
+  if (!isAuthoritative) {
+    return;
+  }
+
   const insertIDsPromise = dbQuery(SQL`
     INSERT INTO ids (id, table_name)
     VALUES
