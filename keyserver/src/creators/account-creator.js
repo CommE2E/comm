@@ -16,7 +16,7 @@ import type {
   ReservedUsernameMessage,
 } from 'lib/types/crypto-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { MessageData, RawMessageInfo } from 'lib/types/message-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
@@ -50,7 +50,10 @@ import type { Viewer } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { thisKeyserverAdmin } from '../user/identity.js';
+import {
+  isAuthoritativeKeyserver,
+  thisKeyserverAdmin,
+} from '../user/identity.js';
 
 const { commbot } = bots;
 
@@ -177,38 +180,48 @@ async function sendMessagesOnAccountCreation(
   viewer: Viewer,
 ): Promise<RawMessageInfo[]> {
   const admin = await thisKeyserverAdmin();
+  const doesGenesisExist = await isAuthoritativeKeyserver();
 
-  await updateThread(
-    createScriptViewer(admin.id),
-    {
-      threadID: genesis().id,
-      changes: { newMemberIDs: [viewer.userID] },
-    },
-    { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
-  );
-
-  const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer),
-    createThread(
-      viewer,
+  if (doesGenesisExist) {
+    await updateThread(
+      createScriptViewer(admin.id),
       {
-        type: threadTypes.PERSONAL,
-        initialMemberIDs: [admin.id],
+        threadID: genesis().id,
+        changes: { newMemberIDs: [viewer.userID] },
       },
-      { forceAddMembers: true },
-    ),
-  ]);
-  const ashoatThreadID = ashoatThreadResult.newThreadID;
+      { forceAddMembers: true, silenceMessages: true, ignorePermissions: true },
+    );
+  }
+
+  const promises = [createPrivateThread(viewer)];
+  if (doesGenesisExist) {
+    promises.push(
+      createThread(
+        viewer,
+        {
+          type: threadTypes.PERSONAL,
+          initialMemberIDs: [admin.id],
+        },
+        { forceAddMembers: true },
+      ),
+    );
+  }
+  const [privateThreadResult, ashoatThreadResult] = await Promise.all(promises);
   const privateThreadID = privateThreadResult.newThreadID;
 
   let messageTime = Date.now();
-  const ashoatMessageDatas = ashoatMessages.map(message => ({
-    type: messageTypes.TEXT,
-    threadID: ashoatThreadID,
-    creatorID: admin.id,
-    time: messageTime++,
-    text: message,
-  }));
+  const messageDatas: Array<MessageData> = [];
+  if (ashoatThreadResult?.newThreadID) {
+    const ashoatThreadID = ashoatThreadResult.newThreadID;
+    const ashoatMessageDatas = ashoatMessages.map(message => ({
+      type: messageTypes.TEXT,
+      threadID: ashoatThreadID,
+      creatorID: admin.id,
+      time: messageTime++,
+      text: message,
+    }));
+    messageDatas.push(...ashoatMessageDatas);
+  }
   const privateMessageDatas = privateMessages.map(message => ({
     type: messageTypes.TEXT,
     threadID: privateThreadID,
@@ -216,11 +229,11 @@ async function sendMessagesOnAccountCreation(
     time: messageTime++,
     text: message,
   }));
-  const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
+  messageDatas.push(...privateMessageDatas);
   const messageInfos = await createMessages(viewer, messageDatas);
 
   return [
-    ...ashoatThreadResult.newMessageInfos,
+    ...(ashoatThreadResult?.newMessageInfos ?? []),
     ...privateThreadResult.newMessageInfos,
     ...messageInfos,
   ];
