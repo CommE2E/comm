@@ -50,7 +50,10 @@ import type { Viewer } from '../session/viewer.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { thisKeyserverAdmin } from '../user/identity.js';
+import {
+  isAuthoritativeKeyserver,
+  thisKeyserverAdmin,
+} from '../user/identity.js';
 
 const { commbot } = bots;
 
@@ -176,6 +179,11 @@ async function createAccount(
 async function sendMessagesOnAccountCreation(
   viewer: Viewer,
 ): Promise<RawMessageInfo[]> {
+  const isAuthoritative = await isAuthoritativeKeyserver();
+  if (!isAuthoritative) {
+    return [];
+  }
+
   const admin = await thisKeyserverAdmin();
 
   await updateThread(
