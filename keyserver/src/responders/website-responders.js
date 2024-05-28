@@ -88,7 +88,8 @@ async function getAssetInfo() {
       webworkersOpaqueFilename: webworkersManifest['comm_opaque2_wasm_bg.wasm'],
     };
     return assetInfo;
-  } catch {
+  } catch (e) {
+    console.warn(e);
     throw new Error(
       'Could not load manifest.json for web build. ' +
         'Did you forget to run `yarn dev` in the web folder?',
@@ -106,7 +107,8 @@ async function getWebpackCompiledRootComponentForSSR() {
     const webpackBuild = await import('web/dist/app.build.cjs');
     webpackCompiledRootComponent = webpackBuild.app.default;
     return webpackCompiledRootComponent;
-  } catch {
+  } catch (e) {
+    console.warn(e);
     throw new Error(
       'Could not load app.build.cjs. ' +
         'Did you forget to run `yarn dev` in the web folder?',
