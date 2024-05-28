@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
+import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react.js';
@@ -76,6 +77,13 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     [itemStyle.indentation, itemStyle.background, styles],
   );
 
+  const communityActionsButton = React.useMemo(() => {
+    if (!threadTypeIsCommunityRoot(threadInfo.type)) {
+      return null;
+    }
+    return <CommunityActionsButton community={threadInfo} />;
+  }, [threadInfo]);
+
   return (
     <View style={containerStyle}>
       <View style={styles.threadEntry}>
@@ -90,7 +98,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           </View>
           <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
-        <CommunityActionsButton community={threadInfo} />
+        {communityActionsButton}
       </View>
       {subchannelsButton}
     </View>
