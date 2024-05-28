@@ -3,7 +3,11 @@
 import * as React from 'react';
 import { View, Text, Platform, ScrollView } from 'react-native';
 
-import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
+import {
+  logOutActionTypes,
+  useLogOut,
+  useSecondaryDeviceLogOut,
+} from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -155,6 +159,7 @@ type Props = {
   +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: () => Promise<LogOutResult>,
+  +logOutSecondaryDevice: () => Promise<LogOutResult>,
   +staffCanSee: boolean,
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,
@@ -246,6 +251,17 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let secondaryDeviceLogout;
+    if (__DEV__) {
+      secondaryDeviceLogout = (
+        <ProfileRow
+          danger
+          content="Log out (secondary device)"
+          onPress={this.onPressSecondaryDeviceLogout}
+        />
+      );
+    }
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -297,6 +313,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
+            {secondaryDeviceLogout}
           </View>
           <View style={this.props.styles.unpaddedSection}>
             <ProfileRow
@@ -354,6 +371,26 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   };
 
+  onPressSecondaryDeviceLogout = () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
+    // TODO: Add check for secondary device
+    Alert.alert(
+      'Log out secondary device',
+      'Are you sure you want to log out this device?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          onPress: this.logOutSecondaryDevice,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   logOutWithoutDeletingNativeCredentialsWrapper = () => {
     if (this.loggedOutOrLoggingOut) {
       return;
@@ -375,6 +412,16 @@ class ProfileScreen extends React.PureComponent<Props> {
       this.props.logOut(),
     );
   }
+
+  logOutSecondaryDevice = async () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
+    void this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.props.logOutSecondaryDevice(),
+    );
+  };
 
   async deleteNativeCredentials() {
     await deleteNativeCredentialsFor();
@@ -450,6 +497,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const callLogOut = useLogOut();
+    const callSecondaryDeviceLogOut = useSecondaryDeviceLogOut();
     const dispatchActionPromise = useDispatchActionPromise();
     const staffCanSee = useStaffCanSee();
     const stringForUser = useStringForUser(currentUserInfo);
@@ -465,6 +513,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         colors={colors}
         styles={styles}
         logOut={callLogOut}
+        logOutSecondaryDevice={callSecondaryDeviceLogOut}
         dispatchActionPromise={dispatchActionPromise}
         staffCanSee={staffCanSee}
         stringForUser={stringForUser}
