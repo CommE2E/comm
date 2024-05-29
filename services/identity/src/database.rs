@@ -21,6 +21,7 @@ use crate::{
   constants::{error_types, USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME},
   ddb_utils::EthereumIdentity,
   device_list::SignedDeviceList,
+  grpc_services::shared::PlatformMetadata,
   reserved_users::UserDetail,
   siwe::SocialProof,
 };
@@ -158,7 +159,7 @@ impl DatabaseClient {
     &self,
     registration_state: UserRegistrationInfo,
     password_file: Vec<u8>,
-    code_version: u64,
+    platform_details: PlatformMetadata,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<String, Error> {
     let device_key_upload = registration_state.flattened_device_key_upload;
@@ -179,7 +180,7 @@ impl DatabaseClient {
         .register_primary_device(
           &user_id,
           device_key_upload.clone(),
-          code_version,
+          platform_details,
           access_token_creation_time,
           initial_device_list,
         )
@@ -189,7 +190,7 @@ impl DatabaseClient {
         .add_device(
           &user_id,
           device_key_upload.clone(),
-          code_version,
+          platform_details,
           access_token_creation_time,
         )
         .await?;
@@ -214,7 +215,7 @@ impl DatabaseClient {
     wallet_address: String,
     social_proof: SocialProof,
     user_id: Option<String>,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     access_token_creation_time: DateTime<Utc>,
     farcaster_id: Option<String>,
     initial_device_list: Option<SignedDeviceList>,
@@ -240,7 +241,7 @@ impl DatabaseClient {
         .register_primary_device(
           &user_id,
           flattened_device_key_upload.clone(),
-          code_version,
+          platform_metadata,
           access_token_creation_time,
           initial_device_list,
         )
@@ -250,7 +251,7 @@ impl DatabaseClient {
         .add_device(
           &user_id,
           flattened_device_key_upload.clone(),
-          code_version,
+          platform_metadata,
           access_token_creation_time,
         )
         .await?;
@@ -329,7 +330,7 @@ impl DatabaseClient {
     &self,
     user_id: String,
     flattened_device_key_upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     access_token_creation_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     let content_one_time_keys =
@@ -359,7 +360,7 @@ impl DatabaseClient {
       .add_device(
         &user_id,
         flattened_device_key_upload,
-        code_version,
+        platform_metadata,
         access_token_creation_time,
       )
       .await?;
