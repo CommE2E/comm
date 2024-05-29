@@ -13,10 +13,7 @@ use tracing::{debug, error, info, warn};
 
 // Workspace crate imports
 use crate::config::CONFIG;
-use crate::constants::{
-  request_metadata,
-  error_types
-};
+use crate::constants::error_types;
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload
 };
@@ -34,7 +31,7 @@ use crate::grpc_services::protos::unauth::{
   VerifyUserAccessTokenResponse, WalletAuthRequest, GetFarcasterUsersRequest,
   GetFarcasterUsersResponse
 };
-use crate::grpc_services::shared::get_value;
+use crate::grpc_services::shared::get_platform_metadata;
 use crate::grpc_utils::{
   DeviceKeyUploadActions, RegistrationActions, SignedNonce
 };
@@ -229,7 +226,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<RegistrationFinishRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     if let Some(WorkflowInProgress::Registration(state)) = self
@@ -251,7 +248,7 @@ impl IdentityClientService for ClientService {
         .add_password_user_to_users_table(
           *state,
           password_file,
-          code_version,
+          platform_metadata,
           login_time,
         )
         .await
@@ -371,7 +368,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<OpaqueLoginFinishRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     if let Some(WorkflowInProgress::Login(state)) = self
@@ -399,7 +396,7 @@ impl IdentityClientService for ClientService {
         .add_user_device(
           state.user_id.clone(),
           state.flattened_device_key_upload.clone(),
-          code_version,
+          platform_metadata,
           login_time,
         )
         .await
@@ -438,7 +435,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<WalletAuthRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     // WalletAuthRequest is used for both log_in_wallet_user and register_wallet_user
@@ -492,7 +489,7 @@ impl IdentityClientService for ClientService {
       .add_user_device(
         user_id.clone(),
         flattened_device_key_upload.clone(),
-        code_version,
+        platform_metadata,
         chrono::Utc::now(),
       )
       .await
@@ -528,7 +525,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<WalletAuthRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     let parsed_message = parse_and_verify_siwe_message(
@@ -590,7 +587,7 @@ impl IdentityClientService for ClientService {
         wallet_address.clone(),
         social_proof,
         None,
-        code_version,
+        platform_metadata,
         login_time,
         message.farcaster_id,
         initial_device_list,
@@ -628,7 +625,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<ReservedWalletRegistrationRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     let parsed_message = parse_and_verify_siwe_message(
@@ -674,7 +671,7 @@ impl IdentityClientService for ClientService {
         wallet_address.clone(),
         social_proof,
         Some(user_id.clone()),
-        code_version,
+        platform_metadata,
         login_time,
         None,
         initial_device_list,
@@ -712,7 +709,7 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<SecondaryDeviceKeysUploadRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let code_version = get_code_version(&request);
+    let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
     let challenge_response = SignedNonce::try_from(&message)?;
@@ -770,7 +767,7 @@ impl IdentityClientService for ClientService {
       .put_device_data(
         &user_id,
         flattened_device_key_upload,
-        code_version,
+        platform_metadata,
         login_time,
       )
       .await
@@ -1195,16 +1192,4 @@ fn construct_flattened_device_key_upload(
   };
 
   Ok(flattened_device_key_upload)
-}
-
-fn get_code_version<T: std::fmt::Debug>(req: &tonic::Request<T>) -> u64 {
-  get_value(req, request_metadata::CODE_VERSION)
-    .and_then(|version| version.parse().ok())
-    .unwrap_or_else(|| {
-      warn!(
-        "Could not retrieve code version from request: {:?}. Defaulting to 0",
-        req
-      );
-      Default::default()
-    })
 }
