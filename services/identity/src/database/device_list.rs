@@ -37,13 +37,11 @@ use super::DatabaseClient;
 pub struct DeviceRow {
   pub user_id: String,
   pub device_id: String,
-  pub device_type: DeviceType,
   pub device_key_info: IdentityKeyInfo,
   pub content_prekey: Prekey,
   pub notif_prekey: Prekey,
+  pub platform_details: PlatformDetails,
 
-  // migration-related data
-  pub code_version: u64,
   /// Timestamp of last login (access token generation)
   pub login_time: DateTime<Utc>,
 }
@@ -70,6 +68,14 @@ pub struct IdentityKeyInfo {
 pub struct Prekey {
   pub prekey: String,
   pub prekey_signature: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct PlatformDetails {
+  device_type: DeviceType,
+  code_version: u64,
+  state_version: Option<u64>,
+  major_desktop_version: Option<u64>,
 }
 
 /// A struct representing device list update payload
@@ -104,11 +110,12 @@ impl DeviceRow {
       );
       return Err(Error::InvalidFormat);
     }
+    let device_type = DeviceType::from_str_name(upload.device_type.as_str_name())
+      .expect("DeviceType conversion failed. Identity client and server protos mismatch");
+
     let device_row = Self {
       user_id: user_id.into(),
       device_id: upload.device_id_key,
-      device_type: DeviceType::from_str_name(upload.device_type.as_str_name())
-        .expect("DeviceType conversion failed. Identity client and server protos mismatch"),
       device_key_info: IdentityKeyInfo {
         key_payload: upload.key_payload,
         key_payload_signature: upload.key_payload_signature,
@@ -121,10 +128,19 @@ impl DeviceRow {
         prekey: upload.notif_prekey,
         prekey_signature: upload.notif_prekey_signature,
       },
-      code_version,
+      platform_details: PlatformDetails {
+        device_type,
+        code_version,
+        state_version: None,
+        major_desktop_version: None,
+      },
       login_time,
     };
     Ok(device_row)
+  }
+
+  pub fn device_type(&self) -> &DeviceType {
+    &self.platform_details.device_type
   }
 }
 
@@ -234,16 +250,6 @@ impl TryFrom<AttributeMap> for DeviceRow {
     let user_id = attrs.take_attr(ATTR_USER_ID)?;
     let DeviceIDAttribute(device_id) = attrs.remove(ATTR_ITEM_ID).try_into()?;
 
-    let raw_device_type: String = attrs.take_attr(ATTR_DEVICE_TYPE)?;
-    let device_type =
-      DeviceType::from_str_name(&raw_device_type).ok_or_else(|| {
-        DBItemError::new(
-          ATTR_DEVICE_TYPE.to_string(),
-          raw_device_type.into(),
-          DBItemAttributeError::InvalidValue,
-        )
-      })?;
-
     let device_key_info = attrs
       .take_attr::<AttributeMap>(ATTR_DEVICE_KEY_INFO)
       .and_then(IdentityKeyInfo::try_from)?;
@@ -256,22 +262,46 @@ impl TryFrom<AttributeMap> for DeviceRow {
       .take_attr::<AttributeMap>(ATTR_NOTIF_PREKEY)
       .and_then(Prekey::try_from)?;
 
-    let code_version = attrs
-      .remove(ATTR_CODE_VERSION)
-      .and_then(|attr| attr.as_n().ok().cloned())
-      .and_then(|val| val.parse::<u64>().ok())
-      .unwrap_or_default();
-
     let login_time: DateTime<Utc> = attrs.take_attr(ATTR_LOGIN_TIME)?;
+
+    // New schema contains PlatformDetails attribute while legacy schema
+    // contains "deviceType" and "codeVersion" top-level attributes
+    let platform_details = match attrs
+      .take_attr::<Option<PlatformDetails>>(ATTR_PLATFORM_DETAILS)?
+    {
+      Some(platform_details) => platform_details,
+      None => {
+        let raw_device_type: String = attrs.take_attr(OLD_ATTR_DEVICE_TYPE)?;
+        let device_type = DeviceType::from_str_name(&raw_device_type)
+          .ok_or_else(|| {
+            DBItemError::new(
+              OLD_ATTR_DEVICE_TYPE.to_string(),
+              raw_device_type.into(),
+              DBItemAttributeError::InvalidValue,
+            )
+          })?;
+        let code_version = attrs
+          .remove(OLD_ATTR_CODE_VERSION)
+          .and_then(|attr| attr.as_n().ok().cloned())
+          .and_then(|val| val.parse::<u64>().ok())
+          .unwrap_or_default();
+
+        PlatformDetails {
+          device_type,
+          code_version,
+          state_version: None,
+          major_desktop_version: None,
+        }
+      }
+    };
 
     Ok(Self {
       user_id,
       device_id,
-      device_type,
       device_key_info,
       content_prekey,
       notif_prekey,
-      code_version,
+      platform_details,
       login_time,
     })
   }
@@ -286,8 +316,8 @@ impl From<DeviceRow> for AttributeMap {
         DeviceIDAttribute(value.device_id).into(),
       ),
       (
-        ATTR_DEVICE_TYPE.to_string(),
-        AttributeValue::S(value.device_type.as_str_name().to_string()),
+        ATTR_PLATFORM_DETAILS.to_string(),
+        value.platform_details.into(),
       ),
       (
         ATTR_DEVICE_KEY_INFO.to_string(),
@@ -296,10 +326,6 @@ impl From<DeviceRow> for AttributeMap {
       (ATTR_CONTENT_PREKEY.to_string(), value.content_prekey.into()),
       (ATTR_NOTIF_PREKEY.to_string(), value.notif_prekey.into()),
       // migration attributes
-      (
-        ATTR_CODE_VERSION.to_string(),
-        AttributeValue::N(value.code_version.to_string()),
-      ),
       (
         ATTR_LOGIN_TIME.to_string(),
         AttributeValue::S(value.login_time.to_rfc3339()),
@@ -386,6 +412,81 @@ impl TryFrom<AttributeMap> for Prekey {
       prekey,
       prekey_signature,
     })
+  }
+}
+
+impl From<PlatformDetails> for AttributeValue {
+  fn from(value: PlatformDetails) -> Self {
+    let mut attrs = HashMap::from([
+      (
+        ATTR_DEVICE_TYPE.to_string(),
+        AttributeValue::S(value.device_type.as_str_name().to_string()),
+      ),
+      (
+        ATTR_CODE_VERSION.to_string(),
+        AttributeValue::N(value.code_version.to_string()),
+      ),
+    ]);
+    if let Some(state_version) = value.state_version {
+      attrs.insert(
+        ATTR_STATE_VERSION.to_string(),
+        AttributeValue::N(state_version.to_string()),
+      );
+    }
+    if let Some(major_desktop_version) = value.major_desktop_version {
+      attrs.insert(
+        ATTR_STATE_VERSION.to_string(),
+        AttributeValue::N(major_desktop_version.to_string()),
+      );
+    }
+
+    AttributeValue::M(attrs)
+  }
+}
+
+impl TryFrom<AttributeMap> for PlatformDetails {
+  type Error = DBItemError;
+  fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
+    let raw_device_type: String = attrs.take_attr(ATTR_DEVICE_TYPE)?;
+    let device_type =
+      DeviceType::from_str_name(&raw_device_type).ok_or_else(|| {
+        DBItemError::new(
+          ATTR_DEVICE_TYPE.to_string(),
+          raw_device_type.into(),
+          DBItemAttributeError::InvalidValue,
+        )
+      })?;
+    let code_version = attrs
+      .remove(ATTR_CODE_VERSION)
+      .and_then(|attr| attr.as_n().ok().cloned())
+      .and_then(|val| val.parse::<u64>().ok())
+      .unwrap_or_default();
+
+    let state_version = attrs
+      .remove(ATTR_STATE_VERSION)
+      .and_then(|attr| attr.as_n().ok().cloned())
+      .and_then(|val| val.parse::<u64>().ok());
+    let major_desktop_version = attrs
+      .remove(ATTR_MAJOR_DESKTOP_VERSION)
+      .and_then(|attr| attr.as_n().ok().cloned())
+      .and_then(|val| val.parse::<u64>().ok());
+
+    Ok(Self {
+      device_type,
+      code_version,
+      state_version,
+      major_desktop_version,
+    })
+  }
+}
+
+impl TryFromAttribute for PlatformDetails {
+  fn try_from_attr(
+    attribute_name: impl Into<String>,
+    attribute: Option<AttributeValue>,
+  ) -> Result<Self, DBItemError> {
+    AttributeMap::try_from_attr(attribute_name, attribute)
+      .and_then(PlatformDetails::try_from)
   }
 }
 
@@ -1461,13 +1562,16 @@ mod migration {
     let mut mobile_devices = devices
       .iter()
       .filter(|device| {
-        device.device_type == DeviceType::Ios
-          || device.device_type == DeviceType::Android
+        *device.device_type() == DeviceType::Ios
+          || *device.device_type() == DeviceType::Android
       })
       .collect::<Vec<_>>();
 
     mobile_devices.sort_by(|a, b| {
-      let code_version_cmp = b.code_version.cmp(&a.code_version);
+      let code_version_cmp = b
+        .platform_details
+        .code_version
+        .cmp(&a.platform_details.code_version);
       if code_version_cmp == Ordering::Equal {
         b.login_time.cmp(&a.login_time)
       } else {
@@ -1646,7 +1750,6 @@ mod migration {
       DeviceRow {
         user_id: "test".into(),
         device_id: id.into(),
-        device_type: platform,
         device_key_info: IdentityKeyInfo {
           key_payload: "".into(),
           key_payload_signature: "".into(),
@@ -1659,7 +1762,12 @@ mod migration {
           prekey: "".into(),
           prekey_signature: "".into(),
         },
-        code_version,
+        platform_details: PlatformDetails {
+          device_type: platform,
+          code_version,
+          state_version: None,
+          major_desktop_version: None,
+        },
         login_time,
       }
     }
