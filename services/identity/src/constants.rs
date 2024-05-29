@@ -235,6 +235,8 @@ pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
 
 pub mod request_metadata {
   pub const CODE_VERSION: &str = "code_version";
+  pub const STATE_VERSION: &str = "state_version";
+  pub const MAJOR_DESKTOP_VERSION: &str = "major_desktop_version";
   pub const DEVICE_TYPE: &str = "device_type";
   pub const USER_ID: &str = "user_id";
   pub const DEVICE_ID: &str = "device_id";
