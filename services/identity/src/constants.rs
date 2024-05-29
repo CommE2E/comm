@@ -235,6 +235,8 @@ pub const MIN_SUPPORTED_NATIVE_VERSION: u64 = 270;
 
 pub mod request_metadata {
   pub const CODE_VERSION: &str = "code_version";
+  pub const STATE_VERSION: &str = "state_version";
+  pub const MAJOR_DESKTOP_VERSION: &str = "major_desktop_version";
   pub const DEVICE_TYPE: &str = "device_type";
   pub const USER_ID: &str = "user_id";
   pub const DEVICE_ID: &str = "device_id";
@@ -249,12 +251,14 @@ pub mod cors {
   pub const DEFAULT_MAX_AGE: Duration = Duration::from_secs(24 * 60 * 60);
   pub const DEFAULT_EXPOSED_HEADERS: [&str; 3] =
     ["grpc-status", "grpc-message", "grpc-status-details-bin"];
-  pub const DEFAULT_ALLOW_HEADERS: [&str; 9] = [
+  pub const DEFAULT_ALLOW_HEADERS: [&str; 11] = [
     "x-grpc-web",
     "content-type",
     "x-user-agent",
     "grpc-timeout",
     super::request_metadata::CODE_VERSION,
+    super::request_metadata::STATE_VERSION,
+    super::request_metadata::MAJOR_DESKTOP_VERSION,
     super::request_metadata::DEVICE_TYPE,
     super::request_metadata::USER_ID,
     super::request_metadata::DEVICE_ID,
