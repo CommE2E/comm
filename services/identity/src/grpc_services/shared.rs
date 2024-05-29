@@ -4,6 +4,14 @@ use tracing::trace;
 
 use crate::constants::{request_metadata, MIN_SUPPORTED_NATIVE_VERSION};
 
+#[derive(Clone, Debug)]
+pub struct PlatformMetadata {
+  pub device_type: String,
+  pub code_version: u64,
+  pub state_version: Option<u64>,
+  pub major_desktop_version: Option<u64>,
+}
+
 pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
   trace!("Intercepting request to check version: {:?}", req);
 
@@ -18,7 +26,9 @@ pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
   }
 }
 
-fn get_version_info(req: &Request<()>) -> Option<(u64, String)> {
+fn get_version_info<T: std::fmt::Debug>(
+  req: &Request<T>,
+) -> Option<(u64, String)> {
   trace!("Retrieving version info for request: {:?}", req);
 
   let code_version: u64 = get_value(req, request_metadata::CODE_VERSION)?
@@ -27,6 +37,26 @@ fn get_version_info(req: &Request<()>) -> Option<(u64, String)> {
   let device_type = get_value(req, request_metadata::DEVICE_TYPE)?;
 
   Some((code_version, device_type))
+}
+
+pub fn get_platform_metadata<T: std::fmt::Debug>(
+  req: &Request<T>,
+) -> Result<PlatformMetadata, Status> {
+  let (code_version, device_type) = get_version_info(req).ok_or_else(|| {
+    Status::invalid_argument("missing platform or code version metadata")
+  })?;
+  let state_version = get_value(req, request_metadata::STATE_VERSION)
+    .and_then(|it| it.parse().ok());
+  let major_desktop_version =
+    get_value(req, request_metadata::MAJOR_DESKTOP_VERSION)
+      .and_then(|it| it.parse().ok());
+
+  Ok(PlatformMetadata {
+    code_version,
+    device_type,
+    state_version,
+    major_desktop_version,
+  })
 }
 
 pub fn get_value<T>(req: &Request<T>, key: &str) -> Option<String> {
