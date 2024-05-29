@@ -24,7 +24,10 @@ use crate::{
     USERS_TABLE_PARTITION_KEY,
   },
   error::{DeviceListError, Error},
-  grpc_services::protos::{self, unauth::DeviceType},
+  grpc_services::{
+    protos::{self, unauth::DeviceType},
+    shared::PlatformMetadata,
+  },
   grpc_utils::DeviceKeysInfo,
   olm::is_valid_olm_key,
 };
@@ -98,7 +101,7 @@ impl DeviceRow {
   pub fn from_device_key_upload(
     user_id: impl Into<String>,
     upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
   ) -> Result<Self, Error> {
     if !is_valid_olm_key(&upload.content_prekey)
@@ -110,8 +113,10 @@ impl DeviceRow {
       );
       return Err(Error::InvalidFormat);
     }
-    let device_type = DeviceType::from_str_name(upload.device_type.as_str_name())
+    let key_upload_device_type = DeviceType::from_str_name(upload.device_type.as_str_name())
       .expect("DeviceType conversion failed. Identity client and server protos mismatch");
+    let platform_details =
+      PlatformDetails::new(platform_metadata, Some(key_upload_device_type))?;
 
     let device_row = Self {
       user_id: user_id.into(),
@@ -128,12 +133,7 @@ impl DeviceRow {
         prekey: upload.notif_prekey,
         prekey_signature: upload.notif_prekey_signature,
       },
-      platform_details: PlatformDetails {
-        device_type,
-        code_version,
-        state_version: None,
-        major_desktop_version: None,
-      },
+      platform_details,
       login_time,
     };
     Ok(device_row)
@@ -175,6 +175,48 @@ impl DeviceListRow {
 
   pub fn has_secondary_device(&self, device_id: &String) -> bool {
     self.has_device(device_id) && !self.is_primary_device(device_id)
+  }
+}
+
+impl PlatformDetails {
+  pub fn new(
+    metadata: PlatformMetadata,
+    key_upload_device_type: Option<DeviceType>,
+  ) -> Result<Self, Error> {
+    let PlatformMetadata { device_type, .. } = metadata;
+
+    let metadata_device_type =
+      DeviceType::from_str_name(&device_type.to_uppercase());
+
+    let device_type = match (metadata_device_type, key_upload_device_type) {
+      (Some(metadata_value), None) => metadata_value,
+      (Some(metadata_value), Some(key_upload_value)) => {
+        if metadata_value != key_upload_value {
+          warn!(
+            "DeviceKeyUplaod device type ({}) mismatches request metadata platform ({}). {}",
+            "Prefering value from key uplaod.",
+            key_upload_value.as_str_name(),
+            metadata_value.as_str_name()
+          );
+        }
+        key_upload_value
+      }
+      (None, Some(key_upload_value)) => key_upload_value,
+      (None, None) => {
+        warn!(
+          "Received invalid device_type in request metadata: {}",
+          device_type
+        );
+        return Err(Error::InvalidFormat);
+      }
+    };
+
+    Ok(Self {
+      device_type,
+      code_version: metadata.code_version,
+      state_version: metadata.state_version,
+      major_desktop_version: metadata.major_desktop_version,
+    })
   }
 }
 
@@ -892,7 +934,7 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     let content_one_time_keys = device_key_upload.content_one_time_keys.clone();
@@ -901,7 +943,7 @@ impl DatabaseClient {
     let new_device = DeviceRow::from_device_key_upload(
       user_id_string.clone(),
       device_key_upload,
-      code_version,
+      platform_metadata,
       login_time,
     )?;
     let device_id = new_device.device_id.clone();
@@ -969,7 +1011,7 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
     initial_device_list: DeviceListUpdate,
   ) -> Result<(), Error> {
@@ -991,7 +1033,7 @@ impl DatabaseClient {
         let primary_device = DeviceRow::from_device_key_upload(
           &user_id,
           device_key_upload,
-          code_version,
+          platform_metadata,
           login_time,
         )?;
 
@@ -1024,7 +1066,7 @@ impl DatabaseClient {
     &self,
     user_id: impl Into<String>,
     device_key_upload: FlattenedDeviceKeyUpload,
-    code_version: u64,
+    platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
   ) -> Result<(), Error> {
     let user_id: String = user_id.into();
@@ -1033,7 +1075,7 @@ impl DatabaseClient {
         let new_device = DeviceRow::from_device_key_upload(
           &user_id,
           device_key_upload,
-          code_version,
+          platform_metadata,
           login_time,
         )?;
 
