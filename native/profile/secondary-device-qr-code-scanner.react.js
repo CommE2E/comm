@@ -7,6 +7,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { addDeviceToDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
@@ -23,10 +24,7 @@ import {
   type PeerToPeerMessage,
 } from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
 import { qrCodeAuthMessageTypes } from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import {
-  composeRawDeviceList,
-  rawDeviceListFromSignedList,
-} from 'lib/utils/device-list-utils.js';
+import { rawDeviceListFromSignedList } from 'lib/utils/device-list-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
@@ -36,7 +34,6 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
-  signDeviceListUpdate,
 } from '../qr-code/qr-code-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
@@ -89,40 +86,6 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     );
     await Promise.all(promises);
   }, [identityContext, tunnelbrokerContext]);
-
-  const addDeviceToList = React.useCallback(
-    async (newDeviceID: string) => {
-      const { getDeviceListHistoryForUser, updateDeviceList } =
-        identityContext.identityClient;
-      invariant(
-        updateDeviceList,
-        'updateDeviceList() should be defined for primary device',
-      );
-
-      const authMetadata = await identityContext.getAuthMetadata();
-      if (!authMetadata?.userID) {
-        throw new Error('missing auth metadata');
-      }
-
-      const deviceLists = await getDeviceListHistoryForUser(
-        authMetadata.userID,
-      );
-      invariant(deviceLists.length > 0, 'received empty device list history');
-
-      const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
-      const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
-
-      const { devices } = deviceList;
-      if (devices.includes(newDeviceID)) {
-        return;
-      }
-
-      const newDeviceList = composeRawDeviceList([...devices, newDeviceID]);
-      const signedDeviceList = await signDeviceListUpdate(newDeviceList);
-      await updateDeviceList(signedDeviceList);
-    },
-    [identityContext],
-  );
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -239,7 +202,11 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         if (!primaryDeviceID || !userID) {
           throw new Error('missing auth metadata');
         }
-        await addDeviceToList(ed25519);
+        await addDeviceToDeviceList(
+          identityContext.identityClient,
+          userID,
+          ed25519,
+        );
         const message = await composeTunnelbrokerQRAuthMessage(aes256, {
           type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
           userID,
@@ -259,7 +226,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         navigation.goBack();
       }
     },
-    [tunnelbrokerContext, addDeviceToList, identityContext, navigation],
+    [tunnelbrokerContext, identityContext, navigation],
   );
 
   const onCancelScan = React.useCallback(() => setScanned(false), []);
