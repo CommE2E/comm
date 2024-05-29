@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
@@ -11,6 +12,7 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import { AddMembersModal } from './add-members-modal.react.js';
@@ -18,6 +20,8 @@ import ThreadMembersList from './members-list.react.js';
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
 import Tabs, { type TabData } from '../../../components/tabs.react.js';
+import ManageInviteLinksModal from '../../../invite-links/manage-invite-links-modal.react.js';
+import ViewInviteLinkModal from '../../../invite-links/view-invite-link-modal.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import SearchModal from '../../search-modal.react.js';
 
@@ -117,14 +121,37 @@ function ThreadMembersModal(props: Props): React.Node {
 
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
-  const onClickAddMembers = React.useCallback(() => {
-    pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
-  }, [popModal, pushModal, threadID]);
-
-  const canAddMembers = useThreadHasPermission(
+  const inviteLink = useSelector(primaryInviteLinksSelector)[threadID];
+  const canManageLinks = useThreadHasPermission(
     threadInfo,
-    threadPermissions.ADD_MEMBERS,
+    threadPermissions.MANAGE_INVITE_LINKS,
   );
+
+  const isCommunityRoot = threadTypeIsCommunityRoot(threadInfo.type);
+
+  const onClickAddMembers = React.useCallback(() => {
+    if (!isCommunityRoot) {
+      pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
+    } else if (inviteLink) {
+      pushModal(<ViewInviteLinkModal inviteLink={inviteLink} />);
+    } else if (canManageLinks) {
+      pushModal(<ManageInviteLinksModal communityID={threadID} />);
+    }
+  }, [
+    canManageLinks,
+    inviteLink,
+    isCommunityRoot,
+    popModal,
+    pushModal,
+    threadID,
+  ]);
+
+  const canAddMembersViaInviteLink =
+    isCommunityRoot && (inviteLink || canManageLinks);
+
+  const canAddMembers =
+    useThreadHasPermission(threadInfo, threadPermissions.ADD_MEMBERS) ||
+    canAddMembersViaInviteLink;
 
   const addMembersButton = React.useMemo(() => {
     if (!canAddMembers) {
