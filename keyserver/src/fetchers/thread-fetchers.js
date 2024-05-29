@@ -289,6 +289,13 @@ function rawThreadInfosFromServerThreadInfos(
     native: 336,
     web: 79,
   });
+  const addingUsersToCommunityRootSupported = !hasMinCodeVersion(
+    viewer.platformDetails,
+    {
+      native: 999,
+      web: 999,
+    },
+  );
 
   const threadInfos: {
     [string]: LegacyRawThreadInfo | RawThreadInfo,
@@ -305,6 +312,7 @@ function rawThreadInfosFromServerThreadInfos(
         filterVoicedInAnnouncementChannelsPermission: codeVersionBelow283,
         minimallyEncodePermissions: minimallyEncodedPermissionsSupported,
         includeSpecialRoleFieldInRoles: specialRoleFieldSupported,
+        allowAddingUsersToCommunityRoot: addingUsersToCommunityRootSupported,
       },
     );
     if (threadInfo) {
