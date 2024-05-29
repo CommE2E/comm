@@ -559,6 +559,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = PeersDeviceListsResponse {
       users_device_lists: device_lists,
+      users_devices_platform_details: HashMap::new(),
     };
     Ok(Response::new(response))
   }
