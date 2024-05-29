@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use crate::config::CONFIG;
-use crate::database::DeviceListUpdate;
+use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::SignedDeviceList;
 use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
   constants::{error_types, request_metadata},
   database::DatabaseClient,
-  grpc_services::shared::get_value,
+  grpc_services::shared::{get_platform_metadata, get_value},
 };
 use chrono::DateTime;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
@@ -704,6 +704,25 @@ impl IdentityClientService for AuthenticatedService {
       identities: mapped_results,
     };
     return Ok(Response::new(response));
+  }
+
+  #[tracing::instrument(skip_all)]
+  async fn sync_platform_details(
+    &self,
+    request: tonic::Request<Empty>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+    let platform_metadata = get_platform_metadata(&request)?;
+    let platform_details = PlatformDetails::new(platform_metadata, None)
+      .map_err(|_| Status::invalid_argument("Invalid platform metadata"))?;
+
+    self
+      .db_client
+      .update_device_platform_details(user_id, device_id, platform_details)
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(Response::new(Empty {}))
   }
 }
 

@@ -58,7 +58,9 @@ mod farcaster;
 mod one_time_keys;
 mod token;
 mod workflows;
-pub use device_list::{DeviceListRow, DeviceListUpdate, DeviceRow};
+pub use device_list::{
+  DeviceListRow, DeviceListUpdate, DeviceRow, PlatformDetails,
+};
 
 use self::device_list::Prekey;
 

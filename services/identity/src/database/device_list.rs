@@ -902,6 +902,40 @@ impl DatabaseClient {
   }
 
   #[tracing::instrument(skip_all)]
+  pub async fn update_device_platform_details(
+    &self,
+    user_id: impl Into<String>,
+    device_id: impl Into<String>,
+    platform_details: PlatformDetails,
+  ) -> Result<(), Error> {
+    self
+      .client
+      .update_item()
+      .table_name(devices_table::NAME)
+      .key(ATTR_USER_ID, AttributeValue::S(user_id.into()))
+      .key(ATTR_ITEM_ID, DeviceIDAttribute(device_id.into()).into())
+      .condition_expression(
+        "attribute_exists(#user_id) AND attribute_exists(#item_id)",
+      )
+      .update_expression("SET #platform_details = :platform_details")
+      .expression_attribute_names("#user_id", ATTR_USER_ID)
+      .expression_attribute_names("#item_id", ATTR_ITEM_ID)
+      .expression_attribute_names("#platform_details", ATTR_PLATFORM_DETAILS)
+      .expression_attribute_values(":platform_details", platform_details.into())
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          errorType = error_types::DEVICE_LIST_DB_LOG,
+          "Failed to update device platform details: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
+  #[tracing::instrument(skip_all)]
   pub async fn get_current_device_list(
     &self,
     user_id: impl Into<String>,
