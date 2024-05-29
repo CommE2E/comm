@@ -24,7 +24,8 @@ use super::protos::auth::{
   PeersDeviceListsRequest, PeersDeviceListsResponse, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
-  UploadOneTimeKeysRequest, UserIdentitiesRequest, UserIdentitiesResponse,
+  UploadOneTimeKeysRequest, UserDevicesPlatformDetails, UserIdentitiesRequest,
+  UserIdentitiesResponse,
 };
 use super::protos::unauth::Empty;
 
@@ -520,27 +521,55 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<PeersDeviceListsRequest>,
   ) -> Result<tonic::Response<PeersDeviceListsResponse>, tonic::Status> {
     let PeersDeviceListsRequest { user_ids } = request.into_inner();
+    use crate::database::{DeviceListRow, DeviceRow};
+
+    async fn get_current_device_list_and_data(
+      db_client: DatabaseClient,
+      user_id: &str,
+    ) -> Result<(Option<DeviceListRow>, Vec<DeviceRow>), crate::error::Error>
+    {
+      let (list_result, data_result) = tokio::join!(
+        db_client.get_current_device_list(user_id),
+        db_client.get_current_devices(user_id)
+      );
+      Ok((list_result?, data_result?))
+    }
 
     // do all fetches concurrently
     let mut fetch_tasks = tokio::task::JoinSet::new();
     let mut device_lists = HashMap::with_capacity(user_ids.len());
+    let mut users_devices_platform_details =
+      HashMap::with_capacity(user_ids.len());
     for user_id in user_ids {
       let db_client = self.db_client.clone();
       fetch_tasks.spawn(async move {
-        let result = db_client.get_current_device_list(&user_id).await;
+        let result =
+          get_current_device_list_and_data(db_client, &user_id).await;
         (user_id, result)
       });
     }
 
     while let Some(task_result) = fetch_tasks.join_next().await {
       match task_result {
-        Ok((user_id, Ok(Some(device_list_row)))) => {
+        Ok((user_id, Ok((device_list, devices_data)))) => {
+          let Some(device_list_row) = device_list else {
+            warn!(user_id, "User has no device list, skipping!");
+            continue;
+          };
           let signed_list = SignedDeviceList::try_from(device_list_row)?;
           let serialized_list = signed_list.as_json_string()?;
-          device_lists.insert(user_id, serialized_list);
-        }
-        Ok((user_id, Ok(None))) => {
-          warn!(user_id, "User has no device list, skipping!");
+          device_lists.insert(user_id.clone(), serialized_list);
+
+          let devices_platform_details = devices_data
+            .into_iter()
+            .map(|data| (data.device_id, data.platform_details.into()))
+            .collect();
+          users_devices_platform_details.insert(
+            user_id,
+            UserDevicesPlatformDetails {
+              devices_platform_details,
+            },
+          );
         }
         Ok((user_id, Err(err))) => {
           error!(

@@ -532,6 +532,17 @@ impl TryFromAttribute for PlatformDetails {
   }
 }
 
+impl From<PlatformDetails> for protos::auth::PlatformDetails {
+  fn from(value: PlatformDetails) -> Self {
+    Self {
+      device_type: value.device_type.into(),
+      code_version: value.code_version,
+      state_version: value.state_version,
+      major_desktop_version: value.major_desktop_version,
+    }
+  }
+}
+
 impl TryFrom<AttributeMap> for DeviceListRow {
   type Error = DBItemError;
 
