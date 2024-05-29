@@ -10,6 +10,7 @@ import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
 import stores from 'lib/facts/stores.js';
+import { inviteSecretRegex } from 'lib/shared/invite-links.js';
 import getTitle from 'web/title/get-title.js';
 
 import { waitForStream } from '../utils/json-stream.js';
@@ -199,8 +200,6 @@ async function websiteResponder(req: $Request, res: $Response): Promise<void> {
     </html>
   `);
 }
-
-const inviteSecretRegex = /^[a-z0-9]+$/i;
 
 // On native, if this responder is called, it means that the app isn't
 // installed.

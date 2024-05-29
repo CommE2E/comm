@@ -3,7 +3,10 @@
 import Filter from 'bad-words';
 import uuid from 'uuid';
 
-import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
+import {
+  inviteLinkBlobHash,
+  inviteSecretRegex,
+} from 'lib/shared/invite-links.js';
 import type {
   CreateOrUpdatePublicLinkRequest,
   InviteLink,
@@ -33,14 +36,13 @@ import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
 import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
-const secretRegex = /^[a-zA-Z0-9]+$/;
 const badWordsFilter = new Filter();
 
 async function createOrUpdatePublicLink(
   viewer: Viewer,
   request: CreateOrUpdatePublicLinkRequest,
 ): Promise<InviteLink> {
-  if (!secretRegex.test(request.name)) {
+  if (!inviteSecretRegex.test(request.name)) {
     throw new ServerError('invalid_characters');
   }
   if (badWordsFilter.isProfane(request.name)) {
