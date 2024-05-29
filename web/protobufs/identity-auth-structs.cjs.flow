@@ -447,6 +447,54 @@ export type GetDeviceListResponseObject = {
   deviceListUpdatesList: Array<string>,
 }
 
+declare export class PlatformDetails extends Message {
+  getDeviceType(): identityStructs.DeviceType;
+  setDeviceType(value: identityStructs.DeviceType): PlatformDetails;
+
+  getCodeVersion(): number;
+  setCodeVersion(value: number): PlatformDetails;
+
+  getStateVersion(): number;
+  setStateVersion(value: number): PlatformDetails;
+  hasStateVersion(): boolean;
+  clearStateVersion(): PlatformDetails;
+
+  getMajorDesktopVersion(): number;
+  setMajorDesktopVersion(value: number): PlatformDetails;
+  hasMajorDesktopVersion(): boolean;
+  clearMajorDesktopVersion(): PlatformDetails;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PlatformDetailsObject;
+  static toObject(includeInstance: boolean, msg: PlatformDetails): PlatformDetailsObject;
+  static serializeBinaryToWriter(message: PlatformDetails, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PlatformDetails;
+  static deserializeBinaryFromReader(message: PlatformDetails, reader: BinaryReader): PlatformDetails;
+}
+
+export type PlatformDetailsObject = {
+  deviceType: identityStructs.DeviceType,
+  codeVersion: number,
+  stateVersion?: number,
+  majorDesktopVersion?: number,
+}
+
+declare export class UserDevicesPlatformDetails extends Message {
+  getDevicesPlatformDetailsMap(): ProtoMap<string, PlatformDetails>;
+  clearDevicesPlatformDetailsMap(): UserDevicesPlatformDetails;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UserDevicesPlatformDetailsObject;
+  static toObject(includeInstance: boolean, msg: UserDevicesPlatformDetails): UserDevicesPlatformDetailsObject;
+  static serializeBinaryToWriter(message: UserDevicesPlatformDetails, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UserDevicesPlatformDetails;
+  static deserializeBinaryFromReader(message: UserDevicesPlatformDetails, reader: BinaryReader): UserDevicesPlatformDetails;
+}
+
+export type UserDevicesPlatformDetailsObject = {
+  devicesPlatformDetailsMap: Array<[string, PlatformDetailsObject]>,
+}
+
 declare export class PeersDeviceListsRequest extends Message {
   getUserIdsList(): Array<string>;
   setUserIdsList(value: Array<string>): PeersDeviceListsRequest;
@@ -469,6 +517,9 @@ declare export class PeersDeviceListsResponse extends Message {
   getUsersDeviceListsMap(): ProtoMap<string, string>;
   clearUsersDeviceListsMap(): PeersDeviceListsResponse;
 
+  getUsersDevicesPlatformDetailsMap(): ProtoMap<string, UserDevicesPlatformDetails>;
+  clearUsersDevicesPlatformDetailsMap(): PeersDeviceListsResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): PeersDeviceListsResponseObject;
   static toObject(includeInstance: boolean, msg: PeersDeviceListsResponse): PeersDeviceListsResponseObject;
@@ -479,6 +530,7 @@ declare export class PeersDeviceListsResponse extends Message {
 
 export type PeersDeviceListsResponseObject = {
   usersDeviceListsMap: Array<[string, string]>,
+  usersDevicesPlatformDetailsMap: Array<[string, UserDevicesPlatformDetailsObject]>,
 }
 
 declare export class UpdateDeviceListRequest extends Message {
