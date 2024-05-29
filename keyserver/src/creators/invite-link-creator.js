@@ -7,6 +7,7 @@ import {
   inviteLinkBlobHash,
   inviteSecretRegex,
 } from 'lib/shared/invite-links.js';
+import { isStaff } from 'lib/shared/staff-utils.js';
 import type {
   CreateOrUpdatePublicLinkRequest,
   InviteLink,
@@ -48,7 +49,7 @@ async function createOrUpdatePublicLink(
   if (badWordsFilter.isProfane(request.name)) {
     throw new ServerError('offensive_words');
   }
-  if (reservedUsernamesSet.has(request.name)) {
+  if (!isStaff(viewer.id) && reservedUsernamesSet.has(request.name)) {
     throw new ServerError('link_reserved');
   }
 
