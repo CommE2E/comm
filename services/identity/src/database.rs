@@ -385,7 +385,7 @@ impl DatabaseClient {
     let user_devices = self.get_current_devices(user_id).await?;
     let maybe_keyserver_device = user_devices
       .into_iter()
-      .find(|device| device.device_type == GrpcDeviceType::Keyserver);
+      .find(|device| *device.device_type() == GrpcDeviceType::Keyserver);
 
     let Some(keyserver) = maybe_keyserver_device else {
       return Ok(None);
@@ -444,7 +444,7 @@ impl DatabaseClient {
     let user_devices = self.get_current_devices(user_id).await?;
     let maybe_keyserver_device_id = user_devices
       .into_iter()
-      .find(|device| device.device_type == GrpcDeviceType::Keyserver)
+      .find(|device| *device.device_type() == GrpcDeviceType::Keyserver)
       .map(|device| device.device_id);
 
     Ok(maybe_keyserver_device_id)
