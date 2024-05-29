@@ -105,10 +105,11 @@ pub mod devices_table {
   pub const DEVICE_LIST_KEY_PREFIX: &str = "devicelist-";
 
   // device-specific attrs
-  pub const ATTR_DEVICE_TYPE: &str = "deviceType";
+  pub const OLD_ATTR_DEVICE_TYPE: &str = "deviceType";
   pub const ATTR_DEVICE_KEY_INFO: &str = "deviceKeyInfo";
   pub const ATTR_CONTENT_PREKEY: &str = "contentPreKey";
   pub const ATTR_NOTIF_PREKEY: &str = "notifPreKey";
+  pub const ATTR_PLATFORM_DETAILS: &str = "platformDetails";
 
   // IdentityKeyInfo constants
   pub const ATTR_KEY_PAYLOAD: &str = "keyPayload";
@@ -118,6 +119,12 @@ pub mod devices_table {
   pub const ATTR_PREKEY: &str = "preKey";
   pub const ATTR_PREKEY_SIGNATURE: &str = "preKeySignature";
 
+  // PlatformDetails constants
+  pub const ATTR_DEVICE_TYPE: &str = "deviceType";
+  pub const ATTR_CODE_VERSION: &str = "codeVersion";
+  pub const ATTR_STATE_VERSION: &str = "stateVersion";
+  pub const ATTR_MAJOR_DESKTOP_VERSION: &str = "majorDesktopVersion";
+
   // device-list-specific attrs
   pub const ATTR_TIMESTAMP: &str = "timestamp";
   pub const ATTR_DEVICE_IDS: &str = "deviceIDs";
@@ -125,7 +132,7 @@ pub mod devices_table {
   pub const ATTR_LAST_SIGNATURE: &str = "lastPrimarySignature";
 
   // migration-specific attrs
-  pub const ATTR_CODE_VERSION: &str = "codeVersion";
+  pub const OLD_ATTR_CODE_VERSION: &str = "codeVersion";
   pub const ATTR_LOGIN_TIME: &str = "loginTime";
 
   // one-time key constants
