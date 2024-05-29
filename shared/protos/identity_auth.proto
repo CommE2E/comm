@@ -232,6 +232,20 @@ message GetDeviceListResponse {
 
 // GetDeviceListsForUsers
 
+// platform details for single device
+message PlatformDetails {
+  identity.unauth.DeviceType device_type = 1;
+  uint64 code_version = 2;
+  optional uint64 state_version = 3;
+  optional uint64 major_desktop_version = 4;
+}
+
+// platform details for user's devices
+message UserDevicesPlatformDetails {
+  // keys are device IDs
+  map<string, PlatformDetails> devices_platform_details = 1;
+}
+
 message PeersDeviceListsRequest {
   repeated string user_ids = 1;
 }
@@ -241,6 +255,9 @@ message PeersDeviceListsResponse {
   // values are JSON-stringified device list payloads
   // (see GetDeviceListResponse message for payload structure)
   map<string, string> users_device_lists = 1;
+
+  // keys are user IDs
+  map<string, UserDevicesPlatformDetails> users_devices_platform_details = 2;
 }
 
 // UpdateDeviceListForUser
