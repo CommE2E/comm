@@ -15,7 +15,6 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import CommunityCreationKeyserverLabel from './community-creation-keyserver-label.react.js';
-import CommunityCreationMembersModal from './community-creation-members-modal.react.js';
 import css from './community-creation-modal.css';
 import UserAvatar from '../../avatars/user-avatar.react.js';
 import CommIcon from '../../comm-icon.react.js';
@@ -111,12 +110,6 @@ function CommunityCreationModal(): React.Node {
     });
 
     modalContext.popModal();
-    modalContext.pushModal(
-      <CommunityCreationMembersModal
-        onClose={modalContext.popModal}
-        threadID={newThreadID}
-      />,
-    );
   }, [callCreateNewCommunity, dispatch, dispatchActionPromise, modalContext]);
 
   const megaphoneIcon = React.useMemo(
