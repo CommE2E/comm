@@ -84,6 +84,10 @@ service IdentityClientService {
   /* Miscellaneous actions */
 
   rpc FindUserIdentities(UserIdentitiesRequest) returns (UserIdentitiesResponse) {}
+
+  // Updates current device PlatformDetails stored on Identity Service.
+  // It doesn't require any imput - all values are passed via request metadata.
+  rpc SyncPlatformDetails(identity.unauth.Empty) returns (identity.unauth.Empty) {}
 }
 
 // Helper types
