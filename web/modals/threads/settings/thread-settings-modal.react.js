@@ -13,8 +13,8 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   getSingleOtherUser,
-  threadHasPermission,
   threadUIName,
+  useThreadHasPermission,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
@@ -97,43 +97,61 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
       return getAvailableRelationshipButtons(otherUserInfo);
     }, [otherUserInfo]);
 
+    const canEditThreadName = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_NAME,
+    );
+    const canEditThreadColor = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_COLOR,
+    );
+    const canEditThreadDescription = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_THREAD_DESCRIPTION,
+    );
+    const canEditThreadPermissions = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.EDIT_PERMISSIONS,
+    );
+    const canDeleteThread = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.DELETE_THREAD,
+    );
+
     const hasPermissionForTab = React.useCallback(
       // ESLint doesn't recognize that invariant always throws
       // eslint-disable-next-line consistent-return
-      (thread: ThreadInfo, tab: TabType) => {
+      (tab: TabType) => {
         if (tab === 'general') {
           return (
-            threadHasPermission(thread, threadPermissions.EDIT_THREAD_NAME) ||
-            threadHasPermission(thread, threadPermissions.EDIT_THREAD_COLOR) ||
-            threadHasPermission(
-              thread,
-              threadPermissions.EDIT_THREAD_DESCRIPTION,
-            )
+            canEditThreadName || canEditThreadColor || canEditThreadDescription
           );
         } else if (tab === 'privacy') {
-          return threadHasPermission(
-            thread,
-            threadPermissions.EDIT_PERMISSIONS,
-          );
+          return canEditThreadPermissions;
         } else if (tab === 'delete') {
-          return threadHasPermission(thread, threadPermissions.DELETE_THREAD);
+          return canDeleteThread;
         } else if (tab === 'relationship') {
           return true;
         }
         invariant(false, `invalid tab: ${tab}`);
       },
-      [],
+      [
+        canEditThreadName,
+        canEditThreadColor,
+        canEditThreadDescription,
+        canEditThreadPermissions,
+        canDeleteThread,
+      ],
     );
 
     React.useEffect(() => {
       if (
-        threadInfo &&
         currentTabType !== 'general' &&
-        !hasPermissionForTab(threadInfo, currentTabType)
+        !hasPermissionForTab(currentTabType)
       ) {
         setCurrentTabType('general');
       }
-    }, [currentTabType, hasPermissionForTab, threadInfo]);
+    }, [currentTabType, hasPermissionForTab]);
 
     React.useEffect(() => () => setErrorMessage(''), [currentTabType]);
 
@@ -162,7 +180,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
         result.push({ id: 'relationship', header: 'Relationship' });
       }
 
-      if (hasPermissionForTab(threadInfo, 'delete')) {
+      if (hasPermissionForTab('delete')) {
         result.push({ id: 'delete', header: 'Delete' });
       }
 
