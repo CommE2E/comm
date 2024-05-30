@@ -6,6 +6,7 @@ import { FlatList, TextInput } from 'react-native';
 import { createSelector } from 'reselect';
 
 import SearchIndex from 'lib/shared/search-index.js';
+import { reorderThreadSearchResults } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import Search from './search.react.js';
@@ -39,13 +40,13 @@ type Props = {
 };
 type State = {
   +searchText: string,
-  +searchResults: Set<string>,
+  +searchResults: $ReadOnlyArray<ThreadInfo>,
 };
 type PropsAndState = { ...Props, ...State };
 class ThreadList extends React.PureComponent<Props, State> {
   state: State = {
     searchText: '',
-    searchResults: new Set(),
+    searchResults: [],
   };
   textInput: ?React.ElementRef<typeof TextInput>;
 
@@ -59,13 +60,11 @@ class ThreadList extends React.PureComponent<Props, State> {
       (
         threadInfos: $ReadOnlyArray<ThreadInfo>,
         text: string,
-        searchResults: Set<string>,
+        searchResults: $ReadOnlyArray<ThreadInfo>,
       ): $ReadOnlyArray<ThreadInfo> =>
-        text
-          ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
-          : // We spread to make sure the result of this selector updates when
-            // any input param (namely itemStyle or itemTextStyle) changes
-            [...threadInfos],
+        // We spread to make sure the result of this selector updates when
+        // any input param (namely itemStyle or itemTextStyle) changes
+        text ? [...searchResults] : [...threadInfos],
     );
 
   get listData(): $ReadOnlyArray<ThreadInfo> {
@@ -126,7 +125,12 @@ class ThreadList extends React.PureComponent<Props, State> {
   onChangeSearchText = (searchText: string) => {
     invariant(this.props.searchIndex, 'should be set');
     const results = this.props.searchIndex.getSearchResults(searchText);
-    this.setState({ searchText, searchResults: new Set(results) });
+    const resultSet = new Set(results);
+    const threadInfoResults = reorderThreadSearchResults(
+      this.props.threadInfos,
+      resultSet,
+    );
+    this.setState({ searchText, searchResults: threadInfoResults });
   };
 
   searchRef = async (textInput: ?React.ElementRef<typeof TextInput>) => {
