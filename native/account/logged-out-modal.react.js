@@ -534,9 +534,12 @@ function LoggedOutModal(props: Props) {
     () => [styles.buttonText, styles.siweButtonText],
     [styles.buttonText, styles.siweButtonText],
   );
+  const buttonsViewOpacity = useAnimatedStyle(() => ({
+    opacity: buttonOpacity.value,
+  }));
   const buttonsViewStyle = React.useMemo(
-    () => [styles.buttonContainer, { opacity: buttonOpacity.value }],
-    [styles.buttonContainer, buttonOpacity],
+    () => [styles.buttonContainer, buttonsViewOpacity],
+    [styles.buttonContainer, buttonsViewOpacity],
   );
   const buttons = React.useMemo(() => {
     if (mode.curMode !== 'prompt') {
