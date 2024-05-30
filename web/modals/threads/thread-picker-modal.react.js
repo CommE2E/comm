@@ -4,7 +4,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors.js';
-import { useOnScreenEntryEditableThreadInfos } from 'lib/shared/thread-utils.js';
+import {
+  useOnScreenEntryEditableThreadInfos,
+  reorderThreadSearchResults,
+} from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
@@ -60,9 +63,9 @@ function ThreadPickerModal(props: Props): React.Node {
   );
 
   const [searchText, setSearchText] = React.useState<string>('');
-  const [searchResults, setSearchResults] = React.useState<Set<string>>(
-    new Set(),
-  );
+  const [searchResults, setSearchResults] = React.useState<
+    $ReadOnlyArray<ThreadInfo>,
+  >([]);
 
   const searchRef = React.useRef<?HTMLInputElement>();
 
@@ -74,16 +77,17 @@ function ThreadPickerModal(props: Props): React.Node {
     (text: string) => {
       const results = searchIndex.getSearchResults(text);
       setSearchText(text);
-      setSearchResults(new Set(results));
+      const threadInfoResults = reorderThreadSearchResults(
+        onScreenThreadInfos,
+        results,
+      );
+      setSearchResults(threadInfoResults);
     },
-    [searchIndex],
+    [searchIndex, onScreenThreadInfos],
   );
 
   const threads = React.useMemo(
-    () =>
-      searchText
-        ? onScreenThreadInfos.filter(thread => searchResults.has(thread.id))
-        : onScreenThreadInfos,
+    () => (searchText ? searchResults : onScreenThreadInfos),
     [searchText, onScreenThreadInfos, searchResults],
   );
 
