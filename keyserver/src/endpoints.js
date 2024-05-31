@@ -146,6 +146,7 @@ import {
   updatePasswordRequestInputValidator,
   updateUserSettingsInputValidator,
   claimUsernameResponder,
+  claimUsernameRequestInputValidator,
 } from './responders/user-responders.js';
 import {
   codeVerificationResponder,
@@ -459,7 +460,7 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   },
   claim_username: {
     responder: claimUsernameResponder,
-    inputValidator: ignoredArgumentValidator,
+    inputValidator: claimUsernameRequestInputValidator,
     policies: [],
   },
   update_user_avatar: {
