@@ -6,7 +6,7 @@ cd services/terraform/
 echo "Formatting terraform..."
 terraform fmt -recursive
 
-for cfg in dev remote; do
+for cfg in dev remote self-host; do
   pushd "$cfg" >/dev/null
   echo "Validating '$cfg' terraform configuration..."
   terraform validate
