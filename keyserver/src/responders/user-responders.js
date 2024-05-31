@@ -25,6 +25,7 @@ import type {
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
   PolicyAcknowledgmentRequest,
+  ClaimUsernameRequest,
   ClaimUsernameResponse,
 } from 'lib/types/account-types.js';
 import {
@@ -947,24 +948,46 @@ async function updateUserAvatarResponder(
   return await updateUserAvatar(viewer, request);
 }
 
+export const claimUsernameRequestInputValidator: TInterface<ClaimUsernameRequest> =
+  tShape<ClaimUsernameRequest>({
+    username: t.String,
+    password: tPassword,
+  });
+
 async function claimUsernameResponder(
   viewer: Viewer,
+  request: ClaimUsernameRequest,
 ): Promise<ClaimUsernameResponse> {
-  const [username, accountInfo] = await Promise.all([
-    fetchUsername(viewer.userID),
+  const username = request.username;
+
+  const userQuery = SQL`
+      SELECT id, hash, username
+      FROM users
+      WHERE LCASE(username) = LCASE(${request.username})
+    `;
+  const [[userResult], accountInfo] = await Promise.all([
+    dbQuery(userQuery),
     fetchOlmAccount('content'),
   ]);
 
-  if (!username) {
+  if (userResult.length === 0) {
     throw new ServerError('invalid_credentials');
   }
+
+  const userRow = userResult[0];
+
+  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const userID = userRow.id;
 
   const issuedAt = new Date().toISOString();
   const reservedUsernameMessage: ReservedUsernameMessage = {
     statement: 'This user is the owner of the following username and user ID',
     payload: {
       username,
-      userID: viewer.userID,
+      userID,
     },
     issuedAt,
   };
