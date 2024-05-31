@@ -27,13 +27,13 @@ declare module 'react-native-reanimated' {
   declare type ViewStyleProp = StyleObj;
   declare type TextStyleProp = StyleObj;
 
-  declare type StyleProps = {|
+  declare type StyleProps = $ReadOnly<{|
     ...ViewStyleProp,
     ...TextStyleProp,
     +originX?: number,
     +originY?: number,
     +[key: string]: any,
-  |};
+  |}>;
 
   declare class NodeImpl { }
 
@@ -44,9 +44,40 @@ declare module 'react-native-reanimated' {
 
   declare class ClockImpl extends NodeImpl { }
 
-  declare class ViewImpl extends React$Component<{ ... }> { }
-  declare class TextImpl extends React$Component<{ ... }> { }
-  declare class ImageImpl extends React$Component<{ ... }> { }
+  declare class ViewImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+  declare class TextImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+  declare class ImageImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+
   declare class CodeImpl extends React$Component<{
     +exec: NodeImpl,
     ...
@@ -216,12 +247,12 @@ declare module 'react-native-reanimated' {
   };
   declare type SpringUtilsModule = {
     +makeDefaultConfig: () => SpringConfig,
-    +makeConfigFromBouncinessAndSpeed: ({
+    +makeConfigFromBouncinessAndSpeed: ($ReadOnly<{
       ...SpringConfig,
       +bounciness: ?number,
       +speed: ?number,
       ...
-    }) => SpringConfig,
+    }>) => SpringConfig,
     ...
   };
 
@@ -334,10 +365,10 @@ declare module 'react-native-reanimated' {
     +restSpeedThreshold?: number,
   |};
 
-  declare type BaseBuilderAnimationConfig = {|
+  declare type BaseBuilderAnimationConfig = $ReadOnly<{|
     ...BaseLayoutAnimationConfig,
-    rotate?: number | string,
-  |};
+    +rotate?: number | string,
+  |}>;
 
   declare type LayoutAnimationAndConfig = [
     AnimationFunction,
@@ -434,6 +465,18 @@ declare module 'react-native-reanimated' {
 
   declare export class FadeOutDown extends ComplexAnimationBuilder {
     static createInstance(): FadeOutDown;
+
+    build(): AnimationConfigFunction<ExitAnimationsValues>;
+  }
+
+  declare export class FadeIn extends ComplexAnimationBuilder {
+    static createInstance(): FadeIn;
+
+    build(): AnimationConfigFunction<EntryAnimationsValues>;
+  }
+
+  declare export class FadeOut extends ComplexAnimationBuilder {
+    static createInstance(): FadeOut;
 
     build(): AnimationConfigFunction<ExitAnimationsValues>;
   }
