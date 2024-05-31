@@ -65,6 +65,7 @@ export const BackupMenuRouteName = 'BackupMenu';
 export const BlockListRouteName = 'BlockList';
 export const BuildInfoRouteName = 'BuildInfo';
 export const CalendarRouteName = 'Calendar';
+export const CalendarScreenRouteName = 'CalendarScreen';
 export const ChangeRolesScreenRouteName = 'ChangeRolesScreen';
 export const ChatCameraModalRouteName = 'ChatCameraModal';
 export const ChatRouteName = 'Chat';
@@ -268,6 +269,10 @@ export type ProfileParamList = {
   +FarcasterAccountSettings: void,
 };
 
+export type CalendarParamList = {
+  +CalendarScreen: void,
+};
+
 export type CommunityDrawerParamList = { +TabNavigator: void };
 
 export type RegistrationParamList = {
@@ -323,6 +328,7 @@ export type ScreenParamList = {
   ...ChatParamList,
   ...ChatTopTabsParamList,
   ...ProfileParamList,
+  ...CalendarParamList,
   ...CommunityDrawerParamList,
   ...RegistrationParamList,
   ...InviteLinkParamList,
