@@ -32,6 +32,7 @@ const unboundStyles = {
   },
   inactiveContainer: {
     opacity: 0,
+    height: 0,
   },
   saveButtonText: {
     color: 'link',
