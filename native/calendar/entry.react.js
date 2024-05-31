@@ -657,7 +657,7 @@ class InternalEntry extends React.Component<Props, State> {
       }
       if (this.needsDeleteAfterCreation) {
         this.needsDeleteAfterCreation = false;
-        this.dispatchDelete(response.entryID);
+        this.dispatchDelete(response.entryID, this.state.text);
       }
       return response;
     } catch (e) {
@@ -717,7 +717,7 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   delete: () => void = () => {
-    this.dispatchDelete(this.props.entryInfo.id);
+    this.dispatchDelete(this.props.entryInfo.id, this.props.entryInfo.text);
   };
 
   onPressEdit: () => void = () => {
@@ -728,7 +728,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
   };
 
-  dispatchDelete(serverID: ?string) {
+  dispatchDelete(serverID: ?string, prevText: string) {
     if (this.deleted) {
       return;
     } else if (this.creating) {
@@ -743,7 +743,7 @@ class InternalEntry extends React.Component<Props, State> {
         deleteEntryActionTypes,
         this.props.deleteEntry({
           entryID: serverID,
-          prevText: this.props.entryInfo.text,
+          prevText,
           calendarQuery: this.props.calendarQuery(),
         }),
         undefined,
