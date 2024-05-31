@@ -766,29 +766,25 @@ class InternalEntry extends React.Component<Props, State> {
   dispatchDelete(serverID: ?string) {
     if (this.deleted) {
       return;
+    } else if (this.creating) {
+      this.needsDeleteAfterCreation = true;
+      return;
     }
     this.deleted = true;
     LayoutAnimation.easeInEaseOut();
     const { localID } = this.props.entryInfo;
-    void this.props.dispatchActionPromise(
-      deleteEntryActionTypes,
-      this.deleteAction(serverID),
-      undefined,
-      { localID, serverID },
-    );
-  }
-
-  async deleteAction(serverID: ?string): Promise<?DeleteEntryResult> {
     if (serverID) {
-      return await this.props.deleteEntry({
-        entryID: serverID,
-        prevText: this.props.entryInfo.text,
-        calendarQuery: this.props.calendarQuery(),
-      });
-    } else if (this.creating) {
-      this.needsDeleteAfterCreation = true;
+      void this.props.dispatchActionPromise(
+        deleteEntryActionTypes,
+        this.props.deleteEntry({
+          entryID: serverID,
+          prevText: this.props.entryInfo.text,
+          calendarQuery: this.props.calendarQuery(),
+        }),
+        undefined,
+        { localID, serverID },
+      );
     }
-    return null;
   }
 
   onPressThreadName: () => void = () => {
