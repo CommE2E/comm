@@ -223,7 +223,7 @@ class InternalEntry extends React.Component<Props, State> {
   textInput: ?React.ElementRef<typeof BaseTextInput>;
   creating: boolean = false;
   needsUpdateAfterCreation: boolean = false;
-  needsDeleteAfterCreation: boolean = false;
+  needsDeleteAfterSave: boolean = false;
   nextSaveAttemptIndex: number = 0;
   mounted: boolean = false;
   deleted: boolean = false;
@@ -653,12 +653,13 @@ class InternalEntry extends React.Component<Props, State> {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
       this.creating = false;
+      this.currentlySaving = null;
       if (this.needsUpdateAfterCreation) {
         this.needsUpdateAfterCreation = false;
         this.dispatchSave(response.entryID, this.state.text);
       }
-      if (this.needsDeleteAfterCreation) {
-        this.needsDeleteAfterCreation = false;
+      if (this.needsDeleteAfterSave) {
+        this.needsDeleteAfterSave = false;
         this.dispatchDelete(response.entryID, this.state.text);
         response = {
           ...response,
@@ -694,7 +695,10 @@ class InternalEntry extends React.Component<Props, State> {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
-      if (this.deleted) {
+      this.currentlySaving = null;
+      if (this.needsDeleteAfterSave) {
+        this.needsDeleteAfterSave = false;
+        this.dispatchDelete(response.entryID, this.state.text);
         response = {
           ...response,
           updatesResult: this.patchUpdateInfosForDeletion(
@@ -766,8 +770,8 @@ class InternalEntry extends React.Component<Props, State> {
   dispatchDelete(serverID: ?string, prevText: string) {
     if (this.deleted) {
       return;
-    } else if (this.creating) {
-      this.needsDeleteAfterCreation = true;
+    } else if (this.creating || this.currentlySaving) {
+      this.needsDeleteAfterSave = true;
       return;
     }
     this.deleted = true;
