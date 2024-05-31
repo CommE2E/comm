@@ -12,6 +12,7 @@ type Props = {
   +navigation:
     | TabNavigationProp<'Chat'>
     | TabNavigationProp<'Profile'>
+    | TabNavigationProp<'Calendar'>
     | CommunityDrawerNavigationProp<'TabNavigator'>,
 };
 function CommunityDrawerButton(props: Props): React.Node {

@@ -59,7 +59,8 @@ import {
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
-import type { EntryInfoWithHeight } from './calendar.react.js';
+import type { EntryInfoWithHeight } from './calendar-screen.react.js';
+import type { CalendarNavigationProp } from './calendar.react.js';
 import LoadingIndicator from './loading-indicator.react.js';
 import {
   type MessageListParams,
@@ -76,7 +77,6 @@ import {
 } from '../navigation/nav-selectors.js';
 import { NavContext } from '../navigation/navigation-context.js';
 import { ThreadPickerModalRouteName } from '../navigation/route-names.js';
-import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { colors, useStyles } from '../themes/colors.js';
 import type { LayoutEvent } from '../types/react-native.js';
@@ -178,7 +178,7 @@ const unboundStyles = {
 };
 
 type SharedProps = {
-  +navigation: TabNavigationProp<'Calendar'>,
+  +navigation: CalendarNavigationProp<'CalendarScreen'>,
   +entryInfo: EntryInfoWithHeight,
   +visible: boolean,
   +active: boolean,
