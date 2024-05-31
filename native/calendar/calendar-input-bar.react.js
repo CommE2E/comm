@@ -1,10 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import Button from '../components/button.react.js';
 import { useStyles } from '../themes/colors.js';
+import { AnimatedView } from '../types/styles.js';
 
 type Props = {
   +onSave: () => void,
@@ -13,15 +15,21 @@ type Props = {
 function CalendarInputBar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const inactiveStyle = props.disabled ? styles.inactiveContainer : undefined;
+  const style = React.useMemo(
+    () => [styles.container, inactiveStyle],
+    [styles.container, inactiveStyle],
+  );
   return (
-    <View
-      style={[styles.container, inactiveStyle]}
+    <AnimatedView
+      style={style}
       pointerEvents={props.disabled ? 'none' : 'auto'}
+      entering={FadeIn}
+      exiting={FadeOut}
     >
       <Button onPress={props.onSave} iosActiveOpacity={0.5}>
         <Text style={styles.saveButtonText}>Save</Text>
       </Button>
-    </View>
+    </AnimatedView>
   );
 }
 
