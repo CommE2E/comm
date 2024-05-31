@@ -44,9 +44,40 @@ declare module 'react-native-reanimated' {
 
   declare class ClockImpl extends NodeImpl { }
 
-  declare class ViewImpl extends React$Component<{ ... }> { }
-  declare class TextImpl extends React$Component<{ ... }> { }
-  declare class ImageImpl extends React$Component<{ ... }> { }
+  declare class ViewImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+  declare class TextImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+  declare class ImageImpl extends React$Component<{
+    +entering?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    +exiting?:
+      | ReanimatedAnimationBuilder
+      | EntryExitAnimationFunction
+      | Keyframe,
+    ...
+  }> { }
+
   declare class CodeImpl extends React$Component<{
     +exec: NodeImpl,
     ...
@@ -336,7 +367,7 @@ declare module 'react-native-reanimated' {
 
   declare type BaseBuilderAnimationConfig = {|
     ...BaseLayoutAnimationConfig,
-    rotate?: number | string,
+    +rotate?: number | string,
   |};
 
   declare type LayoutAnimationAndConfig = [
@@ -434,6 +465,18 @@ declare module 'react-native-reanimated' {
 
   declare export class FadeOutDown extends ComplexAnimationBuilder {
     static createInstance(): FadeOutDown;
+
+    build(): AnimationConfigFunction<ExitAnimationsValues>;
+  }
+
+  declare export class FadeIn extends ComplexAnimationBuilder {
+    static createInstance(): FadeIn;
+
+    build(): AnimationConfigFunction<EntryAnimationsValues>;
+  }
+
+  declare export class FadeOut extends ComplexAnimationBuilder {
+    static createInstance(): FadeOut;
 
     build(): AnimationConfigFunction<ExitAnimationsValues>;
   }
