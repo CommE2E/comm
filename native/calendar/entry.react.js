@@ -723,7 +723,7 @@ class InternalEntry extends React.Component<Props, State> {
   onPressEdit: () => void = () => {
     if (this.state.editing) {
       this.completeEdit();
-    } else {
+    } else if (this.state.loadingStatus !== 'loading') {
       this.guardedSetState({ editing: true });
     }
   };
