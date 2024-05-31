@@ -49,6 +49,8 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { updateTypes } from 'lib/types/update-types-enum.js';
+import type { ServerCreateUpdatesResponse } from 'lib/types/update-types.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -635,7 +637,7 @@ class InternalEntry extends React.Component<Props, State> {
     invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     try {
-      const response = await this.props.createEntry({
+      let response = await this.props.createEntry({
         text,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
@@ -658,6 +660,12 @@ class InternalEntry extends React.Component<Props, State> {
       if (this.needsDeleteAfterCreation) {
         this.needsDeleteAfterCreation = false;
         this.dispatchDelete(response.entryID);
+        response = {
+          ...response,
+          updatesResult: this.patchUpdateInfosForDeletion(
+            response.updatesResult,
+          ),
+        };
       }
       return response;
     } catch (e) {
@@ -676,7 +684,7 @@ class InternalEntry extends React.Component<Props, State> {
   ): Promise<SaveEntryPayload> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     try {
-      const response = await this.props.saveEntry({
+      let response = await this.props.saveEntry({
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
@@ -685,6 +693,14 @@ class InternalEntry extends React.Component<Props, State> {
       });
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: 'inactive' });
+      }
+      if (this.deleted) {
+        response = {
+          ...response,
+          updatesResult: this.patchUpdateInfosForDeletion(
+            response.updatesResult,
+          ),
+        };
       }
       return { ...response, threadID: this.props.entryInfo.threadID };
     } catch (e) {
@@ -714,6 +730,25 @@ class InternalEntry extends React.Component<Props, State> {
       }
       throw e;
     }
+  }
+
+  patchUpdateInfosForDeletion(
+    updatesResponse: ServerCreateUpdatesResponse,
+  ): ServerCreateUpdatesResponse {
+    const { viewerUpdates, ...rest } = updatesResponse;
+    const patchedViewerUpdates = viewerUpdates.map(update => {
+      if (update.type !== updateTypes.UPDATE_ENTRY) {
+        return update;
+      }
+      return {
+        ...update,
+        entryInfo: {
+          ...update.entryInfo,
+          deleted: true,
+        },
+      };
+    });
+    return { viewerUpdates: patchedViewerUpdates, ...rest };
   }
 
   delete: () => void = () => {
