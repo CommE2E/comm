@@ -150,13 +150,25 @@ function TabComponent(props: Props): React.Node {
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
 
+  let calendarTab;
+  if (isCalendarEnabled) {
+    calendarTab = (
+      <Tab.Screen
+        name={CalendarRouteName}
+        component={Calendar}
+        options={calendarTabOptions}
+      />
+    );
+  }
+
   const headerLeft = React.useCallback(
     () => <CommunityDrawerButton navigation={props.navigation} />,
     [props.navigation],
   );
 
-  const headerCommonOptions = React.useMemo(
+  const appsOptions = React.useMemo(
     () => ({
+      ...appsTabOptions,
       headerShown: true,
       headerLeft,
       headerStyle: {
@@ -165,27 +177,6 @@ function TabComponent(props: Props): React.Node {
       headerShadowVisible: false,
     }),
     [colors.tabBarBackground, headerLeft],
-  );
-
-  const calendarOptions = React.useMemo(
-    () => ({ ...calendarTabOptions, ...headerCommonOptions }),
-    [headerCommonOptions],
-  );
-
-  let calendarTab;
-  if (isCalendarEnabled) {
-    calendarTab = (
-      <Tab.Screen
-        name={CalendarRouteName}
-        component={Calendar}
-        options={calendarOptions}
-      />
-    );
-  }
-
-  const appsOptions = React.useMemo(
-    () => ({ ...appsTabOptions, ...headerCommonOptions }),
-    [headerCommonOptions],
   );
 
   const tabBarScreenOptions = React.useMemo(
