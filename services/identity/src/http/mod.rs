@@ -1,8 +1,11 @@
 use http::Method;
 use hyper::{Body, Request, Response};
 
+mod errors;
 type HttpRequest = Request<Body>;
 type HttpResponse = Response<Body>;
+
+type ErrorResponse = Result<HttpResponse, errors::BoxedError>;
 
 /// Main router for HTTP requests
 #[tracing::instrument(skip_all, name = "http_request", fields(request_id))]
