@@ -14,6 +14,7 @@ mod device_list;
 pub mod error;
 mod grpc_services;
 mod grpc_utils;
+mod http;
 mod id;
 mod keygen;
 mod nonce;
@@ -78,9 +79,10 @@ async fn main() -> Result<(), BoxedError> {
       );
       let inner_auth_service =
         AuthenticatedService::new(database_client.clone());
+      let db_client = database_client.clone();
       let auth_service =
         AuthServer::with_interceptor(inner_auth_service, move |req| {
-          grpc_services::authenticated::auth_interceptor(req, &database_client)
+          grpc_services::authenticated::auth_interceptor(req, &db_client)
             .and_then(grpc_services::shared::version_interceptor)
         });
 
@@ -100,7 +102,7 @@ async fn main() -> Result<(), BoxedError> {
         .add_service(auth_service)
         .serve(addr);
 
-      let websocket_server = websockets::run_server();
+      let websocket_server = websockets::run_server(database_client);
 
       return tokio::select! {
         websocket_result = websocket_server => websocket_result,
