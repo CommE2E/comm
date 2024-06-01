@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use futures::lock::Mutex;
 use futures_util::{SinkExt, StreamExt};
-use hyper::{Body, Request, Response, StatusCode};
+use hyper::{Body, Request, Response};
 use hyper_tungstenite::tungstenite::Message;
 use hyper_tungstenite::HyperWebsocket;
 use identity_search_messages::{
@@ -48,6 +48,7 @@ struct Username {
 
 struct WebsocketService {
   addr: SocketAddr,
+  db_client: crate::DatabaseClient,
 }
 
 impl hyper::service::Service<Request<Body>> for WebsocketService {
@@ -65,6 +66,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
   fn call(&mut self, mut req: Request<Body>) -> Self::Future {
     let addr = self.addr;
+    let db_client = self.db_client.clone();
 
     let future = async move {
       debug!(
@@ -83,20 +85,17 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
         return Ok(response);
       }
 
-      let response = match req.uri().path() {
-        "/health" => Response::new(Body::from("OK")),
-        _ => Response::builder()
-          .status(StatusCode::NOT_FOUND)
-          .body(Body::from("Not found"))?,
-      };
-      Ok(response)
+      // If not a websocker upgrade, treat it as regular HTTP request
+      crate::http::handle_http_request(req, db_client).await
     };
     Box::pin(future)
   }
 }
 
 #[tracing::instrument(skip_all)]
-pub async fn run_server() -> Result<(), errors::BoxedError> {
+pub async fn run_server(
+  db_client: crate::DatabaseClient,
+) -> Result<(), errors::BoxedError> {
   let addr: SocketAddr = IDENTITY_SERVICE_WEBSOCKET_ADDR.parse()?;
   let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
 
@@ -107,8 +106,9 @@ pub async fn run_server() -> Result<(), errors::BoxedError> {
   http.http1_keep_alive(true);
 
   while let Ok((stream, addr)) = listener.accept().await {
+    let db_client = db_client.clone();
     let connection = http
-      .serve_connection(stream, WebsocketService { addr })
+      .serve_connection(stream, WebsocketService { addr, db_client })
       .with_upgrades();
 
     tokio::spawn(async move {
