@@ -1,8 +1,11 @@
-use http::StatusCode;
 use hyper::{Body, Request, Response};
+
+mod errors;
 
 type HttpRequest = Request<Body>;
 type HttpResponse = Response<Body>;
+
+type ErrorResponse = Result<HttpResponse, errors::BoxedError>;
 
 /// Main router for HTTP requests
 #[tracing::instrument(skip_all, name = "http_request", fields(request_id))]
@@ -15,9 +18,7 @@ pub(super) async fn handle_http_request(
 
   let response = match req.uri().path() {
     "/health" => Response::new(Body::from("OK")),
-    _ => Response::builder()
-      .status(StatusCode::NOT_FOUND)
-      .body(Body::from("Not found"))?,
+    _ => errors::http404("Not found")?,
   };
   Ok(response)
 }
