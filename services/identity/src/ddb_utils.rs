@@ -9,6 +9,7 @@ use comm_lib::{
   },
   database::{AttributeExtractor, AttributeMap},
 };
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::iter::IntoIterator;
 
@@ -160,13 +161,18 @@ pub fn into_one_time_update_and_delete_requests(
   transactions
 }
 
+#[derive(Serialize)]
 pub struct DBIdentity {
   pub identifier: Identifier,
+  #[serde(rename = "farcasterID")]
   pub farcaster_id: Option<String>,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Identifier {
   Username(String),
+  #[serde(rename = "ethereumIdentity")]
   WalletAddress(EthereumIdentity),
 }
 
@@ -179,6 +185,8 @@ impl Identifier {
   }
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EthereumIdentity {
   pub wallet_address: String,
   pub social_proof: SocialProof,
