@@ -14,6 +14,7 @@ use comm_lib::{
     DynamoDBError, TryFromAttribute,
   },
 };
+use serde::Serialize;
 use tracing::{debug, error, trace, warn};
 
 use crate::{
@@ -36,17 +37,24 @@ use super::DatabaseClient;
 
 // We omit the content and notif one-time key count attributes from this struct
 // because they are internal helpers and are not provided by users
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeviceRow {
+  #[serde(skip)]
   pub user_id: String,
+  #[serde(skip)]
   pub device_id: String,
+
+  #[serde(rename = "identityKeyInfo")]
   pub device_key_info: IdentityKeyInfo,
   pub content_prekey: Prekey,
   pub notif_prekey: Prekey,
-  pub platform_details: PlatformDetails,
 
   /// Timestamp of last login (access token generation)
+  #[serde(skip)]
   pub login_time: DateTime<Utc>,
+  #[serde(skip)]
+  pub platform_details: PlatformDetails,
 }
 
 #[derive(Clone, Debug)]
@@ -61,24 +69,36 @@ pub struct DeviceListRow {
   pub last_primary_signature: Option<String>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdentityKeyInfo {
   pub key_payload: String,
   pub key_payload_signature: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Prekey {
   pub prekey: String,
   pub prekey_signature: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PlatformDetails {
+  #[serde(serialize_with = "serialize_device_type")]
   device_type: DeviceType,
   code_version: u64,
   state_version: Option<u64>,
   major_desktop_version: Option<u64>,
+}
+
+fn serialize_device_type<S: serde::Serializer>(
+  device_type: &DeviceType,
+  s: S,
+) -> Result<S::Ok, S::Error> {
+  let v = device_type.as_str_name().to_lowercase();
+  v.serialize(s)
 }
 
 /// A struct representing device list update payload
