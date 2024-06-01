@@ -1,6 +1,6 @@
 use base64::{engine::general_purpose, Engine as _};
 use ed25519_dalek::{PublicKey, Signature, Verifier};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tonic::Status;
 use tracing::warn;
 
@@ -84,9 +84,13 @@ pub fn ed25519_verify(
   Ok(())
 }
 
+#[derive(Serialize)]
 pub struct DeviceKeysInfo {
+  #[serde(flatten)]
   pub device_info: DeviceRow,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub content_one_time_key: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub notif_one_time_key: Option<String>,
 }
 

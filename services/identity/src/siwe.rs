@@ -6,6 +6,7 @@ use comm_lib::{
   database::{AttributeExtractor, AttributeMap, TryFromAttribute},
 };
 use regex::Regex;
+use serde::Serialize;
 use siwe::Message;
 use tonic::Status;
 use tracing::error;
@@ -61,7 +62,7 @@ pub fn is_valid_ethereum_address(candidate: &str) -> bool {
   ethereum_address_regex.is_match(candidate)
 }
 
-#[derive(derive_more::Constructor)]
+#[derive(derive_more::Constructor, Serialize)]
 pub struct SocialProof {
   pub message: String,
   pub signature: String,
