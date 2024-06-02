@@ -1,6 +1,7 @@
 use hyper::{Body, Request, Response};
 
 mod errors;
+mod handlers;
 
 type HttpRequest = Request<Body>;
 type HttpResponse = Response<Body>;
