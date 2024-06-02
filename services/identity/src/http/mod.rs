@@ -3,6 +3,8 @@ use hyper::{Body, Request, Response};
 
 mod errors;
 mod handlers;
+mod utils;
+
 type HttpRequest = Request<Body>;
 type HttpResponse = Response<Body>;
 
@@ -21,6 +23,12 @@ pub(super) async fn handle_http_request(
 
   match req.uri().path() {
     "/health" => Response::new(Body::from("OK")).into_response(),
+    "/inbound_keys" => match req.method() {
+      &Method::GET => handlers::inbound_keys_handler(req, db_client)
+        .await
+        .into_response(),
+      _ => errors::http405().into_response(),
+    },
     _ => errors::http404("Not found").into_response(),
   }
 }
