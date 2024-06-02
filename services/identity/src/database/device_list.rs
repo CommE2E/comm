@@ -1034,8 +1034,11 @@ impl DatabaseClient {
     // returns boolean determining if the new device list is valid.
     validator_fn: impl Fn(&[&str], &[&str]) -> bool,
   ) -> Result<DeviceListRow, Error> {
+    use std::collections::HashSet;
+
     let new_list = update.devices.clone();
-    self
+    let mut devices_being_removed: Vec<String> = Vec::new();
+    let update_result = self
       .transact_update_devicelist(user_id, |current_list, _| {
         crate::device_list::verify_device_list_signatures(
           current_list.first(),
@@ -1053,12 +1056,37 @@ impl DatabaseClient {
           ));
         }
 
+        // collect device IDs that were removed
+        let previous_set: HashSet<&str> =
+          previous_device_ids.into_iter().collect();
+        let new_set: HashSet<&str> = new_device_ids.into_iter().collect();
+        devices_being_removed
+          .extend(previous_set.difference(&new_set).map(ToString::to_string));
+
         debug!("Applying device list update");
         *current_list = new_list;
 
         Ok(UpdateOperationInfo::primary_device_issued(update))
       })
-      .await
+      .await?;
+
+    // delete device data and invalidate CSAT for removed devices
+    debug!(
+      "{} devices have been removed from device list. Clearing data...",
+      devices_being_removed.len()
+    );
+    for device_id in devices_being_removed {
+      trace!("Invalidating CSAT for device {}", device_id);
+      self.delete_access_token_data(user_id, &device_id).await?;
+      trace!("Clearing keys for device {}", device_id);
+      self.remove_device_data(user_id, &device_id).await?;
+      trace!("Pruning OTKs for device {}", device_id);
+      self
+        .delete_otks_table_rows_for_user_device(user_id, &device_id)
+        .await?;
+    }
+
+    Ok(update_result)
   }
 
   /// Performs a transactional update of the device list for the user. Afterwards
