@@ -9,12 +9,12 @@ use commtest::identity::device::{
 use commtest::identity::SigningCapableAccount;
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
-use grpc_clients::identity::get_auth_client;
 use grpc_clients::identity::protos::auth::{
   PeersDeviceListsRequest, UpdateDeviceListRequest,
 };
 use grpc_clients::identity::protos::authenticated::GetDeviceListRequest;
 use grpc_clients::identity::DeviceType;
+use grpc_clients::identity::{get_auth_client, PlatformMetadata};
 use serde::{Deserialize, Serialize};
 
 // 1. register user with android device
@@ -41,8 +41,7 @@ async fn test_device_list_rotation() {
     viewer.user_id.clone(),
     viewer.device_id,
     viewer.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -107,8 +106,7 @@ async fn test_update_device_list_rpc() {
     primary_device.user_id.clone(),
     primary_device.device_id,
     primary_device.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -170,8 +168,7 @@ async fn test_device_list_signatures() {
     user.user_id.clone(),
     user.device_id,
     user.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -270,8 +267,7 @@ async fn test_keyserver_force_login() {
     viewer.user_id.clone(),
     viewer.device_id,
     viewer.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -335,8 +331,7 @@ async fn test_device_list_multifetch() {
     viewer.user_id.clone(),
     viewer.device_id,
     viewer.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -413,8 +408,7 @@ async fn test_initial_device_list() {
     user.user_id.clone(),
     user.device_id,
     user.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");

@@ -2,6 +2,7 @@ use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
+use grpc_clients::identity::PlatformMetadata;
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
   protos::auth::{Identity, UserIdentitiesRequest},
@@ -16,8 +17,7 @@ async fn find_user_id_by_username() {
 
   let mut client = get_unauthenticated_client(
     &service_addr::IDENTITY_GRPC.to_string(),
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -48,8 +48,7 @@ async fn find_username_for_user() {
     device_info.user_id.clone(),
     device_info.device_id,
     device_info.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
