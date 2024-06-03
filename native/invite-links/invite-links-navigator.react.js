@@ -8,6 +8,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+
 import ManagePublicLinkScreen from './manage-public-link-screen.react.js';
 import ViewInviteLinksHeaderLeftButton from './view-invite-links-header-left-button.react.js';
 import ViewInviteLinksScreen from './view-invite-links-screen.react.js';
@@ -46,6 +48,20 @@ const managePublicLinkOptions = {
   headerBackTitleVisible: false,
   headerLeft: HeaderBackButton,
 };
+
+export type InviteLinksNavigatorParams =
+  | {
+      +screen: 'ViewInviteLinks',
+      +params: {
+        +community: ThreadInfo,
+      },
+    }
+  | {
+      +screen: 'ManagePublicLink',
+      +params: {
+        +community: ThreadInfo,
+      },
+    };
 
 type Props = {
   +navigation: RootNavigationProp<'InviteLinkNavigator'>,
