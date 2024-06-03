@@ -8,6 +8,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResult } from 'lib/types/thread-types.js';
@@ -19,6 +20,7 @@ import RegistrationButtonContainer from '../account/registration/registration-bu
 import RegistrationButton from '../account/registration/registration-button.react.js';
 import RegistrationContainer from '../account/registration/registration-container.react.js';
 import RegistrationContentContainer from '../account/registration/registration-content-container.react.js';
+import { useNavigateToThread } from '../chat/message-list-types.js';
 import {
   ThreadSettingsCategoryFooter,
   ThreadSettingsCategoryHeader,
@@ -26,10 +28,7 @@ import {
 import EnumSettingsOption from '../components/enum-settings-option.react.js';
 import TextInput from '../components/text-input.react.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
-import {
-  CommunityCreationMembersRouteName,
-  type NavigationRoute,
-} from '../navigation/route-names.js';
+import { type NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
@@ -41,11 +40,10 @@ type Props = {
 const createNewCommunityLoadingStatusSelector =
   createLoadingStatusSelector(newThreadActionTypes);
 
+// eslint-disable-next-line no-unused-vars
 function CommunityConfiguration(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-
-  const { navigate } = props.navigation;
 
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -87,25 +85,27 @@ function CommunityConfiguration(props: Props): React.Node {
     pendingCommunityName,
   ]);
 
+  const [newCommunityID, setNewCommunityID] = React.useState<?string>(null);
+
   const createNewCommunity = React.useCallback(async () => {
     setErrorMessage();
     const newThreadResultPromise = callCreateNewCommunity();
     void dispatchActionPromise(newThreadActionTypes, newThreadResultPromise);
     const newThreadResult = await newThreadResultPromise;
 
-    navigate<'CommunityCreationMembers'>({
-      name: CommunityCreationMembersRouteName,
-      params: {
-        announcement: announcementSetting,
-        threadID: newThreadResult.newThreadID,
-      },
-    });
-  }, [
-    announcementSetting,
-    callCreateNewCommunity,
-    dispatchActionPromise,
-    navigate,
-  ]);
+    setNewCommunityID(newThreadResult.newThreadID);
+  }, [callCreateNewCommunity, dispatchActionPromise]);
+
+  const navigateToThread = useNavigateToThread();
+  const threadInfos = useSelector(threadInfoSelector);
+
+  React.useEffect(() => {
+    if (!newCommunityID) {
+      return;
+    }
+    const communityThreadInfo = threadInfos[newCommunityID];
+    navigateToThread({ threadInfo: communityThreadInfo });
+  }, [navigateToThread, newCommunityID, threadInfos]);
 
   const onCheckBoxPress = React.useCallback(() => {
     setErrorMessage();
