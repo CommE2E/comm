@@ -1406,7 +1406,7 @@ mod migration {
     if !verify_device_list_match(list, devices_data) {
       error!(
         errorType = error_types::DEVICE_LIST_DB_LOG,
-        "Found corrupt device list for user (userID={})!", user_id
+        "Device list for user (userID={}) out of sync!", user_id
       );
       return;
     }
@@ -1450,8 +1450,9 @@ mod migration {
     devices_data: &[DeviceRow],
   ) -> bool {
     if list.len() != devices_data.len() {
-      error!(
-        errorType = error_types::DEVICE_LIST_DB_LOG,
+      debug!(
+        list_len = list.len(),
+        data_len = devices_data.len(),
         "Device list length mismatch!"
       );
       return false;
@@ -1464,13 +1465,13 @@ mod migration {
 
     let device_list_set = list.iter().collect::<HashSet<_>>();
 
-    if let Some(corrupt_device_id) = device_list_set
+    if let Some(unknown_device_id) = device_list_set
       .symmetric_difference(&actual_device_ids)
       .next()
     {
-      error!(
-        errorType = error_types::DEVICE_LIST_DB_LOG,
-        "Device list is corrupt (unknown deviceID={})", corrupt_device_id
+      debug!(
+        "Device list and data out of sync (unknown deviceID={})",
+        unknown_device_id
       );
       return false;
     }
