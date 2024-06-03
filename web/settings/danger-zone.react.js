@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import AccountDeleteModal from './account-delete-modal.react.js';
 import css from './danger-zone.css';
@@ -14,6 +15,13 @@ function DangerZone(): React.Node {
     () => pushModal(<AccountDeleteModal />),
     [pushModal],
   );
+
+  // Once we're using the identity service for auth, a user may only delete
+  // their Comm account using their primary device. Their primary device cannot
+  // be a web device at this time, so we hide the Danger Zone from web users.
+  if (usingCommServicesAccessToken) {
+    return null;
+  }
 
   return (
     <div className={css.container}>
