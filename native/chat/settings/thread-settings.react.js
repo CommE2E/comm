@@ -19,6 +19,7 @@ import {
   removeUsersFromThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   childThreadInfos,
@@ -40,7 +41,10 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypes,
+  threadTypeIsCommunityRoot,
+} from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedOptionalThreadInfo,
@@ -85,7 +89,12 @@ import {
   type OverlayContextType,
 } from '../../navigation/overlay-context.js';
 import {
+  InviteLinkNavigatorRouteName,
+  ViewInviteLinksRouteName,
+  ManagePublicLinkRouteName,
   AddUsersModalRouteName,
+} from '../../navigation/route-names.js';
+import {
   ComposeSubchannelModalRouteName,
   FullScreenThreadMediaGalleryRouteName,
   type NavigationRoute,
@@ -284,6 +293,8 @@ type Props = {
   +canAddMembers: boolean,
   +canLeaveThread: boolean,
   +canDeleteThread: boolean,
+  +canManageInviteLinks: boolean,
+  +inviteLinkExists: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -1080,10 +1091,26 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 
   onPressAddMember = () => {
-    this.props.navigation.navigate(AddUsersModalRouteName, {
-      presentedFrom: this.props.route.key,
-      threadInfo: this.props.threadInfo,
-    });
+    if (this.props.inviteLinkExists) {
+      this.props.navigation.navigate(InviteLinkNavigatorRouteName, {
+        screen: ViewInviteLinksRouteName,
+        params: {
+          community: this.props.threadInfo,
+        },
+      });
+    } else if (this.props.canManageInviteLinks) {
+      this.props.navigation.navigate(InviteLinkNavigatorRouteName, {
+        screen: ManagePublicLinkRouteName,
+        params: {
+          community: this.props.threadInfo,
+        },
+      });
+    } else {
+      this.props.navigation.navigate(AddUsersModalRouteName, {
+        presentedFrom: this.props.route.key,
+        threadInfo: this.props.threadInfo,
+      });
+    }
   };
 
   onPressSeeMoreMembers = () => {
@@ -1276,11 +1303,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       threadPermissions.CREATE_SUBCHANNELS,
     );
 
-    const canAddMembers = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.ADD_MEMBERS,
-    );
-
     const canLeaveThread = useThreadHasPermission(
       threadInfo,
       threadPermissions.LEAVE_THREAD,
@@ -1290,6 +1312,25 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       threadInfo,
       threadPermissions.DELETE_THREAD,
     );
+
+    const isCommunityRoot = threadTypeIsCommunityRoot(threadInfo.type);
+
+    const canManageLinks = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.MANAGE_INVITE_LINKS,
+    );
+    const inviteLink = useSelector(primaryInviteLinksSelector)[threadInfo.id];
+    const canAddMembersViaInviteLink =
+      isCommunityRoot && (!!inviteLink || canManageLinks);
+
+    const hasAddMembersPermission = useThreadHasPermission(
+      threadInfo,
+      threadPermissions.ADD_MEMBERS,
+    );
+    const canAddMembersManually = hasAddMembersPermission && !isCommunityRoot;
+
+    const canAddMembers = canAddMembersManually || canAddMembersViaInviteLink;
+
     return (
       <ThreadSettings
         {...props}
@@ -1312,6 +1353,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         canAddMembers={canAddMembers}
         canLeaveThread={canLeaveThread}
         canDeleteThread={canDeleteThread}
+        canManageInviteLinks={canManageLinks}
+        inviteLinkExists={!!inviteLink}
       />
     );
   });
