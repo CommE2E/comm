@@ -19,6 +19,7 @@ import {
   removeUsersFromThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { useAddUsersPermissions } from 'lib/permissions/add-users-permissions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   childThreadInfos,
@@ -85,7 +86,12 @@ import {
   type OverlayContextType,
 } from '../../navigation/overlay-context.js';
 import {
+  InviteLinkNavigatorRouteName,
+  ViewInviteLinksRouteName,
+  ManagePublicLinkRouteName,
   AddUsersModalRouteName,
+} from '../../navigation/route-names.js';
+import {
   ComposeSubchannelModalRouteName,
   FullScreenThreadMediaGalleryRouteName,
   type NavigationRoute,
@@ -284,6 +290,8 @@ type Props = {
   +canAddMembers: boolean,
   +canLeaveThread: boolean,
   +canDeleteThread: boolean,
+  +canManageInviteLinks: boolean,
+  +inviteLinkExists: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -1080,10 +1088,26 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 
   onPressAddMember = () => {
-    this.props.navigation.navigate(AddUsersModalRouteName, {
-      presentedFrom: this.props.route.key,
-      threadInfo: this.props.threadInfo,
-    });
+    if (this.props.inviteLinkExists) {
+      this.props.navigation.navigate(InviteLinkNavigatorRouteName, {
+        screen: ViewInviteLinksRouteName,
+        params: {
+          community: this.props.threadInfo,
+        },
+      });
+    } else if (this.props.canManageInviteLinks) {
+      this.props.navigation.navigate(InviteLinkNavigatorRouteName, {
+        screen: ManagePublicLinkRouteName,
+        params: {
+          community: this.props.threadInfo,
+        },
+      });
+    } else {
+      this.props.navigation.navigate(AddUsersModalRouteName, {
+        presentedFrom: this.props.route.key,
+        threadInfo: this.props.threadInfo,
+      });
+    }
   };
 
   onPressSeeMoreMembers = () => {
@@ -1276,11 +1300,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       threadPermissions.CREATE_SUBCHANNELS,
     );
 
-    const canAddMembers = useThreadHasPermission(
-      threadInfo,
-      threadPermissions.ADD_MEMBERS,
-    );
-
     const canLeaveThread = useThreadHasPermission(
       threadInfo,
       threadPermissions.LEAVE_THREAD,
@@ -1290,6 +1309,10 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       threadInfo,
       threadPermissions.DELETE_THREAD,
     );
+
+    const { inviteLink, canManageLinks, canAddMembers } =
+      useAddUsersPermissions(threadInfo);
+
     return (
       <ThreadSettings
         {...props}
@@ -1312,6 +1335,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
         canAddMembers={canAddMembers}
         canLeaveThread={canLeaveThread}
         canDeleteThread={canDeleteThread}
+        canManageInviteLinks={canManageLinks}
+        inviteLinkExists={!!inviteLink}
       />
     );
   });
