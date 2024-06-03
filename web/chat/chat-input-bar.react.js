@@ -28,7 +28,7 @@ import { trimMessage, getNextLocalID } from 'lib/shared/message-utils.js';
 import {
   checkIfDefaultMembersAreVoiced,
   threadActualMembers,
-  threadFrozenDueToViewerBlock,
+  useThreadFrozenDueToViewerBlock,
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
@@ -85,6 +85,7 @@ type Props = {
   +communityThreadInfo: ?ThreadInfo,
   +currentUserIsVoiced: boolean,
   +currentUserCanJoinThread: boolean,
+  +threadFrozen: boolean,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -343,12 +344,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         </div>
       );
     } else if (
-      threadFrozenDueToViewerBlock(
-        this.props.threadInfo,
-        this.props.communityThreadInfo,
-        this.props.viewerID,
-        this.props.userInfos,
-      ) &&
+      this.props.threadFrozen &&
       threadActualMembers(this.props.threadInfo.members).length === 2
     ) {
       content = (
@@ -593,6 +589,13 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       community ? threadInfoSelector(state)[community] : null,
     );
 
+    const threadFrozen = useThreadFrozenDueToViewerBlock(
+      props.threadInfo,
+      communityThreadInfo,
+      viewerID,
+      userInfos,
+    );
+
     const currentUserIsVoiced = useThreadHasPermission(
       props.threadInfo,
       threadPermissions.VOICED,
@@ -685,6 +688,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         communityThreadInfo={communityThreadInfo}
         currentUserIsVoiced={currentUserIsVoiced}
         currentUserCanJoinThread={currentUserCanJoinThread}
+        threadFrozen={threadFrozen}
       />
     );
   });
