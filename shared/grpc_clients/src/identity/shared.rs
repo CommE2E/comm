@@ -5,15 +5,25 @@ use tonic::{
 };
 
 pub struct CodeVersionLayer {
-  pub(crate) version: u64,
+  pub(crate) code_version: u64,
   pub(crate) device_type: String,
+  pub(crate) state_version: Option<u64>,
+  pub(crate) major_desktop_version: Option<u64>,
 }
 
 impl Interceptor for CodeVersionLayer {
   fn call(&mut self, mut request: Request<()>) -> Result<Request<()>, Status> {
     let metadata = request.metadata_mut();
-    metadata.insert("code_version", self.version.parse_to_ascii()?);
+    metadata.insert("code_version", self.code_version.parse_to_ascii()?);
     metadata.insert("device_type", self.device_type.parse_to_ascii()?);
+
+    if let Some(state_version) = self.state_version {
+      metadata.insert("state_version", state_version.parse_to_ascii()?);
+    }
+    if let Some(desktop_version) = self.major_desktop_version {
+      metadata
+        .insert("major_desktop_version", desktop_version.parse_to_ascii()?);
+    }
 
     Ok(request)
   }
