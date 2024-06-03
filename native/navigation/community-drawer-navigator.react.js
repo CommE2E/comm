@@ -55,6 +55,7 @@ function CommunityDrawerNavigator(props: Props): React.Node {
       headerShown: false,
       swipeEnabled,
       swipeEdgeWidth: screenWidth,
+      keyboardDismissMode: 'none',
     }),
     [styles.drawerStyle, swipeEnabled, screenWidth],
   );
