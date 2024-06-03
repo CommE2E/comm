@@ -4,11 +4,42 @@ use tonic::{
   Request, Status,
 };
 
+#[derive(Clone, Debug)]
+pub struct PlatformMetadata {
+  pub device_type: String,
+  pub code_version: u64,
+  pub state_version: Option<u64>,
+  pub major_desktop_version: Option<u64>,
+}
+
 pub struct CodeVersionLayer {
   pub(crate) code_version: u64,
   pub(crate) device_type: String,
   pub(crate) state_version: Option<u64>,
   pub(crate) major_desktop_version: Option<u64>,
+}
+
+impl PlatformMetadata {
+  /// Simplified constructor for basic params only
+  fn new(code_version: u64, device_type: impl Into<String>) -> Self {
+    Self {
+      code_version,
+      device_type: device_type.into(),
+      state_version: None,
+      major_desktop_version: None,
+    }
+  }
+}
+
+impl From<PlatformMetadata> for CodeVersionLayer {
+  fn from(value: PlatformMetadata) -> Self {
+    Self {
+      code_version: value.code_version,
+      device_type: value.device_type,
+      state_version: value.state_version,
+      major_desktop_version: value.major_desktop_version,
+    }
+  }
 }
 
 impl Interceptor for CodeVersionLayer {

@@ -4,13 +4,7 @@ use tracing::trace;
 
 use crate::constants::{request_metadata, MIN_SUPPORTED_NATIVE_VERSION};
 
-#[derive(Clone, Debug)]
-pub struct PlatformMetadata {
-  pub device_type: String,
-  pub code_version: u64,
-  pub state_version: Option<u64>,
-  pub major_desktop_version: Option<u64>,
-}
+pub use grpc_clients::identity::shared::PlatformMetadata;
 
 pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
   trace!("Intercepting request to check version: {:?}", req);
