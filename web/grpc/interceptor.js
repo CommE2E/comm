@@ -18,10 +18,20 @@ class VersionInterceptor<Request, Response> {
     ) => Promise<grpcWeb.UnaryResponse<Request, Response>>,
   ): Promise<grpcWeb.UnaryResponse<Request, Response>> {
     const metadata = request.getMetadata();
-    const codeVersion = this.platformDetails.codeVersion;
-    const deviceType = this.platformDetails.platform;
+    const {
+      codeVersion,
+      stateVersion,
+      majorDesktopVersion,
+      platform: deviceType,
+    } = this.platformDetails;
     if (codeVersion) {
       metadata['code_version'] = codeVersion.toString();
+    }
+    if (stateVersion) {
+      metadata['state_version'] = stateVersion.toString();
+    }
+    if (majorDesktopVersion) {
+      metadata['major_desktop_version'] = majorDesktopVersion.toString();
     }
     metadata['device_type'] = deviceType;
 
