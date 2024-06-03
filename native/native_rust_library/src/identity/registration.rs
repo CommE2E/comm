@@ -1,6 +1,6 @@
 use crate::{
-  utils::jsi_callbacks::handle_string_result_as_callback, Error, CODE_VERSION,
-  DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
+  utils::jsi_callbacks::handle_string_result_as_callback, Error,
+  IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use comm_opaque2::client::Registration;
 use grpc_clients::identity::{
@@ -16,7 +16,7 @@ use tracing::instrument;
 use super::{
   farcaster::farcaster_id_string_to_option, IdentityAuthResult,
   RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
-  RegisterReservedWalletUserInfo, RegisterWalletUserInfo,
+  RegisterReservedWalletUserInfo, RegisterWalletUserInfo, PLATFORM_METADATA,
 };
 
 #[allow(clippy::too_many_arguments)]
@@ -201,12 +201,9 @@ async fn register_password_user_helper(
     initial_device_list: password_user_info.initial_device_list,
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
   let response = identity_client
     .register_password_user_start(registration_start_request)
     .await?;
@@ -249,12 +246,9 @@ async fn register_reserved_password_user_helper(
     initial_device_list: password_user_info.initial_device_list,
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
   let response = identity_client
     .register_reserved_password_user_start(registration_start_request)
     .await?;
@@ -292,12 +286,9 @@ async fn register_wallet_user_helper(
     initial_device_list: wallet_user_info.initial_device_list,
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let registration_response = identity_client
     .register_wallet_user(registration_request)
@@ -320,12 +311,9 @@ async fn register_reserved_wallet_user_helper(
     initial_device_list: wallet_user_info.initial_device_list,
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let registration_response = identity_client
     .register_reserved_wallet_user(registration_request)

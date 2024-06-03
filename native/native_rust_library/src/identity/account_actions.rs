@@ -8,7 +8,9 @@ use grpc_clients::identity::protos::unauth::Empty;
 
 use crate::identity::AuthInfo;
 use crate::utils::jsi_callbacks::handle_void_result_as_callback;
-use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
+use crate::{Error, IDENTITY_SOCKET_ADDR, RUNTIME};
+
+use super::PLATFORM_METADATA;
 
 pub mod ffi {
   use super::*;
@@ -124,8 +126,7 @@ async fn update_user_password_helper(
     update_password_info.user_id,
     update_password_info.device_id,
     update_password_info.access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 
@@ -160,8 +161,7 @@ async fn delete_wallet_user_helper(auth_info: AuthInfo) -> Result<(), Error> {
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
   identity_client.delete_wallet_user(Empty {}).await?;
@@ -178,8 +178,7 @@ async fn delete_password_user_helper(
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 
@@ -227,8 +226,7 @@ async fn log_out_helper(
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 
