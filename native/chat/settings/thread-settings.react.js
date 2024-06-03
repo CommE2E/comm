@@ -13,6 +13,10 @@ import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
 
 import {
+  fetchPrimaryInviteLinkActionTypes,
+  useFetchPrimaryInviteLinks,
+} from 'lib/actions/link-actions.js';
+import {
   changeThreadMemberRolesActionTypes,
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
@@ -51,6 +55,7 @@ import {
   useResolvedOptionalThreadInfos,
   useResolvedThreadInfo,
 } from 'lib/utils/entity-helpers.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import ThreadSettingsAvatar from './thread-settings-avatar.react.js';
 import type { CategoryType } from './thread-settings-category.react.js';
@@ -1330,6 +1335,18 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
     const canAddMembersManually = hasAddMembersPermission && !isCommunityRoot;
 
     const canAddMembers = canAddMembersManually || canAddMembersViaInviteLink;
+
+    const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
+    const dispatchActionPromise = useDispatchActionPromise();
+    React.useEffect(() => {
+      if (!isCommunityRoot) {
+        return;
+      }
+      void dispatchActionPromise(
+        fetchPrimaryInviteLinkActionTypes,
+        callFetchPrimaryLinks(),
+      );
+    }, [callFetchPrimaryLinks, dispatchActionPromise, isCommunityRoot]);
 
     return (
       <ThreadSettings
