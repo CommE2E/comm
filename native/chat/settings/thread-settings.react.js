@@ -13,6 +13,10 @@ import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
 
 import {
+  fetchPrimaryInviteLinkActionTypes,
+  useFetchPrimaryInviteLinks,
+} from 'lib/actions/link-actions.js';
+import {
   changeThreadMemberRolesActionTypes,
   changeThreadSettingsActionTypes,
   leaveThreadActionTypes,
@@ -48,6 +52,7 @@ import {
   useResolvedOptionalThreadInfos,
   useResolvedThreadInfo,
 } from 'lib/utils/entity-helpers.js';
+import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import ThreadSettingsAvatar from './thread-settings-avatar.react.js';
 import type { CategoryType } from './thread-settings-category.react.js';
@@ -1310,8 +1315,23 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> =
       threadPermissions.DELETE_THREAD,
     );
 
-    const { inviteLink, canManageLinks, canAddMembers } =
+    const { inviteLink, canManageLinks, canAddMembers, isCommunityRoot } =
       useAddUsersPermissions(threadInfo);
+
+    const callFetchPrimaryLinks = useFetchPrimaryInviteLinks();
+    const dispatchActionPromise = useDispatchActionPromise();
+    // Because we don't support updates and persistance for invite links,
+    // we have to fetch them whenever we want to display them.
+    // Here we need invite links for the "Add users" button in ThreadSettings
+    React.useEffect(() => {
+      if (!isCommunityRoot) {
+        return;
+      }
+      void dispatchActionPromise(
+        fetchPrimaryInviteLinkActionTypes,
+        callFetchPrimaryLinks(),
+      );
+    }, [callFetchPrimaryLinks, dispatchActionPromise, isCommunityRoot]);
 
     return (
       <ThreadSettings
