@@ -1,9 +1,11 @@
-use grpc_clients::identity::get_unauthenticated_client;
 use grpc_clients::identity::protos::unauth::{
   AuthResponse, DeviceKeyUpload, Empty, IdentityKeyInfo, Prekey,
 };
+use grpc_clients::identity::{get_unauthenticated_client, PlatformMetadata};
+use lazy_static::lazy_static;
 use serde::Serialize;
 
+use crate::generated::STATE_VERSION;
 use crate::utils::jsi_callbacks::{
   handle_bool_result_as_callback, handle_string_result_as_callback,
 };
@@ -18,6 +20,15 @@ pub mod find_user_identities;
 pub mod login;
 pub mod registration;
 pub mod x3dh;
+
+lazy_static! {
+  pub static ref PLATFORM_METADATA: PlatformMetadata = PlatformMetadata {
+    device_type: DEVICE_TYPE.as_str_name().to_lowercase(),
+    code_version: CODE_VERSION,
+    state_version: Some(STATE_VERSION),
+    major_desktop_version: None,
+  };
+}
 
 pub mod ffi {
   use super::*;
@@ -172,12 +183,9 @@ impl From<AuthResponse> for IdentityAuthResult {
 // API implementation helpers
 
 async fn fetch_nonce() -> Result<String, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
   let nonce = identity_client
     .generate_nonce(Empty {})
     .await?
@@ -187,12 +195,9 @@ async fn fetch_nonce() -> Result<String, Error> {
 }
 
 async fn version_supported_helper() -> Result<bool, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
   let response = identity_client.ping(Empty {}).await;
   match response {
     Ok(_) => Ok(true),

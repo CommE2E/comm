@@ -17,4 +17,5 @@ pub mod protos {
 
 pub use authenticated::get_auth_client;
 pub use device::DeviceType;
+pub use shared::PlatformMetadata;
 pub use unauthenticated::get_unauthenticated_client;
