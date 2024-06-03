@@ -7,7 +7,9 @@ use std::collections::HashMap;
 
 use crate::identity::AuthInfo;
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
-use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
+use crate::{Error, IDENTITY_SOCKET_ADDR, RUNTIME};
+
+use super::PLATFORM_METADATA;
 
 pub mod ffi {
   use super::*;
@@ -92,8 +94,7 @@ async fn find_user_identities_helper(
     auth_info.user_id,
     auth_info.device_id,
     auth_info.access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 

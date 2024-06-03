@@ -23,6 +23,7 @@ use grpc_clients::identity::protos::authenticated::{
 };
 use grpc_clients::identity::protos::unauthenticated as client_proto;
 use grpc_clients::identity::shared::CodeVersionLayer;
+use grpc_clients::identity::PlatformMetadata;
 use lazy_static::lazy_static;
 use napi::bindgen_prelude::*;
 use serde::{Deserialize, Serialize};
@@ -91,8 +92,7 @@ async fn get_identity_client() -> Result<
 
   grpc_clients::identity::get_unauthenticated_client(
     &IDENTITY_SERVICE_CONFIG.identity_socket_addr,
-    CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .map_err(|e| {
@@ -115,8 +115,7 @@ async fn get_authenticated_identity_client(
     user_id,
     device_id,
     access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .map_err(|e| {

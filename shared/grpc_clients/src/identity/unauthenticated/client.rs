@@ -1,5 +1,5 @@
 /// This file is meant to contain commonly used RPCs
-use crate::error::Error;
+use crate::{error::Error, identity::PlatformMetadata};
 
 use super::get_unauthenticated_client;
 use crate::identity::protos::unauthenticated::{
@@ -17,8 +17,11 @@ pub async fn verify_user_access_token(
   code_version: u64,
   device_type: String,
 ) -> Result<bool, Error> {
-  let mut grpc_client =
-    get_unauthenticated_client(identity_url, code_version, device_type).await?;
+  let mut grpc_client = get_unauthenticated_client(
+    identity_url,
+    PlatformMetadata::new(code_version, device_type),
+  )
+  .await?;
 
   let message = VerifyUserAccessTokenRequest {
     user_id: user_id.to_string(),
@@ -36,8 +39,11 @@ pub async fn ping(
   code_version: u64,
   device_type: String,
 ) -> Result<(), Error> {
-  let mut grpc_client =
-    get_unauthenticated_client(identity_url, code_version, device_type).await?;
+  let mut grpc_client = get_unauthenticated_client(
+    identity_url,
+    PlatformMetadata::new(code_version, device_type),
+  )
+  .await?;
   let request = Request::new(Empty {});
   grpc_client.ping(request).await?;
   Ok(())

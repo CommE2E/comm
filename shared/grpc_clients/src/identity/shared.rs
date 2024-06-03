@@ -21,7 +21,7 @@ pub struct CodeVersionLayer {
 
 impl PlatformMetadata {
   /// Simplified constructor for basic params only
-  fn new(code_version: u64, device_type: impl Into<String>) -> Self {
+  pub fn new(code_version: u64, device_type: impl Into<String>) -> Self {
     Self {
       code_version,
       device_type: device_type.into(),
