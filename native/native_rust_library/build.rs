@@ -92,12 +92,10 @@ impl ServiceConfig for BackupServiceConfig {
   }
 }
 
-fn main() {
-  let _cxx_build =
-    cxx_build::bridge("src/lib.rs").flag_if_supported("-std=c++17");
-
+fn get_code_version() -> u64 {
   const HEADER_PATH: &str = "../cpp/CommonCpp/NativeModules/CommCoreModule.h";
   let header_path = Path::new(HEADER_PATH);
+  println!("cargo:rerun-if-changed={}", HEADER_PATH);
 
   let content =
     fs::read_to_string(header_path).expect("Failed to read CommCoreModule.h");
@@ -118,22 +116,87 @@ fn main() {
     .captures(version_line)
     .and_then(|cap| cap.get(1))
     .map_or_else(
-      || panic!("Failed to capture version number"),
+      || panic!("Failed to capture code version number"),
       |m| {
         m.as_str()
           .parse::<u64>()
-          .expect("Failed to parse version number")
+          .expect("Failed to parse code version number")
       },
     );
 
-  let out_dir = env::var("OUT_DIR").expect("Error fetching OUT_DIR env var");
+  version
+}
+
+fn get_state_version() -> u64 {
+  const SOURCE_PATH: &str = "../redux/persist.js";
+  let source_path = Path::new(SOURCE_PATH);
+  println!("cargo:rerun-if-changed={}", SOURCE_PATH);
+
+  let content =
+    fs::read_to_string(source_path).expect("Failed to read persist.js");
+  let content_lines = content.lines();
+
+  // We search file contents for `version:` line that
+  // is located between `const persistConfig = {`
+  // and `};`.
+  let search_start = content_lines
+    .clone()
+    .position(|line| line.contains("const persistConfig = "))
+    .expect("Failed to find persistConfig start");
+
+  let search_length = content_lines
+    .clone()
+    .skip(search_start)
+    .position(|line| line.contains("};"))
+    .expect("Failed to find persistConfig end");
+
+  let version_line = content_lines
+    .skip(search_start)
+    .take(search_length)
+    .find(|it| it.contains("version:"))
+    .expect("Failed to find state version line");
+
+  // The regex searches for the string "version:", followed by any
+  // number of whitespace characters, a series of one or more digits (which it captures),
+  // some more optional whitespace, and finally a comma.
+  let re = Regex::new(r"version:\s*(\d+)\s*,")
+    .expect("Failed to compile regular expression");
+  let version: u64 = re
+    .captures(version_line)
+    .and_then(|cap| cap.get(1))
+    .map_or_else(
+      || panic!("Failed to capture state version number"),
+      |m| {
+        m.as_str()
+          .parse::<u64>()
+          .expect("Failed to parse state version number")
+      },
+    );
+
+  version
+}
+
+/// Creates version.rs containing CODE_VERSION and STATE_VERSION constants
+fn write_version_constants(out_dir: &str) {
+  let code_version = get_code_version();
+  let state_version = get_state_version();
   let version_path = Path::new(&out_dir).join("version.rs");
 
-  fs::write(
-    version_path,
-    format!("pub const CODE_VERSION: u64 = {};", version),
-  )
-  .expect("Failed to write version.rs");
+  let file_contents = [
+    format!("pub const CODE_VERSION: u64 = {};", code_version),
+    format!("pub const STATE_VERSION: u64 = {};", state_version),
+  ]
+  .join("\n");
+
+  fs::write(version_path, file_contents).expect("Failed to write version.rs");
+}
+
+fn main() {
+  let _cxx_build =
+    cxx_build::bridge("src/lib.rs").flag_if_supported("-std=c++17");
+
+  let out_dir = env::var("OUT_DIR").expect("Error fetching OUT_DIR env var");
+  write_version_constants(&out_dir);
 
   let identity_config = IdentityServiceConfig::get_config();
   let backup_config = BackupServiceConfig::get_config();
@@ -150,7 +213,6 @@ fn main() {
     .expect("Couldn't write backup service config");
 
   println!("cargo:rerun-if-changed=src/lib.rs");
-  println!("cargo:rerun-if-changed={}", HEADER_PATH);
   println!("cargo:rerun-if-changed={}", IdentityServiceConfig::FILEPATH);
   println!("cargo:rerun-if-changed={}", BackupServiceConfig::FILEPATH);
 }
