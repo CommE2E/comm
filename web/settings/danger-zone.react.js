@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import AccountDeleteModal from './account-delete-modal.react.js';
 import css from './danger-zone.css';
@@ -14,6 +15,10 @@ function DangerZone(): React.Node {
     () => pushModal(<AccountDeleteModal />),
     [pushModal],
   );
+
+  if (usingCommServicesAccessToken) {
+    return null;
+  }
 
   return (
     <div className={css.container}>

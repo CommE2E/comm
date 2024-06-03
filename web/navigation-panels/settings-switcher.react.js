@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import NavigationPanel from './navigation-panel.react.js';
 import css from './settings-switcher.css';
@@ -66,14 +67,16 @@ function SettingsSwitcher(): React.Node {
     },
     [dispatch],
   );
-  const dangerZoneNavigationItem = React.useMemo(
-    () => (
+  const dangerZoneNavigationItem = React.useMemo(() => {
+    if (usingCommServicesAccessToken) {
+      return null;
+    }
+    return (
       <a className={css.navigationPanelTab} onClick={onClickDangerZone}>
         <p>Danger Zone</p>
       </a>
-    ),
-    [onClickDangerZone],
-  );
+    );
+  }, [onClickDangerZone]);
 
   return (
     <NavigationPanel.Container tabSelector={navSettingsSectionSelector}>
