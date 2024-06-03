@@ -1339,6 +1339,9 @@ const reportStoreTransform: Transform = createTransform(
   { whitelist: ['reportStore'] },
 );
 
+// NOTE: renaming this object, and especially the `version` property
+// requires updating `native/native_rust_library/build.rs` to correctly
+// scrap Redux state version from this file.
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
