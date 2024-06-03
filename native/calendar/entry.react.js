@@ -226,6 +226,8 @@ class InternalEntry extends React.Component<Props, State> {
   mounted: boolean = false;
   deleted: boolean = false;
   currentlySaving: ?string;
+  creationPromise: ?Promise<mixed>;
+  savePromise: ?Promise<mixed>;
 
   constructor(props: Props) {
     super(props);
@@ -618,12 +620,12 @@ class InternalEntry extends React.Component<Props, State> {
 
     this.guardedSetState({ loadingStatus: 'loading' });
     if (!serverID) {
-      void this.props.dispatchActionPromise(
+      this.creationPromise = this.props.dispatchActionPromise(
         createEntryActionTypes,
         this.createAction(newText),
       );
     } else {
-      void this.props.dispatchActionPromise(
+      this.savePromise = this.props.dispatchActionPromise(
         saveEntryActionTypes,
         this.saveAction(serverID, newText),
       );
@@ -652,14 +654,17 @@ class InternalEntry extends React.Component<Props, State> {
       }
       this.creating = false;
       this.currentlySaving = null;
-      if (this.needsUpdateAfterCreation) {
-        this.needsUpdateAfterCreation = false;
-        this.dispatchSave(response.entryID, this.state.text);
-      }
-      if (this.needsDeleteAfterSave) {
-        this.needsDeleteAfterSave = false;
-        this.dispatchDelete(response.entryID, this.state.text);
-      }
+      void (async () => {
+        await this.creationPromise;
+        if (this.needsUpdateAfterCreation) {
+          this.needsUpdateAfterCreation = false;
+          this.dispatchSave(response.entryID, this.state.text);
+        }
+        if (this.needsDeleteAfterSave) {
+          this.needsDeleteAfterSave = false;
+          this.dispatchDelete(response.entryID, this.state.text);
+        }
+      })();
       return response;
     } catch (e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
@@ -688,10 +693,13 @@ class InternalEntry extends React.Component<Props, State> {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
       this.currentlySaving = null;
-      if (this.needsDeleteAfterSave) {
-        this.needsDeleteAfterSave = false;
-        this.dispatchDelete(response.entryID, this.state.text);
-      }
+      void (async () => {
+        await this.savePromise;
+        if (this.needsDeleteAfterSave) {
+          this.needsDeleteAfterSave = false;
+          this.dispatchDelete(response.entryID, this.state.text);
+        }
+      })();
       return { ...response, threadID: this.props.entryInfo.threadID };
     } catch (e) {
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
