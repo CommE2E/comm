@@ -19,8 +19,10 @@ pub async fn get_unauthenticated_client(
 > {
   let channel = crate::get_grpc_service_channel(url).await?;
   let version_interceptor = CodeVersionLayer {
-    version: code_version,
     device_type,
+    code_version,
+    state_version: None,
+    major_desktop_version: None,
   };
   Ok(IdentityClientServiceClient::with_interceptor(
     channel,
