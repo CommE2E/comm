@@ -139,10 +139,6 @@ impl BlobService {
     invite_secret: &str,
   ) -> Result<(), BlobServiceError> {
     let lowercase_secret = invite_secret.to_lowercase();
-    if (RESERVED_USERNAME_SET.contains(&lowercase_secret)) {
-      debug!("Reserved invite link");
-      return Err(BlobServiceError::InviteLinkError(InviteLinkError::Reserved));
-    }
     if (OFFENSIVE_INVITE_LINKS_REGEX_SET.is_match(&lowercase_secret)) {
       debug!("Offensive invite link");
       return Err(BlobServiceError::InviteLinkError(
