@@ -60,7 +60,7 @@ import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
   threadActualMembers,
-  threadFrozenDueToViewerBlock,
+  useThreadFrozenDueToViewersBlock,
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
@@ -315,6 +315,7 @@ type Props = {
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +currentUserIsVoiced: boolean,
   +currentUserCanJoin: boolean,
+  +threadFrozen: boolean,
 };
 type State = {
   +text: string,
@@ -701,12 +702,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.shouldShowTextInput) {
       content = this.renderInput();
     } else if (
-      threadFrozenDueToViewerBlock(
-        this.props.threadInfo,
-        this.props.communityThreadInfo,
-        this.props.viewerID,
-        this.props.userInfos,
-      ) &&
+      this.props.threadFrozen &&
       threadActualMembers(this.props.threadInfo.members).length === 2
     ) {
       content = (
@@ -1269,6 +1265,13 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     community ? threadInfoSelector(state)[community] : null,
   );
 
+  const threadFrozen = useThreadFrozenDueToViewersBlock(
+    props.threadInfo,
+    communityThreadInfo,
+    viewerID,
+    userInfos,
+  );
+
   const userMentionsCandidates = useUserMentionsCandidates(
     props.threadInfo,
     parentThreadInfo,
@@ -1376,6 +1379,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       typeaheadMatchedStrings={typeaheadMatchedStrings}
       currentUserIsVoiced={currentUserIsVoiced}
       currentUserCanJoin={currentUserCanJoin}
+      threadFrozen={threadFrozen}
     />
   );
 }
