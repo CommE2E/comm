@@ -39,6 +39,7 @@ import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
 import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
 import type { TagFarcasterChannelByNameParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-by-name.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
+import type { InviteLinksNavigatorParams } from '../invite-links/invite-links-navigator.react.js';
 import type { ManagePublicLinkScreenParams } from '../invite-links/manage-public-link-screen.react.js';
 import type { ViewInviteLinksScreenParams } from '../invite-links/view-invite-links-screen.react.js';
 import type { ChatCameraModalParams } from '../media/chat-camera-modal.react.js';
@@ -181,7 +182,7 @@ export type RootParamList = {
   +Registration: void,
   +CommunityCreation: void,
   +InviteLinkModal: InviteLinkModalParams,
-  +InviteLinkNavigator: void,
+  +InviteLinkNavigator: InviteLinksNavigatorParams,
   +RolesNavigator: void,
   +QRCodeSignInNavigator: void,
   +UserProfileBottomSheetNavigator: void,

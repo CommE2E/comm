@@ -9,8 +9,10 @@ import * as React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ManagePublicLinkScreen from './manage-public-link-screen.react.js';
+import type { ManagePublicLinkScreenParams } from './manage-public-link-screen.react.js';
 import ViewInviteLinksHeaderLeftButton from './view-invite-links-header-left-button.react.js';
 import ViewInviteLinksScreen from './view-invite-links-screen.react.js';
+import type { ViewInviteLinksScreenParams } from './view-invite-links-screen.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
 import { defaultStackScreenOptions } from '../navigation/options.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
@@ -46,6 +48,16 @@ const managePublicLinkOptions = {
   headerBackTitleVisible: false,
   headerLeft: HeaderBackButton,
 };
+
+export type InviteLinksNavigatorParams =
+  | {
+      +screen: 'ViewInviteLinks',
+      +params: ViewInviteLinksScreenParams,
+    }
+  | {
+      +screen: 'ManagePublicLink',
+      +params: ManagePublicLinkScreenParams,
+    };
 
 type Props = {
   +navigation: RootNavigationProp<'InviteLinkNavigator'>,
