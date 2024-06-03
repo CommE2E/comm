@@ -61,8 +61,10 @@ pub async fn get_auth_client(
   };
 
   let version_interceptor = CodeVersionLayer {
-    version: code_version,
     device_type,
+    code_version,
+    state_version: None,
+    major_desktop_version: None,
   };
 
   let chained = ChainedInterceptor {
