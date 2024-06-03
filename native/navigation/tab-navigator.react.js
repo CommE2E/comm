@@ -14,11 +14,13 @@ import type {
   TabAction,
   TabRouterOptions,
 } from '@react-navigation/core';
+import { useDrawerStatus } from '@react-navigation/drawer';
 import {
   createNavigatorFactory,
   useNavigationBuilder,
 } from '@react-navigation/native';
 import * as React from 'react';
+import { Keyboard } from 'react-native';
 
 import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
@@ -201,6 +203,14 @@ function TabComponent(props: Props): React.Node {
     }),
     [colors.tabBarActiveTintColor, colors.tabBarBackground],
   );
+
+  const drawerStatus = useDrawerStatus();
+  const isDrawerOpen = drawerStatus === 'open';
+  React.useEffect(() => {
+    if (isDrawerOpen) {
+      Keyboard.dismiss();
+    }
+  }, [isDrawerOpen]);
 
   return (
     <Tab.Navigator
