@@ -642,6 +642,18 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           payload,
         );
       },
+      syncPlatformDetails: async () => {
+        const {
+          deviceID: authDeviceID,
+          userID,
+          accessToken: authAccessToken,
+        } = await getAuthMetadata();
+        await commRustModule.syncPlatformDetails(
+          userID,
+          authDeviceID,
+          authAccessToken,
+        );
+      },
       getFarcasterUsers: async (farcasterIDs: $ReadOnlyArray<string>) => {
         const farcasterUsersJSONString =
           await commRustModule.getFarcasterUsers(farcasterIDs);
