@@ -3,6 +3,7 @@ use grpc_clients::identity::protos::auth::{
   GetDeviceListRequest, PeersDeviceListsRequest, PeersDeviceListsResponse,
   UpdateDeviceListRequest,
 };
+use grpc_clients::identity::protos::unauth::Empty;
 use std::collections::HashMap;
 
 use super::PLATFORM_METADATA;
@@ -70,6 +71,23 @@ pub mod ffi {
         device_id: auth_device_id,
       };
       let result = update_device_list_helper(auth_info, update_payload).await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn sync_platform_details(
+    auth_user_id: String,
+    auth_device_id: String,
+    auth_access_token: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let auth_info = AuthInfo {
+        access_token: auth_access_token,
+        user_id: auth_user_id,
+        device_id: auth_device_id,
+      };
+      let result = sync_platform_details_helper(auth_info).await;
       handle_void_result_as_callback(result, promise_id);
     });
   }
@@ -168,6 +186,23 @@ async fn update_device_list_helper(
   };
 
   identity_client.update_device_list(update_request).await?;
+
+  Ok(())
+}
+
+async fn sync_platform_details_helper(
+  auth_info: AuthInfo,
+) -> Result<(), Error> {
+  let mut identity_client = get_auth_client(
+    IDENTITY_SOCKET_ADDR,
+    auth_info.user_id,
+    auth_info.device_id,
+    auth_info.access_token,
+    PLATFORM_METADATA.clone(),
+  )
+  .await?;
+
+  identity_client.sync_platform_details(Empty {}).await?;
 
   Ok(())
 }
