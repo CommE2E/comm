@@ -12,6 +12,7 @@ locals {
     GrpcServices = { name = "GrpcServices", pattern = "gRPC Services Error" },
     Siwe         = { name = "Siwe", pattern = "SIWE Error" },
     Tunnelbroker = { name = "Tunnelbroker", pattern = "Tunnelbroker Error" }
+    Http         = { name = "HTTP", pattern = "HTTP Error" }
   }
 }
 

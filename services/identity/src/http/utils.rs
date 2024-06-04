@@ -2,6 +2,8 @@ use hyper::{header::CONTENT_TYPE, Body, Response};
 use std::collections::HashMap;
 use tracing::error;
 
+use crate::constants::error_types;
+
 use super::{
   errors::{http500, BoxedError},
   ErrorResponse, HttpRequest, HttpResponse,
@@ -36,7 +38,10 @@ impl ResponseExt for Response<Body> {
     body: &T,
   ) -> Result<HttpResponse, ErrorResponse> {
     let json_string = serde_json::to_string(&body).map_err(|err| {
-      error!("JSON serialization error: {err:?}");
+      error!(
+        errorType = error_types::HTTP_LOG,
+        "JSON serialization error: {err:?}"
+      );
       http500()
     })?;
     let response = Response::builder()
