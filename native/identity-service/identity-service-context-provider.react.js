@@ -27,8 +27,9 @@ import {
   type UserDevicesOlmInboundKeys,
   type UserDevicesOlmOutboundKeys,
   type UsersSignedDeviceLists,
-  usersSignedDeviceListsValidator,
   identitiesValidator,
+  type UsersDevicesPlatformDetails,
+  peersDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -606,20 +607,26 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           token,
           userIDs,
         );
-        const rawPayloads: { +[userID: string]: string } = JSON.parse(result);
+
+        const rawPayloads: {
+          +usersDeviceLists: { +[userID: string]: string },
+          +usersDevicesPlatformDetails: UsersDevicesPlatformDetails,
+        } = JSON.parse(result);
 
         let usersDeviceLists: UsersSignedDeviceLists = {};
-        for (const userID in rawPayloads) {
+        for (const userID in rawPayloads.usersDeviceLists) {
           usersDeviceLists = {
             ...usersDeviceLists,
-            [userID]: JSON.parse(rawPayloads[userID]),
+            [userID]: JSON.parse(rawPayloads.usersDeviceLists[userID]),
           };
         }
 
-        return assertWithValidator(
-          usersDeviceLists,
-          usersSignedDeviceListsValidator,
-        );
+        const peersDeviceLists = {
+          usersSignedDeviceLists: usersDeviceLists,
+          usersDevicesPlatformDetails: rawPayloads.usersDevicesPlatformDetails,
+        };
+
+        return assertWithValidator(peersDeviceLists, peersDeviceListsValidator);
       },
       updateDeviceList: async (newDeviceList: SignedDeviceList) => {
         const {

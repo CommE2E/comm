@@ -29,9 +29,11 @@ import {
   type FarcasterUser,
   farcasterUsersValidator,
   type UsersSignedDeviceLists,
-  usersSignedDeviceListsValidator,
   type Identities,
   identitiesValidator,
+  type PeersDeviceLists,
+  peersDeviceListsValidator,
+  type IdentityPlatformDetails,
 } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -535,7 +537,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
   getDeviceListsForUsers: (
     userIDs: $ReadOnlyArray<string>,
-  ) => Promise<UsersSignedDeviceLists> = async userIDs => {
+  ) => Promise<PeersDeviceLists> = async userIDs => {
     const client = this.authClient;
     if (!client) {
       throw new Error('Identity service client is not initialized');
@@ -544,6 +546,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     request.setUserIdsList([...userIDs]);
     const response = await client.getDeviceListsForUsers(request);
     const rawPayloads = response.toObject()?.usersDeviceListsMap;
+    const rawUsersDevicesPlatformDetails =
+      response.toObject()?.usersDevicesPlatformDetailsMap;
 
     let usersDeviceLists: UsersSignedDeviceLists = {};
     rawPayloads.forEach(([userID, rawPayload]) => {
@@ -553,10 +557,27 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       };
     });
 
-    return assertWithValidator(
-      usersDeviceLists,
-      usersSignedDeviceListsValidator,
+    let usersDevicesPlatformDetails: {
+      +[userID: string]: { +[deviceID: string]: IdentityPlatformDetails },
+    } = {};
+
+    rawUsersDevicesPlatformDetails.forEach(
+      ([userID, rawUserDevicesPlatformDetails]) => {
+        usersDevicesPlatformDetails = {
+          ...usersDevicesPlatformDetails,
+          [userID]: Object.fromEntries(
+            rawUserDevicesPlatformDetails.devicesPlatformDetailsMap,
+          ),
+        };
+      },
     );
+
+    const peersDeviceLists = {
+      usersSignedDeviceLists: usersDeviceLists,
+      usersDevicesPlatformDetails,
+    };
+
+    return assertWithValidator(peersDeviceLists, peersDeviceListsValidator);
   };
 
   getFarcasterUsers: (
