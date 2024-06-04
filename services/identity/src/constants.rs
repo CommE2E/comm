@@ -214,6 +214,7 @@ pub mod error_types {
   pub const SIWE_LOG: &str = "SIWE Error";
   pub const GRPC_SERVICES_LOG: &str = "gRPC Services Error";
   pub const TUNNELBROKER_LOG: &str = "Tunnelbroker Error";
+  pub const HTTP_LOG: &str = "HTTP Error";
 }
 
 // Tunnelbroker
