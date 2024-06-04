@@ -1,5 +1,5 @@
 use client_proto::VerifyUserAccessTokenRequest;
-use grpc_clients::identity;
+use grpc_clients::identity::{self, PlatformMetadata};
 use grpc_clients::tonic::Request;
 use identity::get_unauthenticated_client;
 use identity::protos::unauthenticated as client_proto;
@@ -21,8 +21,7 @@ pub async fn verify_user_access_token(
 ) -> Result<bool, Error> {
   let mut grpc_client = get_unauthenticated_client(
     &CONFIG.identity_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await?;
   let message = VerifyUserAccessTokenRequest {

@@ -2,7 +2,7 @@ use crate::{
   utils::jsi_callbacks::{
     handle_string_result_as_callback, handle_void_result_as_callback,
   },
-  Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME,
+  Error, IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client,
@@ -10,6 +10,8 @@ use grpc_clients::identity::{
   protos::unauth::GetFarcasterUsersRequest,
 };
 use serde::Serialize;
+
+use super::PLATFORM_METADATA;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -77,12 +79,9 @@ async fn get_farcaster_users_helper(
 ) -> Result<String, Error> {
   let get_farcaster_users_request = GetFarcasterUsersRequest { farcaster_ids };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let response = identity_client
     .get_farcaster_users(get_farcaster_users_request)
@@ -113,8 +112,7 @@ async fn link_farcaster_account_helper(
     user_id,
     device_id,
     access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 
@@ -138,8 +136,7 @@ async fn unlink_farcaster_account_helper(
     user_id,
     device_id,
     access_token,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
+    PLATFORM_METADATA.clone(),
   )
   .await?;
 

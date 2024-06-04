@@ -3,6 +3,7 @@ use commtest::identity::device::{
 };
 use commtest::identity::olm_account_infos::generate_random_olm_key;
 use commtest::service_addr;
+use grpc_clients::identity::PlatformMetadata;
 use grpc_clients::identity::{
   get_auth_client,
   protos::authenticated::{
@@ -20,8 +21,7 @@ async fn set_prekey() {
     device_info.user_id.clone(),
     device_info.device_id,
     device_info.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
