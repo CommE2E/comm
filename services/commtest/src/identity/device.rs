@@ -1,5 +1,7 @@
 use comm_opaque2::client::{Login, Registration};
-use grpc_clients::identity::{get_auth_client, get_unauthenticated_client};
+use grpc_clients::identity::{
+  get_auth_client, get_unauthenticated_client, PlatformMetadata,
+};
 use rand::{distributions::Alphanumeric, Rng};
 
 use crate::identity::olm_account_infos::generate_random_olm_key;
@@ -97,8 +99,7 @@ pub async fn register_user_device_with_device_list(
 
   let mut identity_client = get_unauthenticated_client(
     &service_addr::IDENTITY_GRPC.to_string(),
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -179,8 +180,7 @@ pub async fn login_user_device(
 
   let mut identity_client = get_unauthenticated_client(
     &service_addr::IDENTITY_GRPC.to_string(),
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -226,8 +226,7 @@ pub async fn logout_user_device(device_info: DeviceInfo) {
     user_id,
     device_id,
     access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldnt connect to auth identity service");

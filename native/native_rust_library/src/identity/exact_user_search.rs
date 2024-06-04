@@ -1,6 +1,5 @@
 use crate::{
-  handle_string_result_as_callback, Error, CODE_VERSION, DEVICE_TYPE,
-  IDENTITY_SOCKET_ADDR, RUNTIME,
+  handle_string_result_as_callback, Error, IDENTITY_SOCKET_ADDR, RUNTIME,
 };
 use find_user_id_request::Identifier as RequestIdentifier;
 use grpc_clients::identity::{
@@ -9,6 +8,8 @@ use grpc_clients::identity::{
 };
 use serde::Serialize;
 use tracing::instrument;
+
+use super::PLATFORM_METADATA;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -52,12 +53,9 @@ async fn find_user_id_helper(
     identifier: Some(identifier),
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let response = identity_client
     .find_user_id(find_user_id_request)

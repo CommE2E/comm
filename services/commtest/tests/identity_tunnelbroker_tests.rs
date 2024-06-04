@@ -5,10 +5,10 @@ use commtest::identity::olm_account_infos::generate_random_olm_key;
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::StreamExt;
-use grpc_clients::identity::get_auth_client;
 use grpc_clients::identity::protos::authenticated::{
   OutboundKeysForUserRequest, UploadOneTimeKeysRequest,
 };
+use grpc_clients::identity::{get_auth_client, PlatformMetadata};
 use tunnelbroker_messages::RefreshKeyRequest;
 
 #[tokio::test]
@@ -42,8 +42,7 @@ async fn test_refresh_keys_request_upon_depletion() {
     device_info.user_id.clone(),
     device_info.device_id,
     device_info.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");

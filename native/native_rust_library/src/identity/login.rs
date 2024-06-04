@@ -9,9 +9,12 @@ use grpc_clients::identity::{
 };
 use tracing::instrument;
 
-use super::{IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo};
+use super::{
+  IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo,
+  PLATFORM_METADATA,
+};
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
-use crate::{Error, CODE_VERSION, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
+use crate::{Error, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
 
 #[allow(clippy::too_many_arguments)]
 pub mod ffi {
@@ -164,12 +167,9 @@ async fn log_in_password_user_helper(
     force: None,
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let response = identity_client
     .log_in_password_user_start(login_start_request)
@@ -205,12 +205,9 @@ async fn log_in_wallet_user_helper(
     initial_device_list: "".to_string(),
   };
 
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let login_response = identity_client
     .log_in_wallet_user(login_request)
@@ -227,12 +224,9 @@ async fn upload_secondary_device_keys_and_log_in_helper(
   nonce_signature: String,
   device_key_upload: DeviceKeyUpload,
 ) -> Result<String, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let request = SecondaryDeviceKeysUploadRequest {
     user_id,
@@ -256,12 +250,9 @@ async fn log_in_existing_device_helper(
   nonce: String,
   nonce_signature: String,
 ) -> Result<String, Error> {
-  let mut identity_client = get_unauthenticated_client(
-    IDENTITY_SOCKET_ADDR,
-    CODE_VERSION,
-    DEVICE_TYPE.as_str_name().to_lowercase(),
-  )
-  .await?;
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
 
   let request = ExistingDeviceLoginRequest {
     user_id,

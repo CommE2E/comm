@@ -6,6 +6,7 @@ use commtest::service_addr;
 use grpc_clients::identity::protos::unauth::{
   Empty, ExistingDeviceLoginRequest,
 };
+use grpc_clients::identity::PlatformMetadata;
 use grpc_clients::identity::{
   get_unauthenticated_client, protos::unauth::VerifyUserAccessTokenRequest,
 };
@@ -17,8 +18,7 @@ async fn verify_access_token() {
 
   let mut identity_client = get_unauthenticated_client(
     &identity_grpc_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
@@ -37,8 +37,7 @@ async fn refresh_token_test() {
   let identity_grpc_endpoint = service_addr::IDENTITY_GRPC.to_string();
   let mut client = get_unauthenticated_client(
     &identity_grpc_endpoint,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");

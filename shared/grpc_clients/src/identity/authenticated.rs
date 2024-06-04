@@ -1,4 +1,7 @@
-use super::protos::authenticated::identity_client_service_client::IdentityClientServiceClient as AuthClient;
+use super::{
+  protos::authenticated::identity_client_service_client::IdentityClientServiceClient as AuthClient,
+  PlatformMetadata,
+};
 use tonic::{
   codegen::InterceptedService,
   metadata::{errors::InvalidMetadataValue, Ascii, MetadataValue},
@@ -47,8 +50,7 @@ pub async fn get_auth_client(
   user_id: String,
   device_id: String,
   access_token: String,
-  code_version: u64,
-  device_type: String,
+  platform_metadata: PlatformMetadata,
 ) -> Result<ChainedInterceptedAuthClient, Error> {
   use crate::get_grpc_service_channel;
 
@@ -60,12 +62,7 @@ pub async fn get_auth_client(
     access_token,
   };
 
-  let version_interceptor = CodeVersionLayer {
-    device_type,
-    code_version,
-    state_version: None,
-    major_desktop_version: None,
-  };
+  let version_interceptor = CodeVersionLayer::from(platform_metadata);
 
   let chained = ChainedInterceptor {
     first: auth_interceptor,

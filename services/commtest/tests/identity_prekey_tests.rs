@@ -2,6 +2,7 @@ use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::service_addr;
+use grpc_clients::identity::PlatformMetadata;
 use grpc_clients::identity::{
   get_auth_client,
   protos::{authenticated::RefreshUserPrekeysRequest, unauth::Prekey},
@@ -16,8 +17,7 @@ async fn set_prekey() {
     device_info.user_id,
     device_info.device_id,
     device_info.access_token,
-    PLACEHOLDER_CODE_VERSION,
-    DEVICE_TYPE.to_string(),
+    PlatformMetadata::new(PLACEHOLDER_CODE_VERSION, DEVICE_TYPE),
   )
   .await
   .expect("Couldn't connect to identity service");
