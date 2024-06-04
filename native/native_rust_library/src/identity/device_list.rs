@@ -1,15 +1,17 @@
 use grpc_clients::identity::get_auth_client;
 use grpc_clients::identity::protos::auth::{
-  GetDeviceListRequest, PeersDeviceListsRequest, UpdateDeviceListRequest,
+  GetDeviceListRequest, PeersDeviceListsRequest, PeersDeviceListsResponse,
+  UpdateDeviceListRequest,
 };
+use std::collections::HashMap;
 
+use super::PLATFORM_METADATA;
 use crate::identity::AuthInfo;
 use crate::utils::jsi_callbacks::{
   handle_string_result_as_callback, handle_void_result_as_callback,
 };
 use crate::{Error, IDENTITY_SOCKET_ADDR, RUNTIME};
-
-use super::PLATFORM_METADATA;
+use serde::Serialize;
 
 pub mod ffi {
   use super::*;
@@ -112,12 +114,39 @@ async fn get_device_lists_for_users_helper(
   )
   .await?;
 
-  let response = identity_client
+  let PeersDeviceListsResponse {
+    users_device_lists,
+    users_devices_platform_details,
+  } = identity_client
     .get_device_lists_for_users(PeersDeviceListsRequest { user_ids })
     .await?
     .into_inner();
 
-  let payload = serde_json::to_string(&response.users_device_lists)?;
+  let nested_users_devices_platform_details: HashMap<
+    String,
+    HashMap<String, PlatformDetails>,
+  > = users_devices_platform_details
+    .into_iter()
+    .map(|(user_id, user_devices_platform_details)| {
+      (
+        user_id,
+        user_devices_platform_details
+          .devices_platform_details
+          .into_iter()
+          .map(|(device_id, platform_details)| {
+            (device_id, platform_details.into())
+          })
+          .collect(),
+      )
+    })
+    .collect();
+
+  let result = PeersDeviceLists {
+    users_device_lists: users_device_lists,
+    users_devices_platform_details: nested_users_devices_platform_details,
+  };
+
+  let payload = serde_json::to_string(&result)?;
   Ok(payload)
 }
 
@@ -141,4 +170,36 @@ async fn update_device_list_helper(
   identity_client.update_device_list(update_request).await?;
 
   Ok(())
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PlatformDetails {
+  device_type: i32,
+  code_version: u64,
+  state_version: Option<u64>,
+  major_desktop_version: Option<u64>,
+}
+
+impl From<grpc_clients::identity::protos::auth::PlatformDetails>
+  for PlatformDetails
+{
+  fn from(
+    value: grpc_clients::identity::protos::auth::PlatformDetails,
+  ) -> Self {
+    Self {
+      device_type: value.device_type,
+      code_version: value.code_version,
+      state_version: value.state_version,
+      major_desktop_version: value.major_desktop_version,
+    }
+  }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PeersDeviceLists {
+  users_device_lists: HashMap<String, String>,
+  users_devices_platform_details:
+    HashMap<String, HashMap<String, PlatformDetails>>,
 }
