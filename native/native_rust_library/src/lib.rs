@@ -268,6 +268,14 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identitySyncPlatformDetails"]
+    fn sync_platform_details(
+      auth_user_id: String,
+      auth_device_id: String,
+      auth_access_token: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityUploadSecondaryDeviceKeysAndLogIn"]
     fn upload_secondary_device_keys_and_log_in(
       user_id: String,
