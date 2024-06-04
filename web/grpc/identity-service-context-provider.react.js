@@ -136,6 +136,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         'getDeviceListHistoryForUser',
       ),
       getDeviceListsForUsers: proxyMethodToWorker('getDeviceListsForUsers'),
+      syncPlatformDetails: proxyMethodToWorker('syncPlatformDetails'),
       getFarcasterUsers: proxyMethodToWorker('getFarcasterUsers'),
       linkFarcasterAccount: proxyMethodToWorker('linkFarcasterAccount'),
       unlinkFarcasterAccount: proxyMethodToWorker('unlinkFarcasterAccount'),
