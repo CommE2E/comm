@@ -42,3 +42,13 @@ resource "aws_subnet" "private_c" {
   availability_zone       = "us-east-2c"
   map_public_ip_on_launch = false
 }
+
+# DB Subnet Group
+resource "aws_db_subnet_group" "private-db-subnet-group" {
+  name       = "private-db-subnet-group"
+  subnet_ids = [aws_subnet.private_b.id, aws_subnet.private_c.id]
+
+  tags = {
+    Name = "DB subnet group associated with private vpc subnet"
+  }
+}
