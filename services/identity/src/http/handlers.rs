@@ -1,3 +1,5 @@
+use crate::constants::error_types;
+
 use super::{
   errors::{create_error_response, http400, http404},
   utils::{RequestExt, ResponseExt},
@@ -74,7 +76,10 @@ async fn verify_csat(
       "invalid credentials",
     )),
     Err(err) => {
-      error!("CSAT verification error: {err:?}");
+      error!(
+        errorType = error_types::HTTP_LOG,
+        "CSAT verification error: {err:?}"
+      );
       Err(err.into())
     }
   }
