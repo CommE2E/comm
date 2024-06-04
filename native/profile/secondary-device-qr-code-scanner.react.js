@@ -116,33 +116,36 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         innerMessage,
       );
       if (
-        payload?.type !==
-        qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS
+        !payload ||
+        payload.type !==
+          qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS
       ) {
         return;
       }
 
       void broadcastDeviceListUpdate();
 
-      const backupSecret = await getBackupSecret();
-      const backupKeysResponse =
-        await commCoreModule.retrieveBackupKeys(backupSecret);
-      const backupKeys = assertWithValidator<BackupKeys>(
-        JSON.parse(backupKeysResponse),
-        backupKeysValidator,
-      );
+      if (payload.requestBackupKeys) {
+        const backupSecret = await getBackupSecret();
+        const backupKeysResponse =
+          await commCoreModule.retrieveBackupKeys(backupSecret);
+        const backupKeys = assertWithValidator<BackupKeys>(
+          JSON.parse(backupKeysResponse),
+          backupKeysValidator,
+        );
 
-      const backupKeyMessage = await composeTunnelbrokerQRAuthMessage(
-        encryptionKey,
-        {
-          type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
-          ...backupKeys,
-        },
-      );
-      await tunnelbrokerContext.sendMessage({
-        deviceID: targetDeviceID,
-        payload: JSON.stringify(backupKeyMessage),
-      });
+        const backupKeyMessage = await composeTunnelbrokerQRAuthMessage(
+          encryptionKey,
+          {
+            type: qrCodeAuthMessageTypes.BACKUP_DATA_KEY_MESSAGE,
+            ...backupKeys,
+          },
+        );
+        await tunnelbrokerContext.sendMessage({
+          deviceID: targetDeviceID,
+          payload: JSON.stringify(backupKeyMessage),
+        });
+      }
 
       Alert.alert('Device added', 'Device registered successfully', [
         { text: 'OK' },
