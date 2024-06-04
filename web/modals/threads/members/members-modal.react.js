@@ -3,16 +3,11 @@
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { useAddUsersPermissions } from 'lib/permissions/add-users-permissions.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  roleIsAdminRole,
-  useThreadHasPermission,
-} from 'lib/shared/thread-utils.js';
+import { roleIsAdminRole } from 'lib/shared/thread-utils.js';
 import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import { useRolesFromCommunityThreadInfo } from 'lib/utils/role-utils.js';
 
 import { AddMembersModal } from './add-members-modal.react.js';
@@ -121,13 +116,8 @@ function ThreadMembersModal(props: Props): React.Node {
 
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
-  const inviteLink = useSelector(primaryInviteLinksSelector)[threadID];
-  const canManageLinks = useThreadHasPermission(
-    threadInfo,
-    threadPermissions.MANAGE_INVITE_LINKS,
-  );
-
-  const isCommunityRoot = threadTypeIsCommunityRoot(threadInfo.type);
+  const { inviteLink, canManageLinks, canAddMembers, isCommunityRoot } =
+    useAddUsersPermissions(threadInfo);
 
   const onClickAddMembers = React.useCallback(() => {
     if (!isCommunityRoot) {
@@ -145,17 +135,6 @@ function ThreadMembersModal(props: Props): React.Node {
     pushModal,
     threadID,
   ]);
-
-  const canAddMembersViaInviteLink =
-    isCommunityRoot && (inviteLink || canManageLinks);
-
-  const hasAddMembersPermission = useThreadHasPermission(
-    threadInfo,
-    threadPermissions.ADD_MEMBERS,
-  );
-  const canAddMembersManually = hasAddMembersPermission && !isCommunityRoot;
-
-  const canAddMembers = canAddMembersManually || canAddMembersViaInviteLink;
 
   const addMembersButton = React.useMemo(() => {
     if (!canAddMembers) {
