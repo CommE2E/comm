@@ -41,6 +41,7 @@ import { assertWithValidator } from 'lib/utils/validation-utils.js';
 import { VersionInterceptor, AuthInterceptor } from './interceptor.js';
 import * as IdentityAuthClient from '../protobufs/identity-auth-client.cjs';
 import * as IdentityAuthStructs from '../protobufs/identity-auth-structs.cjs';
+import * as identityUnauthStructs from '../protobufs/identity-unauth-structs.cjs';
 import {
   DeviceKeyUpload,
   Empty,
@@ -578,6 +579,14 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     };
 
     return assertWithValidator(peersDeviceLists, peersDeviceListsValidator);
+  };
+
+  syncPlatformDetails: () => Promise<void> = async () => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    await client.syncPlatformDetails(new identityUnauthStructs.Empty());
   };
 
   getFarcasterUsers: (
