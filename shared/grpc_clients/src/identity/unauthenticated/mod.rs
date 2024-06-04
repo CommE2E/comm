@@ -5,25 +5,19 @@ use tonic::transport::Channel;
 
 use super::{
   protos::unauth::identity_client_service_client::IdentityClientServiceClient,
-  shared::CodeVersionLayer,
+  shared::CodeVersionLayer, PlatformMetadata,
 };
 use crate::error::Error;
 
 pub async fn get_unauthenticated_client(
   url: &str,
-  code_version: u64,
-  device_type: String,
+  platform_metadata: PlatformMetadata,
 ) -> Result<
   IdentityClientServiceClient<InterceptedService<Channel, CodeVersionLayer>>,
   Error,
 > {
   let channel = crate::get_grpc_service_channel(url).await?;
-  let version_interceptor = CodeVersionLayer {
-    device_type,
-    code_version,
-    state_version: None,
-    major_desktop_version: None,
-  };
+  let version_interceptor = CodeVersionLayer::from(platform_metadata);
   Ok(IdentityClientServiceClient::with_interceptor(
     channel,
     version_interceptor,
