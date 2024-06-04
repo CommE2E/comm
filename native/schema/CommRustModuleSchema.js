@@ -157,6 +157,11 @@ export interface Spec extends TurboModule {
     authAccessToken: string,
     updatePayload: string,
   ) => Promise<void>;
+  +syncPlatformDetails: (
+    authUserID: string,
+    authDeviceID: string,
+    authAccessToken: string,
+  ) => Promise<void>;
   +uploadSecondaryDeviceKeysAndLogIn: (
     userID: string,
     nonce: string,
