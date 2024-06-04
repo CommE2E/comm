@@ -30,6 +30,7 @@ import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.reac
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import { MediaCacheProvider } from 'lib/components/media-cache-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
+import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
@@ -340,6 +341,7 @@ function Root() {
                                                   }
                                                 />
                                                 <VersionSupportedChecker />
+                                                <PlatformDetailsSynchronizer />
                                                 <BackgroundIdentityLoginHandler />
                                                 <PrekeysHandler />
                                                 <ReportHandler />

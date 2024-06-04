@@ -8,7 +8,7 @@ import { allConnectionInfosSelector } from 'lib/selectors/keyserver-selectors.js
 import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-function MinVersionHandler(): null {
+function MinVersionHandler(): React.Node {
   const connections = useSelector(allConnectionInfosSelector);
 
   const isClientVersionUnsupported = React.useMemo(() => {
