@@ -162,6 +162,11 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String authDeviceID,
       jsi::String authAccessToken,
       jsi::String updatePayload) override;
+  virtual jsi::Value syncPlatformDetails(
+      jsi::Runtime &rt,
+      jsi::String authUserID,
+      jsi::String authDeviceID,
+      jsi::String authAccessToken) override;
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(
       jsi::Runtime &rt,
       jsi::String userID,

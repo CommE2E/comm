@@ -40,6 +40,7 @@ public:
   virtual jsi::Value getDeviceListForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID, std::optional<double> sinceTimestamp) = 0;
   virtual jsi::Value getDeviceListsForUsers(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::Array userIDs) = 0;
   virtual jsi::Value updateDeviceList(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String updatePayload) = 0;
+  virtual jsi::Value syncPlatformDetails(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String nonce, jsi::String nonceSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) = 0;
   virtual jsi::Value logInExistingDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String nonce, jsi::String nonceSignature) = 0;
   virtual jsi::Value findUserIDForWalletAddress(jsi::Runtime &rt, jsi::String walletAddress) = 0;
@@ -228,6 +229,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::updateDeviceList, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken), std::move(updatePayload));
+    }
+    jsi::Value syncPlatformDetails(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) override {
+      static_assert(
+          bridging::getParameterCount(&T::syncPlatformDetails) == 4,
+          "Expected syncPlatformDetails(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::syncPlatformDetails, jsInvoker_, instance_, std::move(authUserID), std::move(authDeviceID), std::move(authAccessToken));
     }
     jsi::Value uploadSecondaryDeviceKeysAndLogIn(jsi::Runtime &rt, jsi::String userID, jsi::String nonce, jsi::String nonceSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys) override {
       static_assert(
