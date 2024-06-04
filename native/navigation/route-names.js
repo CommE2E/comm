@@ -36,7 +36,6 @@ import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react.js';
 import type { TogglePinModalParams } from '../chat/toggle-pin-modal.react.js';
-import type { CommunityCreationMembersScreenParams } from '../community-creation/community-creation-members.react.js';
 import type { TagFarcasterChannelByNameParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel-by-name.react.js';
 import type { TagFarcasterChannelParams } from '../community-settings/tag-farcaster-channel/tag-farcaster-channel.react.js';
 import type { InviteLinksNavigatorParams } from '../invite-links/invite-links-navigator.react.js';
@@ -136,7 +135,6 @@ export const ConnectFarcasterRouteName = 'ConnectFarcaster';
 export const UsernameSelectionRouteName = 'UsernameSelection';
 export const CommunityCreationRouteName = 'CommunityCreation';
 export const CommunityConfigurationRouteName = 'CommunityConfiguration';
-export const CommunityCreationMembersRouteName = 'CommunityCreationMembers';
 export const MessageSearchRouteName = 'MessageSearch';
 export const PasswordSelectionRouteName = 'PasswordSelection';
 export const AvatarSelectionRouteName = 'AvatarSelection';
@@ -299,7 +297,6 @@ export type InviteLinkParamList = {
 
 export type CommunityCreationParamList = {
   +CommunityConfiguration: void,
-  +CommunityCreationMembers: CommunityCreationMembersScreenParams,
 };
 
 export type RolesParamList = {
