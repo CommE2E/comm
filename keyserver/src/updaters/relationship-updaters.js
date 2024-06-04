@@ -246,6 +246,16 @@ async function updateRelationships(
       operation: 'farcaster_mutual',
     }));
     await createMessages(viewer, messageDatas, 'broadcast');
+  } else if (request.action === relationshipActions.ACKNOWLEDGE) {
+    updateIDs.push(...userIDs);
+
+    const insertRows = userIDs.map(userID => {
+      const [user1, user2] = sortUserIDs(viewer.userID, userID);
+      return { user1, user2, status: undirectedStatus.KNOW_OF };
+    });
+
+    const updateDatas = await updateChangedUndirectedRelationships(insertRows);
+    await createUpdates(updateDatas);
   } else {
     invariant(
       false,
