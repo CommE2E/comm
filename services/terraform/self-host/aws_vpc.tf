@@ -44,3 +44,13 @@ resource "aws_route_table_association" "public_b_igw_route_association" {
   subnet_id      = aws_subnet.public_b.id
   route_table_id = aws_route_table.public_igw_route_table.id
 }
+
+# DB Subnet Group
+resource "aws_db_subnet_group" "public_db_subnet_group" {
+  name       = "public-db-subnet-group"
+  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+
+  tags = {
+    Name = "DB subnet group associated with private vpc subnet"
+  }
+}
