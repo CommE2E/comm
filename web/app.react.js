@@ -20,6 +20,7 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
+import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import {
@@ -234,6 +235,7 @@ class App extends React.PureComponent<Props> {
                       <InviteLinkHandler />
                       <InviteLinksRefresher />
                       <MinVersionHandler />
+                      <PlatformDetailsSynchronizer />
                       <LogOutIfMissingCSATHandler />
                       {content}
                     </ChatMentionContextProvider>
