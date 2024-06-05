@@ -2,7 +2,6 @@
 
 import invariant from 'invariant';
 import t from 'tcomb';
-import type { TUnion } from 'tcomb';
 
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
@@ -29,23 +28,12 @@ import {
   type ServerCheckStateServerRequest,
 } from 'lib/types/request-types.js';
 import { sessionCheckFrequency } from 'lib/types/session-types.js';
-import { signedIdentityKeysBlobValidator } from 'lib/utils/crypto-utils.js';
 import { hash, values } from 'lib/utils/objects.js';
 import { promiseAll, ignorePromiseRejections } from 'lib/utils/promises.js';
-import {
-  tShape,
-  tPlatform,
-  tPlatformDetails,
-} from 'lib/utils/validation-utils.js';
 
 import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
 import createReport from '../creators/report-creator.js';
 import { fetchEntriesForSession } from '../fetchers/entry-fetchers.js';
-import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
-import {
-  threadInconsistencyReportValidatorShape,
-  entryInconsistencyReportValidatorShape,
-} from '../responders/report-responders.js';
 import {
   setNewSession,
   setCookiePlatform,
@@ -58,65 +46,6 @@ import { activityUpdater } from '../updaters/activity-updaters.js';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
 import type { SessionUpdate } from '../updaters/session-updaters.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
-
-const clientResponseInputValidator: TUnion<ClientResponse> = t.union([
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.PLATFORM',
-      x => x === serverRequestTypes.PLATFORM,
-    ),
-    platform: tPlatform,
-  }),
-  tShape({
-    ...threadInconsistencyReportValidatorShape,
-    type: t.irreducible(
-      'serverRequestTypes.THREAD_INCONSISTENCY',
-      x => x === serverRequestTypes.THREAD_INCONSISTENCY,
-    ),
-  }),
-  tShape({
-    ...entryInconsistencyReportValidatorShape,
-    type: t.irreducible(
-      'serverRequestTypes.ENTRY_INCONSISTENCY',
-      x => x === serverRequestTypes.ENTRY_INCONSISTENCY,
-    ),
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.PLATFORM_DETAILS',
-      x => x === serverRequestTypes.PLATFORM_DETAILS,
-    ),
-    platformDetails: tPlatformDetails,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.CHECK_STATE',
-      x => x === serverRequestTypes.CHECK_STATE,
-    ),
-    hashResults: t.dict(t.String, t.Boolean),
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.INITIAL_ACTIVITY_UPDATES',
-      x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
-    ),
-    activityUpdates: activityUpdatesInputValidator,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB',
-      x => x === serverRequestTypes.SIGNED_IDENTITY_KEYS_BLOB,
-    ),
-    signedIdentityKeysBlob: signedIdentityKeysBlobValidator,
-  }),
-  tShape({
-    type: t.irreducible(
-      'serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE',
-      x => x === serverRequestTypes.INITIAL_NOTIFICATIONS_ENCRYPTED_MESSAGE,
-    ),
-    initialNotificationsEncryptedMessage: t.String,
-  }),
-]);
 
 type StateCheckStatus =
   | { status: 'state_validated' }
@@ -527,9 +456,4 @@ async function checkState(
   }
 }
 
-export {
-  clientResponseInputValidator,
-  processClientResponses,
-  initializeSession,
-  checkState,
-};
+export { processClientResponses, initializeSession, checkState };
