@@ -15,17 +15,19 @@ import {
   type FetchEntryInfosResponse,
   type DeltaEntryInfosResult,
   type SaveEntryResponse,
+  calendarQueryValidator,
 } from 'lib/types/entry-types.js';
 import {
   type CalendarFilter,
   calendarThreadFilterTypes,
+  calendarFilterValidator,
 } from 'lib/types/filter-types.js';
 import {
   type FetchEntryRevisionInfosResult,
   type FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types.js';
 import { ServerError } from 'lib/utils/errors.js';
-import { tString, tShape, tDate, tID } from 'lib/utils/validation-utils.js';
+import { tShape, tDate, tID } from 'lib/utils/validation-utils.js';
 
 import createEntry from '../creators/entry-creator.js';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters.js';
@@ -55,36 +57,8 @@ const entryQueryInputValidator: TInterface<EntryQueryInput> =
     startDate: tDate,
     endDate: tDate,
     includeDeleted: t.maybe(t.Boolean),
-    filters: t.maybe(
-      t.list(
-        t.union([
-          tShape({
-            type: tString(calendarThreadFilterTypes.NOT_DELETED),
-          }),
-          tShape({
-            type: tString(calendarThreadFilterTypes.THREAD_LIST),
-            threadIDs: t.list(tID),
-          }),
-        ]),
-      ),
-    ),
+    filters: t.maybe(t.list(calendarFilterValidator)),
   });
-
-const newEntryQueryInputValidator: TInterface<CalendarQuery> = tShape({
-  startDate: tDate,
-  endDate: tDate,
-  filters: t.list(
-    t.union([
-      tShape({
-        type: tString(calendarThreadFilterTypes.NOT_DELETED),
-      }),
-      tShape({
-        type: tString(calendarThreadFilterTypes.THREAD_LIST),
-        threadIDs: t.list(tID),
-      }),
-    ]),
-  ),
-});
 
 function normalizeCalendarQuery(input: any): CalendarQuery {
   if (input.filters) {
@@ -159,7 +133,7 @@ export const createEntryRequestInputValidator: TInterface<CreateEntryRequest> =
     date: tDate,
     threadID: tID,
     localID: t.maybe(t.String),
-    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
   });
 
 async function entryCreationResponder(
@@ -176,7 +150,7 @@ export const saveEntryRequestInputValidator: TInterface<SaveEntryRequest> =
     prevText: t.String,
     sessionID: t.maybe(t.String),
     timestamp: t.Number,
-    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
   });
 
 async function entryUpdateResponder(
@@ -192,7 +166,7 @@ export const deleteEntryRequestInputValidator: TInterface<DeleteEntryRequest> =
     prevText: t.String,
     sessionID: t.maybe(t.String),
     timestamp: t.Number,
-    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
   });
 
 async function entryDeletionResponder(
@@ -207,7 +181,7 @@ export const restoreEntryRequestInputValidator: TInterface<RestoreEntryRequest> 
     entryID: tID,
     sessionID: t.maybe(t.String),
     timestamp: t.Number,
-    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
   });
 
 async function entryRestorationResponder(
@@ -244,7 +218,6 @@ async function calendarQueryUpdateResponder(
 
 export {
   entryQueryInputValidator,
-  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
   entryFetchResponder,

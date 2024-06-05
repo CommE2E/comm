@@ -17,7 +17,10 @@ import {
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
-import type { RawEntryInfo } from 'lib/types/entry-types.js';
+import {
+  type RawEntryInfo,
+  calendarQueryValidator,
+} from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import { serverRequestTypes } from 'lib/types/request-types.js';
@@ -67,10 +70,7 @@ import {
   getMessageFetchResultFromRedisMessages,
 } from '../fetchers/message-fetchers.js';
 import { fetchUpdateInfos } from '../fetchers/update-fetchers.js';
-import {
-  newEntryQueryInputValidator,
-  verifyCalendarQueryThreadIDs,
-} from '../responders/entry-responders.js';
+import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders.js';
 import {
   fetchViewerForSocket,
   updateCookie,
@@ -105,7 +105,7 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
         sessionID: t.maybe(t.String),
       }),
       sessionState: tShape({
-        calendarQuery: newEntryQueryInputValidator,
+        calendarQuery: calendarQueryValidator,
         messagesCurrentAsOf: t.Number,
         updatesCurrentAsOf: t.Number,
         watchedIDs: t.list(t.String),

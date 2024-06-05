@@ -4,6 +4,7 @@ import type { $Response, $Request } from 'express';
 import t from 'tcomb';
 import type { TInterface, TStructProps, TUnion } from 'tcomb';
 
+import { calendarQueryValidator } from 'lib/types/entry-types.js';
 import type { BaseAction } from 'lib/types/redux-types.js';
 import {
   type ReportCreationResponse,
@@ -22,7 +23,6 @@ import {
 import { ServerError } from 'lib/utils/errors.js';
 import { tShape, tPlatformDetails } from 'lib/utils/validation-utils.js';
 
-import { newEntryQueryInputValidator } from './entry-responders.js';
 import createReport from '../creators/report-creator.js';
 import {
   fetchErrorReportInfos,
@@ -55,7 +55,7 @@ const entryInconsistencyReportValidatorShape: TStructProps<EntryInconsistencyRep
     platformDetails: tPlatformDetails,
     beforeAction: t.Object,
     action: t.Object,
-    calendarQuery: newEntryQueryInputValidator,
+    calendarQuery: calendarQueryValidator,
     pollResult: t.maybe(t.Object),
     pushResult: t.Object,
     lastActionTypes: t.maybe(t.list(tActionType)),
