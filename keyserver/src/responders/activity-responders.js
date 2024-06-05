@@ -47,8 +47,4 @@ async function threadSetUnreadStatusResponder(
   return await setThreadUnreadStatus(viewer, request);
 }
 
-export {
-  activityUpdatesInputValidator,
-  updateActivityResponder,
-  threadSetUnreadStatusResponder,
-};
+export { updateActivityResponder, threadSetUnreadStatusResponder };

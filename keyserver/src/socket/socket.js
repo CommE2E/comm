@@ -23,7 +23,10 @@ import {
 } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
-import { serverRequestTypes } from 'lib/types/request-types.js';
+import {
+  serverRequestTypes,
+  clientResponseInputValidator,
+} from 'lib/types/request-types.js';
 import {
   sessionCheckFrequency,
   stateCheckInactivityActivationInterval,
@@ -55,7 +58,6 @@ import { tShape, tCookie } from 'lib/utils/validation-utils.js';
 
 import { RedisSubscriber } from './redis.js';
 import {
-  clientResponseInputValidator,
   processClientResponses,
   initializeSession,
   checkState,

@@ -2,23 +2,21 @@
 
 import type { $Response, $Request } from 'express';
 import t from 'tcomb';
-import type { TInterface, TStructProps, TUnion } from 'tcomb';
+import type { TInterface, TUnion } from 'tcomb';
 
-import { calendarQueryValidator } from 'lib/types/entry-types.js';
-import type { BaseAction } from 'lib/types/redux-types.js';
 import {
   type ReportCreationResponse,
   type ReportCreationRequest,
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
-  type ThreadInconsistencyReportShape,
-  type EntryInconsistencyReportShape,
-  type ActionSummary,
   type ThreadInconsistencyReportCreationRequest,
   type EntryInconsistencyReportCreationRequest,
   type MediaMissionReportCreationRequest,
   type UserInconsistencyReportCreationRequest,
   reportTypes,
+  threadInconsistencyReportValidatorShape,
+  entryInconsistencyReportValidatorShape,
+  userInconsistencyReportValidatorShape,
 } from 'lib/types/report-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 import { tShape, tPlatformDetails } from 'lib/utils/validation-utils.js';
@@ -29,47 +27,6 @@ import {
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-
-const tActionSummary = tShape<ActionSummary>({
-  type: t.String,
-  time: t.Number,
-  summary: t.String,
-});
-const tActionType = t.irreducible<$PropertyType<BaseAction, 'type'>>(
-  'ActionType',
-  x => typeof x === 'string',
-);
-const threadInconsistencyReportValidatorShape: TStructProps<ThreadInconsistencyReportShape> =
-  {
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    pollResult: t.maybe(t.Object),
-    pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(tActionType)),
-    lastActions: t.maybe(t.list(tActionSummary)),
-    time: t.maybe(t.Number),
-  };
-const entryInconsistencyReportValidatorShape: TStructProps<EntryInconsistencyReportShape> =
-  {
-    platformDetails: tPlatformDetails,
-    beforeAction: t.Object,
-    action: t.Object,
-    calendarQuery: calendarQueryValidator,
-    pollResult: t.maybe(t.Object),
-    pushResult: t.Object,
-    lastActionTypes: t.maybe(t.list(tActionType)),
-    lastActions: t.maybe(t.list(tActionSummary)),
-    time: t.Number,
-  };
-const userInconsistencyReportValidatorShape = {
-  platformDetails: tPlatformDetails,
-  action: t.Object,
-  beforeStateCheck: t.Object,
-  afterStateCheck: t.Object,
-  lastActions: t.list(tActionSummary),
-  time: t.Number,
-};
 
 const threadInconsistencyReportCreationRequest =
   tShape<ThreadInconsistencyReportCreationRequest>({
