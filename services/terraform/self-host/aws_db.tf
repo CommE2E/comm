@@ -36,9 +36,58 @@ resource "aws_db_instance" "mariadb" {
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
   username               = local.secrets["mariaDB"]["username"]
   password               = local.secrets["mariaDB"]["password"]
-  parameter_group_name   = "default.mariadb10.11"
+  parameter_group_name   = aws_db_parameter_group.mariadb_parameter_group.name
   storage_encrypted      = true
   publicly_accessible    = true
   port                   = 3307
   skip_final_snapshot    = true
+}
+
+# MariaDB Parameter Group
+resource "aws_db_parameter_group" "mariadb_parameter_group" {
+  name   = "mariadb-parameter-group"
+  family = "mariadb10.11"
+
+  parameter {
+    apply_method = "pending-reboot"
+    name         = "performance_schema"
+    value        = "1"
+  }
+
+  parameter {
+    apply_method = "immediate"
+    name         = "max_allowed_packet"
+    # 256 MiB: (1024 * 1024 * 256)
+    value = "268435456"
+  }
+
+  parameter {
+    apply_method = "immediate"
+    name         = "local_infile"
+    value        = "0"
+  }
+
+  parameter {
+    apply_method = "immediate"
+    name         = "sql_mode"
+    value        = "STRICT_ALL_TABLES"
+  }
+
+  parameter {
+    apply_method = "pending-reboot"
+    name         = "innodb_buffer_pool_size"
+    value        = "{DBInstanceClassMemory*3/4}"
+  }
+
+  parameter {
+    apply_method = "pending-reboot"
+    name         = "innodb_ft_min_token_size"
+    value        = "1"
+  }
+
+  parameter {
+    apply_method = "immediate"
+    name         = "innodb_ft_enable_stopword"
+    value        = "0"
+  }
 }
