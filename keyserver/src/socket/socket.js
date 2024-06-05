@@ -17,10 +17,7 @@ import {
 import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
-import {
-  type RawEntryInfo,
-  calendarQueryValidator,
-} from 'lib/types/entry-types.js';
+import type { RawEntryInfo } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import {
@@ -30,6 +27,7 @@ import {
 import {
   sessionCheckFrequency,
   stateCheckInactivityActivationInterval,
+  sessionStateValidator,
 } from 'lib/types/session-types.js';
 import {
   type ClientSocketMessage,
@@ -106,12 +104,7 @@ const clientSocketMessageInputValidator: TUnion<ClientSocketMessage> = t.union([
         cookie: t.maybe(tCookie),
         sessionID: t.maybe(t.String),
       }),
-      sessionState: tShape({
-        calendarQuery: calendarQueryValidator,
-        messagesCurrentAsOf: t.Number,
-        updatesCurrentAsOf: t.Number,
-        watchedIDs: t.list(t.String),
-      }),
+      sessionState: sessionStateValidator,
       clientResponses: t.list(clientResponseInputValidator),
     }),
   }),
