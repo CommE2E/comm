@@ -7,6 +7,7 @@ import { baseLegalPolicies } from 'lib/facts/policies.js';
 import type { PolicyType } from 'lib/facts/policies.js';
 import type { Endpoint } from 'lib/types/endpoints.js';
 import { calendarQueryValidator } from 'lib/types/entry-types.js';
+import { sessionStateValidator } from 'lib/types/session-types.js';
 import { endpointValidators } from 'lib/types/validators/endpoint-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
@@ -121,6 +122,7 @@ import {
   roleDeletionRequestInputValidator,
   roleModificationRequestInputValidator,
 } from './responders/thread-responders.js';
+import { fetchPendingUpdatesResponder } from './responders/update-responders.js';
 import {
   keyserverAuthRequestInputValidator,
   keyserverAuthResponder,
@@ -287,6 +289,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   fetch_messages: {
     responder: messageFetchResponder,
     inputValidator: fetchMessageInfosRequestInputValidator,
+    policies: baseLegalPolicies,
+  },
+  fetch_pending_updates: {
+    responder: fetchPendingUpdatesResponder,
+    inputValidator: sessionStateValidator,
     policies: baseLegalPolicies,
   },
   fetch_pinned_messages: {
