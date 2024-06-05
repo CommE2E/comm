@@ -11,9 +11,12 @@ import {
 import type { LinkStatus } from 'lib/hooks/invite-links.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import { type InviteLinkVerificationResponse } from 'lib/types/link-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import css from './accept-invite-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
 
@@ -33,13 +36,30 @@ function AcceptInviteModal(props: Props): React.Node {
   const { popModal } = useModalContext();
   const calendarQuery = useSelector(nonThreadCalendarQuery);
 
+  const dispatch = useDispatch();
+  const navigateToThread = React.useCallback(
+    (threadInfo: ThreadInfo) => {
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          chatMode: 'view',
+          activeChatThreadID: threadInfo.id,
+          tab: 'chat',
+        },
+      });
+      popModal();
+    },
+    [dispatch, popModal],
+  );
+
   const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
     verificationResponse,
     inviteSecret,
     keyserverOverride,
     calendarQuery,
-    onFinish: popModal,
+    closeModal: popModal,
     setLinkStatus,
+    navigateToThread,
   });
 
   let content;
