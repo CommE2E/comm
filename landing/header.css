@@ -72,7 +72,7 @@ div.socialIconsContainer a {
 
 div.twitterIcon,
 div.githubIcon,
-div.webappIcon {
+div.commAppIcon {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,7 +90,7 @@ div.menuIcon {
 
 div.twitterIcon svg,
 div.githubIcon svg,
-div.webappIcon svg {
+div.commAppIcon svg {
   transition: 300ms;
 }
 
@@ -105,7 +105,7 @@ div.webappIcon svg {
     transition: 300ms;
   }
 
-  div.webappIcon:hover {
+  div.commAppIcon:hover {
     background-color: var(--btn-bg);
     transition: 300ms;
   }
@@ -124,7 +124,7 @@ div.webappIcon svg {
 
   div.twitterIcon,
   div.githubIcon,
-  div.webappIcon {
+  div.commAppIcon {
     display: none;
   }
 
@@ -146,7 +146,7 @@ div.webappIcon svg {
 }
 
 /* max-width should be kept in sync with HEADER_BREAKPOINT in header.react */
-@media screen and (max-width: 848px) and (hover: hover) {
+@media screen and (max-width: 904px) and (hover: hover) {
   div.menuIcon:hover {
     cursor: pointer;
     background-color: var(--btn-bg);
