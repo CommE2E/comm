@@ -11,6 +11,7 @@ import {
 
 import AppLanding from './app-landing.react.js';
 import ConnectFarcaster from './connect-farcaster.react.js';
+import Download from './download.react.js';
 import Footer from './footer.react.js';
 import Header, { HEADER_BREAKPOINT } from './header.react.js';
 import Investors from './investors.react.js';
@@ -100,6 +101,7 @@ function LandingSite(): React.Node {
   const onQR = useRouteMatch({ path: '/qr' });
   const onTeam = useRouteMatch({ path: '/team' });
   const onInvestors = useRouteMatch({ path: '/investors' });
+  const onDownload = useRouteMatch({ path: '/download' });
 
   const activePage = React.useMemo(() => {
     if (onPrivacy) {
@@ -116,10 +118,21 @@ function LandingSite(): React.Node {
       return <Team />;
     } else if (onInvestors) {
       return <Investors />;
+    } else if (onDownload) {
+      return <Download />;
     } else {
       return <AppLanding />;
     }
-  }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onInvestors, onQR]);
+  }, [
+    onPrivacy,
+    onTerms,
+    onSupport,
+    onKeyservers,
+    onQR,
+    onTeam,
+    onInvestors,
+    onDownload,
+  ]);
 
   let header;
   if (!onQR) {
