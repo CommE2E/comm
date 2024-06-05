@@ -11,6 +11,7 @@ import type { LinkStatus } from 'lib/hooks/invite-links.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types';
 
 import { nonThreadCalendarQuery } from './nav-selectors.js';
 import { NavContext } from './navigation-context.js';
@@ -50,13 +51,22 @@ function InviteLinkModal(props: Props): React.Node {
     }),
   );
 
+  const navigateToThreadWithParams = useNavigateToThread();
+  const navigateToThread = React.useCallback(
+    (threadInfo: ThreadInfo) => {
+      navigateToThreadWithParams({ threadInfo });
+    },
+    [navigateToThreadWithParams],
+  );
+
   const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
     verificationResponse: invitationDetails,
     inviteSecret: secret,
     keyserverOverride,
     calendarQuery,
-    onFinish: props.navigation.goBack,
+    closeModal: props.navigation.goBack,
     setLinkStatus,
+    navigateToThread,
   });
 
   const header = React.useMemo(() => {
@@ -90,7 +100,6 @@ function InviteLinkModal(props: Props): React.Node {
   ]);
 
   const threadInfos = useSelector(threadInfoSelector);
-  const navigateToThread = useNavigateToThread();
   const closeModal = React.useCallback(() => {
     const communityID = invitationDetails.community?.id;
     if (
@@ -98,7 +107,7 @@ function InviteLinkModal(props: Props): React.Node {
       communityID &&
       threadInfos[communityID]
     ) {
-      navigateToThread({ threadInfo: threadInfos[communityID] });
+      navigateToThread(threadInfos[communityID]);
     } else {
       props.navigation.goBack();
     }
