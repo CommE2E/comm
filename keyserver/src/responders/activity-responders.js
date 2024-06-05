@@ -8,6 +8,7 @@ import {
   type SetThreadUnreadStatusRequest,
   type SetThreadUnreadStatusResult,
   type ActivityUpdate,
+  activityUpdateValidator,
 } from 'lib/types/activity-types.js';
 import { tShape, tID } from 'lib/utils/validation-utils.js';
 
@@ -18,11 +19,7 @@ import {
 } from '../updaters/activity-updaters.js';
 
 const activityUpdatesInputValidator: TList<Array<ActivityUpdate>> = t.list(
-  tShape({
-    focus: t.Bool,
-    threadID: tID,
-    latestMessage: t.maybe(tID),
-  }),
+  activityUpdateValidator,
 );
 
 export const updateActivityResponderInputValidator: TInterface<UpdateActivityRequest> =
