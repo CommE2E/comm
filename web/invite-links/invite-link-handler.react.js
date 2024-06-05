@@ -7,9 +7,12 @@ import {
   verifyInviteLinkActionTypes,
 } from 'lib/actions/link-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
-import type { KeyserverOverride } from 'lib/shared/invite-links.js';
+import {
+  getKeyserverOverrideForAnInviteLink,
+  type KeyserverOverride,
+} from 'lib/shared/invite-links.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
@@ -58,6 +61,7 @@ function InviteLinkHandler(): null {
   }, [dispatch, inviteSecret, loggedIn, pushModal]);
 
   const validateLink = useVerifyInviteLink(keyserverOverride);
+  const threadInfos = useSelector(threadInfoSelector);
   React.useEffect(() => {
     const secret = inviteLinkSecret.current;
     if (keyserverOverride === undefined || !secret) {
@@ -82,6 +86,22 @@ function InviteLinkHandler(): null {
         };
       }
 
+      const communityID = result.community?.id;
+      if (
+        communityID &&
+        result.status === 'already_joined' &&
+        threadInfos[communityID]
+      ) {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            chatMode: 'view',
+            activeChatThreadID: communityID,
+            tab: 'chat',
+          },
+        });
+      }
+
       pushModal(
         <AcceptInviteModal
           verificationResponse={result}
@@ -90,7 +110,14 @@ function InviteLinkHandler(): null {
         />,
       );
     })();
-  }, [dispatchActionPromise, keyserverOverride, pushModal, validateLink]);
+  }, [
+    dispatch,
+    dispatchActionPromise,
+    keyserverOverride,
+    pushModal,
+    threadInfos,
+    validateLink,
+  ]);
 
   return null;
 }
