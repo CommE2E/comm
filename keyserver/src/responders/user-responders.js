@@ -51,6 +51,7 @@ import type {
 import {
   type CalendarQuery,
   type FetchEntryInfosBase,
+  calendarQueryValidator,
 } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types.js';
 import type {
@@ -89,7 +90,6 @@ import {
 
 import {
   entryQueryInputValidator,
-  newEntryQueryInputValidator,
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders.js';
@@ -229,7 +229,7 @@ export const registerRequestInputValidator: TInterface<RegisterRequest> =
     username: t.String,
     email: t.maybe(tEmail),
     password: tPassword,
-    calendarQuery: t.maybe(newEntryQueryInputValidator),
+    calendarQuery: t.maybe(calendarQueryValidator),
     deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
     platformDetails: tPlatformDetails,
     // We include `primaryIdentityPublicKey` to avoid breaking

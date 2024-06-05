@@ -6,6 +6,7 @@ import type { TType } from 'tcomb';
 import { baseLegalPolicies } from 'lib/facts/policies.js';
 import type { PolicyType } from 'lib/facts/policies.js';
 import type { Endpoint } from 'lib/types/endpoints.js';
+import { calendarQueryValidator } from 'lib/types/entry-types.js';
 import { endpointValidators } from 'lib/types/validators/endpoint-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
 
@@ -32,7 +33,6 @@ import {
   deleteEntryRequestInputValidator,
   entryQueryInputValidator,
   entryRevisionHistoryFetchInputValidator,
-  newEntryQueryInputValidator,
   restoreEntryRequestInputValidator,
   saveEntryRequestInputValidator,
 } from './responders/entry-responders.js';
@@ -396,7 +396,7 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   },
   update_calendar_query: {
     responder: calendarQueryUpdateResponder,
-    inputValidator: newEntryQueryInputValidator,
+    inputValidator: calendarQueryValidator,
     policies: baseLegalPolicies,
   },
   update_user_settings: {
