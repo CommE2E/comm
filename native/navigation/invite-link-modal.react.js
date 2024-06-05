@@ -8,6 +8,7 @@ import {
   useAcceptInviteLink,
 } from 'lib/hooks/invite-links.js';
 import type { LinkStatus } from 'lib/hooks/invite-links.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links';
 import type { InviteLinkVerificationResponse } from 'lib/types/link-types.js';
 
@@ -15,6 +16,7 @@ import { nonThreadCalendarQuery } from './nav-selectors.js';
 import { NavContext } from './navigation-context.js';
 import type { RootNavigationProp } from './root-navigator.react.js';
 import type { NavigationRoute } from './route-names.js';
+import { useNavigateToThread } from '../chat/message-list-types.js';
 import Button from '../components/button.react.js';
 import Modal from '../components/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -87,6 +89,27 @@ function InviteLinkModal(props: Props): React.Node {
     linkStatus,
   ]);
 
+  const threadInfos = useSelector(threadInfoSelector);
+  const navigateToThread = useNavigateToThread();
+  const closeModal = React.useCallback(() => {
+    const communityID = invitationDetails.community?.id;
+    if (
+      linkStatus === 'already_joined' &&
+      communityID &&
+      threadInfos[communityID]
+    ) {
+      navigateToThread({ threadInfo: threadInfos[communityID] });
+    } else {
+      props.navigation.goBack();
+    }
+  }, [
+    invitationDetails.community?.id,
+    linkStatus,
+    navigateToThread,
+    props.navigation,
+    threadInfos,
+  ]);
+
   const buttons = React.useMemo(() => {
     if (linkStatus === 'valid') {
       const joinButtonContent =
@@ -120,15 +143,16 @@ function InviteLinkModal(props: Props): React.Node {
     return (
       <Button
         style={[styles.button, styles.buttonPrimary]}
-        onPress={props.navigation.goBack}
+        onPress={closeModal}
       >
         <Text style={styles.buttonText}>Return to Comm</Text>
       </Button>
     );
   }, [
-    linkStatus,
+    closeModal,
     joinCommunity,
     joinThreadLoadingStatus,
+    linkStatus,
     props.navigation.goBack,
     styles.activityIndicatorStyle,
     styles.button,
