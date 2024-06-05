@@ -5,6 +5,7 @@ import {
   faExternalLinkAlt,
   faBars,
   faTimes,
+  faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
@@ -18,7 +19,7 @@ import typography from './typography.css';
 
 // This value comes from the breakpoint value in header.css. Please make sure
 // that this value is in sync with header.css if ever changed
-export const HEADER_BREAKPOINT = 848; // px
+export const HEADER_BREAKPOINT = 904; // px
 
 type Props = {
   +showMobileNav: boolean,
@@ -83,8 +84,22 @@ function Header(props: Props): React.Node {
           </NavLink>
         </div>
         <div className={css.socialIconsContainer}>
+          <NavLink
+            to="/download"
+            exact
+            className={navLinkClassName}
+            activeClassName={css.activeTab}
+          >
+            <div className={css.commAppIcon}>
+              <FontAwesomeIcon
+                icon={faDownload}
+                className={css.icon}
+                size="sm"
+              />
+            </div>
+          </NavLink>
           <a href="https://web.comm.app" target="_blank" rel="noreferrer">
-            <div className={css.webappIcon}>
+            <div className={css.commAppIcon}>
               <FontAwesomeIcon
                 icon={faExternalLinkAlt}
                 className={css.icon}
