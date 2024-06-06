@@ -747,6 +747,57 @@ impl DatabaseClient {
   }
 
   #[tracing::instrument(skip_all)]
+  pub async fn find_device_by_id(
+    &self,
+    device_id: &str,
+  ) -> Result<Option<DeviceRow>, Error> {
+    let response = self
+      .client
+      .query()
+      .table_name(devices_table::NAME)
+      .index_name(devices_table::DEVICE_ID_INDEX_NAME)
+      .key_condition_expression("#item_id = :device_id_attr")
+      .expression_attribute_names("#item_id", devices_table::ATTR_ITEM_ID)
+      .expression_attribute_values(
+        ":device_id_attr",
+        DeviceIDAttribute(device_id.to_string()).into(),
+      )
+      .send()
+      .await
+      .map_err(|err| {
+        error!(
+          errorType = error_types::DEVICE_LIST_DB_LOG,
+          "Failed to query for device ID: {:?}", err
+        );
+        Error::AwsSdk(err.into())
+      })?;
+
+    let Some(mut results) = response.items else {
+      debug!("Query by deviceID returned empty response");
+      return Ok(None);
+    };
+
+    if results.len() > 1 {
+      error!(
+        errorType = error_types::DEVICE_LIST_DB_LOG,
+        "Devices table contains more than one device with ID: {}", device_id
+      );
+      return Err(Error::IllegalState);
+    }
+
+    let Some(user_id) = results
+      .pop()
+      .map(|mut attrs| attrs.take_attr::<String>(devices_table::ATTR_USER_ID))
+      .transpose()?
+    else {
+      debug!("No device found with ID: {}", device_id);
+      return Ok(None);
+    };
+
+    self.get_device_data(user_id, device_id).await
+  }
+
+  #[tracing::instrument(skip_all)]
   pub async fn update_device_prekeys(
     &self,
     user_id: impl Into<String>,
