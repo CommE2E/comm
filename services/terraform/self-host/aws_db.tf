@@ -9,7 +9,7 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
     from_port   = 3307
     to_port     = 3307
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${var.allowed_ip}/32"]
   }
 
   # Outbound rules
@@ -34,8 +34,8 @@ resource "aws_db_instance" "mariadb" {
   instance_class         = "db.m6g.large"
   db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
-  username               = local.secrets["mariaDB"]["username"]
-  password               = local.secrets["mariaDB"]["password"]
+  username               = var.mariadb_username
+  password               = var.mariadb_password
   parameter_group_name   = aws_db_parameter_group.mariadb_parameter_group.name
   storage_encrypted      = true
   publicly_accessible    = true
