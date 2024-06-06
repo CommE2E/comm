@@ -1,7 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View, ActivityIndicator } from 'react-native';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  TextInput as BaseTextInput,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
 import {
@@ -9,14 +14,17 @@ import {
   useDeleteAccount,
 } from 'lib/actions/user-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
 import Button from '../components/button.react.js';
+import TextInput from '../components/text-input.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useStyles } from '../themes/colors.js';
+import { useStyles, useColors } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
 const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
@@ -34,6 +42,11 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
     );
 
     const styles = useStyles(unboundStyles);
+    const isAccountWithPassword = useSelector(state =>
+      accountHasPassword(state.currentUserInfo),
+    );
+    const { panelForegroundTertiaryLabel } = useColors();
+    const [password, setPassword] = React.useState('');
 
     const dispatchActionPromise = useDispatchActionPromise();
     const callDeleteAccount = useDeleteAccount();
@@ -50,30 +63,72 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
       () => [styles.warningText, styles.lastWarningText],
       [styles.warningText, styles.lastWarningText],
     );
+    const passwordInputRef =
+      React.useRef<?React.ElementRef<typeof BaseTextInput>>(null);
+
+    const onErrorAlertAcknowledged = React.useCallback(() => {
+      passwordInputRef.current?.focus();
+    }, []);
 
     const deleteAccountAction = React.useCallback(async () => {
       try {
         await deleteNativeCredentialsFor();
-        return await callDeleteAccount();
+        return await callDeleteAccount(password);
       } catch (e) {
         Alert.alert(
           'Unknown error deleting account',
           'Uhh... try again?',
-          [{ text: 'OK' }],
+          [{ text: 'OK', onPress: onErrorAlertAcknowledged }],
           {
             cancelable: false,
           },
         );
         throw e;
       }
-    }, [callDeleteAccount]);
+    }, [callDeleteAccount, onErrorAlertAcknowledged, password]);
 
     const onDelete = React.useCallback(() => {
+      if (!password && isAccountWithPassword && usingCommServicesAccessToken) {
+        Alert.alert('Password Required', 'Please enter your password.', [
+          { text: 'OK', onPress: onErrorAlertAcknowledged },
+        ]);
+        return;
+      }
       void dispatchActionPromise(
         deleteAccountActionTypes,
         deleteAccountAction(),
       );
-    }, [dispatchActionPromise, deleteAccountAction]);
+    }, [
+      password,
+      isAccountWithPassword,
+      dispatchActionPromise,
+      deleteAccountAction,
+      onErrorAlertAcknowledged,
+    ]);
+
+    let inputPasswordPrompt;
+    if (isAccountWithPassword && usingCommServicesAccessToken) {
+      inputPasswordPrompt = (
+        <>
+          <Text style={styles.header}>PASSWORD</Text>
+          <View style={styles.section}>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Password"
+              placeholderTextColor={panelForegroundTertiaryLabel}
+              secureTextEntry={true}
+              textContentType="password"
+              autoComplete="password"
+              returnKeyType="go"
+              onSubmitEditing={onDelete}
+              ref={passwordInputRef}
+            />
+          </View>
+        </>
+      );
+    }
 
     return (
       <ScrollView
@@ -90,6 +145,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
             There is no way to reverse this.
           </Text>
         </View>
+        {inputPasswordPrompt}
         <Button
           onPress={onDelete}
           style={styles.deleteButton}
@@ -130,6 +186,32 @@ const unboundStyles = {
     fontSize: 16,
     marginHorizontal: 24,
     textAlign: 'center',
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
+  },
+  section: {
+    backgroundColor: 'panelForeground',
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
   },
 };
 
