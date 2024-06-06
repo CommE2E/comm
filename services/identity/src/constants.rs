@@ -94,6 +94,7 @@ pub mod devices_table {
   /// table name
   pub const NAME: &str = "identity-devices";
   pub const TIMESTAMP_INDEX_NAME: &str = "deviceList-timestamp-index";
+  pub const DEVICE_ID_INDEX_NAME: &str = "deviceID-index";
 
   /// partition key
   pub const ATTR_USER_ID: &str = "userID";
@@ -105,11 +106,11 @@ pub mod devices_table {
   pub const DEVICE_LIST_KEY_PREFIX: &str = "devicelist-";
 
   // device-specific attrs
-  pub const OLD_ATTR_DEVICE_TYPE: &str = "deviceType";
   pub const ATTR_DEVICE_KEY_INFO: &str = "deviceKeyInfo";
   pub const ATTR_CONTENT_PREKEY: &str = "contentPreKey";
   pub const ATTR_NOTIF_PREKEY: &str = "notifPreKey";
   pub const ATTR_PLATFORM_DETAILS: &str = "platformDetails";
+  pub const ATTR_LOGIN_TIME: &str = "loginTime";
 
   // IdentityKeyInfo constants
   pub const ATTR_KEY_PAYLOAD: &str = "keyPayload";
@@ -131,13 +132,13 @@ pub mod devices_table {
   pub const ATTR_CURRENT_SIGNATURE: &str = "curPrimarySignature";
   pub const ATTR_LAST_SIGNATURE: &str = "lastPrimarySignature";
 
-  // migration-specific attrs
-  pub const OLD_ATTR_CODE_VERSION: &str = "codeVersion";
-  pub const ATTR_LOGIN_TIME: &str = "loginTime";
-
   // one-time key constants
   pub const ATTR_CONTENT_OTK_COUNT: &str = "contentOTKCount";
   pub const ATTR_NOTIF_OTK_COUNT: &str = "notifOTKCount";
+
+  // deprecated attributes
+  pub const OLD_ATTR_DEVICE_TYPE: &str = "deviceType";
+  pub const OLD_ATTR_CODE_VERSION: &str = "codeVersion";
 }
 
 // One time keys table, which need to exist in their own table to ensure
