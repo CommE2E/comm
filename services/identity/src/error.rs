@@ -29,6 +29,8 @@ pub enum Error {
   #[display(...)]
   MaxRetriesExceeded,
   #[display(...)]
+  IllegalState,
+  #[display(...)]
   InvalidFormat,
   #[display(...)]
   NotEnoughOneTimeKeys,
