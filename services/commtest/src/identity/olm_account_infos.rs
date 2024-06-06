@@ -16,8 +16,29 @@ pub struct ClientPublicKeys {
 }
 
 impl ClientPublicKeys {
+  /// Generates random keys with given `ed25519` primary account
+  /// signing public key. Use [`ClientPublicKeys::default`] for random key.
+  pub fn new(primary_signing_public_key: impl Into<String>) -> Self {
+    Self {
+      primary_identity_public_keys: IdentityPublicKeys {
+        ed25519: primary_signing_public_key.into(),
+        curve25519: generate_random_olm_key(),
+      },
+      notification_identity_public_keys: IdentityPublicKeys {
+        ed25519: generate_random_olm_key(),
+        curve25519: generate_random_olm_key(),
+      },
+    }
+  }
+
   pub fn device_id(&self) -> String {
     self.primary_identity_public_keys.ed25519.clone()
+  }
+}
+
+impl Default for ClientPublicKeys {
+  fn default() -> Self {
+    Self::new(generate_random_olm_key())
   }
 }
 
