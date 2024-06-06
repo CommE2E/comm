@@ -177,7 +177,7 @@ async fn test_device_list_signatures() {
   let first_update: DeviceListHistoryItem = {
     let update_payload =
       SignedDeviceList::from_raw_unsigned(&RawDeviceList::new(vec![
-        primary_device_id.clone(),
+        primary_device_id.to_string(),
         "device2".to_string(),
       ]));
     let update_request = UpdateDeviceListRequest::from(&update_payload);
@@ -195,7 +195,7 @@ async fn test_device_list_signatures() {
   // now perform a update (remove a device), but sign the device list
   let second_update: DeviceListHistoryItem = {
     let update_payload = SignedDeviceList::create_signed(
-      &RawDeviceList::new(vec![primary_device_id.clone()]),
+      &RawDeviceList::new(vec![primary_device_id.to_string()]),
       &mut primary_account,
       None,
     );
@@ -215,7 +215,7 @@ async fn test_device_list_signatures() {
   {
     let mut update_payload = SignedDeviceList::create_signed(
       &RawDeviceList::new(vec![
-        primary_device_id.clone(),
+        primary_device_id.to_string(),
         "device3".to_string(),
       ]),
       &mut primary_account,
@@ -240,7 +240,7 @@ async fn test_device_list_signatures() {
     get_device_list_history(&mut auth_client, &user.user_id).await;
 
   let expected_devices_lists: Vec<DeviceListHistoryItem> = vec![
-    (None, vec![primary_device_id.clone()]), // auto-generated during registration
+    (None, vec![primary_device_id.to_string()]), // auto-generated during registration
     first_update,
     second_update,
   ];
@@ -385,7 +385,7 @@ async fn test_initial_device_list() {
   // create signing account
   let mut primary_account = SigningCapableAccount::new();
   let primary_device_keys = primary_account.public_keys();
-  let primary_device_id = primary_device_keys.device_id();
+  let primary_device_id = primary_device_keys.device_id().to_string();
 
   // create initial device list
   let raw_device_list = RawDeviceList::new(vec![primary_device_id]);
