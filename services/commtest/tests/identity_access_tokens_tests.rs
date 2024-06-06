@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::SigningCapableAccount;
+use commtest::identity::MockOlmAccount;
 use commtest::service_addr;
 use grpc_clients::identity::protos::unauth::{
   Empty, ExistingDeviceLoginRequest,
@@ -42,7 +42,7 @@ async fn refresh_token_test() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let account = SigningCapableAccount::new();
+  let account = MockOlmAccount::new();
   let client_keys = account.public_keys();
   let user = register_user_device(Some(&client_keys), None).await;
 
