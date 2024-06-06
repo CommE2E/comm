@@ -746,11 +746,13 @@ impl DatabaseClient {
     Ok(user_devices_keys)
   }
 
+  /// Find owner's user ID for given device ID. Useful for finding
+  /// devices table partition key.
   #[tracing::instrument(skip_all)]
-  pub async fn find_device_by_id(
+  pub async fn find_user_id_for_device(
     &self,
     device_id: &str,
-  ) -> Result<Option<DeviceRow>, Error> {
+  ) -> Result<Option<String>, Error> {
     let response = self
       .client
       .query()
@@ -785,15 +787,23 @@ impl DatabaseClient {
       return Err(Error::IllegalState);
     }
 
-    let Some(user_id) = results
+    let user_id = results
       .pop()
       .map(|mut attrs| attrs.take_attr::<String>(devices_table::ATTR_USER_ID))
-      .transpose()?
-    else {
+      .transpose()?;
+
+    Ok(user_id)
+  }
+
+  #[tracing::instrument(skip_all)]
+  pub async fn find_device_by_id(
+    &self,
+    device_id: &str,
+  ) -> Result<Option<DeviceRow>, Error> {
+    let Some(user_id) = self.find_user_id_for_device(device_id).await? else {
       debug!("No device found with ID: {}", device_id);
       return Ok(None);
     };
-
     self.get_device_data(user_id, device_id).await
   }
 
