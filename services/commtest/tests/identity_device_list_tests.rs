@@ -6,8 +6,7 @@ use commtest::identity::device::{
   login_user_device, logout_user_device, register_user_device,
   register_user_device_with_device_list, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::olm_account_infos::ClientPublicKeys;
-use commtest::identity::MockOlmAccount;
+use commtest::identity::olm_account::{ClientPublicKeys, MockOlmAccount};
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::auth::{
