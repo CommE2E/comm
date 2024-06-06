@@ -31,8 +31,8 @@ impl ClientPublicKeys {
     }
   }
 
-  pub fn device_id(&self) -> String {
-    self.primary_identity_public_keys.ed25519.clone()
+  pub fn device_id(&self) -> &str {
+    &self.primary_identity_public_keys.ed25519
   }
 }
 
