@@ -5,8 +5,7 @@ use grpc_clients::identity::{
 use rand::{distributions::Alphanumeric, Rng};
 use std::borrow::Cow;
 
-use crate::identity::olm_account_infos::generate_random_olm_key;
-use crate::identity::olm_account_infos::ClientPublicKeys;
+use crate::identity::olm_account::{generate_random_olm_key, ClientPublicKeys};
 
 use crate::service_addr;
 use grpc_clients::identity::protos::unauth::{
