@@ -166,11 +166,25 @@ resource "aws_dynamodb_table" "identity-devices" {
     type = "N"
   }
 
+  # used for deviceID-index
+  attribute {
+    name = "loginTime"
+    type = "S"
+  }
+
   # sparse index allowing to sort device list updates by timestamp
   local_secondary_index {
     name            = "deviceList-timestamp-index"
     range_key       = "timestamp"
     projection_type = "ALL"
+  }
+
+  # sort key used for sparse indexing (present only for devices)
+  global_secondary_index {
+    name            = "deviceID-index"
+    hash_key        = "itemID"
+    range_key       = "loginTime"
+    projection_type = "KEYS_ONLY"
   }
 }
 
