@@ -2,14 +2,13 @@ use base64::Engine;
 use ed25519_dalek::{ed25519::signature::Signer, Keypair, Signature};
 use rand::rngs::OsRng;
 
-use self::olm_account_infos::{
-  ClientPublicKeys, IdentityPublicKeys, DEFAULT_CLIENT_KEYS,
-};
+use self::olm_account_infos::ClientPublicKeys;
 
 pub mod device;
 pub mod olm_account_infos;
 
 pub struct SigningCapableAccount {
+  // primary account ed25519 keypair
   signing_key: Keypair,
 }
 
@@ -22,18 +21,11 @@ impl SigningCapableAccount {
 
   /// returns device public keys, required for device key upload
   pub fn public_keys(&self) -> ClientPublicKeys {
-    let default = DEFAULT_CLIENT_KEYS.clone();
     let signing_public_key = self.signing_key.public.to_bytes();
     let ed25519 = base64::engine::general_purpose::STANDARD_NO_PAD
       .encode(signing_public_key);
 
-    ClientPublicKeys {
-      primary_identity_public_keys: IdentityPublicKeys {
-        ed25519,
-        ..default.primary_identity_public_keys
-      },
-      ..default
-    }
+    ClientPublicKeys::new(ed25519)
   }
 
   /// signs message, returns signature
