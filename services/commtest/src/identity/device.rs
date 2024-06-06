@@ -65,7 +65,7 @@ pub async fn register_user_device_with_device_list(
   let example_payload = serde_json::to_string(&device_keys)
     .expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
-  let device_id = &device_keys.primary_identity_public_keys.ed25519;
+  let device_id = device_keys.device_id();
   let device_type = device_type.unwrap_or(DeviceType::Keyserver);
 
   let mut client_registration = Registration::new();
@@ -147,7 +147,7 @@ pub async fn login_user_device(
   let example_payload = serde_json::to_string(&device_keys)
     .expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
-  let device_id = &device_keys.primary_identity_public_keys.ed25519;
+  let device_id = device_keys.device_id();
   let device_type = device_type.unwrap_or(DeviceType::Keyserver);
 
   let mut client_login = Login::new();
