@@ -141,6 +141,12 @@ impl IdentityClientService for ClientService {
       message.username.clone(),
       message.farcaster_id.clone(),
     )?;
+    self
+      .check_device_id_taken(
+        &registration_state.flattened_device_key_upload,
+        None,
+      )
+      .await?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -197,6 +203,12 @@ impl IdentityClientService for ClientService {
       message.username.clone(),
       None,
     )?;
+    self
+      .check_device_id_taken(
+        &registration_state.flattened_device_key_upload,
+        None,
+      )
+      .await?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -322,6 +334,9 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    self
+      .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+      .await?;
 
     let maybe_device_to_remove = self
       .get_keyserver_device_to_remove(
@@ -485,6 +500,10 @@ impl IdentityClientService for ClientService {
     };
 
     self
+      .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+      .await?;
+
+    self
       .client
       .add_user_device(
         user_id.clone(),
@@ -573,6 +592,9 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    self
+      .check_device_id_taken(&flattened_device_key_upload, None)
+      .await?;
 
     let login_time = chrono::Utc::now();
 
@@ -658,6 +680,9 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    self
+      .check_device_id_taken(&flattened_device_key_upload, None)
+      .await?;
 
     let initial_device_list = message.get_and_verify_initial_device_list()?;
     let social_proof =
@@ -721,6 +746,10 @@ impl IdentityClientService for ClientService {
 
     let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
+
+    self
+      .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+      .await?;
 
     let user_identity = self
       .client
@@ -1046,6 +1075,38 @@ impl ClientService {
       ));
     }
     Ok(())
+  }
+
+  async fn check_device_id_taken(
+    &self,
+    key_upload: &FlattenedDeviceKeyUpload,
+    requesting_user_id: Option<&str>,
+  ) -> Result<(), tonic::Status> {
+    let device_id = key_upload.device_id_key.as_str();
+    let Some(existing_device_user_id) = self
+      .client
+      .find_user_id_for_device(device_id)
+      .await
+      .map_err(handle_db_error)?
+    else {
+      // device ID doesn't exist
+      return Ok(());
+    };
+
+    // allow already-existing device ID for the same user
+    match requesting_user_id {
+      Some(user_id) if user_id == existing_device_user_id => {
+        debug!(
+          "Found already-existing device {} for user {}",
+          device_id, user_id
+        );
+        Ok(())
+      }
+      _ => {
+        warn!("Device ID already exists: {device_id}");
+        Err(tonic::Status::already_exists("device_already_exists"))
+      }
+    }
   }
 
   async fn verify_and_remove_nonce(
