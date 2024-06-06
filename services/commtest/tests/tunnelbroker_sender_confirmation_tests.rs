@@ -1,7 +1,4 @@
 use commtest::identity::device::register_user_device;
-use commtest::identity::olm_account_infos::{
-  DEFAULT_CLIENT_KEYS, MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
-};
 use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::Message;
@@ -14,8 +11,8 @@ use tunnelbroker_messages::{
 
 #[tokio::test]
 async fn get_confirmation() {
-  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
-  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
+  let sender = register_user_device(None, None).await;
+  let receiver = register_user_device(None, None).await;
 
   let client_message_id = "mockID".to_string();
 
@@ -53,7 +50,7 @@ async fn get_confirmation() {
 
 #[tokio::test]
 async fn get_serialization_error() {
-  let sender = register_user_device(Some(&DEFAULT_CLIENT_KEYS), None).await;
+  let sender = register_user_device(None, None).await;
   let message = "some bad json".to_string();
 
   let mut sender_socket = create_socket(&sender).await.unwrap();
@@ -74,7 +71,7 @@ async fn get_serialization_error() {
 
 #[tokio::test]
 async fn get_invalid_request_error() {
-  let sender = register_user_device(Some(&DEFAULT_CLIENT_KEYS), None).await;
+  let sender = register_user_device(None, None).await;
 
   let mut sender_socket = create_socket(&sender).await.unwrap();
   sender_socket
