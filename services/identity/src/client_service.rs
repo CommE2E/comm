@@ -141,6 +141,9 @@ impl IdentityClientService for ClientService {
       message.username.clone(),
       message.farcaster_id.clone(),
     )?;
+    self
+      .check_device_id_taken(&registration_state.flattened_device_key_upload)
+      .await?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -197,6 +200,9 @@ impl IdentityClientService for ClientService {
       message.username.clone(),
       None,
     )?;
+    self
+      .check_device_id_taken(&registration_state.flattened_device_key_upload)
+      .await?;
     let server_registration = comm_opaque2::server::Registration::new();
     let server_message = server_registration
       .start(
@@ -322,6 +328,13 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    if self
+      .check_device_id_taken(&flattened_device_key_upload)
+      .await
+      .is_err_and(|s| s.code() == tonic::Code::AlreadyExists)
+    {
+      warn!("Device ID already exists. Device data will be replaced.");
+    }
 
     let maybe_device_to_remove = self
       .get_keyserver_device_to_remove(
@@ -456,6 +469,13 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    if self
+      .check_device_id_taken(&flattened_device_key_upload)
+      .await
+      .is_err_and(|s| s.code() == tonic::Code::AlreadyExists)
+    {
+      warn!("Device ID already exists. Device data will be replaced.");
+    }
 
     let login_time = chrono::Utc::now();
     let Some(user_id) = self
@@ -573,6 +593,9 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    self
+      .check_device_id_taken(&flattened_device_key_upload)
+      .await?;
 
     let login_time = chrono::Utc::now();
 
@@ -658,6 +681,9 @@ impl IdentityClientService for ClientService {
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
+    self
+      .check_device_id_taken(&flattened_device_key_upload)
+      .await?;
 
     let initial_device_list = message.get_and_verify_initial_device_list()?;
     let social_proof =
@@ -721,6 +747,14 @@ impl IdentityClientService for ClientService {
 
     let nonce = challenge_response.verify_and_get_nonce(&device_id)?;
     self.verify_and_remove_nonce(&nonce).await?;
+
+    if self
+      .check_device_id_taken(&flattened_device_key_upload)
+      .await
+      .is_err_and(|s| s.code() == tonic::Code::AlreadyExists)
+    {
+      warn!("Device ID already exists. Device data will be replaced.");
+    }
 
     let user_identity = self
       .client
@@ -1045,6 +1079,24 @@ impl ClientService {
         "farcaster ID already associated with different user",
       ));
     }
+    Ok(())
+  }
+
+  async fn check_device_id_taken(
+    &self,
+    key_upload: &FlattenedDeviceKeyUpload,
+  ) -> Result<(), tonic::Status> {
+    let device_id = key_upload.device_id_key.as_str();
+    let device_already_exists = self
+      .client
+      .find_user_id_for_device(device_id)
+      .await
+      .map_err(handle_db_error)?
+      .is_some();
+    if device_already_exists {
+      return Err(tonic::Status::already_exists("Device ID already exists"));
+    }
+
     Ok(())
   }
 
