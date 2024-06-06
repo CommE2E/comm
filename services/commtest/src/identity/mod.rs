@@ -7,12 +7,12 @@ use self::olm_account_infos::ClientPublicKeys;
 pub mod device;
 pub mod olm_account_infos;
 
-pub struct SigningCapableAccount {
+pub struct MockOlmAccount {
   // primary account ed25519 keypair
   signing_key: Keypair,
 }
 
-impl SigningCapableAccount {
+impl MockOlmAccount {
   pub fn new() -> Self {
     let mut rng = OsRng {};
     let signing_key = Keypair::generate(&mut rng);
@@ -36,7 +36,7 @@ impl SigningCapableAccount {
   }
 }
 
-impl Default for SigningCapableAccount {
+impl Default for MockOlmAccount {
   fn default() -> Self {
     Self::new()
   }
