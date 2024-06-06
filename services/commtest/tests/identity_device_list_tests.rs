@@ -7,7 +7,7 @@ use commtest::identity::device::{
   register_user_device_with_device_list, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
 use commtest::identity::olm_account_infos::ClientPublicKeys;
-use commtest::identity::SigningCapableAccount;
+use commtest::identity::MockOlmAccount;
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
 use grpc_clients::identity::protos::auth::{
@@ -154,7 +154,7 @@ async fn test_device_list_signatures() {
   type DeviceListHistoryItem = (Option<String>, Vec<String>);
 
   // Register user with primary device
-  let mut primary_account = SigningCapableAccount::new();
+  let mut primary_account = MockOlmAccount::new();
   let primary_device_keys = primary_account.public_keys();
   let primary_device_id = primary_device_keys.device_id();
   let user =
@@ -376,7 +376,7 @@ async fn test_device_list_multifetch() {
 #[tokio::test]
 async fn test_initial_device_list() {
   // create signing account
-  let mut primary_account = SigningCapableAccount::new();
+  let mut primary_account = MockOlmAccount::new();
   let primary_device_keys = primary_account.public_keys();
   let primary_device_id = primary_device_keys.device_id().to_string();
 
@@ -470,8 +470,8 @@ impl SignedDeviceList {
 
   fn create_signed(
     raw: &RawDeviceList,
-    cur_primary_account: &mut SigningCapableAccount,
-    last_primary_account: Option<&mut SigningCapableAccount>,
+    cur_primary_account: &mut MockOlmAccount,
+    last_primary_account: Option<&mut MockOlmAccount>,
   ) -> Self {
     let raw_device_list = raw.as_json_string();
     let cur_primary_signature =
