@@ -1,5 +1,4 @@
 use commtest::identity::device::register_user_device;
-use commtest::identity::olm_account_infos::MOCK_CLIENT_KEYS_1;
 use commtest::tunnelbroker::socket::create_socket;
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::{Error, Message, Message::Close};
@@ -8,7 +7,7 @@ use tokio_tungstenite::tungstenite::{Error, Message, Message::Close};
 
 #[tokio::test]
 async fn test_ping_pong() {
-  let device = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let device = register_user_device(None, None).await;
 
   let ping_message = vec![1, 2, 3, 4, 5];
 
@@ -32,7 +31,7 @@ async fn test_ping_pong() {
 
 #[tokio::test]
 async fn test_close_message() {
-  let device = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
+  let device = register_user_device(None, None).await;
 
   let mut socket = create_socket(&device).await.unwrap();
   socket
