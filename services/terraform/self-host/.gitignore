@@ -1,7 +1,3 @@
-# User-specific files
-.sops.yaml
-keyserver_secrets.json
-
 # Local .terraform directories
 **/.terraform/*
 
