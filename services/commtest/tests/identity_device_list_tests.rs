@@ -6,6 +6,7 @@ use commtest::identity::device::{
   login_user_device, logout_user_device, register_user_device,
   register_user_device_with_device_list, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
+use commtest::identity::olm_account_infos::ClientPublicKeys;
 use commtest::identity::SigningCapableAccount;
 use commtest::service_addr;
 use grpc_clients::identity::authenticated::ChainedInterceptedAuthClient;
@@ -28,11 +29,9 @@ use serde::{Deserialize, Serialize};
 // - [ios, web] - mobile should be first
 #[tokio::test]
 async fn test_device_list_rotation() {
-  use commtest::identity::olm_account_infos::{
-    DEFAULT_CLIENT_KEYS as DEVICE_KEYS_ANDROID,
-    MOCK_CLIENT_KEYS_1 as DEVICE_KEYS_WEB,
-    MOCK_CLIENT_KEYS_2 as DEVICE_KEYS_IOS,
-  };
+  let device_keys_web = ClientPublicKeys::default();
+  let device_keys_ios = ClientPublicKeys::default();
+  let device_keys_android = ClientPublicKeys::default();
 
   // Create viewer (user that doesn't change devices)
   let viewer = register_user_device(None, None).await;
@@ -46,14 +45,13 @@ async fn test_device_list_rotation() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let android_device_id =
-    &DEVICE_KEYS_ANDROID.primary_identity_public_keys.ed25519;
-  let web_device_id = &DEVICE_KEYS_WEB.primary_identity_public_keys.ed25519;
-  let ios_device_id = &DEVICE_KEYS_IOS.primary_identity_public_keys.ed25519;
+  let android_device_id = device_keys_android.device_id();
+  let web_device_id = device_keys_web.device_id();
+  let ios_device_id = device_keys_ios.device_id();
 
   // 1. Register user with primary Android device
   let android =
-    register_user_device(Some(&DEVICE_KEYS_ANDROID), Some(DeviceType::Android))
+    register_user_device(Some(&device_keys_android), Some(DeviceType::Android))
       .await;
   let user_id = android.user_id.clone();
   let username = android.username.clone();
@@ -61,7 +59,7 @@ async fn test_device_list_rotation() {
   // 2. Log in a web device
   let _web = login_user_device(
     &username,
-    Some(&DEVICE_KEYS_WEB),
+    Some(&device_keys_web),
     Some(DeviceType::Web),
     false,
   )
@@ -73,7 +71,7 @@ async fn test_device_list_rotation() {
   // 4. Log in an iOS device
   let _ios = login_user_device(
     &username,
-    Some(&DEVICE_KEYS_IOS),
+    Some(&device_keys_ios),
     Some(DeviceType::Ios),
     false,
   )
@@ -254,11 +252,9 @@ async fn test_device_list_signatures() {
 
 #[tokio::test]
 async fn test_keyserver_force_login() {
-  use commtest::identity::olm_account_infos::{
-    DEFAULT_CLIENT_KEYS as DEVICE_KEYS_ANDROID,
-    MOCK_CLIENT_KEYS_1 as DEVICE_KEYS_KEYSERVER_1,
-    MOCK_CLIENT_KEYS_2 as DEVICE_KEYS_KEYSERVER_2,
-  };
+  let device_keys_android = ClientPublicKeys::default();
+  let device_keys_keyserver_1 = ClientPublicKeys::default();
+  let device_keys_keyserver_2 = ClientPublicKeys::default();
 
   // Create viewer (user that doesn't change devices)
   let viewer = register_user_device(None, None).await;
@@ -272,16 +268,13 @@ async fn test_keyserver_force_login() {
   .await
   .expect("Couldn't connect to identity service");
 
-  let android_device_id =
-    &DEVICE_KEYS_ANDROID.primary_identity_public_keys.ed25519;
-  let keyserver_1_device_id =
-    &DEVICE_KEYS_KEYSERVER_1.primary_identity_public_keys.ed25519;
-  let keyserver_2_device_id =
-    &DEVICE_KEYS_KEYSERVER_2.primary_identity_public_keys.ed25519;
+  let android_device_id = device_keys_android.device_id();
+  let keyserver_1_device_id = device_keys_keyserver_1.device_id();
+  let keyserver_2_device_id = device_keys_keyserver_2.device_id();
 
   // 1. Register user with primary Android device
   let android =
-    register_user_device(Some(&DEVICE_KEYS_ANDROID), Some(DeviceType::Android))
+    register_user_device(Some(&device_keys_android), Some(DeviceType::Android))
       .await;
   let user_id = android.user_id.clone();
   let username = android.username.clone();
@@ -289,7 +282,7 @@ async fn test_keyserver_force_login() {
   // 2. Log in on keyserver 1
   let _keyserver_1 = login_user_device(
     &username,
-    Some(&DEVICE_KEYS_KEYSERVER_1),
+    Some(&device_keys_keyserver_1),
     Some(DeviceType::Keyserver),
     false,
   )
@@ -298,7 +291,7 @@ async fn test_keyserver_force_login() {
   // 3. Log in on keyserver 2 with force = true
   let _keyserver_2 = login_user_device(
     &username,
-    Some(&DEVICE_KEYS_KEYSERVER_2),
+    Some(&device_keys_keyserver_2),
     Some(DeviceType::Keyserver),
     true,
   )

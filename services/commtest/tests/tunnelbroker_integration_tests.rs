@@ -3,9 +3,6 @@ mod proto {
 }
 
 use commtest::identity::device::register_user_device;
-use commtest::identity::olm_account_infos::{
-  MOCK_CLIENT_KEYS_1, MOCK_CLIENT_KEYS_2,
-};
 use commtest::service_addr;
 use commtest::tunnelbroker::socket::{
   create_socket, receive_message, send_message, WebSocketMessageToDevice,
@@ -59,8 +56,8 @@ async fn send_refresh_request() {
 
 #[tokio::test]
 async fn test_messages_order() {
-  let sender = register_user_device(Some(&MOCK_CLIENT_KEYS_1), None).await;
-  let receiver = register_user_device(Some(&MOCK_CLIENT_KEYS_2), None).await;
+  let sender = register_user_device(None, None).await;
+  let receiver = register_user_device(None, None).await;
 
   let messages = vec![
     WebSocketMessageToDevice {
