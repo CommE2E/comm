@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::MockOlmAccount;
+use commtest::identity::olm_account::MockOlmAccount;
 use commtest::service_addr;
 use grpc_clients::identity::protos::unauth::{
   Empty, ExistingDeviceLoginRequest,

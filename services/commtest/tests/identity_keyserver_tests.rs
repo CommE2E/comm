@@ -1,7 +1,7 @@
 use commtest::identity::device::{
   register_user_device, DEVICE_TYPE, PLACEHOLDER_CODE_VERSION,
 };
-use commtest::identity::olm_account_infos::generate_random_olm_key;
+use commtest::identity::olm_account::generate_random_olm_key;
 use commtest::service_addr;
 use grpc_clients::identity::PlatformMetadata;
 use grpc_clients::identity::{
