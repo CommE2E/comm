@@ -465,7 +465,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         );
         const discardIdentityAccountPromise = (async () => {
           try {
-            const deletionResult = await deleteDiscardedIdentityAccount();
+            const deletionResult = await deleteDiscardedIdentityAccount(
+              credentialsToSave?.password,
+            );
             if (messageForException === 'client_version_unsupported') {
               Alert.alert(
                 appOutOfDateAlertDetails.title,
