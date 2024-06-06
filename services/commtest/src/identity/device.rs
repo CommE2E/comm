@@ -3,11 +3,10 @@ use grpc_clients::identity::{
   get_auth_client, get_unauthenticated_client, PlatformMetadata,
 };
 use rand::{distributions::Alphanumeric, Rng};
+use std::borrow::Cow;
 
 use crate::identity::olm_account_infos::generate_random_olm_key;
-use crate::identity::olm_account_infos::{
-  ClientPublicKeys, DEFAULT_CLIENT_KEYS,
-};
+use crate::identity::olm_account_infos::ClientPublicKeys;
 
 use crate::service_addr;
 use grpc_clients::identity::protos::unauth::{
@@ -62,12 +61,11 @@ pub async fn register_user_device_with_device_list(
     .map(char::from)
     .collect();
 
-  // TODO: Generate dynamic valid olm account info
-  let keys = keys.unwrap_or_else(|| &DEFAULT_CLIENT_KEYS);
-  let example_payload =
-    serde_json::to_string(&keys).expect("Failed to serialize example payload");
+  let device_keys = keys.map(Cow::Borrowed).unwrap_or_default();
+  let example_payload = serde_json::to_string(&device_keys)
+    .expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
-  let device_id = &keys.primary_identity_public_keys.ed25519;
+  let device_id = &device_keys.primary_identity_public_keys.ed25519;
   let device_type = device_type.unwrap_or(DeviceType::Keyserver);
 
   let mut client_registration = Registration::new();
@@ -145,12 +143,11 @@ pub async fn login_user_device(
   device_type: Option<DeviceType>,
   force: bool,
 ) -> DeviceInfo {
-  // TODO: Generate dynamic valid olm account info
-  let keys = keys.unwrap_or_else(|| &DEFAULT_CLIENT_KEYS);
-  let example_payload =
-    serde_json::to_string(&keys).expect("Failed to serialize example payload");
+  let device_keys = keys.cloned().unwrap_or_default();
+  let example_payload = serde_json::to_string(&device_keys)
+    .expect("Failed to serialize example payload");
   // The ed25519 value from the olm payload
-  let device_id = &keys.primary_identity_public_keys.ed25519;
+  let device_id = &device_keys.primary_identity_public_keys.ed25519;
   let device_type = device_type.unwrap_or(DeviceType::Keyserver);
 
   let mut client_login = Login::new();
