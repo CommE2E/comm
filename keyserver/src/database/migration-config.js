@@ -823,6 +823,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
     },
   ],
+  [
+    65,
+    () =>
+      dbQuery(SQL`
+        ALTER TABLE invite_links
+          ADD COLUMN IF NOT EXISTS thread bigint(20) DEFAULT NULL
+      `),
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

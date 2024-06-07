@@ -279,7 +279,8 @@ async function createTables() {
         expiration_time bigint(20),
         limit_of_uses int UNSIGNED,
         number_of_uses int UNSIGNED NOT NULL DEFAULT 0,
-        blob_holder char(36) CHARSET latin1
+        blob_holder char(36) CHARSET latin1,
+        thread bigint(20) DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       CREATE TABLE olm_sessions (
