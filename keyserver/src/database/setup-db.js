@@ -279,7 +279,8 @@ async function createTables() {
         expiration_time bigint(20),
         limit_of_uses int UNSIGNED,
         number_of_uses int UNSIGNED NOT NULL DEFAULT 0,
-        blob_holder char(36) CHARSET latin1
+        blob_holder char(36) CHARSET latin1,
+        thread bigint(20) DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       CREATE TABLE olm_sessions (
@@ -429,7 +430,8 @@ async function createTables() {
       ALTER TABLE invite_links
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY (name),
-        ADD INDEX community_primary (community, \`primary\`);
+        ADD INDEX community_primary (community, \`primary\`),
+        ADD INDEX community_thread (community, thread);
 
       ALTER TABLE olm_sessions
         ADD PRIMARY KEY (cookie_id, is_content);
