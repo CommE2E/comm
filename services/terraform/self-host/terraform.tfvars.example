@@ -1,6 +1,4 @@
 mariadb_username    = "username"
 mariadb_password    = "password"
 region              = "us-west-1"
-availability_zone_1 = "us-west-1b"
-availability_zone_2 = "us-west-1c"
 allowed_ip          = "0.0.0.0"
