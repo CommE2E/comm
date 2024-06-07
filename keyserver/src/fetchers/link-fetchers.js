@@ -64,22 +64,33 @@ async function fetchInviteLinksWithCondition(
   const query = SQL`
     SELECT i.name, i.role, i.community, i.expiration_time AS expirationTime, 
       i.limit_of_uses AS limitOfUses, i.number_of_uses AS numberOfUses, 
-      i.\`primary\`, blob_holder AS blobHolder
+      i.\`primary\`, i.blob_holder AS blobHolder, i.thread, 
+      i.thread_role AS threadRole
     FROM invite_links i
   `;
   query.append(condition);
 
   const [result] = await dbQuery(query);
-  return result.map(row => ({
-    name: row.name,
-    primary: row.primary === 1,
-    role: row.role.toString(),
-    communityID: row.community.toString(),
-    expirationTime: row.expirationTime,
-    limitOfUses: row.limitOfUses,
-    numberOfUses: row.numberOfUses,
-    blobHolder: row.blobHolder,
-  }));
+  return result.map(row => {
+    const link = {
+      name: row.name,
+      primary: row.primary === 1,
+      role: row.role.toString(),
+      communityID: row.community.toString(),
+      expirationTime: row.expirationTime,
+      limitOfUses: row.limitOfUses,
+      numberOfUses: row.numberOfUses,
+      blobHolder: row.blobHolder,
+    };
+    if (row.thread && row.threadRole) {
+      return {
+        ...link,
+        threadID: row.thread.toString(),
+        threadRole: row.threadRole.toString(),
+      };
+    }
+    return link;
+  });
 }
 
 function fetchPrimaryInviteLinks(
