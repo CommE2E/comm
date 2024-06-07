@@ -59,40 +59,61 @@ async function createOrUpdatePublicLink(
     threadPermissions.MANAGE_INVITE_LINKS,
   );
   const existingPrimaryLinksPromise = fetchPrimaryInviteLinks(viewer);
+  const threadIDs = new Set([request.communityID]);
+  if (request.threadID) {
+    threadIDs.add(request.threadID);
+  }
   const fetchThreadInfoPromise = fetchServerThreadInfos({
-    threadID: request.communityID,
+    threadIDs,
   });
   const blobDownloadPromise = getInviteLinkBlob(request.name);
+  const canManageThreadLinksPromise = request.threadID
+    ? checkThreadPermission(
+        viewer,
+        request.threadID,
+        threadPermissions.MANAGE_INVITE_LINKS,
+      )
+    : false;
   const [
     hasPermission,
     existingPrimaryLinks,
     { threadInfos },
     blobDownloadResult,
+    canManageThreadLinks,
   ] = await Promise.all([
     permissionPromise,
     existingPrimaryLinksPromise,
     fetchThreadInfoPromise,
     blobDownloadPromise,
+    canManageThreadLinksPromise,
   ]);
-  if (!hasPermission) {
+  if (!hasPermission || (request.threadID && !canManageThreadLinks)) {
     throw new ServerError('invalid_credentials');
   }
   if (blobDownloadResult.found) {
     throw new ServerError('already_in_use');
   }
-  const threadInfo = threadInfos[request.communityID];
-  if (!threadInfo) {
-    throw new ServerError('invalid_parameters');
-  }
-  const defaultRoleID = Object.keys(threadInfo.roles).find(
-    roleID => threadInfo.roles[roleID].isDefault,
-  );
-  if (!defaultRoleID) {
-    throw new ServerError('invalid_parameters');
+
+  const defaultRoleIDs: { [string]: string } = {};
+  for (const threadID of threadIDs) {
+    const threadInfo = threadInfos[threadID];
+    if (!threadInfo) {
+      throw new ServerError('invalid_parameters');
+    }
+    const defaultRoleID = Object.keys(threadInfo.roles).find(
+      roleID => threadInfo.roles[roleID].isDefault,
+    );
+    if (!defaultRoleID) {
+      throw new ServerError('invalid_parameters');
+    }
+    defaultRoleIDs[threadID] = defaultRoleID;
   }
 
   const existingPrimaryLink = existingPrimaryLinks.find(
-    link => link.communityID === request.communityID && link.primary,
+    link =>
+      link.communityID === request.communityID &&
+      link.primary &&
+      (request.threadID ? link.threadID === request.threadID : !link.threadID),
   );
 
   const blobHolder = uuid.v4();
@@ -109,8 +130,14 @@ async function createOrUpdatePublicLink(
     const query = SQL`
       UPDATE invite_links
       SET name = ${request.name}, blob_holder = ${blobHolder}
-      WHERE \`primary\` = 1 AND community = ${request.communityID}
+      WHERE \`primary\` = 1 AND 
+        community = ${request.communityID}
     `;
+    if (request.threadID) {
+      query.append(SQL`AND thread = ${request.threadID}`);
+    } else {
+      query.append(SQL`AND thread IS NULL`);
+    }
     try {
       await dbQuery(query);
       const holder = existingPrimaryLink.blobHolder;
@@ -139,7 +166,7 @@ async function createOrUpdatePublicLink(
     return {
       name: request.name,
       primary: true,
-      role: defaultRoleID,
+      role: defaultRoleIDs[request.communityID],
       communityID: request.communityID,
       expirationTime: null,
       limitOfUses: null,
@@ -154,19 +181,28 @@ async function createOrUpdatePublicLink(
     request.name,
     true,
     request.communityID,
-    defaultRoleID,
+    defaultRoleIDs[request.communityID],
     blobHolder,
+    request.threadID ?? null,
+    request.threadID ? defaultRoleIDs[request.threadID] : null,
   ];
 
   const createLinkQuery = SQL`
-    INSERT INTO invite_links(id, name, \`primary\`, community, role, blob_holder)
+    INSERT INTO invite_links(id, name, \`primary\`, community, role,
+      blob_holder, thread, thread_role)
     SELECT ${row}
     WHERE NOT EXISTS (
       SELECT i.id
       FROM invite_links i
       WHERE i.\`primary\` = 1 AND i.community = ${request.communityID}
-    )
   `;
+  if (request.threadID) {
+    createLinkQuery.append(SQL`AND thread = ${request.threadID}`);
+  } else {
+    createLinkQuery.append(SQL`AND thread IS NULL`);
+  }
+  createLinkQuery.append(SQL`)`);
+
   let result = null;
   const deleteIDs = SQL`
     DELETE FROM ids
@@ -208,7 +244,7 @@ async function createOrUpdatePublicLink(
   return {
     name: request.name,
     primary: true,
-    role: defaultRoleID,
+    role: defaultRoleIDs[request.communityID],
     communityID: request.communityID,
     expirationTime: null,
     limitOfUses: null,
