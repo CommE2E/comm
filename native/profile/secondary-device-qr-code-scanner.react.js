@@ -7,6 +7,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
+import { useBroadcastDeviceListUpdates } from 'lib/hooks/peer-list-hooks.js';
 import { addDeviceToDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -59,33 +60,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const aes256Key = React.useRef<?string>(null);
   const secondaryDeviceID = React.useRef<?string>(null);
 
-  const broadcastDeviceListUpdate = React.useCallback(async () => {
-    invariant(identityContext, 'identity context not set');
-    const { getAuthMetadata, identityClient } = identityContext;
-    const { userID } = await getAuthMetadata();
-    if (!userID) {
-      throw new Error('missing auth metadata');
-    }
-
-    const deviceLists =
-      await identityClient.getDeviceListHistoryForUser(userID);
-    invariant(deviceLists.length > 0, 'received empty device list history');
-
-    const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
-    const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
-
-    const promises = deviceList.devices.map(recipient =>
-      tunnelbrokerContext.sendMessage({
-        deviceID: recipient,
-        payload: JSON.stringify({
-          type: peerToPeerMessageTypes.DEVICE_LIST_UPDATED,
-          userID,
-          signedDeviceList: lastSignedDeviceList,
-        }),
-      }),
-    );
-    await Promise.all(promises);
-  }, [identityContext, tunnelbrokerContext]);
+  const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -122,7 +97,24 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      void broadcastDeviceListUpdate();
+      invariant(identityContext, 'identity context not set');
+      const { getAuthMetadata, identityClient } = identityContext;
+      const { userID } = await getAuthMetadata();
+      if (!userID) {
+        throw new Error('missing auth metadata');
+      }
+
+      const deviceLists =
+        await identityClient.getDeviceListHistoryForUser(userID);
+      invariant(deviceLists.length > 0, 'received empty device list history');
+
+      const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
+      const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
+
+      await broadcastDeviceListUpdates(
+        deviceList.devices,
+        lastSignedDeviceList,
+      );
 
       const backupSecret = await getBackupSecret();
       const backupKeysResponse =
@@ -148,7 +140,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         { text: 'OK' },
       ]);
     },
-    [tunnelbrokerContext, broadcastDeviceListUpdate],
+    [identityContext, broadcastDeviceListUpdates, tunnelbrokerContext],
   );
 
   React.useEffect(() => {
