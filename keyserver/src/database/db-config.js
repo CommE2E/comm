@@ -9,6 +9,7 @@ export type DBConfig = {
   +user: string,
   +password: string,
   +database: string,
+  +port?: number,
 };
 
 let dbConfig;
@@ -23,6 +24,7 @@ async function getDBConfig(): Promise<DBConfig> {
       user: process.env.COMM_DATABASE_USER,
       password: process.env.COMM_DATABASE_PASSWORD,
       database: process.env.COMM_DATABASE_DATABASE,
+      port: Number(process.env.COMM_DATABASE_PORT) || 3306,
     };
   } else {
     const importedDBConfig = await getCommConfig<DBConfig>({
