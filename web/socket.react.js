@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useFetchPendingUpdates } from 'lib/actions/update-actions.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
   cookieSelector,
@@ -15,6 +16,7 @@ import Socket, { type BaseSocketProps } from 'lib/socket/socket.react.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
+import { useNetworkConnected } from './redux/keyserver-reachability-handler.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
   activeThreadSelector,
@@ -85,6 +87,10 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
           .activeSessionRecovery,
     );
 
+    const fetchPendingUpdates = useFetchPendingUpdates();
+
+    const isConnectedToInternet = useNetworkConnected();
+
     return (
       <Socket
         {...props}
@@ -104,6 +110,8 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
         activeSessionRecovery={activeSessionRecovery}
+        fetchPendingUpdates={fetchPendingUpdates}
+        isConnectedToInternet={isConnectedToInternet}
       />
     );
   });

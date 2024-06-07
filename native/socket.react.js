@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { useFetchPendingUpdates } from 'lib/actions/update-actions.js';
 import { canResolveKeyserverSessionInvalidation } from 'lib/keyserver-conn/recovery-utils.js';
 import { preRequestUserStateForSingleKeyserverSelector } from 'lib/selectors/account-selectors.js';
 import {
@@ -123,6 +124,12 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
           .activeSessionRecovery,
     );
 
+    const fetchPendingUpdates = useFetchPendingUpdates();
+
+    const isConnectedToInternet = useSelector(
+      state => state.connectivity.connected,
+    );
+
     return (
       <Socket
         {...props}
@@ -144,6 +151,8 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
         lastCommunicatedPlatformDetails={lastCommunicatedPlatformDetails}
         decompressSocketMessage={decompressMessage}
         activeSessionRecovery={activeSessionRecovery}
+        fetchPendingUpdates={fetchPendingUpdates}
+        isConnectedToInternet={isConnectedToInternet}
       />
     );
   });
