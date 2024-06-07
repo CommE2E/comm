@@ -1,6 +1,7 @@
 // @flow
 
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
@@ -26,7 +27,7 @@ function MobileNav(props: Props): React.Node {
     [css.activeMobileNav]: showMobileNav,
   });
 
-  const onClickTab = React.useCallback(() => {
+  const dismissMobileNav = React.useCallback(() => {
     setShowMobileNav(false);
   }, [setShowMobileNav]);
 
@@ -39,7 +40,7 @@ function MobileNav(props: Props): React.Node {
           className={navLinkClassName}
           activeClassName={css.activeTab}
         >
-          <div onClick={onClickTab} className={css.tabContent}>
+          <div onClick={dismissMobileNav} className={css.tabContent}>
             Keyserver
           </div>
         </NavLink>
@@ -51,7 +52,7 @@ function MobileNav(props: Props): React.Node {
           className={navLinkClassName}
           activeClassName={css.activeTab}
         >
-          <div onClick={onClickTab} className={css.tabContent}>
+          <div onClick={dismissMobileNav} className={css.tabContent}>
             Team
           </div>
         </NavLink>
@@ -63,12 +64,20 @@ function MobileNav(props: Props): React.Node {
           className={navLinkClassName}
           activeClassName={css.activeTab}
         >
-          <div onClick={onClickTab} className={css.tabContent}>
+          <div onClick={dismissMobileNav} className={css.tabContent}>
             Investors
           </div>
         </NavLink>
       </div>
       <div className={css.socialIconsContainer}>
+        <NavLink to="/download" exact className={navLinkClassName}>
+          <FontAwesomeIcon
+            onClick={dismissMobileNav}
+            icon={faDownload}
+            className={css.icon}
+            size="1x"
+          />
+        </NavLink>
         <a
           href="https://twitter.com/commdotapp"
           target="_blank"
