@@ -48,6 +48,7 @@ export const createOrUpdatePublicLinkInputValidator: TInterface<CreateOrUpdatePu
   tShape<CreateOrUpdatePublicLinkRequest>({
     name: t.String,
     communityID: tID,
+    threadID: t.maybe(tID),
   });
 
 async function createOrUpdatePublicLinkResponder(
