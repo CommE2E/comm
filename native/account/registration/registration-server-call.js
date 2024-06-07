@@ -14,10 +14,12 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useKeyserverAuthWithRetry } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { usePreRequestUserState } from 'lib/selectors/account-selectors.js';
 import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
 import {
   type LegacyLogInStartingPayload,
   logInActionSources,
+  type LogOutResult,
 } from 'lib/types/account-types.js';
 import { syncedMetadataNames } from 'lib/types/synced-metadata-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
@@ -422,6 +424,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   // We call deleteDiscardedIdentityAccount in order to reset state if identity
   // registration succeeds but authoritative keyserver auth fails
   const deleteDiscardedIdentityAccount = useDeleteDiscardedIdentityAccount();
+  const preRequestUserState = usePreRequestUserState();
+  const commServicesAccessToken = useSelector(
+    state => state.commServicesAccessToken,
+  );
 
   const registeringOnAuthoritativeKeyserverRef = React.useRef(false);
   React.useEffect(() => {
@@ -463,39 +469,53 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         const messageForException = getMessageForException(
           keyserverAuthException,
         );
-        const discardIdentityAccountPromise = (async () => {
-          try {
-            const deletionResult = await deleteDiscardedIdentityAccount(
-              credentialsToSave?.password,
-            );
-            if (messageForException === 'client_version_unsupported') {
+        const discardIdentityAccountPromise: Promise<LogOutResult> =
+          (async () => {
+            try {
+              const deletionResult = await deleteDiscardedIdentityAccount(
+                credentialsToSave?.password,
+              );
+              if (messageForException === 'client_version_unsupported') {
+                Alert.alert(
+                  appOutOfDateAlertDetails.title,
+                  appOutOfDateAlertDetails.message,
+                  [{ text: 'OK', onPress: onAlertAcknowledged }],
+                  { cancelable: !onAlertAcknowledged },
+                );
+              } else {
+                Alert.alert(
+                  unknownErrorAlertDetails.title,
+                  unknownErrorAlertDetails.message,
+                  [{ text: 'OK', onPress: onAlertAcknowledged }],
+                  { cancelable: !onAlertAcknowledged },
+                );
+              }
+              return deletionResult;
+            } catch (deleteException) {
+              // We swallow the exception here because
+              // discardIdentityAccountPromise is used in a scenario where the
+              // user is visibly logged-out, and it's only used to reset state
+              // (eg. Redux, SQLite) to a logged-out state. The state reset
+              // only occurs when a success action is dispatched, so by
+              // swallowing exceptions we ensure that we always dispatch a
+              // success.
               Alert.alert(
-                appOutOfDateAlertDetails.title,
-                appOutOfDateAlertDetails.message,
+                'Account created but login failed',
+                'We were able to create your account, but were unable to log ' +
+                  'you in. Try going back to the login screen and logging in ' +
+                  'with your new credentials.',
                 [{ text: 'OK', onPress: onAlertAcknowledged }],
                 { cancelable: !onAlertAcknowledged },
               );
-            } else {
-              Alert.alert(
-                unknownErrorAlertDetails.title,
-                unknownErrorAlertDetails.message,
-                [{ text: 'OK', onPress: onAlertAcknowledged }],
-                { cancelable: !onAlertAcknowledged },
-              );
+              return {
+                currentUserInfo: null,
+                preRequestUserState: {
+                  ...preRequestUserState,
+                  commServicesAccessToken,
+                },
+              };
             }
-            return deletionResult;
-          } catch (deleteException) {
-            Alert.alert(
-              'Account created but login failed',
-              'We were able to create your account, but were unable to log ' +
-                'you in. Try going back to the login screen and logging in ' +
-                'with your new credentials.',
-              [{ text: 'OK', onPress: onAlertAcknowledged }],
-              { cancelable: !onAlertAcknowledged },
-            );
-            throw deleteException;
-          }
-        })();
+          })();
         void dispatchActionPromise(
           deleteAccountActionTypes,
           discardIdentityAccountPromise,
@@ -513,6 +533,8 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     keyserverAuth,
     dispatchActionPromise,
     deleteDiscardedIdentityAccount,
+    preRequestUserState,
+    commServicesAccessToken,
   ]);
 
   // STEP 3: SETTING AVATAR
