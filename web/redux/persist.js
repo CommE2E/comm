@@ -10,7 +10,12 @@ import {
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
-import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import {
+  messageStoreOpsHandlers,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
+  type ClientDBMessageStoreOperation,
+  type MessageStoreOperation,
+} from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
@@ -512,6 +517,41 @@ const migrations = {
     state,
     ops: [],
   }),
+  [76]: async (state: AppState) => {
+    const localMessageInfos = state.messageStore.local;
+
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(localMessageInfos).map(([id, localMessageInfo]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo,
+        },
+      }));
+
+    const operations: $ReadOnlyArray<MessageStoreOperation> = [
+      {
+        type: 'remove_all_local_message_infos',
+      },
+      ...replaceOps,
+    ];
+
+    const newMessageStore = messageStoreOpsHandlers.processStoreOperations(
+      state.messageStore,
+      operations,
+    );
+
+    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps(operations);
+
+    return {
+      state: {
+        ...state,
+        messageStore: newMessageStore,
+      },
+      ops: dbOperations,
+    };
+  },
 };
 
 const persistConfig: PersistConfig = {
