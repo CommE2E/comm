@@ -15,7 +15,7 @@ use identity_search_messages::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, warn};
 
 mod auth;
 mod opensearch;
@@ -276,10 +276,7 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
         }
       }
       _ => {
-        error!(
-          errorType = error_types::SEARCH_LOG,
-          "Invalid authentication message from {}", addr
-        );
+        warn!("Invalid authentication message from {}", addr);
         close_connection(outgoing).await;
         return;
       }
