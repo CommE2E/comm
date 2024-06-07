@@ -667,6 +667,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 
       return assertWithValidator(identities, identitiesValidator);
     };
+
+  ping: () => Promise<void> = () => this.unauthClient.ping(new Empty());
 }
 
 function authNewDeviceKeyUpload(
