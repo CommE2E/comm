@@ -302,6 +302,17 @@ function processMessageStoreOperations(
       } else if (operation.type === 'remove_messages_for_threads') {
         const { threadIDs } = operation.payload;
         sqliteQueryExecutor.removeMessagesForThreads(threadIDs);
+      } else if (operation.type === 'replace_local_message_info') {
+        const { id, localMessageInfo } = operation.payload;
+        sqliteQueryExecutor.replaceMessageStoreLocalMessageInfo({
+          id,
+          localMessageInfo,
+        });
+      } else if (operation.type === 'remove_local_message_infos') {
+        const { ids } = operation.payload;
+        sqliteQueryExecutor.removeMessageStoreLocalMessageInfos(ids);
+      } else if (operation.type === 'remove_all_local_message_infos') {
+        sqliteQueryExecutor.removeAllMessageStoreLocalMessageInfos();
       } else {
         throw new Error('Unsupported message operation');
       }
