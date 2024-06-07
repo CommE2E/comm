@@ -33,6 +33,7 @@ import {
 } from 'lib/ops/keyserver-store-ops.js';
 import {
   type ClientDBMessageStoreOperation,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
 import {
@@ -1346,6 +1347,45 @@ const migrations = {
     state,
     ops: [],
   }),
+  [76]: async (state: AppState) => {
+    const localMessageInfos = state.messageStore.local;
+
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(localMessageInfos).map(([id, message]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo: message,
+        },
+      }));
+
+    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_local_message_infos' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await commCoreModule.processDBStoreOperations({
+        messageStoreOperations: dbOperations,
+      });
+    } catch (exception) {
+      if (isTaskCancelledError(exception)) {
+        return {
+          state,
+          ops: [],
+        };
+      }
+      return {
+        state: handleReduxMigrationFailure(state),
+        ops: [],
+      };
+    }
+    return {
+      state,
+      ops: dbOperations,
+    };
+  },
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1356,7 +1396,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 75,
+  version: 76,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,

@@ -10,7 +10,11 @@ import {
   keyserverStoreOpsHandlers,
   type ReplaceKeyserverOperation,
 } from 'lib/ops/keyserver-store-ops.js';
-import type { ClientDBMessageStoreOperation } from 'lib/ops/message-store-ops.js';
+import {
+  messageStoreOpsHandlers,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
+  type ClientDBMessageStoreOperation,
+} from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
@@ -512,6 +516,49 @@ const migrations = {
     state,
     ops: [],
   }),
+  [76]: async (state: AppState) => {
+    const sharedWorker = await getCommSharedWorker();
+    const isSupported = await sharedWorker.isSupported();
+
+    if (!isSupported) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(state.messageStore.local).map(([id, localMessageInfo]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo,
+        },
+      }));
+
+    const messageStoreOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps([
+        { type: 'remove_all_local_message_infos' },
+        ...replaceOps,
+      ]);
+
+    try {
+      await sharedWorker.schedule({
+        type: workerRequestMessageTypes.PROCESS_STORE_OPERATIONS,
+        storeOperations: { messageStoreOperations },
+      });
+      return {
+        state,
+        ops: messageStoreOperations,
+      };
+    } catch (e) {
+      console.log(e);
+      return {
+        state: handleReduxMigrationFailure(state),
+        ops: [],
+      };
+    }
+  },
 };
 
 const persistConfig: PersistConfig = {
