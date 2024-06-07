@@ -162,4 +162,23 @@ jsi::Array MessageStore::parseDBMessageStoreThreads(
   return jsiThreads;
 }
 
+jsi::Array MessageStore::parseDBMessageStoreLocalMessageInfos(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<LocalMessageInfo>> localMessageInfosVectorPtr)
+    const {
+  size_t numLocalMessageInfos = localMessageInfosVectorPtr->size();
+  jsi::Array jsiLocalMessageInfos = jsi::Array(rt, numLocalMessageInfos);
+  size_t writeIdx = 0;
+
+  for (const LocalMessageInfo &localMessageInfo : *localMessageInfosVectorPtr) {
+    jsi::Object jsiLocalMessageInfo = jsi::Object(rt);
+    jsiLocalMessageInfo.setProperty(rt, "id", localMessageInfo.id);
+    jsiLocalMessageInfo.setProperty(
+        rt, "localMessageInfo", localMessageInfo.local_message_info);
+
+    jsiLocalMessageInfos.setValueAtIndex(rt, writeIdx++, jsiLocalMessageInfo);
+  }
+  return jsiLocalMessageInfos;
+}
+
 } // namespace comm
