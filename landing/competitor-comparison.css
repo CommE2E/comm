@@ -21,6 +21,7 @@
   border-radius: 16px;
   width: 560px;
   max-width: 90vw;
+  margin-bottom: 48px;
 }
 
 .logoContainer {
@@ -59,7 +60,6 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
-  margin-top: 48px;
 }
 
 /* 2*16(padding) + 3*432(cards) + 2*40(gap) */
