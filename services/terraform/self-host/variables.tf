@@ -21,14 +21,20 @@ variable "allowed_ip" {
   type        = string
 }
 
+variable "user_created_vpc" {
+  description = "Use non-default vpc and subnets"
+  type        = bool
+  default     = false
+}
+
 variable "availability_zone_1" {
-  description = "First availability zone for vpc subnet"
+  description = "First availability zone for vpc subnet if user created vpc"
   type        = string
   default     = "us-west-1b"
 }
 
 variable "availability_zone_2" {
-  description = "Second availability zone for vpc subnet"
+  description = "Second availability zone for vpc subnet if user created vpc"
   type        = string
   default     = "us-west-1c"
 }
