@@ -2,7 +2,7 @@
 resource "aws_security_group" "keyserver_mariadb_security_group" {
   name        = "keyserver-mariadb-sg"
   description = "Allow inbound traffic on port 3307 and all outbound traffic"
-  vpc_id      = aws_vpc.default.id
+  vpc_id      = data.aws_vpc.default.id
 
   # Inbound rules
   ingress {
@@ -21,7 +21,6 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
   }
 }
 
-
 # MariaDB RDS Instance
 resource "aws_db_instance" "mariadb" {
   allocated_storage      = 100
@@ -32,7 +31,6 @@ resource "aws_db_instance" "mariadb" {
   engine                 = "mariadb"
   engine_version         = "10.11"
   instance_class         = "db.m6g.large"
-  db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
   username               = var.mariadb_username
   password               = var.mariadb_password
