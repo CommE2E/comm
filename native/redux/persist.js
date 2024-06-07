@@ -33,6 +33,8 @@ import {
 } from 'lib/ops/keyserver-store-ops.js';
 import {
   type ClientDBMessageStoreOperation,
+  type ReplaceMessageStoreLocalMessageInfoOperation,
+  type MessageStoreOperation,
   messageStoreOpsHandlers,
 } from 'lib/ops/message-store-ops.js';
 import {
@@ -1346,6 +1348,41 @@ const migrations = {
     state,
     ops: [],
   }),
+  [76]: (state: AppState) => {
+    const localMessageInfos = state.messageStore.local;
+
+    const replaceOps: $ReadOnlyArray<ReplaceMessageStoreLocalMessageInfoOperation> =
+      entries(localMessageInfos).map(([id, message]) => ({
+        type: 'replace_local_message_info',
+        payload: {
+          id,
+          localMessageInfo: message,
+        },
+      }));
+
+    const operations: $ReadOnlyArray<MessageStoreOperation> = [
+      {
+        type: 'remove_all_local_message_infos',
+      },
+      ...replaceOps,
+    ];
+
+    const newMessageStore = messageStoreOpsHandlers.processStoreOperations(
+      state.messageStore,
+      operations,
+    );
+
+    const dbOperations: $ReadOnlyArray<ClientDBMessageStoreOperation> =
+      messageStoreOpsHandlers.convertOpsToClientDBOps(operations);
+
+    return {
+      state: {
+        ...state,
+        messageStore: newMessageStore,
+      },
+      ops: dbOperations,
+    };
+  },
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1356,7 +1393,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 75,
+  version: 76,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
