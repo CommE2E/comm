@@ -8,7 +8,9 @@ nav.mobileNav {
   z-index: var(--mobile-nav-z-index);
   background-color: transparent;
   padding: 8px 32px 0;
-  transition: top 500ms, background-color 0ms 500ms;
+  transition:
+    top 500ms,
+    background-color 0ms 500ms;
 }
 
 nav.activeMobileNav {
@@ -40,6 +42,7 @@ div.socialIconsContainer {
   display: flex;
   column-gap: 24px;
   margin-top: 16px;
+  align-items: center;
 }
 
 div.socialIconsContainer a {
