@@ -3,7 +3,9 @@ use std::{collections::HashSet, str::FromStr};
 use tracing::{debug, error, warn};
 
 use crate::{
-  constants::{error_types, DEVICE_LIST_TIMESTAMP_VALID_FOR},
+  constants::{
+    error_types, tonic_status_messages, DEVICE_LIST_TIMESTAMP_VALID_FOR,
+  },
   database::{DeviceListRow, DeviceListUpdate},
   error::DeviceListError,
   grpc_services::protos::auth::UpdateDeviceListRequest,
@@ -44,7 +46,9 @@ impl SignedDeviceList {
     serde_json::from_str(&self.raw_device_list.replace(r#"\""#, r#"""#))
       .map_err(|err| {
         warn!("Failed to deserialize raw device list: {}", err);
-        tonic::Status::invalid_argument("invalid device list payload")
+        tonic::Status::invalid_argument(
+          tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
+        )
       })
   }
 
@@ -89,7 +93,9 @@ impl TryFrom<UpdateDeviceListRequest> for SignedDeviceList {
   fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
     request.new_device_list.parse().map_err(|err| {
       warn!("Failed to deserialize device list update: {}", err);
-      tonic::Status::invalid_argument("invalid device list payload")
+      tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
+      )
     })
   }
 }
