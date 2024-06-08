@@ -67,21 +67,30 @@ pub fn ed25519_verify(
 ) -> Result<(), Status> {
   let signature_bytes = general_purpose::STANDARD_NO_PAD
     .decode(signature)
-    .map_err(|_| Status::invalid_argument("signature invalid"))?;
+    .map_err(|_| {
+      Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
+    })?;
 
-  let signature = Signature::from_bytes(&signature_bytes)
-    .map_err(|_| Status::invalid_argument("signature invalid"))?;
+  let signature = Signature::from_bytes(&signature_bytes).map_err(|_| {
+    Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
+  })?;
 
   let public_key_bytes = general_purpose::STANDARD_NO_PAD
     .decode(signing_public_key)
-    .map_err(|_| Status::failed_precondition("malformed key"))?;
+    .map_err(|_| {
+      Status::failed_precondition(tonic_status_messages::MALFORMED_KEY)
+    })?;
 
   let public_key: PublicKey = PublicKey::from_bytes(&public_key_bytes)
-    .map_err(|_| Status::failed_precondition("malformed key"))?;
+    .map_err(|_| {
+      Status::failed_precondition(tonic_status_messages::MALFORMED_KEY)
+    })?;
 
   public_key
     .verify(message.as_bytes(), &signature)
-    .map_err(|_| Status::permission_denied("verification failed"))?;
+    .map_err(|_| {
+      Status::permission_denied(tonic_status_messages::VERIFICATION_FAILED)
+    })?;
   Ok(())
 }
 
@@ -312,13 +321,14 @@ impl<T: RegistrationData + DeviceKeyUploadActions> RegistrationActions for T {
     }
     let signed_list: SignedDeviceList = payload.parse().map_err(|err| {
       warn!("Failed to deserialize initial device list: {}", err);
-      tonic::Status::invalid_argument("invalid device list payload")
+      tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
+      )
     })?;
 
-    let key_info = self
-      .payload()?
-      .parse::<KeyPayload>()
-      .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+    let key_info = self.payload()?.parse::<KeyPayload>().map_err(|_| {
+      tonic::Status::invalid_argument(tonic_status_messages::MALFORMED_PAYLOAD)
+    })?;
     let primary_device_id = key_info.primary_identity_public_keys.ed25519;
 
     let update_payload = DeviceListUpdate::try_from(signed_list.clone())?;
