@@ -174,7 +174,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         return await walletLogIn(walletAddress, siweMessage, siweSignature);
       } catch (e) {
         const messageForException = getMessageForException(e);
-        if (messageForException === 'user not found') {
+        if (messageForException === 'user_not_found') {
           setError('account_does_not_exist');
         } else if (
           messageForException === 'client_version_unsupported' ||

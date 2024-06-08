@@ -219,6 +219,16 @@ pub mod error_types {
 // Tonic Status Messages
 pub mod tonic_status_messages {
   pub const UNEXPECTED_MESSAGE_DATA: &str = "unexpected_message_data";
+  pub const SIGNATURE_INVALID: &str = "signature_invalid";
+  pub const MALFORMED_KEY: &str = "malformed_key";
+  pub const VERIFICATION_FAILED: &str = "verification_failed";
+  pub const MALFORMED_PAYLOAD: &str = "malformed_payload";
+  pub const INVALID_DEVICE_LIST_PAYLOAD: &str = "invalid_device_list_payload";
+  pub const USERNAME_ALREADY_EXISTS: &str = "username_already_exists";
+  pub const USERNAME_RESERVED: &str = "username_reserved";
+  pub const WALLET_ADDRESS_TAKEN: &str = "wallet_address_taken";
+  pub const WALLET_ADDRESS_NOT_RESERVED: &str = "wallet_address_not_reserved";
+  pub const USER_NOT_FOUND: &str = "user_not_found";
 }
 
 // Tunnelbroker
