@@ -5,6 +5,7 @@ use tonic::Status;
 use tracing::warn;
 
 use crate::{
+  constants::tonic_status_messages,
   database::{DeviceListUpdate, DeviceRow, KeyPayload},
   ddb_utils::{DBIdentity, Identifier as DBIdentifier},
   device_list::SignedDeviceList,
@@ -186,7 +187,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.device_key_info.as_ref())
       .map(|info| info.payload.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn payload_signature(&self) -> Result<String, Status> {
@@ -194,7 +197,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.device_key_info.as_ref())
       .map(|info| info.payload_signature.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn content_prekey(&self) -> Result<String, Status> {
@@ -202,7 +207,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.content_upload.as_ref())
       .map(|prekey| prekey.prekey.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn content_prekey_signature(&self) -> Result<String, Status> {
@@ -210,7 +217,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.content_upload.as_ref())
       .map(|prekey| prekey.prekey_signature.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn notif_prekey(&self) -> Result<String, Status> {
@@ -218,7 +227,9 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.notif_upload.as_ref())
       .map(|prekey| prekey.prekey.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn notif_prekey_signature(&self) -> Result<String, Status> {
@@ -226,27 +237,35 @@ impl<T: DeviceKeyUploadData> DeviceKeyUploadActions for T {
       .device_key_upload()
       .and_then(|upload| upload.notif_upload.as_ref())
       .map(|prekey| prekey.prekey_signature.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn one_time_content_prekeys(&self) -> Result<Vec<String>, Status> {
     self
       .device_key_upload()
       .map(|upload| upload.one_time_content_prekeys.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 
   fn one_time_notif_prekeys(&self) -> Result<Vec<String>, Status> {
     self
       .device_key_upload()
       .map(|upload| upload.one_time_notif_prekeys.clone())
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
   fn device_type(&self) -> Result<i32, Status> {
     self
       .device_key_upload()
       .map(|upload| upload.device_type)
-      .ok_or_else(|| Status::invalid_argument("unexpected message data"))
+      .ok_or_else(|| {
+        Status::invalid_argument(tonic_status_messages::UNEXPECTED_MESSAGE_DATA)
+      })
   }
 }
 
