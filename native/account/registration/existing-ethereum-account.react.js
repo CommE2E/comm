@@ -82,7 +82,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
       }
     } catch (e) {
       const messageForException = getMessageForException(e);
-      if (messageForException === 'nonce expired') {
+      if (messageForException === 'nonce_expired') {
         setCachedSelections(oldUserSelections => ({
           ...oldUserSelections,
           ethereumAccount: undefined,
@@ -96,7 +96,7 @@ function ExistingEthereumAccount(props: Props): React.Node {
           },
         );
       } else if (
-        messageForException === 'Unsupported version' ||
+        messageForException === 'unsupported_version' ||
         messageForException === 'client_version_unsupported'
       ) {
         Alert.alert(

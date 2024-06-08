@@ -15,10 +15,10 @@ pub enum Error {
 }
 
 pub fn unsupported_version() -> Status {
-  Status::unimplemented("Unsupported version")
+  Status::unimplemented("unsupported_version")
 }
 
 pub fn is_version_unsupported(status: &Status) -> bool {
   status.code() == Code::Unimplemented
-    && status.message() == "Unsupported version"
+    && status.message() == "unsupported_version"
 }
