@@ -218,6 +218,11 @@ pub mod error_types {
   pub const HTTP_LOG: &str = "HTTP Error";
 }
 
+// Tonic Status Messages
+pub mod tonic_status_messages {
+  pub const UNEXPECTED_MESSAGE_DATA: &str = "unexpected_message_data";
+}
+
 // Tunnelbroker
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
 pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
