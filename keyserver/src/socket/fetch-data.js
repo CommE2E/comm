@@ -82,7 +82,7 @@ async function fetchDataForSocketInit(
       +userInfos: Promise<$ReadOnlyArray<UserInfo>>,
     } = (promises: any);
     const results = await promiseAll(castPromises);
-    const payload: ServerStateSyncFullSocketPayload = {
+    let payload: ServerStateSyncFullSocketPayload = {
       type: stateSyncPayloadTypes.FULL,
       messagesResult,
       threadInfos: results.threadInfos,
@@ -97,7 +97,7 @@ async function fetchDataForSocketInit(
       // and specify viewer.sessionChanged
       const { sessionID } = viewer;
       invariant(sessionID !== null && sessionID !== undefined, 'should be set');
-      payload.sessionID = sessionID;
+      payload = { ...payload, sessionID };
       viewer.sessionChanged = false;
     }
     return payload;
