@@ -98,7 +98,7 @@ function QRCodeLogin(): React.Node {
         const messageForException = getMessageForException(err);
         if (
           messageForException === 'client_version_unsupported' ||
-          messageForException === 'Unsupported version'
+          messageForException === 'unsupported_version'
         ) {
           pushModal(<VersionUnsupportedModal />);
         } else {
