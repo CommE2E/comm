@@ -178,7 +178,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
           setError('account_does_not_exist');
         } else if (
           messageForException === 'client_version_unsupported' ||
-          messageForException === 'Unsupported version'
+          messageForException === 'unsupported_version'
         ) {
           setError('client_version_unsupported');
         }

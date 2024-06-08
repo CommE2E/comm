@@ -133,7 +133,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (messageForException === 'Unsupported version') {
+          } else if (messageForException === 'unsupported_version') {
             Alert.alert(
               appOutOfDateAlertDetails.title,
               appOutOfDateAlertDetails.message,
@@ -277,9 +277,9 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
         });
       } catch (e) {
         const messageForException = getMessageForException(e);
-        if (messageForException === 'nonce expired') {
+        if (messageForException === 'nonce_expired') {
           onNonceExpired();
-        } else if (messageForException === 'Unsupported version') {
+        } else if (messageForException === 'unsupported_version') {
           Alert.alert(
             appOutOfDateAlertDetails.title,
             appOutOfDateAlertDetails.message,

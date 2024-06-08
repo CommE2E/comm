@@ -349,7 +349,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
           { cancelable: false },
         );
       } else if (
-        messageForException === 'Unsupported version' ||
+        messageForException === 'unsupported_version' ||
         messageForException === 'client_version_unsupported'
       ) {
         Alert.alert(
