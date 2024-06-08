@@ -13,7 +13,7 @@ use tracing::{debug, error, info, warn};
 
 // Workspace crate imports
 use crate::config::CONFIG;
-use crate::constants::error_types;
+use crate::constants::{error_types, tonic_status_messages};
 use crate::database::{
   DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload
 };
@@ -124,11 +124,15 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?;
 
     if username_in_reserved_usernames_table {
-      return Err(tonic::Status::already_exists("username already exists"));
+      return Err(tonic::Status::already_exists(
+        tonic_status_messages::USERNAME_ALREADY_EXISTS,
+      ));
     }
 
     if RESERVED_USERNAME_SET.contains(&message.username) {
-      return Err(tonic::Status::invalid_argument("username reserved"));
+      return Err(tonic::Status::invalid_argument(
+        tonic_status_messages::USERNAME_RESERVED,
+      ));
     }
 
     if let Some(fid) = &message.farcaster_id {
@@ -173,7 +177,9 @@ impl IdentityClientService for ClientService {
     self.check_username_taken(&message.username).await?;
 
     if RESERVED_USERNAME_SET.contains(&message.username) {
-      return Err(tonic::Status::invalid_argument("username reserved"));
+      return Err(tonic::Status::invalid_argument(
+        tonic_status_messages::USERNAME_RESERVED,
+      ));
     }
 
     let username_in_reserved_usernames_table = self
@@ -317,7 +323,9 @@ impl IdentityClientService for ClientService {
           ));
         }
 
-        return Err(tonic::Status::not_found("user not found"));
+        return Err(tonic::Status::not_found(
+          tonic_status_messages::USER_NOT_FOUND,
+        ));
       };
 
     let flattened_device_key_upload =
@@ -481,7 +489,9 @@ impl IdentityClientService for ClientService {
         ));
       }
 
-      return Err(tonic::Status::not_found("user not found"));
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::USER_NOT_FOUND,
+      ));
     };
 
     self
@@ -563,7 +573,7 @@ impl IdentityClientService for ClientService {
 
     if username_in_reserved_usernames_table {
       return Err(tonic::Status::already_exists(
-        "wallet address already exists",
+        tonic_status_messages::WALLET_ADDRESS_TAKEN,
       ));
     }
 
@@ -646,7 +656,7 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?;
     if !wallet_address_in_reserved_usernames_table {
       return Err(tonic::Status::permission_denied(
-        "wallet address not reserved",
+        tonic_status_messages::WALLET_ADDRESS_NOT_RESERVED,
       ));
     }
 
@@ -727,7 +737,9 @@ impl IdentityClientService for ClientService {
       .get_user_identity(&user_id)
       .await
       .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     let Some(device_list) = self
       .client
@@ -799,9 +811,10 @@ impl IdentityClientService for ClientService {
       self.client.get_user_identity(&user_id),
       self.client.get_current_device_list(&user_id)
     );
-    let user_identity = identity_response
-      .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+    let user_identity =
+      identity_response.map_err(handle_db_error)?.ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     let device_list = device_list_response
       .map_err(handle_db_error)?
@@ -1008,7 +1021,9 @@ impl ClientService {
       .await
       .map_err(handle_db_error)?;
     if username_taken {
-      return Err(tonic::Status::already_exists("username already exists"));
+      return Err(tonic::Status::already_exists(
+        tonic_status_messages::USERNAME_ALREADY_EXISTS,
+      ));
     }
     Ok(())
   }
@@ -1024,7 +1039,7 @@ impl ClientService {
       .map_err(handle_db_error)?;
     if wallet_address_taken {
       return Err(tonic::Status::already_exists(
-        "wallet address already exists",
+        tonic_status_messages::WALLET_ADDRESS_TAKEN,
       ));
     }
     Ok(())
@@ -1174,8 +1189,9 @@ fn construct_user_login_info(
 fn construct_flattened_device_key_upload(
   message: &impl DeviceKeyUploadActions,
 ) -> Result<FlattenedDeviceKeyUpload, tonic::Status> {
-  let key_info = KeyPayload::from_str(&message.payload()?)
-    .map_err(|_| tonic::Status::invalid_argument("malformed payload"))?;
+  let key_info = KeyPayload::from_str(&message.payload()?).map_err(|_| {
+    tonic::Status::invalid_argument(tonic_status_messages::MALFORMED_PAYLOAD)
+  })?;
 
   let flattened_device_key_upload = FlattenedDeviceKeyUpload {
     device_id_key: key_info.primary_identity_public_keys.ed25519,
