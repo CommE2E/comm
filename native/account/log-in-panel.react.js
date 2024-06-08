@@ -339,7 +339,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
     } catch (e) {
       const messageForException = getMessageForException(e);
       if (
-        messageForException === 'user not found' ||
+        messageForException === 'user_not_found' ||
         messageForException === 'login failed'
       ) {
         Alert.alert(

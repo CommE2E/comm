@@ -6,7 +6,7 @@ use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
 use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
-  constants::{error_types, request_metadata},
+  constants::{error_types, request_metadata, tonic_status_messages},
   database::DatabaseClient,
   grpc_services::shared::{get_platform_metadata, get_value},
 };
@@ -134,7 +134,9 @@ impl IdentityClientService for AuthenticatedService {
       .get_keys_for_user(user_id, true)
       .await
       .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     let transformed_devices = devices_map
       .into_iter()
@@ -159,7 +161,9 @@ impl IdentityClientService for AuthenticatedService {
       .get_keys_for_user(user_id, false)
       .await
       .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     let transformed_devices = devices_map
       .into_iter()
@@ -171,7 +175,9 @@ impl IdentityClientService for AuthenticatedService {
       .get_user_identity(user_id)
       .await
       .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     Ok(tonic::Response::new(InboundKeysForUserResponse {
       devices: transformed_devices,
@@ -191,7 +197,9 @@ impl IdentityClientService for AuthenticatedService {
       .get_user_identity(&message.user_id)
       .await
       .map_err(handle_db_error)?
-      .ok_or_else(|| tonic::Status::not_found("user not found"))?;
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?;
 
     let Some(keyserver_info) = self
       .db_client
@@ -450,7 +458,9 @@ impl IdentityClientService for AuthenticatedService {
     let Some((username, password_file_bytes)) =
       maybe_username_and_password_file
     else {
-      return Err(tonic::Status::not_found("user not found"));
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::USER_NOT_FOUND,
+      ));
     };
 
     let mut server_login = comm_opaque2::server::Login::new();

@@ -119,14 +119,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           );
         } catch (e) {
           const messageForException = getMessageForException(e);
-          if (messageForException === 'username reserved') {
+          if (messageForException === 'username_reserved') {
             Alert.alert(
               usernameReservedAlertDetails.title,
               usernameReservedAlertDetails.message,
               [{ text: 'OK', onPress: onAlertAcknowledged }],
               { cancelable: !onAlertAcknowledged },
             );
-          } else if (messageForException === 'username already exists') {
+          } else if (messageForException === 'username_already_exists') {
             Alert.alert(
               usernameTakenAlertDetails.title,
               usernameTakenAlertDetails.message,
