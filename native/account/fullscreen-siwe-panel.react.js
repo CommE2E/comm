@@ -107,10 +107,10 @@ function FullscreenSIWEPanel(props: Props): React.Node {
               );
             } catch (e) {
               const messageForException = getMessageForException(e);
-              if (messageForException === 'nonce expired') {
+              if (messageForException === 'nonce_expired') {
                 onNonceExpired('login');
               } else if (
-                messageForException === 'Unsupported version' ||
+                messageForException === 'unsupported_version' ||
                 messageForException === 'client_version_unsupported'
               ) {
                 Alert.alert(

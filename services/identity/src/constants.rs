@@ -231,6 +231,8 @@ pub mod tonic_status_messages {
   pub const WALLET_ADDRESS_TAKEN: &str = "wallet_address_taken";
   pub const WALLET_ADDRESS_NOT_RESERVED: &str = "wallet_address_not_reserved";
   pub const USER_NOT_FOUND: &str = "user_not_found";
+  pub const INVALID_NONCE: &str = "invalid_nonce";
+  pub const NONCE_EXPIRED: &str = "nonce_expired";
 }
 
 // Tunnelbroker
