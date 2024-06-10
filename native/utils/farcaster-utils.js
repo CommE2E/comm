@@ -19,10 +19,7 @@ function useTryLinkFID(): (newFID: string) => Promise<void> {
       try {
         await linkFID(newFID);
       } catch (e) {
-        if (
-          getMessageForException(e) ===
-          'farcaster ID already associated with different user'
-        ) {
+        if (getMessageForException(e) === 'fid_taken') {
           const { title, message } =
             getFarcasterAccountAlreadyLinkedAlertDetails();
           Alert.alert(title, message);
