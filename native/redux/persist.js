@@ -57,6 +57,7 @@ import {
 import { patchRawThreadInfosWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reducer.js';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
+import { legacyUpdateRolesAndPermissions } from 'lib/shared/redux/legacy-update-roles-and-permissions.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
@@ -131,7 +132,6 @@ import {
   handleReduxMigrationFailure,
   persistBlacklist,
 } from './handle-redux-migration-failure.js';
-import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
 import { persistMigrationForManagePinsThreadPermission } from './manage-pins-permission-migration.js';
 import { persistMigrationToRemoveSelectRolePermissions } from './remove-select-role-permissions.js';
 import type { AppState } from './state-types.js';
