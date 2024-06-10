@@ -1,6 +1,7 @@
 // @flow
 
-import { legacyUpdateRolesAndPermissions } from './legacy-update-roles-and-permissions.js';
+import { legacyUpdateRolesAndPermissions } from 'lib/shared/redux/legacy-update-roles-and-permissions.js';
+
 import {
   threadStoreThreads,
   threadStoreThreadsWithEmptyRolePermissions,
