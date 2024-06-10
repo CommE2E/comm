@@ -130,6 +130,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
               secureTextEntry={true}
               textContentType="password"
               autoComplete="password"
+              autoCapitalize="none"
               returnKeyType="go"
               onSubmitEditing={onDelete}
               ref={passwordInputRef}
