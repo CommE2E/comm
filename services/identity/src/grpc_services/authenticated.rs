@@ -51,8 +51,10 @@ pub fn auth_interceptor(
 ) -> Result<Request<()>, Status> {
   trace!("Intercepting request to check auth info: {:?}", req);
 
-  let (user_id, device_id, access_token) = get_auth_info(&req)
-    .ok_or_else(|| Status::unauthenticated("Missing credentials"))?;
+  let (user_id, device_id, access_token) =
+    get_auth_info(&req).ok_or_else(|| {
+      Status::unauthenticated(tonic_status_messages::MISSING_CREDENTIALS)
+    })?;
 
   let handle = tokio::runtime::Handle::current();
   let new_db_client = db_client.clone();
@@ -70,7 +72,7 @@ pub fn auth_interceptor(
   })?;
 
   if !valid_token {
-    return Err(Status::aborted("Bad Credentials"));
+    return Err(Status::aborted(tonic_status_messages::BAD_CREDENTIALS));
   }
 
   Ok(req)
@@ -294,7 +296,9 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(handle_db_error)?
     else {
-      return Err(tonic::Status::not_found("session not found"));
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::SESSION_NOT_FOUND,
+      ));
     };
 
     let server_registration = comm_opaque2::server::Registration::new();
@@ -505,7 +509,9 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(handle_db_error)?
     else {
-      return Err(tonic::Status::not_found("session not found"));
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::SESSION_NOT_FOUND,
+      ));
     };
 
     let mut server_login = state.opaque_server_login;
@@ -535,8 +541,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let since = since_timestamp
       .map(|timestamp| {
-        DateTime::from_timestamp_millis(timestamp)
-          .ok_or_else(|| tonic::Status::invalid_argument("Invalid timestamp"))
+        DateTime::from_timestamp_millis(timestamp).ok_or_else(|| {
+          tonic::Status::invalid_argument(
+            tonic_status_messages::INVALID_TIMESTAMP,
+          )
+        })
       })
       .transpose()?;
 
@@ -691,16 +700,16 @@ impl IdentityClientService for AuthenticatedService {
         errorType = error_types::GRPC_SERVICES_LOG,
         "multiple users associated with the same Farcaster ID"
       );
-      return Err(Status::failed_precondition("cannot link Farcaster ID"));
+      return Err(Status::failed_precondition(
+        tonic_status_messages::CANNOT_LINK_FID,
+      ));
     }
 
     if let Some(u) = get_farcaster_users_response.pop() {
       if u.0.user_id == user_id {
         return Ok(Response::new(Empty {}));
       } else {
-        return Err(Status::already_exists(
-          "farcaster ID already associated with different user",
-        ));
+        return Err(Status::already_exists(tonic_status_messages::FID_TAKEN));
       }
     }
 
@@ -763,7 +772,11 @@ impl IdentityClientService for AuthenticatedService {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
     let platform_metadata = get_platform_metadata(&request)?;
     let platform_details = PlatformDetails::new(platform_metadata, None)
-      .map_err(|_| Status::invalid_argument("Invalid platform metadata"))?;
+      .map_err(|_| {
+        Status::invalid_argument(
+          tonic_status_messages::INVALID_PLATFORM_METADATA,
+        )
+      })?;
 
     self
       .db_client
