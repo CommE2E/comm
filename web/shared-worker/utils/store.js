@@ -39,6 +39,7 @@ async function getClientDBStore(): Promise<ClientStore> {
     auxUserInfos: null,
     threadActivityStore: null,
     entries: null,
+    messageStoreLocalMessageInfos: null,
   };
   const data = await sharedWorker.schedule({
     type: workerRequestMessageTypes.GET_CLIENT_STORE,
