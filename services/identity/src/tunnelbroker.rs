@@ -50,3 +50,25 @@ pub async fn send_refresh_keys_request(
       .await?,
   )
 }
+
+pub async fn send_device_list_update(device_ids: &[&str]) -> Result<(), Error> {
+  let mut tunnelbroker_client = create_tunnelbroker_client().await?;
+
+  let update = messages::IdentityDeviceListUpdated {};
+  let payload = serde_json::to_string(&update).unwrap();
+
+  for &device_id in device_ids {
+    let request = MessageToDevice {
+      device_id: device_id.to_string(),
+      payload: payload.clone(),
+    };
+
+    let grpc_message = tonic::Request::new(request);
+
+    tunnelbroker_client
+      .send_message_to_device(grpc_message)
+      .await?;
+  }
+
+  Ok(())
+}
