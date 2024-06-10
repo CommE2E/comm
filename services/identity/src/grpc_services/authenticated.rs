@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::config::CONFIG;
 use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::SignedDeviceList;
+use crate::error::consume_error;
 use crate::{
   client_service::{handle_db_error, UpdateState, WorkflowInProgress},
   constants::{error_types, request_metadata},
@@ -324,9 +325,43 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .delete_access_token_data(user_id, device_id)
+      .delete_access_token_data(&user_id, device_id)
       .await
       .map_err(handle_db_error)?;
+
+    let device_list = self
+      .db_client
+      .get_current_device_list(&user_id)
+      .await
+      .map_err(|err| {
+        error!(
+          user_id,
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "Failed fetching device list: {err}"
+        );
+        handle_db_error(err)
+      })?;
+
+    let Some(device_list) = device_list else {
+      error!(
+        user_id,
+        errorType = error_types::GRPC_SERVICES_LOG,
+        "User has no device list!"
+      );
+      return Err(Status::failed_precondition("no device list"));
+    };
+
+    tokio::spawn(async move {
+      debug!(
+        "Sending device list updates to {:?}",
+        device_list.device_ids
+      );
+      let device_ids: Vec<&str> =
+        device_list.device_ids.iter().map(AsRef::as_ref).collect();
+      let result =
+        crate::tunnelbroker::send_device_list_update(&device_ids).await;
+      consume_error(result);
+    });
 
     let response = Empty {};
     Ok(Response::new(response))
