@@ -284,7 +284,9 @@ impl IdentityClientService for ClientService {
       };
       Ok(Response::new(response))
     } else {
-      Err(tonic::Status::not_found("session not found"))
+      Err(tonic::Status::not_found(
+        tonic_status_messages::SESSION_NOT_FOUND,
+      ))
     }
   }
 
@@ -434,7 +436,9 @@ impl IdentityClientService for ClientService {
       };
       Ok(Response::new(response))
     } else {
-      Err(tonic::Status::not_found("session not found"))
+      Err(tonic::Status::not_found(
+        tonic_status_messages::SESSION_NOT_FOUND,
+      ))
     }
   }
 
@@ -1063,7 +1067,7 @@ impl ClientService {
       .is_empty();
     if fid_already_registered {
       return Err(tonic::Status::already_exists(
-        "farcaster ID already associated with different user",
+        tonic_status_messages::FID_TAKEN,
       ));
     }
     Ok(())

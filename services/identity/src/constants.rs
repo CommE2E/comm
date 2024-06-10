@@ -233,6 +233,13 @@ pub mod tonic_status_messages {
   pub const USER_NOT_FOUND: &str = "user_not_found";
   pub const INVALID_NONCE: &str = "invalid_nonce";
   pub const NONCE_EXPIRED: &str = "nonce_expired";
+  pub const FID_TAKEN: &str = "fid_taken";
+  pub const CANNOT_LINK_FID: &str = "cannot_link_fid";
+  pub const INVALID_PLATFORM_METADATA: &str = "invalid_platform_metadata";
+  pub const MISSING_CREDENTIALS: &str = "missing_credentials";
+  pub const BAD_CREDENTIALS: &str = "bad_credentials";
+  pub const SESSION_NOT_FOUND: &str = "session_not_found";
+  pub const INVALID_TIMESTAMP: &str = "invalid_timestamp";
 }
 
 // Tunnelbroker
