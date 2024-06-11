@@ -87,4 +87,14 @@ describe('sanitization', () => {
     const redacted = { passwords: [{ password: redactedString }] };
     expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
   });
+
+  it('should redact a string inside an object even if it fails validation', () => {
+    const validator = tShape<{ +password: string, +blah: string }>({
+      password: tPassword,
+      blah: t.String,
+    });
+    const object = { password: 'password' };
+    const redacted = { password: redactedString };
+    expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
+  });
 });
