@@ -87,4 +87,42 @@ describe('sanitization', () => {
     const redacted = { passwords: [{ password: redactedString }] };
     expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
   });
+
+  it('should redact a string inside an object even if it fails validation', () => {
+    const validator = tShape<{ +password: string, +blah: string }>({
+      password: tPassword,
+      blah: t.String,
+    });
+    const object = { password: 'password' };
+    const redacted = { password: redactedString };
+    expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
+  });
+
+  it('should redact a string inside a nested object even if inner fails validation', () => {
+    const validator = tShape<{
+      +nested: { +blah: string, +password: string },
+    }>({
+      nested: tShape<{ +blah: string, +password: string }>({
+        blah: t.String,
+        password: tPassword,
+      }),
+    });
+    const object = { nested: { password: 'password' } };
+    const redacted = { nested: { password: redactedString } };
+    expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
+  });
+  it('should redact a string inside a nested object even if outer fails validation', () => {
+    const validator = tShape<{
+      +blah: string,
+      +nested: { +password: string },
+    }>({
+      blah: t.String,
+      nested: tShape<{ +password: string }>({
+        password: tPassword,
+      }),
+    });
+    const object = { nested: { password: 'password' } };
+    const redacted = { nested: { password: redactedString } };
+    expect(sanitizeInput(validator, object)).toStrictEqual(redacted);
+  });
 });

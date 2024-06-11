@@ -142,6 +142,7 @@ function sanitizeInput<T>(inputValidator: TType<T>, input: T): T {
     input,
     redactedTypes,
     () => redactedString,
+    { dontValidateInput: true },
   );
 }
 
