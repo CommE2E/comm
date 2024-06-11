@@ -1,5 +1,9 @@
 // @flow
 
+import {
+  FUTURE_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type {
   InviteLinkWithHolder,
   InviteLinkVerificationRequest,
@@ -15,14 +19,21 @@ async function verifyInviteLink(
   request: InviteLinkVerificationRequest,
 ): Promise<InviteLinkVerificationResponse> {
   const query = SQL`
-    SELECT c.name, i.community AS communityID, m.role
+    SELECT c.name AS communityName, c.id AS communityID, 
+      cm.role AS communityRole, t.name AS threadName, t.id AS threadID,
+      tm.role AS threadRole
     FROM invite_links i
     INNER JOIN threads c ON c.id = i.community
-    LEFT JOIN memberships m 
-      ON m.thread = i.community
-        AND m.user = ${viewer.loggedIn ? viewer.userID : null}
+    LEFT JOIN memberships cm 
+      ON cm.thread = c.id
+        AND cm.user = ${viewer.loggedIn ? viewer.userID : null}
+    LEFT JOIN threads t ON t.id = i.thread
+    LEFT JOIN memberships tm
+      ON tm.thread = t.id
+        AND tm.user = ${viewer.loggedIn ? viewer.userID : null}
     WHERE i.name = ${request.secret}
       AND c.community IS NULL
+      AND (t.community = c.id OR i.thread IS NULL)
   `;
   const [result] = await dbQuery(query);
   if (result.length === 0) {
@@ -31,13 +42,36 @@ async function verifyInviteLink(
     };
   }
 
-  const { name, communityID, role } = result[0];
-  const status = role > 0 ? 'already_joined' : 'valid';
-  return {
-    status,
+  const supportsThreadLinks = hasMinCodeVersion(viewer.platformDetails, {
+    native: FUTURE_CODE_VERSION,
+    web: FUTURE_CODE_VERSION,
+  });
+  const {
+    communityName,
+    communityID,
+    communityRole,
+    threadName,
+    threadID,
+    threadRole,
+  } = result[0];
+  const communityStatus = communityRole > 0 ? 'already_joined' : 'valid';
+  const communityResult = {
+    status: communityStatus,
     community: {
-      name,
+      name: communityName,
       id: communityID.toString(),
+    },
+  };
+  if (!threadID || !supportsThreadLinks) {
+    return communityResult;
+  }
+  const threadStatus = threadRole > 0 ? 'already_joined' : 'valid';
+  return {
+    ...communityResult,
+    status: threadStatus,
+    thread: {
+      name: threadName,
+      id: threadID.toString(),
     },
   };
 }
