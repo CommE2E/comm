@@ -12,6 +12,18 @@ import type { QueryResults } from 'mysql';
 import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
+import { prepareEncryptedAndroidSilentNotifications } from 'lib/push/crypto.js';
+import {
+  type AndroidNotifInputData,
+  androidNotifInputDataValidator,
+  createAndroidVisualNotification,
+  type WebNotifInputData,
+  webNotifInputDataValidator,
+  createWebNotification,
+  type WNSNotifInputData,
+  wnsNotifInputDataValidator,
+  createWNSNotification,
+} from 'lib/push/notif-creators.js';
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
@@ -35,7 +47,6 @@ import {
 } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
-  AndroidVisualNotification,
   NotificationTargetDevice,
   TargetedAndroidNotification,
   TargetedWebNotification,
@@ -49,13 +60,7 @@ import { type GlobalUserInfo } from 'lib/types/user-types.js';
 import { values } from 'lib/utils/objects.js';
 import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
-import {
-  prepareEncryptedAndroidVisualNotifications,
-  prepareEncryptedAndroidSilentNotifications,
-  prepareEncryptedAPNsNotifications,
-  prepareEncryptedWebNotifications,
-  prepareEncryptedWNSNotifications,
-} from './crypto.js';
+import { prepareEncryptedAPNsNotifications } from './crypto.js';
 import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
@@ -63,12 +68,10 @@ import type { TargetedAPNsNotification } from './types.js';
 import {
   apnMaxNotificationPayloadByteSize,
   apnPush,
-  fcmMaxNotificationPayloadByteSize,
   fcmPush,
   getUnreadCounts,
   webPush,
   type WebPushError,
-  wnsMaxNotificationPayloadByteSize,
   wnsPush,
   type WNSPushError,
 } from './utils.js';
@@ -370,14 +373,14 @@ async function preparePushNotif(input: {
         (async () => {
           const targetedNotifications = await prepareAndroidVisualNotification(
             {
-              keyserverID,
+              senderDeviceID: { keyserverID },
               notifTexts,
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
               unreadCount,
               platformDetails,
-              dbID,
+              notifID: dbID,
             },
             devices,
           );
@@ -410,9 +413,10 @@ async function preparePushNotif(input: {
             {
               notifTexts,
               threadID: threadInfo.id,
-              keyserverID,
+              senderDeviceID: { keyserverID },
               unreadCount,
               platformDetails,
+              id: uuidv4(),
             },
             devices,
           );
@@ -490,7 +494,7 @@ async function preparePushNotif(input: {
           const targetedNotifications = await prepareWNSNotification(devices, {
             notifTexts,
             threadID: threadInfo.id,
-            keyserverID,
+            senderDeviceID: { keyserverID },
             unreadCount,
             platformDetails,
           });
@@ -1168,14 +1172,6 @@ async function prepareAPNsNotification(
   ];
 }
 
-type AndroidNotifInputData = {
-  ...CommonNativeNotifInputData,
-  +dbID: string,
-};
-const androidNotifInputDataValidator = tShape<AndroidNotifInputData>({
-  ...commonNativeNotifInputDataValidator.meta.props,
-  dbID: t.String,
-});
 async function prepareAndroidVisualNotification(
   inputData: AndroidNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
@@ -1185,202 +1181,14 @@ async function prepareAndroidVisualNotification(
     androidNotifInputDataValidator,
     inputData,
   );
-  const {
-    keyserverID,
-    notifTexts,
-    newRawMessageInfos,
-    threadID,
-    collapseKey,
-    unreadCount,
-    platformDetails,
-    dbID,
-  } = convertedData;
 
-  const canDecryptNonCollapsibleTextNotifs = hasMinCodeVersion(
-    platformDetails,
-    { native: 228 },
+  return createAndroidVisualNotification(
+    encryptedNotifUtilsAPI,
+    convertedData,
+    devices,
   );
-  const isNonCollapsibleTextNotif =
-    newRawMessageInfos.every(
-      newRawMessageInfo => newRawMessageInfo.type === messageTypes.TEXT,
-    ) && !collapseKey;
-
-  const canDecryptAllNotifTypes = hasMinCodeVersion(platformDetails, {
-    native: 267,
-  });
-
-  const shouldBeEncrypted =
-    canDecryptAllNotifTypes ||
-    (canDecryptNonCollapsibleTextNotifs && isNonCollapsibleTextNotif);
-
-  const { merged, ...rest } = notifTexts;
-  const notification = {
-    data: {
-      badge: unreadCount.toString(),
-      ...rest,
-      threadID,
-    },
-  };
-
-  let notifID;
-  if (collapseKey && canDecryptAllNotifTypes) {
-    notifID = dbID;
-    notification.data = {
-      ...notification.data,
-      collapseKey,
-    };
-  } else if (collapseKey) {
-    notifID = collapseKey;
-  } else {
-    notifID = dbID;
-  }
-
-  notification.data = {
-    ...notification.data,
-    id: notifID,
-    badgeOnly: '0',
-  };
-
-  const messageInfos = JSON.stringify(newRawMessageInfos);
-  const copyWithMessageInfos = {
-    ...notification,
-    data: { ...notification.data, messageInfos },
-  };
-
-  const priority = 'high';
-  if (!shouldBeEncrypted) {
-    const notificationToSend =
-      encryptedNotifUtilsAPI.getNotifByteSize(
-        JSON.stringify(copyWithMessageInfos),
-      ) <= fcmMaxNotificationPayloadByteSize
-        ? copyWithMessageInfos
-        : notification;
-
-    return devices.map(({ deviceToken }) => ({
-      priority,
-      notification: notificationToSend,
-      deviceToken,
-    }));
-  }
-
-  const notificationsSizeValidator = (notif: AndroidVisualNotification) => {
-    const serializedNotif = JSON.stringify(notif);
-    return (
-      !serializedNotif ||
-      encryptedNotifUtilsAPI.getNotifByteSize(serializedNotif) <=
-        fcmMaxNotificationPayloadByteSize
-    );
-  };
-
-  const notifsWithMessageInfos =
-    await prepareEncryptedAndroidVisualNotifications(
-      encryptedNotifUtilsAPI,
-      { keyserverID },
-      devices,
-      copyWithMessageInfos,
-      notificationsSizeValidator,
-    );
-
-  const devicesWithExcessiveSizeNoHolders = notifsWithMessageInfos
-    .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
-    .map(({ cookieID, deviceToken }) => ({ cookieID, deviceToken }));
-
-  if (devicesWithExcessiveSizeNoHolders.length === 0) {
-    return notifsWithMessageInfos.map(
-      ({ notification: notif, deviceToken, encryptionOrder }) => ({
-        priority,
-        notification: notif,
-        deviceToken,
-        encryptionOrder,
-      }),
-    );
-  }
-
-  const canQueryBlobService = hasMinCodeVersion(platformDetails, {
-    native: 331,
-  });
-
-  let blobHash, blobHolders, encryptionKey, blobUploadError;
-  if (canQueryBlobService) {
-    ({ blobHash, blobHolders, encryptionKey, blobUploadError } =
-      await encryptedNotifUtilsAPI.uploadLargeNotifPayload(
-        JSON.stringify(copyWithMessageInfos.data),
-        devicesWithExcessiveSizeNoHolders.length,
-      ));
-  }
-
-  if (blobUploadError) {
-    console.warn(
-      `Failed to upload payload of notification: ${notifID} ` +
-        `due to error: ${blobUploadError}`,
-    );
-  }
-
-  let devicesWithExcessiveSize = devicesWithExcessiveSizeNoHolders;
-  if (
-    blobHash &&
-    encryptionKey &&
-    blobHolders &&
-    blobHolders.length === devicesWithExcessiveSizeNoHolders.length
-  ) {
-    notification.data = {
-      ...notification.data,
-      blobHash,
-      encryptionKey,
-    };
-
-    devicesWithExcessiveSize = blobHolders.map((holder, idx) => ({
-      ...devicesWithExcessiveSize[idx],
-      blobHolder: holder,
-    }));
-  }
-
-  const notifsWithoutMessageInfos =
-    await prepareEncryptedAndroidVisualNotifications(
-      encryptedNotifUtilsAPI,
-      { keyserverID },
-      devicesWithExcessiveSize,
-      notification,
-    );
-
-  const targetedNotifsWithMessageInfos = notifsWithMessageInfos
-    .filter(({ payloadSizeExceeded }) => !payloadSizeExceeded)
-    .map(({ notification: notif, deviceToken, encryptionOrder }) => ({
-      priority,
-      notification: notif,
-      deviceToken,
-      encryptionOrder,
-    }));
-
-  const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
-    ({ notification: notif, deviceToken, encryptionOrder }) => ({
-      priority,
-      notification: notif,
-      deviceToken,
-      encryptionOrder,
-    }),
-  );
-
-  return [
-    ...targetedNotifsWithMessageInfos,
-    ...targetedNotifsWithoutMessageInfos,
-  ];
 }
 
-type WebNotifInputData = {
-  +notifTexts: ResolvedNotifTexts,
-  +threadID: string,
-  +keyserverID: string,
-  +unreadCount: number,
-  +platformDetails: PlatformDetails,
-};
-const webNotifInputDataValidator = tShape<WebNotifInputData>({
-  notifTexts: resolvedNotifTextsValidator,
-  threadID: tID,
-  keyserverID: t.String,
-  unreadCount: t.Number,
-  platformDetails: tPlatformDetails,
-});
 async function prepareWebNotification(
   inputData: WebNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
@@ -1390,46 +1198,10 @@ async function prepareWebNotification(
     webNotifInputDataValidator,
     inputData,
   );
-  const { notifTexts, threadID, unreadCount, keyserverID } = convertedData;
-  const id = uuidv4();
-  const { merged, ...rest } = notifTexts;
-  const notification = {
-    ...rest,
-    unreadCount,
-    id,
-    threadID,
-  };
 
-  const shouldBeEncrypted = hasMinCodeVersion(convertedData.platformDetails, {
-    web: 43,
-  });
-
-  if (!shouldBeEncrypted) {
-    return devices.map(({ deviceToken }) => ({ deviceToken, notification }));
-  }
-
-  return prepareEncryptedWebNotifications(
-    encryptedNotifUtilsAPI,
-    { keyserverID },
-    devices,
-    notification,
-  );
+  return createWebNotification(encryptedNotifUtilsAPI, convertedData, devices);
 }
 
-type WNSNotifInputData = {
-  +notifTexts: ResolvedNotifTexts,
-  +threadID: string,
-  +keyserverID: string,
-  +unreadCount: number,
-  +platformDetails: PlatformDetails,
-};
-const wnsNotifInputDataValidator = tShape<WNSNotifInputData>({
-  notifTexts: resolvedNotifTextsValidator,
-  threadID: tID,
-  keyserverID: t.String,
-  unreadCount: t.Number,
-  platformDetails: tPlatformDetails,
-});
 async function prepareWNSNotification(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   inputData: WNSNotifInputData,
@@ -1439,37 +1211,7 @@ async function prepareWNSNotification(
     wnsNotifInputDataValidator,
     inputData,
   );
-  const { notifTexts, threadID, unreadCount, keyserverID } = convertedData;
-  const { merged, ...rest } = notifTexts;
-  const notification = {
-    ...rest,
-    unreadCount,
-    threadID,
-  };
-
-  if (
-    encryptedNotifUtilsAPI.getNotifByteSize(JSON.stringify(notification)) >
-    wnsMaxNotificationPayloadByteSize
-  ) {
-    console.warn('WNS notification exceeds size limit');
-  }
-
-  const shouldBeEncrypted = hasMinCodeVersion(inputData.platformDetails, {
-    majorDesktop: 10,
-  });
-
-  if (!shouldBeEncrypted) {
-    return devices.map(({ deviceToken }) => ({
-      deviceToken,
-      notification,
-    }));
-  }
-  return await prepareEncryptedWNSNotifications(
-    encryptedNotifUtilsAPI,
-    { keyserverID },
-    devices,
-    notification,
-  );
+  return createWNSNotification(encryptedNotifUtilsAPI, convertedData, devices);
 }
 
 type NotificationInfo =
