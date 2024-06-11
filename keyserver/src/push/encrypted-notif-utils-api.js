@@ -11,7 +11,10 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   encryptSerializedNotifPayload: async (
     cryptoID: string,
     unencryptedPayload: string,
-    encryptedPayloadSizeValidator?: (encryptedPayload: string) => boolean,
+    encryptedPayloadSizeValidator?: (
+      encryptedPayload: string,
+      type: '1' | '0',
+    ) => boolean,
   ) => {
     let dbPersistCondition;
     if (encryptedPayloadSizeValidator) {
@@ -19,7 +22,11 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
         serializedPayload,
       }: {
         +[string]: EncryptResult,
-      }) => encryptedPayloadSizeValidator(serializedPayload.body);
+      }) =>
+        encryptedPayloadSizeValidator(
+          serializedPayload.body,
+          serializedPayload.type ? '1' : '0',
+        );
     }
 
     const {
