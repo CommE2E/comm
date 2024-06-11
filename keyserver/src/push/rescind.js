@@ -10,6 +10,7 @@ import type {
   NotificationTargetDevice,
   TargetedAndroidNotification,
   SenderDeviceID,
+  EncryptedNotifUtilsAPI,
 } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -20,6 +21,7 @@ import {
   prepareEncryptedAndroidSilentNotifications,
   prepareEncryptedIOSNotificationRescind,
 } from './crypto.js';
+import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import type { TargetedAPNsNotification } from './types.js';
 import {
@@ -275,11 +277,13 @@ async function getDeviceTokenToCookieID(
 }
 
 async function conditionallyEncryptNotification<T>(
+  encryptedNotifUtilsAPIInstance: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   notification: T,
   codeVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   encryptCallback: (
+    encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
     senderDeviceID: SenderDeviceID,
     devices: $ReadOnlyArray<NotificationTargetDevice>,
     notification: T,
@@ -301,6 +305,7 @@ async function conditionallyEncryptNotification<T>(
     }));
   }
   const notifications = await encryptCallback(
+    encryptedNotifUtilsAPI,
     senderDeviceID,
     devices,
     notification,
@@ -354,6 +359,7 @@ async function prepareIOSNotification(
           },
         };
   return await conditionallyEncryptNotification(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     notification,
     codeVersion,
@@ -383,6 +389,7 @@ async function prepareAndroidNotification(
     },
   };
   const targetedRescinds = await conditionallyEncryptNotification(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     notification,
     codeVersion,
