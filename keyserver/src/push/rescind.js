@@ -5,6 +5,7 @@ import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
+import { prepareEncryptedAndroidSilentNotifications } from 'lib/push/crypto.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   NotificationTargetDevice,
@@ -17,10 +18,7 @@ import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { tID } from 'lib/utils/validation-utils.js';
 
-import {
-  prepareEncryptedAndroidSilentNotifications,
-  prepareEncryptedIOSNotificationRescind,
-} from './crypto.js';
+import { prepareEncryptedIOSNotificationRescind } from './crypto.js';
 import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import type { TargetedAPNsNotification } from './types.js';
