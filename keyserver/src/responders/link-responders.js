@@ -38,9 +38,9 @@ async function fetchPrimaryInviteLinksResponder(
 ): Promise<FetchInviteLinksResponse> {
   const primaryLinks = await fetchPrimaryInviteLinks(viewer);
   return {
-    links: primaryLinks.map(
-      ({ blobHolder, ...rest }: InviteLinkWithHolder) => rest,
-    ),
+    links: primaryLinks
+      .filter(link => !link.threadID)
+      .map(({ blobHolder, ...rest }: InviteLinkWithHolder) => rest),
   };
 }
 
