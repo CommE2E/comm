@@ -31,11 +31,12 @@ async function validateInput<T>(
   viewer: Viewer,
   inputValidator: TType<T>,
   input: mixed,
+  source: string,
 ): Promise<T> {
   if (!viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
   }
-  const convertedInput = checkInputValidator(inputValidator, input);
+  const convertedInput = checkInputValidator(inputValidator, input, source);
 
   const keyserverID = await thisKeyserverID();
 
@@ -86,12 +87,21 @@ async function validateOutput<T>(
   return data;
 }
 
-function checkInputValidator<T>(inputValidator: TType<T>, input: mixed): T {
+function checkInputValidator<T>(
+  inputValidator: TType<T>,
+  input: mixed,
+  source: string,
+): T {
   if (inputValidator.is(input)) {
     return assertWithValidator(input, inputValidator);
   }
   const error = new ServerError('invalid_parameters');
-  error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
+  try {
+    error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
+  } catch {
+    error.sanitizedInput = null;
+  }
+  console.log(`failed input validation on ${source}`);
   throw error;
 }
 

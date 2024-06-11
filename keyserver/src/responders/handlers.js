@@ -3,6 +3,7 @@
 import type { $Response, $Request } from 'express';
 import type { TType } from 'tcomb';
 
+import type { Endpoint } from 'lib/types/endpoints.js';
 import { ServerError } from 'lib/utils/errors.js';
 import {
   assertWithValidator,
@@ -39,10 +40,16 @@ function createJSONResponder<I, O>(
   inputValidator: TType<I>,
   outputValidator: TType<O>,
   requiredPolicies: $ReadOnlyArray<PolicyType>,
+  endpoint: Endpoint,
 ): JSONResponder {
   return {
     responder: async (viewer, input) => {
-      const request = await validateInput(viewer, inputValidator, input);
+      const request = await validateInput(
+        viewer,
+        inputValidator,
+        input,
+        endpoint,
+      );
       const result = await responder(viewer, request);
       return await validateOutput(
         viewer.platformDetails,
