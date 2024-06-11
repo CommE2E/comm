@@ -251,6 +251,18 @@ async function initializeSession(
     return { sessionContinued: false };
   }
 
+  if (oldLastUpdate === 0 && viewer.sessionLastUpdated === 0) {
+    // If both oldLastUpdate and viewer.sessionLastUpdated are 0, that indicates
+    // either a fresh registration, or a fresh login following a policy update
+    // that requires acknowledgment. In the latter case, we don't want to leave
+    // oldLastUpdate as 0, as it might result in a lot of old updates being
+    // downloaded. So we make sure to use Date.now() for the new session, and
+    // return { sessionContinued: false } to make sure the client gets a
+    // stateSyncPayloadTypes.FULL.
+    await setNewSession(viewer, calendarQuery, Date.now());
+    return { sessionContinued: false };
+  }
+
   let comparisonResult = null;
   try {
     comparisonResult = compareNewCalendarQuery(viewer, calendarQuery);
