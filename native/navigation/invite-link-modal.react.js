@@ -59,7 +59,7 @@ function InviteLinkModal(props: Props): React.Node {
     [navigateToThreadWithParams],
   );
 
-  const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
+  const { join, joinLoadingStatus } = useAcceptInviteLink({
     verificationResponse: invitationDetails,
     inviteSecret: secret,
     keyserverOverride,
@@ -120,7 +120,7 @@ function InviteLinkModal(props: Props): React.Node {
   const buttons = React.useMemo(() => {
     if (linkStatus === 'valid') {
       const joinButtonContent =
-        joinThreadLoadingStatus === 'loading' ? (
+        joinLoadingStatus === 'loading' ? (
           <ActivityIndicator
             size="small"
             color="white"
@@ -133,8 +133,8 @@ function InviteLinkModal(props: Props): React.Node {
         <>
           <Button
             style={[styles.button, styles.buttonPrimary, styles.gap]}
-            onPress={joinCommunity}
-            disabled={joinThreadLoadingStatus === 'loading'}
+            onPress={join}
+            disabled={joinLoadingStatus === 'loading'}
           >
             {joinButtonContent}
           </Button>
@@ -157,8 +157,8 @@ function InviteLinkModal(props: Props): React.Node {
     );
   }, [
     closeModal,
-    joinCommunity,
-    joinThreadLoadingStatus,
+    join,
+    joinLoadingStatus,
     linkStatus,
     props.navigation.goBack,
     styles.activityIndicatorStyle,

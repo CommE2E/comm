@@ -52,7 +52,7 @@ function AcceptInviteModal(props: Props): React.Node {
     [dispatch, popModal],
   );
 
-  const { joinCommunity, joinThreadLoadingStatus } = useAcceptInviteLink({
+  const { join, joinLoadingStatus } = useAcceptInviteLink({
     verificationResponse,
     inviteSecret,
     keyserverOverride,
@@ -74,8 +74,8 @@ function AcceptInviteModal(props: Props): React.Node {
           <Button
             variant="filled"
             buttonColor={buttonThemes.standard}
-            disabled={joinThreadLoadingStatus === 'loading'}
-            onClick={joinCommunity}
+            disabled={joinLoadingStatus === 'loading'}
+            onClick={join}
           >
             Accept invite
           </Button>
