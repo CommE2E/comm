@@ -696,6 +696,9 @@ function IdentityServiceContextProvider(props: Props): React.Node {
         const identities = JSON.parse(result);
         return assertWithValidator(identities, identitiesValidator);
       },
+      versionSupported: () => {
+        return commRustModule.versionSupported();
+      },
     }),
     [getAuthMetadata],
   );
