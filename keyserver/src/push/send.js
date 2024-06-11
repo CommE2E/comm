@@ -992,7 +992,6 @@ async function prepareAPNsNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadID;
-  notification.payload.keyserverID = keyserverID;
 
   if (platformDetails.codeVersion && platformDetails.codeVersion > 198) {
     notification.mutableContent = true;
@@ -1033,6 +1032,7 @@ async function prepareAPNsNotification(
   if (platformDetails.platform === 'macos') {
     const macOSNotifsWithoutMessageInfos =
       await prepareEncryptedAPNsNotifications(
+        { keyserverID },
         devices,
         notification,
         platformDetails.codeVersion,
@@ -1046,6 +1046,7 @@ async function prepareAPNsNotification(
   }
 
   const notifsWithMessageInfos = await prepareEncryptedAPNsNotifications(
+    { keyserverID },
     devices,
     copyWithMessageInfos,
     platformDetails.codeVersion,
@@ -1054,7 +1055,10 @@ async function prepareAPNsNotification(
 
   const devicesWithExcessiveSizeNoHolders = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
-    .map(({ deviceToken, cookieID }) => ({ deviceToken, cookieID }));
+    .map(({ deviceToken, cookieID }) => ({
+      deviceToken,
+      cookieID,
+    }));
 
   if (devicesWithExcessiveSizeNoHolders.length === 0) {
     return notifsWithMessageInfos.map(
@@ -1112,6 +1116,7 @@ async function prepareAPNsNotification(
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAPNsNotifications(
+    { keyserverID },
     devicesWithExcessiveSize,
     notification,
     platformDetails.codeVersion,
@@ -1202,7 +1207,6 @@ async function prepareAndroidVisualNotification(
   const { merged, ...rest } = notifTexts;
   const notification = {
     data: {
-      keyserverID,
       badge: unreadCount.toString(),
       ...rest,
       threadID,
@@ -1259,6 +1263,7 @@ async function prepareAndroidVisualNotification(
 
   const notifsWithMessageInfos =
     await prepareEncryptedAndroidVisualNotifications(
+      { keyserverID },
       devices,
       copyWithMessageInfos,
       notificationsSizeValidator,
@@ -1320,6 +1325,7 @@ async function prepareAndroidVisualNotification(
 
   const notifsWithoutMessageInfos =
     await prepareEncryptedAndroidVisualNotifications(
+      { keyserverID },
       devicesWithExcessiveSize,
       notification,
     );
@@ -1379,7 +1385,6 @@ async function prepareWebNotification(
     unreadCount,
     id,
     threadID,
-    keyserverID,
   };
 
   const shouldBeEncrypted = hasMinCodeVersion(convertedData.platformDetails, {
@@ -1390,7 +1395,11 @@ async function prepareWebNotification(
     return devices.map(({ deviceToken }) => ({ deviceToken, notification }));
   }
 
-  return prepareEncryptedWebNotifications(devices, notification);
+  return prepareEncryptedWebNotifications(
+    { keyserverID },
+    devices,
+    notification,
+  );
 }
 
 type WNSNotifInputData = {
@@ -1422,7 +1431,6 @@ async function prepareWNSNotification(
     ...rest,
     unreadCount,
     threadID,
-    keyserverID,
   };
 
   if (
@@ -1442,7 +1450,11 @@ async function prepareWNSNotification(
       notification,
     }));
   }
-  return await prepareEncryptedWNSNotifications(devices, notification);
+  return await prepareEncryptedWNSNotifications(
+    { keyserverID },
+    devices,
+    notification,
+  );
 }
 
 type NotificationInfo =
@@ -1791,11 +1803,11 @@ async function updateBadgeCount(
       });
       notification.badge = unreadCount;
       notification.pushType = 'alert';
-      notification.payload.keyserverID = keyserverID;
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedAPNsNotifications(
+            { keyserverID },
             deviceInfos,
             notification,
             codeVersion,
@@ -1839,7 +1851,7 @@ async function updateBadgeCount(
         badgeOnly: '1',
       };
       const notification = {
-        data: { ...notificationData, keyserverID },
+        data: { ...notificationData },
       };
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
         let targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>;
@@ -1847,6 +1859,7 @@ async function updateBadgeCount(
         if (codeVersion > 222) {
           const notificationsArray =
             await prepareEncryptedAndroidSilentNotifications(
+              { keyserverID },
               deviceInfos,
               notification,
             );
@@ -1904,6 +1917,7 @@ async function updateBadgeCount(
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (shouldBeEncrypted) {
           const notificationsArray = await prepareEncryptedAPNsNotifications(
+            { keyserverID },
             deviceInfos,
             notification,
             codeVersion,
