@@ -1,6 +1,7 @@
 // @flow
 
 import olm from '@commapp/olm';
+import invariant from 'invariant';
 import localforage from 'localforage';
 
 import {
@@ -64,6 +65,7 @@ async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
 ): Promise<PlainTextWebNotification | WebNotifDecryptionError> {
   const { id, keyserverID, encryptedPayload } = encryptedNotification;
+  invariant(keyserverID, 'KeyserverID must be present to decrypt a notif');
   const utilsData = await localforage.getItem<WebNotifsServiceUtilsData>(
     WEB_NOTIFS_SERVICE_UTILS_KEY,
   );
@@ -108,8 +110,10 @@ async function decryptWebNotification(
     );
 
     const { unreadCount } = decryptedNotification;
+
+    const keyserverIDAsKey: string = keyserverID;
     await updateNotifsUnreadCountStorage({
-      [keyserverID]: unreadCount,
+      [keyserverIDAsKey]: unreadCount,
     });
 
     return { id, ...decryptedNotification };
