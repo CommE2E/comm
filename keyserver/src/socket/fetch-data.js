@@ -92,9 +92,8 @@ async function fetchDataForSocketInit(
       updatesCurrentAsOf: oldUpdatesCurrentAsOf,
     };
     if (viewer.sessionChanged) {
-      // If initializeSession encounters sessionIdentifierTypes.BODY_SESSION_ID
-      // but the session is unspecified or expired, it will set a new sessionID
-      // and specify viewer.sessionChanged
+      // If initializeSession encounters an unspecified or expired session, it
+      // will set a new sessionID and specify viewer.sessionChanged
       const { sessionID } = viewer;
       invariant(sessionID !== null && sessionID !== undefined, 'should be set');
       payload = { ...payload, sessionID };
