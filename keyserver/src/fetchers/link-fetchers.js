@@ -78,14 +78,14 @@ async function verifyInviteLink(
 
 async function checkIfInviteLinkIsValid(
   secret: string,
-  communityID: string,
+  threadID: string,
 ): Promise<boolean> {
   const query = SQL`
     SELECT i.id 
     FROM invite_links i
     INNER JOIN threads c ON c.id = i.community
     WHERE i.name = ${secret}
-      AND i.community = ${communityID}
+      AND (i.community = ${threadID} OR i.thread = ${threadID})
       AND c.community IS NULL
   `;
   const [result] = await dbQuery(query);
