@@ -139,7 +139,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       linkFarcasterAccount: proxyMethodToWorker('linkFarcasterAccount'),
       unlinkFarcasterAccount: proxyMethodToWorker('unlinkFarcasterAccount'),
       findUserIdentities: proxyMethodToWorker('findUserIdentities'),
-      ping: proxyMethodToWorker('ping'),
+      versionSupported: proxyMethodToWorker('versionSupported'),
     };
   }, [proxyMethodToWorker]);
 
