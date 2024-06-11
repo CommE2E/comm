@@ -34,7 +34,14 @@ import {
   rawMessageInfoValidator,
 } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ResolvedNotifTexts } from 'lib/types/notif-types.js';
+import type {
+  AndroidVisualNotification,
+  NotificationTargetDevice,
+  TargetedAndroidNotification,
+  TargetedWebNotification,
+  TargetedWNSNotification,
+  ResolvedNotifTexts,
+} from 'lib/types/notif-types.js';
 import { resolvedNotifTextsValidator } from 'lib/types/notif-types.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
@@ -51,14 +58,7 @@ import {
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
-import type {
-  AndroidVisualNotification,
-  NotificationTargetDevice,
-  TargetedAndroidNotification,
-  TargetedAPNsNotification,
-  TargetedWebNotification,
-  TargetedWNSNotification,
-} from './types.js';
+import type { TargetedAPNsNotification } from './types.js';
 import {
   apnMaxNotificationPayloadByteSize,
   apnPush,

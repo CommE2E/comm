@@ -6,6 +6,10 @@ import type { FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
+import type {
+  NotificationTargetDevice,
+  TargetedAndroidNotification,
+} from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
@@ -16,11 +20,7 @@ import {
   prepareEncryptedIOSNotificationRescind,
 } from './crypto.js';
 import { getAPNsNotificationTopic } from './providers.js';
-import type {
-  NotificationTargetDevice,
-  TargetedAndroidNotification,
-  TargetedAPNsNotification,
-} from './types.js';
+import type { TargetedAPNsNotification } from './types.js';
 import {
   apnPush,
   fcmPush,

@@ -13,16 +13,14 @@ import type {
   PlainTextWNSNotification,
   PlainTextWNSNotificationPayload,
   WNSNotification,
-} from 'lib/types/notif-types.js';
-import { toBase64URL } from 'lib/utils/base64.js';
-
-import type {
   AndroidVisualNotification,
   AndroidVisualNotificationPayload,
   AndroidBadgeOnlyNotification,
   AndroidNotificationRescind,
   NotificationTargetDevice,
-} from './types.js';
+} from 'lib/types/notif-types.js';
+import { toBase64URL } from 'lib/utils/base64.js';
+
 import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 import { encrypt, generateKey } from '../utils/aes-crypto-utils.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
