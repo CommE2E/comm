@@ -56,6 +56,7 @@ import {
   prepareEncryptedWebNotifications,
   prepareEncryptedWNSNotifications,
 } from './crypto.js';
+import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
 import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import type { TargetedAPNsNotification } from './types.js';
@@ -70,7 +71,6 @@ import {
   wnsMaxNotificationPayloadByteSize,
   wnsPush,
   type WNSPushError,
-  blobServiceUpload,
 } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
@@ -1032,6 +1032,7 @@ async function prepareAPNsNotification(
   if (platformDetails.platform === 'macos') {
     const macOSNotifsWithoutMessageInfos =
       await prepareEncryptedAPNsNotifications(
+        encryptedNotifUtilsAPI,
         { keyserverID },
         devices,
         notification,
@@ -1046,6 +1047,7 @@ async function prepareAPNsNotification(
   }
 
   const notifsWithMessageInfos = await prepareEncryptedAPNsNotifications(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     devices,
     copyWithMessageInfos,
@@ -1083,7 +1085,7 @@ async function prepareAPNsNotification(
   let blobHash, blobHolders, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
     ({ blobHash, blobHolders, encryptionKey, blobUploadError } =
-      await blobServiceUpload(
+      await encryptedNotifUtilsAPI.uploadLargeNotifPayload(
         copyWithMessageInfos.compile(),
         devicesWithExcessiveSizeNoHolders.length,
       ));
@@ -1116,6 +1118,7 @@ async function prepareAPNsNotification(
   }
 
   const notifsWithoutMessageInfos = await prepareEncryptedAPNsNotifications(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     devicesWithExcessiveSize,
     notification,
@@ -1241,8 +1244,9 @@ async function prepareAndroidVisualNotification(
   const priority = 'high';
   if (!shouldBeEncrypted) {
     const notificationToSend =
-      Buffer.byteLength(JSON.stringify(copyWithMessageInfos)) <=
-      fcmMaxNotificationPayloadByteSize
+      encryptedNotifUtilsAPI.getNotifByteSize(
+        JSON.stringify(copyWithMessageInfos),
+      ) <= fcmMaxNotificationPayloadByteSize
         ? copyWithMessageInfos
         : notification;
 
@@ -1257,12 +1261,14 @@ async function prepareAndroidVisualNotification(
     const serializedNotif = JSON.stringify(notif);
     return (
       !serializedNotif ||
-      Buffer.byteLength(serializedNotif) <= fcmMaxNotificationPayloadByteSize
+      encryptedNotifUtilsAPI.getNotifByteSize(serializedNotif) <=
+        fcmMaxNotificationPayloadByteSize
     );
   };
 
   const notifsWithMessageInfos =
     await prepareEncryptedAndroidVisualNotifications(
+      encryptedNotifUtilsAPI,
       { keyserverID },
       devices,
       copyWithMessageInfos,
@@ -1291,7 +1297,7 @@ async function prepareAndroidVisualNotification(
   let blobHash, blobHolders, encryptionKey, blobUploadError;
   if (canQueryBlobService) {
     ({ blobHash, blobHolders, encryptionKey, blobUploadError } =
-      await blobServiceUpload(
+      await encryptedNotifUtilsAPI.uploadLargeNotifPayload(
         JSON.stringify(copyWithMessageInfos.data),
         devicesWithExcessiveSizeNoHolders.length,
       ));
@@ -1325,6 +1331,7 @@ async function prepareAndroidVisualNotification(
 
   const notifsWithoutMessageInfos =
     await prepareEncryptedAndroidVisualNotifications(
+      encryptedNotifUtilsAPI,
       { keyserverID },
       devicesWithExcessiveSize,
       notification,
@@ -1396,6 +1403,7 @@ async function prepareWebNotification(
   }
 
   return prepareEncryptedWebNotifications(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     devices,
     notification,
@@ -1434,7 +1442,7 @@ async function prepareWNSNotification(
   };
 
   if (
-    Buffer.byteLength(JSON.stringify(notification)) >
+    encryptedNotifUtilsAPI.getNotifByteSize(JSON.stringify(notification)) >
     wnsMaxNotificationPayloadByteSize
   ) {
     console.warn('WNS notification exceeds size limit');
@@ -1451,6 +1459,7 @@ async function prepareWNSNotification(
     }));
   }
   return await prepareEncryptedWNSNotifications(
+    encryptedNotifUtilsAPI,
     { keyserverID },
     devices,
     notification,
@@ -1807,6 +1816,7 @@ async function updateBadgeCount(
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (codeVersion > 222) {
           const notificationsArray = await prepareEncryptedAPNsNotifications(
+            encryptedNotifUtilsAPI,
             { keyserverID },
             deviceInfos,
             notification,
@@ -1859,6 +1869,7 @@ async function updateBadgeCount(
         if (codeVersion > 222) {
           const notificationsArray =
             await prepareEncryptedAndroidSilentNotifications(
+              encryptedNotifUtilsAPI,
               { keyserverID },
               deviceInfos,
               notification,
@@ -1917,6 +1928,7 @@ async function updateBadgeCount(
         let targetedNotifications: $ReadOnlyArray<TargetedAPNsNotification>;
         if (shouldBeEncrypted) {
           const notificationsArray = await prepareEncryptedAPNsNotifications(
+            encryptedNotifUtilsAPI,
             { keyserverID },
             deviceInfos,
             notification,
