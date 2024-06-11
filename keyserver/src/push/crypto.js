@@ -1,6 +1,5 @@
 // @flow
 
-import type { EncryptResult } from '@commapp/olm';
 import apn from '@parse/node-apn';
 import crypto from 'crypto';
 import invariant from 'invariant';
@@ -18,14 +17,15 @@ import type {
   AndroidNotificationRescind,
   NotificationTargetDevice,
   SenderDeviceID,
+  EncryptedNotifUtilsAPI,
 } from 'lib/types/notif-types.js';
 import { toBase64URL } from 'lib/utils/base64.js';
 
-import { encryptAndUpdateOlmSession } from '../updaters/olm-session-updater.js';
 import { encrypt, generateKey } from '../utils/aes-crypto-utils.js';
 import { getOlmUtility } from '../utils/olm-utils.js';
 
 async function encryptAPNsNotification(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   notification: apn.Notification,
@@ -71,26 +71,19 @@ async function encryptAPNsNotification(
 
     let dbPersistCondition;
     if (notificationSizeValidator) {
-      dbPersistCondition = ({
-        serializedPayload,
-      }: {
-        +[string]: EncryptResult,
-      }) => {
+      dbPersistCondition = (serializedPayload: string) => {
         const notifCopy = _cloneDeep(encryptedNotification);
-        notifCopy.payload.encryptedPayload = serializedPayload.body;
+        notifCopy.payload.encryptedPayload = serializedPayload;
         return notificationSizeValidator(notifCopy);
       };
     }
     const {
-      encryptedMessages: { serializedPayload },
-      dbPersistConditionViolated,
+      encryptedData: serializedPayload,
+      sizeLimitViolated: dbPersistConditionViolated,
       encryptionOrder,
-    } = await encryptAndUpdateOlmSession(
+    } = await encryptedNotifUtilsAPI.encryptSerializedNotifPayload(
       cookieID,
-      'notifications',
-      {
-        serializedPayload: unencryptedSerializedPayload,
-      },
+      unencryptedSerializedPayload,
       dbPersistCondition,
     );
 
@@ -140,6 +133,7 @@ async function encryptAPNsNotification(
 }
 
 async function encryptAndroidNotificationPayload<T>(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   unencryptedPayload: T,
@@ -166,29 +160,23 @@ async function encryptAndroidNotificationPayload<T>(
 
     let dbPersistCondition;
     if (payloadSizeValidator) {
-      dbPersistCondition = ({
-        serializedPayload,
-      }: {
-        +[string]: EncryptResult,
-      }) =>
+      dbPersistCondition = (serializedPayload: string) =>
         payloadSizeValidator({
-          encryptedPayload: serializedPayload.body,
+          encryptedPayload: serializedPayload,
           ...senderDeviceID,
         });
     }
 
     const {
-      encryptedMessages: { serializedPayload },
-      dbPersistConditionViolated,
+      encryptedData: serializedPayload,
+      sizeLimitViolated: dbPersistConditionViolated,
       encryptionOrder,
-    } = await encryptAndUpdateOlmSession(
+    } = await encryptedNotifUtilsAPI.encryptSerializedNotifPayload(
       cookieID,
-      'notifications',
-      {
-        serializedPayload: unencryptedSerializedPayload,
-      },
+      unencryptedSerializedPayload,
       dbPersistCondition,
     );
+
     return {
       resultPayload: {
         encryptedPayload: serializedPayload.body,
@@ -213,6 +201,7 @@ async function encryptAndroidNotificationPayload<T>(
 }
 
 async function encryptAndroidVisualNotification(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   cookieID: string,
   notification: AndroidVisualNotification,
@@ -249,6 +238,7 @@ async function encryptAndroidVisualNotification(
   }
   const { resultPayload, payloadSizeExceeded, encryptionOrder } =
     await encryptAndroidNotificationPayload(
+      encryptedNotifUtilsAPI,
       cookieID,
       senderDeviceID,
       unencryptedPayload,
@@ -267,6 +257,7 @@ async function encryptAndroidVisualNotification(
 }
 
 async function encryptAndroidSilentNotification(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   notification: AndroidNotificationRescind | AndroidBadgeOnlyNotification,
@@ -276,6 +267,7 @@ async function encryptAndroidSilentNotification(
   // never exceed any FCM limit
   const { ...unencryptedPayload } = notification.data;
   const { resultPayload } = await encryptAndroidNotificationPayload(
+    encryptedNotifUtilsAPI,
     cookieID,
     senderDeviceID,
     unencryptedPayload,
@@ -300,6 +292,7 @@ async function encryptAndroidSilentNotification(
 }
 
 async function encryptBasicPayload<T>(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   basicPayload: T,
@@ -318,12 +311,11 @@ async function encryptBasicPayload<T>(
   }
 
   try {
-    const {
-      encryptedMessages: { serializedPayload },
-      encryptionOrder,
-    } = await encryptAndUpdateOlmSession(cookieID, 'notifications', {
-      serializedPayload: unencryptedSerializedPayload,
-    });
+    const { encryptedData: serializedPayload, encryptionOrder } =
+      await encryptedNotifUtilsAPI.encryptSerializedNotifPayload(
+        cookieID,
+        unencryptedSerializedPayload,
+      );
 
     return {
       ...senderDeviceID,
@@ -340,6 +332,7 @@ async function encryptBasicPayload<T>(
 }
 
 async function encryptWebNotification(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   notification: PlainTextWebNotification,
@@ -347,6 +340,7 @@ async function encryptWebNotification(
   const { id, ...payloadSansId } = notification;
   const { encryptionOrder, ...encryptionResult } =
     await encryptBasicPayload<PlainTextWebNotificationPayload>(
+      encryptedNotifUtilsAPI,
       cookieID,
       senderDeviceID,
       payloadSansId,
@@ -359,12 +353,14 @@ async function encryptWebNotification(
 }
 
 async function encryptWNSNotification(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   cookieID: string,
   senderDeviceID: SenderDeviceID,
   notification: PlainTextWNSNotification,
 ): Promise<{ +notification: WNSNotification, +encryptionOrder?: number }> {
   const { encryptionOrder, ...encryptionResult } =
     await encryptBasicPayload<PlainTextWNSNotification>(
+      encryptedNotifUtilsAPI,
       cookieID,
       senderDeviceID,
       notification,
@@ -376,6 +372,7 @@ async function encryptWNSNotification(
 }
 
 function prepareEncryptedAPNsNotifications(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
@@ -394,6 +391,7 @@ function prepareEncryptedAPNsNotifications(
   const notificationPromises = devices.map(
     async ({ cookieID, deviceToken, blobHolder }) => {
       const notif = await encryptAPNsNotification(
+        encryptedNotifUtilsAPI,
         cookieID,
         senderDeviceID,
         notification,
@@ -408,6 +406,7 @@ function prepareEncryptedAPNsNotifications(
 }
 
 function prepareEncryptedIOSNotificationRescind(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: apn.Notification,
@@ -422,6 +421,7 @@ function prepareEncryptedIOSNotificationRescind(
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
       const { notification: notif } = await encryptAPNsNotification(
+        encryptedNotifUtilsAPI,
         cookieID,
         senderDeviceID,
         notification,
@@ -434,6 +434,7 @@ function prepareEncryptedIOSNotificationRescind(
 }
 
 function prepareEncryptedAndroidVisualNotifications(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: AndroidVisualNotification,
@@ -452,6 +453,7 @@ function prepareEncryptedAndroidVisualNotifications(
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID, blobHolder }) => {
       const notif = await encryptAndroidVisualNotification(
+        encryptedNotifUtilsAPI,
         senderDeviceID,
         cookieID,
         notification,
@@ -465,6 +467,7 @@ function prepareEncryptedAndroidVisualNotifications(
 }
 
 function prepareEncryptedAndroidSilentNotifications(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: AndroidNotificationRescind | AndroidBadgeOnlyNotification,
@@ -479,6 +482,7 @@ function prepareEncryptedAndroidSilentNotifications(
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
       const notif = await encryptAndroidSilentNotification(
+        encryptedNotifUtilsAPI,
         cookieID,
         senderDeviceID,
         notification,
@@ -490,6 +494,7 @@ function prepareEncryptedAndroidSilentNotifications(
 }
 
 function prepareEncryptedWebNotifications(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: PlainTextWebNotification,
@@ -503,6 +508,7 @@ function prepareEncryptedWebNotifications(
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
       const notif = await encryptWebNotification(
+        encryptedNotifUtilsAPI,
         cookieID,
         senderDeviceID,
         notification,
@@ -514,6 +520,7 @@ function prepareEncryptedWebNotifications(
 }
 
 function prepareEncryptedWNSNotifications(
+  encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI,
   senderDeviceID: SenderDeviceID,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   notification: PlainTextWNSNotification,
@@ -527,6 +534,7 @@ function prepareEncryptedWNSNotifications(
   const notificationPromises = devices.map(
     async ({ deviceToken, cookieID }) => {
       const notif = await encryptWNSNotification(
+        encryptedNotifUtilsAPI,
         cookieID,
         senderDeviceID,
         notification,
