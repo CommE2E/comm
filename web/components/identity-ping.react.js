@@ -16,7 +16,7 @@ function IdentityPing(): React.Node {
         return;
       }
       const identityClient = identityContext.identityClient;
-      const pingCall = identityClient.ping;
+      const pingCall = identityClient.versionSupported;
       if (!pingCall) {
         console.log('Ping method unimplemented');
         return;
