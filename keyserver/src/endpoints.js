@@ -519,6 +519,7 @@ function createJSONResponders(obj: { +[Endpoint]: EndpointData }): {
       obj[endpoint].inputValidator,
       endpointValidators[endpoint].validator,
       obj[endpoint].policies,
+      endpoint,
     );
     result[endpoint] = responder;
   });

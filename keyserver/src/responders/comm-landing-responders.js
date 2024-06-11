@@ -22,7 +22,11 @@ async function emailSubscriptionResponder(
       throw new ServerError('invalid_parameters');
     }
     const input: any = req.body;
-    checkInputValidator(emailSubscriptionInputValidator, input);
+    checkInputValidator(
+      emailSubscriptionInputValidator,
+      input,
+      'emailSubscriptionResponder',
+    );
     const subscriptionRequest: EmailSubscriptionRequest = input;
     await sendEmailSubscriptionRequestToAshoat(subscriptionRequest);
     res.json({ success: true });

@@ -181,6 +181,7 @@ class Socket {
       const clientSocketMessageWithClientIDs = checkInputValidator(
         clientSocketMessageInputValidator,
         messageObject,
+        'socket message',
       );
       responseTo = clientSocketMessageWithClientIDs.id;
       if (
@@ -221,6 +222,7 @@ class Socket {
         viewer,
         clientSocketMessageInputValidator,
         clientSocketMessageWithClientIDs,
+        `socket message type ${clientSocketMessageWithClientIDs.type}`,
       );
 
       const serverResponses =
