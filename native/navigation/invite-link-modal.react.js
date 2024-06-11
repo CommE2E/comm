@@ -101,18 +101,16 @@ function InviteLinkModal(props: Props): React.Node {
 
   const threadInfos = useSelector(threadInfoSelector);
   const closeModal = React.useCallback(() => {
-    const communityID = invitationDetails.community?.id;
-    if (
-      linkStatus === 'already_joined' &&
-      communityID &&
-      threadInfos[communityID]
-    ) {
-      navigateToThread(threadInfos[communityID]);
+    const threadID =
+      invitationDetails.thread?.id ?? invitationDetails.community?.id;
+    if (linkStatus === 'already_joined' && threadID && threadInfos[threadID]) {
+      navigateToThread(threadInfos[threadID]);
     } else {
       props.navigation.goBack();
     }
   }, [
     invitationDetails.community?.id,
+    invitationDetails.thread?.id,
     linkStatus,
     navigateToThread,
     props.navigation,
