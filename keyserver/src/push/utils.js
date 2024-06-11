@@ -9,6 +9,11 @@ import uuid from 'uuid';
 import webpush from 'web-push';
 
 import type { PlatformDetails } from 'lib/types/device-types.js';
+import type {
+  TargetedAndroidNotification,
+  TargetedWebNotification,
+  TargetedWNSNotification,
+} from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 
@@ -21,12 +26,7 @@ import {
   ensureWebPushInitialized,
   getWNSToken,
 } from './providers.js';
-import type {
-  TargetedAPNsNotification,
-  TargetedAndroidNotification,
-  TargetedWebNotification,
-  TargetedWNSNotification,
-} from './types.js';
+import type { TargetedAPNsNotification } from './types.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { upload, assignHolder } from '../services/blob.js';
 
