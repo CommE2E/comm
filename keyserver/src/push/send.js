@@ -900,8 +900,8 @@ function getDevicesByPlatform(
     const innerMostArray = innerMostArrayTmp;
 
     innerMostArray.push({
-      cookieID: device.cookieID,
-      deviceToken: device.deviceToken,
+      cryptoID: device.cookieID,
+      deliveryID: device.deviceToken,
     });
   }
   return byPlatform;
@@ -1036,9 +1036,9 @@ async function prepareAPNsNotification(
     )
       ? copyWithMessageInfos
       : notification;
-    return devices.map(({ deviceToken }) => ({
+    return devices.map(({ deliveryID }) => ({
       notification: notificationToSend,
-      deviceToken,
+      deliveryID,
     }));
   }
 
@@ -1054,9 +1054,9 @@ async function prepareAPNsNotification(
         platformDetails.codeVersion,
       );
     return macOSNotifsWithoutMessageInfos.map(
-      ({ notification: notif, deviceToken }) => ({
+      ({ notification: notif, deliveryID }) => ({
         notification: notif,
-        deviceToken,
+        deliveryID,
       }),
     );
   }
@@ -1072,21 +1072,21 @@ async function prepareAPNsNotification(
 
   const devicesWithExcessiveSizeNoHolders = notifsWithMessageInfos
     .filter(({ payloadSizeExceeded }) => payloadSizeExceeded)
-    .map(({ deviceToken, cookieID }) => ({
-      deviceToken,
-      cookieID,
+    .map(({ cryptoID, deliveryID }) => ({
+      cryptoID,
+      deliveryID,
     }));
 
   if (devicesWithExcessiveSizeNoHolders.length === 0) {
     return notifsWithMessageInfos.map(
       ({
         notification: notif,
-        deviceToken,
+        deliveryID,
         encryptedPayloadHash,
         encryptionOrder,
       }) => ({
         notification: notif,
-        deviceToken,
+        deliveryID,
         encryptedPayloadHash,
         encryptionOrder,
       }),
@@ -1145,12 +1145,12 @@ async function prepareAPNsNotification(
     .map(
       ({
         notification: notif,
-        deviceToken,
+        deliveryID,
         encryptedPayloadHash,
         encryptionOrder,
       }) => ({
         notification: notif,
-        deviceToken,
+        deliveryID,
         encryptedPayloadHash,
         encryptionOrder,
       }),
@@ -1159,12 +1159,12 @@ async function prepareAPNsNotification(
   const targetedNotifsWithoutMessageInfos = notifsWithoutMessageInfos.map(
     ({
       notification: notif,
-      deviceToken,
+      deliveryID,
       encryptedPayloadHash,
       encryptionOrder,
     }) => ({
       notification: notif,
-      deviceToken,
+      deliveryID,
       encryptedPayloadHash,
       encryptionOrder,
     }),
@@ -1273,7 +1273,7 @@ async function sendAPNsNotification(
   );
   const iosID = targetedNotifications[0].notification.id;
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   let delivery: APNsDelivery = {
     source,
@@ -1293,7 +1293,7 @@ async function sendAPNsNotification(
   const deviceTokensToPayloadHash: { [string]: string } = {};
   for (const targetedNotification of targetedNotifications) {
     if (targetedNotification.encryptedPayloadHash) {
-      deviceTokensToPayloadHash[targetedNotification.deviceToken] =
+      deviceTokensToPayloadHash[targetedNotification.deliveryID] =
         targetedNotification.encryptedPayloadHash;
     }
   }
@@ -1344,7 +1344,7 @@ async function sendAndroidNotification(
     codeVersion,
   });
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   const androidIDs = response.fcmIDs ? response.fcmIDs : [];
   const delivery: AndroidDelivery = {
@@ -1390,7 +1390,7 @@ async function sendWebNotifications(
   const response = await webPush(targetedNotifications);
 
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   const delivery: WebDelivery = {
     source,
@@ -1431,7 +1431,7 @@ async function sendWNSNotification(
   const response = await wnsPush(targetedNotifications);
 
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   const wnsIDs = response.wnsIDs ?? [];
   const delivery: WNSDelivery = {
@@ -1575,16 +1575,16 @@ async function updateBadgeCount(
             codeVersion,
           );
           targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deviceToken, encryptionOrder }) => ({
+            ({ notification: notif, deliveryID, encryptionOrder }) => ({
               notification: notif,
-              deviceToken,
+              deliveryID,
               encryptionOrder,
             }),
           );
         } else {
-          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
+          targetedNotifications = deviceInfos.map(({ deliveryID }) => ({
             notification,
-            deviceToken,
+            deliveryID,
           }));
         }
         return targetedNotifications.map(targetedNotification => ({
@@ -1627,17 +1627,17 @@ async function updateBadgeCount(
               notification,
             );
           targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deviceToken, encryptionOrder }) => ({
+            ({ notification: notif, deliveryID, encryptionOrder }) => ({
               priority,
               notification: notif,
-              deviceToken,
+              deliveryID,
               encryptionOrder,
             }),
           );
         } else {
-          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
+          targetedNotifications = deviceInfos.map(({ deliveryID }) => ({
             priority,
-            deviceToken,
+            deliveryID,
             notification,
           }));
         }
@@ -1687,15 +1687,15 @@ async function updateBadgeCount(
             codeVersion,
           );
           targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deviceToken, encryptionOrder }) => ({
+            ({ notification: notif, deliveryID, encryptionOrder }) => ({
               notification: notif,
-              deviceToken,
+              deliveryID,
               encryptionOrder,
             }),
           );
         } else {
-          targetedNotifications = deviceInfos.map(({ deviceToken }) => ({
-            deviceToken,
+          targetedNotifications = deviceInfos.map(({ deliveryID }) => ({
+            deliveryID,
             notification,
           }));
         }

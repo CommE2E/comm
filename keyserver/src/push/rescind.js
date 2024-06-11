@@ -152,8 +152,8 @@ async function rescindPushNotifs(
 
       if (delivery.platform === 'ios') {
         const devices = delivery.deviceTokens.map(deviceToken => ({
-          deviceToken,
-          cookieID: deviceTokenToCookieID[deviceToken],
+          deliveryID: deviceToken,
+          cryptoID: deviceTokenToCookieID[deviceToken],
         }));
         const deliveryPromise = (async () => {
           const targetedNotifications = await prepareIOSNotification(
@@ -175,8 +175,8 @@ async function rescindPushNotifs(
         deliveryPromises[id] = deliveryPromise;
       } else if (delivery.platform === 'android') {
         const devices = delivery.deviceTokens.map(deviceToken => ({
-          deviceToken,
-          cookieID: deviceTokenToCookieID[deviceToken],
+          deliveryID: deviceToken,
+          cryptoID: deviceTokenToCookieID[deviceToken],
         }));
         const deliveryPromise = (async () => {
           const targetedNotifications = await prepareAndroidNotification(
@@ -289,17 +289,17 @@ async function conditionallyEncryptNotification<T>(
   ) => Promise<
     $ReadOnlyArray<{
       +notification: T,
-      +cookieID: string,
-      +deviceToken: string,
+      +cryptoID: string,
+      +deliveryID: string,
       +encryptionOrder?: number,
     }>,
   >,
-): Promise<$ReadOnlyArray<{ +deviceToken: string, +notification: T }>> {
+): Promise<$ReadOnlyArray<{ +deliveryID: string, +notification: T }>> {
   const shouldBeEncrypted = codeVersion && codeVersion >= 233;
   if (!shouldBeEncrypted) {
-    return devices.map(({ deviceToken }) => ({
+    return devices.map(({ deliveryID }) => ({
       notification,
-      deviceToken,
+      deliveryID,
     }));
   }
   const notifications = await encryptCallback(
@@ -309,8 +309,8 @@ async function conditionallyEncryptNotification<T>(
     notification,
     codeVersion,
   );
-  return notifications.map(({ deviceToken, notification: notif }) => ({
-    deviceToken,
+  return notifications.map(({ deliveryID, notification: notif }) => ({
+    deliveryID,
     notification: notif,
   }));
 }

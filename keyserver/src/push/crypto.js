@@ -132,8 +132,8 @@ function prepareEncryptedAPNsNotifications(
   notificationSizeValidator?: apn.Notification => boolean,
 ): Promise<
   $ReadOnlyArray<{
-    +cookieID: string,
-    +deviceToken: string,
+    +cryptoID: string,
+    +deliveryID: string,
     +notification: apn.Notification,
     +payloadSizeExceeded: boolean,
     +encryptedPayloadHash?: string,
@@ -141,17 +141,17 @@ function prepareEncryptedAPNsNotifications(
   }>,
 > {
   const notificationPromises = devices.map(
-    async ({ cookieID, deviceToken, blobHolder }) => {
+    async ({ cryptoID, deliveryID, blobHolder }) => {
       const notif = await encryptAPNsNotification(
         encryptedNotifUtilsAPI,
-        cookieID,
+        cryptoID,
         senderDeviceDescriptor,
         notification,
         codeVersion,
         notificationSizeValidator,
         blobHolder,
       );
-      return { cookieID, deviceToken, ...notif };
+      return { cryptoID, deliveryID, ...notif };
     },
   );
   return Promise.all(notificationPromises);
@@ -165,23 +165,21 @@ function prepareEncryptedIOSNotificationRescind(
   codeVersion?: ?number,
 ): Promise<
   $ReadOnlyArray<{
-    +cookieID: string,
-    +deviceToken: string,
+    +cryptoID: string,
+    +deliveryID: string,
     +notification: apn.Notification,
   }>,
 > {
-  const notificationPromises = devices.map(
-    async ({ deviceToken, cookieID }) => {
-      const { notification: notif } = await encryptAPNsNotification(
-        encryptedNotifUtilsAPI,
-        cookieID,
-        senderDeviceDescriptor,
-        notification,
-        codeVersion,
-      );
-      return { deviceToken, cookieID, notification: notif };
-    },
-  );
+  const notificationPromises = devices.map(async ({ deliveryID, cryptoID }) => {
+    const { notification: notif } = await encryptAPNsNotification(
+      encryptedNotifUtilsAPI,
+      cryptoID,
+      senderDeviceDescriptor,
+      notification,
+      codeVersion,
+    );
+    return { cryptoID, deliveryID, notification: notif };
+  });
   return Promise.all(notificationPromises);
 }
 
