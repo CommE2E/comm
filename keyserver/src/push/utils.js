@@ -68,8 +68,8 @@ async function apnPush({
   invariant(apnProvider, `keyserver/secrets/${pushProfile}.json should exist`);
 
   const results = await Promise.all(
-    targetedNotifications.map(({ notification, deviceToken }) => {
-      return apnProvider.send(notification, deviceToken);
+    targetedNotifications.map(({ notification, deliveryID }) => {
+      return apnProvider.send(notification, deliveryID);
     }),
   );
 
@@ -133,8 +133,8 @@ async function fcmPush({
   // avoid the multicast functionality and call it once per deviceToken.
 
   const results = await Promise.all(
-    targetedNotifications.map(({ notification, deviceToken, priority }) => {
-      return fcmSinglePush(fcmProvider, notification, deviceToken, {
+    targetedNotifications.map(({ notification, deliveryID, priority }) => {
+      return fcmSinglePush(fcmProvider, notification, deliveryID, {
         ...options,
         priority,
       });
@@ -153,7 +153,7 @@ async function fcmPush({
           ? error.error.errorInfo.code
           : undefined;
       if (errorCode && fcmTokenInvalidationErrors.has(errorCode)) {
-        invalidTokens.push(targetedNotifications[i].deviceToken);
+        invalidTokens.push(targetedNotifications[i].deliveryID);
       }
     }
     for (const id of pushResult.fcmIDs) {
@@ -256,7 +256,7 @@ async function webPush(
 
   const pushResults: $ReadOnlyArray<WebPushAttempt> = await Promise.all(
     targetedNotifications.map(
-      async ({ notification, deviceToken: deviceTokenString }) => {
+      async ({ notification, deliveryID: deviceTokenString }) => {
         const deviceToken: PushSubscriptionJSON = JSON.parse(deviceTokenString);
         const notificationString = JSON.stringify(notification);
         try {
@@ -272,7 +272,7 @@ async function webPush(
   const errors = [];
   const invalidTokens = [];
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = pushResults[i];
@@ -324,7 +324,7 @@ async function wnsPush(
       return await wnsSinglePush(
         token,
         notificationString,
-        targetedNotification.deviceToken,
+        targetedNotification.deliveryID,
       );
     } catch (error) {
       return { error };
@@ -335,7 +335,7 @@ async function wnsPush(
   const notifIDs = [];
   const invalidTokens = [];
   const deviceTokens = targetedNotifications.map(
-    ({ deviceToken }) => deviceToken,
+    ({ deliveryID }) => deliveryID,
   );
   for (let i = 0; i < pushResults.length; i++) {
     const pushResult = await pushResults[i];
