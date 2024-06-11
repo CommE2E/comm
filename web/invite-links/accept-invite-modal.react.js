@@ -92,7 +92,9 @@ function AcceptInviteModal(props: Props): React.Node {
           <div className={css.heading}>
             {inviteLinkTexts[linkStatus].header}
           </div>
-          <div className={css.text}>{inviteLinkTexts[linkStatus].message}</div>
+          <div className={css.text}>
+            {inviteLinkTexts[linkStatus].message(!!verificationResponse.thread)}
+          </div>
         </div>
         <hr />
         <Button
