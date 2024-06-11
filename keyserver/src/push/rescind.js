@@ -9,6 +9,7 @@ import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   NotificationTargetDevice,
   TargetedAndroidNotification,
+  SenderDeviceDescriptor,
 } from 'lib/types/notif-types.js';
 import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -274,10 +275,12 @@ async function getDeviceTokenToCookieID(
 }
 
 async function conditionallyEncryptNotification<T>(
+  senderDeviceID: SenderDeviceDescriptor,
   notification: T,
   codeVersion: ?number,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
   encryptCallback: (
+    senderDeviceID: SenderDeviceDescriptor,
     devices: $ReadOnlyArray<NotificationTargetDevice>,
     notification: T,
     codeVersion?: ?number,
@@ -298,6 +301,7 @@ async function conditionallyEncryptNotification<T>(
     }));
   }
   const notifications = await encryptCallback(
+    senderDeviceID,
     devices,
     notification,
     codeVersion,
@@ -350,6 +354,7 @@ async function prepareIOSNotification(
           },
         };
   return await conditionallyEncryptNotification(
+    { keyserverID },
     notification,
     codeVersion,
     devices,
@@ -375,10 +380,10 @@ async function prepareAndroidNotification(
       rescindID: notifID,
       setUnreadStatus: 'true',
       threadID,
-      keyserverID,
     },
   };
   const targetedRescinds = await conditionallyEncryptNotification(
+    { keyserverID },
     notification,
     codeVersion,
     devices,
