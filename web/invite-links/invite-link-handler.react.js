@@ -86,17 +86,17 @@ function InviteLinkHandler(): null {
         };
       }
 
-      const communityID = result.community?.id;
+      const threadID = result.thread?.id ?? result.community?.id;
       if (
-        communityID &&
+        threadID &&
         result.status === 'already_joined' &&
-        threadInfos[communityID]
+        threadInfos[threadID]
       ) {
         dispatch({
           type: updateNavInfoActionType,
           payload: {
             chatMode: 'view',
-            activeChatThreadID: communityID,
+            activeChatThreadID: threadID,
             tab: 'chat',
           },
         });
