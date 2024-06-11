@@ -668,9 +668,17 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       return assertWithValidator(identities, identitiesValidator);
     };
 
-  ping: () => Promise<void> = async () => {
+  versionSupported: () => Promise<boolean> = async () => {
     const client = this.unauthClient;
-    await client.ping(new Empty());
+    try {
+      await client.ping(new Empty());
+      return true;
+    } catch (e) {
+      if (getMessageForException(e) === 'unsupported_version') {
+        return false;
+      }
+      throw e;
+    }
   };
 }
 
