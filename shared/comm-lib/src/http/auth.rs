@@ -1,6 +1,7 @@
 use actix_web::{
   body::{EitherBody, MessageBody},
   dev::{Service, ServiceRequest, ServiceResponse, Transform},
+  error::{ErrorForbidden, ErrorInternalServerError},
   FromRequest, HttpMessage,
 };
 use actix_web_httpauth::{
@@ -14,7 +15,8 @@ use std::str::FromStr;
 use tracing::debug;
 
 use crate::auth::{
-  is_csat_verification_disabled, AuthorizationCredential, UserIdentity,
+  is_csat_verification_disabled, AuthService, AuthorizationCredential,
+  UserIdentity,
 };
 
 impl FromRequest for AuthorizationCredential {
@@ -120,9 +122,25 @@ async fn middleware_validation_function(
     };
   };
 
-  // TODO: call identity service, for now just allow every request
-  req.extensions_mut().insert(credential);
+  let auth_service = req
+    .app_data::<AuthService>()
+    .expect("FATAL: missing AuthService app data. Check HTTP server config.");
+  match auth_service.verify_auth_credential(&credential).await {
+    Ok(true) => tracing::trace!("Request is authenticated with {credential}"),
+    Ok(false) => {
+      tracing::trace!("Request is not authenticated. Token: {credential:?}");
+      // allow for invalid tokens if verification is disabled
+      if !is_csat_verification_disabled() {
+        return Err((ErrorForbidden("invalid credentials"), req));
+      }
+    }
+    Err(err) => {
+      tracing::error!("Error verifying auth credential: {err}");
+      return Err((ErrorInternalServerError("internal error"), req));
+    }
+  };
 
+  req.extensions_mut().insert(credential);
   Ok(req)
 }
 
