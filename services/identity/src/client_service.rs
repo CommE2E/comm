@@ -113,7 +113,9 @@ impl IdentityClientService for ClientService {
     if !is_valid_username(&message.username)
       || is_valid_ethereum_address(&message.username)
     {
-      return Err(tonic::Status::invalid_argument("invalid username"));
+      return Err(tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_USERNAME,
+      ));
     }
 
     self.check_username_taken(&message.username).await?;
@@ -188,7 +190,9 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?;
     if !username_in_reserved_usernames_table {
-      return Err(tonic::Status::permission_denied("username not reserved"));
+      return Err(tonic::Status::permission_denied(
+        tonic_status_messages::USERNAME_NOT_RESERVED,
+      ));
     }
 
     let user_id = validate_account_ownership_message_and_get_user_id(
@@ -321,7 +325,7 @@ impl IdentityClientService for ClientService {
 
         if username_in_reserved_usernames_table {
           return Err(tonic::Status::permission_denied(
-            "need keyserver message to claim username",
+            tonic_status_messages::NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME,
           ));
         }
 
@@ -453,7 +457,7 @@ impl IdentityClientService for ClientService {
     // WalletAuthRequest is used for both log_in_wallet_user and register_wallet_user
     if !message.initial_device_list.is_empty() {
       return Err(tonic::Status::invalid_argument(
-        "unexpected initial device list",
+        tonic_status_messages::UNEXPECTED_INITIAL_DEVICE_LIST,
       ));
     }
 
@@ -489,7 +493,7 @@ impl IdentityClientService for ClientService {
 
       if username_in_reserved_usernames_table {
         return Err(tonic::Status::permission_denied(
-          "need keyserver message to claim username",
+          tonic_status_messages::NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME,
         ));
       }
 
@@ -758,12 +762,14 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?
     else {
       warn!("User {} does not have valid device list. Secondary device auth impossible.", user_id);
-      return Err(tonic::Status::aborted("device list error"));
+      return Err(tonic::Status::aborted(
+        tonic_status_messages::DEVICE_LIST_ERROR,
+      ));
     };
 
     if !device_list.device_ids.contains(&device_id) {
       return Err(tonic::Status::permission_denied(
-        "device not in device list",
+        tonic_status_messages::DEVICE_NOT_IN_DEVICE_LIST,
       ));
     }
 
@@ -830,12 +836,12 @@ impl IdentityClientService for ClientService {
       .map_err(handle_db_error)?
       .ok_or_else(|| {
         warn!("User {} does not have a valid device list.", user_id);
-        tonic::Status::aborted("device list error")
+        tonic::Status::aborted(tonic_status_messages::DEVICE_LIST_ERROR)
       })?;
 
     if !device_list.device_ids.contains(&device_id) {
       return Err(tonic::Status::permission_denied(
-        "device not in device list",
+        tonic_status_messages::DEVICE_NOT_IN_DEVICE_LIST,
       ));
     }
 
@@ -977,7 +983,9 @@ impl IdentityClientService for ClientService {
     use find_user_id_request::Identifier;
     let (user_ident, auth_type) = match message.identifier {
       None => {
-        return Err(tonic::Status::invalid_argument("no identifier provided"))
+        return Err(tonic::Status::invalid_argument(
+          tonic_status_messages::NO_IDENTIFIER_PROVIDED,
+        ))
       }
       Some(Identifier::Username(username)) => (username, AuthType::Password),
       Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
