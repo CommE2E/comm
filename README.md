@@ -1,16 +1,24 @@
 ## Comm
 
-Comm is the working name of this open source messaging project.
+Comm is an E2E-encrypted messaging app. You can think of it as Signal with a federated Discord bolted on.
+
+- DMs and group chats are E2EE between devices using pairwise Double Ratchet sessions initiated via X3DH.
+- Communities, which consist of a tree structure of channels, are hosted on federated user-run backends that we call keyservers. Communication is encrypted via TLS.
 
 ## Repo structure
 
-The whole project is written in Flow-typed Javascript. The code is organized in a monorepo structure using Yarn Workspaces.
+The client apps and keyserver layer are mostly written in Flow-typed Javascript. These projects are organized in a monorepo structure using Yarn Workspaces.
 
 - `native` contains the code for the React Native app, which supports both iOS and Android.
 - `keyserver` contains the code for the Node/Express server.
 - `web` contains the code for the React desktop website.
 - `landing` contains the code for the [Comm landing page](https://comm.app).
 - `lib` contains code that is shared across multiple other workspaces, including most of the Redux stack that is shared across native/web.
+
+Comm's backend services are centralized and never touch plaintext data. They are written in Rust and deployed with Terraform to AWS. These projects are organized in a monorepo structure using Cargo Workspaces.
+
+- `services` contains the various different backend services.
+- `shared` contains gRPC and protobuf definitions, and shared Rust libraries.
 
 ## Dev environment
 
