@@ -53,6 +53,7 @@ services:
     env_file: test-commons.env
     environment:
       BLOB_SERVICE_URL: 'http://blob-server:50053'
+      COMM_SERVICES_DISABLE_CSAT_VERIFICATION: 'true'
 
   blob-server:
     image: blob
@@ -63,6 +64,7 @@ services:
     env_file: test-commons.env
     environment:
       RUST_LOG: blob=trace,comm_lib=debug
+      COMM_SERVICES_DISABLE_CSAT_VERIFICATION: 'true'
 
   identity-server:
     image: identity
