@@ -341,21 +341,14 @@ async function prepareIOSNotification(
     notification.contentAvailable = true;
     notification.pushType = 'background';
   }
-  notification.payload =
-    codeVersion && codeVersion > 135
-      ? {
-          backgroundNotifType: 'CLEAR',
-          notificationId: iosID,
-          setUnreadStatus: true,
-          threadID,
-          keyserverID,
-        }
-      : {
-          managedAps: {
-            action: 'CLEAR',
-            notificationId: iosID,
-          },
-        };
+  notification.payload = {
+    backgroundNotifType: 'CLEAR',
+    notificationId: iosID,
+    setUnreadStatus: true,
+    threadID,
+    keyserverID,
+  };
+
   return await conditionallyEncryptNotification(
     encryptedNotifUtilsAPI,
     { keyserverID },
