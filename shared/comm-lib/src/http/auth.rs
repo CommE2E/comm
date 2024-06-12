@@ -13,7 +13,9 @@ use http::StatusCode;
 use std::str::FromStr;
 use tracing::debug;
 
-use crate::auth::{AuthorizationCredential, UserIdentity};
+use crate::auth::{
+  is_csat_verification_disabled, AuthorizationCredential, UserIdentity,
+};
 
 impl FromRequest for AuthorizationCredential {
   type Error = actix_web::Error;
@@ -67,16 +69,55 @@ impl FromRequest for UserIdentity {
   }
 }
 
-pub async fn validation_function(
-  req: ServiceRequest,
-  bearer: BearerAuth,
-) -> Result<ServiceRequest, (actix_web::Error, ServiceRequest)> {
-  let credential = match AuthorizationCredential::from_str(bearer.token()) {
-    Ok(credential) => credential,
-    Err(err) => {
-      debug!("HTTP authorization error: {err}");
-      return Err((AuthenticationError::new(Bearer::default()).into(), req));
+/// Counterpart of [`actix_web_httpauth::extractors::bearer::BearerAuth`] that
+/// handles parsing Authorizaiton header into [`AuthorizationCredential`].
+/// The value can be `None` when CSAT verification is disabled.
+#[derive(Clone, Debug)]
+struct CommServicesBearerAuth {
+  credential: Option<AuthorizationCredential>,
+}
+
+impl FromRequest for CommServicesBearerAuth {
+  type Error = actix_web::Error;
+  type Future = Ready<Result<Self, Self::Error>>;
+
+  fn from_request(
+    req: &actix_web::HttpRequest,
+    _payload: &mut actix_web::dev::Payload,
+  ) -> Self::Future {
+    use futures_util::future::{err, ok};
+    if is_csat_verification_disabled() {
+      return ok(Self { credential: None });
     }
+
+    match AuthorizationCredential::extract(req).into_inner() {
+      Ok(credential) => ok(Self {
+        credential: Some(credential),
+      }),
+      Err(e) => err(e),
+    }
+  }
+}
+
+/// Function used by auth middleware to validate authenticated requests.
+async fn middleware_validation_function(
+  req: ServiceRequest,
+  auth: CommServicesBearerAuth,
+) -> Result<ServiceRequest, (actix_web::Error, ServiceRequest)> {
+  let Some(credential) = auth.credential else {
+    return if is_csat_verification_disabled() {
+      Ok(req)
+    } else {
+      // This branch should be normally unreachable. If this happens,
+      // it means that `MiddlewareCredentialExtractor::from_request()`
+      // implementation is incorrect.
+      tracing::error!(
+        "CSAT verification enabled, but no credential was extracted!"
+      );
+      let mut error = AuthenticationError::new(Bearer::default());
+      *error.status_code_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+      Err((error.into(), req))
+    };
   };
 
   // TODO: call identity service, for now just allow every request
@@ -121,7 +162,8 @@ pub fn get_comm_authentication_middleware<B, S>() -> impl Transform<
   Response = ServiceResponse<EitherBody<B>>,
   Error = actix_web::Error,
   InitError = (),
-> + 'static
+> + Clone
+     + 'static
 where
   B: MessageBody + 'static,
   S: Service<
@@ -130,5 +172,5 @@ where
       Error = actix_web::Error,
     > + 'static,
 {
-  HttpAuthentication::bearer(validation_function)
+  HttpAuthentication::with_fn(middleware_validation_function)
 }
