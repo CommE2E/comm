@@ -17,3 +17,8 @@ pub const DDB_ITEM_SIZE_LIMIT: usize = 1024 * 400;
 // grpc stream may contain more than one message
 pub const GRPC_CHUNK_SIZE_LIMIT: usize = 4 * 1024 * 1024;
 pub const GRPC_METADATA_SIZE_PER_MESSAGE: usize = 5;
+
+/// Environment variable, that when set to `true` disables verifying access
+/// token in service requests.
+pub const DISABLE_CSAT_VERIFICATION_ENV_VAR: &str =
+  "COMM_SERVICES_DISABLE_CSAT_VERIFICATION";
