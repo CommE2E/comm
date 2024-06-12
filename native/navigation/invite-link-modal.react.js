@@ -65,6 +65,7 @@ function InviteLinkModal(props: Props): React.Node {
     keyserverOverride,
     calendarQuery,
     closeModal: props.navigation.goBack,
+    linkStatus,
     setLinkStatus,
     navigateToThread,
   });

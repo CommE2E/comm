@@ -58,6 +58,7 @@ function AcceptInviteModal(props: Props): React.Node {
     keyserverOverride,
     calendarQuery,
     closeModal: popModal,
+    linkStatus,
     setLinkStatus,
     navigateToThread,
   });
