@@ -65,10 +65,24 @@ function AcceptInviteModal(props: Props): React.Node {
   let content;
   if (verificationResponse.status === 'valid' && linkStatus === 'valid') {
     const { community } = verificationResponse;
+    let additionalCommunityDescription = null;
+    if (verificationResponse.thread) {
+      additionalCommunityDescription = (
+        <div className={css.group}>
+          <div className={css.text}>within</div>
+          <div className={css.heading}>{community.name}</div>
+        </div>
+      );
+    }
+    const targetName =
+      verificationResponse.thread?.name ?? verificationResponse.community.name;
     content = (
       <>
-        <div className={css.text}>You have been invited to join</div>
-        <div className={css.heading}>{community.name}</div>
+        <div className={css.group}>
+          <div className={css.text}>You have been invited to join</div>
+          <div className={css.heading}>{targetName}</div>
+        </div>
+        {additionalCommunityDescription}
         <hr />
         <div className={css.group}>
           <Button

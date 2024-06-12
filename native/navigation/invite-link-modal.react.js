@@ -71,12 +71,24 @@ function InviteLinkModal(props: Props): React.Node {
 
   const header = React.useMemo(() => {
     if (invitationDetails.status === 'valid' && linkStatus === 'valid') {
+      let additionalCommunityDescription = null;
+      if (invitationDetails.thread) {
+        additionalCommunityDescription = (
+          <>
+            <Text style={styles.communityIntro}>within</Text>
+            <Text style={styles.threadName}>
+              {invitationDetails.community.name}
+            </Text>
+          </>
+        );
+      }
+      const targetName =
+        invitationDetails.thread?.name ?? invitationDetails.community.name;
       return (
         <>
           <Text style={styles.invitation}>You have been invited to join</Text>
-          <Text style={styles.communityName}>
-            {invitationDetails.community.name}
-          </Text>
+          <Text style={styles.threadName}>{targetName}</Text>
+          {additionalCommunityDescription}
         </>
       );
     }
@@ -92,7 +104,8 @@ function InviteLinkModal(props: Props): React.Node {
     );
   }, [
     invitationDetails,
-    styles.communityName,
+    styles.threadName,
+    styles.communityIntro,
     styles.invalidInviteExplanation,
     styles.invalidInviteTitle,
     styles.invitation,
@@ -193,7 +206,16 @@ const unboundStyles = {
     lineHeight: 22,
     marginBottom: 24,
   },
-  communityName: {
+  communityIntro: {
+    color: 'whiteText',
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 22,
+    marginBottom: 24,
+    marginTop: 16,
+  },
+  threadName: {
     color: 'whiteText',
     textAlign: 'center',
     fontSize: 18,
