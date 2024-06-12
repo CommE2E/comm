@@ -5,7 +5,7 @@ import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
-import { prepareEncryptedAndroidSilentNotifications } from 'lib/push/crypto.js';
+import { createAndroidNotificationRescind } from 'lib/push/android-notif-creators.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   NotificationTargetDevice,
@@ -375,29 +375,17 @@ async function prepareAndroidNotification(
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAndroidNotification>> {
   threadID = await validateOutput(platformDetails, tID, threadID);
-  const { codeVersion } = platformDetails;
-
-  const notification = {
-    data: {
+  return await createAndroidNotificationRescind(
+    encryptedNotifUtilsAPI,
+    {
+      senderDeviceDescriptor: { keyserverID },
       badge: unreadCount.toString(),
-      rescind: 'true',
+      platformDetails,
       rescindID: notifID,
-      setUnreadStatus: 'true',
       threadID,
     },
-  };
-  const targetedRescinds = await conditionallyEncryptNotification(
-    encryptedNotifUtilsAPI,
-    { keyserverID },
-    notification,
-    codeVersion,
     devices,
-    prepareEncryptedAndroidSilentNotifications,
   );
-  return targetedRescinds.map(targetedRescind => ({
-    ...targetedRescind,
-    priority: 'normal',
-  }));
 }
 
 export { rescindPushNotifs };
