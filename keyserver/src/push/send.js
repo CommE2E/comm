@@ -12,7 +12,6 @@ import type { QueryResults } from 'mysql';
 import t from 'tcomb';
 import uuidv4 from 'uuid/v4.js';
 
-import { prepareEncryptedAndroidSilentNotifications } from 'lib/push/crypto.js';
 import {
   type AndroidNotifInputData,
   androidNotifInputDataValidator,
@@ -23,6 +22,7 @@ import {
   type WNSNotifInputData,
   wnsNotifInputDataValidator,
   createWNSNotification,
+  createAndroidBadgeOnlyNotification,
 } from 'lib/push/notif-creators.js';
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import { isUserMentioned } from 'lib/shared/mention-utils.js';
@@ -1604,39 +1604,21 @@ async function updateBadgeCount(
   if (androidVersionsToTokens) {
     for (const [versionKey, deviceInfos] of androidVersionsToTokens) {
       const { codeVersion, stateVersion } = stringToVersionKey(versionKey);
-      const notificationData = {
-        badge: unreadCount.toString(),
-        badgeOnly: '1',
-      };
-      const notification = {
-        data: { ...notificationData },
-      };
       const preparePromise: Promise<PreparePushResult[]> = (async () => {
-        let targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification>;
-        const priority = 'normal';
-        if (codeVersion > 222) {
-          const notificationsArray =
-            await prepareEncryptedAndroidSilentNotifications(
-              encryptedNotifUtilsAPI,
-              { keyserverID },
-              deviceInfos,
-              notification,
-            );
-          targetedNotifications = notificationsArray.map(
-            ({ notification: notif, deliveryID, encryptionOrder }) => ({
-              priority,
-              notification: notif,
-              deliveryID,
-              encryptionOrder,
-            }),
+        const targetedNotifications: $ReadOnlyArray<TargetedAndroidNotification> =
+          await createAndroidBadgeOnlyNotification(
+            encryptedNotifUtilsAPI,
+            {
+              senderDeviceID: { keyserverID },
+              badge: unreadCount.toString(),
+              platformDetails: {
+                codeVersion,
+                stateVersion,
+                platform: 'android',
+              },
+            },
+            deviceInfos,
           );
-        } else {
-          targetedNotifications = deviceInfos.map(({ deliveryID }) => ({
-            priority,
-            deliveryID,
-            notification,
-          }));
-        }
         return targetedNotifications.map(targetedNotification => ({
           notification: targetedNotification,
           platform: 'android',
