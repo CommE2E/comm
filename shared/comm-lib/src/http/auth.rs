@@ -8,13 +8,9 @@ use actix_web_httpauth::{
   headers::www_authenticate::bearer::Bearer,
   middleware::HttpAuthentication,
 };
+use futures_util::future::{ready, Ready};
 use http::StatusCode;
-use std::{
-  boxed::Box,
-  future::{ready, Future, Ready},
-  pin::Pin,
-  str::FromStr,
-};
+use std::str::FromStr;
 use tracing::debug;
 
 use crate::auth::{AuthorizationCredential, UserIdentity};
@@ -51,29 +47,23 @@ impl FromRequest for AuthorizationCredential {
 
 impl FromRequest for UserIdentity {
   type Error = actix_web::Error;
-  type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
+  type Future = Ready<Result<Self, Self::Error>>;
 
   fn from_request(
     req: &actix_web::HttpRequest,
     payload: &mut actix_web::dev::Payload,
   ) -> Self::Future {
-    // NOTE: If ever `Ready<T>.into_inner()` gets stable, we can use it here
-    // to get rid of the async block. Feature name: "ready_into_inner".
-    // Tracking issue: https://github.com/rust-lang/rust/issues/101196
-    let credential_fut = AuthorizationCredential::from_request(req, payload);
-    let fut = async move {
-      match credential_fut.await {
-        Ok(AuthorizationCredential::UserToken(user)) => Ok(user.clone()),
-        Ok(_) => {
-          debug!("Authorization provided, but it's not UserIdentity");
-          let mut error = AuthenticationError::new(Bearer::default());
-          *error.status_code_mut() = StatusCode::FORBIDDEN;
-          Err(error.into())
-        }
-        Err(err) => Err(err),
+    use futures_util::future::{err, ok};
+    match AuthorizationCredential::from_request(req, payload).into_inner() {
+      Ok(AuthorizationCredential::UserToken(user)) => ok(user.clone()),
+      Ok(_) => {
+        debug!("Authorization provided, but it's not UserIdentity");
+        let mut error = AuthenticationError::new(Bearer::default());
+        *error.status_code_mut() = StatusCode::FORBIDDEN;
+        err(error.into())
       }
-    };
-    Box::pin(fut)
+      Err(e) => err(e),
+    }
   }
 }
 
