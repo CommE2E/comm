@@ -238,6 +238,15 @@ pub mod tonic_status_messages {
   pub const BAD_CREDENTIALS: &str = "bad_credentials";
   pub const SESSION_NOT_FOUND: &str = "session_not_found";
   pub const INVALID_TIMESTAMP: &str = "invalid_timestamp";
+  pub const INVALID_USERNAME: &str = "invalid_username";
+  pub const USERNAME_NOT_RESERVED: &str = "username_not_reserved";
+  pub const NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME: &str =
+    "need_keyserver_message_to_claim_username";
+  pub const UNEXPECTED_INITIAL_DEVICE_LIST: &str =
+    "unexpected_initial_device_list";
+  pub const DEVICE_LIST_ERROR: &str = "device_list_error";
+  pub const DEVICE_NOT_IN_DEVICE_LIST: &str = "device_not_in_device_list";
+  pub const NO_IDENTIFIER_PROVIDED: &str = "no_identifier_provided";
 }
 
 // Tunnelbroker
