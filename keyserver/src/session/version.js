@@ -10,7 +10,7 @@ async function verifyClientSupported(
   viewer: Viewer,
   platformDetails: ?PlatformDetails,
 ) {
-  if (hasMinCodeVersion(platformDetails, { native: 128 })) {
+  if (hasMinCodeVersion(platformDetails, { native: 149 })) {
     return;
   }
   const error = new ServerError('client_version_unsupported');
