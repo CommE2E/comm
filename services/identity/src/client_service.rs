@@ -1145,7 +1145,7 @@ impl ClientService {
       Ok(Some(existing_keyserver_device_id))
     } else {
       Err(tonic::Status::already_exists(
-        "user already has a keyserver",
+        tonic_status_messages::USER_ALREADY_HAS_KEYSERVER,
       ))
     }
   }
@@ -1159,20 +1159,26 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
       _,
     ))
     | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
-      tonic::Status::unavailable("please retry")
+      tonic::Status::unavailable(tonic_status_messages::RETRY)
     }
     DBError::DeviceList(DeviceListError::InvalidDeviceListUpdate) => {
-      tonic::Status::invalid_argument("invalid device list update")
+      tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
+      )
     }
     DBError::DeviceList(DeviceListError::InvalidSignature) => {
-      tonic::Status::invalid_argument("invalid device list signature")
+      tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_DEVICE_LIST_SIGNATURE,
+      )
     }
     e => {
       error!(
         errorType = error_types::GENERIC_DB_LOG,
         "Encountered an unexpected error: {}", e
       );
-      tonic::Status::failed_precondition("unexpected error")
+      tonic::Status::failed_precondition(
+        tonic_status_messages::UNEXPECTED_ERROR,
+      )
     }
   }
 }
