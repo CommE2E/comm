@@ -11,7 +11,6 @@ import {
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   messageTypes,
   type MessageType,
@@ -482,25 +481,17 @@ function parseMessageSelectionCriteria(
   criteria: MessageSelectionCriteria,
 ): ParsedMessageSelectionCriteria {
   const minMessageTime = Date.now() - defaultMaxMessageAge;
-  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, {
-    native: 130,
-  });
-
   let globalTimeFilter;
   if (criteria.newerThan) {
     globalTimeFilter = SQL`m.time > ${criteria.newerThan}`;
-  } else if (!criteria.threadCursors && shouldApplyTimeFilter) {
+  } else if (!criteria.threadCursors) {
     globalTimeFilter = SQL`
       (m.time > ${minMessageTime} OR m.id = mm.last_message)
     `;
   }
 
   const threadConditions = [];
-  if (
-    criteria.joinedThreads === true &&
-    shouldApplyTimeFilter &&
-    !globalTimeFilter
-  ) {
+  if (criteria.joinedThreads === true && !globalTimeFilter) {
     threadConditions.push(SQL`
       (mm.role > 0 AND (m.time > ${minMessageTime} OR m.id = mm.last_message))
     `);
@@ -527,8 +518,6 @@ function parseMessageSelectionCriteria(
   let timeFilterData;
   if (globalTimeFilter) {
     timeFilterData = { timeFilter: 'ALL' };
-  } else if (!shouldApplyTimeFilter) {
-    timeFilterData = { timeFilter: 'NONE' };
   } else {
     invariant(
       criteria.threadCursors,
