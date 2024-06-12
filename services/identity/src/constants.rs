@@ -247,6 +247,15 @@ pub mod tonic_status_messages {
   pub const DEVICE_LIST_ERROR: &str = "device_list_error";
   pub const DEVICE_NOT_IN_DEVICE_LIST: &str = "device_not_in_device_list";
   pub const NO_IDENTIFIER_PROVIDED: &str = "no_identifier_provided";
+  pub const USER_ALREADY_HAS_KEYSERVER: &str = "user_already_has_keyserver";
+  pub const RETRY: &str = "retry";
+  pub const INVALID_DEVICE_LIST_UPDATE: &str = "invalid_device_list_update";
+  pub const INVALID_DEVICE_LIST_SIGNATURE: &str =
+    "invalid_device_list_signature";
+  pub const UNEXPECTED_ERROR: &str = "unexpected_error";
+  pub const NO_DEVICE_LIST: &str = "no_device_list";
+  pub const USER_ID_MISSING: &str = "user_id_missing";
+  pub const DEVICE_ID_MISSING: &str = "device_id_missing";
 }
 
 // Tunnelbroker
