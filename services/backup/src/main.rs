@@ -1,5 +1,5 @@
 use anyhow::Result;
-use comm_lib::blob::client::BlobServiceClient;
+use comm_lib::{auth::AuthService, blob::client::BlobServiceClient};
 use tracing::Level;
 use tracing_subscriber::EnvFilter;
 
@@ -31,8 +31,9 @@ async fn main() -> Result<()> {
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
   let blob_client = BlobServiceClient::new(CONFIG.blob_service_url.clone());
+  let auth_service = AuthService::new(&aws_config, &CONFIG.identity_endpoint);
 
-  http::run_http_server(db_client, blob_client).await?;
+  http::run_http_server(db_client, blob_client, auth_service).await?;
 
   Ok(())
 }

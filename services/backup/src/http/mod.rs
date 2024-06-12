@@ -1,7 +1,7 @@
 use actix_web::{web, App, HttpResponse, HttpServer};
 use anyhow::Result;
 use comm_lib::{
-  blob::client::BlobServiceClient,
+  auth::AuthService, blob::client::BlobServiceClient,
   http::auth::get_comm_authentication_middleware,
 };
 use tracing::info;
@@ -16,6 +16,7 @@ mod handlers {
 pub async fn run_http_server(
   db_client: DatabaseClient,
   blob_client: BlobServiceClient,
+  auth_service: AuthService,
 ) -> Result<()> {
   info!(
     "Starting HTTP server listening at port {}",
@@ -33,6 +34,7 @@ pub async fn run_http_server(
       ))
       .app_data(db.clone())
       .app_data(blob.clone())
+      .app_data(auth_service.to_owned())
       .route("/health", web::get().to(HttpResponse::Ok))
       .service(
         // Backup services that don't require authetication
