@@ -22,6 +22,7 @@
   line-height: var(--line-height-display);
   font-weight: var(--semi-bold);
   color: var(--fg);
+  word-break: break-word;
 }
 
 .text {
