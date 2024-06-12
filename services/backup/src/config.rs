@@ -18,6 +18,10 @@ pub struct AppConfig {
   #[arg(env = "BLOB_SERVICE_URL")]
   #[arg(long, default_value = DEFAULT_BLOB_SERVICE_URL)]
   pub blob_service_url: reqwest::Url,
+  /// Identity service endpoint
+  #[arg(env = "IDENTITY_SERVICE_ENDPOINT")]
+  #[arg(long, default_value = "http://localhost:50054")]
+  pub identity_endpoint: String,
 }
 
 /// Stores configuration parsed from command-line arguments
