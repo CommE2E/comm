@@ -5,7 +5,7 @@ Comm is an E2E-encrypted messaging app. You can think of it as Signal with a fed
 - DMs and group chats are E2EE between devices using pairwise Double Ratchet sessions initiated via X3DH.
 - Communities, which consist of a tree structure of channels, are hosted on federated user-run backends that we call keyservers. Communication is encrypted via TLS.
 
-Learn more at comm.app!
+Learn more at [comm.app](https://comm.app)!
 
 ## Repo structure
 
