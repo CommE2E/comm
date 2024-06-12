@@ -59,7 +59,9 @@ impl SignedDeviceList {
         errorType = error_types::GRPC_SERVICES_LOG,
         "Failed to serialize device list updates: {}", err
       );
-      tonic::Status::failed_precondition("unexpected error")
+      tonic::Status::failed_precondition(
+        tonic_status_messages::UNEXPECTED_ERROR,
+      )
     })
   }
 }
@@ -77,7 +79,9 @@ impl TryFrom<DeviceListRow> for SignedDeviceList {
         errorType = error_types::GRPC_SERVICES_LOG,
         "Failed to serialize raw device list: {}", err
       );
-      tonic::Status::failed_precondition("unexpected error")
+      tonic::Status::failed_precondition(
+        tonic_status_messages::UNEXPECTED_ERROR,
+      )
     })?;
 
     Ok(Self {

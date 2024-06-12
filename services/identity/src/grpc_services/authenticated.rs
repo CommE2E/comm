@@ -81,10 +81,14 @@ pub fn auth_interceptor(
 pub fn get_user_and_device_id<T>(
   request: &Request<T>,
 ) -> Result<(String, String), Status> {
-  let user_id = get_value(request, request_metadata::USER_ID)
-    .ok_or_else(|| Status::unauthenticated("Missing user_id field"))?;
-  let device_id = get_value(request, request_metadata::DEVICE_ID)
-    .ok_or_else(|| Status::unauthenticated("Missing device_id field"))?;
+  let user_id =
+    get_value(request, request_metadata::USER_ID).ok_or_else(|| {
+      Status::unauthenticated(tonic_status_messages::USER_ID_MISSING)
+    })?;
+  let device_id =
+    get_value(request, request_metadata::DEVICE_ID).ok_or_else(|| {
+      Status::unauthenticated(tonic_status_messages::DEVICE_ID_MISSING)
+    })?;
 
   Ok((user_id, device_id))
 }
@@ -645,7 +649,7 @@ impl IdentityClientService for AuthenticatedService {
             "Failed to join device list task: {join_error}"
           );
           fetch_tasks.abort_all();
-          return Err(Status::aborted("unexpected error"));
+          return Err(Status::aborted(tonic_status_messages::UNEXPECTED_ERROR));
         }
       }
     }
@@ -821,7 +825,9 @@ impl AuthenticatedService {
         errorType = error_types::GRPC_SERVICES_LOG,
         "User has no device list!"
       );
-      return Err(Status::failed_precondition("no device list"));
+      return Err(Status::failed_precondition(
+        tonic_status_messages::NO_DEVICE_LIST,
+      ));
     };
 
     use DeviceListItemKind as DeviceKind;
@@ -833,10 +839,12 @@ impl AuthenticatedService {
 
     if !device_on_list {
       debug!(
-        "Device {} not on device list for user {}",
+        "Device {} not in device list for user {}",
         device_id, user_id
       );
-      return Err(Status::permission_denied("device not on device list"));
+      return Err(Status::permission_denied(
+        tonic_status_messages::DEVICE_NOT_IN_DEVICE_LIST,
+      ));
     }
 
     Ok(())
