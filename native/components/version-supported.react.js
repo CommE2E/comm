@@ -2,11 +2,15 @@
 
 import * as React from 'react';
 
-import { useLogOut, logOutActionTypes } from 'lib/actions/user-actions.js';
+import {
+  useLogOut,
+  logOutActionTypes,
+  useVersionSupportedByIdentity,
+  versionSupportedByIdentityActionTypes,
+} from 'lib/actions/user-actions.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
-import { commRustModule } from '../native-modules.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { appOutOfDateAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
@@ -17,6 +21,7 @@ function VersionSupportedChecker(): React.Node {
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
   const callLogOut = useLogOut();
+  const callVersionSupportedByIdentity = useVersionSupportedByIdentity();
 
   const onUsernameAlertAcknowledged = React.useCallback(() => {
     if (loggedIn) {
@@ -26,7 +31,12 @@ function VersionSupportedChecker(): React.Node {
 
   const checkVersionSupport = React.useCallback(async () => {
     try {
-      const isVersionSupported = await commRustModule.versionSupported();
+      const versionSupportedPromise = callVersionSupportedByIdentity();
+      void dispatchActionPromise(
+        versionSupportedByIdentityActionTypes,
+        versionSupportedPromise,
+      );
+      const isVersionSupported = await versionSupportedPromise;
       if (isVersionSupported) {
         return;
       }
@@ -44,7 +54,11 @@ function VersionSupportedChecker(): React.Node {
     } catch (error) {
       console.log('Error checking version:', error);
     }
-  }, [onUsernameAlertAcknowledged]);
+  }, [
+    callVersionSupportedByIdentity,
+    dispatchActionPromise,
+    onUsernameAlertAcknowledged,
+  ]);
 
   React.useEffect(() => {
     if (hasRun.current) {
