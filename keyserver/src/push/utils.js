@@ -8,10 +8,6 @@ import type { Response } from 'node-fetch';
 import uuid from 'uuid';
 import webpush from 'web-push';
 
-import {
-  fcmMaxNotificationPayloadByteSize,
-  wnsMaxNotificationPayloadByteSize,
-} from 'lib/push/notif-creators.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   TargetedAndroidNotification,
@@ -42,7 +38,6 @@ const fcmTokenInvalidationErrors = new Set([
 const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
-const apnMaxNotificationPayloadByteSize = 4096;
 const webInvalidTokenErrorCodes = [404, 410];
 const wnsInvalidTokenErrorCodes = [404, 410];
 
@@ -448,7 +443,4 @@ export {
   webPush,
   wnsPush,
   getUnreadCounts,
-  apnMaxNotificationPayloadByteSize,
-  fcmMaxNotificationPayloadByteSize,
-  wnsMaxNotificationPayloadByteSize,
 };
