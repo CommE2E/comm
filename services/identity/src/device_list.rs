@@ -124,7 +124,9 @@ impl TryFrom<SignedDeviceList> for DeviceListUpdate {
           errorType = error_types::GRPC_SERVICES_LOG,
           "Failed to parse RawDeviceList timestamp!"
         );
-        tonic::Status::invalid_argument("invalid timestamp")
+        tonic::Status::invalid_argument(
+          tonic_status_messages::INVALID_TIMESTAMP,
+        )
       })?;
     Ok(DeviceListUpdate {
       devices,
