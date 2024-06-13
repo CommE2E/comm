@@ -36,16 +36,12 @@ async function createOrUpdateFarcasterChannelTag(
     throw new ServerError('internal_error');
   }
 
-  const [serverCommunityInfos, blobDownload] = await Promise.all([
-    fetchCommunityInfos(viewer),
+  const [communityInfo, blobDownload] = await Promise.all([
+    fetchCommunityInfos(viewer, [request.commCommunityID]),
     getFarcasterChannelTagBlob(request.farcasterChannelID),
   ]);
 
-  const communityInfo = serverCommunityInfos.find(
-    community => community.id === request.commCommunityID,
-  );
-
-  if (!communityInfo) {
+  if (communityInfo.length !== 1) {
     throw new ServerError('invalid_parameters');
   }
 
