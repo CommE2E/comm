@@ -105,12 +105,12 @@ impl IdentityClientService for AuthenticatedService {
 
     debug!("Refreshing prekeys for user: {}", user_id);
 
-    let content_keys = message
-      .new_content_prekeys
-      .ok_or_else(|| Status::invalid_argument("Missing content keys"))?;
-    let notif_keys = message
-      .new_notif_prekeys
-      .ok_or_else(|| Status::invalid_argument("Missing notification keys"))?;
+    let content_keys = message.new_content_prekeys.ok_or_else(|| {
+      Status::invalid_argument(tonic_status_messages::MISSING_CONTENT_KEYS)
+    })?;
+    let notif_keys = message.new_notif_prekeys.ok_or_else(|| {
+      Status::invalid_argument(tonic_status_messages::MISSING_NOTIF_KEYS)
+    })?;
 
     self
       .db_client
@@ -213,7 +213,9 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(handle_db_error)?
     else {
-      return Err(Status::not_found("keyserver not found"));
+      return Err(Status::not_found(
+        tonic_status_messages::KEYSERVER_NOT_FOUND,
+      ));
     };
 
     let primary_device_data = self
@@ -434,7 +436,9 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     if maybe_username_and_password_file.is_some() {
-      return Err(tonic::Status::permission_denied("password user"));
+      return Err(tonic::Status::permission_denied(
+        tonic_status_messages::PASSWORD_USER,
+      ));
     }
 
     self

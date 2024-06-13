@@ -258,6 +258,11 @@ pub mod tonic_status_messages {
   pub const NO_DEVICE_LIST: &str = "no_device_list";
   pub const USER_ID_MISSING: &str = "user_id_missing";
   pub const DEVICE_ID_MISSING: &str = "device_id_missing";
+  pub const MISSING_CONTENT_KEYS: &str = "missing_content_keys";
+  pub const MISSING_NOTIF_KEYS: &str = "missing_notif_keys";
+  pub const KEYSERVER_NOT_FOUND: &str = "keyserver_not_found";
+  pub const PASSWORD_USER: &str = "password_user";
+  pub const INVALID_MESSAGE: &str = "invalid_message";
 }
 
 // Tunnelbroker
