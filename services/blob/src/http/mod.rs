@@ -1,8 +1,10 @@
 use crate::{config::CONFIG, service::BlobService};
 
-use actix_web::{web, App, HttpServer};
+use actix_web::{web, App, HttpResponse, HttpServer};
 use anyhow::Result;
-use comm_lib::auth::AuthService;
+use comm_lib::{
+  auth::AuthService, http::auth::get_comm_authentication_middleware,
+};
 use tracing::info;
 
 mod errors;
@@ -21,6 +23,7 @@ pub async fn run_http_server(
     CONFIG.http_port
   );
   HttpServer::new(move || {
+    let auth_middleware = get_comm_authentication_middleware();
     App::new()
       .wrap(tracing_actix_web::TracingLogger::default())
       .wrap(comm_lib::http::cors_config(
@@ -28,12 +31,15 @@ pub async fn run_http_server(
       ))
       .app_data(auth_service.to_owned())
       .app_data(web::Data::new(blob_service.to_owned()))
+      .route("/health", web::get().to(HttpResponse::Ok))
       .service(
         web::resource("/blob/{holder}")
+          .wrap(auth_middleware.clone())
           .route(web::get().to(handlers::blob::get_blob_handler)),
       )
       .service(
         web::resource("/blob")
+          .wrap(auth_middleware)
           .route(web::put().to(handlers::blob::upload_blob_handler))
           .route(web::post().to(handlers::blob::assign_holder_handler))
           .route(web::delete().to(handlers::blob::remove_holder_handler)),
