@@ -3,7 +3,7 @@ use constant_time_eq::constant_time_eq;
 use serde::Deserialize;
 use tonic::Status;
 
-use crate::config::CONFIG;
+use crate::{config::CONFIG, constants::tonic_status_messages};
 
 // This type should not be changed without making equivalent changes to
 // `ReservedUsernameMessage` in lib/types/crypto-types.js
@@ -38,7 +38,9 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
     deserialized_message.statement.as_bytes(),
     expected_statement,
   ) {
-    return Err(Status::invalid_argument("message invalid"));
+    return Err(Status::invalid_argument(
+      tonic_status_messages::INVALID_MESSAGE,
+    ));
   }
 
   let issued_at: DateTime<Utc> = deserialized_message
@@ -48,7 +50,9 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
 
   let now = Utc::now();
   if (now - issued_at).num_seconds() > 5 {
-    return Err(Status::invalid_argument("message invalid"));
+    return Err(Status::invalid_argument(
+      tonic_status_messages::INVALID_MESSAGE,
+    ));
   }
 
   let public_key_string = CONFIG
@@ -81,7 +85,9 @@ pub fn validate_account_ownership_message_and_get_user_id(
   )?;
 
   if deserialized_message.payload.username != username {
-    return Err(Status::invalid_argument("message invalid"));
+    return Err(Status::invalid_argument(
+      tonic_status_messages::INVALID_MESSAGE,
+    ));
   }
 
   Ok(deserialized_message.payload.user_id)
