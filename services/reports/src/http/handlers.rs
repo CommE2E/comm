@@ -1,4 +1,5 @@
 use actix_web::{get, post, web, HttpResponse};
+use comm_lib::http::auth::get_comm_authentication_middleware as auth_middleware;
 use http::header;
 use serde::Deserialize;
 
@@ -45,7 +46,7 @@ struct QueryOptions {
   // e.g. filter by platform, report type, user, etc.
 }
 
-#[get("")]
+#[get("", wrap = "auth_middleware()")]
 async fn query_reports(
   query: web::Query<QueryOptions>,
   service: ReportsService,
@@ -56,7 +57,7 @@ async fn query_reports(
   Ok(response)
 }
 
-#[get("/{report_id}")]
+#[get("/{report_id}", wrap = "auth_middleware()")]
 async fn get_single_report(
   path: web::Path<String>,
   service: ReportsService,
@@ -70,7 +71,7 @@ async fn get_single_report(
   Ok(response)
 }
 
-#[get("/{report_id}/redux-devtools.json")]
+#[get("/{report_id}/redux-devtools.json", wrap = "auth_middleware()")]
 async fn redux_devtools_import(
   path: web::Path<String>,
   service: ReportsService,
