@@ -3,10 +3,8 @@
 import Filter from 'bad-words';
 import uuid from 'uuid';
 
-import {
-  inviteLinkBlobHash,
-  inviteSecretRegex,
-} from 'lib/shared/invite-links.js';
+import { inviteSecretRegex } from 'lib/shared/invite-links-constants.js';
+import { inviteLinkBlobHash } from 'lib/shared/invite-links.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
 import type {
   CreateOrUpdatePublicLinkRequest,

@@ -9,7 +9,7 @@ import { useInviteLinksActions } from 'lib/hooks/invite-links.js';
 import {
   defaultErrorMessage,
   inviteLinkErrorMessages,
-} from 'lib/shared/invite-links.js';
+} from 'lib/shared/invite-links-constants.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 

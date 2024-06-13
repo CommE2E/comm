@@ -9,7 +9,7 @@ import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors
 import {
   defaultErrorMessage,
   inviteLinkErrorMessages,
-} from 'lib/shared/invite-links.js';
+} from 'lib/shared/invite-links-constants.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import Button from '../components/button.react.js';
