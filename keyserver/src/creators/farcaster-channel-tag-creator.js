@@ -27,6 +27,7 @@ import {
   type BlobDownloadResult,
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
+import { thisKeyserverID } from '../user/identity.js';
 
 async function createOrUpdateFarcasterChannelTag(
   viewer: Viewer,
@@ -36,9 +37,10 @@ async function createOrUpdateFarcasterChannelTag(
     throw new ServerError('internal_error');
   }
 
-  const [communityInfos, blobDownload] = await Promise.all([
+  const [communityInfos, blobDownload, keyserverID] = await Promise.all([
     fetchCommunityInfos(viewer, [request.commCommunityID]),
     getFarcasterChannelTagBlob(request.farcasterChannelID),
+    thisKeyserverID(),
   ]);
 
   if (communityInfos.length !== 1) {
@@ -49,10 +51,11 @@ async function createOrUpdateFarcasterChannelTag(
     throw new ServerError('already_in_use');
   }
 
+  const communityID = `${keyserverID}|${request.commCommunityID}`;
   const blobHolder = uuid.v4();
 
   const blobResult = await uploadFarcasterChannelTagBlob(
-    request.commCommunityID,
+    communityID,
     request.farcasterChannelID,
     blobHolder,
   );
