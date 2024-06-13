@@ -1,5 +1,5 @@
 locals {
-  reports_service_image_tag           = local.is_staging ? "latest" : "0.1.1"
+  reports_service_image_tag           = local.is_staging ? "0.1.2-staging" : "0.1.2"
   reports_service_container_name      = "reports-service-server"
   reports_service_server_image        = "commapp/reports-server:${local.reports_service_image_tag}"
   reports_service_container_http_port = 50056
@@ -48,6 +48,14 @@ resource "aws_ecs_task_definition" "reports_service" {
           # If this ever fails, we can fallback to blob public URL:
           # "https://${local.blob_service_domain_name}"
         },
+        {
+          name  = "IDENTITY_SERVICE_ENDPOINT",
+          value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
+          value = local.is_staging ? "false" : "true"
+        }
       ]
       # Don't enable e-mails on staging.
       secrets = local.is_staging ? [] : [
