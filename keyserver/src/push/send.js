@@ -18,6 +18,7 @@ import {
   createAndroidVisualNotification,
   createAndroidBadgeOnlyNotification,
 } from 'lib/push/android-notif-creators.js';
+import { apnMaxNotificationPayloadByteSize } from 'lib/push/apns-notif-creators.js';
 import {
   type WebNotifInputData,
   webNotifInputDataValidator,
@@ -36,7 +37,10 @@ import {
   sortMessageInfoList,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
-import { notifTextsForMessageInfo } from 'lib/shared/notif-utils.js';
+import {
+  notifTextsForMessageInfo,
+  getAPNsNotificationTopic,
+} from 'lib/shared/notif-utils.js';
 import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
@@ -66,11 +70,9 @@ import { tID, tPlatformDetails, tShape } from 'lib/utils/validation-utils.js';
 
 import { prepareEncryptedAPNsNotifications } from './crypto.js';
 import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
-import { getAPNsNotificationTopic } from './providers.js';
 import { rescindPushNotifs } from './rescind.js';
 import type { TargetedAPNsNotification } from './types.js';
 import {
-  apnMaxNotificationPayloadByteSize,
   apnPush,
   fcmPush,
   getUnreadCounts,
