@@ -12,6 +12,7 @@ type ServerCommunityInfoWithHolder = $ReadOnly<{
 
 async function fetchCommunityInfos(
   viewer: Viewer,
+  communityIDs?: $ReadOnlyArray<string>,
 ): Promise<$ReadOnlyArray<ServerCommunityInfoWithHolder>> {
   if (!viewer.loggedIn) {
     return [];
@@ -25,6 +26,12 @@ async function fetchCommunityInfos(
       ON c.id = m.thread AND m.user = ${viewer.userID}
     WHERE m.role > 0
   `;
+
+  if (communityIDs && communityIDs.length > 0) {
+    query.append(SQL`
+      AND c.id IN (${communityIDs})
+    `);
+  }
 
   const [result] = await dbQuery(query);
 
