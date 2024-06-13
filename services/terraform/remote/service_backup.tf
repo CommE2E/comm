@@ -1,5 +1,5 @@
 locals {
-  backup_service_image_tag           = local.is_staging ? "0.4-staging" : "0.3"
+  backup_service_image_tag           = local.is_staging ? "0.4.1-staging" : "0.4.1"
   backup_service_container_name      = "backup-service-server"
   backup_service_server_image        = "commapp/backup-server:${local.backup_service_image_tag}"
   backup_service_container_http_port = 50052
@@ -31,6 +31,14 @@ resource "aws_ecs_task_definition" "backup_service" {
           # If this ever fails, we can fallback to blob public URL:
           # "https://${local.blob_service_domain_name}"
         },
+        {
+          name  = "IDENTITY_SERVICE_ENDPOINT",
+          value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
+          value = local.is_staging ? "false" : "true"
+        }
       ]
       logConfiguration = {
         "logDriver" = "awslogs"
