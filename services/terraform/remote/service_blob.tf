@@ -1,5 +1,5 @@
 locals {
-  blob_service_image_tag      = local.is_staging ? "latest" : "1.1.1"
+  blob_service_image_tag      = local.is_staging ? "1.1.2-staging" : "1.1.2"
   blob_service_container_name = "blob-service-server"
   blob_service_server_image   = "commapp/blob-server:${local.blob_service_image_tag}"
 
@@ -41,6 +41,14 @@ resource "aws_ecs_task_definition" "blob_service" {
         {
           name  = "BLOB_S3_BUCKET_NAME",
           value = local.blob_service_s3_bucket
+        },
+        {
+          name  = "IDENTITY_SERVICE_ENDPOINT",
+          value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
+          value = local.is_staging ? "false" : "true"
         }
       ]
       logConfiguration = {
