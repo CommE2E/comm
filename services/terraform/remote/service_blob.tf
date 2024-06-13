@@ -41,6 +41,14 @@ resource "aws_ecs_task_definition" "blob_service" {
         {
           name  = "BLOB_S3_BUCKET_NAME",
           value = local.blob_service_s3_bucket
+        },
+        {
+          name  = "IDENTITY_SERVICE_ENDPOINT",
+          value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
+          value = local.is_staging ? "false" : "true"
         }
       ]
       logConfiguration = {

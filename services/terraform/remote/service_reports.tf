@@ -48,6 +48,14 @@ resource "aws_ecs_task_definition" "reports_service" {
           # If this ever fails, we can fallback to blob public URL:
           # "https://${local.blob_service_domain_name}"
         },
+        {
+          name  = "IDENTITY_SERVICE_ENDPOINT",
+          value = local.identity_local_url
+        },
+        {
+          name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
+          value = local.is_staging ? "false" : "true"
+        }
       ]
       # Don't enable e-mails on staging.
       secrets = local.is_staging ? [] : [
