@@ -36,12 +36,12 @@ impl Deref for OpaqueError {
 
 fn protocol_error_to_js_error(error: ProtocolError) -> JsError {
   match error {
-    ProtocolError::IdentityGroupElementError => JsError::new("server error"),
-    ProtocolError::InvalidLoginError => JsError::new("login failed"),
-    ProtocolError::LibraryError(_) => JsError::new("internal error"),
+    ProtocolError::IdentityGroupElementError => JsError::new("server_error"),
+    ProtocolError::InvalidLoginError => JsError::new("login_failed"),
+    ProtocolError::LibraryError(_) => JsError::new("internal_error"),
     ProtocolError::ReflectedValueError => {
-      JsError::new("invalid server response")
+      JsError::new("invalid_server_response")
     }
-    ProtocolError::SerializationError => JsError::new("invalid argument"),
+    ProtocolError::SerializationError => JsError::new("invalid_argument"),
   }
 }

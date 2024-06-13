@@ -129,7 +129,7 @@ function TraditionalLoginForm(): React.Node {
       const messageForException = getMessageForException(e);
       if (
         messageForException === 'user_not_found' ||
-        messageForException === 'login failed'
+        messageForException === 'login_failed'
       ) {
         setErrorMessage('incorrect username or password');
       } else if (

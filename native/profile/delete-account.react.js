@@ -77,7 +77,7 @@ const DeleteAccount: React.ComponentType<Props> = React.memo<Props>(
         await deleteNativeCredentialsFor();
         return await callDeleteAccount(password);
       } catch (e) {
-        if (getMessageForException(e) === 'login failed') {
+        if (getMessageForException(e) === 'login_failed') {
           Alert.alert(
             'Incorrect password',
             'The password you entered is incorrect',

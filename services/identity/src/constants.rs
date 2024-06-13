@@ -261,6 +261,11 @@ pub mod tonic_status_messages {
   pub const KEYSERVER_NOT_FOUND: &str = "keyserver_not_found";
   pub const PASSWORD_USER: &str = "password_user";
   pub const INVALID_MESSAGE: &str = "invalid_message";
+  pub const INVALID_MESSAGE_FORMAT: &str = "invalid_message_format";
+  pub const MISSING_PLATFORM_OR_CODE_VERSION_METADATA: &str =
+    "missing_platform_or_code_version_metadata";
+  pub const MISSING_KEY: &str = "missing_key";
+  pub const MESSAGE_NOT_AUTHENTICATED: &str = "message_not_authenticated";
 }
 
 // Tunnelbroker

@@ -51,7 +51,7 @@ pub fn parse_and_verify_siwe_message(
         errorType = error_types::SIWE_LOG,
         "Signature verification failed: {}", e
       );
-      Status::unauthenticated("message not authenticated")
+      Status::unauthenticated(tonic_status_messages::MESSAGE_NOT_AUTHENTICATED)
     })?;
 
   Ok(siwe_message)

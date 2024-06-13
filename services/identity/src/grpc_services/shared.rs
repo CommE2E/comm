@@ -2,7 +2,9 @@ use grpc_clients::error::unsupported_version;
 use tonic::{Request, Status};
 use tracing::trace;
 
-use crate::constants::{request_metadata, MIN_SUPPORTED_NATIVE_VERSION};
+use crate::constants::{
+  request_metadata, tonic_status_messages, MIN_SUPPORTED_NATIVE_VERSION,
+};
 
 pub use grpc_clients::identity::shared::PlatformMetadata;
 
@@ -37,7 +39,9 @@ pub fn get_platform_metadata<T: std::fmt::Debug>(
   req: &Request<T>,
 ) -> Result<PlatformMetadata, Status> {
   let (code_version, device_type) = get_version_info(req).ok_or_else(|| {
-    Status::invalid_argument("missing platform or code version metadata")
+    Status::invalid_argument(
+      tonic_status_messages::MISSING_PLATFORM_OR_CODE_VERSION_METADATA,
+    )
   })?;
   let state_version = get_value(req, request_metadata::STATE_VERSION)
     .and_then(|it| it.parse().ok());
