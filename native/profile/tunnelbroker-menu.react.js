@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { useCreateInitialPeerList } from 'lib/hooks/peer-list-hooks.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
@@ -89,8 +88,6 @@ function TunnelbrokerMenu(props: Props): React.Node {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
   }, [identityContext, sendMessage]);
-
-  const onCreateInitialPeerList = useCreateInitialPeerList();
 
   const onSendEncryptedMessage = React.useCallback(async () => {
     try {
@@ -185,15 +182,6 @@ function TunnelbrokerMenu(props: Props): React.Node {
           <Text style={styles.submenuText}>
             Create session with own devices
           </Text>
-        </Button>
-        <Button
-          onPress={onCreateInitialPeerList}
-          style={styles.row}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
-          iosActiveOpacity={0.85}
-        >
-          <Text style={styles.submenuText}>Create initial peer list</Text>
         </Button>
         <Button
           onPress={onSendEncryptedMessage}

@@ -10,7 +10,6 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
-import { useCreateInitialPeerList } from 'lib/hooks/peer-list-hooks.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -124,8 +123,6 @@ function AccountSettings(): React.Node {
     }
   }, [identityContext, sendMessage]);
 
-  const onCreateInitialPeerList = useCreateInitialPeerList();
-
   const openBackupTestRestoreModal = React.useCallback(
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
     [popModal, pushModal],
@@ -211,12 +208,6 @@ function AccountSettings(): React.Node {
             <li>
               <span>Create session with own devices</span>
               <Button variant="text" onClick={onCreateOlmSessions}>
-                <p className={css.buttonText}>Create</p>
-              </Button>
-            </li>
-            <li>
-              <span>Create initial peer list</span>
-              <Button variant="text" onClick={onCreateInitialPeerList}>
                 <p className={css.buttonText}>Create</p>
               </Button>
             </li>
