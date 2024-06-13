@@ -9,6 +9,8 @@ pub struct Failure {
   pub error: String,
 }
 
+// NOTE: Keep this in sync with
+// lib/types/tunnelbroker/message-to-device-request-status-types.js
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(tag = "type", content = "data")]
 pub enum MessageSentStatus {
@@ -29,6 +31,8 @@ pub enum MessageSentStatus {
   SerializationError(String),
 }
 
+// NOTE: Keep this in sync with
+// lib/types/tunnelbroker/message-to-device-request-status-types.js
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub struct MessageToDeviceRequestStatus {
