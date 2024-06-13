@@ -113,15 +113,6 @@ function endAPNs() {
   }
 }
 
-function getAPNsNotificationTopic(platformDetails: PlatformDetails): string {
-  if (platformDetails.platform === 'macos') {
-    return 'app.comm.macos';
-  }
-  return platformDetails.codeVersion && platformDetails.codeVersion >= 87
-    ? 'app.comm'
-    : 'org.squadcal.app';
-}
-
 type WebPushConfig = { +publicKey: string, +privateKey: string };
 let cachedWebPushConfig: ?WebPushConfig = null;
 async function getWebPushConfig(): Promise<?WebPushConfig> {
@@ -208,7 +199,6 @@ export {
   getFCMProvider,
   endFirebase,
   endAPNs,
-  getAPNsNotificationTopic,
   getWebPushConfig,
   ensureWebPushInitialized,
   getWNSToken,
