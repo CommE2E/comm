@@ -31,8 +31,9 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
   expected_statement: &[u8],
 ) -> Result<Message<T>, Status> {
   let deserialized_message: Message<T> =
-    serde_json::from_str(keyserver_message)
-      .map_err(|_| Status::invalid_argument("message format invalid"))?;
+    serde_json::from_str(keyserver_message).map_err(|_| {
+      Status::invalid_argument(tonic_status_messages::INVALID_MESSAGE_FORMAT)
+    })?;
 
   if !constant_time_eq(
     deserialized_message.statement.as_bytes(),
@@ -43,10 +44,10 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
     ));
   }
 
-  let issued_at: DateTime<Utc> = deserialized_message
-    .issued_at
-    .parse()
-    .map_err(|_| Status::invalid_argument("message format invalid"))?;
+  let issued_at: DateTime<Utc> =
+    deserialized_message.issued_at.parse().map_err(|_| {
+      Status::invalid_argument(tonic_status_messages::INVALID_MESSAGE_FORMAT)
+    })?;
 
   let now = Utc::now();
   if (now - issued_at).num_seconds() > 5 {
@@ -55,10 +56,10 @@ fn validate_and_decode_message<T: serde::de::DeserializeOwned>(
     ));
   }
 
-  let public_key_string = CONFIG
-    .keyserver_public_key
-    .as_deref()
-    .ok_or_else(|| Status::failed_precondition("missing key"))?;
+  let public_key_string =
+    CONFIG.keyserver_public_key.as_deref().ok_or_else(|| {
+      Status::failed_precondition(tonic_status_messages::MISSING_KEY)
+    })?;
 
   crate::grpc_utils::ed25519_verify(
     public_key_string,

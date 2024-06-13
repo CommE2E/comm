@@ -231,14 +231,14 @@ pub fn verify_initial_device_list(
   if device_list.last_primary_signature.is_some() {
     debug!("Received lastPrimarySignature for initial device list");
     return Err(Status::invalid_argument(
-      "invalid device list: unexpected lastPrimarySignature",
+      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
   }
 
   let Some(signature) = &device_list.current_primary_signature else {
     debug!("Missing curPrimarySignature for initial device list");
     return Err(Status::invalid_argument(
-      "invalid device list: signature missing",
+      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
   };
 
@@ -251,7 +251,7 @@ pub fn verify_initial_device_list(
   if device_list.devices.len() != 1 {
     debug!("Invalid device list length");
     return Err(Status::invalid_argument(
-      "invalid device list: invalid length",
+      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
   }
 
@@ -263,7 +263,7 @@ pub fn verify_initial_device_list(
   {
     debug!("Invalid primary device ID for initial device list");
     return Err(Status::invalid_argument(
-      "invalid device list: invalid primary device",
+      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
   }
 

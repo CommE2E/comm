@@ -68,11 +68,8 @@ impl ToMetadataValueAscii for u64 {
   fn parse_to_ascii(&self) -> Result<MetadataValue<Ascii>, Status> {
     let ascii_string = self.to_string();
 
-    ascii_string.parse().map_err(|e: InvalidMetadataValue| {
-      Status::invalid_argument(format!(
-        "Non-Ascii character present in metadata value: {}",
-        e
-      ))
+    ascii_string.parse().map_err(|_: InvalidMetadataValue| {
+      Status::invalid_argument("non_ascii_character_in_metadata_value")
     })
   }
 }

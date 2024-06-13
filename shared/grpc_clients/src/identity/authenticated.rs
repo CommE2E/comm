@@ -21,11 +21,8 @@ pub struct AuthLayer {
 
 impl ToMetadataValueAscii for str {
   fn parse_to_ascii(&self) -> Result<MetadataValue<Ascii>, Status> {
-    self.parse().map_err(|e: InvalidMetadataValue| {
-      Status::invalid_argument(format!(
-        "Non-Ascii character present in metadata value: {}",
-        e
-      ))
+    self.parse().map_err(|_: InvalidMetadataValue| {
+      Status::invalid_argument("non_ascii_character_in_metadata_value")
     })
   }
 }

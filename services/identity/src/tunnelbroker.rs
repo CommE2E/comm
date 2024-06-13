@@ -12,7 +12,7 @@ use tunnelbroker_messages as messages;
 use crate::constants::error_types;
 use crate::error::Error;
 
-pub async fn create_tunnelbroker_client(
+async fn create_tunnelbroker_client(
 ) -> Result<TunnelbrokerServiceClient<Channel>, Error> {
   shared_tb_client(&CONFIG.tunnelbroker_endpoint)
     .await
