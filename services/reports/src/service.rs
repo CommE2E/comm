@@ -1,7 +1,7 @@
 use actix_web::FromRequest;
 use chrono::Utc;
 use comm_lib::{
-  auth::{AuthService, AuthorizationCredential},
+  auth::{is_csat_verification_disabled, AuthService, AuthorizationCredential},
   blob::client::{BlobServiceClient, BlobServiceError},
   crypto::aes256,
   database::{self, blob::BlobOrDBContent},
@@ -236,7 +236,21 @@ impl FromRequest for ReportsService {
 
       // This is Some if the request contains valid Authorization header
       let auth_token = match credential {
-        Some(token @ AuthorizationCredential::UserToken(_)) => token,
+        Some(token @ AuthorizationCredential::UserToken(_)) => {
+          let token_valid = auth_service
+            .verify_auth_credential(&token)
+            .await
+            .map_err(|err| {
+            error!("Failed to verify access token: {err}");
+            ErrorInternalServerError("Internal server error")
+          })?;
+          if token_valid || is_csat_verification_disabled() {
+            token
+          } else {
+            warn!("Posting report with invalid credentials! Defaulting to ServicesToken...");
+            get_services_token_credential(&auth_service).await?
+          }
+        }
         Some(_) => {
           // Reports service shouldn't be called by other services
           warn!("Reports service requires user authorization");
@@ -244,18 +258,24 @@ impl FromRequest for ReportsService {
         }
         None => {
           // Unauthenticated requests get a service-to-service token
-          let services_token =
-            auth_service.get_services_token().await.map_err(|err| {
-              error!("Failed to get services token: {err}");
-              ErrorInternalServerError("Internal server error")
-            })?;
-          AuthorizationCredential::ServicesToken(services_token)
+          get_services_token_credential(&auth_service).await?
         }
       };
       let service = base_service.with_authentication(auth_token);
       Ok(service)
     })
   }
+}
+
+async fn get_services_token_credential(
+  auth_service: &AuthService,
+) -> Result<AuthorizationCredential, actix_web::Error> {
+  let services_token =
+    auth_service.get_services_token().await.map_err(|err| {
+      error!("Failed to get services token: {err}");
+      actix_web::error::ErrorInternalServerError("Internal server error")
+    })?;
+  Ok(AuthorizationCredential::ServicesToken(services_token))
 }
 
 struct ProcessedReport {
