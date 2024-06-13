@@ -11,7 +11,8 @@ use tonic::Status;
 use tracing::error;
 
 use crate::constants::{
-  error_types, SOCIAL_PROOF_MESSAGE_ATTRIBUTE, SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
+  error_types, tonic_status_messages, SOCIAL_PROOF_MESSAGE_ATTRIBUTE,
+  SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
 };
 
 pub fn parse_and_verify_siwe_message(
@@ -23,7 +24,7 @@ pub fn parse_and_verify_siwe_message(
       errorType = error_types::SIWE_LOG,
       "Failed to parse SIWE message: {}", e
     );
-    Status::invalid_argument("invalid message")
+    Status::invalid_argument(tonic_status_messages::INVALID_MESSAGE)
   })?;
 
   let decoded_signature = hex::decode(siwe_signature.trim_start_matches("0x"))
@@ -32,7 +33,7 @@ pub fn parse_and_verify_siwe_message(
         errorType = error_types::SIWE_LOG,
         "Failed to decode SIWE signature: {}", e
       );
-      Status::invalid_argument("invalid signature")
+      Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
     })?;
 
   let signature = decoded_signature.try_into().map_err(|e| {
@@ -40,7 +41,7 @@ pub fn parse_and_verify_siwe_message(
       errorType = error_types::SIWE_LOG,
       "Conversion to SIWE signature failed: {:?}", e
     );
-    Status::invalid_argument("invalid message")
+    Status::invalid_argument(tonic_status_messages::INVALID_MESSAGE)
   })?;
 
   siwe_message
