@@ -7,7 +7,11 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
-import { useBroadcastDeviceListUpdates } from 'lib/hooks/peer-list-hooks.js';
+import {
+  useBroadcastDeviceListUpdates,
+  useGetAndUpdateDeviceListsForUsers,
+} from 'lib/hooks/peer-list-hooks.js';
+import { getForeignPeerDevices } from 'lib/selectors/user-selectors.js';
 import { addDeviceToDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -36,6 +40,7 @@ import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
 } from '../qr-code/qr-code-utils.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
 
@@ -61,6 +66,9 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const secondaryDeviceID = React.useRef<?string>(null);
 
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
+  const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
+
+  const foreignPeerDevices = useSelector(getForeignPeerDevices);
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -100,8 +108,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
       invariant(identityContext, 'identity context not set');
       const { getAuthMetadata, identityClient } = identityContext;
-      const { userID } = await getAuthMetadata();
-      if (!userID) {
+      const { userID, deviceID } = await getAuthMetadata();
+      if (!userID || !deviceID) {
         throw new Error('missing auth metadata');
       }
 
@@ -112,10 +120,15 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       const lastSignedDeviceList = deviceLists[deviceLists.length - 1];
       const deviceList = rawDeviceListFromSignedList(lastSignedDeviceList);
 
-      await broadcastDeviceListUpdates(
-        deviceList.devices,
-        lastSignedDeviceList,
-      );
+      const ownOtherDevices = deviceList.devices.filter(it => it !== deviceID);
+
+      await Promise.all([
+        broadcastDeviceListUpdates(
+          [...ownOtherDevices, ...foreignPeerDevices],
+          lastSignedDeviceList,
+        ),
+        getAndUpdateDeviceListsForUsers([userID]),
+      ]);
 
       if (!payload.requestBackupKeys) {
         Alert.alert('Device added', 'Device registered successfully', [
@@ -148,7 +161,13 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         { text: 'OK' },
       ]);
     },
-    [identityContext, broadcastDeviceListUpdates, tunnelbrokerContext],
+    [
+      identityContext,
+      broadcastDeviceListUpdates,
+      foreignPeerDevices,
+      getAndUpdateDeviceListsForUsers,
+      tunnelbrokerContext,
+    ],
   );
 
   React.useEffect(() => {
