@@ -6,6 +6,7 @@ import type { FirebaseError } from 'firebase-admin';
 import invariant from 'invariant';
 
 import { createAndroidNotificationRescind } from 'lib/push/android-notif-creators.js';
+import { getAPNsNotificationTopic } from 'lib/shared/notif-utils.js';
 import type { PlatformDetails } from 'lib/types/device-types.js';
 import type {
   NotificationTargetDevice,
@@ -20,7 +21,6 @@ import { tID } from 'lib/utils/validation-utils.js';
 
 import { prepareEncryptedIOSNotificationRescind } from './crypto.js';
 import encryptedNotifUtilsAPI from './encrypted-notif-utils-api.js';
-import { getAPNsNotificationTopic } from './providers.js';
 import type { TargetedAPNsNotification } from './types.js';
 import {
   apnPush,
