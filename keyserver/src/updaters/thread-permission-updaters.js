@@ -13,6 +13,7 @@ import {
 } from 'lib/permissions/thread-permissions.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
+import type { ThreadSubscription } from 'lib/types/subscription-types.js';
 import type {
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
@@ -60,6 +61,7 @@ export type MembershipRowToSave = {
   +role: string,
   +oldRole: string,
   +unread?: boolean,
+  +defaultSubscription?: ThreadSubscription,
 };
 type MembershipRowToDelete = {
   +operation: 'delete',
@@ -81,6 +83,9 @@ export type MembershipChangeset = {
 type ChangeRoleOptions = {
   +setNewMembersToUnread?: boolean,
   +forcePermissionRecalculation?: boolean,
+  // This will only be set if the user is joining or leaving the thread
+  // Joined means role > 0
+  +defaultSubscription?: ThreadSubscription,
 };
 type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
@@ -101,6 +106,7 @@ async function changeRole(
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';
   const forcePermissionRecalculation = options?.forcePermissionRecalculation;
+  const defaultSubscription = options?.defaultSubscription;
 
   if (userIDs.length === 0) {
     return {
@@ -291,6 +297,7 @@ async function changeRole(
         role: newRole,
         oldRole,
         unread: userBecameMember && setNewMembersToUnread,
+        defaultSubscription,
       });
     } else {
       membershipRows.push({
@@ -905,7 +912,7 @@ async function recalculateThreadPermissions(
   return { membershipRows, relationshipChangeset };
 }
 
-const defaultSubscriptionString = JSON.stringify({
+const leaveSubscriptionString = JSON.stringify({
   home: false,
   pushNotifs: false,
 });
@@ -929,14 +936,22 @@ async function saveMemberships({
   const time = Date.now();
   const insertRows = [];
   for (const rowToSave of toSave) {
+    let subscriptionString;
+
+    if (rowToSave.defaultSubscription) {
+      subscriptionString = JSON.stringify(rowToSave.defaultSubscription);
+    } else if (rowToSave.intent === 'join') {
+      subscriptionString = joinSubscriptionString;
+    } else {
+      subscriptionString = leaveSubscriptionString;
+    }
+
     insertRows.push([
       rowToSave.userID,
       rowToSave.threadID,
       rowToSave.role,
       time,
-      rowToSave.intent === 'join'
-        ? joinSubscriptionString
-        : defaultSubscriptionString,
+      subscriptionString,
       rowToSave.permissions ? JSON.stringify(rowToSave.permissions) : null,
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
@@ -1061,7 +1076,7 @@ async function deleteMemberships(
     rowToDelete.threadID,
     -1,
     time,
-    defaultSubscriptionString,
+    leaveSubscriptionString,
     null,
     null,
     0,
@@ -1078,7 +1093,7 @@ async function deleteMemberships(
         role = -1,
         permissions = NULL,
         permissions_for_children = NULL,
-        subscription = ${defaultSubscriptionString},
+        subscription = ${leaveSubscriptionString},
         last_message = 0,
         last_read_message = 0
     `;
