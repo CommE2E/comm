@@ -60,6 +60,7 @@ export type MembershipRowToSave = {
   +role: string,
   +oldRole: string,
   +unread?: boolean,
+  +setSubcriptionToDefault?: boolean,
 };
 type MembershipRowToDelete = {
   +operation: 'delete',
@@ -81,6 +82,7 @@ export type MembershipChangeset = {
 type ChangeRoleOptions = {
   +setNewMembersToUnread?: boolean,
   +forcePermissionRecalculation?: boolean,
+  +setSubcriptionToDefault?: boolean,
 };
 type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
@@ -101,6 +103,7 @@ async function changeRole(
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';
   const forcePermissionRecalculation = options?.forcePermissionRecalculation;
+  const setSubcriptionToDefault = options?.setSubcriptionToDefault;
 
   if (userIDs.length === 0) {
     return {
@@ -291,6 +294,7 @@ async function changeRole(
         role: newRole,
         oldRole,
         unread: userBecameMember && setNewMembersToUnread,
+        setSubcriptionToDefault,
       });
     } else {
       membershipRows.push({
@@ -934,9 +938,9 @@ async function saveMemberships({
       rowToSave.threadID,
       rowToSave.role,
       time,
-      rowToSave.intent === 'join'
-        ? joinSubscriptionString
-        : defaultSubscriptionString,
+      rowToSave.intent !== 'join' || rowToSave.setSubcriptionToDefault
+        ? defaultSubscriptionString
+        : joinSubscriptionString,
       rowToSave.permissions ? JSON.stringify(rowToSave.permissions) : null,
       rowToSave.permissionsForChildren
         ? JSON.stringify(rowToSave.permissionsForChildren)
