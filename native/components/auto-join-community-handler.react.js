@@ -68,6 +68,7 @@ function AutoJoinCommunityHandler(): React.Node {
             { type: 'threads', threadIDs: [communityID] },
           ],
         },
+        autoJoin: true,
       });
     },
     [calendarQuery, joinThread],
