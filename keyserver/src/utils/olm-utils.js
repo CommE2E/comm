@@ -249,28 +249,24 @@ async function getContentSigningKey(): Promise<string> {
   return JSON.parse(accountInfo.account.identity_keys()).ed25519;
 }
 
-async function validateAndUploadAccountPrekeys(
+function validateAndUploadAccountPrekeys(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
 ): Promise<void> {
   if (contentAccount.unpublished_prekey()) {
-    await publishPrekeysToIdentity(contentAccount, notifAccount);
-    contentAccount.mark_prekey_as_published();
-    notifAccount.mark_prekey_as_published();
-    return;
+    return publishPrekeysToIdentity(contentAccount, notifAccount);
   }
   // Since keys are rotated synchronously, only check validity of one
   if (shouldRotatePrekey(contentAccount)) {
     contentAccount.generate_prekey();
     notifAccount.generate_prekey();
-    await publishPrekeysToIdentity(contentAccount, notifAccount);
-    contentAccount.mark_prekey_as_published();
-    notifAccount.mark_prekey_as_published();
+    return publishPrekeysToIdentity(contentAccount, notifAccount);
   }
   if (shouldForgetPrekey(contentAccount)) {
     contentAccount.forget_old_prekey();
     notifAccount.forget_old_prekey();
   }
+  return Promise.resolve();
 }
 
 async function publishPrekeysToIdentity(
@@ -312,6 +308,9 @@ async function publishPrekeysToIdentity(
     notifPrekey,
     notifPrekeySignature,
   );
+
+  contentAccount.mark_prekey_as_published();
+  notifAccount.mark_prekey_as_published();
 }
 
 export {
