@@ -100,7 +100,7 @@ function TagChannelButton(props: Props): React.Node {
       setError(null);
 
       // This is the "Other" option
-      if (selectedIndex === channelOptions.length) {
+      if (selectedIndex === 0) {
         navigate<'TagFarcasterChannelByName'>({
           name: TagFarcasterChannelByNameRouteName,
           params: { communityID },
@@ -109,7 +109,7 @@ function TagChannelButton(props: Props): React.Node {
         return;
       }
 
-      const channel = channelOptions[selectedIndex];
+      const channel = channelOptions[selectedIndex - 1];
 
       void dispatchActionPromise(
         createOrUpdateFarcasterChannelTagActionTypes,
