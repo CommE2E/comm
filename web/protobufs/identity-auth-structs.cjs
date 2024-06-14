@@ -1274,8 +1274,8 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.toObject = function(opt_
  */
 proto.identity.auth.RefreshUserPrekeysRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    newContentPrekeys: (f = msg.getNewContentPrekeys()) && identity_unauth_pb.Prekey.toObject(includeInstance, f),
-    newNotifPrekeys: (f = msg.getNewNotifPrekeys()) && identity_unauth_pb.Prekey.toObject(includeInstance, f)
+    newContentPrekey: (f = msg.getNewContentPrekey()) && identity_unauth_pb.Prekey.toObject(includeInstance, f),
+    newNotifPrekey: (f = msg.getNewNotifPrekey()) && identity_unauth_pb.Prekey.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1315,12 +1315,12 @@ proto.identity.auth.RefreshUserPrekeysRequest.deserializeBinaryFromReader = func
     case 1:
       var value = new identity_unauth_pb.Prekey;
       reader.readMessage(value,identity_unauth_pb.Prekey.deserializeBinaryFromReader);
-      msg.setNewContentPrekeys(value);
+      msg.setNewContentPrekey(value);
       break;
     case 2:
       var value = new identity_unauth_pb.Prekey;
       reader.readMessage(value,identity_unauth_pb.Prekey.deserializeBinaryFromReader);
-      msg.setNewNotifPrekeys(value);
+      msg.setNewNotifPrekey(value);
       break;
     default:
       reader.skipField();
@@ -1351,7 +1351,7 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.serializeBinary = functi
  */
 proto.identity.auth.RefreshUserPrekeysRequest.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getNewContentPrekeys();
+  f = message.getNewContentPrekey();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1359,7 +1359,7 @@ proto.identity.auth.RefreshUserPrekeysRequest.serializeBinaryToWriter = function
       identity_unauth_pb.Prekey.serializeBinaryToWriter
     );
   }
-  f = message.getNewNotifPrekeys();
+  f = message.getNewNotifPrekey();
   if (f != null) {
     writer.writeMessage(
       2,
@@ -1371,10 +1371,10 @@ proto.identity.auth.RefreshUserPrekeysRequest.serializeBinaryToWriter = function
 
 
 /**
- * optional identity.unauth.Prekey new_content_prekeys = 1;
+ * optional identity.unauth.Prekey new_content_prekey = 1;
  * @return {?proto.identity.unauth.Prekey}
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewContentPrekeys = function() {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewContentPrekey = function() {
   return /** @type{?proto.identity.unauth.Prekey} */ (
     jspb.Message.getWrapperField(this, identity_unauth_pb.Prekey, 1));
 };
@@ -1384,7 +1384,7 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewContentPrekeys = f
  * @param {?proto.identity.unauth.Prekey|undefined} value
  * @return {!proto.identity.auth.RefreshUserPrekeysRequest} returns this
 */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewContentPrekeys = function(value) {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewContentPrekey = function(value) {
   return jspb.Message.setWrapperField(this, 1, value);
 };
 
@@ -1393,8 +1393,8 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewContentPrekeys = f
  * Clears the message field making it undefined.
  * @return {!proto.identity.auth.RefreshUserPrekeysRequest} returns this
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewContentPrekeys = function() {
-  return this.setNewContentPrekeys(undefined);
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewContentPrekey = function() {
+  return this.setNewContentPrekey(undefined);
 };
 
 
@@ -1402,16 +1402,16 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewContentPrekeys =
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.hasNewContentPrekeys = function() {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.hasNewContentPrekey = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
 
 /**
- * optional identity.unauth.Prekey new_notif_prekeys = 2;
+ * optional identity.unauth.Prekey new_notif_prekey = 2;
  * @return {?proto.identity.unauth.Prekey}
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewNotifPrekeys = function() {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewNotifPrekey = function() {
   return /** @type{?proto.identity.unauth.Prekey} */ (
     jspb.Message.getWrapperField(this, identity_unauth_pb.Prekey, 2));
 };
@@ -1421,7 +1421,7 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.getNewNotifPrekeys = fun
  * @param {?proto.identity.unauth.Prekey|undefined} value
  * @return {!proto.identity.auth.RefreshUserPrekeysRequest} returns this
 */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewNotifPrekeys = function(value) {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewNotifPrekey = function(value) {
   return jspb.Message.setWrapperField(this, 2, value);
 };
 
@@ -1430,8 +1430,8 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.setNewNotifPrekeys = fun
  * Clears the message field making it undefined.
  * @return {!proto.identity.auth.RefreshUserPrekeysRequest} returns this
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewNotifPrekeys = function() {
-  return this.setNewNotifPrekeys(undefined);
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewNotifPrekey = function() {
+  return this.setNewNotifPrekey(undefined);
 };
 
 
@@ -1439,7 +1439,7 @@ proto.identity.auth.RefreshUserPrekeysRequest.prototype.clearNewNotifPrekeys = f
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.identity.auth.RefreshUserPrekeysRequest.prototype.hasNewNotifPrekeys = function() {
+proto.identity.auth.RefreshUserPrekeysRequest.prototype.hasNewNotifPrekey = function() {
   return jspb.Message.getField(this, 2) != null;
 };
 

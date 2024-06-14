@@ -105,10 +105,10 @@ impl IdentityClientService for AuthenticatedService {
 
     debug!("Refreshing prekeys for user: {}", user_id);
 
-    let content_keys = message.new_content_prekeys.ok_or_else(|| {
+    let content_keys = message.new_content_prekey.ok_or_else(|| {
       Status::invalid_argument(tonic_status_messages::MISSING_CONTENT_KEYS)
     })?;
-    let notif_keys = message.new_notif_prekeys.ok_or_else(|| {
+    let notif_keys = message.new_notif_prekey.ok_or_else(|| {
       Status::invalid_argument(tonic_status_messages::MISSING_NOTIF_KEYS)
     })?;
 

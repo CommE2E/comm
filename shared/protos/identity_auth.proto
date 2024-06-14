@@ -83,11 +83,13 @@ service IdentityClientService {
 
   /* Miscellaneous actions */
 
-  rpc FindUserIdentities(UserIdentitiesRequest) returns (UserIdentitiesResponse) {}
+  rpc FindUserIdentities(UserIdentitiesRequest) returns
+    (UserIdentitiesResponse) {}
 
   // Updates current device PlatformDetails stored on Identity Service.
   // It doesn't require any input - all values are passed via request metadata.
-  rpc SyncPlatformDetails(identity.unauth.Empty) returns (identity.unauth.Empty) {}
+  rpc SyncPlatformDetails(identity.unauth.Empty) returns
+    (identity.unauth.Empty) {}
 }
 
 // Helper types
@@ -117,8 +119,8 @@ message UploadOneTimeKeysRequest {
 // RefreshUserPreKeys
 
 message RefreshUserPrekeysRequest {
-  identity.unauth.Prekey new_content_prekeys = 1;
-  identity.unauth.Prekey new_notif_prekeys = 2;
+  identity.unauth.Prekey new_content_prekey = 1;
+  identity.unauth.Prekey new_notif_prekey = 2;
 }
 
 // Information needed when establishing communication to someone else's device

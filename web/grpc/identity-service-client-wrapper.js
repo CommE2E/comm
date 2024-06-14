@@ -504,8 +504,8 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     notifPrekeyUpload.setPrekeySignature(prekeys.notifPrekeySignature);
 
     const request = new IdentityAuthStructs.RefreshUserPrekeysRequest();
-    request.setNewContentPrekeys(contentPrekeyUpload);
-    request.setNewNotifPrekeys(notifPrekeyUpload);
+    request.setNewContentPrekey(contentPrekeyUpload);
+    request.setNewNotifPrekey(notifPrekeyUpload);
     await client.refreshUserPrekeys(request);
   };
 
