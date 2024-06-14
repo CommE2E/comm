@@ -79,7 +79,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
         let (response, websocket) = hyper_tungstenite::upgrade(&mut req, None)?;
 
         tokio::spawn(async move {
-          accept_connection(websocket, addr).await;
+          accept_connection(websocket, addr, db_client).await;
         });
 
         return Ok(response);
@@ -229,7 +229,11 @@ async fn handle_websocket_frame(
 }
 
 #[tracing::instrument(skip_all)]
-async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
+async fn accept_connection(
+  hyper_ws: HyperWebsocket,
+  addr: SocketAddr,
+  db_client: crate::DatabaseClient,
+) {
   debug!("Incoming WebSocket connection from {}", addr);
 
   let ws_stream = match hyper_ws.await {
@@ -250,7 +254,9 @@ async fn accept_connection(hyper_ws: HyperWebsocket, addr: SocketAddr) {
   if let Some(Ok(auth_message)) = incoming.next().await {
     match auth_message {
       Message::Text(text) => {
-        if let Err(auth_error) = auth::handle_auth_message(&text).await {
+        if let Err(auth_error) =
+          auth::handle_auth_message(&db_client, &text).await
+        {
           let error_response = ConnectionInitializationResponse {
             status: ConnectionInitializationStatus::Error(
               auth_error.to_string(),
