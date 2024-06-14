@@ -181,10 +181,6 @@ pub const DEVICE_LIST_TIMESTAMP_VALID_FOR: Duration = Duration::from_secs(300);
 pub const WORKFLOWS_IN_PROGRESS_TTL_DURATION: Duration =
   Duration::from_secs(120);
 
-// Identity
-
-pub const DEFAULT_IDENTITY_ENDPOINT: &str = "http://localhost:50054";
-
 // LocalStack
 
 pub const LOCALSTACK_ENDPOINT: &str = "LOCALSTACK_ENDPOINT";
