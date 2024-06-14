@@ -13,7 +13,7 @@ const { commbot } = bots;
 async function createCommbotThread(userID: string): Promise<string> {
   const commbotViewer = createBotViewer(commbot.userID);
   const newThreadRequest = {
-    type: threadTypes.PERSONAL,
+    type: threadTypes.GENESIS_PERSONAL,
     initialMemberIDs: [userID],
   };
   const result = await createThread(commbotViewer, newThreadRequest, {

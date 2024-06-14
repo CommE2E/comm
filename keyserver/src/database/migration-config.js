@@ -451,7 +451,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         FROM threads t
         INNER JOIN memberships m ON m.thread = t.id AND m.role > 0
         INNER JOIN users u ON u.id = m.user
-        WHERE t.type = ${threadTypes.PRIVATE}
+        WHERE t.type = ${threadTypes.GENESIS_PRIVATE}
           AND t.name = u.ethereum_address
       `);
       const threadIDs = result.map(({ id }) => id.toString());
