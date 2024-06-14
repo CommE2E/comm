@@ -86,15 +86,15 @@ export type UploadOneTimeKeysRequestObject = {
 };
 
 declare export class RefreshUserPrekeysRequest extends Message {
-  getNewContentPrekeys(): identityStructs.Prekey | void;
-  setNewContentPrekeys(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
-  hasNewContentPrekeys(): boolean;
-  clearNewContentPrekeys(): RefreshUserPrekeysRequest;
+  getNewContentPrekey(): identityStructs.Prekey | void;
+  setNewContentPrekey(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
+  hasNewContentPrekey(): boolean;
+  clearNewContentPrekey(): RefreshUserPrekeysRequest;
 
-  getNewNotifPrekeys(): identityStructs.Prekey | void;
-  setNewNotifPrekeys(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
-  hasNewNotifPrekeys(): boolean;
-  clearNewNotifPrekeys(): RefreshUserPrekeysRequest;
+  getNewNotifPrekey(): identityStructs.Prekey | void;
+  setNewNotifPrekey(value?: identityStructs.Prekey): RefreshUserPrekeysRequest;
+  hasNewNotifPrekey(): boolean;
+  clearNewNotifPrekey(): RefreshUserPrekeysRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RefreshUserPrekeysRequestObject;
@@ -105,8 +105,8 @@ declare export class RefreshUserPrekeysRequest extends Message {
 }
 
 export type RefreshUserPrekeysRequestObject = {
-  newContentPrekeys?: identityStructs.PrekeyObject,
-  newNotifPrekeys?: identityStructs.PrekeyObject,
+  newContentPrekey?: identityStructs.PrekeyObject,
+  newNotifPrekey?: identityStructs.PrekeyObject,
 }
 
 declare export class OutboundKeyInfo extends Message {
