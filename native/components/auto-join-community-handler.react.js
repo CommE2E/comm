@@ -14,6 +14,7 @@ import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import { defaultThreadSubscription } from 'lib/types/subscription-types.js';
 import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { getBlobFetchableURL } from 'lib/utils/blob-service.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
@@ -68,6 +69,7 @@ function AutoJoinCommunityHandler(): React.Node {
             { type: 'threads', threadIDs: [communityID] },
           ],
         },
+        defaultSubscription: defaultThreadSubscription,
       });
     },
     [calendarQuery, joinThread],
