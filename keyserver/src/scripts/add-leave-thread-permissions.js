@@ -24,7 +24,7 @@ async function addLeaveThreadPermissions() {
     UPDATE roles r 
     LEFT JOIN threads t ON t.id = r.thread
     SET r.permissions = JSON_SET(permissions, ${leaveThreadString}, TRUE) 
-    WHERE t.type != ${threadTypes.PERSONAL}
+    WHERE t.type != ${threadTypes.GENESIS_PERSONAL}
   `;
   await dbQuery(updateAllRoles);
 }
