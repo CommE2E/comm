@@ -22,7 +22,10 @@ import type {
 import { isBlobServiceURI } from 'lib/utils/blob-service.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { pad, unpad, calculatePaddedLength } from 'lib/utils/pkcs7-padding.js';
-import { createDefaultHTTPRequestHeaders } from 'lib/utils/services-utils.js';
+import {
+  createDefaultHTTPRequestHeaders,
+  usingCommServicesAccessToken,
+} from 'lib/utils/services-utils.js';
 
 import { temporaryDirectoryPath } from './file-utils.js';
 import { getFetchableURI } from './identifier-utils.js';
@@ -407,10 +410,27 @@ function useFetchAndDecryptMedia(): (
 ) => Promise<FetchAndDecryptMediaOutput> {
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
 
-  return React.useCallback(async (blobURI, encryptionKey, options) => {
-    return fetchAndDecryptMedia(blobURI, encryptionKey, undefined, options);
-  }, []);
+  return React.useCallback(
+    async (blobURI, encryptionKey, options) => {
+      let authMetadata;
+      if (usingCommServicesAccessToken) {
+        try {
+          authMetadata = await getAuthMetadata();
+        } catch (err) {
+          console.warn('Failed to get auth metadata:', err);
+        }
+      }
+      return fetchAndDecryptMedia(
+        blobURI,
+        encryptionKey,
+        authMetadata,
+        options,
+      );
+    },
+    [getAuthMetadata],
+  );
 }
 
 function encryptBase64(
