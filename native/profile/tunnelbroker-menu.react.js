@@ -42,7 +42,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
   );
   const identityContext = React.useContext(IdentityClientContext);
 
-  const { connected, addListener, sendMessage, removeListener } =
+  const { socketState, addListener, sendMessage, removeListener } =
     useTunnelbroker();
   const [messages, setMessages] = useState<TunnelbrokerMessage[]>([]);
   const [recipient, setRecipient] = useState('');
@@ -126,7 +126,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
       <View style={styles.section}>
         <View style={styles.submenuButton}>
           <Text style={styles.submenuText}>Connected</Text>
-          <Text style={styles.text}>{connected.toString()}</Text>
+          <Text style={styles.text}>{socketState.connected.toString()}</Text>
         </View>
       </View>
 
