@@ -253,6 +253,12 @@ async function validateAndUploadAccountPrekeys(
   contentAccount: OlmAccount,
   notifAccount: OlmAccount,
 ): Promise<void> {
+  if (contentAccount.unpublished_prekey()) {
+    await publishPrekeysToIdentity(contentAccount, notifAccount);
+    contentAccount.mark_prekey_as_published();
+    notifAccount.mark_prekey_as_published();
+    return;
+  }
   // Since keys are rotated synchronously, only check validity of one
   if (shouldRotatePrekey(contentAccount)) {
     contentAccount.generate_prekey();
