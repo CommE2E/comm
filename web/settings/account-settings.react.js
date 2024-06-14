@@ -85,7 +85,7 @@ function AccountSettings(): React.Node {
   const stringForUser = useStringForUser(currentUserInfo);
 
   const staffCanSee = useStaffCanSee();
-  const { sendMessage, connected, addListener, removeListener } =
+  const { sendMessage, socketState, addListener, removeListener } =
     useTunnelbroker();
   const openTunnelbrokerModal = React.useCallback(
     () =>
@@ -191,7 +191,7 @@ function AccountSettings(): React.Node {
           <ul>
             <li>
               <span>Connected</span>
-              <span>{connected.toString()}</span>
+              <span>{socketState.connected.toString()}</span>
             </li>
             <li>
               <span>Send message to device</span>
