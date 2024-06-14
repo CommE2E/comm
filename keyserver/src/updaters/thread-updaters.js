@@ -827,7 +827,7 @@ async function joinThread(
     fetchViewerIsMember(viewer, request.threadID),
     permissionCheck,
   ]);
-  if (!hasPermission) {
+  if (!hasPermission && !request.autoJoin) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -855,7 +855,11 @@ async function joinThread(
     }
   }
 
-  const changeset = await changeRole(request.threadID, [viewer.userID], null);
+  const changeset = await changeRole(request.threadID, [viewer.userID], null, {
+    ...(request.autoJoin && {
+      defaultSubscription: { home: false, pushNotifs: false },
+    }),
+  });
 
   const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,
