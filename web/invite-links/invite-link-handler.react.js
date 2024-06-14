@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import {
@@ -9,12 +10,14 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   getKeyserverOverrideForAnInviteLink,
   type KeyserverOverride,
 } from 'lib/shared/invite-links.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import AcceptInviteModal from './accept-invite-modal.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
@@ -26,6 +29,10 @@ function InviteLinkHandler(): null {
   const [keyserverOverride, setKeyserverOverride] =
     React.useState<?KeyserverOverride>(undefined);
   const loggedIn = useSelector(isLoggedIn);
+
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
 
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
@@ -42,9 +49,16 @@ function InviteLinkHandler(): null {
       setKeyserverOverride(undefined);
       inviteLinkSecret.current = inviteSecret;
 
+      let authMetadata;
+      if (usingCommServicesAccessToken) {
+        authMetadata = await getAuthMetadata();
+      }
+
       try {
-        const newKeyserverOverride =
-          await getKeyserverOverrideForAnInviteLink(inviteSecret);
+        const newKeyserverOverride = await getKeyserverOverrideForAnInviteLink(
+          inviteSecret,
+          authMetadata,
+        );
         setKeyserverOverride(newKeyserverOverride);
       } catch (e) {
         console.error('Error while downloading an invite link blob', e);
@@ -58,7 +72,7 @@ function InviteLinkHandler(): null {
         );
       }
     })();
-  }, [dispatch, inviteSecret, loggedIn, pushModal]);
+  }, [dispatch, getAuthMetadata, inviteSecret, loggedIn, pushModal]);
 
   const validateLink = useVerifyInviteLink(keyserverOverride);
   const threadInfos = useSelector(threadInfoSelector);

@@ -2,6 +2,7 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as Application from 'expo-application';
+import invariant from 'invariant';
 import * as React from 'react';
 import { Linking, Platform } from 'react-native';
 
@@ -15,10 +16,12 @@ import {
   type ParsedDeepLinkData,
 } from 'lib/facts/links.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { getKeyserverOverrideForAnInviteLink } from 'lib/shared/invite-links.js';
 import type { KeyserverOverride } from 'lib/shared/invite-links.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import {
   InviteLinkModalRouteName,
@@ -85,6 +88,10 @@ function DeepLinksContextProvider(props: Props): React.Node {
     React.useState<?KeyserverOverride>(undefined);
   const inviteLinkSecret = React.useRef<?string>(null);
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   const loggedIn = useSelector(isLoggedIn);
   const dispatchActionPromise = useDispatchActionPromise();
   const validateLink = useVerifyInviteLink(keyserverOverride);
@@ -106,11 +113,16 @@ function DeepLinksContextProvider(props: Props): React.Node {
       }
 
       if (parsedData.type === 'invite-link') {
+        let authMetadata;
+        if (usingCommServicesAccessToken) {
+          authMetadata = await getAuthMetadata();
+        }
+
         const { secret } = parsedData.data;
         inviteLinkSecret.current = secret;
         try {
           const newKeyserverOverride =
-            await getKeyserverOverrideForAnInviteLink(secret);
+            await getKeyserverOverrideForAnInviteLink(secret, authMetadata);
           setKeyserverOverride(newKeyserverOverride);
         } catch (e) {
           console.log('Error while downloading an invite link blob', e);
@@ -128,7 +140,7 @@ function DeepLinksContextProvider(props: Props): React.Node {
         navigation.navigate(SecondaryDeviceQRCodeScannerRouteName);
       }
     })();
-  }, [currentLink, loggedIn, navigation]);
+  }, [currentLink, getAuthMetadata, loggedIn, navigation]);
 
   React.useEffect(() => {
     const secret = inviteLinkSecret.current;
