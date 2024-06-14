@@ -28,7 +28,7 @@ function ThreadIcon(props: Props): React.Node {
         style={styles.sidebarIcon}
       />
     );
-  } else if (threadType === threadTypes.PERSONAL) {
+  } else if (threadType === threadTypes.GENESIS_PERSONAL) {
     return <SWMansionIcon name="users" size={18} color={color} />;
   } else {
     return <SWMansionIcon name="lock-on" size={18} color={color} />;

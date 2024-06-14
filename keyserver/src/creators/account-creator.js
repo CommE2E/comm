@@ -200,7 +200,7 @@ async function sendMessagesOnAccountCreation(
     createThread(
       viewer,
       {
-        type: threadTypes.PERSONAL,
+        type: threadTypes.GENESIS_PERSONAL,
         initialMemberIDs: [admin.id],
       },
       { forceAddMembers: true },
