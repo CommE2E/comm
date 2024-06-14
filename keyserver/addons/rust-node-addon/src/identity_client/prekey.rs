@@ -22,11 +22,11 @@ pub async fn publish_prekeys(
     get_authenticated_identity_client(user_id, device_id, access_token).await?;
 
   let message = RefreshUserPrekeysRequest {
-    new_content_prekeys: Some(Prekey {
+    new_content_prekey: Some(Prekey {
       prekey: content_prekey,
       prekey_signature: content_prekey_signature,
     }),
-    new_notif_prekeys: Some(Prekey {
+    new_notif_prekey: Some(Prekey {
       prekey: notif_prekey,
       prekey_signature: notif_prekey_signature,
     }),

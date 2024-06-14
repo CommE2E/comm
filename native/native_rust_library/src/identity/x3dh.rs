@@ -101,11 +101,11 @@ pub mod ffi {
   ) {
     RUNTIME.spawn(async move {
       let refresh_request = RefreshUserPrekeysRequest {
-        new_content_prekeys: Some(Prekey {
+        new_content_prekey: Some(Prekey {
           prekey: content_prekey,
           prekey_signature: content_prekey_signature,
         }),
-        new_notif_prekeys: Some(Prekey {
+        new_notif_prekey: Some(Prekey {
           prekey: notif_prekey,
           prekey_signature: notif_prekey_signature,
         }),

@@ -23,11 +23,11 @@ async fn set_prekey() {
   .expect("Couldn't connect to identity service");
 
   let upload_request = RefreshUserPrekeysRequest {
-    new_content_prekeys: Some(Prekey {
+    new_content_prekey: Some(Prekey {
       prekey: "content_prekey".to_string(),
       prekey_signature: "content_prekey_signature".to_string(),
     }),
-    new_notif_prekeys: Some(Prekey {
+    new_notif_prekey: Some(Prekey {
       prekey: "content_prekey".to_string(),
       prekey_signature: "content_prekey_signature".to_string(),
     }),

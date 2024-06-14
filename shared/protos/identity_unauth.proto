@@ -67,7 +67,8 @@ service IdentityClientService {
 
 // Helper types
 
-message Empty {}
+message Empty {
+}
 
 message Prekey {
   string prekey = 1;
