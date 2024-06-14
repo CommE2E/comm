@@ -92,7 +92,7 @@ async function createThread(
 
   const threadType = request.type;
   const shouldCreateRelationships =
-    forceAddMembers || threadType === threadTypes.PERSONAL;
+    forceAddMembers || threadType === threadTypes.GENESIS_PERSONAL;
   let parentThreadID = request.parentThreadID ? request.parentThreadID : null;
   const initialMemberIDsFromRequest =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
@@ -120,7 +120,7 @@ async function createThread(
   }
 
   if (
-    threadType === threadTypes.PERSONAL &&
+    threadType === threadTypes.GENESIS_PERSONAL &&
     request.initialMemberIDs?.length !== 1
   ) {
     throw new ServerError('invalid_parameters');
@@ -219,7 +219,7 @@ async function createThread(
   let color = request.color
     ? request.color.toLowerCase()
     : generateRandomColor();
-  if (threadType === threadTypes.PERSONAL) {
+  if (threadType === threadTypes.GENESIS_PERSONAL) {
     color = generatePendingThreadColor([
       ...(request.initialMemberIDs ?? []),
       viewer.id,
@@ -244,11 +244,11 @@ async function createThread(
   ];
 
   let existingThreadQuery = null;
-  if (threadType === threadTypes.PERSONAL) {
+  if (threadType === threadTypes.GENESIS_PERSONAL) {
     const otherMemberID = initialMemberIDs?.[0];
     invariant(
       otherMemberID,
-      'Other member id should be set for a PERSONAL thread',
+      'Other member id should be set for a GENESIS_PERSONAL thread',
     );
     existingThreadQuery = personalThreadQuery(viewer.userID, otherMemberID);
   } else if (sourceMessageID) {
@@ -298,7 +298,7 @@ async function createThread(
       let joinUpdateInfos: $ReadOnlyArray<ServerUpdateInfo> = [];
       let userInfos: UserInfos = {};
       let newMessageInfos: $ReadOnlyArray<RawMessageInfo> = [];
-      if (threadType !== threadTypes.PERSONAL) {
+      if (threadType !== threadTypes.GENESIS_PERSONAL) {
         const joinThreadResult = await joinThread(viewer, {
           threadID: existingThreadID,
           calendarQuery,
@@ -515,7 +515,7 @@ function createPrivateThread(viewer: Viewer): Promise<NewThreadResponse> {
   return createThread(
     viewer,
     {
-      type: threadTypes.PRIVATE,
+      type: threadTypes.GENESIS_PRIVATE,
       description: privateThreadDescription,
       ghostMemberIDs: [commbot.userID],
     },

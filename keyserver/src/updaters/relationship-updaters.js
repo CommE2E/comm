@@ -68,8 +68,8 @@ async function updateRelationships(
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
-    // one PERSONAL thread per a pair of users and we can safely call it
-    // repeatedly.
+    // one GENESIS_PERSONAL thread per a pair of users and we can safely
+    // call it repeatedly.
     const threadIDPerUser = await createPersonalThreads(
       viewer,
       request,
@@ -214,8 +214,8 @@ async function updateRelationships(
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
-    // one PERSONAL thread per a pair of users and we can safely call it
-    // repeatedly.
+    // one GENESIS_PERSONAL thread per a pair of users and we can safely
+    // call it repeatedly.
     const threadIDPerUser = await createPersonalThreads(
       viewer,
       request,
@@ -377,7 +377,7 @@ async function createPersonalThreads(
   invariant(
     request.action === relationshipActions.FRIEND ||
       request.action === relationshipActions.FARCASTER_MUTUAL,
-    'We should only create a PERSONAL threads when sending FRIEND or ' +
+    'We should only create a GENESIS_PERSONAL threads when sending FRIEND or ' +
       'FARCASTER_MUTUAL requests, but we tried to do that for ' +
       request.action,
   );
@@ -391,7 +391,7 @@ async function createPersonalThreads(
       ON m1.thread = t.id AND m1.user = ${viewer.userID}
     INNER JOIN memberships m2
       ON m2.thread = t.id AND m2.user IN (${userIDs})
-    WHERE t.type = ${threadTypes.PERSONAL}
+    WHERE t.type = ${threadTypes.GENESIS_PERSONAL}
       AND m1.role > 0
       AND m2.role > 0
   `;
@@ -410,7 +410,7 @@ async function createPersonalThreads(
     threadCreationPromises[userID] = createThread(
       viewer,
       {
-        type: threadTypes.PERSONAL,
+        type: threadTypes.GENESIS_PERSONAL,
         initialMemberIDs: [userID],
       },
       { forceAddMembers: true, updatesForCurrentSession: 'broadcast' },

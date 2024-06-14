@@ -67,7 +67,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     [popModal, pushModal, threadInfo.id],
   );
   const membersItem = React.useMemo(() => {
-    if (threadInfo.type === threadTypes.PERSONAL) {
+    if (threadInfo.type === threadTypes.GENESIS_PERSONAL) {
       return null;
     }
     return (

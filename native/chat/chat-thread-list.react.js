@@ -137,7 +137,7 @@ function ChatThreadList(props: BaseProps): React.Node {
     }
     const threadInfo = createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.PRIVATE,
+      threadType: threadTypes.GENESIS_PRIVATE,
       members: [loggedInUserInfo],
     });
     navigateToThread({ threadInfo, searching: true });
