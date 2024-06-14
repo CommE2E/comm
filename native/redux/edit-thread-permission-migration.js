@@ -13,7 +13,7 @@ function addDetailedThreadEditPermissionsToUser<
   T: LegacyMemberInfo | LegacyThreadCurrentUserInfo,
 >(threadInfo: LegacyRawThreadInfo, member: T, threadID: string): T {
   let newPermissions = null;
-  if (threadInfo.type === threadTypes.PRIVATE) {
+  if (threadInfo.type === threadTypes.GENESIS_PRIVATE) {
     newPermissions = {
       ...member.permissions,
       edit_thread_color: { value: true, source: threadID },
@@ -46,7 +46,7 @@ function addDetailedThreadEditPermissionsToRole(
       edit_thread_color: role.permissions['edit_thread'],
       edit_thread_description: role.permissions['edit_thread'],
     };
-  } else if (threadType === threadTypes.PRIVATE) {
+  } else if (threadType === threadTypes.GENESIS_PRIVATE) {
     updatedPermissions = {
       ...role.permissions,
       edit_thread_color: true,

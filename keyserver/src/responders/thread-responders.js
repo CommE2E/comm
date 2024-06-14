@@ -154,7 +154,7 @@ const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
     type: tNumEnum([
       threadTypes.COMMUNITY_OPEN_SUBTHREAD,
       threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-      threadTypes.PERSONAL,
+      threadTypes.GENESIS_PERSONAL,
       threadTypes.LOCAL,
       threadTypes.COMMUNITY_ROOT,
       threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,

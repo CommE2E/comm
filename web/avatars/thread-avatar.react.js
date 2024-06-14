@@ -31,9 +31,9 @@ function ThreadAvatar(props: Props): React.Node {
   );
 
   let displayUserIDForThread;
-  if (threadInfo.type === threadTypes.PRIVATE) {
+  if (threadInfo.type === threadTypes.GENESIS_PRIVATE) {
     displayUserIDForThread = viewerID;
-  } else if (threadInfo.type === threadTypes.PERSONAL) {
+  } else if (threadInfo.type === threadTypes.GENESIS_PERSONAL) {
     displayUserIDForThread = getSingleOtherUser(threadInfo, viewerID);
   }
 

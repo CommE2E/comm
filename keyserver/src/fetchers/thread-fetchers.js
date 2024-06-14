@@ -392,7 +392,7 @@ function personalThreadQuery(
       ON m1.thread = t.id AND m1.user = ${firstMemberID}
     INNER JOIN memberships m2
       ON m2.thread = t.id AND m2.user = ${secondMemberID}
-    WHERE t.type = ${threadTypes.PERSONAL}
+    WHERE t.type = ${threadTypes.GENESIS_PERSONAL}
       AND m1.role > 0
       AND m2.role > 0
   `;
