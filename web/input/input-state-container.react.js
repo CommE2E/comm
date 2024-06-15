@@ -149,7 +149,7 @@ type Props = {
     input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +newThinThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
@@ -581,7 +581,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadCreationPromise = createRealThreadFromPendingThread({
         threadInfo,
         dispatchActionPromise: this.props.dispatchActionPromise,
-        createNewThread: this.props.newThread,
+        createNewThinThread: this.props.newThinThread,
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
         calendarQuery,
@@ -1671,7 +1671,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThread = useNewThread();
+    const callNewThinThread = useNewThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
@@ -1708,7 +1708,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
-        newThread={callNewThread}
+        newThinThread={callNewThinThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         pushModal={modalContext.pushModal}
