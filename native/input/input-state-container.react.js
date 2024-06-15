@@ -18,7 +18,7 @@ import {
   useSendTextMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
-import { useNewThread } from 'lib/actions/thread-actions.js';
+import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type BlobServiceUploadResult,
@@ -1734,7 +1734,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage = useSendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThinThread = useNewThread();
+    const callNewThinThread = useNewThinThread();
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');

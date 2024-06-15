@@ -9,7 +9,7 @@ import { Text, View } from 'react-native';
 
 import {
   newThreadActionTypes,
-  useNewThread,
+  useNewThinThread,
 } from 'lib/actions/thread-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -75,7 +75,7 @@ function ComposeSubchannel(props: Props): React.Node {
 
   const { threadType, parentThreadInfo } = props.route.params;
   const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
-  const callNewThread = useNewThread();
+  const callNewThinThread = useNewThinThread();
   const calendarQuery = useCalendarQuery();
   const newChatThreadAction = React.useCallback(async () => {
     try {
@@ -89,7 +89,7 @@ function ComposeSubchannel(props: Props): React.Node {
           assumedThreadType === 7,
         "Sidebars and communities can't be created from the thread composer",
       );
-      const result = await callNewThread({
+      const result = await callNewThinThread({
         type: assumedThreadType,
         parentThreadID: parentThreadInfo.id,
         initialMemberIDs: userInfoInputIDs,
@@ -113,7 +113,7 @@ function ComposeSubchannel(props: Props): React.Node {
     userInfoInputIDs,
     calendarQuery,
     parentThreadInfo,
-    callNewThread,
+    callNewThinThread,
     onUnknownErrorAlertAcknowledged,
   ]);
 
