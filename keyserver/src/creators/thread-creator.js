@@ -19,7 +19,7 @@ import {
   threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types-enum.js';
 import {
-  type ServerNewThreadRequest,
+  type ServerNewThinThreadRequest,
   type NewThreadResponse,
 } from 'lib/types/thread-types.js';
 import type { ServerUpdateInfo } from 'lib/types/update-types.js';
@@ -78,7 +78,7 @@ type CreateThreadOptions = Partial<{
 // nonnegative role for the parent thread.
 async function createThread(
   viewer: Viewer,
-  request: ServerNewThreadRequest,
+  request: ServerNewThinThreadRequest,
   options?: CreateThreadOptions,
 ): Promise<NewThreadResponse> {
   if (!viewer.loggedIn) {
