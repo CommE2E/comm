@@ -22,7 +22,7 @@ import {
   useSendTextMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
-import { useNewThread } from 'lib/actions/thread-actions.js';
+import { useNewThinThread } from 'lib/actions/thread-actions.js';
 import {
   type BlobServiceUploadAction,
   type DeleteUploadInput,
@@ -1671,7 +1671,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThinThread = useNewThread();
+    const callNewThinThread = useNewThinThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
