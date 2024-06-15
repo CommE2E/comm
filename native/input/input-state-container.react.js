@@ -85,7 +85,7 @@ import {
 } from 'lib/types/report-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
-  type ClientNewThreadRequest,
+  type ClientNewThinThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
@@ -155,7 +155,9 @@ type Props = {
     input: SendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +newThinThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +newThinThread: (
+    request: ClientNewThinThreadRequest,
+  ) => Promise<NewThreadResult>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
 type State = {
