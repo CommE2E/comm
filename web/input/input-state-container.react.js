@@ -82,7 +82,7 @@ import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
-  type ClientNewThreadRequest,
+  type ClientNewThinThreadRequest,
   type NewThreadResult,
 } from 'lib/types/thread-types.js';
 import {
@@ -149,7 +149,9 @@ type Props = {
     input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +newThinThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +newThinThread: (
+    request: ClientNewThinThreadRequest,
+  ) => Promise<NewThreadResult>,
   +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,

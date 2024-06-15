@@ -13,7 +13,7 @@ import {
   type LeaveThreadRequest,
   type LeaveThreadResult,
   type UpdateThreadRequest,
-  type ServerNewThreadRequest,
+  type ServerNewThinThreadRequest,
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
@@ -144,29 +144,30 @@ const threadRequestValidationShape = {
   initialMemberIDs: t.maybe(t.list(tUserID)),
   calendarQuery: t.maybe(entryQueryInputValidator),
 };
-const newThreadRequestInputValidator: TUnion<ServerNewThreadRequest> = t.union([
-  tShape({
-    type: tNumEnum([threadTypes.SIDEBAR]),
-    sourceMessageID: tID,
-    ...threadRequestValidationShape,
-  }),
-  tShape({
-    type: tNumEnum([
-      threadTypes.COMMUNITY_OPEN_SUBTHREAD,
-      threadTypes.COMMUNITY_SECRET_SUBTHREAD,
-      threadTypes.GENESIS_PERSONAL,
-      threadTypes.COMMUNITY_ROOT,
-      threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
-      threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
-      threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD,
-    ]),
-    ...threadRequestValidationShape,
-  }),
-]);
+const newThreadRequestInputValidator: TUnion<ServerNewThinThreadRequest> =
+  t.union([
+    tShape({
+      type: tNumEnum([threadTypes.SIDEBAR]),
+      sourceMessageID: tID,
+      ...threadRequestValidationShape,
+    }),
+    tShape({
+      type: tNumEnum([
+        threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+        threadTypes.COMMUNITY_SECRET_SUBTHREAD,
+        threadTypes.GENESIS_PERSONAL,
+        threadTypes.COMMUNITY_ROOT,
+        threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT,
+        threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD,
+        threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD,
+      ]),
+      ...threadRequestValidationShape,
+    }),
+  ]);
 
 async function threadCreationResponder(
   viewer: Viewer,
-  request: ServerNewThreadRequest,
+  request: ServerNewThinThreadRequest,
 ): Promise<NewThreadResponse> {
   return await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
