@@ -155,7 +155,7 @@ type Props = {
     input: SendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +newThinThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
 };
 type State = {
@@ -552,7 +552,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       threadCreationPromise = createRealThreadFromPendingThread({
         threadInfo,
         dispatchActionPromise: this.props.dispatchActionPromise,
-        createNewThread: this.props.newThread,
+        createNewThinThread: this.props.newThinThread,
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
         calendarQuery,
@@ -1734,7 +1734,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage = useSendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
-    const callNewThread = useNewThread();
+    const callNewThinThread = useNewThread();
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
@@ -1755,7 +1755,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         blobServiceUpload={callBlobServiceUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
-        newThread={callNewThread}
+        newThinThread={callNewThinThread}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
         staffCanSee={staffCanSee}
