@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import {
-  useNewThread,
+  useNewThinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
@@ -47,7 +47,7 @@ function CommunityConfiguration(props: Props): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const callNewThread = useNewThread();
+  const callNewThinThread = useNewThinThread();
   const calendarQueryFunc = useCalendarQuery();
 
   const createNewCommunityLoadingStatus: LoadingStatus = useSelector(
@@ -66,7 +66,7 @@ function CommunityConfiguration(props: Props): React.Node {
   const callCreateNewCommunity = React.useCallback(async () => {
     const calendarQuery = calendarQueryFunc();
     try {
-      const newThreadResult: NewThreadResult = await callNewThread({
+      const newThreadResult: NewThreadResult = await callNewThinThread({
         name: pendingCommunityName,
         type: announcementSetting
           ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
@@ -81,7 +81,7 @@ function CommunityConfiguration(props: Props): React.Node {
   }, [
     announcementSetting,
     calendarQueryFunc,
-    callNewThread,
+    callNewThinThread,
     pendingCommunityName,
   ]);
 
