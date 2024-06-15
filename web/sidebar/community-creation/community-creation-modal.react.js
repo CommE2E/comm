@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import {
-  useNewThread,
+  useNewThinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
@@ -49,7 +49,7 @@ function CommunityCreationModal(): React.Node {
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
 
-  const callNewThread = useNewThread();
+  const callNewThinThread = useNewThinThread();
   const calendarQueryFunc = useSelector(nonThreadCalendarQuery);
 
   const [errorMessage, setErrorMessage] = React.useState<?string>();
@@ -75,7 +75,7 @@ function CommunityCreationModal(): React.Node {
     const calendarQuery = calendarQueryFunc();
 
     try {
-      const newThreadResult: NewThreadResult = await callNewThread({
+      const newThreadResult: NewThreadResult = await callNewThinThread({
         name: pendingCommunityName,
         type: announcementSetting
           ? threadTypes.COMMUNITY_ANNOUNCEMENT_ROOT
@@ -90,7 +90,7 @@ function CommunityCreationModal(): React.Node {
   }, [
     announcementSetting,
     calendarQueryFunc,
-    callNewThread,
+    callNewThinThread,
     pendingCommunityName,
   ]);
 
