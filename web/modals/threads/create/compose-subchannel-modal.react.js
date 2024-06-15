@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {
   newThreadActionTypes,
-  useNewThread,
+  useNewThinThread,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -82,7 +82,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const callNewThread = useNewThread();
+  const callNewThinThread = useNewThinThread();
 
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
@@ -92,7 +92,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
       const threadType = getThreadType(visibilityType, announcement);
 
       const query = calendarQuery();
-      const result = await callNewThread({
+      const result = await callNewThinThread({
         name: channelName,
         type: threadType,
         parentThreadID: parentThreadInfo.id,
@@ -110,7 +110,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
     visibilityType,
     announcement,
     calendarQuery,
-    callNewThread,
+    callNewThinThread,
     channelName,
     parentThreadInfo.id,
     parentThreadInfo.color,
