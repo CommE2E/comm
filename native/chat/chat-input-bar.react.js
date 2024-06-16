@@ -60,7 +60,7 @@ import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
   threadActualMembers,
-  threadFrozenDueToViewerBlock,
+  useThreadFrozenDueToViewerBlock,
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
@@ -84,7 +84,6 @@ import type {
   ClientThreadJoinRequest,
   ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
-import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -284,7 +283,6 @@ type Props = {
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
-  +userInfos: UserInfos,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
@@ -299,7 +297,6 @@ type Props = {
   +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
   +chatMentionCandidates: ChatMentionCandidates,
   +parentThreadInfo: ?ThreadInfo,
-  +communityThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
   +editMessage: (
@@ -315,6 +312,7 @@ type Props = {
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +currentUserIsVoiced: boolean,
   +currentUserCanJoin: boolean,
+  +threadFrozen: boolean,
 };
 type State = {
   +text: string,
@@ -701,12 +699,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.shouldShowTextInput) {
       content = this.renderInput();
     } else if (
-      threadFrozenDueToViewerBlock(
-        this.props.threadInfo,
-        this.props.communityThreadInfo,
-        this.props.viewerID,
-        this.props.userInfos,
-      ) &&
+      this.props.threadFrozen &&
       threadActualMembers(this.props.threadInfo.members).length === 2
     ) {
       content = (
@@ -1269,6 +1262,13 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     community ? threadInfoSelector(state)[community] : null,
   );
 
+  const threadFrozen = useThreadFrozenDueToViewerBlock(
+    props.threadInfo,
+    communityThreadInfo,
+    viewerID,
+    userInfos,
+  );
+
   const userMentionsCandidates = useUserMentionsCandidates(
     props.threadInfo,
     parentThreadInfo,
@@ -1350,7 +1350,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       threadCreationInProgress={threadCreationInProgress}
       calendarQuery={calendarQuery}
-      userInfos={userInfos}
       colors={colors}
       styles={styles}
       isActive={isActive}
@@ -1363,7 +1362,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       chatMentionSearchIndex={chatMentionSearchIndex}
       chatMentionCandidates={chatMentionCandidates}
       parentThreadInfo={parentThreadInfo}
-      communityThreadInfo={communityThreadInfo}
       editedMessagePreview={editedMessagePreview}
       editedMessageInfo={editedMessageInfo}
       editMessage={editMessage}
@@ -1376,6 +1374,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       typeaheadMatchedStrings={typeaheadMatchedStrings}
       currentUserIsVoiced={currentUserIsVoiced}
       currentUserCanJoin={currentUserCanJoin}
+      threadFrozen={threadFrozen}
     />
   );
 }
