@@ -28,7 +28,7 @@ import { trimMessage, getNextLocalID } from 'lib/shared/message-utils.js';
 import {
   checkIfDefaultMembersAreVoiced,
   threadActualMembers,
-  threadFrozenDueToViewerBlock,
+  useThreadFrozenDueToViewerBlock,
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
@@ -41,7 +41,6 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
-import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -76,15 +75,14 @@ type Props = {
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
   +isThreadActive: boolean,
-  +userInfos: UserInfos,
   +dispatchActionPromise: DispatchActionPromise,
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
   +parentThreadInfo: ?ThreadInfo,
-  +communityThreadInfo: ?ThreadInfo,
   +currentUserIsVoiced: boolean,
   +currentUserCanJoinThread: boolean,
+  +threadFrozen: boolean,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -343,12 +341,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         </div>
       );
     } else if (
-      threadFrozenDueToViewerBlock(
-        this.props.threadInfo,
-        this.props.communityThreadInfo,
-        this.props.viewerID,
-        this.props.userInfos,
-      ) &&
+      this.props.threadFrozen &&
       threadActualMembers(this.props.threadInfo.members).length === 2
     ) {
       content = (
@@ -593,6 +586,13 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       community ? threadInfoSelector(state)[community] : null,
     );
 
+    const threadFrozen = useThreadFrozenDueToViewerBlock(
+      props.threadInfo,
+      communityThreadInfo,
+      viewerID,
+      userInfos,
+    );
+
     const currentUserIsVoiced = useThreadHasPermission(
       props.threadInfo,
       threadPermissions.VOICED,
@@ -676,15 +676,14 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         threadCreationInProgress={threadCreationInProgress}
         calendarQuery={calendarQuery}
         isThreadActive={isThreadActive}
-        userInfos={userInfos}
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
         typeaheadMatchedStrings={typeaheadMatchedStrings}
         suggestions={suggestions}
         parentThreadInfo={parentThreadInfo}
-        communityThreadInfo={communityThreadInfo}
         currentUserIsVoiced={currentUserIsVoiced}
         currentUserCanJoinThread={currentUserCanJoinThread}
+        threadFrozen={threadFrozen}
       />
     );
   });
