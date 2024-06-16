@@ -20,8 +20,8 @@ import type {
 } from 'lib/types/thread-permission-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
-  type ThreadType,
-  assertThreadType,
+  type ThinThreadType,
+  assertThinThreadType,
 } from 'lib/types/thread-types-enum.js';
 import { updateTypes } from 'lib/types/update-types-enum.js';
 import {
@@ -343,7 +343,7 @@ async function changeRole(
 type RoleThreadResult = {
   +roleColumnValue: string,
   +depth: number,
-  +threadType: ThreadType,
+  +threadType: ThinThreadType,
   +parentThreadID: ?string,
   +hasContainingThreadID: boolean,
   +rolePermissions: ?ThreadRolePermissionsBlob,
@@ -366,7 +366,7 @@ async function changeRoleThreadQuery(
     return {
       roleColumnValue: role.toString(),
       depth: row.depth,
-      threadType: assertThreadType(row.type),
+      threadType: assertThinThreadType(row.type),
       parentThreadID: row.parent_thread_id
         ? row.parent_thread_id.toString()
         : null,
@@ -389,7 +389,7 @@ async function changeRoleThreadQuery(
     return {
       roleColumnValue: role,
       depth: row.depth,
-      threadType: assertThreadType(row.type),
+      threadType: assertThinThreadType(row.type),
       parentThreadID: row.parent_thread_id
         ? row.parent_thread_id.toString()
         : null,
@@ -413,7 +413,7 @@ async function changeRoleThreadQuery(
     return {
       roleColumnValue: row.id.toString(),
       depth: row.depth,
-      threadType: assertThreadType(row.type),
+      threadType: assertThinThreadType(row.type),
       parentThreadID: row.parent_thread_id
         ? row.parent_thread_id.toString()
         : null,
@@ -591,7 +591,7 @@ type DescendantInfo = {
   +threadID: string,
   +parentThreadID: string,
   +containingThreadID: string,
-  +threadType: ThreadType,
+  +threadType: ThinThreadType,
   +depth: number,
   +users: Map<string, DescendantUserInfo>,
 };
@@ -645,7 +645,7 @@ async function fetchDescendantsForUpdate(
         threadID: descendantThreadID,
         parentThreadID: row.parent_thread_id.toString(),
         containingThreadID: row.containing_thread_id.toString(),
-        threadType: assertThreadType(row.type),
+        threadType: assertThinThreadType(row.type),
         depth: row.depth,
         users: new Map(),
       });
@@ -776,7 +776,7 @@ async function recalculateThreadPermissions(
     throw new ServerError('internal_error');
   }
   const [threadResult] = threadResults;
-  const threadType = assertThreadType(threadResult.type);
+  const threadType = assertThinThreadType(threadResult.type);
   const depth = threadResult.depth;
   const hasContainingThreadID = threadResult.containing_thread_id !== null;
   const parentThreadID = threadResult.parent_thread_id?.toString();
@@ -1376,7 +1376,7 @@ async function updateRolesAndPermissionsForAllThreads() {
   const allThreads = result.map(row => {
     return {
       id: row.id.toString(),
-      type: assertThreadType(row.type),
+      type: assertThinThreadType(row.type),
       depth: row.depth,
     };
   });
