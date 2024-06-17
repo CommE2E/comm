@@ -13,6 +13,7 @@ use crate::constants::max_report_size;
 use crate::service::{ReportsService, ReportsServiceError};
 
 mod handlers;
+mod service;
 
 pub async fn run_http_server(
   reports_service: ReportsService,
