@@ -4,23 +4,12 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
+import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
-import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
-import { useQRAuth } from 'lib/hooks/qr-auth.js';
-import { uintArrayToHexString } from 'lib/media/data-utils.js';
-import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
-import {
-  composeTunnelbrokerQRAuthMessage,
-  handleSecondaryDeviceRegistrationError,
-  parseTunnelbrokerQRAuthMessage,
-  performBackupRestore,
-} from './qr-code-utils.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import * as AES from '../utils/aes-crypto-module.js';
 
 type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
@@ -29,37 +18,7 @@ type QRCodeScreenProps = {
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
-  const [qrData, setQRData] =
-    React.useState<?{ +deviceID: string, +aesKey: string }>();
-
-  const { setUnauthorizedDeviceID } = useTunnelbroker();
-  const generateQRCode = React.useCallback(async () => {
-    try {
-      const [ed25519, rawAESKey] = await Promise.all([
-        getContentSigningKey(),
-        AES.generateKey(),
-      ]);
-      const aesKeyAsHexString: string = uintArrayToHexString(rawAESKey);
-
-      setUnauthorizedDeviceID(ed25519);
-      setQRData({ deviceID: ed25519, aesKey: aesKeyAsHexString });
-    } catch (err) {
-      console.error('Failed to generate QR Code:', err);
-    }
-  }, [setUnauthorizedDeviceID]);
-
-  const logInSecondaryDevice = useSecondaryDeviceLogIn();
-  const performRegistration = React.useCallback(
-    async (userID: string) => {
-      try {
-        await logInSecondaryDevice(userID);
-      } catch (err) {
-        handleSecondaryDeviceRegistrationError(err);
-        void generateQRCode();
-      }
-    },
-    [logInSecondaryDevice, generateQRCode],
-  );
+  const { qrData, generateQRCode } = useQRAuthContext();
 
   React.useEffect(() => {
     void generateQRCode();
@@ -69,19 +28,6 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     () => (qrData ? qrCodeLinkURL(qrData.aesKey, qrData.deviceID) : undefined),
     [qrData],
   );
-
-  const qrAuthInput = React.useMemo(
-    () => ({
-      secondaryDeviceID: qrData?.deviceID,
-      aesKey: qrData?.aesKey,
-      performSecondaryDeviceRegistration: performRegistration,
-      composeMessage: composeTunnelbrokerQRAuthMessage,
-      processMessage: parseTunnelbrokerQRAuthMessage,
-      performBackupRestore,
-    }),
-    [qrData, performRegistration],
-  );
-  useQRAuth(qrAuthInput);
 
   const styles = useStyles(unboundStyles);
   return (
