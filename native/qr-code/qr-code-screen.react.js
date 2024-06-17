@@ -9,40 +9,23 @@ import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
 import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import type { BackupKeys } from 'lib/types/backup-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
-import { getMessageForException } from 'lib/utils/errors.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import {
   composeTunnelbrokerQRAuthMessage,
+  handleSecondaryDeviceRegistrationError,
   parseTunnelbrokerQRAuthMessage,
+  performBackupRestore,
 } from './qr-code-utils.js';
-import { commCoreModule } from '../native-modules.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { persistConfig } from '../redux/persist.js';
 import { useStyles } from '../themes/colors.js';
 import * as AES from '../utils/aes-crypto-module.js';
-import {
-  appOutOfDateAlertDetails,
-  unknownErrorAlertDetails,
-} from '../utils/alert-messages.js';
-import Alert from '../utils/alert.js';
 
 type QRCodeScreenProps = {
   +navigation: QRCodeSignInNavigationProp<'QRCodeScreen'>,
   +route: NavigationRoute<'QRCodeScreen'>,
 };
-
-function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
-  const { backupID, backupDataKey, backupLogDataKey } = backupKeys;
-  return commCoreModule.restoreBackupData(
-    backupID,
-    backupDataKey,
-    backupLogDataKey,
-    persistConfig.version.toString(),
-  );
-}
 
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
@@ -71,22 +54,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
       try {
         await logInSecondaryDevice(userID);
       } catch (err) {
-        console.error('Secondary device registration error:', err);
-        const messageForException = getMessageForException(err);
-        if (
-          messageForException === 'client_version_unsupported' ||
-          messageForException === 'unsupported_version'
-        ) {
-          Alert.alert(
-            appOutOfDateAlertDetails.title,
-            appOutOfDateAlertDetails.message,
-          );
-        } else {
-          Alert.alert(
-            unknownErrorAlertDetails.title,
-            unknownErrorAlertDetails.message,
-          );
-        }
+        handleSecondaryDeviceRegistrationError(err);
         void generateQRCode();
       }
     },
