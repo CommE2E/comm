@@ -3,68 +3,20 @@
 import { QRCodeSVG } from 'qrcode.react';
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { useSecondaryDeviceLogIn } from 'lib/hooks/login-hooks.js';
 import { useQRAuth } from 'lib/hooks/qr-auth.js';
 import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
-import * as AES from 'lib/media/aes-crypto-utils-common.js';
-import { hexToUintArray, uintArrayToHexString } from 'lib/media/data-utils.js';
+import { uintArrayToHexString } from 'lib/media/data-utils.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
-import {
-  peerToPeerMessageTypes,
-  type QRCodeAuthMessage,
-} from 'lib/types/tunnelbroker/peer-to-peer-message-types.js';
-import {
-  qrCodeAuthMessagePayloadValidator,
-  type QRCodeAuthMessagePayload,
-} from 'lib/types/tunnelbroker/qr-code-auth-message-types.js';
-import {
-  convertBytesToObj,
-  convertObjToBytes,
-} from 'lib/utils/conversion-utils.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
-import { getMessageForException } from 'lib/utils/errors.js';
 
 import css from './qr-code-login.css';
-import Alert from '../modals/alert.react.js';
-import VersionUnsupportedModal from '../modals/version-unsupported-modal.react.js';
 import {
-  base64DecodeBuffer,
-  base64EncodeBuffer,
-} from '../utils/base64-utils.js';
-
-async function composeTunnelbrokerMessage(
-  encryptionKey: string,
-  obj: QRCodeAuthMessagePayload,
-): Promise<QRCodeAuthMessage> {
-  const objBytes = convertObjToBytes(obj);
-  const keyBytes = hexToUintArray(encryptionKey);
-  const encryptedBytes = await AES.encryptCommon(crypto, keyBytes, objBytes);
-  const encryptedContent = base64EncodeBuffer(encryptedBytes);
-  return {
-    type: peerToPeerMessageTypes.QR_CODE_AUTH_MESSAGE,
-    encryptedContent,
-  };
-}
-
-async function parseTunnelbrokerMessage(
-  encryptionKey: string,
-  message: QRCodeAuthMessage,
-): Promise<?QRCodeAuthMessagePayload> {
-  const encryptedData = base64DecodeBuffer(message.encryptedContent);
-  const decryptedData = await AES.decryptCommon(
-    crypto,
-    hexToUintArray(encryptionKey),
-    new Uint8Array(encryptedData),
-  );
-  const payload = convertBytesToObj<QRCodeAuthMessagePayload>(decryptedData);
-  if (!qrCodeAuthMessagePayloadValidator.is(payload)) {
-    return null;
-  }
-
-  return payload;
-}
+  composeTunnelbrokerQRAuthMessage,
+  parseTunnelbrokerQRAuthMessage,
+  useHandleSecondaryDeviceRegistrationError,
+} from '../utils/qr-code-utils.js';
 
 function QRCodeLogin(): React.Node {
   const [qrData, setQRData] =
@@ -86,7 +38,7 @@ function QRCodeLogin(): React.Node {
     }
   }, [setUnauthorizedDeviceID]);
 
-  const { pushModal } = useModalContext();
+  const handleError = useHandleSecondaryDeviceRegistrationError();
 
   const logInSecondaryDevice = useSecondaryDeviceLogIn();
   const performRegistration = React.useCallback(
@@ -94,20 +46,11 @@ function QRCodeLogin(): React.Node {
       try {
         await logInSecondaryDevice(userID);
       } catch (err) {
-        console.error('Secondary device registration error:', err);
-        const messageForException = getMessageForException(err);
-        if (
-          messageForException === 'client_version_unsupported' ||
-          messageForException === 'unsupported_version'
-        ) {
-          pushModal(<VersionUnsupportedModal />);
-        } else {
-          pushModal(<Alert title="Unknown error">Uhh... try again?</Alert>);
-        }
+        handleError(err);
         void generateQRCode();
       }
     },
-    [logInSecondaryDevice, pushModal, generateQRCode],
+    [logInSecondaryDevice, handleError, generateQRCode],
   );
 
   React.useEffect(() => {
@@ -124,8 +67,8 @@ function QRCodeLogin(): React.Node {
       secondaryDeviceID: qrData?.deviceID,
       aesKey: qrData?.aesKey,
       performSecondaryDeviceRegistration: performRegistration,
-      composeMessage: composeTunnelbrokerMessage,
-      processMessage: parseTunnelbrokerMessage,
+      composeMessage: composeTunnelbrokerQRAuthMessage,
+      processMessage: parseTunnelbrokerQRAuthMessage,
     }),
     [qrData, performRegistration],
   );
