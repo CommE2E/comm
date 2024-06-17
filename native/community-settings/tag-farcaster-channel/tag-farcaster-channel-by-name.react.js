@@ -4,12 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import {
-  createOrUpdateFarcasterChannelTagActionTypes,
-  useCreateOrUpdateFarcasterChannelTag,
-} from 'lib/actions/community-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useCreateFarcasterChannelTag } from 'lib/shared/community-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
 import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
@@ -43,24 +39,9 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
   const neynarClientContext = React.useContext(NeynarClientContext);
   invariant(neynarClientContext, 'NeynarClientContext is missing');
 
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  const createOrUpdateFarcasterChannelTag =
-    useCreateOrUpdateFarcasterChannelTag();
-
-  const createCreateOrUpdateActionPromise = React.useCallback(
-    async (channelID: string) => {
-      try {
-        return await createOrUpdateFarcasterChannelTag({
-          commCommunityID: communityID,
-          farcasterChannelID: channelID,
-        });
-      } catch (e) {
-        setError(e.message);
-        throw e;
-      }
-    },
-    [communityID, createOrUpdateFarcasterChannelTag],
+  const { createTag, isLoading } = useCreateFarcasterChannelTag(
+    communityID,
+    setError,
   );
 
   const onPressTagChannel = React.useCallback(async () => {
@@ -74,19 +55,10 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
       return;
     }
 
-    await dispatchActionPromise(
-      createOrUpdateFarcasterChannelTagActionTypes,
-      createCreateOrUpdateActionPromise(channelInfo.id),
-    );
+    createTag(channelInfo.id);
 
     goBack();
-  }, [
-    channelSelectionText,
-    createCreateOrUpdateActionPromise,
-    dispatchActionPromise,
-    goBack,
-    neynarClientContext.client,
-  ]);
+  }, [channelSelectionText, createTag, goBack, neynarClientContext.client]);
 
   const errorMessage = React.useMemo(() => {
     if (!error) {
@@ -100,8 +72,12 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
     );
   }, [error, styles.error]);
 
-  const submitButtonVariant =
-    channelSelectionText.length > 0 ? 'enabled' : 'disabled';
+  let submitButtonVariant = 'disabled';
+  if (isLoading) {
+    submitButtonVariant = 'loading';
+  } else if (channelSelectionText.length > 0) {
+    submitButtonVariant = 'enabled';
+  }
 
   return (
     <View style={styles.container}>
