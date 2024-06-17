@@ -96,6 +96,28 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   }
 }
 
+resource "aws_dynamodb_table" "tunnelbroker-device-tokens" {
+  name         = "tunnelbroker-device-tokens"
+  hash_key     = "deviceID"
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "deviceID"
+    type = "S"
+  }
+
+  attribute {
+    name = "deviceToken"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "deviceToken-index"
+    hash_key        = "deviceToken"
+    projection_type = "KEYS_ONLY"
+  }
+}
+
 resource "aws_dynamodb_table" "identity-users" {
   name             = "identity-users"
   hash_key         = "userID"
