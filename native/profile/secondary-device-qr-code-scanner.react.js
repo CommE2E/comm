@@ -91,8 +91,9 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         innerMessage,
       );
       if (
-        payload?.type !==
-        qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS
+        !payload ||
+        payload.type !==
+          qrCodeAuthMessageTypes.SECONDARY_DEVICE_REGISTRATION_SUCCESS
       ) {
         return;
       }
@@ -115,6 +116,13 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         deviceList.devices,
         lastSignedDeviceList,
       );
+
+      if (!payload.requestBackupKeys) {
+        Alert.alert('Device added', 'Device registered successfully', [
+          { text: 'OK' },
+        ]);
+        return;
+      }
 
       const backupSecret = await getBackupSecret();
       const backupKeysResponse =
