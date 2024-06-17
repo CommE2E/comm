@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import * as AES from 'lib/media/aes-crypto-utils-common.js';
+import { generateKeyCommon } from 'lib/media/aes-crypto-utils-common.js';
 import { hexToUintArray } from 'lib/media/data-utils.js';
 import {
   peerToPeerMessageTypes,
@@ -74,8 +75,13 @@ function useHandleSecondaryDeviceRegistrationError(): (error: mixed) => void {
   );
 }
 
+function generateQRAuthKey(): Promise<Uint8Array> {
+  return generateKeyCommon(crypto);
+}
+
 export {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
   useHandleSecondaryDeviceRegistrationError,
+  generateQRAuthKey,
 };
