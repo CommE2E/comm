@@ -21,6 +21,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
+import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -88,6 +89,12 @@ import './typography.css';
 import css from './style.css';
 import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
+import {
+  composeTunnelbrokerQRAuthMessage,
+  generateQRAuthKey,
+  parseTunnelbrokerQRAuthMessage,
+  useHandleSecondaryDeviceRegistrationError,
+} from './utils/qr-code-utils.js';
 import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
@@ -538,6 +545,9 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const secondaryTunnelbrokerConnection: SecondaryTunnelbrokerConnection =
       useOtherTabsTunnelbrokerConnection();
 
+    const handleSecondaryDeviceRegistrationError =
+      useHandleSecondaryDeviceRegistrationError();
+
     return (
       <AppThemeWrapper>
         <TunnelbrokerProvider
@@ -546,15 +556,22 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
           secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
         >
           <IdentitySearchProvider>
-            <App
-              {...props}
-              navInfo={navInfo}
-              entriesLoadingStatus={entriesLoadingStatus}
-              loggedIn={loggedIn}
-              activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-              dispatch={dispatch}
-              modals={modals}
-            />
+            <QRAuthProvider
+              processMessage={parseTunnelbrokerQRAuthMessage}
+              composeMessage={composeTunnelbrokerQRAuthMessage}
+              generateKey={generateQRAuthKey}
+              onError={handleSecondaryDeviceRegistrationError}
+            >
+              <App
+                {...props}
+                navInfo={navInfo}
+                entriesLoadingStatus={entriesLoadingStatus}
+                loggedIn={loggedIn}
+                activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                dispatch={dispatch}
+                modals={modals}
+              />
+            </QRAuthProvider>
             <DBOpsHandler />
           </IdentitySearchProvider>
         </TunnelbrokerProvider>
