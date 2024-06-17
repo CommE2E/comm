@@ -9,6 +9,7 @@ import {
   useCreateOrUpdateFarcasterChannelTag,
 } from 'lib/actions/community-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
@@ -16,7 +17,11 @@ import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.
 import RegistrationButton from '../../account/registration/registration-button.react.js';
 import TextInput from '../../components/text-input.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
+
+const createOrUpdateFarcasterChannelTagStatusSelector =
+  createLoadingStatusSelector(createOrUpdateFarcasterChannelTagActionTypes);
 
 export type TagFarcasterChannelByNameParams = {
   +communityID: string,
@@ -100,8 +105,18 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
     );
   }, [error, styles.error]);
 
-  const submitButtonVariant =
-    channelSelectionText.length > 0 ? 'enabled' : 'disabled';
+  const createOrUpdateFarcasterChannelTagStatus = useSelector(
+    createOrUpdateFarcasterChannelTagStatusSelector,
+  );
+  const isLoadingCreateOrUpdateFarcasterChannelTag =
+    createOrUpdateFarcasterChannelTagStatus === 'loading';
+
+  let submitButtonVariant = 'disabled';
+  if (isLoadingCreateOrUpdateFarcasterChannelTag) {
+    submitButtonVariant = 'loading';
+  } else if (channelSelectionText.length > 0) {
+    submitButtonVariant = 'enabled';
+  }
 
   return (
     <View style={styles.container}>
