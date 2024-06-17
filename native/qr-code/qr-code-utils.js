@@ -89,9 +89,14 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
   );
 }
 
+function generateQRAuthKey(): Promise<Uint8Array> {
+  return Promise.resolve(AES.generateKey());
+}
+
 export {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
   handleSecondaryDeviceRegistrationError,
   performBackupRestore,
+  generateQRAuthKey,
 };
