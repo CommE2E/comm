@@ -25,6 +25,7 @@ import {
   createAndroidBadgeOnlyNotification,
   apnMaxNotificationPayloadByteSize,
 } from 'lib/push/notif-creators.js';
+import type { Device, PushUserInfo, PushInfo } from 'lib/push/send-utils.js';
 import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
 import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
@@ -45,7 +46,6 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { Platform, PlatformDetails } from 'lib/types/device-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
-  type MessageData,
   type RawMessageInfo,
   rawMessageInfoValidator,
 } from 'lib/types/message-types.js';
@@ -90,21 +90,6 @@ import { getENSNames } from '../utils/ens-cache.js';
 import { getFCNames } from '../utils/fc-cache.js';
 import { validateOutput } from '../utils/validation-utils.js';
 
-export type Device = {
-  +platform: Platform,
-  +deviceToken: string,
-  +cookieID: string,
-  +codeVersion: ?number,
-  +stateVersion: ?number,
-  +majorDesktopVersion: ?number,
-};
-
-export type PushUserInfo = {
-  +devices: Device[],
-  // messageInfos and messageDatas have the same key
-  +messageInfos: RawMessageInfo[],
-  +messageDatas: MessageData[],
-};
 type Delivery = PushDelivery | { collapsedInto: string };
 type NotificationRow = {
   +dbID: string,
@@ -114,7 +99,6 @@ type NotificationRow = {
   +collapseKey?: ?string,
   +deliveries: Delivery[],
 };
-export type PushInfo = { [userID: string]: PushUserInfo };
 
 async function sendPushNotifs(pushInfo: PushInfo) {
   if (Object.keys(pushInfo).length === 0) {
@@ -869,22 +853,23 @@ function getDevicesByPlatform(
     Map<string, Array<NotificationTargetDevice>>,
   >();
   for (const device of devices) {
-    let innerMap = byPlatform.get(device.platform);
+    let innerMap = byPlatform.get(device.platformDetails.platform);
     if (!innerMap) {
       innerMap = new Map<string, Array<NotificationTargetDevice>>();
-      byPlatform.set(device.platform, innerMap);
+      byPlatform.set(device.platformDetails.platform, innerMap);
     }
     const codeVersion: number =
-      device.codeVersion !== null && device.codeVersion !== undefined
-        ? device.codeVersion
+      device.platformDetails.codeVersion !== null &&
+      device.platformDetails.codeVersion !== undefined
+        ? device.platformDetails.codeVersion
         : -1;
-    const stateVersion: number = device.stateVersion ?? -1;
+    const stateVersion: number = device.platformDetails.stateVersion ?? -1;
 
     let versionsObject = { codeVersion, stateVersion };
-    if (device.majorDesktopVersion) {
+    if (device.platformDetails.majorDesktopVersion) {
       versionsObject = {
         ...versionsObject,
-        majorDesktopVersion: device.majorDesktopVersion,
+        majorDesktopVersion: device.platformDetails.majorDesktopVersion,
       };
     }
 
@@ -898,8 +883,8 @@ function getDevicesByPlatform(
     const innerMostArray = innerMostArrayTmp;
 
     innerMostArray.push({
-      cryptoID: device.cookieID,
-      deliveryID: device.deviceToken,
+      cryptoID: device.cryptoID,
+      deliveryID: device.deliveryID,
     });
   }
   return byPlatform;
