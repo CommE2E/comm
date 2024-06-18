@@ -5,12 +5,16 @@ import _pickBy from 'lodash/fp/pickBy.js';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
 import {
+  generateNotifUserInfoPromise,
+  type Device,
+  type PushUserInfo,
+} from 'lib/push/send-utils.js';
+import {
   rawMessageInfoFromMessageData,
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils.js';
 import { pushTypes } from 'lib/shared/messages/message-spec.js';
-import type { PushType } from 'lib/shared/messages/message-spec.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import {
@@ -39,7 +43,6 @@ import {
 } from '../fetchers/message-fetchers.js';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
-import type { Device, PushUserInfo } from '../push/send.js';
 import { sendPushNotifs, sendRescindNotifs } from '../push/send.js';
 import type { Viewer } from '../session/viewer.js';
 import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
@@ -378,13 +381,21 @@ async function postMessageSend(
       }
     }
     if (deviceToken && cookieID) {
-      thisUserInfo.devices.set(deviceToken, {
+      let platformDetails = {
         platform,
-        deviceToken,
-        cookieID: cookieID.toString(),
         codeVersion: versions ? versions.codeVersion : null,
         stateVersion: versions ? versions.stateVersion : null,
-        majorDesktopVersion: versions ? versions.majorDesktopVersion : null,
+      };
+      if (versions.majorDesktopVersion) {
+        platformDetails = {
+          ...platformDetails,
+          majorDesktopVersion: versions.majorDesktopVersion,
+        };
+      }
+      thisUserInfo.devices.set(deviceToken, {
+        deliveryID: deviceToken,
+        cryptoID: cookieID.toString(),
+        platformDetails,
       });
     }
     thisUserInfo.threadIDs.add(threadID);
@@ -432,72 +443,30 @@ async function postMessageSend(
       continue;
     }
 
-    const generateNotifUserInfoPromise = async (pushType: PushType) => {
-      const promises: Array<
-        Promise<?{
-          +messageInfo: RawMessageInfo,
-          +messageData: MessageData,
-        }>,
-      > = [];
-
-      for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
-        const messageIndices = threadsToMessageIndices.get(threadID);
-        invariant(
-          messageIndices,
-          `indices should exist for thread ${threadID}`,
-        );
-        promises.push(
-          ...messageIndices.map(async messageIndex => {
-            const messageInfo = messageInfos[messageIndex];
-            const { type } = messageInfo;
-            if (messageInfo.creatorID === userID) {
-              // We never send a user notifs about their own activity
-              return undefined;
-            }
-            const { generatesNotifs } = messageSpecs[type];
-            const messageData = messageDatas[messageIndex];
-            if (!generatesNotifs) {
-              return undefined;
-            }
-            const doesGenerateNotif = await generatesNotifs(
-              messageInfo,
-              messageData,
-              {
-                notifTargetUserID: userID,
-                userNotMemberOfSubthreads,
-                fetchMessageInfoByID: (messageID: string) =>
-                  fetchMessageInfoByID(viewer, messageID),
-              },
-            );
-            return doesGenerateNotif === pushType
-              ? { messageInfo, messageData }
-              : undefined;
-          }),
-        );
-      }
-
-      const messagesToNotify = await Promise.all(promises);
-      const filteredMessagesToNotify = messagesToNotify.filter(Boolean);
-
-      if (filteredMessagesToNotify.length === 0) {
-        return undefined;
-      }
-
-      return {
-        devices: userDevices,
-        messageInfos: filteredMessagesToNotify.map(
-          ({ messageInfo }) => messageInfo,
-        ),
-        messageDatas: filteredMessagesToNotify.map(
-          ({ messageData }) => messageData,
-        ),
-      };
-    };
-
-    const userPushInfoPromise = generateNotifUserInfoPromise(pushTypes.NOTIF);
-    const userRescindInfoPromise = generateNotifUserInfoPromise(
-      pushTypes.RESCIND,
-    );
+    const userPushInfoPromise = generateNotifUserInfoPromise({
+      pushType: pushTypes.NOTIF,
+      devices: userDevices,
+      newMessageInfos: messageInfos,
+      messageDatas,
+      threadsToMessageIndices,
+      threadIDs: preUserPushInfo.notFocusedThreadIDs,
+      userNotMemberOfSubthreads,
+      fetchMessageInfoByID: (messageID: string) =>
+        fetchMessageInfoByID(viewer, messageID),
+      userID,
+    });
+    const userRescindInfoPromise = generateNotifUserInfoPromise({
+      pushType: pushTypes.RESCIND,
+      devices: userDevices,
+      newMessageInfos: messageInfos,
+      messageDatas,
+      threadsToMessageIndices,
+      threadIDs: preUserPushInfo.notFocusedThreadIDs,
+      userNotMemberOfSubthreads,
+      fetchMessageInfoByID: (messageID: string) =>
+        fetchMessageInfoByID(viewer, messageID),
+      userID,
+    });
 
     userPushInfoPromises[userID] = userPushInfoPromise;
     userRescindInfoPromises[userID] = userRescindInfoPromise;

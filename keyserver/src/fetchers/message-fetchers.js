@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import type { PushInfo } from 'lib/push/send-utils.js';
 import {
   sortMessageInfoList,
   shimUnsupportedRawMessageInfos,
@@ -47,7 +48,6 @@ import {
 } from '../database/database.js';
 import { processQueryForSearch } from '../database/search-utils.js';
 import type { SQLStatementType } from '../database/types.js';
-import type { PushInfo } from '../push/send.js';
 import type { Viewer } from '../session/viewer.js';
 import {
   creationString,
