@@ -23,8 +23,12 @@ import { unpickleOlmAccount } from '../utils/olm-utils.js';
 import type { PickledOlmAccount } from '../utils/olm-utils.js';
 
 // After register or login is successful
-function markKeysAsPublished(account: OlmAccount) {
+function markPrekeyAsPublished(account: OlmAccount) {
   account.mark_prekey_as_published();
+}
+
+// Before registration
+function markOneTimeKeysAsPublished(account: OlmAccount) {
   account.mark_keys_as_published();
 }
 
@@ -202,8 +206,8 @@ async function registerOrLogInBase<T>(
       userInfo.forceLogin,
     );
     await Promise.all([
-      getUpdateContentAccount(markKeysAsPublished),
-      getUpdateNotificationsAccount(markKeysAsPublished),
+      getUpdateContentAccount(markPrekeyAsPublished),
+      getUpdateNotificationsAccount(markPrekeyAsPublished),
     ]);
     return identity_info;
   } catch (e) {
@@ -217,6 +221,10 @@ async function registerOrLogInBase<T>(
       ),
     ]);
     try {
+      await Promise.all([
+        getUpdateContentAccount(markOneTimeKeysAsPublished),
+        getUpdateNotificationsAccount(markOneTimeKeysAsPublished),
+      ]);
       const identity_info = await rustAPI.registerUser(
         userInfo.username,
         userInfo.password,
@@ -229,8 +237,8 @@ async function registerOrLogInBase<T>(
         notificationsOneTimeKeys,
       );
       await Promise.all([
-        getUpdateContentAccount(markKeysAsPublished),
-        getUpdateNotificationsAccount(markKeysAsPublished),
+        getUpdateContentAccount(markPrekeyAsPublished),
+        getUpdateNotificationsAccount(markPrekeyAsPublished),
       ]);
       return identity_info;
     } catch (err) {
