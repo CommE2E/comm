@@ -6,8 +6,8 @@ use actix_web::{
   HttpResponse, ResponseError,
 };
 pub use aws_sdk_dynamodb::Error as DynamoDBError;
-use comm_lib::blob::client::BlobServiceError;
 use comm_lib::database::Error as DBError;
+use comm_lib::{auth::AuthServiceError, blob::client::BlobServiceError};
 use reqwest::StatusCode;
 use tracing::{error, trace, warn};
 
@@ -17,6 +17,7 @@ use tracing::{error, trace, warn};
 pub enum BackupError {
   NoBackup,
   BlobError(BlobServiceError),
+  AuthError(AuthServiceError),
   DB(comm_lib::database::Error),
 }
 
@@ -44,6 +45,10 @@ impl From<&BackupError> for actix_web::Error {
         err @ (BlobServiceError::URLError(_) | BlobServiceError::NotFound),
       ) => {
         error!("Unexpected blob error: {err}");
+        ErrorInternalServerError("server error")
+      }
+      BackupError::AuthError(err) => {
+        error!("Unexpected auth error: {err}");
         ErrorInternalServerError("server error")
       }
       BackupError::DB(err) => match err {
