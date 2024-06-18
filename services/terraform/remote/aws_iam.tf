@@ -213,12 +213,27 @@ data "aws_iam_policy_document" "assume_identity_search_role" {
 resource "aws_iam_role" "search_index_lambda" {
   name               = "search_index_lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_identity_search_role.json
+}
 
-  managed_policy_arns = [
-    aws_iam_policy.manage_cloudwatch_logs.arn,
-    aws_iam_policy.manage_network_interface.arn,
-    aws_iam_policy.read_identity_users_stream.arn,
-  ]
+resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "manage_cloudwatch_logs" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = aws_iam_policy.manage_cloudwatch_logs.arn
+
+}
+
+resource "aws_iam_role_policy_attachment" "manage_network_interface" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = aws_iam_policy.manage_network_interface.arn
+}
+
+resource "aws_iam_role_policy_attachment" "read_identity_users_stream" {
+  role       = aws_iam_role.search_index_lambda.name
+  policy_arn = aws_iam_policy.read_identity_users_stream.arn
 }
 
 data "aws_iam_policy_document" "read_identity_users_stream" {
@@ -289,11 +304,6 @@ resource "aws_iam_policy" "manage_network_interface" {
   policy      = data.aws_iam_policy_document.manage_network_interface.json
 }
 
-
-resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
-  role       = aws_iam_role.search_index_lambda.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-}
 
 data "aws_iam_policy_document" "opensearch_domain_access" {
   statement {
