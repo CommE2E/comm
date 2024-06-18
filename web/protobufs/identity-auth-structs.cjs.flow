@@ -287,6 +287,11 @@ declare export class UpdateUserPasswordStartRequest extends Message {
   getOpaqueRegistrationRequest_asB64(): string;
   setOpaqueRegistrationRequest(value: Uint8Array | string): UpdateUserPasswordStartRequest;
 
+  getOpaqueLoginRequest(): Uint8Array | string;
+  getOpaqueLoginRequest_asU8(): Uint8Array;
+  getOpaqueLoginRequest_asB64(): string;
+  setOpaqueLoginRequest(value: Uint8Array | string): UpdateUserPasswordStartRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordStartRequestObject;
   static toObject(includeInstance: boolean, msg: UpdateUserPasswordStartRequest): UpdateUserPasswordStartRequestObject;
@@ -297,6 +302,7 @@ declare export class UpdateUserPasswordStartRequest extends Message {
 
 export type UpdateUserPasswordStartRequestObject = {
   opaqueRegistrationRequest: Uint8Array | string,
+  opaqueLoginRequest: Uint8Array | string,
 };
 
 declare export class UpdateUserPasswordFinishRequest extends Message {
@@ -307,6 +313,11 @@ declare export class UpdateUserPasswordFinishRequest extends Message {
   getOpaqueRegistrationUpload_asU8(): Uint8Array;
   getOpaqueRegistrationUpload_asB64(): string;
   setOpaqueRegistrationUpload(value: Uint8Array | string): UpdateUserPasswordFinishRequest;
+
+  getOpaqueLoginUpload(): Uint8Array | string;
+  getOpaqueLoginUpload_asU8(): Uint8Array;
+  getOpaqueLoginUpload_asB64(): string;
+  setOpaqueLoginUpload(value: Uint8Array | string): UpdateUserPasswordFinishRequest;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordFinishRequestObject;
@@ -319,6 +330,7 @@ declare export class UpdateUserPasswordFinishRequest extends Message {
 export type UpdateUserPasswordFinishRequestObject = {
   sessionId: string,
   opaqueRegistrationUpload: Uint8Array | string,
+  opaqueLoginUpload: Uint8Array | string,
 };
 
 declare export class UpdateUserPasswordStartResponse extends Message {
@@ -329,6 +341,11 @@ declare export class UpdateUserPasswordStartResponse extends Message {
   getOpaqueRegistrationResponse_asU8(): Uint8Array;
   getOpaqueRegistrationResponse_asB64(): string;
   setOpaqueRegistrationResponse(value: Uint8Array | string): UpdateUserPasswordStartResponse;
+
+  getOpaqueLoginResponse(): Uint8Array | string;
+  getOpaqueLoginResponse_asU8(): Uint8Array;
+  getOpaqueLoginResponse_asB64(): string;
+  setOpaqueLoginResponse(value: Uint8Array | string): UpdateUserPasswordStartResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserPasswordStartResponseObject;
@@ -341,6 +358,7 @@ declare export class UpdateUserPasswordStartResponse extends Message {
 export type UpdateUserPasswordStartResponseObject = {
   sessionId: string,
   opaqueRegistrationResponse: Uint8Array | string,
+  opaqueLoginResponse: Uint8Array | string,
 };
 
 declare export class DeletePasswordUserStartRequest extends Message {

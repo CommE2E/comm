@@ -34,7 +34,7 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInWalletUser(
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logInWalletUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt), args[5].asString(rt), args[6].asString(rt), args[7].asString(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->updatePassword(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->updatePassword(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt), args[4].asString(rt));
 }
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_deletePasswordUser(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->deletePasswordUser(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
@@ -109,7 +109,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["registerWalletUser"] = MethodMetadata {12, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerWalletUser};
   methodMap_["registerReservedWalletUser"] = MethodMetadata {13, __hostFunction_CommRustModuleSchemaCxxSpecJSI_registerReservedWalletUser};
   methodMap_["logInWalletUser"] = MethodMetadata {8, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logInWalletUser};
-  methodMap_["updatePassword"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword};
+  methodMap_["updatePassword"] = MethodMetadata {5, __hostFunction_CommRustModuleSchemaCxxSpecJSI_updatePassword};
   methodMap_["deletePasswordUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_deletePasswordUser};
   methodMap_["deleteWalletUser"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_deleteWalletUser};
   methodMap_["logOut"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOut};

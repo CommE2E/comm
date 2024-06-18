@@ -42,7 +42,7 @@ service IdentityClientService {
 
   /* Account actions */
 
-  // Called by user to update password and receive new access token
+  // Called by user to update password
   rpc UpdateUserPasswordStart(UpdateUserPasswordStartRequest) returns
     (UpdateUserPasswordStartResponse) {}
   rpc UpdateUserPasswordFinish(UpdateUserPasswordFinishRequest) returns
@@ -172,26 +172,29 @@ message InboundKeysForUserRequest {
 
 // UpdateUserPassword
 
-// Request for updating a user, similar to registration but need a
-// access token to validate user before updating password
 message UpdateUserPasswordStartRequest {
-  // Message sent to initiate PAKE registration (step 1)
+  // Initiate PAKE registration with new password
   bytes opaque_registration_request = 1;
+  // Initiate PAKE login with old password
+  bytes opaque_login_request = 2;
 }
 
-// Do a user registration, but overwrite the existing credentials
-// after validation of user
 message UpdateUserPasswordFinishRequest {
   // Identifier used to correlate start and finish request
   string session_id = 1;
-  // Opaque client registration upload (step 3)
+  // Complete PAKE registration with new password
   bytes opaque_registration_upload = 2;
+  // Complete PAKE login with old password
+  bytes opaque_login_upload = 3;
 }
 
 message UpdateUserPasswordStartResponse {
   // Identifier used to correlate start request with finish request
   string session_id = 1;
+  // Continue PAKE registration on server with new password
   bytes opaque_registration_response = 2;
+  // Continue PAKE login on server with old password
+  bytes opaque_login_response = 3;
 }
 
 // DeletePasswordUser

@@ -372,11 +372,13 @@ jsi::Value CommRustModule::updatePassword(
     jsi::String userID,
     jsi::String deviceID,
     jsi::String accessToken,
-    jsi::String password) {
+    jsi::String oldPassword,
+    jsi::String newPassword) {
   auto userIDRust = jsiStringToRustString(userID, rt);
   auto deviceIDRust = jsiStringToRustString(deviceID, rt);
   auto accessTokenRust = jsiStringToRustString(accessToken, rt);
-  auto passwordRust = jsiStringToRustString(password, rt);
+  auto oldPasswordRust = jsiStringToRustString(oldPassword, rt);
+  auto newPasswordRust = jsiStringToRustString(newPassword, rt);
 
   return createPromiseAsJSIValue(
       rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -388,7 +390,8 @@ jsi::Value CommRustModule::updatePassword(
               userIDRust,
               deviceIDRust,
               accessTokenRust,
-              passwordRust,
+              oldPasswordRust,
+              newPasswordRust,
               currentID);
         } catch (const std::exception &e) {
           error = e.what();

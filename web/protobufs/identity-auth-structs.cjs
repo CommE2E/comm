@@ -2910,7 +2910,8 @@ proto.identity.auth.UpdateUserPasswordStartRequest.prototype.toObject = function
  */
 proto.identity.auth.UpdateUserPasswordStartRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    opaqueRegistrationRequest: msg.getOpaqueRegistrationRequest_asB64()
+    opaqueRegistrationRequest: msg.getOpaqueRegistrationRequest_asB64(),
+    opaqueLoginRequest: msg.getOpaqueLoginRequest_asB64()
   };
 
   if (includeInstance) {
@@ -2951,6 +2952,10 @@ proto.identity.auth.UpdateUserPasswordStartRequest.deserializeBinaryFromReader =
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setOpaqueRegistrationRequest(value);
       break;
+    case 2:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setOpaqueLoginRequest(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2984,6 +2989,13 @@ proto.identity.auth.UpdateUserPasswordStartRequest.serializeBinaryToWriter = fun
   if (f.length > 0) {
     writer.writeBytes(
       1,
+      f
+    );
+  }
+  f = message.getOpaqueLoginRequest_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      2,
       f
     );
   }
@@ -3032,6 +3044,48 @@ proto.identity.auth.UpdateUserPasswordStartRequest.prototype.setOpaqueRegistrati
 };
 
 
+/**
+ * optional bytes opaque_login_request = 2;
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordStartRequest.prototype.getOpaqueLoginRequest = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+};
+
+
+/**
+ * optional bytes opaque_login_request = 2;
+ * This is a type-conversion wrapper around `getOpaqueLoginRequest()`
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordStartRequest.prototype.getOpaqueLoginRequest_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getOpaqueLoginRequest()));
+};
+
+
+/**
+ * optional bytes opaque_login_request = 2;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getOpaqueLoginRequest()`
+ * @return {!Uint8Array}
+ */
+proto.identity.auth.UpdateUserPasswordStartRequest.prototype.getOpaqueLoginRequest_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getOpaqueLoginRequest()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.identity.auth.UpdateUserPasswordStartRequest} returns this
+ */
+proto.identity.auth.UpdateUserPasswordStartRequest.prototype.setOpaqueLoginRequest = function(value) {
+  return jspb.Message.setProto3BytesField(this, 2, value);
+};
+
+
 
 
 
@@ -3065,7 +3119,8 @@ proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.toObject = functio
 proto.identity.auth.UpdateUserPasswordFinishRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     sessionId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    opaqueRegistrationUpload: msg.getOpaqueRegistrationUpload_asB64()
+    opaqueRegistrationUpload: msg.getOpaqueRegistrationUpload_asB64(),
+    opaqueLoginUpload: msg.getOpaqueLoginUpload_asB64()
   };
 
   if (includeInstance) {
@@ -3110,6 +3165,10 @@ proto.identity.auth.UpdateUserPasswordFinishRequest.deserializeBinaryFromReader 
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setOpaqueRegistrationUpload(value);
       break;
+    case 3:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setOpaqueLoginUpload(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3150,6 +3209,13 @@ proto.identity.auth.UpdateUserPasswordFinishRequest.serializeBinaryToWriter = fu
   if (f.length > 0) {
     writer.writeBytes(
       2,
+      f
+    );
+  }
+  f = message.getOpaqueLoginUpload_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      3,
       f
     );
   }
@@ -3216,6 +3282,48 @@ proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.setOpaqueRegistrat
 };
 
 
+/**
+ * optional bytes opaque_login_upload = 3;
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.getOpaqueLoginUpload = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * optional bytes opaque_login_upload = 3;
+ * This is a type-conversion wrapper around `getOpaqueLoginUpload()`
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.getOpaqueLoginUpload_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getOpaqueLoginUpload()));
+};
+
+
+/**
+ * optional bytes opaque_login_upload = 3;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getOpaqueLoginUpload()`
+ * @return {!Uint8Array}
+ */
+proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.getOpaqueLoginUpload_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getOpaqueLoginUpload()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.identity.auth.UpdateUserPasswordFinishRequest} returns this
+ */
+proto.identity.auth.UpdateUserPasswordFinishRequest.prototype.setOpaqueLoginUpload = function(value) {
+  return jspb.Message.setProto3BytesField(this, 3, value);
+};
+
+
 
 
 
@@ -3249,7 +3357,8 @@ proto.identity.auth.UpdateUserPasswordStartResponse.prototype.toObject = functio
 proto.identity.auth.UpdateUserPasswordStartResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     sessionId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    opaqueRegistrationResponse: msg.getOpaqueRegistrationResponse_asB64()
+    opaqueRegistrationResponse: msg.getOpaqueRegistrationResponse_asB64(),
+    opaqueLoginResponse: msg.getOpaqueLoginResponse_asB64()
   };
 
   if (includeInstance) {
@@ -3294,6 +3403,10 @@ proto.identity.auth.UpdateUserPasswordStartResponse.deserializeBinaryFromReader 
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setOpaqueRegistrationResponse(value);
       break;
+    case 3:
+      var value = /** @type {!Uint8Array} */ (reader.readBytes());
+      msg.setOpaqueLoginResponse(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -3334,6 +3447,13 @@ proto.identity.auth.UpdateUserPasswordStartResponse.serializeBinaryToWriter = fu
   if (f.length > 0) {
     writer.writeBytes(
       2,
+      f
+    );
+  }
+  f = message.getOpaqueLoginResponse_asU8();
+  if (f.length > 0) {
+    writer.writeBytes(
+      3,
       f
     );
   }
@@ -3397,6 +3517,48 @@ proto.identity.auth.UpdateUserPasswordStartResponse.prototype.getOpaqueRegistrat
  */
 proto.identity.auth.UpdateUserPasswordStartResponse.prototype.setOpaqueRegistrationResponse = function(value) {
   return jspb.Message.setProto3BytesField(this, 2, value);
+};
+
+
+/**
+ * optional bytes opaque_login_response = 3;
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordStartResponse.prototype.getOpaqueLoginResponse = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * optional bytes opaque_login_response = 3;
+ * This is a type-conversion wrapper around `getOpaqueLoginResponse()`
+ * @return {string}
+ */
+proto.identity.auth.UpdateUserPasswordStartResponse.prototype.getOpaqueLoginResponse_asB64 = function() {
+  return /** @type {string} */ (jspb.Message.bytesAsB64(
+      this.getOpaqueLoginResponse()));
+};
+
+
+/**
+ * optional bytes opaque_login_response = 3;
+ * Note that Uint8Array is not supported on all browsers.
+ * @see http://caniuse.com/Uint8Array
+ * This is a type-conversion wrapper around `getOpaqueLoginResponse()`
+ * @return {!Uint8Array}
+ */
+proto.identity.auth.UpdateUserPasswordStartResponse.prototype.getOpaqueLoginResponse_asU8 = function() {
+  return /** @type {!Uint8Array} */ (jspb.Message.bytesAsU8(
+      this.getOpaqueLoginResponse()));
+};
+
+
+/**
+ * @param {!(string|Uint8Array)} value
+ * @return {!proto.identity.auth.UpdateUserPasswordStartResponse} returns this
+ */
+proto.identity.auth.UpdateUserPasswordStartResponse.prototype.setOpaqueLoginResponse = function(value) {
+  return jspb.Message.setProto3BytesField(this, 3, value);
 };
 
 
