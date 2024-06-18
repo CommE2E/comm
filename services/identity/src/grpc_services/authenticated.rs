@@ -5,7 +5,7 @@ use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
 use crate::{
-  client_service::{handle_db_error, UpdateState, WorkflowInProgress},
+  client_service::{handle_db_error, WorkflowInProgress},
   constants::{error_types, request_metadata, tonic_status_messages},
   database::DatabaseClient,
   grpc_services::shared::{get_platform_metadata, get_value},
@@ -264,27 +264,50 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<UpdateUserPasswordStartResponse>, tonic::Status>
   {
     let (user_id, _) = get_user_and_device_id(&request)?;
+
+    let Some((username, password_file)) = self
+      .db_client
+      .get_username_and_password_file(&user_id)
+      .await
+      .map_err(handle_db_error)?
+    else {
+      return Err(tonic::Status::permission_denied(
+        tonic_status_messages::WALLET_USER,
+      ));
+    };
+
     let message = request.into_inner();
 
-    let server_registration = comm_opaque2::server::Registration::new();
-    let server_message = server_registration
+    let mut server_login = comm_opaque2::server::Login::new();
+    let login_response = server_login
       .start(
         &CONFIG.server_setup,
-        &message.opaque_registration_request,
-        user_id.as_bytes(),
+        &password_file,
+        &message.opaque_login_request,
+        username.as_bytes(),
       )
       .map_err(protocol_error_to_grpc_status)?;
 
-    let update_state = UpdateState { user_id };
+    let server_registration = comm_opaque2::server::Registration::new();
+    let registration_response = server_registration
+      .start(
+        &CONFIG.server_setup,
+        &message.opaque_registration_request,
+        username.as_bytes(),
+      )
+      .map_err(protocol_error_to_grpc_status)?;
+
+    let update_state = UpdatePasswordInfo::new(server_login);
     let session_id = self
       .db_client
-      .insert_workflow(WorkflowInProgress::Update(update_state))
+      .insert_workflow(WorkflowInProgress::Update(Box::new(update_state)))
       .await
       .map_err(handle_db_error)?;
 
     let response = UpdateUserPasswordStartResponse {
       session_id,
-      opaque_registration_response: server_message,
+      opaque_registration_response: registration_response,
+      opaque_login_response: login_response,
     };
     Ok(Response::new(response))
   }
@@ -294,6 +317,8 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<UpdateUserPasswordFinishRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, _) = get_user_and_device_id(&request)?;
+
     let message = request.into_inner();
 
     let Some(WorkflowInProgress::Update(state)) = self
@@ -307,6 +332,11 @@ impl IdentityClientService for AuthenticatedService {
       ));
     };
 
+    let mut server_login = state.opaque_server_login;
+    server_login
+      .finish(&message.opaque_login_upload)
+      .map_err(protocol_error_to_grpc_status)?;
+
     let server_registration = comm_opaque2::server::Registration::new();
     let password_file = server_registration
       .finish(&message.opaque_registration_upload)
@@ -314,7 +344,7 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .update_user_password(state.user_id, password_file)
+      .update_user_password(user_id, password_file)
       .await
       .map_err(handle_db_error)?;
 
@@ -485,7 +515,7 @@ impl IdentityClientService for AuthenticatedService {
       )
       .map_err(protocol_error_to_grpc_status)?;
 
-    let delete_state = construct_delete_password_user_info(server_login);
+    let delete_state = DeletePasswordUserInfo::new(server_login);
 
     let session_id = self
       .db_client
@@ -855,15 +885,16 @@ impl AuthenticatedService {
   }
 }
 
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(
+  Clone, serde::Serialize, serde::Deserialize, derive_more::Constructor,
+)]
 pub struct DeletePasswordUserInfo {
   pub opaque_server_login: comm_opaque2::server::Login,
 }
 
-fn construct_delete_password_user_info(
-  opaque_server_login: comm_opaque2::server::Login,
-) -> DeletePasswordUserInfo {
-  DeletePasswordUserInfo {
-    opaque_server_login,
-  }
+#[derive(
+  Clone, serde::Serialize, serde::Deserialize, derive_more::Constructor,
+)]
+pub struct UpdatePasswordInfo {
+  pub opaque_server_login: comm_opaque2::server::Login,
 }

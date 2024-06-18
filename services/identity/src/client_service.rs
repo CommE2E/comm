@@ -19,7 +19,7 @@ use crate::database::{
 };
 use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError};
-use crate::grpc_services::authenticated::DeletePasswordUserInfo;
+use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo};
 use crate::grpc_services::protos::unauth::{
   find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
   ExistingDeviceLoginRequest, FindUserIdRequest, FindUserIdResponse,
@@ -54,7 +54,7 @@ use crate::regex::is_valid_username;
 pub enum WorkflowInProgress {
   Registration(Box<UserRegistrationInfo>),
   Login(Box<UserLoginInfo>),
-  Update(UpdateState),
+  Update(Box<UpdatePasswordInfo>),
   PasswordUserDeletion(Box<DeletePasswordUserInfo>),
 }
 
@@ -74,11 +74,6 @@ pub struct UserLoginInfo {
   pub flattened_device_key_upload: FlattenedDeviceKeyUpload,
   pub opaque_server_login: comm_opaque2::server::Login,
   pub device_to_remove: Option<String>,
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-pub struct UpdateState {
-  pub user_id: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -400,65 +395,65 @@ impl IdentityClientService for ClientService {
     let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
-    if let Some(WorkflowInProgress::Login(state)) = self
+    let Some(WorkflowInProgress::Login(state)) = self
       .client
       .get_workflow(message.session_id)
       .await
       .map_err(handle_db_error)?
-    {
-      let mut server_login = state.opaque_server_login.clone();
-      server_login
-        .finish(&message.opaque_login_upload)
-        .map_err(protocol_error_to_grpc_status)?;
-
-      if let Some(device_to_remove) = state.device_to_remove {
-        self
-          .client
-          .remove_device(state.user_id.clone(), device_to_remove)
-          .await
-          .map_err(handle_db_error)?;
-      }
-
-      let login_time = chrono::Utc::now();
-      self
-        .client
-        .add_user_device(
-          state.user_id.clone(),
-          state.flattened_device_key_upload.clone(),
-          platform_metadata,
-          login_time,
-        )
-        .await
-        .map_err(handle_db_error)?;
-
-      // Create access token
-      let token = AccessTokenData::with_created_time(
-        state.user_id.clone(),
-        state.flattened_device_key_upload.device_id_key,
-        login_time,
-        crate::token::AuthType::Password,
-        &mut OsRng,
-      );
-
-      let access_token = token.access_token.clone();
-
-      self
-        .client
-        .put_access_token_data(token)
-        .await
-        .map_err(handle_db_error)?;
-
-      let response = AuthResponse {
-        user_id: state.user_id,
-        access_token,
-        username: state.username,
-      };
-      Ok(Response::new(response))
-    } else {
-      Err(tonic::Status::not_found(
+    else {
+      return Err(tonic::Status::not_found(
         tonic_status_messages::SESSION_NOT_FOUND,
-      ))
+      ));
+    };
+
+    let mut server_login = state.opaque_server_login;
+    server_login
+      .finish(&message.opaque_login_upload)
+      .map_err(protocol_error_to_grpc_status)?;
+
+    if let Some(device_to_remove) = state.device_to_remove {
+      self
+        .client
+        .remove_device(state.user_id.clone(), device_to_remove)
+        .await
+        .map_err(handle_db_error)?;
     }
+
+    let login_time = chrono::Utc::now();
+    self
+      .client
+      .add_user_device(
+        state.user_id.clone(),
+        state.flattened_device_key_upload.clone(),
+        platform_metadata,
+        login_time,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    // Create access token
+    let token = AccessTokenData::with_created_time(
+      state.user_id.clone(),
+      state.flattened_device_key_upload.device_id_key,
+      login_time,
+      crate::token::AuthType::Password,
+      &mut OsRng,
+    );
+
+    let access_token = token.access_token.clone();
+
+    self
+      .client
+      .put_access_token_data(token)
+      .await
+      .map_err(handle_db_error)?;
+
+    let response = AuthResponse {
+      user_id: state.user_id,
+      access_token,
+      username: state.username,
+    };
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]

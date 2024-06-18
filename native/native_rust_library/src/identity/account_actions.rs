@@ -19,7 +19,8 @@ pub mod ffi {
     user_id: String,
     device_id: String,
     access_token: String,
-    password: String,
+    old_password: String,
+    new_password: String,
     promise_id: u32,
   ) {
     RUNTIME.spawn(async move {
@@ -27,7 +28,8 @@ pub mod ffi {
         access_token,
         user_id,
         device_id,
-        password,
+        old_password,
+        new_password,
       };
       let result = update_user_password_helper(update_password_info).await;
       handle_void_result_as_callback(result, promise_id);
@@ -108,17 +110,25 @@ struct UpdatePasswordInfo {
   user_id: String,
   device_id: String,
   access_token: String,
-  password: String,
+  old_password: String,
+  new_password: String,
 }
 
 async fn update_user_password_helper(
   update_password_info: UpdatePasswordInfo,
 ) -> Result<(), Error> {
+  let mut client_login = Login::new();
+  let opaque_login_request = client_login
+    .start(&update_password_info.old_password)
+    .map_err(crate::handle_error)?;
+
   let mut client_registration = Registration::new();
   let opaque_registration_request = client_registration
-    .start(&update_password_info.password)
+    .start(&update_password_info.new_password)
     .map_err(crate::handle_error)?;
+
   let update_password_start_request = UpdateUserPasswordStartRequest {
+    opaque_login_request,
     opaque_registration_request,
   };
   let mut identity_client = get_auth_client(
@@ -136,15 +146,20 @@ async fn update_user_password_helper(
 
   let update_password_start_response = response.into_inner();
 
+  let opaque_login_upload = client_login
+    .finish(&update_password_start_response.opaque_login_response)
+    .map_err(crate::handle_error)?;
+
   let opaque_registration_upload = client_registration
     .finish(
-      &update_password_info.password,
+      &update_password_info.new_password,
       &update_password_start_response.opaque_registration_response,
     )
     .map_err(crate::handle_error)?;
 
   let update_password_finish_request = UpdateUserPasswordFinishRequest {
     session_id: update_password_start_response.session_id,
+    opaque_login_upload,
     opaque_registration_upload,
   };
 
