@@ -299,8 +299,3 @@ data "aws_acm_certificate" "identity_service" {
   domain   = local.identity_service_domain_name
   statuses = ["ISSUED"]
 }
-
-# Required for Route53 DNS record
-output "identity_service_load_balancer_dns_name" {
-  value = aws_lb.identity_service.dns_name
-}

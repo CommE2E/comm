@@ -173,8 +173,3 @@ data "aws_acm_certificate" "electron_update" {
   domain   = local.electron_update_domain_name
   statuses = ["ISSUED"]
 }
-
-# Required for Route53 DNS record
-output "electron_update_load_balancer_dns_name" {
-  value = aws_lb.electron_update.dns_name
-}
