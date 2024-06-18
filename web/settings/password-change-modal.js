@@ -6,16 +6,20 @@ import * as React from 'react';
 import {
   changeKeyserverUserPasswordActionTypes,
   changeKeyserverUserPassword,
+  useChangeIdentityUserPassword,
+  changeIdentityUserPasswordActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { type PasswordUpdate } from 'lib/types/user-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/redux-promise-utils.js';
+import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import css from './password-change-modal.css';
 import Button from '../components/button.react.js';
@@ -28,6 +32,10 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +changeKeyserverUserPassword: (
     passwordUpdate: PasswordUpdate,
+  ) => Promise<void>,
+  +changeIdentityUserPassword: (
+    oldPassword: string,
+    newPassword: string,
   ) => Promise<void>,
   +popModal: () => void,
   +stringForUser: ?string,
@@ -186,23 +194,41 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
       return;
     }
 
-    void this.props.dispatchActionPromise(
-      changeKeyserverUserPasswordActionTypes,
-      this.changeUserSettingsAction(),
-    );
+    if (usingCommServicesAccessToken) {
+      void this.props.dispatchActionPromise(
+        changeIdentityUserPasswordActionTypes,
+        this.changeUserSettingsAction(),
+      );
+    } else {
+      void this.props.dispatchActionPromise(
+        changeKeyserverUserPasswordActionTypes,
+        this.changeUserSettingsAction(),
+      );
+    }
   };
 
   async changeUserSettingsAction(): Promise<void> {
     try {
-      await this.props.changeKeyserverUserPassword({
-        updatedFields: {
-          password: this.state.newPassword,
-        },
-        currentPassword: this.state.currentPassword,
-      });
+      if (usingCommServicesAccessToken) {
+        await this.props.changeIdentityUserPassword(
+          this.state.currentPassword,
+          this.state.newPassword,
+        );
+      } else {
+        await this.props.changeKeyserverUserPassword({
+          updatedFields: {
+            password: this.state.newPassword,
+          },
+          currentPassword: this.state.currentPassword,
+        });
+      }
       this.props.popModal();
     } catch (e) {
-      if (e.message === 'invalid_credentials') {
+      const messageForException = getMessageForException(e);
+      if (
+        messageForException === 'invalid_credentials' ||
+        messageForException === 'login_failed'
+      ) {
         this.setState(
           {
             currentPassword: '',
@@ -235,17 +261,18 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
   }
 }
 
-const changeKeyserverUserPasswordLoadingStatusSelector =
-  createLoadingStatusSelector(changeKeyserverUserPasswordActionTypes);
+const changeUserPasswordLoadingStatusSelector = usingCommServicesAccessToken
+  ? createLoadingStatusSelector(changeIdentityUserPasswordActionTypes)
+  : createLoadingStatusSelector(changeKeyserverUserPasswordActionTypes);
 const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedPasswordChangeModal(): React.Node {
     const inputDisabled = useSelector(
-      state =>
-        changeKeyserverUserPasswordLoadingStatusSelector(state) === 'loading',
+      state => changeUserPasswordLoadingStatusSelector(state) === 'loading',
     );
     const callChangeKeyserverUserPassword = useLegacyAshoatKeyserverCall(
       changeKeyserverUserPassword,
     );
+    const callChangeIdentityUserPassword = useChangeIdentityUserPassword();
     const dispatchActionPromise = useDispatchActionPromise();
 
     const modalContext = useModalContext();
@@ -257,6 +284,7 @@ const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
       <PasswordChangeModal
         inputDisabled={inputDisabled}
         changeKeyserverUserPassword={callChangeKeyserverUserPassword}
+        changeIdentityUserPassword={callChangeIdentityUserPassword}
         dispatchActionPromise={dispatchActionPromise}
         popModal={modalContext.popModal}
         stringForUser={stringForUser}
