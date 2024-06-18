@@ -27,7 +27,7 @@ public:
   virtual jsi::Value registerWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String farcasterID, jsi::String initialDeviceList) = 0;
   virtual jsi::Value registerReservedWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature, jsi::Array contentOneTimeKeys, jsi::Array notifOneTimeKeys, jsi::String keyserverMessage, jsi::String keyserverSignature, jsi::String initialDeviceList) = 0;
   virtual jsi::Value logInWalletUser(jsi::Runtime &rt, jsi::String siweMessage, jsi::String siweSignature, jsi::String keyPayload, jsi::String keyPayloadSignature, jsi::String contentPrekey, jsi::String contentPrekeySignature, jsi::String notifPrekey, jsi::String notifPrekeySignature) = 0;
-  virtual jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
+  virtual jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String oldPassword, jsi::String newPassword) = 0;
   virtual jsi::Value deletePasswordUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
   virtual jsi::Value deleteWalletUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value logOut(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
@@ -126,13 +126,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::logInWalletUser, jsInvoker_, instance_, std::move(siweMessage), std::move(siweSignature), std::move(keyPayload), std::move(keyPayloadSignature), std::move(contentPrekey), std::move(contentPrekeySignature), std::move(notifPrekey), std::move(notifPrekeySignature));
     }
-    jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) override {
+    jsi::Value updatePassword(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String oldPassword, jsi::String newPassword) override {
       static_assert(
-          bridging::getParameterCount(&T::updatePassword) == 5,
-          "Expected updatePassword(...) to have 5 parameters");
+          bridging::getParameterCount(&T::updatePassword) == 6,
+          "Expected updatePassword(...) to have 6 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::updatePassword, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(password));
+          rt, &T::updatePassword, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(oldPassword), std::move(newPassword));
     }
     jsi::Value deletePasswordUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) override {
       static_assert(
