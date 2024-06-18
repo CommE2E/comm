@@ -148,7 +148,8 @@ mod ffi {
       user_id: String,
       device_id: String,
       access_token: String,
-      password: String,
+      old_password: String,
+      new_password: String,
       promise_id: u32,
     );
 
