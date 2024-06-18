@@ -49,7 +49,7 @@ services:
     volumes:
       - mysqldata:/var/lib/mysql
   cache:
-    image: redis:6.2.6-bullseye
+    image: redis:7.0.11-bullseye
     restart: always
     expose:
       - '6379'
