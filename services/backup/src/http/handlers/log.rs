@@ -90,7 +90,7 @@ impl LogWSActor {
           ctx,
           Self::handle_msg(
             user.user_id.clone(),
-            self.blob_client.clone(),
+            self.blob_client.clone().with_user_identity(user.clone()),
             self.db_client.clone(),
             request,
           ),

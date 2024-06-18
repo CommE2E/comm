@@ -1,10 +1,10 @@
 use actix_web::{
-  error::ErrorBadRequest,
+  error::{ErrorBadRequest, ErrorInternalServerError},
   web::{self, Bytes},
-  HttpResponse, Responder,
+  HttpRequest, HttpResponse, Responder,
 };
 use comm_lib::{
-  auth::UserIdentity,
+  auth::{AuthService, UserIdentity},
   backup::LatestBackupIDResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},
   http::multipart::{get_named_text_field, get_text_field},
@@ -27,6 +27,7 @@ pub async fn upload(
   mut multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
   let backup_id = get_named_text_field("backup_id", &mut multipart).await?;
+  let blob_client = blob_client.with_user_identity(user.clone());
   tracing::Span::current().record("backup_id", &backup_id);
 
   info!("Backup data upload started");
@@ -119,7 +120,7 @@ pub async fn upload(
 #[instrument(skip_all, fields(hash_field_name, data_field_name))]
 async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
   multipart: &mut actix_multipart::Multipart,
-  blob_client: &'blob web::Data<BlobServiceClient>,
+  blob_client: &'blob BlobServiceClient,
   hash_field_name: &str,
   data_field_name: &str,
 ) -> actix_web::Result<(BlobInfo, Defer<'revoke>)> {
@@ -188,7 +189,7 @@ async fn forward_field_to_blob<'revoke, 'blob: 'revoke>(
 #[instrument(skip_all)]
 async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
   attachment: &str,
-  blob_client: &'blob web::Data<BlobServiceClient>,
+  blob_client: &'blob BlobServiceClient,
 ) -> Result<(String, Defer<'revoke>), BackupError> {
   let holder = uuid::Uuid::new_v4().to_string();
 
@@ -216,6 +217,7 @@ pub async fn download_user_keys(
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<HttpResponse> {
+  let blob_client = blob_client.with_user_identity(user.clone());
   info!("Download user keys request");
   let backup_id = path.into_inner();
   download_user_blob(
@@ -236,6 +238,7 @@ pub async fn download_user_data(
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Download user data request");
+  let blob_client = blob_client.with_user_identity(user.clone());
   let backup_id = path.into_inner();
   download_user_blob(
     |item| &item.user_data,
@@ -251,7 +254,7 @@ pub async fn download_user_blob(
   data_extractor: impl FnOnce(&BackupItem) -> &BlobInfo,
   user_id: &str,
   backup_id: &str,
-  blob_client: web::Data<BlobServiceClient>,
+  blob_client: BlobServiceClient,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<HttpResponse> {
   let backup_item = db_client
@@ -302,7 +305,21 @@ pub async fn download_latest_backup_keys(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
   blob_client: web::Data<BlobServiceClient>,
+  req: HttpRequest,
 ) -> actix_web::Result<HttpResponse> {
+  let auth_service = req.app_data::<AuthService>().ok_or_else(|| {
+    tracing::error!(
+      "Failed to get AuthService from request. Check HTTP server config."
+    );
+    ErrorInternalServerError("internal error")
+  })?;
+  let services_token = auth_service
+    .get_services_token()
+    .await
+    .map_err(BackupError::from)?;
+  let blob_client = blob_client.with_authentication(
+    comm_lib::auth::AuthorizationCredential::ServicesToken(services_token),
+  );
   let username = path.into_inner();
   // Treat username as user_id in the initial version
   let user_id = username;
