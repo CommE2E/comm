@@ -1,6 +1,6 @@
 // @flow
 
-import { Login } from '@commapp/opaque-ke-wasm';
+import { Login, Registration } from '@commapp/opaque-ke-wasm';
 
 import identityServiceConfig from 'lib/facts/identity-service.js';
 import type {
@@ -680,6 +680,73 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
       throw e;
     }
   };
+
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void> =
+    async (oldPassword, newPassword) => {
+      const client = this.authClient;
+      if (!client) {
+        throw new Error('Identity service client is not initialized');
+      }
+      await initOpaque(this.overridedOpaqueFilepath);
+
+      const opaqueLogin = new Login();
+      const loginStartRequestBytes = opaqueLogin.start(oldPassword);
+
+      const opaqueRegistration = new Registration();
+      const registrationStartRequestBytes =
+        opaqueRegistration.start(newPassword);
+
+      const updatePasswordStartRequest =
+        new IdentityAuthStructs.UpdateUserPasswordStartRequest();
+      updatePasswordStartRequest.setOpaqueLoginRequest(loginStartRequestBytes);
+      updatePasswordStartRequest.setOpaqueRegistrationRequest(
+        registrationStartRequestBytes,
+      );
+
+      let updatePasswordStartResponse;
+      try {
+        updatePasswordStartResponse = await client.updateUserPasswordStart(
+          updatePasswordStartRequest,
+        );
+      } catch (e) {
+        console.log('Error calling updateUserPasswordStart:', e);
+        throw new Error(
+          `updateUserPasswordStart RPC failed: ${
+            getMessageForException(e) ?? 'unknown'
+          }`,
+        );
+      }
+
+      const loginFinishRequestBytes = opaqueLogin.finish(
+        updatePasswordStartResponse.getOpaqueLoginResponse_asU8(),
+      );
+
+      const registrationFinishRequestBytes = opaqueRegistration.finish(
+        newPassword,
+        updatePasswordStartResponse.getOpaqueRegistrationResponse_asU8(),
+      );
+
+      const updatePasswordFinishRequest =
+        new IdentityAuthStructs.UpdateUserPasswordFinishRequest();
+      updatePasswordFinishRequest.setSessionId(
+        updatePasswordStartResponse.getSessionId(),
+      );
+      updatePasswordFinishRequest.setOpaqueLoginUpload(loginFinishRequestBytes);
+      updatePasswordFinishRequest.setOpaqueRegistrationUpload(
+        registrationFinishRequestBytes,
+      );
+
+      try {
+        await client.updateUserPasswordFinish(updatePasswordFinishRequest);
+      } catch (e) {
+        console.log('Error calling updateUserPasswordFinish:', e);
+        throw new Error(
+          `updateUserPasswordFinish RPC failed: ${
+            getMessageForException(e) ?? 'unknown'
+          }`,
+        );
+      }
+    };
 }
 
 function authNewDeviceKeyUpload(
