@@ -309,6 +309,9 @@ function getNewDeviceKeyUpload(): IdentityNewDeviceKeyUpload {
   const notificationAccountKeysSet =
     retrieveAccountKeysSet(notificationAccount);
 
+  contentAccount.mark_keys_as_published();
+  notificationAccount.mark_keys_as_published();
+
   persistCryptoStore();
 
   return {
