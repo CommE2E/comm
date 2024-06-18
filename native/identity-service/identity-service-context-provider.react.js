@@ -699,6 +699,20 @@ function IdentityServiceContextProvider(props: Props): React.Node {
       versionSupported: () => {
         return commRustModule.versionSupported();
       },
+      changePassword: async (oldPassword: string, newPassword: string) => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        return commRustModule.updatePassword(
+          userID,
+          deviceID,
+          token,
+          oldPassword,
+          newPassword,
+        );
+      },
     }),
     [getAuthMetadata],
   );
