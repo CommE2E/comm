@@ -179,8 +179,3 @@ data "aws_acm_certificate" "feature_flags" {
   domain   = local.feature_flags_domain_name
   statuses = ["ISSUED"]
 }
-
-# Required for Route53 DNS record
-output "feature_flags_load_balancer_dns_name" {
-  value = aws_lb.feature_flags.dns_name
-}
