@@ -199,8 +199,3 @@ data "aws_acm_certificate" "blob_service" {
   domain   = local.blob_service_domain_name
   statuses = ["ISSUED"]
 }
-
-# Required for Route53 DNS record
-output "blob_service_load_balancer_dns_name" {
-  value = aws_lb.blob_service.dns_name
-}
