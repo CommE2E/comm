@@ -27,23 +27,15 @@ impl FromRequest for ReportsService {
         ErrorInternalServerError("Internal server error")
       });
 
-    let auth_service =
-      req.app_data::<AuthService>().cloned().ok_or_else(|| {
-        tracing::error!(
-          "FATAL! Failed to extract AuthService from actix app_data. \
-      Check HTTP server configuration"
-        );
-        ErrorInternalServerError("Internal server error")
-      });
-
+    let auth_service = AuthService::from_request(req, payload).into_inner();
     let request_auth_value =
-      AuthorizationCredential::from_request(req, payload);
+      AuthorizationCredential::from_request(req, payload).into_inner();
 
     Box::pin(async move {
       let auth_service = auth_service?;
       let base_service = base_service?;
 
-      let credential = request_auth_value.await.ok();
+      let credential = request_auth_value.ok();
 
       // This is Some if the request contains valid Authorization header
       let auth_token = match credential {
