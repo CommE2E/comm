@@ -164,6 +164,7 @@ interface Spec extends TurboModule {
     deviceID: string,
   ) => Promise<void>;
   +getSyncedDatabaseVersion: () => Promise<string>;
+  +markPrekeysAsPublished: () => Promise<void>;
 }
 
 export interface CoreModuleSpec extends Spec {
