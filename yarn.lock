@@ -1527,10 +1527,10 @@
   resolved "https://registry.yarnpkg.com/@commapp/olm/-/olm-0.2.0.tgz#91fbb944153a814429b08dd9ef3e92b58175798d"
   integrity sha512-EsTI3IIEXKdNDABBDG0XesXL60/EF2MG2x6d6keMzKWNKaTnb+lcMw73E5gniRoWGkPlAfBGg/TR8H7Ny8FtvA==
 
-"@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.3.tgz#789b7351e593932461858658c61da5c2de51dc03"
-  integrity sha512-K88XPRnwKmpRCQqU26R7w1Syflp9IB1Ets1UPXTB3roumLweiHG8Y7UA+LrlpzCYd+8d8Tukp7i+/h4OFfovUw==
+"@commapp/opaque-ke-wasm@npm:@commapp/opaque-ke-wasm@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@commapp/opaque-ke-wasm/-/opaque-ke-wasm-0.0.4.tgz#a3f1b8e3de6508d44b3758852ee0861b486585e8"
+  integrity sha512-KiYAuWruhViNTqeyiDd83mfU3/JEOzPIh7qszE8T89z9S+Qu9Yb4x3rO+zJS+hrzmwlUIN3NddR7pCoB1pj1MA==
 
 "@commapp/sqlcipher-amalgamation@^4.5.5-d":
   version "4.5.5-d"

@@ -1,7 +1,7 @@
 {
   "name": "@commapp/opaque-ke-wasm",
   "description": "WASM bindings for use of opaque-ke inside web browser",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "pkg/comm_opaque2_wasm.js",
   "files": [
     "pkg/comm_opaque2_wasm.js",
