@@ -116,6 +116,7 @@ const olmAPI: OlmAPI = {
       throw err;
     }
   },
+  markPrekeysAsPublished: commCoreModule.markPrekeysAsPublished,
 };
 
 export { olmAPI };

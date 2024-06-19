@@ -82,6 +82,7 @@ public:
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
+  virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
 
 };
 
@@ -598,6 +599,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getSyncedDatabaseVersion, jsInvoker_, instance_);
+    }
+    jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::markPrekeysAsPublished) == 1,
+          "Expected markPrekeysAsPublished(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::markPrekeysAsPublished, jsInvoker_, instance_);
     }
 
   private:
