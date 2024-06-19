@@ -141,7 +141,6 @@ function TraditionalLoginForm(): React.Node {
         setErrorMessage('unknown error');
       }
       usernameInputRef.current?.focus();
-      throw e;
     } finally {
       setIdentityAuthInProgress(false);
     }
