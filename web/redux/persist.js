@@ -18,8 +18,6 @@ import {
 } from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
-import { updateThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
-import { updateRolesAndPermissions } from 'lib/shared/redux/update-roles-and-permissions.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
@@ -554,20 +552,10 @@ const migrations = {
       ops: dbOperations,
     };
   },
-  [77]: (state: AppState) => {
-    const { newThreadStore, dbOperations } = updateThreadStoreThreadInfos(
-      state.threadStore,
-      updateRolesAndPermissions,
-    );
-
-    return {
-      state: {
-        ...state,
-        threadStore: newThreadStore,
-      },
-      ops: dbOperations,
-    };
-  },
+  [77]: (state: AppState) => ({
+    state,
+    ops: [],
+  }),
 };
 
 const persistConfig: PersistConfig = {
