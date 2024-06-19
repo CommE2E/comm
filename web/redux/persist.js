@@ -18,6 +18,8 @@ import {
 } from 'lib/ops/message-store-ops.js';
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
+import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
+import { updateRolesAndPermissions } from 'lib/shared/redux/update-roles-and-permissions.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
@@ -556,6 +558,47 @@ const migrations = {
     state,
     ops: [],
   }),
+  [78]: async (state: AppState) => {
+    // 1. Check if `databaseModule` is supported and early-exit if not.
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    // 2. Get existing `stores` from SQLite.
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const clientDBThreadInfos: ?$ReadOnlyArray<ClientDBThreadInfo> =
+      stores?.store?.threads;
+
+    if (
+      clientDBThreadInfos === null ||
+      clientDBThreadInfos === undefined ||
+      clientDBThreadInfos.length === 0
+    ) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+      clientDBThreadInfos,
+      updateRolesAndPermissions,
+    );
+
+    return {
+      state,
+      ops: dbOperations,
+    };
+  },
 };
 
 const persistConfig: PersistConfig = {
