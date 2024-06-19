@@ -862,6 +862,17 @@ const olmAPI: OlmAPI = {
       throw err;
     }
   },
+  async markPrekeysAsPublished(): Promise<void> {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    const { contentAccount, notificationAccount } = cryptoStore;
+
+    contentAccount.mark_prekey_as_published();
+    notificationAccount.mark_prekey_as_published();
+
+    persistCryptoStore();
+  },
 };
 
 export {
