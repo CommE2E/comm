@@ -60,8 +60,8 @@ function parseTunnelbrokerQRAuthMessage(
   return Promise.resolve(payload);
 }
 
-function handleSecondaryDeviceRegistrationError(error: mixed): void {
-  console.error('Secondary device registration error:', error);
+function handleSecondaryDeviceLogInError(error: mixed): void {
+  console.error('Secondary device log in error:', error);
   const messageForException = getMessageForException(error);
   if (
     messageForException === 'client_version_unsupported' ||
@@ -89,14 +89,14 @@ function performBackupRestore(backupKeys: BackupKeys): Promise<void> {
   );
 }
 
-function generateQRAuthKey(): Promise<Uint8Array> {
+function generateQRAuthAESKey(): Promise<Uint8Array> {
   return Promise.resolve(AES.generateKey());
 }
 
 export {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
-  handleSecondaryDeviceRegistrationError,
+  handleSecondaryDeviceLogInError,
   performBackupRestore,
-  generateQRAuthKey,
+  generateQRAuthAESKey,
 };

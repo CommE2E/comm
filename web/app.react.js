@@ -90,9 +90,9 @@ import { TooltipProvider } from './tooltips/tooltip-provider.js';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
 import {
   composeTunnelbrokerQRAuthMessage,
-  generateQRAuthKey,
+  generateQRAuthAESKey,
   parseTunnelbrokerQRAuthMessage,
-  useHandleSecondaryDeviceRegistrationError,
+  useHandleSecondaryDeviceLogInError,
 } from './utils/qr-code-utils.js';
 import { useWebLock, TUNNELBROKER_LOCK_NAME } from './web-lock.js';
 
@@ -543,8 +543,8 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const secondaryTunnelbrokerConnection: SecondaryTunnelbrokerConnection =
       useOtherTabsTunnelbrokerConnection();
 
-    const handleSecondaryDeviceRegistrationError =
-      useHandleSecondaryDeviceRegistrationError();
+    const handleSecondaryDeviceLogInError =
+      useHandleSecondaryDeviceLogInError();
 
     return (
       <AppThemeWrapper>
@@ -555,10 +555,12 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         >
           <IdentitySearchProvider>
             <QRAuthProvider
-              processTunnelbrokerMessage={parseTunnelbrokerQRAuthMessage}
-              composeTunnelbrokerMessage={composeTunnelbrokerQRAuthMessage}
-              generateAESKey={generateQRAuthKey}
-              onLoginError={handleSecondaryDeviceRegistrationError}
+              parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
+              composeTunnelbrokerQRAuthMessage={
+                composeTunnelbrokerQRAuthMessage
+              }
+              generateAESKey={generateQRAuthAESKey}
+              onLogInError={handleSecondaryDeviceLogInError}
             >
               <App
                 {...props}
