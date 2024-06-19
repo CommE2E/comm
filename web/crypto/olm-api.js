@@ -56,6 +56,7 @@ const olmAPI: OlmAPI = {
   validateAndUploadPrekeys: proxyToWorker('validateAndUploadPrekeys'),
   signMessage: proxyToWorker('signMessage'),
   verifyMessage: proxyToWorker('verifyMessage'),
+  markPrekeysAsPublished: proxyToWorker('markPrekeysAsPublished'),
 };
 
 export { olmAPI };

@@ -2559,4 +2559,39 @@ jsi::Value CommCoreModule::getSyncedDatabaseVersion(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+
+          if (this->contentCryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
+            this->jsInvoker_->invokeAsync([=, &innerRt]() {
+              promise->reject("user has not been initialized");
+            });
+            return;
+          }
+
+          try {
+            this->contentCryptoModule->markPrekeyAsPublished();
+            this->notifsCryptoModule->markPrekeyAsPublished();
+            this->persistCryptoModules(true, true);
+          } catch (std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 } // namespace comm
