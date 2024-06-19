@@ -19,7 +19,8 @@ import {
   createAndroidBadgeOnlyNotification,
 } from 'lib/push/android-notif-creators.js';
 import { apnMaxNotificationPayloadByteSize } from 'lib/push/apns-notif-creators.js';
-import type { Device, PushUserInfo, PushInfo } from 'lib/push/send-utils.js';
+import type { PushUserInfo, PushInfo } from 'lib/push/send-utils.js';
+import { stringToVersionKey, getDevicesByPlatform } from 'lib/push/utils.js';
 import {
   type WebNotifInputData,
   webNotifInputDataValidator,
@@ -823,76 +824,6 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
     numIDsNeeded += pushInfo[userID].messageInfos.length;
   }
   return await createIDs('notifications', numIDsNeeded);
-}
-
-type VersionKey = {
-  +codeVersion: number,
-  +stateVersion: number,
-  +majorDesktopVersion?: number,
-};
-const versionKeyRegex: RegExp = new RegExp(/^-?\d+\|-?\d+(\|-?\d+)?$/);
-function versionKeyToString(versionKey: VersionKey): string {
-  const baseStringVersionKey = `${versionKey.codeVersion}|${versionKey.stateVersion}`;
-  if (!versionKey.majorDesktopVersion) {
-    return baseStringVersionKey;
-  }
-  return `${baseStringVersionKey}|${versionKey.majorDesktopVersion}`;
-}
-
-function stringToVersionKey(versionKeyString: string): VersionKey {
-  invariant(
-    versionKeyRegex.test(versionKeyString),
-    'should pass correct version key string',
-  );
-  const [codeVersion, stateVersion, majorDesktopVersion] = versionKeyString
-    .split('|')
-    .map(Number);
-  return { codeVersion, stateVersion, majorDesktopVersion };
-}
-
-function getDevicesByPlatform(
-  devices: $ReadOnlyArray<Device>,
-): Map<Platform, Map<string, Array<NotificationTargetDevice>>> {
-  const byPlatform = new Map<
-    Platform,
-    Map<string, Array<NotificationTargetDevice>>,
-  >();
-  for (const device of devices) {
-    let innerMap = byPlatform.get(device.platformDetails.platform);
-    if (!innerMap) {
-      innerMap = new Map<string, Array<NotificationTargetDevice>>();
-      byPlatform.set(device.platformDetails.platform, innerMap);
-    }
-    const codeVersion: number =
-      device.platformDetails.codeVersion !== null &&
-      device.platformDetails.codeVersion !== undefined
-        ? device.platformDetails.codeVersion
-        : -1;
-    const stateVersion: number = device.platformDetails.stateVersion ?? -1;
-
-    let versionsObject = { codeVersion, stateVersion };
-    if (device.platformDetails.majorDesktopVersion) {
-      versionsObject = {
-        ...versionsObject,
-        majorDesktopVersion: device.platformDetails.majorDesktopVersion,
-      };
-    }
-
-    const versionKey = versionKeyToString(versionsObject);
-    let innerMostArrayTmp: ?Array<NotificationTargetDevice> =
-      innerMap.get(versionKey);
-    if (!innerMostArrayTmp) {
-      innerMostArrayTmp = [];
-      innerMap.set(versionKey, innerMostArrayTmp);
-    }
-    const innerMostArray = innerMostArrayTmp;
-
-    innerMostArray.push({
-      cryptoID: device.cryptoID,
-      deliveryID: device.deliveryID,
-    });
-  }
-  return byPlatform;
 }
 
 type CommonNativeNotifInputData = {
