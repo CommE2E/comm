@@ -19,6 +19,27 @@ use crate::auth::{
   UserIdentity,
 };
 
+impl FromRequest for AuthService {
+  type Error = actix_web::Error;
+  type Future = Ready<Result<Self, Self::Error>>;
+
+  fn from_request(
+    req: &actix_web::HttpRequest,
+    _: &mut actix_web::dev::Payload,
+  ) -> Self::Future {
+    let auth_service =
+      req.app_data::<AuthService>().cloned().ok_or_else(|| {
+        tracing::error!(
+          "FATAL! Failed to get AuthService from request for `{}` handler.
+          Check HTTP server config - make sure it's passed to App::app_data().",
+          req.match_name().unwrap_or_else(|| req.path())
+        );
+        ErrorInternalServerError("internal error")
+      });
+    ready(auth_service)
+  }
+}
+
 impl FromRequest for AuthorizationCredential {
   type Error = actix_web::Error;
   type Future = Ready<Result<Self, Self::Error>>;

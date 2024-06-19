@@ -305,14 +305,8 @@ pub async fn download_latest_backup_keys(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
   blob_client: web::Data<BlobServiceClient>,
-  req: HttpRequest,
+  auth_service: AuthService,
 ) -> actix_web::Result<HttpResponse> {
-  let auth_service = req.app_data::<AuthService>().ok_or_else(|| {
-    tracing::error!(
-      "Failed to get AuthService from request. Check HTTP server config."
-    );
-    ErrorInternalServerError("internal error")
-  })?;
   let services_token = auth_service
     .get_services_token()
     .await
