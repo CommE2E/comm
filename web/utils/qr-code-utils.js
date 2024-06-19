@@ -56,11 +56,11 @@ async function parseTunnelbrokerQRAuthMessage(
   return payload;
 }
 
-function useHandleSecondaryDeviceRegistrationError(): (error: mixed) => void {
+function useHandleSecondaryDeviceLogInError(): (error: mixed) => void {
   const { pushModal } = useModalContext();
   return React.useCallback(
     (error: mixed) => {
-      console.error('Secondary device registration error:', error);
+      console.error('Secondary device log in error:', error);
       const messageForException = getMessageForException(error);
       if (
         messageForException === 'client_version_unsupported' ||
@@ -75,13 +75,13 @@ function useHandleSecondaryDeviceRegistrationError(): (error: mixed) => void {
   );
 }
 
-function generateQRAuthKey(): Promise<Uint8Array> {
+function generateQRAuthAESKey(): Promise<Uint8Array> {
   return generateKeyCommon(crypto);
 }
 
 export {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
-  useHandleSecondaryDeviceRegistrationError,
-  generateQRAuthKey,
+  useHandleSecondaryDeviceLogInError,
+  generateQRAuthAESKey,
 };
