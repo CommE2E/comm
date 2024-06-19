@@ -79,10 +79,10 @@ import { navStateAsyncStorageKey } from './navigation/persistance.js';
 import RootNavigator from './navigation/root-navigator.react.js';
 import {
   composeTunnelbrokerQRAuthMessage,
-  handleSecondaryDeviceRegistrationError,
+  handleSecondaryDeviceLoginError,
   parseTunnelbrokerQRAuthMessage,
   performBackupRestore,
-  generateQRAuthKey,
+  generateQRAuthAESKey,
 } from './qr-code/qr-code-utils.js';
 import ConnectivityUpdater from './redux/connectivity-updater.react.js';
 import { DimensionsUpdater } from './redux/dimensions-updater.react.js';
@@ -318,11 +318,13 @@ function Root() {
           <TunnelbrokerProvider>
             <IdentitySearchProvider>
               <QRAuthProvider
-                processTunnelbrokerMessage={parseTunnelbrokerQRAuthMessage}
-                composeTunnelbrokerMessage={composeTunnelbrokerQRAuthMessage}
-                generateAESKey={generateQRAuthKey}
+                parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
+                composeTunnelbrokerQRAuthMessage={
+                  composeTunnelbrokerQRAuthMessage
+                }
+                generateAESKey={generateQRAuthAESKey}
                 performBackupRestore={performBackupRestore}
-                onLoginError={handleSecondaryDeviceRegistrationError}
+                onLoginError={handleSecondaryDeviceLoginError}
               >
                 <FeatureFlagsProvider>
                   <NavContext.Provider value={navContext}>
