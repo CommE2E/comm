@@ -7,10 +7,11 @@ import type {
   ClientLegacyRoleInfo,
   LegacyRawThreadInfos,
   LegacyThreadCurrentUserInfo,
+  ThickMemberInfo,
 } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
-  T: LegacyMemberInfo | LegacyThreadCurrentUserInfo,
+  T: LegacyMemberInfo | LegacyThreadCurrentUserInfo | ThickMemberInfo,
 >(threadInfo: LegacyRawThreadInfo, member: T, threadID: string): T {
   let newPermissions = null;
   if (threadInfo.type === threadTypes.GENESIS_PRIVATE) {
@@ -64,10 +65,6 @@ function migrateThreadStoreForEditThreadPermissions(threadInfos: {
   const newThreadInfos: { [string]: LegacyRawThreadInfo } = {};
   for (const threadID in threadInfos) {
     const threadInfo: LegacyRawThreadInfo = threadInfos[threadID];
-    const updatedMembers = threadInfo.members.map(member =>
-      addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
-    );
-
     const updatedCurrentUser = addDetailedThreadEditPermissionsToUser(
       threadInfo,
       threadInfo.currentUser,
@@ -82,13 +79,29 @@ function migrateThreadStoreForEditThreadPermissions(threadInfos: {
       );
     }
 
-    const newThreadInfo = {
-      ...threadInfo,
-      members: updatedMembers,
-      currentUser: updatedCurrentUser,
-      roles: updatedRoles,
-    };
-    newThreadInfos[threadID] = newThreadInfo;
+    if (threadInfo.thick) {
+      const updatedMembers = threadInfo.members.map(member =>
+        addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
+      );
+      const newThreadInfo = {
+        ...threadInfo,
+        members: updatedMembers,
+        currentUser: updatedCurrentUser,
+        roles: updatedRoles,
+      };
+      newThreadInfos[threadID] = newThreadInfo;
+    } else {
+      const updatedMembers = threadInfo.members.map(member =>
+        addDetailedThreadEditPermissionsToUser(threadInfo, member, threadID),
+      );
+      const newThreadInfo = {
+        ...threadInfo,
+        members: updatedMembers,
+        currentUser: updatedCurrentUser,
+        roles: updatedRoles,
+      };
+      newThreadInfos[threadID] = newThreadInfo;
+    }
   }
   return newThreadInfos;
 }
