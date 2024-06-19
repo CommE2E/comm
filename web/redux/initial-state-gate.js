@@ -12,7 +12,6 @@ import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { LegacyRawThreadInfo } from 'lib/types/thread-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -105,10 +104,7 @@ function InitialReduxStateGate(props: Props): React.Node {
           // When there is no data in the DB, it's necessary to migrate data
           // from the keyserver payload to the DB
           threadStoreOperations = entries(payload.threadStore.threadInfos).map(
-            ([id, threadInfo]: [
-              string,
-              LegacyRawThreadInfo | RawThreadInfo,
-            ]) => ({
+            ([id, threadInfo]: [string, RawThreadInfo]) => ({
               type: 'replace',
               payload: {
                 id,
