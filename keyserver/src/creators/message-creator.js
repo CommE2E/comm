@@ -4,11 +4,8 @@ import invariant from 'invariant';
 import _pickBy from 'lodash/fp/pickBy.js';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions.js';
-import {
-  generateNotifUserInfoPromise,
-  type Device,
-  type PushUserInfo,
-} from 'lib/push/send-utils.js';
+import { type Device, type PushUserInfo } from 'lib/push/send-utils.js';
+import { generateNotifUserInfoPromise } from 'lib/push/utils.js';
 import {
   rawMessageInfoFromMessageData,
   shimUnsupportedRawMessageInfos,
