@@ -9,10 +9,7 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -295,15 +292,15 @@ function rawThreadInfosFromServerThreadInfos(
   const addingUsersToCommunityRootSupported = !hasMinCodeVersion(
     viewer.platformDetails,
     {
-      native: NEXT_CODE_VERSION,
-      web: NEXT_CODE_VERSION,
+      native: 355,
+      web: 88,
     },
   );
   const manageFarcasterChannelTagsPermissionUnsupported = !hasMinCodeVersion(
     viewer.platformDetails,
     {
-      native: NEXT_CODE_VERSION,
-      web: NEXT_CODE_VERSION,
+      native: 355,
+      web: 88,
     },
   );
 

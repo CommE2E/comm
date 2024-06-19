@@ -1,9 +1,6 @@
 // @flow
 
-import {
-  hasMinCodeVersion,
-  NEXT_CODE_VERSION,
-} from 'lib/shared/version-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import type {
   InviteLinkWithHolder,
   InviteLinkVerificationRequest,
@@ -43,8 +40,8 @@ async function verifyInviteLink(
   }
 
   const supportsThreadLinks = hasMinCodeVersion(viewer.platformDetails, {
-    native: NEXT_CODE_VERSION,
-    web: NEXT_CODE_VERSION,
+    native: 355,
+    web: 88,
   });
   const {
     communityName,
