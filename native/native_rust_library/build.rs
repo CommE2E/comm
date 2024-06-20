@@ -42,8 +42,7 @@ impl ServiceConfig for IdentityServiceConfig {
 
   fn debug_default() -> Self {
     Self {
-      identity_socket_addr:
-        "https://identity.staging.commtechnologies.org:50054".to_string(),
+      identity_socket_addr: "http://localhost:50054".to_string(),
     }
   }
 
