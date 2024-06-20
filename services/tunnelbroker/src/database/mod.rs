@@ -11,9 +11,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error};
 
-use crate::constants::dynamodb::undelivered_messages::{
-  PARTITION_KEY, PAYLOAD, SORT_KEY, TABLE_NAME,
-};
+use crate::constants::dynamodb::undelivered_messages;
 
 pub mod message;
 pub mod message_id;
@@ -63,10 +61,10 @@ impl DatabaseClient {
     let request = self
       .client
       .put_item()
-      .table_name(TABLE_NAME)
-      .item(PARTITION_KEY, device_av)
-      .item(SORT_KEY, message_id_av)
-      .item(PAYLOAD, payload_av);
+      .table_name(undelivered_messages::TABLE_NAME)
+      .item(undelivered_messages::PARTITION_KEY, device_av)
+      .item(undelivered_messages::SORT_KEY, message_id_av)
+      .item(undelivered_messages::PAYLOAD, payload_av);
 
     debug!("Persisting message to device: {}", &device_id);
 
@@ -83,8 +81,11 @@ impl DatabaseClient {
     let response = self
       .client
       .query()
-      .table_name(TABLE_NAME)
-      .key_condition_expression(format!("{} = :u", PARTITION_KEY))
+      .table_name(undelivered_messages::TABLE_NAME)
+      .key_condition_expression(format!(
+        "{} = :u",
+        undelivered_messages::PARTITION_KEY
+      ))
       .expression_attribute_values(
         ":u",
         AttributeValue::S(device_id.to_string()),
@@ -109,11 +110,11 @@ impl DatabaseClient {
 
     let key = HashMap::from([
       (
-        PARTITION_KEY.to_string(),
+        undelivered_messages::PARTITION_KEY.to_string(),
         AttributeValue::S(device_id.to_string()),
       ),
       (
-        SORT_KEY.to_string(),
+        undelivered_messages::SORT_KEY.to_string(),
         AttributeValue::S(message_id.to_string()),
       ),
     ]);
@@ -121,7 +122,7 @@ impl DatabaseClient {
     self
       .client
       .delete_item()
-      .table_name(TABLE_NAME)
+      .table_name(undelivered_messages::TABLE_NAME)
       .set_key(Some(key))
       .send()
       .await
