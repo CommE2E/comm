@@ -103,9 +103,32 @@ resource "aws_iam_role" "services_ddb_full_access" {
 
   managed_policy_arns = [
     aws_iam_policy.allow_ecs_exec.arn,
+    aws_iam_policy.read_services_token.arn,
     "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
     "arn:aws:iam::aws:policy/AmazonS3FullAccess",
   ]
+}
+
+# Services token read policy
+data "aws_iam_policy_document" "read_services_token" {
+  statement {
+    sid    = "SecretsManagerReadServicesToken"
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetResourcePolicy",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:ListSecretVersionIds"
+    ]
+    resources = [
+      module.shared.services_token_id
+    ]
+  }
+}
+resource "aws_iam_policy" "read_services_token" {
+  name        = "service-to-service-token-read-access"
+  policy      = data.aws_iam_policy_document.read_services_token.json
+  description = "Allows full read access to service-to-service token SecretsManager secret"
 }
 
 # Feature Flags IAM
@@ -164,7 +187,8 @@ resource "aws_iam_role" "backup_service" {
 
   managed_policy_arns = [
     aws_iam_policy.allow_ecs_exec.arn,
-    aws_iam_policy.manage_backup_ddb.arn
+    aws_iam_policy.manage_backup_ddb.arn,
+    aws_iam_policy.read_services_token.arn,
   ]
 }
 
@@ -192,10 +216,12 @@ resource "aws_iam_role" "reports_service" {
 
   managed_policy_arns = [
     aws_iam_policy.allow_ecs_exec.arn,
-    aws_iam_policy.manage_reports_ddb.arn
+    aws_iam_policy.manage_reports_ddb.arn,
+    aws_iam_policy.read_services_token.arn,
   ]
 }
 
+# Identity Search
 
 data "aws_iam_policy_document" "assume_identity_search_role" {
   statement {
