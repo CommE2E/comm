@@ -3,7 +3,10 @@
 import * as React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 
-import { useRemoveFarcasterChannelTag } from 'lib/shared/community-utils.js';
+import {
+  tagFarcasterChannelCopy,
+  useRemoveFarcasterChannelTag,
+} from 'lib/shared/community-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
 
 import Button from '../../components/button.react.js';
@@ -34,7 +37,11 @@ function RemoveTagButton(props: Props): React.Node {
       );
     }
 
-    return <Text style={styles.buttonText}>Remove tag</Text>;
+    return (
+      <Text style={styles.buttonText}>
+        {tagFarcasterChannelCopy.REMOVE_TAG_BUTTON}
+      </Text>
+    );
   }, [colors.panelForegroundLabel, isLoading, styles.buttonText]);
 
   return (
