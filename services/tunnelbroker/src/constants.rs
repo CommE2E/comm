@@ -35,4 +35,18 @@ pub mod dynamodb {
     pub const MESSAGE_ID: &str = "messageID";
     pub const SORT_KEY: &str = "messageID";
   }
+
+  // This table holds a device token associated with a device.
+  //
+  // - (primary key) = (deviceID: Partition Key)
+  // - deviceID: The public key of a device's olm identity key
+  // - deviceToken: Token to push services uploaded by device.
+  pub mod device_tokens {
+    pub const TABLE_NAME: &str = "tunnelbroker-device-tokens";
+    pub const PARTITION_KEY: &str = "deviceID";
+    pub const DEVICE_ID: &str = "deviceID";
+    pub const DEVICE_TOKEN: &str = "deviceToken";
+
+    pub const DEVICE_TOKEN_INDEX_NAME: &str = "deviceToken-index";
+  }
 }
