@@ -6,6 +6,7 @@ pub mod message_receive_confirmation;
 pub mod message_to_device;
 pub mod message_to_device_request;
 pub mod message_to_device_request_status;
+pub mod message_to_tunnelbroker;
 pub mod message_to_tunnelbroker_request;
 pub mod session;
 
@@ -15,6 +16,7 @@ pub use message_receive_confirmation::*;
 pub use message_to_device::*;
 pub use message_to_device_request::*;
 pub use message_to_device_request_status::*;
+pub use message_to_tunnelbroker::*;
 pub use message_to_tunnelbroker_request::*;
 pub use session::*;
 pub use websocket_messages::{
@@ -58,4 +60,6 @@ pub enum PeerToPeerMessages {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
-pub enum MessageToTunnelbroker {}
+pub enum MessageToTunnelbroker {
+  SetDeviceToken(SetDeviceToken),
+}
