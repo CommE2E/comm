@@ -1,5 +1,6 @@
 use actix_web::{get, post, web, HttpResponse};
 use comm_lib::http::auth::get_comm_authentication_middleware as auth_middleware;
+use comm_lib::http::auth_service::Authenticated;
 use http::header;
 use serde::Deserialize;
 
@@ -28,7 +29,7 @@ impl PostReportsPayload {
 #[post("")]
 async fn post_reports(
   payload: web::Json<PostReportsPayload>,
-  service: ReportsService,
+  service: Authenticated<ReportsService>,
 ) -> actix_web::Result<HttpResponse> {
   use serde_json::json;
 
@@ -49,7 +50,7 @@ struct QueryOptions {
 #[get("", wrap = "auth_middleware()")]
 async fn query_reports(
   query: web::Query<QueryOptions>,
-  service: ReportsService,
+  service: Authenticated<ReportsService>,
 ) -> actix_web::Result<HttpResponse> {
   let QueryOptions { cursor, page_size } = query.into_inner();
   let page = service.list_reports(cursor, page_size).await?;
@@ -60,7 +61,7 @@ async fn query_reports(
 #[get("/{report_id}", wrap = "auth_middleware()")]
 async fn get_single_report(
   path: web::Path<String>,
-  service: ReportsService,
+  service: Authenticated<ReportsService>,
 ) -> actix_web::Result<HttpResponse> {
   let report_id = path.into_inner();
   let report = service
@@ -74,7 +75,7 @@ async fn get_single_report(
 #[get("/{report_id}/redux-devtools.json", wrap = "auth_middleware()")]
 async fn redux_devtools_import(
   path: web::Path<String>,
-  service: ReportsService,
+  service: Authenticated<ReportsService>,
 ) -> actix_web::Result<HttpResponse> {
   let report_id = path.into_inner();
   let devtools_json = service
