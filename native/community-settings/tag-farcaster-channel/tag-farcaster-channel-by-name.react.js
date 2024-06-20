@@ -42,6 +42,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
   const { createTag, isLoading } = useCreateFarcasterChannelTag(
     communityID,
     setError,
+    goBack,
   );
 
   const onPressTagChannel = React.useCallback(async () => {
@@ -56,13 +57,11 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
     }
 
     createTag(channelInfo.id);
-
-    goBack();
-  }, [channelSelectionText, createTag, goBack, neynarClientContext.client]);
+  }, [channelSelectionText, createTag, neynarClientContext.client]);
 
   const errorMessage = React.useMemo(() => {
     if (!error) {
-      return null;
+      return <View style={styles.errorPlaceholder} />;
     }
 
     return (
@@ -70,7 +69,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
         {tagFarcasterChannelErrorMessages[error] ?? 'Unknown error.'}
       </Text>
     );
-  }, [error, styles.error]);
+  }, [error, styles.error, styles.errorPlaceholder]);
 
   let submitButtonVariant = 'disabled';
   if (isLoading) {
@@ -144,6 +143,9 @@ const unboundStyles = {
     lineHeight: 18,
     textAlign: 'center',
     color: 'redText',
+  },
+  errorPlaceholder: {
+    height: 18,
   },
 };
 
