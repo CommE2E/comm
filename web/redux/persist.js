@@ -568,6 +568,18 @@ const migrations = {
       ops: dbOperations,
     };
   },
+  [78]: (state: AppState) => {
+    return {
+      state: {
+        ...state,
+        tunnelbrokerDeviceToken: {
+          localToken: null,
+          tunnelbrokerToken: null,
+        },
+      },
+      ops: [],
+    };
+  },
 };
 
 const persistConfig: PersistConfig = {

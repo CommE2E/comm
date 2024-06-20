@@ -60,6 +60,7 @@ import type { SyncedMetadataStore } from 'lib/types/synced-metadata-types.js';
 import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
 import type { ThreadStore } from 'lib/types/thread-types.js';
+import type { TunnelbrokerDeviceToken } from 'lib/types/tunnelbroker-device-token-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
 import { resetUserSpecificState } from 'lib/utils/reducers-utils.js';
 
@@ -131,6 +132,7 @@ export type AppState = {
   +dbOpsStore: DBOpsStore,
   +syncedMetadataStore: SyncedMetadataStore,
   +auxUserStore: AuxUserStore,
+  +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
 };
 
 export type Action = $ReadOnly<
