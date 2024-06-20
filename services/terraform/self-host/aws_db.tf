@@ -32,6 +32,7 @@ resource "aws_db_instance" "mariadb" {
   engine_version         = "10.11"
   instance_class         = "db.m6g.large"
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
+  db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
   username               = var.mariadb_username
   password               = var.mariadb_password
   parameter_group_name   = aws_db_parameter_group.mariadb_parameter_group.name
