@@ -2,7 +2,7 @@ use crate::config::CONFIG;
 use grpc_clients::tunnelbroker::create_tunnelbroker_client as shared_tb_client;
 use grpc_clients::tunnelbroker::protos;
 use protos::tunnelbroker_service_client::TunnelbrokerServiceClient;
-use protos::{Empty, MessageToDevice};
+use protos::{DeleteDeviceDataRequest, Empty, MessageToDevice};
 use tonic::transport::Channel;
 use tonic::Response;
 use tonic::Status;
@@ -71,4 +71,16 @@ pub async fn send_device_list_update(device_ids: &[&str]) -> Result<(), Error> {
   }
 
   Ok(())
+}
+
+pub async fn delete_device_data(
+  device_id: &str,
+) -> Result<Response<Empty>, Error> {
+  let mut tunnelbroker_client = create_tunnelbroker_client().await?;
+
+  let request = DeleteDeviceDataRequest {
+    device_id: device_id.to_string(),
+  };
+  let grpc_message = tonic::Request::new(request);
+  Ok(tunnelbroker_client.delete_device_data(grpc_message).await?)
 }

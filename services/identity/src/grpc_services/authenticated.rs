@@ -93,6 +93,18 @@ pub fn get_user_and_device_id<T>(
   Ok((user_id, device_id))
 }
 
+fn spawn_delete_tunnelbroker_data_task(device_id: &str) {
+  let device_id = device_id.to_string();
+  tokio::spawn(async move {
+    debug!(
+      "Attempting to delete Tunnelbroker data for device: {}",
+      &device_id
+    );
+    let result = crate::tunnelbroker::delete_device_data(&device_id).await;
+    consume_error(result);
+  });
+}
+
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
   #[tracing::instrument(skip_all)]
@@ -373,7 +385,7 @@ impl IdentityClientService for AuthenticatedService {
 
     self
       .db_client
-      .delete_access_token_data(&user_id, device_id)
+      .delete_access_token_data(&user_id, &device_id)
       .await
       .map_err(handle_db_error)?;
 
@@ -411,6 +423,8 @@ impl IdentityClientService for AuthenticatedService {
       consume_error(result);
     });
 
+    spawn_delete_tunnelbroker_data_task(&device_id);
+
     let response = Empty {};
     Ok(Response::new(response))
   }
@@ -445,6 +459,8 @@ impl IdentityClientService for AuthenticatedService {
       .delete_otks_table_rows_for_user_device(&user_id, &device_id)
       .await
       .map_err(handle_db_error)?;
+
+    spawn_delete_tunnelbroker_data_task(&device_id);
 
     let response = Empty {};
     Ok(Response::new(response))
