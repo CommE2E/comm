@@ -176,4 +176,60 @@ impl DatabaseClient {
     let device_token: String = item.take_attr(device_tokens::DEVICE_TOKEN)?;
     Ok(Some(device_token))
   }
+
+  pub async fn set_device_token(
+    &self,
+    device_id: &str,
+    device_token: &str,
+  ) -> Result<(), Error> {
+    debug!("Setting device token for device: {}", &device_id);
+
+    let query_response = self
+      .client
+      .query()
+      .table_name(device_tokens::TABLE_NAME)
+      .index_name(device_tokens::DEVICE_TOKEN_INDEX_NAME)
+      .key_condition_expression(format!("{} = :u", device_tokens::DEVICE_TOKEN))
+      .expression_attribute_values(
+        ":u",
+        AttributeValue::S(device_token.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          "DynamoDB client failed to find existing device token {:?}",
+          e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    if let Some(items) = query_response.items {
+      for mut item in items {
+        let device_id = item.take_attr::<String>(device_tokens::DEVICE_ID)?;
+        self.remove_device_token(&device_id).await?;
+      }
+    }
+
+    self
+      .client
+      .put_item()
+      .table_name(device_tokens::TABLE_NAME)
+      .item(
+        device_tokens::PARTITION_KEY,
+        AttributeValue::S(device_id.to_string()),
+      )
+      .item(
+        device_tokens::DEVICE_TOKEN,
+        AttributeValue::S(device_token.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to set device token {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
 }
