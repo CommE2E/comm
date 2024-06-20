@@ -203,10 +203,7 @@ impl BackupClient {
     last_downloaded_log: &'stream mut Option<usize>,
   ) -> impl Stream<Item = Result<DownloadedLog, Error>> + 'stream {
     try_stream! {
-      let (tx, rx) = self.create_log_ws_connection(user_identity).await?;
-
-      let mut tx = Box::pin(tx);
-      let mut rx = Box::pin(rx);
+      let (mut tx, mut rx) = self.create_log_ws_connection(user_identity).await?;
 
       tx.send(DownloadLogsRequest {
         backup_id: backup_id.to_string(),
@@ -291,6 +288,17 @@ impl BackupClient {
       }
     });
 
+    let tx = Box::pin(tx);
+    let mut rx = Box::pin(rx);
+
+    if let Some(response) = rx.try_next().await? {
+      match response {
+        LogWSResponse::AuthSuccess => {}
+        LogWSResponse::Unauthenticated => Err(Error::Unauthenticated)?,
+        msg => Err(Error::InvalidBackupMessage(msg))?,
+      }
+    }
+
     Ok((tx, rx))
   }
 
@@ -366,6 +374,7 @@ pub enum Error {
   ServerError,
   LogMissing,
   WSClosed,
+  Unauthenticated,
 }
 impl std::error::Error for Error {}
 

@@ -46,5 +46,6 @@ pub enum LogWSResponse {
     last_log_id: Option<usize>,
   },
   ServerError,
+  AuthSuccess,
   Unauthenticated,
 }
