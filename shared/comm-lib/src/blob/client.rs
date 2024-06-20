@@ -406,3 +406,13 @@ struct AssignHolderRequest {
 }
 // they have the same layout so we can simply alias
 type RevokeHolderRequest = AssignHolderRequest;
+
+#[cfg(feature = "http")]
+impl crate::http::auth_service::HttpAuthenticatedService for BlobServiceClient {
+  fn make_authenticated(
+    self,
+    auth_credential: AuthorizationCredential,
+  ) -> Self {
+    self.with_authentication(auth_credential)
+  }
+}
