@@ -6,12 +6,12 @@ use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use comm_lib::aws::ddb::operation::query::QueryError;
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
-use comm_lib::database::AttributeMap;
+use comm_lib::database::{AttributeMap, Error};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error};
 
-use crate::constants::dynamodb::undelivered_messages;
+use crate::constants::dynamodb::{device_tokens, undelivered_messages};
 
 pub mod message;
 pub mod message_id;
@@ -126,5 +126,27 @@ impl DatabaseClient {
       .set_key(Some(key))
       .send()
       .await
+  }
+
+  pub async fn remove_device_token(
+    &self,
+    device_id: &str,
+  ) -> Result<(), Error> {
+    debug!("Removing device token for device: {}", &device_id);
+
+    let device_av = AttributeValue::S(device_id.to_string());
+    self
+      .client
+      .delete_item()
+      .table_name(device_tokens::TABLE_NAME)
+      .key(device_tokens::PARTITION_KEY, device_av)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to remove device token: {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
   }
 }
