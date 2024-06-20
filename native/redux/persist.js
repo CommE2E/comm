@@ -1399,6 +1399,18 @@ const migrations = {
       ops: dbOperations,
     };
   },
+  [78]: (state: AppState) => {
+    return {
+      state: {
+        ...state,
+        tunnelbrokerDeviceToken: {
+          localToken: null,
+          tbToken: null,
+        },
+      },
+      ops: [],
+    };
+  },
 };
 
 // NOTE: renaming this object, and especially the `version` property

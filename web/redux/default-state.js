@@ -90,6 +90,10 @@ const defaultWebState: AppState = Object.freeze({
   auxUserStore: {
     auxUserInfos: {},
   },
+  tunnelbrokerDeviceToken: {
+    localToken: null,
+    tbToken: null,
+  },
 });
 
 export { defaultWebState };
