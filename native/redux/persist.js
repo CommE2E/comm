@@ -1399,6 +1399,18 @@ const migrations = {
       ops: dbOperations,
     };
   },
+  [78]: (state: AppState) => {
+    return {
+      state: {
+        ...state,
+        tunnelbrokerDeviceToken: {
+          localToken: null,
+          tunnelbrokerToken: null,
+        },
+      },
+      ops: [],
+    };
+  },
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1409,7 +1421,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 77,
+  version: 78,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
