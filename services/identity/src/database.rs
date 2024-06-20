@@ -739,6 +739,22 @@ impl DatabaseClient {
     Ok(Some((username, password_file)))
   }
 
+  /// Returns an error if `user_id`` does not exist in users table
+  pub async fn user_is_password_authenticated(
+    &self,
+    user_id: &str,
+  ) -> Result<bool, Error> {
+    let Some(mut user_item) =
+      self.get_item_from_users_table(user_id).await?.item
+    else {
+      return Err(Error::MissingItem);
+    };
+    match user_item.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE) {
+      Some(_) => Ok(true),
+      None => Ok(false),
+    }
+  }
+
   async fn get_item_from_users_table(
     &self,
     user_id: &str,
