@@ -6,6 +6,7 @@ pub mod message_receive_confirmation;
 pub mod message_to_device;
 pub mod message_to_device_request;
 pub mod message_to_device_request_status;
+pub mod message_to_tunnelbroker_request;
 pub mod session;
 
 pub use device_list_updated::*;
@@ -14,6 +15,7 @@ pub use message_receive_confirmation::*;
 pub use message_to_device::*;
 pub use message_to_device_request::*;
 pub use message_to_device_request_status::*;
+pub use message_to_tunnelbroker_request::*;
 pub use session::*;
 pub use websocket_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
@@ -42,6 +44,7 @@ pub enum Messages {
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
+  MessageToTunnelbrokerRequest(MessageToTunnelbrokerRequest),
   Heartbeat(Heartbeat),
   IdentityDeviceListUpdated(IdentityDeviceListUpdated),
 }
@@ -52,3 +55,7 @@ pub enum PeerToPeerMessages {
   RefreshKeysRequest(RefreshKeyRequest),
   IdentityDeviceListUpdated(IdentityDeviceListUpdated),
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum MessageToTunnelbroker {}
