@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod auth_service;
 pub mod multipart;
 
 use crate::tools::BoxedError;
