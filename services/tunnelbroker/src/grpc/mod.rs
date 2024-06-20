@@ -71,6 +71,24 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
     let response = tonic::Response::new(Empty {});
     Ok(response)
   }
+
+  async fn delete_device_data(
+    &self,
+    request: tonic::Request<proto::DeleteDeviceDataRequest>,
+  ) -> Result<tonic::Response<proto::Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    debug!("Deleting {} data", &message.device_id);
+
+    self
+      .client
+      .remove_device_token(&message.device_id)
+      .await
+      .map_err(|_| tonic::Status::failed_precondition("unexpected error"))?;
+
+    let response = tonic::Response::new(Empty {});
+    Ok(response)
+  }
 }
 
 pub async fn run_server(
