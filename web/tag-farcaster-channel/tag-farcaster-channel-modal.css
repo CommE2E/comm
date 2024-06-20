@@ -1,0 +1,22 @@
+.modalDescription {
+  color: var(--text-background-secondary-default);
+  font-size: var(--m-font-16);
+  margin-bottom: 24px;
+}
+
+.farcasterChannelTitle {
+  color: var(--text-background-primary-default);
+  font-size: var(--l-font-18);
+  margin-bottom: 8px;
+}
+
+.farcasterChannelText {
+  color: var(--text-background-secondary-default);
+  font-size: var(--m-font-16);
+  font-weight: var(--bold);
+}
+
+.noChannelText {
+  color: var(--text-background-secondary-default);
+  font-size: var(--m-font-16);
+}

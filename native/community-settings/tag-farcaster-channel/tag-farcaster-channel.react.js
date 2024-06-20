@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import { tagFarcasterChannelCopy } from 'lib/shared/community-utils.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 
 import RemoveTagButton from './remove-tag-button.react.js';
@@ -50,7 +51,9 @@ function TagFarcasterChannel(props: Props): React.Node {
   const channelNameTextContent = React.useMemo(() => {
     if (!communityInfo?.farcasterChannelID) {
       return (
-        <Text style={styles.noChannelText}>No Farcaster channel tagged</Text>
+        <Text style={styles.noChannelText}>
+          {tagFarcasterChannelCopy.NO_CHANNEL_TAGGED}
+        </Text>
       );
     }
 
@@ -84,12 +87,14 @@ function TagFarcasterChannel(props: Props): React.Node {
       <View>
         <View style={styles.panelSectionContainer}>
           <Text style={styles.sectionText}>
-            Tag a Farcaster channel so followers can find your Comm community!
+            {tagFarcasterChannelCopy.DESCRIPTION}
           </Text>
         </View>
         <Text style={styles.sectionHeaderText}>FARCASTER CHANNEL</Text>
         <View style={styles.panelSectionContainer}>
-          <Text style={styles.sectionText}>Selected channel:</Text>
+          <Text style={styles.sectionText}>
+            {tagFarcasterChannelCopy.CHANNEL_NAME_HEADER}
+          </Text>
           <View style={styles.channelNameContainer}>
             {channelNameTextContent}
           </View>
