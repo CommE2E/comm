@@ -8,7 +8,7 @@ use actix_web::{
   Error, HttpRequest, HttpResponse,
 };
 use actix_web_actors::ws::{self, WebsocketContext};
-use comm_lib::auth::UserIdentity;
+use comm_lib::auth::{AuthService, AuthServiceError, UserIdentity};
 use comm_lib::{
   backup::{
     DownloadLogsRequest, LogWSRequest, LogWSResponse, UploadLogRequest,
@@ -20,6 +20,7 @@ use comm_lib::{
   database::{self, blob::BlobOrDBContent},
 };
 use std::future::Future;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tracing::{error, info, instrument, warn};
 
@@ -28,12 +29,14 @@ pub async fn handle_ws(
   stream: web::Payload,
   blob_client: web::Data<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
+  auth_service: AuthService,
 ) -> Result<HttpResponse, Error> {
   ws::WsResponseBuilder::new(
     LogWSActor {
-      user: None,
+      user: Arc::new(Mutex::new(None)),
       blob_client: blob_client.as_ref().clone(),
       db_client: db_client.as_ref().clone(),
+      auth_service,
       last_msg_time: Instant::now(),
       buffer: BytesMut::new(),
     },
@@ -51,13 +54,14 @@ enum LogWSError {
   Bincode(bincode::Error),
   Blob(BlobServiceError),
   DB(database::Error),
+  Auth(AuthServiceError),
 }
 
 struct LogWSActor {
-  user: Option<UserIdentity>,
+  user: Arc<Mutex<Option<UserIdentity>>>,
   blob_client: BlobServiceClient,
   db_client: DatabaseClient,
-
+  auth_service: AuthService,
   last_msg_time: Instant,
   buffer: BytesMut,
 }
@@ -74,11 +78,19 @@ impl LogWSActor {
     match bincode::deserialize(&bytes) {
       Ok(request) => {
         if let LogWSRequest::Authenticate(user) = request {
-          self.user.replace(user);
+          Self::spawn_response_future(
+            ctx,
+            Self::handle_auth_msg(
+              self.auth_service.clone(),
+              Arc::clone(&self.user),
+              user,
+            ),
+          );
           return;
         }
 
-        let Some(user) = &self.user else {
+        let user_guard = self.user.lock().expect("user mutex poisoned");
+        let Some(user) = user_guard.as_ref() else {
           Self::spawn_response_future(
             ctx,
             ready(Ok(vec![LogWSResponse::Unauthenticated])),
@@ -137,6 +149,24 @@ impl LogWSActor {
     );
 
     ctx.spawn(fut);
+  }
+
+  async fn handle_auth_msg(
+    auth_service: AuthService,
+    current_user: Arc<Mutex<Option<UserIdentity>>>,
+    user_to_verify: UserIdentity,
+  ) -> Result<Vec<LogWSResponse>, LogWSError> {
+    use comm_lib::auth::AuthorizationCredential;
+    let credential = AuthorizationCredential::UserToken(user_to_verify.clone());
+    let user_valid = auth_service.verify_auth_credential(&credential).await?;
+
+    if user_valid {
+      *current_user.lock().expect("mutex poisoned") = Some(user_to_verify);
+      Ok(vec![LogWSResponse::AuthSuccess])
+    } else {
+      tracing::debug!("Invalid credentials");
+      Ok(vec![LogWSResponse::Unauthenticated])
+    }
   }
 
   async fn handle_msg(

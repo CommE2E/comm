@@ -34,10 +34,7 @@ async fn backup_integration_test() -> Result<(), Error> {
       .upload_backup(&user_identity, backup_data.clone())
       .await?;
 
-    let (tx, rx) = backup_client.upload_logs(&user_identity).await?;
-
-    tokio::pin!(tx);
-    tokio::pin!(rx);
+    let (mut tx, rx) = backup_client.upload_logs(&user_identity).await?;
 
     for log_data in log_datas {
       tx.send(log_data.clone()).await?;
