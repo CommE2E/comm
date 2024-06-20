@@ -340,6 +340,33 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           result,
         ))
       }
+      Messages::MessageToTunnelbrokerRequest(message_request) => {
+        // unauthenticated clients cannot send messages
+        if !self.device_info.is_authenticated {
+          debug!(
+            "Unauthenticated device {} tried to send text message. Aborting.",
+            self.device_info.device_id
+          );
+          return Option::from(MessageSentStatus::Unauthenticated);
+        }
+        debug!("Received message for Tunnelbroker");
+
+        let Ok(message_to_tunnelbroker) = serde_json::from_str::<
+          MessageToTunnelbroker,
+        >(&message_request.payload) else {
+          return Option::from(MessageSentStatus::SerializationError(
+            message_request.payload,
+          ));
+        };
+
+        let result = self
+          .handle_message_to_tunnelbroker(&message_to_tunnelbroker)
+          .await;
+        Option::from(self.get_message_to_device_status(
+          &message_request.client_message_id,
+          result,
+        ))
+      }
       _ => {
         error!("Client sent invalid message type");
         Some(MessageSentStatus::InvalidRequest)
