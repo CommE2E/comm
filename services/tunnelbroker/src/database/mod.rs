@@ -6,7 +6,7 @@ use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use comm_lib::aws::ddb::operation::query::QueryError;
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
-use comm_lib::database::{AttributeMap, Error};
+use comm_lib::database::{AttributeExtractor, AttributeMap, Error};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error};
@@ -148,5 +148,32 @@ impl DatabaseClient {
       })?;
 
     Ok(())
+  }
+
+  pub async fn get_device_token(
+    &self,
+    device_id: &str,
+  ) -> Result<Option<String>, Error> {
+    let get_response = self
+      .client
+      .get_item()
+      .table_name(device_tokens::TABLE_NAME)
+      .key(
+        device_tokens::PARTITION_KEY,
+        AttributeValue::S(device_id.into()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to get device token");
+        Error::AwsSdk(e.into())
+      })?;
+
+    let Some(mut item) = get_response.item else {
+      return Ok(None);
+    };
+
+    let device_token: String = item.take_attr(device_tokens::DEVICE_TOKEN)?;
+    Ok(Some(device_token))
   }
 }
