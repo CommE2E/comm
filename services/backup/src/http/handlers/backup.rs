@@ -7,7 +7,10 @@ use comm_lib::{
   auth::{AuthService, UserIdentity},
   backup::LatestBackupIDResponse,
   blob::{client::BlobServiceClient, types::BlobInfo},
-  http::multipart::{get_named_text_field, get_text_field},
+  http::{
+    auth_service::Authenticated,
+    multipart::{get_named_text_field, get_text_field},
+  },
   tools::Defer,
 };
 use std::convert::Infallible;
@@ -22,7 +25,7 @@ use crate::{
 #[instrument(skip_all, fields(backup_id))]
 pub async fn upload(
   user: UserIdentity,
-  blob_client: web::Data<BlobServiceClient>,
+  blob_client: Authenticated<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
   mut multipart: actix_multipart::Multipart,
 ) -> actix_web::Result<HttpResponse> {
@@ -214,17 +217,16 @@ async fn create_attachment_holder<'revoke, 'blob: 'revoke>(
 pub async fn download_user_keys(
   user: UserIdentity,
   path: web::Path<String>,
-  blob_client: web::Data<BlobServiceClient>,
+  blob_client: Authenticated<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<HttpResponse> {
-  let blob_client = blob_client.with_user_identity(user.clone());
   info!("Download user keys request");
   let backup_id = path.into_inner();
   download_user_blob(
     |item| &item.user_keys,
     &user.user_id,
     &backup_id,
-    blob_client,
+    blob_client.into_inner(),
     db_client,
   )
   .await
@@ -234,17 +236,16 @@ pub async fn download_user_keys(
 pub async fn download_user_data(
   user: UserIdentity,
   path: web::Path<String>,
-  blob_client: web::Data<BlobServiceClient>,
+  blob_client: Authenticated<BlobServiceClient>,
   db_client: web::Data<DatabaseClient>,
 ) -> actix_web::Result<HttpResponse> {
   info!("Download user data request");
-  let blob_client = blob_client.with_user_identity(user.clone());
   let backup_id = path.into_inner();
   download_user_blob(
     |item| &item.user_data,
     &user.user_id,
     &backup_id,
-    blob_client,
+    blob_client.into_inner(),
     db_client,
   )
   .await
@@ -304,16 +305,8 @@ pub async fn get_latest_backup_id(
 pub async fn download_latest_backup_keys(
   path: web::Path<String>,
   db_client: web::Data<DatabaseClient>,
-  blob_client: web::Data<BlobServiceClient>,
-  auth_service: AuthService,
+  blob_client: Authenticated<BlobServiceClient>,
 ) -> actix_web::Result<HttpResponse> {
-  let services_token = auth_service
-    .get_services_token()
-    .await
-    .map_err(BackupError::from)?;
-  let blob_client = blob_client.with_authentication(
-    comm_lib::auth::AuthorizationCredential::ServicesToken(services_token),
-  );
   let username = path.into_inner();
   // Treat username as user_id in the initial version
   let user_id = username;
