@@ -17,6 +17,7 @@ use comm_lib::{
 use serde::Serialize;
 use tracing::{debug, error, trace, warn};
 
+use crate::error::consume_error;
 use crate::{
   client_service::FlattenedDeviceKeyUpload,
   constants::{
@@ -1353,6 +1354,16 @@ impl DatabaseClient {
       self
         .delete_otks_table_rows_for_user_device(user_id, &device_id)
         .await?;
+
+      let device_id = device_id.to_string();
+      tokio::spawn(async move {
+        debug!(
+          "Attempting to delete Tunnelbroker data for device: {}",
+          &device_id
+        );
+        let result = crate::tunnelbroker::delete_device_data(&device_id).await;
+        consume_error(result);
+      });
     }
 
     Ok(update_result)
