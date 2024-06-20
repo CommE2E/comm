@@ -459,13 +459,13 @@ impl IdentityClientService for AuthenticatedService {
 
     debug!("Attempting to delete wallet user: {}", user_id);
 
-    let maybe_username_and_password_file = self
+    let user_is_password_authenticated = self
       .db_client
-      .get_username_and_password_file(&user_id)
+      .user_is_password_authenticated(&user_id)
       .await
       .map_err(handle_db_error)?;
 
-    if maybe_username_and_password_file.is_some() {
+    if user_is_password_authenticated {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::PASSWORD_USER,
       ));
