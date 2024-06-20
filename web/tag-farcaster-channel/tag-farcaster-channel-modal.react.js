@@ -1,11 +1,16 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { tagFarcasterChannelCopy } from 'lib/shared/community-utils.js';
+import {
+  tagFarcasterChannelCopy,
+  tagFarcasterChannelErrorMessages,
+} from 'lib/shared/community-utils.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 
+import RemoveTagButton from './remove-tag-button.react.js';
 import css from './tag-farcaster-channel-modal.css';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -23,6 +28,8 @@ function TagFarcasterChannelModal(props: Props): React.Node {
     state => state.communityStore.communityInfos[communityID],
   );
 
+  const [removeTagError, setRemoveTagError] = React.useState<?string>();
+
   const channelNameTextContent = React.useMemo(() => {
     if (!communityInfo?.farcasterChannelID) {
       return (
@@ -39,9 +46,37 @@ function TagFarcasterChannelModal(props: Props): React.Node {
     );
   }, [communityInfo?.farcasterChannelID]);
 
+  const primaryButton = React.useMemo(() => {
+    if (communityInfo?.farcasterChannelID) {
+      return (
+        <RemoveTagButton
+          communityID={communityID}
+          channelID={communityInfo.farcasterChannelID}
+          setError={setRemoveTagError}
+        />
+      );
+    }
+    // TODO: Implement TagChannelButton
+    return null;
+  }, [communityID, communityInfo?.farcasterChannelID]);
+
+  const errorMessageClassName = classNames(css.errorMessage, {
+    [css.errorMessageVisible]: removeTagError,
+  });
+
+  const errorMessage =
+    removeTagError && tagFarcasterChannelErrorMessages[removeTagError]
+      ? tagFarcasterChannelErrorMessages[removeTagError]
+      : 'Unknown error.';
+
   const tagFarcasterChannelModal = React.useMemo(
     () => (
-      <Modal name="Tag a Farcaster channel" onClose={popModal} size="large">
+      <Modal
+        name="Tag a Farcaster channel"
+        onClose={popModal}
+        size="large"
+        primaryButton={primaryButton}
+      >
         <div className={css.modalDescription}>
           {tagFarcasterChannelCopy.DESCRIPTION}
         </div>
@@ -49,9 +84,16 @@ function TagFarcasterChannelModal(props: Props): React.Node {
           {tagFarcasterChannelCopy.CHANNEL_NAME_HEADER}
         </div>
         {channelNameTextContent}
+        <div className={errorMessageClassName}>{errorMessage}</div>
       </Modal>
     ),
-    [channelNameTextContent, popModal],
+    [
+      channelNameTextContent,
+      errorMessage,
+      errorMessageClassName,
+      popModal,
+      primaryButton,
+    ],
   );
 
   return tagFarcasterChannelModal;
