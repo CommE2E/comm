@@ -94,6 +94,10 @@ const defaultState = ({
   syncedMetadataStore: {
     syncedMetadata: {},
   },
+  tunnelbrokerDeviceToken: {
+    localToken: null,
+    tunnelbrokerToken: null,
+  },
 }: AppState);
 
 export { defaultState };
