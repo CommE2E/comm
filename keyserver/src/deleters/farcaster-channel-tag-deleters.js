@@ -1,13 +1,12 @@
 // @flow
 
-import {
-  DISABLE_TAGGING_FARCASTER_CHANNEL,
-  farcasterChannelTagBlobHash,
-} from 'lib/shared/community-utils.js';
+import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type { DeleteFarcasterChannelTagRequest } from 'lib/types/community-types';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import { deleteBlob } from '../services/blob.js';
 import type { Viewer } from '../session/viewer';
 
@@ -15,8 +14,14 @@ async function deleteFarcasterChannelTag(
   viewer: Viewer,
   request: DeleteFarcasterChannelTagRequest,
 ): Promise<void> {
-  if (DISABLE_TAGGING_FARCASTER_CHANNEL) {
-    throw new ServerError('internal_error');
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    request.commCommunityID,
+    threadPermissions.MANAGE_FARCASTER_CHANNEL_TAGS,
+  );
+
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
   }
 
   const query = SQL`
