@@ -25,7 +25,7 @@ resource "aws_route_table" "public_igw_route_table" {
   vpc_id = data.aws_vpc.default.id
 
   route {
-    cidr_block = "${var.allowed_ip}/32"
+    cidr_block = "0.0.0.0/0"
     gateway_id = data.aws_internet_gateway.default.id
   }
 }
