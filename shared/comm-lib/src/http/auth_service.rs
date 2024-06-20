@@ -9,9 +9,7 @@ use actix_web::{
 };
 use tracing::{error, warn};
 
-use crate::auth::{
-  is_csat_verification_disabled, AuthService, AuthorizationCredential,
-};
+use crate::auth::{AuthService, AuthorizationCredential};
 
 /// Service that can be stored in HTTP server app data: `App::app_data()`
 /// and requires request authentication to work. The app data
@@ -48,12 +46,12 @@ pub trait HttpAuthenticatedService: Clone {
 /// passed to the service. For unauthenticated endpoints, a service-to-service
 /// token is retrieved.
 ///
-/// Note that this does not require make the endpoint authenticated.
+/// Note that this does not require making the endpoint authenticated.
 /// It only supplies authorization credential to the wrapped service.
 ///
 /// Wrapped service must be specified in HTTP app data (`App::app_data()`),
-/// either directly (recommended if it implements [`FromRequest`])
-/// or via [`web::Data`].
+/// either directly or via [`web::Data`]. See [`web::Data`] documentation
+/// to decide whether to use it or not.
 ///
 /// # Example
 /// ```ignore
@@ -138,7 +136,6 @@ impl<S: HttpAuthenticatedService + 'static> FromRequest for Authenticated<S> {
 
           match token_valid {
             true => token,
-            false if is_csat_verification_disabled() => token,
             false if S::fallback_to_services_token() => {
               warn!(
                 "Got {1} request with invalid credentials! {0}",

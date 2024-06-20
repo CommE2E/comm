@@ -2,7 +2,10 @@ use aws_sdk_secretsmanager::Client as SecretsManagerClient;
 use chrono::{DateTime, Duration, Utc};
 use grpc_clients::identity::unauthenticated::client as identity_client;
 
-use super::{AuthorizationCredential, ServicesAuthToken, UserIdentity};
+use super::{
+  is_csat_verification_disabled, AuthorizationCredential, ServicesAuthToken,
+  UserIdentity,
+};
 
 const SECRET_NAME: &str = "servicesToken";
 /// duration for which we consider previous token valid
@@ -70,11 +73,14 @@ impl AuthService {
   }
 
   /// Verifies the provided [`AuthorizationCredential`]. Returns `true` if
-  /// authentication was successful.
+  /// authentication was successful or CSAT verification is disabled.
   pub async fn verify_auth_credential(
     &self,
     credential: &AuthorizationCredential,
   ) -> AuthServiceResult<bool> {
+    if is_csat_verification_disabled() {
+      return Ok(true);
+    }
     match credential {
       AuthorizationCredential::UserToken(user) => {
         let UserIdentity {
