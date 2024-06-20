@@ -13,6 +13,9 @@ service TunnelbrokerService {
   // Tunnelbroker will enqueue the message, and send it next time the device
   // connects to tunnelbroker and flushes the queue.
   rpc SendMessageToDevice(MessageToDevice) returns (Empty) {}
+
+  // Deleting data associated with device.
+  rpc DeleteDeviceData(DeleteDeviceDataRequest) returns (Empty) {}
 }
 
 message Empty {}
@@ -22,4 +25,9 @@ message MessageToDevice {
   string device_id = 1;
   // JSON encoded message. See shared/tunnelbroker_messages for valid payloads
   string payload = 2;
+}
+
+message DeleteDeviceDataRequest {
+  // The primary identity key of a device
+  string device_id = 1;
 }
