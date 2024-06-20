@@ -9,7 +9,7 @@ use comm_lib::aws::{AwsConfig, DynamoDBClient};
 use comm_lib::database::{AttributeExtractor, AttributeMap, Error};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 
 use crate::constants::dynamodb::{device_tokens, undelivered_messages};
 
@@ -175,5 +175,75 @@ impl DatabaseClient {
 
     let device_token: String = item.take_attr(device_tokens::DEVICE_TOKEN)?;
     Ok(Some(device_token))
+  }
+
+  pub async fn set_device_token(
+    &self,
+    device_id: &str,
+    device_token: &str,
+  ) -> Result<(), Error> {
+    debug!("Setting device token for device: {}", &device_id);
+
+    let query_response = self
+      .client
+      .query()
+      .table_name(device_tokens::TABLE_NAME)
+      .index_name(device_tokens::DEVICE_TOKEN_INDEX_NAME)
+      .key_condition_expression("#device_token = :token")
+      .expression_attribute_names("#device_token", device_tokens::DEVICE_TOKEN)
+      .expression_attribute_values(
+        ":token",
+        AttributeValue::S(device_token.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          "DynamoDB client failed to find existing device token {:?}",
+          e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    if let Some(existing_tokens) = query_response.items {
+      if existing_tokens.len() > 1 {
+        warn!("Found the same token for multiple devices!");
+        debug!("Duplicated token is: {device_token}. Removing...");
+      } else if !existing_tokens.is_empty() {
+        debug!(
+          "Device token {device_token} already exists. It will be replaced..."
+        );
+      }
+
+      for mut item in existing_tokens {
+        let found_device_id =
+          item.take_attr::<String>(device_tokens::DEVICE_ID)?;
+        // PutItem will replace token with `device_id` key anyway.
+        if found_device_id != device_id {
+          self.remove_device_token(&found_device_id).await?;
+        }
+      }
+    }
+
+    self
+      .client
+      .put_item()
+      .table_name(device_tokens::TABLE_NAME)
+      .item(
+        device_tokens::PARTITION_KEY,
+        AttributeValue::S(device_id.to_string()),
+      )
+      .item(
+        device_tokens::DEVICE_TOKEN,
+        AttributeValue::S(device_token.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to set device token {:?}", e);
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
   }
 }
