@@ -2,14 +2,12 @@
 
 import uuid from 'uuid';
 
-import {
-  DISABLE_TAGGING_FARCASTER_CHANNEL,
-  farcasterChannelTagBlobHash,
-} from 'lib/shared/community-utils.js';
+import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type {
   CreateOrUpdateFarcasterChannelTagRequest,
   CreateOrUpdateFarcasterChannelTagResponse,
 } from 'lib/types/community-types.js';
+import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import {
@@ -18,6 +16,7 @@ import {
   MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE,
 } from '../database/database.js';
 import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
+import { checkThreadPermission } from '../fetchers/thread-permission-fetchers.js';
 import {
   uploadBlob,
   assignHolder,
@@ -33,15 +32,23 @@ async function createOrUpdateFarcasterChannelTag(
   viewer: Viewer,
   request: CreateOrUpdateFarcasterChannelTagRequest,
 ): Promise<CreateOrUpdateFarcasterChannelTagResponse> {
-  if (DISABLE_TAGGING_FARCASTER_CHANNEL) {
-    throw new ServerError('internal_error');
-  }
+  const permissionPromise = checkThreadPermission(
+    viewer,
+    request.commCommunityID,
+    threadPermissions.MANAGE_FARCASTER_CHANNEL_TAGS,
+  );
 
-  const [communityInfos, blobDownload, keyserverID] = await Promise.all([
-    fetchCommunityInfos(viewer, [request.commCommunityID]),
-    getFarcasterChannelTagBlob(request.farcasterChannelID),
-    thisKeyserverID(),
-  ]);
+  const [hasPermission, communityInfos, blobDownload, keyserverID] =
+    await Promise.all([
+      permissionPromise,
+      fetchCommunityInfos(viewer, [request.commCommunityID]),
+      getFarcasterChannelTagBlob(request.farcasterChannelID),
+      thisKeyserverID(),
+    ]);
+
+  if (!hasPermission) {
+    throw new ServerError('invalid_credentials');
+  }
 
   if (communityInfos.length !== 1) {
     throw new ServerError('invalid_parameters');
