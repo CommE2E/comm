@@ -179,6 +179,7 @@ impl Identifier {
   }
 }
 
+#[derive(Clone)]
 pub struct EthereumIdentity {
   pub wallet_address: String,
   pub social_proof: SocialProof,
