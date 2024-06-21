@@ -7,24 +7,16 @@ import * as React from 'react';
 import { Text, View, Platform, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  createOrUpdateFarcasterChannelTagActionTypes,
-  useCreateOrUpdateFarcasterChannelTag,
-} from 'lib/actions/community-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { useCreateFarcasterChannelTag } from 'lib/shared/community-utils.js';
 import type { NeynarChannel } from 'lib/types/farcaster-types.js';
 import type { SetState } from 'lib/types/hook-types.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import Button from '../../components/button.react.js';
 import { TagFarcasterChannelByNameRouteName } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles, useColors } from '../../themes/colors.js';
-
-const createOrUpdateFarcasterChannelTagStatusSelector =
-  createLoadingStatusSelector(createOrUpdateFarcasterChannelTagActionTypes);
 
 type Props = {
   +communityID: string,
@@ -67,24 +59,9 @@ function TagChannelButton(props: Props): React.Node {
 
   const insets = useSafeAreaInsets();
 
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  const createOrUpdateFarcasterChannelTag =
-    useCreateOrUpdateFarcasterChannelTag();
-
-  const createCreateOrUpdateActionPromise = React.useCallback(
-    async (channelID: string) => {
-      try {
-        return await createOrUpdateFarcasterChannelTag({
-          commCommunityID: communityID,
-          farcasterChannelID: channelID,
-        });
-      } catch (e) {
-        setError(e.message);
-        throw e;
-      }
-    },
-    [communityID, createOrUpdateFarcasterChannelTag, setError],
+  const { createTag, isLoading } = useCreateFarcasterChannelTag(
+    communityID,
+    setError,
   );
 
   const onOptionSelected = React.useCallback(
@@ -111,19 +88,9 @@ function TagChannelButton(props: Props): React.Node {
 
       const channel = channelOptions[selectedIndex];
 
-      void dispatchActionPromise(
-        createOrUpdateFarcasterChannelTagActionTypes,
-        createCreateOrUpdateActionPromise(channel.id),
-      );
+      createTag(channel.id);
     },
-    [
-      channelOptions,
-      communityID,
-      createCreateOrUpdateActionPromise,
-      dispatchActionPromise,
-      navigate,
-      setError,
-    ],
+    [channelOptions, communityID, createTag, navigate, setError],
   );
 
   const onPressTag = React.useCallback(() => {
@@ -158,32 +125,18 @@ function TagChannelButton(props: Props): React.Node {
     showActionSheetWithOptions,
   ]);
 
-  const createOrUpdateFarcasterChannelTagStatus = useSelector(
-    createOrUpdateFarcasterChannelTagStatusSelector,
-  );
-  const isLoadingCreateOrUpdateFarcasterChannelTag =
-    createOrUpdateFarcasterChannelTagStatus === 'loading';
-
   const buttonContent = React.useMemo(() => {
-    if (isLoadingCreateOrUpdateFarcasterChannelTag) {
+    if (isLoading) {
       return (
         <ActivityIndicator size="small" color={colors.panelForegroundLabel} />
       );
     }
 
     return <Text style={styles.buttonText}>Tag channel</Text>;
-  }, [
-    colors.panelForegroundLabel,
-    isLoadingCreateOrUpdateFarcasterChannelTag,
-    styles.buttonText,
-  ]);
+  }, [colors.panelForegroundLabel, isLoading, styles.buttonText]);
 
   return (
-    <Button
-      style={styles.button}
-      disabled={isLoadingCreateOrUpdateFarcasterChannelTag}
-      onPress={onPressTag}
-    >
+    <Button style={styles.button} disabled={isLoading} onPress={onPressTag}>
       <View style={styles.buttonContainer}>{buttonContent}</View>
     </Button>
   );
