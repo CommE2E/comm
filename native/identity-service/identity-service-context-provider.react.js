@@ -465,48 +465,6 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           primaryIdentityPublicKeys.ed25519,
         );
       },
-      registerReservedWalletUser: async (
-        walletAddress: string,
-        siweMessage: string,
-        siweSignature: string,
-        keyserverMessage: string,
-        keyserverSignature: string,
-      ) => {
-        await commCoreModule.initializeCryptoAccount();
-        const [
-          { blobPayload, signature, primaryIdentityPublicKeys },
-          { contentOneTimeKeys, notificationsOneTimeKeys },
-          prekeys,
-        ] = await Promise.all([
-          commCoreModule.getUserPublicKey(),
-          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
-          commCoreModule.validateAndGetPrekeys(),
-        ]);
-        const initialDeviceList = await createAndSignInitialDeviceList(
-          primaryIdentityPublicKeys.ed25519,
-        );
-        const registrationResult =
-          await commRustModule.registerReservedWalletUser(
-            siweMessage,
-            siweSignature,
-            blobPayload,
-            signature,
-            prekeys.contentPrekey,
-            prekeys.contentPrekeySignature,
-            prekeys.notifPrekey,
-            prekeys.notifPrekeySignature,
-            getOneTimeKeyValues(contentOneTimeKeys),
-            getOneTimeKeyValues(notificationsOneTimeKeys),
-            keyserverMessage,
-            keyserverSignature,
-            JSON.stringify(initialDeviceList),
-          );
-
-        return await processAuthResult(
-          registrationResult,
-          primaryIdentityPublicKeys.ed25519,
-        );
-      },
       logInWalletUser: async (
         walletAddress: string,
         siweMessage: string,

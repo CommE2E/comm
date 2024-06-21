@@ -7,8 +7,7 @@ use grpc_clients::identity::{
   get_unauthenticated_client,
   protos::unauth::{
     RegistrationFinishRequest, RegistrationStartRequest,
-    ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
-    WalletAuthRequest,
+    ReservedRegistrationStartRequest, WalletAuthRequest,
   },
 };
 use tracing::instrument;
@@ -16,7 +15,7 @@ use tracing::instrument;
 use super::{
   farcaster::farcaster_id_string_to_option, IdentityAuthResult,
   RegisterPasswordUserInfo, RegisterReservedPasswordUserInfo,
-  RegisterReservedWalletUserInfo, RegisterWalletUserInfo, PLATFORM_METADATA,
+  RegisterWalletUserInfo, PLATFORM_METADATA,
 };
 
 #[allow(clippy::too_many_arguments)]
@@ -144,46 +143,6 @@ pub mod ffi {
       handle_string_result_as_callback(result, promise_id);
     });
   }
-
-  #[instrument]
-  pub fn register_reserved_wallet_user(
-    siwe_message: String,
-    siwe_signature: String,
-    key_payload: String,
-    key_payload_signature: String,
-    content_prekey: String,
-    content_prekey_signature: String,
-    notif_prekey: String,
-    notif_prekey_signature: String,
-    content_one_time_keys: Vec<String>,
-    notif_one_time_keys: Vec<String>,
-    keyserver_message: String,
-    keyserver_signature: String,
-    initial_device_list: String,
-    promise_id: u32,
-  ) {
-    RUNTIME.spawn(async move {
-      let wallet_user_info = RegisterReservedWalletUserInfo {
-        siwe_message,
-        siwe_signature,
-        device_keys: DeviceKeys {
-          key_payload,
-          key_payload_signature,
-          content_prekey,
-          content_prekey_signature,
-          notif_prekey,
-          notif_prekey_signature,
-          content_one_time_keys,
-          notif_one_time_keys,
-        },
-        keyserver_message,
-        keyserver_signature,
-        initial_device_list,
-      };
-      let result = register_reserved_wallet_user_helper(wallet_user_info).await;
-      handle_string_result_as_callback(result, promise_id);
-    });
-  }
 }
 
 async fn register_password_user_helper(
@@ -292,31 +251,6 @@ async fn register_wallet_user_helper(
 
   let registration_response = identity_client
     .register_wallet_user(registration_request)
-    .await?
-    .into_inner();
-
-  let auth_result = IdentityAuthResult::from(registration_response);
-  Ok(serde_json::to_string(&auth_result)?)
-}
-
-async fn register_reserved_wallet_user_helper(
-  wallet_user_info: RegisterReservedWalletUserInfo,
-) -> Result<String, Error> {
-  let registration_request = ReservedWalletRegistrationRequest {
-    siwe_message: wallet_user_info.siwe_message,
-    siwe_signature: wallet_user_info.siwe_signature,
-    device_key_upload: Some(wallet_user_info.device_keys.into()),
-    keyserver_message: wallet_user_info.keyserver_message,
-    keyserver_signature: wallet_user_info.keyserver_signature,
-    initial_device_list: wallet_user_info.initial_device_list,
-  };
-
-  let mut identity_client =
-    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
-      .await?;
-
-  let registration_response = identity_client
-    .register_reserved_wallet_user(registration_request)
     .await?
     .into_inner();
 
