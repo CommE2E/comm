@@ -174,7 +174,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       siweSignature: string,
     ) => {
       try {
-        return await walletLogIn(walletAddress, siweMessage, siweSignature);
+        await walletLogIn(walletAddress, siweMessage, siweSignature);
       } catch (e) {
         const messageForException = getMessageForException(e);
         if (messageForException === 'user_not_found') {
@@ -187,7 +187,6 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         } else if (messageForException === 'retry_from_native') {
           setError('retry_from_native');
         }
-        throw e;
       }
     },
     [walletLogIn],
