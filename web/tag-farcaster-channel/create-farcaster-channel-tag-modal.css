@@ -1,0 +1,20 @@
+.inputLabel {
+  color: var(--text-background-primary-default);
+  margin-bottom: 8px;
+}
+
+.dropdownInputContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.errorMessageContainer {
+  height: 18px;
+}
+
+.errorMessage {
+  text-align: center;
+  color: var(--text-background-danger-default);
+  font-size: var(--s-font-14);
+}
