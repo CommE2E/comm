@@ -35,6 +35,7 @@ import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
 import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
+import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
@@ -286,6 +287,7 @@ function Root() {
       <AccessTokenHandler />
       <DBOpsHandler processDBStoreOperations={processDBStoreOperations} />
       <UserInfosHandler />
+      <TunnelbrokerDeviceTokenHandler />
     </>
   );
   let navigation;
