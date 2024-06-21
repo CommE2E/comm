@@ -506,67 +506,6 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerWalle
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.identity.unauth.ReservedWalletRegistrationRequest,
- *   !proto.identity.unauth.AuthResponse>}
- */
-const methodDescriptor_IdentityClientService_RegisterReservedWalletUser = new grpc.web.MethodDescriptor(
-  '/identity.unauth.IdentityClientService/RegisterReservedWalletUser',
-  grpc.web.MethodType.UNARY,
-  proto.identity.unauth.ReservedWalletRegistrationRequest,
-  proto.identity.unauth.AuthResponse,
-  /**
-   * @param {!proto.identity.unauth.ReservedWalletRegistrationRequest} request
-   * @return {!Uint8Array}
-   */
-  function(request) {
-    return request.serializeBinary();
-  },
-  proto.identity.unauth.AuthResponse.deserializeBinary
-);
-
-
-/**
- * @param {!proto.identity.unauth.ReservedWalletRegistrationRequest} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
- *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
- *     The XHR Node Readable Stream
- */
-proto.identity.unauth.IdentityClientServiceClient.prototype.registerReservedWalletUser =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
-      '/identity.unauth.IdentityClientService/RegisterReservedWalletUser',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_RegisterReservedWalletUser,
-      callback);
-};
-
-
-/**
- * @param {!proto.identity.unauth.ReservedWalletRegistrationRequest} request The
- *     request proto
- * @param {?Object<string, string>=} metadata User defined
- *     call metadata
- * @return {!Promise<!proto.identity.unauth.AuthResponse>}
- *     Promise that resolves to the response
- */
-proto.identity.unauth.IdentityClientServicePromiseClient.prototype.registerReservedWalletUser =
-    function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
-      '/identity.unauth.IdentityClientService/RegisterReservedWalletUser',
-      request,
-      metadata || {},
-      methodDescriptor_IdentityClientService_RegisterReservedWalletUser);
-};
-
-
-/**
- * @const
- * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.SecondaryDeviceKeysUploadRequest,
  *   !proto.identity.unauth.AuthResponse>}
  */
