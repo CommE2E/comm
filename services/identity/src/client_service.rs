@@ -116,9 +116,10 @@ impl IdentityClientService for ClientService {
     self.check_username_taken(&message.username).await?;
     let username_in_reserved_usernames_table = self
       .client
-      .username_in_reserved_usernames_table(&message.username)
+      .get_user_id_from_reserved_usernames_table(&message.username)
       .await
-      .map_err(handle_db_error)?;
+      .map_err(handle_db_error)?
+      .is_some();
 
     if username_in_reserved_usernames_table {
       return Err(tonic::Status::already_exists(
@@ -187,9 +188,10 @@ impl IdentityClientService for ClientService {
 
     let username_in_reserved_usernames_table = self
       .client
-      .username_in_reserved_usernames_table(&message.username)
+      .get_user_id_from_reserved_usernames_table(&message.username)
       .await
-      .map_err(handle_db_error)?;
+      .map_err(handle_db_error)?
+      .is_some();
     if !username_in_reserved_usernames_table {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::USERNAME_NOT_RESERVED,
@@ -326,9 +328,10 @@ impl IdentityClientService for ClientService {
         // service.
         let username_in_reserved_usernames_table = self
           .client
-          .username_in_reserved_usernames_table(&message.username)
+          .get_user_id_from_reserved_usernames_table(&message.username)
           .await
-          .map_err(handle_db_error)?;
+          .map_err(handle_db_error)?
+          .is_some();
 
         if username_in_reserved_usernames_table {
           return Err(tonic::Status::permission_denied(
@@ -484,48 +487,77 @@ impl IdentityClientService for ClientService {
       construct_flattened_device_key_upload(&message)?;
 
     let login_time = chrono::Utc::now();
-    let Some(user_id) = self
+
+    let user_id = if let Some(user_id) = self
       .client
-      .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
+      .get_user_id_from_reserved_usernames_table(&wallet_address)
       .await
       .map_err(handle_db_error)?
-    else {
+    {
       // It's possible that the user attempting login is already registered
-      // on Ashoat's keyserver. If they are, we should send back a gRPC status
-      // code instructing them to get a signed message from Ashoat's keyserver
-      // in order to claim their wallet address and register with the Identity
-      // service.
-      let username_in_reserved_usernames_table = self
+      // on Ashoat's keyserver. If they are, we should try to register them if
+      // they're on a mobile device, otherwise we should send back a gRPC status
+      // code instructing them to try logging in from a mobile device first.
+      if platform_metadata.device_type.to_uppercase() != "ANDROID"
+        && platform_metadata.device_type.to_uppercase() != "IOS"
+      {
+        return Err(tonic::Status::permission_denied(
+          tonic_status_messages::RETRY_FROM_NATIVE,
+        ));
+      };
+
+      let social_proof =
+        SocialProof::new(message.siwe_message, message.siwe_signature);
+
+      self
+        .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+        .await?;
+
+      self
         .client
-        .username_in_reserved_usernames_table(&wallet_address)
+        .add_wallet_user_to_users_table(
+          flattened_device_key_upload.clone(),
+          wallet_address.clone(),
+          social_proof,
+          Some(user_id.clone()),
+          platform_metadata,
+          login_time,
+          message.farcaster_id,
+          None,
+        )
         .await
         .map_err(handle_db_error)?;
 
-      if username_in_reserved_usernames_table {
-        return Err(tonic::Status::permission_denied(
-          tonic_status_messages::NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME,
+      user_id
+    } else {
+      let Some(user_id) = self
+        .client
+        .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
+        .await
+        .map_err(handle_db_error)?
+      else {
+        return Err(tonic::Status::not_found(
+          tonic_status_messages::USER_NOT_FOUND,
         ));
-      }
+      };
 
-      return Err(tonic::Status::not_found(
-        tonic_status_messages::USER_NOT_FOUND,
-      ));
+      self
+        .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+        .await?;
+
+      self
+        .client
+        .add_user_device(
+          user_id.clone(),
+          flattened_device_key_upload.clone(),
+          platform_metadata,
+          chrono::Utc::now(),
+        )
+        .await
+        .map_err(handle_db_error)?;
+
+      user_id
     };
-
-    self
-      .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
-      .await?;
-
-    self
-      .client
-      .add_user_device(
-        user_id.clone(),
-        flattened_device_key_upload.clone(),
-        platform_metadata,
-        chrono::Utc::now(),
-      )
-      .await
-      .map_err(handle_db_error)?;
 
     // Create access token
     let token = AccessTokenData::with_created_time(
@@ -565,39 +597,17 @@ impl IdentityClientService for ClientService {
       &message.siwe_signature,
     )?;
 
-    match self
-      .client
-      .get_nonce_from_nonces_table(&parsed_message.nonce)
-      .await
-      .map_err(handle_db_error)?
-    {
-      None => {
-        return Err(tonic::Status::invalid_argument(
-          tonic_status_messages::INVALID_NONCE,
-        ))
-      }
-      Some(nonce) if nonce.is_expired() => {
-        // we don't need to remove the nonce from the table here
-        // because the DynamoDB TTL will take care of it
-        return Err(tonic::Status::aborted(
-          tonic_status_messages::NONCE_EXPIRED,
-        ));
-      }
-      Some(_) => self
-        .client
-        .remove_nonce_from_nonces_table(&parsed_message.nonce)
-        .await
-        .map_err(handle_db_error)?,
-    };
+    self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 
     let wallet_address = eip55(&parsed_message.address);
 
     self.check_wallet_address_taken(&wallet_address).await?;
     let username_in_reserved_usernames_table = self
       .client
-      .username_in_reserved_usernames_table(&wallet_address)
+      .get_user_id_from_reserved_usernames_table(&wallet_address)
       .await
-      .map_err(handle_db_error)?;
+      .map_err(handle_db_error)?
+      .is_some();
 
     if username_in_reserved_usernames_table {
       return Err(tonic::Status::already_exists(
@@ -680,22 +690,16 @@ impl IdentityClientService for ClientService {
 
     self.check_wallet_address_taken(&wallet_address).await?;
 
-    let wallet_address_in_reserved_usernames_table = self
+    let maybe_user_id = self
       .client
-      .username_in_reserved_usernames_table(&wallet_address)
+      .get_user_id_from_reserved_usernames_table(&wallet_address)
       .await
       .map_err(handle_db_error)?;
-    if !wallet_address_in_reserved_usernames_table {
+    let Some(user_id) = maybe_user_id else {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::WALLET_ADDRESS_NOT_RESERVED,
       ));
-    }
-
-    let user_id = validate_account_ownership_message_and_get_user_id(
-      &wallet_address,
-      &message.keyserver_message,
-      &message.keyserver_signature,
-    )?;
+    };
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
@@ -1015,15 +1019,17 @@ impl IdentityClientService for ClientService {
       Some(Identifier::WalletAddress(address)) => (address, AuthType::Wallet),
     };
 
-    let (is_reserved_result, user_id_result) = tokio::join!(
+    let (get_user_id_from_reserved_usernames_table_result, user_id_result) = tokio::join!(
       self
         .client
-        .username_in_reserved_usernames_table(&user_ident),
+        .get_user_id_from_reserved_usernames_table(&user_ident),
       self
         .client
         .get_user_id_from_user_info(user_ident.clone(), &auth_type),
     );
-    let is_reserved = is_reserved_result.map_err(handle_db_error)?;
+    let is_reserved = get_user_id_from_reserved_usernames_table_result
+      .map_err(handle_db_error)?
+      .is_some();
     let user_id = user_id_result.map_err(handle_db_error)?;
 
     Ok(Response::new(FindUserIdResponse {
