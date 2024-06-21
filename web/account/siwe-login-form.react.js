@@ -48,7 +48,10 @@ import LoadingIndicator from '../loading-indicator.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { getVersionUnsupportedError } from '../utils/version-utils.js';
 
-type SIWELogInError = 'account_does_not_exist' | 'client_version_unsupported';
+type SIWELogInError =
+  | 'account_does_not_exist'
+  | 'client_version_unsupported'
+  | 'retry_from_native';
 
 type SIWELoginFormProps = {
   +cancelSIWEAuthFlow: () => void,
@@ -181,6 +184,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
           messageForException === 'unsupported_version'
         ) {
           setError('client_version_unsupported');
+        } else if (messageForException === 'retry_from_native') {
+          setError('retry_from_native');
         }
         throw e;
       }
@@ -280,6 +285,31 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     );
   } else if (error === 'client_version_unsupported') {
     errorText = <p className={css.redText}>{getVersionUnsupportedError()}</p>;
+  } else if (error === 'retry_from_native') {
+    errorText = (
+      <>
+        <p className={css.redText}>
+          No primary device found for that Ethereum wallet!
+        </p>
+        <p>
+          Please try logging in from a mobile device to establish your primary
+          device. Comm relies on a primary device capable of scanning QR codes
+          in order to authorize secondary devices. Once you&rsquo;ve logged in
+          from a mobile device, you will be able to log in from your browser.
+        </p>
+        <p>
+          You can install our iOS app&nbsp;
+          <a href={stores.appStoreUrl} target="_blank" rel="noreferrer">
+            here
+          </a>
+          , or our Android app&nbsp;
+          <a href={stores.googlePlayUrl} target="_blank" rel="noreferrer">
+            here
+          </a>
+          .
+        </p>
+      </>
+    );
   }
 
   return (
