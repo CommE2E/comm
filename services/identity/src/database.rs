@@ -4,7 +4,9 @@ use comm_lib::aws::ddb::{
     put_item::PutItemOutput, query::QueryOutput,
   },
   primitives::Blob,
-  types::{AttributeValue, PutRequest, WriteRequest},
+  types::{
+    AttributeValue, Delete, Put, PutRequest, TransactWriteItem, WriteRequest,
+  },
 };
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
 use comm_lib::database::{
@@ -223,7 +225,7 @@ impl DatabaseClient {
     initial_device_list: Option<SignedDeviceList>,
   ) -> Result<String, Error> {
     let wallet_identity = EthereumIdentity {
-      wallet_address,
+      wallet_address: wallet_address.clone(),
       social_proof,
     };
     let user_id = self
@@ -284,7 +286,8 @@ impl DatabaseClient {
       AttributeValue::S(user_id.clone()),
     )]);
 
-    if let Some((username, password_file)) = username_and_password_file {
+    if let Some((username, password_file)) = username_and_password_file.clone()
+    {
       user.insert(
         USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
         AttributeValue::S(username),
@@ -295,7 +298,7 @@ impl DatabaseClient {
       );
     }
 
-    if let Some(eth_identity) = wallet_identity {
+    if let Some(eth_identity) = wallet_identity.clone() {
       user.insert(
         USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE.to_string(),
         AttributeValue::S(eth_identity.wallet_address),
@@ -313,14 +316,45 @@ impl DatabaseClient {
       );
     }
 
-    self
-      .client
-      .put_item()
+    let put_user = Put::builder()
       .table_name(USERS_TABLE)
       .set_item(Some(user))
-      // make sure we don't accidentaly overwrite existing row
+      // make sure we don't accidentally overwrite existing row
       .condition_expression("attribute_not_exists(#pk)")
       .expression_attribute_names("#pk", USERS_TABLE_PARTITION_KEY)
+      .build();
+
+    let put_user_operation = TransactWriteItem::builder().put(put_user).build();
+
+    let partition_key_value =
+      match (username_and_password_file, wallet_identity) {
+        (Some((username, _)), _) => username,
+        (_, Some(ethereum_identity)) => ethereum_identity.wallet_address,
+        _ => return Err(Error::MalformedItem),
+      };
+
+    // We make sure to delete the user from the reserved usernames table when we
+    // add them to the users table
+    let delete_user_from_reserved_usernames = Delete::builder()
+      .table_name(RESERVED_USERNAMES_TABLE)
+      .key(
+        RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+        AttributeValue::S(partition_key_value),
+      )
+      .build();
+
+    let delete_user_from_reserved_usernames_operation =
+      TransactWriteItem::builder()
+        .delete(delete_user_from_reserved_usernames)
+        .build();
+
+    self
+      .client
+      .transact_write_items()
+      .set_transact_items(Some(vec![
+        put_user_operation,
+        delete_user_from_reserved_usernames_operation,
+      ]))
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
@@ -1081,11 +1115,11 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn username_in_reserved_usernames_table(
+  pub async fn get_user_id_from_reserved_usernames_table(
     &self,
     username: &str,
-  ) -> Result<bool, Error> {
-    match self
+  ) -> Result<Option<String>, Error> {
+    let response = self
       .client
       .get_item()
       .table_name(RESERVED_USERNAMES_TABLE)
@@ -1096,11 +1130,20 @@ impl DatabaseClient {
       .consistent_read(true)
       .send()
       .await
-    {
-      Ok(GetItemOutput { item: Some(_), .. }) => Ok(true),
-      Ok(_) => Ok(false),
-      Err(e) => Err(Error::AwsSdk(e.into())),
-    }
+      .map_err(|e| Error::AwsSdk(e.into()))?;
+
+    let GetItemOutput {
+      item: Some(mut item),
+      ..
+    } = response
+    else {
+      return Ok(None);
+    };
+
+    // We should not return `Ok(None)` if `userID` is missing from the item
+    Ok(Some(item.take_attr::<String>(
+      RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE,
+    )?))
   }
 }
 
