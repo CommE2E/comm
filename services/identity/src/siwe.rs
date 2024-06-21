@@ -62,7 +62,7 @@ pub fn is_valid_ethereum_address(candidate: &str) -> bool {
   ethereum_address_regex.is_match(candidate)
 }
 
-#[derive(derive_more::Constructor)]
+#[derive(derive_more::Constructor, Clone)]
 pub struct SocialProof {
   pub message: String,
   pub signature: String,

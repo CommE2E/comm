@@ -266,6 +266,7 @@ pub mod tonic_status_messages {
     "missing_platform_or_code_version_metadata";
   pub const MISSING_KEY: &str = "missing_key";
   pub const MESSAGE_NOT_AUTHENTICATED: &str = "message_not_authenticated";
+  pub const RETRY_FROM_NATIVE: &str = "retry_from_native";
 }
 
 // Tunnelbroker
