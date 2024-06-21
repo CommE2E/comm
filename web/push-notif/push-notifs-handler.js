@@ -60,6 +60,8 @@ function useCreateDesktopPushSubscription() {
         void dispatchActionPromise(
           setDeviceTokenActionTypes,
           callSetDeviceToken(token),
+          undefined,
+          { deviceToken: token },
         );
       }),
     [callSetDeviceToken, dispatchActionPromise],
@@ -146,9 +148,12 @@ function useCreatePushSubscription(): () => Promise<void> {
       applicationServerKey: publicKey,
     });
 
+    const token = JSON.stringify(subscription);
     void dispatchActionPromise(
       setDeviceTokenActionTypes,
-      callSetDeviceToken(JSON.stringify(subscription)),
+      callSetDeviceToken(token),
+      undefined,
+      { deviceToken: token },
     );
   }, [callSetDeviceToken, dispatchActionPromise, publicKey, staffCanSee]);
 }
