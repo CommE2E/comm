@@ -205,7 +205,14 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       SIWEMessageTypes.MSG_AUTH,
     );
     const message = createSIWEMessage(address, statement, siweNonce);
-    const signature = await signer.signMessage({ message });
+    let signature;
+    try {
+      signature = await signer.signMessage({ message });
+    } catch (e) {
+      // If we fail to get the signature (e.g. user cancels the request), we
+      // should return immediately
+      return;
+    }
     if (usingCommServicesAccessToken) {
       await attemptWalletLogIn(address, message, signature);
     } else {
