@@ -161,6 +161,10 @@ void (async () => {
     server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
 
+    server.get('/health', (req: $Request, res: $Response) => {
+      res.send('OK');
+    });
+
     // Note - the order of router declarations matters. On prod we have
     // keyserverBaseRoutePath configured to '/', which means it's a catch-all.
     // If we call server.use on keyserverRouter first, it will catch all
