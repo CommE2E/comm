@@ -137,6 +137,14 @@ function TraditionalLoginForm(): React.Node {
         messageForException === 'unsupported_version'
       ) {
         setErrorMessage(getShortVersionUnsupportedError());
+      } else if (
+        messageForException === 'need_keyserver_message_to_claim_username'
+      ) {
+        // We don't want to let users claim their reserved usernames from web
+        // because we won't be able to establish a primary device for them.
+        setErrorMessage(
+          'primary device not found. please log in from a mobile device',
+        );
       } else {
         setErrorMessage('unknown error');
       }
