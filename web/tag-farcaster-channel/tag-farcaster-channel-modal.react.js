@@ -10,8 +10,10 @@ import {
 } from 'lib/shared/community-utils.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 
+import CreateFarcasterChannelTagModal from './create-farcaster-channel-tag-modal.react.js';
 import RemoveTagButton from './remove-tag-button.react.js';
 import css from './tag-farcaster-channel-modal.css';
+import Button, { buttonThemes } from '../components/button.react.js';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -22,13 +24,19 @@ type Props = {
 function TagFarcasterChannelModal(props: Props): React.Node {
   const { communityID } = props;
 
-  const { popModal } = useModalContext();
+  const { popModal, pushModal } = useModalContext();
 
   const communityInfo: ?CommunityInfo = useSelector(
     state => state.communityStore.communityInfos[communityID],
   );
 
   const [removeTagError, setRemoveTagError] = React.useState<?string>();
+
+  const openCreateFarcasterChannelTagModal = React.useCallback(
+    () =>
+      pushModal(<CreateFarcasterChannelTagModal communityID={communityID} />),
+    [communityID, pushModal],
+  );
 
   const channelNameTextContent = React.useMemo(() => {
     if (!communityInfo?.farcasterChannelID) {
@@ -56,9 +64,21 @@ function TagFarcasterChannelModal(props: Props): React.Node {
         />
       );
     }
-    // TODO: Implement TagChannelButton
-    return null;
-  }, [communityID, communityInfo?.farcasterChannelID]);
+
+    return (
+      <Button
+        variant="filled"
+        buttonColor={buttonThemes.standard}
+        onClick={openCreateFarcasterChannelTagModal}
+      >
+        Tag channel
+      </Button>
+    );
+  }, [
+    communityID,
+    communityInfo?.farcasterChannelID,
+    openCreateFarcasterChannelTagModal,
+  ]);
 
   const errorMessageClassName = classNames(css.errorMessage, {
     [css.errorMessageVisible]: removeTagError,
