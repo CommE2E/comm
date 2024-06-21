@@ -145,15 +145,6 @@ pub struct RegisterWalletUserInfo {
   pub initial_device_list: String,
 }
 
-pub struct RegisterReservedWalletUserInfo {
-  pub siwe_message: String,
-  pub siwe_signature: String,
-  pub device_keys: DeviceKeys,
-  pub keyserver_message: String,
-  pub keyserver_signature: String,
-  pub initial_device_list: String,
-}
-
 /// Counterpart of proto [`AuthResponse`] message
 /// that implements the `Serialize` trait.
 #[derive(Serialize)]

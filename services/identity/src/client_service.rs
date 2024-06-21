@@ -26,7 +26,7 @@ use crate::grpc_services::protos::unauth::{
   GenerateNonceResponse, OpaqueLoginFinishRequest, OpaqueLoginStartRequest,
   OpaqueLoginStartResponse, RegistrationFinishRequest, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
-  ReservedRegistrationStartRequest, ReservedWalletRegistrationRequest,
+  ReservedRegistrationStartRequest,
   SecondaryDeviceKeysUploadRequest, VerifyUserAccessTokenRequest,
   VerifyUserAccessTokenResponse, WalletAuthRequest, GetFarcasterUsersRequest,
   GetFarcasterUsersResponse
@@ -668,87 +668,6 @@ impl IdentityClientService for ClientService {
       access_token,
       username: wallet_address,
     };
-    Ok(Response::new(response))
-  }
-
-  #[tracing::instrument(skip_all)]
-  async fn register_reserved_wallet_user(
-    &self,
-    request: tonic::Request<ReservedWalletRegistrationRequest>,
-  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    let platform_metadata = get_platform_metadata(&request)?;
-    let message = request.into_inner();
-
-    let parsed_message = parse_and_verify_siwe_message(
-      &message.siwe_message,
-      &message.siwe_signature,
-    )?;
-
-    self.verify_and_remove_nonce(&parsed_message.nonce).await?;
-
-    let wallet_address = eip55(&parsed_message.address);
-
-    self.check_wallet_address_taken(&wallet_address).await?;
-
-    let maybe_user_id = self
-      .client
-      .get_user_id_from_reserved_usernames_table(&wallet_address)
-      .await
-      .map_err(handle_db_error)?;
-    let Some(user_id) = maybe_user_id else {
-      return Err(tonic::Status::permission_denied(
-        tonic_status_messages::WALLET_ADDRESS_NOT_RESERVED,
-      ));
-    };
-
-    let flattened_device_key_upload =
-      construct_flattened_device_key_upload(&message)?;
-    self
-      .check_device_id_taken(&flattened_device_key_upload, None)
-      .await?;
-
-    let initial_device_list = message.get_and_verify_initial_device_list()?;
-    let social_proof =
-      SocialProof::new(message.siwe_message, message.siwe_signature);
-
-    let login_time = chrono::Utc::now();
-    self
-      .client
-      .add_wallet_user_to_users_table(
-        flattened_device_key_upload.clone(),
-        wallet_address.clone(),
-        social_proof,
-        Some(user_id.clone()),
-        platform_metadata,
-        login_time,
-        None,
-        initial_device_list,
-      )
-      .await
-      .map_err(handle_db_error)?;
-
-    let token = AccessTokenData::with_created_time(
-      user_id.clone(),
-      flattened_device_key_upload.device_id_key,
-      login_time,
-      crate::token::AuthType::Wallet,
-      &mut OsRng,
-    );
-
-    let access_token = token.access_token.clone();
-
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
-
-    let response = AuthResponse {
-      user_id,
-      access_token,
-      username: wallet_address,
-    };
-
     Ok(Response::new(response))
   }
 
