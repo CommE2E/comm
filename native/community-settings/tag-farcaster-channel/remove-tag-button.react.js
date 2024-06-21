@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 
 import { useRemoveFarcasterChannelTag } from 'lib/shared/community-utils.js';
 import type { SetState } from 'lib/types/hook-types.js';
@@ -39,7 +39,7 @@ function RemoveTagButton(props: Props): React.Node {
 
   return (
     <Button style={styles.button} disabled={isLoading} onPress={removeTag}>
-      {buttonContent}
+      <View style={styles.buttonContainer}>{buttonContent}</View>
     </Button>
   );
 }
