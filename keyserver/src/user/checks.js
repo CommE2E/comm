@@ -1,6 +1,9 @@
 // @flow
 
 import { getCommConfig } from 'lib/utils/comm-config.js';
+
+// changes here should be reflected for keyserver_user_credentials in
+// services/terraform/self-host/variables.tf
 export type UserCredentials = {
   +username: string,
   +password: string,

@@ -1,3 +1,13 @@
+variable "keyserver_user_credentials" {
+  description = "Credentials for user authentication"
+  type = object({
+    username                 = string
+    password                 = string
+    usingIdentityCredentials = optional(bool)
+    force                    = optional(bool)
+  })
+}
+
 variable "mariadb_username" {
   description = "MariaDB username"
   type        = string
@@ -23,8 +33,6 @@ variable "allowed_ip" {
 
 variable "user_created_vpc" {
   description = "Use non-default vpc and subnets"
-  type        = bool
-  default     = false
 }
 
 variable "availability_zone_1" {
@@ -37,4 +45,10 @@ variable "availability_zone_2" {
   description = "Second availability zone for vpc subnet if user created vpc"
   type        = string
   default     = "us-west-1c"
+}
+
+variable "identity_socket_address" {
+  description = "The socket address to access the identity service"
+  type        = string
+  default     = "https://identity.commtechnologies.org:50054"
 }
