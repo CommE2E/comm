@@ -25,8 +25,6 @@ service IdentityClientService {
 
   rpc LogInWalletUser(WalletAuthRequest) returns (AuthResponse) {}
   rpc RegisterWalletUser(WalletAuthRequest) returns (AuthResponse) {}
-  rpc RegisterReservedWalletUser(ReservedWalletRegistrationRequest) returns
-    (AuthResponse) {}
 
   rpc UploadKeysForRegisteredDeviceAndLogIn(SecondaryDeviceKeysUploadRequest)
     returns (AuthResponse) {}
@@ -230,30 +228,6 @@ message WalletAuthRequest {
   // It's an empty string when used outside `RegisterWalletUser` RPC
   // and for older clients which don't sign device lists yet.
   string initial_device_list = 5;
-}
-
-message ReservedWalletRegistrationRequest {
-  string siwe_message = 1;
-  string siwe_signature = 2;
-  // Information specific to a user's device needed to open a new channel of
-  // communication with this user
-  DeviceKeyUpload device_key_upload = 3;
-  // Message from authoritative keyserver attesting that a given user
-  // has ownership of a given wallet address
-  string keyserver_message = 4;
-  // Above message signed with authoritative keyserver's signing ed25519 key
-  string keyserver_signature = 5;
-  // A stringified JSON object of the following format:
-  // {
-  //   "rawDeviceList": JSON.stringify({
-  //     "devices": [<primary_device_id: string>]
-  //     "timestamp": <UTC timestamp in milliseconds: int>,
-  //   }),
-  //   "curPrimarySignature": "base64-encoded primary device signature"
-  // }
-  // It's an empty string when used for older clients 
-  // which don't sign device lists yet.
-  string initial_device_list = 6;
 }
 
 // UploadKeysForRegisteredDeviceAndLogIn

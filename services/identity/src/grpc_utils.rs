@@ -14,8 +14,7 @@ use crate::{
     unauth::{
       DeviceKeyUpload, ExistingDeviceLoginRequest, OpaqueLoginStartRequest,
       RegistrationStartRequest, ReservedRegistrationStartRequest,
-      ReservedWalletRegistrationRequest, SecondaryDeviceKeysUploadRequest,
-      WalletAuthRequest,
+      SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
     },
   },
 };
@@ -166,12 +165,6 @@ impl DeviceKeyUploadData for WalletAuthRequest {
   }
 }
 
-impl DeviceKeyUploadData for ReservedWalletRegistrationRequest {
-  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
-    self.device_key_upload.as_ref()
-  }
-}
-
 impl DeviceKeyUploadData for SecondaryDeviceKeysUploadRequest {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
     self.device_key_upload.as_ref()
@@ -294,11 +287,6 @@ impl RegistrationData for ReservedRegistrationStartRequest {
   }
 }
 impl RegistrationData for WalletAuthRequest {
-  fn initial_device_list(&self) -> &str {
-    &self.initial_device_list
-  }
-}
-impl RegistrationData for ReservedWalletRegistrationRequest {
   fn initial_device_list(&self) -> &str {
     &self.initial_device_list
   }

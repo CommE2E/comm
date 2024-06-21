@@ -362,44 +362,6 @@ export type WalletAuthRequestObject = {
   initialDeviceList: string,
 };
 
-declare export class ReservedWalletRegistrationRequest extends Message {
-  getSiweMessage(): string;
-  setSiweMessage(value: string): ReservedWalletRegistrationRequest;
-
-  getSiweSignature(): string;
-  setSiweSignature(value: string): ReservedWalletRegistrationRequest;
-
-  getDeviceKeyUpload(): DeviceKeyUpload | void;
-  setDeviceKeyUpload(value?: DeviceKeyUpload): ReservedWalletRegistrationRequest;
-  hasDeviceKeyUpload(): boolean;
-  clearDeviceKeyUpload(): ReservedWalletRegistrationRequest;
-
-  getKeyserverMessage(): string;
-  setKeyserverMessage(value: string): ReservedWalletRegistrationRequest;
-
-  getKeyserverSignature(): string;
-  setKeyserverSignature(value: string): ReservedWalletRegistrationRequest;
-
-  getInitialDeviceList(): string;
-  setInitialDeviceList(value: string): ReservedWalletRegistrationRequest;
-
-  serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): ReservedWalletRegistrationRequestObject;
-  static toObject(includeInstance: boolean, msg: ReservedWalletRegistrationRequest): ReservedWalletRegistrationRequestObject;
-  static serializeBinaryToWriter(message: ReservedWalletRegistrationRequest, writer: BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): ReservedWalletRegistrationRequest;
-  static deserializeBinaryFromReader(message: ReservedWalletRegistrationRequest, reader: BinaryReader): ReservedWalletRegistrationRequest;
-}
-
-export type ReservedWalletRegistrationRequestObject = {
-  siweMessage: string,
-  siweSignature: string,
-  deviceKeyUpload?: DeviceKeyUploadObject,
-  keyserverMessage: string,
-  keyserverSignature: string,
-  initialDeviceList: string,
-};
-
 declare export class SecondaryDeviceKeysUploadRequest extends Message {
   getUserId(): string;
   setUserId(value: string): SecondaryDeviceKeysUploadRequest;

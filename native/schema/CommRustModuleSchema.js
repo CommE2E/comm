@@ -60,21 +60,6 @@ export interface Spec extends TurboModule {
     farcasterID: string,
     initialDeviceList: string,
   ) => Promise<string>;
-  +registerReservedWalletUser: (
-    siweMessage: string,
-    siweSignature: string,
-    keyPayload: string,
-    keyPayloadSignature: string,
-    contentPrekey: string,
-    contentPrekeySignature: string,
-    notifPrekey: string,
-    notifPrekeySignature: string,
-    contentOneTimeKeys: $ReadOnlyArray<string>,
-    notifOneTimeKeys: $ReadOnlyArray<string>,
-    keyserverMessage: string,
-    keyserverSignature: string,
-    initialDeviceList: string,
-  ) => Promise<string>;
   +logInWalletUser: (
     siweMessage: string,
     siweSignature: string,
