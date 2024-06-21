@@ -1,0 +1,21 @@
+.inputLabel {
+  color: var(--text-background-primary-default);
+  margin-bottom: 8px;
+}
+
+.dropdownInputContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.errorMessage {
+  text-align: center;
+  color: var(--text-background-danger-default);
+  font-size: var(--s-font-14);
+  visibility: hidden;
+}
+
+.errorMessageVisible {
+  visibility: visible;
+}
