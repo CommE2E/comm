@@ -20,7 +20,11 @@ import {
 } from 'lib/push/android-notif-creators.js';
 import { apnMaxNotificationPayloadByteSize } from 'lib/push/apns-notif-creators.js';
 import type { PushUserInfo, PushInfo, Device } from 'lib/push/send-utils.js';
-import { stringToVersionKey, getDevicesByPlatform } from 'lib/push/utils.js';
+import {
+  stringToVersionKey,
+  getDevicesByPlatform,
+  userAllowsNotif,
+} from 'lib/push/utils.js';
 import {
   type WebNotifInputData,
   webNotifInputDataValidator,
@@ -31,8 +35,6 @@ import {
   wnsNotifInputDataValidator,
   createWNSNotification,
 } from 'lib/push/wns-notif-creators.js';
-import { oldValidUsernameRegex } from 'lib/shared/account-utils.js';
-import { isUserMentioned } from 'lib/shared/mention-utils.js';
 import {
   createMessageInfo,
   shimUnsupportedRawMessageInfos,
@@ -245,36 +247,24 @@ async function preparePushNotif(input: {
   const parentThreadInfo = threadInfo.parentThreadID
     ? threadInfos[threadInfo.parentThreadID]
     : null;
-  const updateBadge = threadInfo.currentUser.subscription.home;
-  const displayBanner = threadInfo.currentUser.subscription.pushNotifs;
+
   const username = userInfos[userID] && userInfos[userID].username;
 
-  let resolvedUsername;
-  if (getENSNames) {
-    const userInfosWithENSNames = await getENSNames([userInfos[userID]]);
-    resolvedUsername = userInfosWithENSNames[0].username;
-  }
+  const { notifAllowed, badgeOnly } = await userAllowsNotif({
+    subscription: {
+      ...threadInfo.currentUser.subscription,
+      role: threadInfo.currentUser.role,
+    },
+    userID,
+    newMessageInfos,
+    userInfos,
+    username,
+    getENSNames,
+  });
 
-  const userWasMentioned =
-    username &&
-    threadInfo.currentUser.role &&
-    oldValidUsernameRegex.test(username) &&
-    newMessageInfos.some(newMessageInfo => {
-      const unwrappedMessageInfo =
-        newMessageInfo.type === messageTypes.SIDEBAR_SOURCE
-          ? newMessageInfo.sourceMessage
-          : newMessageInfo;
-      return (
-        unwrappedMessageInfo.type === messageTypes.TEXT &&
-        (isUserMentioned(username, unwrappedMessageInfo.text) ||
-          (resolvedUsername &&
-            isUserMentioned(resolvedUsername, unwrappedMessageInfo.text)))
-      );
-    });
-  if (!updateBadge && !displayBanner && !userWasMentioned) {
+  if (!notifAllowed) {
     return null;
   }
-  const badgeOnly = !displayBanner && !userWasMentioned;
 
   const notifTargetUserInfo = { id: userID, username };
   const notifTexts = await notifTextsForMessageInfo(

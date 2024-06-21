@@ -446,7 +446,7 @@ async function postMessageSend(
       newMessageInfos: messageInfos,
       messageDatas,
       threadsToMessageIndices,
-      threadIDs: preUserPushInfo.notFocusedThreadIDs,
+      threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
       userNotMemberOfSubthreads,
       fetchMessageInfoByID: (messageID: string) =>
         fetchMessageInfoByID(viewer, messageID),
@@ -458,7 +458,7 @@ async function postMessageSend(
       newMessageInfos: messageInfos,
       messageDatas,
       threadsToMessageIndices,
-      threadIDs: preUserPushInfo.notFocusedThreadIDs,
+      threadIDs: [...preUserPushInfo.notFocusedThreadIDs],
       userNotMemberOfSubthreads,
       fetchMessageInfoByID: (messageID: string) =>
         fetchMessageInfoByID(viewer, messageID),
