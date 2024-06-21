@@ -528,13 +528,18 @@ class PushHandler extends React.PureComponent<Props, State> {
         deviceTokensMap[keyserverID] = deviceToken;
       }
     }
-    this.setDeviceToken(deviceTokensMap);
+    this.setDeviceToken(deviceTokensMap, { deviceToken });
   };
 
-  setDeviceToken(deviceTokens: DeviceTokens) {
+  setDeviceToken(
+    deviceTokens: DeviceTokens,
+    payload: ?{ deviceToken: ?string },
+  ) {
     void this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceToken(deviceTokens),
+      undefined,
+      payload,
     );
   }
 
@@ -542,6 +547,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     void this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
       this.props.setDeviceTokenFanout(null),
+      undefined,
+      { deviceToken: null },
     );
   };
 
