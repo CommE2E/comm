@@ -20,3 +20,26 @@ variable "allowed_ip" {
   description = "IP address"
   type        = string
 }
+
+variable "keyserver_username" {
+  description = "Keyserver username"
+  type        = string
+}
+
+variable "keyserver_password" {
+  description = "Keyserver password"
+  type        = string
+  sensitive   = true
+}
+
+variable "using_identity_credentials" {
+  description = "Whether to use identity credentials to login"
+  type        = bool
+  default     = false
+}
+
+variable "identity_socket_address" {
+  description = "The socket address to access the identity service"
+  type        = string
+  default     = "https://identity.commtechnologies.org:50054"
+}
