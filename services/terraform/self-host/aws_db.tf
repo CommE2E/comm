@@ -6,6 +6,13 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
 
   # Inbound rules
   ingress {
+    from_port       = 3307
+    to_port         = 3307
+    protocol        = "tcp"
+    security_groups = [aws_security_group.keyserver_service.id]
+  }
+
+  ingress {
     from_port   = 3307
     to_port     = 3307
     protocol    = "tcp"
