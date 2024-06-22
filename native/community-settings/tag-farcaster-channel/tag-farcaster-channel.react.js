@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
+import { tagFarcasterChannelErrorMessages } from 'lib/shared/community-utils.js';
 import type { CommunityInfo } from 'lib/types/community-types.js';
 
 import RemoveTagButton from './remove-tag-button.react.js';
 import TagChannelButton from './tag-channel-button.react.js';
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
-import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import { type NavigationRoute } from '../../navigation/route-names.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
