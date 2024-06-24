@@ -85,7 +85,13 @@ impl DatabaseClient {
       .return_values(ReturnValue::UpdatedNew)
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!(
+          errorType = error_types::FARCASTER_DB_LOG,
+          "DDB client failed to add farcasterID: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
 
     match response.attributes {
       None => return Err(Error::MissingItem),
@@ -116,7 +122,13 @@ impl DatabaseClient {
       .update_expression(update_expression)
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!(
+          errorType = error_types::FARCASTER_DB_LOG,
+          "DDB client failed to remove farcasterID: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }

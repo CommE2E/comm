@@ -73,7 +73,7 @@ impl DatabaseClient {
       }
       Err(e) => {
         error!(
-          errorType = error_types::TOKEN_DB_LOG, "DynamoDB client failed to get token for user {} with signing public key {}: {}",
+          errorType = error_types::TOKEN_DB_LOG, "DynamoDB client failed to get token for user {} with signing public key {}: {:?}",
           user_id, signing_public_key, e
         );
         Err(Error::AwsSdk(e.into()))
