@@ -190,7 +190,13 @@ impl DatabaseClient {
     let otk_rows = query
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?
+      .map_err(|e| {
+        error!(
+          errorType = error_types::OTK_DB_LOG,
+          "DDB client failed to query OTK rows: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?
       .items
       .unwrap_or_default()
       .into_iter()
