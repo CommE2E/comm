@@ -70,7 +70,7 @@ resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
 resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
   for_each = local.identity_error_patterns
 
-  alarm_name          = "Identity${each.value.name}ErrorAlarm"
+  alarm_name          = "Identity${local.is_staging ? "Staging" : "Production"}${each.value.name}ErrorAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "Identity${each.value.name}ErrorCount"
