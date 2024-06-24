@@ -248,11 +248,18 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("removeEntries", &SQLiteQueryExecutor::removeEntries)
       .function("removeAllEntries", &SQLiteQueryExecutor::removeAllEntries)
       .function("getAllEntries", &SQLiteQueryExecutor::getAllEntries)
-      .function("replaceMessageStoreLocalMessageInfo", &SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo)
-      .function("removeMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos)
       .function(
-          "removeAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos)
-      .function("getAllMessageStoreLocalMessageInfos", &SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos)
+          "replaceMessageStoreLocalMessageInfo",
+          &SQLiteQueryExecutor::replaceMessageStoreLocalMessageInfo)
+      .function(
+          "removeMessageStoreLocalMessageInfos",
+          &SQLiteQueryExecutor::removeMessageStoreLocalMessageInfos)
+      .function(
+          "removeAllMessageStoreLocalMessageInfos",
+          &SQLiteQueryExecutor::removeAllMessageStoreLocalMessageInfos)
+      .function(
+          "getAllMessageStoreLocalMessageInfos",
+          &SQLiteQueryExecutor::getAllMessageStoreLocalMessageInfos)
       .function("beginTransaction", &SQLiteQueryExecutor::beginTransaction)
       .function("commitTransaction", &SQLiteQueryExecutor::commitTransaction)
       .function(
