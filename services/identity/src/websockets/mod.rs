@@ -113,10 +113,7 @@ pub async fn run_server(
 
     tokio::spawn(async move {
       if let Err(err) = connection.await {
-        error!(
-          errorType = error_types::SEARCH_LOG,
-          "Error serving HTTP/WebSocket connection: {:?}", err
-        );
+        warn!("Error serving HTTP/WebSocket connection: {:?}", err);
       }
     });
   }
