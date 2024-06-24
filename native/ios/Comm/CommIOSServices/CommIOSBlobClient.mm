@@ -251,18 +251,26 @@ NSString *const blobServiceHolderKey = @"holder";
   auto userID = comm::CommSecureStore::get(comm::CommSecureStore::userID);
   auto deviceID = comm::CommSecureStore::get(comm::CommSecureStore::deviceID);
 
-  NSString *userIDObjC = userID.hasValue()
-      ? [NSString stringWithCString:userID.value().c_str()
-                           encoding:NSUTF8StringEncoding]
-      : @"";
-  NSString *accessTokenObjC = accessToken.hasValue()
-      ? [NSString stringWithCString:accessToken.value().c_str()
-                           encoding:NSUTF8StringEncoding]
-      : @"";
-  NSString *deviceIDObjC = deviceID.hasValue()
-      ? [NSString stringWithCString:deviceID.value().c_str()
-                           encoding:NSUTF8StringEncoding]
-      : @"";
+  if (!userID.hasValue() || !accessToken.hasValue() || !deviceID.hasValue()) {
+    *error = [NSError
+        errorWithDomain:@"app.comm"
+                   code:NSURLErrorUserAuthenticationRequired
+               userInfo:@{
+                 NSLocalizedDescriptionKey :
+                     @"Unable to query blob service due to missing CSAT."
+               }];
+    return nil;
+  }
+
+  NSString *userIDObjC = [NSString stringWithCString:userID.value().c_str()
+                                            encoding:NSUTF8StringEncoding];
+
+  NSString *accessTokenObjC =
+      [NSString stringWithCString:accessToken.value().c_str()
+                         encoding:NSUTF8StringEncoding];
+
+  NSString *deviceIDObjC = [NSString stringWithCString:deviceID.value().c_str()
+                                              encoding:NSUTF8StringEncoding];
 
   NSDictionary *jsonAuthObject = @{
     @"userID" : userIDObjC,
