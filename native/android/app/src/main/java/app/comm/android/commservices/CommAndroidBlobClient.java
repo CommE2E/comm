@@ -88,6 +88,11 @@ public class CommAndroidBlobClient {
     String accessToken = CommSecureStore.get("accessToken");
     String deviceID = CommSecureStore.get("deviceID");
 
+    if (userID == null || accessToken == null || deviceID == null) {
+      throw new RuntimeException(
+          "Failed to query blob service due to missing CSAT.");
+    }
+
     userID = userID == null ? "" : userID;
     accessToken = accessToken == null ? "" : accessToken;
     deviceID = deviceID == null ? "" : deviceID;
