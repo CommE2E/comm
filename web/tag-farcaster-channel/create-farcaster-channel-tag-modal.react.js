@@ -14,6 +14,7 @@ import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import css from './create-farcaster-channel-tag-modal.css';
 import Button, { buttonThemes } from '../components/button.react.js';
 import Dropdown, { type DropdownOption } from '../components/dropdown.react.js';
+import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
 
 type Props = {
@@ -37,6 +38,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
     $ReadOnlyArray<DropdownOption>,
   >([]);
   const [selectedOption, setSelectedOption] = React.useState<?string>(null);
+  const [channelNameText, setChannelSelectionText] = React.useState<string>('');
   const [error, setError] = React.useState<?string>(null);
 
   React.useEffect(() => {
@@ -50,14 +52,43 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
           name: `/${channel.id}`,
         }));
 
-      setChannelOptions(sortedChannels);
+      const options = [{ id: 'other', name: 'Other' }, ...sortedChannels];
+
+      setChannelOptions(options);
     })();
   }, [client, fid]);
 
   const onChangeSelectedOption = React.useCallback((option: string) => {
     setError(null);
+    setChannelSelectionText('');
     setSelectedOption(option);
   }, []);
+
+  const onChangeChannelNameText = React.useCallback(
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      setChannelSelectionText(event.currentTarget.value);
+    },
+    [],
+  );
+
+  const tagFarcasterChannelByName = React.useMemo(() => {
+    if (selectedOption !== 'other') {
+      return null;
+    }
+
+    return (
+      <>
+        <div className={css.inputLabel}>Channel name</div>
+        <div className={css.textInputContainer}>
+          <Input
+            type="text"
+            value={channelNameText}
+            onChange={onChangeChannelNameText}
+          />
+        </div>
+      </>
+    );
+  }, [channelNameText, onChangeChannelNameText, selectedOption]);
 
   const { createTag, isLoading } = useCreateFarcasterChannelTag(
     communityID,
@@ -65,15 +96,30 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
     popModal,
   );
 
-  const onClickTagChannel = React.useCallback(() => {
+  const onClickTagChannel = React.useCallback(async () => {
     if (!selectedOption) {
       return;
+    } else if (selectedOption === 'other') {
+      const channelInfo =
+        await neynarClientContext.client.fetchFarcasterChannelByName(
+          channelNameText,
+        );
+
+      if (!channelInfo) {
+        setError('channel_not_found');
+        return;
+      }
+
+      createTag(channelInfo.id);
+    } else {
+      createTag(selectedOption);
     }
+  }, [channelNameText, createTag, neynarClientContext.client, selectedOption]);
 
-    createTag(selectedOption);
-  }, [createTag, selectedOption]);
-
-  const buttonDisabled = isLoading || !selectedOption;
+  const buttonDisabled =
+    isLoading ||
+    !selectedOption ||
+    (selectedOption === 'other' && !channelNameText);
 
   const primaryButton = React.useMemo(() => {
     return (
@@ -117,6 +163,9 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
             setActiveSelection={onChangeSelectedOption}
           />
         </div>
+        <div className={css.tagFarcasterChannelByNameContainer}>
+          {tagFarcasterChannelByName}
+        </div>
         <div className={css.errorMessageContainer}>{errorMessage}</div>
       </Modal>
     ),
@@ -127,6 +176,7 @@ function CreateFarcasterChannelTagModal(props: Props): React.Node {
       popModal,
       primaryButton,
       selectedOption,
+      tagFarcasterChannelByName,
     ],
   );
 

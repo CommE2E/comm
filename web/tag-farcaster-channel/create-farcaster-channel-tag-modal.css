@@ -9,6 +9,17 @@
   align-items: center;
 }
 
+.textInputContainer {
+  margin: 0 32px;
+}
+
+.tagFarcasterChannelByNameContainer {
+  height: 112px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
 .errorMessageContainer {
   height: 18px;
 }
