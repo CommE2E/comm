@@ -22,7 +22,8 @@ use super::protos::auth::{
   InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
   KeyserverKeysResponse, LinkFarcasterAccountRequest, OutboundKeyInfo,
   OutboundKeysForUserRequest, OutboundKeysForUserResponse,
-  PeersDeviceListsRequest, PeersDeviceListsResponse, RefreshUserPrekeysRequest,
+  PeersDeviceListsRequest, PeersDeviceListsResponse,
+  PrimaryDeviceLogoutRequest, RefreshUserPrekeysRequest,
   UpdateDeviceListRequest, UpdateUserPasswordFinishRequest,
   UpdateUserPasswordStartRequest, UpdateUserPasswordStartResponse,
   UploadOneTimeKeysRequest, UserDevicesPlatformDetails, UserIdentitiesRequest,
@@ -425,6 +426,15 @@ impl IdentityClientService for AuthenticatedService {
 
     spawn_delete_tunnelbroker_data_task(&device_id);
 
+    let response = Empty {};
+    Ok(Response::new(response))
+  }
+
+  #[tracing::instrument(skip_all)]
+  async fn log_out_primary_device(
+    &self,
+    request: tonic::Request<PrimaryDeviceLogoutRequest>,
+  ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let response = Empty {};
     Ok(Response::new(response))
   }
