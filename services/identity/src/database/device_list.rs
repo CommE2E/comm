@@ -245,6 +245,13 @@ impl PlatformDetails {
 pub struct DeviceIDAttribute(pub String);
 struct DeviceListKeyAttribute(DateTime<Utc>);
 
+impl DeviceIDAttribute {
+  /// Retrieves the device ID string
+  pub fn into_inner(self) -> String {
+    self.0
+  }
+}
+
 impl From<DeviceIDAttribute> for AttributeValue {
   fn from(value: DeviceIDAttribute) -> Self {
     AttributeValue::S(format!("{DEVICE_ITEM_KEY_PREFIX}{}", value.0))
@@ -1466,6 +1473,58 @@ impl DatabaseClient {
     Ok(new_device_list)
   }
 
+  /// Deletes all device data for user. Keeps device list rows.
+  /// Returns list of deleted device IDs
+  #[tracing::instrument(skip_all)]
+  pub async fn delete_devices_data_for_user(
+    &self,
+    user_id: impl Into<String>,
+  ) -> Result<Vec<String>, Error> {
+    let user_id: String = user_id.into();
+
+    // we project only the primary keys so we can pass these directly to delete requests
+    let primary_keys =
+      query_rows_with_prefix(self, &user_id, DEVICE_ITEM_KEY_PREFIX)
+        .projection_expression(format!("{ATTR_USER_ID}, {ATTR_ITEM_ID}"))
+        .send()
+        .await
+        .map_err(|e| {
+          error!(
+            errorType = error_types::DEVICE_LIST_DB_LOG,
+            "Failed to list user's devices' primary keys: {:?}", e
+          );
+          Error::AwsSdk(e.into())
+        })?
+        .items
+        .unwrap_or_default();
+
+    let device_ids = primary_keys
+      .iter()
+      .map(|attrs| {
+        let attr = attrs.get(devices_table::ATTR_ITEM_ID).cloned();
+        DeviceIDAttribute::try_from(attr).map(DeviceIDAttribute::into_inner)
+      })
+      .collect::<Result<_, _>>()?;
+
+    let delete_requests = primary_keys
+      .into_iter()
+      .map(|item| {
+        let request = DeleteRequest::builder().set_key(Some(item)).build();
+        WriteRequest::builder().delete_request(request).build()
+      })
+      .collect::<Vec<_>>();
+
+    comm_lib::database::batch_operations::batch_write(
+      &self.client,
+      devices_table::NAME,
+      delete_requests,
+      Default::default(),
+    )
+    .await?;
+
+    Ok(device_ids)
+  }
+
   /// Deletes all user data from devices table
   #[tracing::instrument(skip_all)]
   pub async fn delete_devices_table_rows_for_user(
@@ -1509,22 +1568,13 @@ impl DatabaseClient {
       })
       .collect::<Vec<_>>();
 
-    // TODO: We can use the batch write helper from comm-services-lib when integrated
-    for batch in delete_requests.chunks(25) {
-      self
-        .client
-        .batch_write_item()
-        .request_items(devices_table::NAME, batch.to_vec())
-        .send()
-        .await
-        .map_err(|e| {
-          error!(
-            errorType = error_types::DEVICE_LIST_DB_LOG,
-            "Failed to batch delete items from devices table: {:?}", e
-          );
-          Error::AwsSdk(e.into())
-        })?;
-    }
+    comm_lib::database::batch_operations::batch_write(
+      &self.client,
+      devices_table::NAME,
+      delete_requests,
+      Default::default(),
+    )
+    .await?;
 
     Ok(())
   }
