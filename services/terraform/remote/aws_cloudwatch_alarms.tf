@@ -14,6 +14,16 @@ locals {
     Tunnelbroker = { name = "Tunnelbroker", pattern = "Tunnelbroker Error" }
     Http         = { name = "HTTP", pattern = "HTTP Error" }
   }
+
+  service_log_groups = {
+    Backup         = { name = "Backup", log_group_name = "/ecs/backup-service-task-def" },
+    Blob           = { name = "Blob", log_group_name = "/ecs/blob-service-task-def" },
+    ElectronUpdate = { name = "ElectronUpdate", log_group_name = "/ecs/electron-update-task-def" },
+    FeatureFlags   = { name = "FeatureFlags", log_group_name = "/ecs/feature-flags-task-def" },
+    Identity       = { name = "Identity", log_group_name = "/ecs/identity-service-task-def" },
+    Reports        = { name = "Reports", log_group_name = "/ecs/reports-service-task-def" },
+    Tunnelbroker   = { name = "Tunnelbroker", log_group_name = "/ecs/tunnelbroker-task-def" }
+  }
 }
 
 resource "aws_sns_topic" "lambda_alarm_topic" {
@@ -127,3 +137,38 @@ resource "aws_cloudwatch_metric_alarm" "identity_ecs_task_stop" {
   actions_enabled = true
   alarm_actions   = [aws_sns_topic.ecs_task_stop_topic.arn]
 }
+
+resource "aws_sns_topic" "service_connection_error_topic" {
+  name = "service-connection-error-topic"
+}
+
+resource "aws_cloudwatch_log_metric_filter" "service_connection_error_filters" {
+  for_each = local.service_log_groups
+
+  name           = "${each.value.name}ConnectionErrorCount"
+  pattern        = "dns error"
+  log_group_name = each.value.log_group_name
+
+  metric_transformation {
+    name      = "${each.value.name}ConnectionErrorCount"
+    namespace = "ServiceConnectionMetricFilters"
+    value     = "1"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "service_connection_error_alarms" {
+  for_each = local.service_log_groups
+
+  alarm_name          = "${each.value.name}ConnectionErrorAlarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "${each.value.name}ConnectionErrorCount"
+  namespace           = "ServiceConnectionMetricFilters"
+  period              = "300"
+  statistic           = "Sum"
+  threshold           = "1"
+  alarm_description   = "Alarm when ${each.value.name} connection errors exceed threshold"
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.service_connection_error_topic.arn]
+}
+
