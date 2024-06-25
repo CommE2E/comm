@@ -5,7 +5,6 @@ import * as React from 'react';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { SIWEBackupSecrets } from 'lib/types/siwe-types.js';
-import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
 import { commCoreModule } from '../native-modules.js';
@@ -43,25 +42,11 @@ async function getSIWEBackupSecrets(): Promise<SIWEBackupSecrets> {
 }
 
 function useClientBackup(): ClientBackup {
-  const accessToken = useSelector(state => state.commServicesAccessToken);
   const currentUserID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   const loggedIn = useSelector(isLoggedIn);
-
-  const setMockCommServicesAuthMetadata = React.useCallback(async () => {
-    if (!currentUserID) {
-      return;
-    }
-
-    const ed25519 = await getContentSigningKey();
-    await commCoreModule.setCommServicesAuthMetadata(
-      currentUserID,
-      ed25519,
-      accessToken ? accessToken : '',
-    );
-  }, [accessToken, currentUserID]);
 
   const uploadBackupProtocol = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
@@ -69,8 +54,6 @@ function useClientBackup(): ClientBackup {
     }
 
     console.info('Start uploading backup...');
-
-    await setMockCommServicesAuthMetadata();
 
     if (accountHasPassword(currentUserInfo)) {
       const backupSecret = await getBackupSecret();
@@ -81,12 +64,7 @@ function useClientBackup(): ClientBackup {
     }
 
     console.info('Backup uploaded.');
-  }, [
-    currentUserID,
-    loggedIn,
-    setMockCommServicesAuthMetadata,
-    currentUserInfo,
-  ]);
+  }, [currentUserID, loggedIn, currentUserInfo]);
 
   const restorePasswordUserBackupProtocol = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
@@ -100,7 +78,6 @@ function useClientBackup(): ClientBackup {
     }
 
     console.info('Start restoring backup...');
-    await setMockCommServicesAuthMetadata();
 
     const backupSecret = await getBackupSecret();
     await commCoreModule.restoreBackup(
@@ -110,12 +87,7 @@ function useClientBackup(): ClientBackup {
 
     console.info('Backup restored.');
     return;
-  }, [
-    currentUserID,
-    loggedIn,
-    setMockCommServicesAuthMetadata,
-    currentUserInfo,
-  ]);
+  }, [currentUserID, loggedIn, currentUserInfo]);
 
   const retrieveLatestSIWEBackupData = React.useCallback(async () => {
     if (!loggedIn || !currentUserID) {
@@ -128,17 +100,11 @@ function useClientBackup(): ClientBackup {
       );
     }
 
-    await setMockCommServicesAuthMetadata();
     const serializedBackupData =
       await commCoreModule.retrieveLatestSIWEBackupData();
     const siweBackupData: SIWEBackupData = JSON.parse(serializedBackupData);
     return siweBackupData;
-  }, [
-    currentUserID,
-    currentUserInfo,
-    loggedIn,
-    setMockCommServicesAuthMetadata,
-  ]);
+  }, [currentUserID, currentUserInfo, loggedIn]);
 
   return {
     uploadBackupProtocol,
