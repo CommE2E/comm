@@ -1,3 +1,8 @@
+variable "domain_name" {
+  description = "Domain name for your keyserver"
+  type        = string
+}
+
 variable "mariadb_username" {
   description = "MariaDB username"
   type        = string
