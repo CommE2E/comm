@@ -630,6 +630,67 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.logOutSecondary
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.PrimaryDeviceLogoutRequest,
+ *   !proto.identity.unauth.Empty>}
+ */
+const methodDescriptor_IdentityClientService_LogOutPrimaryDevice = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/LogOutPrimaryDevice',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.PrimaryDeviceLogoutRequest,
+  identity_unauth_pb.Empty,
+  /**
+   * @param {!proto.identity.auth.PrimaryDeviceLogoutRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_unauth_pb.Empty.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.auth.PrimaryDeviceLogoutRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.logOutPrimaryDevice =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/LogOutPrimaryDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogOutPrimaryDevice,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.PrimaryDeviceLogoutRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.logOutPrimaryDevice =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/LogOutPrimaryDevice',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_LogOutPrimaryDevice);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.auth.DeletePasswordUserStartRequest,
  *   !proto.identity.auth.DeletePasswordUserStartResponse>}
  */
