@@ -320,7 +320,7 @@ impl<T: RegistrationData + DeviceKeyUploadActions> RegistrationActions for T {
     let primary_device_id = key_info.primary_identity_public_keys.ed25519;
 
     let update_payload = DeviceListUpdate::try_from(signed_list.clone())?;
-    crate::device_list::verify_initial_device_list(
+    crate::device_list::verify_singleton_device_list(
       &update_payload,
       &primary_device_id,
     )?;
