@@ -1,9 +1,8 @@
 locals {
-  lambda_error_subscribed_email = "error-reports@comm.app"
-  lambda_error_threshold        = "2"
+  error_reports_subscribed_email = "error-reports@comm.app"
 
-  identity_error_subscribed_email = "error-reports@comm.app"
-  identity_error_threshold        = "1"
+  lambda_error_threshold   = "2"
+  identity_error_threshold = "1"
 
   identity_error_patterns = {
     Search       = { name = "Search", pattern = "Search Error" },
@@ -23,7 +22,7 @@ resource "aws_sns_topic" "lambda_alarm_topic" {
 resource "aws_sns_topic_subscription" "email_subscription" {
   topic_arn = aws_sns_topic.lambda_alarm_topic.arn
   protocol  = "email"
-  endpoint  = local.lambda_error_subscribed_email
+  endpoint  = local.error_reports_subscribed_email
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_error_alarm" {
@@ -50,7 +49,7 @@ resource "aws_sns_topic" "identity_error_topic" {
 resource "aws_sns_topic_subscription" "identity_email_subscription" {
   topic_arn = aws_sns_topic.identity_error_topic.arn
   protocol  = "email"
-  endpoint  = local.identity_error_subscribed_email
+  endpoint  = local.error_reports_subscribed_email
 }
 
 resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
@@ -105,7 +104,7 @@ resource "aws_sns_topic" "ecs_task_stop_topic" {
 resource "aws_sns_topic_subscription" "ecs_task_stop_subscription" {
   topic_arn = aws_sns_topic.ecs_task_stop_topic.arn
   protocol  = "email"
-  endpoint  = local.identity_error_subscribed_email
+  endpoint  = local.error_reports_subscribed_email
 }
 
 resource "aws_cloudwatch_metric_alarm" "identity_ecs_task_stop" {
