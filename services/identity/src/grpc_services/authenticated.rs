@@ -16,7 +16,7 @@ use tonic::{Request, Response, Status};
 use tracing::{debug, error, trace, warn};
 
 use super::protos::auth::{
-  identity_client_service_server::IdentityClientService,
+  identity_client_service_server::IdentityClientService, AddWalletRequest,
   DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
   DeletePasswordUserStartResponse, GetDeviceListRequest, GetDeviceListResponse,
   InboundKeyInfo, InboundKeysForUserRequest, InboundKeysForUserResponse,
@@ -32,7 +32,7 @@ use super::protos::unauth::Empty;
 
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
-  db_client: DatabaseClient,
+  pub db_client: DatabaseClient,
 }
 
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
@@ -823,6 +823,13 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     Ok(Response::new(Empty {}))
+  }
+
+  async fn add_wallet(
+    &self,
+    _request: tonic::Request<AddWalletRequest>,
+  ) -> Result<Response<Empty>, tonic::Status> {
+    unimplemented!()
   }
 }
 
