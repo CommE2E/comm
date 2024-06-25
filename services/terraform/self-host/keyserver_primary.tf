@@ -35,16 +35,16 @@ resource "aws_ecs_task_definition" "keyserver_service" {
         {
           name          = "keyserver-port"
           containerPort = 3000
+          hostPort      = 3000,
           protocol      = "tcp"
         },
-        {
-          name          = "http-port"
-          containerPort = 80
-          protocol      = "tcp"
-          appProtocol   = "http"
-        },
+
       ]
       environment = [
+        {
+          name  = "COMM_LISTEN_ADDR"
+          value = "0.0.0.0"
+        },
         {
           name  = "COMM_DATABASE_HOST"
           value = "${aws_db_instance.mariadb.address}"
@@ -73,6 +73,16 @@ resource "aws_ecs_task_definition" "keyserver_service" {
           name = "COMM_JSONCONFIG_facts_webapp_cors"
           value = jsonencode({
             "domain" : "https://web.comm.app"
+          })
+        },
+        {
+          name = "COMM_JSONCONFIG_facts_keyserver_url"
+          value = jsonencode({
+            "baseDomain" : "https://${var.domain_name}",
+            "basePath" : "/",
+            "baseRoutePath" : "/",
+            "https" : false,
+            "proxy" : "none"
           })
         },
         {
@@ -121,6 +131,12 @@ resource "aws_ecs_service" "keyserver_primary_service" {
     assign_public_ip = true
   }
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.keyserver_service.arn
+    container_name   = local.keyserver_service_container_name
+    container_port   = 3000
+  }
+
   deployment_circuit_breaker {
     enable   = true
     rollback = true
@@ -131,12 +147,20 @@ resource "aws_security_group" "keyserver_service" {
   name   = "keyserver-service-ecs-sg"
   vpc_id = local.vpc_id
 
-  # Allow all inbound traffic. This is temporary until load balancer is configured
+  # Allow all inbound traffic  on port 3000
   ingress {
-    from_port   = 0
-    to_port     = 65535
+    from_port   = 3000
+    to_port     = 3000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "Allow inbound traffic from any IPv6 address"
+    from_port        = 3000
+    to_port          = 3000
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
   }
 
   # Allow all outbound traffic
