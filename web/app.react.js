@@ -15,6 +15,7 @@ import {
 } from 'lib/actions/entry-actions.js';
 import { ChatMentionContextProvider } from 'lib/components/chat-mention-provider.react.js';
 import { EditUserAvatarProvider } from 'lib/components/edit-user-avatar-provider.react.js';
+import { FarcasterDataHandler } from 'lib/components/farcaster-data-handler.react.js';
 import {
   ModalProvider,
   useModalContext,
@@ -250,6 +251,7 @@ class App extends React.PureComponent<Props> {
                       <LogOutIfMissingCSATHandler />
                       <UserInfosHandler />
                       <TunnelbrokerDeviceTokenHandler />
+                      <FarcasterDataHandler />
                       {content}
                     </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
