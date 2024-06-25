@@ -1,6 +1,6 @@
 .inputLabel {
   color: var(--text-background-primary-default);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .dropdownInputContainer {
@@ -9,7 +9,24 @@
   align-items: center;
 }
 
+.textInputContainer {
+  margin: 0 32px;
+}
+
+.tagFarcasterChannelByNameContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin-top: 24px;
+  visibility: hidden;
+}
+
+.tagFarcasterChannelByNameContainerVisible {
+  visibility: visible;
+}
+
 .errorMessage {
+  margin-top: 4px;
   text-align: center;
   color: var(--text-background-danger-default);
   font-size: var(--s-font-14);
