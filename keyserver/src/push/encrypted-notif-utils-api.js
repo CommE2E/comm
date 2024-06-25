@@ -52,7 +52,7 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   uploadLargeNotifPayload: blobServiceUpload,
   getNotifByteSize: (serializedPayload: string) =>
     Buffer.byteLength(serializedPayload),
-  getEncryptedNotifHash: (serializedNotification: string) =>
+  getEncryptedNotifHash: async (serializedNotification: string) =>
     getOlmUtility().sha256(serializedNotification),
 };
 
