@@ -47,7 +47,7 @@ resource "aws_sns_topic" "identity_error_topic" {
   name = "identity-error-topic"
 }
 
-resource "aws_sns_topic_subscription" "common_email_subscription" {
+resource "aws_sns_topic_subscription" "identity_email_subscription" {
   topic_arn = aws_sns_topic.identity_error_topic.arn
   protocol  = "email"
   endpoint  = local.identity_error_subscribed_email
