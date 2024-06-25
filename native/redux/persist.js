@@ -1047,7 +1047,9 @@ const legacyMigrations = {
           const threadInfo = threadStoreInfos[key];
           acc[threadInfo.id] = threadInfo.minimallyEncoded
             ? threadInfo
-            : minimallyEncodeRawThreadInfo(threadInfo);
+            : /* $FlowIgnore: `[Raw]ThreadInfo.members` have permissions
+                               at time of this migration. */
+              minimallyEncodeRawThreadInfo(threadInfo);
           return acc;
         },
         {},
