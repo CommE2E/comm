@@ -74,6 +74,13 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 
+  logOutPrimaryDevice(
+    request: identityAuthStructs.PrimaryDeviceLogoutRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
   deletePasswordUserStart(
     request: identityAuthStructs.DeletePasswordUserStartRequest,
     metadata: grpcWeb.Metadata | void,
@@ -192,6 +199,11 @@ declare export class IdentityClientServicePromiseClient {
 
   logOutSecondaryDevice(
     request: identityStructs.Empty,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
+
+  logOutPrimaryDevice(
+    request: identityAuthStructs.PrimaryDeviceLogoutRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 

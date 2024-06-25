@@ -361,6 +361,22 @@ export type UpdateUserPasswordStartResponseObject = {
   opaqueLoginResponse: Uint8Array | string,
 };
 
+declare export class PrimaryDeviceLogoutRequest extends Message {
+  getSignedDeviceList(): string;
+  setSignedDeviceList(value: string): PrimaryDeviceLogoutRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PrimaryDeviceLogoutRequestObject;
+  static toObject(includeInstance: boolean, msg: PrimaryDeviceLogoutRequest): PrimaryDeviceLogoutRequestObject;
+  static serializeBinaryToWriter(message: PrimaryDeviceLogoutRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PrimaryDeviceLogoutRequest;
+  static deserializeBinaryFromReader(message: PrimaryDeviceLogoutRequest, reader: BinaryReader): PrimaryDeviceLogoutRequest;
+}
+
+export type PrimaryDeviceLogoutRequestObject = {
+  signedDeviceList: string,
+}
+
 declare export class DeletePasswordUserStartRequest extends Message {
   getOpaqueLoginRequest(): Uint8Array | string;
   getOpaqueLoginRequest_asU8(): Uint8Array;
