@@ -94,6 +94,8 @@ service IdentityClientService {
   // It doesn't require any input - all values are passed via request metadata.
   rpc SyncPlatformDetails(identity.unauth.Empty) returns
     (identity.unauth.Empty) {}
+
+  rpc AddWallet(AddWalletRequest) returns (identity.unauth.Empty) {}
 }
 
 // Helper types
@@ -318,4 +320,11 @@ message UserIdentitiesRequest {
 
 message UserIdentitiesResponse {
   map<string, Identity> identities = 1;
+}
+
+// AddWallet
+
+message AddWalletRequest {
+  string siwe_message = 1;
+  string siwe_signature = 2;
 }

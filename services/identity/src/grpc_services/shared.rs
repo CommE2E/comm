@@ -2,11 +2,15 @@ use grpc_clients::error::unsupported_version;
 use tonic::{Request, Status};
 use tracing::trace;
 
+use crate::client_service::ClientService;
 use crate::constants::{
   request_metadata, tonic_status_messages, MIN_SUPPORTED_NATIVE_VERSION,
 };
+use crate::database::DatabaseClient;
 
 pub use grpc_clients::identity::shared::PlatformMetadata;
+
+use super::authenticated::AuthenticatedService;
 
 pub fn version_interceptor(req: Request<()>) -> Result<Request<()>, Status> {
   trace!("Intercepting request to check version: {:?}", req);
@@ -60,4 +64,20 @@ pub fn get_platform_metadata<T: std::fmt::Debug>(
 pub fn get_value<T>(req: &Request<T>, key: &str) -> Option<String> {
   let raw_value = req.metadata().get(key)?;
   raw_value.to_str().ok().map(|s| s.to_string())
+}
+
+pub trait HasClient {
+  fn client(&self) -> &DatabaseClient;
+}
+
+impl HasClient for ClientService {
+  fn client(&self) -> &DatabaseClient {
+    &self.client
+  }
+}
+
+impl HasClient for AuthenticatedService {
+  fn client(&self) -> &DatabaseClient {
+    &self.db_client
+  }
 }

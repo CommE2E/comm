@@ -632,3 +632,23 @@ declare export class UserIdentitiesResponse extends Message {
 export type UserIdentitiesResponseObject = {
   identitiesMap: Array<[string, IdentityObject]>,
 }
+
+declare export class AddWalletRequest extends Message {
+  getSiweMessage(): string;
+  setSiweMessage(value: string): AddWalletRequest;
+
+  getSiweSignature(): string;
+  setSiweSignature(value: string): AddWalletRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AddWalletRequestObject;
+  static toObject(includeInstance: boolean, msg: AddWalletRequest): AddWalletRequestObject;
+  static serializeBinaryToWriter(message: AddWalletRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AddWalletRequest;
+  static deserializeBinaryFromReader(message: AddWalletRequest, reader: BinaryReader): AddWalletRequest;
+}
+
+export type AddWalletRequestObject = {
+  siweMessage: string,
+  siweSignature: string,
+}

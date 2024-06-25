@@ -1298,5 +1298,65 @@ proto.identity.auth.IdentityClientServicePromiseClient.prototype.syncPlatformDet
 };
 
 
-module.exports = proto.identity.auth;
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.auth.AddWalletRequest,
+ *   !proto.identity.unauth.Empty>}
+ */
+const methodDescriptor_IdentityClientService_AddWallet = new grpc.web.MethodDescriptor(
+  '/identity.auth.IdentityClientService/AddWallet',
+  grpc.web.MethodType.UNARY,
+  proto.identity.auth.AddWalletRequest,
+  identity_unauth_pb.Empty,
+  /**
+   * @param {!proto.identity.auth.AddWalletRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  identity_unauth_pb.Empty.deserializeBinary
+);
 
+
+/**
+ * @param {!proto.identity.auth.AddWalletRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.Empty)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.Empty>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.auth.IdentityClientServiceClient.prototype.addWallet =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/AddWallet',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_AddWallet,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.auth.AddWalletRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.Empty>}
+ *     Promise that resolves to the response
+ */
+proto.identity.auth.IdentityClientServicePromiseClient.prototype.addWallet =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.auth.IdentityClientService/AddWallet',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_AddWallet);
+};
+
+
+module.exports = proto.identity.auth;

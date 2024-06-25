@@ -150,6 +150,13 @@ declare export class IdentityClientServiceClient {
     callback: (err: grpcWeb.RpcError,
                response: identityStructs.Empty) => void
   ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
+
+  addWallet(
+    request: identityAuthStructs.AddWalletRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.Empty) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.Empty>;
 }
 
 declare export class IdentityClientServicePromiseClient {
@@ -257,5 +264,9 @@ declare export class IdentityClientServicePromiseClient {
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.Empty>;
 
-}
+  addWallet(
+    request: identityAuthStructs.AddWalletRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.Empty>;
 
+}
