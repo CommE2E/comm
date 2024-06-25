@@ -19,8 +19,8 @@ resource "aws_ecs_task_definition" "keyserver_service" {
   requires_compatibilities = ["FARGATE"]
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
-  cpu                      = "1024"
-  memory                   = "3072"
+  cpu                      = "2048"
+  memory                   = "4096"
 
   ephemeral_storage {
     size_in_gib = 40
