@@ -53,6 +53,10 @@ service IdentityClientService {
   // Called by a ssecondary device to log out (clear its keys and access token)
   rpc LogOutSecondaryDevice(identity.unauth.Empty) returns
     (identity.unauth.Empty) {}
+  // Called by a primary device to log out (clear all devices' keys and tokens)
+  rpc LogOutPrimaryDevice(PrimaryDeviceLogoutRequest) returns
+    (identity.unauth.Empty) {}
+
   // Called by a user to delete their own account
   rpc DeletePasswordUserStart(DeletePasswordUserStartRequest) returns
     (DeletePasswordUserStartResponse) {}
@@ -195,6 +199,23 @@ message UpdateUserPasswordStartResponse {
   bytes opaque_registration_response = 2;
   // Continue PAKE login on server with old password
   bytes opaque_login_response = 3;
+}
+
+// LogOutPrimaryDevice
+
+message PrimaryDeviceLogoutRequest {
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded primary device signature"
+  // }
+  // When the primary device logs out, it removes all secondary devices from
+  // the device list, and sends up a new singleton device list consisting of
+  // just itself.
+  string signed_device_list = 1;
 }
 
 // DeletePasswordUser
