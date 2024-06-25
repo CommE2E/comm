@@ -223,20 +223,20 @@ pub fn verify_device_list_signatures(
   Ok(())
 }
 
-pub fn verify_initial_device_list(
+pub fn verify_singleton_device_list(
   device_list: &DeviceListUpdate,
   expected_primary_device_id: &str,
 ) -> Result<(), tonic::Status> {
   use tonic::Status;
   if device_list.last_primary_signature.is_some() {
-    debug!("Received lastPrimarySignature for initial device list");
+    debug!("Received lastPrimarySignature for singleton device list");
     return Err(Status::invalid_argument(
       tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
   }
 
   let Some(signature) = &device_list.current_primary_signature else {
-    debug!("Missing curPrimarySignature for initial device list");
+    debug!("Missing curPrimarySignature for singleton device list");
     return Err(Status::invalid_argument(
       tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
@@ -261,7 +261,7 @@ pub fn verify_initial_device_list(
     .filter(|it| **it == expected_primary_device_id)
     .is_none()
   {
-    debug!("Invalid primary device ID for initial device list");
+    debug!("Invalid primary device ID for singleton device list");
     return Err(Status::invalid_argument(
       tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
     ));
