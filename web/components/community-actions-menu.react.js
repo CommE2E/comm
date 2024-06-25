@@ -6,6 +6,7 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { useCanManageFarcasterChannelTag } from 'lib/shared/community-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { InviteLink } from 'lib/types/link-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
@@ -18,6 +19,7 @@ import ManageInviteLinksModal from '../invite-links/manage-invite-links-modal.re
 import ViewInviteLinkModal from '../invite-links/view-invite-link-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import CommunityRolesModal from '../roles/community-roles-modal.react.js';
+import TagFarcasterChannelModal from '../tag-farcaster-channel/tag-farcaster-channel-modal.react.js';
 import { AddLink } from '../vectors.react.js';
 
 type Props = {
@@ -42,6 +44,8 @@ function CommunityActionsMenu(props: Props): React.Node {
     community,
     threadPermissions.CHANGE_ROLE,
   );
+  const canManageFarcasterChannelTag =
+    useCanManageFarcasterChannelTag(community);
 
   const openViewInviteLinkModal = React.useCallback(() => {
     if (!inviteLink) {
@@ -57,6 +61,10 @@ function CommunityActionsMenu(props: Props): React.Node {
   const openCommunityRolesModal = React.useCallback(
     () => pushModal(<CommunityRolesModal community={community} />),
     [community, pushModal],
+  );
+  const openFarcasterChannelTagModal = React.useCallback(
+    () => pushModal(<TagFarcasterChannelModal communityID={communityID} />),
+    [communityID, pushModal],
   );
 
   const items = React.useMemo(() => {
@@ -86,14 +94,24 @@ function CommunityActionsMenu(props: Props): React.Node {
       });
     }
 
+    if (canManageFarcasterChannelTag) {
+      itemSpecs.push({
+        text: 'Tag Farcaster channel',
+        icon: 'tag',
+        onClick: openFarcasterChannelTagModal,
+      });
+    }
+
     return itemSpecs;
   }, [
     canManageLinks,
     inviteLink,
+    canChangeRoles,
+    canManageFarcasterChannelTag,
     openManageInviteLinksModal,
     openViewInviteLinkModal,
-    canChangeRoles,
     openCommunityRolesModal,
+    openFarcasterChannelTagModal,
   ]);
 
   const menuItems = React.useMemo(

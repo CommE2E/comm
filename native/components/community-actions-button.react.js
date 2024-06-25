@@ -7,11 +7,10 @@ import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { primaryInviteLinksSelector } from 'lib/selectors/invite-links-selectors.js';
+import { useCanManageFarcasterChannelTag } from 'lib/shared/community-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 import {
@@ -35,8 +34,6 @@ function CommunityActionsButton(props: Props): React.Node {
   const inviteLink = useSelector(primaryInviteLinksSelector)[community.id];
 
   const { navigate } = useNavigation();
-
-  const fid = useCurrentUserFID();
 
   const navigateToInviteLinksView = React.useCallback(() => {
     if (!inviteLink || !community) {
@@ -92,10 +89,8 @@ function CommunityActionsButton(props: Props): React.Node {
     community,
     threadPermissions.CHANGE_ROLE,
   );
-  const canManageFarcasterChannelTag = useThreadHasPermission(
-    community,
-    threadPermissions.MANAGE_FARCASTER_CHANNEL_TAGS,
-  );
+  const canManageFarcasterChannelTag =
+    useCanManageFarcasterChannelTag(community);
 
   const { showActionSheetWithOptions } = useActionSheet();
   const actions = React.useMemo(() => {
@@ -125,12 +120,7 @@ function CommunityActionsButton(props: Props): React.Node {
       });
     }
 
-    const canTagFarcasterChannel =
-      canManageFarcasterChannelTag &&
-      fid &&
-      community.type !== threadTypes.GENESIS;
-
-    if (canTagFarcasterChannel) {
+    if (canManageFarcasterChannelTag) {
       result.push({
         label: 'Tag Farcaster channel',
         action: navigateToTagFarcasterChannel,
@@ -147,7 +137,6 @@ function CommunityActionsButton(props: Props): React.Node {
     inviteLink,
     canChangeRoles,
     canManageFarcasterChannelTag,
-    fid,
     navigateToManagePublicLinkView,
     navigateToInviteLinksView,
     navigateToCommunityRolesScreen,
