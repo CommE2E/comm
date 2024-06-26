@@ -700,25 +700,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         const limit = 6;
 
         listData.push({
-          itemType: 'actionHeader',
-          key: 'mediaGalleryHeader',
-          title: 'Media Gallery',
-          actionText: 'See more',
-          onPress: this.onPressSeeMoreMediaGallery,
-        });
-
-        listData.push({
           itemType: 'mediaGallery',
           key: 'mediaGallery',
           threadInfo,
           limit,
           verticalBounds,
-        });
-
-        listData.push({
-          itemType: 'footer',
-          key: 'mediaGalleryFooter',
-          categoryType: 'outline',
         });
 
         return listData;
@@ -1025,6 +1011,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           threadID={item.threadInfo.id}
           limit={item.limit}
           verticalBounds={item.verticalBounds}
+          onPressSeeMore={this.onPressSeeMoreMediaGallery}
         />
       );
     } else if (item.itemType === 'leaveThread') {
