@@ -9,6 +9,10 @@ import { FlatList } from 'react-native-gesture-handler';
 import { useFetchThreadMedia } from 'lib/actions/thread-actions.js';
 import type { MediaInfo, Media } from 'lib/types/media-types';
 
+import {
+  ThreadSettingsCategoryActionHeader,
+  ThreadSettingsCategoryFooter,
+} from './thread-settings-category.react.js';
 import GestureTouchableOpacity from '../../components/gesture-touchable-opacity.react.js';
 import Multimedia from '../../media/multimedia.react.js';
 import {
@@ -30,6 +34,7 @@ type ThreadSettingsMediaGalleryProps = {
   +verticalBounds: ?VerticalBounds,
   +offset?: number,
   +activeTab?: string,
+  +onPressSeeMore?: () => mixed,
 };
 
 function ThreadSettingsMediaGallery(
@@ -47,7 +52,8 @@ function ThreadSettingsMediaGallery(
   // E.g. 16px, media, galleryItemGap, media, galleryItemGap, media, 16px
   const galleryItemWidth =
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
-  const { threadID, limit, verticalBounds, offset, activeTab } = props;
+  const { threadID, limit, verticalBounds, offset, activeTab, onPressSeeMore } =
+    props;
   const [mediaInfos, setMediaInfos] = React.useState<$ReadOnlyArray<Media>>([]);
   const callFetchThreadMedia = useFetchThreadMedia();
 
@@ -125,17 +131,64 @@ function ThreadSettingsMediaGallery(
     setMediaInfos([...mediaInfos, ...result.media]);
   }, [callFetchThreadMedia, mediaInfos, threadID, limit]);
 
-  return (
-    <View style={styles.flatListContainer}>
-      <FlatList
-        data={filteredMediaInfos}
-        numColumns={numColumns}
-        renderItem={renderItem}
-        onEndReached={offset !== undefined ? onEndReached : null}
-        onEndReachedThreshold={1}
+  const { header, footer } = React.useMemo(() => {
+    if (mediaInfos.length === 0 || !onPressSeeMore) {
+      return {
+        header: null,
+        footer: null,
+      };
+    }
+
+    const threadSettingsHeader = (
+      <ThreadSettingsCategoryActionHeader
+        title="Media Gallery"
+        actionText="See more"
+        onPress={onPressSeeMore}
       />
-    </View>
-  );
+    );
+
+    const threadSettingsFooter = (
+      <ThreadSettingsCategoryFooter type="outline" />
+    );
+
+    return {
+      header: threadSettingsHeader,
+      footer: threadSettingsFooter,
+    };
+  }, [mediaInfos.length, onPressSeeMore]);
+
+  const threadSettingsMediaGallery = React.useMemo(() => {
+    if (mediaInfos.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        {header}
+        <View style={styles.flatListContainer}>
+          <FlatList
+            data={filteredMediaInfos}
+            numColumns={numColumns}
+            renderItem={renderItem}
+            onEndReached={offset !== undefined ? onEndReached : null}
+            onEndReachedThreshold={1}
+          />
+        </View>
+        {footer}
+      </>
+    );
+  }, [
+    filteredMediaInfos,
+    footer,
+    header,
+    mediaInfos.length,
+    offset,
+    onEndReached,
+    renderItem,
+    styles.flatListContainer,
+  ]);
+
+  return threadSettingsMediaGallery;
 }
 
 type MediaGalleryItemProps = {
