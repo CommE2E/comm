@@ -3,6 +3,7 @@
 import t from 'tcomb';
 import type { TInterface, TUnion } from 'tcomb';
 
+import { threadSubscriptionValidator } from 'lib/types/subscription-types.js';
 import { userSurfacedPermissionValidator } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import {
@@ -179,6 +180,7 @@ export const joinThreadRequestInputValidator: TInterface<ServerThreadJoinRequest
     threadID: tID,
     calendarQuery: t.maybe(entryQueryInputValidator),
     inviteLinkSecret: t.maybe(t.String),
+    defaultSubscription: t.maybe(threadSubscriptionValidator),
   });
 
 async function threadJoinResponder(

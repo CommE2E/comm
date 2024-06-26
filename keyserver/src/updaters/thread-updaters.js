@@ -45,6 +45,7 @@ import {
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
+import { checkIfCommunityHasFarcasterChannelTag } from '../fetchers/community-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
@@ -816,16 +817,35 @@ async function joinThread(
     throw new ServerError('not_logged_in');
   }
 
-  const permissionCheck = request.inviteLinkSecret
-    ? checkIfInviteLinkIsValid(request.inviteLinkSecret, request.threadID)
-    : checkThreadPermission(
-        viewer,
+  const permissionPromise = (async () => {
+    if (request.inviteLinkSecret) {
+      return await checkIfInviteLinkIsValid(
+        request.inviteLinkSecret,
         request.threadID,
-        threadPermissions.JOIN_THREAD,
       );
+    }
+
+    const threadPermissionPromise = checkThreadPermission(
+      viewer,
+      request.threadID,
+      threadPermissions.JOIN_THREAD,
+    );
+
+    const communityFarcasterChannelTagPromise =
+      checkIfCommunityHasFarcasterChannelTag(viewer, request.threadID);
+
+    const [threadPermission, hasCommunityFarcasterChannelTag] =
+      await Promise.all([
+        threadPermissionPromise,
+        communityFarcasterChannelTagPromise,
+      ]);
+
+    return threadPermission || hasCommunityFarcasterChannelTag;
+  })();
+
   const [isMember, hasPermission] = await Promise.all([
     fetchViewerIsMember(viewer, request.threadID),
-    permissionCheck,
+    permissionPromise,
   ]);
   if (!hasPermission) {
     throw new ServerError('invalid_parameters');
@@ -855,7 +875,9 @@ async function joinThread(
     }
   }
 
-  const changeset = await changeRole(request.threadID, [viewer.userID], null);
+  const changeset = await changeRole(request.threadID, [viewer.userID], null, {
+    defaultSubscription: request.defaultSubscription,
+  });
 
   const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,
