@@ -2,10 +2,12 @@
 
 import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, ActivityIndicator } from 'react-native';
 
 import Button from './button.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
+
+type ButtonSize = 'S';
 
 type RelationshipButtonType =
   | 'add'
@@ -18,16 +20,22 @@ type RelationshipButtonType =
 type Props = {
   +type: RelationshipButtonType,
   +onPress: () => mixed,
+  +isLoading: boolean,
+  +size?: ButtonSize,
 };
 
 function RelationshipButton(props: Props): React.Node {
-  const { type, onPress } = props;
+  const { type, onPress, isLoading, size } = props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 
   const buttonStyle = React.useMemo(() => {
     const result = [styles.buttonContainer];
+
+    if (size === 'S') {
+      result.push(styles.smallButtonContainer);
+    }
 
     if (type === 'add' || type === 'accept' || type === 'unblock') {
       result.push(styles.greenButton);
@@ -36,35 +44,72 @@ function RelationshipButton(props: Props): React.Node {
     }
 
     return result;
-  }, [styles.buttonContainer, styles.greenButton, styles.redButton, type]);
+  }, [
+    size,
+    styles.buttonContainer,
+    styles.greenButton,
+    styles.redButton,
+    styles.smallButtonContainer,
+    type,
+  ]);
 
-  let buttonText = 'Add Friend';
+  const buttonTextStyle = React.useMemo(() => {
+    const result = [styles.buttonText];
+
+    if (size === 'S') {
+      result.push(styles.smallButtonText);
+    }
+
+    return result;
+  }, [size, styles.buttonText, styles.smallButtonText]);
+
+  let buttonText = 'Add friend';
   let icon = 'user-plus';
   if (type === 'withdraw') {
-    buttonText = 'Withdraw Friend Request';
+    buttonText = 'Withdraw friend request';
     icon = 'user-minus';
   } else if (type === 'accept') {
-    buttonText = 'Accept';
+    buttonText = 'Accept friend request';
   } else if (type === 'reject') {
-    buttonText = 'Reject';
+    buttonText = 'Reject friend request';
     icon = 'user-minus';
   } else if (type === 'block') {
-    buttonText = 'Block User';
+    buttonText = 'Block user';
     icon = 'user-shield';
   } else if (type === 'unblock') {
-    buttonText = 'Unblock User';
+    buttonText = 'Unblock user';
     icon = 'user-shield';
   }
 
+  const buttonContent = React.useMemo(() => {
+    if (isLoading) {
+      return <ActivityIndicator size="small" color={colors.whiteText} />;
+    }
+
+    return (
+      <>
+        <Icon
+          name={icon}
+          size={16}
+          color={colors.floatingButtonLabel}
+          style={styles.buttonIcon}
+        />
+        <Text style={buttonTextStyle}>{buttonText}</Text>
+      </>
+    );
+  }, [
+    buttonText,
+    buttonTextStyle,
+    colors.floatingButtonLabel,
+    colors.whiteText,
+    icon,
+    isLoading,
+    styles.buttonIcon,
+  ]);
+
   return (
-    <Button style={buttonStyle} onPress={onPress}>
-      <Icon
-        name={icon}
-        size={22}
-        color={colors.floatingButtonLabel}
-        style={styles.buttonIcon}
-      />
-      <Text style={styles.buttonText}>{buttonText}</Text>
+    <Button style={buttonStyle} onPress={onPress} disabled={isLoading}>
+      {buttonContent}
     </Button>
   );
 }
@@ -74,7 +119,7 @@ const unboundStyles = {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderRadius: 8,
   },
   buttonIcon: {
@@ -88,6 +133,12 @@ const unboundStyles = {
   },
   redButton: {
     backgroundColor: 'vibrantRedButton',
+  },
+  smallButtonContainer: {
+    paddingVertical: 8,
+  },
+  smallButtonText: {
+    fontSize: 11,
   },
 };
 
