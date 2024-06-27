@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { getOneTimeKeyValues } from 'lib/shared/crypto-utils.js';
-import { createAndSignInitialDeviceList } from 'lib/shared/device-list-utils.js';
+import { createAndSignSingletonDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   type IdentityKeysBlob,
@@ -132,6 +132,21 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           accessToken: token,
         } = await getAuthMetadata();
         return commRustModule.logOut(userID, deviceID, token);
+      },
+      logOutPrimaryDevice: async () => {
+        const {
+          deviceID,
+          userID,
+          accessToken: token,
+        } = await getAuthMetadata();
+        const signedDeviceList =
+          await createAndSignSingletonDeviceList(deviceID);
+        return commRustModule.logOutPrimaryDevice(
+          userID,
+          deviceID,
+          token,
+          JSON.stringify(signedDeviceList),
+        );
       },
       logOutSecondaryDevice: async () => {
         const {
@@ -339,7 +354,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const initialDeviceList = await createAndSignInitialDeviceList(
+        const initialDeviceList = await createAndSignSingletonDeviceList(
           primaryIdentityPublicKeys.ed25519,
         );
         const registrationResult = await commRustModule.registerPasswordUser(
@@ -378,7 +393,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const initialDeviceList = await createAndSignInitialDeviceList(
+        const initialDeviceList = await createAndSignSingletonDeviceList(
           primaryIdentityPublicKeys.ed25519,
         );
         const registrationResult =
@@ -442,7 +457,7 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
           commCoreModule.validateAndGetPrekeys(),
         ]);
-        const initialDeviceList = await createAndSignInitialDeviceList(
+        const initialDeviceList = await createAndSignSingletonDeviceList(
           primaryIdentityPublicKeys.ed25519,
         );
         const registrationResult = await commRustModule.registerWalletUser(
