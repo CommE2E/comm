@@ -14,7 +14,9 @@ import { usePushUserProfileModal } from '../../modals/user-profile/user-profile-
 
 function BlockListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
-  const { unblockUser } = useRelationshipCallbacks(userInfo.id);
+  const {
+    callbacks: { unblockUser },
+  } = useRelationshipCallbacks(userInfo.id);
   const editIcon = <SWMansionIcon icon="edit-1" size={22} />;
 
   const pushUserProfileModal = usePushUserProfileModal(userInfo.id);
