@@ -110,14 +110,15 @@ void (async () => {
 
         if (!identityInfo) {
           console.log(
-            '\nOpen the Comm app on your phone and scan the QR code below\n',
+            '\nOpen the Comm app on your phone and scan the QR code below, or copy and paste this URL:\n',
           );
+          const url = qrCodeLinkURL(aes256Key, ed25519Key);
+          console.log(url, '\n');
           console.log('How to find the scanner:\n');
           console.log('Go to \x1b[1mProfile\x1b[0m');
           console.log('Select \x1b[1mLinked devices\x1b[0m');
           console.log('Click \x1b[1mAdd\x1b[0m on the top right');
 
-          const url = qrCodeLinkURL(aes256Key, ed25519Key);
           qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
         }
       } catch (e) {
