@@ -21,7 +21,9 @@ const dangerButtonColor = {
 function FriendListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
 
-  const { friendUser, unfriendUser } = useRelationshipCallbacks(userInfo.id);
+  const {
+    callbacks: { friendUser, unfriendUser },
+  } = useRelationshipCallbacks(userInfo.id);
 
   const friendUserCallback = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
