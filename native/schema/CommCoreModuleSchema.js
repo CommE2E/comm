@@ -91,6 +91,13 @@ interface Spec extends TurboModule {
     sessionVersion: number,
     overwrite: boolean,
   ) => Promise<string>;
+  +initializeNotificationsOutboundSession: (
+    identityKeys: string,
+    prekey: string,
+    prekeySignature: string,
+    oneTimeKey: ?string,
+    deviceID: string,
+  ) => Promise<EncryptedData>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
   +encryptAndPersist: (
     message: string,
