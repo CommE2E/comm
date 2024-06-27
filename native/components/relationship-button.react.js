@@ -4,7 +4,7 @@ import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import Button from './button.react.js';
+import LoadableButton from './loadable-button.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 type RelationshipButtonType =
@@ -18,10 +18,11 @@ type RelationshipButtonType =
 type Props = {
   +type: RelationshipButtonType,
   +onPress: () => mixed,
+  +isLoading: boolean,
 };
 
 function RelationshipButton(props: Props): React.Node {
-  const { type, onPress } = props;
+  const { type, onPress, isLoading } = props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -38,10 +39,10 @@ function RelationshipButton(props: Props): React.Node {
     return result;
   }, [styles.buttonContainer, styles.greenButton, styles.redButton, type]);
 
-  let buttonText = 'Add Friend';
+  let buttonText = 'Add friend';
   let icon = 'user-plus';
   if (type === 'withdraw') {
-    buttonText = 'Withdraw Friend Request';
+    buttonText = 'Withdraw friend request';
     icon = 'user-minus';
   } else if (type === 'accept') {
     buttonText = 'Accept';
@@ -49,15 +50,15 @@ function RelationshipButton(props: Props): React.Node {
     buttonText = 'Reject';
     icon = 'user-minus';
   } else if (type === 'block') {
-    buttonText = 'Block User';
+    buttonText = 'Block user';
     icon = 'user-shield';
   } else if (type === 'unblock') {
-    buttonText = 'Unblock User';
+    buttonText = 'Unblock user';
     icon = 'user-shield';
   }
 
   return (
-    <Button style={buttonStyle} onPress={onPress}>
+    <LoadableButton style={buttonStyle} onPress={onPress} isLoading={isLoading}>
       <Icon
         name={icon}
         size={22}
@@ -65,7 +66,7 @@ function RelationshipButton(props: Props): React.Node {
         style={styles.buttonIcon}
       />
       <Text style={styles.buttonText}>{buttonText}</Text>
-    </Button>
+    </LoadableButton>
   );
 }
 
