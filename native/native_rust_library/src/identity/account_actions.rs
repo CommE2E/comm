@@ -2,7 +2,8 @@ use comm_opaque2::client::{Login, Registration};
 use grpc_clients::identity::get_auth_client;
 use grpc_clients::identity::protos::auth::{
   DeletePasswordUserFinishRequest, DeletePasswordUserStartRequest,
-  UpdateUserPasswordFinishRequest, UpdateUserPasswordStartRequest,
+  PrimaryDeviceLogoutRequest, UpdateUserPasswordFinishRequest,
+  UpdateUserPasswordStartRequest,
 };
 use grpc_clients::identity::protos::unauth::Empty;
 
@@ -84,6 +85,28 @@ pub mod ffi {
         device_id,
       };
       let result = log_out_helper(auth_info, LogOutType::Legacy).await;
+      handle_void_result_as_callback(result, promise_id);
+    });
+  }
+
+  pub fn log_out_primary_device(
+    user_id: String,
+    device_id: String,
+    access_token: String,
+    signed_device_list: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let auth_info = AuthInfo {
+        access_token,
+        user_id,
+        device_id,
+      };
+      let result = log_out_helper(
+        auth_info,
+        LogOutType::PrimaryDevice { signed_device_list },
+      )
+      .await;
       handle_void_result_as_callback(result, promise_id);
     });
   }
@@ -229,6 +252,7 @@ async fn delete_password_user_helper(
 
 enum LogOutType {
   Legacy,
+  PrimaryDevice { signed_device_list: String },
   SecondaryDevice,
 }
 
@@ -249,6 +273,10 @@ async fn log_out_helper(
     LogOutType::Legacy => identity_client.log_out_user(Empty {}).await?,
     LogOutType::SecondaryDevice => {
       identity_client.log_out_secondary_device(Empty {}).await?
+    }
+    LogOutType::PrimaryDevice { signed_device_list } => {
+      let request = PrimaryDeviceLogoutRequest { signed_device_list };
+      identity_client.log_out_primary_device(request).await?
     }
   };
 
