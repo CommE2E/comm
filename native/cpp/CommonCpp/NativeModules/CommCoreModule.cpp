@@ -1441,6 +1441,77 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
       });
 }
 
+jsi::Value CommCoreModule::initializeNotificationsOutboundSession(
+    jsi::Runtime &rt,
+    jsi::String identityKeys,
+    jsi::String prekey,
+    jsi::String prekeySignature,
+    std::optional<jsi::String> oneTimeKey,
+    jsi::String deviceID) {
+  auto identityKeysCpp{identityKeys.utf8(rt)};
+  auto prekeyCpp{prekey.utf8(rt)};
+  auto prekeySignatureCpp{prekeySignature.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+
+  std::optional<std::string> oneTimeKeyCpp;
+  if (oneTimeKey) {
+    oneTimeKeyCpp = oneTimeKey->utf8(rt);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData result;
+          try {
+            std::optional<crypto::OlmBuffer> oneTimeKeyBuffer;
+            if (oneTimeKeyCpp) {
+              oneTimeKeyBuffer = crypto::OlmBuffer(
+                  oneTimeKeyCpp->begin(), oneTimeKeyCpp->end());
+            }
+            this->notifsCryptoModule->initializeOutboundForSendingSession(
+                deviceIDCpp,
+                std::vector<uint8_t>(
+                    identityKeysCpp.begin(), identityKeysCpp.end()),
+                std::vector<uint8_t>(prekeyCpp.begin(), prekeyCpp.end()),
+                std::vector<uint8_t>(
+                    prekeySignatureCpp.begin(), prekeySignatureCpp.end()),
+                oneTimeKeyBuffer);
+
+            result = this->notifsCryptoModule->encrypt(
+                deviceIDCpp,
+                NotificationsCryptoModule::initialEncryptedMessageContent);
+
+            std::shared_ptr<crypto::Session> peerNotificationsSession =
+                this->notifsCryptoModule->getSessionByDeviceId(deviceIDCpp);
+
+            NotificationsCryptoModule::persistPeerNotificationsSession(
+                deviceIDCpp, peerNotificationsSession);
+
+            this->notifsCryptoModule->removeSessionByDeviceId(deviceIDCpp);
+            this->persistCryptoModules(false, true);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            auto initialEncryptedDataJSI = jsi::Object(innerRt);
+            auto message =
+                std::string{result.message.begin(), result.message.end()};
+            auto messageJSI = jsi::String::createFromUtf8(innerRt, message);
+            initialEncryptedDataJSI.setProperty(innerRt, "message", messageJSI);
+            initialEncryptedDataJSI.setProperty(
+                innerRt, "messageType", static_cast<int>(result.messageType));
+            promise->resolve(std::move(initialEncryptedDataJSI));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::encrypt(
     jsi::Runtime &rt,
     jsi::String message,
