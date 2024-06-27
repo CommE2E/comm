@@ -2,4 +2,6 @@ div.container {
   color: var(--text-background-secondary-default);
   box-sizing: border-box;
   font-size: var(--xl-font-20);
+  max-width: var(--modal-width-large);
+  overflow-wrap: break-word;
 }
