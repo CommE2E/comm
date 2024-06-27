@@ -160,6 +160,15 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityLogOutPrimaryDevice"]
+    fn log_out_primary_device(
+      user_id: String,
+      device_id: String,
+      access_token: String,
+      signed_device_list: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityLogOutSecondaryDevice"]
     fn log_out_secondary_device(
       user_id: String,
