@@ -13,10 +13,11 @@ type Props = {
   +icon: IconDefinition,
   +buttonColor: ButtonColor,
   +onClick: () => void,
+  +isLoading: boolean,
   +className?: string,
 };
 function RelationshipPromptButton(props: Props): React.Node {
-  const { text, icon, buttonColor, onClick, className } = props;
+  const { text, icon, buttonColor, onClick, isLoading, className } = props;
 
   const buttonClassName = classnames(css.promptButton, className);
 
@@ -27,12 +28,13 @@ function RelationshipPromptButton(props: Props): React.Node {
         buttonColor={buttonColor}
         onClick={onClick}
         className={buttonClassName}
+        disabled={isLoading}
       >
         <FontAwesomeIcon icon={icon} />
         <p className={css.promptText}>{text}</p>
       </Button>
     ),
-    [buttonClassName, buttonColor, icon, onClick, text],
+    [buttonClassName, buttonColor, icon, isLoading, onClick, text],
   );
 
   return relationshipPromptButton;

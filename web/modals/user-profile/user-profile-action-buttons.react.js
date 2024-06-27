@@ -22,6 +22,7 @@ function UserProfileActionButtons(props: Props): React.Node {
   const {
     otherUserInfo,
     callbacks: { friendUser, unfriendUser },
+    loadingState: { isLoadingFriendUser, isLoadingUnfriendUser },
   } = useRelationshipPrompt(threadInfo);
 
   const userProfileActionButtons = React.useMemo(() => {
@@ -45,17 +46,19 @@ function UserProfileActionButtons(props: Props): React.Node {
             </p>
             <div className={css.multiButtonRowContainer}>
               <RelationshipPromptButton
-                text="Accept"
+                text="Accept friend request"
                 icon={faUserPlus}
                 buttonColor={buttonThemes.success}
                 onClick={friendUser}
+                isLoading={isLoadingFriendUser}
                 className={css.actionButton}
               />
               <RelationshipPromptButton
-                text="Reject"
+                text="Reject friend request"
                 icon={faUserMinus}
                 buttonColor={buttonThemes.danger}
                 onClick={unfriendUser}
+                isLoading={isLoadingUnfriendUser}
                 className={css.actionButton}
               />
             </div>
@@ -70,10 +73,11 @@ function UserProfileActionButtons(props: Props): React.Node {
       return (
         <div className={css.multiButtonRowContainer}>
           <RelationshipPromptButton
-            text="Withdraw Friend Request"
+            text="Withdraw friend request"
             icon={faUserMinus}
             buttonColor={buttonThemes.danger}
             onClick={unfriendUser}
+            isLoading={isLoadingUnfriendUser}
             className={css.actionButton}
           />
           <UserProfileMessageButton threadInfo={threadInfo} />
@@ -83,16 +87,24 @@ function UserProfileActionButtons(props: Props): React.Node {
     return (
       <div className={css.multiButtonRowContainer}>
         <RelationshipPromptButton
-          text="Add Friend"
+          text="Add friend"
           icon={faUserPlus}
           buttonColor={buttonThemes.success}
           onClick={friendUser}
+          isLoading={isLoadingFriendUser}
           className={css.actionButton}
         />
         <UserProfileMessageButton threadInfo={threadInfo} />
       </div>
     );
-  }, [otherUserInfo, friendUser, threadInfo, unfriendUser]);
+  }, [
+    otherUserInfo,
+    friendUser,
+    isLoadingFriendUser,
+    threadInfo,
+    unfriendUser,
+    isLoadingUnfriendUser,
+  ]);
 
   return userProfileActionButtons;
 }
