@@ -7,4 +7,4 @@ set -e
 
 # shellcheck source=/dev/null
 . ~/.nvm/nvm.sh
-nvm exec npm run prod
+nvm exec yarn run prod
