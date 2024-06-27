@@ -9,7 +9,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 
-import Button from '../components/button.react.js';
+import LoadableButton from '../components/loadable-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
@@ -34,12 +34,28 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     const {
       otherUserInfo,
       callbacks: { blockUser, unblockUser, friendUser, unfriendUser },
+      loadingState: {
+        isLoadingBlockUser,
+        isLoadingUnblockUser,
+        isLoadingFriendUser,
+        isLoadingUnfriendUser,
+      },
     } = useRelationshipPrompt(
       threadInfo,
       onErrorCallback,
       pendingPersonalThreadUserInfo,
     );
     const styles = useStyles(unboundStyles);
+
+    const greenButtonStyles = React.useMemo(
+      () => [styles.button, styles.greenButton],
+      [styles.button, styles.greenButton],
+    );
+
+    const redButtonStyles = React.useMemo(
+      () => [styles.button, styles.redButton],
+      [styles.button, styles.redButton],
+    );
 
     if (
       !otherUserInfo ||
@@ -54,10 +70,14 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
+          <LoadableButton
+            style={redButtonStyles}
+            onPress={blockUser}
+            isLoading={isLoadingBlockUser}
+          >
             <Icon name="user-shield" size={12} color="white" />
-            <Text style={styles.buttonText}>Block User</Text>
-          </Button>
+            <Text style={styles.buttonText}>Block user</Text>
+          </LoadableButton>
         </View>
       );
     }
@@ -70,13 +90,14 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.greenButton]}
+          <LoadableButton
+            style={greenButtonStyles}
             onPress={unblockUser}
+            isLoading={isLoadingUnblockUser}
           >
             <Icon name="user-shield" size={12} color="white" />
-            <Text style={styles.buttonText}>Unblock User</Text>
-          </Button>
+            <Text style={styles.buttonText}>Unblock user</Text>
+          </LoadableButton>
         </View>
       );
     }
@@ -87,20 +108,22 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.greenButton]}
+          <LoadableButton
+            style={greenButtonStyles}
             onPress={friendUser}
+            isLoading={isLoadingFriendUser}
           >
             <Icon name="user-plus" size={12} color="white" />
-            <Text style={styles.buttonText}>Accept Friend Request</Text>
-          </Button>
-          <Button
-            style={[styles.button, styles.redButton]}
+            <Text style={styles.buttonText}>Accept friend request</Text>
+          </LoadableButton>
+          <LoadableButton
+            style={redButtonStyles}
             onPress={unfriendUser}
+            isLoading={isLoadingUnfriendUser}
           >
             <Icon name="user-slash" size={12} color="white" />
-            <Text style={styles.buttonText}>Reject Friend Request</Text>
-          </Button>
+            <Text style={styles.buttonText}>Reject friend request</Text>
+          </LoadableButton>
         </View>
       );
     }
@@ -110,30 +133,36 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.redButton]}
+          <LoadableButton
+            style={redButtonStyles}
             onPress={unfriendUser}
+            isLoading={isLoadingUnfriendUser}
           >
             <Icon name="user-minus" size={12} color="white" />
-            <Text style={styles.buttonText}>Withdraw Friend Request</Text>
-          </Button>
+            <Text style={styles.buttonText}>Withdraw friend request</Text>
+          </LoadableButton>
         </View>
       );
     }
 
     return (
       <View style={styles.container}>
-        <Button
-          style={[styles.button, styles.greenButton]}
+        <LoadableButton
+          style={greenButtonStyles}
           onPress={friendUser}
+          isLoading={isLoadingFriendUser}
         >
           <Icon name="user-plus" size={12} color="white" />
-          <Text style={styles.buttonText}>Add Friend</Text>
-        </Button>
-        <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
+          <Text style={styles.buttonText}>Add friend</Text>
+        </LoadableButton>
+        <LoadableButton
+          style={redButtonStyles}
+          onPress={blockUser}
+          isLoading={isLoadingBlockUser}
+        >
           <Icon name="user-shield" size={12} color="white" />
-          <Text style={styles.buttonText}>Block User</Text>
-        </Button>
+          <Text style={styles.buttonText}>Block user</Text>
+        </LoadableButton>
       </View>
     );
   },
@@ -152,6 +181,7 @@ const unboundStyles = {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginHorizontal: 5,
   },
   greenButton: {
