@@ -42,6 +42,7 @@ import {
   uploadDownloadResponder,
 } from './uploads/uploads.js';
 import { createAuthoritativeKeyserverConfigFiles } from './user/create-configs.js';
+import { fetchIdentityInfo } from './user/identity.js';
 import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { initFCCache } from './utils/fc-cache.js';
@@ -102,18 +103,23 @@ void (async () => {
         const aes256Key = crypto.randomBytes(32).toString('hex');
         const ed25519Key = await getContentSigningKey();
 
-        await createAndMaintainTunnelbrokerWebsocket(aes256Key);
+        const [identityInfo] = await Promise.all([
+          fetchIdentityInfo(),
+          createAndMaintainTunnelbrokerWebsocket(aes256Key),
+        ]);
 
-        console.log(
-          '\nOpen the Comm app on your phone and scan the QR code below\n',
-        );
-        console.log('How to find the scanner:\n');
-        console.log('Go to \x1b[1mProfile\x1b[0m');
-        console.log('Select \x1b[1mLinked devices\x1b[0m');
-        console.log('Click \x1b[1mAdd\x1b[0m on the top right');
+        if (!identityInfo) {
+          console.log(
+            '\nOpen the Comm app on your phone and scan the QR code below\n',
+          );
+          console.log('How to find the scanner:\n');
+          console.log('Go to \x1b[1mProfile\x1b[0m');
+          console.log('Select \x1b[1mLinked devices\x1b[0m');
+          console.log('Click \x1b[1mAdd\x1b[0m on the top right');
 
-        const url = qrCodeLinkURL(aes256Key, ed25519Key);
-        qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
+          const url = qrCodeLinkURL(aes256Key, ed25519Key);
+          qrcode.toString(url, (error, encodedURL) => console.log(encodedURL));
+        }
       } catch (e) {
         console.log('Error generating QR code', e);
       }
