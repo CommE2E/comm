@@ -271,6 +271,9 @@ pub fn verify_singleton_device_list(
 }
 
 pub mod validation {
+  /// utility alias to help infer validator type if exact function is not provided.
+  pub type DeviceListValidator = fn(&[&str], &[&str]) -> bool;
+
   use super::*;
   /// Returns `true` if `new_device_list` contains exactly one more new device
   /// compared to `previous_device_list`
