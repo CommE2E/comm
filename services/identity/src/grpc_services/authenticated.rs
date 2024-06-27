@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::config::CONFIG;
 use crate::database::{DeviceListUpdate, PlatformDetails};
+use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
 use crate::{
@@ -435,6 +436,76 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<PrimaryDeviceLogoutRequest>,
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+    let message = request.into_inner();
+
+    debug!(
+      "Primary device logout request for user_id={}, device_id={}",
+      user_id, device_id
+    );
+    self
+      .verify_device_on_device_list(
+        &user_id,
+        &device_id,
+        DeviceListItemKind::Primary,
+      )
+      .await?;
+
+    // Get and verify singleton device list
+    let parsed_device_list: SignedDeviceList =
+      message.signed_device_list.parse().map_err(|err| {
+        warn!("Failed to deserialize device list: {}", err);
+        tonic::Status::invalid_argument(
+          tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
+        )
+      })?;
+
+    let update_payload = DeviceListUpdate::try_from(parsed_device_list)?;
+    crate::device_list::verify_singleton_device_list(
+      &update_payload,
+      &device_id,
+    )?;
+
+    self
+      .db_client
+      .apply_devicelist_update(
+        &user_id,
+        update_payload,
+        // - We've already validated the list so no need to do it here.
+        // - Need to pass the type because it cannot be inferred from None
+        None::<DeviceListValidator>,
+        // We don't want side effects - we'll take care of removing devices
+        // on our own. (Side effect would skip the primary device).
+        false,
+      )
+      .await
+      .map_err(handle_db_error)?;
+
+    debug!(user_id, "Attempting to delete user's access tokens");
+    self
+      .db_client
+      .delete_all_tokens_for_user(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    // We must delete the one-time keys first because doing so requires device
+    // IDs from the devices table
+    debug!(user_id, "Attempting to delete user's one-time keys");
+    self
+      .db_client
+      .delete_otks_table_rows_for_user(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    debug!(user_id, "Attempting to delete user's devices");
+    let _device_ids = self
+      .db_client
+      .delete_devices_data_for_user(&user_id)
+      .await
+      .map_err(handle_db_error)?;
+
+    // TODO: Remove Tunnelbroker data (use the _device_ids)
+
     let response = Empty {};
     Ok(Response::new(response))
   }
