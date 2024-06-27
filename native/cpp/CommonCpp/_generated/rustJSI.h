@@ -30,6 +30,7 @@ public:
   virtual jsi::Value deletePasswordUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String password) = 0;
   virtual jsi::Value deleteWalletUser(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value logOut(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
+  virtual jsi::Value logOutPrimaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String signedDeviceList) = 0;
   virtual jsi::Value logOutSecondaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) = 0;
   virtual jsi::Value getOutboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
   virtual jsi::Value getInboundKeysForUser(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken, jsi::String userID) = 0;
@@ -148,6 +149,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::logOut, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken));
+    }
+    jsi::Value logOutPrimaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken, jsi::String signedDeviceList) override {
+      static_assert(
+          bridging::getParameterCount(&T::logOutPrimaryDevice) == 5,
+          "Expected logOutPrimaryDevice(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::logOutPrimaryDevice, jsInvoker_, instance_, std::move(userID), std::move(deviceID), std::move(accessToken), std::move(signedDeviceList));
     }
     jsi::Value logOutSecondaryDevice(jsi::Runtime &rt, jsi::String userID, jsi::String deviceID, jsi::String accessToken) override {
       static_assert(
