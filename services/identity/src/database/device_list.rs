@@ -1303,14 +1303,19 @@ impl DatabaseClient {
   }
 
   /// applies updated device list received from primary device
-  pub async fn apply_devicelist_update(
+  pub async fn apply_devicelist_update<V>(
     &self,
     user_id: &str,
     update: DeviceListUpdate,
     // A function that receives previous and new device IDs and
     // returns boolean determining if the new device list is valid.
-    validator_fn: impl Fn(&[&str], &[&str]) -> bool,
-  ) -> Result<DeviceListRow, Error> {
+    validator_fn: Option<V>,
+    // Whether to remove device data when a device is removed from the list.
+    remove_device_data: bool,
+  ) -> Result<DeviceListRow, Error>
+  where
+    V: Fn(&[&str], &[&str]) -> bool,
+  {
     use std::collections::HashSet;
 
     let new_list = update.devices.clone();
@@ -1326,11 +1331,14 @@ impl DatabaseClient {
           current_list.iter().map(AsRef::as_ref).collect();
         let new_device_ids: Vec<&str> =
           new_list.iter().map(AsRef::as_ref).collect();
-        if !validator_fn(&previous_device_ids, &new_device_ids) {
-          warn!("Received invalid device list update");
-          return Err(Error::DeviceList(
-            DeviceListError::InvalidDeviceListUpdate,
-          ));
+
+        if let Some(validate) = validator_fn {
+          if !validate(&previous_device_ids, &new_device_ids) {
+            warn!("Received invalid device list update");
+            return Err(Error::DeviceList(
+              DeviceListError::InvalidDeviceListUpdate,
+            ));
+          }
         }
 
         // collect device IDs that were removed
@@ -1346,6 +1354,10 @@ impl DatabaseClient {
         Ok(UpdateOperationInfo::primary_device_issued(update))
       })
       .await?;
+
+    if !remove_device_data {
+      return Ok(update_result);
+    }
 
     // delete device data and invalidate CSAT for removed devices
     debug!(

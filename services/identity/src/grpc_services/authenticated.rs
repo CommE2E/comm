@@ -732,13 +732,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let new_list = SignedDeviceList::try_from(request.into_inner())?;
     let update = DeviceListUpdate::try_from(new_list)?;
+    let validator =
+      crate::device_list::validation::update_device_list_rpc_validator;
     self
       .db_client
-      .apply_devicelist_update(
-        &user_id,
-        update,
-        crate::device_list::validation::update_device_list_rpc_validator,
-      )
+      .apply_devicelist_update(&user_id, update, Some(validator), true)
       .await
       .map_err(handle_db_error)?;
 
