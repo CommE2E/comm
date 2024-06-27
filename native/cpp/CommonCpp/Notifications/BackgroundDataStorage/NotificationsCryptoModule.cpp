@@ -151,6 +151,11 @@ std::string NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
   return "KEYSERVER." + keyserverID + ".NOTIFS_SESSION";
 }
 
+std::string NotificationsCryptoModule::getPeerNotificationsSessionKey(
+    const std::string &deviceID) {
+  return "DEVICE." + deviceID + ".NOTIFS_SESSION";
+}
+
 std::string NotificationsCryptoModule::serializeNotificationsSession(
     std::shared_ptr<crypto::Session> session,
     std::string picklingKey) {
@@ -194,45 +199,65 @@ void NotificationsCryptoModule::clearSensitiveData() {
 }
 
 void NotificationsCryptoModule::persistNotificationsSessionInternal(
-    const std::string &keyserverID,
+    bool isKeyserverSession,
+    const std::string &senderID,
     const std::string &picklingKey,
     std::shared_ptr<crypto::Session> session) {
   std::string serializedSession =
       NotificationsCryptoModule::serializeNotificationsSession(
           session, picklingKey);
-  std::string keyserverNotificationsSessionKey =
-      NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
-          keyserverID);
+
+  std::string notificationsSessionKey;
+  std::string persistenceErrorMessage;
+
+  if (isKeyserverSession) {
+    notificationsSessionKey =
+        NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
+            senderID);
+    persistenceErrorMessage =
+        "Failed to persist to MMKV notifications session for keyserver: " +
+        senderID;
+  } else {
+    notificationsSessionKey =
+        NotificationsCryptoModule::getPeerNotificationsSessionKey(senderID);
+    persistenceErrorMessage =
+        "Failed to persist to MMKV notifications session for device: " +
+        senderID;
+  }
 
   bool sessionStored =
-      CommMMKV::setString(keyserverNotificationsSessionKey, serializedSession);
+      CommMMKV::setString(notificationsSessionKey, serializedSession);
 
   if (!sessionStored) {
-    throw std::runtime_error(
-        "Failed to persist to MMKV notifications session for keyserver: " +
-        keyserverID);
+    throw std::runtime_error(persistenceErrorMessage);
   }
 }
 
 std::optional<std::pair<std::unique_ptr<crypto::Session>, std::string>>
 NotificationsCryptoModule::fetchNotificationsSession(
-    const std::string &keyserverID) {
-  std::string keyserverNotificationsSessionKey =
-      NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
-          keyserverID);
+    bool isKeyserverSession,
+    const std::string &senderID) {
+  std::string notificationsSessionKey;
+  if (isKeyserverSession) {
+    notificationsSessionKey =
+        NotificationsCryptoModule::getKeyserverNotificationsSessionKey(
+            senderID);
+  } else {
+    notificationsSessionKey =
+        NotificationsCryptoModule::getPeerNotificationsSessionKey(senderID);
+  }
 
   std::optional<std::string> serializedSession;
   try {
-    serializedSession = CommMMKV::getString(keyserverNotificationsSessionKey);
+    serializedSession = CommMMKV::getString(notificationsSessionKey);
   } catch (const CommMMKV::InitFromNSEForbiddenError &e) {
     serializedSession = std::nullopt;
   }
 
-  if (!serializedSession.has_value() &&
-      keyserverID !=
-          ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage) {
+  if (!serializedSession.has_value() && isKeyserverSession &&
+      senderID != ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage) {
     throw std::runtime_error(
-        "Missing notifications session for keyserver: " + keyserverID);
+        "Missing notifications session for keyserver: " + senderID);
   } else if (!serializedSession.has_value()) {
     return std::nullopt;
   }
@@ -246,14 +271,29 @@ void NotificationsCryptoModule::persistNotificationsSession(
     std::shared_ptr<crypto::Session> keyserverNotificationsSession) {
   std::string picklingKey = crypto::Tools::generateRandomString(64);
   NotificationsCryptoModule::persistNotificationsSessionInternal(
-      keyserverID, picklingKey, keyserverNotificationsSession);
+      true, keyserverID, picklingKey, keyserverNotificationsSession);
+}
+
+void NotificationsCryptoModule::persistPeerNotificationsSession(
+    const std::string &deviceID,
+    std::shared_ptr<crypto::Session> peerNotificationsSession) {
+  std::string picklingKey = crypto::Tools::generateRandomString(64);
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      false, deviceID, picklingKey, peerNotificationsSession);
 }
 
 bool NotificationsCryptoModule::isNotificationsSessionInitialized(
     const std::string &keyserverID) {
   std::string keyserverNotificationsSessionKey =
-      "KEYSERVER." + keyserverID + ".NOTIFS_SESSION";
+      getKeyserverNotificationsSessionKey(keyserverID);
   return CommMMKV::getString(keyserverNotificationsSessionKey).has_value();
+}
+
+bool NotificationsCryptoModule::isPeerNotificationsSessionInitialized(
+    const std::string &deviceID) {
+  std::string peerNotificationsSessionKey =
+      getPeerNotificationsSessionKey(deviceID);
+  return CommMMKV::getString(peerNotificationsSessionKey).has_value();
 }
 
 NotificationsCryptoModule::BaseStatefulDecryptResult::BaseStatefulDecryptResult(
@@ -280,7 +320,10 @@ NotificationsCryptoModule::StatefulDecryptResult::StatefulDecryptResult(
 
 void NotificationsCryptoModule::StatefulDecryptResult::flushState() {
   NotificationsCryptoModule::persistNotificationsSessionInternal(
-      this->keyserverID, this->picklingKey, std::move(this->sessionState));
+      true,
+      this->keyserverID,
+      this->picklingKey,
+      std::move(this->sessionState));
 }
 
 NotificationsCryptoModule::LegacyStatefulDecryptResult::
@@ -349,7 +392,7 @@ std::string NotificationsCryptoModule::decrypt(
     const size_t messageType) {
 
   auto sessionWithPicklingKey =
-      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+      NotificationsCryptoModule::fetchNotificationsSession(true, keyserverID);
   if (!sessionWithPicklingKey.has_value()) {
     auto statefulDecryptResult =
         NotificationsCryptoModule::prepareLegacyDecryptedState(
@@ -366,7 +409,7 @@ std::string NotificationsCryptoModule::decrypt(
 
   std::string decryptedData = session->decrypt(encryptedData);
   NotificationsCryptoModule::persistNotificationsSessionInternal(
-      keyserverID, picklingKey, std::move(session));
+      true, keyserverID, picklingKey, std::move(session));
   return decryptedData;
 }
 
@@ -377,7 +420,7 @@ NotificationsCryptoModule::statefulDecrypt(
     const size_t messageType) {
 
   auto sessionWithPicklingKey =
-      NotificationsCryptoModule::fetchNotificationsSession(keyserverID);
+      NotificationsCryptoModule::fetchNotificationsSession(true, keyserverID);
   if (!sessionWithPicklingKey.has_value()) {
     return NotificationsCryptoModule::prepareLegacyDecryptedState(
         data, messageType);
