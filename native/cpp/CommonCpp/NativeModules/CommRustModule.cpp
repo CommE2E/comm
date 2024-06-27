@@ -427,6 +427,39 @@ jsi::Value CommRustModule::logOut(
       });
 }
 
+jsi::Value CommRustModule::logOutPrimaryDevice(
+    jsi::Runtime &rt,
+    jsi::String userID,
+    jsi::String deviceID,
+    jsi::String accessToken,
+    jsi::String signedDeviceList) {
+  auto userIDRust = jsiStringToRustString(userID, rt);
+  auto deviceIDRust = jsiStringToRustString(deviceID, rt);
+  auto accessTokenRust = jsiStringToRustString(accessToken, rt);
+  auto deviceListRust = jsiStringToRustString(signedDeviceList, rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=, this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          auto currentID = RustPromiseManager::instance.addPromise(
+              {promise, this->jsInvoker_, innerRt});
+          identityLogOutPrimaryDevice(
+              userIDRust,
+              deviceIDRust,
+              accessTokenRust,
+              deviceListRust,
+              currentID);
+        } catch (const std::exception &e) {
+          error = e.what();
+        };
+        if (!error.empty()) {
+          this->jsInvoker_->invokeAsync(
+              [error, promise]() { promise->reject(error); });
+        }
+      });
+}
+
 jsi::Value CommRustModule::logOutSecondaryDevice(
     jsi::Runtime &rt,
     jsi::String userID,
