@@ -1,15 +1,14 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 
-import Button from '../components/button.react.js';
+import RelationshipButton from '../components/relationship-button.react.js';
 import { useStyles } from '../themes/colors.js';
 import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
 import Alert from '../utils/alert.js';
@@ -34,6 +33,12 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     const {
       otherUserInfo,
       callbacks: { blockUser, unblockUser, friendUser, unfriendUser },
+      loadingState: {
+        isLoadingBlockUser,
+        isLoadingUnblockUser,
+        isLoadingFriendUser,
+        isLoadingUnfriendUser,
+      },
     } = useRelationshipPrompt(
       threadInfo,
       onErrorCallback,
@@ -54,10 +59,14 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
-            <Icon name="user-shield" size={12} color="white" />
-            <Text style={styles.buttonText}>Block User</Text>
-          </Button>
+          <View style={styles.buttonContainer}>
+            <RelationshipButton
+              type="block"
+              onPress={blockUser}
+              isLoading={isLoadingBlockUser}
+              size="S"
+            />
+          </View>
         </View>
       );
     }
@@ -70,13 +79,14 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.greenButton]}
-            onPress={unblockUser}
-          >
-            <Icon name="user-shield" size={12} color="white" />
-            <Text style={styles.buttonText}>Unblock User</Text>
-          </Button>
+          <View style={styles.buttonContainer}>
+            <RelationshipButton
+              type="unblock"
+              onPress={unblockUser}
+              isLoading={isLoadingUnblockUser}
+              size="S"
+            />
+          </View>
         </View>
       );
     }
@@ -87,20 +97,22 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.greenButton]}
-            onPress={friendUser}
-          >
-            <Icon name="user-plus" size={12} color="white" />
-            <Text style={styles.buttonText}>Accept Friend Request</Text>
-          </Button>
-          <Button
-            style={[styles.button, styles.redButton]}
-            onPress={unfriendUser}
-          >
-            <Icon name="user-slash" size={12} color="white" />
-            <Text style={styles.buttonText}>Reject Friend Request</Text>
-          </Button>
+          <View style={styles.buttonContainer}>
+            <RelationshipButton
+              type="accept"
+              onPress={friendUser}
+              isLoading={isLoadingFriendUser}
+              size="S"
+            />
+          </View>
+          <View style={styles.buttonContainer}>
+            <RelationshipButton
+              type="reject"
+              onPress={unfriendUser}
+              isLoading={isLoadingUnfriendUser}
+              size="S"
+            />
+          </View>
         </View>
       );
     }
@@ -110,30 +122,36 @@ const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
     ) {
       return (
         <View style={styles.container}>
-          <Button
-            style={[styles.button, styles.redButton]}
-            onPress={unfriendUser}
-          >
-            <Icon name="user-minus" size={12} color="white" />
-            <Text style={styles.buttonText}>Withdraw Friend Request</Text>
-          </Button>
+          <View style={styles.buttonContainer}>
+            <RelationshipButton
+              type="withdraw"
+              onPress={unfriendUser}
+              isLoading={isLoadingUnfriendUser}
+              size="S"
+            />
+          </View>
         </View>
       );
     }
 
     return (
       <View style={styles.container}>
-        <Button
-          style={[styles.button, styles.greenButton]}
-          onPress={friendUser}
-        >
-          <Icon name="user-plus" size={12} color="white" />
-          <Text style={styles.buttonText}>Add Friend</Text>
-        </Button>
-        <Button style={[styles.button, styles.redButton]} onPress={blockUser}>
-          <Icon name="user-shield" size={12} color="white" />
-          <Text style={styles.buttonText}>Block User</Text>
-        </Button>
+        <View style={styles.buttonContainer}>
+          <RelationshipButton
+            type="add"
+            onPress={friendUser}
+            isLoading={isLoadingFriendUser}
+            size="S"
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <RelationshipButton
+            type="block"
+            onPress={blockUser}
+            isLoading={isLoadingBlockUser}
+            size="S"
+          />
+        </View>
       </View>
     );
   },
@@ -146,26 +164,10 @@ const unboundStyles = {
     backgroundColor: 'panelBackground',
     flexDirection: 'row',
   },
-  button: {
-    padding: 10,
-    borderRadius: 5,
+  buttonContainer: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    height: 32,
     marginHorizontal: 5,
-  },
-  greenButton: {
-    backgroundColor: 'vibrantGreenButton',
-  },
-  redButton: {
-    backgroundColor: 'vibrantRedButton',
-  },
-  buttonText: {
-    fontSize: 11,
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginLeft: 5,
   },
 };
 
