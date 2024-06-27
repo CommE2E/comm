@@ -39,6 +39,7 @@ function UserProfileRelationshipButton(props: Props): React.Node {
   const {
     otherUserInfo,
     callbacks: { friendUser, unfriendUser },
+    loadingState: { isLoadingFriendUser, isLoadingUnfriendUser },
   } = useRelationshipPrompt(
     threadInfo,
     onErrorCallback,
@@ -91,10 +92,18 @@ function UserProfileRelationshipButton(props: Props): React.Node {
           </Text>
           <View style={styles.incomingFriendRequestButtonsContainer}>
             <View style={styles.acceptFriendRequestButtonContainer}>
-              <RelationshipButton type="accept" onPress={friendUser} />
+              <RelationshipButton
+                type="accept"
+                onPress={friendUser}
+                isLoading={isLoadingFriendUser}
+              />
             </View>
             <View style={styles.rejectFriendRequestButtonContainer}>
-              <RelationshipButton type="reject" onPress={unfriendUser} />
+              <RelationshipButton
+                type="reject"
+                onPress={unfriendUser}
+                isLoading={isLoadingUnfriendUser}
+              />
             </View>
           </View>
         </View>
@@ -106,18 +115,28 @@ function UserProfileRelationshipButton(props: Props): React.Node {
     ) {
       return (
         <View style={styles.singleButtonContainer}>
-          <RelationshipButton type="withdraw" onPress={unfriendUser} />
+          <RelationshipButton
+            type="withdraw"
+            onPress={unfriendUser}
+            isLoading={isLoadingUnfriendUser}
+          />
         </View>
       );
     }
 
     return (
       <View style={styles.singleButtonContainer}>
-        <RelationshipButton type="add" onPress={friendUser} />
+        <RelationshipButton
+          type="add"
+          onPress={friendUser}
+          isLoading={isLoadingFriendUser}
+        />
       </View>
     );
   }, [
     friendUser,
+    isLoadingFriendUser,
+    isLoadingUnfriendUser,
     otherUserInfo,
     styles.acceptFriendRequestButtonContainer,
     styles.incomingFriendRequestButtonsContainer,
