@@ -42,6 +42,9 @@ static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_deleteWalletUser
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOut(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logOut(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
+static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutPrimaryDevice(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logOutPrimaryDevice(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
+}
 static jsi::Value __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutSecondaryDevice(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommRustModuleSchemaCxxSpecJSI *>(&turboModule)->logOutSecondaryDevice(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
 }
@@ -109,6 +112,7 @@ CommRustModuleSchemaCxxSpecJSI::CommRustModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["deletePasswordUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_deletePasswordUser};
   methodMap_["deleteWalletUser"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_deleteWalletUser};
   methodMap_["logOut"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOut};
+  methodMap_["logOutPrimaryDevice"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutPrimaryDevice};
   methodMap_["logOutSecondaryDevice"] = MethodMetadata {3, __hostFunction_CommRustModuleSchemaCxxSpecJSI_logOutSecondaryDevice};
   methodMap_["getOutboundKeysForUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getOutboundKeysForUser};
   methodMap_["getInboundKeysForUser"] = MethodMetadata {4, __hostFunction_CommRustModuleSchemaCxxSpecJSI_getInboundKeysForUser};
