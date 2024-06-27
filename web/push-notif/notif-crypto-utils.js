@@ -49,6 +49,7 @@ export const WEB_NOTIFS_SERVICE_UTILS_KEY = 'webNotifsServiceUtils';
 const SESSION_UPDATE_MAX_PENDING_TIME = 10 * 1000;
 const INDEXED_DB_KEYSERVER_PREFIX = 'keyserver';
 const INDEXED_DB_KEY_SEPARATOR = ':';
+const INDEXED_DB_DEVICE_PREFIX = 'device';
 
 // This constant is only used to migrate the existing notifications
 // session with production keyserver to new IndexedDB key format. This
@@ -407,6 +408,14 @@ function getOlmDataContentKeyForCookie(
   return [olmDataContentKeyBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
 }
 
+function getOlmDataContentKeyForDeviceID(deviceID: string): string {
+  return [
+    INDEXED_DB_DEVICE_PREFIX,
+    deviceID,
+    NOTIFICATIONS_OLM_DATA_CONTENT,
+  ].join(INDEXED_DB_KEY_SEPARATOR);
+}
+
 function getOlmEncryptionKeyDBLabelForCookie(
   cookie: ?string,
   keyserverID?: string,
@@ -427,6 +436,14 @@ function getOlmEncryptionKeyDBLabelForCookie(
   }
   const cookieID = getCookieIDFromCookie(cookie);
   return [olmEncryptionKeyDBLabelBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
+}
+
+function getOlmEncryptionKeyDBLabelForDeviceID(deviceID: string): string {
+  return [
+    INDEXED_DB_DEVICE_PREFIX,
+    deviceID,
+    NOTIFICATIONS_OLM_DATA_ENCRYPTION_KEY,
+  ].join(INDEXED_DB_KEY_SEPARATOR);
 }
 
 function getCookieIDFromOlmDBKey(olmDBKey: string): string | '0' {
@@ -542,6 +559,8 @@ export {
   decryptDesktopNotification,
   getOlmDataContentKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
+  getOlmDataContentKeyForDeviceID,
+  getOlmEncryptionKeyDBLabelForDeviceID,
   migrateLegacyOlmNotificationsSessions,
   updateNotifsUnreadCountStorage,
   queryNotifsUnreadCountStorage,
