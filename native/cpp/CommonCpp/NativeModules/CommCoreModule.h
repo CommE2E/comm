@@ -130,6 +130,13 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String deviceID,
       double sessionVersion,
       bool overwrite) override;
+  virtual jsi::Value initializeNotificationsOutboundSession(
+      jsi::Runtime &rt,
+      jsi::String identityKeys,
+      jsi::String prekey,
+      jsi::String prekeySignature,
+      std::optional<jsi::String> oneTimeKey,
+      jsi::String deviceID) override;
   virtual jsi::Value
   encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) override;
   virtual jsi::Value encryptAndPersist(
