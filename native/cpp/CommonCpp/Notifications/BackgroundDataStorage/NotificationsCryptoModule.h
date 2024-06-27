@@ -23,17 +23,22 @@ class NotificationsCryptoModule {
 
   static std::string
   getKeyserverNotificationsSessionKey(const std::string &keyserverID);
+  static std::string
+  getPeerNotificationsSessionKey(const std::string &deviceID);
   static std::string serializeNotificationsSession(
       std::shared_ptr<crypto::Session> session,
       std::string picklingKey);
   static std::pair<std::unique_ptr<crypto::Session>, std::string>
   deserializeNotificationsSession(const std::string &serializedSession);
   static void persistNotificationsSessionInternal(
-      const std::string &keyserverID,
+      bool isKeyserverSession,
+      const std::string &senderID,
       const std::string &picklingKey,
       std::shared_ptr<crypto::Session> session);
   static std::optional<std::pair<std::unique_ptr<crypto::Session>, std::string>>
-  fetchNotificationsSession(const std::string &keyserverID);
+  fetchNotificationsSession(
+      bool isKeyserverSession,
+      const std::string &senderID);
 
 public:
   const static std::string initialEncryptedMessageContent;
@@ -43,7 +48,12 @@ public:
   static void persistNotificationsSession(
       const std::string &keyserverID,
       std::shared_ptr<crypto::Session> keyserverNotificationsSession);
+  static void persistPeerNotificationsSession(
+      const std::string &deviceID,
+      std::shared_ptr<crypto::Session> peerNotificationsSession);
   static bool isNotificationsSessionInitialized(const std::string &keyserverID);
+  static bool
+  isPeerNotificationsSessionInitialized(const std::string &deviceID);
 
   class BaseStatefulDecryptResult {
     BaseStatefulDecryptResult(
