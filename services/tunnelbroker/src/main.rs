@@ -10,11 +10,13 @@ pub mod websockets;
 
 use crate::constants::ENV_APNS_CONFIG;
 use crate::notifs::apns::config::APNsConfig;
+use crate::notifs::apns::APNsClient;
+use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
 use std::env;
 use std::str::FromStr;
-use tracing::{self, Level};
+use tracing::{self, error, info, Level};
 use tracing_subscriber::EnvFilter;
 
 #[tokio::main]
@@ -40,6 +42,25 @@ async fn main() -> Result<()> {
       .or(CONFIG.apns_config.clone()),
     None => CONFIG.apns_config.clone(),
   };
+
+  let apns = match apns_config {
+    Some(config) => match APNsClient::new(&config) {
+      Ok(apns_client) => {
+        info!("APNs client created successfully");
+        Some(apns_client)
+      }
+      Err(err) => {
+        error!("Error creating APNs client: {}", err);
+        None
+      }
+    },
+    None => {
+      error!("APNs config is missing");
+      None
+    }
+  };
+
+  let notif_client = NotifClient { apns };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server =

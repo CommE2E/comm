@@ -3,6 +3,7 @@ use derive_more::{Display, Error, From};
 #[derive(Debug, From, Display, Error)]
 pub enum Error {
   JWTError,
+  ReqwestError(reqwest::Error),
 }
 
 impl From<jsonwebtoken::errors::Error> for Error {
