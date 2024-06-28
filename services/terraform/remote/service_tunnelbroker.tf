@@ -18,6 +18,12 @@ locals {
   # utility locals
   tunnelbroker_docker_image = "${local.tunnelbroker_config.docker_image}:${local.tunnelbroker_config.docker_tag}"
   rabbitmq_password         = local.secrets.amqpPassword[local.environment]
+
+  apns_config_secret_name = "tunnelbroker/APNsConfig"
+}
+
+data "aws_secretsmanager_secret" "tunnelbroker_apns" {
+  name = local.apns_config_secret_name
 }
 
 # RabbitMQ
@@ -85,6 +91,12 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name  = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT",
           value = local.identity_local_url
+        }
+      ]
+      secrets = [
+        {
+          name      = "APNS_CONFIG"
+          valueFrom = data.aws_secretsmanager_secret.tunnelbroker_apns.arn
         }
       ]
       logConfiguration = {
