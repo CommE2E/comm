@@ -8,8 +8,12 @@ pub mod identity;
 pub mod notifs;
 pub mod websockets;
 
+use crate::constants::ENV_APNS_CONFIG;
+use crate::notifs::apns::config::APNsConfig;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
+use std::env;
+use std::str::FromStr;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
 
@@ -28,6 +32,14 @@ async fn main() -> Result<()> {
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
   let amqp_connection = amqp::connect().await;
+
+  let env_apns_config = env::var(ENV_APNS_CONFIG).ok();
+  let apns_config = match env_apns_config {
+    Some(env_config) => APNsConfig::from_str(&env_config)
+      .ok()
+      .or(CONFIG.apns_config.clone()),
+    None => CONFIG.apns_config.clone(),
+  };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server =
