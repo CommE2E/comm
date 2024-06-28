@@ -1,4 +1,6 @@
 use crate::constants;
+use crate::constants::ENV_APNS_CONFIG;
+use crate::notifs::apns::config::APNsConfig;
 use anyhow::{ensure, Result};
 use clap::Parser;
 use comm_lib::aws;
@@ -26,6 +28,10 @@ pub struct AppConfig {
   #[arg(env = "COMM_TUNNELBROKER_IDENTITY_ENDPOINT")]
   #[arg(long, default_value = "http://localhost:50054")]
   pub identity_endpoint: String,
+  /// APNs secrets
+  #[arg(env = ENV_APNS_CONFIG)]
+  #[arg(long)]
+  pub apns_config: Option<APNsConfig>,
 }
 
 /// Stores configuration parsed from command-line arguments
