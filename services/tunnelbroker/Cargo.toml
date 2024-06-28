@@ -30,6 +30,7 @@ derive_more = { workspace = true }
 lapin = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
+jsonwebtoken = "9.3.0"
 
 [build-dependencies]
 tonic-build = "0.8"
