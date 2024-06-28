@@ -10,6 +10,7 @@ pub mod websockets;
 
 use anyhow::{anyhow, Result};
 use config::CONFIG;
+use std::str::FromStr;
 use tracing::{self, Level};
 use tracing_subscriber::EnvFilter;
 
@@ -28,6 +29,8 @@ async fn main() -> Result<()> {
   let aws_config = config::load_aws_config().await;
   let db_client = database::DatabaseClient::new(&aws_config);
   let amqp_connection = amqp::connect().await;
+
+  let apns_config = CONFIG.apns_config.clone();
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server =
