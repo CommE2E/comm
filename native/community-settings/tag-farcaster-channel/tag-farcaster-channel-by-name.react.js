@@ -5,10 +5,12 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
-import { useCreateFarcasterChannelTag } from 'lib/shared/community-utils.js';
+import {
+  tagFarcasterChannelErrorMessages,
+  useCreateFarcasterChannelTag,
+} from 'lib/shared/community-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
-import { tagFarcasterChannelErrorMessages } from './tag-farcaster-channel-utils.js';
 import RegistrationButton from '../../account/registration/registration-button.react.js';
 import TextInput from '../../components/text-input.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
