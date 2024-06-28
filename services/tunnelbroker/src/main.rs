@@ -56,8 +56,11 @@ async fn main() -> Result<()> {
   let notif_client = NotifClient { apns };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
-  let websocket_server =
-    websockets::run_server(db_client.clone(), &amqp_connection);
+  let websocket_server = websockets::run_server(
+    db_client.clone(),
+    &amqp_connection,
+    notif_client.clone(),
+  );
 
   tokio::select! {
     Ok(_) = grpc_server => { Ok(()) },

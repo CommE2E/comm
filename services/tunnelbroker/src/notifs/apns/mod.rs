@@ -12,7 +12,7 @@ use tracing::debug;
 
 pub mod config;
 pub mod error;
-mod headers;
+pub(crate) mod headers;
 mod response;
 pub mod token;
 

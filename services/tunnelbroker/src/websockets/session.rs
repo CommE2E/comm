@@ -28,6 +28,9 @@ use tunnelbroker_messages::{
 
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
 use crate::identity;
+use crate::notifs::apns::headers::NotificationHeaders;
+use crate::notifs::apns::APNsNotif;
+use crate::notifs::NotifClient;
 
 pub struct DeviceInfo {
   pub device_id: String,
@@ -45,6 +48,7 @@ pub struct WebsocketSession<S> {
   amqp_channel: lapin::Channel,
   // Stream of messages from AMQP endpoint
   amqp_consumer: lapin::Consumer,
+  notif_client: NotifClient,
 }
 
 #[derive(
@@ -59,6 +63,8 @@ pub enum SessionError {
   UnauthorizedDevice,
   PersistenceError(SdkError<PutItemError>),
   DatabaseError(comm_lib::database::Error),
+  MissingAPNsClient,
+  MissingDeviceToken,
 }
 
 // Parse a session request and retrieve the device information
@@ -201,6 +207,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     device_info: DeviceInfo,
     amqp_channel: lapin::Channel,
     amqp_consumer: lapin::Consumer,
+    notif_client: NotifClient,
   ) -> Self {
     Self {
       tx,
@@ -208,6 +215,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       device_info,
       amqp_channel,
       amqp_consumer,
+      notif_client,
     }
   }
 
@@ -367,6 +375,63 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           result,
         ))
       }
+      Messages::APNsNotif(notif) => {
+        // unauthenticated clients cannot send notifs
+        if !self.device_info.is_authenticated {
+          debug!(
+            "Unauthenticated device {} tried to send text notif. Aborting.",
+            self.device_info.device_id
+          );
+          return Option::from(MessageSentStatus::Unauthenticated);
+        }
+        debug!("Received APNs notif for {}", notif.device_id);
+
+        let Ok(headers) =
+          serde_json::from_str::<NotificationHeaders>(&notif.headers)
+        else {
+          return Option::from(MessageSentStatus::SerializationError(
+            notif.headers,
+          ));
+        };
+
+        let device_token =
+          match self.db_client.get_device_token(&notif.device_id).await {
+            Ok(db_token) => {
+              let Some(token) = db_token else {
+                return Option::from(self.get_message_to_device_status(
+                  &notif.client_message_id,
+                  Err(SessionError::MissingDeviceToken),
+                ));
+              };
+              token
+            }
+            Err(e) => {
+              return Option::from(self.get_message_to_device_status(
+                &notif.client_message_id,
+                Err(SessionError::DatabaseError(e)),
+              ));
+            }
+          };
+
+        let apns_notif = APNsNotif {
+          device_token,
+          headers,
+          payload: notif.payload,
+        };
+
+        if let Some(apns) = self.notif_client.apns.clone() {
+          let response = apns.send(apns_notif).await;
+          return Option::from(
+            self
+              .get_message_to_device_status(&notif.client_message_id, response),
+          );
+        }
+
+        Option::from(self.get_message_to_device_status(
+          &notif.client_message_id,
+          Err(SessionError::MissingAPNsClient),
+        ))
+      }
       _ => {
         error!("Client sent invalid message type");
         Some(MessageSentStatus::InvalidRequest)
@@ -415,11 +480,14 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     }
   }
 
-  pub fn get_message_to_device_status(
+  pub fn get_message_to_device_status<E>(
     &mut self,
     client_message_id: &str,
-    result: Result<(), SessionError>,
-  ) -> MessageSentStatus {
+    result: Result<(), E>,
+  ) -> MessageSentStatus
+  where
+    E: std::error::Error,
+  {
     match result {
       Ok(()) => MessageSentStatus::Success(client_message_id.to_string()),
       Err(err) => MessageSentStatus::Error(Failure {
