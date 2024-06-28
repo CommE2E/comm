@@ -6,6 +6,7 @@ import { View, Text, Platform, ScrollView } from 'react-native';
 import {
   logOutActionTypes,
   useLogOut,
+  usePrimaryDeviceLogOut,
   useSecondaryDeviceLogOut,
 } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
@@ -159,6 +160,7 @@ type Props = {
   +styles: $ReadOnly<typeof unboundStyles>,
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: () => Promise<LogOutResult>,
+  +logOutPrimaryDevice: () => Promise<LogOutResult>,
   +logOutSecondaryDevice: () => Promise<LogOutResult>,
   +staffCanSee: boolean,
   +stringForUser: ?string,
@@ -251,14 +253,21 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
-    let secondaryDeviceLogout;
+    let experimentalLogoutActions;
     if (__DEV__) {
-      secondaryDeviceLogout = (
-        <ProfileRow
-          danger
-          content="Log out (secondary device)"
-          onPress={this.onPressSecondaryDeviceLogout}
-        />
+      experimentalLogoutActions = (
+        <>
+          <ProfileRow
+            danger
+            content="Log out (primary device)"
+            onPress={this.onPressPrimaryDeviceLogout}
+          />
+          <ProfileRow
+            danger
+            content="Log out (secondary device)"
+            onPress={this.onPressSecondaryDeviceLogout}
+          />
+        </>
       );
     }
 
@@ -313,7 +322,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             {keyserverSelection}
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
-            {secondaryDeviceLogout}
+            {experimentalLogoutActions}
           </View>
           <View style={this.props.styles.unpaddedSection}>
             <ProfileRow
@@ -371,6 +380,26 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   };
 
+  onPressPrimaryDeviceLogout = () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
+    // TODO: Add check for primary device
+    Alert.alert(
+      'Log out primary device',
+      'Are you sure you want to log out all devices?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes',
+          onPress: this.logOutPrimaryDevice,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   onPressSecondaryDeviceLogout = () => {
     if (this.loggedOutOrLoggingOut) {
       return;
@@ -412,6 +441,16 @@ class ProfileScreen extends React.PureComponent<Props> {
       this.props.logOut(),
     );
   }
+
+  logOutPrimaryDevice = async () => {
+    if (this.loggedOutOrLoggingOut) {
+      return;
+    }
+    void this.props.dispatchActionPromise(
+      logOutActionTypes,
+      this.props.logOutPrimaryDevice(),
+    );
+  };
 
   logOutSecondaryDevice = async () => {
     if (this.loggedOutOrLoggingOut) {
@@ -497,6 +536,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const callLogOut = useLogOut();
+    const callPrimaryDeviceLogOut = usePrimaryDeviceLogOut();
     const callSecondaryDeviceLogOut = useSecondaryDeviceLogOut();
     const dispatchActionPromise = useDispatchActionPromise();
     const staffCanSee = useStaffCanSee();
@@ -513,6 +553,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         colors={colors}
         styles={styles}
         logOut={callLogOut}
+        logOutPrimaryDevice={callPrimaryDeviceLogOut}
         logOutSecondaryDevice={callSecondaryDeviceLogOut}
         dispatchActionPromise={dispatchActionPromise}
         staffCanSee={staffCanSee}
