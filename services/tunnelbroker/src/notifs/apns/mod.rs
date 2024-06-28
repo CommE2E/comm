@@ -6,6 +6,7 @@ use std::time::Duration;
 pub mod config;
 pub mod error;
 mod headers;
+mod response;
 pub mod token;
 
 #[derive(Clone)]
