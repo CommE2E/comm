@@ -1,8 +1,15 @@
 use crate::notifs::apns::config::APNsConfig;
+use crate::notifs::apns::error::Error::ResponseError;
 use crate::notifs::apns::headers::{NotificationHeaders, PushType};
+use crate::notifs::apns::response::ErrorBody;
 use crate::notifs::apns::token::APNsToken;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use reqwest::StatusCode;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::time::Duration;
+use tracing::debug;
+
 pub mod config;
 pub mod error;
 mod headers;
@@ -14,6 +21,13 @@ pub struct APNsClient {
   http2_client: reqwest::Client,
   token: APNsToken,
   is_prod: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct APNsNotif {
+  pub device_token: String,
+  pub headers: NotificationHeaders,
+  pub payload: String,
 }
 
 impl APNsClient {
@@ -85,5 +99,43 @@ impl APNsClient {
     }
 
     Ok(headers)
+  }
+
+  fn get_endpoint(&self) -> &'static str {
+    if self.is_prod {
+      return "api.push.apple.com";
+    }
+    "api.development.push.apple.com"
+  }
+
+  pub async fn send(&self, notif: APNsNotif) -> Result<(), error::Error> {
+    debug!("Sending notif to {}", notif.device_token);
+
+    let headers = self.build_headers(notif.headers.clone()).await?;
+
+    let url = format!(
+      "https://{}/3/device/{}",
+      self.get_endpoint(),
+      notif.device_token
+    );
+
+    let payload = serde_json::from_str::<Value>(&notif.payload)?;
+
+    let response = self
+      .http2_client
+      .post(url)
+      .headers(headers.clone())
+      .json(&payload)
+      .send()
+      .await?;
+
+    match response.status() {
+      StatusCode::OK => Ok(()),
+      _ => {
+        let body = response.text().await?;
+        let error_body: ErrorBody = serde_json::from_str(&body)?;
+        Err(ResponseError(error_body))
+      }
+    }
   }
 }
