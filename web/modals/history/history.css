@@ -2,12 +2,9 @@ div.modalBody {
   position: relative;
   min-height: 240px;
   overflow: hidden;
-  padding: 6px 6px;
+  padding: 6px;
   width: 100%;
   box-sizing: border-box;
-  background-color: white;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
 }
 span.loading {
   position: absolute;
@@ -67,13 +64,15 @@ div.header {
   padding: 5px;
   font-size: 12px;
   font-weight: 600;
-  background-color: #f4f4f4;
+  background-color: var(--frame-background-tertiary-default);
+  color: var(--text-background-primary-default);
   box-sizing: border-box;
 }
 a.allHistoryButton {
   position: absolute;
   top: 5px;
   left: 7px;
+  color: var(--link-background-primary-default);
 }
 span.date {
   float: left;
@@ -97,7 +96,7 @@ span.entryAuthor {
   float: left;
   padding-left: 11px;
   font-size: 12px;
-  color: gray;
+  color: var(--text-background-secondary-default);
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -105,7 +104,7 @@ span.entryAuthor {
   box-sizing: border-box;
 }
 span.entryUsername {
-  color: #2a5db0;
+  font-weight: var(--semi-bold);
 }
 time.entryTime {
   float: right;
@@ -125,6 +124,7 @@ span.entryThread {
   max-width: 50%;
   padding-left: 10px;
   box-sizing: border-box;
+  color: var(--text-background-primary-default);
 }
 div.clear {
   clear: both;
@@ -222,6 +222,7 @@ a.revisionHistoryButton {
   padding-right: 11px;
   font-size: 12px;
   font-weight: bold;
+  color: var(--link-background-primary-default);
 }
 div.restored {
   font-style: italic;
