@@ -292,10 +292,7 @@ async fn accept_connection(
       }
     }
   } else {
-    error!(
-      errorType = error_types::SEARCH_LOG,
-      "No authentication message from {}", addr
-    );
+    warn!("No authentication message from {}", addr);
     close_connection(outgoing).await;
     return;
   }
