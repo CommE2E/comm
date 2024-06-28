@@ -39,7 +39,7 @@ base64 = { workspace = true }
 regex = { workspace = true }
 tower-http = { workspace = true, features = ["cors"] }
 http = { workspace = true }
-reqwest = { workspace = true, features = ["json"] }
+reqwest = { workspace = true, features = ["json", "rustls-tls"] }
 futures = { workspace = true }
 url = { workspace = true }
 
