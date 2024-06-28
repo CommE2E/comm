@@ -11,7 +11,7 @@ pub const MAX_RMQ_MSG_PRIORITY: u8 = 10;
 pub const DDB_RMQ_MSG_PRIORITY: u8 = 10;
 pub const CLIENT_RMQ_MSG_PRIORITY: u8 = 1;
 pub const RMQ_CONSUMER_TAG: &str = "tunnelbroker";
-
+pub const ENV_APNS_CONFIG: &str = "APNS_CONFIG";
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 
