@@ -31,6 +31,8 @@ lapin = { workspace = true }
 chrono = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
 jsonwebtoken = "9.3.0"
+reqwest = { workspace = true, features = ["json", "native-tls", "rustls-tls"] }
+serde.workspace = true
 
 [build-dependencies]
 tonic-build = "0.8"
