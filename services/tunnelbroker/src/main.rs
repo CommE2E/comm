@@ -5,6 +5,7 @@ pub mod database;
 pub mod error;
 pub mod grpc;
 pub mod identity;
+pub mod notifs;
 pub mod websockets;
 
 use anyhow::{anyhow, Result};

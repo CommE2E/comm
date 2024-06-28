@@ -5406,6 +5406,8 @@ dependencies = [
  "lapin",
  "once_cell",
  "prost",
+ "reqwest",
+ "serde",
  "serde_json",
  "tokio",
  "tonic 0.8.3",
