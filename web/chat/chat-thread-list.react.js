@@ -78,7 +78,7 @@ function ChatThreadList(): React.Node {
     state => state.navInfo.chatMode === 'create',
   );
 
-  const isBackground = activeTab === 'Background';
+  const isMuted = activeTab === 'Muted';
 
   const communityID = useSelector(state => state.communityPickerStore.chat);
 
@@ -135,7 +135,7 @@ function ChatThreadList(): React.Node {
   const threadListContainer = React.useMemo(() => {
     const items: Item[] = [{ type: 'search' }, ...threads];
 
-    if (isBackground && threads.length === 0) {
+    if (isMuted && threads.length === 0) {
       items.push({ type: 'empty' });
     }
 
@@ -168,7 +168,7 @@ function ChatThreadList(): React.Node {
         )}
       </AutoSizer>
     );
-  }, [isBackground, threads]);
+  }, [isMuted, threads]);
 
   return (
     <>

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
+import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import {
   threadInBackgroundChatList,
   emptyItemText,
@@ -33,7 +34,7 @@ export default function BackgroundChatThreadList(
       return;
     }
     prevUnreadNumber.current = unreadBackgroundThreadsNumber;
-    let title = 'Background';
+    let title = threadSettingsNotificationsCopy.MUTED;
     if (unreadBackgroundThreadsNumber !== 0) {
       title += ` (${unreadBackgroundThreadsNumber})`;
     }
