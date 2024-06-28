@@ -2,6 +2,7 @@ pub mod session;
 
 use crate::constants::SOCKET_HEARTBEAT_TIMEOUT;
 use crate::database::DatabaseClient;
+use crate::notifs::NotifClient;
 use crate::websockets::session::{initialize_amqp, SessionError};
 use crate::CONFIG;
 use futures_util::stream::SplitSink;
@@ -40,6 +41,7 @@ struct WebsocketService {
   addr: SocketAddr,
   channel: lapin::Channel,
   db_client: DatabaseClient,
+  notif_client: NotifClient,
 }
 
 impl hyper::service::Service<Request<Body>> for WebsocketService {
@@ -61,6 +63,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
     let addr = self.addr;
     let db_client = self.db_client.clone();
     let channel = self.channel.clone();
+    let notif_client = self.notif_client.clone();
 
     let future = async move {
       // Check if the request is a websocket upgrade request.
@@ -69,7 +72,8 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 
         // Spawn a task to handle the websocket connection.
         tokio::spawn(async move {
-          accept_connection(websocket, addr, db_client, channel).await;
+          accept_connection(websocket, addr, db_client, channel, notif_client)
+            .await;
         });
 
         // Return the response so the spawned future can continue.
@@ -98,6 +102,7 @@ impl hyper::service::Service<Request<Body>> for WebsocketService {
 pub async fn run_server(
   db_client: DatabaseClient,
   amqp_connection: &lapin::Connection,
+  notif_client: NotifClient,
 ) -> Result<(), BoxedError> {
   let addr = env::var("COMM_TUNNELBROKER_WEBSOCKET_ADDR")
     .unwrap_or_else(|_| format!("0.0.0.0:{}", &CONFIG.http_port));
@@ -121,6 +126,7 @@ pub async fn run_server(
           channel,
           db_client: db_client.clone(),
           addr,
+          notif_client: notif_client.clone(),
         },
       )
       .with_upgrades();
@@ -164,6 +170,7 @@ async fn accept_connection(
   addr: SocketAddr,
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
+  notif_client: NotifClient,
 ) {
   debug!("Incoming connection from: {}", addr);
 
@@ -183,7 +190,15 @@ async fn accept_connection(
   // We don't know the identity of the device until it sends the session
   // request over the websocket connection
   let mut session = if let Some(Ok(first_msg)) = incoming.next().await {
-    match initiate_session(outgoing, first_msg, db_client, amqp_channel).await {
+    match initiate_session(
+      outgoing,
+      first_msg,
+      db_client,
+      amqp_channel,
+      notif_client,
+    )
+    .await
+    {
       Ok(mut session) => {
         let response =
           tunnelbroker_messages::ConnectionInitializationResponse {
@@ -297,6 +312,7 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
   frame: Message,
   db_client: DatabaseClient,
   amqp_channel: lapin::Channel,
+  notif_client: NotifClient,
 ) -> Result<WebsocketSession<S>, ErrorWithStreamHandle<S>> {
   let initialized_session =
     initialize_amqp(db_client.clone(), frame, &amqp_channel).await;
@@ -308,6 +324,7 @@ async fn initiate_session<S: AsyncRead + AsyncWrite + Unpin>(
       device_info,
       amqp_channel,
       amqp_consumer,
+      notif_client,
     )),
     Err(e) => Err((e, outgoing)),
   }
