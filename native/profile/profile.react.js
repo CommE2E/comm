@@ -57,6 +57,7 @@ import {
 } from '../navigation/route-names.js';
 import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
 import { useStyles, useColors } from '../themes/colors.js';
+import { deviceIsEmulator } from '../utils/url-utils.js';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
@@ -78,7 +79,7 @@ const addKeyserverOptions = { headerTitle: 'Add keyserver' };
 const backupMenuOptions = { headerTitle: 'Backup menu' };
 const tunnelbrokerMenuOptions = { headerTitle: 'Tunnelbroker menu' };
 const secondaryDeviceQRCodeScannerOptions = {
-  headerTitle: '',
+  headerTitle: deviceIsEmulator ? 'Link device' : '',
   headerBackTitleVisible: false,
 };
 const buildInfoOptions = { headerTitle: 'Build info' };

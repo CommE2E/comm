@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { BarCodeScanner, type BarCodeEvent } from 'expo-barcode-scanner';
 import invariant from 'invariant';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import { parseDataFromDeepLink } from 'lib/facts/links.js';
 import {
@@ -34,15 +34,18 @@ import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
 import { getBackupSecret } from '../backup/use-client-backup.js';
+import TextInput from '../components/text-input.react.js';
 import { commCoreModule } from '../native-modules.js';
+import HeaderRightTextButton from '../navigation/header-right-text-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   composeTunnelbrokerQRAuthMessage,
   parseTunnelbrokerQRAuthMessage,
 } from '../qr-code/qr-code-utils.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { useStyles } from '../themes/colors.js';
+import { useStyles, useColors } from '../themes/colors.js';
 import Alert from '../utils/alert.js';
+import { deviceIsEmulator } from '../utils/url-utils.js';
 
 const barCodeTypes = [BarCodeScanner.Constants.BarCodeType.qr];
 
@@ -54,9 +57,10 @@ type Props = {
 function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const [hasPermission, setHasPermission] = React.useState<?boolean>(null);
   const [scanned, setScanned] = React.useState(false);
+  const [urlInput, setURLInput] = React.useState('');
 
   const styles = useStyles(unboundStyles);
-  const navigation = useNavigation();
+  const { goBack, setOptions } = useNavigation();
 
   const tunnelbrokerContext = useTunnelbroker();
   const identityContext = React.useContext(IdentityClientContext);
@@ -69,6 +73,8 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
 
   const foreignPeerDevices = useSelector(getForeignPeerDevices);
+
+  const { panelForegroundTertiaryLabel } = useColors();
 
   const tunnelbrokerMessageListener = React.useCallback(
     async (message: TunnelbrokerMessage) => {
@@ -132,7 +138,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
       if (!payload.requestBackupKeys) {
         Alert.alert('Device added', 'Device registered successfully', [
-          { text: 'OK' },
+          { text: 'OK', onPress: goBack },
         ]);
         return;
       }
@@ -158,7 +164,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       });
 
       Alert.alert('Device added', 'Device registered successfully', [
-        { text: 'OK' },
+        { text: 'OK', onPress: goBack },
       ]);
     },
     [
@@ -167,6 +173,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       foreignPeerDevices,
       getAndUpdateDeviceListsForUsers,
       tunnelbrokerContext,
+      goBack,
     ],
   );
 
@@ -190,10 +197,94 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
           [{ text: 'OK' }],
         );
 
-        navigation.goBack();
+        goBack();
       }
     })();
-  }, [navigation]);
+  }, [goBack]);
+
+  const processDeviceListUpdate = React.useCallback(async () => {
+    try {
+      const { deviceID: primaryDeviceID, userID } =
+        await identityContext.getAuthMetadata();
+      if (!primaryDeviceID || !userID) {
+        throw new Error('missing auth metadata');
+      }
+      const encryptionKey = aes256Key.current;
+      const targetDeviceID = secondaryDeviceID.current;
+      if (!encryptionKey || !targetDeviceID) {
+        throw new Error('missing tunnelbroker message data');
+      }
+      await addDeviceToDeviceList(
+        identityContext.identityClient,
+        userID,
+        targetDeviceID,
+      );
+      const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
+        type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
+        userID,
+        primaryDeviceID,
+      });
+      await tunnelbrokerContext.sendMessage({
+        deviceID: targetDeviceID,
+        payload: JSON.stringify(message),
+      });
+    } catch (err) {
+      console.log('Primary device error:', err);
+      Alert.alert('Adding device failed', 'Failed to update the device list', [
+        { text: 'OK' },
+      ]);
+      goBack();
+    }
+  }, [goBack, identityContext, tunnelbrokerContext]);
+
+  const onPressSave = React.useCallback(async () => {
+    if (!urlInput) {
+      return;
+    }
+
+    const parsedData = parseDataFromDeepLink(urlInput);
+    const keysMatch = parsedData?.data?.keys;
+
+    if (!parsedData || !keysMatch) {
+      Alert.alert(
+        'Scan failed',
+        'QR code does not contain a valid pair of keys.',
+        [{ text: 'OK' }],
+      );
+      return;
+    }
+
+    try {
+      const keys = JSON.parse(decodeURIComponent(keysMatch));
+      const { aes256, ed25519 } = keys;
+      aes256Key.current = aes256;
+      secondaryDeviceID.current = ed25519;
+    } catch (err) {
+      console.log('Failed to decode URI component:', err);
+    }
+    await processDeviceListUpdate();
+  }, [processDeviceListUpdate, urlInput]);
+
+  const buttonDisabled = !urlInput;
+  React.useEffect(() => {
+    if (!deviceIsEmulator) {
+      return;
+    }
+    setOptions({
+      headerRight: () => (
+        <HeaderRightTextButton
+          label="Save"
+          onPress={onPressSave}
+          disabled={buttonDisabled}
+        />
+      ),
+    });
+  }, [buttonDisabled, onPressSave, setOptions]);
+
+  const onChangeText = React.useCallback(
+    (text: string) => setURLInput(text),
+    [],
+  );
 
   const onConnect = React.useCallback(
     async (barCodeEvent: BarCodeEvent) => {
@@ -210,42 +301,18 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         return;
       }
 
-      const keys = JSON.parse(decodeURIComponent(keysMatch));
-      const { aes256, ed25519 } = keys;
-      aes256Key.current = aes256;
-      secondaryDeviceID.current = ed25519;
-
       try {
-        const { deviceID: primaryDeviceID, userID } =
-          await identityContext.getAuthMetadata();
-        if (!primaryDeviceID || !userID) {
-          throw new Error('missing auth metadata');
-        }
-        await addDeviceToDeviceList(
-          identityContext.identityClient,
-          userID,
-          ed25519,
-        );
-        const message = await composeTunnelbrokerQRAuthMessage(aes256, {
-          type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
-          userID,
-          primaryDeviceID,
-        });
-        await tunnelbrokerContext.sendMessage({
-          deviceID: ed25519,
-          payload: JSON.stringify(message),
-        });
+        const keys = JSON.parse(decodeURIComponent(keysMatch));
+        const { aes256, ed25519 } = keys;
+        aes256Key.current = aes256;
+        secondaryDeviceID.current = ed25519;
       } catch (err) {
-        console.log('Primary device error:', err);
-        Alert.alert(
-          'Adding device failed',
-          'Failed to update the device list',
-          [{ text: 'OK' }],
-        );
-        navigation.goBack();
+        console.log('Failed to decode URI component:', err);
       }
+
+      await processDeviceListUpdate();
     },
-    [tunnelbrokerContext, identityContext, navigation],
+    [processDeviceListUpdate],
   );
 
   const onCancelScan = React.useCallback(() => setScanned(false), []);
@@ -277,6 +344,25 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     return <View />;
   }
 
+  if (deviceIsEmulator) {
+    return (
+      <View style={styles.textInputContainer}>
+        <Text style={styles.header}>QR Code URL</Text>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={urlInput}
+            onChangeText={onChangeText}
+            placeholder="QR Code URL"
+            placeholderTextColor={panelForegroundTertiaryLabel}
+            autoFocus={true}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+      </View>
+    );
+  }
   // Note: According to the BarCodeScanner Expo docs, we should adhere to two
   // guidances when using the BarCodeScanner:
   // 1. We should specify the potential barCodeTypes we want to scan for to
@@ -286,7 +372,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   //    process the data from the scan.
   // See: https://docs.expo.io/versions/latest/sdk/bar-code-scanner
   return (
-    <View style={styles.container}>
+    <View style={styles.scannerContainer}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         barCodeTypes={barCodeTypes}
@@ -297,7 +383,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  container: {
+  scannerContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
@@ -308,6 +394,34 @@ const unboundStyles = {
     left: 0,
     right: 0,
     bottom: 0,
+  },
+  textInputContainer: {
+    paddingTop: 8,
+  },
+  header: {
+    color: 'panelBackgroundLabel',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingHorizontal: 24,
+  },
+  inputContainer: {
+    backgroundColor: 'panelForeground',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: 'panelForegroundBorder',
+    borderTopWidth: 1,
+  },
+  input: {
+    color: 'panelForegroundLabel',
+    flex: 1,
+    fontFamily: 'Arial',
+    fontSize: 16,
+    paddingVertical: 0,
+    borderBottomColor: 'transparent',
   },
 };
 
