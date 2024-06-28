@@ -41,6 +41,11 @@ const unknownErrorAlertDetails: AlertDetails = {
   message: 'Uhh... try again?',
 };
 
+const secondaryDeviceRegisteredAlertDetails: AlertDetails = {
+  title: 'Device added',
+  message: 'Device registered successfully',
+};
+
 const getFarcasterAccountAlreadyLinkedAlertDetails = (
   commUsername: ?string,
 ): AlertDetails => ({
@@ -56,5 +61,6 @@ export {
   usernameTakenAlertDetails,
   userNotFoundAlertDetails,
   unknownErrorAlertDetails,
+  secondaryDeviceRegisteredAlertDetails,
   getFarcasterAccountAlreadyLinkedAlertDetails,
 };
