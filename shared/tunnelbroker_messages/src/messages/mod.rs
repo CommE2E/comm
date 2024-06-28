@@ -8,6 +8,7 @@ pub mod message_to_device_request;
 pub mod message_to_device_request_status;
 pub mod message_to_tunnelbroker;
 pub mod message_to_tunnelbroker_request;
+pub mod notif;
 pub mod session;
 
 pub use device_list_updated::*;
@@ -23,6 +24,7 @@ pub use websocket_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
 };
 
+use crate::notif::*;
 use serde::{Deserialize, Serialize};
 
 // This file defines types and validation for messages exchanged
@@ -42,6 +44,7 @@ pub enum Messages {
   // MessageToDeviceRequestStatus must be placed before MessageToDeviceRequest.
   // This is due to serde's pattern matching behavior where it prioritizes
   // the first matching pattern it encounters.
+  APNsNotif(APNsNotif),
   MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
