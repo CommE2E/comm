@@ -1441,7 +1441,7 @@ const persistConfig = {
       return handleReduxMigrationFailure(state);
     },
   ): any),
-  timeout: ((__DEV__ ? 0 : undefined): number | void),
+  timeout: ((__DEV__ ? 0 : 30000): number | void),
 };
 
 const codeVersion: number = commCoreModule.getCodeVersion();
