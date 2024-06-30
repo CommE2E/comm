@@ -629,6 +629,7 @@ const persistConfig: PersistConfig = {
   ): any),
   version: storeVersion,
   transforms: [messageStoreMessagesBlocklistTransform, keyserverStoreTransform],
+  timeout: ((isDev ? 0 : 30000): number | void),
 };
 
 export { persistConfig };
