@@ -64,3 +64,9 @@ variable "identity_socket_address" {
   type        = string
   default     = "https://identity.commtechnologies.org:50054"
 }
+
+variable "db_instance_class" {
+  description = "The instance class for the MariaDB RDS instance"
+  type        = string
+  default     = "db.t4g.medium"
+}
