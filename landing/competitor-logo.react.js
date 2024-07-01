@@ -8,7 +8,7 @@ import MatrixLogo from './assets/matrix-logo.react.js';
 import SignalLogo from './assets/signal-logo.react.js';
 import SlackLogo from './assets/slack-logo.react.js';
 import TelegramLogo from './assets/telegram-logo.react.js';
-import type { Competitors } from './competitor-data.js';
+import { competitors, type Competitors } from './competitor-data.js';
 
 type Props = {
   +name: Competitors,
@@ -18,18 +18,18 @@ type Props = {
 function CompetitorLogo(props: Props): React.Node {
   const { name, size } = props;
 
-  let competitorLogo;
-  if (name === 'discord') {
+  let competitorLogo = null;
+  if (name === competitors.DISCORD) {
     competitorLogo = <DiscordLogo size={size} />;
-  } else if (name === 'keybase') {
+  } else if (name === competitors.KEYBASE) {
     competitorLogo = <KeybaseLogo size={size} />;
-  } else if (name === 'matrix') {
+  } else if (name === competitors.MATRIX) {
     competitorLogo = <MatrixLogo size={size} />;
-  } else if (name === 'signal') {
+  } else if (name === competitors.SIGNAL) {
     competitorLogo = <SignalLogo size={size} />;
-  } else if (name === 'slack') {
+  } else if (name === competitors.SLACK) {
     competitorLogo = <SlackLogo size={size} />;
-  } else {
+  } else if (name === competitors.TELEGRAM) {
     competitorLogo = <TelegramLogo size={size} />;
   }
 
