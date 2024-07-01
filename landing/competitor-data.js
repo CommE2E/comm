@@ -1,6 +1,7 @@
 // @flow
 
 const competitors = Object.freeze({
+  GENERAL: 'general',
   DISCORD: 'discord',
   KEYBASE: 'keybase',
   MATRIX: 'matrix',
@@ -27,6 +28,96 @@ export type Competitor = {
 };
 
 const competitorData: { [key: string]: Competitor } = Object.freeze({
+  general: {
+    id: 'general',
+    name: 'General',
+    featureComparison: [
+      {
+        title: 'Tree structure',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+      {
+        title: 'Background tab',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+      {
+        title: 'Integrated calendar',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+      {
+        title: 'Notif controls',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+      {
+        title: 'Unique threading model',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+      {
+        title: 'Inbox zero workflow',
+        comingSoon: false,
+        competitorDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        commDescriptionShort:
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
+        competitorDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+        commDescriptionLong: [
+          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin est faucibus eu. Aliquam a nisi id mauris aliquet viverra. Vivamus blandit iaculis libero, vitae hendrerit mi posuere sodales.',
+        ],
+      },
+    ],
+  },
   discord: {
     id: 'discord',
     name: 'Discord',
@@ -525,4 +616,4 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
   },
 });
 
-export { competitorData };
+export { competitors, competitorData };
