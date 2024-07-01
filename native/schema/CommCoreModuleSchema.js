@@ -99,6 +99,10 @@ interface Spec extends TurboModule {
     deviceID: string,
   ) => Promise<EncryptedData>;
   +encrypt: (message: string, deviceID: string) => Promise<EncryptedData>;
+  +encryptNotification: (
+    payload: string,
+    deviceID: string,
+  ) => Promise<EncryptedData>;
   +encryptAndPersist: (
     message: string,
     deviceID: string,
