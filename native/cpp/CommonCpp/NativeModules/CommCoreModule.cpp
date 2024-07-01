@@ -1543,16 +1543,40 @@ jsi::Value CommCoreModule::encrypt(
               promise->reject(error);
               return;
             }
-            auto encryptedDataJSI = jsi::Object(innerRt);
-            auto message = std::string{
-                encryptedMessage.message.begin(),
-                encryptedMessage.message.end()};
-            auto messageJSI = jsi::String::createFromUtf8(innerRt, message);
-            encryptedDataJSI.setProperty(innerRt, "message", messageJSI);
-            encryptedDataJSI.setProperty(
-                innerRt,
-                "messageType",
-                static_cast<int>(encryptedMessage.messageType));
+            auto encryptedDataJSI =
+                parseEncryptedData(innerRt, encryptedMessage);
+            promise->resolve(std::move(encryptedDataJSI));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::encryptNotification(
+    jsi::Runtime &rt,
+    jsi::String payload,
+    jsi::String deviceID) {
+  auto payloadCpp{payload.utf8(rt)};
+  auto deviceIDCpp{deviceID.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          crypto::EncryptedData result;
+          try {
+            result =
+                NotificationsCryptoModule::encrypt(deviceIDCpp, payloadCpp);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            auto encryptedDataJSI = parseEncryptedData(innerRt, result);
             promise->resolve(std::move(encryptedDataJSI));
           });
         };
@@ -1623,16 +1647,8 @@ jsi::Value CommCoreModule::encryptAndPersist(
               promise->reject(error);
               return;
             }
-            auto encryptedDataJSI = jsi::Object(innerRt);
-            auto message = std::string{
-                encryptedMessage.message.begin(),
-                encryptedMessage.message.end()};
-            auto messageJSI = jsi::String::createFromUtf8(innerRt, message);
-            encryptedDataJSI.setProperty(innerRt, "message", messageJSI);
-            encryptedDataJSI.setProperty(
-                innerRt,
-                "messageType",
-                static_cast<int>(encryptedMessage.messageType));
+            auto encryptedDataJSI =
+                parseEncryptedData(innerRt, encryptedMessage);
             promise->resolve(std::move(encryptedDataJSI));
           });
         };
