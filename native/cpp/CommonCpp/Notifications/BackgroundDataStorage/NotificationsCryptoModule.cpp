@@ -413,6 +413,24 @@ std::string NotificationsCryptoModule::decrypt(
   return decryptedData;
 }
 
+crypto::EncryptedData NotificationsCryptoModule::encrypt(
+    const std::string &deviceID,
+    const std::string &payload) {
+  auto sessionWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsSession(false, deviceID);
+  if (!sessionWithPicklingKey.has_value()) {
+    throw std::runtime_error(
+        "Session with deviceID: " + deviceID + " not initialized.");
+  }
+  std::unique_ptr<crypto::Session> session =
+      std::move(sessionWithPicklingKey.value().first);
+  std::string picklingKey = sessionWithPicklingKey.value().second;
+  crypto::EncryptedData encryptedData = session->encrypt(payload);
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      false, deviceID, picklingKey, std::move(session));
+  return encryptedData;
+}
+
 std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
 NotificationsCryptoModule::statefulDecrypt(
     const std::string &keyserverID,

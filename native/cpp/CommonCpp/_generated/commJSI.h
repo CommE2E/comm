@@ -45,6 +45,7 @@ public:
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) = 0;
   virtual jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
+  virtual jsi::Value encryptNotification(jsi::Runtime &rt, jsi::String payload, jsi::String deviceID) = 0;
   virtual jsi::Value encryptAndPersist(jsi::Runtime &rt, jsi::String message, jsi::String deviceID, jsi::String messageID) = 0;
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
   virtual jsi::Value decryptSequentialAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) = 0;
@@ -307,6 +308,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::encrypt, jsInvoker_, instance_, std::move(message), std::move(deviceID));
+    }
+    jsi::Value encryptNotification(jsi::Runtime &rt, jsi::String payload, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::encryptNotification) == 3,
+          "Expected encryptNotification(...) to have 3 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::encryptNotification, jsInvoker_, instance_, std::move(payload), std::move(deviceID));
     }
     jsi::Value encryptAndPersist(jsi::Runtime &rt, jsi::String message, jsi::String deviceID, jsi::String messageID) override {
       static_assert(
