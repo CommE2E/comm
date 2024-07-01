@@ -1,7 +1,7 @@
 locals {
   tunnelbroker_config = {
     docker_image = "commapp/tunnelbroker"
-    docker_tag   = local.is_staging ? "0.8-staging" : "0.8"
+    docker_tag   = local.is_staging ? "0.9-staging" : "0.8"
 
     grpc_port      = 50051
     websocket_port = 51001
