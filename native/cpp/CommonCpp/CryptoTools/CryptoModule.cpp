@@ -383,26 +383,7 @@ EncryptedData CryptoModule::encrypt(
   if (!this->hasSessionFor(targetDeviceId)) {
     throw std::runtime_error{"error encrypt => uninitialized session"};
   }
-  OlmSession *session = this->sessions.at(targetDeviceId)->getOlmSession();
-  OlmBuffer encryptedMessage(
-      ::olm_encrypt_message_length(session, content.size()));
-  OlmBuffer messageRandom;
-  PlatformSpecificTools::generateSecureRandomBytes(
-      messageRandom, ::olm_encrypt_random_length(session));
-  size_t messageType = ::olm_encrypt_message_type(session);
-  if (-1 ==
-      ::olm_encrypt(
-          session,
-          (uint8_t *)content.data(),
-          content.size(),
-          messageRandom.data(),
-          messageRandom.size(),
-          encryptedMessage.data(),
-          encryptedMessage.size())) {
-    throw std::runtime_error{
-        "error encrypt => " + std::string{::olm_session_last_error(session)}};
-  }
-  return {encryptedMessage, messageType};
+  return this->sessions.at(targetDeviceId)->encrypt(content);
 }
 
 std::string CryptoModule::decrypt(
