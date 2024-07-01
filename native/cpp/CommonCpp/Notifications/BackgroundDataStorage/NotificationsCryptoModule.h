@@ -116,6 +116,9 @@ public:
       const std::string &data,
       const size_t messageType);
 
+  static crypto::EncryptedData
+  encrypt(const std::string &deviceID, const std::string &payload);
+
   static void
   flushState(std::unique_ptr<BaseStatefulDecryptResult> statefulDecryptResult);
 };
