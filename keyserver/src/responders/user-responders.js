@@ -768,6 +768,7 @@ export const keyserverAuthRequestInputValidator: TInterface<KeyserverAuthRequest
     initialNotificationsEncryptedMessage: t.String,
     doNotRegister: t.Boolean,
     source: t.maybe(t.enums.of(values(authActionSources))),
+    password: t.maybe(tPassword),
   });
 
 async function keyserverAuthResponder(
@@ -780,6 +781,7 @@ async function keyserverAuthResponder(
     initialContentEncryptedMessage,
     initialNotificationsEncryptedMessage,
     doNotRegister,
+    password,
   } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
@@ -847,15 +849,17 @@ async function keyserverAuthResponder(
       return;
     }
 
+    const hash = password ? bcrypt.hashSync(password) : null;
     const time = Date.now();
     const newUserRow = [
       userID,
       username,
       inboundKeysForUser.walletAddress,
+      hash,
       time,
     ];
     const newUserQuery = SQL`
-      INSERT INTO users(id, username, ethereum_address, creation_time)
+      INSERT INTO users(id, username, ethereum_address, hash, creation_time)
       VALUES ${[newUserRow]}
   `;
     await dbQuery(newUserQuery);
