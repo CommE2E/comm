@@ -148,6 +148,7 @@ function CreateRolesScreen(props: CreateRolesScreenProps): React.Node {
           description={permission.description}
           enumValue={isUserSurfacedPermissionSelected(permission)}
           onEnumValuePress={() => onEnumValuePress(permission)}
+          type="checkbox"
         />
       )),
     [isUserSurfacedPermissionSelected, onEnumValuePress],
