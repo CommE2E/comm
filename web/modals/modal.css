@@ -1,3 +1,8 @@
+:root {
+  --modal-width-small: 330px;
+  --modal-width-large: 500px;
+}
+
 div.modalContainer {
   display: flex;
   background-color: var(--modal-background-primary-default);
@@ -8,11 +13,11 @@ div.modalContainer {
 }
 
 div.modalContainerSmall {
-  width: 330px;
+  width: var(--modal-width-small);
 }
 
 div.modalContainerLarge {
-  width: 500px;
+  width: var(--modal-width-large);
 }
 
 .modalHeaderButtonsContainer {
