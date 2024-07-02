@@ -6,18 +6,28 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import CommIcon from '../components/comm-icon.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
+type InputType = 'radio' | 'checkbox';
+
 type EnumSettingsOptionProps = {
   +icon?: string,
   +name: string,
   +description: string,
   +enumValue: boolean,
   +onEnumValuePress: () => mixed,
+  +type?: InputType,
 };
 
 function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const { icon, name, description, enumValue, onEnumValuePress } = props;
+  const {
+    icon,
+    name,
+    description,
+    enumValue,
+    onEnumValuePress,
+    type = 'radio',
+  } = props;
 
   const enumIcon = React.useMemo(() => {
     if (!icon) {
@@ -31,16 +41,41 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     );
   }, [icon, styles.enumIcon, colors.purpleButton]);
 
-  const checkBoxFill = enumValue ? (
-    <View style={styles.enumCheckBoxFill} />
-  ) : null;
-
   const infoContainerStyle = React.useMemo(
     () =>
       props.icon
         ? styles.enumInfoContainer
         : { ...styles.enumInfoContainer, marginLeft: 10 },
     [props.icon, styles.enumInfoContainer],
+  );
+
+  const enumInputStyles = React.useMemo(() => {
+    const style = [styles.enumInput];
+
+    if (type === 'radio') {
+      style.push(styles.radio);
+    } else {
+      style.push(styles.checkBox);
+    }
+
+    return style;
+  }, [styles.checkBox, styles.enumInput, styles.radio, type]);
+
+  const enumInputFilledStyles = React.useMemo(() => {
+    const style = [styles.enumInputFill];
+
+    if (type === 'radio') {
+      style.push(styles.radioFill);
+    } else {
+      style.push(styles.checkBoxFill);
+    }
+
+    return style;
+  }, [styles.checkBoxFill, styles.enumInputFill, styles.radioFill, type]);
+
+  const enumInputFill = React.useMemo(
+    () => (enumValue ? <View style={enumInputFilledStyles} /> : null),
+    [enumValue, enumInputFilledStyles],
   );
 
   return (
@@ -52,10 +87,10 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
       </View>
       <TouchableOpacity
         onPress={onEnumValuePress}
-        style={styles.enumCheckBoxContainer}
+        style={styles.enumInputContainer}
         activeOpacity={0.4}
       >
-        <View style={styles.enumCheckBox}>{checkBoxFill}</View>
+        <View style={enumInputStyles}>{enumInputFill}</View>
       </TouchableOpacity>
     </View>
   );
@@ -85,25 +120,35 @@ const unboundStyles = {
     color: 'panelForegroundSecondaryLabel',
     lineHeight: 18,
   },
-  enumCheckBoxContainer: {
+  enumInputContainer: {
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  enumCheckBox: {
+  enumInput: {
     height: 32,
     width: 32,
-    borderRadius: 3.5,
     borderWidth: 1,
     borderColor: 'panelSecondaryForegroundBorder',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  enumCheckBoxFill: {
+  checkBox: {
+    borderRadius: 3.5,
+  },
+  radio: {
+    borderRadius: 16,
+  },
+  enumInputFill: {
     height: 20,
     width: 20,
-    borderRadius: 2.1875,
     backgroundColor: 'panelForegroundSecondaryLabel',
+  },
+  checkBoxFill: {
+    borderRadius: 2.1875,
+  },
+  radioFill: {
+    borderRadius: 10,
   },
 };
 
