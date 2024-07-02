@@ -29,7 +29,7 @@ import { Platform, View, useWindowDimensions } from 'react-native';
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
-import { threadIsPending } from 'lib/shared/thread-utils.js';
+import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
@@ -47,6 +47,7 @@ import MessageListHeaderTitle from './message-list-header-title.react.js';
 import PinnedMessagesScreen from './pinned-messages-screen.react.js';
 import DeleteThread from './settings/delete-thread.react.js';
 import EmojiThreadAvatarCreation from './settings/emoji-thread-avatar-creation.react.js';
+import ThreadSettingsNotifications from './settings/thread-settings-notifications.react.js';
 import ThreadSettings from './settings/thread-settings.react.js';
 import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
@@ -73,6 +74,7 @@ import {
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
+  ThreadSettingsNotificationsRouteName,
   type ScreenParamList,
   type ChatParamList,
   type ChatTopTabsParamList,
@@ -324,6 +326,17 @@ const pinnedMessagesScreenOptions = {
   headerTitle: 'Pinned Messages',
   headerBackTitleVisible: false,
 };
+const threadSettingsNotificationsOptions = ({
+  route,
+}: {
+  +route: NavigationRoute<'ThreadSettingsNotifications'>,
+  ...
+}) => ({
+  headerTitle: threadIsSidebar(route.params.threadInfo)
+    ? 'Thread notifications'
+    : 'Channel notifications',
+  headerBackTitleVisible: false,
+});
 const changeRolesScreenOptions = ({
   route,
 }: {
@@ -472,6 +485,11 @@ export default function ChatComponent(props: Props): React.Node {
             name={ChangeRolesScreenRouteName}
             component={ChangeRolesScreen}
             options={changeRolesScreenOptions}
+          />
+          <Chat.Screen
+            name={ThreadSettingsNotificationsRouteName}
+            component={ThreadSettingsNotifications}
+            options={threadSettingsNotificationsOptions}
           />
         </Chat.Navigator>
         <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
