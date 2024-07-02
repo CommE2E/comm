@@ -375,6 +375,7 @@ async function preparePushNotif(input: {
               newRawMessageInfos: shimmedNewRawMessageInfos,
               threadID: threadInfo.id,
               collapseKey: notifInfo.collapseKey,
+              badgeOnly,
               unreadCount,
               platformDetails,
               dbID,
@@ -905,6 +906,7 @@ type CommonNativeNotifInputData = {
   +newRawMessageInfos: RawMessageInfo[],
   +threadID: string,
   +collapseKey: ?string,
+  +badgeOnly: boolean,
   +unreadCount: number,
   +platformDetails: PlatformDetails,
 };
@@ -915,27 +917,18 @@ const commonNativeNotifInputDataValidator = tShape<CommonNativeNotifInputData>({
   newRawMessageInfos: t.list(rawMessageInfoValidator),
   threadID: tID,
   collapseKey: t.maybe(t.String),
+  badgeOnly: t.Boolean,
   unreadCount: t.Number,
   platformDetails: tPlatformDetails,
 });
 
-type APNsNotifInputData = {
-  ...CommonNativeNotifInputData,
-  +badgeOnly: boolean,
-};
-
-const apnsNotifInputDataValidator = tShape<APNsNotifInputData>({
-  ...commonNativeNotifInputDataValidator.meta.props,
-  badgeOnly: t.Boolean,
-});
-
 async function prepareAPNsNotification(
-  inputData: APNsNotifInputData,
+  inputData: CommonNativeNotifInputData,
   devices: $ReadOnlyArray<NotificationTargetDevice>,
 ): Promise<$ReadOnlyArray<TargetedAPNsNotification>> {
   const convertedData = await validateOutput(
     inputData.platformDetails,
-    apnsNotifInputDataValidator,
+    commonNativeNotifInputDataValidator,
     inputData,
   );
   const {
@@ -1183,6 +1176,7 @@ async function prepareAndroidVisualNotification(
     newRawMessageInfos,
     threadID,
     collapseKey,
+    badgeOnly,
     unreadCount,
     platformDetails,
     dbID,
@@ -1231,7 +1225,7 @@ async function prepareAndroidVisualNotification(
   notification.data = {
     ...notification.data,
     id: notifID,
-    badgeOnly: '0',
+    badgeOnly: badgeOnly ? '1' : '0',
   };
 
   const messageInfos = JSON.stringify(newRawMessageInfos);
