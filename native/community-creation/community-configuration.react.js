@@ -149,6 +149,7 @@ function CommunityConfiguration(props: Props): React.Node {
           description={enumSettingsOptionDescription}
           enumValue={announcementSetting}
           onEnumValuePress={onCheckBoxPress}
+          type="checkbox"
         />
         <ThreadSettingsCategoryFooter type="full" />
         <RegistrationButtonContainer>
