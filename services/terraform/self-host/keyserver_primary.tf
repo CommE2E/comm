@@ -120,6 +120,8 @@ resource "aws_ecs_task_definition" "keyserver_service" {
 }
 
 resource "aws_ecs_service" "keyserver_primary_service" {
+  depends_on = [null_resource.create_comm_database]
+
   name                    = "keyserver-primary-service"
   cluster                 = aws_ecs_cluster.keyserver_cluster.id
   task_definition         = aws_ecs_task_definition.keyserver_service.arn

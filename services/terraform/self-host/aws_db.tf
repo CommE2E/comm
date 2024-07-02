@@ -97,3 +97,20 @@ resource "aws_db_parameter_group" "mariadb_parameter_group" {
     value        = "0"
   }
 }
+
+resource "null_resource" "create_comm_database" {
+  depends_on = [aws_db_instance.mariadb, aws_security_group.keyserver_mariadb_security_group]
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+    mysql --user=${var.mariadb_username} \
+          --port=3307 \
+          --host=${aws_db_instance.mariadb.address} \
+          --execute="CREATE DATABASE IF NOT EXISTS comm;" \
+          --password=${var.mariadb_password}
+    EOT
+  }
+}
