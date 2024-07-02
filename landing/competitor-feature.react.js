@@ -100,11 +100,11 @@ function CompetitorFeature(props: Props): React.Node {
         <p className={headingClassName}>{title}</p>
         {comingSoonBadge}
       </div>
-      <CompetitorLogo name={competitorID} size={30} />
-      {competitorInfo}
-      <hr />
       <CommLogo size={30} />
       {commInfo}
+      <hr />
+      <CompetitorLogo name={competitorID} size={30} />
+      {competitorInfo}
     </div>
   );
 }
