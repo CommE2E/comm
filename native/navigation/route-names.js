@@ -31,6 +31,7 @@ import type { ComposeSubchannelModalParams } from '../chat/settings/compose-subc
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react.js';
 import type { EmojiThreadAvatarCreationParams } from '../chat/settings/emoji-thread-avatar-creation.react.js';
 import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react.js';
+import type { ThreadSettingsNotificationsParams } from '../chat/settings/thread-settings-notifications.react.js';
 import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react.js';
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react.js';
 import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react.js';
@@ -163,6 +164,8 @@ export const TagFarcasterChannelNavigatorRouteName =
   'TagFarcasterChannelNavigator';
 export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
 export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
+export const ThreadSettingsNotificationsRouteName =
+  'ThreadSettingsNotifications';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -240,6 +243,7 @@ export type ChatParamList = {
   +PinnedMessagesScreen: PinnedMessagesScreenParams,
   +MessageSearch: MessageSearchParams,
   +ChangeRolesScreen: ChangeRolesScreenParams,
+  +ThreadSettingsNotifications: ThreadSettingsNotificationsParams,
 };
 
 export type ChatTopTabsParamList = {
@@ -372,4 +376,5 @@ export const threadRoutes = [
   MessageSearchRouteName,
   EmojiThreadAvatarCreationRouteName,
   CommunityRolesScreenRouteName,
+  ThreadSettingsNotificationsRouteName,
 ];
