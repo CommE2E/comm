@@ -9,7 +9,7 @@ import { useColors, useStyles } from '../themes/colors.js';
 type InputType = 'radio' | 'checkbox';
 
 type EnumSettingsOptionProps = {
-  +icon?: string,
+  +icon?: string | React.Node,
   +name: string,
   +description: string,
   +enumValue: boolean,
@@ -34,11 +34,15 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
       return null;
     }
 
-    return (
-      <View style={styles.enumIcon}>
-        <CommIcon name="megaphone" size={24} color={colors.purpleButton} />
-      </View>
-    );
+    if (typeof icon === 'string') {
+      return (
+        <View style={styles.enumIcon}>
+          <CommIcon name={icon} size={24} color={colors.purpleButton} />
+        </View>
+      );
+    }
+
+    return icon;
   }, [icon, styles.enumIcon, colors.purpleButton]);
 
   const infoContainerStyle = React.useMemo(
