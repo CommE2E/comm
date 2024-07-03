@@ -21,6 +21,7 @@ const olmAPI: OlmAPI = {
   getUserPublicKey: commCoreModule.getUserPublicKey,
   encrypt: commCoreModule.encrypt,
   encryptAndPersist: commCoreModule.encryptAndPersist,
+  encryptNotification: commCoreModule.encryptNotification,
   decrypt: commCoreModule.decrypt,
   decryptSequentialAndPersist: commCoreModule.decryptSequentialAndPersist,
   async contentInboundSessionCreator(
