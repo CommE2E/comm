@@ -128,7 +128,7 @@ function AutoJoinCommunityHandler(): React.Node {
         const { commCommunityID } = await blobResult.json();
         const keyserverID = extractKeyserverIDFromID(commCommunityID);
 
-        if (!keyserverInfos[keyserverID]) {
+        if (!keyserverID || !keyserverInfos[keyserverID]) {
           return;
         }
 
