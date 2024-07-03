@@ -1,6 +1,7 @@
 // @flow
 
 import * as Haptics from 'expo-haptics';
+import invariant from 'invariant';
 import _groupBy from 'lodash/fp/groupBy.js';
 import * as React from 'react';
 import { LogBox, Platform } from 'react-native';
@@ -755,6 +756,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     this.saveMessageInfos(messageInfos);
 
     const keyserverID = extractKeyserverIDFromID(message.threadID);
+    invariant(keyserverID, 'Keyserver ID should be present');
     const updateCurrentAsOf = this.props.allUpdatesCurrentAsOf[keyserverID];
 
     handleAndroidMessage(

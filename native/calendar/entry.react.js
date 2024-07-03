@@ -810,10 +810,17 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
 
     const keyserverID = extractKeyserverIDFromID(threadInfo.id);
-    const connection = useSelector(connectionSelector(keyserverID));
+    const connection = useSelector(state => {
+      if (!keyserverID) {
+        return {
+          status: 'connected',
+        };
+      }
+      return connectionSelector(keyserverID)(state);
+    });
     invariant(
       connection,
-      `keyserver ${keyserverID} missing from keyserverStore`,
+      `keyserver ${keyserverID ?? 'null'} missing from keyserverStore`,
     );
     const online = connection.status === 'connected';
 

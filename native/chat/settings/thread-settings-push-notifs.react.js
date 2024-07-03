@@ -176,7 +176,12 @@ const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
     props: BaseProps,
   ) {
     const keyserverID = extractKeyserverIDFromID(props.threadInfo.id);
-    const deviceToken = useSelector(deviceTokenSelector(keyserverID));
+    const deviceToken = useSelector(state => {
+      if (!keyserverID) {
+        return state.tunnelbrokerDeviceToken;
+      }
+      return deviceTokenSelector(keyserverID)(state);
+    });
     const hasPushPermissions =
       deviceToken !== null && deviceToken !== undefined;
     const styles = useStyles(unboundStyles);
