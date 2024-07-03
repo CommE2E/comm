@@ -1380,7 +1380,8 @@ impl DatabaseClient {
           "Attempting to delete Tunnelbroker data for device: {}",
           &device_id
         );
-        let result = crate::tunnelbroker::delete_device_data(&device_id).await;
+        let result =
+          crate::tunnelbroker::delete_devices_data(&[device_id]).await;
         consume_error(result);
       });
     }

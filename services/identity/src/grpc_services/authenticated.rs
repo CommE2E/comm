@@ -95,14 +95,13 @@ pub fn get_user_and_device_id<T>(
   Ok((user_id, device_id))
 }
 
-fn spawn_delete_tunnelbroker_data_task(device_id: &str) {
-  let device_id = device_id.to_string();
+fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
   tokio::spawn(async move {
     debug!(
-      "Attempting to delete Tunnelbroker data for device: {}",
-      &device_id
+      "Attempting to delete Tunnelbroker data for devices: {:?}",
+      device_ids.as_slice()
     );
-    let result = crate::tunnelbroker::delete_device_data(&device_id).await;
+    let result = crate::tunnelbroker::delete_devices_data(&device_ids).await;
     consume_error(result);
   });
 }
@@ -425,7 +424,7 @@ impl IdentityClientService for AuthenticatedService {
       consume_error(result);
     });
 
-    spawn_delete_tunnelbroker_data_task(&device_id);
+    spawn_delete_tunnelbroker_data_task([device_id].into());
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -498,13 +497,13 @@ impl IdentityClientService for AuthenticatedService {
       .map_err(handle_db_error)?;
 
     debug!(user_id, "Attempting to delete user's devices");
-    let _device_ids = self
+    let device_ids = self
       .db_client
       .delete_devices_data_for_user(&user_id)
       .await
       .map_err(handle_db_error)?;
 
-    // TODO: Remove Tunnelbroker data (use the _device_ids)
+    spawn_delete_tunnelbroker_data_task(device_ids);
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -541,7 +540,7 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(handle_db_error)?;
 
-    spawn_delete_tunnelbroker_data_task(&device_id);
+    spawn_delete_tunnelbroker_data_task([device_id].into());
 
     let response = Empty {};
     Ok(Response::new(response))
