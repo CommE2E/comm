@@ -2,6 +2,8 @@
 
 import type { EncryptedNotifUtilsAPI } from 'lib/types/notif-types.js';
 
+import { encryptNotification } from './notif-crypto-utils.js';
+
 const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   encryptSerializedNotifPayload: async (
     cryptoID: string,
@@ -11,16 +13,14 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       type: '1' | '0',
     ) => boolean,
   ) => {
-    // The "mock" implementation below will be replaced with proper
-    // implementation after olm notif sessions initialization is
-    // implemented. for now it is actually beneficial to return
-    // original string as encrypted string since it allows for
-    // better testing as we can verify which data are encrypted
-    // and which aren't.
+    const { body, type } = await encryptNotification(
+      unencryptedPayload,
+      cryptoID,
+    );
     return {
-      encryptedData: { body: unencryptedPayload, type: 1 },
+      encryptedData: { body, type },
       sizeLimitViolated: encryptedPayloadSizeValidator
-        ? !encryptedPayloadSizeValidator(unencryptedPayload, '1')
+        ? !encryptedPayloadSizeValidator(body, type ? '1' : '0')
         : false,
     };
   },
