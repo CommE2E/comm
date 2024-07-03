@@ -1,6 +1,7 @@
 // @flow
 
 import olm from '@commapp/olm';
+import type { EncryptResult } from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
 
@@ -13,6 +14,7 @@ import type {
   EncryptedWebNotification,
 } from 'lib/types/notif-types.js';
 import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import {
   type EncryptedData,
@@ -309,6 +311,87 @@ function decryptWithPendingSession<T>(
   }
 }
 
+async function encryptNotification(
+  payload: string,
+  deviceID: string,
+): Promise<EncryptResult> {
+  const olmDataContentKey = getOlmDataContentKeyForDeviceID(deviceID);
+  const olmEncryptionKeyDBLabel =
+    getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+
+  let encryptedOlmData, encryptionKey;
+  try {
+    [encryptedOlmData, encryptionKey] = await Promise.all([
+      localforage.getItem<EncryptedData>(olmDataContentKey),
+      retrieveEncryptionKey(olmEncryptionKeyDBLabel),
+      initOlm(),
+    ]);
+  } catch (e) {
+    throw new Error(
+      `Failed to fetch olm session from IndexedDB for device: ${deviceID}. Details: ${
+        getMessageForException(e) ?? ''
+      }`,
+    );
+  }
+
+  if (!encryptionKey || !encryptedOlmData) {
+    throw new Error(`Session with device: ${deviceID} not initialized.`);
+  }
+
+  let encryptedNotification;
+  try {
+    encryptedNotification = await encryptNotificationWithOlmSession(
+      payload,
+      encryptedOlmData,
+      olmDataContentKey,
+      encryptionKey,
+    );
+  } catch (e) {
+    throw new Error(
+      `Failed encrypt notification for device: ${deviceID}. Details: ${
+        getMessageForException(e) ?? ''
+      }`,
+    );
+  }
+  return encryptedNotification;
+}
+
+async function encryptNotificationWithOlmSession(
+  payload: string,
+  encryptedOlmData: EncryptedData,
+  olmDataContentKey: string,
+  encryptionKey: CryptoKey,
+): Promise<EncryptResult> {
+  const serializedOlmData = await decryptData(encryptedOlmData, encryptionKey);
+  const {
+    mainSession,
+    picklingKey,
+    pendingSessionUpdate,
+    updateCreationTimestamp,
+  }: NotificationsOlmDataType = JSON.parse(
+    new TextDecoder().decode(serializedOlmData),
+  );
+
+  const session = new olm.Session();
+  session.unpickle(picklingKey, pendingSessionUpdate);
+  const encryptedNotification = session.encrypt(payload);
+
+  const newPendingSessionUpdate = session.pickle(picklingKey);
+  const updatedOlmData: NotificationsOlmDataType = {
+    mainSession,
+    pendingSessionUpdate: newPendingSessionUpdate,
+    picklingKey,
+    updateCreationTimestamp,
+  };
+  const updatedEncryptedSession = await encryptData(
+    new TextEncoder().encode(JSON.stringify(updatedOlmData)),
+    encryptionKey,
+  );
+
+  await localforage.setItem(olmDataContentKey, updatedEncryptedSession);
+  return encryptedNotification;
+}
+
 async function retrieveEncryptionKey(
   encryptionKeyDBLabel: string,
 ): Promise<?CryptoKey> {
@@ -557,6 +640,7 @@ async function queryNotifsUnreadCountStorage(
 export {
   decryptWebNotification,
   decryptDesktopNotification,
+  encryptNotification,
   getOlmDataContentKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
   getOlmDataContentKeyForDeviceID,
