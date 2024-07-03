@@ -474,12 +474,12 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const keyserverID = extractKeyserverIDFromID(threadID);
-    const connection = useSelector(connectionSelector(keyserverID));
-    invariant(
-      connection,
-      `keyserver ${keyserverID} missing from keyserverStore`,
-    );
-    const online = connection.status === 'connected';
+    const online = useSelector(state => {
+      if (!keyserverID) {
+        return true;
+      }
+      return connectionSelector(keyserverID)(state) === 'connected';
+    });
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();
     const callDeleteEntry = useDeleteEntry();

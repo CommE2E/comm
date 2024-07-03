@@ -26,7 +26,7 @@ import {
   useDeleteEntry,
   useSaveEntry,
 } from 'lib/actions/entry-actions.js';
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
@@ -809,11 +809,18 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const { threadInfo: unresolvedThreadInfo, ...restProps } = props;
     const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
 
-    const keyserverID = extractKeyserverIDFromID(threadInfo.id);
-    const connection = useSelector(connectionSelector(keyserverID));
+    const keyserverID = extractKeyserverIDFromIDOptional(threadInfo.id);
+    const connection = useSelector(state => {
+      if (!keyserverID) {
+        return {
+          status: 'connected',
+        };
+      }
+      return connectionSelector(keyserverID)(state);
+    });
     invariant(
       connection,
-      `keyserver ${keyserverID} missing from keyserverStore`,
+      `keyserver ${keyserverID ?? 'null'} missing from keyserverStore`,
     );
     const online = connection.status === 'connected';
 

@@ -8,7 +8,7 @@ import {
   updateSubscriptionActionTypes,
   useUpdateSubscription,
 } from 'lib/actions/user-actions.js';
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { deviceTokenSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
@@ -175,8 +175,13 @@ const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedThreadSettingsPushNotifs(
     props: BaseProps,
   ) {
-    const keyserverID = extractKeyserverIDFromID(props.threadInfo.id);
-    const deviceToken = useSelector(deviceTokenSelector(keyserverID));
+    const keyserverID = extractKeyserverIDFromIDOptional(props.threadInfo.id);
+    const deviceToken = useSelector(state => {
+      if (!keyserverID) {
+        return state.tunnelbrokerDeviceToken;
+      }
+      return deviceTokenSelector(keyserverID)(state);
+    });
     const hasPushPermissions =
       deviceToken !== null && deviceToken !== undefined;
     const styles = useStyles(unboundStyles);
