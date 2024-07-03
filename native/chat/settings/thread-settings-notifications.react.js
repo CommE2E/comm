@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 
 import {
   threadSettingsNotificationsCopy,
@@ -10,9 +10,10 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 
 import EnumSettingsOption from '../../components/enum-settings-option.react.js';
+import SWMansionIcon from '../../components/swmansion-icon.react.js';
 import HeaderRightTextButton from '../../navigation/header-right-text-button.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
-import { useStyles } from '../../themes/colors.js';
+import { useStyles, useColors } from '../../themes/colors.js';
 import AllNotifsIllustration from '../../vectors/all-notifs-illustration.react.js';
 import BadgeNotifsIllustration from '../../vectors/badge-notifs-illustration.react.js';
 import MutedNotifsIllustration from '../../vectors/muted-notifs-illustration.react.js';
@@ -21,6 +22,108 @@ import type { ChatNavigationProp } from '../chat.react.js';
 export type ThreadSettingsNotificationsParams = {
   +threadInfo: ThreadInfo,
 };
+
+type NotificationDescriptionProps = {
+  +selected: boolean,
+  +bannerNotifsEnabled: boolean,
+  +badgeCountEnabled: boolean,
+  +livesInFocusedTab: boolean,
+};
+
+function NotificationDescription(
+  props: NotificationDescriptionProps,
+): React.Node {
+  const {
+    selected,
+    bannerNotifsEnabled,
+    badgeCountEnabled,
+    livesInFocusedTab,
+  } = props;
+
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  const bannerNotifsDescriptionTextStyles = React.useMemo(() => {
+    const style = [styles.notificationOptionDescriptionText];
+
+    if (selected && !bannerNotifsEnabled) {
+      style.push(styles.notificationOptionDescriptionTextDisabledSelected);
+    } else if (!bannerNotifsEnabled) {
+      style.push(styles.notificationOptionDescriptionTextDisabled);
+    }
+
+    return style;
+  }, [
+    bannerNotifsEnabled,
+    selected,
+    styles.notificationOptionDescriptionText,
+    styles.notificationOptionDescriptionTextDisabled,
+    styles.notificationOptionDescriptionTextDisabledSelected,
+  ]);
+
+  const badgeCountDescriptionTextStyles = React.useMemo(() => {
+    const style = [styles.notificationOptionDescriptionText];
+
+    if (selected && !badgeCountEnabled) {
+      style.push(styles.notificationOptionDescriptionTextDisabledSelected);
+    } else if (!badgeCountEnabled) {
+      style.push(styles.notificationOptionDescriptionTextDisabled);
+    }
+
+    return style;
+  }, [
+    badgeCountEnabled,
+    selected,
+    styles.notificationOptionDescriptionText,
+    styles.notificationOptionDescriptionTextDisabled,
+    styles.notificationOptionDescriptionTextDisabledSelected,
+  ]);
+
+  let bannerNotifsIconColor = colors.panelForegroundSecondaryLabel;
+  if (selected && !bannerNotifsEnabled) {
+    bannerNotifsIconColor = colors.panelInputSecondaryForeground;
+  } else if (!bannerNotifsEnabled) {
+    bannerNotifsIconColor = colors.panelSecondaryForeground;
+  }
+
+  let badgeCountIconColor = colors.panelForegroundSecondaryLabel;
+  if (selected && !badgeCountEnabled) {
+    badgeCountIconColor = colors.panelInputSecondaryForeground;
+  } else if (!badgeCountEnabled) {
+    badgeCountIconColor = colors.panelSecondaryForeground;
+  }
+
+  return (
+    <>
+      <View style={styles.notificationOptionDescriptionListItem}>
+        <SWMansionIcon
+          name={bannerNotifsEnabled ? 'check' : 'cross'}
+          size={12}
+          color={bannerNotifsIconColor}
+        />
+        <Text style={bannerNotifsDescriptionTextStyles}>Banner notifs</Text>
+      </View>
+      <View style={styles.notificationOptionDescriptionListItem}>
+        <SWMansionIcon
+          name={badgeCountEnabled ? 'check' : 'cross'}
+          size={12}
+          color={badgeCountIconColor}
+        />
+        <Text style={badgeCountDescriptionTextStyles}>Badge count</Text>
+      </View>
+      <View style={styles.notificationOptionDescriptionListItem}>
+        <SWMansionIcon
+          name="check"
+          size={12}
+          color={colors.panelForegroundSecondaryLabel}
+        />
+        <Text style={styles.notificationOptionDescriptionText}>
+          Lives in {livesInFocusedTab ? 'Focused' : 'Background'} tab
+        </Text>
+      </View>
+    </>
+  );
+}
 
 type Props = {
   +navigation: ChatNavigationProp<'ThreadSettingsNotifications'>,
@@ -85,6 +188,36 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     [styles.notificationOptionIconContainer],
   );
 
+  const allNotificationsDescription = React.useMemo(
+    () => (
+      <NotificationDescription
+        selected={notificationSettings === 'focused'}
+        bannerNotifsEnabled={true}
+        badgeCountEnabled={true}
+        livesInFocusedTab={true}
+      />
+    ),
+    [notificationSettings],
+  );
+
+  const badgeOnlyDescription = (
+    <NotificationDescription
+      selected={notificationSettings === 'badge-only'}
+      bannerNotifsEnabled={false}
+      badgeCountEnabled={true}
+      livesInFocusedTab={true}
+    />
+  );
+
+  const mutedDescription = (
+    <NotificationDescription
+      selected={notificationSettings === 'background'}
+      bannerNotifsEnabled={false}
+      badgeCountEnabled={false}
+      livesInFocusedTab={false}
+    />
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.enumSettingsOptionContainer}>
@@ -92,7 +225,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
           name={threadSettingsNotificationsCopy.FOCUSED}
           enumValue={notificationSettings === 'focused'}
           onEnumValuePress={onFocusedSelected}
-          description=""
+          description={allNotificationsDescription}
           icon={allNotificationsIllustration}
         />
       </View>
@@ -101,7 +234,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
           name={threadSettingsNotificationsCopy.BADGE_ONLY}
           enumValue={notificationSettings === 'badge-only'}
           onEnumValuePress={onBadgeOnlySelected}
-          description=""
+          description={badgeOnlyDescription}
           icon={badgeOnlyIllustration}
         />
       </View>
@@ -110,7 +243,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
           name={threadSettingsNotificationsCopy.BACKGROUND}
           enumValue={notificationSettings === 'background'}
           onEnumValuePress={onBackgroundSelected}
-          description=""
+          description={mutedDescription}
           icon={mutedIllustration}
         />
       </View>
@@ -129,6 +262,24 @@ const unboundStyles = {
     justifyContent: 'center',
     marginLeft: 8,
     marginRight: 16,
+  },
+  notificationOptionDescriptionListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  notificationOptionDescriptionText: {
+    color: 'panelForegroundSecondaryLabel',
+    marginLeft: 4,
+    fontSize: 14,
+  },
+  notificationOptionDescriptionTextDisabled: {
+    textDecorationLine: 'line-through',
+    color: 'panelSecondaryForeground',
+  },
+  notificationOptionDescriptionTextDisabledSelected: {
+    color: 'panelInputSecondaryForeground',
+    textDecorationLine: 'line-through',
   },
 };
 
