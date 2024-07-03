@@ -731,6 +731,12 @@ const olmAPI: OlmAPI = {
 
     return { encryptedData, sessionVersion: newSessionVersion };
   },
+  async isContentSessionInitialized(deviceID: string) {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    return !!cryptoStore.contentSessions[deviceID];
+  },
   async notificationsOutboundSessionCreator(
     deviceID: string,
     notificationsIdentityKeys: OLMIdentityKeys,
@@ -739,12 +745,44 @@ const olmAPI: OlmAPI = {
     const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
     const dataEncryptionKeyDBLabel =
       getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+
     return createAndPersistNotificationsOutboundSession(
       notificationsIdentityKeys,
       notificationsInitializationInfo,
       dataPersistenceKey,
       dataEncryptionKeyDBLabel,
     );
+  },
+  async isDeviceNotificationsSessionInitialized(deviceID: string) {
+    const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
+    const dataEncryptionKeyDBLabel =
+      getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+
+    const allKeys = await localforage.keys();
+    const allKeysSet = new Set(allKeys);
+    return (
+      allKeysSet.has(dataPersistenceKey) &&
+      allKeysSet.has(dataEncryptionKeyDBLabel)
+    );
+  },
+  async isNotificationsSessionInitializedWithDevices(
+    deviceIDs: $ReadOnlyArray<string>,
+  ) {
+    const allKeys = await localforage.keys();
+    const allKeysSet = new Set(allKeys);
+
+    const deviceInfoPairs = deviceIDs.map(deviceID => {
+      const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
+      const dataEncryptionKeyDBLabel =
+        getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+      return [
+        deviceID,
+        allKeysSet.has(dataPersistenceKey) &&
+          allKeysSet.has(dataEncryptionKeyDBLabel),
+      ];
+    });
+
+    return Object.fromEntries(deviceInfoPairs);
   },
   async keyserverNotificationsSessionCreator(
     cookie: ?string,

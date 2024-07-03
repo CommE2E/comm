@@ -69,6 +69,12 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotifi
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitialized(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->isNotificationsSessionInitialized(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->isDeviceNotificationsSessionInitialized(rt, args[0].asString(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->isNotificationsSessionInitializedWithDevices(rt, args[0].asObject(rt).asArray(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateKeyserverDataInNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateKeyserverDataInNotifStorage(rt, args[0].asObject(rt).asArray(rt));
 }
@@ -83,6 +89,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeConten
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentInboundSession(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeContentInboundSession(rt, args[0].asString(rt), args[1].asObject(rt), args[2].asString(rt), args[3].asNumber(), args[4].asBool());
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isContentSessionInitialized(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->isContentSessionInitialized(rt, args[0].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsOutboundSession(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeNotificationsOutboundSession(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].isNull() || args[3].isUndefined() ? std::nullopt : std::make_optional(args[3].asString(rt)), args[4].asString(rt));
@@ -244,11 +253,14 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["validateAndUploadPrekeys"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_validateAndUploadPrekeys};
   methodMap_["initializeNotificationsSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsSession};
   methodMap_["isNotificationsSessionInitialized"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitialized};
+  methodMap_["isDeviceNotificationsSessionInitialized"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isDeviceNotificationsSessionInitialized};
+  methodMap_["isNotificationsSessionInitializedWithDevices"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isNotificationsSessionInitializedWithDevices};
   methodMap_["updateKeyserverDataInNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateKeyserverDataInNotifStorage};
   methodMap_["removeKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeKeyserverDataFromNotifStorage};
   methodMap_["getKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getKeyserverDataFromNotifStorage};
   methodMap_["initializeContentOutboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentOutboundSession};
   methodMap_["initializeContentInboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentInboundSession};
+  methodMap_["isContentSessionInitialized"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isContentSessionInitialized};
   methodMap_["initializeNotificationsOutboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeNotificationsOutboundSession};
   methodMap_["encrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encrypt};
   methodMap_["encryptNotification"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encryptNotification};
