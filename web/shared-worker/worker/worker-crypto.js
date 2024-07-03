@@ -723,6 +723,12 @@ const olmAPI: OlmAPI = {
 
     return { encryptedData, sessionVersion: newSessionVersion };
   },
+  async isContentSessionInitialized(deviceID: string) {
+    if (!cryptoStore) {
+      throw new Error('Crypto account not initialized');
+    }
+    return !!cryptoStore.contentSessions[deviceID];
+  },
   async notificationsOutboundSessionCreator(
     notificationsIdentityKeys: OLMIdentityKeys,
     contentIdentityKeys: OLMIdentityKeys,
@@ -734,11 +740,23 @@ const olmAPI: OlmAPI = {
     const dataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForDeviceID(
       contentIdentityKeys.ed25519,
     );
+
     return createAndPersistNotificationsOutboundSession(
       notificationsIdentityKeys,
       notificationsInitializationInfo,
       dataPersistenceKey,
       dataEncryptionKeyDBLabel,
+    );
+  },
+  async isPeerNotificationsSessionInitialized(deviceID: string) {
+    const dataPersistenceKey = getOlmDataContentKeyForDeviceID(deviceID);
+    const dataEncryptionKeyDBLabel =
+      getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+
+    const allKeysSet = new Set([...(await localforage.keys())]);
+    return (
+      allKeysSet.has(dataPersistenceKey) &&
+      allKeysSet.has(dataEncryptionKeyDBLabel)
     );
   },
   async notificationsSessionCreator(
