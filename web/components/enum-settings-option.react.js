@@ -19,7 +19,7 @@ type IconPosition = $Keys<typeof iconPositionClassnames>;
 
 type Props = {
   +selected: boolean,
-  +onSelect: () => void,
+  +onSelect: () => mixed,
   +disabled?: boolean,
   +icon?: React.Node,
   +title: string,

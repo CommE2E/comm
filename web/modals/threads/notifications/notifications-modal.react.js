@@ -2,14 +2,10 @@
 
 import * as React from 'react';
 
-import {
-  useUpdateSubscription,
-  updateSubscriptionActionTypes,
-} from 'lib/actions/user-actions.js';
 import { useCanPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { useThreadSettingsNotifications } from 'lib/shared/thread-settings-notifications-utils.js';
 import { threadIsSidebar } from 'lib/shared/thread-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
@@ -19,8 +15,6 @@ import Button from '../../../components/button.react.js';
 import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
-
-type NotificationSettings = 'focused' | 'badge-only' | 'background';
 
 const BANNER_NOTIFS = 'Banner notifs';
 const BADGE_COUNT = 'Badge count';
@@ -88,38 +82,20 @@ type Props = {
 function NotificationsModal(props: Props): React.Node {
   const { onClose, threadID } = props;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const { subscription } = threadInfo.currentUser;
   const { parentThreadID } = threadInfo;
   const parentThreadInfo = useSelector(state =>
     parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
   );
   const isSidebar = threadIsSidebar(threadInfo);
 
-  const initialThreadSetting = React.useMemo<NotificationSettings>(() => {
-    if (!subscription.home) {
-      return 'background';
-    }
-    if (!subscription.pushNotifs) {
-      return 'badge-only';
-    }
-    return 'focused';
-  }, [subscription.home, subscription.pushNotifs]);
-
-  const [notificationSettings, setNotificationSettings] =
-    React.useState<NotificationSettings>(initialThreadSetting);
-
-  const onFocusedSelected = React.useCallback(
-    () => setNotificationSettings('focused'),
-    [],
-  );
-  const onBadgeOnlySelected = React.useCallback(
-    () => setNotificationSettings('badge-only'),
-    [],
-  );
-  const onBackgroundSelected = React.useCallback(
-    () => setNotificationSettings('background'),
-    [],
-  );
+  const {
+    notificationSettings,
+    onFocusedSelected,
+    onBadgeOnlySelected,
+    onBackgroundSelected,
+    disableSaveButton,
+    onSave,
+  } = useThreadSettingsNotifications(threadInfo, onClose);
 
   const isFocusedSelected = notificationSettings === 'focused';
   const focusedItem = React.useMemo(() => {
@@ -163,30 +139,6 @@ function NotificationsModal(props: Props): React.Node {
       />
     );
   }, [isBackgroundSelected, onBackgroundSelected, isSidebar]);
-
-  const dispatchActionPromise = useDispatchActionPromise();
-
-  const callUpdateSubscription = useUpdateSubscription();
-
-  const onClickSave = React.useCallback(() => {
-    void dispatchActionPromise(
-      updateSubscriptionActionTypes,
-      callUpdateSubscription({
-        threadID: threadID,
-        updatedFields: {
-          home: notificationSettings !== 'background',
-          pushNotifs: notificationSettings === 'focused',
-        },
-      }),
-    );
-    onClose();
-  }, [
-    callUpdateSubscription,
-    dispatchActionPromise,
-    notificationSettings,
-    onClose,
-    threadID,
-  ]);
 
   const modalName = isSidebar
     ? 'Thread notifications'
@@ -270,20 +222,11 @@ function NotificationsModal(props: Props): React.Node {
     }
 
     return (
-      <Button
-        variant="filled"
-        onClick={onClickSave}
-        disabled={notificationSettings === initialThreadSetting}
-      >
+      <Button variant="filled" onClick={onSave} disabled={disableSaveButton}>
         Save
       </Button>
     );
-  }, [
-    initialThreadSetting,
-    notificationSettings,
-    onClickSave,
-    parentThreadIsInBackground,
-  ]);
+  }, [disableSaveButton, onSave, parentThreadIsInBackground]);
 
   return (
     <Modal
