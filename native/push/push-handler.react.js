@@ -17,7 +17,10 @@ import {
   useSetDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import {
+  extractKeyserverIDFromID,
+  extractKeyserverIDFromIDOptional,
+} from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
   deviceTokensSelector,
   allUpdatesCurrentAsOfSelector,
@@ -624,7 +627,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     const keyserverIDToMessageInfos = _groupBy(messageInfos =>
-      extractKeyserverIDFromID(messageInfos.threadID),
+      extractKeyserverIDFromIDOptional(messageInfos.threadID),
     )(rawMessageInfos);
 
     for (const keyserverID in keyserverIDToMessageInfos) {
