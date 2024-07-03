@@ -68,6 +68,12 @@ interface Spec extends TurboModule {
     keyserverID: string,
   ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
+  +isDeviceNotificationsSessionInitialized: (
+    deviceID: string,
+  ) => Promise<boolean>;
+  +isNotificationsSessionInitializedWithDevices: (
+    deviceIDs: $ReadOnlyArray<string>,
+  ) => Promise<{ +[deviceID: string]: boolean }>;
   +updateKeyserverDataInNotifStorage: (
     keyserversData: $ReadOnlyArray<{ +id: string, +unreadCount: number }>,
   ) => Promise<void>;
@@ -91,6 +97,7 @@ interface Spec extends TurboModule {
     sessionVersion: number,
     overwrite: boolean,
   ) => Promise<string>;
+  +isContentSessionInitialized: (deviceID: string) => Promise<boolean>;
   +initializeNotificationsOutboundSession: (
     identityKeys: string,
     prekey: string,
