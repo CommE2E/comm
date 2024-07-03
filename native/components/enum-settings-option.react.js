@@ -11,7 +11,7 @@ type InputType = 'radio' | 'checkbox';
 type EnumSettingsOptionProps = {
   +icon?: string | React.Node,
   +name: string,
-  +description: string,
+  +description: string | React.Node,
   +enumValue: boolean,
   +onEnumValuePress: () => mixed,
   +type?: InputType,
@@ -82,12 +82,20 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     [enumValue, enumInputFilledStyles],
   );
 
+  const descriptionElement = React.useMemo(() => {
+    if (typeof description === 'string') {
+      return <Text style={styles.enumInfoDescription}>{description}</Text>;
+    }
+
+    return description;
+  }, [description, styles.enumInfoDescription]);
+
   return (
     <View style={styles.enumCell}>
       {enumIcon}
       <View style={infoContainerStyle}>
         <Text style={styles.enumInfoName}>{name}</Text>
-        <Text style={styles.enumInfoDescription}>{description}</Text>
+        {descriptionElement}
       </View>
       <TouchableOpacity
         onPress={onEnumValuePress}
@@ -112,7 +120,6 @@ const unboundStyles = {
   enumInfoContainer: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     padding: 8,
   },
   enumInfoName: {
@@ -123,6 +130,7 @@ const unboundStyles = {
   enumInfoDescription: {
     color: 'panelForegroundSecondaryLabel',
     lineHeight: 18,
+    marginTop: 8,
   },
   enumInputContainer: {
     padding: 22,
