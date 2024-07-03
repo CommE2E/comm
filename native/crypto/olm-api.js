@@ -41,6 +41,7 @@ const olmAPI: OlmAPI = {
       overwrite,
     );
   },
+  isContentSessionInitialized: commCoreModule.isContentSessionInitialized,
   async contentOutboundSessionCreator(
     contentIdentityKeys: OLMIdentityKeys,
     contentInitializationInfo: OlmSessionInitializationInfo,
@@ -94,6 +95,8 @@ const olmAPI: OlmAPI = {
       contentIdentityKeys.ed25519,
     );
   },
+  isPeerNotificationsSessionInitialized:
+    commCoreModule.isPeerNotificationsSessionInitialized,
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
     const { contentOneTimeKeys, notificationsOneTimeKeys } =
       await commCoreModule.getOneTimeKeys(numberOfKeys);
