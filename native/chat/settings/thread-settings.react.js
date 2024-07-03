@@ -7,7 +7,7 @@ import type {
 } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, View, TouchableOpacity } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
@@ -78,7 +78,8 @@ import ThreadSettingsMember from './thread-settings-member.react.js';
 import ThreadSettingsName from './thread-settings-name.react.js';
 import ThreadSettingsParent from './thread-settings-parent.react.js';
 import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react.js';
-import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react.js';
+// import ThreadSettingsPushNotifs from './th
+// read-settings-push-notifs.react.js';
 import ThreadSettingsVisibility from './thread-settings-visibility.react.js';
 import ThreadAncestors from '../../components/thread-ancestors.react.js';
 import {
@@ -99,6 +100,7 @@ import {
 import {
   ComposeSubchannelModalRouteName,
   FullScreenThreadMediaGalleryRouteName,
+  ThreadSettingsNotificationsRouteName,
   type NavigationRoute,
   type ScreenParamList,
 } from '../../navigation/route-names.js';
@@ -461,6 +463,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
             title: 'Subscription',
             categoryType: 'full',
           });
+          // get rid of this
           listData.push({
             itemType: 'pushNotifs',
             key: 'pushNotifs',
@@ -473,6 +476,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
               threadInfo,
             });
           }
+          // end
           listData.push({
             itemType: 'footer',
             key: 'subscriptionFooter',
@@ -981,7 +985,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     } else if (item.itemType === 'visibility') {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'pushNotifs') {
-      return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
+      return (
+        <TouchableOpacity
+          // style={{ height: 40, width: 40, backgroundColor: 'red' }}
+          onPress={this.onPressEditThreadNotificationSettings}
+        />
+      );
     } else if (item.itemType === 'homeNotifs') {
       return <ThreadSettingsHomeNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'seeMore') {
@@ -1123,6 +1132,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   onPressSeeMoreMediaGallery = () => {
     this.props.navigation.navigate(FullScreenThreadMediaGalleryRouteName, {
+      threadInfo: this.props.threadInfo,
+    });
+  };
+
+  onPressEditThreadNotificationSettings = () => {
+    this.props.navigation.navigate(ThreadSettingsNotificationsRouteName, {
       threadInfo: this.props.threadInfo,
     });
   };
