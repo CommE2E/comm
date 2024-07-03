@@ -1,8 +1,9 @@
 // @flow
 
 import type { EncryptedNotifUtilsAPI } from 'lib/types/notif-types.js';
+import { getConfig } from 'lib/utils/config.js';
 
-import { commUtilsModule, commCoreModule } from '../native-modules.js';
+import { commUtilsModule } from '../native-modules.js';
 
 const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
   encryptSerializedNotifPayload: async (
@@ -13,8 +14,12 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       type: '1' | '0',
     ) => boolean,
   ) => {
-    const { message: body, messageType: type } =
-      await commCoreModule.encryptNotification(unencryptedPayload, cryptoID);
+    const { initializeCryptoAccount, encryptNotification } = getConfig().olmAPI;
+    await initializeCryptoAccount();
+    const { message: body, messageType: type } = await encryptNotification(
+      unencryptedPayload,
+      cryptoID,
+    );
     return {
       encryptedData: { body, type },
       sizeLimitViolated: encryptedPayloadSizeValidator
