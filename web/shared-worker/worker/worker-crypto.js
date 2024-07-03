@@ -50,9 +50,9 @@ import {
   generateCryptoKey,
 } from '../../crypto/aes-gcm-crypto-utils.js';
 import {
-  getOlmDataContentKeyForCookie,
+  getOlmDataKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
-  getOlmDataContentKeyForDeviceID,
+  getOlmDataKeyForDeviceID,
   getOlmEncryptionKeyDBLabelForDeviceID,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
@@ -439,16 +439,13 @@ function getNotifsPersistenceKeys(
         cookie,
         keyserverID,
       ),
-      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(
-        cookie,
-        keyserverID,
-      ),
+      notifsOlmDataContentKey: getOlmDataKeyForCookie(cookie, keyserverID),
     };
   } else {
     return {
       notifsOlmDataEncryptionKeyDBLabel:
         getOlmEncryptionKeyDBLabelForCookie(cookie),
-      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(cookie),
+      notifsOlmDataContentKey: getOlmDataKeyForCookie(cookie),
     };
   }
 }
@@ -728,7 +725,7 @@ const olmAPI: OlmAPI = {
     contentIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
   ): Promise<EncryptedData> {
-    const dataPersistenceKey = getOlmDataContentKeyForDeviceID(
+    const dataPersistenceKey = getOlmDataKeyForDeviceID(
       contentIdentityKeys.ed25519,
     );
     const dataEncryptionKeyDBLabel = getOlmEncryptionKeyDBLabelForDeviceID(
