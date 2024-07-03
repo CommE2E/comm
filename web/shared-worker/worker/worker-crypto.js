@@ -50,10 +50,11 @@ import {
   generateCryptoKey,
 } from '../../crypto/aes-gcm-crypto-utils.js';
 import {
-  getOlmDataContentKeyForCookie,
+  getOlmDataKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
-  getOlmDataContentKeyForDeviceID,
+  getOlmDataKeyForDeviceID,
   getOlmEncryptionKeyDBLabelForDeviceID,
+  encryptNotification,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
   type WorkerRequestMessage,
@@ -439,16 +440,13 @@ function getNotifsPersistenceKeys(
         cookie,
         keyserverID,
       ),
-      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(
-        cookie,
-        keyserverID,
-      ),
+      notifsOlmDataContentKey: getOlmDataKeyForCookie(cookie, keyserverID),
     };
   } else {
     return {
       notifsOlmDataEncryptionKeyDBLabel:
         getOlmEncryptionKeyDBLabelForCookie(cookie),
-      notifsOlmDataContentKey: getOlmDataContentKeyForCookie(cookie),
+      notifsOlmDataContentKey: getOlmDataKeyForCookie(cookie),
     };
   }
 }
@@ -566,6 +564,16 @@ const olmAPI: OlmAPI = {
     }
 
     return result;
+  },
+  async encryptNotification(
+    payload: string,
+    deviceID: string,
+  ): Promise<EncryptedData> {
+    const { body: message, type: messageType } = await encryptNotification(
+      payload,
+      deviceID,
+    );
+    return { message, messageType };
   },
   async decrypt(
     encryptedData: EncryptedData,
@@ -728,7 +736,7 @@ const olmAPI: OlmAPI = {
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
   ): Promise<EncryptedData> {
-    const dataPersistenceKey = getOlmDataContentKeyForDeviceID(deviceID);
+    const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
     const dataEncryptionKeyDBLabel =
       getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
     return createAndPersistNotificationsOutboundSession(
