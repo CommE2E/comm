@@ -15,6 +15,7 @@ type EnumSettingsOptionProps = {
   +enumValue: boolean,
   +onEnumValuePress: () => mixed,
   +type?: InputType,
+  +disabled?: boolean,
 };
 
 function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
@@ -27,6 +28,7 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     enumValue,
     onEnumValuePress,
     type = 'radio',
+    disabled,
   } = props;
 
   const enumIcon = React.useMemo(() => {
@@ -56,14 +58,23 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
   const enumInputStyles = React.useMemo(() => {
     const style = [styles.enumInput];
 
-    if (type === 'radio') {
+    if (disabled) {
+      style.push(styles.disabled);
+    } else if (type === 'radio') {
       style.push(styles.radio);
     } else {
       style.push(styles.checkBox);
     }
 
     return style;
-  }, [styles.checkBox, styles.enumInput, styles.radio, type]);
+  }, [
+    disabled,
+    styles.checkBox,
+    styles.disabled,
+    styles.enumInput,
+    styles.radio,
+    type,
+  ]);
 
   const enumInputFilledStyles = React.useMemo(() => {
     const style = [styles.enumInputFill];
@@ -93,6 +104,7 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
         onPress={onEnumValuePress}
         style={styles.enumInputContainer}
         activeOpacity={0.4}
+        disabled={disabled}
       >
         <View style={enumInputStyles}>{enumInputFill}</View>
       </TouchableOpacity>
@@ -153,6 +165,9 @@ const unboundStyles = {
   },
   radioFill: {
     borderRadius: 10,
+  },
+  disabled: {
+    opacity: 0,
   },
 };
 
