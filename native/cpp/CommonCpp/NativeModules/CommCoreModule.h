@@ -110,6 +110,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String keyserverID) override;
   virtual jsi::Value
   isNotificationsSessionInitialized(jsi::Runtime &rt) override;
+  virtual jsi::Value isPeerNotificationsSessionInitialized(
+      jsi::Runtime &rt,
+      jsi::String deviceID) override;
   virtual jsi::Value updateKeyserverDataInNotifStorage(
       jsi::Runtime &rt,
       jsi::Array keyserversData) override;
@@ -133,6 +136,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String deviceID,
       double sessionVersion,
       bool overwrite) override;
+  virtual jsi::Value
+  isContentSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) override;
   virtual jsi::Value initializeNotificationsOutboundSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
