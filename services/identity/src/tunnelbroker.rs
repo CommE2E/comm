@@ -73,14 +73,15 @@ pub async fn send_device_list_update(device_ids: &[&str]) -> Result<(), Error> {
   Ok(())
 }
 
-pub async fn delete_device_data(
-  device_id: &str,
-) -> Result<Response<Empty>, Error> {
+pub async fn delete_devices_data(device_ids: &[String]) -> Result<(), Error> {
   let mut tunnelbroker_client = create_tunnelbroker_client().await?;
 
-  let request = DeleteDeviceDataRequest {
-    device_id: device_id.to_string(),
-  };
-  let grpc_message = tonic::Request::new(request);
-  Ok(tunnelbroker_client.delete_device_data(grpc_message).await?)
+  for device_id in device_ids {
+    let request = DeleteDeviceDataRequest {
+      device_id: device_id.to_string(),
+    };
+    let grpc_message = tonic::Request::new(request);
+    tunnelbroker_client.delete_device_data(grpc_message).await?;
+  }
+  Ok(())
 }
