@@ -17,7 +17,7 @@ import {
   type PushModal,
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
@@ -473,13 +473,13 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       threadPermissions.EDIT_ENTRIES,
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
-    const keyserverID = extractKeyserverIDFromID(threadID);
-    const connection = useSelector(connectionSelector(keyserverID));
-    invariant(
-      connection,
-      `keyserver ${keyserverID} missing from keyserverStore`,
-    );
-    const online = connection.status === 'connected';
+    const keyserverID = extractKeyserverIDFromIDOptional(threadID);
+    const online = useSelector(state => {
+      if (!keyserverID) {
+        return true;
+      }
+      return connectionSelector(keyserverID)(state) === 'connected';
+    });
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();
     const callDeleteEntry = useDeleteEntry();
