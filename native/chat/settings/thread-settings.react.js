@@ -189,11 +189,7 @@ type ChatSettingsItem =
       +itemType: 'pushNotifs',
       +key: string,
       +threadInfo: ResolvedThreadInfo,
-    }
-  | {
-      +itemType: 'homeNotifs',
-      +key: string,
-      +threadInfo: ResolvedThreadInfo,
+      +navigate: ThreadSettingsNavigate,
     }
   | {
       +itemType: 'seeMore',
@@ -457,14 +453,15 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         if (isMember) {
           listData.push({
             itemType: 'header',
-            key: 'subscriptionHeader',
-            title: 'Subscription',
+            key: 'notificationsHeader',
+            title: 'Notifications',
             categoryType: 'full',
           });
           listData.push({
             itemType: 'pushNotifs',
             key: 'pushNotifs',
             threadInfo,
+            navigate,
           });
           if (threadInfo.type !== threadTypes.SIDEBAR) {
             listData.push({
@@ -475,7 +472,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           }
           listData.push({
             itemType: 'footer',
-            key: 'subscriptionFooter',
+            key: 'notificationsFooter',
             categoryType: 'full',
           });
         }
@@ -995,7 +992,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     } else if (item.itemType === 'visibility') {
       return <ThreadSettingsVisibility threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'pushNotifs') {
-      return <ThreadSettingsPushNotifs threadInfo={item.threadInfo} />;
+      return (
+        <ThreadSettingsPushNotifs
+          threadInfo={item.threadInfo}
+          navigate={item.navigate}
+        />
+      );
     } else if (item.itemType === 'homeNotifs') {
       return <ThreadSettingsHomeNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'seeMore') {

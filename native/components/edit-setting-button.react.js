@@ -9,27 +9,28 @@ import type { TextStyle } from '../types/styles.js';
 
 type Props = {
   +onPress: () => void,
-  +canChangeSettings: boolean,
+  +canChangeSettings?: boolean,
   +style?: TextStyle,
 };
 function EditSettingButton(props: Props): React.Node {
+  const { onPress, canChangeSettings = true, style } = props;
   const colors = useColors();
 
   const appliedStyles = React.useMemo(() => {
     const stylesArr: Array<TextStyle> = [styles.editIcon];
-    if (props.style) {
-      stylesArr.push(props.style);
+    if (style) {
+      stylesArr.push(style);
     }
     return stylesArr;
-  }, [props.style]);
+  }, [style]);
 
-  if (!props.canChangeSettings) {
+  if (!canChangeSettings) {
     return null;
   }
 
   const { modalForegroundSecondaryLabel } = colors;
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity onPress={onPress}>
       <SWMansionIcon
         name="edit-1"
         size={20}
