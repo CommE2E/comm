@@ -1184,6 +1184,33 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::isPeerNotificationsSessionInitialized(
+    jsi::Runtime &rt,
+    jsi::String deviceID) {
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          bool result;
+          try {
+            result = NotificationsCryptoModule::
+                isPeerNotificationsSessionInitialized(deviceIDCpp);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(result);
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
 jsi::Value CommCoreModule::updateKeyserverDataInNotifStorage(
     jsi::Runtime &rt,
     jsi::Array keyserversData) {
@@ -1433,6 +1460,42 @@ jsi::Value CommCoreModule::initializeContentInboundSession(
             }
             promise->resolve(
                 jsi::String::createFromUtf8(innerRt, decryptedMessage));
+          });
+        };
+        this->cryptoThread->scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::isContentSessionInitialized(
+    jsi::Runtime &rt,
+    jsi::String deviceID) {
+  auto deviceIDCpp{deviceID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          bool result;
+
+          if (this->contentCryptoModule == nullptr ||
+              this->notifsCryptoModule == nullptr) {
+            this->jsInvoker_->invokeAsync([=, &innerRt]() {
+              promise->reject("user has not been initialized");
+            });
+            return;
+          }
+
+          try {
+            result = this->contentCryptoModule->hasSessionFor(deviceIDCpp);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(result);
           });
         };
         this->cryptoThread->scheduleTask(job);
