@@ -29,6 +29,7 @@ import { Platform, View, useWindowDimensions } from 'react-native';
 import MessageStorePruner from 'lib/components/message-store-pruner.react.js';
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
@@ -333,8 +334,8 @@ const threadSettingsNotificationsOptions = ({
   ...
 }) => ({
   headerTitle: threadIsSidebar(route.params.threadInfo)
-    ? 'Thread notifications'
-    : 'Channel notifications',
+    ? threadSettingsNotificationsCopy.SIDEBAR_TITLE
+    : threadSettingsNotificationsCopy.CHANNEL_TITLE,
   headerBackTitleVisible: false,
 });
 const changeRolesScreenOptions = ({
