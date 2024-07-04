@@ -1,19 +1,20 @@
 // @flow
 
+import _keyBy from 'lodash/fp/keyBy.js';
 import * as React from 'react';
 
-import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
+import { useSortedENSResolvedUsers, useENSNames } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
-import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
 import {
   useSearchUsers,
   usePotentialMemberItems,
 } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
-import type { RelativeMemberInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
@@ -185,72 +186,46 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
 }
 
 type UseSubchannelAddMembersListUserInfosParams = {
-  +parentThreadID: string,
+  +parentThreadInfo: ThreadInfo,
   +searchText: string,
+  +threadType: ThreadType,
 };
 
 function useSubchannelAddMembersListUserInfos(
   params: UseSubchannelAddMembersListUserInfosParams,
 ): {
   +userInfos: {
-    [string]: RelativeMemberInfo,
+    [string]: UserListItem,
   },
-  +sortedUsersWithENSNames: $ReadOnlyArray<RelativeMemberInfo>,
+  +sortedUsersWithENSNames: $ReadOnlyArray<UserListItem>,
 } {
-  const { parentThreadID, searchText } = params;
+  const { searchText, parentThreadInfo, threadType } = params;
+
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const { community } = parentThreadInfo;
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
 
   const { previouslySelectedUsers } = useAddUsersListContext();
+  const array = [...previouslySelectedUsers].map(([key]) => key);
 
-  const parentThreadInfo = useSelector(
-    state => threadInfoSelector(state)[parentThreadID],
-  );
+  const userSearchResults = usePotentialMemberItems({
+    text: searchText,
+    userInfos: otherUserInfos,
+    excludeUserIDs: array,
+    inputParentThreadInfo: parentThreadInfo,
+    inputCommunityThreadInfo: communityThreadInfo,
+    threadType,
+  });
+  const userSearchResultWithENSNames = useENSNames(userSearchResults);
 
-  const currentUserID = useSelector(state => state.currentUserInfo?.id);
-
-  const ancestorThreads = useAncestorThreads(parentThreadInfo);
-
-  const communityThreadInfo = ancestorThreads[0] ?? parentThreadInfo;
-
-  const userInfos = React.useMemo(() => {
-    const infos: { [string]: RelativeMemberInfo } = {};
-
-    for (const member of communityThreadInfo.members) {
-      infos[member.id] = member;
-    }
-
-    return infos;
-  }, [communityThreadInfo.members]);
-
-  const userSearchIndex = useUserSearchIndex(communityThreadInfo.members);
-
-  const searchResult = React.useMemo(
-    () => new Set(userSearchIndex.getSearchResults(searchText)),
-    [userSearchIndex, searchText],
-  );
-
-  const filterOutOtherMembersWithENSNames = React.useCallback(
-    (members: $ReadOnlyArray<RelativeMemberInfo>) =>
-      members.filter(
-        user =>
-          !previouslySelectedUsers.has(user.id) &&
-          user.id !== currentUserID &&
-          (searchResult.has(user.id) || searchText.length === 0),
-      ),
-    [currentUserID, previouslySelectedUsers, searchResult, searchText.length],
-  );
-
-  const otherMemberListWithoutENSNames = React.useMemo(
-    () => filterOutOtherMembersWithENSNames(communityThreadInfo.members),
-    [communityThreadInfo.members, filterOutOtherMembersWithENSNames],
-  );
-
-  const sortedUsersWithENSNames = useSortedENSResolvedUsers(
-    otherMemberListWithoutENSNames,
-  );
+  const userResults: { [id: string]: UserListItem } =
+    _keyBy('id')(userSearchResults);
 
   return {
-    userInfos,
-    sortedUsersWithENSNames,
+    userInfos: userResults,
+    sortedUsersWithENSNames: userSearchResultWithENSNames,
   };
 }
 
