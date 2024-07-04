@@ -112,7 +112,7 @@ function NotificationDescription(
           color={badgeCountIconColor}
         />
         <Text style={badgeCountDescriptionTextStyles}>
-          {threadSettingsNotificationsCopy.BADGE_COUNT}
+          {threadSettingsNotificationsCopy.NOTIF_COUNT}
         </Text>
       </View>
       <View style={styles.notificationOptionDescriptionListItem}>
