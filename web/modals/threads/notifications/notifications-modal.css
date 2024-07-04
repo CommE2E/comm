@@ -12,6 +12,11 @@ p.notice {
   color: var(--text-background-secondary-default);
 }
 
+p.parentThreadIsInBackgroundNotice {
+  font-size: var(--m-font-16);
+  color: var(--text-background-secondary-default);
+}
+
 div.optionsContainer {
   display: flex;
   flex-direction: column;
