@@ -143,14 +143,16 @@ function CommunityConfiguration(props: Props): React.Node {
         </View>
 
         <ThreadSettingsCategoryHeader type="full" title="OPTIONAL SETTINGS" />
-        <EnumSettingsOption
-          icon="megaphone"
-          name="Announcement root"
-          description={enumSettingsOptionDescription}
-          enumValue={announcementSetting}
-          onEnumValuePress={onCheckBoxPress}
-          type="checkbox"
-        />
+        <View style={styles.optionalSettingsContainer}>
+          <EnumSettingsOption
+            icon="megaphone"
+            name="Announcement root"
+            description={enumSettingsOptionDescription}
+            enumValue={announcementSetting}
+            onEnumValuePress={onCheckBoxPress}
+            type="checkbox"
+          />
+        </View>
         <ThreadSettingsCategoryFooter type="full" />
         <RegistrationButtonContainer>
           <RegistrationButton
@@ -204,6 +206,10 @@ const unboundStyles = {
   },
   communityNameNoticeText: {
     color: 'panelForegroundTertiaryLabel',
+  },
+  optionalSettingsContainer: {
+    backgroundColor: 'panelForeground',
+    paddingVertical: 4,
   },
   errorMessageContainer: {
     alignItems: 'center',
