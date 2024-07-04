@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 
 import css from './subchannel-members.css';
 import Search from '../../../../components/search.react.js';
@@ -11,17 +12,19 @@ import { useSubchannelAddMembersListUserInfos } from '../../../../settings/relat
 
 type SubchannelMembersProps = {
   +parentThreadInfo: ThreadInfo,
+  +threadType: ThreadType,
 };
 
 function SubchannelMembers(props: SubchannelMembersProps): React.Node {
-  const { parentThreadInfo } = props;
+  const { parentThreadInfo, threadType } = props;
 
   const [searchUserText, setSearchUserText] = React.useState<string>('');
 
   const { userInfos, sortedUsersWithENSNames } =
     useSubchannelAddMembersListUserInfos({
-      parentThreadID: parentThreadInfo.id,
+      parentThreadInfo,
       searchText: searchUserText,
+      threadType,
     });
 
   return (
