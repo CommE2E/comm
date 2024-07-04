@@ -309,7 +309,8 @@ const unboundStyles = {
     marginTop: 10,
   },
   permissionsListContentContainer: {
-    paddingBottom: 48,
+    paddingTop: 4,
+    paddingBottom: 56,
   },
   activityIndicator: {
     paddingRight: 15,
