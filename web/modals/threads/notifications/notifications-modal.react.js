@@ -24,7 +24,7 @@ const focusedStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.NOTIF_COUNT,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -42,7 +42,7 @@ const badgeOnlyStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.NOTIF_COUNT,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -60,7 +60,7 @@ const backgroundStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.NOTIF_COUNT,
     isStatementValid: false,
     styleStatementBasedOnValidity: true,
   },
