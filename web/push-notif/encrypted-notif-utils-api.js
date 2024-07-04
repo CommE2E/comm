@@ -12,8 +12,7 @@ const encryptedNotifUtilsAPI: EncryptedNotifUtilsAPI = {
       type: '1' | '0',
     ) => boolean,
   ) => {
-    const { initializeCryptoAccount, encryptNotification } = getConfig().olmAPI;
-    await initializeCryptoAccount();
+    const { encryptNotification } = getConfig().olmAPI;
     const { message: body, messageType: type } = await encryptNotification(
       unencryptedPayload,
       cryptoID,
