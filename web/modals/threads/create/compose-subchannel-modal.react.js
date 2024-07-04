@@ -87,10 +87,10 @@ function ComposeSubchannelModal(props: Props): React.Node {
   const dispatchActionPromise = useDispatchActionPromise();
   const dispatch = useDispatch();
 
+  const threadType = getThreadType(visibilityType, announcement);
+
   const createSubchannel = React.useCallback(async () => {
     try {
-      const threadType = getThreadType(visibilityType, announcement);
-
       const query = calendarQuery();
       const result = await callNewThinThread({
         name: channelName,
@@ -107,11 +107,10 @@ function ComposeSubchannelModal(props: Props): React.Node {
       return null;
     }
   }, [
-    visibilityType,
-    announcement,
     calendarQuery,
     callNewThinThread,
     channelName,
+    threadType,
     parentThreadInfo.id,
     parentThreadInfo.color,
     pendingUsersToAdd,
@@ -184,8 +183,13 @@ function ComposeSubchannelModal(props: Props): React.Node {
   );
 
   const subchannelMembers = React.useMemo(
-    () => <SubchannelMembers parentThreadInfo={parentThreadInfo} />,
-    [parentThreadInfo],
+    () => (
+      <SubchannelMembers
+        parentThreadInfo={parentThreadInfo}
+        threadType={threadType}
+      />
+    ),
+    [parentThreadInfo, threadType],
   );
 
   const modalName =

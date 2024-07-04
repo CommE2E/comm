@@ -15,7 +15,7 @@ import Button from '../../components/button.react.js';
 type Props<T: BaseAddUserInfo> = {
   +searchModeActive: boolean,
   +userInfos: {
-    [string]: T,
+    +[string]: T,
   },
   +sortedUsersWithENSNames: $ReadOnlyArray<T>,
 };
