@@ -1207,7 +1207,7 @@ jsi::Value CommCoreModule::isNotificationsSessionInitialized(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::isPeerNotificationsSessionInitialized(
+jsi::Value CommCoreModule::isDeviceNotificationsSessionInitialized(
     jsi::Runtime &rt,
     jsi::String deviceID) {
   auto deviceIDCpp{deviceID.utf8(rt)};
@@ -1218,7 +1218,7 @@ jsi::Value CommCoreModule::isPeerNotificationsSessionInitialized(
           bool result;
           try {
             result = NotificationsCryptoModule::
-                isPeerNotificationsSessionInitialized(deviceIDCpp);
+                isDeviceNotificationsSessionInitialized(deviceIDCpp);
           } catch (const std::exception &e) {
             error = e.what();
           }

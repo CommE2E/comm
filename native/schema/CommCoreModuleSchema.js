@@ -68,7 +68,7 @@ interface Spec extends TurboModule {
     keyserverID: string,
   ) => Promise<string>;
   +isNotificationsSessionInitialized: () => Promise<boolean>;
-  +isPeerNotificationsSessionInitialized: (
+  +isDeviceNotificationsSessionInitialized: (
     deviceID: string,
   ) => Promise<boolean>;
   +updateKeyserverDataInNotifStorage: (

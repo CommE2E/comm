@@ -52,8 +52,8 @@ const olmAPI: OlmAPI = {
   contentInboundSessionCreator: proxyToWorker('contentInboundSessionCreator'),
   contentOutboundSessionCreator: proxyToWorker('contentOutboundSessionCreator'),
   isContentSessionInitialized: proxyToWorker('isContentSessionInitialized'),
-  isPeerNotificationsSessionInitialized: proxyToWorker(
-    'isPeerNotificationsSessionInitialized',
+  isDeviceNotificationsSessionInitialized: proxyToWorker(
+    'isDeviceNotificationsSessionInitialized',
   ),
   keyserverNotificationsSessionCreator: proxyToWorker(
     'keyserverNotificationsSessionCreator',

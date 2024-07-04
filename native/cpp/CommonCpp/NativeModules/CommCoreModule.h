@@ -110,7 +110,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String keyserverID) override;
   virtual jsi::Value
   isNotificationsSessionInitialized(jsi::Runtime &rt) override;
-  virtual jsi::Value isPeerNotificationsSessionInitialized(
+  virtual jsi::Value isDeviceNotificationsSessionInitialized(
       jsi::Runtime &rt,
       jsi::String deviceID) override;
   virtual jsi::Value updateKeyserverDataInNotifStorage(

@@ -21,6 +21,7 @@ import {
   useModalContext,
 } from 'lib/components/modal-provider.react.js';
 import { NeynarClientProvider } from 'lib/components/neynar-client-provider.react.js';
+import { PeerOlmSessionCreatorProvider } from 'lib/components/peer-olm-session-creator-provider.react.js';
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
@@ -559,27 +560,29 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
           onClose={releaseLockOrAbortRequest}
           secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
         >
-          <IdentitySearchProvider>
-            <QRAuthProvider
-              parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
-              composeTunnelbrokerQRAuthMessage={
-                composeTunnelbrokerQRAuthMessage
-              }
-              generateAESKey={generateQRAuthAESKey}
-              onLogInError={handleSecondaryDeviceLogInError}
-            >
-              <App
-                {...props}
-                navInfo={navInfo}
-                entriesLoadingStatus={entriesLoadingStatus}
-                loggedIn={loggedIn}
-                activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-                dispatch={dispatch}
-                modals={modals}
-              />
-            </QRAuthProvider>
-            <DBOpsHandler />
-          </IdentitySearchProvider>
+          <PeerOlmSessionCreatorProvider>
+            <IdentitySearchProvider>
+              <QRAuthProvider
+                parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}
+                composeTunnelbrokerQRAuthMessage={
+                  composeTunnelbrokerQRAuthMessage
+                }
+                generateAESKey={generateQRAuthAESKey}
+                onLogInError={handleSecondaryDeviceLogInError}
+              >
+                <App
+                  {...props}
+                  navInfo={navInfo}
+                  entriesLoadingStatus={entriesLoadingStatus}
+                  loggedIn={loggedIn}
+                  activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+                  dispatch={dispatch}
+                  modals={modals}
+                />
+              </QRAuthProvider>
+              <DBOpsHandler />
+            </IdentitySearchProvider>
+          </PeerOlmSessionCreatorProvider>
         </TunnelbrokerProvider>
       </AppThemeWrapper>
     );

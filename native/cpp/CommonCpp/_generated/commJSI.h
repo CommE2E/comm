@@ -38,7 +38,7 @@ public:
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
-  virtual jsi::Value isPeerNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
+  virtual jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
   virtual jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) = 0;
   virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
   virtual jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) = 0;
@@ -255,13 +255,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isNotificationsSessionInitialized, jsInvoker_, instance_);
     }
-    jsi::Value isPeerNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) override {
+    jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) override {
       static_assert(
-          bridging::getParameterCount(&T::isPeerNotificationsSessionInitialized) == 2,
-          "Expected isPeerNotificationsSessionInitialized(...) to have 2 parameters");
+          bridging::getParameterCount(&T::isDeviceNotificationsSessionInitialized) == 2,
+          "Expected isDeviceNotificationsSessionInitialized(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::isPeerNotificationsSessionInitialized, jsInvoker_, instance_, std::move(deviceID));
+          rt, &T::isDeviceNotificationsSessionInitialized, jsInvoker_, instance_, std::move(deviceID));
     }
     jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) override {
       static_assert(

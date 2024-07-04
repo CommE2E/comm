@@ -96,8 +96,8 @@ const olmAPI: OlmAPI = {
       deviceID,
     );
   },
-  isPeerNotificationsSessionInitialized:
-    commCoreModule.isPeerNotificationsSessionInitialized,
+  isDeviceNotificationsSessionInitialized:
+    commCoreModule.isDeviceNotificationsSessionInitialized,
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
     const { contentOneTimeKeys, notificationsOneTimeKeys } =
       await commCoreModule.getOneTimeKeys(numberOfKeys);

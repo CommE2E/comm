@@ -753,7 +753,7 @@ const olmAPI: OlmAPI = {
       dataEncryptionKeyDBLabel,
     );
   },
-  async isPeerNotificationsSessionInitialized(deviceID: string) {
+  async isDeviceNotificationsSessionInitialized(deviceID: string) {
     const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
     const dataEncryptionKeyDBLabel =
       getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
