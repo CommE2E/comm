@@ -66,7 +66,6 @@ import ThreadSettingsColor from './thread-settings-color.react.js';
 import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react.js';
 import ThreadSettingsDescription from './thread-settings-description.react.js';
 import ThreadSettingsEditRelationship from './thread-settings-edit-relationship.react.js';
-import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react.js';
 import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react.js';
 import {
   ThreadSettingsAddMember,
@@ -190,11 +189,6 @@ type ChatSettingsItem =
       +key: string,
       +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
-    }
-  | {
-      +itemType: 'homeNotifs',
-      +key: string,
-      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'seeMore',
@@ -468,13 +462,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
             threadInfo,
             navigate,
           });
-          if (threadInfo.type !== threadTypes.SIDEBAR) {
-            listData.push({
-              itemType: 'homeNotifs',
-              key: 'homeNotifs',
-              threadInfo,
-            });
-          }
           listData.push({
             itemType: 'footer',
             key: 'notificationsFooter',
@@ -1003,8 +990,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           navigate={item.navigate}
         />
       );
-    } else if (item.itemType === 'homeNotifs') {
-      return <ThreadSettingsHomeNotifs threadInfo={item.threadInfo} />;
     } else if (item.itemType === 'seeMore') {
       return <ThreadSettingsSeeMore onPress={item.onPress} />;
     } else if (item.itemType === 'childThread') {
