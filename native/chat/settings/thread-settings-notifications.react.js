@@ -26,7 +26,7 @@ export type ThreadSettingsNotificationsParams = {
 type NotificationDescriptionProps = {
   +selected: boolean,
   +bannerNotifsEnabled: boolean,
-  +badgeCountEnabled: boolean,
+  +notifCountEnabled: boolean,
   +livesInFocusedTab: boolean,
 };
 
@@ -36,7 +36,7 @@ function NotificationDescription(
   const {
     selected,
     bannerNotifsEnabled,
-    badgeCountEnabled,
+    notifCountEnabled,
     livesInFocusedTab,
   } = props;
 
@@ -61,18 +61,18 @@ function NotificationDescription(
     styles.notificationOptionDescriptionTextDisabledSelected,
   ]);
 
-  const badgeCountDescriptionTextStyles = React.useMemo(() => {
+  const notifCountDescriptionTextStyles = React.useMemo(() => {
     const style = [styles.notificationOptionDescriptionText];
 
-    if (selected && !badgeCountEnabled) {
+    if (selected && !notifCountEnabled) {
       style.push(styles.notificationOptionDescriptionTextDisabledSelected);
-    } else if (!badgeCountEnabled) {
+    } else if (!notifCountEnabled) {
       style.push(styles.notificationOptionDescriptionTextDisabled);
     }
 
     return style;
   }, [
-    badgeCountEnabled,
+    notifCountEnabled,
     selected,
     styles.notificationOptionDescriptionText,
     styles.notificationOptionDescriptionTextDisabled,
@@ -86,11 +86,11 @@ function NotificationDescription(
     bannerNotifsIconColor = colors.panelSecondaryForeground;
   }
 
-  let badgeCountIconColor = colors.panelForegroundSecondaryLabel;
-  if (selected && !badgeCountEnabled) {
-    badgeCountIconColor = colors.panelInputSecondaryForeground;
-  } else if (!badgeCountEnabled) {
-    badgeCountIconColor = colors.panelSecondaryForeground;
+  let notifCountIconColor = colors.panelForegroundSecondaryLabel;
+  if (selected && !notifCountEnabled) {
+    notifCountIconColor = colors.panelInputSecondaryForeground;
+  } else if (!notifCountEnabled) {
+    notifCountIconColor = colors.panelSecondaryForeground;
   }
 
   return (
@@ -107,12 +107,12 @@ function NotificationDescription(
       </View>
       <View style={styles.notificationOptionDescriptionListItem}>
         <SWMansionIcon
-          name={badgeCountEnabled ? 'check' : 'cross'}
+          name={notifCountEnabled ? 'check' : 'cross'}
           size={12}
-          color={badgeCountIconColor}
+          color={notifCountIconColor}
         />
-        <Text style={badgeCountDescriptionTextStyles}>
-          {threadSettingsNotificationsCopy.BADGE_COUNT}
+        <Text style={notifCountDescriptionTextStyles}>
+          {threadSettingsNotificationsCopy.NOTIF_COUNT}
         </Text>
       </View>
       <View style={styles.notificationOptionDescriptionListItem}>
@@ -203,7 +203,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
       <NotificationDescription
         selected={notificationSettings === 'focused'}
         bannerNotifsEnabled={true}
-        badgeCountEnabled={true}
+        notifCountEnabled={true}
         livesInFocusedTab={true}
       />
     ),
@@ -215,7 +215,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
       <NotificationDescription
         selected={notificationSettings === 'badge-only'}
         bannerNotifsEnabled={false}
-        badgeCountEnabled={true}
+        notifCountEnabled={true}
         livesInFocusedTab={true}
       />
     ),
@@ -227,7 +227,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
       <NotificationDescription
         selected={notificationSettings === 'background'}
         bannerNotifsEnabled={false}
-        badgeCountEnabled={false}
+        notifCountEnabled={false}
         livesInFocusedTab={false}
       />
     ),
