@@ -47,14 +47,6 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     return icon;
   }, [icon, styles.enumIcon, colors.purpleButton]);
 
-  const infoContainerStyle = React.useMemo(
-    () =>
-      props.icon
-        ? styles.enumInfoContainer
-        : { ...styles.enumInfoContainer, marginLeft: 10 },
-    [props.icon, styles.enumInfoContainer],
-  );
-
   const enumInputStyles = React.useMemo(() => {
     const style = [styles.enumInput];
 
@@ -93,51 +85,73 @@ function EnumSettingsOption(props: EnumSettingsOptionProps): React.Node {
     [enumValue, enumInputFilledStyles],
   );
 
+  const touchableContainerStyle = React.useMemo(() => {
+    const style = [styles.touchableContainer];
+
+    if (enumValue) {
+      style.push(styles.touchableContainerSelected);
+    }
+
+    return style;
+  }, [enumValue, styles.touchableContainer, styles.touchableContainerSelected]);
+
   return (
-    <View style={styles.enumCell}>
-      {enumIcon}
-      <View style={infoContainerStyle}>
-        <Text style={styles.enumInfoName}>{name}</Text>
-        <Text style={styles.enumInfoDescription}>{description}</Text>
-      </View>
+    <View style={styles.container}>
       <TouchableOpacity
-        onPress={onEnumValuePress}
-        style={styles.enumInputContainer}
+        style={touchableContainerStyle}
         activeOpacity={0.4}
+        onPress={onEnumValuePress}
         disabled={disabled}
       >
-        <View style={enumInputStyles}>{enumInputFill}</View>
+        {enumIcon}
+        <View style={styles.enumInfoContainer}>
+          <Text style={styles.enumInfoName}>{name}</Text>
+          <Text style={styles.enumInfoDescription}>{description}</Text>
+        </View>
+        <View style={styles.enumInputContainer}>
+          <View style={enumInputStyles}>{enumInputFill}</View>
+        </View>
       </TouchableOpacity>
     </View>
   );
 }
 
 const unboundStyles = {
-  enumCell: {
-    flexDirection: 'row',
-    height: 96,
+  container: {
     backgroundColor: 'panelForeground',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  touchableContainer: {
+    flexDirection: 'row',
+    padding: 12,
+  },
+  touchableContainerSelected: {
+    backgroundColor: 'panelSecondaryForeground',
+    borderRadius: 8,
   },
   enumIcon: {
-    padding: 16,
+    paddingTop: 4,
+    paddingRight: 24,
   },
   enumInfoContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    padding: 8,
   },
   enumInfoName: {
     color: 'panelForegroundLabel',
     fontSize: 18,
     lineHeight: 24,
+    marginBottom: 4,
   },
   enumInfoDescription: {
     color: 'panelForegroundSecondaryLabel',
     lineHeight: 18,
   },
   enumInputContainer: {
-    padding: 22,
+    padding: 16,
+    paddingRight: 0,
     justifyContent: 'center',
     alignItems: 'center',
   },
