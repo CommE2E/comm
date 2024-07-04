@@ -151,6 +151,8 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     onBackgroundSelected,
     saveButtonDisabled,
     onSave,
+    isSidebar,
+    canPromoteSidebar,
   } = useThreadSettingsNotifications(threadInfo, goBack);
 
   React.useEffect(() => {
@@ -230,6 +232,30 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     [notificationSettings],
   );
 
+  const noticeText = React.useMemo(() => {
+    if (!isSidebar) {
+      return null;
+    }
+
+    return (
+      <View style={styles.noticeTextContainer}>
+        <Text style={styles.noticeText}>
+          {threadSettingsNotificationsCopy.IS_SIDEBAR}
+        </Text>
+        <Text style={styles.noticeText}>
+          {canPromoteSidebar
+            ? threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_PROMOTE
+            : threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_NOT_PROMOTE}
+        </Text>
+      </View>
+    );
+  }, [
+    canPromoteSidebar,
+    isSidebar,
+    styles.noticeText,
+    styles.noticeTextContainer,
+  ]);
+
   return (
     <View style={styles.container}>
       <View style={styles.enumSettingsOptionContainer}>
@@ -257,8 +283,10 @@ function ThreadSettingsNotifications(props: Props): React.Node {
           onEnumValuePress={onBackgroundSelected}
           description={mutedDescription}
           icon={mutedIllustration}
+          disabled={isSidebar}
         />
       </View>
+      {noticeText}
     </View>
   );
 }
@@ -292,6 +320,16 @@ const unboundStyles = {
   notificationOptionDescriptionTextDisabledSelected: {
     color: 'panelInputSecondaryForeground',
     textDecorationLine: 'line-through',
+  },
+  noticeTextContainer: {
+    padding: 16,
+  },
+  noticeText: {
+    color: 'panelForegroundSecondaryLabel',
+    textAlign: 'center',
+    fontSize: 14,
+    lineHeight: 18,
+    marginVertical: 8,
   },
 };
 
