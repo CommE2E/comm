@@ -2,10 +2,11 @@
 
 import * as React from 'react';
 
-import { useCanPromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
-import { useThreadSettingsNotifications } from 'lib/shared/thread-settings-notifications-utils.js';
-import { threadIsSidebar } from 'lib/shared/thread-utils.js';
+import {
+  threadSettingsNotificationsCopy,
+  useThreadSettingsNotifications,
+} from 'lib/shared/thread-settings-notifications-utils.js';
 
 import css from './notifications-modal.css';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
@@ -16,24 +17,19 @@ import EnumSettingsOption from '../../../components/enum-settings-option.react.j
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 
-const BANNER_NOTIFS = 'Banner notifs';
-const BADGE_COUNT = 'Badge count';
-const IN_FOCUSED_TAB = 'Lives in Focused tab';
-const IN_BACKGROUND_TAB = 'Lives in Background tab';
-
 const focusedStatements = [
   {
-    statement: BANNER_NOTIFS,
+    statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: IN_FOCUSED_TAB,
+    statement: threadSettingsNotificationsCopy.IN_FOCUSED_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -41,17 +37,17 @@ const focusedStatements = [
 
 const badgeOnlyStatements = [
   {
-    statement: BANNER_NOTIFS,
+    statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: false,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: IN_FOCUSED_TAB,
+    statement: threadSettingsNotificationsCopy.IN_FOCUSED_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -59,17 +55,17 @@ const badgeOnlyStatements = [
 
 const backgroundStatements = [
   {
-    statement: BANNER_NOTIFS,
+    statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: false,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: BADGE_COUNT,
+    statement: threadSettingsNotificationsCopy.BADGE_COUNT,
     isStatementValid: false,
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: IN_BACKGROUND_TAB,
+    statement: threadSettingsNotificationsCopy.IN_BACKGROUND_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -82,11 +78,6 @@ type Props = {
 function NotificationsModal(props: Props): React.Node {
   const { onClose, threadID } = props;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const { parentThreadID } = threadInfo;
-  const parentThreadInfo = useSelector(state =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-  const isSidebar = threadIsSidebar(threadInfo);
 
   const {
     notificationSettings,
@@ -95,6 +86,9 @@ function NotificationsModal(props: Props): React.Node {
     onBackgroundSelected,
     saveButtonDisabled,
     onSave,
+    isSidebar,
+    canPromoteSidebar,
+    parentThreadIsInBackground,
   } = useThreadSettingsNotifications(threadInfo, onClose);
 
   const isFocusedSelected = notificationSettings === 'focused';
@@ -103,7 +97,7 @@ function NotificationsModal(props: Props): React.Node {
     return (
       <EnumSettingsOption
         selected={isFocusedSelected}
-        title="Focused (enabled)"
+        title={threadSettingsNotificationsCopy.FOCUSED}
         statements={focusedStatements}
         icon={icon}
         onSelect={onFocusedSelected}
@@ -117,7 +111,7 @@ function NotificationsModal(props: Props): React.Node {
     return (
       <EnumSettingsOption
         selected={isFocusedBadgeOnlySelected}
-        title="Focused (badge only)"
+        title={threadSettingsNotificationsCopy.BADGE_ONLY}
         statements={badgeOnlyStatements}
         icon={icon}
         onSelect={onBadgeOnlySelected}
@@ -131,7 +125,7 @@ function NotificationsModal(props: Props): React.Node {
     return (
       <EnumSettingsOption
         selected={isBackgroundSelected}
-        title="Background"
+        title={threadSettingsNotificationsCopy.BACKGROUND}
         statements={backgroundStatements}
         icon={icon}
         disabled={isSidebar}
@@ -141,10 +135,9 @@ function NotificationsModal(props: Props): React.Node {
   }, [isBackgroundSelected, onBackgroundSelected, isSidebar]);
 
   const modalName = isSidebar
-    ? 'Thread notifications'
-    : 'Channel notifications';
+    ? threadSettingsNotificationsCopy.SIDEBAR_TITLE
+    : threadSettingsNotificationsCopy.CHANNEL_TITLE;
 
-  const canPromoteSidebar = useCanPromoteSidebar(threadInfo, parentThreadInfo);
   const noticeText = React.useMemo(() => {
     if (!isSidebar) {
       return null;
@@ -153,45 +146,28 @@ function NotificationsModal(props: Props): React.Node {
     return (
       <>
         <p className={css.notice}>
-          {'It’s not possible to move this thread to Background. ' +
-            'That’s because Comm’s design always shows threads ' +
-            'underneath their parent in the Inbox, which means ' +
-            'that if a thread’s parent is in Focused, the thread ' +
-            'must also be there.'}
+          {threadSettingsNotificationsCopy.IS_SIDEBAR}
         </p>
         <p className={css.notice}>
           {canPromoteSidebar
-            ? 'If you want to move this thread to Background, ' +
-              'you can either move the parent to Background, ' +
-              'or you can promote the thread to a channel.'
-            : 'If you want to move this thread to Background, ' +
-              'you’ll have to move the parent to Background.'}
+            ? threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_PROMOTE
+            : threadSettingsNotificationsCopy.IS_SIDEBAR_CAN_NOT_PROMOTE}
         </p>
       </>
     );
   }, [isSidebar, canPromoteSidebar]);
 
-  const parentThreadIsInBackground =
-    isSidebar && !parentThreadInfo?.currentUser.subscription.home;
-
   const modalContent = React.useMemo(() => {
     if (parentThreadIsInBackground) {
       return (
         <>
-          <p>
-            {'It’s not possible to change the notif settings for a thread ' +
-              'whose parent is in Background. That’s because Comm’s design ' +
-              'always shows threads underneath their parent in the Inbox, ' +
-              'which means that if a thread’s parent is in Background, the ' +
-              'thread must also be there.'}
+          <p className={css.parentThreadIsInBackgroundNotice}>
+            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND}
           </p>
-          <p>
+          <p className={css.parentThreadIsInBackgroundNotice}>
             {canPromoteSidebar
-              ? 'If you want to change the notif settings for this thread, ' +
-                'you can either change the notif settings for the parent, ' +
-                'or you can promote the thread to a channel.'
-              : 'If you want to change the notif settings for this thread, ' +
-                'you’ll have to change the notif settings for the parent.'}
+              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_PROMOTE
+              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_NOT_PROMOTE}
           </p>
         </>
       );
