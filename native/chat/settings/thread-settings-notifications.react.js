@@ -153,19 +153,21 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     onSave,
     isSidebar,
     canPromoteSidebar,
+    parentThreadIsInBackground,
   } = useThreadSettingsNotifications(threadInfo, goBack);
 
   React.useEffect(() => {
     setOptions({
-      headerRight: () => (
-        <HeaderRightTextButton
-          label="Save"
-          onPress={onSave}
-          disabled={saveButtonDisabled}
-        />
-      ),
+      headerRight: () =>
+        parentThreadIsInBackground ? null : (
+          <HeaderRightTextButton
+            label="Save"
+            onPress={onSave}
+            disabled={saveButtonDisabled}
+          />
+        ),
     });
-  }, [saveButtonDisabled, onSave, setOptions]);
+  }, [saveButtonDisabled, onSave, setOptions, parentThreadIsInBackground]);
 
   const styles = useStyles(unboundStyles);
 
@@ -256,39 +258,77 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     styles.noticeTextContainer,
   ]);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.enumSettingsOptionContainer}>
-        <EnumSettingsOption
-          name={threadSettingsNotificationsCopy.FOCUSED}
-          enumValue={notificationSettings === 'focused'}
-          onEnumValuePress={onFocusedSelected}
-          description={allNotificationsDescription}
-          icon={allNotificationsIllustration}
-        />
+  const threadSettingsNotifications = React.useMemo(() => {
+    if (parentThreadIsInBackground) {
+      return (
+        <View style={styles.parentThreadIsInBackgroundNoticeContainerStyle}>
+          <Text style={styles.parentThreadIsInBackgroundNoticeText}>
+            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND}
+          </Text>
+          <Text style={styles.parentThreadIsInBackgroundNoticeText}>
+            {canPromoteSidebar
+              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_PROMOTE
+              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_NOT_PROMOTE}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.enumSettingsOptionContainer}>
+          <EnumSettingsOption
+            name={threadSettingsNotificationsCopy.FOCUSED}
+            enumValue={notificationSettings === 'focused'}
+            onEnumValuePress={onFocusedSelected}
+            description={allNotificationsDescription}
+            icon={allNotificationsIllustration}
+          />
+        </View>
+        <View style={styles.enumSettingsOptionContainer}>
+          <EnumSettingsOption
+            name={threadSettingsNotificationsCopy.BADGE_ONLY}
+            enumValue={notificationSettings === 'badge-only'}
+            onEnumValuePress={onBadgeOnlySelected}
+            description={badgeOnlyDescription}
+            icon={badgeOnlyIllustration}
+          />
+        </View>
+        <View style={styles.enumSettingsOptionContainer}>
+          <EnumSettingsOption
+            name={threadSettingsNotificationsCopy.BACKGROUND}
+            enumValue={notificationSettings === 'background'}
+            onEnumValuePress={onBackgroundSelected}
+            description={mutedDescription}
+            icon={mutedIllustration}
+            disabled={isSidebar}
+          />
+        </View>
+        {noticeText}
       </View>
-      <View style={styles.enumSettingsOptionContainer}>
-        <EnumSettingsOption
-          name={threadSettingsNotificationsCopy.BADGE_ONLY}
-          enumValue={notificationSettings === 'badge-only'}
-          onEnumValuePress={onBadgeOnlySelected}
-          description={badgeOnlyDescription}
-          icon={badgeOnlyIllustration}
-        />
-      </View>
-      <View style={styles.enumSettingsOptionContainer}>
-        <EnumSettingsOption
-          name={threadSettingsNotificationsCopy.BACKGROUND}
-          enumValue={notificationSettings === 'background'}
-          onEnumValuePress={onBackgroundSelected}
-          description={mutedDescription}
-          icon={mutedIllustration}
-          disabled={isSidebar}
-        />
-      </View>
-      {noticeText}
-    </View>
-  );
+    );
+  }, [
+    allNotificationsDescription,
+    allNotificationsIllustration,
+    badgeOnlyDescription,
+    badgeOnlyIllustration,
+    canPromoteSidebar,
+    isSidebar,
+    mutedDescription,
+    mutedIllustration,
+    noticeText,
+    notificationSettings,
+    onBackgroundSelected,
+    onBadgeOnlySelected,
+    onFocusedSelected,
+    parentThreadIsInBackground,
+    styles.container,
+    styles.enumSettingsOptionContainer,
+    styles.parentThreadIsInBackgroundNoticeContainerStyle,
+    styles.parentThreadIsInBackgroundNoticeText,
+  ]);
+
+  return threadSettingsNotifications;
 }
 
 const unboundStyles = {
@@ -329,6 +369,18 @@ const unboundStyles = {
     textAlign: 'center',
     fontSize: 14,
     lineHeight: 18,
+    marginVertical: 8,
+  },
+  parentThreadIsInBackgroundNoticeContainerStyle: {
+    backgroundColor: 'panelForeground',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  parentThreadIsInBackgroundNoticeText: {
+    color: 'panelForegroundSecondaryLabel',
+    fontSize: 16,
+    lineHeight: 20,
+    textAlign: 'left',
     marginVertical: 8,
   },
 };
