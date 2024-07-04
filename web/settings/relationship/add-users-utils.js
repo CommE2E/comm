@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import genesis from 'lib/facts/genesis.js';
 import { useSortedENSResolvedUsers } from 'lib/hooks/ens-cache.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
@@ -208,8 +209,10 @@ function useSubchannelAddMembersListUserInfos(
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
 
   const ancestorThreads = useAncestorThreads(parentThreadInfo);
-
-  const communityThreadInfo = ancestorThreads[0] ?? parentThreadInfo;
+  const communityThreadInfo =
+    ancestorThreads[0] && ancestorThreads[0].id !== genesis().id
+      ? ancestorThreads[0]
+      : parentThreadInfo;
 
   const userInfos = React.useMemo(() => {
     const infos: { [string]: RelativeMemberInfo } = {};
