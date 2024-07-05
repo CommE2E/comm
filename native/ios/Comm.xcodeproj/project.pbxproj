@@ -96,8 +96,8 @@
 		CBB0DF612B768007008E22FF /* CommMMKV.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBB0DF5F2B768007008E22FF /* CommMMKV.mm */; };
 		CBCA09062A8E0E7400F75B3E /* StaffUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBCA09052A8E0E6B00F75B3E /* StaffUtils.cpp */; };
 		CBCA09072A8E0E7D00F75B3E /* StaffUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBCA09052A8E0E6B00F75B3E /* StaffUtils.cpp */; };
-		CBCF984F2BA499DA00DBC3D9 /* CommIOSBlobClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBCF984D2BA499DA00DBC3D9 /* CommIOSBlobClient.mm */; };
-		CBCF98502BA49A0500DBC3D9 /* CommIOSBlobClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBCF984D2BA499DA00DBC3D9 /* CommIOSBlobClient.mm */; };
+		CBCF984F2BA499DA00DBC3D9 /* CommIOSServicesClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBCF984D2BA499DA00DBC3D9 /* CommIOSServicesClient.mm */; };
+		CBCF98502BA49A0500DBC3D9 /* CommIOSServicesClient.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBCF984D2BA499DA00DBC3D9 /* CommIOSServicesClient.mm */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFBEEBA2B4ED90600729F1D /* RustBackupExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFBEEB82B4ED90600729F1D /* RustBackupExecutor.cpp */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
@@ -328,8 +328,8 @@
 		CBCA09042A8E0E6B00F75B3E /* StaffUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StaffUtils.h; sourceTree = "<group>"; };
 		CBCA09052A8E0E6B00F75B3E /* StaffUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = StaffUtils.cpp; sourceTree = "<group>"; };
 		CBCF57AB2B05096F00EC4BC0 /* AESCryptoModuleObjCCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AESCryptoModuleObjCCompat.h; path = Comm/CommAESCryptoUtils/AESCryptoModuleObjCCompat.h; sourceTree = "<group>"; };
-		CBCF984D2BA499DA00DBC3D9 /* CommIOSBlobClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSBlobClient.mm; path = Comm/CommIOSServices/CommIOSBlobClient.mm; sourceTree = "<group>"; };
-		CBCF984E2BA499DA00DBC3D9 /* CommIOSBlobClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSBlobClient.h; path = Comm/CommIOSServices/CommIOSBlobClient.h; sourceTree = "<group>"; };
+		CBCF984D2BA499DA00DBC3D9 /* CommIOSServicesClient.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSServicesClient.mm; path = Comm/CommIOSServices/CommIOSServicesClient.mm; sourceTree = "<group>"; };
+		CBCF984E2BA499DA00DBC3D9 /* CommIOSServicesClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSServicesClient.h; path = Comm/CommIOSServices/CommIOSServicesClient.h; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBF9DAE22B595934000EE771 /* EntityQueryHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EntityQueryHelpers.h; sourceTree = "<group>"; };
@@ -809,8 +809,8 @@
 		CBCF984C2BA499C200DBC3D9 /* CommIOSServices */ = {
 			isa = PBXGroup;
 			children = (
-				CBCF984E2BA499DA00DBC3D9 /* CommIOSBlobClient.h */,
-				CBCF984D2BA499DA00DBC3D9 /* CommIOSBlobClient.mm */,
+				CBCF984E2BA499DA00DBC3D9 /* CommIOSServicesClient.h */,
+				CBCF984D2BA499DA00DBC3D9 /* CommIOSServicesClient.mm */,
 			);
 			name = CommIOSServices;
 			sourceTree = "<group>";
@@ -1194,7 +1194,7 @@
 				8EF775682A74032C0046A385 /* CommRustModule.cpp in Sources */,
 				34055C152BAD31AC0008E713 /* SyncedMetadataStore.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
-				CBCF984F2BA499DA00DBC3D9 /* CommIOSBlobClient.mm in Sources */,
+				CBCF984F2BA499DA00DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				B3B02EBF2B8538980020D118 /* CommunityStore.cpp in Sources */,
 				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
 				8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */,
@@ -1254,7 +1254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBCF98502BA49A0500DBC3D9 /* CommIOSBlobClient.mm in Sources */,
+				CBCF98502BA49A0500DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				CBCA09072A8E0E7D00F75B3E /* StaffUtils.cpp in Sources */,
 				CB3C0A3B2A125C8F009BD4DA /* NotificationsCryptoModule.cpp in Sources */,
 				CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */,
