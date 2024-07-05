@@ -34,7 +34,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   const std::string publicCryptoAccountID = "publicCryptoAccountID";
   std::unique_ptr<crypto::CryptoModule> contentCryptoModule;
   const std::string notifsCryptoAccountID = "notifsCryptoAccountID";
-  std::unique_ptr<crypto::CryptoModule> notifsCryptoModule;
+
   DraftStore draftStore;
   ThreadStore threadStore;
   MessageStore messageStore;
@@ -48,8 +48,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   ThreadActivityStore threadActivityStore;
   EntryStore entryStore;
 
-  void
-  persistCryptoModules(bool persistContentModule, bool persistNotifsModule);
+  void persistCryptoModules(
+      bool persistContentModule,
+      const std::optional<
+          std::pair<std::unique_ptr<crypto::CryptoModule>, std::string>>
+          &maybeUpdatedNotifsCryptoModule);
   jsi::Value createNewBackupInternal(
       jsi::Runtime &rt,
       std::string backupSecret,

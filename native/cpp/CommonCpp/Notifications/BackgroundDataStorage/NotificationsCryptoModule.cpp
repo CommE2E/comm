@@ -36,6 +36,7 @@ const int NotificationsCryptoModule::olmEncryptedTypeMessage = 1;
 const std::string ashoatKeyserverIDUsedOnlyForMigrationFromLegacyNotifStorage =
     "256";
 const int temporaryFilePathRandomSuffixLength = 32;
+const std::string notificationsAccountKey = "NOTIFS.ACCOUNT";
 
 std::unique_ptr<crypto::CryptoModule>
 NotificationsCryptoModule::deserializeCryptoModule(
@@ -266,6 +267,62 @@ NotificationsCryptoModule::fetchNotificationsSession(
       serializedSession.value());
 }
 
+void NotificationsCryptoModule::persistNotificationsAccount(
+    const std::unique_ptr<crypto::CryptoModule> &cryptoModule,
+    const std::string &picklingKey) {
+  crypto::Persist serializedCryptoModule =
+      cryptoModule->storeAsB64(picklingKey);
+  crypto::OlmBuffer serializedAccount = serializedCryptoModule.account;
+  std::string serializedAccountString{
+      serializedAccount.begin(), serializedAccount.end()};
+
+  folly::dynamic serializedAccountObject = folly::dynamic::object(
+      "account", serializedAccountString)("picklingKey", picklingKey);
+  std::string serializedAccountJson = folly::toJson(serializedAccountObject);
+
+  bool accountPersisted =
+      CommMMKV::setString(notificationsAccountKey, serializedAccountJson);
+
+  if (!accountPersisted) {
+    throw std::runtime_error("Failed to persist notifications crypto account.");
+  }
+}
+
+std::optional<std::pair<std::unique_ptr<crypto::CryptoModule>, std::string>>
+NotificationsCryptoModule::fetchNotificationsAccount() {
+  std::optional<std::string> serializedAccountJson;
+  try {
+    serializedAccountJson = CommMMKV::getString(notificationsAccountKey);
+  } catch (const CommMMKV::InitFromNSEForbiddenError &e) {
+    serializedAccountJson = std::nullopt;
+  }
+
+  if (!serializedAccountJson.has_value()) {
+    return std::nullopt;
+  }
+
+  folly::dynamic serializedAccountObject;
+  try {
+    serializedAccountObject = folly::parseJson(serializedAccountJson.value());
+  } catch (const folly::json::parse_error &e) {
+    throw std::runtime_error(
+        "Notifications account deserialization failed with reason: " +
+        std::string(e.what()));
+  }
+
+  std::string picklingKey = serializedAccountObject["picklingKey"].asString();
+  std::string accountString = serializedAccountObject["account"].asString();
+  crypto::OlmBuffer account =
+      crypto::OlmBuffer{accountString.begin(), accountString.end()};
+  crypto::Persist serializedCryptoModule{account, {}};
+
+  std::unique_ptr<crypto::CryptoModule> cryptoModule =
+      std::make_unique<crypto::CryptoModule>(
+          notificationsCryptoAccountID, picklingKey, serializedCryptoModule);
+
+  return {{std::move(cryptoModule), picklingKey}};
+}
+
 void NotificationsCryptoModule::persistNotificationsSession(
     const std::string &keyserverID,
     std::shared_ptr<crypto::Session> keyserverNotificationsSession) {
@@ -294,6 +351,21 @@ bool NotificationsCryptoModule::isPeerNotificationsSessionInitialized(
   std::string peerNotificationsSessionKey =
       getPeerNotificationsSessionKey(deviceID);
   return CommMMKV::getString(peerNotificationsSessionKey).has_value();
+}
+
+// notifications account
+
+bool NotificationsCryptoModule::isNotificationsAccountInitialized() {
+  return fetchNotificationsAccount().has_value();
+}
+
+std::string NotificationsCryptoModule::getIdentityKeys() {
+  auto cryptoModuleWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsAccount();
+  if (!cryptoModuleWithPicklingKey.has_value()) {
+    throw std::runtime_error("Notifications crypto account not initialized.");
+  }
+  return cryptoModuleWithPicklingKey.value().first->getIdentityKeys();
 }
 
 NotificationsCryptoModule::BaseStatefulDecryptResult::BaseStatefulDecryptResult(
