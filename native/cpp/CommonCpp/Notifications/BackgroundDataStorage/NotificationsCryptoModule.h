@@ -45,6 +45,8 @@ public:
   const static int olmEncryptedTypeMessage;
 
   static void clearSensitiveData();
+
+  // notifications sessions
   static void persistNotificationsSession(
       const std::string &keyserverID,
       std::shared_ptr<crypto::Session> keyserverNotificationsSession);
@@ -54,6 +56,16 @@ public:
   static bool isNotificationsSessionInitialized(const std::string &keyserverID);
   static bool
   isPeerNotificationsSessionInitialized(const std::string &deviceID);
+
+  // notifications account
+  static void persistNotificationsAccount(
+      const std::unique_ptr<crypto::CryptoModule> &cryptoModule,
+      const std::string &picklingKey);
+  static std::optional<
+      std::pair<std::unique_ptr<crypto::CryptoModule>, std::string>>
+  fetchNotificationsAccount();
+  static bool isNotificationsAccountInitialized();
+  static std::string getIdentityKeys();
 
   class BaseStatefulDecryptResult {
     BaseStatefulDecryptResult(
