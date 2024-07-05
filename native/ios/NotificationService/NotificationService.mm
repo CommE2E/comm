@@ -1,6 +1,6 @@
 #import "NotificationService.h"
 #import "AESCryptoModuleObjCCompat.h"
-#import "CommIOSBlobClient.h"
+#import "CommIOSServicesClient.h"
 #import "CommMMKV.h"
 #import "Logger.h"
 #import "NotificationsCryptoModule.h"
@@ -544,8 +544,8 @@ std::string joinStrings(
 
   __block NSError *fetchError = nil;
   NSData *largePayloadBinary =
-      [CommIOSBlobClient.sharedInstance getBlobSync:blobHash
-                                         orSetError:&fetchError];
+      [CommIOSServicesClient.sharedInstance getBlobSync:blobHash
+                                             orSetError:&fetchError];
 
   if (fetchError) {
     comm::Logger::log(
@@ -558,7 +558,7 @@ std::string joinStrings(
       [NotificationService aesDecryptAndParse:largePayloadBinary
                                       withKey:encryptionKey];
   [self persistMessagePayload:largePayload];
-  [CommIOSBlobClient.sharedInstance
+  [CommIOSServicesClient.sharedInstance
       storeBlobForDeletionWithHash:blobHash
                          andHolder:content.userInfo[blobHolderKey]];
 }
