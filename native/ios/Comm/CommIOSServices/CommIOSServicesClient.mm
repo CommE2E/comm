@@ -1,4 +1,4 @@
-#import "CommIOSBlobClient.h"
+#import "CommIOSServicesClient.h"
 #import "CommMMKV.h"
 #import "CommSecureStore.h"
 #import "Logger.h"
@@ -6,46 +6,50 @@
 #ifdef DEBUG
 NSString const *blobServiceAddress =
     @"https://blob.staging.commtechnologies.org";
+NSString const *identityServiceAddress =
+    @"https://identity.staging.commtechnologies.org:51004";
 #else
 NSString const *blobServiceAddress = @"https://blob.commtechnologies.org";
+NSString const *identityServiceAddress =
+    @"https://identity.commtechnologies.org:51004";
 #endif
 
-int const blobServiceQueryTimeLimit = 15;
+int const servicesQueryTimeLimit = 15;
 const std::string mmkvBlobHolderPrefix = "BLOB_HOLDER.";
 // The blob service expects slightly different keys in
 // delete reuqest payload than we use in notif payload
 NSString *const blobServiceHashKey = @"blob_hash";
 NSString *const blobServiceHolderKey = @"holder";
 
-@interface CommIOSBlobClient ()
-@property(nonatomic, strong) NSURLSession *sharedBlobServiceSession;
+@interface CommIOSServicesClient ()
+@property(nonatomic, strong) NSURLSession *sharedServicesSession;
 @end
 
-@implementation CommIOSBlobClient
+@implementation CommIOSServicesClient
 
 + (id)sharedInstance {
-  static CommIOSBlobClient *sharedBlobServiceClient = nil;
+  static CommIOSServicesClient *sharedServicesClient = nil;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
     NSURLSessionConfiguration *config =
         [NSURLSessionConfiguration ephemeralSessionConfiguration];
 
-    [config setTimeoutIntervalForRequest:blobServiceQueryTimeLimit];
+    [config setTimeoutIntervalForRequest:servicesQueryTimeLimit];
     NSURLSession *session =
         [NSURLSession sessionWithConfiguration:config
                                       delegate:nil
                                  delegateQueue:[NSOperationQueue mainQueue]];
-    sharedBlobServiceClient = [[self alloc] init];
-    sharedBlobServiceClient.sharedBlobServiceSession = session;
+    sharedServicesClient = [[self alloc] init];
+    sharedServicesClient.sharedServicesSession = session;
   });
-  return sharedBlobServiceClient;
+  return sharedServicesClient;
 }
 
 - (NSData *)getBlobSync:(NSString *)blobHash orSetError:(NSError **)error {
   NSError *authTokenError = nil;
   NSString *authToken =
-      [CommIOSBlobClient _getAuthTokenOrSetError:&authTokenError];
+      [CommIOSServicesClient _getAuthTokenOrSetError:&authTokenError];
 
   if (authTokenError) {
     *error = authTokenError;
@@ -71,7 +75,7 @@ NSString *const blobServiceHolderKey = @"holder";
   __block NSData *blobContent = nil;
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-  NSURLSessionDataTask *task = [self.sharedBlobServiceSession
+  NSURLSessionDataTask *task = [self.sharedServicesSession
       dataTaskWithRequest:blobRequest
         completionHandler:^(
             NSData *_Nullable data,
@@ -109,13 +113,155 @@ NSString *const blobServiceHolderKey = @"holder";
   dispatch_semaphore_wait(
       semaphore,
       dispatch_time(
-          DISPATCH_TIME_NOW,
-          (int64_t)(blobServiceQueryTimeLimit * NSEC_PER_SEC)));
+          DISPATCH_TIME_NOW, (int64_t)(servicesQueryTimeLimit * NSEC_PER_SEC)));
   if (requestError) {
     *error = requestError;
     return nil;
   }
   return blobContent;
+}
+
+- (NSDictionary *)getNotifsIdentityKeysFor:(NSString *)deviceID
+                                orSetError:(NSError *__autoreleasing *)error {
+  NSError *authTokenError = nil;
+  NSString *authToken =
+      [CommIOSServicesClient _getAuthTokenOrSetError:&authTokenError];
+
+  if (authTokenError) {
+    *error = authTokenError;
+    return nil;
+  }
+
+  NSString *base64URLEncodedDeviceID =
+      [[deviceID stringByReplacingOccurrencesOfString:@"+" withString:@"-"]
+          stringByReplacingOccurrencesOfString:@"/"
+                                    withString:@"_"];
+
+  NSString *urlString =
+      [NSString stringWithFormat:@"%@/device_inbound_keys?device_id=%@",
+                                 identityServiceAddress,
+                                 base64URLEncodedDeviceID];
+  NSURL *url = [NSURL URLWithString:urlString];
+
+  NSMutableURLRequest *identityRequest =
+      [[NSMutableURLRequest alloc] initWithURL:url];
+  [identityRequest setHTTPMethod:@"GET"];
+
+  // This is slightly against Apple docs:
+  // https://developer.apple.com/documentation/foundation/nsurlrequest?language=objc#1776617
+  // but apparently there is no other way to
+  // do this and even Apple staff members
+  // advice to set this field manually to
+  // achieve token based authentication:
+  // https://developer.apple.com/forums/thread/89811
+  [identityRequest setValue:authToken forHTTPHeaderField:@"Authorization"];
+
+  __block NSError *requestError = nil;
+  __block NSDictionary *notifIdentityKeys = nil;
+
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  NSURLSessionDataTask *task = [self.sharedServicesSession
+      dataTaskWithRequest:identityRequest
+        completionHandler:^(
+            NSData *_Nullable data,
+            NSURLResponse *_Nullable response,
+            NSError *_Nullable error) {
+          @try {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode > 299) {
+              NSString *errorMessage =
+                  [@"Fetching notifs identity key failed with the following "
+                   @"reason: "
+                      stringByAppendingString:[NSHTTPURLResponse
+                                                  localizedStringForStatusCode:
+                                                      httpResponse.statusCode]];
+              requestError = [NSError
+                  errorWithDomain:@"app.comm"
+                             code:httpResponse.statusCode
+                         userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
+              return;
+            }
+            if (error) {
+              requestError = error;
+              return;
+            }
+
+            NSError *jsonError;
+            NSDictionary *responseObject =
+                [NSJSONSerialization JSONObjectWithData:data
+                                                options:0
+                                                  error:&jsonError];
+
+            if (jsonError) {
+              requestError = jsonError;
+              return;
+            }
+
+            if (!responseObject[@"identityKeyInfo"] ||
+                !responseObject[@"identityKeyInfo"][@"keyPayload"]) {
+              NSString *errorMessage =
+                  [@"identityKeyInfo or keyPayload missing in identity service "
+                   @"response"
+                      stringByAppendingString:[NSHTTPURLResponse
+                                                  localizedStringForStatusCode:
+                                                      httpResponse.statusCode]];
+              requestError = [NSError
+                  errorWithDomain:@"app.comm"
+                             code:httpResponse.statusCode
+                         userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
+              return;
+            }
+
+            NSData *keyPayload =
+                [responseObject[@"identityKeyInfo"][@"keyPayload"]
+                    dataUsingEncoding:NSUTF8StringEncoding];
+            NSDictionary *identityKeys =
+                [NSJSONSerialization JSONObjectWithData:keyPayload
+                                                options:0
+                                                  error:&jsonError];
+
+            if (jsonError) {
+              requestError = jsonError;
+              return;
+            }
+
+            if (!identityKeys[@"notificationIdentityPublicKeys"]) {
+              NSString *errorMessage =
+                  [@"notificationIdentityPublicKeys missing in identity "
+                   @"service response"
+                      stringByAppendingString:[NSHTTPURLResponse
+                                                  localizedStringForStatusCode:
+                                                      httpResponse.statusCode]];
+              requestError = [NSError
+                  errorWithDomain:@"app.comm"
+                             code:httpResponse.statusCode
+                         userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
+              return;
+            }
+
+            notifIdentityKeys = identityKeys[@"notificationIdentityPublicKeys"];
+
+          } @catch (NSException *exception) {
+            comm::Logger::log(
+                "Received exception when fetching notifs identity key. "
+                "Details: " +
+                std::string([exception.reason UTF8String]));
+          } @finally {
+            dispatch_semaphore_signal(semaphore);
+          }
+        }];
+
+  [task resume];
+  dispatch_semaphore_wait(
+      semaphore,
+      dispatch_time(
+          DISPATCH_TIME_NOW, (int64_t)(servicesQueryTimeLimit * NSEC_PER_SEC)));
+  if (requestError) {
+    *error = requestError;
+    return nil;
+  }
+
+  return notifIdentityKeys;
 }
 
 - (void)deleteBlobAsyncWithHash:(NSString *)blobHash
@@ -124,7 +270,7 @@ NSString *const blobServiceHolderKey = @"holder";
               andFailureHandler:(void (^)(NSError *))failureHandler {
   NSError *authTokenError = nil;
   NSString *authToken =
-      [CommIOSBlobClient _getAuthTokenOrSetError:&authTokenError];
+      [CommIOSServicesClient _getAuthTokenOrSetError:&authTokenError];
 
   if (authTokenError) {
     comm::Logger::log(
@@ -151,7 +297,7 @@ NSString *const blobServiceHolderKey = @"holder";
                                                            options:0
                                                              error:nil];
 
-  NSURLSessionDataTask *task = [self.sharedBlobServiceSession
+  NSURLSessionDataTask *task = [self.sharedServicesSession
       dataTaskWithRequest:deleteRequest
         completionHandler:^(
             NSData *_Nullable data,
@@ -232,7 +378,7 @@ NSString *const blobServiceHolderKey = @"holder";
 }
 
 - (void)cancelOngoingRequests {
-  [self.sharedBlobServiceSession
+  [self.sharedServicesSession
       getAllTasksWithCompletionHandler:^(
           NSArray<__kindof NSURLSessionTask *> *_Nonnull tasks) {
         for (NSURLSessionTask *task in tasks) {
