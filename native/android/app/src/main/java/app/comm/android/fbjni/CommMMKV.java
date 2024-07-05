@@ -20,8 +20,7 @@ public class CommMMKV {
   private static String mmkvIdentifier;
 
   private static MMKV getMMKVInstance(String mmkvID, String encryptionKey) {
-    MMKV mmkv =
-        MMKV.mmkvWithID(mmkvID, MMKV.SINGLE_PROCESS_MODE, encryptionKey);
+    MMKV mmkv = MMKV.mmkvWithID(mmkvID, MMKV.MULTI_PROCESS_MODE, encryptionKey);
     if (mmkv == null) {
       throw new RuntimeException("Failed to instantiate MMKV object.");
     }
