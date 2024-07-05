@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
 
-@interface CommIOSBlobClient : NSObject
+@interface CommIOSServicesClient : NSObject
 + (id)sharedInstance;
 - (NSData *)getBlobSync:(NSString *)blobHash orSetError:(NSError **)error;
+- (NSDictionary *)getNotifsIdentityKeysFor:(NSString *)deviceID
+                                orSetError:(NSError **)error;
 - (void)deleteBlobAsyncWithHash:(NSString *)blobHash
                       andHolder:(NSString *)blobHolder
              withSuccessHandler:(void (^)())successHandler
