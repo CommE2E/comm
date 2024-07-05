@@ -40,7 +40,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 #import "CommConstants.h"
 #import "CommCoreModule.h"
-#import "CommIOSBlobClient.h"
+#import "CommIOSServicesClient.h"
 #import "CommMMKV.h"
 #import "CommRustModule.h"
 #import "CommUtilsModule.h"
@@ -415,12 +415,12 @@ using Runtime = facebook::jsi::Runtime;
 - (void)scheduleNSEBlobsDeletion {
   dispatch_async(
       dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [CommIOSBlobClient.sharedInstance deleteStoredBlobs];
+        [CommIOSServicesClient.sharedInstance deleteStoredBlobs];
       });
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-  [[CommIOSBlobClient sharedInstance] cancelOngoingRequests];
+  [[CommIOSServicesClient sharedInstance] cancelOngoingRequests];
 }
 
 // Copied from
