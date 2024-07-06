@@ -2,8 +2,12 @@
 
 import * as React from 'react';
 
-import { logOutActionTypes, useLogOut } from 'lib/actions/user-actions.js';
-import { usePasswordLogIn } from 'lib/hooks/login-hooks.js';
+import {
+  identityLogInActionTypes,
+  useIdentityPasswordLogIn,
+  logOutActionTypes,
+  useLogOut,
+} from 'lib/actions/user-actions.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { securityUpdateLogoutText } from 'lib/types/alert-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -23,7 +27,7 @@ function BackgroundIdentityLoginHandler() {
   const hasAccessToken = useSelector(state => !!state.commServicesAccessToken);
   const dataLoaded = useSelector(state => state.dataLoaded);
 
-  const callIdentityPasswordLogIn = usePasswordLogIn();
+  const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
 
   const handleLogOutAndAlert = React.useCallback(() => {
     void dispatchActionPromise(logOutActionTypes, callLogOut());
@@ -49,16 +53,21 @@ function BackgroundIdentityLoginHandler() {
       return;
     }
 
+    const logInPromise = callIdentityPasswordLogIn(
+      nativeCredentials.username,
+      nativeCredentials.password,
+    );
+    void dispatchActionPromise(identityLogInActionTypes, logInPromise);
+
     try {
-      await callIdentityPasswordLogIn(
-        nativeCredentials.username,
-        nativeCredentials.password,
-      );
+      await logInPromise;
     } catch (e) {
+      console.log('BackgroundIdentityLoginHandler failed identity login', e);
       handleLogOutAndAlert();
     }
   }, [
     callIdentityPasswordLogIn,
+    dispatchActionPromise,
     dataLoaded,
     handleLogOutAndAlert,
     hasAccessToken,
