@@ -34,8 +34,15 @@ function BackgroundIdentityLoginHandler() {
     Alert.alert('Security update', securityUpdateLogoutText, [{ text: 'OK' }]);
   }, [dispatchActionPromise, callLogOut]);
 
+  const loginAttemptedRef = React.useRef(false);
+
   const logInIfPossibleElseLogOut = React.useCallback(async () => {
-    if (hasAccessToken || !dataLoaded || !usingCommServicesAccessToken) {
+    if (
+      hasAccessToken ||
+      !dataLoaded ||
+      !usingCommServicesAccessToken ||
+      loginAttemptedRef.current
+    ) {
       return;
     }
 
@@ -52,6 +59,11 @@ function BackgroundIdentityLoginHandler() {
       handleLogOutAndAlert();
       return;
     }
+
+    if (loginAttemptedRef.current) {
+      return;
+    }
+    loginAttemptedRef.current = true;
 
     const logInPromise = callIdentityPasswordLogIn(
       nativeCredentials.username,
