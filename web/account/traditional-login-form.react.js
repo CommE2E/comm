@@ -96,10 +96,10 @@ function TraditionalLoginForm(): React.Node {
         modalContext.popModal();
         return result;
       } catch (e) {
-        setUsername('');
-        setPassword('');
         const messageForException = getMessageForException(e);
         if (messageForException === 'invalid_credentials') {
+          setUsername('');
+          setPassword('');
           setErrorMessage('incorrect username or password');
         } else if (messageForException === 'client_version_unsupported') {
           setErrorMessage(getShortVersionUnsupportedError());
@@ -124,13 +124,13 @@ function TraditionalLoginForm(): React.Node {
       await callIdentityPasswordLogIn(username, password);
       modalContext.popModal();
     } catch (e) {
-      setUsername('');
-      setPassword('');
       const messageForException = getMessageForException(e);
       if (
         messageForException === 'user_not_found' ||
         messageForException === 'login_failed'
       ) {
+        setUsername('');
+        setPassword('');
         setErrorMessage('incorrect username or password');
       } else if (
         messageForException === 'client_version_unsupported' ||
