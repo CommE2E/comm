@@ -394,7 +394,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
         Alert.alert(
           appOutOfDateAlertDetails.title,
           appOutOfDateAlertDetails.message,
-          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
@@ -410,21 +410,6 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
   }
 
   onUnknownErrorAlertAcknowledged = () => {
-    this.props.setActiveAlert(false);
-    this.props.legacyRegisterState.setState(
-      {
-        usernameInputText: '',
-        passwordInputText: '',
-        confirmPasswordInputText: '',
-      },
-      () => {
-        invariant(this.usernameInput, 'ref should exist');
-        this.usernameInput.focus();
-      },
-    );
-  };
-
-  onAppOutOfDateAlertAcknowledged = () => {
     this.props.setActiveAlert(false);
   };
 }

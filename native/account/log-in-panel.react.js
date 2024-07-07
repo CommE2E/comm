@@ -306,7 +306,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
         Alert.alert(
           appOutOfDateAlertDetails.title,
           appOutOfDateAlertDetails.message,
-          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
@@ -355,7 +355,7 @@ class LogInPanel extends React.PureComponent<Props, State> {
         Alert.alert(
           appOutOfDateAlertDetails.title,
           appOutOfDateAlertDetails.message,
-          [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
+          [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
           { cancelable: false },
         );
       } else {
@@ -404,17 +404,6 @@ class LogInPanel extends React.PureComponent<Props, State> {
   };
 
   onUnknownErrorAlertAcknowledged: () => void = () => {
-    this.props.setActiveAlert(false);
-    this.props.logInState.setState(
-      {
-        usernameInputText: '',
-        passwordInputText: '',
-      },
-      this.focusUsernameInput,
-    );
-  };
-
-  onAppOutOfDateAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
   };
 }
