@@ -1,5 +1,8 @@
 // @flow
 
+import _keyBy from 'lodash/fp/keyBy.js';
+import _mapValues from 'lodash/fp/mapValues.js';
+
 import genesis from 'lib/facts/genesis.js';
 import {
   permissionLookup,
@@ -8,9 +11,16 @@ import {
 } from 'lib/permissions/thread-permissions.js';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import {
-  threadFrozenDueToBlock,
   permissionsDisabledByBlock,
+  threadIsWithBlockedUserOnlyWithoutAdminRoleCheck,
+  threadMembersWithoutAddedAdmin,
+  roleIsAdminRole,
 } from 'lib/shared/thread-utils.js';
+import type {
+  MemberInfoWithPermissions,
+  RelativeMemberInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   ThreadPermission,
@@ -18,6 +28,7 @@ import type {
   ThreadRolePermissionsBlob,
 } from 'lib/types/thread-permission-types.js';
 import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import { values } from 'lib/utils/objects.js';
 
 import { fetchThreadInfos } from './thread-fetchers.js';
 import { fetchKnownUserInfos } from './user-fetchers.js';
@@ -157,16 +168,63 @@ async function checkThreadsFrozen(
     fetchKnownUserInfos(viewer),
   ]);
 
+  const communityThreadIDs = new Set<string>();
+  for (const threadInfo of values(threadInfos)) {
+    const communityRootThreadID = threadInfo.community;
+    if (!communityRootThreadID) {
+      continue;
+    }
+    communityThreadIDs.add(communityRootThreadID);
+  }
+
+  const { threadInfos: communityThreadInfos } = await fetchThreadInfos(viewer, {
+    threadIDs: communityThreadIDs,
+  });
+
+  const combinedThreadInfos = {
+    ...threadInfos,
+    ...communityThreadInfos,
+  };
+
+  const communityRootMembersToRole = _mapValues((threadInfo: ThreadInfo) => {
+    const keyedMembers = _keyBy('id')(threadInfo.members);
+    const keyedMembersToRole = _mapValues(
+      (member: MemberInfoWithPermissions | RelativeMemberInfo) => {
+        return member.role ? threadInfo.roles[member.role] : null;
+      },
+    )(keyedMembers);
+    return keyedMembersToRole;
+  })(combinedThreadInfos);
+
   for (const threadID in threadInfos) {
-    const blockedThread = threadFrozenDueToBlock(
-      threadInfos[threadID],
+    const threadInfo = threadInfos[threadID];
+
+    // We fall back to threadID because the only case where threadInfo.community
+    // is not set is for a community root, in which case the thread's community
+    // root is the thread itself.
+    const communityMembersToRole =
+      communityRootMembersToRole[threadInfo.community ?? threadID];
+
+    const memberHasAdminRole = threadMembersWithoutAddedAdmin(threadInfo).some(
+      m => roleIsAdminRole(communityMembersToRole?.[m.id]),
+    );
+
+    if (memberHasAdminRole) {
+      continue;
+    }
+
+    const blockedThread = threadIsWithBlockedUserOnlyWithoutAdminRoleCheck(
+      threadInfo,
       viewer.id,
       userInfos,
+      false,
     );
+
     if (blockedThread) {
       threadIDsWithDisabledPermissions.add(threadID);
     }
   }
+
   return threadIDsWithDisabledPermissions;
 }
 
