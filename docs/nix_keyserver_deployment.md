@@ -37,6 +37,10 @@ COMM_JSONCONFIG_facts_backups='{"enabled":true,"directory":"/home/comm/backups",
 - `COMM_DATABASE_USER`: The username the keyserver uses to connect to MariaDB. Replace `<MariaDB user>` with your desired username.
 - `COMM_DATABASE_PASSWORD`: Corresponding password for the above user. Replace `<MariaDB password>` with your desired password.
 
+### Primary Secondary configuration
+
+- `COMM_NODE_ROLE`: Specifies whether a node is primary or secondary. Currently only used for AWS-hosted keyservers
+
 ### Identity service configuration
 
 - `COMM_JSONCONFIG_secrets_user_credentials`: Credentials for authenticating against the Identity service. Replace `<user>` and `<password>` with any values. In the future, they will need to be actual credentials registered with the Identity service.
