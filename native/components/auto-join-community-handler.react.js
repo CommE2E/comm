@@ -10,7 +10,7 @@ import {
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
-import { isLoggedInToAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
+import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
@@ -30,11 +30,7 @@ import { useSelector } from '../redux/redux-utils.js';
 function AutoJoinCommunityHandler(): React.Node {
   const isActive = useSelector(state => state.lifecycleState !== 'background');
 
-  const isLoggedInToAuthKeyserver = useSelector(
-    isLoggedInToAuthoritativeKeyserver,
-  );
-  const currentUserID = useSelector(state => state.currentUserInfo?.id);
-  const loggedIn = !!currentUserID && isLoggedInToAuthKeyserver;
+  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
 
   const fid = useCurrentUserFID();
 

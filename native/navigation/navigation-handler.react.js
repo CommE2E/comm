@@ -2,10 +2,7 @@
 
 import * as React from 'react';
 
-import {
-  isLoggedIn,
-  isLoggedInToAuthoritativeKeyserver,
-} from 'lib/selectors/user-selectors.js';
+import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -62,13 +59,8 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 ) {
   const { dispatch } = props;
 
-  const hasCurrentUserInfo = useSelector(isLoggedIn);
+  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
 
-  const isLoggedInToAuthKeyserver = useSelector(
-    isLoggedInToAuthoritativeKeyserver,
-  );
-
-  const loggedIn = hasCurrentUserInfo && isLoggedInToAuthKeyserver;
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef<?boolean>();
 
