@@ -40,8 +40,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
     if (
       !loggedIn ||
       !isActive ||
-      !!fid ||
-      shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo)
+      shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid)
     ) {
       return;
     }
