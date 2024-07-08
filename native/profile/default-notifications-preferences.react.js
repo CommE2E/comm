@@ -9,6 +9,7 @@ import {
   setUserSettingsActionTypes,
 } from 'lib/actions/user-actions.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 import {
   type UpdateUserSettingsRequest,
   type NotificationTypes,
@@ -154,19 +155,19 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
         <Text style={styles.header}>NOTIFICATIONS</Text>
         <View style={styles.section}>
           <NotificationRow
-            content="Focused"
+            content={threadSettingsNotificationsCopy.HOME}
             onPress={this.selectAllNotifications}
             selected={notificationTypes.FOCUSED === selectedDefaultNotification}
           />
           <NotificationRow
-            content="Focused (badge only)"
+            content={threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY}
             onPress={this.selectBackgroundNotifications}
             selected={
               notificationTypes.BADGE_ONLY === selectedDefaultNotification
             }
           />
           <NotificationRow
-            content="Background"
+            content={threadSettingsNotificationsCopy.MUTED}
             onPress={this.selectNoneNotifications}
             selected={
               notificationTypes.BACKGROUND === selectedDefaultNotification

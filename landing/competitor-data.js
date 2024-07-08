@@ -47,7 +47,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         ],
       },
       {
-        title: 'Background tab',
+        title: 'Muted tab',
         comingSoon: false,
         competitorDescriptionShort:
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vulputate vestibulum leo, vel sollicitudin.',
@@ -181,7 +181,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
           'Discord has a single function to mute notifs from a chat. You can mute notifs temporarily or permanently.',
         ],
         commDescriptionLong: [
-          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Muted” tab in order to avoid cluttering your inbox.',
         ],
       },
       {
@@ -271,7 +271,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
           'Keybase has a single function to mute notifs from a chat.',
         ],
         commDescriptionLong: [
-          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Muted” tab in order to avoid cluttering your inbox.',
         ],
       },
     ],
@@ -427,7 +427,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
           'Signal has a single function to mute notifs from a chat.',
         ],
         commDescriptionLong: [
-          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Muted” tab in order to avoid cluttering your inbox.',
         ],
       },
     ],
@@ -495,7 +495,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
           'Slack has several features for managing notifs across a whole community. However, when it comes to managing notifs from a specific chat, Slack is more limited. There’s only one option, which is to completely mute a chat.',
         ],
         commDescriptionLong: [
-          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Muted” tab in order to avoid cluttering your inbox.',
         ],
       },
       {
@@ -581,7 +581,7 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
           'Telegram supports temporary muting notifs from a chat, disabling message previews, and changing the notification sound associated with a chat.',
         ],
         commDescriptionLong: [
-          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Background” tab in order to avoid cluttering your inbox.',
+          'Comm allows you to manage notif alerts separately from notif badging (unread icon). Comm also sorts muted chats in a separate “Muted” tab in order to avoid cluttering your inbox.',
         ],
       },
       {
@@ -590,12 +590,12 @@ const competitorData: { [key: string]: Competitor } = Object.freeze({
         competitorDescriptionShort:
           'Telegram has a Chat Folders feature, but it’s not easy to move a noisy chat out of your inbox.',
         commDescriptionShort:
-          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Background tab.',
+          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Muted tab.',
         competitorDescriptionLong: [
           'Telegram has a Chat Folders feature. Your primary inbox always shows all chats, but Chat Folders can be configured to show or hide a set of selected chats. If you want to separate all of your chats into two Chat Folders, it takes a lot of steps.',
         ],
         commDescriptionLong: [
-          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Background tab. The Background tab is a core primitive in Comm, and helps you separate signal from noise.',
+          'When you disable notifs for a chat, Comm moves it out of your inbox into a separate Muted tab. The Muted tab is a core primitive in Comm, and helps you separate signal from noise.',
         ],
       },
       {

@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { unreadBackgroundCount } from 'lib/selectors/thread-selectors.js';
+import { threadSettingsNotificationsCopy } from 'lib/shared/thread-settings-notifications-utils.js';
 
 import css from './chat-tabs.css';
 import ChatThreadList from './chat-thread-list.react.js';
@@ -11,27 +12,27 @@ import { ThreadListContext } from './thread-list-provider.js';
 import Tabs, { type TabData } from '../components/tabs.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
-type TabType = 'Background' | 'Focus';
+type TabType = 'Home' | 'Muted';
 
 function ChatTabs(): React.Node {
-  let backgroundTitle = 'Background';
+  let mutedTitle = threadSettingsNotificationsCopy.MUTED;
   const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
   if (unreadBackgroundCountVal) {
-    backgroundTitle += ` (${unreadBackgroundCountVal})`;
+    mutedTitle += ` (${unreadBackgroundCountVal})`;
   }
 
   const tabsData: $ReadOnlyArray<TabData<TabType>> = React.useMemo(
     () => [
       {
-        id: 'Focus',
-        header: 'Focused',
+        id: 'Home',
+        header: threadSettingsNotificationsCopy.HOME,
       },
       {
-        id: 'Background',
-        header: backgroundTitle,
+        id: 'Muted',
+        header: mutedTitle,
       },
     ],
-    [backgroundTitle],
+    [mutedTitle],
   );
 
   const threadListContext = React.useContext(ThreadListContext);

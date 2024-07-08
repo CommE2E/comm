@@ -116,13 +116,13 @@ export type ChatTopTabsNavigationHelpers =
   MaterialTopTabNavigationHelpers<ScreenParamList>;
 
 const homeChatThreadListOptions = {
-  title: 'Focused',
+  title: threadSettingsNotificationsCopy.HOME,
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="home-1" size={22} style={{ color }} />
   ),
 };
 const backgroundChatThreadListOptions = {
-  title: 'Background',
+  title: threadSettingsNotificationsCopy.MUTED,
   tabBarIcon: ({ color }: { +color: string, ... }) => (
     <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
   ),

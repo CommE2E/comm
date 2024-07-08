@@ -25,7 +25,7 @@ import {
   activeChatThreadItem as activeChatThreadItemSelector,
 } from '../selectors/chat-selectors.js';
 
-type ChatTabType = 'Focus' | 'Background';
+type ChatTabType = 'Home' | 'Muted';
 type ThreadListContextType = {
   +activeTab: ChatTabType,
   +setActiveTab: (newActiveTab: ChatTabType) => void,
@@ -41,7 +41,7 @@ type ThreadListProviderProps = {
   +children: React.Node,
 };
 function ThreadListProvider(props: ThreadListProviderProps): React.Node {
-  const [activeTab, setActiveTab] = React.useState('Focus');
+  const [activeTab, setActiveTab] = React.useState('Home');
 
   const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
@@ -63,8 +63,8 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     activeTopLevelThreadInfo?.currentUser.subscription.home;
 
   const activeTopLevelThreadIsFromDifferentTab =
-    (activeTab === 'Focus' && activeTopLevelThreadIsFromHomeTab) ||
-    (activeTab === 'Background' && !activeTopLevelThreadIsFromHomeTab);
+    (activeTab === 'Home' && activeTopLevelThreadIsFromHomeTab) ||
+    (activeTab === 'Muted' && !activeTopLevelThreadIsFromHomeTab);
 
   const activeTopLevelThreadIsInChatList = useIsThreadInChatList(
     activeTopLevelThreadInfo,
@@ -78,7 +78,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     const prevActiveThreadID = prevActiveThreadIDRef.current;
     prevActiveThreadIDRef.current = activeThreadID;
     if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
-      setActiveTab(activeTopLevelThreadIsFromHomeTab ? 'Focus' : 'Background');
+      setActiveTab(activeTopLevelThreadIsFromHomeTab ? 'Home' : 'Muted');
     }
   }, [activeThreadID, shouldChangeTab, activeTopLevelThreadIsFromHomeTab]);
 
@@ -178,9 +178,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     viewerID,
   );
   const threadFilter =
-    activeTab === 'Background'
-      ? threadInBackgroundChatList
-      : threadInHomeChatList;
+    activeTab === 'Muted' ? threadInBackgroundChatList : threadInHomeChatList;
   const chatListDataWithoutFilter = getThreadListSearchResults(
     chatListData,
     searchText,
