@@ -15,7 +15,7 @@ import {
 import { useKeyserverAuthWithRetry } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { usePreRequestUserState } from 'lib/selectors/account-selectors.js';
-import { isLoggedInToKeyserver } from 'lib/selectors/user-selectors.js';
+import { isLoggedInToAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import {
   type LegacyLogInStartingPayload,
   logInActionSources,
@@ -543,14 +543,14 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const uploadSelectedMedia = useUploadSelectedMedia();
   const nativeSetUserAvatar = useNativeSetUserAvatar();
 
-  const isLoggedInToAuthoritativeKeyserver = useSelector(
-    isLoggedInToKeyserver(authoritativeKeyserverID),
+  const isLoggedInToAuthKeyserver = useSelector(
+    isLoggedInToAuthoritativeKeyserver,
   );
 
   const avatarBeingSetRef = React.useRef(false);
   React.useEffect(() => {
     if (
-      !isLoggedInToAuthoritativeKeyserver ||
+      !isLoggedInToAuthKeyserver ||
       currentStep.step !== 'authoritative_keyserver_registration_dispatched' ||
       avatarBeingSetRef.current
     ) {
@@ -600,7 +600,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
     })();
   }, [
     currentStep,
-    isLoggedInToAuthoritativeKeyserver,
+    isLoggedInToAuthKeyserver,
     uploadSelectedMedia,
     nativeSetUserAvatar,
     dispatch,

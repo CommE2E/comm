@@ -10,12 +10,11 @@ import {
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import { isLoggedInToAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { defaultThreadSubscription } from 'lib/types/subscription-types.js';
-import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { getBlobFetchableURL } from 'lib/utils/blob-service.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -31,10 +30,11 @@ import { useSelector } from '../redux/redux-utils.js';
 function AutoJoinCommunityHandler(): React.Node {
   const isActive = useSelector(state => state.lifecycleState !== 'background');
 
-  const cookie = useSelector(cookieSelector(authoritativeKeyserverID()));
-  const hasUserCookie = !!(cookie && cookie.startsWith('user='));
+  const isLoggedInToAuthKeyserver = useSelector(
+    isLoggedInToAuthoritativeKeyserver,
+  );
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
-  const loggedIn = !!currentUserID && hasUserCookie;
+  const loggedIn = !!currentUserID && isLoggedInToAuthKeyserver;
 
   const fid = useCurrentUserFID();
 
