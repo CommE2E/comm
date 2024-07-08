@@ -1,5 +1,9 @@
 // @flow
 
+import t, { type TInterface, type TUnion } from 'tcomb';
+
+import { tShape } from 'lib/utils/validation-utils.js';
+
 const ENCRYPTION_ALGORITHM = 'AES-GCM';
 const ENCRYPTION_KEY_USAGES: $ReadOnlyArray<CryptoKey$Usages> = [
   'encrypt',
@@ -10,6 +14,45 @@ export type EncryptedData = {
   +iv: BufferSource,
   +ciphertext: Uint8Array,
 };
+
+export const encryptedAESDataValidator: TInterface<EncryptedData> =
+  tShape<EncryptedData>({
+    iv: t.irreducible('Uint8Array', x => x instanceof Uint8Array),
+    ciphertext: t.irreducible('Uint8Array', x => x instanceof Uint8Array),
+  });
+
+export const cryptoKeyValidator: TInterface<CryptoKey> = tShape<CryptoKey>({
+  algorithm: t.Object,
+  extractable: t.Boolean,
+  type: t.String,
+  usages: t.list(t.String),
+});
+
+export const subtleCrypto$JsonWebKeyValidator: TInterface<SubtleCrypto$JsonWebKey> =
+  tShape({
+    alg: t.maybe(t.String),
+    crv: t.maybe(t.String),
+    d: t.maybe(t.String),
+    dp: t.maybe(t.String),
+    dq: t.maybe(t.String),
+    e: t.maybe(t.String),
+    ext: t.maybe(t.Boolean),
+    k: t.maybe(t.String),
+    key_ops: t.maybe(t.list(t.String)),
+    kty: t.maybe(t.String),
+    n: t.maybe(t.String),
+    oth: t.maybe(t.list(t.Object)),
+    p: t.maybe(t.String),
+    q: t.maybe(t.String),
+    qi: t.maybe(t.String),
+    use: t.maybe(t.String),
+    x: t.maybe(t.String),
+    y: t.maybe(t.String),
+  });
+
+export const extendedCryptoKeyValidator: TUnion<
+  CryptoKey | SubtleCrypto$JsonWebKey,
+> = t.union([cryptoKeyValidator, subtleCrypto$JsonWebKeyValidator]);
 
 function generateCryptoKey({
   extractable,
@@ -26,7 +69,7 @@ function generateCryptoKey({
   );
 }
 
-function generateIV(): BufferSource {
+function generateIV(): Uint8Array {
   return crypto.getRandomValues(new Uint8Array(12));
 }
 
