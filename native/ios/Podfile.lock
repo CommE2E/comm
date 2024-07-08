@@ -561,12 +561,12 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.13)
   - SPTPersistentCache (1.1.0)
-  - SQLCipher-Amalgamation (4.5.5b):
+  - SQLCipher-Amalgamation (4.5.5-e):
     - OpenSSL-Universal
-    - SQLCipher-Amalgamation/standard (= 4.5.5b)
-  - SQLCipher-Amalgamation/common (4.5.5b):
+    - SQLCipher-Amalgamation/standard (= 4.5.5-e)
+  - SQLCipher-Amalgamation/common (4.5.5-e):
     - OpenSSL-Universal
-  - SQLCipher-Amalgamation/standard (4.5.5b):
+  - SQLCipher-Amalgamation/standard (4.5.5-e):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
   - Yoga (1.14.0)
@@ -955,7 +955,7 @@ SPEC CHECKSUMS:
   SDWebImageSVGCoder: 6fc109f9c2a82ab44510fff410b88b1a6c271ee8
   SDWebImageWebPCoder: 18503de6621dd2c420d680e33d46bf8e1d5169b0
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
-  SQLCipher-Amalgamation: 6de66399dc47d77fd51b327c5daa8b70096ed319
+  SQLCipher-Amalgamation: 121e91239c53a3aba13ca742d6dd824c627c66ee
   Yoga: dc109b79db907f0f589fc423e991b09ec42d2295
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
