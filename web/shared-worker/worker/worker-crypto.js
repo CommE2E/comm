@@ -45,16 +45,15 @@ import {
   getPlatformDetails,
 } from './worker-database.js';
 import {
-  encryptData,
-  exportKeyToJWK,
-  generateCryptoKey,
-} from '../../crypto/aes-gcm-crypto-utils.js';
-import {
   getOlmDataKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
   getOlmDataKeyForDeviceID,
   getOlmEncryptionKeyDBLabelForDeviceID,
   encryptNotification,
+  isNotifsCryptoAccountInitialized,
+  type NotificationAccountWithPicklingKey,
+  getNotifsCryptoAccount,
+  persistNotifsAccountWithOlmData,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
   type WorkerRequestMessage,
@@ -64,7 +63,6 @@ import {
   type LegacyCryptoStore,
 } from '../../types/worker-types.js';
 import type { OlmPersistSession } from '../types/sqlite-query-executor.js';
-import { isDesktopSafari } from '../utils/db-utils.js';
 
 type OlmSession = { +session: olm.Session, +version: number };
 type OlmSessions = {
@@ -75,8 +73,6 @@ type WorkerCryptoStore = {
   +contentAccountPickleKey: string,
   +contentAccount: olm.Account,
   +contentSessions: OlmSessions,
-  +notificationAccountPickleKey: string,
-  +notificationAccount: olm.Account,
 };
 
 let cryptoStore: ?WorkerCryptoStore = null;
@@ -86,7 +82,10 @@ function clearCryptoStore() {
   cryptoStore = null;
 }
 
-function persistCryptoStore(withoutTransaction: boolean = false) {
+async function persistCryptoStore(
+  notifsCryptoAccount?: NotificationAccountWithPicklingKey,
+  withoutTransaction: boolean = false,
+) {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
   const dbModule = getDBModule();
   if (!sqliteQueryExecutor || !dbModule) {
@@ -98,13 +97,8 @@ function persistCryptoStore(withoutTransaction: boolean = false) {
     throw new Error("Couldn't persist crypto store because it doesn't exist");
   }
 
-  const {
-    contentAccountPickleKey,
-    contentAccount,
-    contentSessions,
-    notificationAccountPickleKey,
-    notificationAccount,
-  } = cryptoStore;
+  const { contentAccountPickleKey, contentAccount, contentSessions } =
+    cryptoStore;
 
   const pickledContentAccount: PickledOLMAccount = {
     picklingKey: contentAccountPickleKey,
@@ -119,11 +113,6 @@ function persistCryptoStore(withoutTransaction: boolean = false) {
     version: sessionData.version,
   }));
 
-  const pickledNotificationAccount: PickledOLMAccount = {
-    picklingKey: notificationAccountPickleKey,
-    pickledAccount: notificationAccount.pickle(notificationAccountPickleKey),
-  };
-
   try {
     if (!withoutTransaction) {
       sqliteQueryExecutor.beginTransaction();
@@ -135,10 +124,27 @@ function persistCryptoStore(withoutTransaction: boolean = false) {
     for (const pickledSession of pickledContentSessions) {
       sqliteQueryExecutor.storeOlmPersistSession(pickledSession);
     }
-    sqliteQueryExecutor.storeOlmPersistAccount(
-      sqliteQueryExecutor.getNotifsAccountID(),
-      JSON.stringify(pickledNotificationAccount),
-    );
+    if (notifsCryptoAccount) {
+      const {
+        notificationAccount,
+        picklingKey,
+        synchronizationValue,
+        accountEncryptionKey,
+      } = notifsCryptoAccount;
+
+      const pickledAccount = notificationAccount.pickle(picklingKey);
+      const accountWithPicklingKey: PickledOLMAccount = {
+        pickledAccount,
+        picklingKey,
+      };
+
+      await persistNotifsAccountWithOlmData({
+        accountEncryptionKey,
+        accountWithPicklingKey,
+        synchronizationValue,
+        forceWrite: true,
+      });
+    }
     if (!withoutTransaction) {
       sqliteQueryExecutor.commitTransaction();
     }
@@ -160,16 +166,13 @@ async function createAndPersistNotificationsOutboundSession(
     throw new Error('Crypto account not initialized');
   }
 
-  const { notificationAccountPickleKey, notificationAccount } = cryptoStore;
-  const encryptionKey = await generateCryptoKey({
-    extractable: isDesktopSafari,
-  });
+  const notificationAccountWithPicklingKey = await getNotifsCryptoAccount();
 
   const notificationsPrekey = notificationsInitializationInfo.prekey;
   const session = new olm.Session();
   if (notificationsInitializationInfo.oneTimeKey) {
     session.create_outbound(
-      notificationAccount,
+      notificationAccountWithPicklingKey.notificationAccount,
       notificationsIdentityKeys.curve25519,
       notificationsIdentityKeys.ed25519,
       notificationsPrekey,
@@ -178,7 +181,7 @@ async function createAndPersistNotificationsOutboundSession(
     );
   } else {
     session.create_outbound_without_otk(
-      notificationAccount,
+      notificationAccountWithPicklingKey.notificationAccount,
       notificationsIdentityKeys.curve25519,
       notificationsIdentityKeys.ed25519,
       notificationsPrekey,
@@ -189,46 +192,47 @@ async function createAndPersistNotificationsOutboundSession(
     JSON.stringify(initialEncryptedMessageContent),
   );
 
-  const mainSession = session.pickle(notificationAccountPickleKey);
+  const mainSession = session.pickle(
+    notificationAccountWithPicklingKey.picklingKey,
+  );
   const notificationsOlmData: NotificationsOlmDataType = {
     mainSession,
     pendingSessionUpdate: mainSession,
     updateCreationTimestamp: Date.now(),
-    picklingKey: notificationAccountPickleKey,
+    picklingKey: notificationAccountWithPicklingKey.picklingKey,
   };
-  const encryptedOlmData = await encryptData(
-    new TextEncoder().encode(JSON.stringify(notificationsOlmData)),
-    encryptionKey,
-  );
 
-  const persistEncryptionKeyPromise = (async () => {
-    let cryptoKeyPersistentForm;
-    if (isDesktopSafari) {
-      // Safari doesn't support structured clone algorithm in service
-      // worker context so we have to store CryptoKey as JSON
-      cryptoKeyPersistentForm = await exportKeyToJWK(encryptionKey);
-    } else {
-      cryptoKeyPersistentForm = encryptionKey;
-    }
+  const {
+    notificationAccount,
+    picklingKey,
+    synchronizationValue,
+    accountEncryptionKey,
+  } = notificationAccountWithPicklingKey;
 
-    await localforage.setItem(
-      dataEncryptionKeyDBLabel,
-      cryptoKeyPersistentForm,
-    );
-  })();
+  const pickledAccount = notificationAccount.pickle(picklingKey);
+  const accountWithPicklingKey: PickledOLMAccount = {
+    pickledAccount,
+    picklingKey,
+  };
 
-  await Promise.all([
-    localforage.setItem(dataPersistenceKey, encryptedOlmData),
-    persistEncryptionKeyPromise,
-  ]);
+  await persistNotifsAccountWithOlmData({
+    accountEncryptionKey,
+    accountWithPicklingKey,
+    olmDataKey: dataPersistenceKey,
+    olmData: notificationsOlmData,
+    olmEncryptionKeyDBLabel: dataEncryptionKeyDBLabel,
+    synchronizationValue,
+    forceWrite: true,
+  });
 
   return { message, messageType };
 }
 
-function getOrCreateOlmAccount(accountIDInDB: number): {
+async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
   +picklingKey: string,
   +account: olm.Account,
-} {
+  +synchronizationValue?: ?string,
+}> {
   const sqliteQueryExecutor = getSQLiteQueryExecutor();
   const dbModule = getDBModule();
   if (!sqliteQueryExecutor || !dbModule) {
@@ -246,6 +250,26 @@ function getOrCreateOlmAccount(accountIDInDB: number): {
     throw new Error(getProcessingStoreOpsExceptionMessage(err, dbModule));
   }
 
+  const notifsCryptoModuleInitialized = await (async () => {
+    if (accountIDInDB !== sqliteQueryExecutor.getNotifsAccountID()) {
+      return false;
+    }
+    return await isNotifsCryptoAccountInitialized();
+  })();
+
+  if (notifsCryptoModuleInitialized) {
+    const {
+      notificationAccount,
+      picklingKey: notificationAccountPicklingKey,
+      synchronizationValue,
+    } = await getNotifsCryptoAccount();
+    return {
+      account: notificationAccount,
+      picklingKey: notificationAccountPicklingKey,
+      synchronizationValue,
+    };
+  }
+
   if (accountDBString.isNull) {
     picklingKey = uuid.v4();
     account.create();
@@ -253,6 +277,10 @@ function getOrCreateOlmAccount(accountIDInDB: number): {
     const dbAccount: PickledOLMAccount = JSON.parse(accountDBString.value);
     picklingKey = dbAccount.picklingKey;
     account.unpickle(picklingKey, dbAccount.pickledAccount);
+  }
+
+  if (accountIDInDB === sqliteQueryExecutor.getNotifsAccountID()) {
+    return { picklingKey, account, synchronizationValue: uuid.v4() };
   }
 
   return { picklingKey, account };
@@ -316,13 +344,15 @@ async function initializeCryptoAccount(
         initialCryptoStore.primaryAccount,
       ),
       contentSessions: {},
-      notificationAccountPickleKey:
-        initialCryptoStore.notificationAccount.picklingKey,
+    };
+    const notifsCryptoAccount = {
+      picklingKey: initialCryptoStore.notificationAccount.picklingKey,
       notificationAccount: unpickleInitialCryptoStoreAccount(
         initialCryptoStore.notificationAccount,
       ),
+      synchronizationValue: uuid.v4(),
     };
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
     return;
   }
 
@@ -352,12 +382,13 @@ async function processAppOlmApiRequest(
   return undefined;
 }
 
-function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
+async function getSignedIdentityKeysBlob(): Promise<SignedIdentityKeysBlob> {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
   }
 
-  const { contentAccount, notificationAccount } = cryptoStore;
+  const { contentAccount } = cryptoStore;
+  const { notificationAccount } = await getNotifsCryptoAccount();
 
   const identityKeysBlob: IdentityKeysBlob = {
     notificationIdentityPublicKeys: JSON.parse(
@@ -375,22 +406,25 @@ function getSignedIdentityKeysBlob(): SignedIdentityKeysBlob {
   return signedIdentityKeysBlob;
 }
 
-function getNewDeviceKeyUpload(): IdentityNewDeviceKeyUpload {
+async function getNewDeviceKeyUpload(): Promise<IdentityNewDeviceKeyUpload> {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
   }
-  const { contentAccount, notificationAccount } = cryptoStore;
-
-  const signedIdentityKeysBlob = getSignedIdentityKeysBlob();
+  const { contentAccount } = cryptoStore;
+  const [notifsCryptoAccount, signedIdentityKeysBlob] = await Promise.all([
+    getNotifsCryptoAccount(),
+    getSignedIdentityKeysBlob(),
+  ]);
 
   const primaryAccountKeysSet = retrieveAccountKeysSet(contentAccount);
-  const notificationAccountKeysSet =
-    retrieveAccountKeysSet(notificationAccount);
+  const notificationAccountKeysSet = retrieveAccountKeysSet(
+    notifsCryptoAccount.notificationAccount,
+  );
 
   contentAccount.mark_keys_as_published();
-  notificationAccount.mark_keys_as_published();
+  notifsCryptoAccount.notificationAccount.mark_keys_as_published();
 
-  persistCryptoStore();
+  await persistCryptoStore(notifsCryptoAccount);
 
   return {
     keyPayload: signedIdentityKeysBlob.payload,
@@ -404,20 +438,22 @@ function getNewDeviceKeyUpload(): IdentityNewDeviceKeyUpload {
   };
 }
 
-function getExistingDeviceKeyUpload(): IdentityExistingDeviceKeyUpload {
+async function getExistingDeviceKeyUpload(): Promise<IdentityExistingDeviceKeyUpload> {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
   }
-  const { contentAccount, notificationAccount } = cryptoStore;
-
-  const signedIdentityKeysBlob = getSignedIdentityKeysBlob();
+  const { contentAccount } = cryptoStore;
+  const [notifsCryptoAccount, signedIdentityKeysBlob] = await Promise.all([
+    getNotifsCryptoAccount(),
+    getSignedIdentityKeysBlob(),
+  ]);
 
   const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
     retrieveIdentityKeysAndPrekeys(contentAccount);
   const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
-    retrieveIdentityKeysAndPrekeys(notificationAccount);
+    retrieveIdentityKeysAndPrekeys(notifsCryptoAccount.notificationAccount);
 
-  persistCryptoStore();
+  await persistCryptoStore(notifsCryptoAccount);
 
   return {
     keyPayload: signedIdentityKeysBlob.payload,
@@ -470,30 +506,36 @@ const olmAPI: OlmAPI = {
       throw new Error('Database not initialized');
     }
 
-    const contentAccountResult = getOrCreateOlmAccount(
-      sqliteQueryExecutor.getContentAccountID(),
+    const [contentAccountResult, notificationAccountResult] = await Promise.all(
+      [
+        getOrCreateOlmAccount(sqliteQueryExecutor.getContentAccountID()),
+        getOrCreateOlmAccount(sqliteQueryExecutor.getNotifsAccountID()),
+      ],
     );
-    const notificationAccountResult = getOrCreateOlmAccount(
-      sqliteQueryExecutor.getNotifsAccountID(),
-    );
+
     const contentSessions = getOlmSessions(contentAccountResult.picklingKey);
 
     cryptoStore = {
       contentAccountPickleKey: contentAccountResult.picklingKey,
       contentAccount: contentAccountResult.account,
       contentSessions,
-      notificationAccountPickleKey: notificationAccountResult.picklingKey,
+    };
+    const notifsCryptoAccount = {
+      picklingKey: notificationAccountResult.picklingKey,
       notificationAccount: notificationAccountResult.account,
+      synchronizationValue: notificationAccountResult.synchronizationValue,
     };
 
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
   },
   async getUserPublicKey(): Promise<ClientPublicKeys> {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const { contentAccount, notificationAccount } = cryptoStore;
-    const { payload, signature } = getSignedIdentityKeysBlob();
+    const { contentAccount } = cryptoStore;
+    const [{ notificationAccount }, { payload, signature }] = await Promise.all(
+      [getNotifsCryptoAccount(), getSignedIdentityKeysBlob()],
+    );
 
     return {
       primaryIdentityPublicKeys: JSON.parse(contentAccount.identity_keys()),
@@ -514,7 +556,7 @@ const olmAPI: OlmAPI = {
     }
     const encryptedContent = olmSession.session.encrypt(content);
 
-    persistCryptoStore();
+    await persistCryptoStore();
 
     return {
       message: encryptedContent.body,
@@ -556,7 +598,7 @@ const olmAPI: OlmAPI = {
         deviceID,
         JSON.stringify(result),
       );
-      persistCryptoStore(true);
+      await persistCryptoStore(undefined, true);
       sqliteQueryExecutor.commitTransaction();
     } catch (e) {
       sqliteQueryExecutor.rollbackTransaction();
@@ -593,7 +635,7 @@ const olmAPI: OlmAPI = {
       encryptedData.message,
     );
 
-    persistCryptoStore();
+    await persistCryptoStore();
 
     return result;
   },
@@ -634,7 +676,7 @@ const olmAPI: OlmAPI = {
     sqliteQueryExecutor.beginTransaction();
     try {
       sqliteQueryExecutor.addInboundP2PMessage(receivedMessage);
-      persistCryptoStore(true);
+      await persistCryptoStore(undefined, true);
       sqliteQueryExecutor.commitTransaction();
     } catch (e) {
       sqliteQueryExecutor.rollbackTransaction();
@@ -680,7 +722,7 @@ const olmAPI: OlmAPI = {
       session,
       version: sessionVersion,
     };
-    persistCryptoStore();
+    await persistCryptoStore();
 
     return initialEncryptedMessage;
   },
@@ -722,7 +764,7 @@ const olmAPI: OlmAPI = {
       session,
       version: newSessionVersion,
     };
-    persistCryptoStore();
+    await persistCryptoStore();
 
     const encryptedData: EncryptedData = {
       message: initialEncryptedData.body,
@@ -825,7 +867,8 @@ const olmAPI: OlmAPI = {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const { contentAccount, notificationAccount } = cryptoStore;
+    const { contentAccount } = cryptoStore;
+    const notifsCryptoAccount = await getNotifsCryptoAccount();
 
     const contentOneTimeKeys = getAccountOneTimeKeys(
       contentAccount,
@@ -834,12 +877,12 @@ const olmAPI: OlmAPI = {
     contentAccount.mark_keys_as_published();
 
     const notificationsOneTimeKeys = getAccountOneTimeKeys(
-      notificationAccount,
+      notifsCryptoAccount.notificationAccount,
       numberOfKeys,
     );
-    notificationAccount.mark_keys_as_published();
+    notifsCryptoAccount.notificationAccount.mark_keys_as_published();
 
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
 
     return { contentOneTimeKeys, notificationsOneTimeKeys };
   },
@@ -857,26 +900,27 @@ const olmAPI: OlmAPI = {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const { contentAccount, notificationAccount } = cryptoStore;
+    const { contentAccount } = cryptoStore;
+    const notifsCryptoAccount = await getNotifsCryptoAccount();
 
     // Content and notification accounts' keys are always rotated at the same
     // time so we only need to check one of them.
     if (shouldRotatePrekey(contentAccount)) {
       contentAccount.generate_prekey();
-      notificationAccount.generate_prekey();
+      notifsCryptoAccount.notificationAccount.generate_prekey();
     }
     if (shouldForgetPrekey(contentAccount)) {
       contentAccount.forget_old_prekey();
-      notificationAccount.forget_old_prekey();
+      notifsCryptoAccount.notificationAccount.forget_old_prekey();
     }
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
 
     if (!contentAccount.unpublished_prekey()) {
       return;
     }
 
     const { prekey: notifPrekey, prekeySignature: notifPrekeySignature } =
-      getAccountPrekeysSet(notificationAccount);
+      getAccountPrekeysSet(notifsCryptoAccount.notificationAccount);
     const { prekey: contentPrekey, prekeySignature: contentPrekeySignature } =
       getAccountPrekeysSet(contentAccount);
 
@@ -891,9 +935,9 @@ const olmAPI: OlmAPI = {
       notifPrekeySignature,
     });
     contentAccount.mark_prekey_as_published();
-    notificationAccount.mark_prekey_as_published();
+    notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
   },
   async signMessage(message: string): Promise<string> {
     if (!cryptoStore) {
@@ -926,12 +970,13 @@ const olmAPI: OlmAPI = {
     if (!cryptoStore) {
       throw new Error('Crypto account not initialized');
     }
-    const { contentAccount, notificationAccount } = cryptoStore;
+    const { contentAccount } = cryptoStore;
+    const notifsCryptoAccount = await getNotifsCryptoAccount();
 
     contentAccount.mark_prekey_as_published();
-    notificationAccount.mark_prekey_as_published();
+    notifsCryptoAccount.notificationAccount.mark_prekey_as_published();
 
-    persistCryptoStore();
+    await persistCryptoStore(notifsCryptoAccount);
   },
 };
 
