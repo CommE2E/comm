@@ -681,6 +681,17 @@ bool create_message_store_local_table(sqlite3 *db) {
   return create_table(db, query, "message_store_local");
 }
 
+bool create_message_search_table(sqlite3 *db) {
+  std::string query =
+      "CREATE VIRTUAL TABLE IF NOT EXISTS message_search USING fts5("
+      "   original_message_id UNINDEXED,"
+      "   message_id UNINDEXED,"
+      "   processed_content,"
+      "   tokenize = porter"
+      ");";
+  return create_table(db, query, "message_search");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -836,7 +847,14 @@ bool create_schema(sqlite3 *db) {
       "  ON messages (thread, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
-      "  ON outbound_p2p_messages (device_id, timestamp);",
+      "  ON outbound_p2p_messages (device_id, timestamp);"
+
+      "CREATE VIRTUAL TABLE IF NOT EXISTS message_search USING fts5("
+      "   original_message_id UNINDEXED,"
+      "   message_id UNINDEXED,"
+      "   processed_content,"
+      "   tokenize = porter"
+      ");",
 
       nullptr,
       nullptr,
@@ -1085,7 +1103,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {44, {create_received_messages_to_device, true}},
      {45, {recreate_outbound_p2p_messages_table, true}},
      {46, {create_entries_table, true}},
-     {47, {create_message_store_local_table, true}}}};
+     {47, {create_message_store_local_table, true}},
+     {48, {create_message_search_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
