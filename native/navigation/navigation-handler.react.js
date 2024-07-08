@@ -2,8 +2,10 @@
 
 import * as React from 'react';
 
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
-import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import {
+  isLoggedIn,
+  isLoggedInToAuthoritativeKeyserver,
+} from 'lib/selectors/user-selectors.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -13,7 +15,6 @@ import { NavContext, type NavAction } from './navigation-context.js';
 import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.js';
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import { MissingRegistrationDataHandler } from '../account/registration/missing-registration-data/missing-registration-data-handler.react.js';
-import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import DevTools from '../redux/dev-tools.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
@@ -63,10 +64,11 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 
   const hasCurrentUserInfo = useSelector(isLoggedIn);
 
-  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
-  const hasUserCookie = !!(cookie && cookie.startsWith('user='));
+  const isLoggedInToAuthKeyserver = useSelector(
+    isLoggedInToAuthoritativeKeyserver,
+  );
 
-  const loggedIn = hasCurrentUserInfo && hasUserCookie;
+  const loggedIn = hasCurrentUserInfo && isLoggedInToAuthKeyserver;
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef<?boolean>();
 

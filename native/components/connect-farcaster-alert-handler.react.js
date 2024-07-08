@@ -4,12 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
+import { isLoggedInToAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import {
   alertTypes,
   type RecordAlertActionPayload,
 } from 'lib/types/alert-types.js';
-import { authoritativeKeyserverID } from 'lib/utils/authoritative-keyserver.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import { shouldSkipConnectFarcasterAlert } from 'lib/utils/push-alerts.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -23,10 +22,11 @@ function ConnectFarcasterAlertHandler(): React.Node {
 
   const isActive = useSelector(state => state.lifecycleState !== 'background');
 
+  const isLoggedInToAuthKeyserver = useSelector(
+    isLoggedInToAuthoritativeKeyserver,
+  );
   const currentUserID = useSelector(state => state.currentUserInfo?.id);
-  const cookie = useSelector(cookieSelector(authoritativeKeyserverID()));
-  const hasUserCookie = !!(cookie && cookie.startsWith('user='));
-  const loggedIn = !!currentUserID && hasUserCookie;
+  const loggedIn = !!currentUserID && isLoggedInToAuthKeyserver;
 
   const fid = useCurrentUserFID();
 

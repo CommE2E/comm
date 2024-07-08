@@ -22,8 +22,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
-import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
-import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import {
+  isLoggedIn,
+  isLoggedInToAuthoritativeKeyserver,
+} from 'lib/selectors/user-selectors.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -424,7 +426,9 @@ function LoggedOutModal(props: Props) {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated && navContext),
   );
-  const cookie = useSelector(cookieSelector(authoritativeKeyserverID));
+  const isLoggedInToAuthKeyserver = useSelector(
+    isLoggedInToAuthoritativeKeyserver,
+  );
   const loggedIn = useSelector(isLoggedIn);
   const dispatch = useDispatch();
   React.useEffect(() => {
@@ -439,8 +443,7 @@ function LoggedOutModal(props: Props) {
       return;
     }
 
-    const hasUserCookie = cookie && cookie.startsWith('user=');
-    if (loggedIn === !!hasUserCookie) {
+    if (loggedIn === isLoggedInToAuthKeyserver) {
       return;
     }
 
@@ -454,7 +457,7 @@ function LoggedOutModal(props: Props) {
         keyserverID: authoritativeKeyserverID,
       },
     });
-  }, [rehydrateConcluded, loggedIn, cookie, dispatch]);
+  }, [rehydrateConcluded, loggedIn, isLoggedInToAuthKeyserver, dispatch]);
 
   const onPressSIWE = React.useCallback(() => {
     combinedSetMode('siwe');
