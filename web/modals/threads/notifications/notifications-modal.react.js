@@ -17,7 +17,7 @@ import EnumSettingsOption from '../../../components/enum-settings-option.react.j
 import { useSelector } from '../../../redux/redux-utils.js';
 import Modal from '../../modal.react.js';
 
-const focusedStatements = [
+const homeStatements = [
   {
     statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: true,
@@ -29,13 +29,13 @@ const focusedStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.IN_FOCUSED_TAB,
+    statement: threadSettingsNotificationsCopy.IN_HOME_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
 ];
 
-const badgeOnlyStatements = [
+const notifCountOnlyStatements = [
   {
     statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: false,
@@ -47,13 +47,13 @@ const badgeOnlyStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.IN_FOCUSED_TAB,
+    statement: threadSettingsNotificationsCopy.IN_HOME_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
 ];
 
-const backgroundStatements = [
+const mutedStatements = [
   {
     statement: threadSettingsNotificationsCopy.BANNER_NOTIFS,
     isStatementValid: false,
@@ -65,7 +65,7 @@ const backgroundStatements = [
     styleStatementBasedOnValidity: true,
   },
   {
-    statement: threadSettingsNotificationsCopy.IN_BACKGROUND_TAB,
+    statement: threadSettingsNotificationsCopy.IN_MUTED_TAB,
     isStatementValid: true,
     styleStatementBasedOnValidity: true,
   },
@@ -81,58 +81,58 @@ function NotificationsModal(props: Props): React.Node {
 
   const {
     notificationSettings,
-    onFocusedSelected,
-    onBadgeOnlySelected,
-    onBackgroundSelected,
+    onHomeSelected,
+    onNotifCountOnlySelected,
+    onMutedSelected,
     saveButtonDisabled,
     onSave,
     isSidebar,
     canPromoteSidebar,
-    parentThreadIsInBackground,
+    parentThreadIsMuted,
   } = useThreadSettingsNotifications(threadInfo, onClose);
 
-  const isFocusedSelected = notificationSettings === 'focused';
-  const focusedItem = React.useMemo(() => {
+  const isHomeSelected = notificationSettings === 'home';
+  const homeItem = React.useMemo(() => {
     const icon = <AllNotifsIllustration />;
     return (
       <EnumSettingsOption
-        selected={isFocusedSelected}
-        title={threadSettingsNotificationsCopy.FOCUSED}
-        statements={focusedStatements}
+        selected={isHomeSelected}
+        title={threadSettingsNotificationsCopy.HOME}
+        statements={homeStatements}
         icon={icon}
-        onSelect={onFocusedSelected}
+        onSelect={onHomeSelected}
       />
     );
-  }, [isFocusedSelected, onFocusedSelected]);
+  }, [isHomeSelected, onHomeSelected]);
 
-  const isFocusedBadgeOnlySelected = notificationSettings === 'badge-only';
-  const focusedBadgeOnlyItem = React.useMemo(() => {
+  const isNotifyCountOnlySelected = notificationSettings === 'notif-count-only';
+  const notifCountOnlyItem = React.useMemo(() => {
     const icon = <BadgeNotifsIllustration />;
     return (
       <EnumSettingsOption
-        selected={isFocusedBadgeOnlySelected}
-        title={threadSettingsNotificationsCopy.BADGE_ONLY}
-        statements={badgeOnlyStatements}
+        selected={isNotifyCountOnlySelected}
+        title={threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY}
+        statements={notifCountOnlyStatements}
         icon={icon}
-        onSelect={onBadgeOnlySelected}
+        onSelect={onNotifCountOnlySelected}
       />
     );
-  }, [isFocusedBadgeOnlySelected, onBadgeOnlySelected]);
+  }, [isNotifyCountOnlySelected, onNotifCountOnlySelected]);
 
-  const isBackgroundSelected = notificationSettings === 'background';
+  const isMutedSelected = notificationSettings === 'muted';
   const backgroundItem = React.useMemo(() => {
     const icon = <MutedNotifsIllustration />;
     return (
       <EnumSettingsOption
-        selected={isBackgroundSelected}
-        title={threadSettingsNotificationsCopy.BACKGROUND}
-        statements={backgroundStatements}
+        selected={isMutedSelected}
+        title={threadSettingsNotificationsCopy.MUTED}
+        statements={mutedStatements}
         icon={icon}
         disabled={isSidebar}
-        onSelect={onBackgroundSelected}
+        onSelect={onMutedSelected}
       />
     );
-  }, [isBackgroundSelected, onBackgroundSelected, isSidebar]);
+  }, [isMutedSelected, onMutedSelected, isSidebar]);
 
   const modalName = isSidebar
     ? threadSettingsNotificationsCopy.SIDEBAR_TITLE
@@ -158,16 +158,16 @@ function NotificationsModal(props: Props): React.Node {
   }, [isSidebar, canPromoteSidebar]);
 
   const modalContent = React.useMemo(() => {
-    if (parentThreadIsInBackground) {
+    if (parentThreadIsMuted) {
       return (
         <>
           <p className={css.parentThreadIsInBackgroundNotice}>
-            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND}
+            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED}
           </p>
           <p className={css.parentThreadIsInBackgroundNotice}>
             {canPromoteSidebar
-              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_PROMOTE
-              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_NOT_PROMOTE}
+              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_PROMOTE
+              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_NOT_PROMOTE}
           </p>
         </>
       );
@@ -176,24 +176,24 @@ function NotificationsModal(props: Props): React.Node {
     return (
       <>
         <div className={css.optionsContainer}>
-          {focusedItem}
-          {focusedBadgeOnlyItem}
+          {homeItem}
+          {notifCountOnlyItem}
           {backgroundItem}
         </div>
         {noticeText}
       </>
     );
   }, [
+    parentThreadIsMuted,
+    homeItem,
+    notifCountOnlyItem,
     backgroundItem,
-    focusedBadgeOnlyItem,
-    focusedItem,
     noticeText,
-    parentThreadIsInBackground,
     canPromoteSidebar,
   ]);
 
   const saveButton = React.useMemo(() => {
-    if (parentThreadIsInBackground) {
+    if (parentThreadIsMuted) {
       return undefined;
     }
 
@@ -202,7 +202,7 @@ function NotificationsModal(props: Props): React.Node {
         Save
       </Button>
     );
-  }, [saveButtonDisabled, onSave, parentThreadIsInBackground]);
+  }, [parentThreadIsMuted, onSave, saveButtonDisabled]);
 
   return (
     <Modal

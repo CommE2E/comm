@@ -27,18 +27,14 @@ type NotificationDescriptionProps = {
   +selected: boolean,
   +bannerNotifsEnabled: boolean,
   +notifCountEnabled: boolean,
-  +livesInFocusedTab: boolean,
+  +livesInHomeTab: boolean,
 };
 
 function NotificationDescription(
   props: NotificationDescriptionProps,
 ): React.Node {
-  const {
-    selected,
-    bannerNotifsEnabled,
-    notifCountEnabled,
-    livesInFocusedTab,
-  } = props;
+  const { selected, bannerNotifsEnabled, notifCountEnabled, livesInHomeTab } =
+    props;
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
@@ -122,9 +118,9 @@ function NotificationDescription(
           color={colors.panelForegroundSecondaryLabel}
         />
         <Text style={styles.notificationOptionDescriptionText}>
-          {livesInFocusedTab
-            ? threadSettingsNotificationsCopy.IN_FOCUSED_TAB
-            : threadSettingsNotificationsCopy.IN_BACKGROUND_TAB}
+          {livesInHomeTab
+            ? threadSettingsNotificationsCopy.IN_HOME_TAB
+            : threadSettingsNotificationsCopy.IN_MUTED_TAB}
         </Text>
       </View>
     </>
@@ -146,20 +142,20 @@ function ThreadSettingsNotifications(props: Props): React.Node {
 
   const {
     notificationSettings,
-    onFocusedSelected,
-    onBadgeOnlySelected,
-    onBackgroundSelected,
+    onHomeSelected,
+    onNotifCountOnlySelected,
+    onMutedSelected,
     saveButtonDisabled,
     onSave,
     isSidebar,
     canPromoteSidebar,
-    parentThreadIsInBackground,
+    parentThreadIsMuted,
   } = useThreadSettingsNotifications(threadInfo, goBack);
 
   React.useEffect(() => {
     setOptions({
       headerRight: () =>
-        parentThreadIsInBackground ? null : (
+        parentThreadIsMuted ? null : (
           <HeaderRightTextButton
             label="Save"
             onPress={onSave}
@@ -167,7 +163,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
           />
         ),
     });
-  }, [saveButtonDisabled, onSave, setOptions, parentThreadIsInBackground]);
+  }, [saveButtonDisabled, onSave, setOptions, parentThreadIsMuted]);
 
   const styles = useStyles(unboundStyles);
 
@@ -180,7 +176,7 @@ function ThreadSettingsNotifications(props: Props): React.Node {
     [styles.notificationOptionIconContainer],
   );
 
-  const badgeOnlyIllustration = React.useMemo(
+  const notifCountOnlyIllustration = React.useMemo(
     () => (
       <View style={styles.notificationOptionIconContainer}>
         <BadgeNotifsIllustration />
@@ -201,22 +197,22 @@ function ThreadSettingsNotifications(props: Props): React.Node {
   const allNotificationsDescription = React.useMemo(
     () => (
       <NotificationDescription
-        selected={notificationSettings === 'focused'}
+        selected={notificationSettings === 'home'}
         bannerNotifsEnabled={true}
         notifCountEnabled={true}
-        livesInFocusedTab={true}
+        livesInHomeTab={true}
       />
     ),
     [notificationSettings],
   );
 
-  const badgeOnlyDescription = React.useMemo(
+  const notifCountOnlyDescription = React.useMemo(
     () => (
       <NotificationDescription
-        selected={notificationSettings === 'badge-only'}
+        selected={notificationSettings === 'notif-count-only'}
         bannerNotifsEnabled={false}
         notifCountEnabled={true}
-        livesInFocusedTab={true}
+        livesInHomeTab={true}
       />
     ),
     [notificationSettings],
@@ -225,10 +221,10 @@ function ThreadSettingsNotifications(props: Props): React.Node {
   const mutedDescription = React.useMemo(
     () => (
       <NotificationDescription
-        selected={notificationSettings === 'background'}
+        selected={notificationSettings === 'muted'}
         bannerNotifsEnabled={false}
         notifCountEnabled={false}
-        livesInFocusedTab={false}
+        livesInHomeTab={false}
       />
     ),
     [notificationSettings],
@@ -259,16 +255,16 @@ function ThreadSettingsNotifications(props: Props): React.Node {
   ]);
 
   const threadSettingsNotifications = React.useMemo(() => {
-    if (parentThreadIsInBackground) {
+    if (parentThreadIsMuted) {
       return (
-        <View style={styles.parentThreadIsInBackgroundNoticeContainerStyle}>
-          <Text style={styles.parentThreadIsInBackgroundNoticeText}>
-            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND}
+        <View style={styles.parentThreadIsMutedNoticeContainerStyle}>
+          <Text style={styles.parentThreadIsMutedNoticeText}>
+            {threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED}
           </Text>
-          <Text style={styles.parentThreadIsInBackgroundNoticeText}>
+          <Text style={styles.parentThreadIsMutedNoticeText}>
             {canPromoteSidebar
-              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_PROMOTE
-              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_BACKGROUND_CAN_NOT_PROMOTE}
+              ? threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_PROMOTE
+              : threadSettingsNotificationsCopy.PARENT_THREAD_IS_MUTED_CAN_NOT_PROMOTE}
           </Text>
         </View>
       );
@@ -278,27 +274,27 @@ function ThreadSettingsNotifications(props: Props): React.Node {
       <View style={styles.container}>
         <View style={styles.enumSettingsOptionContainer}>
           <EnumSettingsOption
-            name={threadSettingsNotificationsCopy.FOCUSED}
-            enumValue={notificationSettings === 'focused'}
-            onEnumValuePress={onFocusedSelected}
+            name={threadSettingsNotificationsCopy.HOME}
+            enumValue={notificationSettings === 'home'}
+            onEnumValuePress={onHomeSelected}
             description={allNotificationsDescription}
             icon={allNotificationsIllustration}
           />
         </View>
         <View style={styles.enumSettingsOptionContainer}>
           <EnumSettingsOption
-            name={threadSettingsNotificationsCopy.BADGE_ONLY}
-            enumValue={notificationSettings === 'badge-only'}
-            onEnumValuePress={onBadgeOnlySelected}
-            description={badgeOnlyDescription}
-            icon={badgeOnlyIllustration}
+            name={threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY}
+            enumValue={notificationSettings === 'notif-count-only'}
+            onEnumValuePress={onNotifCountOnlySelected}
+            description={notifCountOnlyDescription}
+            icon={notifCountOnlyIllustration}
           />
         </View>
         <View style={styles.enumSettingsOptionContainer}>
           <EnumSettingsOption
-            name={threadSettingsNotificationsCopy.BACKGROUND}
-            enumValue={notificationSettings === 'background'}
-            onEnumValuePress={onBackgroundSelected}
+            name={threadSettingsNotificationsCopy.MUTED}
+            enumValue={notificationSettings === 'muted'}
+            onEnumValuePress={onMutedSelected}
             description={mutedDescription}
             icon={mutedIllustration}
             disabled={isSidebar}
@@ -308,24 +304,24 @@ function ThreadSettingsNotifications(props: Props): React.Node {
       </View>
     );
   }, [
-    allNotificationsDescription,
-    allNotificationsIllustration,
-    badgeOnlyDescription,
-    badgeOnlyIllustration,
-    canPromoteSidebar,
-    isSidebar,
-    mutedDescription,
-    mutedIllustration,
-    noticeText,
-    notificationSettings,
-    onBackgroundSelected,
-    onBadgeOnlySelected,
-    onFocusedSelected,
-    parentThreadIsInBackground,
+    parentThreadIsMuted,
     styles.container,
     styles.enumSettingsOptionContainer,
-    styles.parentThreadIsInBackgroundNoticeContainerStyle,
-    styles.parentThreadIsInBackgroundNoticeText,
+    styles.parentThreadIsMutedNoticeContainerStyle,
+    styles.parentThreadIsMutedNoticeText,
+    notificationSettings,
+    onHomeSelected,
+    allNotificationsDescription,
+    allNotificationsIllustration,
+    onNotifCountOnlySelected,
+    notifCountOnlyDescription,
+    notifCountOnlyIllustration,
+    onMutedSelected,
+    mutedDescription,
+    mutedIllustration,
+    isSidebar,
+    noticeText,
+    canPromoteSidebar,
   ]);
 
   return threadSettingsNotifications;
@@ -371,12 +367,12 @@ const unboundStyles = {
     lineHeight: 18,
     marginVertical: 8,
   },
-  parentThreadIsInBackgroundNoticeContainerStyle: {
+  parentThreadIsMutedNoticeContainerStyle: {
     backgroundColor: 'panelForeground',
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
-  parentThreadIsInBackgroundNoticeText: {
+  parentThreadIsMutedNoticeText: {
     color: 'panelForegroundSecondaryLabel',
     fontSize: 16,
     lineHeight: 20,

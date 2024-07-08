@@ -46,11 +46,11 @@ type Props = {
 };
 class ThreadSettingsPushNotifs extends React.PureComponent<Props> {
   render(): React.Node {
-    let componentLabel = threadSettingsNotificationsCopy.FOCUSED;
+    let componentLabel = threadSettingsNotificationsCopy.HOME;
     if (!this.props.threadInfo.currentUser.subscription.home) {
-      componentLabel = threadSettingsNotificationsCopy.BACKGROUND;
+      componentLabel = threadSettingsNotificationsCopy.MUTED;
     } else if (!this.props.threadInfo.currentUser.subscription.pushNotifs) {
-      componentLabel = threadSettingsNotificationsCopy.BADGE_ONLY;
+      componentLabel = threadSettingsNotificationsCopy.NOTIF_COUNT_ONLY;
     }
 
     let editSettingsButton, notifSettingsLinkingButton;
