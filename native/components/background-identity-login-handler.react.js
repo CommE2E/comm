@@ -8,6 +8,7 @@ import {
   logOutActionTypes,
   useLogOut,
 } from 'lib/actions/user-actions.js';
+import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { securityUpdateLogoutText } from 'lib/types/alert-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -15,6 +16,7 @@ import { useSelector } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { fetchNativeKeychainCredentials } from '../account/native-credentials.js';
+import { useIsAppLoggedIn } from '../navigation/nav-selectors.js';
 import Alert from '../utils/alert.js';
 
 function BackgroundIdentityLoginHandler() {
@@ -25,7 +27,14 @@ function BackgroundIdentityLoginHandler() {
     accountHasPassword(state.currentUserInfo),
   );
   const hasAccessToken = useSelector(state => !!state.commServicesAccessToken);
-  const dataLoaded = useSelector(state => state.dataLoaded);
+
+  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
+  const navLoggedIn = useIsAppLoggedIn();
+
+  // We don't want to try identity login until both loggedIn and navLoggedIn are
+  // true. The former is to make sure that we will be able to successfully log
+  // in with identity. The latter is to address a race condition in ENG-8785.
+  const readyToTryIdentityLogin = loggedIn && navLoggedIn;
 
   const callIdentityPasswordLogIn = useIdentityPasswordLogIn();
 
@@ -39,7 +48,7 @@ function BackgroundIdentityLoginHandler() {
   const logInIfPossibleElseLogOut = React.useCallback(async () => {
     if (
       hasAccessToken ||
-      !dataLoaded ||
+      !readyToTryIdentityLogin ||
       !usingCommServicesAccessToken ||
       loginAttemptedRef.current
     ) {
@@ -80,7 +89,7 @@ function BackgroundIdentityLoginHandler() {
   }, [
     callIdentityPasswordLogIn,
     dispatchActionPromise,
-    dataLoaded,
+    readyToTryIdentityLogin,
     handleLogOutAndAlert,
     hasAccessToken,
     isAccountWithPassword,
