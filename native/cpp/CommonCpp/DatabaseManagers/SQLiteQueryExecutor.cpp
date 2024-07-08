@@ -734,6 +734,17 @@ bool add_supports_auto_retry_column_to_p2p_messages_table(sqlite3 *db) {
   return false;
 }
 
+bool create_message_search_table(sqlite3 *db) {
+  std::string query =
+      "CREATE VIRTUAL TABLE IF NOT EXISTS message_search USING fts5("
+      "   original_message_id UNINDEXED,"
+      "   message_id UNINDEXED,"
+      "   processed_content,"
+      "   tokenize = porter"
+      ");";
+  return create_table(db, query, "message_search");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -888,6 +899,13 @@ bool create_schema(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS message_store_local ("
       "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  local_message_info TEXT NOT NULL"
+      ");"
+
+      "CREATE VIRTUAL TABLE IF NOT EXISTS message_search USING fts5("
+      "   original_message_id UNINDEXED,"
+      "   message_id UNINDEXED,"
+      "   processed_content,"
+      "   tokenize = porter"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -1151,7 +1169,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {46, {create_entries_table, true}},
      {47, {create_message_store_local_table, true}},
      {48, {create_messages_idx_target_message_type_time, true}},
-     {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}}}};
+     {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}},
+     {50, {create_message_search_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
