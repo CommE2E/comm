@@ -9,7 +9,7 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { cookieSelector } from 'lib/selectors/keyserver-selectors.js';
 import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
@@ -126,7 +126,7 @@ function AutoJoinCommunityHandler(): React.Node {
         }
 
         const { commCommunityID } = await blobResult.json();
-        const keyserverID = extractKeyserverIDFromID(commCommunityID);
+        const keyserverID = extractKeyserverIDFromIDOptional(commCommunityID);
 
         if (!keyserverID || !keyserverInfos[keyserverID]) {
           return;
