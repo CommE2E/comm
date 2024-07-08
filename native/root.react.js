@@ -308,7 +308,11 @@ function Root() {
             </DeepLinksContextProvider>
           </ChatContextProvider>
           <NavigationHandler />
-          <ConnectFarcasterAlertHandler />
+          <PersistedStateGate>
+            <FarcasterDataHandler>
+              <ConnectFarcasterAlertHandler />
+            </FarcasterDataHandler>
+          </PersistedStateGate>
         </BottomSheetModalProvider>
       </NavigationContainer>
     );
@@ -367,7 +371,6 @@ function Root() {
                                                   <BackgroundIdentityLoginHandler />
                                                   <PrekeysHandler />
                                                   <ReportHandler />
-                                                  <FarcasterDataHandler />
                                                   <AutoJoinCommunityHandler />
                                                 </PersistedStateGate>
                                                 {navigation}
