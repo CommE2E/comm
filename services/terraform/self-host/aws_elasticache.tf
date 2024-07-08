@@ -6,10 +6,10 @@ resource "aws_security_group" "keyserver_redis_security_group" {
 
   # Inbound rules
   ingress {
-    from_port   = 6379
-    to_port     = 6379
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    security_groups = [aws_security_group.keyserver_service.id]
   }
 
   # Outbound rules
