@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
 import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import {
   alertTypes,
   type RecordAlertActionPayload,
@@ -24,7 +25,13 @@ function ConnectFarcasterAlertHandler(): React.Node {
 
   const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
 
+  const currentUserID = useSelector(state => state.currentUserInfo?.id);
+
   const fid = useCurrentUserFID();
+
+  const identityServiceClient = React.useContext(IdentityClientContext);
+  const findUserIdentities =
+    identityServiceClient?.identityClient.findUserIdentities;
 
   const connectFarcasterAlertInfo = useSelector(
     state => state.alertStore.alertInfos[alertTypes.CONNECT_FARCASTER],
@@ -36,13 +43,27 @@ function ConnectFarcasterAlertHandler(): React.Node {
     if (
       !loggedIn ||
       !isActive ||
+      !findUserIdentities ||
+      !currentUserID ||
       shouldSkipConnectFarcasterAlert(connectFarcasterAlertInfo, fid)
     ) {
       return;
     }
 
     void (async () => {
-      await sleep(1000);
+      const findUserIdentitiesPromise = findUserIdentities([currentUserID]);
+      const sleepPromise = await sleep(1000);
+
+      const [currentUserIdentityObj] = await Promise.all([
+        findUserIdentitiesPromise,
+        sleepPromise,
+      ]);
+
+      const { farcasterID } = currentUserIdentityObj[currentUserID];
+
+      if (farcasterID) {
+        return;
+      }
 
       navigate(ConnectFarcasterBottomSheetRouteName);
 
@@ -56,7 +77,16 @@ function ConnectFarcasterAlertHandler(): React.Node {
         payload,
       });
     })();
-  }, [connectFarcasterAlertInfo, dispatch, fid, isActive, loggedIn, navigate]);
+  }, [
+    connectFarcasterAlertInfo,
+    currentUserID,
+    dispatch,
+    fid,
+    findUserIdentities,
+    isActive,
+    loggedIn,
+    navigate,
+  ]);
 
   return null;
 }
