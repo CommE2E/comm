@@ -88,17 +88,26 @@ void (async () => {
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
     process.env.KEYSERVER_ENDPOINT_METRICS_ENABLED;
+  const isPrimaryNode = (() => {
+    if (process.env.COMM_NODE_ROLE) {
+      return process.env.COMM_NODE_ROLE === 'primary';
+    } else {
+      return true;
+    }
+  })();
 
   if (cluster.isMaster) {
-    const didMigrationsSucceed: boolean = await migrate();
-    if (!didMigrationsSucceed) {
-      // The following line uses exit code 2 to ensure nodemon exits
-      // in a dev environment, instead of restarting. Context provided
-      // in https://github.com/remy/nodemon/issues/751
-      process.exit(2);
+    if (isPrimaryNode) {
+      const didMigrationsSucceed: boolean = await migrate();
+      if (!didMigrationsSucceed) {
+        // The following line uses exit code 2 to ensure nodemon exits
+        // in a dev environment, instead of restarting. Context provided
+        // in https://github.com/remy/nodemon/issues/751
+        process.exit(2);
+      }
     }
 
-    if (shouldDisplayQRCodeInTerminal) {
+    if (shouldDisplayQRCodeInTerminal && isPrimaryNode) {
       try {
         const aes256Key = crypto.randomBytes(32).toString('hex');
         const ed25519Key = await getContentSigningKey();
@@ -131,12 +140,15 @@ void (async () => {
         // commServicesAccessToken. In the future, this will be necessary for
         // many keyserver operations.
         const identityInfo = await verifyUserLoggedIn();
-        // We don't await here, as Tunnelbroker communication is not needed for
-        // normal keyserver behavior yet. In addition, this doesn't return
-        // information useful for other keyserver functions.
-        ignorePromiseRejections(createAndMaintainTunnelbrokerWebsocket(null));
-        if (process.env.NODE_ENV === 'development') {
-          await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
+
+        if (isPrimaryNode) {
+          // We don't await here, as Tunnelbroker communication is not needed for
+          // normal keyserver behavior yet. In addition, this doesn't return
+          // information useful for other keyserver functions.
+          ignorePromiseRejections(createAndMaintainTunnelbrokerWebsocket(null));
+          if (process.env.NODE_ENV === 'development') {
+            await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
+          }
         }
       } catch (e) {
         console.warn(
