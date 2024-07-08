@@ -42,6 +42,10 @@ resource "aws_ecs_task_definition" "keyserver_service" {
       ]
       environment = [
         {
+          name  = "REDIS_URL"
+          value = "rediss://${aws_elasticache_serverless_cache.redis.endpoint[0].address}:6379"
+        },
+        {
           name  = "COMM_LISTEN_ADDR"
           value = "0.0.0.0"
         },
