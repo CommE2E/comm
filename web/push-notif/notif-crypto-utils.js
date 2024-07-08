@@ -4,10 +4,12 @@ import olm from '@commapp/olm';
 import type { EncryptResult } from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
+import uuid from 'uuid';
 
 import {
   olmEncryptedMessageTypes,
   type NotificationsOlmDataType,
+  type PickledOLMAccount,
 } from 'lib/types/crypto-types.js';
 import type {
   PlainTextWebNotification,
@@ -15,12 +17,15 @@ import type {
 } from 'lib/types/notif-types.js';
 import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
 import {
   type EncryptedData,
   decryptData,
   encryptData,
   importJWKKey,
+  exportKeyToJWK,
+  generateCryptoKey,
 } from '../crypto/aes-gcm-crypto-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
 import {
@@ -40,6 +45,13 @@ export type WebNotifsServiceUtilsData = {
   +staffCanSee: boolean,
 };
 
+export type NotificationAccountWithPicklingKey = {
+  +notificationAccount: olm.Account,
+  +picklingKey: string,
+  +synchronizationValue: ?string,
+  +accountEncryptionKey?: CryptoKey,
+};
+
 type DecryptionResult<T> = {
   +newPendingSessionUpdate: string,
   +newUpdateCreationTimestamp: number,
@@ -52,6 +64,7 @@ const SESSION_UPDATE_MAX_PENDING_TIME = 10 * 1000;
 const INDEXED_DB_KEYSERVER_PREFIX = 'keyserver';
 const INDEXED_DB_KEY_SEPARATOR = ':';
 const INDEXED_DB_DEVICE_PREFIX = 'device';
+const INDEXED_DB_NOTIFS_SYNC_KEY = 'notifsSyncKey';
 
 // This constant is only used to migrate the existing notifications
 // session with production keyserver to new IndexedDB key format. This
@@ -63,6 +76,156 @@ const ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE =
   '256';
 
 const INDEXED_DB_UNREAD_COUNT_SUFFIX = 'unreadCount';
+const INDEXED_DB_NOTIFS_ACCOUNT_KEY = 'notificationAccount';
+const INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL =
+  'notificationAccountEncryptionKey';
+
+async function deserializeEncryptedData<T>(
+  encryptedData: ?EncryptedData,
+  encryptionKey: ?CryptoKey,
+): Promise<?T> {
+  if (!encryptedData || !encryptionKey) {
+    return undefined;
+  }
+  const serializedData = await decryptData(encryptedData, encryptionKey);
+  const data: T = JSON.parse(new TextDecoder().decode(serializedData));
+  return data;
+}
+
+async function serializeUnencryptedData<T>(
+  data: T,
+  encryptionKey: CryptoKey,
+): Promise<EncryptedData> {
+  const dataAsString = JSON.stringify(data);
+  invariant(
+    dataAsString,
+    'Attempt to serialize null or undefined is forbidden',
+  );
+  return await encryptData(
+    new TextEncoder().encode(dataAsString),
+    encryptionKey,
+  );
+}
+
+async function validateCryptoKey(
+  cryptoKey: ?CryptoKey | ?SubtleCrypto$JsonWebKey,
+): Promise<?CryptoKey> {
+  if (!cryptoKey) {
+    return cryptoKey;
+  }
+
+  if (!isDesktopSafari) {
+    return ((cryptoKey: any): CryptoKey);
+  }
+  return await importJWKKey(((cryptoKey: any): SubtleCrypto$JsonWebKey));
+}
+
+async function getCryptoKeyPersistentForm(
+  cryptoKey: CryptoKey,
+): Promise<CryptoKey | SubtleCrypto$JsonWebKey> {
+  if (!isDesktopSafari) {
+    return cryptoKey;
+  }
+
+  // Safari doesn't support structured clone algorithm in service
+  // worker context so we have to store CryptoKey as JSON
+  return await exportKeyToJWK(cryptoKey);
+}
+
+async function persistNotifsAccountWithOlmData(input: {
+  olmDataKey?: string,
+  olmEncryptionKeyDBLabel?: string,
+  olmData?: ?NotificationsOlmDataType,
+  encryptionKey?: ?CryptoKey,
+  accountEncryptionKey?: ?CryptoKey,
+  accountWithPicklingKey?: PickledOLMAccount,
+  synchronizationValue: ?string,
+  forceWrite: boolean,
+}): Promise<void> {
+  const {
+    olmData,
+    olmDataKey,
+    accountEncryptionKey,
+    accountWithPicklingKey,
+    encryptionKey,
+    synchronizationValue,
+    olmEncryptionKeyDBLabel,
+    forceWrite,
+  } = input;
+
+  const shouldPersistOlmData = olmDataKey && olmData && encryptionKey;
+  const shouldPersistAccount = accountWithPicklingKey && accountEncryptionKey;
+
+  if (!shouldPersistOlmData && !shouldPersistAccount) {
+    return;
+  }
+
+  const serializationPromises: {
+    [string]: Promise<EncryptedData | CryptoKey | SubtleCrypto$JsonWebKey>,
+  } = {};
+
+  if (!olmData && !accountWithPicklingKey) {
+    return;
+  }
+
+  if (olmDataKey && olmData && encryptionKey) {
+    serializationPromises[olmDataKey] =
+      serializeUnencryptedData<NotificationsOlmDataType>(
+        olmData,
+        encryptionKey,
+      );
+  } else if (olmData && olmDataKey && olmEncryptionKeyDBLabel) {
+    const newEncryptionKey = await generateCryptoKey({
+      extractable: isDesktopSafari,
+    });
+
+    serializationPromises[olmDataKey] =
+      serializeUnencryptedData<NotificationsOlmDataType>(
+        olmData,
+        newEncryptionKey,
+      );
+
+    serializationPromises[olmEncryptionKeyDBLabel] =
+      getCryptoKeyPersistentForm(newEncryptionKey);
+  }
+
+  if (accountWithPicklingKey && accountEncryptionKey) {
+    serializationPromises[INDEXED_DB_NOTIFS_ACCOUNT_KEY] =
+      serializeUnencryptedData<PickledOLMAccount>(
+        accountWithPicklingKey,
+        accountEncryptionKey,
+      );
+  } else if (accountWithPicklingKey) {
+    const newEncryptionKey = await generateCryptoKey({
+      extractable: isDesktopSafari,
+    });
+
+    serializationPromises[INDEXED_DB_NOTIFS_ACCOUNT_KEY] =
+      serializeUnencryptedData<PickledOLMAccount>(
+        accountWithPicklingKey,
+        newEncryptionKey,
+      );
+
+    serializationPromises[INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL] =
+      getCryptoKeyPersistentForm(newEncryptionKey);
+  }
+
+  const setMultipleItemsInput = await promiseAll(serializationPromises);
+  const newSynchronizationValue = uuid.v4();
+
+  try {
+    await localforage.setMultipleItems(
+      setMultipleItemsInput,
+      INDEXED_DB_NOTIFS_SYNC_KEY,
+      synchronizationValue,
+      newSynchronizationValue,
+      forceWrite,
+    );
+  } catch (e) {
+    // likely worker crypt persisted its own data
+    console.log(e);
+  }
+}
 
 async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
@@ -319,13 +482,19 @@ async function encryptNotification(
   const olmEncryptionKeyDBLabel =
     getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
 
-  let encryptedOlmData, encryptionKey;
+  let encryptedOlmData, encryptionKey, synchronizationValue;
   try {
-    [encryptedOlmData, encryptionKey] = await Promise.all([
-      localforage.getItem<EncryptedData>(olmDataKey),
-      retrieveEncryptionKey(olmEncryptionKeyDBLabel),
-      initOlm(),
-    ]);
+    const {
+      [olmDataKey]: fetchedEncryptedOlmData,
+      [olmEncryptionKeyDBLabel]: fetchedEncryptionKey,
+      synchronizationValue: fetchedSynchronizationValue,
+    } = await localforage.getMultipleItems<{
+      +[string]: ?EncryptedData | ?CryptoKey | ?SubtleCrypto$JsonWebKey,
+    }>([olmDataKey, olmEncryptionKeyDBLabel], INDEXED_DB_NOTIFS_SYNC_KEY);
+
+    encryptedOlmData = fetchedEncryptedOlmData;
+    encryptionKey = fetchedEncryptionKey;
+    synchronizationValue = fetchedSynchronizationValue;
   } catch (e) {
     throw new Error(
       `Failed to fetch olm session from IndexedDB for device: ${deviceID}. Details: ${
@@ -338,13 +507,28 @@ async function encryptNotification(
     throw new Error(`Session with device: ${deviceID} not initialized.`);
   }
 
+  // type refinement
+  if (!encryptedOlmData.ciphertext) {
+    throw new Error('Invalid encrypted olm data format');
+  }
+
+  if (encryptionKey.ciphertext) {
+    throw new Error('Invalid encryption key format');
+  }
+
+  const validatedEncryptionKey = await validateCryptoKey(encryptionKey);
+  if (!validatedEncryptionKey) {
+    throw new Error(`Session with device: ${deviceID} not initialized.`);
+  }
+
   let encryptedNotification;
   try {
     encryptedNotification = await encryptNotificationWithOlmSession(
       payload,
       encryptedOlmData,
       olmDataKey,
-      encryptionKey,
+      validatedEncryptionKey,
+      synchronizationValue,
     );
   } catch (e) {
     throw new Error(
@@ -361,6 +545,7 @@ async function encryptNotificationWithOlmSession(
   encryptedOlmData: EncryptedData,
   olmDataKey: string,
   encryptionKey: CryptoKey,
+  synchronizationValue: ?string,
 ): Promise<EncryptResult> {
   const serializedOlmData = await decryptData(encryptedOlmData, encryptionKey);
   const {
@@ -388,8 +573,83 @@ async function encryptNotificationWithOlmSession(
     encryptionKey,
   );
 
-  await localforage.setItem(olmDataKey, updatedEncryptedSession);
+  const newSynchronizationValue = uuid.v4();
+  await localforage.setMultipleItems(
+    { [olmDataKey]: updatedEncryptedSession },
+    INDEXED_DB_NOTIFS_SYNC_KEY,
+    synchronizationValue,
+    newSynchronizationValue,
+    // This method (encryptNotification) is expected to be called
+    // exclusively from shared worker-crypto which must always win race
+    // condition against push notifications service-worker
+    true,
+  );
+
   return encryptedNotification;
+}
+
+// notifications account manipulation
+
+async function isNotifsCryptoAccountInitialized(): Promise<boolean> {
+  const {
+    notificationAccount: encryptedNotifsAccount,
+    notificationAccountEncryptionKey: notifsAccountEncryptionKey,
+  } = await localforage.getMultipleItems<{
+    +notificationAccount: ?EncryptedData,
+    +notificationAccountEncryptionKey: ?CryptoKey,
+  }>(
+    [
+      INDEXED_DB_NOTIFS_ACCOUNT_KEY,
+      INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL,
+    ],
+    INDEXED_DB_NOTIFS_SYNC_KEY,
+  );
+  return !!encryptedNotifsAccount && !!notifsAccountEncryptionKey;
+}
+
+async function getNotifsCryptoAccount(): Promise<NotificationAccountWithPicklingKey> {
+  const {
+    [INDEXED_DB_NOTIFS_ACCOUNT_KEY]: encryptedNotifsAccount,
+    [INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL]:
+      notifsAccountEncryptionKey,
+    synchronizationValue,
+  } = await localforage.getMultipleItems<{
+    +notificationAccount: ?EncryptedData,
+    +notificationAccountEncryptionKey: ?CryptoKey,
+  }>(
+    [
+      INDEXED_DB_NOTIFS_ACCOUNT_KEY,
+      INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL,
+    ],
+    INDEXED_DB_NOTIFS_SYNC_KEY,
+  );
+
+  const validatedNotifsAccountEncryptionKey = await validateCryptoKey(
+    notifsAccountEncryptionKey,
+  );
+
+  const pickledOLMAccount = await deserializeEncryptedData<PickledOLMAccount>(
+    encryptedNotifsAccount,
+    validatedNotifsAccountEncryptionKey,
+  );
+
+  if (!pickledOLMAccount || !validatedNotifsAccountEncryptionKey) {
+    throw new Error(
+      'Attempt to retrieve notifs olm account but account not created.',
+    );
+  }
+
+  const { pickledAccount, picklingKey } = pickledOLMAccount;
+
+  const notificationAccount = new olm.Account();
+  notificationAccount.unpickle(picklingKey, pickledAccount);
+
+  return {
+    notificationAccount,
+    picklingKey,
+    synchronizationValue,
+    accountEncryptionKey: validatedNotifsAccountEncryptionKey,
+  };
 }
 
 async function retrieveEncryptionKey(
@@ -406,6 +666,22 @@ async function retrieveEncryptionKey(
     return null;
   }
   return await importJWKKey(persistedCryptoKey);
+}
+
+async function persistEncryptionKey(
+  encryptionKeyDBLabel: string,
+  encryptionKey: CryptoKey,
+): Promise<void> {
+  let cryptoKeyPersistentForm;
+  if (isDesktopSafari) {
+    // Safari doesn't support structured clone algorithm in service
+    // worker context so we have to store CryptoKey as JSON
+    cryptoKeyPersistentForm = await exportKeyToJWK(encryptionKey);
+  } else {
+    cryptoKeyPersistentForm = encryptionKey;
+  }
+
+  await localforage.setItem(encryptionKeyDBLabel, cryptoKeyPersistentForm);
 }
 
 async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
@@ -643,4 +919,9 @@ export {
   migrateLegacyOlmNotificationsSessions,
   updateNotifsUnreadCountStorage,
   queryNotifsUnreadCountStorage,
+  isNotifsCryptoAccountInitialized,
+  getNotifsCryptoAccount,
+  persistEncryptionKey,
+  retrieveEncryptionKey,
+  persistNotifsAccountWithOlmData,
 };
