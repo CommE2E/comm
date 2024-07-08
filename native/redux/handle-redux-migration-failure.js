@@ -22,6 +22,7 @@ const persistBlacklist = [
   'auxUserStore',
   'commServicesAccessToken',
   'inviteLinksStore',
+  'integrityStore',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
