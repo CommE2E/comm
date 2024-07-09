@@ -99,6 +99,12 @@ resource "aws_ecs_task_definition" "keyserver_service" {
             "identitySocketAddr" : "${var.identity_socket_address}"
           })
         },
+        {
+          name = "COMM_JSONCONFIG_facts_authoritative_keyserver",
+          value = jsonencode({
+            "authoritativeKeyserverID" : "${var.authoritative_keyserver_id}"
+          }),
+        }
       ]
       logConfiguration = {
         "logDriver" = "awslogs"
