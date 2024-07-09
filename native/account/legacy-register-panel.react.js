@@ -167,6 +167,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
             onChangeText={this.onChangePasswordInputText}
             onKeyPress={onPasswordKeyPress}
             placeholder="Password"
+            autoCapitalize="none"
             secureTextEntry={true}
             textContentType="password"
             autoComplete="password-new"
@@ -185,6 +186,7 @@ class LegacyRegisterPanel extends React.PureComponent<Props, State> {
             }
             onChangeText={this.onChangeConfirmPasswordInputText}
             placeholder="Confirm password"
+            autoCapitalize="none"
             autoComplete="password-new"
             returnKeyType="go"
             blurOnSubmit={false}
