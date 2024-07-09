@@ -2,10 +2,8 @@
 
 import * as React from 'react';
 
-import {
-  childThreadInfos,
-  communityThreadSelector,
-} from 'lib/selectors/thread-selectors.js';
+import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
+import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
 import {
   createRecursiveDrawerItemsData,
   useAppendCommunitySuffix,
@@ -22,7 +20,7 @@ const labelStyles = ['title'];
 
 function CommunityDrawer(): React.Node {
   const tab = useSelector(state => state.navInfo.tab);
-  const childThreadInfosMap = useSelector(childThreadInfos);
+  const childThreadInfosMap = useChildThreadInfosMap();
   const communities = useSelector(communityThreadSelector);
   const resolvedCommunities = useResolvedThreadInfos(communities);
   const communitiesSuffixed = useAppendCommunitySuffix(resolvedCommunities);
