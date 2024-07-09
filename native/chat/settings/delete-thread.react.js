@@ -168,17 +168,6 @@ class DeleteThread extends React.PureComponent<Props> {
     );
   }
 
-  passwordInputRef = (
-    passwordInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => {
-    this.passwordInput = passwordInput;
-  };
-
-  focusPasswordInput = () => {
-    invariant(this.passwordInput, 'passwordInput should be set');
-    this.passwordInput.focus();
-  };
-
   dispatchDeleteThreadAction = () => {
     void this.props.dispatchActionPromise(
       deleteThreadActionTypes,
