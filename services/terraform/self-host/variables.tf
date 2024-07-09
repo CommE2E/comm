@@ -40,6 +40,11 @@ variable "user_created_vpc" {
   description = "Use non-default vpc and subnets"
 }
 
+variable "authoritative_keyserver_user_id" {
+  description = "Authoritative keyserver user id"
+  type        = string
+}
+
 variable "availability_zone_1" {
   description = "First availability zone for vpc subnet if user created vpc"
   type        = string
