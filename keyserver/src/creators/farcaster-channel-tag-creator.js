@@ -27,6 +27,7 @@ import {
 } from '../services/blob.js';
 import { Viewer } from '../session/viewer.js';
 import { thisKeyserverID } from '../user/identity.js';
+import { getAndAssertKeyserverURLFacts } from '../utils/urls.js';
 
 async function createOrUpdateFarcasterChannelTag(
   viewer: Viewer,
@@ -148,9 +149,13 @@ async function uploadFarcasterChannelTagBlob(
   farcasterChannelID: string,
   holder: string,
 ): Promise<BlobOperationResult> {
+  const { baseDomain, basePath } = getAndAssertKeyserverURLFacts();
+  const keyserverURL = baseDomain + basePath;
+
   const payload = {
     commCommunityID,
     farcasterChannelID,
+    keyserverURL,
   };
   const payloadString = JSON.stringify(payload);
 
