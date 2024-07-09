@@ -19,7 +19,7 @@ import {
 import type { ClientDBThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import { patchRawThreadInfoWithSpecialRole } from 'lib/permissions/special-roles.js';
 import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
-import { deprecatedUpdateRolesAndPermissions } from 'lib/shared/redux/deprecated-update-roles-and-permissions.js';
+import { updateRolesAndPermissions } from 'lib/shared/redux/update-roles-and-permissions.js';
 import { keyserverStoreTransform } from 'lib/shared/transforms/keyserver-store-transform.js';
 import { messageStoreMessagesBlocklistTransform } from 'lib/shared/transforms/message-store-transform.js';
 import { defaultAlertInfos } from 'lib/types/alert-types.js';
@@ -591,7 +591,7 @@ const migrations = {
 
     const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
       clientDBThreadInfos,
-      deprecatedUpdateRolesAndPermissions,
+      updateRolesAndPermissions,
     );
 
     return {
