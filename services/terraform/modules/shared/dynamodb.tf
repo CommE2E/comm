@@ -145,6 +145,11 @@ resource "aws_dynamodb_table" "identity-users" {
     type = "S"
   }
 
+  attribute {
+    name = "usernameLower"
+    type = "S"
+  }
+
   global_secondary_index {
     name            = "username-index"
     hash_key        = "username"
@@ -162,6 +167,12 @@ resource "aws_dynamodb_table" "identity-users" {
     hash_key           = "farcasterID"
     projection_type    = "INCLUDE"
     non_key_attributes = ["walletAddress", "username"]
+  }
+
+  global_secondary_index {
+    name            = "usernameLower-index"
+    hash_key        = "usernameLower"
+    projection_type = "KEYS_ONLY"
   }
 }
 
@@ -269,6 +280,18 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
   attribute {
     name = "username"
     type = "S"
+  }
+
+  attribute {
+    name = "usernameLower"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "usernameLower-index"
+    hash_key           = "usernameLower"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["userID"]
   }
 }
 

@@ -54,9 +54,11 @@ pub const USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME: &str = "socialProof";
 pub const USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME: &str =
   "deviceListTimestamp";
 pub const USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME: &str = "farcasterID";
+pub const USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME: &str = "usernameLower";
 pub const USERS_TABLE_USERNAME_INDEX: &str = "username-index";
 pub const USERS_TABLE_WALLET_ADDRESS_INDEX: &str = "walletAddress-index";
 pub const USERS_TABLE_FARCASTER_ID_INDEX: &str = "farcasterID-index";
+pub const USERS_TABLE_USERNAME_LOWER_INDEX: &str = "usernameLower-index";
 
 pub mod token_table {
   pub const NAME: &str = "identity-tokens";
@@ -85,6 +87,10 @@ pub const WORKFLOWS_IN_PROGRESS_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE: &str =
 pub const RESERVED_USERNAMES_TABLE: &str = "identity-reserved-usernames";
 pub const RESERVED_USERNAMES_TABLE_PARTITION_KEY: &str = "username";
 pub const RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE: &str = "userID";
+pub const RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE: &str =
+  "usernameLower";
+pub const RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX: &str =
+  "usernameLower-index";
 
 // Users table social proof attribute
 pub const SOCIAL_PROOF_MESSAGE_ATTRIBUTE: &str = "siweMessage";
