@@ -37,6 +37,11 @@ variable "keyserver_password" {
   sensitive   = true
 }
 
+variable "authoritative_keyserver_id" {
+  description = "Authoritative Keyserver ID"
+  type        = string
+}
+
 variable "using_identity_credentials" {
   description = "Whether to use identity credentials to login"
   type        = bool
