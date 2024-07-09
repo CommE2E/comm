@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
@@ -9,6 +10,7 @@ import {
 } from 'lib/actions/device-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   alertTypes,
@@ -128,19 +130,29 @@ function useCreatePushSubscription(): () => Promise<void> {
   const callSetDeviceToken = useSetDeviceTokenFanout();
   const staffCanSee = useStaffCanSee();
 
+  const identityContext = React.useContext(IdentityClientContext);
+  invariant(identityContext, 'Identity context should be set');
+  const { getAuthMetadata } = identityContext;
+
   return React.useCallback(async () => {
     if (!publicKey) {
       return;
     }
 
     const workerRegistration = await navigator.serviceWorker?.ready;
-    if (!workerRegistration || !workerRegistration.pushManager) {
+    const authMetadata = await getAuthMetadata();
+    if (
+      !workerRegistration ||
+      !workerRegistration.pushManager ||
+      !authMetadata
+    ) {
       return;
     }
 
     workerRegistration.active?.postMessage({
       olmWasmPath: getOlmWasmPath(),
       staffCanSee,
+      authMetadata,
     });
 
     const subscription = await workerRegistration.pushManager.subscribe({
@@ -155,7 +167,13 @@ function useCreatePushSubscription(): () => Promise<void> {
       undefined,
       { deviceToken: token },
     );
-  }, [callSetDeviceToken, dispatchActionPromise, publicKey, staffCanSee]);
+  }, [
+    callSetDeviceToken,
+    dispatchActionPromise,
+    publicKey,
+    staffCanSee,
+    getAuthMetadata,
+  ]);
 }
 
 function PushNotificationsHandler(): React.Node {
