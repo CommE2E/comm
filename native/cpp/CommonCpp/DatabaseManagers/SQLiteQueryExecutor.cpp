@@ -681,6 +681,28 @@ bool create_message_store_local_table(sqlite3 *db) {
   return create_table(db, query, "message_store_local");
 }
 
+bool add_supports_auto_retry_column_to_p2p_messages_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE outbound_p2p_messages"
+      "  ADD COLUMN supports_auto_retry INTEGER DEFAULT 0",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error updating outbound_p2p_messages table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   sqlite3_exec(
@@ -787,7 +809,8 @@ bool create_schema(sqlite3 *db) {
       "	 timestamp BIGINT NOT NULL,"
       "	 plaintext TEXT NOT NULL,"
       "	 ciphertext TEXT NOT NULL,"
-      "	 status TEXT NOT NULL,"
+      "  status TEXT NOT NULL,"
+      "	 supports_auto_retry INTEGER DEFAULT 0,"
       "	 PRIMARY KEY (message_id, device_id)"
       ");"
 
@@ -1085,7 +1108,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {44, {create_received_messages_to_device, true}},
      {45, {recreate_outbound_p2p_messages_table, true}},
      {46, {create_entries_table, true}},
-     {47, {create_message_store_local_table, true}}}};
+     {47, {create_message_store_local_table, true}},
+     {48, {add_supports_auto_retry_column_to_p2p_messages_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -2494,12 +2518,14 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
         "attempt.");
     attempt_delete_file(
         tempBackupPath,
-        "Failed to delete temporary backup file from previous backup attempt.");
+        "Failed to delete temporary backup file from previous backup "
+        "attempt.");
   }
 
   if (file_exists(tempAttachmentsPath)) {
     Logger::log(
-        "Attempting to delete temporary attachments file from previous backup "
+        "Attempting to delete temporary attachments file from previous "
+        "backup "
         "attempt.");
     attempt_delete_file(
         tempAttachmentsPath,
@@ -2550,7 +2576,8 @@ void SQLiteQueryExecutor::createMainCompaction(std::string backupID) const {
   attempt_rename_file(
       tempBackupPath,
       finalBackupPath,
-      "Failed to rename complete temporary backup file to final backup file.");
+      "Failed to rename complete temporary backup file to final backup "
+      "file.");
 
   std::ofstream tempAttachmentsFile(tempAttachmentsPath);
   if (!tempAttachmentsFile.is_open()) {
@@ -2645,7 +2672,8 @@ void SQLiteQueryExecutor::restoreFromMainCompaction(
   if (file_exists(plaintextBackupPath)) {
     attempt_delete_file(
         plaintextBackupPath,
-        "Failed to delete plaintext backup file from previous backup attempt.");
+        "Failed to delete plaintext backup file from previous backup "
+        "attempt.");
   }
 
   std::string plaintextMigrationDBQuery = "PRAGMA key = \"x'" +
