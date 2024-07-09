@@ -40,6 +40,14 @@ variable "user_created_vpc" {
   description = "Use non-default vpc and subnets"
 }
 
+variable "authoritative_keyserver_config" {
+  description = "Authoritative keyserver user id"
+  type = object({
+    authoritativeKeyserverID = optional(string)
+  })
+  default = {}
+}
+
 variable "availability_zone_1" {
   description = "First availability zone for vpc subnet if user created vpc"
   type        = string
