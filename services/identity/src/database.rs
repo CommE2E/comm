@@ -20,11 +20,8 @@ use std::sync::Arc;
 pub use crate::database::device_list::DeviceIDAttribute;
 pub use crate::database::one_time_keys::OTKRow;
 use crate::{
-  constants::{error_types, USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME},
-  ddb_utils::EthereumIdentity,
-  device_list::SignedDeviceList,
-  grpc_services::shared::PlatformMetadata,
-  reserved_users::UserDetail,
+  ddb_utils::EthereumIdentity, device_list::SignedDeviceList,
+  grpc_services::shared::PlatformMetadata, reserved_users::UserDetail,
   siwe::SocialProof,
 };
 use crate::{
@@ -39,15 +36,18 @@ use tracing::{debug, error, info, warn};
 use crate::client_service::{FlattenedDeviceKeyUpload, UserRegistrationInfo};
 use crate::config::CONFIG;
 use crate::constants::{
-  NONCE_TABLE, NONCE_TABLE_CREATED_ATTRIBUTE,
+  error_types, NONCE_TABLE, NONCE_TABLE_CREATED_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_ATTRIBUTE,
   NONCE_TABLE_EXPIRATION_TIME_UNIX_ATTRIBUTE, NONCE_TABLE_PARTITION_KEY,
   RESERVED_USERNAMES_TABLE, RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+  RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
+  RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX,
   RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_MAP_DEVICE_TYPE_ATTRIBUTE_NAME,
   USERS_TABLE_FARCASTER_ID_ATTRIBUTE_NAME, USERS_TABLE_PARTITION_KEY,
-  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
-  USERS_TABLE_USERNAME_INDEX, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
+  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME,
+  USERS_TABLE_USERNAME_LOWER_INDEX, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
   USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::id::generate_uuid;
@@ -290,11 +290,15 @@ impl DatabaseClient {
     {
       user.insert(
         USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
-        AttributeValue::S(username),
+        AttributeValue::S(username.clone()),
       );
       user.insert(
         USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
         AttributeValue::B(password_file),
+      );
+      user.insert(
+        USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME.to_string(),
+        AttributeValue::S(username.to_lowercase()),
       );
     }
 
@@ -326,12 +330,23 @@ impl DatabaseClient {
 
     let put_user_operation = TransactWriteItem::builder().put(put_user).build();
 
-    let partition_key_value =
+    let username_or_wallet_address =
       match (username_and_password_file, wallet_identity) {
         (Some((username, _)), _) => username,
         (_, Some(ethereum_identity)) => ethereum_identity.wallet_address,
         _ => return Err(Error::MalformedItem),
       };
+
+    let maybe_original_reserved_username = self
+      .get_original_username_from_reserved_usernames_table(
+        &username_or_wallet_address,
+      )
+      .await?;
+
+    let partition_key_value = match maybe_original_reserved_username {
+      Some(u) => u,
+      None => username_or_wallet_address,
+    };
 
     // We make sure to delete the user from the reserved usernames table when we
     // add them to the users table
@@ -573,11 +588,38 @@ impl DatabaseClient {
   }
 
   pub async fn username_taken(&self, username: String) -> Result<bool, Error> {
-    let result = self
-      .get_user_id_from_user_info(username, &AuthType::Password)
-      .await?;
+    let username_lower = username.to_lowercase();
 
-    Ok(result.is_some())
+    let request = self
+      .client
+      .query()
+      .table_name(USERS_TABLE)
+      .index_name(USERS_TABLE_USERNAME_LOWER_INDEX)
+      .key_condition_expression("#username_lower = :username_lower")
+      .expression_attribute_names(
+        "#username_lower",
+        USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME,
+      )
+      .expression_attribute_values(
+        ":username_lower",
+        AttributeValue::S(username_lower),
+      );
+
+    let response = request.send().await.map_err(|e| {
+      error!(
+        errorType = error_types::GENERIC_DB_LOG,
+        "Failed to query lowercase usernames by index: {:?}", e
+      );
+      Error::AwsSdk(e.into())
+    })?;
+
+    if let Some(items) = response.items() {
+      if !items.is_empty() {
+        return Ok(true);
+      }
+    }
+
+    Ok(false)
   }
 
   pub async fn filter_out_taken_usernames(
@@ -586,11 +628,16 @@ impl DatabaseClient {
   ) -> Result<Vec<UserDetail>, Error> {
     let db_usernames = self.get_all_usernames().await?;
 
-    let db_usernames_set: HashSet<String> = db_usernames.into_iter().collect();
+    let db_usernames_set: HashSet<String> = db_usernames
+      .into_iter()
+      .map(|username| username.to_lowercase())
+      .collect();
 
     let available_user_details: Vec<UserDetail> = user_details
       .into_iter()
-      .filter(|user_detail| !db_usernames_set.contains(&user_detail.username))
+      .filter(|user_detail| {
+        !db_usernames_set.contains(&user_detail.username.to_lowercase())
+      })
       .collect();
 
     Ok(available_user_details)
@@ -602,13 +649,16 @@ impl DatabaseClient {
     user_info: String,
     auth_type: &AuthType,
   ) -> Result<Option<HashMap<String, AttributeValue>>, Error> {
-    let (index, attribute_name) = match auth_type {
-      AuthType::Password => {
-        (USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USERNAME_ATTRIBUTE)
-      }
+    let (index, attribute_name, attribute_value) = match auth_type {
+      AuthType::Password => (
+        USERS_TABLE_USERNAME_LOWER_INDEX,
+        USERS_TABLE_USERNAME_LOWER_ATTRIBUTE_NAME,
+        user_info.to_lowercase(),
+      ),
       AuthType::Wallet => (
         USERS_TABLE_WALLET_ADDRESS_INDEX,
         USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+        user_info.clone(),
       ),
     };
     match self
@@ -617,7 +667,7 @@ impl DatabaseClient {
       .table_name(USERS_TABLE)
       .index_name(index)
       .key_condition_expression(format!("{} = :u", attribute_name))
-      .expression_attribute_values(":u", AttributeValue::S(user_info.clone()))
+      .expression_attribute_values(":u", AttributeValue::S(attribute_value))
       .send()
       .await
     {
@@ -1063,6 +1113,10 @@ impl DatabaseClient {
               RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE,
               AttributeValue::S(user_detail.user_id.to_string()),
             )
+            .item(
+              RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
+              AttributeValue::S(user_detail.username.to_lowercase()),
+            )
             .build();
 
           WriteRequest::builder().put_request(put_request).build()
@@ -1122,30 +1176,65 @@ impl DatabaseClient {
     &self,
     username: &str,
   ) -> Result<Option<String>, Error> {
+    self
+      .query_reserved_usernames_table(
+        username,
+        RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE,
+      )
+      .await
+  }
+
+  async fn get_original_username_from_reserved_usernames_table(
+    &self,
+    username: &str,
+  ) -> Result<Option<String>, Error> {
+    self
+      .query_reserved_usernames_table(
+        username,
+        RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+      )
+      .await
+  }
+
+  async fn query_reserved_usernames_table(
+    &self,
+    username: &str,
+    attribute: &str,
+  ) -> Result<Option<String>, Error> {
+    let username_lower = username.to_lowercase();
+
     let response = self
       .client
-      .get_item()
+      .query()
       .table_name(RESERVED_USERNAMES_TABLE)
-      .key(
-        RESERVED_USERNAMES_TABLE_PARTITION_KEY.to_string(),
-        AttributeValue::S(username.to_string()),
+      .index_name(RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX)
+      .key_condition_expression("#username_lower = :username_lower")
+      .expression_attribute_names(
+        "#username_lower",
+        RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
       )
-      .consistent_read(true)
+      .expression_attribute_values(
+        ":username_lower",
+        AttributeValue::S(username_lower),
+      )
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
-    let GetItemOutput {
-      item: Some(mut item),
+    let QueryOutput {
+      items: Some(mut results),
       ..
     } = response
     else {
       return Ok(None);
     };
 
-    // We should not return `Ok(None)` if `userID` is missing from the item
-    let user_id = item.take_attr(RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE)?;
-    Ok(Some(user_id))
+    let result = results
+      .pop()
+      .map(|mut attrs| attrs.take_attr::<String>(attribute))
+      .transpose()?;
+
+    Ok(result)
   }
 }
 

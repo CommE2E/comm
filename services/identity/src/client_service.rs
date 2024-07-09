@@ -127,7 +127,7 @@ impl IdentityClientService for ClientService {
       ));
     }
 
-    if RESERVED_USERNAME_SET.contains(&message.username) {
+    if RESERVED_USERNAME_SET.contains(&message.username.to_lowercase()) {
       return Err(tonic::Status::invalid_argument(
         tonic_status_messages::USERNAME_RESERVED,
       ));
@@ -180,7 +180,7 @@ impl IdentityClientService for ClientService {
     let message = request.into_inner();
     self.check_username_taken(&message.username).await?;
 
-    if RESERVED_USERNAME_SET.contains(&message.username) {
+    if RESERVED_USERNAME_SET.contains(&message.username.to_lowercase()) {
       return Err(tonic::Status::invalid_argument(
         tonic_status_messages::USERNAME_RESERVED,
       ));
