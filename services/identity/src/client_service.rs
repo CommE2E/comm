@@ -15,7 +15,7 @@ use tracing::{debug, error, info, warn};
 use crate::config::CONFIG;
 use crate::constants::{error_types, tonic_status_messages};
 use crate::database::{
-  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload
+  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload, UserInfoAndPasswordFile
 };
 use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError};
@@ -127,7 +127,7 @@ impl IdentityClientService for ClientService {
       ));
     }
 
-    if RESERVED_USERNAME_SET.contains(&message.username) {
+    if RESERVED_USERNAME_SET.contains(&message.username.to_lowercase()) {
       return Err(tonic::Status::invalid_argument(
         tonic_status_messages::USERNAME_RESERVED,
       ));
@@ -154,7 +154,7 @@ impl IdentityClientService for ClientService {
       .start(
         &CONFIG.server_setup,
         &message.opaque_registration_request,
-        message.username.as_bytes(),
+        message.username.to_lowercase().as_bytes(),
       )
       .map_err(protocol_error_to_grpc_status)?;
     let session_id = self
@@ -180,23 +180,22 @@ impl IdentityClientService for ClientService {
     let message = request.into_inner();
     self.check_username_taken(&message.username).await?;
 
-    if RESERVED_USERNAME_SET.contains(&message.username) {
+    if RESERVED_USERNAME_SET.contains(&message.username.to_lowercase()) {
       return Err(tonic::Status::invalid_argument(
         tonic_status_messages::USERNAME_RESERVED,
       ));
     }
 
-    let username_in_reserved_usernames_table = self
+    let Some(original_username) = self
       .client
-      .get_user_id_from_reserved_usernames_table(&message.username)
+      .get_original_username_from_reserved_usernames_table(&message.username)
       .await
       .map_err(handle_db_error)?
-      .is_some();
-    if !username_in_reserved_usernames_table {
+    else {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::USERNAME_NOT_RESERVED,
       ));
-    }
+    };
 
     let user_id = validate_account_ownership_message_and_get_user_id(
       &message.username,
@@ -207,7 +206,7 @@ impl IdentityClientService for ClientService {
     let registration_state = construct_user_registration_info(
       &message,
       Some(user_id),
-      message.username.clone(),
+      original_username,
       None,
     )?;
     self
@@ -221,7 +220,7 @@ impl IdentityClientService for ClientService {
       .start(
         &CONFIG.server_setup,
         &message.opaque_registration_request,
-        message.username.as_bytes(),
+        message.username.to_lowercase().as_bytes(),
       )
       .map_err(protocol_error_to_grpc_status)?;
 
@@ -313,36 +312,39 @@ impl IdentityClientService for ClientService {
     debug!("Attempting to log in user: {:?}", &message.username);
     let user_id_and_password_file = self
       .client
-      .get_user_id_and_password_file_from_username(&message.username)
+      .get_user_info_and_password_file_from_username(&message.username)
       .await
       .map_err(handle_db_error)?;
 
-    let (user_id, password_file_bytes) =
-      if let Some(data) = user_id_and_password_file {
-        data
-      } else {
-        // It's possible that the user attempting login is already registered
-        // on Ashoat's keyserver. If they are, we should send back a gRPC status
-        // code instructing them to get a signed message from Ashoat's keyserver
-        // in order to claim their username and register with the Identity
-        // service.
-        let username_in_reserved_usernames_table = self
-          .client
-          .get_user_id_from_reserved_usernames_table(&message.username)
-          .await
-          .map_err(handle_db_error)?
-          .is_some();
+    let UserInfoAndPasswordFile {
+      user_id,
+      original_username: username,
+      password_file: password_file_bytes,
+    } = if let Some(data) = user_id_and_password_file {
+      data
+    } else {
+      // It's possible that the user attempting login is already registered
+      // on Ashoat's keyserver. If they are, we should send back a gRPC status
+      // code instructing them to get a signed message from Ashoat's keyserver
+      // in order to claim their username and register with the Identity
+      // service.
+      let username_in_reserved_usernames_table = self
+        .client
+        .get_user_id_from_reserved_usernames_table(&message.username)
+        .await
+        .map_err(handle_db_error)?
+        .is_some();
 
-        if username_in_reserved_usernames_table {
-          return Err(tonic::Status::permission_denied(
-            tonic_status_messages::NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME,
-          ));
-        }
-
-        return Err(tonic::Status::not_found(
-          tonic_status_messages::USER_NOT_FOUND,
+      if username_in_reserved_usernames_table {
+        return Err(tonic::Status::permission_denied(
+          tonic_status_messages::NEED_KEYSERVER_MESSAGE_TO_CLAIM_USERNAME,
         ));
-      };
+      }
+
+      return Err(tonic::Status::not_found(
+        tonic_status_messages::USER_NOT_FOUND,
+      ));
+    };
 
     let flattened_device_key_upload =
       construct_flattened_device_key_upload(&message)?;
@@ -360,18 +362,29 @@ impl IdentityClientService for ClientService {
       .await?;
 
     let mut server_login = comm_opaque2::server::Login::new();
-    let server_response = server_login
-      .start(
-        &CONFIG.server_setup,
-        &password_file_bytes,
-        &message.opaque_login_request,
-        message.username.as_bytes(),
-      )
-      .map_err(protocol_error_to_grpc_status)?;
+    let server_response = match server_login.start(
+      &CONFIG.server_setup,
+      &password_file_bytes,
+      &message.opaque_login_request,
+      message.username.to_lowercase().as_bytes(),
+    ) {
+      Ok(response) => response,
+      Err(_) => {
+        // Retry with original username bytes if the first attempt fails
+        server_login
+          .start(
+            &CONFIG.server_setup,
+            &password_file_bytes,
+            &message.opaque_login_request,
+            username.as_bytes(),
+          )
+          .map_err(protocol_error_to_grpc_status)?
+      }
+    };
 
     let login_state = construct_user_login_info(
       user_id,
-      message.username,
+      username,
       server_login,
       flattened_device_key_upload,
       maybe_device_to_remove,
