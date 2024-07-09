@@ -759,4 +759,5 @@ export {
   getNotifsCryptoAccount,
   persistNotifsCryptoAccount,
   persistEncryptionKey,
+  retrieveEncryptionKey,
 };
