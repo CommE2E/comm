@@ -5,7 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { FlatList, Platform, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
 
 import {
   fetchCommunityInfosActionTypes,
@@ -15,10 +14,8 @@ import {
   fetchPrimaryInviteLinkActionTypes,
   useFetchPrimaryInviteLinks,
 } from 'lib/actions/link-actions.js';
-import {
-  childThreadInfos,
-  communityThreadSelector,
-} from 'lib/selectors/thread-selectors.js';
+import { useChildThreadInfosMap } from 'lib/hooks/thread-hooks.js';
+import { communityThreadSelector } from 'lib/selectors/thread-selectors.js';
 import { threadTypeIsCommunityRoot } from 'lib/types/thread-types-enum.js';
 import {
   createRecursiveDrawerItemsData,
@@ -31,6 +28,7 @@ import CommunityDrawerItem from './community-drawer-item.react.js';
 import { CommunityCreationRouteName } from './route-names.js';
 import { useNavigateToThread } from '../chat/message-list-types.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import {
   flattenDrawerItemsData,
@@ -96,7 +94,7 @@ function CommunityDrawerContent(): React.Node {
     ],
     [labelStylesObj],
   );
-  const childThreadInfosMap = useSelector(childThreadInfos);
+  const childThreadInfosMap = useChildThreadInfosMap();
 
   const drawerItemsData = React.useMemo(
     () =>
