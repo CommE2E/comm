@@ -61,7 +61,7 @@ import { filterThreadIDsInFilterList } from 'lib/reducers/calendar-filters-reduc
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors.js';
 import { createUpdateDBOpsForThreadStoreThreadInfos } from 'lib/shared/redux/client-db-utils.js';
 import { legacyUpdateRolesAndPermissions } from 'lib/shared/redux/legacy-update-roles-and-permissions.js';
-import { updateRolesAndPermissions } from 'lib/shared/redux/update-roles-and-permissions.js';
+import { deprecatedUpdateRolesAndPermissions } from 'lib/shared/redux/deprecated-update-roles-and-permissions.js';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils.js';
 import {
   getContainingThreadID,
@@ -1394,7 +1394,7 @@ const migrations = {
 
     const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
       clientDBThreadInfos,
-      updateRolesAndPermissions,
+      deprecatedUpdateRolesAndPermissions,
     );
 
     return {
