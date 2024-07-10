@@ -154,6 +154,9 @@ interface Spec extends TurboModule {
   +getSIWEBackupSecrets: () => Promise<?Object>;
   +getAllInboundP2PMessage: () => Promise<InboundP2PMessage[]>;
   +removeInboundP2PMessages: (ids: $ReadOnlyArray<string>) => Promise<void>;
+  +getOutboundP2PMessagesByID: (
+    ids: $ReadOnlyArray<string>,
+  ) => Promise<$ReadOnlyArray<OutboundP2PMessage>>;
   +getAllOutboundP2PMessage: () => Promise<OutboundP2PMessage[]>;
   +markOutboundP2PMessageAsSent: (
     messageID: string,
