@@ -8,7 +8,7 @@ import {
   logOutActionTypes,
   useLogOut,
 } from 'lib/actions/user-actions.js';
-import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
+import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import { securityUpdateLogoutText } from 'lib/types/alert-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -28,7 +28,7 @@ function BackgroundIdentityLoginHandler() {
   );
   const hasAccessToken = useSelector(state => !!state.commServicesAccessToken);
 
-  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
+  const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
   const navLoggedIn = useIsAppLoggedIn();
 
   // We don't want to try identity login until both loggedIn and navLoggedIn are

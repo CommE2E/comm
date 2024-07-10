@@ -12,10 +12,10 @@ import {
   deleteAccountActionTypes,
   useDeleteDiscardedIdentityAccount,
 } from 'lib/actions/user-actions.js';
+import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { useKeyserverAuthWithRetry } from 'lib/keyserver-conn/keyserver-auth.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { usePreRequestUserState } from 'lib/selectors/account-selectors.js';
-import { isLoggedInToAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
 import {
   type LegacyLogInStartingPayload,
   logInActionSources,
@@ -543,9 +543,7 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
   const uploadSelectedMedia = useUploadSelectedMedia();
   const nativeSetUserAvatar = useNativeSetUserAvatar();
 
-  const isLoggedInToAuthKeyserver = useSelector(
-    isLoggedInToAuthoritativeKeyserver,
-  );
+  const isLoggedInToAuthKeyserver = useIsLoggedInToAuthoritativeKeyserver();
 
   const avatarBeingSetRef = React.useRef(false);
   React.useEffect(() => {

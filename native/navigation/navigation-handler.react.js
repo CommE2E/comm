@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
+import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 
 import { logInActionType, logOutActionType } from './action-types.js';
 import ModalPruner from './modal-pruner.react.js';
@@ -13,7 +13,6 @@ import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react.j
 import ThreadScreenTracker from './thread-screen-tracker.react.js';
 import { MissingRegistrationDataHandler } from '../account/registration/missing-registration-data/missing-registration-data-handler.react.js';
 import DevTools from '../redux/dev-tools.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors.js';
 
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
@@ -59,7 +58,7 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
 ) {
   const { dispatch } = props;
 
-  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
+  const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
 
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef<?boolean>();
