@@ -2313,6 +2313,30 @@ void SQLiteQueryExecutor::addOutboundP2PMessages(
   }
 }
 
+std::vector<OutboundP2PMessage> SQLiteQueryExecutor::getOutboundP2PMessagesByID(
+    const std::vector<std::string> &ids) const {
+  std::stringstream getOutboundP2PMessageSQLStream;
+  getOutboundP2PMessageSQLStream << "SELECT * "
+                                    "FROM outbound_p2p_messages "
+                                    "WHERE message_id IN "
+                                 << getSQLStatementArray(ids.size()) << ";";
+  std::string getOutboundP2PMessageSQL = getOutboundP2PMessageSQLStream.str();
+
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      getOutboundP2PMessageSQL,
+      "Failed to get outbound messages by ID");
+
+  std::vector<SQLiteOutboundP2PMessage> queryResult =
+      getAllEntitiesByPrimaryKeys<SQLiteOutboundP2PMessage>(
+          SQLiteQueryExecutor::getConnection(), getOutboundP2PMessageSQL, ids);
+  std::vector<OutboundP2PMessage> result;
+  for (auto &message : queryResult) {
+    result.emplace_back(OutboundP2PMessage(message));
+  }
+  return result;
+}
+
 std::vector<OutboundP2PMessage>
 SQLiteQueryExecutor::getAllOutboundP2PMessages() const {
   std::string query =

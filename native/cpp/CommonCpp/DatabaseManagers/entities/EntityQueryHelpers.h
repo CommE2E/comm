@@ -76,6 +76,34 @@ std::unique_ptr<T> getEntityByIntegerPrimaryKey(
 }
 
 template <typename T>
+std::vector<T> getAllEntitiesByPrimaryKeys(
+    sqlite3 *db,
+    std::string getAllEntitiesSQL,
+    const std::vector<std::string> &keys) {
+  SQLiteStatementWrapper preparedSQL(
+      db, getAllEntitiesSQL, "Failed to fetch entities by primary key.");
+
+  for (int i = 0; i < keys.size(); i++) {
+    int bindResult = bindStringToSQL(keys[i], preparedSQL, i + 1);
+    if (bindResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to bind key to SQL statement. Details: "
+                    << sqlite3_errstr(bindResult) << std::endl;
+      sqlite3_finalize(preparedSQL);
+      throw std::runtime_error(error_message.str());
+    }
+  }
+
+  std::vector<T> allEntities;
+
+  for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
+       stepResult = sqlite3_step(preparedSQL)) {
+    allEntities.emplace_back(T::fromSQLResult(preparedSQL, 0));
+  }
+  return allEntities;
+}
+
+template <typename T>
 void replaceEntity(sqlite3 *db, std::string replaceEntitySQL, const T &entity) {
   SQLiteStatementWrapper preparedSQL(
       db, replaceEntitySQL, "Failed to replace entity.");
