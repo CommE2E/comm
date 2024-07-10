@@ -3,21 +3,24 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  joinThreadActionTypes,
-  useJoinThread,
-} from 'lib/actions/thread-actions.js';
 import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
-import { farcasterChannelTagBlobHash } from 'lib/shared/community-utils.js';
+import {
+  farcasterChannelTagBlobHash,
+  useJoinCommunity,
+} from 'lib/shared/community-utils.js';
 import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
+import type { KeyserverOverride } from 'lib/shared/invite-links.js';
+import type {
+  OngoingJoinCommunityData,
+  JoinCommunityStep,
+} from 'lib/types/community-types.js';
 import { defaultThreadSubscription } from 'lib/types/subscription-types.js';
 import { getBlobFetchableURL } from 'lib/utils/blob-service.js';
 import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
-import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import {
   usingCommServicesAccessToken,
   createDefaultHTTPRequestHeaders,
@@ -36,48 +39,21 @@ function AutoJoinCommunityHandler(): React.Node {
 
   const neynarClient = React.useContext(NeynarClientContext)?.client;
 
-  const navContext = React.useContext(NavContext);
-
   const identityClientContext = React.useContext(IdentityClientContext);
   invariant(identityClientContext, 'IdentityClientContext should be set');
   const { getAuthMetadata } = identityClientContext;
-
-  const calendarQuery = useSelector(state =>
-    nonThreadCalendarQuery({
-      redux: state,
-      navContext,
-    }),
-  );
-
-  const joinThread = useJoinThread();
-
-  const joinThreadActionPromise = React.useCallback(
-    async (communityID: string) => {
-      const query = calendarQuery();
-
-      return await joinThread({
-        threadID: communityID,
-        calendarQuery: {
-          startDate: query.startDate,
-          endDate: query.endDate,
-          filters: [
-            ...query.filters,
-            { type: 'threads', threadIDs: [communityID] },
-          ],
-        },
-        defaultSubscription: defaultThreadSubscription,
-      });
-    },
-    [calendarQuery, joinThread],
-  );
-
-  const dispatchActionPromise = useDispatchActionPromise();
 
   const threadInfos = useSelector(state => state.threadStore.threadInfos);
 
   const keyserverInfos = useSelector(
     state => state.keyserverStore.keyserverInfos,
   );
+
+  const [communitiesToAuoJoin, setCommunitesToAutoJoin] =
+    React.useState<?$ReadOnlyArray<{
+      +communityID: string,
+      +keyserverOverride: ?KeyserverOverride,
+    }>>();
 
   React.useEffect(() => {
     if (!loggedIn || !isActive || !fid || !neynarClient || !threadInfos) {
@@ -108,6 +84,8 @@ function AutoJoinCommunityHandler(): React.Node {
         channel => channel.id,
       );
 
+      const communities = [];
+
       const promises = followedFarcasterChannelIDs.map(async channelID => {
         const blobHash = farcasterChannelTagBlobHash(channelID);
         const blobURL = getBlobFetchableURL(blobHash);
@@ -121,37 +99,97 @@ function AutoJoinCommunityHandler(): React.Node {
           return;
         }
 
-        const { commCommunityID } = await blobResult.json();
+        const { commCommunityID, keyserverURL } = await blobResult.json();
         const keyserverID = extractKeyserverIDFromID(commCommunityID);
-
-        if (!keyserverInfos[keyserverID]) {
-          return;
-        }
 
         // The user is already in the community
         if (threadInfos[commCommunityID]) {
           return;
         }
 
-        void dispatchActionPromise(
-          joinThreadActionTypes,
-          joinThreadActionPromise(commCommunityID),
-        );
+        const keyserverOverride = !keyserverInfos[keyserverID]
+          ? {
+              keyserverID,
+              keyserverURL: keyserverURL.replace(/\/$/, ''),
+            }
+          : null;
+
+        communities.push({
+          communityID: commCommunityID,
+          keyserverOverride,
+        });
       });
 
       await Promise.all(promises);
+
+      if (communities.length === 0) {
+        return;
+      }
+      setCommunitesToAutoJoin(communities);
     })();
   }, [
     threadInfos,
-    dispatchActionPromise,
     fid,
     isActive,
-    joinThreadActionPromise,
     loggedIn,
     neynarClient,
     getAuthMetadata,
     keyserverInfos,
+    communitiesToAuoJoin,
   ]);
+
+  const joinHandlers = React.useMemo(
+    () =>
+      communitiesToAuoJoin?.map((communityToAutoJoin, index) => (
+        <JoinHandler
+          key={index}
+          communityID={communityToAutoJoin.communityID}
+          keyserverOverride={communityToAutoJoin.keyserverOverride}
+        />
+      )),
+    [communitiesToAuoJoin],
+  );
+
+  return joinHandlers;
+}
+
+type JoinHandlerProps = {
+  +communityID: string,
+  +keyserverOverride: ?KeyserverOverride,
+};
+function JoinHandler(props: JoinHandlerProps) {
+  const { communityID, keyserverOverride } = props;
+
+  const navContext = React.useContext(NavContext);
+
+  const calendarQuery = useSelector(state =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+
+  const [ongoingJoinData, setOngoingJoinData] =
+    React.useState<?OngoingJoinCommunityData>(null);
+
+  const [step, setStep] = React.useState<JoinCommunityStep>('inactive');
+
+  const joinCommunity = useJoinCommunity({
+    communityID,
+    keyserverOverride,
+    calendarQuery,
+    ongoingJoinData,
+    setOngoingJoinData,
+    step,
+    setStep,
+    defaultSubscription: defaultThreadSubscription,
+  });
+
+  React.useEffect(() => {
+    void (async () => {
+      await joinCommunity();
+    })();
+  }, [joinCommunity]);
 
   return null;
 }
