@@ -10,9 +10,9 @@ export type AppURLFacts = {
   +basePath: string,
   +https: boolean,
   +baseRoutePath: string,
-  +proxy?: 'apache' | 'none', // defaults to apache
+  +proxy?: 'apache' | 'none' | 'aws', // defaults to apache
 };
-const validProxies = new Set(['apache', 'none']);
+const validProxies = new Set(['apache', 'none', 'aws']);
 const sitesObj = Object.freeze({
   a: 'landing',
   b: 'webapp',

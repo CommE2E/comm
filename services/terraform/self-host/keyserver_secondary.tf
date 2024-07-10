@@ -81,8 +81,8 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
             "baseDomain" : "https://${var.domain_name}",
             "basePath" : "/",
             "baseRoutePath" : "/",
-            "https" : false,
-            "proxy" : "none"
+            "https" : true,
+            "proxy" : "aws"
           })
         },
         {
