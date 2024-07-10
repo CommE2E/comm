@@ -336,7 +336,7 @@ function getRequestIPAddress(req: $Request) {
   let ipAddress;
   if (proxy === 'none') {
     ipAddress = req.socket.remoteAddress;
-  } else if (proxy === 'apache') {
+  } else if (proxy === 'apache' || proxy === 'aws') {
     ipAddress = req.get('X-Forwarded-For');
   }
   invariant(ipAddress, 'could not determine requesting IP address');
