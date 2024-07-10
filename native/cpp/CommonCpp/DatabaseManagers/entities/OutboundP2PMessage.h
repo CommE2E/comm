@@ -16,6 +16,7 @@ struct SQLiteOutboundP2PMessage {
   std::string plaintext;
   std::string ciphertext;
   std::string status;
+  int automatically_retried;
 
   static SQLiteOutboundP2PMessage fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return SQLiteOutboundP2PMessage{
@@ -26,6 +27,7 @@ struct SQLiteOutboundP2PMessage {
         getStringFromSQLRow(sqlRow, idx + 4),
         getStringFromSQLRow(sqlRow, idx + 5),
         getStringFromSQLRow(sqlRow, idx + 6),
+        getIntFromSQLRow(sqlRow, idx + 7),
     };
   }
 
@@ -36,7 +38,8 @@ struct SQLiteOutboundP2PMessage {
     bindInt64ToSQL(timestamp, sql, idx + 3);
     bindStringToSQL(plaintext, sql, idx + 4);
     bindStringToSQL(ciphertext, sql, idx + 5);
-    return bindStringToSQL(status, sql, idx + 6);
+    bindStringToSQL(status, sql, idx + 6);
+    return bindIntToSQL(automatically_retried, sql, idx + 7);
   }
 };
 
@@ -48,6 +51,7 @@ struct OutboundP2PMessage {
   std::string plaintext;
   std::string ciphertext;
   std::string status;
+  std::string automatically_retried;
 
   OutboundP2PMessage() = default;
 
@@ -58,14 +62,16 @@ struct OutboundP2PMessage {
       const std::string &timestamp,
       const std::string &plaintext,
       const std::string &ciphertext,
-      const std::string &status)
+      const std::string &status,
+      const std::string &automatically_retried)
       : message_id(message_id),
         device_id(device_id),
         user_id(user_id),
         timestamp(timestamp),
         plaintext(plaintext),
         ciphertext(ciphertext),
-        status(status) {
+        status(status),
+        automatically_retried(automatically_retried) {
   }
 
   OutboundP2PMessage(const SQLiteOutboundP2PMessage &msg) {
@@ -76,6 +82,7 @@ struct OutboundP2PMessage {
     plaintext = msg.plaintext;
     ciphertext = msg.ciphertext;
     status = msg.status;
+    automatically_retried = std::to_string(msg.automatically_retried);
   }
 
   SQLiteOutboundP2PMessage toSQLiteOutboundP2PMessage() const {
@@ -87,6 +94,7 @@ struct OutboundP2PMessage {
     msg.plaintext = plaintext;
     msg.ciphertext = ciphertext;
     msg.status = status;
+    msg.automatically_retried = std::stoi(automatically_retried);
     return msg;
   }
 };

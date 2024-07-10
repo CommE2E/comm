@@ -2257,8 +2257,8 @@ void SQLiteQueryExecutor::addOutboundP2PMessages(
   static std::string addMessage =
       "REPLACE INTO outbound_p2p_messages ("
       " message_id, device_id, user_id, timestamp,"
-      " plaintext, ciphertext, status) "
-      "VALUES (?, ?, ?, ?, ?, ?, ?);";
+      " plaintext, ciphertext, status, automatically_retried) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
   for (const OutboundP2PMessage &clientMessage : messages) {
     SQLiteOutboundP2PMessage message =

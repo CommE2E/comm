@@ -127,7 +127,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("timestamp", &OutboundP2PMessage::timestamp)
       .field("plaintext", &OutboundP2PMessage::plaintext)
       .field("ciphertext", &OutboundP2PMessage::ciphertext)
-      .field("status", &OutboundP2PMessage::status);
+      .field("status", &OutboundP2PMessage::status)
+      .field("automaticallyRetried", &OutboundP2PMessage::automatically_retried);
 
   value_object<InboundP2PMessage>("InboundP2PMessage")
       .field("messageID", &InboundP2PMessage::message_id)
