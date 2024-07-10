@@ -476,6 +476,8 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             msgObj.getProperty(rt, "ciphertext").asString(rt).utf8(rt);
         std::string status =
             msgObj.getProperty(rt, "status").asString(rt).utf8(rt);
+        bool supports_auto_retry =
+            msgObj.getProperty(rt, "supportsAutoRetry").asBool();
 
         OutboundP2PMessage outboundMessage{
             messageID,
@@ -484,7 +486,8 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             timestamp,
             plaintext,
             ciphertext,
-            status};
+            status,
+            supports_auto_retry};
         messages.push_back(outboundMessage);
       }
     }
@@ -2453,6 +2456,8 @@ jsi::Value CommCoreModule::getAllOutboundP2PMessage(jsi::Runtime &rt) {
                   jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
                   jsiMsg.setProperty(innerRt, "ciphertext", msg.ciphertext);
                   jsiMsg.setProperty(innerRt, "status", msg.status);
+                  jsiMsg.setProperty(
+                      innerRt, "supportsAutoRetry", msg.supports_auto_retry);
                   jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
                 }
 

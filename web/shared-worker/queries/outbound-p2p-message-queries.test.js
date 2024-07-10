@@ -25,6 +25,7 @@ const TEST_MSG_1: OutboundP2PMessage = {
   plaintext: 'decrypted-1',
   ciphertext: 'encrypted-1',
   status: 'encrypted',
+  supportsAutoRetry: false,
 };
 const TEST_MSG_2: OutboundP2PMessage = {
   messageID: 'id-2',
@@ -34,6 +35,7 @@ const TEST_MSG_2: OutboundP2PMessage = {
   plaintext: 'decrypted-2',
   ciphertext: 'encrypted-2',
   status: 'encrypted',
+  supportsAutoRetry: false,
 };
 
 const TEST_MSG_3: OutboundP2PMessage = {
@@ -44,6 +46,7 @@ const TEST_MSG_3: OutboundP2PMessage = {
   plaintext: 'decrypted-3',
   ciphertext: 'encrypted-3',
   status: 'encrypted',
+  supportsAutoRetry: false,
 };
 
 const TEST_MSG_4: OutboundP2PMessage = {
@@ -54,6 +57,7 @@ const TEST_MSG_4: OutboundP2PMessage = {
   plaintext: 'decrypted-4',
   ciphertext: '',
   status: 'encrypted',
+  supportsAutoRetry: false,
 };
 
 const messagesOrdered = [TEST_MSG_3, TEST_MSG_1, TEST_MSG_2, TEST_MSG_4];
