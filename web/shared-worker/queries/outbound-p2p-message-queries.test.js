@@ -159,4 +159,20 @@ describe('Outbound P2P messages queries', () => {
       messages.find(msg => msg.messageID === TEST_MSG_4.messageID)?.status,
     ).toBe('sent');
   });
+
+  it('should return message by ID', () => {
+    expect(queryExecutor?.getOutboundP2PMessagesByID(['id-4'])).toEqual([
+      TEST_MSG_4,
+    ]);
+  });
+
+  it('should return message by IDs', () => {
+    expect(queryExecutor?.getOutboundP2PMessagesByID(['id-4', 'id-2'])).toEqual(
+      [TEST_MSG_2, TEST_MSG_4],
+    );
+  });
+
+  it(`should return undefined when a message with ID doesn't exist`, () => {
+    expect(queryExecutor?.getOutboundP2PMessagesByID(['id-5'])).toEqual([]);
+  });
 });

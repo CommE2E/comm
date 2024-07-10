@@ -78,6 +78,7 @@ public:
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) = 0;
   virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) = 0;
+  virtual jsi::Value getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) = 0;
   virtual jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) = 0;
   virtual jsi::Value markOutboundP2PMessageAsSent(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
@@ -567,6 +568,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeInboundP2PMessages, jsInvoker_, instance_, std::move(ids));
+    }
+    jsi::Value getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) override {
+      static_assert(
+          bridging::getParameterCount(&T::getOutboundP2PMessagesByID) == 2,
+          "Expected getOutboundP2PMessagesByID(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getOutboundP2PMessagesByID, jsInvoker_, instance_, std::move(ids));
     }
     jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) override {
       static_assert(
