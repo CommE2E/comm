@@ -220,10 +220,13 @@ function useSubchannelAddMembersListUserInfos(
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
   });
-  const userSearchResultWithENSNames = useENSNames(userSearchResults);
+
+  const filteredUserResults = userSearchResults.filter(item => !item.alert);
+
+  const userSearchResultWithENSNames = useENSNames(filteredUserResults);
 
   const userResults: { [id: string]: UserListItem } =
-    _keyBy('id')(userSearchResults);
+    _keyBy('id')(filteredUserResults);
 
   return {
     userInfos: userResults,
