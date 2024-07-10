@@ -52,6 +52,7 @@ import Calendar from './calendar/calendar.react.js';
 import Chat from './chat/chat.react.js';
 import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
+import { AutoJoinCommunityHandler } from './components/auto-join-community-handler.react.js';
 import CommunitiesRefresher from './components/communities-refresher.react.js';
 import { DBOpsHandler } from './components/db-ops-handler.react.js';
 import LogOutIfMissingCSATHandler from './components/log-out-if-missing-csat-handler.react.js';
@@ -252,6 +253,7 @@ class App extends React.PureComponent<Props> {
                       <UserInfosHandler />
                       <TunnelbrokerDeviceTokenHandler />
                       <FarcasterDataHandler />
+                      <AutoJoinCommunityHandler />
                       {content}
                     </ChatMentionContextProvider>
                   </MessageSearchStateProvider>
