@@ -21,11 +21,9 @@ import {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useIsLoggedInToAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import { setActiveSessionRecoveryActionType } from 'lib/keyserver-conn/keyserver-conn-types.js';
-import {
-  isLoggedIn,
-  isLoggedInToAuthoritativeKeyserver,
-} from 'lib/selectors/user-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { recoveryFromReduxActionSources } from 'lib/types/account-types.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -426,9 +424,7 @@ function LoggedOutModal(props: Props) {
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated && navContext),
   );
-  const isLoggedInToAuthKeyserver = useSelector(
-    isLoggedInToAuthoritativeKeyserver,
-  );
+  const isLoggedInToAuthKeyserver = useIsLoggedInToAuthoritativeKeyserver();
   const loggedIn = useSelector(isLoggedIn);
   const dispatch = useDispatch();
   React.useEffect(() => {

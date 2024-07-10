@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
-import { isLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/selectors/user-selectors.js';
+import { useIsLoggedInToIdentityAndAuthoritativeKeyserver } from 'lib/hooks/account-hooks.js';
 import {
   alertTypes,
   type RecordAlertActionPayload,
@@ -22,7 +22,7 @@ function ConnectFarcasterAlertHandler(): React.Node {
 
   const isActive = useSelector(state => state.lifecycleState !== 'background');
 
-  const loggedIn = useSelector(isLoggedInToIdentityAndAuthoritativeKeyserver);
+  const loggedIn = useIsLoggedInToIdentityAndAuthoritativeKeyserver();
 
   const fid = useCurrentUserFID();
 
