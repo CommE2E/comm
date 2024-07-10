@@ -221,12 +221,18 @@ function useSubchannelAddMembersListUserInfos(
     inputCommunityThreadInfo: communityThreadInfo,
     threadType,
   });
+
+  const filteredUserResults = React.useMemo(
+    () => userSearchResults.filter(item => !item.alert),
+    [userSearchResults],
+  );
+
   const userSearchResultWithENSNames =
-    useSortedENSResolvedUsers(userSearchResults);
+    useSortedENSResolvedUsers(filteredUserResults);
 
   const userResults: { [id: string]: UserListItem } = React.useMemo(
-    () => _keyBy('id')(userSearchResults),
-    [userSearchResults],
+    () => _keyBy('id')(filteredUserResults),
+    [filteredUserResults],
   );
 
   return {
