@@ -296,6 +296,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "removeAllOutboundP2PMessages",
           &SQLiteQueryExecutor::removeAllOutboundP2PMessages)
       .function(
+          "getOutboundP2PMessagesByID",
+          &SQLiteQueryExecutor::getOutboundP2PMessagesByID)
+      .function(
           "getAllOutboundP2PMessages",
           &SQLiteQueryExecutor::getAllOutboundP2PMessages)
       .function(

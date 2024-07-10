@@ -151,6 +151,8 @@ public:
   restoreFromBackupLog(const std::vector<std::uint8_t> &backupLog) const = 0;
   virtual void addOutboundP2PMessages(
       const std::vector<OutboundP2PMessage> &messages) const = 0;
+  virtual std::vector<OutboundP2PMessage>
+  getOutboundP2PMessagesByID(const std::vector<std::string> &ids) const = 0;
   virtual std::vector<OutboundP2PMessage> getAllOutboundP2PMessages() const = 0;
   virtual void removeOutboundP2PMessagesOlderThan(
       std::string lastConfirmedMessageID,
