@@ -477,6 +477,10 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             msgObj.getProperty(rt, "ciphertext").asString(rt).utf8(rt);
         std::string status =
             msgObj.getProperty(rt, "status").asString(rt).utf8(rt);
+        std::string automatically_retried =
+            msgObj.getProperty(rt, "automaticallyRetried")
+                .asString(rt)
+                .utf8(rt);
 
         OutboundP2PMessage outboundMessage{
             messageID,
@@ -485,7 +489,8 @@ jsi::Value CommCoreModule::processDBStoreOperations(
             timestamp,
             plaintext,
             ciphertext,
-            status};
+            status,
+            automatically_retried};
         messages.push_back(outboundMessage);
       }
     }
@@ -2435,30 +2440,33 @@ jsi::Value CommCoreModule::getAllOutboundP2PMessage(jsi::Runtime &rt) {
           auto messagesPtr = std::make_shared<std::vector<OutboundP2PMessage>>(
               std::move(messages));
 
-          this->jsInvoker_->invokeAsync(
-              [&innerRt, messagesPtr, error, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                  return;
-                }
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         messagesPtr,
+                                         error,
+                                         promise]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
 
-                jsi::Array jsiMessages =
-                    jsi::Array(innerRt, messagesPtr->size());
-                size_t writeIdx = 0;
-                for (const OutboundP2PMessage &msg : *messagesPtr) {
-                  jsi::Object jsiMsg = jsi::Object(innerRt);
-                  jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
-                  jsiMsg.setProperty(innerRt, "deviceID", msg.device_id);
-                  jsiMsg.setProperty(innerRt, "userID", msg.user_id);
-                  jsiMsg.setProperty(innerRt, "timestamp", msg.timestamp);
-                  jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
-                  jsiMsg.setProperty(innerRt, "ciphertext", msg.ciphertext);
-                  jsiMsg.setProperty(innerRt, "status", msg.status);
-                  jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
-                }
+            jsi::Array jsiMessages = jsi::Array(innerRt, messagesPtr->size());
+            size_t writeIdx = 0;
+            for (const OutboundP2PMessage &msg : *messagesPtr) {
+              jsi::Object jsiMsg = jsi::Object(innerRt);
+              jsiMsg.setProperty(innerRt, "messageID", msg.message_id);
+              jsiMsg.setProperty(innerRt, "deviceID", msg.device_id);
+              jsiMsg.setProperty(innerRt, "userID", msg.user_id);
+              jsiMsg.setProperty(innerRt, "timestamp", msg.timestamp);
+              jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
+              jsiMsg.setProperty(innerRt, "ciphertext", msg.ciphertext);
+              jsiMsg.setProperty(innerRt, "status", msg.status);
+              jsiMsg.setProperty(
+                  innerRt, "automaticallyRetried", msg.automatically_retried);
+              jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
+            }
 
-                promise->resolve(std::move(jsiMessages));
-              });
+            promise->resolve(std::move(jsiMessages));
+          });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
