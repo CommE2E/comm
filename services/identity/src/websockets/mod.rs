@@ -15,6 +15,7 @@ use identity_search_messages::{
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
+use tower::ServiceBuilder;
 use tracing::{debug, error, info, warn};
 
 mod auth;
@@ -26,6 +27,7 @@ use crate::constants::{
   error_types, IDENTITY_SEARCH_INDEX, IDENTITY_SEARCH_RESULT_SIZE,
   IDENTITY_SERVICE_WEBSOCKET_ADDR, SOCKET_HEARTBEAT_TIMEOUT,
 };
+use crate::cors::cors_layer;
 use opensearch::OpenSearchResponse;
 use send::{send_message, WebsocketSink};
 pub mod errors;
@@ -108,7 +110,12 @@ pub async fn run_server(
   while let Ok((stream, addr)) = listener.accept().await {
     let db_client = db_client.clone();
     let connection = http
-      .serve_connection(stream, WebsocketService { addr, db_client })
+      .serve_connection(
+        stream,
+        ServiceBuilder::new()
+          .layer(cors_layer()) // Add CORS layer here
+          .service(WebsocketService { addr, db_client }),
+      )
       .with_upgrades();
 
     tokio::spawn(async move {

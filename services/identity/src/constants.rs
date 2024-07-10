@@ -304,11 +304,13 @@ pub mod cors {
   pub const DEFAULT_MAX_AGE: Duration = Duration::from_secs(24 * 60 * 60);
   pub const DEFAULT_EXPOSED_HEADERS: [&str; 3] =
     ["grpc-status", "grpc-message", "grpc-status-details-bin"];
-  pub const DEFAULT_ALLOW_HEADERS: [&str; 11] = [
+  pub const DEFAULT_ALLOW_HEADERS: [&str; 13] = [
     "x-grpc-web",
     "content-type",
     "x-user-agent",
     "grpc-timeout",
+    "authorization",
+    "accept",
     super::request_metadata::CODE_VERSION,
     super::request_metadata::STATE_VERSION,
     super::request_metadata::MAJOR_DESKTOP_VERSION,
