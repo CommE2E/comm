@@ -104,6 +104,12 @@ resource "aws_ecs_task_definition" "keyserver_primary_service" {
           })
         },
         {
+          name = "COMM_JSONCONFIG_facts_tunnelbroker",
+          value = jsonencode({
+            "url" : "${var.tunnelbroker_url}"
+          })
+        },
+        {
           name = "COMM_JSONCONFIG_facts_authoritative_keyserver",
           value = jsonencode({
             "authoritativeKeyserverID" : "${var.authoritative_keyserver_id}"
