@@ -128,7 +128,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .field("plaintext", &OutboundP2PMessage::plaintext)
       .field("ciphertext", &OutboundP2PMessage::ciphertext)
       .field("status", &OutboundP2PMessage::status)
-      .field("automaticallyRetried", &OutboundP2PMessage::automatically_retried);
+      .field(
+          "automaticallyRetried", &OutboundP2PMessage::automatically_retried);
 
   value_object<InboundP2PMessage>("InboundP2PMessage")
       .field("messageID", &InboundP2PMessage::message_id)
@@ -294,6 +295,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function(
           "removeAllOutboundP2PMessages",
           &SQLiteQueryExecutor::removeAllOutboundP2PMessages)
+      .function(
+          "getOutboundP2PMessagesByID",
+          &SQLiteQueryExecutor::getOutboundP2PMessagesByID)
       .function(
           "getAllOutboundP2PMessages",
           &SQLiteQueryExecutor::getAllOutboundP2PMessages)
