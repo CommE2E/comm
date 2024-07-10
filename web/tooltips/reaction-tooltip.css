@@ -15,6 +15,7 @@ p.usernameText {
   color: var(--tool-tip-color);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 p.seeMoreText {
