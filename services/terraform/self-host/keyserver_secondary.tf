@@ -94,6 +94,12 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
           })
         },
         {
+          name = "COMM_JSONCONFIG_facts_tunnelbroker",
+          value = jsonencode({
+            "url" : "${var.tunnelbroker_url}"
+          })
+        },
+        {
           name = "COMM_JSONCONFIG_secrets_identity_service_config",
           value = jsonencode({
             "identitySocketAddr" : "${var.identity_socket_address}"

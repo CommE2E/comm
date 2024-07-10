@@ -70,6 +70,12 @@ variable "identity_socket_address" {
   default     = "https://identity.commtechnologies.org:50054"
 }
 
+variable "tunnelbroker_url" {
+  description = "The address to access the tunnelbroker service"
+  type        = string
+  default     = "wss://tunnelbroker.commtechnologies.org:51001"
+}
+
 variable "db_instance_class" {
   description = "The instance class for the MariaDB RDS instance"
   type        = string
