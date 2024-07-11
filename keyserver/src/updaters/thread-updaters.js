@@ -53,6 +53,7 @@ import {
   fetchServerThreadInfos,
   determineThreadAncestry,
   rawThreadInfosFromServerThreadInfos,
+  determineThreadAncestryForPossibleMemberResolution,
 } from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
@@ -583,7 +584,10 @@ async function updateThread(
 
     const [defaultRolePermissions, nextThreadAncestry] = await Promise.all([
       defaultRolePermissionsPromise,
-      determineThreadAncestryPromise,
+      determineThreadAncestryForPossibleMemberResolution(
+        nextParentThreadID,
+        nextThreadType,
+      ),
     ]);
 
     const { newMemberIDs: validatedIDs } = await validateCandidateMembers(
@@ -594,6 +598,7 @@ async function updateThread(
         parentThreadID: nextParentThreadID,
         containingThreadID: nextThreadAncestry.containingThreadID,
         defaultRolePermissions,
+        communityID: nextThreadAncestry.community,
       },
       { requireRelationship: !forceAddMembers },
     );

@@ -41,6 +41,7 @@ import {
 import {
   determineThreadAncestry,
   personalThreadQuery,
+  determineThreadAncestryForPossibleMemberResolution,
 } from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
@@ -161,7 +162,11 @@ async function createThread(
   );
 
   const validateMembersPromise = (async () => {
-    const threadAncestry = await determineThreadAncestryPromise;
+    const threadAncestry =
+      await determineThreadAncestryForPossibleMemberResolution(
+        parentThreadID,
+        threadType,
+      );
     const defaultRolePermissions = getRolePermissionBlobs(threadType).Members;
     const { initialMemberIDs, ghostMemberIDs } = await validateCandidateMembers(
       viewer,
@@ -174,6 +179,7 @@ async function createThread(
         parentThreadID,
         containingThreadID: threadAncestry.containingThreadID,
         defaultRolePermissions,
+        communityID: threadAncestry.community,
       },
       { requireRelationship: !shouldCreateRelationships },
     );

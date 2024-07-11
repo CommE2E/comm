@@ -274,6 +274,7 @@ type ValidateCandidateMembersParams = {
   +parentThreadID: ?string,
   +containingThreadID: ?string,
   +defaultRolePermissions: ThreadRolePermissionsBlob,
+  +communityID: ?string,
 };
 type ValidateCandidateMembersOptions = { +requireRelationship?: boolean };
 async function validateCandidateMembers(
@@ -370,14 +371,17 @@ async function validateCandidateMembers(
       continue;
     }
     const permissionsFromParent = parentPermissions[memberID];
-    if (memberOfContainingThread.get(memberID) === 'non-member') {
+    if (
+      memberOfContainingThread.get(memberID) === 'non-member' &&
+      (params.communityID !== genesis().id ||
+        (relationshipStatus !== userRelationshipStatus.FRIEND &&
+          requireRelationship))
+    ) {
       ignoreMembers.add(memberID);
       continue;
     }
-    const isParentThreadGenesis = params.parentThreadID === genesis().id;
     if (
-      (memberOfContainingThread.get(memberID) === 'no-containing-thread' ||
-        isParentThreadGenesis) &&
+      memberOfContainingThread.get(memberID) === 'no-containing-thread' &&
       relationshipStatus !== userRelationshipStatus.FRIEND &&
       requireRelationship
     ) {
