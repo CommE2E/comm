@@ -141,7 +141,7 @@ resource "aws_ecs_service" "keyserver_secondary_service" {
   enable_execute_command  = true
   enable_ecs_managed_tags = true
   force_new_deployment    = true
-  desired_count           = 1
+  desired_count           = var.desired_secondary_nodes
 
   network_configuration {
     subnets          = [data.aws_subnets.default.ids[0], data.aws_subnets.default.ids[1]]
