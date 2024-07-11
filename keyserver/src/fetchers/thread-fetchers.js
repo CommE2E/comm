@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 
+import genesis from 'lib/facts/genesis.js';
 import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions.js';
 import {
@@ -382,6 +383,18 @@ async function determineThreadAncestry(
   return { containingThreadID, community, depth };
 }
 
+function determineThreadAncestryForPossibleMemberResolution(
+  parentThreadID: ?string,
+  containingThreadID: ?string,
+): ?string {
+  let resolvedContainingThreadID = containingThreadID;
+  if (resolvedContainingThreadID === genesis().id) {
+    resolvedContainingThreadID =
+      parentThreadID === genesis().id ? null : parentThreadID;
+  }
+  return resolvedContainingThreadID;
+}
+
 function personalThreadQuery(
   firstMemberID: string,
   secondMemberID: string,
@@ -442,6 +455,7 @@ export {
   verifyThreadIDs,
   verifyThreadID,
   determineThreadAncestry,
+  determineThreadAncestryForPossibleMemberResolution,
   personalThreadQuery,
   fetchPersonalThreadID,
   serverThreadInfoFromMessageInfo,
