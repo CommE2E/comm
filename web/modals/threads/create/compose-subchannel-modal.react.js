@@ -230,7 +230,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
 
     return (
       <Button
-        disabled={loadingState === 'loading' || pendingUsersToAdd.size === 0}
+        disabled={loadingState === 'loading'}
         variant="filled"
         onClick={dispatchCreateSubchannel}
       >
@@ -243,7 +243,6 @@ function ComposeSubchannelModal(props: Props): React.Node {
     dispatchCreateSubchannel,
     loadingState,
     onClickNext,
-    pendingUsersToAdd.size,
   ]);
 
   const onClickBack = React.useCallback(() => setActiveStep('settings'), []);
