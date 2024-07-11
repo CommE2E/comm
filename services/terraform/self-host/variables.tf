@@ -77,3 +77,9 @@ variable "db_instance_class" {
   type        = string
   default     = "db.t4g.medium"
 }
+
+variable "desired_secondary_nodes" {
+  description = "Desired number of secondary nodes"
+  type        = number
+  default     = 1
+}
