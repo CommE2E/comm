@@ -130,6 +130,21 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
     operating_system_family = "LINUX"
   }
 
+  # Wait indefinitely for primary service to become healthy before deploying secondary service
+  provisioner "local-exec" {
+    command = <<EOT
+      while true; do
+      if curl --silent --output /dev/null --fail "https://${var.domain_name}/health"; then
+              echo "Primary service is healthy. Proceeding with deployment of secondary service."
+              exit 0
+          else
+              echo "Primary service is not healthy yet. Waiting 10 seconds before checking again..."
+              sleep 10
+          fi
+      done
+    EOT
+  }
+
   skip_destroy = false
 }
 
