@@ -26,15 +26,15 @@ public class CommAndroidDeleteBlobWork extends Worker {
   @Override
   public Result doWork() {
     String blobHash =
-        getInputData().getString(CommAndroidBlobClient.BLOB_HASH_KEY);
+        getInputData().getString(CommAndroidServicesClient.BLOB_HASH_KEY);
     String blobHolder =
-        getInputData().getString(CommAndroidBlobClient.BLOB_HOLDER_KEY);
+        getInputData().getString(CommAndroidServicesClient.BLOB_HOLDER_KEY);
 
     String jsonBody;
     try {
       jsonBody = new JSONObject()
-                     .put(CommAndroidBlobClient.BLOB_HASH_KEY, blobHash)
-                     .put(CommAndroidBlobClient.BLOB_HOLDER_KEY, blobHolder)
+                     .put(CommAndroidServicesClient.BLOB_HASH_KEY, blobHash)
+                     .put(CommAndroidServicesClient.BLOB_HOLDER_KEY, blobHolder)
                      .toString();
     } catch (JSONException e) {
       // This should never happen since the code
@@ -50,7 +50,7 @@ public class CommAndroidDeleteBlobWork extends Worker {
 
     String authToken;
     try {
-      authToken = CommAndroidBlobClient.getAuthToken();
+      authToken = CommAndroidServicesClient.getAuthToken();
     } catch (JSONException e) {
       // In this case however it may happen that
       // auth metadata got corrupted but will be
@@ -61,15 +61,16 @@ public class CommAndroidDeleteBlobWork extends Worker {
 
     RequestBody requestBody =
         RequestBody.create(MediaType.parse("application/json"), jsonBody);
-    Request request = new Request.Builder()
-                          .delete(requestBody)
-                          .url(CommAndroidBlobClient.BLOB_SERVICE_URL + "/blob")
-                          .header("Authorization", authToken)
-                          .build();
+    Request request =
+        new Request.Builder()
+            .delete(requestBody)
+            .url(CommAndroidServicesClient.BLOB_SERVICE_URL + "/blob")
+            .header("Authorization", authToken)
+            .build();
 
     try {
       Response response =
-          CommAndroidBlobClient.httpClient.newCall(request).execute();
+          CommAndroidServicesClient.httpClient.newCall(request).execute();
       if (response.isSuccessful()) {
         return Result.success();
       }
