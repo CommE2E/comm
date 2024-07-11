@@ -21,7 +21,7 @@ import okhttp3.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CommAndroidBlobClient {
+public class CommAndroidServicesClient {
   // The FirebaseMessagingService docs state that message
   // processing should complete within at most 20 seconds
   // window. Therefore we limit http time call to 15 seconds
@@ -37,6 +37,9 @@ public class CommAndroidBlobClient {
   public static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
       ? "https://blob.staging.commtechnologies.org"
       : "https://blob.commtechnologies.org";
+  public static final String IDENTITY_SERVICE_URL = BuildConfig.DEBUG
+      ? "https://identity.staging.commtechnologies.org:51004"
+      : "https://identity.commtechnologies.org:51004";
   public static final String BLOB_HASH_KEY = "blob_hash";
   public static final String BLOB_HOLDER_KEY = "holder";
 
@@ -55,6 +58,62 @@ public class CommAndroidBlobClient {
           response);
     }
     return response.body().bytes();
+  }
+
+  public JSONObject getNotifsInboundKeysForDeviceSync(String deviceID)
+      throws IOException, JSONException {
+    String authToken = getAuthToken();
+    String base64URLEncodedDeviceID =
+        deviceID.replaceAll("\\+", "-").replaceAll("\\/", "_");
+
+    Request request =
+        new Request.Builder()
+            .get()
+            .url(
+                IDENTITY_SERVICE_URL +
+                "/device_inbound_keys?device_id=" + base64URLEncodedDeviceID)
+            .header("Authorization", authToken)
+            .build();
+    Response response = httpClient.newCall(request).execute();
+    if (!response.isSuccessful()) {
+      throw new RuntimeException(
+          "Failed to fetch inbound keys for device: " + deviceID +
+          " from identity service. Response error code: " + response);
+    }
+
+    String serializedResponse = response.body().string();
+    JSONObject responseObject = new JSONObject(serializedResponse);
+
+    JSONObject identityKeyInfo =
+        responseObject.optJSONObject("identityKeyInfo");
+    if (identityKeyInfo == null) {
+      throw new RuntimeException(
+          "identityKeyInfo missing in identity service response");
+    }
+
+    String keyPayload = identityKeyInfo.optString("keyPayload");
+    if (keyPayload == null) {
+      throw new RuntimeException(
+          "keyPayload missing in identity service response");
+    }
+
+    JSONObject identityKeys = new JSONObject(keyPayload);
+    JSONObject notificationIdentityKeys =
+        identityKeys.optJSONObject("notificationIdentityPublicKeys");
+    if (notificationIdentityKeys == null) {
+      throw new RuntimeException(
+          "notificationIdentityKeys missing in identity service response");
+    }
+
+    String curve25519 = notificationIdentityKeys.optString("curve25519");
+    String ed25519 = notificationIdentityKeys.optString("ed25519");
+
+    if (curve25519 == null || ed25519 == null) {
+      throw new RuntimeException(
+          "ed25519 or curve25519 missing in identity service response");
+    }
+
+    return notificationIdentityKeys;
   }
 
   public void scheduleDeferredBlobDeletion(
