@@ -19,7 +19,7 @@ import app.comm.android.ExpoUtils;
 import app.comm.android.MainActivity;
 import app.comm.android.R;
 import app.comm.android.aescrypto.AESCryptoModuleCompat;
-import app.comm.android.commservices.CommAndroidBlobClient;
+import app.comm.android.commservices.CommAndroidServicesClient;
 import app.comm.android.fbjni.CommMMKV;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
@@ -69,7 +69,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
-  private CommAndroidBlobClient blobClient;
+  private CommAndroidServicesClient servicesClient;
   private AESCryptoModuleCompat aesCryptoModule;
 
   public static final String RESCIND_KEY = "rescind";
@@ -93,7 +93,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     localBroadcastManager = LocalBroadcastManager.getInstance(this);
     displayableNotificationLargeIcon = BitmapFactory.decodeResource(
         this.getApplicationContext().getResources(), R.mipmap.ic_launcher);
-    blobClient = new CommAndroidBlobClient();
+    servicesClient = new CommAndroidServicesClient();
     aesCryptoModule = new AESCryptoModuleCompat();
   }
 
@@ -330,13 +330,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     String blobHash = message.getData().get(BLOB_HASH_KEY);
     String blobHolder = message.getData().get(BLOB_HOLDER_KEY);
     try {
-      byte[] largePayload = blobClient.getBlobSync(blobHash);
+      byte[] largePayload = servicesClient.getBlobSync(blobHash);
       message = aesDecryptRemoteMessage(message, largePayload);
       handleMessageInfosPersistence(message);
     } catch (Exception e) {
       Log.w("COMM", "Failure when handling large notification.", e);
     }
-    blobClient.scheduleDeferredBlobDeletion(
+    servicesClient.scheduleDeferredBlobDeletion(
         blobHash, blobHolder, this.getApplicationContext());
   }
 
