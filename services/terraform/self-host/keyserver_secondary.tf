@@ -147,6 +147,7 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
 resource "aws_ecs_service" "keyserver_secondary_service" {
   depends_on = [aws_ecs_service.keyserver_primary_service]
 
+  # Do not change name without replacing secondary_service_name in aws-deploy.sh
   name                    = "keyserver-secondary-service"
   cluster                 = aws_ecs_cluster.keyserver_cluster.id
   task_definition         = aws_ecs_task_definition.keyserver_secondary_service.arn

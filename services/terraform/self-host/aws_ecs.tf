@@ -1,4 +1,5 @@
 resource "aws_ecs_cluster" "keyserver_cluster" {
+  # Do not change without replacing cluster_name in aws-deploy.sh
   name = "keyserver-cluster"
 
   configuration {

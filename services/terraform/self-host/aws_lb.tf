@@ -10,6 +10,13 @@ resource "aws_security_group" "lb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["${var.allowed_ip}/32"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
