@@ -108,7 +108,7 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
         {
           name = "COMM_JSONCONFIG_facts_authoritative_keyserver",
           value = jsonencode({
-            "authoritativeKeyserverID" : "${var.authoritative_keyserver_id}"
+            "authoritativeKeyserverID" : "${var.authoritative_keyserver_user_id}"
           }),
         }
       ]
@@ -145,7 +145,7 @@ resource "aws_ecs_service" "keyserver_secondary_service" {
   enable_execute_command  = true
   enable_ecs_managed_tags = true
   force_new_deployment    = true
-  desired_count           = 1
+  desired_count           = var.desired_secondary_nodes
 
   network_configuration {
     subnets          = local.vpc_subnets
