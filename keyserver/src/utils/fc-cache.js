@@ -9,7 +9,11 @@ import {
 import { FCCache } from 'lib/utils/fc-cache.js';
 import { NeynarClient } from 'lib/utils/neynar-client.js';
 
-type NeynarConfig = { +key: string };
+type NeynarConfig = {
+  +key: string,
+  +signerUUID?: string,
+  +neynarWebhookSecret?: string,
+};
 
 let getFCNames: ?GetFCNames;
 let neynarClient: ?NeynarClient;
