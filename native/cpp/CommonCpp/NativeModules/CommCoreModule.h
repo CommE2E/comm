@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../CryptoTools/CryptoModule.h"
+#include "../DatabaseManagers/entities/Message.h"
 #include "../Tools/CommMMKV.h"
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"

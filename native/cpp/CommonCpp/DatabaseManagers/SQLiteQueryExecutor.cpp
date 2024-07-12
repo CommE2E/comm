@@ -1337,8 +1337,7 @@ void SQLiteQueryExecutor::removeAllMessages() const {
   removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllMessagesSQL);
 }
 
-std::vector<std::pair<Message, std::vector<Media>>>
-SQLiteQueryExecutor::getAllMessages() const {
+std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
   static std::string getAllMessagesSQL =
       "SELECT * "
       "FROM messages "
@@ -1351,7 +1350,7 @@ SQLiteQueryExecutor::getAllMessages() const {
       "Failed to retrieve all messages.");
 
   std::string prevMsgIdx{};
-  std::vector<std::pair<Message, std::vector<Media>>> allMessages;
+  std::vector<MessageEntity> allMessages;
 
   for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
        stepResult = sqlite3_step(preparedSQL)) {
