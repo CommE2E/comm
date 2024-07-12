@@ -5,20 +5,45 @@ import * as React from 'react';
 
 import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { getConfig } from 'lib/utils/config.js';
 
 import css from './qr-code-login.css';
 
 function QRCodeLogin(): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
+  const platform = getConfig().platformDetails.platform;
 
   React.useEffect(() => {
     void generateQRCode();
   }, [generateQRCode]);
 
-  const qrCodeURL = React.useMemo(
-    () => (qrData ? qrCodeLinkURL(qrData.aesKey, qrData.deviceID) : undefined),
-    [qrData],
-  );
+  const qrCodeURL = React.useMemo(() => {
+    if (!qrData) {
+      return undefined;
+    }
+
+    let webPlatform;
+    switch (platform) {
+      case 'web':
+        webPlatform = 'WEB';
+        break;
+      case 'macos':
+        webPlatform = 'MAC_OS';
+        break;
+      case 'windows':
+        webPlatform = 'WINDOWS';
+        break;
+      default:
+        webPlatform = undefined;
+        break;
+    }
+
+    if (!webPlatform) {
+      return undefined;
+    }
+
+    return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, webPlatform);
+  }, [platform, qrData]);
 
   return (
     <div className={css.qrContainer}>
