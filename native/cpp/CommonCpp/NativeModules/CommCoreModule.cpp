@@ -2593,4 +2593,50 @@ jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value
+CommCoreModule::getLatestMessageEdit(jsi::Runtime &rt, jsi::String messageID) {
+  std::string messageIDStr = messageID.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::shared_ptr<MessageEntity> messageEntity;
+          try {
+            auto messageEntityResult =
+                DatabaseManager::getQueryExecutor().getLatestMessageEdit(
+                    messageIDStr);
+            if (messageEntityResult.has_value()) {
+              messageEntity = std::make_shared<MessageEntity>(
+                  std::move(messageEntityResult.value()));
+            }
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         promise,
+                                         messageEntity,
+                                         messageStore = this->messageStore]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            } else if (!messageEntity) {
+              promise->resolve(jsi::Value::undefined());
+              return;
+            }
+
+            auto vector = std::make_shared<std::vector<MessageEntity>>();
+            vector->push_back(std::move(*messageEntity));
+            jsi::Array jsiMessages =
+                messageStore.parseDBDataStore(innerRt, vector);
+            promise->resolve(
+                jsiMessages.getValueAtIndex(innerRt, 0).asObject(innerRt));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm
