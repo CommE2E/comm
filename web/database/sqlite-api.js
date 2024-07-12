@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
   SQLiteAPI,
   InboundP2PMessage,
@@ -31,6 +32,17 @@ const sqliteAPI: SQLiteAPI = {
     });
     const messages: ?$ReadOnlyArray<OutboundP2PMessage> =
       data?.outboundP2PMessages;
+    return messages ? [...messages] : [];
+  },
+
+  async getRelatedMessages(messageID: string): Promise<ClientDBMessageInfo[]> {
+    const sharedWorker = await getCommSharedWorker();
+
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_RELATED_MESSAGES,
+      messageID,
+    });
+    const messages: ?$ReadOnlyArray<ClientDBMessageInfo> = data?.messages;
     return messages ? [...messages] : [];
   },
 
