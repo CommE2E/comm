@@ -11,6 +11,7 @@ import type {
   IdentityServiceClient,
   IdentityServiceAuthLayer,
 } from 'lib/types/identity-service-types.js';
+import type { ClientDBMessageInfo } from 'lib/types/message-types.js';
 import type {
   InboundP2PMessage,
   OutboundP2PMessage,
@@ -43,6 +44,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_OUTBOUND_P2P_MESSAGES: 18,
   MARK_OUTBOUND_P2P_MESSAGE_AS_SENT: 19,
   REMOVE_OUTBOUND_P2P_MESSAGES: 20,
+  GET_LATEST_MESSAGE_EDIT: 21,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -188,6 +190,11 @@ export type RemoveOutboundP2PMessagesRequestMessage = {
   +deviceID: string,
 };
 
+export type GetLatestMessageEditRequestMessage = {
+  +type: 21,
+  +messageID: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -209,7 +216,8 @@ export type WorkerRequestMessage =
   | RemoveInboundP2PMessagesRequestMessage
   | GetOutboundP2PMessagesRequestMessage
   | MarkOutboundP2PMessageAsSentRequestMessage
-  | RemoveOutboundP2PMessagesRequestMessage;
+  | RemoveOutboundP2PMessagesRequestMessage
+  | GetLatestMessageEditRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -226,6 +234,7 @@ export const workerResponseMessageTypes = Object.freeze({
   CALL_OLM_API_METHOD: 5,
   GET_INBOUND_P2P_MESSAGES: 6,
   GET_OUTBOUND_P2P_MESSAGES: 7,
+  GET_LATEST_MESSAGE_EDIT: 8,
 });
 
 export type PongWorkerResponseMessage = {
@@ -268,6 +277,11 @@ export type GetOutboundP2PMessagesResponseMessage = {
   +outboundP2PMessages: $ReadOnlyArray<OutboundP2PMessage>,
 };
 
+export type GetLatestMessageEditResponseMessage = {
+  +type: 8,
+  +message: ?ClientDBMessageInfo,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -276,7 +290,8 @@ export type WorkerResponseMessage =
   | CallIdentityClientMethodResponseMessage
   | CallOLMApiMethodResponseMessage
   | GetInboundP2PMessagesResponseMessage
-  | GetOutboundP2PMessagesResponseMessage;
+  | GetOutboundP2PMessagesResponseMessage
+  | GetLatestMessageEditResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
