@@ -165,6 +165,7 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +getSyncedDatabaseVersion: () => Promise<string>;
   +markPrekeysAsPublished: () => Promise<void>;
+  +getLatestMessageEdit: (messageID: string) => Promise<?ClientDBMessageInfo>;
 }
 
 export interface CoreModuleSpec extends Spec {
