@@ -39,6 +39,7 @@ import {
 } from '../../types/worker-types.js';
 import { workerIdentityClientRequests } from '../../types/worker-types.js';
 import { getDatabaseModule } from '../db-module.js';
+import { webMessageToClientDBMessageInfo } from '../types/entities.js';
 import {
   COMM_SQLITE_DATABASE_PATH,
   SQLITE_STAMPED_USER_ID_KEY,
@@ -251,6 +252,19 @@ async function processAppRequest(
     return {
       type: workerResponseMessageTypes.GET_OUTBOUND_P2P_MESSAGES,
       outboundP2PMessages: sqliteQueryExecutor.getAllOutboundP2PMessages(),
+    };
+  } else if (
+    message.type === workerRequestMessageTypes.GET_LATEST_MESSAGE_EDIT
+  ) {
+    const webMessageEntity = sqliteQueryExecutor.getLatestMessageEditWeb(
+      message.messageID,
+    );
+    const result = webMessageEntity
+      ? webMessageToClientDBMessageInfo(webMessageEntity)
+      : undefined;
+    return {
+      type: workerResponseMessageTypes.GET_LATEST_MESSAGE_EDIT,
+      message: result,
     };
   }
 
