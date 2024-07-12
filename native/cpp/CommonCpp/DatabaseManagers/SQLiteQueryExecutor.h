@@ -9,6 +9,8 @@
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/LocalMessageInfo.h"
+#include "entities/Media.h"
+#include "entities/Message.h"
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
@@ -57,8 +59,7 @@ public:
   void removeAllDrafts() const override;
   void removeDrafts(const std::vector<std::string> &ids) const override;
   void removeAllMessages() const override;
-  std::vector<std::pair<Message, std::vector<Media>>>
-  getAllMessages() const override;
+  std::vector<MessageEntity> getAllMessages() const override;
   void removeMessages(const std::vector<std::string> &ids) const override;
   void removeMessagesForThreads(
       const std::vector<std::string> &threadIDs) const override;

@@ -9,6 +9,7 @@
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/LocalMessageInfo.h"
+#include "entities/Media.h"
 #include "entities/Message.h"
 #include "entities/MessageStoreThread.h"
 #include "entities/OlmPersistAccount.h"
@@ -40,8 +41,7 @@ public:
   virtual void removeAllDrafts() const = 0;
   virtual void removeDrafts(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessages() const = 0;
-  virtual std::vector<std::pair<Message, std::vector<Media>>>
-  getAllMessages() const = 0;
+  virtual std::vector<MessageEntity> getAllMessages() const = 0;
   virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(const std::vector<std::string> &threadIDs) const = 0;

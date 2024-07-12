@@ -85,4 +85,6 @@ struct MessageWithMedias {
   std::vector<Media> medias;
 };
 
+using MessageEntity = std::pair<Message, std::vector<Media>>;
+
 } // namespace comm

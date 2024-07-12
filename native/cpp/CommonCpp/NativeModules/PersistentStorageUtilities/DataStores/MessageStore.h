@@ -10,8 +10,6 @@
 
 namespace comm {
 
-using MessageEntity = std::pair<Message, std::vector<Media>>;
-
 class MessageStore : public BaseDataStore<DBOperationBase, MessageEntity> {
 private:
   static OperationType REKEY_OPERATION;

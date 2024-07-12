@@ -114,7 +114,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           std::string error;
           std::vector<Draft> draftsVector;
           std::vector<Thread> threadsVector;
-          std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
+          std::vector<MessageEntity> messagesVector;
           std::vector<MessageStoreThread> messageStoreThreadsVector;
           std::vector<Report> reportStoreVector;
           std::vector<UserInfo> userStoreVector;
@@ -158,8 +158,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           }
           auto draftsVectorPtr =
               std::make_shared<std::vector<Draft>>(std::move(draftsVector));
-          auto messagesVectorPtr = std::make_shared<
-              std::vector<std::pair<Message, std::vector<Media>>>>(
+          auto messagesVectorPtr = std::make_shared<std::vector<MessageEntity>>(
               std::move(messagesVector));
           auto threadsVectorPtr =
               std::make_shared<std::vector<Thread>>(std::move(threadsVector));
@@ -319,13 +318,13 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
 }
 
 jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
-  auto messagesVector = NativeModuleUtils::runSyncOrThrowJSError<
-      std::vector<std::pair<Message, std::vector<Media>>>>(rt, []() {
-    return DatabaseManager::getQueryExecutor().getAllMessages();
-  });
+  auto messagesVector =
+      NativeModuleUtils::runSyncOrThrowJSError<std::vector<MessageEntity>>(
+          rt, []() {
+            return DatabaseManager::getQueryExecutor().getAllMessages();
+          });
   auto messagesVectorPtr =
-      std::make_shared<std::vector<std::pair<Message, std::vector<Media>>>>(
-          std::move(messagesVector));
+      std::make_shared<std::vector<MessageEntity>>(std::move(messagesVector));
   jsi::Array jsiMessages =
       this->messageStore.parseDBDataStore(rt, messagesVectorPtr);
   return jsiMessages;
