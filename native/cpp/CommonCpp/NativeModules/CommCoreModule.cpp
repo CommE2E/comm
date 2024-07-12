@@ -2593,4 +2593,40 @@ jsi::Value CommCoreModule::markPrekeysAsPublished(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value
+CommCoreModule::getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) {
+  std::string messageIDStr = messageID.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::shared_ptr<std::vector<MessageEntity>> messages;
+          try {
+            messages = std::make_shared<std::vector<MessageEntity>>(
+                DatabaseManager::getQueryExecutor().getRelatedMessages(
+                    messageIDStr));
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         promise,
+                                         messages,
+                                         messageStore = this->messageStore]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            jsi::Array jsiMessages =
+                messageStore.parseDBDataStore(innerRt, messages);
+            promise->resolve(std::move(jsiMessages));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 } // namespace comm
