@@ -48,6 +48,11 @@ export type OlmPersistSession = {
   +version: number,
 };
 
+type MessageEntity = {
+  +message: WebMessage,
+  +medias: $ReadOnlyArray<Media>,
+};
+
 declare export class SQLiteQueryExecutor {
   constructor(sqliteFilePath: string): void;
 
@@ -57,10 +62,7 @@ declare export class SQLiteQueryExecutor {
   removeAllDrafts(): void;
   removeDrafts(ids: $ReadOnlyArray<string>): void;
 
-  getAllMessagesWeb(): $ReadOnlyArray<{
-    +message: WebMessage,
-    +medias: $ReadOnlyArray<Media>,
-  }>;
+  getAllMessagesWeb(): $ReadOnlyArray<MessageEntity>;
   removeAllMessages(): void;
   removeMessages(ids: $ReadOnlyArray<string>): void;
   removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
@@ -189,6 +191,8 @@ declare export class SQLiteQueryExecutor {
   addInboundP2PMessage(message: InboundP2PMessage): void;
   getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
   removeInboundP2PMessages(ids: $ReadOnlyArray<string>): void;
+
+  getLatestMessageEditWeb(id: string): ?MessageEntity;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
