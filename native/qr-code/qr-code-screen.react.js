@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { useQRAuthContext } from 'lib/components/qr-auth-provider.react.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
+import { platformToIdentityDeviceType } from 'lib/types/identity-service-types.js';
 
 import type { QRCodeSignInNavigationProp } from './qr-code-sign-in-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -24,10 +25,14 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     void generateQRCode();
   }, [generateQRCode]);
 
-  const qrCodeURL = React.useMemo(
-    () => (qrData ? qrCodeLinkURL(qrData.aesKey, qrData.deviceID) : undefined),
-    [qrData],
-  );
+  const qrCodeURL = React.useMemo(() => {
+    if (!qrData) {
+      return undefined;
+    }
+
+    const deviceType = platformToIdentityDeviceType[Platform.OS];
+    return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, deviceType);
+  }, [qrData]);
 
   const styles = useStyles(unboundStyles);
   return (
