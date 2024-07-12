@@ -181,6 +181,8 @@ public:
   std::vector<InboundP2PMessage> getAllInboundP2PMessage() const override;
   void
   removeInboundP2PMessages(const std::vector<std::string> &ids) const override;
+  std::vector<MessageEntity>
+  getRelatedMessages(const std::string &messageID) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
@@ -188,6 +190,8 @@ public:
   std::vector<MessageWithMedias> getAllMessagesWeb() const override;
   void replaceMessageWeb(const WebMessage &message) const override;
   NullableString getOlmPersistAccountDataWeb(int accountID) const override;
+  std::vector<MessageWithMedias>
+  getRelatedMessagesWeb(const std::string &messageID) const override;
 #else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);
