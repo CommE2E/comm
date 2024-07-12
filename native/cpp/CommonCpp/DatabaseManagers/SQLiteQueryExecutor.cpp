@@ -2418,6 +2418,24 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQLStream.str(), ids);
 }
 
+std::vector<MessageEntity>
+SQLiteQueryExecutor::getRelatedMessages(const std::string &messageID) const {
+  static std::string getMessageSQL =
+      "SELECT * "
+      "FROM messages "
+      "LEFT JOIN media "
+      "  ON messages.id = media.container "
+      "WHERE messages.id = ? OR messages.target_message = ? "
+      "ORDER BY messages.time DESC";
+  comm::SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      getMessageSQL,
+      "Failed to get latest message edit");
+  bindStringToSQL(messageID.c_str(), preparedSQL, 1);
+  bindStringToSQL(messageID.c_str(), preparedSQL, 2);
+  return this->processMessagesResults(preparedSQL);
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
@@ -2437,9 +2455,9 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
   auto allMessages = this->getAllMessages();
 
   std::vector<MessageWithMedias> allMessageWithMedias;
-  for (auto &messageWitMedia : allMessages) {
+  for (auto &messageWithMedia : allMessages) {
     allMessageWithMedias.push_back(
-        {std::move(messageWitMedia.first), messageWitMedia.second});
+        {std::move(messageWithMedia.first), messageWithMedia.second});
   }
 
   return allMessageWithMedias;
@@ -2457,6 +2475,19 @@ SQLiteQueryExecutor::getOlmPersistAccountDataWeb(int accountID) const {
     return NullableString();
   }
   return std::make_unique<std::string>(accountData.value());
+}
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::getRelatedMessagesWeb(
+    const std::string &messageID) const {
+  auto relatedMessages = this->getRelatedMessages(messageID);
+
+  std::vector<MessageWithMedias> relatedMessagesWithMedias;
+  for (auto &messageWithMedia : relatedMessages) {
+    relatedMessagesWithMedias.push_back(
+        {std::move(messageWithMedia.first), messageWithMedia.second});
+  }
+
+  return relatedMessagesWithMedias;
 }
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
