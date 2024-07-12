@@ -112,7 +112,7 @@ void (async () => {
           console.log(
             '\nOpen the Comm app on your phone and scan the QR code below, or copy and paste this URL:\n',
           );
-          const url = qrCodeLinkURL(aes256Key, ed25519Key);
+          const url = qrCodeLinkURL(aes256Key, ed25519Key, 'KEYSERVER');
           console.log(url, '\n');
           console.log('How to find the scanner:\n');
           console.log('Go to \x1b[1mProfile\x1b[0m');
