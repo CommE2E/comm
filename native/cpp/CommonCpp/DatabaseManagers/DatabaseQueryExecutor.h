@@ -168,6 +168,8 @@ public:
   virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
   removeInboundP2PMessages(const std::vector<std::string> &ids) const = 0;
+  virtual std::optional<MessageEntity>
+  getLatestMessageEdit(const std::string &messageID) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
@@ -175,6 +177,8 @@ public:
   virtual std::vector<MessageWithMedias> getAllMessagesWeb() const = 0;
   virtual void replaceMessageWeb(const WebMessage &message) const = 0;
   virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;
+  virtual std::optional<MessageWithMedias>
+  getLatestMessageEditWeb(const std::string &messageID) const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;

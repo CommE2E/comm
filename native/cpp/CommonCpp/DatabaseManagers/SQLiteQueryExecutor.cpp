@@ -2372,6 +2372,40 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
       SQLiteQueryExecutor::getConnection(), removeMessagesSQLStream.str(), ids);
 }
 
+std::optional<MessageEntity>
+SQLiteQueryExecutor::getLatestMessageEdit(const std::string &messageID) const {
+  // TODO query for edits
+  static std::string getMessageSQL =
+      "SELECT * "
+      "FROM messages "
+      "LEFT JOIN media "
+      "  ON messages.id = media.container "
+      "WHERE messages.id = ?";
+  comm::SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      getMessageSQL,
+      "Failed to get latest message edit");
+  bindStringToSQL(messageID.c_str(), preparedSQL, 1);
+
+  std::optional<MessageEntity> messageEntity;
+  for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
+       stepResult = sqlite3_step(preparedSQL)) {
+    if (!messageEntity.has_value()) {
+      std::vector<Media> mediaForMsg;
+      Message message = Message::fromSQLResult(preparedSQL, 0);
+      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
+      }
+      messageEntity = std::make_pair(std::move(message), mediaForMsg);
+    } else {
+      messageEntity.value().second.push_back(
+          Media::fromSQLResult(preparedSQL, 8));
+    }
+  }
+
+  return messageEntity;
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
@@ -2391,9 +2425,9 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
   auto allMessages = this->getAllMessages();
 
   std::vector<MessageWithMedias> allMessageWithMedias;
-  for (auto &messageWitMedia : allMessages) {
+  for (auto &messageWithMedia : allMessages) {
     allMessageWithMedias.push_back(
-        {std::move(messageWitMedia.first), messageWitMedia.second});
+        {std::move(messageWithMedia.first), messageWithMedia.second});
   }
 
   return allMessageWithMedias;
@@ -2411,6 +2445,19 @@ SQLiteQueryExecutor::getOlmPersistAccountDataWeb(int accountID) const {
     return NullableString();
   }
   return std::make_unique<std::string>(accountData.value());
+}
+
+std::optional<MessageWithMedias> SQLiteQueryExecutor::getLatestMessageEditWeb(
+    const std::string &messageID) const {
+  auto result = this->getLatestMessageEdit(messageID);
+  if (!result) {
+    return std::nullopt;
+  }
+
+  std::optional<MessageWithMedias> returnValue(
+      {std::move(result->first), result->second});
+
+  return returnValue;
 }
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
