@@ -180,6 +180,37 @@ bool create_messages_idx_thread_time(sqlite3 *db) {
   return false;
 }
 
+bool create_messages_idx_target_message_type_time(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE messages "
+      "  ADD COLUMN target_message TEXT "
+      "  AS (IIF( "
+      "    JSON_VALID(content), "
+      "    JSON_EXTRACT(content, '$.targetMessageID'), "
+      "    NULL "
+      "  )); "
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time "
+      "  ON messages (target_message, type, time);",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream
+      << "Error creating (target_message, type, time) index on messages table: "
+      << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_media_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS media ( "
@@ -400,10 +431,10 @@ bool add_pinned_count_column_to_threads(sqlite3 *db) {
 bool create_message_store_threads_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS message_store_threads ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 start_reached INTEGER NOT NULL,"
-      "	 last_navigated_to BIGINT NOT NULL,"
-      "	 last_pruned BIGINT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  start_reached INTEGER NOT NULL,"
+      "  last_navigated_to BIGINT NOT NULL,"
+      "  last_pruned BIGINT NOT NULL"
       ");";
   return create_table(db, query, "message_store_threads");
 }
@@ -411,8 +442,8 @@ bool create_message_store_threads_table(sqlite3 *db) {
 bool create_reports_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS reports ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 report TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  report TEXT NOT NULL"
       ");";
   return create_table(db, query, "reports");
 }
@@ -489,8 +520,8 @@ bool recreate_message_store_threads_table(sqlite3 *db) {
 bool create_users_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS users ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 user_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  user_info TEXT NOT NULL"
       ");";
   return create_table(db, query, "users");
 }
@@ -498,8 +529,8 @@ bool create_users_table(sqlite3 *db) {
 bool create_keyservers_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS keyservers ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 keyserver_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  keyserver_info TEXT NOT NULL"
       ");";
   return create_table(db, query, "keyservers");
 }
@@ -522,8 +553,8 @@ bool enable_rollback_journal_mode(sqlite3 *db) {
 bool create_communities_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS communities ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   community_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  community_info TEXT NOT NULL"
       ");";
   return create_table(db, query, "communities");
 }
@@ -531,13 +562,13 @@ bool create_communities_table(sqlite3 *db) {
 bool create_messages_to_device_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS messages_to_device ("
-      "	 message_id TEXT NOT NULL,"
-      "	 device_id TEXT NOT NULL,"
-      "	 user_id TEXT NOT NULL,"
-      "	 timestamp BIGINT NOT NULL,"
-      "	 plaintext TEXT NOT NULL,"
-      "	 ciphertext TEXT NOT NULL,"
-      "	 PRIMARY KEY (message_id, device_id)"
+      "  message_id TEXT NOT NULL,"
+      "  device_id TEXT NOT NULL,"
+      "  user_id TEXT NOT NULL,"
+      "  timestamp BIGINT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  ciphertext TEXT NOT NULL,"
+      "  PRIMARY KEY (message_id, device_id)"
       ");"
 
       "CREATE INDEX IF NOT EXISTS messages_to_device_idx_id_timestamp"
@@ -549,8 +580,8 @@ bool create_messages_to_device_table(sqlite3 *db) {
 bool create_integrity_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS integrity_store ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   thread_hash TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  thread_hash TEXT NOT NULL"
       ");";
   return create_table(db, query, "integrity_store");
 }
@@ -558,8 +589,8 @@ bool create_integrity_table(sqlite3 *db) {
 bool create_synced_metadata_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS synced_metadata ("
-      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 data TEXT NOT NULL"
+      "  name TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  data TEXT NOT NULL"
       ");";
   return create_table(db, query, "synced_metadata");
 }
@@ -567,8 +598,8 @@ bool create_synced_metadata_table(sqlite3 *db) {
 bool create_keyservers_synced(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS keyservers_synced ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 keyserver_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  keyserver_info TEXT NOT NULL"
       ");";
   bool success = create_table(db, query, "keyservers_synced");
   if (!success) {
@@ -603,9 +634,9 @@ bool add_version_column_to_olm_persist_sessions_table(sqlite3 *db) {
   sqlite3_exec(
       db,
       "ALTER TABLE olm_persist_sessions "
-      "	 RENAME COLUMN `target_user_id` TO `target_device_id`; "
+      "  RENAME COLUMN `target_user_id` TO `target_device_id`; "
       "ALTER TABLE olm_persist_sessions "
-      "	 ADD COLUMN version INTEGER NOT NULL DEFAULT 1;",
+      "  ADD COLUMN version INTEGER NOT NULL DEFAULT 1;",
       nullptr,
       nullptr,
       &error);
@@ -647,14 +678,14 @@ bool recreate_outbound_p2p_messages_table(sqlite3 *db) {
   std::string query =
       "DROP TABLE IF EXISTS messages_to_device;"
       "CREATE TABLE IF NOT EXISTS outbound_p2p_messages ("
-      "	 message_id TEXT NOT NULL,"
-      "	 device_id TEXT NOT NULL,"
-      "	 user_id TEXT NOT NULL,"
-      "	 timestamp BIGINT NOT NULL,"
-      "	 plaintext TEXT NOT NULL,"
-      "	 ciphertext TEXT NOT NULL,"
-      "	 status TEXT NOT NULL,"
-      "	 PRIMARY KEY (message_id, device_id)"
+      "  message_id TEXT NOT NULL,"
+      "  device_id TEXT NOT NULL,"
+      "  user_id TEXT NOT NULL,"
+      "  timestamp BIGINT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  ciphertext TEXT NOT NULL,"
+      "  status TEXT NOT NULL,"
+      "  PRIMARY KEY (message_id, device_id)"
       ");"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
@@ -675,8 +706,8 @@ bool create_entries_table(sqlite3 *db) {
 bool create_message_store_local_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS message_store_local ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   local_message_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_message_info TEXT NOT NULL"
       ");";
   return create_table(db, query, "message_store_local");
 }
@@ -686,73 +717,80 @@ bool create_schema(sqlite3 *db) {
   sqlite3_exec(
       db,
       "CREATE TABLE IF NOT EXISTS drafts ("
-      "	 key TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 text TEXT NOT NULL"
+      "  key TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  text TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS messages ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 local_id TEXT,"
-      "	 thread TEXT NOT NULL,"
-      "	 user TEXT NOT NULL,"
-      "	 type INTEGER NOT NULL,"
-      "	 future_type INTEGER,"
-      "	 content TEXT,"
-      "	 time INTEGER NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_id TEXT,"
+      "  thread TEXT NOT NULL,"
+      "  user TEXT NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  future_type INTEGER,"
+      "  content TEXT,"
+      "  time INTEGER NOT NULL,"
+      "  target_message TEXT AS ("
+      "    IIF("
+      "      JSON_VALID(content),"
+      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      NULL"
+      "    )"
+      "  )"
       ");"
 
       "CREATE TABLE IF NOT EXISTS olm_persist_account ("
-      "	 id INTEGER UNIQUE PRIMARY KEY NOT NULL,"
-      "	 account_data TEXT NOT NULL"
+      "  id INTEGER UNIQUE PRIMARY KEY NOT NULL,"
+      "  account_data TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS olm_persist_sessions ("
-      "	 target_device_id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 session_data TEXT NOT NULL,"
-      "	 version INTEGER NOT NULL DEFAULT 1"
+      "  target_device_id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  session_data TEXT NOT NULL,"
+      "  version INTEGER NOT NULL DEFAULT 1"
       ");"
 
       "CREATE TABLE IF NOT EXISTS media ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 container TEXT NOT NULL,"
-      "	 thread TEXT NOT NULL,"
-      "	 uri TEXT NOT NULL,"
-      "	 type TEXT NOT NULL,"
-      "	 extras TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  container TEXT NOT NULL,"
+      "  thread TEXT NOT NULL,"
+      "  uri TEXT NOT NULL,"
+      "  type TEXT NOT NULL,"
+      "  extras TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS threads ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 type INTEGER NOT NULL,"
-      "	 name TEXT,"
-      "	 description TEXT,"
-      "	 color TEXT NOT NULL,"
-      "	 creation_time BIGINT NOT NULL,"
-      "	 parent_thread_id TEXT,"
-      "	 containing_thread_id TEXT,"
-      "	 community TEXT,"
-      "	 members TEXT NOT NULL,"
-      "	 roles TEXT NOT NULL,"
-      "	 current_user TEXT NOT NULL,"
-      "	 source_message_id TEXT,"
-      "	 replies_count INTEGER NOT NULL,"
-      "	 avatar TEXT,"
-      "	 pinned_count INTEGER NOT NULL DEFAULT 0"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  type INTEGER NOT NULL,"
+      "  name TEXT,"
+      "  description TEXT,"
+      "  color TEXT NOT NULL,"
+      "  creation_time BIGINT NOT NULL,"
+      "  parent_thread_id TEXT,"
+      "  containing_thread_id TEXT,"
+      "  community TEXT,"
+      "  members TEXT NOT NULL,"
+      "  roles TEXT NOT NULL,"
+      "  current_user TEXT NOT NULL,"
+      "  source_message_id TEXT,"
+      "  replies_count INTEGER NOT NULL,"
+      "  avatar TEXT,"
+      "  pinned_count INTEGER NOT NULL DEFAULT 0"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
-      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 data TEXT NOT NULL"
+      "  name TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  data TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS message_store_threads ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 start_reached INTEGER NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  start_reached INTEGER NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS reports ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 report TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  report TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS persist_storage ("
@@ -761,44 +799,44 @@ bool create_schema(sqlite3 *db) {
       ");"
 
       "CREATE TABLE IF NOT EXISTS users ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 user_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  user_info TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS keyservers ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 keyserver_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  keyserver_info TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS keyservers_synced ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 keyserver_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  keyserver_info TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS communities ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   community_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  community_info TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS outbound_p2p_messages ("
-      "	 message_id TEXT NOT NULL,"
-      "	 device_id TEXT NOT NULL,"
-      "	 user_id TEXT NOT NULL,"
-      "	 timestamp BIGINT NOT NULL,"
-      "	 plaintext TEXT NOT NULL,"
-      "	 ciphertext TEXT NOT NULL,"
-      "	 status TEXT NOT NULL,"
-      "	 PRIMARY KEY (message_id, device_id)"
+      "  message_id TEXT NOT NULL,"
+      "  device_id TEXT NOT NULL,"
+      "  user_id TEXT NOT NULL,"
+      "  timestamp BIGINT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  ciphertext TEXT NOT NULL,"
+      "  status TEXT NOT NULL,"
+      "  PRIMARY KEY (message_id, device_id)"
       ");"
 
       "CREATE TABLE IF NOT EXISTS integrity_store ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   thread_hash TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  thread_hash TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS synced_metadata ("
-      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 data TEXT NOT NULL"
+      "  name TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  data TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS aux_users ("
@@ -825,8 +863,8 @@ bool create_schema(sqlite3 *db) {
       ");"
 
       "CREATE TABLE IF NOT EXISTS message_store_local ("
-      "   id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "   local_message_info TEXT NOT NULL"
+      "  id TEXT UNIQUE PRIMARY KEY NOT NULL,"
+      "  local_message_info TEXT NOT NULL"
       ");"
 
       "CREATE INDEX IF NOT EXISTS media_idx_container"
@@ -834,6 +872,9 @@ bool create_schema(sqlite3 *db) {
 
       "CREATE INDEX IF NOT EXISTS messages_idx_thread_time"
       "  ON messages (thread, time);"
+
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time"
+      "  ON messages (target_message, type, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
       "  ON outbound_p2p_messages (device_id, timestamp);",
@@ -1085,7 +1126,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {44, {create_received_messages_to_device, true}},
      {45, {recreate_outbound_p2p_messages_table, true}},
      {46, {create_entries_table, true}},
-     {47, {create_message_store_local_table, true}}}};
+     {47, {create_message_store_local_table, true}},
+     {48, {create_messages_idx_target_message_type_time, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -1342,7 +1384,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
       "SELECT * "
       "FROM messages "
       "LEFT JOIN media "
-      "   ON messages.id = media.container "
+      "  ON messages.id = media.container "
       "ORDER BY messages.id;";
   SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
@@ -1356,12 +1398,12 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
        stepResult = sqlite3_step(preparedSQL)) {
     Message message = Message::fromSQLResult(preparedSQL, 0);
     if (message.id == prevMsgIdx) {
-      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
+      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 9));
     } else {
       prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
-      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
-        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
+      if (sqlite3_column_type(preparedSQL, 9) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 9));
       }
       allMessages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
@@ -1744,12 +1786,12 @@ void SQLiteQueryExecutor::removeKeyservers(
 std::vector<KeyserverInfo> SQLiteQueryExecutor::getAllKeyservers() const {
   static std::string getAllKeyserversSQL =
       "SELECT "
-      "   synced.id, "
-      "   COALESCE(keyservers.keyserver_info, ''), "
-      "   synced.keyserver_info "
+      "  synced.id, "
+      "  COALESCE(keyservers.keyserver_info, ''), "
+      "  synced.keyserver_info "
       "FROM keyservers_synced synced "
       "LEFT JOIN keyservers "
-      "   ON synced.id = keyservers.id;";
+      "  ON synced.id = keyservers.id;";
   return getAllEntities<KeyserverInfo>(
       SQLiteQueryExecutor::getConnection(), getAllKeyserversSQL);
 }
@@ -2270,9 +2312,9 @@ void SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan(
   std::string query =
       "DELETE FROM outbound_p2p_messages "
       "WHERE timestamp <= ("
-      "   SELECT timestamp "
-      "   FROM outbound_p2p_messages"
-      "   WHERE message_id = ?"
+      "  SELECT timestamp "
+      "  FROM outbound_p2p_messages"
+      "  WHERE message_id = ?"
       ") "
       "AND device_id IN (?);";
 
