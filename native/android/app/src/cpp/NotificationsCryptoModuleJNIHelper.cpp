@@ -17,12 +17,24 @@ std::string NotificationsCryptoModuleJNIHelper::decrypt(
   return decryptedData;
 }
 
+std::string NotificationsCryptoModuleJNIHelper::peerDecrypt(
+    facebook::jni::alias_ref<NotificationsCryptoModuleJNIHelper> jThis,
+    std::string deviceID,
+    std::string data,
+    int messageType) {
+  std::string decryptedData =
+      NotificationsCryptoModule::peerDecrypt(deviceID, data, messageType);
+  return decryptedData;
+}
+
 void NotificationsCryptoModuleJNIHelper::registerNatives() {
   javaClassStatic()->registerNatives({
       makeNativeMethod(
           "olmEncryptedTypeMessage",
           NotificationsCryptoModuleJNIHelper::olmEncryptedTypeMessage),
       makeNativeMethod("decrypt", NotificationsCryptoModuleJNIHelper::decrypt),
+      makeNativeMethod(
+          "peerDecrypt", NotificationsCryptoModuleJNIHelper::peerDecrypt),
   });
 }
 } // namespace comm

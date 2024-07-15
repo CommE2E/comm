@@ -3,8 +3,9 @@
 #include "../../CryptoTools/Tools.h"
 #include "../../Tools/CommMMKV.h"
 #include "../../Tools/CommSecureStore.h"
-#include "../../Tools/Logger.h"
 #include "../../Tools/PlatformSpecificTools.h"
+#include "NotificationsInboundKeysProvider.h"
+#include "olm/session.hh"
 
 #include "Logger.h"
 #include <fcntl.h>
@@ -445,6 +446,57 @@ void NotificationsCryptoModule::LegacyStatefulDecryptResult::flushState() {
   }
 }
 
+NotificationsCryptoModule::StatefulPeerInitDecryptResult::
+    StatefulPeerInitDecryptResult(
+        std::shared_ptr<crypto::Session> session,
+        std::shared_ptr<crypto::CryptoModule> account,
+        std::string sessionPicklingKey,
+        std::string accountPicklingKey,
+        std::string deviceID,
+        std::string decryptedData)
+    : BaseStatefulDecryptResult(sessionPicklingKey, decryptedData),
+      sessionState(session),
+      accountState(account),
+      accountPicklingKey(accountPicklingKey),
+      deviceID(deviceID) {
+}
+
+void NotificationsCryptoModule::StatefulPeerInitDecryptResult::flushState() {
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      false, this->deviceID, this->picklingKey, std::move(this->sessionState));
+  NotificationsCryptoModule::persistNotificationsAccount(
+      std::move(this->accountState), this->accountPicklingKey);
+}
+
+NotificationsCryptoModule::StatefulPeerDecryptResult::StatefulPeerDecryptResult(
+    std::unique_ptr<crypto::Session> session,
+    std::string deviceID,
+    std::string picklingKey,
+    std::string decryptedData)
+    : NotificationsCryptoModule::BaseStatefulDecryptResult::
+          BaseStatefulDecryptResult(picklingKey, decryptedData),
+      sessionState(std::move(session)),
+      deviceID(deviceID) {
+}
+
+void NotificationsCryptoModule::StatefulPeerDecryptResult::flushState() {
+  NotificationsCryptoModule::persistNotificationsSessionInternal(
+      false, this->deviceID, this->picklingKey, std::move(this->sessionState));
+}
+
+NotificationsCryptoModule::StatefulPeerConflictDecryptResult::
+    StatefulPeerConflictDecryptResult(
+        std::string picklingKey,
+        std::string decryptedData)
+    : NotificationsCryptoModule::BaseStatefulDecryptResult(
+          picklingKey,
+          decryptedData) {
+}
+void NotificationsCryptoModule::StatefulPeerConflictDecryptResult::
+    flushState() {
+  return;
+}
+
 std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
 NotificationsCryptoModule::prepareLegacyDecryptedState(
     const std::string &data,
@@ -548,6 +600,142 @@ NotificationsCryptoModule::statefulDecrypt(
 
   return std::make_unique<StatefulDecryptResult>(
       std::move(statefulDecryptResult));
+}
+
+std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
+NotificationsCryptoModule::statefulPeerDecrypt(
+    const std::string &deviceID,
+    const std::string &data,
+    const size_t messageType) {
+  if (messageType != OLM_MESSAGE_TYPE_MESSAGE &&
+      messageType != OLM_MESSAGE_TYPE_PRE_KEY) {
+    throw std::runtime_error(
+        "Received message of invalid type from device: " + deviceID);
+  }
+
+  auto maybeSessionWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsSession(false, deviceID);
+
+  if (!maybeSessionWithPicklingKey.has_value() &&
+      messageType == OLM_MESSAGE_TYPE_MESSAGE) {
+    throw std::runtime_error(
+        "Received MESSAGE_TYPE_MESSAGE message from device: " + deviceID +
+        " but session not initialized.");
+  }
+
+  crypto::EncryptedData encryptedData{
+      std::vector<uint8_t>(data.begin(), data.end()), messageType};
+
+  bool isSenderChainEmpty = true;
+  bool hasReceivedMessage = false;
+  bool sessionExists = maybeSessionWithPicklingKey.has_value();
+
+  if (sessionExists) {
+    ::olm::Session *olmSessionAsCppClass = reinterpret_cast<::olm::Session *>(
+        maybeSessionWithPicklingKey.value().first->getOlmSession());
+    isSenderChainEmpty = olmSessionAsCppClass->ratchet.sender_chain.empty();
+    hasReceivedMessage = olmSessionAsCppClass->received_message;
+  }
+
+  // regular message
+  bool isRegularMessage =
+      sessionExists && messageType == OLM_MESSAGE_TYPE_MESSAGE;
+
+  bool isRegularPrekeyMessage = sessionExists &&
+      messageType == OLM_MESSAGE_TYPE_PRE_KEY && isSenderChainEmpty &&
+      hasReceivedMessage;
+
+  if (isRegularMessage || isRegularPrekeyMessage) {
+    std::string decryptedData =
+        maybeSessionWithPicklingKey.value().first->decrypt(encryptedData);
+    StatefulPeerDecryptResult decryptResult = StatefulPeerDecryptResult(
+        std::move(maybeSessionWithPicklingKey.value().first),
+        deviceID,
+        maybeSessionWithPicklingKey.value().second,
+        decryptedData);
+    return std::make_unique<StatefulPeerDecryptResult>(
+        std::move(decryptResult));
+  }
+
+  // At this point we either face race condition or session reset attempt or
+  // session initialization attempt. For each of this scenario new inbound
+  // session must be created in order to decrypt message
+  std::string notifInboundKeys =
+      NotificationsInboundKeysProvider::getNotifsInboundKeysForDeviceID(
+          deviceID);
+  auto maybeAccountWithPicklingKey =
+      NotificationsCryptoModule::fetchNotificationsAccount();
+
+  if (!maybeAccountWithPicklingKey.has_value()) {
+    throw std::runtime_error("Notifications account not initialized.");
+  }
+
+  auto accountWithPicklingKey = maybeAccountWithPicklingKey.value();
+  accountWithPicklingKey.first->initializeInboundForReceivingSession(
+      deviceID,
+      {data.begin(), data.end()},
+      {notifInboundKeys.begin(), notifInboundKeys.end()},
+      // The argument below is relevant for content only
+      0,
+      true);
+  std::shared_ptr<crypto::Session> newInboundSession =
+      accountWithPicklingKey.first->getSessionByDeviceId(deviceID);
+  accountWithPicklingKey.first->removeSessionByDeviceId(deviceID);
+  std::string decryptedData = newInboundSession->decrypt(encryptedData);
+
+  // session reset attempt or session initialization - handled the same
+  bool sessionResetAttempt =
+      sessionExists && !isSenderChainEmpty && hasReceivedMessage;
+
+  // race condition
+  bool raceCondition =
+      sessionExists && !isSenderChainEmpty && !hasReceivedMessage;
+
+  // device ID comparison
+  folly::Optional<std::string> maybeOurDeviceID =
+      CommSecureStore::get(CommSecureStore::deviceID);
+  if (!maybeOurDeviceID.hasValue()) {
+    throw std::runtime_error("Session creation attempt but no device id");
+  }
+  std::string ourDeviceID = maybeOurDeviceID.value();
+  bool thisDeviceWinsRaceCondition = ourDeviceID > deviceID;
+
+  // If there is no session or there is session reset attempt or
+  // there is a race condition but we loos device id comparison
+  // we end up creating new session as inbound
+  if (!sessionExists || sessionResetAttempt ||
+      (raceCondition && !thisDeviceWinsRaceCondition)) {
+    std::string sessionPicklingKey = crypto::Tools::generateRandomString(64);
+    StatefulPeerInitDecryptResult decryptResult = StatefulPeerInitDecryptResult(
+        newInboundSession,
+        accountWithPicklingKey.first,
+        sessionPicklingKey,
+        accountWithPicklingKey.second,
+        deviceID,
+        decryptedData);
+    return std::make_unique<StatefulPeerInitDecryptResult>(
+        std::move(decryptResult));
+  }
+
+  // If there is a race condition but we win device id comparison
+  // we return object that carries decrypted data but won't persist
+  // any session state
+  StatefulPeerConflictDecryptResult decryptResult =
+      StatefulPeerConflictDecryptResult(
+          maybeSessionWithPicklingKey.value().second, decryptedData);
+  return std::make_unique<StatefulPeerConflictDecryptResult>(
+      std::move(decryptResult));
+}
+
+std::string NotificationsCryptoModule::peerDecrypt(
+    const std::string &deviceID,
+    const std::string &data,
+    const size_t messageType) {
+  auto statefulDecryptResult = NotificationsCryptoModule::statefulPeerDecrypt(
+      deviceID, data, messageType);
+  std::string decryptedData = statefulDecryptResult->decryptedData;
+  statefulDecryptResult->flushState();
+  return decryptedData;
 }
 
 void NotificationsCryptoModule::flushState(
