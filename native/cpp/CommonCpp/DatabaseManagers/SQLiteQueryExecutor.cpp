@@ -7,6 +7,7 @@
 #include "entities/IntegrityThreadHash.h"
 #include "entities/KeyserverInfo.h"
 #include "entities/LocalMessageInfo.h"
+#include "entities/MessageType.h"
 #include "entities/Metadata.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/UserInfo.h"
@@ -2420,36 +2421,71 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
 
 std::optional<MessageEntity>
 SQLiteQueryExecutor::getLatestMessageEdit(const std::string &messageID) const {
-  // TODO query for edits
   static std::string getMessageSQL =
       "SELECT * "
       "FROM messages "
       "LEFT JOIN media "
       "  ON messages.id = media.container "
-      "WHERE messages.id = ?";
+      "WHERE messages.id = ? OR messages.target_message = ? "
+      "ORDER BY messages.time DESC";
   comm::SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       getMessageSQL,
       "Failed to get latest message edit");
   bindStringToSQL(messageID.c_str(), preparedSQL, 1);
+  bindStringToSQL(messageID.c_str(), preparedSQL, 2);
 
-  std::optional<MessageEntity> messageEntity;
-  for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
-       stepResult = sqlite3_step(preparedSQL)) {
-    if (!messageEntity.has_value()) {
-      std::vector<Media> mediaForMsg;
-      Message message = Message::fromSQLResult(preparedSQL, 0);
-      if (sqlite3_column_type(preparedSQL, 9) != SQLITE_NULL) {
-        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 9));
-      }
-      messageEntity = std::make_pair(std::move(message), mediaForMsg);
-    } else {
-      messageEntity.value().second.push_back(
-          Media::fromSQLResult(preparedSQL, 9));
-    }
+  std::vector<MessageEntity> messages =
+      this->processMessagesResults(preparedSQL);
+
+  if (messages.size() == 0) {
+    return std::nullopt;
   }
 
-  return messageEntity;
+  // First, get the original message, which should be the earliest based on time
+  auto originalMessage = std::move(messages.back());
+  messages.pop_back();
+  if (originalMessage.first.id != messageID) {
+    return std::nullopt;
+  }
+
+  // Edits are only supported for text messages
+  if (originalMessage.first.type != static_cast<int>(MessageType::TEXT)) {
+    return originalMessage;
+  }
+
+  // We don't have access to folly::parseJson from the WASM environment
+  // Instead, since we're already compiling in SQLite, we use it to parse JSON
+  static std::string extractTextPropertySQL =
+      "SELECT JSON_EXTRACT(?, '$.text') AS text";
+
+  // Next, get the latest edit, if there is one
+  for (auto &relatedMessage : messages) {
+    if (relatedMessage.first.type !=
+        static_cast<int>(MessageType::EDIT_MESSAGE)) {
+      continue;
+    }
+
+    // We issue a SQLite query to extract the text property from the JSON
+    comm::SQLiteStatementWrapper preparedExtractTextSQL(
+        SQLiteQueryExecutor::getConnection(),
+        extractTextPropertySQL,
+        "Failed to get extract text from latest message edit");
+    bindStringToSQL(
+        relatedMessage.first.content->c_str(), preparedExtractTextSQL, 1);
+    int stepResult = sqlite3_step(preparedExtractTextSQL);
+    if (stepResult != SQLITE_ROW) {
+      Logger::log("no result from SQLite text extraction query");
+      continue;
+    }
+
+    std::string newText = reinterpret_cast<const char *>(
+        sqlite3_column_text(preparedExtractTextSQL, 0));
+    originalMessage.first.content = std::make_unique<std::string>(newText);
+    break;
+  }
+
+  return originalMessage;
 }
 
 #ifdef EMSCRIPTEN
