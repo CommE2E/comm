@@ -11,6 +11,7 @@
 #include "entities/LocalMessageInfo.h"
 #include "entities/Media.h"
 #include "entities/Message.h"
+#include "entities/SQLiteStatementWrapper.h"
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
 
@@ -43,6 +44,8 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 #endif
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
+  std::vector<MessageEntity>
+  processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
 
 public:
   static std::string sqliteFilePath;
