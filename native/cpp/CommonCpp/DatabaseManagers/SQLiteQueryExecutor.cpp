@@ -180,6 +180,37 @@ bool create_messages_idx_thread_time(sqlite3 *db) {
   return false;
 }
 
+bool create_messages_idx_target_message_type_time(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE messages "
+      "  ADD COLUMN target_message TEXT "
+      "  AS (IIF( "
+      "    JSON_VALID(content), "
+      "    JSON_EXTRACT(content, '$.targetMessageID'), "
+      "    NULL "
+      "  )); "
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time "
+      "  ON messages (target_message, type, time);",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream
+      << "Error creating (target_message, type, time) index on messages table: "
+      << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_media_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS media ( "
@@ -698,7 +729,14 @@ bool create_schema(sqlite3 *db) {
       "	 type INTEGER NOT NULL,"
       "	 future_type INTEGER,"
       "	 content TEXT,"
-      "	 time INTEGER NOT NULL"
+      "	 time INTEGER NOT NULL,"
+      "  target_message TEXT AS ("
+      "    IIF("
+      "      JSON_VALID(content),"
+      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      NULL"
+      "    )"
+      "  )"
       ");"
 
       "CREATE TABLE IF NOT EXISTS olm_persist_account ("
@@ -834,6 +872,9 @@ bool create_schema(sqlite3 *db) {
 
       "CREATE INDEX IF NOT EXISTS messages_idx_thread_time"
       "  ON messages (thread, time);"
+
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time"
+      "  ON messages (target_message, type, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
       "  ON outbound_p2p_messages (device_id, timestamp);",
@@ -1085,7 +1126,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {44, {create_received_messages_to_device, true}},
      {45, {recreate_outbound_p2p_messages_table, true}},
      {46, {create_entries_table, true}},
-     {47, {create_message_store_local_table, true}}}};
+     {47, {create_message_store_local_table, true}},
+     {48, {create_messages_idx_target_message_type_time, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -1356,12 +1398,12 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
        stepResult = sqlite3_step(preparedSQL)) {
     Message message = Message::fromSQLResult(preparedSQL, 0);
     if (message.id == prevMsgIdx) {
-      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
+      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 9));
     } else {
       prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
-      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
-        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
+      if (sqlite3_column_type(preparedSQL, 9) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 9));
       }
       allMessages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
