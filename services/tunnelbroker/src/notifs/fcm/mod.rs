@@ -4,6 +4,7 @@ use std::time::Duration;
 
 pub mod config;
 mod error;
+mod firebase_message;
 mod token;
 
 #[derive(Clone)]
