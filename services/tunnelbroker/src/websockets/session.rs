@@ -369,24 +369,15 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           return Some(MessageSentStatus::SerializationError(notif.headers));
         };
 
-        let device_token =
-          match self.db_client.get_device_token(&notif.device_id).await {
-            Ok(db_token) => {
-              let Some(token) = db_token else {
-                return Some(self.get_message_to_device_status(
-                  &notif.client_message_id,
-                  Err(SessionError::MissingDeviceToken),
-                ));
-              };
-              token
-            }
-            Err(e) => {
-              return Some(self.get_message_to_device_status(
-                &notif.client_message_id,
-                Err(SessionError::DatabaseError(e)),
-              ));
-            }
-          };
+        let device_token = match self.get_device_token(notif.device_id).await {
+          Ok(token) => token,
+          Err(e) => {
+            return Some(
+              self
+                .get_message_to_device_status(&notif.client_message_id, Err(e)),
+            )
+          }
+        };
 
         let apns_notif = APNsNotif {
           device_token,
@@ -427,24 +418,15 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           return Some(MessageSentStatus::SerializationError(notif.data));
         };
 
-        let device_token =
-          match self.db_client.get_device_token(&notif.device_id).await {
-            Ok(db_token) => {
-              let Some(token) = db_token else {
-                return Some(self.get_message_to_device_status(
-                  &notif.client_message_id,
-                  Err(SessionError::MissingDeviceToken),
-                ));
-              };
-              token
-            }
-            Err(e) => {
-              return Some(self.get_message_to_device_status(
-                &notif.client_message_id,
-                Err(SessionError::DatabaseError(e)),
-              ));
-            }
-          };
+        let device_token = match self.get_device_token(notif.device_id).await {
+          Ok(token) => token,
+          Err(e) => {
+            return Some(
+              self
+                .get_message_to_device_status(&notif.client_message_id, Err(e)),
+            )
+          }
+        };
 
         let fcm_message = FCMMessage {
           data,
@@ -528,5 +510,17 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         error: err.to_string(),
       }),
     }
+  }
+
+  async fn get_device_token(
+    &self,
+    device_id: String,
+  ) -> Result<String, SessionError> {
+    let db_token = self
+      .db_client
+      .get_device_token(&device_id)
+      .await
+      .map_err(SessionError::DatabaseError)?;
+    db_token.ok_or_else(|| SessionError::MissingDeviceToken)
   }
 }
