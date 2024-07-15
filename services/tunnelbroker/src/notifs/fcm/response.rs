@@ -1,11 +1,12 @@
 use derive_more::{Display, Error};
+use reqwest::StatusCode;
 
 #[derive(PartialEq, Debug, Clone, Display, Error)]
 pub struct InvalidArgumentError {
   pub details: String,
 }
 #[derive(PartialEq, Debug, Display, Error)]
-pub enum FCMError {
+pub enum FCMErrorResponse {
   /// No more information is available about this error.
   UnspecifiedError,
 
@@ -41,4 +42,22 @@ pub enum FCMError {
   /// HTTP error code = 401.
   /// APNs certificate or web push auth key was invalid or missing.
   ThirdPartyAuthError,
+}
+impl FCMErrorResponse {
+  pub fn from_status(status: StatusCode, body: String) -> Self {
+    match status {
+      StatusCode::BAD_REQUEST => {
+        FCMErrorResponse::InvalidArgument(InvalidArgumentError {
+          details: body,
+        })
+      }
+      StatusCode::NOT_FOUND => FCMErrorResponse::Unregistered,
+      StatusCode::FORBIDDEN => FCMErrorResponse::SenderIdMismatch,
+      StatusCode::TOO_MANY_REQUESTS => FCMErrorResponse::QuotaExceeded,
+      StatusCode::SERVICE_UNAVAILABLE => FCMErrorResponse::Unavailable,
+      StatusCode::INTERNAL_SERVER_ERROR => FCMErrorResponse::Internal,
+      StatusCode::UNAUTHORIZED => FCMErrorResponse::ThirdPartyAuthError,
+      _ => FCMErrorResponse::UnspecifiedError,
+    }
+  }
 }

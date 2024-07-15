@@ -1,4 +1,4 @@
-use crate::notifs::fcm::response::FCMError;
+use crate::notifs::fcm::response::FCMErrorResponse;
 use derive_more::{Display, Error, From};
 
 #[derive(Debug, From, Display, Error)]
@@ -8,7 +8,7 @@ pub enum Error {
   InvalidHeaderValue(reqwest::header::InvalidHeaderValue),
   SerdeJson(serde_json::Error),
   FCMTokenNotInitialized,
-  FCMError(FCMError),
+  FCMError(FCMErrorResponse),
 }
 
 impl From<jsonwebtoken::errors::Error> for Error {
