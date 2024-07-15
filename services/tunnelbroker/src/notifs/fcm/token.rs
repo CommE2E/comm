@@ -10,6 +10,13 @@ use tokio::sync::RwLock;
 use tracing::debug;
 
 #[derive(Debug, Clone, Deserialize)]
+struct FCMAccessTokenResponse {
+  access_token: String,
+  token_type: String,
+  expires_in: u64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 struct FCMAccessToken {
   access_token: String,
   token_type: String,
@@ -64,5 +71,22 @@ impl FCMToken {
       EncodingKey::from_rsa_pem(self.config.private_key.as_bytes()).unwrap();
     let token = jsonwebtoken::encode(&header, &payload, &encoding_key)?;
     Ok(token)
+  }
+
+  async fn get_fcm_access_token(
+    &self,
+    jwt_token: String,
+  ) -> Result<FCMAccessTokenResponse, Error> {
+    let response = reqwest::Client::new()
+      .post(self.config.token_uri.clone())
+      .form(&[
+        ("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer"),
+        ("assertion", &jwt_token),
+      ])
+      .send()
+      .await?;
+
+    let access_token = response.json::<FCMAccessTokenResponse>().await?;
+    Ok(access_token)
   }
 }
