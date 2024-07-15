@@ -45,6 +45,7 @@ pub enum Messages {
   // This is due to serde's pattern matching behavior where it prioritizes
   // the first matching pattern it encounters.
   APNsNotif(APNsNotif),
+  FCMNotif(FCMNotif),
   MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageToDevice(MessageToDevice),
