@@ -6,6 +6,7 @@ pub enum Error {
   ReqwestError(reqwest::Error),
   InvalidHeaderValue(reqwest::header::InvalidHeaderValue),
   SerdeJson(serde_json::Error),
+  FCMTokenNotInitialized,
 }
 
 impl From<jsonwebtoken::errors::Error> for Error {
