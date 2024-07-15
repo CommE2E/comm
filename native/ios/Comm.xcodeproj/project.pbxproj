@@ -89,6 +89,8 @@
 		CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */; };
 		CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */; };
 		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
+		CB99DB4D2C45327C00B8055E /* NotificationsInboundKeysProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB99DB4C2C45327B00B8055E /* NotificationsInboundKeysProvider.mm */; };
+		CB99DB4E2C45329500B8055E /* NotificationsInboundKeysProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB99DB4C2C45327B00B8055E /* NotificationsInboundKeysProvider.mm */; };
 		CBA5F8852B6979F7005BE700 /* SQLiteConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBA5F8842B6979ED005BE700 /* SQLiteConnectionManager.cpp */; };
 		CBAAA4702B459181007599DA /* BackupOperationsExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBAAA46E2B459181007599DA /* BackupOperationsExecutor.cpp */; };
 		CBAB638A2BFCCA9B003B089F /* EntryStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBAB63882BFCB087003B089F /* EntryStore.cpp */; };
@@ -315,6 +317,8 @@
 		CB7EF17C295C580500B17035 /* CommIOSNotificationsBridgeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CommIOSNotificationsBridgeQueue.h; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.h; sourceTree = "<group>"; };
 		CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotifications.mm; path = Comm/CommIOSNotifications/CommIOSNotifications.mm; sourceTree = "<group>"; };
 		CB90951929531663002F2A7F /* CommIOSNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotifications.h; path = Comm/CommIOSNotifications/CommIOSNotifications.h; sourceTree = "<group>"; };
+		CB99DB4B2C45326C00B8055E /* NotificationsInboundKeysProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NotificationsInboundKeysProvider.h; path = Notifications/BackgroundDataStorage/NotificationsInboundKeysProvider.h; sourceTree = "<group>"; };
+		CB99DB4C2C45327B00B8055E /* NotificationsInboundKeysProvider.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = NotificationsInboundKeysProvider.mm; path = Comm/NotificationsInboundKeysProvider.mm; sourceTree = "<group>"; };
 		CBA5F8832B6979ED005BE700 /* SQLiteConnectionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SQLiteConnectionManager.h; sourceTree = "<group>"; };
 		CBA5F8842B6979ED005BE700 /* SQLiteConnectionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteConnectionManager.cpp; sourceTree = "<group>"; };
 		CBA784382B28AC4300E9F419 /* CommServicesAuthMetadataEmitter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommServicesAuthMetadataEmitter.h; sourceTree = "<group>"; };
@@ -428,6 +432,7 @@
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
+				CB99DB4C2C45327B00B8055E /* NotificationsInboundKeysProvider.mm */,
 				CBCF984C2BA499C200DBC3D9 /* CommIOSServices */,
 				CBB0DF5F2B768007008E22FF /* CommMMKV.mm */,
 				CB74AB1B2B2AFF6E00CBB494 /* CommServicesAuthMetadataEmitter.mm */,
@@ -725,6 +730,7 @@
 		CB24361529A3979500FEC4E1 /* BackgroundDataStorage */ = {
 			isa = PBXGroup;
 			children = (
+				CB99DB4B2C45326C00B8055E /* NotificationsInboundKeysProvider.h */,
 				CB24361729A39A2500FEC4E1 /* NotificationsCryptoModule.cpp */,
 				CB24361629A397AB00FEC4E1 /* NotificationsCryptoModule.h */,
 			);
@@ -1196,6 +1202,7 @@
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				CBCF984F2BA499DA00DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				B3B02EBF2B8538980020D118 /* CommunityStore.cpp in Sources */,
+				CB99DB4D2C45327C00B8055E /* NotificationsInboundKeysProvider.mm in Sources */,
 				8BC9568529FC49B00060AE4A /* JSIRust.cpp in Sources */,
 				8EA59BD92A73DAB000EB4F53 /* rustJSI-generated.cpp in Sources */,
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
@@ -1254,6 +1261,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB99DB4E2C45329500B8055E /* NotificationsInboundKeysProvider.mm in Sources */,
 				CBCF98502BA49A0500DBC3D9 /* CommIOSServicesClient.mm in Sources */,
 				CBCA09072A8E0E7D00F75B3E /* StaffUtils.cpp in Sources */,
 				CB3C0A3B2A125C8F009BD4DA /* NotificationsCryptoModule.cpp in Sources */,

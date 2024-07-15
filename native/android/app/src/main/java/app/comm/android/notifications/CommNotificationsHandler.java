@@ -69,7 +69,6 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
-  private CommAndroidServicesClient servicesClient;
   private AESCryptoModuleCompat aesCryptoModule;
 
   public static final String RESCIND_KEY = "rescind";
@@ -93,7 +92,6 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     localBroadcastManager = LocalBroadcastManager.getInstance(this);
     displayableNotificationLargeIcon = BitmapFactory.decodeResource(
         this.getApplicationContext().getResources(), R.mipmap.ic_launcher);
-    servicesClient = new CommAndroidServicesClient();
     aesCryptoModule = new AESCryptoModuleCompat();
   }
 
@@ -330,13 +328,14 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     String blobHash = message.getData().get(BLOB_HASH_KEY);
     String blobHolder = message.getData().get(BLOB_HOLDER_KEY);
     try {
-      byte[] largePayload = servicesClient.getBlobSync(blobHash);
+      byte[] largePayload =
+          CommAndroidServicesClient.getInstance().getBlobSync(blobHash);
       message = aesDecryptRemoteMessage(message, largePayload);
       handleMessageInfosPersistence(message);
     } catch (Exception e) {
       Log.w("COMM", "Failure when handling large notification.", e);
     }
-    servicesClient.scheduleDeferredBlobDeletion(
+    CommAndroidServicesClient.getInstance().scheduleDeferredBlobDeletion(
         blobHash, blobHolder, this.getApplicationContext());
   }
 
