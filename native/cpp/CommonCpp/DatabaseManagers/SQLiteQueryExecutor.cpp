@@ -1390,7 +1390,11 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
       SQLiteQueryExecutor::getConnection(),
       getAllMessagesSQL,
       "Failed to retrieve all messages.");
+  return this->processMessagesResults(preparedSQL);
+}
 
+std::vector<MessageEntity> SQLiteQueryExecutor::processMessagesResults(
+    SQLiteStatementWrapper &preparedSQL) const {
   std::string prevMsgIdx{};
   std::vector<MessageEntity> allMessages;
 
