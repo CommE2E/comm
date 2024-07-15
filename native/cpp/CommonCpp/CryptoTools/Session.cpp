@@ -83,9 +83,11 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
   session->olmSessionBuffer.resize(::olm_session_size());
   ::olm_session(session->olmSessionBuffer.data());
   if (-1 ==
-      ::olm_create_inbound_session(
+      ::olm_create_inbound_session_from(
           session->getOlmSession(),
           account,
+          idKeys.data() + ID_KEYS_PREFIX_OFFSET,
+          KEYSIZE,
           tmpEncryptedMessage.data(),
           encryptedMessage.size())) {
     throw std::runtime_error(

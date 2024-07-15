@@ -16,6 +16,8 @@ NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailureKey = @"encryptionFailure";
 NSString *const collapseIDKey = @"collapseID";
 NSString *const keyserverIDKey = @"keyserverID";
+NSString *const senderDeviceIDKey = @"senderDeviceID";
+NSString *const messageTypeKey = @"type";
 NSString *const blobHashKey = @"blobHash";
 NSString *const blobHolderKey = @"blobHolder";
 NSString *const encryptionKeyLabel = @"encryptionKey";
@@ -498,7 +500,7 @@ std::string joinStrings(
 - (void)calculateTotalUnreadCountInPlace:
     (UNMutableNotificationContent *)content {
   if (!content.userInfo[keyserverIDKey]) {
-    throw std::runtime_error("Received badge update without keyserver ID.");
+    return;
   }
   std::string senderKeyserverID =
       std::string([content.userInfo[keyserverIDKey] UTF8String]);
@@ -603,17 +605,26 @@ std::string joinStrings(
   std::string encryptedData =
       std::string([content.userInfo[encryptedPayloadKey] UTF8String]);
 
-  if (!content.userInfo[keyserverIDKey]) {
+  std::unique_ptr<comm::NotificationsCryptoModule::BaseStatefulDecryptResult>
+      decryptResult;
+  if (content.userInfo[keyserverIDKey]) {
+    std::string senderKeyserverID =
+        std::string([content.userInfo[keyserverIDKey] UTF8String]);
+    decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
+        senderKeyserverID,
+        encryptedData,
+        comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
+  } else if (
+      content.userInfo[senderDeviceIDKey] && content.userInfo[messageTypeKey]) {
+    std::string senderDeviceID =
+        std::string([content.userInfo[senderDeviceIDKey] UTF8String]);
+    size_t messageType = [content.userInfo[messageTypeKey] intValue];
+    decryptResult = comm::NotificationsCryptoModule::statefulPeerDecrypt(
+        senderDeviceID, encryptedData, messageType);
+  } else {
     throw std::runtime_error(
-        "Received encrypted notification without keyserverID.");
+        "Received notification without keyserver ID nor sender device ID.");
   }
-  std::string senderKeyserverID =
-      std::string([content.userInfo[keyserverIDKey] UTF8String]);
-
-  auto decryptResult = comm::NotificationsCryptoModule::statefulDecrypt(
-      senderKeyserverID,
-      encryptedData,
-      comm::NotificationsCryptoModule::olmEncryptedTypeMessage);
 
   NSString *decryptedSerializedPayload =
       [NSString stringWithUTF8String:decryptResult->getDecryptedData().c_str()];
