@@ -15,6 +15,7 @@ pub const ENV_APNS_CONFIG: &str = "APNS_CONFIG";
 pub const ENV_FCM_CONFIG: &str = "FCM_CONFIG";
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
+pub const FCM_ACCESS_TOKEN_GENERATION_THRESHOLD: u64 = 5 * 60;
 
 pub mod dynamodb {
   // This table holds messages which could not be immediately delivered to
