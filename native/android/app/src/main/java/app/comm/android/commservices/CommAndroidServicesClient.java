@@ -34,6 +34,9 @@ public class CommAndroidServicesClient {
           .callTimeout(NOTIF_PROCESSING_TIME_LIMIT_SECONDS, TimeUnit.SECONDS)
           .build();
 
+  public static final CommAndroidServicesClient instance =
+      new CommAndroidServicesClient();
+
   public static final String BLOB_SERVICE_URL = BuildConfig.DEBUG
       ? "https://blob.staging.commtechnologies.org"
       : "https://blob.commtechnologies.org";
@@ -42,6 +45,10 @@ public class CommAndroidServicesClient {
       : "https://identity.commtechnologies.org:51004";
   public static final String BLOB_HASH_KEY = "blob_hash";
   public static final String BLOB_HOLDER_KEY = "holder";
+
+  public static CommAndroidServicesClient getInstance() {
+    return CommAndroidServicesClient.instance;
+  }
 
   public byte[] getBlobSync(String blobHash) throws IOException, JSONException {
     String authToken = getAuthToken();

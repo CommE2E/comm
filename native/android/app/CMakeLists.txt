@@ -119,6 +119,7 @@ list(APPEND ANDROID_NATIVE_CODE
   "./src/cpp/AESCrypto.cpp"
   "./src/cpp/CommServicesAuthMetadataEmitter.cpp"
   "./src/cpp/CommMMKV.cpp"
+  "./src/cpp/NotificationsInboundKeysProvider.cpp"
 )
 
 list(APPEND GENERATED_NATIVE_CODE
