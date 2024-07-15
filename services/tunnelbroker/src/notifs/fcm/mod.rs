@@ -14,7 +14,7 @@ use tracing::{debug, error};
 
 pub mod config;
 mod error;
-mod firebase_message;
+pub mod firebase_message;
 mod response;
 mod token;
 

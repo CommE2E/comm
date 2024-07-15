@@ -6,7 +6,6 @@ use crate::notifs::apns::token::APNsToken;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::time::Duration;
 use tracing::debug;
 
@@ -109,7 +108,7 @@ impl APNsClient {
   }
 
   pub async fn send(&self, notif: APNsNotif) -> Result<(), error::Error> {
-    debug!("Sending notif to {}", notif.device_token);
+    debug!("Sending APNs notif to {}", notif.device_token);
 
     let headers = self.build_headers(notif.headers.clone()).await?;
 
