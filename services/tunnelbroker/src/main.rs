@@ -13,7 +13,6 @@ use crate::notifs::fcm::FCMClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
-use std::str::FromStr;
 use tracing::{self, error, info, Level};
 use tracing_subscriber::EnvFilter;
 

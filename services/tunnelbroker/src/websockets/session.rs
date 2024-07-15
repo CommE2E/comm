@@ -30,6 +30,9 @@ use crate::database::{self, DatabaseClient, MessageToDeviceExt};
 use crate::identity;
 use crate::notifs::apns::headers::NotificationHeaders;
 use crate::notifs::apns::APNsNotif;
+use crate::notifs::fcm::firebase_message::{
+  AndroidConfig, AndroidMessagePriority, FCMMessage,
+};
 use crate::notifs::NotifClient;
 
 pub struct DeviceInfo {
@@ -64,6 +67,7 @@ pub enum SessionError {
   PersistenceError(SdkError<PutItemError>),
   DatabaseError(comm_lib::database::Error),
   MissingAPNsClient,
+  MissingFCMClient,
   MissingDeviceToken,
 }
 
@@ -401,6 +405,64 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         Some(self.get_message_to_device_status(
           &notif.client_message_id,
           Err(SessionError::MissingAPNsClient),
+        ))
+      }
+      Messages::FCMNotif(notif) => {
+        // unauthenticated clients cannot send notifs
+        if !self.device_info.is_authenticated {
+          debug!(
+            "Unauthenticated device {} tried to send text notif. Aborting.",
+            self.device_info.device_id
+          );
+          return Some(MessageSentStatus::Unauthenticated);
+        }
+        debug!("Received FCM notif for {}", notif.device_id);
+
+        let Some(priority) = AndroidMessagePriority::from_str(&notif.priority)
+        else {
+          return Some(MessageSentStatus::SerializationError(notif.priority));
+        };
+
+        let Ok(data) = serde_json::from_str(&notif.data) else {
+          return Some(MessageSentStatus::SerializationError(notif.data));
+        };
+
+        let device_token =
+          match self.db_client.get_device_token(&notif.device_id).await {
+            Ok(db_token) => {
+              let Some(token) = db_token else {
+                return Some(self.get_message_to_device_status(
+                  &notif.client_message_id,
+                  Err(SessionError::MissingDeviceToken),
+                ));
+              };
+              token
+            }
+            Err(e) => {
+              return Some(self.get_message_to_device_status(
+                &notif.client_message_id,
+                Err(SessionError::DatabaseError(e)),
+              ));
+            }
+          };
+
+        let fcm_message = FCMMessage {
+          data,
+          token: device_token.to_string(),
+          android: AndroidConfig { priority },
+        };
+
+        if let Some(fcm) = self.notif_client.fcm.clone() {
+          let response = fcm.send(fcm_message).await;
+          return Some(
+            self
+              .get_message_to_device_status(&notif.client_message_id, response),
+          );
+        }
+
+        Some(self.get_message_to_device_status(
+          &notif.client_message_id,
+          Err(SessionError::MissingFCMClient),
         ))
       }
       _ => {
