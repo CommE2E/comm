@@ -1,3 +1,4 @@
+use crate::constants::FCM_ACCESS_TOKEN_GENERATION_THRESHOLD;
 use crate::notifs::fcm::config::FCMConfig;
 use crate::notifs::fcm::error::Error;
 use crate::notifs::fcm::error::Error::FCMTokenNotInitialized;
@@ -40,6 +41,10 @@ impl FCMToken {
   }
 
   pub async fn get_auth_bearer(&self) -> Result<String, Error> {
+    if self.fcm_token_needs_generation().await {
+      self.generate_fcm_token().await?;
+    }
+
     let bearer = self.token.read().await;
     match &*bearer {
       Some(token) => Ok(format!("{} {}", token.token_type, token.access_token)),
@@ -89,4 +94,39 @@ impl FCMToken {
     let access_token = response.json::<FCMAccessTokenResponse>().await?;
     Ok(access_token)
   }
+
+  async fn fcm_token_needs_generation(&self) -> bool {
+    let token = self.token.read().await;
+    match &*token {
+      None => true,
+      Some(token) => {
+        get_time() - FCM_ACCESS_TOKEN_GENERATION_THRESHOLD
+          >= token.expiration_time
+      }
+    }
+  }
+  async fn generate_fcm_token(&self) -> Result<(), Error> {
+    debug!("Generating FCM access token");
+    let mut token = self.token.write().await;
+
+    let created_at = get_time();
+    let new_jwt_token = self.get_jwt_token(created_at)?;
+    let access_token_response =
+      self.get_fcm_access_token(new_jwt_token).await?;
+
+    *token = Some(FCMAccessToken {
+      access_token: access_token_response.access_token,
+      token_type: access_token_response.token_type,
+      expiration_time: created_at + access_token_response.expires_in,
+    });
+
+    Ok(())
+  }
+}
+
+fn get_time() -> u64 {
+  SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .unwrap()
+    .as_secs()
 }
