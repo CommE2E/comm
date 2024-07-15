@@ -9,6 +9,7 @@ pub mod notifs;
 pub mod websockets;
 
 use crate::notifs::apns::APNsClient;
+use crate::notifs::fcm::FCMClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
@@ -52,8 +53,24 @@ async fn main() -> Result<()> {
   };
 
   let fcm_config = CONFIG.fcm_config.clone();
+  let fcm = match fcm_config {
+    Some(config) => match FCMClient::new(&config) {
+      Ok(apns_client) => {
+        info!("FCM client created successfully");
+        Some(apns_client)
+      }
+      Err(err) => {
+        error!("Error creating FCM client: {}", err);
+        None
+      }
+    },
+    None => {
+      error!("FCM config is missing");
+      None
+    }
+  };
 
-  let notif_client = NotifClient { apns, fcm: None };
+  let notif_client = NotifClient { apns, fcm };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server = websockets::run_server(
