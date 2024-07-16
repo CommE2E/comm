@@ -168,6 +168,10 @@ public:
   virtual std::vector<InboundP2PMessage> getAllInboundP2PMessage() const = 0;
   virtual void
   removeInboundP2PMessages(const std::vector<std::string> &ids) const = 0;
+  virtual void updateMessageSearchResult(
+      std::string original_message_id,
+      std::string message_id,
+      std::string processed_content) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
