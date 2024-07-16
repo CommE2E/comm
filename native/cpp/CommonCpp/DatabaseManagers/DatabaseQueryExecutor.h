@@ -172,6 +172,10 @@ public:
   removeInboundP2PMessages(const std::vector<std::string> &ids) const = 0;
   virtual std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const = 0;
+  virtual void updateMessageSearchIndex(
+      std::string original_message_id,
+      std::string message_id,
+      std::string processed_content) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;

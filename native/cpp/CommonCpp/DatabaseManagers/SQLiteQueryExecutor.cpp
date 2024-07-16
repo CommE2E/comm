@@ -1502,6 +1502,54 @@ void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
       SQLiteQueryExecutor::getConnection(), replaceMessageSQL, message);
 }
 
+void SQLiteQueryExecutor::updateMessageSearchIndex(
+    std::string original_message_id,
+    std::string message_id,
+    std::string processed_content) const {
+
+  sqlite3 *db = SQLiteQueryExecutor::getConnection();
+  int bindResult = 0;
+  std::unique_ptr<SQLiteStatementWrapper> preparedSQL;
+
+  static std::string insertMessageSearchResultSQL =
+      "INSERT INTO message_search("
+      " original_message_id, message_id, processed_content) "
+      "VALUES (?, ?, ?);";
+  static std::string updateMessageSearchResultSQL =
+      "UPDATE message_search "
+      "SET message_id = ?, processed_content = ? "
+      "WHERE original_message_id = ?;";
+
+  if (original_message_id == message_id) {
+    preparedSQL = std::make_unique<SQLiteStatementWrapper>(
+        db,
+        insertMessageSearchResultSQL,
+        "Failed to update message search entry.");
+
+    bindStringToSQL(original_message_id, *preparedSQL, 1);
+    bindStringToSQL(message_id, *preparedSQL, 2);
+    bindResult = bindStringToSQL(processed_content, *preparedSQL, 3);
+  } else {
+    preparedSQL = std::make_unique<SQLiteStatementWrapper>(
+        db,
+        updateMessageSearchResultSQL,
+        "Failed to update message search entry.");
+
+    bindStringToSQL(message_id, *preparedSQL, 1);
+    bindStringToSQL(processed_content, *preparedSQL, 2);
+    bindResult = bindStringToSQL(original_message_id, *preparedSQL, 3);
+  }
+
+  if (bindResult != SQLITE_OK) {
+    std::stringstream error_message;
+    error_message << "Failed to bind key to SQL statement. Details: "
+                  << sqlite3_errstr(bindResult) << std::endl;
+    throw std::runtime_error(error_message.str());
+  }
+
+  sqlite3_step(*preparedSQL);
+}
+
 void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
   static std::string rekeyMessageSQL =
       "UPDATE OR REPLACE messages "
