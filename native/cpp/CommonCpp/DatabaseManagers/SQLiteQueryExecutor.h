@@ -183,6 +183,10 @@ public:
   removeInboundP2PMessages(const std::vector<std::string> &ids) const override;
   std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const override;
+  void updateMessageSearchResult(
+      std::string original_message_id,
+      std::string message_id,
+      std::string processed_content) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
