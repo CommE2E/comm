@@ -132,10 +132,13 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         Log.w("COMM", "Notification decryption failure.", e);
         return;
       }
-    } else if ("1".equals(message.getData().get(ENCRYPTION_FAILED_KEY))) {
-      Log.w(
-          "COMM",
-          "Received unencrypted notification for client with existing olm session for notifications");
+    } else if (
+        "1".equals(message.getData().get(ENCRYPTION_FAILED_KEY)) &&
+        StaffUtils.isStaffRelease()) {
+      displayErrorMessageNotification(
+          "Notification encryption failed on the keyserver. Please investigate",
+          "Unencrypted notification",
+          null);
     }
 
     String rescind = message.getData().get(RESCIND_KEY);
