@@ -44,6 +44,7 @@
 		7FBB2A7829E945C2002C6493 /* CommUtilsModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7329E944FD002C6493 /* CommUtilsModule.cpp */; };
 		7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FBB2A7A29EEA2A4002C6493 /* Base64.cpp */; };
 		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
+		816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */; };
 		8B38121629CE5742000C52E9 /* RustPromiseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */; };
 		8B652FA6295EAA5B009F8163 /* RustCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B652FA5295EAA5B009F8163 /* RustCallback.cpp */; };
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
@@ -222,6 +223,9 @@
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
 		7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "commJSI-generated.cpp"; sourceTree = "<group>"; };
+		816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MessageSearchStore.cpp; path = PersistentStorageUtilities/DataStores/MessageSearchStore.cpp; sourceTree = "<group>"; };
+		816D2D592C480E60001C0B67 /* MessageSearchStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MessageSearchStore.h; path = PersistentStorageUtilities/DataStores/MessageSearchStore.h; sourceTree = "<group>"; };
+		816D2D5B2C480E9E001C0B67 /* MessageSearchResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageSearchResult.h; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
 		8B38121529CE5742000C52E9 /* RustPromiseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RustPromiseManager.cpp; sourceTree = "<group>"; };
 		8B652FA1295EA6B8009F8163 /* RustPromiseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RustPromiseManager.h; sourceTree = "<group>"; };
@@ -542,6 +546,7 @@
 		71BE84442636A944002849D2 /* entities */ = {
 			isa = PBXGroup;
 			children = (
+				816D2D5B2C480E9E001C0B67 /* MessageSearchResult.h */,
 				CB01F0C32B67F3970089E1F9 /* SQLiteStatementWrapper.cpp */,
 				CB01F0C12B67EF470089E1F9 /* SQLiteDataConverters.cpp */,
 				CB01F0C02B67CDC20089E1F9 /* SQLiteDataConverters.h */,
@@ -676,6 +681,8 @@
 		8EA59BD02A6E786200EB4F53 /* DataStores */ = {
 			isa = PBXGroup;
 			children = (
+				816D2D582C480E60001C0B67 /* MessageSearchStore.cpp */,
+				816D2D592C480E60001C0B67 /* MessageSearchStore.h */,
 				CBAB63882BFCB087003B089F /* EntryStore.cpp */,
 				CBAB63892BFCB087003B089F /* EntryStore.h */,
 				34FF25B82BB753B30075EC40 /* AuxUserStore.h */,
@@ -1224,6 +1231,7 @@
 				7FBB2A7B29EEA2A4002C6493 /* Base64.cpp in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				DFD5E7862B052B1400C32B6A /* RustAESCrypto.cpp in Sources */,
+				816D2D5A2C480E60001C0B67 /* MessageSearchStore.cpp in Sources */,
 				8EF775712A751B780046A385 /* ReportStore.cpp in Sources */,
 				34329B442B9EC7EC00233438 /* IntegrityStore.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
