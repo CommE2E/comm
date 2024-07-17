@@ -76,6 +76,39 @@ jsi::Value CommCoreModule::updateDraft(
       });
 }
 
+jsi::Value CommCoreModule::insertMessagesForSearch(
+    jsi::Runtime &rt,
+    jsi::String originalMessageID,
+    jsi::String messageID,
+    jsi::String content) {
+
+  std::string originalMessageIDStr = originalMessageID.utf8(rt);
+  std::string messageIDStr = messageID.utf8(rt);
+  std::string contentStr = content.utf8(rt);
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().updateMessageSearchResult(
+                originalMessageIDStr, messageIDStr, contentStr);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(true);
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::moveDraft(
     jsi::Runtime &rt,
     jsi::String oldKey,
