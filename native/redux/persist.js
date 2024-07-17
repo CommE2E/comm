@@ -104,6 +104,7 @@ import type {
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -1412,6 +1413,22 @@ const migrations = {
         },
       },
       ops: [],
+    };
+  },
+  [80]: (state: AppState) => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+
+    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+      clientDBThreadInfos,
+      // We know that we're dealing with `ThinRawThreadInfoWithPermissions`
+      // at time of this migration.
+      // $FlowFixMe
+      stripMemberPermissionsFromRawThreadInfos,
+    );
+
+    return {
+      state,
+      ops: dbOperations,
     };
   },
 };
