@@ -190,6 +190,12 @@ declare export class SQLiteQueryExecutor {
   getAllInboundP2PMessage(): $ReadOnlyArray<InboundP2PMessage>;
   removeInboundP2PMessages(ids: $ReadOnlyArray<string>): void;
 
+  updateMessageSearchResult(
+    originalMessageID: string,
+    messageID: string,
+    content: string,
+  ): void;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
