@@ -197,6 +197,12 @@ declare export class SQLiteQueryExecutor {
 
   getRelatedMessagesWeb(id: string): $ReadOnlyArray<MessageEntity>;
 
+  updateMessageSearchIndex(
+    originalMessageID: string,
+    messageID: string,
+    content: string,
+  ): void;
+
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
   delete(): void;
