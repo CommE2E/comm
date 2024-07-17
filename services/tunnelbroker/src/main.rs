@@ -10,6 +10,7 @@ pub mod websockets;
 
 use crate::notifs::apns::APNsClient;
 use crate::notifs::fcm::FCMClient;
+use crate::notifs::web_push::WebPushClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
@@ -70,11 +71,27 @@ async fn main() -> Result<()> {
   };
 
   let web_push_config = CONFIG.web_push_config.clone();
+  let web_push = match web_push_config {
+    Some(config) => match WebPushClient::new(&config) {
+      Ok(web_client) => {
+        info!("Web Push client created successfully");
+        Some(web_client)
+      }
+      Err(err) => {
+        error!("Error creating Web Push client: {}", err);
+        None
+      }
+    },
+    None => {
+      error!("Web Push config is missing");
+      None
+    }
+  };
 
   let notif_client = NotifClient {
     apns,
     fcm,
-    web_push: None,
+    web_push,
   };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
