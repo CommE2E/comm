@@ -69,7 +69,13 @@ async fn main() -> Result<()> {
     }
   };
 
-  let notif_client = NotifClient { apns, fcm };
+  let web_push_config = CONFIG.web_push_config.clone();
+
+  let notif_client = NotifClient {
+    apns,
+    fcm,
+    web_push: None,
+  };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
   let websocket_server = websockets::run_server(
