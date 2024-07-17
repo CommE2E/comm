@@ -316,7 +316,10 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "removeInboundP2PMessages",
           &SQLiteQueryExecutor::removeInboundP2PMessages)
       .function(
-          "getRelatedMessagesWeb", &SQLiteQueryExecutor::getRelatedMessagesWeb);
+          "getRelatedMessagesWeb", &SQLiteQueryExecutor::getRelatedMessagesWeb)
+      .function(
+          "updateMessageSearchIndex",
+          &SQLiteQueryExecutor::updateMessageSearchIndex);
 }
 
 } // namespace comm
