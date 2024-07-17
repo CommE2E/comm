@@ -19,8 +19,9 @@ locals {
   tunnelbroker_docker_image = "${local.tunnelbroker_config.docker_image}:${local.tunnelbroker_config.docker_tag}"
   rabbitmq_password         = local.secrets.amqpPassword[local.environment]
 
-  apns_config_secret_name = "tunnelbroker/APNsConfig"
-  fcm_config_secret_name  = "tunnelbroker/FCMConfig"
+  apns_config_secret_name     = "tunnelbroker/APNsConfig"
+  fcm_config_secret_name      = "tunnelbroker/FCMConfig"
+  web_push_config_secret_name = "tunnelbroker/WebPushConfig"
 }
 
 data "aws_secretsmanager_secret" "tunnelbroker_apns" {
@@ -29,6 +30,10 @@ data "aws_secretsmanager_secret" "tunnelbroker_apns" {
 
 data "aws_secretsmanager_secret" "tunnelbroker_fcm" {
   name = local.fcm_config_secret_name
+}
+
+data "aws_secretsmanager_secret" "tunnelbroker_web_push" {
+  name = local.web_push_config_secret_name
 }
 
 # RabbitMQ
@@ -106,6 +111,10 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name      = "FCM_CONFIG"
           valueFrom = data.aws_secretsmanager_secret.tunnelbroker_fcm.arn
+        },
+        {
+          name      = "WEB_PUSH_CONFIG"
+          valueFrom = data.aws_secretsmanager_secret.tunnelbroker_web_push.arn
         }
       ]
       logConfiguration = {
