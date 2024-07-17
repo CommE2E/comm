@@ -44,7 +44,6 @@ async function encryptAPNsNotification(
     encryptedNotification.payload.blobHolder = blobHolder;
   }
 
-  encryptedNotification.payload.keyserverID = notification.payload.keyserverID;
   encryptedNotification.topic = notification.topic;
   encryptedNotification.sound = notification.aps.sound;
   encryptedNotification.pushType = 'alert';
@@ -112,8 +111,10 @@ async function encryptAPNsNotification(
     encryptedNotification.payload = {
       ...encryptedNotification.payload,
       ...notification.payload,
-      encryptionFailed: 1,
+      ...senderDeviceDescriptor,
+      encryptionFailed: '1',
     };
+
     return {
       notification: encryptedNotification,
       payloadSizeExceeded: notificationSizeValidator
