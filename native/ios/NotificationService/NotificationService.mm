@@ -13,7 +13,7 @@
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
 NSString *const encryptedPayloadKey = @"encryptedPayload";
-NSString *const encryptionFailureKey = @"encryptionFailure";
+NSString *const encryptionFailedKey = @"encryptionFailed";
 NSString *const collapseIDKey = @"collapseID";
 NSString *const keyserverIDKey = @"keyserverID";
 NSString *const blobHashKey = @"blobHash";
@@ -140,13 +140,15 @@ std::string joinStrings(
                withPublicUserContent:[[UNNotificationContent alloc] init]];
       return;
     }
-  } else if ([self shouldAlertUnencryptedNotification:content.userInfo]) {
-    // In future this will be replaced by notification content
-    // modification for DEV environment and staff members
-    comm::Logger::log("NSE: Received erroneously unencrypted notitication.");
   }
 
   NSMutableArray *errorMessages = [[NSMutableArray alloc] init];
+
+  if ([self shouldAlertUnencryptedNotification:content.userInfo]) {
+    [errorMessages addObject:
+                       @"Notification encryption failed on the keyserver. "
+                       @"Please investigate!"];
+  }
 
   // Step 2: notification persistence in a temporary storage
   std::string persistErrorMessage;
@@ -594,8 +596,8 @@ std::string joinStrings(
 }
 
 - (BOOL)shouldAlertUnencryptedNotification:(NSDictionary *)payload {
-  return payload[encryptionFailureKey] &&
-      [payload[encryptionFailureKey] isEqualToNumber:@(1)];
+  return comm::StaffUtils::isStaffRelease() && payload[encryptionFailedKey] &&
+      [payload[encryptionFailedKey] isEqualToString:@"1"];
 }
 
 - (std::unique_ptr<comm::NotificationsCryptoModule::BaseStatefulDecryptResult>)
