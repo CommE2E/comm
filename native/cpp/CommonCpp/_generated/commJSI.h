@@ -83,6 +83,7 @@ public:
   virtual jsi::Value removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, jsi::String messageID, jsi::String deviceID) = 0;
   virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
+  virtual jsi::Value insertMessagesForSearch(jsi::Runtime &rt, jsi::String originalMessageID, jsi::String messageID, jsi::String content) = 0;
 
 };
 
@@ -607,6 +608,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::markPrekeysAsPublished, jsInvoker_, instance_);
+    }
+    jsi::Value insertMessagesForSearch(jsi::Runtime &rt, jsi::String originalMessageID, jsi::String messageID, jsi::String content) override {
+      static_assert(
+          bridging::getParameterCount(&T::insertMessagesForSearch) == 4,
+          "Expected insertMessagesForSearch(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::insertMessagesForSearch, jsInvoker_, instance_, std::move(originalMessageID), std::move(messageID), std::move(content));
     }
 
   private:

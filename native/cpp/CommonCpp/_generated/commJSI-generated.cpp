@@ -208,6 +208,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabas
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->markPrekeysAsPublished(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_insertMessagesForSearch(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->insertMessagesForSearch(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt));
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -274,6 +277,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["removeOutboundP2PMessagesOlderThan"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessagesOlderThan};
   methodMap_["getSyncedDatabaseVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion};
   methodMap_["markPrekeysAsPublished"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished};
+  methodMap_["insertMessagesForSearch"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_insertMessagesForSearch};
 }
 
 
