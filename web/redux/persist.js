@@ -35,6 +35,7 @@ import type { ClientDBThreadInfo } from 'lib/types/thread-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { parseCookies } from 'lib/utils/cookie-utils.js';
 import { isDev } from 'lib/utils/dev-utils.js';
+import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   generateIDSchemaMigrationOpsForDrafts,
   convertDraftStoreToNewIDSchema,
@@ -609,6 +610,50 @@ const migrations = {
         },
       },
       ops: [],
+    };
+  },
+  [80]: async (state: AppState) => {
+    // 1. Check if `databaseModule` is supported and early-exit if not.
+    const sharedWorker = await getCommSharedWorker();
+    const isDatabaseSupported = await sharedWorker.isSupported();
+
+    if (!isDatabaseSupported) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    // 2. Get existing `stores` from SQLite.
+    const stores = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.GET_CLIENT_STORE,
+    });
+
+    const clientDBThreadInfos: ?$ReadOnlyArray<ClientDBThreadInfo> =
+      stores?.store?.threads;
+
+    if (
+      clientDBThreadInfos === null ||
+      clientDBThreadInfos === undefined ||
+      clientDBThreadInfos.length === 0
+    ) {
+      return {
+        state,
+        ops: [],
+      };
+    }
+
+    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+      clientDBThreadInfos,
+      // We know that we're dealing with `ThinRawThreadInfoWithPermissions`
+      // at time of this migration.
+      // $FlowFixMe
+      stripMemberPermissionsFromRawThreadInfos,
+    );
+
+    return {
+      state,
+      ops: dbOperations,
     };
   },
 };
