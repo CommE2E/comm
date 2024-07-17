@@ -25,6 +25,7 @@ set(NATIVE_HDRS
   "AuxUserStoreOperations.h"
   "ThreadActivityStoreOperations.h"
   "EntryStoreOperations.h"
+  "MessageSearchStoreOperations.h"
 )
 
 set(NATIVE_SRCS
@@ -93,6 +94,7 @@ set(DATA_STORES_HDRS
   ${_data_stores_path}/AuxUserStore.h
   ${_data_stores_path}/ThreadActivityStore.h
   ${_data_stores_path}/EntryStore.h
+  ${_data_stores_path}/MessageSearchStore.h
 )
 set(DATA_STORES_SRCS
   ${_data_stores_path}/DraftStore.cpp
@@ -107,6 +109,7 @@ set(DATA_STORES_SRCS
   ${_data_stores_path}/AuxUserStore.cpp
   ${_data_stores_path}/ThreadActivityStore.cpp
   ${_data_stores_path}/EntryStore.cpp
+  ${_data_stores_path}/MessageSearchStore.cpp
 )
 
 set(_backup_op_path ./PersistentStorageUtilities/BackupOperationsUtilities)
