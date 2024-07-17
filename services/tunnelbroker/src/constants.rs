@@ -13,6 +13,8 @@ pub const CLIENT_RMQ_MSG_PRIORITY: u8 = 1;
 pub const RMQ_CONSUMER_TAG: &str = "tunnelbroker";
 pub const ENV_APNS_CONFIG: &str = "APNS_CONFIG";
 pub const ENV_FCM_CONFIG: &str = "FCM_CONFIG";
+pub const ENV_WEB_PUSH_CONFIG: &str = "WEB_PUSH_CONFIG";
+
 pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 pub const FCM_ACCESS_TOKEN_GENERATION_THRESHOLD: u64 = 5 * 60;
