@@ -224,7 +224,8 @@ async function processDBStoreOperations(
     convertedUserStoreOperations.length === 0 &&
     convertedMessageStoreOperations.length === 0 &&
     convertedThreadActivityStoreOperations.length === 0 &&
-    convertedEntryStoreOperations.length === 0
+    convertedEntryStoreOperations.length === 0 &&
+    outboundP2PMessages?.length === 0
   ) {
     return;
   }
