@@ -12,6 +12,7 @@
 #include "PersistentStorageUtilities/DataStores/EntryStore.h"
 #include "PersistentStorageUtilities/DataStores/IntegrityStore.h"
 #include "PersistentStorageUtilities/DataStores/KeyserverStore.h"
+#include "PersistentStorageUtilities/DataStores/MessageSearchStore.h"
 #include "PersistentStorageUtilities/DataStores/MessageStore.h"
 #include "PersistentStorageUtilities/DataStores/ReportStore.h"
 #include "PersistentStorageUtilities/DataStores/SyncedMetadataStore.h"
@@ -48,6 +49,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   AuxUserStore auxUserStore;
   ThreadActivityStore threadActivityStore;
   EntryStore entryStore;
+  MessageSearchStore messageSearchStore;
 
   void
   persistCryptoModules(bool persistContentModule, bool persistNotifsModule);
