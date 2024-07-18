@@ -1,4 +1,5 @@
 use comm_lib::aws;
+use comm_lib::aws::config::timeout::TimeoutConfig;
 use config::Command;
 use database::DatabaseClient;
 use tonic::transport::Server;
@@ -32,6 +33,7 @@ use cors::cors_layer;
 use keygen::generate_and_persist_keypair;
 use std::env;
 use sync_identity_search::sync_index;
+use tokio::time::Duration;
 use tracing::{self, info, Level};
 use tracing_subscriber::EnvFilter;
 
@@ -70,7 +72,15 @@ async fn main() -> Result<(), BoxedError> {
     Command::Server => {
       config::load_server_config();
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
-      let aws_config = aws::config::from_env().region("us-east-2").load().await;
+      let aws_config = aws::config::from_env()
+        .timeout_config(
+          TimeoutConfig::builder()
+            .connect_timeout(Duration::from_secs(60))
+            .build(),
+        )
+        .region("us-east-2")
+        .load()
+        .await;
       let database_client = DatabaseClient::new(&aws_config);
       let inner_client_service = ClientService::new(database_client.clone());
       let client_service = IdentityClientServiceServer::with_interceptor(
