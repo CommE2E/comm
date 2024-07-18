@@ -449,6 +449,12 @@ jsi::Value CommCoreModule::processDBStoreOperations(
         storeOpsPtr);
     this->appendDBStoreOps(
         rt, operations, "entryStoreOperations", this->entryStore, storeOpsPtr);
+    this->appendDBStoreOps(
+        rt,
+        operations,
+        "messageSearchStoreOperations",
+        this->messageSearchStore,
+        storeOpsPtr);
   } catch (std::runtime_error &e) {
     createOperationsError = e.what();
   }
@@ -1740,7 +1746,8 @@ CommCoreModule::CommCoreModule(
       syncedMetadataStore(jsInvoker),
       auxUserStore(jsInvoker),
       threadActivityStore(jsInvoker),
-      entryStore(jsInvoker) {
+      entryStore(jsInvoker),
+      messageSearchStore(jsInvoker) {
   GlobalDBSingleton::instance.enableMultithreading();
 }
 
