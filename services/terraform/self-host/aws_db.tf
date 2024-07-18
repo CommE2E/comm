@@ -1,3 +1,10 @@
+locals {
+  mariadb_database_name = local.local_with_default_environment_vars.COMM_DATABASE_DATABASE
+  mariadb_username      = local.local_with_default_environment_vars.COMM_DATABASE_USER
+  mariadb_password      = local.local_with_default_environment_vars.COMM_DATABASE_PASSWORD
+  mariadb_port          = jsondecode(local.local_with_default_environment_vars.COMM_DATABASE_PORT)
+}
+
 # MariaDB Security Group
 resource "aws_security_group" "keyserver_mariadb_security_group" {
   name        = "keyserver-mariadb-sg"
@@ -6,15 +13,15 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
 
   # Inbound rules
   ingress {
-    from_port       = 3307
-    to_port         = 3307
+    from_port       = local.mariadb_port
+    to_port         = local.mariadb_port
     protocol        = "tcp"
     security_groups = [aws_security_group.keyserver_service.id]
   }
 
   ingress {
-    from_port   = 3307
-    to_port     = 3307
+    from_port   = local.mariadb_port
+    to_port     = local.mariadb_port
     protocol    = "tcp"
     cidr_blocks = ["${var.allowed_ip}/32"]
   }
@@ -40,12 +47,12 @@ resource "aws_db_instance" "mariadb" {
   instance_class         = "db.m6g.large"
   db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
-  username               = var.mariadb_username
-  password               = var.mariadb_password
+  username               = local.mariadb_username
+  password               = local.mariadb_password
   parameter_group_name   = aws_db_parameter_group.mariadb_parameter_group.name
   storage_encrypted      = true
   publicly_accessible    = true
-  port                   = 3307
+  port                   = local.mariadb_port
   skip_final_snapshot    = true
 }
 
@@ -103,11 +110,11 @@ resource "null_resource" "create_comm_database" {
 
   provisioner "local-exec" {
     command = <<EOT
-    mysql --user=${var.mariadb_username} \
-          --port=3307 \
+    mysql --user=${local.mariadb_username} \
+          --port=${local.mariadb_port} \
           --host=${aws_db_instance.mariadb.address} \
-          --execute="CREATE DATABASE IF NOT EXISTS comm;" \
-          --password=${var.mariadb_password}
+          --execute="CREATE DATABASE IF NOT EXISTS ${local.mariadb_database_name};" \
+          --password=${local.mariadb_password}
     EOT
   }
 }
