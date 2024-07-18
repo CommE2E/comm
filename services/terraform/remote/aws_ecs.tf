@@ -45,7 +45,7 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
 resource "aws_launch_template" "ecs_services" {
   name_prefix   = "services-ecs-ec2-"
   image_id      = data.aws_ami.al2_x86_ecs.id
-  instance_type = "t3.small"
+  instance_type = "t3.xlarge"
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
@@ -73,8 +73,8 @@ resource "aws_launch_template" "ecs_services" {
 
 resource "aws_autoscaling_group" "ecs_services" {
   name     = "services-ecs-ec2-asg"
-  min_size = 0
-  max_size = 3
+  min_size = 1
+  max_size = 5
 
   # NOTE: desired_capacity is managed by ECS Capacity Provider
   # This value sets only initial number of instances
