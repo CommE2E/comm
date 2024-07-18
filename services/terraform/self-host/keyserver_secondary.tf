@@ -1,5 +1,17 @@
 locals {
   keyserver_secondary_container_name = "keyserver-secondary"
+
+  secondary_environment_vars = merge(local.shared_environment_vars,
+    {
+      "COMM_NODE_ROLE" = "secondary"
+  })
+
+  secondary_environment = [
+    for name, value in local.secondary_environment_vars : {
+      name  = name
+      value = value
+    }
+  ]
 }
 
 resource "aws_cloudwatch_log_group" "keyserver_secondary_service" {
@@ -36,76 +48,7 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
         },
 
       ]
-      environment = [
-        {
-          name  = "REDIS_URL"
-          value = "rediss://${aws_elasticache_serverless_cache.redis.endpoint[0].address}:6379"
-        },
-        {
-          name  = "COMM_NODE_ROLE"
-          value = "secondary"
-        },
-        {
-          name  = "COMM_LISTEN_ADDR"
-          value = "0.0.0.0"
-        },
-        {
-          name  = "COMM_DATABASE_HOST"
-          value = "${aws_db_instance.mariadb.address}"
-        },
-        {
-          name  = "COMM_DATABASE_DATABASE"
-          value = "comm"
-        },
-        {
-          name  = "COMM_DATABASE_PORT"
-          value = "3307"
-        },
-        {
-          name  = "COMM_DATABASE_USER"
-          value = "${var.mariadb_username}"
-        },
-        {
-          name  = "COMM_DATABASE_PASSWORD"
-          value = "${var.mariadb_password}"
-        },
-        {
-          name  = "COMM_JSONCONFIG_secrets_user_credentials"
-          value = jsonencode(var.keyserver_user_credentials)
-        },
-        {
-          name = "COMM_JSONCONFIG_facts_keyserver_url"
-          value = jsonencode({
-            "baseDomain" : "https://${var.domain_name}",
-            "basePath" : "/",
-            "baseRoutePath" : "/",
-            "https" : true,
-            "proxy" : "aws"
-          })
-        },
-        {
-          name = "COMM_JSONCONFIG_facts_webapp_cors"
-          value = jsonencode({
-            "domain" : "https://web.comm.app"
-          })
-        },
-        {
-          name = "COMM_JSONCONFIG_facts_tunnelbroker",
-          value = jsonencode({
-            "url" : "${var.tunnelbroker_url}"
-          })
-        },
-        {
-          name = "COMM_JSONCONFIG_secrets_identity_service_config",
-          value = jsonencode({
-            "identitySocketAddr" : "${var.identity_socket_address}"
-          })
-        },
-        {
-          name  = "COMM_JSONCONFIG_facts_authoritative_keyserver",
-          value = jsonencode(var.authoritative_keyserver_config),
-        }
-      ]
+      environment = local.secondary_environment
       logConfiguration = {
         "logDriver" = "awslogs"
         "options" = {
