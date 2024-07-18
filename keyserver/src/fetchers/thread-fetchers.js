@@ -10,7 +10,10 @@ import {
   getContainingThreadID,
   getCommunity,
 } from 'lib/shared/thread-utils.js';
-import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import {
+  FUTURE_CODE_VERSION,
+  hasMinCodeVersion,
+} from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
 import type { ThinRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -305,6 +308,10 @@ function rawThreadInfosFromServerThreadInfos(
       web: 88,
     },
   );
+  const stripMemberPermissions = hasMinCodeVersion(viewer.platformDetails, {
+    native: FUTURE_CODE_VERSION,
+    web: FUTURE_CODE_VERSION,
+  });
 
   const threadInfos: {
     [string]: LegacyThinRawThreadInfo | ThinRawThreadInfo,
@@ -324,6 +331,7 @@ function rawThreadInfosFromServerThreadInfos(
         allowAddingUsersToCommunityRoot: addingUsersToCommunityRootSupported,
         filterManageFarcasterChannelTagsPermission:
           manageFarcasterChannelTagsPermissionUnsupported,
+        stripMemberPermissions: stripMemberPermissions,
       },
     );
     if (threadInfo) {
