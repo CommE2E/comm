@@ -114,7 +114,7 @@ resource "aws_ecs_task_definition" "identity_service" {
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   network_mode             = "bridge"
   cpu                      = "512"
-  memory                   = "512"
+  memory                   = "2048"
   requires_compatibilities = ["EC2"]
 
   # Set this to true if you want to keep old revisions
