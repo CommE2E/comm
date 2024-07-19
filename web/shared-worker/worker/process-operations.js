@@ -1,5 +1,6 @@
 // @flow
 
+import type { ClientDBMessageSearchStoreOperation } from 'lib/message-search-types.js';
 import type { ClientDBAuxUserStoreOperation } from 'lib/ops/aux-user-store-ops.js';
 import type { ClientDBCommunityStoreOperation } from 'lib/ops/community-store-ops.js';
 import type { ClientDBEntryStoreOperation } from 'lib/ops/entries-store-ops.js';
@@ -376,6 +377,7 @@ function processDBStoreOperations(
     threadActivityStoreOperations,
     outboundP2PMessages,
     entryStoreOperations,
+    messageSearchStoreOperations,
   } = storeOperations;
 
   try {
@@ -470,6 +472,16 @@ function processDBStoreOperations(
       processEntryStoreOperations(
         sqliteQueryExecutor,
         entryStoreOperations,
+        module,
+      );
+    }
+    if (
+      messageSearchStoreOperations &&
+      messageSearchStoreOperations.length > 0
+    ) {
+      processMessageSearchStoreOperations(
+        sqliteQueryExecutor,
+        messageSearchStoreOperations,
         module,
       );
     }
@@ -569,6 +581,34 @@ function processEntryStoreOperations(
         `Error while processing ${
           operation.type
         } entry store operation: ${getProcessingStoreOpsExceptionMessage(
+          e,
+          module,
+        )}`,
+      );
+    }
+  }
+}
+
+function processMessageSearchStoreOperations(
+  sqliteQueryExecutor: SQLiteQueryExecutor,
+  operations: $ReadOnlyArray<ClientDBMessageSearchStoreOperation>,
+  module: EmscriptenModule,
+) {
+  for (const operation: ClientDBMessageSearchStoreOperation of operations) {
+    try {
+      if (operation.type === 'update_search_messages') {
+        const { originalMessageID, messageID, content } = operation.payload;
+        sqliteQueryExecutor.updateMessageSearchIndex(
+          originalMessageID,
+          messageID,
+          content,
+        );
+      }
+    } catch (e) {
+      throw new Error(
+        `Error while processing ${
+          operation.type
+        } message search operation: ${getProcessingStoreOpsExceptionMessage(
           e,
           module,
         )}`,
