@@ -3,9 +3,16 @@ locals {
   keyserver_service_server_image   = "commapp/keyserver:${local.keyserver_service_image_tag}"
   keyserver_primary_container_name = "keyserver-primary"
 
+  keyserver_run_server_config = jsonencode({
+    runKeyserver = true
+    runWebApp    = false
+    runLanding   = false
+  })
+
   primary_environment_vars = merge(local.shared_environment_vars,
     {
-      "COMM_NODE_ROLE" = "primary"
+      "COMM_NODE_ROLE"                          = "primary",
+      "COMM_JSONCONFIG_facts_run_server_config" = local.keyserver_run_server_config
   })
 
   primary_environment = [
