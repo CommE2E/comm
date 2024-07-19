@@ -13,7 +13,7 @@ import { workerRequestMessageTypes } from '../types/worker-types.js';
 
 const sqliteAPI: SQLiteAPI = {
   // read operations
-  async getAllInboundP2PMessage(): Promise<InboundP2PMessage[]> {
+  async getAllInboundP2PMessages(): Promise<InboundP2PMessage[]> {
     const sharedWorker = await getCommSharedWorker();
 
     const data = await sharedWorker.schedule({
@@ -24,7 +24,7 @@ const sqliteAPI: SQLiteAPI = {
     return messages ? [...messages] : [];
   },
 
-  async getAllOutboundP2PMessage(): Promise<OutboundP2PMessage[]> {
+  async getAllOutboundP2PMessages(): Promise<OutboundP2PMessage[]> {
     const sharedWorker = await getCommSharedWorker();
 
     const data = await sharedWorker.schedule({
