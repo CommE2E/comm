@@ -179,8 +179,6 @@ void (async () => {
     // requests and prevent webAppRouter and landingRouter from working
     // correctly. So we make sure that keyserverRouter goes last
 
-    server.get('/invite/:secret', inviteResponder);
-
     if (landingBaseRoutePath) {
       const landingRouter = express.Router<$Request, $Response>();
       landingRouter.get('/invite/:secret', inviteResponder);
