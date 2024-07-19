@@ -9,7 +9,7 @@ import {
   type EncryptedData,
   type OutboundSessionCreationResult,
 } from 'lib/types/crypto-types.js';
-import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import type { OlmSessionInitializationInfo } from 'lib/types/olm-session-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 
 import { commCoreModule } from '../native-modules.js';

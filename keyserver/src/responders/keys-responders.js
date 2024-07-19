@@ -5,7 +5,7 @@ import type { Account as OlmAccount } from '@commapp/olm';
 import type {
   OlmSessionInitializationInfo,
   GetOlmSessionInitializationDataResponse,
-} from 'lib/types/request-types.js';
+} from 'lib/types/olm-session-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
