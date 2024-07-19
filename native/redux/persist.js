@@ -103,7 +103,9 @@ import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
   MixedRawThreadInfos,
+  RawThreadInfos,
 } from 'lib/types/thread-types.js';
+import { stripMemberPermissionsFromRawThreadInfos } from 'lib/utils/member-info-utils.js';
 import {
   translateClientDBMessageInfoToRawMessageInfo,
   translateRawMessageInfoToClientDBMessageInfo,
@@ -1412,6 +1414,26 @@ const migrations = {
         },
       },
       ops: [],
+    };
+  },
+  [80]: (state: AppState) => {
+    const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
+
+    // This isn't actually accurate, but we force this cast here because the
+    // types for createUpdateDBOpsForThreadStoreThreadInfos assume they're
+    // converting from a client DB that contains RawThreadInfos. In fact, at
+    // this point the client DB contains ThinRawThreadInfoWithPermissions.
+    const stripMemberPermissions: RawThreadInfos => RawThreadInfos =
+      (stripMemberPermissionsFromRawThreadInfos: any);
+
+    const dbOperations = createUpdateDBOpsForThreadStoreThreadInfos(
+      clientDBThreadInfos,
+      stripMemberPermissions,
+    );
+
+    return {
+      state,
+      ops: dbOperations,
     };
   },
 };
