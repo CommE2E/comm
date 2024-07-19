@@ -18,7 +18,7 @@ use lapin::types::FieldTable;
 use lapin::BasicProperties;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, trace};
 use tunnelbroker_messages::{
   message_to_device_request_status::Failure,
   message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
@@ -292,7 +292,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
     match serialized_message {
       Messages::Heartbeat(Heartbeat {}) => {
-        debug!("Received heartbeat from: {}", self.device_info.device_id);
+        trace!("Received heartbeat from: {}", self.device_info.device_id);
         None
       }
       Messages::MessageReceiveConfirmation(confirmation) => {

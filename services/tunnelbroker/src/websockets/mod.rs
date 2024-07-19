@@ -18,7 +18,7 @@ use std::net::SocketAddr;
 use std::pin::Pin;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, trace};
 use tunnelbroker_messages::{
   ConnectionInitializationStatus, Heartbeat, MessageSentStatus,
   MessageToDeviceRequestStatus,
@@ -229,7 +229,7 @@ async fn accept_connection(
   // Poll for messages either being sent to the device (rx)
   // or messages being received from the device (incoming)
   loop {
-    debug!("Polling for messages from: {}", addr);
+    trace!("Polling for messages from: {}", addr);
     tokio::select! {
       Some(Ok(delivery)) = session.next_amqp_message() => {
         if let Ok(message) = std::str::from_utf8(&delivery.data) {
