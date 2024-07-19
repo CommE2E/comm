@@ -77,6 +77,7 @@ limitations under the License.
     ): void;
     session_id(): string;
     has_received_message(): boolean;
+    is_sender_chain_empty(): boolean;
     matches_inbound(one_time_key_message: string): boolean;
     matches_inbound_from(
       identity_key: string,
