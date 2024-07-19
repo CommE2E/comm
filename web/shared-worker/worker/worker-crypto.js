@@ -23,7 +23,7 @@ import type {
   IdentityNewDeviceKeyUpload,
   IdentityExistingDeviceKeyUpload,
 } from 'lib/types/identity-service-types.js';
-import type { OlmSessionInitializationInfo } from 'lib/types/request-types.js';
+import type { OlmSessionInitializationInfo } from 'lib/types/olm-session-types.js';
 import type { InboundP2PMessage } from 'lib/types/sqlite-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { entries } from 'lib/utils/objects.js';
