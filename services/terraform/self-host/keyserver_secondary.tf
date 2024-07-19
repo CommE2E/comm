@@ -3,7 +3,8 @@ locals {
 
   secondary_environment_vars = merge(local.shared_environment_vars,
     {
-      "COMM_NODE_ROLE" = "secondary"
+      "COMM_NODE_ROLE"                          = "secondary",
+      "COMM_JSONCONFIG_facts_run_server_config" = local.keyserver_run_server_config
   })
 
   secondary_environment = [
