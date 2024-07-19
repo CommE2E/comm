@@ -7,8 +7,8 @@ import { processDBStoreOperations } from '../redux/redux-utils.js';
 
 const sqliteAPI: SQLiteAPI = {
   // read operations
-  getAllInboundP2PMessage: commCoreModule.getAllInboundP2PMessage,
-  getAllOutboundP2PMessage: commCoreModule.getAllOutboundP2PMessage,
+  getAllInboundP2PMessages: commCoreModule.getAllInboundP2PMessages,
+  getAllOutboundP2PMessages: commCoreModule.getAllOutboundP2PMessages,
   getRelatedMessages: commCoreModule.getRelatedMessages,
   getOutboundP2PMessagesByID: commCoreModule.getOutboundP2PMessagesByID,
 

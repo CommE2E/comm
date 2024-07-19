@@ -2342,7 +2342,7 @@ jsi::Value CommCoreModule::getSIWEBackupSecrets(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getAllInboundP2PMessage(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getAllInboundP2PMessages(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -2477,7 +2477,7 @@ CommCoreModule::getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) {
       });
 }
 
-jsi::Value CommCoreModule::getAllOutboundP2PMessage(jsi::Runtime &rt) {
+jsi::Value CommCoreModule::getAllOutboundP2PMessages(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {

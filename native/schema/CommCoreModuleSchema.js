@@ -152,12 +152,12 @@ interface Spec extends TurboModule {
   +retrieveLatestSIWEBackupData: () => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
-  +getAllInboundP2PMessage: () => Promise<InboundP2PMessage[]>;
+  +getAllInboundP2PMessages: () => Promise<InboundP2PMessage[]>;
   +removeInboundP2PMessages: (ids: $ReadOnlyArray<string>) => Promise<void>;
   +getOutboundP2PMessagesByID: (
     ids: $ReadOnlyArray<string>,
   ) => Promise<Array<OutboundP2PMessage>>;
-  +getAllOutboundP2PMessage: () => Promise<OutboundP2PMessage[]>;
+  +getAllOutboundP2PMessages: () => Promise<OutboundP2PMessage[]>;
   +markOutboundP2PMessageAsSent: (
     messageID: string,
     deviceID: string,

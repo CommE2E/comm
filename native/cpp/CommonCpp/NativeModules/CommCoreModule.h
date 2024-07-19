@@ -217,12 +217,12 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Object siweBackupSecrets) override;
   virtual jsi::Value retrieveLatestSIWEBackupData(jsi::Runtime &rt) override;
   virtual jsi::Value getSIWEBackupSecrets(jsi::Runtime &rt) override;
-  virtual jsi::Value getAllInboundP2PMessage(jsi::Runtime &rt) override;
+  virtual jsi::Value getAllInboundP2PMessages(jsi::Runtime &rt) override;
   virtual jsi::Value
   removeInboundP2PMessages(jsi::Runtime &rt, jsi::Array ids) override;
   virtual jsi::Value
   getOutboundP2PMessagesByID(jsi::Runtime &rt, jsi::Array ids) override;
-  virtual jsi::Value getAllOutboundP2PMessage(jsi::Runtime &rt) override;
+  virtual jsi::Value getAllOutboundP2PMessages(jsi::Runtime &rt) override;
   virtual jsi::Value markOutboundP2PMessageAsSent(
       jsi::Runtime &rt,
       jsi::String messageID,
