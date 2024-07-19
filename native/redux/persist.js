@@ -91,7 +91,7 @@ import {
   type MessageStoreThreads,
   type RawMessageInfo,
 } from 'lib/types/message-types.js';
-import { deprecatedMinimallyEncodeRawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { minimallyEncodeRawThreadInfoWithMemberPermissions } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ReportStore,
@@ -1047,7 +1047,7 @@ const legacyMigrations = {
           const threadInfo = threadStoreInfos[key];
           acc[threadInfo.id] = threadInfo.minimallyEncoded
             ? threadInfo
-            : deprecatedMinimallyEncodeRawThreadInfo(threadInfo);
+            : minimallyEncodeRawThreadInfoWithMemberPermissions(threadInfo);
           return acc;
         },
         {},
