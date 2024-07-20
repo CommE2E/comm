@@ -19,9 +19,9 @@ variable "region" {
   default     = "us-west-1"
 }
 
-variable "allowed_ip" {
-  description = "IP address"
-  type        = string
+variable "allowed_ips" {
+  description = "List of allowed ipv4 addresses"
+  type        = list(string)
 }
 
 variable "user_created_vpc" {

@@ -23,7 +23,7 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
     from_port   = local.mariadb_port
     to_port     = local.mariadb_port
     protocol    = "tcp"
-    cidr_blocks = ["${var.allowed_ip}/32"]
+    cidr_blocks = [for ip in var.allowed_ips : "${ip}/32"]
   }
 
   # Outbound rules
