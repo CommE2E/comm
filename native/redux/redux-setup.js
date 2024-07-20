@@ -60,6 +60,9 @@ import { isStaffRelease } from '../utils/staff-utils.js';
 import { getDevServerHostname } from '../utils/url-utils.js';
 
 function reducer(state: AppState = defaultState, inputAction: Action) {
+  if (inputAction.type === 'PROCESS_DM_OPS') {
+    console.log(JSON.stringify(inputAction));
+  }
   let action = inputAction;
 
   if (action.type === setReduxStateActionType) {
