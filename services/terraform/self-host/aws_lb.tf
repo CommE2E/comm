@@ -14,7 +14,7 @@ resource "aws_security_group" "lb_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["${var.allowed_ip}/32"]
+    cidr_blocks = [for ip in var.allowed_ips : "${ip}/32"]
   }
 
   egress {
