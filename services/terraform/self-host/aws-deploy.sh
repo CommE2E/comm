@@ -16,7 +16,7 @@ primary_service_name="keyserver-primary-service"
 secondary_service_name="keyserver-secondary-service"
 
 # Grab user configuration variables from terraform.tfvars
-health_check_domain=$(echo "var.domain_name" | terraform console -var-file terraform.tfvars.json | tr -d '"')
+health_check_domain=$(echo "var.keyserver_domain_name" | terraform console -var-file terraform.tfvars.json | tr -d '"')
 health_check_url="https://${health_check_domain}/health"
 num_desired_secondary_nodes=$(echo "var.desired_secondary_nodes" | terraform console -var-file terraform.tfvars.json)
 
