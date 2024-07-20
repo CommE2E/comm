@@ -43,6 +43,8 @@ services/*/target
 services/identity/secrets
 services/electron-update-server/node_modules
 services/reports/email-config.json
+services/terraform/self-host/*.env
+services/terraform/self-host/*.env.*
 
 native/cpp/**/build
 
