@@ -12,8 +12,8 @@ use crate::constants::{
   cors::ALLOW_ORIGIN_LIST, cors::PROD_ORIGIN_HOST_STR,
   DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
   KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  OPENSEARCH_ENDPOINT, SECRETS_DIRECTORY, SECRETS_SETUP_FILE,
-  TUNNELBROKER_GRPC_ENDPOINT,
+  OPENSEARCH_ENDPOINT, REDACT_SENSITIVE_DATA, SECRETS_DIRECTORY,
+  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -60,6 +60,11 @@ struct Cli {
   #[arg(env = ALLOW_ORIGIN_LIST)]
   #[arg(value_delimiter = ',')]
   allow_origin_list: Option<Vec<String>>,
+
+  /// Redact sensitive data
+  #[arg(long, global = true, default_value_t = false)]
+  #[arg(env = REDACT_SENSITIVE_DATA)]
+  redact_sensitive_data: bool,
 }
 
 #[derive(Subcommand)]
@@ -85,6 +90,7 @@ pub struct ServerConfig {
   pub tunnelbroker_endpoint: String,
   pub opensearch_endpoint: String,
   pub allow_origin: Option<AllowOrigin>,
+  pub redact_sensitive_data: bool,
 }
 
 impl ServerConfig {
@@ -119,6 +125,7 @@ impl ServerConfig {
       server_setup,
       keyserver_public_key,
       allow_origin,
+      redact_sensitive_data: cli.redact_sensitive_data,
     })
   }
 }
