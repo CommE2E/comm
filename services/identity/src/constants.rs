@@ -331,6 +331,7 @@ pub mod cors {
 // Tracing
 
 pub const COMM_SERVICES_USE_JSON_LOGS: &str = "COMM_SERVICES_USE_JSON_LOGS";
+pub const REDACT_SENSITIVE_DATA: &str = "REDACT_SENSITIVE_DATA";
 
 // Regex
 
