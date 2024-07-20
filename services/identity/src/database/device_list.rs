@@ -17,7 +17,6 @@ use comm_lib::{
 use serde::Serialize;
 use tracing::{debug, error, trace, warn};
 
-use crate::error::consume_error;
 use crate::{
   client_service::FlattenedDeviceKeyUpload,
   constants::{
@@ -33,6 +32,7 @@ use crate::{
   grpc_utils::DeviceKeysInfo,
   olm::is_valid_olm_key,
 };
+use crate::{error::consume_error, log::redact_sensitive_data};
 
 use super::DatabaseClient;
 
@@ -214,8 +214,8 @@ impl PlatformDetails {
       (Some(metadata_value), Some(key_upload_value)) => {
         if metadata_value != key_upload_value {
           warn!(
-            "DeviceKeyUplaod device type ({}) mismatches request metadata platform ({}). {}",
-            "Prefering value from key uplaod.",
+            "DeviceKeyUpload device type ({}) mismatches request metadata platform ({}). {}",
+            "Preferring value from key uplaod.",
             key_upload_value.as_str_name(),
             metadata_value.as_str_name()
           );
@@ -575,7 +575,7 @@ impl TryFrom<AttributeMap> for DeviceListRow {
   type Error = DBItemError;
 
   fn try_from(mut attrs: AttributeMap) -> Result<Self, Self::Error> {
-    let user_id = attrs.take_attr(ATTR_USER_ID)?;
+    let user_id: String = attrs.take_attr(ATTR_USER_ID)?;
     let DeviceListKeyAttribute(timestamp) =
       attrs.remove(ATTR_ITEM_ID).try_into()?;
 
@@ -589,7 +589,7 @@ impl TryFrom<AttributeMap> for DeviceListRow {
     if !timestamps_match {
       warn!(
         "DeviceList timestamp mismatch for (userID={}, itemID={})",
-        &user_id,
+        redact_sensitive_data(&user_id),
         timestamp.to_rfc3339()
       );
     }
@@ -933,7 +933,7 @@ impl DatabaseClient {
       .and_then(|list| list.device_ids.first())
     else {
       error!(
-        user_id,
+        user_id = redact_sensitive_data(&user_id),
         errorType = error_types::DEVICE_LIST_DB_LOG,
         "Device list is empty. Cannot fetch primary device"
       );
@@ -1156,7 +1156,7 @@ impl DatabaseClient {
           warn!(
             "Tried creating initial device list for already existing user
               (userID={})",
-            &user_id,
+            redact_sensitive_data(&user_id),
           );
           return Err(Error::DeviceList(DeviceListError::DeviceAlreadyExists));
         }
@@ -1217,7 +1217,8 @@ impl DatabaseClient {
           warn!(
             "Device already exists in user's device list \
               (userID={}, deviceID={})",
-            &user_id, &new_device.device_id
+            redact_sensitive_data(&user_id),
+            redact_sensitive_data(&new_device.device_id)
           );
           return Err(Error::DeviceList(DeviceListError::DeviceAlreadyExists));
         }
@@ -1265,7 +1266,8 @@ impl DatabaseClient {
           warn!(
             "Device doesn't exist in user's device list \
           (userID={}, deviceID={})",
-            &user_id, device_id
+            redact_sensitive_data(&user_id),
+            redact_sensitive_data(device_id)
           );
           return Err(Error::DeviceList(DeviceListError::DeviceNotFound));
         }

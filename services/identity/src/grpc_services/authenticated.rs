@@ -5,6 +5,7 @@ use crate::database::{DeviceListUpdate, PlatformDetails};
 use crate::device_list::validation::DeviceListValidator;
 use crate::device_list::SignedDeviceList;
 use crate::error::consume_error;
+use crate::log::redact_sensitive_data;
 use crate::{
   client_service::{handle_db_error, WorkflowInProgress},
   constants::{error_types, request_metadata, tonic_status_messages},
@@ -396,7 +397,7 @@ impl IdentityClientService for AuthenticatedService {
       .await
       .map_err(|err| {
         error!(
-          user_id,
+          user_id = redact_sensitive_data(&user_id),
           errorType = error_types::GRPC_SERVICES_LOG,
           "Failed fetching device list: {err}"
         );
@@ -405,7 +406,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let Some(device_list) = device_list else {
       error!(
-        user_id,
+        user_id = redact_sensitive_data(&user_id),
         errorType = error_types::GRPC_SERVICES_LOG,
         "User has no device list!"
       );
@@ -745,7 +746,10 @@ impl IdentityClientService for AuthenticatedService {
       match task_result {
         Ok((user_id, Ok((device_list, devices_data)))) => {
           let Some(device_list_row) = device_list else {
-            warn!(user_id, "User has no device list, skipping!");
+            warn!(
+              user_id = redact_sensitive_data(&user_id),
+              "User has no device list, skipping!"
+            );
             continue;
           };
           let signed_list = SignedDeviceList::try_from(device_list_row)?;
@@ -765,7 +769,7 @@ impl IdentityClientService for AuthenticatedService {
         }
         Ok((user_id, Err(err))) => {
           error!(
-            user_id,
+            user_id = redact_sensitive_data(&user_id),
             errorType = error_types::GRPC_SERVICES_LOG,
             "Failed fetching device list: {err}"
           );
@@ -940,7 +944,7 @@ impl AuthenticatedService {
       .await
       .map_err(|err| {
         error!(
-          user_id,
+          user_id = redact_sensitive_data(user_id),
           errorType = error_types::GRPC_SERVICES_LOG,
           "Failed fetching device list: {err}"
         );
@@ -949,7 +953,7 @@ impl AuthenticatedService {
 
     let Some(device_list) = device_list else {
       error!(
-        user_id,
+        user_id = redact_sensitive_data(user_id),
         errorType = error_types::GRPC_SERVICES_LOG,
         "User has no device list!"
       );
