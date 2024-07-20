@@ -1,5 +1,15 @@
-variable "domain_name" {
+variable "keyserver_domain_name" {
   description = "Domain name for your keyserver"
+  type        = string
+}
+
+variable "landing_domain_name" {
+  description = "Domain name for your landing page"
+  type        = string
+}
+
+variable "webapp_domain_name" {
+  description = "Domain name for your web app"
   type        = string
 }
 
