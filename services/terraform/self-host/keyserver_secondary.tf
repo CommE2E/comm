@@ -74,7 +74,7 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
   provisioner "local-exec" {
     command = <<EOT
       while true; do
-      if curl --silent --output /dev/null --fail "https://${var.domain_name}/health"; then
+      if curl --silent --output /dev/null --fail "https://${var.keyserver_domain_name}/health"; then
           echo "Primary service is healthy. Proceeding with deployment of secondary service."
           exit 0
         else
