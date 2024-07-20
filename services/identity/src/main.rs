@@ -18,6 +18,7 @@ mod grpc_utils;
 mod http;
 mod id;
 mod keygen;
+mod log;
 mod nonce;
 mod olm;
 mod regex;
