@@ -35,6 +35,7 @@ use crate::grpc_services::shared::get_platform_metadata;
 use crate::grpc_utils::{
   DeviceKeyUploadActions, RegistrationActions, SignedNonce
 };
+use crate::log::redact_sensitive_data;
 use crate::nonce::generate_nonce_data;
 use crate::reserved_users::{
   validate_account_ownership_message_and_get_user_id,
@@ -721,7 +722,7 @@ impl IdentityClientService for ClientService {
       .await
       .map_err(handle_db_error)?
     else {
-      warn!("User {} does not have valid device list. Secondary device auth impossible.", user_id);
+      warn!("User {} does not have valid device list. Secondary device auth impossible.", redact_sensitive_data(&user_id));
       return Err(tonic::Status::aborted(
         tonic_status_messages::DEVICE_LIST_ERROR,
       ));
@@ -795,7 +796,10 @@ impl IdentityClientService for ClientService {
     let device_list = device_list_response
       .map_err(handle_db_error)?
       .ok_or_else(|| {
-        warn!("User {} does not have a valid device list.", user_id);
+        warn!(
+          "User {} does not have a valid device list.",
+          redact_sensitive_data(&user_id)
+        );
         tonic::Status::aborted(tonic_status_messages::DEVICE_LIST_ERROR)
       })?;
 
