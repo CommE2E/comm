@@ -745,7 +745,7 @@ impl IdentityClientService for AuthenticatedService {
       match task_result {
         Ok((user_id, Ok((device_list, devices_data)))) => {
           let Some(device_list_row) = device_list else {
-            warn!(user_id, "User has no device list, skipping!");
+            warn!("User has no device list, skipping!");
             continue;
           };
           let signed_list = SignedDeviceList::try_from(device_list_row)?;
