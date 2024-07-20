@@ -21,8 +21,8 @@ pub use crate::database::device_list::DeviceIDAttribute;
 pub use crate::database::one_time_keys::OTKRow;
 use crate::{
   ddb_utils::EthereumIdentity, device_list::SignedDeviceList,
-  grpc_services::shared::PlatformMetadata, reserved_users::UserDetail,
-  siwe::SocialProof,
+  grpc_services::shared::PlatformMetadata, log::redact_sensitive_data,
+  reserved_users::UserDetail, siwe::SocialProof,
 };
 use crate::{
   ddb_utils::{DBIdentity, OlmAccountType},
@@ -925,7 +925,7 @@ impl DatabaseClient {
       .transpose()
       .map_err(|e| {
         error!(
-          user_id,
+          user_id = redact_sensitive_data(user_id),
           errorType = error_types::GENERIC_DB_LOG,
           "Database item is missing an identifier"
         );
