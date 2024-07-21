@@ -45,6 +45,8 @@ services/electron-update-server/node_modules
 services/reports/email-config.json
 services/terraform/self-host/*.env
 services/terraform/self-host/*.env.*
+services/terraform/self-host/terraform.tfstate
+services/terraform/self-host/secrets.tfvars
 
 native/cpp/**/build
 
