@@ -504,10 +504,38 @@ impl IdentityClientService for ClientService {
 
     let user_id = if let Some(user_id) = self
       .client
-      .get_user_id_from_reserved_usernames_table(&wallet_address)
+      .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
       .await
       .map_err(handle_db_error)?
     {
+      self
+        .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
+        .await?;
+
+      self
+        .client
+        .add_user_device(
+          user_id.clone(),
+          flattened_device_key_upload.clone(),
+          platform_metadata,
+          chrono::Utc::now(),
+        )
+        .await
+        .map_err(handle_db_error)?;
+
+      user_id
+    } else {
+      let Some(user_id) = self
+        .client
+        .get_user_id_from_reserved_usernames_table(&wallet_address)
+        .await
+        .map_err(handle_db_error)?
+      else {
+        return Err(tonic::Status::not_found(
+          tonic_status_messages::USER_NOT_FOUND,
+        ));
+      };
+
       // It's possible that the user attempting login is already registered
       // on Ashoat's keyserver. If they are, we should try to register them if
       // they're on a mobile device, otherwise we should send back a gRPC status
@@ -538,34 +566,6 @@ impl IdentityClientService for ClientService {
           login_time,
           message.farcaster_id,
           None,
-        )
-        .await
-        .map_err(handle_db_error)?;
-
-      user_id
-    } else {
-      let Some(user_id) = self
-        .client
-        .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
-        .await
-        .map_err(handle_db_error)?
-      else {
-        return Err(tonic::Status::not_found(
-          tonic_status_messages::USER_NOT_FOUND,
-        ));
-      };
-
-      self
-        .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
-        .await?;
-
-      self
-        .client
-        .add_user_device(
-          user_id.clone(),
-          flattened_device_key_upload.clone(),
-          platform_metadata,
-          chrono::Utc::now(),
         )
         .await
         .map_err(handle_db_error)?;
