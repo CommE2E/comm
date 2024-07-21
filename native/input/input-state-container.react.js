@@ -83,7 +83,7 @@ import {
   type ClientMediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -488,7 +488,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     let threadInfo = inputThreadInfo;
     const { viewerID } = this.props;
-    if (viewerID && inputThreadInfo.type === threadTypes.SIDEBAR) {
+    if (viewerID && threadTypeIsSidebar(inputThreadInfo.type)) {
       invariant(parentThreadInfo, 'sidebar should have parent');
       threadInfo = patchThreadInfoToIncludeMentionedMembersOfParent(
         inputThreadInfo,

@@ -17,7 +17,7 @@ import {
   threadIsPending,
   useIsThreadInChatList,
 } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 import {
@@ -47,7 +47,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
   const activeThreadID = activeThreadInfo?.id;
   const activeSidebarParentThreadInfo = useSelector(state => {
-    if (!activeThreadInfo || activeThreadInfo.type !== threadTypes.SIDEBAR) {
+    if (!activeThreadInfo || !threadTypeIsSidebar(activeThreadInfo.type)) {
       return null;
     }
     const { parentThreadID } = activeThreadInfo;
@@ -55,7 +55,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     return threadInfoSelector(state)[parentThreadID];
   });
   const activeTopLevelThreadInfo =
-    activeThreadInfo?.type === threadTypes.SIDEBAR
+    activeThreadInfo && threadTypeIsSidebar(activeThreadInfo?.type)
       ? activeSidebarParentThreadInfo
       : activeThreadInfo;
 
@@ -97,7 +97,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
       if (
         activeChatThreadItem &&
         threadIsPending(activeThreadID) &&
-        activeThreadInfo?.type !== threadTypes.SIDEBAR &&
+        (!activeThreadInfo || !threadTypeIsSidebar(activeThreadInfo.type)) &&
         !threadListData
           .map(thread => thread.threadInfo.id)
           .includes(activeThreadID)
@@ -113,7 +113,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     (threadListData: $ReadOnlyArray<ChatThreadItem>) => {
       if (
         !activeChatThreadItem ||
-        activeChatThreadItem.threadInfo.type !== threadTypes.SIDEBAR
+        !threadTypeIsSidebar(activeChatThreadItem.threadInfo.type)
       ) {
         return threadListData;
       }

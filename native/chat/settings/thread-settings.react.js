@@ -45,7 +45,10 @@ import type {
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypes,
+  threadTypeIsSidebar,
+} from 'lib/types/thread-types-enum.js';
 import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedOptionalThreadInfo,
@@ -573,8 +576,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         const listData: ChatSettingsItem[] = [];
 
         const sidebars =
-          childThreads?.filter(
-            childThreadInfo => childThreadInfo.type === threadTypes.SIDEBAR,
+          childThreads?.filter(childThreadInfo =>
+            threadTypeIsSidebar(childThreadInfo.type),
           ) ?? [];
         if (sidebars.length === 0) {
           return listData;
