@@ -13,7 +13,11 @@ import {
 } from 'lib/permissions/thread-permissions.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { ThreadSubscription } from 'lib/types/subscription-types.js';
+import {
+  type ThreadSubscription,
+  defaultThreadSubscription,
+  joinThreadSubscription,
+} from 'lib/types/subscription-types.js';
 import type {
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
@@ -912,11 +916,8 @@ async function recalculateThreadPermissions(
   return { membershipRows, relationshipChangeset };
 }
 
-const defaultSubscriptionString = JSON.stringify({
-  home: false,
-  pushNotifs: false,
-});
-const joinSubscriptionString = JSON.stringify({ home: true, pushNotifs: true });
+const defaultSubscriptionString = JSON.stringify(defaultThreadSubscription);
+const joinSubscriptionString = JSON.stringify(joinThreadSubscription);
 
 const membershipInsertBatchSize = 50;
 
