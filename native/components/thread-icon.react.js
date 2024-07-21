@@ -4,7 +4,11 @@ import EntypoIcon from '@expo/vector-icons/Entypo.js';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
-import { threadTypes, type ThreadType } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypes,
+  type ThreadType,
+  threadTypeIsSidebar,
+} from 'lib/types/thread-types-enum.js';
 
 import SWMansionIcon from './swmansion-icon.react.js';
 
@@ -19,7 +23,7 @@ function ThreadIcon(props: Props): React.Node {
     threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD
   ) {
     return <SWMansionIcon name="globe-1" size={18} color={color} />;
-  } else if (threadType === threadTypes.SIDEBAR) {
+  } else if (threadTypeIsSidebar(threadType)) {
     return (
       <EntypoIcon
         name="align-right"

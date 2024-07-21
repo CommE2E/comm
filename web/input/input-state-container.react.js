@@ -80,7 +80,7 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -1298,7 +1298,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     let threadInfo = inputThreadInfo;
     const { viewerID } = this.props;
-    if (viewerID && inputThreadInfo.type === threadTypes.SIDEBAR) {
+    if (viewerID && threadTypeIsSidebar(inputThreadInfo.type)) {
       invariant(parentThreadInfo, 'sidebar should have parent');
       threadInfo = patchThreadInfoToIncludeMentionedMembersOfParent(
         inputThreadInfo,

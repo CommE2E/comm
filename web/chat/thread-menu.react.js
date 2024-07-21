@@ -17,7 +17,10 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import { threadTypes } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypes,
+  threadTypeIsSidebar,
+} from 'lib/types/thread-types-enum.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
 import css from './thread-menu.css';
@@ -110,8 +113,8 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   );
 
   const hasSidebars = React.useMemo(() => {
-    return childThreads?.some(
-      childThreadInfo => childThreadInfo.type === threadTypes.SIDEBAR,
+    return childThreads?.some(childThreadInfo =>
+      threadTypeIsSidebar(childThreadInfo.type),
     );
   }, [childThreads]);
 
