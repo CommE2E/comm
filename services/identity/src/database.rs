@@ -933,23 +933,31 @@ impl DatabaseClient {
       })
   }
 
+  /// Returns all usernames and wallet addresses from `identity-users` table
   async fn get_all_usernames(&self) -> Result<Vec<String>, Error> {
     let scan_output = self
       .client
       .scan()
       .table_name(USERS_TABLE)
-      .projection_expression(USERS_TABLE_USERNAME_ATTRIBUTE)
+      .projection_expression("#username, #walletAddress")
+      .expression_attribute_names("#username", USERS_TABLE_USERNAME_ATTRIBUTE)
+      .expression_attribute_names(
+        "#walletAddress",
+        USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+      )
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
     let mut result = Vec::new();
-    if let Some(attributes) = scan_output.items {
-      for mut attribute in attributes {
-        if let Ok(username) =
-          attribute.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE)
-        {
+    if let Some(items) = scan_output.items {
+      for mut item in items {
+        if let Ok(username) = item.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE) {
           result.push(username);
+        } else if let Ok(wallet_address) =
+          item.take_attr(USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE)
+        {
+          result.push(wallet_address);
         }
       }
     }
