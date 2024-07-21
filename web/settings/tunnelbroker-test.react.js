@@ -61,10 +61,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
       setLoading(true);
       try {
         await olmAPI.initializeCryptoAccount();
-        const encryptedData = await olmAPI.encrypt(
-          `Encrypted message to ${recipient}`,
-          recipient,
-        );
+        const encryptedData = await olmAPI.encrypt(message, recipient);
         const deviceID = await getContentSigningKey();
         const encryptedMessage: EncryptedMessage = {
           type: peerToPeerMessageTypes.ENCRYPTED_MESSAGE,
@@ -83,7 +80,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
       }
       setLoading(false);
     },
-    [currentUserID, recipient, sendMessage],
+    [message, currentUserID, recipient, sendMessage],
   );
 
   let errorMsg;
