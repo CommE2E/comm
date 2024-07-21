@@ -49,3 +49,6 @@ services/terraform/self-host/*.env.*
 native/cpp/**/build
 
 target
+
+**/*.tfstate
+**/*.tfvars
