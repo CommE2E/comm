@@ -419,6 +419,7 @@ let composeFunc = compose;
 if (__DEV__ && global.HermesInternal) {
   const { composeWithDevTools } = require('remote-redux-devtools/src/index.js');
   composeFunc = composeWithDevTools({
+    maxAge: 200,
     name: 'Redux',
     hostname: getDevServerHostname(),
     ...remoteReduxDevServerConfig,
