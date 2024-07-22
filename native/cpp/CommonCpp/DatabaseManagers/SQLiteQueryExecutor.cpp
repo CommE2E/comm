@@ -2556,8 +2556,51 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
     std::string threadID,
     std::optional<std::string> timestampCursor,
     std::optional<std::string> messageIDCursor) const {
+  std::stringstream searchMessagesSQL;
+  searchMessagesSQL
+      << "SELECT "
+         "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+         "  m.content, m.time, media.id, media.container, media.thread, "
+         "  media.uri, media.type, media.extras "
+         "FROM message_search AS s "
+         "LEFT JOIN messages AS m "
+         "  ON m.id = s.original_message_id "
+         "LEFT JOIN media "
+         "  ON m.id = media.container "
+         "LEFT JOIN messages AS m2 "
+         "  ON m2.target_message = m.id "
+         "  AND m2.type = ? AND m2.thread = ? "
+         "WHERE s.processed_content MATCH ? "
+         "  AND (m.thread = ? OR m2.id IS NOT NULL) ";
 
-  return std::vector<MessageEntity>{};
+  bool usingCursor = timestampCursor.has_value() && messageIDCursor.has_value();
+
+  if (usingCursor) {
+    searchMessagesSQL << " AND (m.time < ? OR (m.time = ? AND m.id < ?)) ";
+  }
+  searchMessagesSQL << "ORDER BY m.time DESC, m.id DESC "
+                    << "LIMIT 20;";
+
+  comm::SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      searchMessagesSQL.str(),
+      "Failed to get message search results");
+
+  auto SIDEBAR_SOURCE_TYPE = 17;
+
+  bindIntToSQL(SIDEBAR_SOURCE_TYPE, preparedSQL, 1);
+  bindStringToSQL(threadID.c_str(), preparedSQL, 2);
+  bindStringToSQL(query.c_str(), preparedSQL, 3);
+  bindStringToSQL(threadID.c_str(), preparedSQL, 4);
+
+  if (usingCursor) {
+    int timestamp = std::stoll(timestampCursor.value());
+    bindIntToSQL(timestamp, preparedSQL, 5);
+    bindIntToSQL(timestamp, preparedSQL, 6);
+    bindStringToSQL(messageIDCursor.value(), preparedSQL, 7);
+  }
+
+  return this->processMessagesResults(preparedSQL);
 }
 
 #ifdef EMSCRIPTEN
