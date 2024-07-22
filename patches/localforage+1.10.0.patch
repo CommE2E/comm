@@ -1,0 +1,455 @@
+diff --git a/node_modules/localforage/dist/localforage.js b/node_modules/localforage/dist/localforage.js
+index 4e3295b..db214ee 100644
+--- a/node_modules/localforage/dist/localforage.js
++++ b/node_modules/localforage/dist/localforage.js
+@@ -1429,6 +1429,179 @@ function dropInstance(options, callback) {
+     return promise;
+ }
+ 
++function getMultipleItems(keys, synchronizationKey) {
++    var self = this;
++
++    var normalizedKeys = keys.map(normalizeKey);
++    var normalizedSynchronizationKey = normalizeKey(synchronizationKey);
++
++    var promise = new Promise$1(function(resolve, reject) {
++        self
++            .ready()
++            .then(function() {
++                createTransaction(self._dbInfo, READ_WRITE, function(
++                    err,
++                    transaction
++                ) {
++                    if (err) {
++                        return reject(err);
++                    }
++
++                    try{
++                        var store = transaction.objectStore(
++                            self._dbInfo.storeName
++                        );
++
++                        var allKeys = [...normalizedKeys, synchronizationKey];
++                        var requests = [];
++                        var result = {};
++
++                        var placeRequest = function (keysArray, index) {
++                            var key = keysArray[index];
++                            var req = store.get(key);
++
++                            req.onsuccess = function() {
++                                var value = req.result;
++                                if (value === undefined) {
++                                    value = null;
++                                }
++                                
++                                if (_isEncodedBlob(value)) {
++                                    value = _decodeBlob(value);
++                                }
++
++                                if (key === synchronizationKey) {
++                                    result['synchronizationValue'] = value;
++                                } else { 
++                                    result[key] = value;
++                                }
++
++                                if (index < keysArray.length - 1) {
++                                    placeRequest(keysArray, index + 1);
++                                    return;
++                                }
++
++                                resolve(result);
++                            };
++
++                            req.onerror = function() {
++                                reject(req.err);
++                            };
++
++                            requests.push(req);
++                        }
++
++                        placeRequest(allKeys, 0);
++
++                    } catch (e) {
++                        reject(e);
++                    }
++                });
++            })
++            .catch(reject);
++    });
++
++    return promise;
++}
++
++function setMultipleItems(input, synchronizationKey, expectedSynchronizationValue, newSynchronizationValue, forceWrite) {
++    var self = this;
++    var normalizedSynchronizationKey = normalizeKey(synchronizationKey);
++
++    var promise = new Promise$1(function(resolve, reject) {
++        var dbInfo;
++        self.ready().then(function() {
++            dbInfo = self._dbInfo;
++            var inputArray = Object.entries(input);
++            var inputNormalizationPromise = Promise.all(inputArray.map(function([key, value]) {
++                var normalizedKey = normalizeKey(key);
++                if (value === null) {
++                    value = undefined;
++                }
++
++                if (!toString.call(value) === '[object Blob]') {
++                    return new Promise$1(function(resolve, reject) {
++                        resolve([normalizedKey, value]);
++                    });
++                }
++
++                return _checkBlobSupport(dbInfo.db).then(function(
++                    blobSupport
++                ) {
++                    if (blobSupport) {
++                        return [normalizedKey, value];
++                    }
++                    return [normalizedKey, _encodeBlob(value)];
++                });
++            }));
++            return inputNormalizationPromise;
++        }).then(function(inputArray) {
++            createTransaction(self._dbInfo, READ_WRITE, function(
++                err,
++                transaction
++            ) {
++                if (err) {
++                    reject(err);
++                }
++
++                try {
++                    var store = transaction.objectStore(
++                        self._dbInfo.storeName
++                    );
++
++                    var writeRequests = [];
++                    var req = store.get(normalizedSynchronizationKey);
++
++                    req.onsuccess = function() {
++                        var value = req.result;
++                        if (value === undefined) {
++                            value = null;
++                        }
++                        if (value !== expectedSynchronizationValue && !forceWrite) {
++                            reject("Another thread completed transaction");
++                            return;
++                        }
++
++                        for (var [key, val] of inputArray) {
++                            var writeRequest = store.put(val, key);
++
++                            writeRequest.onerror = function() {
++                                reject(writeRequest.err);
++                            };
++
++                            writeRequests.push(writeRequest);
++                        }
++
++                        var synchronizationValueWriteRequest = store.put(newSynchronizationValue, normalizedSynchronizationKey);
++
++                        synchronizationValueWriteRequest.onerror = function() {
++                            reject(synchronizationValueWriteRequest.err);
++                        };
++
++                        writeRequests.push(synchronizationValueWriteRequest);
++                    };
++
++                    req.onerror = function() {
++                        reject(req.err);
++                    };
++
++                    transaction.oncomplete = function() {
++                        resolve();
++                    };
++
++                    transaction.onabort = transaction.onerror = function() {
++                        reject(transaction.error);
++                    }
++                } catch (e) {
++                    reject(e);
++                }
++            });
++        })["catch"](reject);
++    });
++
++    return promise;
++}
++
+ var asyncStorage = {
+     _driver: 'asyncStorage',
+     _initStorage: _initStorage,
+@@ -1437,6 +1610,8 @@ var asyncStorage = {
+     getItem: getItem,
+     setItem: setItem,
+     removeItem: removeItem,
++    setMultipleItems: setMultipleItems,
++    getMultipleItems: getMultipleItems,
+     clear: clear,
+     length: length,
+     key: key,
+@@ -2100,6 +2275,8 @@ var webSQLStorage = {
+     getItem: getItem$1,
+     setItem: setItem$1,
+     removeItem: removeItem$1,
++    getMultipleItems: () => { throw "Method unsupported for driver."; },
++    setMultipleItems: () => { throw "Method unsupported for driver."; },
+     clear: clear$1,
+     length: length$1,
+     key: key$1,
+@@ -2422,6 +2599,8 @@ var localStorageWrapper = {
+     getItem: getItem$2,
+     setItem: setItem$2,
+     removeItem: removeItem$2,
++    getMultipleItems: () => { throw "Method unsupported for driver."; },
++    setMultipleItems: () => { throw "Method unsupported for driver."; },
+     clear: clear$2,
+     length: length$2,
+     key: key$2,
+@@ -2466,7 +2645,7 @@ var DefaultDriverOrder = [DefaultDrivers.INDEXEDDB._driver, DefaultDrivers.WEBSQ
+ 
+ var OptionalDriverMethods = ['dropInstance'];
+ 
+-var LibraryMethods = ['clear', 'getItem', 'iterate', 'key', 'keys', 'length', 'removeItem', 'setItem'].concat(OptionalDriverMethods);
++var LibraryMethods = ['clear', 'getItem', 'iterate', 'key', 'keys', 'length', 'removeItem', 'setItem', 'setMultipleItems', 'getMultipleItems'].concat(OptionalDriverMethods);
+ 
+ var DefaultConfig = {
+     description: '',
+diff --git a/node_modules/localforage/src/drivers/indexeddb.js b/node_modules/localforage/src/drivers/indexeddb.js
+index bee7fcc..59e2b29 100644
+--- a/node_modules/localforage/src/drivers/indexeddb.js
++++ b/node_modules/localforage/src/drivers/indexeddb.js
+@@ -746,6 +746,180 @@ function removeItem(key, callback) {
+     return promise;
+ }
+ 
++function getMultipleItems(keys, synchronizationKey) {
++    var self = this;
++
++    var normalizedKeys = keys.map(normalizeKey);
++    var normalizedSynchronizationKey = normalizeKey(synchronizationKey);
++
++    var promise = new Promise(function(resolve, reject) {
++        self
++            .ready()
++            .then(function() {
++                createTransaction(self._dbInfo, READ_WRITE, function(
++                    err,
++                    transaction
++                ) {
++                    if (err) {
++                        return reject(err);
++                    }
++
++                    try{
++                        var store = transaction.objectStore(
++                            self._dbInfo.storeName
++                        );
++
++                        var allKeys = [...normalizedKeys, synchronizationKey];
++                        var requests = [];
++                        var result = {};
++
++                        var placeRequest = function (keysArray, index) {
++                            var key = keysArray[indxe];
++                            var req = store.get(key);
++
++                            req.onsuccess = function() {
++                                var value = req.result;
++                                if (value === undefined) {
++                                    value = null;
++                                }
++                                
++                                if (_isEncodedBlob(value)) {
++                                    value = _decodeBlob(value);
++                                }
++
++                                if (key === synchronizationKey) {
++                                    result['synchronizationValue'] = value;
++                                } else { 
++                                    result[key] = value;
++                                }
++
++                                if (index < keysArray.length() - 1) {
++                                    placeRequest(keysArray, index + 1);
++                                    return;
++                                }
++
++                                resolve(result);
++                            };
++
++                            req.onerror = function() {
++                                reject(req.err);
++                            };
++
++                            requests.push(req);
++                        }
++
++                        placeRequest(allKeys, 0);
++
++                    } catch (e) {
++                        reject(e);
++                    }
++                });
++            })
++            .catch(reject);
++    });
++
++    return promise;
++}
++
++function setMultipleItems(input, synchronizationKey, expectedSynchronizationValue, newSynchronizationValue, forceWrite) {
++    var self = this;
++    var normalizedSynchronizationKey = normalizeKey(synchronizationKey);
++
++    var promise = new Promise(function(resolve, reject) {
++        self
++            .ready()
++            .then(function() {
++                var inputArray = Object.entries(input);
++                var inputNormalizationPromise = Promise.all(inputArray.map(function([key, value]) {
++                    var normalizedKey = normalizeKey(key);
++                    if (value === null) {
++                        value = undefined;
++                    }
++
++                    if (!toString.call(value) === '[object Blob]') {
++                        return new Promise(function(resolve, reject) {
++                            resolve([normalizedKey, value]);
++                        });
++                    }
++
++                    return _checkBlobSupport(dbInfo.db).then(function(
++                        blobSupport
++                    ) {
++                        if (blobSupport) {
++                            return [normalizedKey, value];
++                        }
++                        return [normalizedKey, _encodeBlob(value)];
++                    });
++                }));
++                return promise;
++            })
++            .then(function(inputArray) {
++                createTransaction(self._dbInfo, READ_WRITE, function(
++                    err,
++                    transaction
++                ) {
++                    if (err) {
++                        reject(err);
++                    }
++
++                    try {
++                        var store = transaction.objectStore(
++                            self._dbInfo.storeName
++                        );
++
++                        var writeRequests = [];
++                        var req = store.get(normalizedSynchronizationKey);
++
++                        req.onsuccess = function() {
++                            var value = req.result;
++                            if (value === undefined) {
++                                value = null;
++                            }
++                            if (value !== expectedSynchronizationValue && !forceWrite) {
++                                reject("Another thread completed transaction");
++                            }
++
++                            for (var [key, value] of inputArray) {
++                                var writeRequest = store.put(value, key);
++
++                                writeRequest.onerror = function() {
++                                    reject(writeRequest.err);
++                                };
++
++                                writeRequests.push(writeRequest);
++                            }
++
++                            var synchronizationValueWriteRequest = store.put(newSynchronizationValue, normalizedSynchronizationKey);
++
++                            synchronizationValueWriteRequest.onerror = function() {
++                                reject(synchronizationValueWriteRequest.err);
++                            };
++
++                            writeRequests.push(synchronizationValueWriteRequest);
++                        };
++
++                        req.onerror = function() {
++                            reject(req.err);
++                        };
++
++                        transaction.oncomplete = function() {
++                            resolve();
++                        };
++
++                        transaction.onabort = transaction.onerror = function() {
++                            reject(transaction.error);
++                        }
++                    } catch (e) {
++                        reject(e);
++                    }
++                });
++            })
++            .catch(reject);
++    });
++
++    return promise;
++}
++
+ function clear(callback) {
+     var self = this;
+ 
+@@ -1107,6 +1281,8 @@ var asyncStorage = {
+     getItem: getItem,
+     setItem: setItem,
+     removeItem: removeItem,
++    getMultipleItems: getMultipleItems,
++    setMultipleItems: setMultipleItems,
+     clear: clear,
+     length: length,
+     key: key,
+diff --git a/node_modules/localforage/src/drivers/localstorage.js b/node_modules/localforage/src/drivers/localstorage.js
+index 3d1cbba..d78e3eb 100644
+--- a/node_modules/localforage/src/drivers/localstorage.js
++++ b/node_modules/localforage/src/drivers/localstorage.js
+@@ -322,6 +322,8 @@ var localStorageWrapper = {
+     getItem: getItem,
+     setItem: setItem,
+     removeItem: removeItem,
++    getMultipleItems: () => { throw "Method unsupported for driver."; },
++    setMultipleItems: () => { throw "Method unsupported for driver."; },
+     clear: clear,
+     length: length,
+     key: key,
+diff --git a/node_modules/localforage/src/drivers/websql.js b/node_modules/localforage/src/drivers/websql.js
+index 257d819..4fa2410 100644
+--- a/node_modules/localforage/src/drivers/websql.js
++++ b/node_modules/localforage/src/drivers/websql.js
+@@ -600,6 +600,8 @@ var webSQLStorage = {
+     getItem: getItem,
+     setItem: setItem,
+     removeItem: removeItem,
++    getMultipleItems: () => { throw "Method unsupported for driver."; },
++    setMultipleItems: () => { throw "Method unsupported for driver."; },
+     clear: clear,
+     length: length,
+     key: key,
+diff --git a/node_modules/localforage/src/localforage.js b/node_modules/localforage/src/localforage.js
+index 8d3393d..847e5e5 100644
+--- a/node_modules/localforage/src/localforage.js
++++ b/node_modules/localforage/src/localforage.js
+@@ -36,7 +36,9 @@ const LibraryMethods = [
+     'keys',
+     'length',
+     'removeItem',
+-    'setItem'
++    'setItem',
++    'setMultipleItems',
++    'getMultipleItems'
+ ].concat(OptionalDriverMethods);
+ 
+ const DefaultConfig = {
