@@ -16510,8 +16510,13 @@ loader-utils@^2.0.4:
 
 localforage@^1.10.0:
   version "1.10.0"
-  resolved "https://registry.yarnpkg.com/localforage/-/localforage-1.10.0.tgz#5c465dc5f62b2807c3a84c0c6a1b1b3212781dd4"
-  integrity sha512-14/H1aX7hzBBmmh7sGPd+AOMkkIrHM3Z1PAyGgZigA1H1p5O5ANnMyWzvpAETtG68/dC4pC0ncy3+PPGzXZHPg==
+  resolved "https://codeload.github.com/marcinwasowicz/localForage/tar.gz/222299278edcc2328ad61a13f2972388c6029436"
+  dependencies:
+    lie "3.1.1"
+
+"localforage@github:marcinwasowicz/localForage#2983b84d9cccf23e6c10a15250c1027df8b94a21":
+  version "1.10.0"
+  resolved "https://codeload.github.com/marcinwasowicz/localForage/tar.gz/2983b84d9cccf23e6c10a15250c1027df8b94a21"
   dependencies:
     lie "3.1.1"
 
