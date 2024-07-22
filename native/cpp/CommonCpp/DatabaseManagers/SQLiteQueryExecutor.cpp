@@ -2551,6 +2551,15 @@ SQLiteQueryExecutor::getRelatedMessages(const std::string &messageID) const {
   return this->processMessagesResults(preparedSQL);
 }
 
+std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
+    std::string query,
+    std::string threadID,
+    std::optional<std::string> timestampCursor,
+    std::optional<std::string> messageIDCursor) const {
+
+  return std::vector<MessageEntity>{};
+}
+
 #ifdef EMSCRIPTEN
 std::vector<WebThread> SQLiteQueryExecutor::getAllThreadsWeb() const {
   auto threads = this->getAllThreads();
@@ -2603,6 +2612,23 @@ SQLiteQueryExecutor::getRelatedMessagesWeb(const std::string &messageID) const {
   }
 
   return relatedMessagesWithMedias;
+}
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::searchMessagesWeb(
+    std::string query,
+    std::string threadID,
+    std::optional<std::string> timestampCursor,
+    std::optional<std::string> messageIDCursor) const {
+  auto allMessages =
+      this->searchMessages(query, threadID, timestampCursor, messageIDCursor);
+
+  std::vector<MessageWithMedias> allMessagesWithMedias;
+  for (auto &messageWithMedia : allMessages) {
+    allMessagesWithMedias.push_back(
+        {std::move(messageWithMedia.first), messageWithMedia.second});
+  }
+
+  return allMessagesWithMedias;
 }
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
