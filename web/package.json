@@ -71,7 +71,7 @@
     "is-svg": "^4.3.0",
     "isomorphic-fetch": "^3.0.0",
     "lib": "0.0.1",
-    "localforage": "^1.10.0",
+    "localforage": "github:marcinwasowicz/localForage#2983b84d9cccf23e6c10a15250c1027df8b94a21",
     "lodash": "^4.17.21",
     "qrcode.react": "^3.1.0",
     "react": "18.1.0",
