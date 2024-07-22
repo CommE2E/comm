@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import type { Persistor } from 'redux-persist/es/types';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { getMessageSearchStoreOps } from 'lib/handlers/db-ops-handler.react.js';
 import type { EntryStoreOperation } from 'lib/ops/entries-store-ops.js';
 import type { MessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
@@ -158,6 +159,9 @@ function InitialReduxStateGate(props: Props): React.Node {
           messageStoreOperations.length > 0 ||
           entryStoreOperations.length > 0
         ) {
+          const messageSearchStoreOperations = getMessageSearchStoreOps(
+            messageStoreOperations,
+          );
           await processDBStoreOperations(
             {
               threadStoreOperations,
@@ -172,6 +176,7 @@ function InitialReduxStateGate(props: Props): React.Node {
               auxUserStoreOperations: [],
               threadActivityStoreOperations: [],
               entryStoreOperations,
+              messageSearchStoreOperations,
             },
             currentLoggedInUserID,
           );
