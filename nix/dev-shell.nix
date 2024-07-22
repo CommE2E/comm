@@ -40,7 +40,6 @@
 , sops
 , sqlite
 , terraform
-, watchman
 , rustfmt
 , wasm-pack
 , yarn
@@ -66,7 +65,6 @@ mkShell {
     mariadb
     nodejs
     yarn
-    watchman # react native
     python3
     redis
     wasm-pack
@@ -143,6 +141,8 @@ mkShell {
     wait "$mariadb_pid" "$redis_pid"
 
     ${../scripts}/install_homebrew_macos.sh
+
+    ${../scripts}/install_homebrew_deps.sh watchman
   '' + ''
 
     # Render default configuration for keyserver
