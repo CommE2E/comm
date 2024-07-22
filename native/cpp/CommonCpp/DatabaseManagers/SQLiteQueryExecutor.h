@@ -189,6 +189,11 @@ public:
       std::string original_message_id,
       std::string message_id,
       std::string processed_content) const override;
+  std::vector<MessageEntity> searchMessages(
+      std::string query,
+      std::string threadID,
+      std::optional<std::string> timestampCursor,
+      std::optional<std::string> messageIDCursor) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
@@ -198,6 +203,11 @@ public:
   NullableString getOlmPersistAccountDataWeb(int accountID) const override;
   std::vector<MessageWithMedias>
   getRelatedMessagesWeb(const std::string &messageID) const override;
+  std::vector<MessageWithMedias> searchMessagesWeb(
+      std::string query,
+      std::string threadID,
+      std::optional<std::string> timestampCursor,
+      std::optional<std::string> messageIDCursor) const override;
 #else
   static void clearSensitiveData();
   static void initialize(std::string &databasePath);

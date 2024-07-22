@@ -176,6 +176,11 @@ public:
       std::string original_message_id,
       std::string message_id,
       std::string processed_content) const = 0;
+  virtual std::vector<MessageEntity> searchMessages(
+      std::string query,
+      std::string threadID,
+      std::optional<std::string> timestampCursor,
+      std::optional<std::string> messageIDCursor) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
@@ -185,6 +190,11 @@ public:
   virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;
   virtual std::vector<MessageWithMedias>
   getRelatedMessagesWeb(const std::string &messageID) const = 0;
+  virtual std::vector<MessageWithMedias> searchMessagesWeb(
+      std::string query,
+      std::string threadID,
+      std::optional<std::string> timestampCursor,
+      std::optional<std::string> messageIDCursor) const = 0;
 #else
   virtual void createMainCompaction(std::string backupID) const = 0;
   virtual void captureBackupLogs() const = 0;
