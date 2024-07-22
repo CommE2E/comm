@@ -9,6 +9,7 @@ import type { EntryStoreOperation } from 'lib/ops/entries-store-ops.js';
 import type { MessageStoreOperation } from 'lib/ops/message-store-ops.js';
 import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
+import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
@@ -164,6 +165,9 @@ function InitialReduxStateGate(props: Props): React.Node {
           messageStoreOperations.length > 0 ||
           entryStoreOperations.length > 0
         ) {
+          const messageSearchStoreOperations = getMessageSearchStoreOps(
+            messageStoreOperations,
+          );
           await processDBStoreOperations(
             {
               threadStoreOperations,
@@ -178,6 +182,7 @@ function InitialReduxStateGate(props: Props): React.Node {
               auxUserStoreOperations: [],
               threadActivityStoreOperations: [],
               entryStoreOperations,
+              messageSearchStoreOperations,
             },
             currentLoggedInUserID,
           );
