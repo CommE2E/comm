@@ -41,7 +41,9 @@ const persistedReducer = persistReducer(persistConfig, reducer);
 const store: Store<AppState, Action> = createStore(
   persistedReducer,
   defaultWebState,
-  composeWithDevTools({})(
+  composeWithDevTools({
+    maxAge: 200,
+  })(
     applyMiddleware(thunk, reduxLoggerMiddleware, tabSynchronizationMiddleware),
   ),
 );
