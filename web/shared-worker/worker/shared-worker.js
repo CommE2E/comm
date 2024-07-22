@@ -270,6 +270,17 @@ async function processAppRequest(
         message.messageIDs,
       ),
     };
+  } else if (message.type === workerRequestMessageTypes.SEARCH_MESSAGES) {
+    const webMessageEntities = sqliteQueryExecutor.searchMessages(
+      message.query,
+      message.threadID,
+      message.timestampCursor,
+      message.messageIDCursor,
+    );
+    return {
+      type: workerResponseMessageTypes.SEARCH_MESSAGES,
+      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
+    };
   }
 
   // write operations
