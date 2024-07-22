@@ -2698,4 +2698,59 @@ CommCoreModule::getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) {
       });
 }
 
+jsi::Value CommCoreModule::searchMessages(
+    jsi::Runtime &rt,
+    jsi::String query,
+    jsi::String threadID,
+    std::optional<jsi::String> timestampCursor,
+    std::optional<jsi::String> messageIDCursor) {
+  std::string queryStr = query.utf8(rt);
+  std::string threadIDStr = threadID.utf8(rt);
+
+  std::optional<std::string> timestampCursorCpp;
+  if (timestampCursor) {
+    timestampCursorCpp = timestampCursor->utf8(rt);
+  }
+
+  std::optional<std::string> messageIDCursorCpp;
+  if (messageIDCursor) {
+    messageIDCursorCpp = messageIDCursor->utf8(rt);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::shared_ptr<std::vector<MessageEntity>> messages;
+          try {
+            messages = std::make_shared<std::vector<MessageEntity>>(
+                DatabaseManager::getQueryExecutor().searchMessages(
+                    queryStr,
+                    threadIDStr,
+                    timestampCursorCpp,
+                    messageIDCursorCpp));
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         error,
+                                         promise,
+                                         messages,
+                                         messageStore = this->messageStore]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            jsi::Array jsiMessages =
+                messageStore.parseDBDataStore(innerRt, messages);
+            promise->resolve(std::move(jsiMessages));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+};
+
 } // namespace comm

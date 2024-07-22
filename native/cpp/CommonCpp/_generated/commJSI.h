@@ -85,6 +85,7 @@ public:
   virtual jsi::Value getSyncedDatabaseVersion(jsi::Runtime &rt) = 0;
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
   virtual jsi::Value getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) = 0;
+  virtual jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) = 0;
 
 };
 
@@ -625,6 +626,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getRelatedMessages, jsInvoker_, instance_, std::move(messageID));
+    }
+    jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) override {
+      static_assert(
+          bridging::getParameterCount(&T::searchMessages) == 5,
+          "Expected searchMessages(...) to have 5 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::searchMessages, jsInvoker_, instance_, std::move(query), std::move(threadID), std::move(timestampCursor), std::move(messageIDCursor));
     }
 
   private:
