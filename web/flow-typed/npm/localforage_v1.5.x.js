@@ -36,6 +36,17 @@ type Driver = {
   keys(
     successCallback?: (keyNames: Array<string>) => mixed,
   ): ?Promise<Array<string>>,
+  getMultipleItems<T>(
+    keys: $ReadOnlyArray<$Keys<T>>,
+    synchronizationKey: string
+  ): Promise<$ReadOnly<{...T, synchronizationValue: ?string}>>,
+  setMultipleItems<T>(
+    input: T,
+    synchronizationKey: string, 
+    expectedSynchronizationValue: ?string,
+    newSynchronizationValue: string,
+    forceWrite: boolean
+  ): Promise<void>,
   ...
 };
 
@@ -65,6 +76,17 @@ type localforageInstance = {
   keys(
     successCallback?: (keyNames: Array<string>) => mixed,
   ): Promise<Array<string>>,
+  getMultipleItems<T>(
+    keys: $ReadOnlyArray<$Keys<T>>,
+    synchronizationKey: string
+  ): Promise<$ReadOnly<{...T, synchronizationValue: ?string}>>,
+  setMultipleItems<T>(
+    input: T,
+    synchronizationKey: string, 
+    expectedSynchronizationValue: ?string,
+    newSynchronizationValue: string,
+    forceWrite: boolean
+  ): Promise<void>,
   iterate<T>(
     iteratorCallback: (value: T, key: string, iterationNumber: number) => mixed,
     successCallback?: (result: void | [string, T]) => mixed,
