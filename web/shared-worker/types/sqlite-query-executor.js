@@ -202,6 +202,12 @@ declare export class SQLiteQueryExecutor {
     messageID: string,
     content: string,
   ): void;
+  searchMessages(
+    query: string,
+    threadID: string,
+    timestampCursor: ?string,
+    messageIDCursor: ?string,
+  ): $ReadOnlyArray<MessageEntity>;
 
   // method is provided to manually signal that a C++ object
   // is no longer needed and can be deleted
