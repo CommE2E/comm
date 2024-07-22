@@ -47,6 +47,7 @@ import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { initFCCache } from './utils/fc-cache.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
+import { isPrimaryNode } from './utils/primary-secondary-utils.js';
 import { getRunServerConfig } from './utils/server-utils.js';
 import {
   prefetchAllURLFacts,
@@ -89,9 +90,6 @@ void (async () => {
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
     process.env.KEYSERVER_ENDPOINT_METRICS_ENABLED;
-  const isPrimaryNode = process.env.COMM_NODE_ROLE
-    ? process.env.COMM_NODE_ROLE === 'primary'
-    : true;
 
   if (cluster.isMaster) {
     if (isPrimaryNode) {
