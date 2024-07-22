@@ -235,6 +235,12 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) override;
   virtual jsi::Value
   getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) override;
+  virtual jsi::Value searchMessages(
+      jsi::Runtime &rt,
+      jsi::String query,
+      jsi::String threadID,
+      std::optional<jsi::String> timestampCursor,
+      std::optional<jsi::String> messageIDCursor) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
