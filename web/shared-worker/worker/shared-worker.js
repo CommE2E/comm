@@ -258,7 +258,7 @@ async function processAppRequest(
       message.messageID,
     );
     return {
-      type: workerResponseMessageTypes.GET_RELATED_MESSAGES,
+      type: workerResponseMessageTypes.GET_MESSAGES,
       messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
     };
   } else if (
@@ -269,6 +269,17 @@ async function processAppRequest(
       outboundP2PMessages: sqliteQueryExecutor.getOutboundP2PMessagesByID(
         message.messageIDs,
       ),
+    };
+  } else if (message.type === workerRequestMessageTypes.SEARCH_MESSAGES) {
+    const webMessageEntities = sqliteQueryExecutor.searchMessages(
+      message.query,
+      message.threadID,
+      message.timestampCursor,
+      message.messageIDCursor,
+    );
+    return {
+      type: workerResponseMessageTypes.GET_MESSAGES,
+      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
     };
   }
 
