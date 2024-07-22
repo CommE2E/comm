@@ -969,24 +969,43 @@ impl DatabaseClient {
       .client
       .scan()
       .table_name(USERS_TABLE)
-      .projection_expression(format!(
-        "{USERS_TABLE_USERNAME_ATTRIBUTE}, {USERS_TABLE_PARTITION_KEY}"
-      ))
+      .projection_expression("#userID, #username, #walletAddress")
+      .expression_attribute_names("#userID", USERS_TABLE_PARTITION_KEY)
+      .expression_attribute_names("#username", USERS_TABLE_USERNAME_ATTRIBUTE)
+      .expression_attribute_names(
+        "#walletAddress",
+        USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+      )
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
 
     let mut result = Vec::new();
-    if let Some(attributes) = scan_output.items {
-      for mut attribute in attributes {
-        if let (Ok(username), Ok(user_id)) = (
-          attribute.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE),
-          attribute.take_attr(USERS_TABLE_PARTITION_KEY),
-        ) {
-          result.push(UserDetail { username, user_id });
-        }
+
+    let Some(items) = scan_output.items else {
+      return Ok(result);
+    };
+
+    for mut item in items {
+      let Ok(user_id) = item.take_attr(USERS_TABLE_PARTITION_KEY) else {
+        error!(
+          errorType = error_types::GENERIC_DB_LOG,
+          "Partition key missing for item"
+        );
+        continue;
+      };
+      if let Ok(username) = item.take_attr(USERS_TABLE_USERNAME_ATTRIBUTE) {
+        result.push(UserDetail { username, user_id });
+      } else if let Ok(wallet_address) =
+        item.take_attr(USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE)
+      {
+        result.push(UserDetail {
+          username: wallet_address,
+          user_id,
+        })
       }
     }
+
     Ok(result)
   }
 

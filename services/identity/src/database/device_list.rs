@@ -933,7 +933,7 @@ impl DatabaseClient {
       .and_then(|list| list.device_ids.first())
     else {
       error!(
-        user_id = redact_sensitive_data(&user_id),
+        user_id = redact_sensitive_data(user_id),
         errorType = error_types::DEVICE_LIST_DB_LOG,
         "Device list is empty. Cannot fetch primary device"
       );
