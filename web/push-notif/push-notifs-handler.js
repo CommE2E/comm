@@ -17,6 +17,7 @@ import {
   type RecordAlertActionPayload,
 } from 'lib/types/alert-types.js';
 import { isDesktopPlatform } from 'lib/types/device-types.js';
+import type { SenderDeviceDescriptor } from 'lib/types/notif-types.js';
 import { getConfig } from 'lib/utils/config.js';
 import { convertNonPendingIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { shouldSkipPushPermissionAlert } from 'lib/utils/push-alerts.js';
@@ -84,15 +85,18 @@ function useCreateDesktopPushSubscription() {
     return electron?.onEncryptedNotification?.(
       async ({
         encryptedPayload,
-        keyserverID,
+        senderDeviceDescriptor,
+        type: messageType,
       }: {
         encryptedPayload: string,
-        keyserverID?: string,
+        type: string,
+        senderDeviceDescriptor: SenderDeviceDescriptor,
       }) => {
         const decryptedPayload = await decryptDesktopNotification(
           encryptedPayload,
+          messageType,
           staffCanSee,
-          keyserverID,
+          senderDeviceDescriptor,
         );
         electron?.showDecryptedNotification(decryptedPayload);
       },
