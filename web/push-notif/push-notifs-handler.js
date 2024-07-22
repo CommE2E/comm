@@ -85,14 +85,17 @@ function useCreateDesktopPushSubscription() {
       async ({
         encryptedPayload,
         keyserverID,
+        type: messageType,
       }: {
         encryptedPayload: string,
-        keyserverID?: string,
+        type: string,
+        keyserverID: string,
       }) => {
         const decryptedPayload = await decryptDesktopNotification(
           encryptedPayload,
+          messageType,
           staffCanSee,
-          keyserverID,
+          { keyserverID },
         );
         electron?.showDecryptedNotification(decryptedPayload);
       },
