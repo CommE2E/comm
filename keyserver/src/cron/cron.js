@@ -28,45 +28,10 @@ import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAndUploadAccountPrekeys } from '../utils/olm-utils.js';
+import { isPrimaryNode } from '../utils/primary-secondary-utils.js';
 import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
 if (cluster.isMaster) {
-  schedule.scheduleJob(
-    '30 3 * * *', // every day at 3:30 AM in the keyserver's timezone
-    async () => {
-      try {
-        // Do everything one at a time to reduce load since we're in no hurry,
-        // and since some queries depend on previous ones.
-        await deleteExpiredCookies();
-        await deleteInaccessibleThreads();
-        await deleteOrphanedMemberships();
-        await deleteOrphanedDays();
-        await deleteOrphanedEntries();
-        await deleteOrphanedRevisions();
-        await deleteOrphanedRoles();
-        await deleteOrphanedMessages();
-        await deleteOrphanedActivity();
-        await deleteOrphanedNotifs();
-        await deleteOrphanedSessions();
-        await deleteOldWebSessions();
-        await deleteExpiredUpdates();
-        await deleteUnassignedUploads();
-        await deleteStaleSIWENonceEntries();
-      } catch (e) {
-        console.warn('encountered error while trying to clean database', e);
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '0 */4 * * *', // every four hours
-    async () => {
-      try {
-        await backupDB();
-      } catch (e) {
-        console.warn('encountered error while trying to backup database', e);
-      }
-    },
-  );
   schedule.scheduleJob(
     '0 3 ? * 0', // every Sunday at 3:00 AM in the keyserver's timezone
     async () => {
@@ -80,81 +45,119 @@ if (cluster.isMaster) {
       }
     },
   );
-  schedule.scheduleJob(
-    '0 0 * * *', // every day at midnight in the keyserver's timezone
-    async () => {
-      try {
-        if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
-          // This is a job that the Comm internal team uses
-          await createDailyUpdatesThread();
+  if (isPrimaryNode) {
+    schedule.scheduleJob(
+      '30 3 * * *', // every day at 3:30 AM in the keyserver's timezone
+      async () => {
+        try {
+          // Do everything one at a time to reduce load since we're in no hurry,
+          // and since some queries depend on previous ones.
+          await deleteExpiredCookies();
+          await deleteInaccessibleThreads();
+          await deleteOrphanedMemberships();
+          await deleteOrphanedDays();
+          await deleteOrphanedEntries();
+          await deleteOrphanedRevisions();
+          await deleteOrphanedRoles();
+          await deleteOrphanedMessages();
+          await deleteOrphanedActivity();
+          await deleteOrphanedNotifs();
+          await deleteOrphanedSessions();
+          await deleteOldWebSessions();
+          await deleteExpiredUpdates();
+          await deleteUnassignedUploads();
+          await deleteStaleSIWENonceEntries();
+        } catch (e) {
+          console.warn('encountered error while trying to clean database', e);
         }
-      } catch (e) {
-        console.warn(
-          'encountered error while trying to create daily updates thread',
-          e,
-        );
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '0 0 8 * *', // 8th of every month at midnight in the keyserver's timezone
-    async () => {
-      try {
-        if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
-          // This is a job that the Comm internal team uses
-          await postLeaderboard();
+      },
+    );
+    schedule.scheduleJob(
+      '0 */4 * * *', // every four hours
+      async () => {
+        try {
+          await backupDB();
+        } catch (e) {
+          console.warn('encountered error while trying to backup database', e);
         }
-      } catch (e) {
-        console.warn(
-          'encountered error while trying to post Phabricator leaderboard',
-          e,
-        );
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
-    async () => {
-      try {
-        await updateIdentityReservedUsernames();
-      } catch (e) {
-        console.warn(
-          'encountered error while trying to update reserved usernames on ' +
-            'identity service',
-          e,
-        );
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '0 0 * * *', // every day at midnight in the keyserver's timezone
-    async () => {
-      try {
-        await fetchCallUpdateOlmAccount(
-          'content',
-          (contentAccount: OlmAccount) =>
-            fetchCallUpdateOlmAccount(
-              'notifications',
-              (notifAccount: OlmAccount) =>
-                validateAndUploadAccountPrekeys(contentAccount, notifAccount),
-            ),
-        );
-      } catch (e) {
-        console.warn('encountered error while trying to validate prekeys', e);
-      }
-    },
-  );
-  schedule.scheduleJob(
-    '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
-    async () => {
-      try {
-        await synchronizeInviteLinksWithBlobs();
-      } catch (e) {
-        console.warn(
-          'encountered an error while trying to synchronize invite links with blobs',
-          e,
-        );
-      }
-    },
-  );
+      },
+    );
+    schedule.scheduleJob(
+      '0 0 * * *', // every day at midnight in the keyserver's timezone
+      async () => {
+        try {
+          if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
+            // This is a job that the Comm internal team uses
+            await createDailyUpdatesThread();
+          }
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to create daily updates thread',
+            e,
+          );
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 0 8 * *', // 8th of every month at midnight in the keyserver's timezone
+      async () => {
+        try {
+          if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
+            // This is a job that the Comm internal team uses
+            await postLeaderboard();
+          }
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to post Phabricator leaderboard',
+            e,
+          );
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
+      async () => {
+        try {
+          await updateIdentityReservedUsernames();
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to update reserved usernames on ' +
+              'identity service',
+            e,
+          );
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 0 * * *', // every day at midnight in the keyserver's timezone
+      async () => {
+        try {
+          await fetchCallUpdateOlmAccount(
+            'content',
+            (contentAccount: OlmAccount) =>
+              fetchCallUpdateOlmAccount(
+                'notifications',
+                (notifAccount: OlmAccount) =>
+                  validateAndUploadAccountPrekeys(contentAccount, notifAccount),
+              ),
+          );
+        } catch (e) {
+          console.warn('encountered error while trying to validate prekeys', e);
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 2 * * *', // every day at 2:00 AM in the keyserver's timezone
+      async () => {
+        try {
+          await synchronizeInviteLinksWithBlobs();
+        } catch (e) {
+          console.warn(
+            'encountered an error while trying to synchronize invite links with blobs',
+            e,
+          );
+        }
+      },
+    );
+  }
 }
