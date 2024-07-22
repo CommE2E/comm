@@ -60,6 +60,25 @@ const sqliteAPI: SQLiteAPI = {
     return messages ? [...messages] : [];
   },
 
+  async searchMessages(
+    query: string,
+    threadID: string,
+    timestampCursor: ?string,
+    messageIDCursor: ?string,
+  ): Promise<ClientDBMessageInfo[]> {
+    const sharedWorker = await getCommSharedWorker();
+
+    const data = await sharedWorker.schedule({
+      type: workerRequestMessageTypes.SEARCH_MESSAGES,
+      query,
+      threadID,
+      timestampCursor,
+      messageIDCursor,
+    });
+    const messages: ?$ReadOnlyArray<ClientDBMessageInfo> = data?.messages;
+    return messages ? [...messages] : [];
+  },
+
   // write operations
   async removeInboundP2PMessages(ids: $ReadOnlyArray<string>): Promise<void> {
     const sharedWorker = await getCommSharedWorker();
