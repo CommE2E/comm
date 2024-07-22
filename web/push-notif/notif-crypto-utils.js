@@ -14,11 +14,16 @@ import {
 import type {
   PlainTextWebNotification,
   EncryptedWebNotification,
+  SenderDeviceDescriptor,
 } from 'lib/types/notif-types.js';
 import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import {
+  fetchAuthMetadata,
+  getNotifsInboundKeysForDeviceID,
+} from './services-client.js';
 import {
   type EncryptedData,
   decryptData,
@@ -132,6 +137,93 @@ async function getCryptoKeyPersistentForm(
   return await exportKeyToJWK(cryptoKey);
 }
 
+async function getNotifsAccountWithOlmData(
+  senderDeviceDescriptor: SenderDeviceDescriptor,
+): Promise<{
+  +encryptedOlmData: ?EncryptedData,
+  +encryptionKey: ?CryptoKey,
+  +olmDataKey: string,
+  +encryptionKeyDBLabel: string,
+  +encryptedOlmAccount: ?EncryptedData,
+  +accountEncryptionKey: ?CryptoKey,
+  +synchronizationValue: ?string,
+}> {
+  let olmDataKey;
+  let olmDataEncryptionKeyDBLabel;
+  const { keyserverID, senderDeviceID } = senderDeviceDescriptor;
+
+  if (keyserverID) {
+    const olmDBKeys = await getNotifsOlmSessionDBKeys(keyserverID);
+    const { olmDataKey: fetchedOlmDataKey, encryptionKeyDBKey } = olmDBKeys;
+    olmDataKey = fetchedOlmDataKey;
+    olmDataEncryptionKeyDBLabel = encryptionKeyDBKey;
+  } else if (senderDeviceID) {
+    olmDataKey = getOlmDataKeyForDeviceID(senderDeviceID);
+    olmDataEncryptionKeyDBLabel =
+      getOlmEncryptionKeyDBLabelForDeviceID(senderDeviceID);
+  } else {
+    // we will never reach this branch
+    throw new Error(
+      'keyserverID or SenderDeviceID must be present to decrypt a notif',
+    );
+  }
+
+  const queryResult = await localforage.getMultipleItems<{
+    notificationAccount: ?EncryptedData,
+    notificationAccountEncryptionKey: ?CryptoKey,
+    synchronizationValue: ?number,
+    [string]: ?CryptoKey | ?EncryptedData,
+  }>(
+    [
+      INDEXED_DB_NOTIFS_ACCOUNT_KEY,
+      INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL,
+      olmDataEncryptionKeyDBLabel,
+      olmDataKey,
+    ],
+    INDEXED_DB_NOTIFS_SYNC_KEY,
+  );
+
+  const {
+    notificationAccount,
+    notificationAccountEncryptionKey,
+    synchronizationValue,
+  } = queryResult;
+
+  if (!notificationAccount || !notificationAccountEncryptionKey) {
+    throw new Error(
+      'Attempt to decrypt notification but olm account not initialized.',
+    );
+  }
+
+  const olmData = queryResult[olmDataKey];
+  const olmDataEncryptionKey = queryResult[olmDataEncryptionKeyDBLabel];
+
+  // type refinement
+  if (
+    (olmData && !olmData.ciphertext) ||
+    (olmDataEncryptionKey && !olmDataEncryptionKey.algorithm)
+  ) {
+    throw new Error(
+      'IndexedDB returned invalid data types for olm data and olm data encryption key',
+    );
+  }
+
+  const [encryptionKey, accountEncryptionKey] = await Promise.all([
+    validateCryptoKey(olmDataEncryptionKey),
+    validateCryptoKey(notificationAccountEncryptionKey),
+  ]);
+
+  return {
+    encryptedOlmData: olmData,
+    encryptionKey,
+    encryptionKeyDBLabel: olmDataEncryptionKeyDBLabel,
+    encryptedOlmAccount: notificationAccount,
+    olmDataKey,
+    accountEncryptionKey,
+    synchronizationValue,
+  };
+}
+
 async function persistNotifsAccountWithOlmData(input: {
   olmDataKey?: string,
   olmEncryptionKeyDBLabel?: string,
@@ -231,8 +323,14 @@ async function persistNotifsAccountWithOlmData(input: {
 async function decryptWebNotification(
   encryptedNotification: EncryptedWebNotification,
 ): Promise<PlainTextWebNotification | WebNotifDecryptionError> {
-  const { id, keyserverID, encryptedPayload } = encryptedNotification;
-  invariant(keyserverID, 'KeyserverID must be present to decrypt a notif');
+  const {
+    id,
+    encryptedPayload,
+    type: messageType,
+    ...rest
+  } = encryptedNotification;
+  const senderDeviceDescriptor: SenderDeviceDescriptor = rest;
+
   const utilsData = await localforage.getItem<WebNotifsServiceUtilsData>(
     WEB_NOTIFS_SERVICE_UTILS_KEY,
   );
@@ -242,9 +340,31 @@ async function decryptWebNotification(
   }
   const { olmWasmPath, staffCanSee } = (utilsData: WebNotifsServiceUtilsData);
 
-  let olmDBKeys;
+  let encryptionKey;
+  let olmEncryptionKeyDBLabel;
+  let encryptedOlmData;
+  let olmDataKey;
+  let accountEncryptionKey;
+  let encryptedOlmAccount;
+  let synchronizationValue;
+
   try {
-    olmDBKeys = await getNotifsOlmSessionDBKeys(keyserverID);
+    const {
+      encryptionKey: fetchedEncryptionKey,
+      encryptedOlmData: fetchedEncryptedOlmData,
+      olmDataKey: fetchedOlmDataKey,
+      encryptionKeyDBLabel: fetchedOlmEncryptionKeyDBLabel,
+      accountEncryptionKey: fetchedAccountEncryptionKey,
+      encryptedOlmAccount: fetchedEncryptedOlmAccount,
+      synchronizationValue: fetchedSynchronizationValue,
+    } = await getNotifsAccountWithOlmData(senderDeviceDescriptor);
+    encryptionKey = fetchedEncryptionKey;
+    encryptedOlmData = fetchedEncryptedOlmData;
+    olmDataKey = fetchedOlmDataKey;
+    accountEncryptionKey = fetchedAccountEncryptionKey;
+    encryptedOlmAccount = fetchedEncryptedOlmAccount;
+    synchronizationValue = fetchedSynchronizationValue;
+    olmEncryptionKeyDBLabel = fetchedOlmEncryptionKeyDBLabel;
   } catch (e) {
     return {
       id,
@@ -252,38 +372,100 @@ async function decryptWebNotification(
       displayErrorMessage: staffCanSee,
     };
   }
-  const { olmDataKey, encryptionKeyDBKey } = olmDBKeys;
-  const [encryptedOlmData, encryptionKey] = await Promise.all([
-    localforage.getItem<EncryptedData>(olmDataKey),
-    retrieveEncryptionKey(encryptionKeyDBKey),
-  ]);
-
-  if (!encryptionKey || !encryptedOlmData) {
-    return {
-      id,
-      error: 'Received encrypted notification but olm session was not created',
-      displayErrorMessage: staffCanSee,
-    };
-  }
 
   try {
-    await olm.init({ locateFile: () => olmWasmPath });
+    const [notificationsOlmData, accountWithPicklingKey] = await Promise.all([
+      deserializeEncryptedData<NotificationsOlmDataType>(
+        encryptedOlmData,
+        encryptionKey,
+      ),
+      deserializeEncryptedData<PickledOLMAccount>(
+        encryptedOlmAccount,
+        accountEncryptionKey,
+      ),
+      olm.init({ locateFile: () => olmWasmPath }),
+    ]);
 
-    const decryptedNotification = await commonDecrypt<PlainTextWebNotification>(
-      encryptedOlmData,
-      olmDataKey,
-      encryptionKey,
-      encryptedPayload,
-    );
+    let decryptedNotification;
+    let updatedOlmData;
+    let updatedNotifsAccount;
 
-    const { unreadCount } = decryptedNotification;
+    const { senderDeviceID, keyserverID } = senderDeviceDescriptor;
 
-    invariant(keyserverID, 'Keyserver ID must be set to update badge counts');
-    await updateNotifsUnreadCountStorage({
-      [keyserverID]: unreadCount,
-    });
+    if (keyserverID) {
+      invariant(
+        notificationsOlmData && encryptionKey,
+        'Received encrypted notification but keyserver olm session was not created',
+      );
 
-    return { id, ...decryptedNotification };
+      const {
+        decryptedNotification: resultDecryptedNotification,
+        updatedOlmData: resultUpdatedOlmData,
+      } = await commonDecrypt<PlainTextWebNotification>(
+        notificationsOlmData,
+        encryptedPayload,
+      );
+
+      decryptedNotification = resultDecryptedNotification;
+      updatedOlmData = resultUpdatedOlmData;
+      const { unreadCount } = decryptedNotification;
+
+      invariant(keyserverID, 'Keyserver ID must be set to update badge counts');
+      await Promise.all([
+        persistNotifsAccountWithOlmData({
+          olmDataKey,
+          olmData: updatedOlmData,
+          olmEncryptionKeyDBLabel,
+          encryptionKey,
+          forceWrite: false,
+          synchronizationValue,
+        }),
+        updateNotifsUnreadCountStorage({
+          [keyserverID]: unreadCount,
+        }),
+      ]);
+
+      return { id, ...decryptedNotification };
+    } else if (senderDeviceID) {
+      invariant(
+        accountWithPicklingKey,
+        'Received encrypted notification but notifs olm account not created',
+      );
+
+      const {
+        decryptedNotification: resultDecryptedNotification,
+        updatedOlmData: resultUpdatedOlmData,
+        updatedNotifsAccount: resultUpdatedNotifsAccount,
+      } = await commonPeerDecrypt<PlainTextWebNotification>(
+        senderDeviceID,
+        notificationsOlmData,
+        accountWithPicklingKey,
+        messageType,
+        encryptedPayload,
+      );
+
+      decryptedNotification = resultDecryptedNotification;
+      updatedOlmData = resultUpdatedOlmData;
+      updatedNotifsAccount = resultUpdatedNotifsAccount;
+
+      await persistNotifsAccountWithOlmData({
+        accountWithPicklingKey: updatedNotifsAccount,
+        accountEncryptionKey,
+        encryptionKey,
+        olmData: updatedOlmData,
+        olmDataKey,
+        olmEncryptionKeyDBLabel,
+        synchronizationValue,
+        forceWrite: false,
+      });
+
+      return { id, ...decryptedNotification };
+    } else {
+      // we will never reach this branch
+      throw new Error(
+        'keyserverID or SenderDeviceID must be present to decrypt a notif',
+      );
+    }
   } catch (e) {
     return {
       id,
@@ -295,21 +477,43 @@ async function decryptWebNotification(
 
 async function decryptDesktopNotification(
   encryptedPayload: string,
+  messageType: string,
   staffCanSee: boolean,
-  keyserverID?: string,
+  senderDeviceDescriptor: SenderDeviceDescriptor,
 ): Promise<{ +[string]: mixed }> {
-  let encryptedOlmData, encryptionKey, olmDataKey;
+  const { keyserverID, senderDeviceID } = senderDeviceDescriptor;
+
+  let encryptionKey;
+  let olmEncryptionKeyDBLabel;
+  let encryptedOlmData;
+  let olmDataKey;
+  let accountEncryptionKey;
+  let encryptedOlmAccount;
+  let synchronizationValue;
+
   try {
-    const { olmDataKey: olmDataKeyValue, encryptionKeyDBKey } =
-      await getNotifsOlmSessionDBKeys(keyserverID);
-
-    olmDataKey = olmDataKeyValue;
-
-    [encryptedOlmData, encryptionKey] = await Promise.all([
-      localforage.getItem<EncryptedData>(olmDataKey),
-      retrieveEncryptionKey(encryptionKeyDBKey),
+    const [
+      {
+        encryptionKey: fetchedEncryptionKey,
+        encryptedOlmData: fetchedEncryptedOlmData,
+        olmDataKey: fetchedOlmDataKey,
+        encryptionKeyDBLabel: fetchedOlmEncryptionKeyDBLabel,
+        accountEncryptionKey: fetchedAccountEncryptionKey,
+        encryptedOlmAccount: fetchedEncryptedOlmAccount,
+        synchronizationValue: fetchedSynchronizationValue,
+      },
+    ] = await Promise.all([
+      getNotifsAccountWithOlmData(senderDeviceDescriptor),
       initOlm(),
     ]);
+
+    encryptionKey = fetchedEncryptionKey;
+    encryptedOlmData = fetchedEncryptedOlmData;
+    olmDataKey = fetchedOlmDataKey;
+    accountEncryptionKey = fetchedAccountEncryptionKey;
+    encryptedOlmAccount = fetchedEncryptedOlmAccount;
+    synchronizationValue = fetchedSynchronizationValue;
+    olmEncryptionKeyDBLabel = fetchedOlmEncryptionKeyDBLabel;
   } catch (e) {
     return {
       error: e.message,
@@ -317,65 +521,116 @@ async function decryptDesktopNotification(
     };
   }
 
-  if (!encryptionKey || !encryptedOlmData) {
-    return {
-      error: 'Received encrypted notification but olm session was not created',
-      displayErrorMessage: staffCanSee,
-    };
-  }
-
-  let decryptedNotification;
   try {
-    decryptedNotification = await commonDecrypt<{ +[string]: mixed }>(
-      encryptedOlmData,
-      olmDataKey,
-      encryptionKey,
-      encryptedPayload,
-    );
+    const [notificationsOlmData, accountWithPicklingKey] = await Promise.all([
+      deserializeEncryptedData<NotificationsOlmDataType>(
+        encryptedOlmData,
+        encryptionKey,
+      ),
+      deserializeEncryptedData<PickledOLMAccount>(
+        encryptedOlmAccount,
+        accountEncryptionKey,
+      ),
+    ]);
+
+    if (keyserverID) {
+      invariant(
+        notificationsOlmData && encryptionKey,
+        'Received encrypted notification but keyserver olm session was not created',
+      );
+
+      const { decryptedNotification, updatedOlmData } = await commonDecrypt<{
+        +[string]: mixed,
+      }>(notificationsOlmData, encryptedPayload);
+
+      const updatedOlmDataPersistencePromise = persistNotifsAccountWithOlmData({
+        olmDataKey,
+        olmData: updatedOlmData,
+        olmEncryptionKeyDBLabel,
+        encryptionKey,
+        forceWrite: false,
+        synchronizationValue,
+      });
+
+      // iOS notifications require that unread count is set under
+      // `badge` key. Since MacOS notifications are created by the
+      // same function the unread count is also set under `badge` key
+      const { badge } = decryptedNotification;
+      if (typeof badge === 'number') {
+        await Promise.all([
+          updateNotifsUnreadCountStorage({ [(keyserverID: string)]: badge }),
+          updatedOlmDataPersistencePromise,
+        ]);
+        return decryptedNotification;
+      }
+
+      const { unreadCount } = decryptedNotification;
+      if (typeof unreadCount === 'number') {
+        await Promise.all([
+          updateNotifsUnreadCountStorage({
+            [(keyserverID: string)]: unreadCount,
+          }),
+          updatedOlmDataPersistencePromise,
+        ]);
+      }
+
+      return decryptedNotification;
+    } else if (senderDeviceID) {
+      invariant(
+        accountWithPicklingKey,
+        'Received encrypted notification but notifs olm account not created',
+      );
+
+      const { decryptedNotification, updatedOlmData, updatedNotifsAccount } =
+        await commonPeerDecrypt<{
+          +[string]: mixed,
+        }>(
+          senderDeviceID,
+          notificationsOlmData,
+          accountWithPicklingKey,
+          messageType,
+          encryptedPayload,
+        );
+
+      await persistNotifsAccountWithOlmData({
+        accountWithPicklingKey: updatedNotifsAccount,
+        accountEncryptionKey,
+        encryptionKey,
+        olmData: updatedOlmData,
+        olmDataKey,
+        olmEncryptionKeyDBLabel,
+        synchronizationValue,
+        forceWrite: false,
+      });
+
+      return decryptedNotification;
+    } else {
+      // we will never reach this branch
+      throw new Error(
+        'keyserverID or SenderDeviceID must be present to decrypt a notif',
+      );
+    }
   } catch (e) {
     return {
       error: e.message,
       staffCanSee,
     };
   }
-
-  if (!keyserverID) {
-    return decryptedNotification;
-  }
-
-  // iOS notifications require that unread count is set under
-  // `badge` key. Since MacOS notifications are created by the
-  // same function the unread count is also set under `badge` key
-  const { badge } = decryptedNotification;
-  if (typeof badge === 'number') {
-    await updateNotifsUnreadCountStorage({ [(keyserverID: string)]: badge });
-    return decryptedNotification;
-  }
-
-  const { unreadCount } = decryptedNotification;
-  if (typeof unreadCount === 'number') {
-    await updateNotifsUnreadCountStorage({
-      [(keyserverID: string)]: unreadCount,
-    });
-  }
-  return decryptedNotification;
 }
 
 async function commonDecrypt<T>(
-  encryptedOlmData: EncryptedData,
-  olmDataKey: string,
-  encryptionKey: CryptoKey,
+  notificationsOlmData: NotificationsOlmDataType,
   encryptedPayload: string,
-): Promise<T> {
-  const serializedOlmData = await decryptData(encryptedOlmData, encryptionKey);
+): Promise<{
+  +decryptedNotification: T,
+  +updatedOlmData: NotificationsOlmDataType,
+}> {
   const {
     mainSession,
     picklingKey,
     pendingSessionUpdate,
     updateCreationTimestamp,
-  }: NotificationsOlmDataType = JSON.parse(
-    new TextDecoder().decode(serializedOlmData),
-  );
+  } = notificationsOlmData;
 
   let updatedOlmData: NotificationsOlmDataType;
   let decryptedNotification: T;
@@ -418,14 +673,134 @@ async function commonDecrypt<T>(
     };
   }
 
-  const updatedEncryptedSession = await encryptData(
-    new TextEncoder().encode(JSON.stringify(updatedOlmData)),
-    encryptionKey,
+  return { decryptedNotification, updatedOlmData };
+}
+
+async function commonPeerDecrypt<T>(
+  senderDeviceID: string,
+  notificationsOlmData: ?NotificationsOlmDataType,
+  notificationAccount: PickledOLMAccount,
+  messageType: string,
+  encryptedPayload: string,
+): Promise<{
+  +decryptedNotification: T,
+  +updatedOlmData?: NotificationsOlmDataType,
+  +updatedNotifsAccount?: PickledOLMAccount,
+}> {
+  if (
+    messageType !== olmEncryptedMessageTypes.PREKEY.toString() &&
+    messageType !== olmEncryptedMessageTypes.TEXT.toString()
+  ) {
+    throw new Error(
+      `Received message of invalid type from device: ${senderDeviceID}`,
+    );
+  }
+
+  let isSenderChainEmpty = true;
+  let hasReceivedMessage = false;
+  const sessionExists = !!notificationsOlmData;
+
+  if (notificationsOlmData) {
+    const session = new olm.Session();
+    session.unpickle(
+      notificationsOlmData.picklingKey,
+      notificationsOlmData.pendingSessionUpdate,
+    );
+
+    isSenderChainEmpty = session.is_sender_chain_empty();
+    hasReceivedMessage = session.has_received_message();
+  }
+
+  // regular message
+  const isRegularMessage =
+    !!notificationsOlmData &&
+    messageType === olmEncryptedMessageTypes.TEXT.toString();
+
+  const isRegularPrekeyMessage =
+    !!notificationsOlmData &&
+    messageType === olmEncryptedMessageTypes.PREKEY.toString() &&
+    isSenderChainEmpty &&
+    hasReceivedMessage;
+
+  if (!!notificationsOlmData && (isRegularMessage || isRegularPrekeyMessage)) {
+    return await commonDecrypt<T>(notificationsOlmData, encryptedPayload);
+  }
+
+  // At this point we either face race condition or session reset attempt or
+  // session initialization attempt. For each of this scenario new inbound
+  // session must be created in order to decrypt message
+  const authMetadata = await fetchAuthMetadata();
+  const notifInboundKeys = await getNotifsInboundKeysForDeviceID(
+    senderDeviceID,
+    authMetadata,
   );
 
-  await localforage.setItem(olmDataKey, updatedEncryptedSession);
+  const account = new olm.Account();
+  const session = new olm.Session();
 
-  return decryptedNotification;
+  account.unpickle(
+    notificationAccount.picklingKey,
+    notificationAccount.pickledAccount,
+  );
+
+  if (notifInboundKeys.error) {
+    throw new Error(notifInboundKeys.error);
+  }
+
+  invariant(
+    notifInboundKeys.curve25519,
+    'curve25519 must be present in notifs inbound keys',
+  );
+
+  session.create_inbound_from(
+    account,
+    notifInboundKeys.curve25519,
+    encryptedPayload,
+  );
+
+  const decryptedNotification: T = JSON.parse(
+    session.decrypt(Number(messageType), encryptedPayload),
+  );
+
+  // session reset attempt or session initialization - handled the same
+  const sessionResetAttempt =
+    sessionExists && !isSenderChainEmpty && hasReceivedMessage;
+
+  // race condition
+  const raceCondition =
+    sessionExists && !isSenderChainEmpty && !hasReceivedMessage;
+  const { deviceID: ourDeviceID } = authMetadata;
+  invariant(ourDeviceID, 'Session creation attempt but no device id');
+
+  const thisDeviceWinsRaceCondition = ourDeviceID > senderDeviceID;
+
+  if (
+    !sessionExists ||
+    sessionResetAttempt ||
+    (raceCondition && !thisDeviceWinsRaceCondition)
+  ) {
+    const pickledOlmSession = session.pickle(notificationAccount.picklingKey);
+    const updatedOlmData = {
+      mainSession: pickledOlmSession,
+      pendingSessionUpdate: pickledOlmSession,
+      updateCreationTimestamp: Date.now(),
+      picklingKey: notificationAccount.picklingKey,
+    };
+    const updatedNotifsAccount = {
+      pickledAccount: account.pickle(notificationAccount.picklingKey),
+      picklingKey: notificationAccount.picklingKey,
+    };
+    return {
+      decryptedNotification,
+      updatedOlmData,
+      updatedNotifsAccount,
+    };
+  }
+
+  // If there is a race condition but we win device id comparison
+  // we return object that carries decrypted data but won't persist
+  // any session state
+  return { decryptedNotification };
 }
 
 function decryptWithSession<T>(
