@@ -179,6 +179,7 @@ async function processDBStoreOperations(
     threadActivityStoreOperations,
     outboundP2PMessages,
     entryStoreOperations,
+    messageSearchStoreOperations,
   } = storeOperations;
 
   const canUseDatabase = canUseDatabaseOnWeb(userID);
@@ -250,6 +251,7 @@ async function processDBStoreOperations(
         threadActivityStoreOperations: convertedThreadActivityStoreOperations,
         outboundP2PMessages,
         entryStoreOperations: convertedEntryStoreOperations,
+        messageSearchStoreOperations,
       },
     });
   } catch (e) {
