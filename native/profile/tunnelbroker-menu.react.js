@@ -42,7 +42,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
   );
   const identityContext = React.useContext(IdentityClientContext);
 
-  const { socketState, addListener, sendMessage, removeListener } =
+  const { socketState, addListener, sendMessageToDevice, removeListener } =
     useTunnelbroker();
   const [messages, setMessages] = useState<TunnelbrokerToDeviceMessage[]>([]);
   const [recipient, setRecipient] = useState('');
@@ -67,11 +67,11 @@ function TunnelbrokerMenu(props: Props): React.Node {
 
   const onSubmit = React.useCallback(async () => {
     try {
-      await sendMessage({ deviceID: recipient, payload: message });
+      await sendMessageToDevice({ deviceID: recipient, payload: message });
     } catch (e) {
       console.log(e.message);
     }
-  }, [message, recipient, sendMessage]);
+  }, [message, recipient, sendMessageToDevice]);
 
   const onCreateSessions = React.useCallback(async () => {
     if (!identityContext) {
@@ -82,12 +82,12 @@ function TunnelbrokerMenu(props: Props): React.Node {
       await createOlmSessionsWithOwnDevices(
         authMetadata,
         identityContext.identityClient,
-        sendMessage,
+        sendMessageToDevice,
       );
     } catch (e) {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
-  }, [identityContext, sendMessage]);
+  }, [identityContext, sendMessageToDevice]);
 
   const onSendEncryptedMessage = React.useCallback(async () => {
     try {
@@ -105,14 +105,14 @@ function TunnelbrokerMenu(props: Props): React.Node {
         },
         encryptedData,
       };
-      await sendMessage({
+      await sendMessageToDevice({
         deviceID: recipient,
         payload: JSON.stringify(encryptedMessage),
       });
     } catch (e) {
       console.log(`Error sending encrypted content to device: ${e.message}`);
     }
-  }, [message, currentUserID, recipient, sendMessage]);
+  }, [message, currentUserID, recipient, sendMessageToDevice]);
 
   return (
     <ScrollView
