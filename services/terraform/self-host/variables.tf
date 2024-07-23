@@ -14,13 +14,13 @@ variable "webapp_domain_name" {
 }
 
 variable "region" {
-  description = "The AWS region to deploy your keyserver in"
+  description = "Keyserver's AWS deployment region"
   type        = string
   default     = "us-west-1"
 }
 
 variable "allowed_ips" {
-  description = "List of allowed ipv4 addresses"
+  description = "List of IPv4 addresses always allowed access to keyserver load balancer and MariaDB"
   type        = list(string)
 }
 
@@ -29,19 +29,19 @@ variable "user_created_vpc" {
 }
 
 variable "availability_zone_1" {
-  description = "First availability zone for vpc subnet if user created vpc"
+  description = "First availability zone for vpc subnet if user-created vpc"
   type        = string
   default     = "us-west-1b"
 }
 
 variable "availability_zone_2" {
-  description = "Second availability zone for vpc subnet if user created vpc"
+  description = "Second availability zone for vpc subnet if user-created vpc"
   type        = string
   default     = "us-west-1c"
 }
 
 variable "db_instance_class" {
-  description = "The instance class for the MariaDB RDS instance"
+  description = "The instance class for MariaDB RDS"
   type        = string
   default     = "db.t4g.medium"
 }
