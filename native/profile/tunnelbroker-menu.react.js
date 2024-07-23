@@ -8,8 +8,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
-  tunnelbrokerMessageTypes,
-  type TunnelbrokerMessage,
+  tunnelbrokerToDeviceMessageTypes,
+  type TunnelbrokerToDeviceMessage,
 } from 'lib/types/tunnelbroker/messages.js';
 import {
   type EncryptedMessage,
@@ -44,7 +44,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
 
   const { socketState, addListener, sendMessage, removeListener } =
     useTunnelbroker();
-  const [messages, setMessages] = useState<TunnelbrokerMessage[]>([]);
+  const [messages, setMessages] = useState<TunnelbrokerToDeviceMessage[]>([]);
   const [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('');
   const [deviceID, setDeviceID] = React.useState<?string>();
@@ -56,7 +56,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
     })();
   }, []);
 
-  const listener = React.useCallback((msg: TunnelbrokerMessage) => {
+  const listener = React.useCallback((msg: TunnelbrokerToDeviceMessage) => {
     setMessages(prev => [...prev, msg]);
   }, []);
 
@@ -195,7 +195,7 @@ function TunnelbrokerMenu(props: Props): React.Node {
 
       <Text style={styles.header}>MESSAGES</Text>
       {messages
-        .filter(msg => msg.type !== tunnelbrokerMessageTypes.HEARTBEAT)
+        .filter(msg => msg.type !== tunnelbrokerToDeviceMessageTypes.HEARTBEAT)
         .map((msg, id) => (
           <View key={id} style={styles.section}>
             <Text style={styles.submenuText}>{JSON.stringify(msg)}</Text>

@@ -35,33 +35,41 @@ use serde::{Deserialize, Serialize};
 // If you edit the definitions in one file,
 // please make sure to update the corresponding definitions in the other.
 
+// Messages sent from Device to Tunnelbroker.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
-pub enum Messages {
+pub enum DeviceToTunnelbrokerMessage {
   ConnectionInitializationMessage(ConnectionInitializationMessage),
-  ConnectionInitializationResponse(ConnectionInitializationResponse),
   AnonymousInitializationMessage(AnonymousInitializationMessage),
-  // MessageToDeviceRequestStatus must be placed before MessageToDeviceRequest.
-  // This is due to serde's pattern matching behavior where it prioritizes
-  // the first matching pattern it encounters.
   APNsNotif(APNsNotif),
   FCMNotif(FCMNotif),
-  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
   MessageToDeviceRequest(MessageToDeviceRequest),
-  MessageToDevice(MessageToDevice),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
   MessageToTunnelbrokerRequest(MessageToTunnelbrokerRequest),
   Heartbeat(Heartbeat),
-  IdentityDeviceListUpdated(IdentityDeviceListUpdated),
 }
 
+// Messages sent from Tunnelbroker to Device.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
-pub enum PeerToPeerMessages {
+pub enum TunnelbrokerToDeviceMessage {
+  ConnectionInitializationResponse(ConnectionInitializationResponse),
+  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
+  MessageToDevice(MessageToDevice),
+  Heartbeat(Heartbeat),
+}
+
+// Messages sent from Services (e.g. Identity) to Device.
+// This type is sent to a Device as a payload of MessageToDevice.
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum ServiceToDeviceMessages {
   RefreshKeysRequest(RefreshKeyRequest),
   IdentityDeviceListUpdated(IdentityDeviceListUpdated),
 }
 
+// Messages sent from Device to Tunnelbroker which Tunnelbroker itself should handle.
+// This type is sent to a Tunnelbroker as a payload of MessageToTunnelbrokerRequest.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum MessageToTunnelbroker {

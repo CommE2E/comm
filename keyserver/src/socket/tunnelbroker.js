@@ -16,9 +16,10 @@ import type { MessageReceiveConfirmation } from 'lib/types/tunnelbroker/message-
 import type { MessageSentStatus } from 'lib/types/tunnelbroker/message-to-device-request-status-types.js';
 import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
 import {
-  type TunnelbrokerMessage,
-  tunnelbrokerMessageTypes,
-  tunnelbrokerMessageValidator,
+  deviceToTunnelbrokerMessageTypes,
+  tunnelbrokerToDeviceMessageTypes,
+  tunnelbrokerToDeviceMessageValidator,
+  type TunnelbrokerToDeviceMessage,
 } from 'lib/types/tunnelbroker/messages.js';
 import {
   qrCodeAuthMessageValidator,
@@ -214,17 +215,20 @@ class TunnelbrokerSocket {
       return;
     }
 
-    if (!tunnelbrokerMessageValidator.is(rawMessage)) {
-      console.error('invalid TunnelbrokerMessage: ', rawMessage.toString());
+    if (!tunnelbrokerToDeviceMessageValidator.is(rawMessage)) {
+      console.error(
+        'invalid tunnelbrokerToDeviceMessage: ',
+        rawMessage.toString(),
+      );
       return;
     }
-    const message: TunnelbrokerMessage = rawMessage;
+    const message: TunnelbrokerToDeviceMessage = rawMessage;
 
     this.resetHeartbeatTimeout();
 
     if (
       message.type ===
-      tunnelbrokerMessageTypes.CONNECTION_INITIALIZATION_RESPONSE
+      tunnelbrokerToDeviceMessageTypes.CONNECTION_INITIALIZATION_RESPONSE
     ) {
       if (message.status.type === 'Success' && !this.connected) {
         this.connected = true;
@@ -264,9 +268,11 @@ class TunnelbrokerSocket {
           message.status.data,
         );
       }
-    } else if (message.type === tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE) {
+    } else if (
+      message.type === tunnelbrokerToDeviceMessageTypes.MESSAGE_TO_DEVICE
+    ) {
       const confirmation: MessageReceiveConfirmation = {
-        type: tunnelbrokerMessageTypes.MESSAGE_RECEIVE_CONFIRMATION,
+        type: deviceToTunnelbrokerMessageTypes.MESSAGE_RECEIVE_CONFIRMATION,
         messageIDs: [message.messageID],
       };
       this.ws.send(JSON.stringify(confirmation));
@@ -330,7 +336,8 @@ class TunnelbrokerSocket {
         );
       }
     } else if (
-      message.type === tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE_REQUEST_STATUS
+      message.type ===
+      tunnelbrokerToDeviceMessageTypes.MESSAGE_TO_DEVICE_REQUEST_STATUS
     ) {
       for (const status: MessageSentStatus of message.clientMessageIDs) {
         if (status.type === 'Success') {
@@ -355,9 +362,9 @@ class TunnelbrokerSocket {
           console.log('Tunnelbroker recorded InvalidRequest');
         }
       }
-    } else if (message.type === tunnelbrokerMessageTypes.HEARTBEAT) {
+    } else if (message.type === tunnelbrokerToDeviceMessageTypes.HEARTBEAT) {
       const heartbeat: Heartbeat = {
-        type: tunnelbrokerMessageTypes.HEARTBEAT,
+        type: deviceToTunnelbrokerMessageTypes.HEARTBEAT,
       };
       this.ws.send(JSON.stringify(heartbeat));
     }
@@ -385,7 +392,7 @@ class TunnelbrokerSocket {
     }
     const clientMessageID = uuid.v4();
     const messageToDevice: MessageToDeviceRequest = {
-      type: tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE_REQUEST,
+      type: deviceToTunnelbrokerMessageTypes.MESSAGE_TO_DEVICE_REQUEST,
       clientMessageID,
       deviceID: message.deviceID,
       payload: message.payload,
