@@ -10,7 +10,7 @@ pub struct Failure {
 }
 
 // NOTE: Keep this in sync with
-// lib/types/tunnelbroker/message-to-device-request-status-types.js
+// lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 #[serde(tag = "type", content = "data")]
 pub enum MessageSentStatus {
@@ -32,10 +32,14 @@ pub enum MessageSentStatus {
 }
 
 // NOTE: Keep this in sync with
-// lib/types/tunnelbroker/message-to-device-request-status-types.js
+// lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-#[serde(tag = "type", rename_all = "camelCase")]
-pub struct MessageToDeviceRequestStatus {
+#[serde(
+  tag = "type",
+  rename = "MessageToDeviceRequestStatus",
+  rename_all = "camelCase"
+)]
+pub struct DeviceToTunnelbrokerRequestStatus {
   #[serde(rename = "clientMessageIDs")]
   pub client_message_ids: Vec<MessageSentStatus>,
 }
@@ -57,9 +61,10 @@ mod send_confirmation_tests {
           ]
         }"#;
 
-    let request =
-      serde_json::from_str::<MessageToDeviceRequestStatus>(example_payload)
-        .unwrap();
+    let request = serde_json::from_str::<DeviceToTunnelbrokerRequestStatus>(
+      example_payload,
+    )
+    .unwrap();
 
     let expected_client_message_ids = vec![
       MessageSentStatus::Success("id123".to_string()),
@@ -82,9 +87,10 @@ mod send_confirmation_tests {
           "clientMessageIDs": []
         }"#;
 
-    let request =
-      serde_json::from_str::<MessageToDeviceRequestStatus>(example_payload)
-        .unwrap();
+    let request = serde_json::from_str::<DeviceToTunnelbrokerRequestStatus>(
+      example_payload,
+    )
+    .unwrap();
     let expected_client_message_ids: Vec<MessageSentStatus> = Vec::new();
 
     assert_eq!(request.client_message_ids, expected_client_message_ids);

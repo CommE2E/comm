@@ -54,7 +54,7 @@ pub enum DeviceToTunnelbrokerMessage {
 #[serde(untagged)]
 pub enum TunnelbrokerToDeviceMessage {
   ConnectionInitializationResponse(ConnectionInitializationResponse),
-  MessageToDeviceRequestStatus(MessageToDeviceRequestStatus),
+  DeviceToTunnelbrokerRequestStatus(DeviceToTunnelbrokerRequestStatus),
   MessageToDevice(MessageToDevice),
   Heartbeat(Heartbeat),
 }
