@@ -159,7 +159,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
           ...backupKeys,
         },
       );
-      await tunnelbrokerContext.sendMessage({
+      await tunnelbrokerContext.sendMessageToDevice({
         deviceID: targetDeviceID,
         payload: JSON.stringify(backupKeyMessage),
       });
@@ -225,7 +225,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         userID,
         primaryDeviceID,
       });
-      await tunnelbrokerContext.sendMessage({
+      await tunnelbrokerContext.sendMessageToDevice({
         deviceID: targetDeviceID,
         payload: JSON.stringify(message),
       });
