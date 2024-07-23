@@ -13,7 +13,6 @@ import {
 import {
   FUTURE_CODE_VERSION,
   hasMinCodeVersion,
-  NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types.js';
@@ -310,7 +309,7 @@ function rawThreadInfosFromServerThreadInfos(
     },
   );
   const stripMemberPermissions = hasMinCodeVersion(viewer.platformDetails, {
-    native: NEXT_CODE_VERSION,
+    native: 379,
     web: FUTURE_CODE_VERSION,
   });
 
