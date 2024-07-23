@@ -152,12 +152,12 @@ interface Spec extends TurboModule {
   +retrieveLatestSIWEBackupData: () => Promise<string>;
   +setSIWEBackupSecrets: (siweBackupSecrets: Object) => Promise<void>;
   +getSIWEBackupSecrets: () => Promise<?Object>;
-  +getAllInboundP2PMessages: () => Promise<InboundP2PMessage[]>;
+  +getAllInboundP2PMessages: () => Promise<Array<InboundP2PMessage>>;
   +removeInboundP2PMessages: (ids: $ReadOnlyArray<string>) => Promise<void>;
   +getOutboundP2PMessagesByID: (
     ids: $ReadOnlyArray<string>,
   ) => Promise<Array<OutboundP2PMessage>>;
-  +getAllOutboundP2PMessages: () => Promise<OutboundP2PMessage[]>;
+  +getAllOutboundP2PMessages: () => Promise<Array<OutboundP2PMessage>>;
   +markOutboundP2PMessageAsSent: (
     messageID: string,
     deviceID: string,
@@ -168,13 +168,15 @@ interface Spec extends TurboModule {
   ) => Promise<void>;
   +getSyncedDatabaseVersion: () => Promise<string>;
   +markPrekeysAsPublished: () => Promise<void>;
-  +getRelatedMessages: (messageID: string) => Promise<ClientDBMessageInfo[]>;
+  +getRelatedMessages: (
+    messageID: string,
+  ) => Promise<Array<ClientDBMessageInfo>>;
   +searchMessages: (
     query: string,
     threadID: string,
     timestampCursor: ?string,
     messageIDCursor: ?string,
-  ) => Promise<ClientDBMessageInfo[]>;
+  ) => Promise<Array<ClientDBMessageInfo>>;
 }
 
 export interface CoreModuleSpec extends Spec {
