@@ -18,12 +18,14 @@ import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
-  +sendMessage: (message: TunnelbrokerClientMessageToDevice) => Promise<void>,
+  +sendMessageToDevice: (
+    message: TunnelbrokerClientMessageToDevice,
+  ) => Promise<void>,
   +onClose: () => void,
 };
 
 function TunnelbrokerTestScreen(props: Props): React.Node {
-  const { sendMessage, onClose } = props;
+  const { sendMessageToDevice, onClose } = props;
   const [recipient, setRecipient] = React.useState('');
   const [message, setMessage] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -41,13 +43,13 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
 
       setLoading(true);
       try {
-        await sendMessage({ deviceID: recipient, payload: message });
+        await sendMessageToDevice({ deviceID: recipient, payload: message });
       } catch (e) {
         setErrorMessage(e.message);
       }
       setLoading(false);
     },
-    [message, recipient, sendMessage],
+    [message, recipient, sendMessageToDevice],
   );
 
   const onSubmitEncrypted = React.useCallback(
@@ -71,7 +73,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
           },
           encryptedData,
         };
-        await sendMessage({
+        await sendMessageToDevice({
           deviceID: recipient,
           payload: JSON.stringify(encryptedMessage),
         });
@@ -80,7 +82,7 @@ function TunnelbrokerTestScreen(props: Props): React.Node {
       }
       setLoading(false);
     },
-    [message, currentUserID, recipient, sendMessage],
+    [message, currentUserID, recipient, sendMessageToDevice],
   );
 
   let errorMsg;
