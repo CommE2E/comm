@@ -20,8 +20,8 @@ import {
   type BackupKeys,
 } from 'lib/types/backup-types.js';
 import {
-  tunnelbrokerMessageTypes,
-  type TunnelbrokerMessage,
+  tunnelbrokerToDeviceMessageTypes,
+  type TunnelbrokerToDeviceMessage,
 } from 'lib/types/tunnelbroker/messages.js';
 import {
   peerToPeerMessageTypes,
@@ -53,6 +53,7 @@ type Props = {
   +navigation: ProfileNavigationProp<'SecondaryDeviceQRCodeScanner'>,
   +route: NavigationRoute<'SecondaryDeviceQRCodeScanner'>,
 };
+
 // eslint-disable-next-line no-unused-vars
 function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const [hasPermission, setHasPermission] = React.useState<?boolean>(null);
@@ -77,13 +78,13 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const { panelForegroundTertiaryLabel } = useColors();
 
   const tunnelbrokerMessageListener = React.useCallback(
-    async (message: TunnelbrokerMessage) => {
+    async (message: TunnelbrokerToDeviceMessage) => {
       const encryptionKey = aes256Key.current;
       const targetDeviceID = secondaryDeviceID.current;
       if (!encryptionKey || !targetDeviceID) {
         return;
       }
-      if (message.type !== tunnelbrokerMessageTypes.MESSAGE_TO_DEVICE) {
+      if (message.type !== tunnelbrokerToDeviceMessageTypes.MESSAGE_TO_DEVICE) {
         return;
       }
 

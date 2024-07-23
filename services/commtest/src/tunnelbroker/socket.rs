@@ -8,7 +8,8 @@ use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, ConnectionInitializationResponse,
   ConnectionInitializationStatus, DeviceTypes, Heartbeat, MessageSentStatus,
-  MessageToDeviceRequest, MessageToDeviceRequestStatus, Messages,
+  MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  TunnelbrokerToDeviceMessage,
 };
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
@@ -93,9 +94,10 @@ pub async fn receive_message(
   while let Some(Ok(response)) = socket.next().await {
     let message_str =
       response.to_text().expect("Failed to get response content");
-    let message = serde_json::from_str::<Messages>(message_str).unwrap();
+    let message =
+      serde_json::from_str::<TunnelbrokerToDeviceMessage>(message_str).unwrap();
     match message {
-      Messages::MessageToDevice(msg) => {
+      TunnelbrokerToDeviceMessage::MessageToDevice(msg) => {
         let confirmation = tunnelbroker_messages::MessageReceiveConfirmation {
           message_ids: vec![msg.message_id],
         };
@@ -104,7 +106,7 @@ pub async fn receive_message(
         socket.send(Message::Text(serialized_confirmation)).await?;
         return Ok(msg.payload);
       }
-      Messages::Heartbeat(Heartbeat {}) => {
+      TunnelbrokerToDeviceMessage::Heartbeat(Heartbeat {}) => {
         let msg = Heartbeat {};
         let serialized = serde_json::to_string(&msg).unwrap();
         socket.send(Message::Text(serialized)).await?;
