@@ -7,8 +7,8 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use tunnelbroker_messages::{
   ConnectionInitializationMessage, ConnectionInitializationResponse,
-  ConnectionInitializationStatus, DeviceTypes, Heartbeat, MessageSentStatus,
-  MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  ConnectionInitializationStatus, DeviceToTunnelbrokerRequestStatus,
+  DeviceTypes, Heartbeat, MessageSentStatus, MessageToDeviceRequest,
   TunnelbrokerToDeviceMessage,
 };
 
@@ -76,7 +76,7 @@ pub async fn send_message(
   socket.send(Message::Text(serialized_request)).await?;
 
   if let Some(Ok(response)) = socket.next().await {
-    let confirmation: MessageToDeviceRequestStatus =
+    let confirmation: DeviceToTunnelbrokerRequestStatus =
       serde_json::from_str(response.to_text().unwrap())?;
     if confirmation
       .client_message_ids

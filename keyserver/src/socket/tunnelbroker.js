@@ -12,8 +12,8 @@ import {
   tunnelbrokerHeartbeatTimeout,
 } from 'lib/shared/timeouts.js';
 import type { TunnelbrokerClientMessageToDevice } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { MessageSentStatus } from 'lib/types/tunnelbroker/device-to-tunnelbroker-request-status-types.js';
 import type { MessageReceiveConfirmation } from 'lib/types/tunnelbroker/message-receive-confirmation-types.js';
-import type { MessageSentStatus } from 'lib/types/tunnelbroker/message-to-device-request-status-types.js';
 import type { MessageToDeviceRequest } from 'lib/types/tunnelbroker/message-to-device-request-types.js';
 import {
   deviceToTunnelbrokerMessageTypes,
