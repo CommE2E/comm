@@ -3,7 +3,7 @@ use commtest::tunnelbroker::socket::{create_socket, receive_message};
 use futures_util::{SinkExt, StreamExt};
 use tokio_tungstenite::tungstenite::Message;
 use tunnelbroker_messages::{
-  MessageSentStatus, MessageToDeviceRequest, MessageToDeviceRequestStatus,
+  DeviceToTunnelbrokerRequestStatus, MessageSentStatus, MessageToDeviceRequest,
 };
 
 /// Tests of responses sent from Tunnelberoker to client
@@ -34,7 +34,7 @@ async fn get_confirmation() {
     .expect("Failed to send message");
 
   if let Some(Ok(response)) = sender_socket.next().await {
-    let expected_response = MessageToDeviceRequestStatus {
+    let expected_response = DeviceToTunnelbrokerRequestStatus {
       client_message_ids: vec![MessageSentStatus::Success(client_message_id)],
     };
     let expected_payload = serde_json::to_string(&expected_response).unwrap();
@@ -60,7 +60,7 @@ async fn get_serialization_error() {
     .expect("Failed to send message");
 
   if let Some(Ok(response)) = sender_socket.next().await {
-    let expected_response = MessageToDeviceRequestStatus {
+    let expected_response = DeviceToTunnelbrokerRequestStatus {
       client_message_ids: vec![MessageSentStatus::SerializationError(message)],
     };
     let expected_payload = serde_json::to_string(&expected_response).unwrap();
@@ -80,7 +80,7 @@ async fn get_invalid_request_error() {
     .expect("Failed to send message");
 
   if let Some(Ok(response)) = sender_socket.next().await {
-    let expected_response = MessageToDeviceRequestStatus {
+    let expected_response = DeviceToTunnelbrokerRequestStatus {
       client_message_ids: vec![MessageSentStatus::InvalidRequest],
     };
     let expected_payload = serde_json::to_string(&expected_response).unwrap();

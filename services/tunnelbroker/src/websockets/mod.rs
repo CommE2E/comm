@@ -20,8 +20,8 @@ use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::net::TcpListener;
 use tracing::{debug, error, info, trace};
 use tunnelbroker_messages::{
-  ConnectionInitializationStatus, Heartbeat, MessageSentStatus,
-  MessageToDeviceRequestStatus,
+  ConnectionInitializationStatus, DeviceToTunnelbrokerRequestStatus, Heartbeat,
+  MessageSentStatus,
 };
 
 type BoxedError = Box<dyn std::error::Error + Send + Sync + 'static>;
@@ -265,7 +265,7 @@ async fn accept_connection(
             let Some(message_status) = session.handle_websocket_frame_from_device(msg).await else {
               continue;
             };
-            let request_status = MessageToDeviceRequestStatus {
+            let request_status = DeviceToTunnelbrokerRequestStatus {
               client_message_ids: vec![message_status]
             };
             if let Ok(response) = serde_json::to_string(&request_status) {
@@ -276,7 +276,7 @@ async fn accept_connection(
           }
           _ => {
             error!("Client sent invalid message type");
-            let confirmation = MessageToDeviceRequestStatus {client_message_ids:  vec![MessageSentStatus::InvalidRequest]};
+            let confirmation = DeviceToTunnelbrokerRequestStatus {client_message_ids:  vec![MessageSentStatus::InvalidRequest]};
              if let Ok(response) = serde_json::to_string(&confirmation) {
                 session.send_message_to_device(Message::text(response)).await;
             } else {
