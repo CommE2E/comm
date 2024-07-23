@@ -44,7 +44,7 @@ resource "aws_db_instance" "mariadb" {
   identifier             = "mariadb-instance"
   engine                 = "mariadb"
   engine_version         = "10.11"
-  instance_class         = "db.m6g.large"
+  instance_class         = var.db_instance_class
   db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
   vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
   username               = local.mariadb_username
