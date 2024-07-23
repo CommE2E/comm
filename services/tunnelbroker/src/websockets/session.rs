@@ -22,8 +22,8 @@ use tracing::{debug, error, info, trace};
 use tunnelbroker_messages::{
   message_to_device_request_status::Failure,
   message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
-  Heartbeat, MessageToDevice, MessageToDeviceRequest, MessageToTunnelbroker,
-  Messages,
+  DeviceToTunnelbrokerMessage, Heartbeat, MessageToDevice,
+  MessageToDeviceRequest, MessageToTunnelbroker,
 };
 
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
@@ -75,10 +75,13 @@ pub enum SessionError {
 pub async fn handle_first_message_from_device(
   message: &str,
 ) -> Result<DeviceInfo, SessionError> {
-  let serialized_message = serde_json::from_str::<Messages>(message)?;
+  let serialized_message =
+    serde_json::from_str::<DeviceToTunnelbrokerMessage>(message)?;
 
   match serialized_message {
-    Messages::ConnectionInitializationMessage(mut session_info) => {
+    DeviceToTunnelbrokerMessage::ConnectionInitializationMessage(
+      mut session_info,
+    ) => {
       let device_info = DeviceInfo {
         device_id: session_info.device_id.clone(),
         notify_token: session_info.notify_token.take(),
@@ -116,7 +119,9 @@ pub async fn handle_first_message_from_device(
 
       Ok(device_info)
     }
-    Messages::AnonymousInitializationMessage(session_info) => {
+    DeviceToTunnelbrokerMessage::AnonymousInitializationMessage(
+      session_info,
+    ) => {
       debug!(
         "Starting unauthenticated session with device: {}",
         &session_info.device_id
@@ -286,16 +291,18 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
     &mut self,
     msg: String,
   ) -> Option<MessageSentStatus> {
-    let Ok(serialized_message) = serde_json::from_str::<Messages>(&msg) else {
+    let Ok(serialized_message) =
+      serde_json::from_str::<DeviceToTunnelbrokerMessage>(&msg)
+    else {
       return Some(MessageSentStatus::SerializationError(msg));
     };
 
     match serialized_message {
-      Messages::Heartbeat(Heartbeat {}) => {
+      DeviceToTunnelbrokerMessage::Heartbeat(Heartbeat {}) => {
         trace!("Received heartbeat from: {}", self.device_info.device_id);
         None
       }
-      Messages::MessageReceiveConfirmation(confirmation) => {
+      DeviceToTunnelbrokerMessage::MessageReceiveConfirmation(confirmation) => {
         for message_id in confirmation.message_ids {
           if let Err(e) = self
             .db_client
@@ -308,7 +315,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
         None
       }
-      Messages::MessageToDeviceRequest(message_request) => {
+      DeviceToTunnelbrokerMessage::MessageToDeviceRequest(message_request) => {
         // unauthenticated clients cannot send messages
         if !self.device_info.is_authenticated {
           debug!(
@@ -325,7 +332,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           result,
         ))
       }
-      Messages::MessageToTunnelbrokerRequest(message_request) => {
+      DeviceToTunnelbrokerMessage::MessageToTunnelbrokerRequest(
+        message_request,
+      ) => {
         // unauthenticated clients cannot send messages
         if !self.device_info.is_authenticated {
           debug!(
@@ -352,7 +361,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           result,
         ))
       }
-      Messages::APNsNotif(notif) => {
+      DeviceToTunnelbrokerMessage::APNsNotif(notif) => {
         // unauthenticated clients cannot send notifs
         if !self.device_info.is_authenticated {
           debug!(
@@ -398,7 +407,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           Err(SessionError::MissingAPNsClient),
         ))
       }
-      Messages::FCMNotif(notif) => {
+      DeviceToTunnelbrokerMessage::FCMNotif(notif) => {
         // unauthenticated clients cannot send notifs
         if !self.device_info.is_authenticated {
           debug!(

@@ -4,8 +4,8 @@ import * as React from 'react';
 
 import type { TunnelbrokerSocketListener } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
-  tunnelbrokerMessageTypes,
-  type TunnelbrokerMessage,
+  type TunnelbrokerToDeviceMessage,
+  tunnelbrokerToDeviceMessageTypes,
 } from 'lib/types/tunnelbroker/messages.js';
 
 import css from './tunnelbroker-message-list.css';
@@ -19,9 +19,11 @@ type Props = {
 
 function TunnelbrokerMessagesScreen(props: Props): React.Node {
   const { addListener, onClose, removeListener } = props;
-  const [messages, setMessages] = React.useState<TunnelbrokerMessage[]>([]);
+  const [messages, setMessages] = React.useState<TunnelbrokerToDeviceMessage[]>(
+    [],
+  );
 
-  const listener = React.useCallback((msg: TunnelbrokerMessage) => {
+  const listener = React.useCallback((msg: TunnelbrokerToDeviceMessage) => {
     setMessages(prev => [...prev, msg]);
   }, []);
 
@@ -37,7 +39,9 @@ function TunnelbrokerMessagesScreen(props: Props): React.Node {
   );
   if (messages.length) {
     messageList = messages
-      .filter(message => message.type !== tunnelbrokerMessageTypes.HEARTBEAT)
+      .filter(
+        message => message.type !== tunnelbrokerToDeviceMessageTypes.HEARTBEAT,
+      )
       .map((message, id) => (
         <div key={id} className={css.messageRow}>
           <div className={css.messageCol}>{JSON.stringify(message)}</div>
