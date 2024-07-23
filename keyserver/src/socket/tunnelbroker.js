@@ -253,7 +253,7 @@ class TunnelbrokerSocket {
           this.closeConnection();
           return;
         }
-        await this.sendMessage({
+        await this.sendMessageToDevice({
           deviceID: primaryDeviceID,
           payload: JSON.stringify(payload),
         });
@@ -384,9 +384,9 @@ class TunnelbrokerSocket {
     { leading: true, trailing: true },
   );
 
-  sendMessage: (message: TunnelbrokerClientMessageToDevice) => Promise<void> = (
+  sendMessageToDevice: (
     message: TunnelbrokerClientMessageToDevice,
-  ) => {
+  ) => Promise<void> = (message: TunnelbrokerClientMessageToDevice) => {
     if (!this.connected) {
       throw new Error('Tunnelbroker not connected');
     }

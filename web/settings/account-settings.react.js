@@ -85,14 +85,17 @@ function AccountSettings(): React.Node {
   const stringForUser = useStringForUser(currentUserInfo);
 
   const staffCanSee = useStaffCanSee();
-  const { sendMessage, socketState, addListener, removeListener } =
+  const { sendMessageToDevice, socketState, addListener, removeListener } =
     useTunnelbroker();
   const openTunnelbrokerModal = React.useCallback(
     () =>
       pushModal(
-        <TunnelbrokerTestScreen sendMessage={sendMessage} onClose={popModal} />,
+        <TunnelbrokerTestScreen
+          sendMessage={sendMessageToDevice}
+          onClose={popModal}
+        />,
       ),
-    [popModal, pushModal, sendMessage],
+    [popModal, pushModal, sendMessageToDevice],
   );
 
   const openTunnelbrokerMessagesModal = React.useCallback(
@@ -116,12 +119,12 @@ function AccountSettings(): React.Node {
       await createOlmSessionsWithOwnDevices(
         authMetadata,
         identityContext.identityClient,
-        sendMessage,
+        sendMessageToDevice,
       );
     } catch (e) {
       console.log(`Error creating olm sessions with own devices: ${e.message}`);
     }
-  }, [identityContext, sendMessage]);
+  }, [identityContext, sendMessageToDevice]);
 
   const openBackupTestRestoreModal = React.useCallback(
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
