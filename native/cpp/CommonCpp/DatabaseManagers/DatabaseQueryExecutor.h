@@ -55,10 +55,10 @@ public:
   virtual void removeAllMessageStoreThreads() const = 0;
   virtual std::vector<MessageStoreThread> getAllMessageStoreThreads() const = 0;
   virtual void
-  removeMediaForMessages(const std::vector<std::string> &msg_ids) const = 0;
-  virtual void removeMediaForMessage(std::string msg_id) const = 0;
+  removeMediaForMessages(const std::vector<std::string> &msgIDs) const = 0;
+  virtual void removeMediaForMessage(std::string msgID) const = 0;
   virtual void
-  removeMediaForThreads(const std::vector<std::string> &thread_ids) const = 0;
+  removeMediaForThreads(const std::vector<std::string> &threadIDs) const = 0;
   virtual void replaceMedia(const Media &media) const = 0;
   virtual void rekeyMediaContainers(std::string from, std::string to) const = 0;
   virtual std::vector<Thread> getAllThreads() const = 0;
@@ -73,49 +73,49 @@ public:
   setPersistStorageItem(std::string key, std::string item) const = 0;
   virtual void removePersistStorageItem(std::string key) const = 0;
   virtual std::string getPersistStorageItem(std::string key) const = 0;
-  virtual void replaceUser(const UserInfo &user_info) const = 0;
+  virtual void replaceUser(const UserInfo &userInfo) const = 0;
   virtual void removeUsers(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllUsers() const = 0;
   virtual std::vector<UserInfo> getAllUsers() const = 0;
-  virtual void replaceKeyserver(const KeyserverInfo &keyserver_info) const = 0;
+  virtual void replaceKeyserver(const KeyserverInfo &keyserverInfo) const = 0;
   virtual void removeKeyservers(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllKeyservers() const = 0;
   virtual std::vector<KeyserverInfo> getAllKeyservers() const = 0;
-  virtual void replaceCommunity(const CommunityInfo &community_info) const = 0;
+  virtual void replaceCommunity(const CommunityInfo &communityInfo) const = 0;
   virtual void removeCommunities(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllCommunities() const = 0;
   virtual std::vector<CommunityInfo> getAllCommunities() const = 0;
   virtual void replaceIntegrityThreadHashes(
-      const std::vector<IntegrityThreadHash> &thread_hashes) const = 0;
+      const std::vector<IntegrityThreadHash> &threadHashes) const = 0;
   virtual void
   removeIntegrityThreadHashes(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllIntegrityThreadHashes() const = 0;
   virtual std::vector<IntegrityThreadHash>
   getAllIntegrityThreadHashes() const = 0;
   virtual void replaceSyncedMetadataEntry(
-      const SyncedMetadataEntry &synced_metadata_entry) const = 0;
+      const SyncedMetadataEntry &syncedMetadataEntry) const = 0;
   virtual void
   removeSyncedMetadata(const std::vector<std::string> &names) const = 0;
   virtual void removeAllSyncedMetadata() const = 0;
   virtual std::vector<SyncedMetadataEntry> getAllSyncedMetadata() const = 0;
-  virtual void replaceAuxUserInfo(const AuxUserInfo &aux_user_info) const = 0;
+  virtual void replaceAuxUserInfo(const AuxUserInfo &userInfo) const = 0;
   virtual void
   removeAuxUserInfos(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllAuxUserInfos() const = 0;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const = 0;
   virtual void replaceThreadActivityEntry(
-      const ThreadActivityEntry &thread_activity_entry) const = 0;
+      const ThreadActivityEntry &threadActivityEntry) const = 0;
   virtual void
   removeThreadActivityEntries(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllThreadActivityEntries() const = 0;
   virtual std::vector<ThreadActivityEntry>
   getAllThreadActivityEntries() const = 0;
-  virtual void replaceEntry(const EntryInfo &entry_info) const = 0;
+  virtual void replaceEntry(const EntryInfo &entryInfo) const = 0;
   virtual void removeEntries(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllEntries() const = 0;
   virtual std::vector<EntryInfo> getAllEntries() const = 0;
   virtual void replaceMessageStoreLocalMessageInfo(
-      const LocalMessageInfo &local_message_info) const = 0;
+      const LocalMessageInfo &localMessageInfo) const = 0;
   virtual void removeMessageStoreLocalMessageInfos(
       const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessageStoreLocalMessageInfos() const = 0;
@@ -140,9 +140,9 @@ public:
   virtual void clearNotifyToken() const = 0;
   virtual void stampSQLiteDBUserID(std::string userID) const = 0;
   virtual std::string getSQLiteStampedUserID() const = 0;
-  virtual void setMetadata(std::string entry_name, std::string data) const = 0;
-  virtual void clearMetadata(std::string entry_name) const = 0;
-  virtual std::string getMetadata(std::string entry_name) const = 0;
+  virtual void setMetadata(std::string entryName, std::string data) const = 0;
+  virtual void clearMetadata(std::string entryName) const = 0;
+  virtual std::string getMetadata(std::string entryName) const = 0;
   virtual void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
@@ -173,9 +173,9 @@ public:
   virtual std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const = 0;
   virtual void updateMessageSearchIndex(
-      std::string original_message_id,
-      std::string message_id,
-      std::string processed_content) const = 0;
+      std::string originalMessageID,
+      std::string messageID,
+      std::string processedContent) const = 0;
   virtual std::vector<MessageEntity> searchMessages(
       std::string query,
       std::string threadID,
