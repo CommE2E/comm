@@ -51,3 +51,9 @@ variable "desired_secondary_nodes" {
   type        = number
   default     = 1
 }
+
+variable "custom_keyserver_image" {
+  description = "Specify custom keyserver image. Should be reserved for development purposes"
+  type        = string
+  default     = null
+}
