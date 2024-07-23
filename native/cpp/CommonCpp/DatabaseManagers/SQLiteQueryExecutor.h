@@ -75,11 +75,11 @@ public:
   void removeAllMessageStoreThreads() const override;
   std::vector<MessageStoreThread> getAllMessageStoreThreads() const override;
   void removeAllMedia() const override;
-  void removeMediaForMessages(
-      const std::vector<std::string> &msg_ids) const override;
-  void removeMediaForMessage(std::string msg_id) const override;
+  void
+  removeMediaForMessages(const std::vector<std::string> &msgIDs) const override;
+  void removeMediaForMessage(std::string msgID) const override;
   void removeMediaForThreads(
-      const std::vector<std::string> &thread_ids) const override;
+      const std::vector<std::string> &threadIDs) const override;
   void replaceMedia(const Media &media) const override;
   void rekeyMediaContainers(std::string from, std::string to) const override;
   std::vector<Thread> getAllThreads() const override;
@@ -93,46 +93,46 @@ public:
   void setPersistStorageItem(std::string key, std::string item) const override;
   void removePersistStorageItem(std::string key) const override;
   std::string getPersistStorageItem(std::string key) const override;
-  void replaceUser(const UserInfo &user_info) const override;
+  void replaceUser(const UserInfo &userInfo) const override;
   void removeUsers(const std::vector<std::string> &ids) const override;
   void removeAllUsers() const override;
   std::vector<UserInfo> getAllUsers() const override;
-  void replaceKeyserver(const KeyserverInfo &keyserver_info) const override;
+  void replaceKeyserver(const KeyserverInfo &keyserverInfo) const override;
   void removeKeyservers(const std::vector<std::string> &ids) const override;
   void removeAllKeyservers() const override;
   std::vector<KeyserverInfo> getAllKeyservers() const override;
-  void replaceCommunity(const CommunityInfo &community_info) const override;
+  void replaceCommunity(const CommunityInfo &communityInfo) const override;
   void removeCommunities(const std::vector<std::string> &ids) const override;
   void removeAllCommunities() const override;
   std::vector<CommunityInfo> getAllCommunities() const override;
   void replaceIntegrityThreadHashes(
-      const std::vector<IntegrityThreadHash> &thread_hashes) const override;
+      const std::vector<IntegrityThreadHash> &threadHashes) const override;
   void removeIntegrityThreadHashes(
       const std::vector<std::string> &ids) const override;
   void removeAllIntegrityThreadHashes() const override;
   std::vector<IntegrityThreadHash> getAllIntegrityThreadHashes() const override;
   void replaceSyncedMetadataEntry(
-      const SyncedMetadataEntry &synced_metadata_entry) const override;
+      const SyncedMetadataEntry &syncedMetadataEntry) const override;
   void
   removeSyncedMetadata(const std::vector<std::string> &names) const override;
   void removeAllSyncedMetadata() const override;
   std::vector<SyncedMetadataEntry> getAllSyncedMetadata() const override;
-  void replaceAuxUserInfo(const AuxUserInfo &aux_user_info) const override;
+  void replaceAuxUserInfo(const AuxUserInfo &userInfo) const override;
   void removeAuxUserInfos(const std::vector<std::string> &ids) const override;
   void removeAllAuxUserInfos() const override;
   virtual std::vector<AuxUserInfo> getAllAuxUserInfos() const override;
   void replaceThreadActivityEntry(
-      const ThreadActivityEntry &thread_activity_entry) const override;
+      const ThreadActivityEntry &threadActivityEntry) const override;
   void removeThreadActivityEntries(
       const std::vector<std::string> &ids) const override;
   void removeAllThreadActivityEntries() const override;
   std::vector<ThreadActivityEntry> getAllThreadActivityEntries() const override;
-  void replaceEntry(const EntryInfo &entry_info) const override;
+  void replaceEntry(const EntryInfo &entryInfo) const override;
   void removeEntries(const std::vector<std::string> &ids) const override;
   void removeAllEntries() const override;
   std::vector<EntryInfo> getAllEntries() const override;
   void replaceMessageStoreLocalMessageInfo(
-      const LocalMessageInfo &local_message_info) const override;
+      const LocalMessageInfo &localMessageInfo) const override;
   void removeMessageStoreLocalMessageInfos(
       const std::vector<std::string> &ids) const override;
   void removeAllMessageStoreLocalMessageInfos() const override;
@@ -155,9 +155,9 @@ public:
   void clearNotifyToken() const override;
   void stampSQLiteDBUserID(std::string userID) const override;
   std::string getSQLiteStampedUserID() const override;
-  void setMetadata(std::string entry_name, std::string data) const override;
-  void clearMetadata(std::string entry_name) const override;
-  std::string getMetadata(std::string entry_name) const override;
+  void setMetadata(std::string entryName, std::string data) const override;
+  void clearMetadata(std::string entryName) const override;
+  std::string getMetadata(std::string entryName) const override;
   void restoreFromMainCompaction(
       std::string mainCompactionPath,
       std::string mainCompactionEncryptionKey,
@@ -186,9 +186,9 @@ public:
   std::vector<MessageEntity>
   getRelatedMessages(const std::string &messageID) const override;
   void updateMessageSearchIndex(
-      std::string original_message_id,
-      std::string message_id,
-      std::string processed_content) const override;
+      std::string originalMessageID,
+      std::string messageID,
+      std::string processedContent) const override;
   std::vector<MessageEntity> searchMessages(
       std::string query,
       std::string threadID,
