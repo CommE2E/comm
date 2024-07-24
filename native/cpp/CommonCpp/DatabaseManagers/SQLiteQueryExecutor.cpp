@@ -211,6 +211,46 @@ bool create_messages_idx_target_message_type_time(sqlite3 *db) {
   return false;
 }
 
+bool update_messages_idx_target_message_type_time(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "DROP INDEX IF EXISTS messages_idx_target_message_type_time;"
+      "ALTER TABLE messages DROP COLUMN target_message;"
+      "ALTER TABLE messages "
+      "  ADD COLUMN target_message TEXT "
+      "  AS (IIF("
+      "    JSON_VALID(content),"
+      "    COALESCE("
+      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      IIF("
+      "        type = 17,"
+      "        JSON_EXTRACT(content, '$.id'),"
+      "        NULL"
+      "      )"
+      "    ),"
+      "    NULL"
+      "  ));"
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time "
+      "  ON messages (target_message, type, time);",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream
+      << "Error creating (target_message, type, time) index on messages table: "
+      << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_media_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS media ( "
@@ -766,7 +806,14 @@ bool create_schema(sqlite3 *db) {
       "  target_message TEXT AS ("
       "    IIF("
       "      JSON_VALID(content),"
-      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      COALESCE("
+      "        JSON_EXTRACT(content, '$.targetMessageID'),"
+      "        IIF("
+      "          type = 17,"
+      "          JSON_EXTRACT(content, '$.id'),"
+      "          NULL"
+      "        )"
+      "      ),"
       "      NULL"
       "    )"
       "  )"
@@ -1170,7 +1217,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {47, {create_message_store_local_table, true}},
      {48, {create_messages_idx_target_message_type_time, true}},
      {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}},
-     {50, {create_message_search_table, true}}}};
+     {50, {create_message_search_table, true}},
+     {51, {update_messages_idx_target_message_type_time, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
