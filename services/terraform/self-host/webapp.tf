@@ -139,7 +139,7 @@ resource "aws_lb_target_group" "webapp_service" {
 resource "aws_lb" "webapp_service" {
   load_balancer_type = "application"
   name               = "webapp-service-lb"
-  security_groups    = [aws_security_group.lb_sg.id]
+  security_groups    = [aws_security_group.webapp_lb_sg.id]
 
   internal = false
   subnets  = local.vpc_subnets
@@ -160,6 +160,26 @@ resource "aws_lb_listener" "webapp_service" {
   lifecycle {
     ignore_changes       = [default_action[0].forward[0].stickiness[0].duration]
     replace_triggered_by = [aws_lb_target_group.webapp_service]
+  }
+}
+
+resource "aws_security_group" "webapp_lb_sg" {
+  name        = "web-lb-sg"
+  description = "Security group for webapp load balancer"
+  vpc_id      = local.vpc_id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
