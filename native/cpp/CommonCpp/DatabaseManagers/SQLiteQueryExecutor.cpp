@@ -2594,6 +2594,50 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
     bindStringToSQL(messageIDCursor.value(), preparedSQL, 7);
   }
 
+  std::vector<MessageEntity> messages =
+      this->processMessagesResults(preparedSQL);
+  std::vector<std::string> messageIDs;
+  for (const auto &message : messages) {
+    messageIDs.push_back(message.first.id);
+  }
+  std::vector<MessageEntity> relatedMessages =
+      this->getRelatedMessagesForSearch(messageIDs);
+
+  for (auto &entity : relatedMessages) {
+    messages.push_back(std::move(entity));
+  }
+  return messages;
+}
+
+std::vector<MessageEntity> SQLiteQueryExecutor::getRelatedMessagesForSearch(
+    const std::vector<std::string> &messageIDs) const {
+  std::stringstream selectRelatedMessagesSQLStream;
+  selectRelatedMessagesSQLStream << "SELECT * "
+                                    "FROM messages "
+                                    "LEFT JOIN media "
+                                    "  ON messages.id = media.container "
+                                    "WHERE messages.target_message IN "
+                                 << getSQLStatementArray(messageIDs.size())
+                                 << "ORDER BY messages.time DESC";
+
+  std::string selectRelatedMessagesSQL = selectRelatedMessagesSQLStream.str();
+
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(),
+      selectRelatedMessagesSQL,
+      "Failed to fetch related messages.");
+
+  for (int i = 0; i < messageIDs.size(); i++) {
+    int bindResult = bindStringToSQL(messageIDs[i], preparedSQL, i + 1);
+    if (bindResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to bind key to SQL statement. Details: "
+                    << sqlite3_errstr(bindResult) << std::endl;
+      sqlite3_finalize(preparedSQL);
+      throw std::runtime_error(error_message.str());
+    }
+  }
+
   return this->processMessagesResults(preparedSQL);
 }
 
