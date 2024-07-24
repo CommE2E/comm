@@ -48,6 +48,10 @@ int bindIntToSQL(int data, sqlite3_stmt *sql, int idx) {
   return sqlite3_bind_int(sql, idx, data);
 }
 
+long long int bindLongLongToSQL(long long data, sqlite3_stmt *sql, int idx) {
+  return sqlite3_bind_int64(sql, idx, data);
+}
+
 int bindIntPtrToSQL(
     const std::unique_ptr<int> &data,
     sqlite3_stmt *sql,

@@ -2588,9 +2588,9 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
   bindStringToSQL(threadID.c_str(), preparedSQL, 4);
 
   if (usingCursor) {
-    int timestamp = std::stoll(timestampCursor.value());
-    bindIntToSQL(timestamp, preparedSQL, 5);
-    bindIntToSQL(timestamp, preparedSQL, 6);
+    long long int timestamp = std::stoll(timestampCursor.value());
+    bindLongLongToSQL(timestamp, preparedSQL, 5);
+    bindLongLongToSQL(timestamp, preparedSQL, 6);
     bindStringToSQL(messageIDCursor.value(), preparedSQL, 7);
   }
 
