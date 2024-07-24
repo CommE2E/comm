@@ -26,6 +26,7 @@ variable "allowed_ips" {
 
 variable "user_created_vpc" {
   description = "Use non-default vpc and subnets"
+  default     = false
 }
 
 variable "availability_zone_1" {
