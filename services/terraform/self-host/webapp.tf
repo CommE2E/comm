@@ -88,8 +88,8 @@ resource "aws_ecs_service" "webapp_service" {
   enable_ecs_managed_tags            = true
   force_new_deployment               = true
   desired_count                      = 2
-  deployment_maximum_percent         = 100
-  deployment_minimum_healthy_percent = 0
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
 
 
   network_configuration {
