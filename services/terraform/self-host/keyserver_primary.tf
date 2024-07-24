@@ -1,5 +1,5 @@
 locals {
-  keyserver_service_image_tag      = "1.0.101"
+  keyserver_service_image_tag      = "1.0.102"
   keyserver_service_server_image   = "commapp/keyserver:${local.keyserver_service_image_tag}"
   keyserver_primary_container_name = "keyserver-primary"
 
