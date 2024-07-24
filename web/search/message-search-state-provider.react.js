@@ -42,6 +42,9 @@ function MessageSearchStateProvider(props: Props): React.Node {
   const lastIDs = React.useRef<{
     [threadID: string]: string,
   }>({});
+  const lastTimestamps = React.useRef<{
+    [threadID: string]: number,
+  }>({});
 
   const setEndReached = React.useCallback((threadID: string) => {
     endsReached.current.add(threadID);
@@ -59,9 +62,10 @@ function MessageSearchStateProvider(props: Props): React.Node {
 
   const appendResult = React.useCallback(
     (result: $ReadOnlyArray<RawMessageInfo>, threadID: string) => {
-      const lastMessageID = oldestMessageID(result);
-      if (lastMessageID) {
-        lastIDs.current[threadID] = lastMessageID;
+      const lastMessage = oldestMessage(result);
+      if (lastMessage?.id) {
+        lastIDs.current[threadID] = lastMessage.id;
+        lastTimestamps.current[threadID] = lastMessage.time;
       }
       setResults(prevResults => {
         const prevThreadResults = prevResults[threadID] ?? [];
@@ -76,6 +80,7 @@ function MessageSearchStateProvider(props: Props): React.Node {
     (threadID: string) => {
       loading.current = false;
       delete lastIDs.current[threadID];
+      delete lastTimestamps.current[threadID];
       removeEndReached(threadID);
       setResults(prevResults => {
         const { [threadID]: deleted, ...newState } = prevResults;
@@ -149,6 +154,7 @@ function MessageSearchStateProvider(props: Props): React.Node {
         threadID,
         appendResults,
         queryIDRef.current,
+        lastTimestamps.current[threadID],
         lastIDs.current[threadID],
       );
     },
@@ -185,13 +191,13 @@ function MessageSearchStateProvider(props: Props): React.Node {
   );
 }
 
-function oldestMessageID(data: $ReadOnlyArray<RawMessageInfo>) {
+function oldestMessage(data: $ReadOnlyArray<RawMessageInfo>) {
   if (!data) {
     return undefined;
   }
   for (let i = data.length - 1; i >= 0; i--) {
     if (data[i].type === messageTypes.TEXT) {
-      return data[i].id;
+      return data[i];
     }
   }
   return undefined;
