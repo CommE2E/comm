@@ -1,0 +1,9 @@
+{
+  "region": "us-east-1",
+  "keyserver_domain_name": "squadcal.org",
+  "webapp_domain_name": "web.comm.app",
+  "landing_domain_name": "comm.app",
+  "allowed_ips": ["255.255.255.0"],
+  "desired_secondary_nodes": 2,
+  "db_instance_class": "db.m6g.large"
+}
