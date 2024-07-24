@@ -11,6 +11,7 @@
 #include "entities/LocalMessageInfo.h"
 #include "entities/Media.h"
 #include "entities/Message.h"
+#include "entities/MessageSearchResult.h"
 #include "entities/SQLiteStatementWrapper.h"
 #include "entities/ThreadActivityEntry.h"
 #include "entities/UserInfo.h"
@@ -194,6 +195,8 @@ public:
       std::string threadID,
       std::optional<std::string> timestampCursor,
       std::optional<std::string> messageIDCursor) const override;
+  std::vector<MessageEntity> getRelatedMessagesForSearch(
+      const std::vector<std::string> &messageIDs) const override;
 
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;

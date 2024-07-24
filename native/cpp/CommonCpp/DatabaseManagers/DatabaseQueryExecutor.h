@@ -181,6 +181,8 @@ public:
       std::string threadID,
       std::optional<std::string> timestampCursor,
       std::optional<std::string> messageIDCursor) const = 0;
+  virtual std::vector<MessageEntity> getRelatedMessagesForSearch(
+      const std::vector<std::string> &messageIDs) const = 0;
 
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
