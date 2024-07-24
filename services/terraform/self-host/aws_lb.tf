@@ -78,7 +78,6 @@ resource "aws_lb_listener" "keyserver_service" {
   }
 }
 
-
 data "aws_acm_certificate" "keyserver_service" {
   domain   = var.keyserver_domain_name
   statuses = ["ISSUED"]
