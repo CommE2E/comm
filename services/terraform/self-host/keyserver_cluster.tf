@@ -29,3 +29,36 @@ resource "aws_ecs_cluster_capacity_providers" "keyserver_cluster" {
   cluster_name       = aws_ecs_cluster.keyserver_cluster.name
   capacity_providers = ["FARGATE"]
 }
+
+resource "aws_security_group" "keyserver_service" {
+  name   = "keyserver-service-ecs-sg"
+  vpc_id = local.vpc_id
+
+  # Allow all inbound traffic  on port 3000
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description      = "Allow inbound traffic from any IPv6 address"
+    from_port        = 3000
+    to_port          = 3000
+    protocol         = "tcp"
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  # Allow all outbound traffic
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
