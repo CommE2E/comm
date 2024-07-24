@@ -24,7 +24,7 @@ import {
   type FetchPinnedMessagesRequest,
   type FetchPinnedMessagesResult,
   type SearchMessagesResponse,
-  type SearchMessagesRequest,
+  type SearchMessagesKeyserverRequest,
 } from 'lib/types/message-types.js';
 import type { EditMessageData } from 'lib/types/messages/edit.js';
 import type { ReactionMessageData } from 'lib/types/messages/reaction.js';
@@ -396,8 +396,8 @@ async function fetchPinnedMessagesResponder(
   return await fetchPinnedMessageInfos(viewer, request);
 }
 
-export const searchMessagesResponderInputValidator: TInterface<SearchMessagesRequest> =
-  tShape<SearchMessagesRequest>({
+export const searchMessagesResponderInputValidator: TInterface<SearchMessagesKeyserverRequest> =
+  tShape<SearchMessagesKeyserverRequest>({
     query: t.String,
     threadID: tID,
     cursor: t.maybe(tID),
@@ -405,7 +405,7 @@ export const searchMessagesResponderInputValidator: TInterface<SearchMessagesReq
 
 async function searchMessagesResponder(
   viewer: Viewer,
-  request: SearchMessagesRequest,
+  request: SearchMessagesKeyserverRequest,
 ): Promise<SearchMessagesResponse> {
   return await searchMessagesInSingleChat(
     request.query,
