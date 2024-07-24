@@ -1,6 +1,7 @@
 #include "SQLiteQueryExecutor.h"
 #include "Logger.h"
 
+#include "../NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageTypeEnum.h"
 #include "entities/CommunityInfo.h"
 #include "entities/EntityQueryHelpers.h"
 #include "entities/EntryInfo.h"
@@ -196,6 +197,48 @@ bool create_messages_idx_target_message_type_time(sqlite3 *db) {
       nullptr,
       nullptr,
       &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream
+      << "Error creating (target_message, type, time) index on messages table: "
+      << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
+bool update_messages_idx_target_message_type_time(sqlite3 *db) {
+  char *error;
+  int sidebar_source_type_int = static_cast<int>(MessageType::SIDEBAR_SOURCE);
+  std::string SIDEBAR_SOURCE_TYPE = std::to_string(sidebar_source_type_int);
+
+  auto query =
+      "DROP INDEX IF EXISTS messages_idx_target_message_type_time;"
+      "ALTER TABLE messages DROP COLUMN target_message;"
+      "ALTER TABLE messages "
+      "  ADD COLUMN target_message TEXT "
+      "  AS (IIF("
+      "    JSON_VALID(content),"
+      "    COALESCE("
+      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      IIF("
+      "        type = " +
+      SIDEBAR_SOURCE_TYPE +
+      "        , JSON_EXTRACT(content, '$.id'),"
+      "        NULL"
+      "      )"
+      "    ),"
+      "    NULL"
+      "  ));"
+      "CREATE INDEX IF NOT EXISTS messages_idx_target_message_type_time "
+      "  ON messages (target_message, type, time);";
+
+  sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 
   if (!error) {
     return true;
@@ -747,8 +790,9 @@ bool create_message_search_table(sqlite3 *db) {
 
 bool create_schema(sqlite3 *db) {
   char *error;
-  sqlite3_exec(
-      db,
+  int sidebar_source_type_int = static_cast<int>(MessageType::SIDEBAR_SOURCE);
+  std::string SIDEBAR_SOURCE_TYPE = std::to_string(sidebar_source_type_int);
+  auto query =
       "CREATE TABLE IF NOT EXISTS drafts ("
       "  key TEXT UNIQUE PRIMARY KEY NOT NULL,"
       "  text TEXT NOT NULL"
@@ -766,7 +810,15 @@ bool create_schema(sqlite3 *db) {
       "  target_message TEXT AS ("
       "    IIF("
       "      JSON_VALID(content),"
-      "      JSON_EXTRACT(content, '$.targetMessageID'),"
+      "      COALESCE("
+      "        JSON_EXTRACT(content, '$.targetMessageID'),"
+      "        IIF("
+      "          type = " +
+      SIDEBAR_SOURCE_TYPE +
+      "          , JSON_EXTRACT(content, '$.id'),"
+      "          NULL"
+      "        )"
+      "      ),"
       "      NULL"
       "    )"
       "  )"
@@ -918,11 +970,9 @@ bool create_schema(sqlite3 *db) {
       "  ON messages (target_message, type, time);"
 
       "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
-      "  ON outbound_p2p_messages (device_id, timestamp);",
+      "  ON outbound_p2p_messages (device_id, timestamp);";
 
-      nullptr,
-      nullptr,
-      &error);
+  sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 
   if (!error) {
     return true;
@@ -1170,7 +1220,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {47, {create_message_store_local_table, true}},
      {48, {create_messages_idx_target_message_type_time, true}},
      {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}},
-     {50, {create_message_search_table, true}}}};
+     {50, {create_message_search_table, true}},
+     {51, {update_messages_idx_target_message_type_time, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -2580,7 +2631,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
       searchMessagesSQL.str(),
       "Failed to get message search results");
 
-  auto SIDEBAR_SOURCE_TYPE = 17;
+  auto SIDEBAR_SOURCE_TYPE = static_cast<int>(MessageType::SIDEBAR_SOURCE);
 
   bindIntToSQL(SIDEBAR_SOURCE_TYPE, preparedSQL, 1);
   bindStringToSQL(threadID.c_str(), preparedSQL, 2);
