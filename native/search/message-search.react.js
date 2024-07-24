@@ -47,6 +47,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   }, [props.navigation, clearQuery]);
 
   const [lastID, setLastID] = React.useState<?string>();
+  const [lastTimestamp, setLastTimestamp] = React.useState<?number>();
   const [searchResults, setSearchResults] = React.useState<
     $ReadOnlyArray<RawMessageInfo>,
   >([]);
@@ -74,6 +75,7 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   React.useEffect(() => {
     setSearchResults([]);
     setLastID(undefined);
+    setLastTimestamp(undefined);
     setEndReached(false);
   }, [query, searchMessages]);
 
@@ -84,9 +86,17 @@ function MessageSearch(props: MessageSearchProps): React.Node {
       threadInfo.id,
       appendSearchResults,
       queryIDRef.current,
+      lastTimestamp,
       lastID,
     );
-  }, [appendSearchResults, lastID, query, searchMessages, threadInfo.id]);
+  }, [
+    appendSearchResults,
+    lastID,
+    query,
+    searchMessages,
+    threadInfo.id,
+    lastTimestamp,
+  ]);
 
   const userInfos = useSelector(state => state.userStore.userInfos);
 
@@ -190,8 +200,10 @@ function MessageSearch(props: MessageSearchProps): React.Node {
     if (endReached) {
       return;
     }
-    setLastID(oldestMessageID(measuredMessages));
-  }, [endReached, measuredMessages, setLastID]);
+    const oldest = oldestMessage(measuredMessages);
+    setLastID(oldest?.id);
+    setLastTimestamp(oldest?.time);
+  }, [endReached, measuredMessages]);
 
   const styles = useStyles(unboundStyles);
 
@@ -213,10 +225,10 @@ function MessageSearch(props: MessageSearchProps): React.Node {
   );
 }
 
-function oldestMessageID(data: $ReadOnlyArray<ChatMessageItemWithHeight>) {
+function oldestMessage(data: $ReadOnlyArray<ChatMessageItemWithHeight>) {
   for (let i = data.length - 1; i >= 0; i--) {
     if (data[i].itemType === 'message' && data[i].messageInfo.id) {
-      return data[i].messageInfo.id;
+      return data[i].messageInfo;
     }
   }
   return undefined;
