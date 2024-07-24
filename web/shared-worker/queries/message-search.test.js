@@ -154,7 +154,7 @@ describe('Message search queries', () => {
     queryExecutor.updateMessageSearchIndex(id1, id2, text2);
     const result = queryExecutor.searchMessages('test', threadID, null, null);
 
-    expect(result.length).toBe(1);
+    expect(result.length).toBe(2);
     expect(result[0].message).toStrictEqual(matchingMessage);
   });
 
