@@ -27,8 +27,7 @@ import {
   type RoleDeletionRequest,
   type RoleDeletionResult,
 } from 'lib/types/thread-types.js';
-import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
-import { values } from 'lib/utils/objects.js';
+import { threadSettingsChangesValidator } from 'lib/types/validators/thread-validators.js';
 import {
   tShape,
   tNumEnum,
@@ -118,15 +117,7 @@ async function threadLeaveResponder(
 export const updateThreadRequestInputValidator: TInterface<UpdateThreadRequest> =
   tShape<UpdateThreadRequest>({
     threadID: tID,
-    changes: tShape({
-      type: t.maybe(tNumEnum(values(threadTypes))),
-      name: t.maybe(t.String),
-      description: t.maybe(t.String),
-      color: t.maybe(tColor),
-      parentThreadID: t.maybe(tID),
-      newMemberIDs: t.maybe(t.list(tUserID)),
-      avatar: t.maybe(updateUserAvatarRequestValidator),
-    }),
+    changes: threadSettingsChangesValidator,
     accountPassword: t.maybe(tPassword),
   });
 
