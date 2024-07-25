@@ -1,5 +1,6 @@
 use comm_lib::aws;
 use comm_lib::aws::config::timeout::TimeoutConfig;
+use comm_lib::aws::config::BehaviorVersion;
 use config::Command;
 use database::DatabaseClient;
 use tonic::transport::Server;
@@ -73,7 +74,7 @@ async fn main() -> Result<(), BoxedError> {
     Command::Server => {
       config::load_server_config();
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
-      let aws_config = aws::config::from_env()
+      let aws_config = aws::config::defaults(BehaviorVersion::v2024_03_28())
         .timeout_config(
           TimeoutConfig::builder()
             .connect_timeout(Duration::from_secs(60))
@@ -121,7 +122,10 @@ async fn main() -> Result<(), BoxedError> {
       };
     }
     Command::SyncIdentitySearch => {
-      let aws_config = aws::config::from_env().region("us-east-2").load().await;
+      let aws_config = aws::config::defaults(BehaviorVersion::v2024_03_28())
+        .region("us-east-2")
+        .load()
+        .await;
       let database_client = DatabaseClient::new(&aws_config);
       let sync_result = sync_index(&database_client).await;
 

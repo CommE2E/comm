@@ -6,6 +6,7 @@ use crate::notifs::web_push::config::WebPushConfig;
 use anyhow::{ensure, Result};
 use clap::Parser;
 use comm_lib::aws;
+use comm_lib::aws::config::BehaviorVersion;
 use once_cell::sync::Lazy;
 use tracing::info;
 
@@ -65,7 +66,8 @@ pub(super) fn parse_cmdline_args() -> Result<()> {
 
 /// Provides region/credentials configuration for AWS SDKs
 pub async fn load_aws_config() -> aws::AwsConfig {
-  let mut config_builder = aws::config::from_env();
+  let mut config_builder =
+    aws::config::defaults(BehaviorVersion::v2024_03_28());
 
   if let Some(endpoint) = &CONFIG.localstack_endpoint {
     info!("Using localstack URL: {}", endpoint);
