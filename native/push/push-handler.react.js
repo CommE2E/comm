@@ -7,12 +7,11 @@ import { LogBox, Platform } from 'react-native';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 
 import { recordAlertActionType } from 'lib/actions/alert-actions.js';
-import type {
-  DeviceTokens,
-  SetDeviceTokenActionPayload,
-} from 'lib/actions/device-actions.js';
 import {
+  type DeviceTokens,
   setDeviceTokenActionTypes,
+  type SetDeviceTokenStartedPayload,
+  type SetDeviceTokenActionPayload,
   useSetDeviceToken,
   useSetDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
@@ -266,7 +265,7 @@ class PushHandler extends React.PureComponent<Props, State> {
           deviceTokensMap[keyserverID] = deviceToken;
         }
       }
-      this.setDeviceToken(deviceTokensMap);
+      this.setDeviceToken(deviceTokensMap, { type: 'nothing_to_set' });
     }
   }
 
@@ -531,12 +530,12 @@ class PushHandler extends React.PureComponent<Props, State> {
         deviceTokensMap[keyserverID] = deviceToken;
       }
     }
-    this.setDeviceToken(deviceTokensMap, { deviceToken });
+    this.setDeviceToken(deviceTokensMap, { type: 'device_token', deviceToken });
   };
 
   setDeviceToken(
     deviceTokens: DeviceTokens,
-    payload: ?{ deviceToken: ?string },
+    payload: SetDeviceTokenStartedPayload,
   ) {
     void this.props.dispatchActionPromise(
       setDeviceTokenActionTypes,
@@ -551,7 +550,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       setDeviceTokenActionTypes,
       this.props.setDeviceTokenFanout(null),
       undefined,
-      { deviceToken: null },
+      { type: 'clear_device_token' },
     );
   };
 
