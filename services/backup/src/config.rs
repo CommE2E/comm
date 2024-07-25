@@ -1,3 +1,4 @@
+use aws_config::BehaviorVersion;
 use clap::Parser;
 use once_cell::sync::Lazy;
 use tracing::info;
@@ -37,7 +38,7 @@ pub(super) fn parse_cmdline_args() {
 
 /// Provides region/credentials configuration for AWS SDKs
 pub async fn load_aws_config() -> aws_config::SdkConfig {
-  let mut config_builder = aws_config::from_env();
+  let mut config_builder = aws_config::defaults(BehaviorVersion::v2024_03_28());
 
   if let Some(endpoint) = &CONFIG.localstack_endpoint {
     info!("Using Localstack. AWS endpoint URL: {}", endpoint);
