@@ -202,7 +202,10 @@ impl DatabaseClient {
     let delete_requests = primary_keys
       .into_iter()
       .map(|item| {
-        let request = DeleteRequest::builder().set_key(Some(item)).build();
+        let request = DeleteRequest::builder()
+          .set_key(Some(item))
+          .build()
+          .expect("key not set in DeleteRequest builder");
         WriteRequest::builder().delete_request(request).build()
       })
       .collect::<Vec<_>>();

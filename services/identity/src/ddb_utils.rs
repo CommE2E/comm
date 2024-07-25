@@ -72,7 +72,11 @@ fn create_one_time_key_put_request(
     ),
   ]);
 
-  builder.table_name(NAME).set_item(Some(attrs)).build()
+  builder
+    .table_name(NAME)
+    .set_item(Some(attrs))
+    .build()
+    .expect("table name not set in PutBuilder")
 }
 
 pub fn into_one_time_put_requests<T>(
@@ -149,7 +153,8 @@ pub fn into_one_time_update_and_delete_requests(
       ":num_notif",
       AttributeValue::N(notif_key_count_delta.to_string()),
     )
-    .build();
+    .build()
+    .expect("key, update_expression or table_name not set in Update builder");
 
   let update_otk_count_operation = TransactWriteItem::builder()
     .update(update_otk_count)
@@ -261,7 +266,7 @@ mod tests {
     assert_eq!(requests.len(), 3);
 
     for (index, request) in requests.into_iter().enumerate() {
-      let mut item = request.put.unwrap().item.unwrap();
+      let mut item = request.put.unwrap().item;
       assert_eq!(
         item.remove(one_time_keys_table::PARTITION_KEY).unwrap(),
         AttributeValue::S("abc#123#content".to_string())

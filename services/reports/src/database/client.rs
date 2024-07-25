@@ -109,7 +109,10 @@ impl DatabaseClient {
       .into_iter()
       .map(|item| {
         let attrs = item.into_attrs();
-        let put_request = PutRequest::builder().set_item(Some(attrs)).build();
+        let put_request = PutRequest::builder()
+          .set_item(Some(attrs))
+          .build()
+          .expect("item not set in PutRequest builder");
         WriteRequest::builder().put_request(put_request).build()
       })
       .collect::<Vec<_>>();

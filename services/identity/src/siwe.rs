@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use chrono::Utc;
 use comm_lib::{
   aws::ddb::types::AttributeValue,
   database::{AttributeExtractor, AttributeMap, TryFromAttribute},
 };
 use regex::Regex;
-use siwe::Message;
+use siwe::{Message, VerificationOpts};
+use time::OffsetDateTime;
 use tonic::Status;
 use tracing::error;
 
@@ -15,7 +15,7 @@ use crate::constants::{
   SOCIAL_PROOF_SIGNATURE_ATTRIBUTE,
 };
 
-pub fn parse_and_verify_siwe_message(
+pub async fn parse_and_verify_siwe_message(
   siwe_message: &str,
   siwe_signature: &str,
 ) -> Result<Message, Status> {
@@ -36,16 +36,14 @@ pub fn parse_and_verify_siwe_message(
       Status::invalid_argument(tonic_status_messages::SIGNATURE_INVALID)
     })?;
 
-  let signature = decoded_signature.try_into().map_err(|e| {
-    error!(
-      errorType = error_types::SIWE_LOG,
-      "Conversion to SIWE signature failed: {:?}", e
-    );
-    Status::invalid_argument(tonic_status_messages::INVALID_MESSAGE)
-  })?;
-
+  let options = VerificationOpts {
+    domain: None,
+    nonce: None,
+    timestamp: Some(OffsetDateTime::now_utc()),
+  };
   siwe_message
-    .verify(signature, None, None, Some(&Utc::now()))
+    .verify(&decoded_signature, &options)
+    .await
     .map_err(|e| {
       error!(
         errorType = error_types::SIWE_LOG,

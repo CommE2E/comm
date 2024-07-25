@@ -332,7 +332,8 @@ impl DatabaseClient {
       // make sure we don't accidentally overwrite existing row
       .condition_expression("attribute_not_exists(#pk)")
       .expression_attribute_names("#pk", USERS_TABLE_PARTITION_KEY)
-      .build();
+      .build()
+      .expect("key, update_expression or table_name not set in Update builder");
 
     let put_user_operation = TransactWriteItem::builder().put(put_user).build();
 
@@ -351,7 +352,8 @@ impl DatabaseClient {
         RESERVED_USERNAMES_TABLE_PARTITION_KEY,
         AttributeValue::S(partition_key_value),
       )
-      .build();
+      .build()
+      .expect("key or table_name not set in Delete builder");
 
     let delete_user_from_reserved_usernames_operation =
       TransactWriteItem::builder()
@@ -608,13 +610,8 @@ impl DatabaseClient {
       Error::AwsSdk(e.into())
     })?;
 
-    if let Some(items) = response.items() {
-      if !items.is_empty() {
-        return Ok(true);
-      }
-    }
-
-    Ok(false)
+    let username_exists = response.items().is_empty();
+    Ok(!username_exists)
   }
 
   pub async fn filter_out_taken_usernames(
@@ -1145,7 +1142,8 @@ impl DatabaseClient {
               RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
               AttributeValue::S(user_detail.username.to_lowercase()),
             )
-            .build();
+            .build()
+            .expect("no items set in PutRequest builder");
 
           WriteRequest::builder().put_request(put_request).build()
         })
