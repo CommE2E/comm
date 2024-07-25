@@ -119,7 +119,10 @@ impl DatabaseClient {
           ":old_val",
           AttributeValue::N(otk_count.to_string()),
         )
-        .build();
+        .build()
+        .expect(
+          "table_name, key or update_expression not set in Update builder",
+        );
 
       let update_otk_count_operation = TransactWriteItem::builder()
         .update(update_otk_count)
@@ -420,7 +423,8 @@ impl DatabaseClient {
         let request = DeleteRequest::builder()
           .key(PARTITION_KEY, AttributeValue::S(otk_row.partition_key))
           .key(SORT_KEY, AttributeValue::S(otk_row.sort_key))
-          .build();
+          .build()
+          .expect("no keys set in DeleteRequest builder");
         WriteRequest::builder().delete_request(request).build()
       })
       .collect::<Vec<_>>();
@@ -480,7 +484,8 @@ impl OTKRow {
       )
       .condition_expression("attribute_exists(#otk)")
       .expression_attribute_names("#otk", otk_table::ATTR_ONE_TIME_KEY)
-      .build();
+      .build()
+      .expect("table_name or key not set in Delete builder");
 
     TransactWriteItem::builder().delete(delete_otk).build()
   }

@@ -132,7 +132,8 @@ impl DatabaseClient {
     let delete_request = Delete::builder()
       .table_name(BLOB_TABLE_NAME)
       .set_key(Some(assignment_key.into()))
-      .build();
+      .build()
+      .expect("key or table_name not set in Delete builder");
     transaction
       .push(TransactWriteItem::builder().delete(delete_request).build());
 
@@ -157,7 +158,10 @@ impl DatabaseClient {
           ":now",
           AttributeValue::N(Utc::now().timestamp_millis().to_string()),
         )
-        .build();
+        .build()
+        .expect(
+          "key, table_name or update_expression not set in Update builder",
+        );
       transaction
         .push(TransactWriteItem::builder().update(update_request).build());
     }
@@ -304,7 +308,10 @@ impl DatabaseClient {
         // filter out rows that are already checked
         // to save some write capacity
         row.remove(ATTR_UNCHECKED)?;
-        let put_request = PutRequest::builder().set_item(Some(row)).build();
+        let put_request = PutRequest::builder()
+          .set_item(Some(row))
+          .build()
+          .expect("item not set in PutRequest builder");
         let request = WriteRequest::builder().put_request(put_request).build();
         Some(request)
       })
@@ -327,7 +334,12 @@ impl DatabaseClient {
   ) -> DBResult<()> {
     let write_requests = keys
       .into_iter()
-      .map(|key| DeleteRequest::builder().set_key(Some(key.into())).build())
+      .map(|key| {
+        DeleteRequest::builder()
+          .set_key(Some(key.into()))
+          .build()
+          .expect("key not set in DeleteRequest builder")
+      })
       .map(|request| WriteRequest::builder().delete_request(request).build())
       .collect::<Vec<_>>();
 

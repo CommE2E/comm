@@ -543,7 +543,8 @@ pub mod batch_operations {
             .set_keys(Some(chunk))
             .consistent_read(true)
             .set_projection_expression(projection_expression.clone())
-            .build(),
+            .build()
+            .expect("set_keys() was not called on KeysAndAttributes builder."),
         )
         .send()
         .await;
@@ -561,9 +562,7 @@ pub mod batch_operations {
 
           if let Some(mut unprocessed) = output.unprocessed_keys {
             let keys_to_retry = match unprocessed.remove(table_name) {
-              Some(KeysAndAttributes {
-                keys: Some(keys), ..
-              }) if !keys.is_empty() => keys,
+              Some(KeysAndAttributes { keys, .. }) if !keys.is_empty() => keys,
               _ => {
                 tracing::trace!("Chunk read successfully. Continuing.");
                 exponential_backoff.reset();

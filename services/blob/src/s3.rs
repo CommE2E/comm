@@ -207,14 +207,24 @@ impl S3Client {
     let bucket_name = &first_path.bucket_name;
     let objects = paths
       .iter()
-      .map(|path| ObjectIdentifier::builder().key(&path.object_name).build())
+      .map(|path| {
+        ObjectIdentifier::builder()
+          .key(&path.object_name)
+          .build()
+          .expect("key not set in ObjectIdentifier builder")
+      })
       .collect();
 
     self
       .client
       .delete_objects()
       .bucket(bucket_name)
-      .delete(Delete::builder().set_objects(Some(objects)).build())
+      .delete(
+        Delete::builder()
+          .set_objects(Some(objects))
+          .build()
+          .expect("Objects not set in Delete builder"),
+      )
       .send()
       .await
       .map_err(|e| {

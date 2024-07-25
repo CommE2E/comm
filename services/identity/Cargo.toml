@@ -23,6 +23,7 @@ chrono = { workspace = true }
 rand = "0.8"
 constant_time_eq = "0.2.2"
 siwe = { workspace = true }
+time = { workspace = true }
 comm-opaque2 = { path = "../../shared/comm-opaque2" }
 grpc_clients = { path = "../../shared/grpc_clients" }
 hyper = { workspace = true }
