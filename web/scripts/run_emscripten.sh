@@ -55,7 +55,7 @@ SQLITE_COMPILATION_FLAGS=(
 download_openssl() {
   mkdir -p "$SQLITE_DIR"
 
-  curl "${OPENSSL_URL}" --output "${OPENSSL_FILE}"
+  curl -L "${OPENSSL_URL}" --output "${OPENSSL_FILE}"
 
   tar -xf "${OPENSSL_FILE}" -C "${SQLITE_DIR}"
   rm -f "${OPENSSL_FILE}"
