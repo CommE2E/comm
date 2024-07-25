@@ -117,10 +117,19 @@ impl BlobService {
     // 2. Get S3 Object metadata
     trace!("Getting S3 object metadata...");
     let object_metadata = self.s3.get_object_metadata(&s3_path).await?;
-    let blob_size: u64 =
-      object_metadata.content_length().try_into().map_err(|err| {
-        error!("Failed to parse S3 object content length: {:?}", err);
+    let blob_size = object_metadata
+      .content_length()
+      .ok_or_else(|| {
+        error!("Failed to get S3 object content length");
         BlobServiceError::InvalidState
+      })
+      .and_then(|len| {
+        if len >= 0 {
+          Ok(len as u64)
+        } else {
+          error!("S3 object content length is negative");
+          Err(BlobServiceError::InvalidState)
+        }
       })?;
     debug!("S3 object size: {} bytes", blob_size);
 

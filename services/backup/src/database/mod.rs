@@ -342,6 +342,7 @@ impl DatabaseClient {
         DeleteRequest::builder()
           .set_key(Some(LogItem::item_key(user_id, key.backup_id, key.log_id)))
           .build()
+          .expect("key not set in DeleteRequest builder")
       })
       .map(|request| WriteRequest::builder().delete_request(request).build())
       .collect::<Vec<_>>();
