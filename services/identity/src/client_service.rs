@@ -491,7 +491,8 @@ impl IdentityClientService for ClientService {
     let parsed_message = parse_and_verify_siwe_message(
       &message.siwe_message,
       &message.siwe_signature,
-    )?;
+    )
+    .await?;
 
     self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 
@@ -609,7 +610,8 @@ impl IdentityClientService for ClientService {
     let parsed_message = parse_and_verify_siwe_message(
       &message.siwe_message,
       &message.siwe_signature,
-    )?;
+    )
+    .await?;
 
     self.verify_and_remove_nonce(&parsed_message.nonce).await?;
 

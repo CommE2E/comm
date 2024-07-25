@@ -1180,7 +1180,8 @@ impl DatabaseClient {
           )
           .expression_attribute_names("#user_id", ATTR_USER_ID)
           .expression_attribute_names("#item_id", ATTR_ITEM_ID)
-          .build();
+          .build()
+          .expect("table_name or item not set in Put builder");
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
@@ -1237,7 +1238,8 @@ impl DatabaseClient {
           )
           .expression_attribute_names("#user_id", ATTR_USER_ID)
           .expression_attribute_names("#item_id", ATTR_ITEM_ID)
-          .build();
+          .build()
+          .expect("table_name or item not set in Put builder");
         let put_device_operation =
           TransactWriteItem::builder().put(put_device).build();
 
@@ -1291,7 +1293,8 @@ impl DatabaseClient {
           )
           .expression_attribute_names("#user_id", ATTR_USER_ID)
           .expression_attribute_names("#item_id", ATTR_ITEM_ID)
-          .build();
+          .build()
+          .expect("table_name or key not set in Delete builder");
         let operation =
           TransactWriteItem::builder().delete(delete_device).build();
 
@@ -1444,7 +1447,8 @@ impl DatabaseClient {
       )
       .expression_attribute_names("#user_id", ATTR_USER_ID)
       .expression_attribute_names("#item_id", ATTR_ITEM_ID)
-      .build();
+      .build()
+      .expect("table_name or item not set in Put builder");
     let put_device_list_operation =
       TransactWriteItem::builder().put(put_device_list).build();
 
@@ -1524,7 +1528,10 @@ impl DatabaseClient {
     let delete_requests = primary_keys
       .into_iter()
       .map(|item| {
-        let request = DeleteRequest::builder().set_key(Some(item)).build();
+        let request = DeleteRequest::builder()
+          .set_key(Some(item))
+          .build()
+          .expect("key not set in DeleteRequest builder");
         WriteRequest::builder().delete_request(request).build()
       })
       .collect::<Vec<_>>();
@@ -1578,7 +1585,10 @@ impl DatabaseClient {
     let delete_requests = primary_keys
       .into_iter()
       .map(|item| {
-        let request = DeleteRequest::builder().set_key(Some(item)).build();
+        let request = DeleteRequest::builder()
+          .set_key(Some(item))
+          .build()
+          .expect("key not set in DeleteRequest builder");
         WriteRequest::builder().delete_request(request).build()
       })
       .collect::<Vec<_>>();
@@ -1669,7 +1679,8 @@ fn device_list_timestamp_update_operation(
       ":new_timestamp",
       AttributeValue::S(new_timestamp.to_rfc3339()),
     )
-    .build();
+    .build()
+    .expect("table_name, key or update_expression not set in Update builder");
 
   TransactWriteItem::builder().update(update).build()
 }
