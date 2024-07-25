@@ -61,7 +61,7 @@ function useCreateDesktopPushSubscription() {
           setDeviceTokenActionTypes,
           callSetDeviceToken(token),
           undefined,
-          { deviceToken: token },
+          { type: 'device_token', deviceToken: token },
         );
       }),
     [callSetDeviceToken, dispatchActionPromise],
@@ -153,7 +153,7 @@ function useCreatePushSubscription(): () => Promise<void> {
       setDeviceTokenActionTypes,
       callSetDeviceToken(token),
       undefined,
-      { deviceToken: token },
+      { type: 'device_token', deviceToken: token },
     );
   }, [callSetDeviceToken, dispatchActionPromise, publicKey, staffCanSee]);
 }
