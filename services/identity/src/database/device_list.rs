@@ -1060,6 +1060,98 @@ impl DatabaseClient {
       .map_err(Error::from)
   }
 
+  /// Fetches latest device lists for multiple users in batch.
+  pub async fn get_current_device_lists(
+    &self,
+    user_ids: impl IntoIterator<Item = String>,
+  ) -> Result<HashMap<String, DeviceListRow>, Error> {
+    // 1a. Prepare primary keys for device list timestamps
+    let primary_keys = user_ids
+      .into_iter()
+      .map(|user_id| {
+        AttributeMap::from([(
+          USERS_TABLE_PARTITION_KEY.to_string(),
+          AttributeValue::S(user_id),
+        )])
+      })
+      .collect::<Vec<_>>();
+
+    let projection_expression = Some(
+      [
+        USERS_TABLE_PARTITION_KEY,
+        USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
+      ]
+      .join(", "),
+    );
+
+    // 1b. Fetch latest device list timestamps
+    let timestamps = comm_lib::database::batch_operations::batch_get(
+      &self.client,
+      USERS_TABLE,
+      primary_keys,
+      projection_expression,
+      Default::default(),
+    )
+    .await?;
+
+    // 2a. Prepare primary keys for latest device lists
+    let device_list_primary_keys: Vec<AttributeMap> = timestamps
+      .into_iter()
+      .filter_map(|mut attrs| {
+        let user_id: String =
+          attrs.take_attr(USERS_TABLE_PARTITION_KEY).ok()?;
+        let Ok(timestamp) = attrs
+          .take_attr::<String>(USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME)
+        else {
+          warn!(
+            "{} attribute missing for userID={}. Skipping",
+            USERS_TABLE_DEVICELIST_TIMESTAMP_ATTRIBUTE_NAME,
+            redact_sensitive_data(&user_id)
+          );
+          return None;
+        };
+
+        let pk = AttributeMap::from([
+          (
+            devices_table::ATTR_USER_ID.to_string(),
+            AttributeValue::S(user_id),
+          ),
+          (
+            devices_table::ATTR_ITEM_ID.to_string(),
+            AttributeValue::S(format!("{DEVICE_LIST_KEY_PREFIX}{}", timestamp)),
+          ),
+        ]);
+        Some(pk)
+      })
+      .collect();
+
+    // 2b. Fetch latest device lists
+    trace!(
+      "Finding device lists for {} users having valid timestamp",
+      device_list_primary_keys.len()
+    );
+    let device_list_results = comm_lib::database::batch_operations::batch_get(
+      &self.client,
+      devices_table::NAME,
+      device_list_primary_keys,
+      None,
+      Default::default(),
+    )
+    .await?;
+
+    // 3. Prepare output format
+    let device_lists = device_list_results
+      .into_iter()
+      .map(|attrs| {
+        let user_id: String = attrs.get_attr(devices_table::ATTR_USER_ID)?;
+        let device_list = DeviceListRow::try_from(attrs)?;
+        Ok((user_id, device_list))
+      })
+      .collect::<Result<HashMap<_, _>, DBItemError>>()?;
+
+    Ok(device_lists)
+  }
+
   /// Adds device data to devices table. If the device already exists, its
   /// data is overwritten. This does not update the device list; the device ID
   /// should already be present in the device list.
