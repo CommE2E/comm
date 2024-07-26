@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::config::CONFIG;
 use crate::database::{DeviceListUpdate, PlatformDetails};
@@ -714,82 +714,63 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<PeersDeviceListsRequest>,
   ) -> Result<tonic::Response<PeersDeviceListsResponse>, tonic::Status> {
     let PeersDeviceListsRequest { user_ids } = request.into_inner();
-    use crate::database::{DeviceListRow, DeviceRow};
+    let request_count = user_ids.len();
+    let user_ids: HashSet<String> = user_ids.into_iter().collect();
+    debug!(
+      "Requesting device lists and platform details for {} users ({} unique)",
+      request_count,
+      user_ids.len()
+    );
 
-    async fn get_current_device_list_and_data(
-      db_client: DatabaseClient,
-      user_id: &str,
-    ) -> Result<(Option<DeviceListRow>, Vec<DeviceRow>), crate::error::Error>
-    {
-      let (list_result, data_result) = tokio::join!(
-        db_client.get_current_device_list(user_id),
-        db_client.get_current_devices(user_id)
-      );
-      Ok((list_result?, data_result?))
-    }
+    // 1. Fetch device lists
+    let device_lists = self
+      .db_client
+      .get_current_device_lists(user_ids)
+      .await
+      .map_err(handle_db_error)?;
+    trace!("Found device lists for {} users", device_lists.keys().len());
 
-    // do all fetches concurrently
-    let mut fetch_tasks = tokio::task::JoinSet::new();
-    let mut device_lists = HashMap::with_capacity(user_ids.len());
-    let mut users_devices_platform_details =
-      HashMap::with_capacity(user_ids.len());
-    for user_id in user_ids {
-      let db_client = self.db_client.clone();
-      fetch_tasks.spawn(async move {
-        let result =
-          get_current_device_list_and_data(db_client, &user_id).await;
-        (user_id, result)
-      });
-    }
+    // 2. Fetch platform details
+    let flattened_user_device_ids: Vec<(String, String)> = device_lists
+      .iter()
+      .flat_map(|(user_id, device_list)| {
+        device_list
+          .device_ids
+          .iter()
+          .map(|device_id| (user_id.clone(), device_id.clone()))
+          .collect::<Vec<_>>()
+      })
+      .collect();
 
-    while let Some(task_result) = fetch_tasks.join_next().await {
-      match task_result {
-        Ok((user_id, Ok((device_list, devices_data)))) => {
-          let Some(device_list_row) = device_list else {
-            warn!(
-              user_id = redact_sensitive_data(&user_id),
-              "User has no device list, skipping!"
-            );
-            continue;
-          };
-          let signed_list = SignedDeviceList::try_from(device_list_row)?;
-          let serialized_list = signed_list.as_json_string()?;
-          device_lists.insert(user_id.clone(), serialized_list);
+    let platform_details = self
+      .db_client
+      .get_devices_platform_details(flattened_user_device_ids)
+      .await
+      .map_err(handle_db_error)?;
+    trace!(
+      "Found platform details for {} users",
+      platform_details.keys().len()
+    );
 
-          let devices_platform_details = devices_data
-            .into_iter()
-            .map(|data| (data.device_id, data.platform_details.into()))
-            .collect();
-          users_devices_platform_details.insert(
-            user_id,
-            UserDevicesPlatformDetails {
-              devices_platform_details,
-            },
-          );
-        }
-        Ok((user_id, Err(err))) => {
-          error!(
-            user_id = redact_sensitive_data(&user_id),
-            errorType = error_types::GRPC_SERVICES_LOG,
-            "Failed fetching device list: {err}"
-          );
-          // abort fetching other users
-          fetch_tasks.abort_all();
-          return Err(handle_db_error(err));
-        }
-        Err(join_error) => {
-          error!(
-            errorType = error_types::GRPC_SERVICES_LOG,
-            "Failed to join device list task: {join_error}"
-          );
-          fetch_tasks.abort_all();
-          return Err(Status::aborted(tonic_status_messages::UNEXPECTED_ERROR));
-        }
-      }
-    }
+    // 3. Prepare output format
+    let users_device_lists: HashMap<String, String> = device_lists
+      .into_iter()
+      .map(|(user_id, device_list_row)| {
+        let signed_list = SignedDeviceList::try_from(device_list_row)?;
+        let serialized_list = signed_list.as_json_string()?;
+        Ok((user_id, serialized_list))
+      })
+      .collect::<Result<_, tonic::Status>>()?;
+
+    let users_devices_platform_details = platform_details
+      .into_iter()
+      .map(|(user_id, devices_map)| {
+        (user_id, UserDevicesPlatformDetails::from(devices_map))
+      })
+      .collect();
 
     let response = PeersDeviceListsResponse {
-      users_device_lists: device_lists,
+      users_device_lists,
       users_devices_platform_details,
     };
     Ok(Response::new(response))
