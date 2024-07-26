@@ -82,7 +82,3 @@ data "aws_acm_certificate" "keyserver_service" {
   domain   = var.keyserver_domain_name
   statuses = ["ISSUED"]
 }
-
-output "keyserver_service_load_balancer_dns_name" {
-  value = aws_lb.keyserver_service.dns_name
-}
