@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use web_push::{
   ContentEncoding, HyperWebPushClient, SubscriptionInfo, VapidSignatureBuilder,
   WebPushMessageBuilder,
@@ -8,6 +9,13 @@ use crate::notifs::web_push::config::WebPushConfig;
 
 pub mod config;
 mod error;
+
+#[derive(Serialize, Deserialize)]
+pub struct WebPushNotif {
+  /// Device token for web is a JSON-encoded [`SubscriptionInfo`].
+  pub device_token: String,
+  pub payload: String,
+}
 
 #[derive(Clone)]
 pub struct WebPushClient {
@@ -28,5 +36,25 @@ impl WebPushClient {
       inner_client,
       signature_builder,
     })
+  }
+
+  pub async fn send(&self, notif: WebPushNotif) -> Result<(), error::Error> {
+    let subscription =
+      serde_json::from_str::<SubscriptionInfo>(&notif.device_token)?;
+
+    let vapid_signature = self
+      .signature_builder
+      .clone()
+      .add_sub_info(&subscription)
+      .build()?;
+
+    let mut builder = WebPushMessageBuilder::new(&subscription);
+    builder.set_payload(ContentEncoding::Aes128Gcm, notif.payload.as_bytes());
+    builder.set_vapid_signature(vapid_signature);
+
+    let message = builder.build()?;
+    self.inner_client.send(message).await?;
+
+    Ok(())
   }
 }
