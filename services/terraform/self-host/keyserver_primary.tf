@@ -26,10 +26,6 @@ resource "aws_cloudwatch_log_group" "keyserver_primary_service" {
   retention_in_days = 7
 }
 
-output "mariadb_address" {
-  value = aws_db_instance.mariadb.address
-}
-
 resource "aws_ecs_task_definition" "keyserver_primary_service" {
   network_mode             = "awsvpc"
   family                   = "keyserver-primary-task-def"
