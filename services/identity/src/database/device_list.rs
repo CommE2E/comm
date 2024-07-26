@@ -241,6 +241,20 @@ impl PlatformDetails {
   }
 }
 
+impl From<HashMap<String, PlatformDetails>>
+  for protos::auth::UserDevicesPlatformDetails
+{
+  fn from(devices_map: HashMap<String, PlatformDetails>) -> Self {
+    let devices_platform_details = devices_map
+      .into_iter()
+      .map(|(device_id, platform_details)| (device_id, platform_details.into()))
+      .collect();
+    Self {
+      devices_platform_details,
+    }
+  }
+}
+
 // helper structs for converting to/from attribute values for sort key (a.k.a itemID)
 pub struct DeviceIDAttribute(pub String);
 struct DeviceListKeyAttribute(DateTime<Utc>);
@@ -333,37 +347,7 @@ impl TryFrom<AttributeMap> for DeviceRow {
       .and_then(Prekey::try_from)?;
 
     let login_time: DateTime<Utc> = attrs.take_attr(ATTR_LOGIN_TIME)?;
-
-    // New schema contains PlatformDetails attribute while legacy schema
-    // contains "deviceType" and "codeVersion" top-level attributes
-    let platform_details = match attrs
-      .take_attr::<Option<PlatformDetails>>(ATTR_PLATFORM_DETAILS)?
-    {
-      Some(platform_details) => platform_details,
-      None => {
-        let raw_device_type: String = attrs.take_attr(OLD_ATTR_DEVICE_TYPE)?;
-        let device_type = DeviceType::from_str_name(&raw_device_type)
-          .ok_or_else(|| {
-            DBItemError::new(
-              OLD_ATTR_DEVICE_TYPE.to_string(),
-              raw_device_type.into(),
-              DBItemAttributeError::InvalidValue,
-            )
-          })?;
-        let code_version = attrs
-          .remove(OLD_ATTR_CODE_VERSION)
-          .and_then(|attr| attr.as_n().ok().cloned())
-          .and_then(|val| val.parse::<u64>().ok())
-          .unwrap_or_default();
-
-        PlatformDetails {
-          device_type,
-          code_version,
-          state_version: None,
-          major_desktop_version: None,
-        }
-      }
-    };
+    let platform_details = take_platform_details(&mut attrs)?;
 
     Ok(Self {
       user_id,
@@ -1152,6 +1136,65 @@ impl DatabaseClient {
     Ok(device_lists)
   }
 
+  /// Gets [`PlatformDetails`] for multiple users.
+  /// Takes iterable collection of tuples `(UserID, DeviceID)`.
+  /// Returns nested map: `Map<UserID, Map<DeviceID, PlatformDetails>>`.
+  pub async fn get_devices_platform_details(
+    &self,
+    user_device_ids: impl IntoIterator<Item = (String, String)>,
+  ) -> Result<HashMap<String, HashMap<String, PlatformDetails>>, Error> {
+    let primary_keys = user_device_ids
+      .into_iter()
+      .map(|(user_id, device_id)| {
+        AttributeMap::from([
+          (
+            devices_table::ATTR_USER_ID.to_string(),
+            AttributeValue::S(user_id),
+          ),
+          (
+            devices_table::ATTR_ITEM_ID.to_string(),
+            DeviceIDAttribute(device_id).into(),
+          ),
+        ])
+      })
+      .collect::<Vec<_>>();
+    let projection_expression = Some(
+      [
+        devices_table::ATTR_USER_ID,
+        devices_table::ATTR_ITEM_ID,
+        devices_table::ATTR_PLATFORM_DETAILS,
+        // we need these for legacy devices without ATTR_PLATFORM_DETAILS
+        devices_table::OLD_ATTR_DEVICE_TYPE,
+        devices_table::OLD_ATTR_CODE_VERSION,
+      ]
+      .join(", "),
+    );
+
+    let fetched_results = comm_lib::database::batch_operations::batch_get(
+      &self.client,
+      devices_table::NAME,
+      primary_keys,
+      projection_expression,
+      Default::default(),
+    )
+    .await?;
+
+    let mut users_devices_platform_details = HashMap::new();
+    for mut item in fetched_results {
+      let user_id: String = item.take_attr(devices_table::ATTR_USER_ID)?;
+      let device_id: DeviceIDAttribute =
+        item.remove(devices_table::ATTR_ITEM_ID).try_into()?;
+      let platform_details = take_platform_details(&mut item)?;
+
+      let user_devices = users_devices_platform_details
+        .entry(user_id)
+        .or_insert_with(HashMap::new);
+      user_devices.insert(device_id.into_inner(), platform_details);
+    }
+
+    Ok(users_devices_platform_details)
+  }
+
   /// Adds device data to devices table. If the device already exists, its
   /// data is overwritten. This does not update the device list; the device ID
   /// should already be present in the device list.
@@ -1797,6 +1840,44 @@ fn query_rows_with_prefix(
       AttributeValue::S(prefix.to_string()),
     )
     .consistent_read(true)
+}
+
+fn take_platform_details(
+  device_attrs: &mut AttributeMap,
+) -> Result<PlatformDetails, DBItemError> {
+  let platform_details_attr: Option<PlatformDetails> =
+    device_attrs.take_attr::<Option<PlatformDetails>>(ATTR_PLATFORM_DETAILS)?;
+
+  // New schema contains PlatformDetails attribute while legacy schema
+  // contains "deviceType" and "codeVersion" top-level attributes
+  let platform_details = match platform_details_attr {
+    Some(platform_details) => platform_details,
+    None => {
+      let raw_device_type: String =
+        device_attrs.take_attr(OLD_ATTR_DEVICE_TYPE)?;
+      let device_type = DeviceType::from_str_name(&raw_device_type)
+        .ok_or_else(|| {
+          DBItemError::new(
+            OLD_ATTR_DEVICE_TYPE.to_string(),
+            raw_device_type.into(),
+            DBItemAttributeError::InvalidValue,
+          )
+        })?;
+      let code_version = device_attrs
+        .remove(OLD_ATTR_CODE_VERSION)
+        .and_then(|attr| attr.as_n().ok().cloned())
+        .and_then(|val| val.parse::<u64>().ok())
+        .unwrap_or_default();
+
+      PlatformDetails {
+        device_type,
+        code_version,
+        state_version: None,
+        major_desktop_version: None,
+      }
+    }
+  };
+  Ok(platform_details)
 }
 
 /// [`transact_update_devicelist()`] closure result
