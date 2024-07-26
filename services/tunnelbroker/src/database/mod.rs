@@ -257,4 +257,33 @@ impl DatabaseClient {
 
     Ok(())
   }
+
+  pub async fn mark_device_token_as_invalid(
+    &self,
+    device_id: &str,
+  ) -> Result<(), Error> {
+    let update_expression =
+      format!("SET {0} = :val", device_tokens::TOKEN_INVALID);
+
+    self
+      .client
+      .update_item()
+      .table_name(device_tokens::TABLE_NAME)
+      .key(
+        device_tokens::DEVICE_ID,
+        AttributeValue::S(device_id.to_string()),
+      )
+      .update_expression(update_expression)
+      .expression_attribute_values(":val", AttributeValue::Bool(true))
+      .send()
+      .await
+      .map_err(|e| {
+        error!(
+          "DynamoDB client failed to mark device token as invalid {:?}",
+          e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+    Ok(())
+  }
 }
