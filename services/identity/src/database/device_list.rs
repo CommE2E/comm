@@ -505,7 +505,7 @@ impl From<PlatformDetails> for AttributeValue {
     }
     if let Some(major_desktop_version) = value.major_desktop_version {
       attrs.insert(
-        ATTR_STATE_VERSION.to_string(),
+        ATTR_MAJOR_DESKTOP_VERSION.to_string(),
         AttributeValue::N(major_desktop_version.to_string()),
       );
     }
