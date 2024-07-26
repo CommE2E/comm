@@ -1,5 +1,6 @@
 //! Messages sent between Tunnelbroker and a device.
 
+pub mod bad_device_token;
 pub mod device_list_updated;
 pub mod keys;
 pub mod message_receive_confirmation;
@@ -24,6 +25,7 @@ pub use websocket_messages::{
   ConnectionInitializationResponse, ConnectionInitializationStatus, Heartbeat,
 };
 
+use crate::bad_device_token::BadDeviceToken;
 use crate::notif::*;
 use serde::{Deserialize, Serialize};
 
@@ -57,6 +59,7 @@ pub enum TunnelbrokerToDeviceMessage {
   ConnectionInitializationResponse(ConnectionInitializationResponse),
   DeviceToTunnelbrokerRequestStatus(DeviceToTunnelbrokerRequestStatus),
   MessageToDevice(MessageToDevice),
+  BadDeviceToken(BadDeviceToken),
   Heartbeat(Heartbeat),
 }
 
@@ -67,6 +70,7 @@ pub enum TunnelbrokerToDeviceMessage {
 pub enum ServiceToDeviceMessages {
   RefreshKeysRequest(RefreshKeyRequest),
   IdentityDeviceListUpdated(IdentityDeviceListUpdated),
+  BadDeviceToken(BadDeviceToken),
 }
 
 // Messages sent from Device to Tunnelbroker which Tunnelbroker itself should handle.
