@@ -8,11 +8,6 @@ variable "landing_domain_name" {
   type        = string
 }
 
-variable "webapp_domain_name" {
-  description = "Domain name for your web app"
-  type        = string
-}
-
 variable "region" {
   description = "Keyserver's AWS deployment region"
   type        = string
@@ -57,4 +52,18 @@ variable "custom_keyserver_image" {
   description = "Specify custom keyserver image. Should be reserved for development purposes"
   type        = string
   default     = null
+}
+
+# Web app
+
+variable "enable_webapp_service" {
+  description = "Whether to run webapp on AWS"
+  type        = bool
+  default     = false
+}
+
+variable "webapp_domain_name" {
+  description = "Domain name for your web app"
+  type        = string
+  default     = ""
 }
