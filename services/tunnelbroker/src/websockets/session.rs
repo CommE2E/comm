@@ -33,6 +33,7 @@ use crate::notifs::apns::APNsNotif;
 use crate::notifs::fcm::firebase_message::{
   AndroidConfig, AndroidMessagePriority, FCMMessage,
 };
+use crate::notifs::web_push::WebPushNotif;
 use crate::notifs::NotifClient;
 
 pub struct DeviceInfo {
@@ -68,6 +69,7 @@ pub enum SessionError {
   DatabaseError(comm_lib::database::Error),
   MissingAPNsClient,
   MissingFCMClient,
+  MissingWebPushClient,
   MissingDeviceToken,
 }
 
@@ -455,6 +457,44 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           &notif.client_message_id,
           Err(SessionError::MissingFCMClient),
         ))
+      }
+      DeviceToTunnelbrokerMessage::WebPushNotif(notif) => {
+        // unauthenticated clients cannot send notifs
+        if !self.device_info.is_authenticated {
+          debug!(
+            "Unauthenticated device {} tried to send web push notif. Aborting.",
+            self.device_info.device_id
+          );
+          return Some(MessageSentStatus::Unauthenticated);
+        }
+        debug!("Received WebPush notif for {}", notif.device_id);
+
+        let Some(web_push_client) = self.notif_client.web_push.clone() else {
+          return Some(self.get_message_to_device_status(
+            &notif.client_message_id,
+            Err(SessionError::MissingWebPushClient),
+          ));
+        };
+
+        let device_token = match self.get_device_token(notif.device_id).await {
+          Ok(token) => token,
+          Err(e) => {
+            return Some(
+              self
+                .get_message_to_device_status(&notif.client_message_id, Err(e)),
+            )
+          }
+        };
+
+        let web_push_notif = WebPushNotif {
+          device_token,
+          payload: notif.payload,
+        };
+
+        let result = web_push_client.send(web_push_notif).await;
+        Some(
+          self.get_message_to_device_status(&notif.client_message_id, result),
+        )
       }
       _ => {
         error!("Client sent invalid message type");
