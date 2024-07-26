@@ -43,6 +43,7 @@ pub enum DeviceToTunnelbrokerMessage {
   AnonymousInitializationMessage(AnonymousInitializationMessage),
   APNsNotif(APNsNotif),
   FCMNotif(FCMNotif),
+  WebPushNotif(WebPushNotif),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
   MessageToTunnelbrokerRequest(MessageToTunnelbrokerRequest),
