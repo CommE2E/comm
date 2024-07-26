@@ -166,12 +166,22 @@ function PushNotificationsHandler(): React.Node {
     state => state.alertStore.alertInfos[alertTypes.NOTIF_PERMISSION],
   );
 
+  const tunnelbrokerDeviceToken = useSelector(
+    state => state.tunnelbrokerDeviceToken,
+  );
+
   const modalContext = useModalContext();
   const loggedIn = useSelector(isLoggedIn);
 
   const dispatch = useDispatch();
 
   const supported = 'Notification' in window && !electron;
+
+  React.useEffect(() => {
+    if (!tunnelbrokerDeviceToken.localToken) {
+      void createPushSubscription();
+    }
+  }, [createPushSubscription, tunnelbrokerDeviceToken.localToken]);
 
   React.useEffect(() => {
     void (async () => {
