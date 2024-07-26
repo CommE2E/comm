@@ -11,14 +11,25 @@ import {
   useBroadcastDeviceListUpdates,
   useGetAndUpdateDeviceListsForUsers,
 } from 'lib/hooks/peer-list-hooks.js';
-import { getForeignPeerDeviceIDs } from 'lib/selectors/user-selectors.js';
-import { addDeviceToDeviceList } from 'lib/shared/device-list-utils.js';
+import {
+  getForeignPeerDeviceIDs,
+  getOwnPeerDevices,
+  getKeyserverDeviceID,
+} from 'lib/selectors/user-selectors.js';
+import {
+  addDeviceToDeviceList,
+  replaceDeviceInDeviceList,
+} from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   backupKeysValidator,
   type BackupKeys,
 } from 'lib/types/backup-types.js';
+import {
+  identityDeviceTypes,
+  type IdentityDeviceType,
+} from 'lib/types/identity-service-types.js';
 import {
   tunnelbrokerToDeviceMessageTypes,
   type TunnelbrokerToDeviceMessage,
@@ -69,11 +80,14 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
 
   const aes256Key = React.useRef<?string>(null);
   const secondaryDeviceID = React.useRef<?string>(null);
+  const secondaryDeviceType = React.useRef<?IdentityDeviceType>(null);
 
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
 
   const foreignPeerDevices = useSelector(getForeignPeerDeviceIDs);
+  const ownPeerDevices = useSelector(getOwnPeerDevices);
+  const keyserverDeviceID = getKeyserverDeviceID(ownPeerDevices);
 
   const { panelForegroundTertiaryLabel } = useColors();
 
@@ -215,20 +229,74 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       if (!encryptionKey || !targetDeviceID) {
         throw new Error('missing tunnelbroker message data');
       }
-      await addDeviceToDeviceList(
-        identityContext.identityClient,
-        userID,
-        targetDeviceID,
+
+      const deviceType = secondaryDeviceType.current;
+
+      const sendDeviceListUpdateSuccessMessage = async () => {
+        const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
+          type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
+          userID,
+          primaryDeviceID,
+        });
+        await tunnelbrokerContext.sendMessageToDevice({
+          deviceID: targetDeviceID,
+          payload: JSON.stringify(message),
+        });
+      };
+
+      const handleReplaceDevice = async () => {
+        try {
+          if (!keyserverDeviceID) {
+            throw new Error('missing ID for keyserver device to be replaced');
+          }
+          await replaceDeviceInDeviceList(
+            identityContext.identityClient,
+            userID,
+            keyserverDeviceID,
+            targetDeviceID,
+          );
+          await sendDeviceListUpdateSuccessMessage();
+        } catch (err) {
+          console.log('Device replacement or update error:', err);
+          Alert.alert(
+            'Adding device failed',
+            'Failed to update the device list',
+            [{ text: 'OK' }],
+          );
+          goBack();
+        }
+      };
+
+      if (
+        deviceType !== identityDeviceTypes.KEYSERVER ||
+        !keyserverDeviceID ||
+        keyserverDeviceID === targetDeviceID
+      ) {
+        await addDeviceToDeviceList(
+          identityContext.identityClient,
+          userID,
+          targetDeviceID,
+        );
+        await sendDeviceListUpdateSuccessMessage();
+        return;
+      }
+
+      Alert.alert(
+        'Existing keyserver detected',
+        'Do you want to replace your existing keyserver with this new one?',
+        [
+          {
+            text: 'Replace',
+            onPress: handleReplaceDevice,
+            style: 'destructive',
+          },
+          {
+            text: 'No',
+            onPress: goBack,
+            style: 'cancel',
+          },
+        ],
       );
-      const message = await composeTunnelbrokerQRAuthMessage(encryptionKey, {
-        type: qrCodeAuthMessageTypes.DEVICE_LIST_UPDATE_SUCCESS,
-        userID,
-        primaryDeviceID,
-      });
-      await tunnelbrokerContext.sendMessageToDevice({
-        deviceID: targetDeviceID,
-        payload: JSON.stringify(message),
-      });
     } catch (err) {
       console.log('Primary device error:', err);
       Alert.alert('Adding device failed', 'Failed to update the device list', [
@@ -236,7 +304,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       ]);
       goBack();
     }
-  }, [goBack, identityContext, tunnelbrokerContext]);
+  }, [goBack, identityContext, keyserverDeviceID, tunnelbrokerContext]);
 
   const onPressSave = React.useCallback(async () => {
     if (!urlInput) {
@@ -260,8 +328,10 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
       const { aes256, ed25519 } = keys;
       aes256Key.current = aes256;
       secondaryDeviceID.current = ed25519;
+      secondaryDeviceType.current = parsedData.data.deviceType;
     } catch (err) {
       console.log('Failed to decode URI component:', err);
+      return;
     }
     await processDeviceListUpdate();
   }, [processDeviceListUpdate, urlInput]);
@@ -307,8 +377,10 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         const { aes256, ed25519 } = keys;
         aes256Key.current = aes256;
         secondaryDeviceID.current = ed25519;
+        secondaryDeviceType.current = parsedData.data.deviceType;
       } catch (err) {
         console.log('Failed to decode URI component:', err);
+        return;
       }
 
       await processDeviceListUpdate();
