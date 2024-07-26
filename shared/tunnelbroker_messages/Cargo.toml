@@ -11,3 +11,4 @@ homepage.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 websocket_messages = { path = "../websocket_messages" }
+util_macros = { path = "../util_macros" }
