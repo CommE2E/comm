@@ -36,6 +36,11 @@ pub fn handle_ddb_error<E>(db_error: SdkError<E>) -> tonic::Status {
   }
 }
 
+pub struct DeviceTokenEntry {
+  pub device_token: String,
+  pub token_invalid: bool,
+}
+
 impl DatabaseClient {
   pub fn new(aws_config: &AwsConfig) -> Self {
     let client = DynamoDBClient::new(aws_config);
@@ -153,7 +158,7 @@ impl DatabaseClient {
   pub async fn get_device_token(
     &self,
     device_id: &str,
-  ) -> Result<Option<String>, Error> {
+  ) -> Result<Option<DeviceTokenEntry>, Error> {
     let get_response = self
       .client
       .get_item()
@@ -174,7 +179,13 @@ impl DatabaseClient {
     };
 
     let device_token: String = item.take_attr(device_tokens::DEVICE_TOKEN)?;
-    Ok(Some(device_token))
+    let token_invalid: Option<bool> =
+      item.take_attr(device_tokens::TOKEN_INVALID)?;
+
+    Ok(Some(DeviceTokenEntry {
+      device_token,
+      token_invalid: token_invalid.unwrap_or(false),
+    }))
   }
 
   pub async fn set_device_token(
