@@ -326,6 +326,12 @@ pub mod validation {
       == 1
   }
 
+  /// Verifies if the device list contains duplicated device IDs
+  fn has_duplicates(device_list: &[&str]) -> bool {
+    let devices_set: HashSet<&str> = device_list.iter().copied().collect();
+    devices_set.len() != device_list.len()
+  }
+
   // This is going to be used when doing primary devicd keys rotation
   #[allow(unused)]
   pub fn primary_device_rotation_validator(
@@ -344,6 +350,10 @@ pub mod validation {
     new_device_list: &[&str],
   ) -> bool {
     if primary_device_changed(previous_device_list, new_device_list) {
+      return false;
+    }
+
+    if has_duplicates(new_device_list) {
       return false;
     }
 
@@ -406,6 +416,17 @@ pub mod validation {
       assert!(is_device_replaced(&list1, &list3).not(), "Length unequal");
       assert!(is_device_replaced(&list3, &list3).not(), "Unchanged");
       assert!(is_device_replaced(&list3, &list4).not(), "Reorder");
+    }
+
+    #[test]
+    fn test_duplicated_devices() {
+      use std::ops::Not;
+
+      let list1 = vec!["device1", "device2", "device3"];
+      let list2 = vec!["device1", "device2", "device2"];
+
+      assert!(has_duplicates(&list1).not(), "No duplicates");
+      assert!(has_duplicates(&list2), "With duplicates");
     }
   }
 }
