@@ -5822,6 +5822,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+ "util_macros",
  "websocket_messages",
 ]
 
