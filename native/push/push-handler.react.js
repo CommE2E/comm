@@ -133,6 +133,7 @@ type Props = {
   ) => Promise<SetDeviceTokenActionPayload>,
   // withRootContext
   +rootContext: ?RootContextType,
+  +localToken: ?string,
 };
 type State = {
   +inAppNotifProps: ?{
@@ -285,6 +286,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
 
     if (this.props.loggedIn && !prevProps.loggedIn) {
+      void this.ensurePushNotifsEnabled();
+    } else if (!this.props.localToken && prevProps.localToken) {
       void this.ensurePushNotifsEnabled();
     } else {
       for (const keyserverID in this.props.deviceTokens) {
@@ -439,8 +442,15 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (!this.props.loggedIn) {
       return;
     }
-    if (Platform.OS === 'ios') {
-      let missingDeviceToken = false;
+    if (Platform.OS === 'android') {
+      await this.ensureAndroidPushNotifsEnabled();
+      return;
+    }
+    if (Platform.OS !== 'ios') {
+      return;
+    }
+    let missingDeviceToken = !this.props.localToken;
+    if (!missingDeviceToken) {
       for (const keyserverID in this.props.deviceTokens) {
         const deviceToken = this.props.deviceTokens[keyserverID];
         if (deviceToken === null || deviceToken === undefined) {
@@ -448,10 +458,8 @@ class PushHandler extends React.PureComponent<Props, State> {
           break;
         }
       }
-      await requestIOSPushPermissions(missingDeviceToken);
-    } else if (Platform.OS === 'android') {
-      await this.ensureAndroidPushNotifsEnabled();
     }
+    await requestIOSPushPermissions(missingDeviceToken);
   }
 
   async ensureAndroidPushNotifsEnabled() {
@@ -801,6 +809,9 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const allUpdatesCurrentAsOf = useSelector(allUpdatesCurrentAsOfSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
     const loggedIn = useSelector(isLoggedIn);
+    const localToken = useSelector(
+      state => state.tunnelbrokerDeviceToken.localToken,
+    );
     const navigateToThread = useNavigateToThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
@@ -825,6 +836,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         setDeviceToken={callSetDeviceToken}
         setDeviceTokenFanout={callSetDeviceTokenFanout}
         rootContext={rootContext}
+        localToken={localToken}
       />
     );
   });
