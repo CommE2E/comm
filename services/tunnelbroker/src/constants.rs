@@ -43,13 +43,15 @@ pub mod dynamodb {
   // This table holds a device token associated with a device.
   //
   // - (primary key) = (deviceID: Partition Key)
-  // - deviceID: The public key of a device's olm identity key
+  // - deviceID: The public key of a device's olm identity key.
   // - deviceToken: Token to push services uploaded by device.
+  // - tokenInvalid: Information is token is invalid.
   pub mod device_tokens {
     pub const TABLE_NAME: &str = "tunnelbroker-device-tokens";
     pub const PARTITION_KEY: &str = "deviceID";
     pub const DEVICE_ID: &str = "deviceID";
     pub const DEVICE_TOKEN: &str = "deviceToken";
+    pub const TOKEN_INVALID: &str = "tokenInvalid";
 
     pub const DEVICE_TOKEN_INDEX_NAME: &str = "deviceToken-index";
   }

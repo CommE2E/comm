@@ -69,6 +69,7 @@ pub enum SessionError {
   MissingAPNsClient,
   MissingFCMClient,
   MissingDeviceToken,
+  InvalidDeviceToken,
 }
 
 // Parse a session request and retrieve the device information
@@ -530,6 +531,19 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       .get_device_token(&device_id)
       .await
       .map_err(SessionError::DatabaseError)?;
-    db_token.ok_or_else(|| SessionError::MissingDeviceToken)
+
+    match db_token {
+      Some(token) => match token.token_invalid {
+        None => Ok(token.device_token),
+        Some(token_invalid) => {
+          if token_invalid {
+            Err(SessionError::InvalidDeviceToken)
+          } else {
+            Ok(token.device_token)
+          }
+        }
+      },
+      None => Err(SessionError::MissingDeviceToken),
+    }
   }
 }
