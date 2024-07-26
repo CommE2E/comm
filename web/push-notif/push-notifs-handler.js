@@ -119,6 +119,19 @@ function useCreateDesktopPushSubscription() {
       ),
     [dispatch],
   );
+
+  // Handle invalid device token
+  const localToken = useSelector(
+    state => state.tunnelbrokerDeviceToken.localToken,
+  );
+  const prevLocalToken = React.useRef(localToken);
+  React.useEffect(() => {
+    if (prevLocalToken.current && !localToken) {
+      electron?.fetchDeviceToken?.();
+    }
+
+    prevLocalToken.current = localToken;
+  }, [localToken]);
 }
 
 function useCreatePushSubscription(): () => Promise<void> {
@@ -270,6 +283,27 @@ function PushNotificationsHandler(): React.Node {
     return () =>
       navigator.serviceWorker?.removeEventListener('message', callback);
   }, [dispatch, supported]);
+
+  // Handle invalid device token
+  const localToken = useSelector(
+    state => state.tunnelbrokerDeviceToken.localToken,
+  );
+  const prevLocalToken = React.useRef(localToken);
+  React.useEffect(() => {
+    if (
+      !navigator.serviceWorker ||
+      !supported ||
+      Notification.permission !== 'granted'
+    ) {
+      return;
+    }
+
+    if (prevLocalToken.current && !localToken) {
+      void createPushSubscription();
+    }
+
+    prevLocalToken.current = localToken;
+  }, [createPushSubscription, localToken, supported]);
 
   return null;
 }
