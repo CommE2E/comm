@@ -4,7 +4,7 @@ use comm_lib::aws::ddb::operation::delete_item::{
 };
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use comm_lib::aws::ddb::operation::query::QueryError;
-use comm_lib::aws::ddb::types::AttributeValue;
+use comm_lib::aws::ddb::types::{AttributeValue, PutRequest, WriteRequest};
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
 use comm_lib::database::{AttributeExtractor, AttributeMap, Error};
 use std::collections::HashMap;
@@ -12,6 +12,7 @@ use std::sync::Arc;
 use tracing::{debug, error, warn};
 
 use crate::constants::dynamodb::{device_tokens, undelivered_messages};
+use crate::constants::MESSAGE_TTL_AFTER_DELETION_REQUEST;
 
 pub mod message;
 pub mod message_id;
@@ -131,6 +132,42 @@ impl DatabaseClient {
       .set_key(Some(key))
       .send()
       .await
+  }
+
+  pub async fn mark_messages_to_device_for_deletion(
+    &self,
+    device_id: &str,
+  ) -> Result<(), Error> {
+    let messages = self.retrieve_messages(device_id).await.map_err(|e| {
+      error!("DynamoDB client failed to retrieve messages: {:?}", e);
+      Error::AwsSdk(e.into())
+    })?;
+
+    let expires_at = chrono::Utc::now() + MESSAGE_TTL_AFTER_DELETION_REQUEST;
+    let expiration_attr = AttributeValue::N(expires_at.timestamp().to_string());
+
+    let update_requests = messages
+      .into_iter()
+      .map(|mut attrs| {
+        attrs.insert(
+          undelivered_messages::EXPIRATION_TIME.to_string(),
+          expiration_attr.clone(),
+        );
+        let put_request =
+          PutRequest::builder().set_item(Some(attrs)).build().unwrap();
+        WriteRequest::builder().put_request(put_request).build()
+      })
+      .collect();
+
+    comm_lib::database::batch_operations::batch_write(
+      &self.client,
+      undelivered_messages::TABLE_NAME,
+      update_requests,
+      Default::default(),
+    )
+    .await?;
+
+    Ok(())
   }
 
   pub async fn remove_device_token(

@@ -94,6 +94,11 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
     name = "messageID"
     type = "S"
   }
+
+  ttl {
+    attribute_name = "expirationTimeUnix"
+    enabled        = true
+  }
 }
 
 resource "aws_dynamodb_table" "tunnelbroker-device-tokens" {
