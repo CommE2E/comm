@@ -20,7 +20,6 @@ import {
   type IdentityAuthResult,
   type IdentityNewDeviceKeyUpload,
   type IdentityExistingDeviceKeyUpload,
-  identityDeviceTypes,
   identityAuthResultValidator,
   type UserDevicesOlmInboundKeys,
   type DeviceOlmInboundKeys,
@@ -34,6 +33,7 @@ import {
   type PeersDeviceLists,
   peersDeviceListsValidator,
   type IdentityPlatformDetails,
+  platformToIdentityDeviceType,
 } from 'lib/types/identity-service-types.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { assertWithValidator } from 'lib/utils/validation-utils.js';
@@ -58,6 +58,7 @@ import { initOpaque } from '../shared-worker/utils/opaque-utils.js';
 
 class IdentityServiceClientWrapper implements IdentityServiceClient {
   overridedOpaqueFilepath: string;
+  platformDetails: PlatformDetails;
   authClient: ?IdentityAuthClient.IdentityClientServicePromiseClient;
   unauthClient: IdentityUnauthClient.IdentityClientServicePromiseClient;
   getNewDeviceKeyUpload: () => Promise<IdentityNewDeviceKeyUpload>;
@@ -71,6 +72,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     getExistingDeviceKeyUpload: () => Promise<IdentityExistingDeviceKeyUpload>,
   ) {
     this.overridedOpaqueFilepath = overridedOpaqueFilepath;
+    this.platformDetails = platformDetails;
     if (authLayer) {
       this.authClient = IdentityServiceClientWrapper.createAuthClient(
         platformDetails,
@@ -356,6 +358,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     const startRequestBytes = opaqueLogin.start(password);
 
     const deviceKeyUpload = authExistingDeviceKeyUpload(
+      this.platformDetails,
       identityDeviceKeyUpload,
     );
 
@@ -418,6 +421,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
   ) => {
     const identityDeviceKeyUpload = await this.getExistingDeviceKeyUpload();
     const deviceKeyUpload = authExistingDeviceKeyUpload(
+      this.platformDetails,
       identityDeviceKeyUpload,
     );
 
@@ -453,7 +457,10 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     nonceChallengeResponse,
   ) => {
     const identityDeviceKeyUpload = await this.getNewDeviceKeyUpload();
-    const deviceKeyUpload = authNewDeviceKeyUpload(identityDeviceKeyUpload);
+    const deviceKeyUpload = authNewDeviceKeyUpload(
+      this.platformDetails,
+      identityDeviceKeyUpload,
+    );
     const { nonce, nonceSignature } = nonceChallengeResponse;
 
     const request = new SecondaryDeviceKeysUploadRequest();
@@ -750,6 +757,7 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
 }
 
 function authNewDeviceKeyUpload(
+  platformDetails: PlatformDetails,
   uploadData: IdentityNewDeviceKeyUpload,
 ): DeviceKeyUpload {
   const {
@@ -776,6 +784,7 @@ function authNewDeviceKeyUpload(
   const notifPrekeyUpload = createPrekey(notifPrekey, notifPrekeySignature);
 
   const deviceKeyUpload = createDeviceKeyUpload(
+    platformDetails,
     identityKeyInfo,
     contentPrekeyUpload,
     notifPrekeyUpload,
@@ -787,6 +796,7 @@ function authNewDeviceKeyUpload(
 }
 
 function authExistingDeviceKeyUpload(
+  platformDetails: PlatformDetails,
   uploadData: IdentityExistingDeviceKeyUpload,
 ): DeviceKeyUpload {
   const {
@@ -811,6 +821,7 @@ function authExistingDeviceKeyUpload(
   const notifPrekeyUpload = createPrekey(notifPrekey, notifPrekeySignature);
 
   const deviceKeyUpload = createDeviceKeyUpload(
+    platformDetails,
     identityKeyInfo,
     contentPrekeyUpload,
     notifPrekeyUpload,
@@ -837,6 +848,7 @@ function createPrekey(prekey: string, prekeySignature: string): Prekey {
 }
 
 function createDeviceKeyUpload(
+  platformDetails: PlatformDetails,
   identityKeyInfo: IdentityKeyInfo,
   contentPrekeyUpload: Prekey,
   notifPrekeyUpload: Prekey,
@@ -849,7 +861,9 @@ function createDeviceKeyUpload(
   deviceKeyUpload.setNotifUpload(notifPrekeyUpload);
   deviceKeyUpload.setOneTimeContentPrekeysList([...contentOneTimeKeys]);
   deviceKeyUpload.setOneTimeNotifPrekeysList([...notifOneTimeKeys]);
-  deviceKeyUpload.setDeviceType(identityDeviceTypes.WEB);
+  deviceKeyUpload.setDeviceType(
+    platformToIdentityDeviceType[platformDetails.platform],
+  );
   return deviceKeyUpload;
 }
 
