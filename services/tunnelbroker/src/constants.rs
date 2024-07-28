@@ -19,6 +19,10 @@ pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 pub const FCM_ACCESS_TOKEN_GENERATION_THRESHOLD: u64 = 5 * 60;
 
+/// How long messages should stay in DDB after device data deletion request
+pub const MESSAGE_TTL_AFTER_DELETION_REQUEST: chrono::Duration =
+  chrono::Duration::hours(24);
+
 pub mod dynamodb {
   // This table holds messages which could not be immediately delivered to
   // a device.
@@ -36,6 +40,7 @@ pub mod dynamodb {
     pub const PARTITION_KEY: &str = "deviceID";
     pub const DEVICE_ID: &str = "deviceID";
     pub const PAYLOAD: &str = "payload";
+    pub const EXPIRATION_TIME: &str = "expirationTimeUnix";
     pub const MESSAGE_ID: &str = "messageID";
     pub const SORT_KEY: &str = "messageID";
   }
