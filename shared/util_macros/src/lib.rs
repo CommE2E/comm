@@ -8,7 +8,7 @@ mod tag_aware_deserialize;
 /// totally ignores the `tag` attribute when deserializing enum variants.
 ///
 /// This derive requires two serde attributes to be present:
-/// `#[serde(tag = "type", remote = "Self")]`
+/// `#[serde(tag = "<<some_tag>>", remote = "Self")]`
 ///
 /// ### Example
 /// ```
