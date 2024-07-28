@@ -33,7 +33,14 @@ class VersionInterceptor<Request, Response> {
     if (majorDesktopVersion) {
       metadata['major_desktop_version'] = majorDesktopVersion.toString();
     }
-    metadata['device_type'] = deviceType;
+
+    let identityDeviceType;
+    if (deviceType === 'macos') {
+      identityDeviceType = 'mac_os';
+    } else {
+      identityDeviceType = deviceType;
+    }
+    metadata['device_type'] = identityDeviceType;
 
     return invoker(request);
   }
