@@ -1,5 +1,6 @@
 extern crate proc_macro;
 use proc_macro::TokenStream;
+use syn::parse_macro_input;
 
 mod tag_aware_deserialize;
 
@@ -8,7 +9,7 @@ mod tag_aware_deserialize;
 /// totally ignores the `tag` attribute when deserializing enum variants.
 ///
 /// This derive requires two serde attributes to be present:
-/// `#[serde(tag = "type", remote = "Self")]`
+/// `#[serde(tag = "<<some_tag>>", remote = "Self")]`
 ///
 /// ### Example
 /// ```
@@ -57,6 +58,7 @@ mod tag_aware_deserialize;
 /// ```
 #[proc_macro_derive(TagAwareDeserialize)]
 pub fn tag_aware_deserialize_macro_derive(input: TokenStream) -> TokenStream {
-  let ast = syn::parse(input).unwrap();
+  let ast = parse_macro_input!(input as syn::DeriveInput);
   tag_aware_deserialize::impl_tag_aware_deserialize_macro(&ast)
+    .unwrap_or_else(|err| err.into_compile_error().into())
 }
