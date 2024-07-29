@@ -47,7 +47,10 @@ import { verifyUserLoggedIn } from './user/login.js';
 import { initENSCache } from './utils/ens-cache.js';
 import { initFCCache } from './utils/fc-cache.js';
 import { getContentSigningKey } from './utils/olm-utils.js';
-import { isPrimaryNode } from './utils/primary-secondary-utils.js';
+import {
+  isPrimaryNode,
+  isSecondaryNode,
+} from './utils/primary-secondary-utils.js';
 import { getRunServerConfig } from './utils/server-utils.js';
 import {
   prefetchAllURLFacts,
@@ -131,18 +134,25 @@ void (async () => {
     } else {
       // Allow login to be optional until staging environment is available
       try {
-        // We await here to ensure that the keyserver has been provisioned a
-        // commServicesAccessToken. In the future, this will be necessary for
-        // many keyserver operations.
-        const identityInfo = await verifyUserLoggedIn();
+        // Should not be run by Landing or WebApp nodes
+        if (isPrimaryNode || isSecondaryNode) {
+          // We await here to ensure that the keyserver has been provisioned a
+          // commServicesAccessToken. In the future, this will be necessary for
+          // many keyserver operations.
+          const identityInfo = await verifyUserLoggedIn();
 
-        if (isPrimaryNode) {
           // We don't await here, as Tunnelbroker communication is not needed
           // for normal keyserver behavior yet. In addition, this doesn't
           // return information useful for other keyserver functions.
-          ignorePromiseRejections(createAndMaintainTunnelbrokerWebsocket(null));
-          if (process.env.NODE_ENV === 'development') {
-            await createAuthoritativeKeyserverConfigFiles(identityInfo.userId);
+          if (isPrimaryNode) {
+            ignorePromiseRejections(
+              createAndMaintainTunnelbrokerWebsocket(null),
+            );
+            if (process.env.NODE_ENV === 'development') {
+              await createAuthoritativeKeyserverConfigFiles(
+                identityInfo.userId,
+              );
+            }
           }
         }
       } catch (e) {
