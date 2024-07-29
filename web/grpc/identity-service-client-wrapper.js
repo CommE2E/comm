@@ -29,7 +29,8 @@ import {
   farcasterUsersValidator,
   type UsersSignedDeviceLists,
   type Identities,
-  identitiesValidator,
+  type UserIdentitiesResponse,
+  userIdentitiesResponseValidator,
   type PeersDeviceLists,
   peersDeviceListsValidator,
   type IdentityPlatformDetails,
@@ -649,31 +650,41 @@ class IdentityServiceClientWrapper implements IdentityServiceClient {
     await client.unlinkFarcasterAccount(new Empty());
   };
 
-  findUserIdentities: (userIDs: $ReadOnlyArray<string>) => Promise<Identities> =
-    async userIDs => {
-      const client = this.authClient;
-      if (!client) {
-        throw new Error('Identity service client is not initialized');
-      }
-      const request = new IdentityAuthStructs.UserIdentitiesRequest();
-      request.setUserIdsList([...userIDs]);
-      const response = await client.findUserIdentities(request);
-      const identityObjects = response.toObject()?.identitiesMap;
+  findUserIdentities: (
+    userIDs: $ReadOnlyArray<string>,
+  ) => Promise<UserIdentitiesResponse> = async userIDs => {
+    const client = this.authClient;
+    if (!client) {
+      throw new Error('Identity service client is not initialized');
+    }
+    const request = new IdentityAuthStructs.UserIdentitiesRequest();
+    request.setUserIdsList([...userIDs]);
+    const response = await client.findUserIdentities(request);
+    const responseObject = response.toObject();
+    const identityObjects = responseObject?.identitiesMap;
+    const reservedUserEntries = responseObject?.reservedUserIdentifiersMap;
 
-      let identities: Identities = {};
-      identityObjects.forEach(([userID, identityObject]) => {
-        identities = {
-          ...identities,
-          [userID]: {
-            ethIdentity: identityObject.ethIdentity,
-            username: identityObject.username,
-            farcasterID: identityObject.farcasterId,
-          },
-        };
-      });
+    let identities: Identities = {};
+    identityObjects.forEach(([userID, identityObject]) => {
+      identities = {
+        ...identities,
+        [userID]: {
+          ethIdentity: identityObject.ethIdentity,
+          username: identityObject.username,
+          farcasterID: identityObject.farcasterId,
+        },
+      };
+    });
 
-      return assertWithValidator(identities, identitiesValidator);
+    const userIdentitiesResponse: UserIdentitiesResponse = {
+      identities,
+      reservedUserIdentifiers: Object.fromEntries(reservedUserEntries),
     };
+    return assertWithValidator(
+      userIdentitiesResponse,
+      userIdentitiesResponseValidator,
+    );
+  };
 
   versionSupported: () => Promise<boolean> = async () => {
     const client = this.unauthClient;
