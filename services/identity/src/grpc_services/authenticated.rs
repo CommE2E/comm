@@ -864,20 +864,32 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<Response<UserIdentitiesResponse>, tonic::Status> {
     let message = request.into_inner();
 
-    let results = self
+    let users_table_results = self
       .db_client
-      .find_db_user_identities(message.user_ids)
+      .find_db_user_identities(message.user_ids.clone())
       .await
       .map_err(handle_db_error)?;
 
-    let mapped_results = results
+    // Look up only user IDs that haven't been found in users table
+    let reserved_user_ids_to_query: Vec<String> = message
+      .user_ids
+      .into_iter()
+      .filter(|user_id| !users_table_results.contains_key(user_id))
+      .collect();
+    let reserved_user_identifiers = self
+      .db_client
+      .query_reserved_usernames_by_user_ids(reserved_user_ids_to_query)
+      .await
+      .map_err(handle_db_error)?;
+
+    let identities = users_table_results
       .into_iter()
       .map(|(user_id, identifier)| (user_id, identifier.into()))
       .collect();
 
     let response = UserIdentitiesResponse {
-      identities: mapped_results,
-      reserved_user_identifiers: HashMap::new(),
+      identities,
+      reserved_user_identifiers,
     };
     return Ok(Response::new(response));
   }
