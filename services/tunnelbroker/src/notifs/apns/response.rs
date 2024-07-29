@@ -93,6 +93,9 @@ pub enum ErrorReason {
   /// The request method was not `POST`.
   MethodNotAllowed,
 
+  /// The device token has expired.
+  ExpiredToken,
+
   /// The device token is inactive for the specified topic.
   Unregistered,
 
