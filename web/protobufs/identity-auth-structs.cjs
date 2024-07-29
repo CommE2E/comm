@@ -5732,7 +5732,8 @@ proto.identity.auth.UserIdentitiesResponse.prototype.toObject = function(opt_inc
  */
 proto.identity.auth.UserIdentitiesResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    identitiesMap: (f = msg.getIdentitiesMap()) ? f.toObject(includeInstance, proto.identity.auth.Identity.toObject) : []
+    identitiesMap: (f = msg.getIdentitiesMap()) ? f.toObject(includeInstance, proto.identity.auth.Identity.toObject) : [],
+    reservedUserIdentifiersMap: (f = msg.getReservedUserIdentifiersMap()) ? f.toObject(includeInstance, undefined) : []
   };
 
   if (includeInstance) {
@@ -5775,6 +5776,12 @@ proto.identity.auth.UserIdentitiesResponse.deserializeBinaryFromReader = functio
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.identity.auth.Identity.deserializeBinaryFromReader, "", new proto.identity.auth.Identity());
          });
       break;
+    case 2:
+      var value = msg.getReservedUserIdentifiersMap();
+      reader.readMessage(value, function(message, reader) {
+        jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
+         });
+      break;
     default:
       reader.skipField();
       break;
@@ -5808,6 +5815,10 @@ proto.identity.auth.UserIdentitiesResponse.serializeBinaryToWriter = function(me
   if (f && f.getLength() > 0) {
     f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.identity.auth.Identity.serializeBinaryToWriter);
   }
+  f = message.getReservedUserIdentifiersMap(true);
+  if (f && f.getLength() > 0) {
+    f.serializeBinary(2, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+  }
 };
 
 
@@ -5830,6 +5841,29 @@ proto.identity.auth.UserIdentitiesResponse.prototype.getIdentitiesMap = function
  */
 proto.identity.auth.UserIdentitiesResponse.prototype.clearIdentitiesMap = function() {
   this.getIdentitiesMap().clear();
+  return this;
+};
+
+
+/**
+ * map<string, string> reserved_user_identifiers = 2;
+ * @param {boolean=} opt_noLazyCreate Do not create the map if
+ * empty, instead returning `undefined`
+ * @return {!jspb.Map<string,string>}
+ */
+proto.identity.auth.UserIdentitiesResponse.prototype.getReservedUserIdentifiersMap = function(opt_noLazyCreate) {
+  return /** @type {!jspb.Map<string,string>} */ (
+      jspb.Message.getMapField(this, 2, opt_noLazyCreate,
+      null));
+};
+
+
+/**
+ * Clears values from the map. The map will be non-null.
+ * @return {!proto.identity.auth.UserIdentitiesResponse} returns this
+ */
+proto.identity.auth.UserIdentitiesResponse.prototype.clearReservedUserIdentifiersMap = function() {
+  this.getReservedUserIdentifiersMap().clear();
   return this;
 };
 
