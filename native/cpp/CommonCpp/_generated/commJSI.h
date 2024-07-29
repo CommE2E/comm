@@ -46,7 +46,7 @@ public:
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value encryptAndPersist(jsi::Runtime &rt, jsi::String message, jsi::String deviceID, jsi::String messageID) = 0;
   virtual jsi::Value decrypt(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID) = 0;
-  virtual jsi::Value decryptSequentialAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) = 0;
+  virtual jsi::Value decryptAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) = 0;
   virtual jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) = 0;
   virtual jsi::Value verifySignature(jsi::Runtime &rt, jsi::String publicKey, jsi::String message, jsi::String signature) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
@@ -315,13 +315,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::decrypt, jsInvoker_, instance_, std::move(encryptedData), std::move(deviceID));
     }
-    jsi::Value decryptSequentialAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) override {
+    jsi::Value decryptAndPersist(jsi::Runtime &rt, jsi::Object encryptedData, jsi::String deviceID, jsi::String messageID) override {
       static_assert(
-          bridging::getParameterCount(&T::decryptSequentialAndPersist) == 4,
-          "Expected decryptSequentialAndPersist(...) to have 4 parameters");
+          bridging::getParameterCount(&T::decryptAndPersist) == 4,
+          "Expected decryptAndPersist(...) to have 4 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::decryptSequentialAndPersist, jsInvoker_, instance_, std::move(encryptedData), std::move(deviceID), std::move(messageID));
+          rt, &T::decryptAndPersist, jsInvoker_, instance_, std::move(encryptedData), std::move(deviceID), std::move(messageID));
     }
     jsi::Value signMessage(jsi::Runtime &rt, jsi::String message) override {
       static_assert(

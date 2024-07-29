@@ -144,7 +144,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::Object encryptedDataJSI,
       jsi::String deviceID) override;
-  virtual jsi::Value decryptSequentialAndPersist(
+  virtual jsi::Value decryptAndPersist(
       jsi::Runtime &rt,
       jsi::Object encryptedDataJSI,
       jsi::String deviceID,

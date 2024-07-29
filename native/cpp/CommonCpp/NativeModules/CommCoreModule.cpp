@@ -1604,7 +1604,7 @@ jsi::Value CommCoreModule::decrypt(
       });
 }
 
-jsi::Value CommCoreModule::decryptSequentialAndPersist(
+jsi::Value CommCoreModule::decryptAndPersist(
     jsi::Runtime &rt,
     jsi::Object encryptedDataJSI,
     jsi::String deviceID,
@@ -1624,8 +1624,8 @@ jsi::Value CommCoreModule::decryptSequentialAndPersist(
             crypto::EncryptedData encryptedData{
                 std::vector<uint8_t>(message.begin(), message.end()),
                 messageType};
-            decryptedMessage = this->contentCryptoModule->decryptSequential(
-                deviceIDCpp, encryptedData);
+            decryptedMessage =
+                this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
 
             std::string storedSecretKey =
                 getAccountDataKey(secureStoreAccountDataKey);
