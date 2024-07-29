@@ -568,11 +568,12 @@ impl IdentityClientService for AuthenticatedService {
       ));
     }
 
-    self
+    let device_ids = self
       .db_client
       .delete_user(user_id)
       .await
       .map_err(handle_db_error)?;
+    spawn_delete_tunnelbroker_data_task(device_ids);
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -654,11 +655,12 @@ impl IdentityClientService for AuthenticatedService {
       .finish(&message.opaque_login_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
-    self
+    let device_ids = self
       .db_client
       .delete_user(user_id)
       .await
       .map_err(handle_db_error)?;
+    spawn_delete_tunnelbroker_data_task(device_ids);
 
     let response = Empty {};
     Ok(Response::new(response))
