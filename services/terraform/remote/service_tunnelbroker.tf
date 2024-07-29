@@ -22,6 +22,7 @@ locals {
   apns_config_secret_name     = "tunnelbroker/APNsConfig"
   fcm_config_secret_name      = "tunnelbroker/FCMConfig"
   web_push_config_secret_name = "tunnelbroker/WebPushConfig"
+  wns_config_secret_name      = "tunnelbroker/WNSConfig"
 }
 
 data "aws_secretsmanager_secret" "tunnelbroker_apns" {
@@ -34,6 +35,10 @@ data "aws_secretsmanager_secret" "tunnelbroker_fcm" {
 
 data "aws_secretsmanager_secret" "tunnelbroker_web_push" {
   name = local.web_push_config_secret_name
+}
+
+data "aws_secretsmanager_secret" "tunnelbroker_wns" {
+  name = local.wns_config_secret_name
 }
 
 # RabbitMQ
@@ -115,6 +120,10 @@ resource "aws_ecs_task_definition" "tunnelbroker" {
         {
           name      = "WEB_PUSH_CONFIG"
           valueFrom = data.aws_secretsmanager_secret.tunnelbroker_web_push.arn
+        },
+        {
+          name      = "WNS_CONFIG"
+          valueFrom = data.aws_secretsmanager_secret.tunnelbroker_wns.arn
         }
       ]
       logConfiguration = {
