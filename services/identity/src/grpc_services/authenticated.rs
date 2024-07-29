@@ -879,6 +879,7 @@ impl IdentityClientService for AuthenticatedService {
 
     let response = UserIdentitiesResponse {
       identities: mapped_results,
+      reserved_user_identities: HashMap::new(),
     };
     return Ok(Response::new(response));
   }

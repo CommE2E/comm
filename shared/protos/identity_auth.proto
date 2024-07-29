@@ -318,4 +318,7 @@ message UserIdentitiesRequest {
 
 message UserIdentitiesResponse {
   map<string, Identity> identities = 1;
+
+  // reserved usernames or wallet addresses
+  map<string, string> reserved_user_identities = 2;
 }
