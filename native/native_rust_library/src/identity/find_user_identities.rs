@@ -34,8 +34,10 @@ pub mod ffi {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserIdentities {
   pub identities: HashMap<String, Identity>,
+  pub reserved_user_identifiers: HashMap<String, String>,
 }
 
 #[derive(Serialize)]
@@ -81,7 +83,10 @@ impl TryFrom<UserIdentitiesResponse> for UserIdentities {
       })
       .collect();
 
-    Ok(UserIdentities { identities })
+    Ok(UserIdentities {
+      identities,
+      reserved_user_identifiers: response.reserved_user_identifiers,
+    })
   }
 }
 
@@ -105,5 +110,5 @@ async fn find_user_identities_helper(
 
   let user_identities = UserIdentities::try_from(response)?;
 
-  Ok(serde_json::to_string(&user_identities.identities)?)
+  Ok(serde_json::to_string(&user_identities)?)
 }
