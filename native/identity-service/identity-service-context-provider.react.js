@@ -27,7 +27,7 @@ import {
   type UserDevicesOlmInboundKeys,
   type UserDevicesOlmOutboundKeys,
   type UsersSignedDeviceLists,
-  identitiesValidator,
+  userIdentitiesResponseValidator,
   type UsersDevicesPlatformDetails,
   peersDeviceListsValidator,
 } from 'lib/types/identity-service-types.js';
@@ -666,8 +666,10 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           token,
           userIDs,
         );
-        const { identities } = JSON.parse(result);
-        return assertWithValidator(identities, identitiesValidator);
+        return assertWithValidator(
+          JSON.parse(result),
+          userIdentitiesResponseValidator,
+        );
       },
       versionSupported: () => {
         return commRustModule.versionSupported();
