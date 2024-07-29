@@ -14,5 +14,10 @@ terraform {
       source  = "hashicorp/random"
       version = "3.5.1"
     }
+
+    dotenv = {
+      source  = "germanbrew/dotenv"
+      version = "1.1.2"
+    }
   }
 }

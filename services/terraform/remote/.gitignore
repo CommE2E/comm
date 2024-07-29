@@ -5,6 +5,9 @@
 *.tfstate
 *.tfstate.*
 
+# Dotenv
+.env
+
 # Crash log files
 crash.log
 crash.*.log
