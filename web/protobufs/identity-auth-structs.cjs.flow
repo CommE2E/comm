@@ -618,8 +618,11 @@ export type UserIdentitiesRequestObject = {
 }
 
 declare export class UserIdentitiesResponse extends Message {
-  getIdentitiesMap(): Map<string, Identity>;
+  getIdentitiesMap(): ProtoMap<string, Identity>;
   clearIdentitiesMap(): UserIdentitiesResponse;
+
+  getReservedUserIdentitiesMap(): ProtoMap<string, string>;
+  clearReservedUserIdentitiesMap(): UserIdentitiesResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UserIdentitiesResponseObject;
@@ -631,4 +634,5 @@ declare export class UserIdentitiesResponse extends Message {
 
 export type UserIdentitiesResponseObject = {
   identitiesMap: Array<[string, IdentityObject]>,
+  reservedUserIdentitiesMap: Array<[string, string]>,
 }
