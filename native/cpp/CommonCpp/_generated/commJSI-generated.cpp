@@ -93,8 +93,8 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encryptAndPersis
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decrypt(rt, args[0].asObject(rt), args[1].asString(rt));
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptSequentialAndPersist(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decryptSequentialAndPersist(rt, args[0].asObject(rt), args[1].asString(rt), args[2].asString(rt));
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decryptAndPersist(rt, args[0].asObject(rt), args[1].asString(rt), args[2].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->signMessage(rt, args[0].asString(rt));
@@ -246,7 +246,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["encrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encrypt};
   methodMap_["encryptAndPersist"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encryptAndPersist};
   methodMap_["decrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt};
-  methodMap_["decryptSequentialAndPersist"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptSequentialAndPersist};
+  methodMap_["decryptAndPersist"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist};
   methodMap_["signMessage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage};
   methodMap_["verifySignature"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_verifySignature};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};

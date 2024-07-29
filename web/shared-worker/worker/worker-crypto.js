@@ -512,7 +512,7 @@ const olmAPI: OlmAPI = {
 
     return result;
   },
-  async decryptSequentialAndPersist(
+  async decryptAndPersist(
     encryptedData: EncryptedData,
     deviceID: string,
     messageID: string,
@@ -526,7 +526,7 @@ const olmAPI: OlmAPI = {
       throw new Error(`No session for deviceID: ${deviceID}`);
     }
 
-    const result = olmSession.session.decrypt_sequential(
+    const result = olmSession.session.decrypt(
       encryptedData.messageType,
       encryptedData.message,
     );
