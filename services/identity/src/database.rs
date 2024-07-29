@@ -20,6 +20,7 @@ use std::sync::Arc;
 pub use crate::database::device_list::DeviceIDAttribute;
 pub use crate::database::one_time_keys::OTKRow;
 use crate::{
+  constants::RESERVED_USERNAMES_TABLE_USER_ID_INDEX,
   ddb_utils::EthereumIdentity, device_list::SignedDeviceList,
   grpc_services::shared::PlatformMetadata, log::redact_sensitive_data,
   reserved_users::UserDetail, siwe::SocialProof,
@@ -1239,20 +1240,70 @@ impl DatabaseClient {
   ) -> Result<Option<String>, Error> {
     let username_lower = username.to_lowercase();
 
+    self
+      .query_reserved_usernames_table_index(
+        &username_lower,
+        (
+          RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX,
+          RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
+        ),
+        attribute,
+      )
+      .await
+  }
+
+  pub async fn query_reserved_usernames_by_user_ids(
+    &self,
+    user_ids: Vec<String>,
+  ) -> Result<HashMap<String, String>, Error> {
+    if user_ids.len() > 50 {
+      tracing::warn!(
+        num_queries = user_ids.len(),
+        "Querying more than 50 reserved usernames by user ID! {}",
+        "This is inefficient and might lead to performance issues."
+      );
+    }
+    let mut results = HashMap::with_capacity(user_ids.len());
+    for user_id in user_ids {
+      let query_result = self
+        .query_reserved_usernames_table_index(
+          &user_id,
+          (
+            RESERVED_USERNAMES_TABLE_USER_ID_INDEX,
+            RESERVED_USERNAMES_TABLE_USER_ID_ATTRIBUTE,
+          ),
+          RESERVED_USERNAMES_TABLE_PARTITION_KEY,
+        )
+        .await?;
+
+      if let Some(username) = query_result {
+        results.insert(user_id, username);
+      }
+    }
+
+    Ok(results)
+  }
+
+  async fn query_reserved_usernames_table_index(
+    &self,
+    key_value: impl Into<String>,
+    // tuple of (index name, key attribute)
+    index_and_key: (&'static str, &'static str),
+    attribute: &str,
+  ) -> Result<Option<String>, Error> {
+    let (index, key_attr) = index_and_key;
     let response = self
       .client
       .query()
       .table_name(RESERVED_USERNAMES_TABLE)
-      .index_name(RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX)
-      .key_condition_expression("#username_lower = :username_lower")
-      .expression_attribute_names(
-        "#username_lower",
-        RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE,
-      )
+      .index_name(index)
+      .key_condition_expression("#key_name = :key_value")
+      .expression_attribute_names("#key_name", key_attr)
       .expression_attribute_values(
-        ":username_lower",
-        AttributeValue::S(username_lower),
+        ":key_value",
+        AttributeValue::S(key_value.into()),
       )
+      .limit(1)
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))?;
