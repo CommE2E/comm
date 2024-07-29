@@ -91,6 +91,7 @@ pub const RESERVED_USERNAMES_TABLE_USERNAME_LOWER_ATTRIBUTE: &str =
   "usernameLower";
 pub const RESERVED_USERNAMES_TABLE_USERNAME_LOWER_INDEX: &str =
   "usernameLower-index";
+pub const RESERVED_USERNAMES_TABLE_USER_ID_INDEX: &str = "userID-index";
 
 // Users table social proof attribute
 pub const SOCIAL_PROOF_MESSAGE_ATTRIBUTE: &str = "siweMessage";
