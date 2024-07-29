@@ -414,16 +414,6 @@ std::string CryptoModule::decrypt(
   return this->sessions.at(targetDeviceId)->decrypt(encryptedData);
 }
 
-std::string CryptoModule::decryptSequential(
-    const std::string &targetDeviceId,
-    EncryptedData &encryptedData) {
-  if (!this->hasSessionFor(targetDeviceId)) {
-    throw std::runtime_error{
-        "error decrypt sequential => uninitialized session"};
-  }
-  return this->sessions.at(targetDeviceId)->decryptSequential(encryptedData);
-}
-
 std::string CryptoModule::signMessage(const std::string &message) {
   OlmBuffer signature;
   signature.resize(::olm_account_signature_length(this->getOlmAccount()));

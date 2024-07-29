@@ -77,9 +77,6 @@ public:
   encrypt(const std::string &targetDeviceId, const std::string &content);
   std::string
   decrypt(const std::string &targetDeviceId, EncryptedData &encryptedData);
-  std::string decryptSequential(
-      const std::string &targetDeviceId,
-      EncryptedData &encryptedData);
 
   std::string signMessage(const std::string &message);
   static void verifySignature(
