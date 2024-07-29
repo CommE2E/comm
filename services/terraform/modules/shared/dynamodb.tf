@@ -287,11 +287,22 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
     type = "S"
   }
 
+  attribute {
+    name = "userID"
+    type = "S"
+  }
+
   global_secondary_index {
     name               = "usernameLower-index"
     hash_key           = "usernameLower"
     projection_type    = "INCLUDE"
     non_key_attributes = ["userID"]
+  }
+
+  global_secondary_index {
+    name            = "userID-index"
+    hash_key        = "userID"
+    projection_type = "KEYS_ONLY"
   }
 }
 
