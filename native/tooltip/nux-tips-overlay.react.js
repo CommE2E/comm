@@ -1,27 +1,11 @@
 // @flow
 
 import type { RouteProp } from '@react-navigation/core';
-import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
 import * as React from 'react';
-import {
-  View,
-  TouchableWithoutFeedback,
-  Platform,
-  Keyboard,
-} from 'react-native';
+import { View, TouchableWithoutFeedback, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import {
-  TooltipContextProvider,
-  TooltipContext,
-  type TooltipContextType,
-} from './tooltip-context.react.js';
-import BaseTooltipItem, {
-  type TooltipItemBaseProps,
-} from './tooltip-item.react.js';
-import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
-import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
@@ -31,9 +15,9 @@ import type { TooltipModalParamList } from '../navigation/route-names.js';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
-import {
-  type VerticalBounds,
-  type LayoutCoordinates,
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
 } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import {
@@ -62,41 +46,10 @@ const unboundStyles = {
     flex: 1,
     overflow: 'hidden',
   },
-  icon: {
-    color: 'modalForegroundLabel',
-  },
-  itemContainer: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    padding: 10,
-  },
-  itemContainerFixed: {
-    flexDirection: 'column',
-  },
   items: {
     backgroundColor: 'tooltipBackground',
     borderRadius: 5,
     overflow: 'hidden',
-  },
-  itemsFixed: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  triangleDown: {
-    borderBottomColor: 'transparent',
-    borderBottomWidth: 0,
-    borderLeftColor: 'transparent',
-    borderLeftWidth: 10,
-    borderRightColor: 'transparent',
-    borderRightWidth: 10,
-    borderStyle: 'solid',
-    borderTopColor: 'tooltipBackground',
-    borderTopWidth: 10,
-    height: 10,
-    top: Platform.OS === 'android' ? -1 : 0,
-    width: 10,
   },
   triangleUp: {
     borderBottomColor: 'tooltipBackground',
@@ -116,14 +69,8 @@ const unboundStyles = {
 
 export type TooltipParams<CustomProps> = {
   ...CustomProps,
-  +presentedFrom: string,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +tooltipLocation?: 'above' | 'below' | 'fixed',
-  +margin?: number,
-  +visibleEntryIDs?: $ReadOnlyArray<string>,
-  +chatInputBarHeight?: number,
-  +hideTooltip?: boolean,
 };
 export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = RouteProp<
   TooltipModalParamList,
@@ -137,23 +84,18 @@ export type BaseTooltipProps<RouteName> = {
 type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
-  +isOpeningSidebar: boolean,
 };
 type TooltipProps<Base> = {
   ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
   +overlayContext: ?OverlayContextType,
-  +chatContext: ?ChatContextType,
   +styles: $ReadOnly<typeof unboundStyles>,
-  +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
-  +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
 };
 
 export type TooltipMenuProps<RouteName> = {
   ...BaseTooltipProps<RouteName>,
-  +tooltipItem: React.ComponentType<TooltipItemBaseProps>,
 };
 
 function createTooltip<
@@ -174,6 +116,8 @@ function createTooltip<
     tooltipHorizontal: Node;
     tooltipScale: Node;
     fixedTooltipVertical: Node;
+    tooltipHeight: number = 30;
+    margin: number = 20;
 
     constructor(props: TooltipProps<BaseTooltipPropsType>) {
       super(props);
@@ -224,44 +168,6 @@ function createTooltip<
       );
     }
 
-    componentDidMount() {
-      Haptics.impactAsync();
-    }
-
-    get tooltipHeight(): number {
-      if (this.props.route.params.tooltipLocation === 'fixed') {
-        return fixedTooltipHeight;
-      } else {
-        return tooltipHeight(this.props.tooltipContext.getNumVisibleEntries());
-      }
-    }
-
-    get tooltipLocation(): 'above' | 'below' | 'fixed' {
-      const { params } = this.props.route;
-      const { tooltipLocation } = params;
-      if (tooltipLocation) {
-        return tooltipLocation;
-      }
-
-      const { initialCoordinates, verticalBounds } = params;
-      const { y, height } = initialCoordinates;
-      const contentTop = y;
-      const contentBottom = y + height;
-      const boundsTop = verticalBounds.y;
-      const boundsBottom = verticalBounds.y + verticalBounds.height;
-
-      const { margin, tooltipHeight: curTooltipHeight } = this;
-      const fullHeight = curTooltipHeight + margin;
-      if (
-        contentBottom + fullHeight > boundsBottom &&
-        contentTop - fullHeight > boundsTop
-      ) {
-        return 'above';
-      }
-
-      return 'below';
-    }
-
     get opacityStyle(): AnimatedViewStyle {
       return {
         ...this.props.styles.backdrop,
@@ -294,19 +200,11 @@ function createTooltip<
       };
     }
 
-    get margin(): number {
-      const customMargin = this.props.route.params.margin;
-      return customMargin !== null && customMargin !== undefined
-        ? customMargin
-        : 20;
-    }
-
     get tooltipContainerStyle(): AnimatedViewStyle {
       const { dimensions, route } = this.props;
-      const { initialCoordinates, verticalBounds, chatInputBarHeight } =
-        route.params;
+      const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin, tooltipLocation } = this;
+      const { margin } = this;
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
@@ -315,9 +213,7 @@ function createTooltip<
 
       const transform: Array<ReanimatedTransform> = [];
 
-      if (tooltipLocation !== 'fixed') {
-        transform.push({ translateX: this.tooltipHorizontal });
-      }
+      transform.push({ translateX: this.tooltipHorizontal });
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
@@ -329,36 +225,10 @@ function createTooltip<
         style.minWidth = width + 2 * extraRightSpace;
       }
 
-      const inputBarHeight = chatInputBarHeight ?? 0;
-
-      if (tooltipLocation === 'fixed') {
-        const padding = 8;
-
-        style.minWidth = dimensions.width - 16;
-        style.left = 8;
-        style.right = 8;
-        style.bottom =
-          dimensions.height -
-          verticalBounds.height -
-          verticalBounds.y -
-          inputBarHeight +
-          padding;
-        transform.push({ translateY: this.fixedTooltipVertical });
-      } else if (tooltipLocation === 'above') {
-        style.bottom =
-          dimensions.height - Math.max(y, verticalBounds.y) + margin;
-        transform.push({ translateY: this.tooltipVerticalAbove });
-      } else {
-        style.top =
-          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
-          margin;
-        transform.push({ translateY: this.tooltipVerticalBelow });
-      }
-
-      if (tooltipLocation !== 'fixed') {
-        transform.push({ scale: this.tooltipScale });
-      }
-
+      style.top =
+        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+      transform.push({ translateY: this.tooltipVerticalBelow });
+      transform.push({ scale: this.tooltipScale });
       style.transform = transform;
 
       return style;
@@ -368,40 +238,10 @@ function createTooltip<
       const {
         dimensions,
         overlayContext,
-        chatContext,
         styles,
-        tooltipContext,
         closeTooltip,
-        boundTooltipItem,
         ...navAndRouteForFlow
       } = this.props;
-
-      const tooltipContainerStyle: Array<ViewStyle> = [styles.itemContainer];
-
-      if (this.tooltipLocation === 'fixed') {
-        tooltipContainerStyle.push(styles.itemContainerFixed);
-      }
-
-      const items: Array<React.Node> = [
-        <MenuComponent
-          {...navAndRouteForFlow}
-          tooltipItem={this.getTooltipItem()}
-          key="menu"
-        />,
-      ];
-
-      if (this.props.tooltipContext.shouldShowMore()) {
-        items.push(
-          <BaseTooltipItem
-            id="more"
-            text="More"
-            onPress={this.onPressMore}
-            renderIcon={this.renderMoreIcon}
-            containerStyle={tooltipContainerStyle}
-            key="more"
-          />,
-        );
-      }
 
       let triangleStyle;
       const { route } = this.props;
@@ -421,50 +261,29 @@ function createTooltip<
         };
       }
 
-      let triangleDown = null;
-      let triangleUp = null;
-      const { tooltipLocation } = this;
-      if (tooltipLocation === 'above') {
-        triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else if (tooltipLocation === 'below') {
-        triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
-      }
+      const triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
 
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
-      const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
 
       const buttonProps: ButtonProps<BaseTooltipPropsType> = {
         ...navAndRouteForFlow,
         progress: position,
-        isOpeningSidebar,
       };
-
-      const itemsStyles = [styles.items, styles.itemsFixed];
 
       let tooltip = null;
 
-      if (this.tooltipLocation !== 'fixed') {
-        tooltip = (
-          <AnimatedView
-            style={this.tooltipContainerStyle}
-            onLayout={this.onTooltipContainerLayout}
-          >
-            {triangleUp}
-            <View style={styles.items}>{items}</View>
-            {triangleDown}
-          </AnimatedView>
-        );
-      } else if (
-        this.tooltipLocation === 'fixed' &&
-        !this.props.route.params.hideTooltip
-      ) {
-        tooltip = (
-          <AnimatedView style={this.tooltipContainerStyle}>
-            <View style={itemsStyles}>{items}</View>
-          </AnimatedView>
-        );
-      }
+      tooltip = (
+        <AnimatedView
+          style={this.tooltipContainerStyle}
+          onLayout={this.onTooltipContainerLayout}
+        >
+          {triangleUp}
+          <View style={styles.items}>
+            <MenuComponent {...navAndRouteForFlow} key="menu" />
+          </View>
+        </AnimatedView>
+      );
 
       return (
         <TouchableWithoutFeedback onPress={this.props.closeTooltip}>
@@ -480,23 +299,6 @@ function createTooltip<
         </TouchableWithoutFeedback>
       );
     }
-
-    getTooltipItem(): React.ComponentType<TooltipItemBaseProps> {
-      const BoundTooltipItem = this.props.boundTooltipItem;
-      return BoundTooltipItem;
-    }
-
-    onPressMore = () => {
-      Keyboard.dismiss();
-      this.props.tooltipContext.showActionSheet();
-    };
-
-    renderMoreIcon = (): React.Node => {
-      const { styles } = this.props;
-      return (
-        <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
-      );
-    };
 
     onTooltipContainerLayout = (event: LayoutEvent) => {
       const { route, dimensions } = this.props;
@@ -515,91 +317,33 @@ function createTooltip<
       }
     };
   }
+
   function ConnectedTooltip(
     props: $ReadOnly<{
       ...BaseTooltipPropsType,
-      +hideTooltip: () => mixed,
     }>,
   ) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
-    const chatContext = React.useContext(ChatContext);
-
-    const { params } = props.route;
-    const { tooltipLocation } = params;
-    const isFixed = tooltipLocation === 'fixed';
-
-    const { hideTooltip, ...rest } = props;
 
     const { goBackOnce } = props.navigation;
-    const closeTooltip = React.useCallback(() => {
-      goBackOnce();
-      if (isFixed) {
-        hideTooltip();
-      }
-    }, [isFixed, hideTooltip, goBackOnce]);
 
     const styles = useStyles(unboundStyles);
-    const boundTooltipItem = React.useCallback(
-      (innerProps: TooltipItemBaseProps) => {
-        const containerStyle = isFixed
-          ? [styles.itemContainer, styles.itemContainerFixed]
-          : styles.itemContainer;
-        return (
-          <BaseTooltipItem
-            {...innerProps}
-            containerStyle={containerStyle}
-            closeTooltip={closeTooltip}
-          />
-        );
-      },
-      [isFixed, styles, closeTooltip],
-    );
 
-    const tooltipContext = React.useContext(TooltipContext);
-    invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
     return (
       <Tooltip
-        {...rest}
+        {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
-        chatContext={chatContext}
         styles={styles}
-        tooltipContext={tooltipContext}
-        closeTooltip={closeTooltip}
-        boundTooltipItem={boundTooltipItem}
+        closeTooltip={goBackOnce}
       />
     );
   }
   function MemoizedTooltip(props: BaseTooltipPropsType) {
-    const { visibleEntryIDs } = props.route.params;
-    const { goBackOnce } = props.navigation;
-
-    const { setParams } = props.navigation;
-    const hideTooltip = React.useCallback(() => {
-      const paramsUpdate: any = { hideTooltip: true };
-      setParams(paramsUpdate);
-    }, [setParams]);
-
-    return (
-      <TooltipContextProvider
-        maxOptionsToDisplay={4}
-        visibleEntryIDs={visibleEntryIDs}
-        cancel={goBackOnce}
-        hideTooltip={hideTooltip}
-      >
-        <ConnectedTooltip {...props} hideTooltip={hideTooltip} />
-      </TooltipContextProvider>
-    );
+    return <ConnectedTooltip {...props} />;
   }
   return React.memo<BaseTooltipPropsType>(MemoizedTooltip);
 }
 
-function tooltipHeight(numEntries: number): number {
-  // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
-  return 9 + 38 * numEntries;
-}
-
-const fixedTooltipHeight: number = 53;
-
-export { createTooltip, fixedTooltipHeight };
+export { createTooltip };
