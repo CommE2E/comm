@@ -8,7 +8,7 @@ use web_push::{PartialVapidSignatureBuilder, WebPushClient as _};
 use crate::notifs::web_push::config::WebPushConfig;
 
 pub mod config;
-mod error;
+pub mod error;
 
 #[derive(Serialize, Deserialize)]
 pub struct WebPushNotif {
