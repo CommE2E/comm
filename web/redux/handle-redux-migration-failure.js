@@ -15,6 +15,7 @@ const persistWhitelist = [
   'customServer',
   'messageStore',
   'tunnelbrokerDeviceToken',
+  'queuedDMOperations',
 ];
 
 function handleReduxMigrationFailure(oldState: AppState): AppState {
