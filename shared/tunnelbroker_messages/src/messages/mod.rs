@@ -78,5 +78,6 @@ pub enum ServiceToDeviceMessages {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum MessageToTunnelbroker {
+  SetDeviceTokenWithPlatform(SetDeviceTokenWithPlatform),
   SetDeviceToken(SetDeviceToken),
 }
