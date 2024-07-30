@@ -90,12 +90,28 @@ async fn main() -> Result<()> {
   };
 
   let wns_config = CONFIG.wns_config.clone();
+  let wns = match wns_config {
+    Some(config) => match WNSClient::new(&config) {
+      Ok(wns_client) => {
+        info!("WNS client created successfully");
+        Some(wns_client)
+      }
+      Err(err) => {
+        error!("Error creating WNS client: {}", err);
+        None
+      }
+    },
+    None => {
+      error!("WNS config is missing");
+      None
+    }
+  };
 
   let notif_client = NotifClient {
     apns,
     fcm,
     web_push,
-    wns: None,
+    wns,
   };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
