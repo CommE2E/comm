@@ -3,11 +3,6 @@ variable "keyserver_domain_name" {
   type        = string
 }
 
-variable "landing_domain_name" {
-  description = "Domain name for your landing page"
-  type        = string
-}
-
 variable "region" {
   description = "Keyserver's AWS deployment region"
   type        = string
@@ -67,3 +62,17 @@ variable "webapp_domain_name" {
   type        = string
   default     = ""
 }
+
+# Landing
+#
+variable "enable_landing_service" {
+  description = "Whether to run landing on AWS"
+  type        = bool
+  default     = false
+}
+
+variable "landing_domain_name" {
+  description = "Domain name for your landing page"
+  type        = string
+}
+
