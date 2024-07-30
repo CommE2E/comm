@@ -98,6 +98,9 @@ const defaultState = ({
     localToken: null,
     tunnelbrokerToken: null,
   },
+  queuedDMOperations: {
+    operations: {},
+  },
 }: AppState);
 
 export { defaultState };

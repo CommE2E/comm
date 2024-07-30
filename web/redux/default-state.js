@@ -94,6 +94,9 @@ const defaultWebState: AppState = Object.freeze({
     localToken: null,
     tunnelbrokerToken: null,
   },
+  queuedDMOperations: {
+    operations: {},
+  },
 });
 
 export { defaultWebState };
