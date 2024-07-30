@@ -7,6 +7,7 @@ import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types';
+import type { QueuedDMOperations } from 'lib/types/dm-ops';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -84,6 +85,7 @@ export type AppState = {
   +syncedMetadataStore: SyncedMetadataStore,
   +auxUserStore: AuxUserStore,
   +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
+  +queuedDMOperations: QueuedDMOperations,
 };
 
 export { nonUserSpecificFieldsNative };

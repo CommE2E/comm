@@ -41,6 +41,7 @@ import type {
   MessageSourceMetadata,
   DBOpsStore,
 } from 'lib/types/db-ops-types.js';
+import type { QueuedDMOperations } from 'lib/types/dm-ops.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -133,6 +134,7 @@ export type AppState = {
   +syncedMetadataStore: SyncedMetadataStore,
   +auxUserStore: AuxUserStore,
   +tunnelbrokerDeviceToken: TunnelbrokerDeviceToken,
+  +queuedDMOperations: QueuedDMOperations,
 };
 
 export type Action = $ReadOnly<
