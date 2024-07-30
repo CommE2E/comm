@@ -13,6 +13,12 @@ pub struct WNSAccessToken {
   expires: SystemTime,
 }
 
+#[derive(Debug, Clone)]
+pub struct WNSNotif {
+  pub device_token: String,
+  pub payload: String,
+}
+
 #[derive(Clone)]
 pub struct WNSClient {
   http_client: reqwest::Client,
@@ -30,9 +36,48 @@ impl WNSClient {
     })
   }
 
-  pub async fn get_wns_token(
-    &mut self,
-  ) -> Result<Option<String>, error::Error> {
+  pub async fn send(&self, notif: WNSNotif) -> Result<(), error::Error> {
+    let token = self.get_wns_token().await?.ok_or(
+      error::WNSNotificationError::Unknown(
+        "Failed to get WNS token".to_string(),
+      ),
+    )?;
+
+    let url = notif.device_token;
+
+    // Send the notification
+    let response = self
+      .http_client
+      .post(&url)
+      .header("Content-Type", "application/octet-stream")
+      .header("X-WNS-Type", "wns/raw")
+      .bearer_auth(token)
+      .body(notif.payload)
+      .send()
+      .await?;
+
+    if !response.status().is_success() {
+      return Err(
+        error::WNSNotificationError::Unknown(
+          response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string()),
+        )
+        .into(),
+      );
+    }
+
+    response
+      .headers()
+      .get("X-WNS-MSG-ID")
+      .and_then(|val| val.to_str().ok())
+      .ok_or(error::Error::MissingWNSID)?;
+
+    Ok(())
+  }
+
+  pub async fn get_wns_token(&self) -> Result<Option<String>, error::Error> {
     const EXPIRY_WINDOW: Duration = Duration::from_secs(10);
 
     {
