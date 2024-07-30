@@ -12,4 +12,18 @@ pub enum Error {
   ReadLock,
   #[display(fmt = "Failed to acquire write lock")]
   WriteLock,
+  #[display(fmt = "WNS Notification Error: {}", _0)]
+  WNSNotification(WNSNotificationError),
+  #[display(fmt = "Missing WNS ID")]
+  MissingWNSID,
 }
+
+#[derive(Debug, Display)]
+pub enum WNSNotificationError {
+  #[display(fmt = "HTTP Error: {}", _0)]
+  Http(reqwest::Error),
+  #[display(fmt = "Unknown Error: {}", _0)]
+  Unknown(String),
+}
+
+impl std::error::Error for WNSNotificationError {}
