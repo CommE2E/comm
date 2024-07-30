@@ -1450,6 +1450,15 @@ const migrations = {
       ops: dbOperations,
     };
   },
+  [81]: (state: AppState) => ({
+    state: {
+      ...state,
+      queuedDMOperations: {
+        operations: {},
+      },
+    },
+    ops: [],
+  }),
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1460,7 +1469,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 80,
+  version: 81,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
