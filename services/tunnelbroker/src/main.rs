@@ -11,6 +11,7 @@ pub mod websockets;
 use crate::notifs::apns::APNsClient;
 use crate::notifs::fcm::FCMClient;
 use crate::notifs::web_push::WebPushClient;
+use crate::notifs::wns::WNSClient;
 use crate::notifs::NotifClient;
 use anyhow::{anyhow, Result};
 use config::CONFIG;
@@ -88,10 +89,13 @@ async fn main() -> Result<()> {
     }
   };
 
+  let wns_config = CONFIG.wns_config.clone();
+
   let notif_client = NotifClient {
     apns,
     fcm,
     web_push,
+    wns: None,
   };
 
   let grpc_server = grpc::run_server(db_client.clone(), &amqp_connection);
