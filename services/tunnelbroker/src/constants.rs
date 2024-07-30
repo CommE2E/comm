@@ -52,6 +52,7 @@ pub mod dynamodb {
     pub const DEVICE_ID: &str = "deviceID";
     pub const DEVICE_TOKEN: &str = "deviceToken";
     pub const TOKEN_INVALID: &str = "tokenInvalid";
+    pub const PLATFORM: &str = "platform";
 
     pub const DEVICE_TOKEN_INDEX_NAME: &str = "deviceToken-index";
   }

@@ -6,7 +6,9 @@ use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use comm_lib::aws::ddb::operation::query::QueryError;
 use comm_lib::aws::ddb::types::AttributeValue;
 use comm_lib::aws::{AwsConfig, DynamoDBClient};
-use comm_lib::database::{AttributeExtractor, AttributeMap, Error};
+use comm_lib::database::{
+  AttributeExtractor, AttributeMap, DBItemAttributeError, DBItemError, Error,
+};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{debug, error, warn};
@@ -18,6 +20,7 @@ pub mod message_id;
 
 use crate::database::message_id::MessageID;
 pub use message::*;
+use tunnelbroker_messages::Platform;
 
 #[derive(Clone)]
 pub struct DatabaseClient {
@@ -39,6 +42,7 @@ pub fn handle_ddb_error<E>(db_error: SdkError<E>) -> tonic::Status {
 pub struct DeviceTokenEntry {
   pub device_token: String,
   pub token_invalid: bool,
+  pub platform: Option<Platform>,
 }
 
 impl DatabaseClient {
@@ -182,9 +186,24 @@ impl DatabaseClient {
     let token_invalid: Option<bool> =
       item.take_attr(device_tokens::TOKEN_INVALID)?;
 
+    let platform = if let Some(platform_str) =
+      item.take_attr::<Option<String>>(device_tokens::PLATFORM)?
+    {
+      Some(Platform::try_from(platform_str.clone()).map_err(|_| {
+        DBItemError::new(
+          device_tokens::TOKEN_INVALID.to_string(),
+          platform_str.clone().into(),
+          DBItemAttributeError::InvalidValue,
+        )
+      })?)
+    } else {
+      None
+    };
+
     Ok(Some(DeviceTokenEntry {
       device_token,
       token_invalid: token_invalid.unwrap_or(false),
+      platform,
     }))
   }
 
@@ -192,6 +211,7 @@ impl DatabaseClient {
     &self,
     device_id: &str,
     device_token: &str,
+    platform: Option<Platform>,
   ) -> Result<(), Error> {
     debug!("Setting device token for device: {}", &device_id);
 
@@ -236,7 +256,7 @@ impl DatabaseClient {
       }
     }
 
-    self
+    let mut put_item_input = self
       .client
       .put_item()
       .table_name(device_tokens::TABLE_NAME)
@@ -247,13 +267,19 @@ impl DatabaseClient {
       .item(
         device_tokens::DEVICE_TOKEN,
         AttributeValue::S(device_token.to_string()),
-      )
-      .send()
-      .await
-      .map_err(|e| {
-        error!("DynamoDB client failed to set device token {:?}", e);
-        Error::AwsSdk(e.into())
-      })?;
+      );
+
+    if let Some(platform_atr) = platform {
+      put_item_input = put_item_input.item(
+        device_tokens::PLATFORM,
+        AttributeValue::S(platform_atr.to_string()),
+      );
+    }
+
+    put_item_input.send().await.map_err(|e| {
+      error!("DynamoDB client failed to set device token {:?}", e);
+      Error::AwsSdk(e.into())
+    })?;
 
     Ok(())
   }
