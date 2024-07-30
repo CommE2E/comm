@@ -14,7 +14,7 @@ pub enum NotifClientType {
   APNs,
   FCM,
   WebPush,
-  WNs,
+  WNS,
 }
 
 impl NotifClientType {
@@ -25,7 +25,7 @@ impl NotifClientType {
       }
       NotifClientType::FCM => platform == Platform::Android,
       NotifClientType::WebPush => platform == Platform::Web,
-      NotifClientType::WNs => platform == Platform::Windows,
+      NotifClientType::WNS => platform == Platform::Windows,
     }
   }
 }
