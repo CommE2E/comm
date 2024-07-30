@@ -53,6 +53,7 @@ import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
 import type { CreateRolesScreenParams } from '../roles/create-roles-screen.react.js';
 import type { MessageSearchParams } from '../search/message-search.react.js';
+import type { NUXTipsOverlayParams } from '../tooltip/nux-tips-overlay.react.js';
 import type { UserProfileAvatarModalParams } from '../user-profile/user-profile-avatar-modal.react.js';
 import type { UserProfileBottomSheetParams } from '../user-profile/user-profile-bottom-sheet.react.js';
 
@@ -166,6 +167,7 @@ export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
 export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
 export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
+export const NUXTipsOverlayRouteName = 'NUXTipsOverlay';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -222,6 +224,7 @@ export type OverlayParamList = {
   +ThreadAvatarCameraModal: ThreadAvatarCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   +TogglePinModal: TogglePinModalParams,
+  +NUXTipsOverlay: NUXTipsOverlayParams,
   ...TooltipModalParamList,
 };
 
