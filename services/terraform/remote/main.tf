@@ -19,6 +19,9 @@ locals {
   environment = terraform.workspace
   is_staging  = local.environment == "staging"
 
+  keyserver_image_tag     = "1.0.102"
+  keyserver_service_image = "commapp/keyserver:${local.keyserver_image_tag}"
+
   secrets = jsondecode(data.sops_file.secrets_json.raw)
 
   target_account_id  = lookup(local.secrets.accountIDs, local.environment)

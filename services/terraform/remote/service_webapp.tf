@@ -1,6 +1,4 @@
 locals {
-  webapp_image_tag      = "1.0.102"
-  webapp_service_image  = "commapp/keyserver:${local.webapp_image_tag}"
   webapp_container_name = "webapp"
 
   webapp_run_server_config = jsonencode({
@@ -20,7 +18,7 @@ module "webapp_service" {
   source = "../modules/node_service"
 
   container_name              = "webapp"
-  image                       = local.webapp_service_image
+  image                       = local.keyserver_service_image
   service_name                = "webapp"
   cluster_id                  = aws_ecs_cluster.comm_services.id
   domain_name                 = local.is_staging ? "comm.software" : "web.comm.app"
