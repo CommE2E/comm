@@ -1,8 +1,11 @@
 use crate::constants;
-use crate::constants::{ENV_APNS_CONFIG, ENV_FCM_CONFIG, ENV_WEB_PUSH_CONFIG};
+use crate::constants::{
+  ENV_APNS_CONFIG, ENV_FCM_CONFIG, ENV_WEB_PUSH_CONFIG, ENV_WNS_CONFIG,
+};
 use crate::notifs::apns::config::APNsConfig;
 use crate::notifs::fcm::config::FCMConfig;
 use crate::notifs::web_push::config::WebPushConfig;
+use crate::notifs::wns::config::WNSConfig;
 use anyhow::{ensure, Result};
 use clap::Parser;
 use comm_lib::aws;
@@ -43,6 +46,10 @@ pub struct AppConfig {
   #[arg(env = ENV_WEB_PUSH_CONFIG)]
   #[arg(long)]
   pub web_push_config: Option<WebPushConfig>,
+  /// WNS secrets
+  #[arg(env = ENV_WNS_CONFIG)]
+  #[arg(long)]
+  pub wns_config: Option<WNSConfig>,
 }
 
 /// Stores configuration parsed from command-line arguments
