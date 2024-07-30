@@ -46,6 +46,7 @@ pub enum DeviceToTunnelbrokerMessage {
   APNsNotif(APNsNotif),
   FCMNotif(FCMNotif),
   WebPushNotif(WebPushNotif),
+  WNSNotif(WNSNotif),
   MessageToDeviceRequest(MessageToDeviceRequest),
   MessageReceiveConfirmation(MessageReceiveConfirmation),
   MessageToTunnelbrokerRequest(MessageToTunnelbrokerRequest),

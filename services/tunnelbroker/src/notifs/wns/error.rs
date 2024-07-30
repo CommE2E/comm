@@ -1,5 +1,7 @@
 use derive_more::{Display, Error, From};
 
+use super::response::WNSErrorResponse;
+
 #[derive(Debug, From, Display, Error)]
 pub enum Error {
   Reqwest(reqwest::Error),
@@ -12,4 +14,6 @@ pub enum Error {
   ReadLock,
   #[display(fmt = "Failed to acquire write lock")]
   WriteLock,
+  #[display(fmt = "WNS Notification Error: {}", _0)]
+  WNSNotification(WNSErrorResponse),
 }

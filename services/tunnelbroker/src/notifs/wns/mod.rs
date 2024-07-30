@@ -1,4 +1,6 @@
 use crate::notifs::wns::config::WNSConfig;
+use reqwest::StatusCode;
+use response::WNSErrorResponse;
 use std::{
   sync::{Arc, RwLock},
   time::{Duration, SystemTime},
@@ -6,11 +8,18 @@ use std::{
 
 pub mod config;
 mod error;
+mod response;
 
 #[derive(Debug, Clone)]
 pub struct WNSAccessToken {
   token: String,
   expires: SystemTime,
+}
+
+#[derive(Debug, Clone)]
+pub struct WNSNotif {
+  pub device_token: String,
+  pub payload: String,
 }
 
 #[derive(Clone)]
@@ -30,9 +39,48 @@ impl WNSClient {
     })
   }
 
-  pub async fn get_wns_token(
-    &mut self,
-  ) -> Result<Option<String>, error::Error> {
+  pub async fn send(&self, notif: WNSNotif) -> Result<(), error::Error> {
+    let wns_access_token = self
+      .get_wns_token()
+      .await?
+      .ok_or(error::Error::TokenNotFound)?;
+
+    let url = notif.device_token;
+
+    // Send the notification
+    let response = self
+      .http_client
+      .post(&url)
+      .header("Content-Type", "application/octet-stream")
+      .header("X-WNS-Type", "wns/raw")
+      .bearer_auth(wns_access_token.clone())
+      .body(notif.payload)
+      .send()
+      .await?;
+
+    match response.status() {
+      StatusCode::OK => {
+        tracing::debug!("Successfully sent WNS notif to {}", wns_access_token);
+        Ok(())
+      }
+      error_status => {
+        let body = response
+          .text()
+          .await
+          .unwrap_or_else(|error| format!("Error occurred: {}", error));
+        tracing::error!(
+          "Failed sending FCM notification to: {}. Status: {}. Body: {}",
+          wns_access_token,
+          error_status,
+          body
+        );
+        let fcm_error = WNSErrorResponse::from_status(error_status, body);
+        Err(error::Error::WNSNotification(fcm_error))
+      }
+    }
+  }
+
+  pub async fn get_wns_token(&self) -> Result<Option<String>, error::Error> {
     const EXPIRY_WINDOW: Duration = Duration::from_secs(10);
 
     {
