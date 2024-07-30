@@ -11,11 +11,11 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "dev": "ENV=dev electron-forge start",
+    "dev": "cross-env ENV=dev electron-forge start",
     "package": "electron-forge package",
-    "package-dev": "ENV=dev electron-forge package",
+    "package-dev": "cross-env ENV=dev electron-forge package",
     "make": "electron-forge make",
-    "make-dev": "ENV=dev electron-forge make",
+    "make-dev": "cross-env ENV=dev electron-forge make",
     "clean": "rm -rf assets/ && rm -rf dist/ && yarn clean-build && rm -rf node_modules/",
     "clean-build": "rm -rf out/"
   },
@@ -37,15 +37,16 @@
     "@babel/preset-env": "^7.23.7",
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-dmg": "^6.0.4",
-    "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
+    "cross-env": "^7.0.3",
     "electron": "^25.8.4",
     "flow-bin": "^0.202.1",
     "flow-typed": "^3.2.1",
-    "lib": "0.0.1",
     "fs-extra": "^10.1.0",
+    "gaxios": "^4.3.2",
     "klaw": "^4.0.1",
-    "gaxios": "^4.3.2"
+    "lib": "0.0.1"
   }
 }
