@@ -1,6 +1,5 @@
 // @flow
 
-import type { RouteProp } from '@react-navigation/core';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, Platform } from 'react-native';
@@ -11,7 +10,7 @@ import {
   OverlayContext,
   type OverlayContextType,
 } from '../navigation/overlay-context.js';
-import type { TooltipModalParamList } from '../navigation/route-names.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
@@ -67,63 +66,51 @@ const unboundStyles = {
   },
 };
 
-export type TooltipParams<CustomProps> = {
-  ...CustomProps,
+export type NuxTipsOverlayParams = {
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
 };
-export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = RouteProp<
-  TooltipModalParamList,
-  RouteName,
->;
 
-export type BaseTooltipProps<RouteName> = {
-  +navigation: AppNavigationProp<RouteName>,
-  +route: TooltipRoute<RouteName>,
+export type BaseNuxTipsOverlayProps = {
+  +navigation: AppNavigationProp<'NuxTipsOverlay'>,
+  +route: NavigationRoute<'NuxTipsOverlay'>,
 };
 type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
 };
-type TooltipProps<Base> = {
+type NuxTipsOverlayProps<Base> = {
   ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
   +overlayContext: ?OverlayContextType,
   +styles: $ReadOnly<typeof unboundStyles>,
-  +closeTooltip: () => mixed,
+  +closeTip: () => mixed,
 };
 
-export type TooltipMenuProps<RouteName> = {
-  ...BaseTooltipProps<RouteName>,
-};
-
-function createTooltip<
-  RouteName: $Keys<TooltipModalParamList>,
-  BaseTooltipPropsType: BaseTooltipProps<RouteName> = BaseTooltipProps<RouteName>,
->(
-  ButtonComponent: React.ComponentType<ButtonProps<BaseTooltipPropsType>>,
-  MenuComponent: React.ComponentType<TooltipMenuProps<RouteName>>,
-): React.ComponentType<BaseTooltipPropsType> {
-  class Tooltip extends React.PureComponent<
-    TooltipProps<BaseTooltipPropsType>,
+function createNuxTipsOverlay(
+  ButtonComponent: React.ComponentType<ButtonProps<BaseNuxTipsOverlayProps>>,
+  MenuComponent: React.ComponentType<BaseNuxTipsOverlayProps>,
+): React.ComponentType<BaseNuxTipsOverlayProps> {
+  class NuxTipsOverlay extends React.PureComponent<
+    NuxTipsOverlayProps<BaseNuxTipsOverlayProps>,
   > {
     backdropOpacity: Node;
-    tooltipContainerOpacity: Node;
-    tooltipVerticalAbove: Node;
-    tooltipVerticalBelow: Node;
-    tooltipHorizontalOffset: Value = new Value(0);
-    tooltipHorizontal: Node;
-    tooltipScale: Node;
-    fixedTooltipVertical: Node;
-    tooltipHeight: number = 30;
+    tipContainerOpacity: Node;
+    tipVerticalAbove: Node;
+    tipVerticalBelow: Node;
+    tipHorizontalOffset: Value = new Value(0);
+    tipHorizontal: Node;
+    tipScale: Node;
+    fixedTipVertical: Node;
+    tipHeight: number = 30;
     margin: number = 20;
 
-    constructor(props: TooltipProps<BaseTooltipPropsType>) {
+    constructor(props: NuxTipsOverlayProps<BaseNuxTipsOverlayProps>) {
       super(props);
 
       const { overlayContext } = props;
-      invariant(overlayContext, 'Tooltip should have OverlayContext');
+      invariant(overlayContext, 'NuxTipsOverlay should have OverlayContext');
       const { position } = overlayContext;
 
       this.backdropOpacity = interpolateNode(position, {
@@ -131,38 +118,35 @@ function createTooltip<
         outputRange: [0, 0.7],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipContainerOpacity = interpolateNode(position, {
+      this.tipContainerOpacity = interpolateNode(position, {
         inputRange: [0, 0.1],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       });
 
       const { margin } = this;
-      this.tooltipVerticalAbove = interpolateNode(position, {
+      this.tipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [margin + this.tooltipHeight / 2, 0],
+        outputRange: [margin + this.tipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipVerticalBelow = interpolateNode(position, {
+      this.tipVerticalBelow = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [-margin - this.tooltipHeight / 2, 0],
+        outputRange: [-margin - this.tipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
 
       const invertedPosition = add(1, multiply(-1, position));
 
-      this.tooltipHorizontal = multiply(
-        invertedPosition,
-        this.tooltipHorizontalOffset,
-      );
+      this.tipHorizontal = multiply(invertedPosition, this.tipHorizontalOffset);
 
-      this.tooltipScale = interpolateNode(position, {
+      this.tipScale = interpolateNode(position, {
         inputRange: [0, 0.2, 0.8, 1],
         outputRange: [0, 0, 1, 1],
         extrapolate: Extrapolate.CLAMP,
       });
 
-      this.fixedTooltipVertical = multiply(
+      this.fixedTipVertical = multiply(
         invertedPosition,
         props.dimensions.height,
       );
@@ -200,7 +184,7 @@ function createTooltip<
       };
     }
 
-    get tooltipContainerStyle(): AnimatedViewStyle {
+    get tipContainerStyle(): AnimatedViewStyle {
       const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
@@ -209,11 +193,11 @@ function createTooltip<
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
       style.alignItems = 'center';
-      style.opacity = this.tooltipContainerOpacity;
+      style.opacity = this.tipContainerOpacity;
 
       const transform: Array<ReanimatedTransform> = [];
 
-      transform.push({ translateX: this.tooltipHorizontal });
+      transform.push({ translateX: this.tipHorizontal });
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
@@ -227,8 +211,8 @@ function createTooltip<
 
       style.top =
         Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
-      transform.push({ translateY: this.tooltipVerticalBelow });
-      transform.push({ scale: this.tooltipScale });
+      transform.push({ translateY: this.tipVerticalBelow });
+      transform.push({ scale: this.tipScale });
       style.transform = transform;
 
       return style;
@@ -239,7 +223,7 @@ function createTooltip<
         dimensions,
         overlayContext,
         styles,
-        closeTooltip,
+        closeTip,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -263,20 +247,20 @@ function createTooltip<
 
       const triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
 
-      invariant(overlayContext, 'Tooltip should have OverlayContext');
+      invariant(overlayContext, 'NuxTipsOverlay should have OverlayContext');
       const { position } = overlayContext;
 
-      const buttonProps: ButtonProps<BaseTooltipPropsType> = {
+      const buttonProps: ButtonProps<BaseNuxTipsOverlayProps> = {
         ...navAndRouteForFlow,
         progress: position,
       };
 
-      let tooltip = null;
+      let tip = null;
 
-      tooltip = (
+      tip = (
         <AnimatedView
-          style={this.tooltipContainerStyle}
-          onLayout={this.onTooltipContainerLayout}
+          style={this.tipContainerStyle}
+          onLayout={this.onTipContainerLayout}
         >
           {triangleUp}
           <View style={styles.items}>
@@ -286,7 +270,7 @@ function createTooltip<
       );
 
       return (
-        <TouchableWithoutFeedback onPress={this.props.closeTooltip}>
+        <TouchableWithoutFeedback onPress={this.props.closeTip}>
           <View style={styles.container}>
             <AnimatedView style={this.opacityStyle} />
             <View style={this.contentContainerStyle}>
@@ -294,13 +278,13 @@ function createTooltip<
                 <ButtonComponent {...buttonProps} />
               </View>
             </View>
-            {tooltip}
+            {tip}
           </View>
         </TouchableWithoutFeedback>
       );
     }
 
-    onTooltipContainerLayout = (event: LayoutEvent) => {
+    onTipContainerLayout = (event: LayoutEvent) => {
       const { route, dimensions } = this.props;
       const { x, width } = route.params.initialCoordinates;
 
@@ -310,19 +294,15 @@ function createTooltip<
       const actualWidth = event.nativeEvent.layout.width;
       if (extraLeftSpace < extraRightSpace) {
         const minWidth = width + 2 * extraLeftSpace;
-        this.tooltipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
+        this.tipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
       } else {
         const minWidth = width + 2 * extraRightSpace;
-        this.tooltipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
+        this.tipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
       }
     };
   }
 
-  function ConnectedTooltip(
-    props: $ReadOnly<{
-      ...BaseTooltipPropsType,
-    }>,
-  ) {
+  function ConnectedNuxTipsOverlay(props: BaseNuxTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
 
@@ -331,19 +311,16 @@ function createTooltip<
     const styles = useStyles(unboundStyles);
 
     return (
-      <Tooltip
+      <NuxTipsOverlay
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
         styles={styles}
-        closeTooltip={goBackOnce}
+        closeTip={goBackOnce}
       />
     );
   }
-  function MemoizedTooltip(props: BaseTooltipPropsType) {
-    return <ConnectedTooltip {...props} />;
-  }
-  return React.memo<BaseTooltipPropsType>(MemoizedTooltip);
+  return React.memo<BaseNuxTipsOverlayProps>(ConnectedNuxTipsOverlay);
 }
 
-export { createTooltip };
+export { createNuxTipsOverlay };
