@@ -38,7 +38,7 @@ use crate::notifs::fcm::firebase_message::{
   AndroidConfig, AndroidMessagePriority, FCMMessage,
 };
 use crate::notifs::web_push::WebPushNotif;
-use crate::notifs::NotifClient;
+use crate::notifs::{NotifClient, NotifClientType};
 
 pub struct DeviceInfo {
   pub device_id: String,
@@ -76,6 +76,7 @@ pub enum SessionError {
   MissingWebPushClient,
   MissingDeviceToken,
   InvalidDeviceToken,
+  InvalidNotifProvider,
 }
 
 // Parse a session request and retrieve the device information
@@ -401,16 +402,18 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           return Some(MessageSentStatus::SerializationError(notif.headers));
         };
 
-        let device_token =
-          match self.get_device_token(notif.device_id.clone()).await {
-            Ok(token) => token,
-            Err(e) => {
-              return Some(self.get_message_to_device_status(
-                &notif.client_message_id,
-                Err(e),
-              ))
-            }
-          };
+        let device_token = match self
+          .get_device_token(notif.device_id.clone(), NotifClientType::APNs)
+          .await
+        {
+          Ok(token) => token,
+          Err(e) => {
+            return Some(
+              self
+                .get_message_to_device_status(&notif.client_message_id, Err(e)),
+            )
+          }
+        };
 
         let apns_notif = APNsNotif {
           device_token: device_token.clone(),
@@ -466,7 +469,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           return Some(MessageSentStatus::SerializationError(notif.data));
         };
 
-        let device_token = match self.get_device_token(notif.device_id).await {
+        let device_token = match self
+          .get_device_token(notif.device_id, NotifClientType::FCM)
+          .await
+        {
           Ok(token) => token,
           Err(e) => {
             return Some(
@@ -513,7 +519,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           ));
         };
 
-        let device_token = match self.get_device_token(notif.device_id).await {
+        let device_token = match self
+          .get_device_token(notif.device_id, NotifClientType::WebPush)
+          .await
+        {
           Ok(token) => token,
           Err(e) => {
             return Some(
@@ -601,6 +610,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
   async fn get_device_token(
     &self,
     device_id: String,
+    client: NotifClientType,
   ) -> Result<String, SessionError> {
     let db_token = self
       .db_client
@@ -610,6 +620,11 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
     match db_token {
       Some(token) => {
+        if let Some(platform) = token.platform {
+          if !client.supported_platform(platform) {
+            return Err(SessionError::InvalidNotifProvider);
+          }
+        }
         if token.token_invalid {
           Err(SessionError::InvalidDeviceToken)
         } else {
