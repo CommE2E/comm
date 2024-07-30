@@ -286,7 +286,11 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       MessageToTunnelbroker::SetDeviceToken(token) => {
         self
           .db_client
-          .set_device_token(&self.device_info.device_id, &token.device_token)
+          .set_device_token(
+            &self.device_info.device_id,
+            &token.device_token,
+            None,
+          )
           .await?;
       }
     }
