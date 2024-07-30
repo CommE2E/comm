@@ -30,15 +30,14 @@ use tunnelbroker_messages::{
 use crate::notifs::apns::response::ErrorReason;
 
 use crate::database::{self, DatabaseClient, MessageToDeviceExt};
-use crate::identity;
-use crate::notifs::apns::error::Error;
 use crate::notifs::apns::headers::NotificationHeaders;
 use crate::notifs::apns::APNsNotif;
 use crate::notifs::fcm::firebase_message::{
   AndroidConfig, AndroidMessagePriority, FCMMessage,
 };
 use crate::notifs::web_push::WebPushNotif;
-use crate::notifs::NotifClient;
+use crate::notifs::{apns, NotifClient};
+use crate::{identity, notifs};
 
 pub struct DeviceInfo {
   pub device_id: String,
@@ -404,7 +403,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
 
         if let Some(apns) = self.notif_client.apns.clone() {
           let response = apns.send(apns_notif).await;
-          if let Err(Error::ResponseError(body)) = &response {
+          if let Err(apns::error::Error::ResponseError(body)) = &response {
             if matches!(
               body.reason,
               ErrorReason::BadDeviceToken
@@ -412,10 +411,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
                 | ErrorReason::ExpiredToken
             ) {
               if let Err(e) = self
-                .invalidate_device_token(notif.device_id, device_token)
+                .invalidate_device_token(notif.device_id, device_token.clone())
                 .await
               {
-                error!("Error invalidating device token: {:?}", e);
+                error!(
+                  "Error invalidating device token {}: {:?}",
+                  device_token, e
+                );
               };
             }
           }
@@ -497,22 +499,42 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           ));
         };
 
-        let device_token = match self.get_device_token(notif.device_id).await {
-          Ok(token) => token,
-          Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
-          }
-        };
+        let device_token =
+          match self.get_device_token(notif.device_id.clone()).await {
+            Ok(token) => token,
+            Err(e) => {
+              return Some(self.get_message_to_device_status(
+                &notif.client_message_id,
+                Err(e),
+              ))
+            }
+          };
 
         let web_push_notif = WebPushNotif {
-          device_token,
+          device_token: device_token.clone(),
           payload: notif.payload,
         };
 
         let result = web_push_client.send(web_push_notif).await;
+        if let Err(notifs::web_push::error::Error::WebPush(web_push_error)) =
+          &result
+        {
+          if matches!(
+            web_push_error,
+            web_push::WebPushError::EndpointNotValid
+              | web_push::WebPushError::EndpointNotFound
+          ) {
+            if let Err(e) = self
+              .invalidate_device_token(notif.device_id, device_token.clone())
+              .await
+            {
+              error!(
+                "Error invalidating device token {}: {:?}",
+                device_token, e
+              );
+            };
+          }
+        }
         Some(
           self.get_message_to_device_status(&notif.client_message_id, result),
         )
