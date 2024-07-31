@@ -6,6 +6,7 @@
 #include "../../Tools/Logger.h"
 #include "../../Tools/PlatformSpecificTools.h"
 
+#include "Logger.h"
 #include <fcntl.h>
 #include <folly/String.h>
 #include <folly/dynamic.h>
@@ -14,6 +15,7 @@
 #include <fstream>
 #include <memory>
 #include <sstream>
+#include <unordered_set>
 
 namespace comm {
 const std::string
@@ -294,6 +296,26 @@ bool NotificationsCryptoModule::isDeviceNotificationsSessionInitialized(
   std::string peerNotificationsSessionKey =
       getDeviceNotificationsSessionKey(deviceID);
   return CommMMKV::getString(peerNotificationsSessionKey).has_value();
+}
+
+std::vector<std::pair<std::string, bool>>
+NotificationsCryptoModule::isNotificationsSessionInitializedWithDevices(
+    const std::vector<std::string> &deviceIDs) {
+  std::vector<std::string> allKeys = CommMMKV::getAllKeys();
+  std::unordered_set<std::string> allKeysSet(allKeys.begin(), allKeys.end());
+  std::vector<std::pair<std::string, bool>> result;
+
+  for (const auto &deviceID : deviceIDs) {
+    std::string mmkvDeviceIDKey =
+        NotificationsCryptoModule::getDeviceNotificationsSessionKey(deviceID);
+    if (allKeysSet.find(mmkvDeviceIDKey) == allKeysSet.end()) {
+      result.push_back({deviceID, false});
+    } else {
+      result.push_back({deviceID, true});
+    }
+  }
+
+  return result;
 }
 
 NotificationsCryptoModule::BaseStatefulDecryptResult::BaseStatefulDecryptResult(
