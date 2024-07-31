@@ -70,6 +70,7 @@ import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
 import Topbar from './navigation-panels/topbar.react.js';
 import useBadgeHandler from './push-notif/badge-handler.react.js';
+import encryptedNotifUtilsAPI from './push-notif/encrypted-notif-utils-api.js';
 import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
 import DisconnectedBar from './redux/disconnected-bar.js';
@@ -124,6 +125,7 @@ registerConfig({
   authoritativeKeyserverID,
   olmAPI,
   sqliteAPI,
+  encryptedNotifUtilsAPI,
 });
 
 const versionBroadcast = new BroadcastChannel('comm_version');
