@@ -131,29 +131,52 @@ function listenForNotifications(
   handleClick: (threadID?: string) => void,
   handleEncryptedNotification: (
     encryptedPayload: string,
-    keyserverID: string,
+    senderDeviceDescriptor:
+      | { +keyserverID: string }
+      | { +senderDeviceID: string },
+    type: string,
   ) => void,
 ) {
   if (process.platform === 'darwin') {
     pushNotifications.on('received-apns-notification', (event, userInfo) => {
-      const { keyserverID, encryptedPayload } = userInfo;
+      const { keyserverID, senderDeviceID, encryptedPayload, type } = userInfo;
       if (
         typeof keyserverID === 'string' &&
-        typeof encryptedPayload === 'string'
+        typeof encryptedPayload === 'string' &&
+        typeof type === 'string'
       ) {
-        handleEncryptedNotification(encryptedPayload, keyserverID);
+        handleEncryptedNotification(encryptedPayload, { keyserverID }, type);
+        return;
+      }
+
+      if (
+        typeof senderDeviceID === 'string' &&
+        typeof encryptedPayload === 'string' &&
+        typeof type === 'string'
+      ) {
+        handleEncryptedNotification(encryptedPayload, { senderDeviceID }, type);
         return;
       }
       showNewNotification(userInfo, handleClick);
     });
   } else if (process.platform === 'win32') {
     windowsPushNotifEventEmitter.on('received-wns-notification', payload => {
-      const { keyserverID, encryptedPayload } = payload;
+      const { keyserverID, senderDeviceID, encryptedPayload, type } = payload;
       if (
         typeof keyserverID === 'string' &&
-        typeof encryptedPayload === 'string'
+        typeof encryptedPayload === 'string' &&
+        typeof type === 'string'
       ) {
-        handleEncryptedNotification(encryptedPayload, keyserverID);
+        handleEncryptedNotification(encryptedPayload, { keyserverID }, type);
+        return;
+      }
+
+      if (
+        typeof senderDeviceID === 'string' &&
+        typeof encryptedPayload === 'string' &&
+        typeof type === 'string'
+      ) {
+        handleEncryptedNotification(encryptedPayload, { senderDeviceID }, type);
         return;
       }
       showNewNotification(payload, handleClick);

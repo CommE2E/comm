@@ -306,12 +306,16 @@ const run = () => {
 
     const handleEncryptedNotification = (
       encryptedPayload: string,
-      keyserverID: string,
+      senderDeviceDescriptor:
+        | { +keyserverID: string }
+        | { +senderDeviceID: string },
+      type: string,
     ) => {
       if (mainWindow) {
         mainWindow.webContents.send('on-encrypted-notification', {
           encryptedPayload,
-          keyserverID,
+          senderDeviceDescriptor,
+          type,
         });
       }
     };
