@@ -59,7 +59,7 @@ const olmAPI: OlmAPI = {
       contentIdentityKeys.ed25519,
     );
   },
-  notificationsSessionCreator(
+  keyserverNotificationsSessionCreator(
     cookie: ?string,
     notificationsIdentityKeys: OLMIdentityKeys,
     notificationsInitializationInfo: OlmSessionInitializationInfo,
@@ -73,6 +73,25 @@ const olmAPI: OlmAPI = {
       prekeySignature,
       oneTimeKey,
       keyserverID,
+    );
+  },
+  async notificationsOutboundSessionCreator(
+    deviceID: string,
+    notificationsIdentityKeys: OLMIdentityKeys,
+    notificationsInitializationInfo: OlmSessionInitializationInfo,
+  ): Promise<EncryptedData> {
+    const { prekey, prekeySignature, oneTimeKey } =
+      notificationsInitializationInfo;
+    const identityKeys = JSON.stringify({
+      curve25519: notificationsIdentityKeys.curve25519,
+      ed25519: notificationsIdentityKeys.ed25519,
+    });
+    return commCoreModule.initializeNotificationsOutboundSession(
+      identityKeys,
+      prekey,
+      prekeySignature,
+      oneTimeKey,
+      deviceID,
     );
   },
   async getOneTimeKeys(numberOfKeys: number): Promise<OneTimeKeysResultValues> {
