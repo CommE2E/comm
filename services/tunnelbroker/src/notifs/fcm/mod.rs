@@ -9,9 +9,9 @@ use std::time::Duration;
 use tracing::{debug, error};
 
 pub mod config;
-mod error;
+pub mod error;
 pub mod firebase_message;
-mod response;
+pub mod response;
 mod token;
 
 #[derive(Clone)]
