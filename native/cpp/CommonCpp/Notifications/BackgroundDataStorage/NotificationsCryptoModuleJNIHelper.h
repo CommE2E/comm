@@ -18,6 +18,12 @@ public:
       std::string data,
       int messageType);
 
+  static std::string peerDecrypt(
+      facebook::jni::alias_ref<NotificationsCryptoModuleJNIHelper> jThis,
+      std::string deviceID,
+      std::string data,
+      int messageType);
+
   static void registerNatives();
 };
 } // namespace comm
