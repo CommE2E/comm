@@ -54,6 +54,9 @@ public:
   static bool isNotificationsSessionInitialized(const std::string &keyserverID);
   static bool
   isDeviceNotificationsSessionInitialized(const std::string &deviceID);
+  static std::vector<std::pair<std::string, bool>>
+  isNotificationsSessionInitializedWithDevices(
+      const std::vector<std::string> &deviceIDs);
 
   class BaseStatefulDecryptResult {
     BaseStatefulDecryptResult(

@@ -38,11 +38,14 @@ public:
   virtual jsi::Value validateAndUploadPrekeys(jsi::Runtime &rt, jsi::String authUserID, jsi::String authDeviceID, jsi::String authAccessToken) = 0;
   virtual jsi::Value initializeNotificationsSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String keyserverID) = 0;
   virtual jsi::Value isNotificationsSessionInitialized(jsi::Runtime &rt) = 0;
+  virtual jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
+  virtual jsi::Value isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, jsi::Array deviceIDs) = 0;
   virtual jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) = 0;
   virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
   virtual jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) = 0;
+  virtual jsi::Value isContentSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
   virtual jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
   virtual jsi::Value encrypt(jsi::Runtime &rt, jsi::String message, jsi::String deviceID) = 0;
   virtual jsi::Value encryptNotification(jsi::Runtime &rt, jsi::String payload, jsi::String deviceID) = 0;
@@ -253,6 +256,22 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::isNotificationsSessionInitialized, jsInvoker_, instance_);
     }
+    jsi::Value isDeviceNotificationsSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::isDeviceNotificationsSessionInitialized) == 2,
+          "Expected isDeviceNotificationsSessionInitialized(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::isDeviceNotificationsSessionInitialized, jsInvoker_, instance_, std::move(deviceID));
+    }
+    jsi::Value isNotificationsSessionInitializedWithDevices(jsi::Runtime &rt, jsi::Array deviceIDs) override {
+      static_assert(
+          bridging::getParameterCount(&T::isNotificationsSessionInitializedWithDevices) == 2,
+          "Expected isNotificationsSessionInitializedWithDevices(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::isNotificationsSessionInitializedWithDevices, jsInvoker_, instance_, std::move(deviceIDs));
+    }
     jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) override {
       static_assert(
           bridging::getParameterCount(&T::updateKeyserverDataInNotifStorage) == 2,
@@ -292,6 +311,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::initializeContentInboundSession, jsInvoker_, instance_, std::move(identityKeys), std::move(encryptedContent), std::move(deviceID), std::move(sessionVersion), std::move(overwrite));
+    }
+    jsi::Value isContentSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) override {
+      static_assert(
+          bridging::getParameterCount(&T::isContentSessionInitialized) == 2,
+          "Expected isContentSessionInitialized(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::isContentSessionInitialized, jsInvoker_, instance_, std::move(deviceID));
     }
     jsi::Value initializeNotificationsOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) override {
       static_assert(
