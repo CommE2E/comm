@@ -8,6 +8,7 @@ import { resolveKeyserverSessionInvalidationUsingNativeCredentials } from './acc
 import { authoritativeKeyserverID } from './authoritative-keyserver.js';
 import { olmAPI } from './crypto/olm-api.js';
 import { sqliteAPI } from './database/sqlite-api.js';
+import encryptedNotifUtilsAPI from './push/encrypted-notif-utils-api.js';
 import { persistConfig, codeVersion } from './redux/persist.js';
 
 registerConfig({
@@ -22,4 +23,5 @@ registerConfig({
   authoritativeKeyserverID,
   olmAPI,
   sqliteAPI,
+  encryptedNotifUtilsAPI,
 });
