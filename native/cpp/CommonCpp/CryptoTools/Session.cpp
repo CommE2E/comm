@@ -179,6 +179,29 @@ std::string Session::decrypt(EncryptedData &encryptedData) {
   return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
+EncryptedData Session::encrypt(const std::string &content) {
+  OlmSession *session = this->getOlmSession();
+  OlmBuffer encryptedMessage(
+      ::olm_encrypt_message_length(session, content.size()));
+  OlmBuffer messageRandom;
+  PlatformSpecificTools::generateSecureRandomBytes(
+      messageRandom, ::olm_encrypt_random_length(session));
+  size_t messageType = ::olm_encrypt_message_type(session);
+  if (-1 ==
+      ::olm_encrypt(
+          session,
+          (uint8_t *)content.data(),
+          content.size(),
+          messageRandom.data(),
+          messageRandom.size(),
+          encryptedMessage.data(),
+          encryptedMessage.size())) {
+    throw std::runtime_error{
+        "error encrypt => " + std::string{::olm_session_last_error(session)}};
+  }
+  return {encryptedMessage, messageType};
+}
+
 int Session::getVersion() {
   return this->version;
 }
