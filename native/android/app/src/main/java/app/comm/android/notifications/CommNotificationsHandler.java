@@ -56,6 +56,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String GROUP_NOTIF_IDS_KEY = "groupNotifIDs";
   private static final String COLLAPSE_ID_KEY = "collapseKey";
   private static final String KEYSERVER_ID_KEY = "keyserverID";
+  private static final String SENDER_DEVICE_ID_KEY = "senderDeviceID";
+  private static final String MESSAGE_TYPE_KEY = "type";
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
   private static final Map<Integer, String> NOTIF_PRIORITY_VERBOSE =
@@ -107,19 +109,18 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     handleAlteredNotificationPriority(message);
 
     if (StaffUtils.isStaffRelease() &&
-        message.getData().get(KEYSERVER_ID_KEY) == null) {
+        message.getData().get(KEYSERVER_ID_KEY) == null &&
+        message.getData().get(SENDER_DEVICE_ID_KEY) == null) {
       displayErrorMessageNotification(
-          "Received notification without keyserver ID.",
+          "Received notification without keyserver ID nor sender device ID",
           "Missing keyserver ID.",
           null);
       return;
     }
 
-    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
-
     if (message.getData().get(ENCRYPTED_PAYLOAD_KEY) != null) {
       try {
-        message = this.olmDecryptRemoteMessage(message, senderKeyserverID);
+        message = this.olmDecryptRemoteMessage(message);
       } catch (JSONException e) {
         Log.w("COMM", "Malformed notification JSON payload.", e);
         return;
@@ -139,6 +140,7 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
           "Unencrypted notification",
           null);
     }
+
     if ("1".equals(message.getData().get(ENCRYPTION_FAILED_KEY))) {
       Log.w("COMM", "Received erroneously unencrypted notification.");
     }
@@ -269,14 +271,15 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   }
 
   private void handleUnreadCountUpdate(RemoteMessage message) {
+    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
+      return;
+    }
+
     String badge = message.getData().get(BADGE_KEY);
     if (badge == null) {
       return;
     }
 
-    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
-      throw new RuntimeException("Received badge update without keyserver ID.");
-    }
     String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
     String senderKeyserverUnreadCountKey = String.join(
         MMKV_KEY_SEPARATOR,
@@ -480,15 +483,28 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     return message;
   }
 
-  private RemoteMessage
-  olmDecryptRemoteMessage(RemoteMessage message, String senderKeyserverID)
-      throws JSONException, IllegalStateException {
+  private RemoteMessage olmDecryptRemoteMessage(RemoteMessage message)
+      throws JSONException, IllegalStateException, NumberFormatException {
     String encryptedSerializedPayload =
         message.getData().get(ENCRYPTED_PAYLOAD_KEY);
-    String decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
-        senderKeyserverID,
-        encryptedSerializedPayload,
-        NotificationsCryptoModule.olmEncryptedTypeMessage());
+
+    String decryptedSerializedPayload;
+    if (message.getData().get(KEYSERVER_ID_KEY) != null) {
+      String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
+      decryptedSerializedPayload = NotificationsCryptoModule.decrypt(
+          senderKeyserverID,
+          encryptedSerializedPayload,
+          NotificationsCryptoModule.olmEncryptedTypeMessage());
+    } else if (message.getData().get(SENDER_DEVICE_ID_KEY) != null) {
+      String senderDeviceID = message.getData().get(SENDER_DEVICE_ID_KEY);
+      String messageTypeString = message.getData().get(MESSAGE_TYPE_KEY);
+      int messageType = Integer.parseInt(messageTypeString);
+      decryptedSerializedPayload = NotificationsCryptoModule.peerDecrypt(
+          senderDeviceID, encryptedSerializedPayload, messageType);
+    } else {
+      throw new RuntimeException(
+          "Received notification without keyserver ID nor sender device ID.");
+    }
 
     return updateRemoteMessageWithDecryptedPayload(
         message, decryptedSerializedPayload);
