@@ -51,6 +51,13 @@ const olmAPI: OlmAPI = {
   decryptAndPersist: proxyToWorker('decryptAndPersist'),
   contentInboundSessionCreator: proxyToWorker('contentInboundSessionCreator'),
   contentOutboundSessionCreator: proxyToWorker('contentOutboundSessionCreator'),
+  isContentSessionInitialized: proxyToWorker('isContentSessionInitialized'),
+  isDeviceNotificationsSessionInitialized: proxyToWorker(
+    'isDeviceNotificationsSessionInitialized',
+  ),
+  isNotificationsSessionInitializedWithDevices: proxyToWorker(
+    'isNotificationsSessionInitializedWithDevices',
+  ),
   keyserverNotificationsSessionCreator: proxyToWorker(
     'keyserverNotificationsSessionCreator',
   ),
