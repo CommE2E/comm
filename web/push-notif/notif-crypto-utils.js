@@ -1,6 +1,7 @@
 // @flow
 
 import olm from '@commapp/olm';
+import type { EncryptResult } from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
 
@@ -13,6 +14,7 @@ import type {
   EncryptedWebNotification,
 } from 'lib/types/notif-types.js';
 import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 import {
   type EncryptedData,
@@ -86,9 +88,9 @@ async function decryptWebNotification(
       displayErrorMessage: staffCanSee,
     };
   }
-  const { olmDataContentKey, encryptionKeyDBKey } = olmDBKeys;
+  const { olmDataKey, encryptionKeyDBKey } = olmDBKeys;
   const [encryptedOlmData, encryptionKey] = await Promise.all([
-    localforage.getItem<EncryptedData>(olmDataContentKey),
+    localforage.getItem<EncryptedData>(olmDataKey),
     retrieveEncryptionKey(encryptionKeyDBKey),
   ]);
 
@@ -105,7 +107,7 @@ async function decryptWebNotification(
 
     const decryptedNotification = await commonDecrypt<PlainTextWebNotification>(
       encryptedOlmData,
-      olmDataContentKey,
+      olmDataKey,
       encryptionKey,
       encryptedPayload,
     );
@@ -132,15 +134,15 @@ async function decryptDesktopNotification(
   staffCanSee: boolean,
   keyserverID?: string,
 ): Promise<{ +[string]: mixed }> {
-  let encryptedOlmData, encryptionKey, olmDataContentKey;
+  let encryptedOlmData, encryptionKey, olmDataKey;
   try {
-    const { olmDataContentKey: olmDataContentKeyValue, encryptionKeyDBKey } =
+    const { olmDataKey: olmDataKeyValue, encryptionKeyDBKey } =
       await getNotifsOlmSessionDBKeys(keyserverID);
 
-    olmDataContentKey = olmDataContentKeyValue;
+    olmDataKey = olmDataKeyValue;
 
     [encryptedOlmData, encryptionKey] = await Promise.all([
-      localforage.getItem<EncryptedData>(olmDataContentKey),
+      localforage.getItem<EncryptedData>(olmDataKey),
       retrieveEncryptionKey(encryptionKeyDBKey),
       initOlm(),
     ]);
@@ -162,7 +164,7 @@ async function decryptDesktopNotification(
   try {
     decryptedNotification = await commonDecrypt<{ +[string]: mixed }>(
       encryptedOlmData,
-      olmDataContentKey,
+      olmDataKey,
       encryptionKey,
       encryptedPayload,
     );
@@ -197,7 +199,7 @@ async function decryptDesktopNotification(
 
 async function commonDecrypt<T>(
   encryptedOlmData: EncryptedData,
-  olmDataContentKey: string,
+  olmDataKey: string,
   encryptionKey: CryptoKey,
   encryptedPayload: string,
 ): Promise<T> {
@@ -257,7 +259,7 @@ async function commonDecrypt<T>(
     encryptionKey,
   );
 
-  await localforage.setItem(olmDataContentKey, updatedEncryptedSession);
+  await localforage.setItem(olmDataKey, updatedEncryptedSession);
 
   return decryptedNotification;
 }
@@ -309,6 +311,87 @@ function decryptWithPendingSession<T>(
   }
 }
 
+async function encryptNotification(
+  payload: string,
+  deviceID: string,
+): Promise<EncryptResult> {
+  const olmDataKey = getOlmDataKeyForDeviceID(deviceID);
+  const olmEncryptionKeyDBLabel =
+    getOlmEncryptionKeyDBLabelForDeviceID(deviceID);
+
+  let encryptedOlmData, encryptionKey;
+  try {
+    [encryptedOlmData, encryptionKey] = await Promise.all([
+      localforage.getItem<EncryptedData>(olmDataKey),
+      retrieveEncryptionKey(olmEncryptionKeyDBLabel),
+      initOlm(),
+    ]);
+  } catch (e) {
+    throw new Error(
+      `Failed to fetch olm session from IndexedDB for device: ${deviceID}. Details: ${
+        getMessageForException(e) ?? ''
+      }`,
+    );
+  }
+
+  if (!encryptionKey || !encryptedOlmData) {
+    throw new Error(`Session with device: ${deviceID} not initialized.`);
+  }
+
+  let encryptedNotification;
+  try {
+    encryptedNotification = await encryptNotificationWithOlmSession(
+      payload,
+      encryptedOlmData,
+      olmDataKey,
+      encryptionKey,
+    );
+  } catch (e) {
+    throw new Error(
+      `Failed encrypt notification for device: ${deviceID}. Details: ${
+        getMessageForException(e) ?? ''
+      }`,
+    );
+  }
+  return encryptedNotification;
+}
+
+async function encryptNotificationWithOlmSession(
+  payload: string,
+  encryptedOlmData: EncryptedData,
+  olmDataKey: string,
+  encryptionKey: CryptoKey,
+): Promise<EncryptResult> {
+  const serializedOlmData = await decryptData(encryptedOlmData, encryptionKey);
+  const {
+    mainSession,
+    picklingKey,
+    pendingSessionUpdate,
+    updateCreationTimestamp,
+  }: NotificationsOlmDataType = JSON.parse(
+    new TextDecoder().decode(serializedOlmData),
+  );
+
+  const session = new olm.Session();
+  session.unpickle(picklingKey, pendingSessionUpdate);
+  const encryptedNotification = session.encrypt(payload);
+
+  const newPendingSessionUpdate = session.pickle(picklingKey);
+  const updatedOlmData: NotificationsOlmDataType = {
+    mainSession,
+    pendingSessionUpdate: newPendingSessionUpdate,
+    picklingKey,
+    updateCreationTimestamp,
+  };
+  const updatedEncryptedSession = await encryptData(
+    new TextEncoder().encode(JSON.stringify(updatedOlmData)),
+    encryptionKey,
+  );
+
+  await localforage.setItem(olmDataKey, updatedEncryptedSession);
+  return encryptedNotification;
+}
+
 async function retrieveEncryptionKey(
   encryptionKeyDBLabel: string,
 ): Promise<?CryptoKey> {
@@ -326,10 +409,10 @@ async function retrieveEncryptionKey(
 }
 
 async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
-  +olmDataContentKey: string,
+  +olmDataKey: string,
   +encryptionKeyDBKey: string,
 }> {
-  const olmDataContentKeyForKeyserverPrefix = getOlmDataContentKeyForCookie(
+  const olmDataKeyForKeyserverPrefix = getOlmDataKeyForCookie(
     undefined,
     keyserverID,
   );
@@ -338,8 +421,8 @@ async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
     getOlmEncryptionKeyDBLabelForCookie(undefined, keyserverID);
 
   const dbKeys = await localforage.keys();
-  const olmDataContentKeys = sortOlmDBKeysArray(
-    dbKeys.filter(key => key.startsWith(olmDataContentKeyForKeyserverPrefix)),
+  const olmDataKeys = sortOlmDBKeysArray(
+    dbKeys.filter(key => key.startsWith(olmDataKeyForKeyserverPrefix)),
   );
   const encryptionKeyDBLabels = sortOlmDBKeysArray(
     dbKeys.filter(key =>
@@ -347,38 +430,36 @@ async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
     ),
   );
 
-  if (olmDataContentKeys.length === 0 || encryptionKeyDBLabels.length === 0) {
+  if (olmDataKeys.length === 0 || encryptionKeyDBLabels.length === 0) {
     throw new Error(
       'Received encrypted notification but olm session was not created',
     );
   }
 
-  const latestDataContentKey =
-    olmDataContentKeys[olmDataContentKeys.length - 1];
+  const latestDataKey = olmDataKeys[olmDataKeys.length - 1];
   const latestEncryptionKeyDBKey =
     encryptionKeyDBLabels[encryptionKeyDBLabels.length - 1];
 
-  const latestDataContentCookieID =
-    getCookieIDFromOlmDBKey(latestDataContentKey);
+  const latestDataCookieID = getCookieIDFromOlmDBKey(latestDataKey);
   const latestEncryptionKeyCookieID = getCookieIDFromOlmDBKey(
     latestEncryptionKeyDBKey,
   );
 
-  if (latestDataContentCookieID !== latestEncryptionKeyCookieID) {
+  if (latestDataCookieID !== latestEncryptionKeyCookieID) {
     throw new Error(
       'Olm sessions and their encryption keys out of sync. Latest cookie ' +
-        `id for olm sessions ${latestDataContentCookieID}. Latest cookie ` +
+        `id for olm sessions ${latestDataCookieID}. Latest cookie ` +
         `id for olm session encryption keys ${latestEncryptionKeyCookieID}`,
     );
   }
 
   const olmDBKeys = {
-    olmDataContentKey: latestDataContentKey,
+    olmDataKey: latestDataKey,
     encryptionKeyDBKey: latestEncryptionKeyDBKey,
   };
 
   const keysToDelete: $ReadOnlyArray<string> = [
-    ...olmDataContentKeys.slice(0, olmDataContentKeys.length - 1),
+    ...olmDataKeys.slice(0, olmDataKeys.length - 1),
     ...encryptionKeyDBLabels.slice(0, encryptionKeyDBLabels.length - 1),
   ];
 
@@ -386,29 +467,26 @@ async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
   return olmDBKeys;
 }
 
-function getOlmDataContentKeyForCookie(
-  cookie: ?string,
-  keyserverID?: string,
-): string {
-  let olmDataContentKeyBase;
+function getOlmDataKeyForCookie(cookie: ?string, keyserverID?: string): string {
+  let olmDataKeyBase;
   if (keyserverID) {
-    olmDataContentKeyBase = [
+    olmDataKeyBase = [
       INDEXED_DB_KEYSERVER_PREFIX,
       keyserverID,
       NOTIFICATIONS_OLM_DATA_CONTENT,
     ].join(INDEXED_DB_KEY_SEPARATOR);
   } else {
-    olmDataContentKeyBase = NOTIFICATIONS_OLM_DATA_CONTENT;
+    olmDataKeyBase = NOTIFICATIONS_OLM_DATA_CONTENT;
   }
 
   if (!cookie) {
-    return olmDataContentKeyBase;
+    return olmDataKeyBase;
   }
   const cookieID = getCookieIDFromCookie(cookie);
-  return [olmDataContentKeyBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
+  return [olmDataKeyBase, cookieID].join(INDEXED_DB_KEY_SEPARATOR);
 }
 
-function getOlmDataContentKeyForDeviceID(deviceID: string): string {
+function getOlmDataKeyForDeviceID(deviceID: string): string {
   return [
     INDEXED_DB_DEVICE_PREFIX,
     deviceID,
@@ -480,7 +558,7 @@ async function migrateLegacyOlmNotificationsSessions() {
     let keyToInsert;
     if (key.startsWith(NOTIFICATIONS_OLM_DATA_CONTENT)) {
       const cookieID = getCookieIDFromOlmDBKey(key);
-      keyToInsert = getOlmDataContentKeyForCookie(
+      keyToInsert = getOlmDataKeyForCookie(
         cookieID,
         ASHOAT_KEYSERVER_ID_USED_ONLY_FOR_MIGRATION_FROM_LEGACY_NOTIF_STORAGE,
       );
@@ -557,9 +635,10 @@ async function queryNotifsUnreadCountStorage(
 export {
   decryptWebNotification,
   decryptDesktopNotification,
-  getOlmDataContentKeyForCookie,
+  encryptNotification,
+  getOlmDataKeyForCookie,
   getOlmEncryptionKeyDBLabelForCookie,
-  getOlmDataContentKeyForDeviceID,
+  getOlmDataKeyForDeviceID,
   getOlmEncryptionKeyDBLabelForDeviceID,
   migrateLegacyOlmNotificationsSessions,
   updateNotifsUnreadCountStorage,
