@@ -114,6 +114,49 @@ public:
     void flushState() override;
   };
 
+  class StatefulPeerInitDecryptResult : public BaseStatefulDecryptResult {
+    StatefulPeerInitDecryptResult(
+        std::shared_ptr<crypto::Session> session,
+        std::shared_ptr<crypto::CryptoModule> account,
+        std::string sessionPicklingKey,
+        std::string accountPicklingKey,
+        std::string deviceID,
+        std::string decryptedData);
+    std::shared_ptr<crypto::Session> sessionState;
+    std::shared_ptr<crypto::CryptoModule> accountState;
+    std::string accountPicklingKey;
+    std::string deviceID;
+    friend NotificationsCryptoModule;
+
+  public:
+    void flushState() override;
+  };
+
+  class StatefulPeerDecryptResult : public BaseStatefulDecryptResult {
+    StatefulPeerDecryptResult(
+        std::unique_ptr<crypto::Session> session,
+        std::string deviceID,
+        std::string picklingKey,
+        std::string decryptedData);
+
+    std::unique_ptr<crypto::Session> sessionState;
+    std::string deviceID;
+    friend NotificationsCryptoModule;
+
+  public:
+    void flushState() override;
+  };
+
+  class StatefulPeerConflictDecryptResult : public BaseStatefulDecryptResult {
+    StatefulPeerConflictDecryptResult(
+        std::string picklingKey,
+        std::string decryptedData);
+    friend NotificationsCryptoModule;
+
+  public:
+    void flushState() override;
+  };
+
 private:
   static std::unique_ptr<NotificationsCryptoModule::BaseStatefulDecryptResult>
   prepareLegacyDecryptedState(
@@ -133,6 +176,16 @@ public:
 
   static crypto::EncryptedData
   encrypt(const std::string &deviceID, const std::string &payload);
+
+  static std::unique_ptr<BaseStatefulDecryptResult> statefulPeerDecrypt(
+      const std::string &deviceID,
+      const std::string &data,
+      const size_t messageType);
+
+  static std::string peerDecrypt(
+      const std::string &deviceID,
+      const std::string &data,
+      const size_t messageType);
 
   static void
   flushState(std::unique_ptr<BaseStatefulDecryptResult> statefulDecryptResult);
