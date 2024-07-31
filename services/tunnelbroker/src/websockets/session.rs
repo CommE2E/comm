@@ -2,6 +2,7 @@ use crate::constants::{
   CLIENT_RMQ_MSG_PRIORITY, DDB_RMQ_MSG_PRIORITY, MAX_RMQ_MSG_PRIORITY,
   RMQ_CONSUMER_TAG,
 };
+use crate::notifs::fcm::response::FCMErrorResponse;
 use comm_lib::aws::ddb::error::SdkError;
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use derive_more;
@@ -16,6 +17,8 @@ use lapin::options::{
 };
 use lapin::types::FieldTable;
 use lapin::BasicProperties;
+use notifs::fcm::error::Error::FCMError as NotifsFCMError;
+use notifs::web_push::error::Error::WebPush as NotifsWebPushError;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info, trace};
@@ -26,6 +29,7 @@ use tunnelbroker_messages::{
   DeviceToTunnelbrokerMessage, Heartbeat, MessageToDevice,
   MessageToDeviceRequest, MessageToTunnelbroker,
 };
+use web_push::WebPushError;
 
 use crate::notifs::apns::response::ErrorReason;
 
@@ -452,15 +456,16 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
           return Some(MessageSentStatus::SerializationError(notif.data));
         };
 
-        let device_token = match self.get_device_token(notif.device_id).await {
-          Ok(token) => token,
-          Err(e) => {
-            return Some(
-              self
-                .get_message_to_device_status(&notif.client_message_id, Err(e)),
-            )
-          }
-        };
+        let device_token =
+          match self.get_device_token(notif.device_id.clone()).await {
+            Ok(token) => token,
+            Err(e) => {
+              return Some(self.get_message_to_device_status(
+                &notif.client_message_id,
+                Err(e),
+              ))
+            }
+          };
 
         let fcm_message = FCMMessage {
           data,
@@ -469,10 +474,30 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         };
 
         if let Some(fcm) = self.notif_client.fcm.clone() {
-          let response = fcm.send(fcm_message).await;
+          let result = fcm.send(fcm_message).await;
+
+          if let Err(NotifsFCMError(fcm_error)) = &result {
+            let invalidate = match fcm_error {
+              FCMErrorResponse::Unregistered => true,
+              FCMErrorResponse::InvalidArgument(invalid_arg_error) => {
+                invalid_arg_error.details.contains("The registration token is not a valid FCM registration token")
+              }
+              _ => false,
+            };
+            if invalidate {
+              if let Err(e) = self
+                .invalidate_device_token(notif.device_id, device_token.clone())
+                .await
+              {
+                error!(
+                  "Error invalidating device token {}: {:?}",
+                  device_token, e
+                );
+              }
+            }
+          }
           return Some(
-            self
-              .get_message_to_device_status(&notif.client_message_id, response),
+            self.get_message_to_device_status(&notif.client_message_id, result),
           );
         }
 
@@ -516,13 +541,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         };
 
         let result = web_push_client.send(web_push_notif).await;
-        if let Err(notifs::web_push::error::Error::WebPush(web_push_error)) =
-          &result
-        {
+        if let Err(NotifsWebPushError(web_push_error)) = &result {
           if matches!(
             web_push_error,
-            web_push::WebPushError::EndpointNotValid
-              | web_push::WebPushError::EndpointNotFound
+            WebPushError::EndpointNotValid | WebPushError::EndpointNotFound
           ) {
             if let Err(e) = self
               .invalidate_device_token(notif.device_id, device_token.clone())
