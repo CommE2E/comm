@@ -2,6 +2,7 @@
 
 import localforage from 'localforage';
 
+import type { AuthMetadata } from 'lib/shared/identity-client-context.js';
 import type {
   PlainTextWebNotification,
   WebNotification,
@@ -15,6 +16,7 @@ import {
   type WebNotifsServiceUtilsData,
   type WebNotifDecryptionError,
 } from './notif-crypto-utils.js';
+import { persistAuthMetadata } from './services-client.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import { localforageConfig } from '../shared-worker/utils/constants.js';
 
@@ -26,7 +28,11 @@ declare class PushEvent extends ExtendableEvent {
 }
 
 declare class CommAppMessage extends ExtendableEvent {
-  +data: { +olmWasmPath?: string, +staffCanSee?: boolean };
+  +data: {
+    +olmWasmPath?: string,
+    +staffCanSee?: boolean,
+    +authMetadata?: AuthMetadata,
+  };
 }
 
 declare var clients: Clients;
@@ -66,19 +72,24 @@ self.addEventListener('message', (event: CommAppMessage) => {
   localforage.config(localforageConfig);
   event.waitUntil(
     (async () => {
-      if (!event.data.olmWasmPath || event.data.staffCanSee === undefined) {
+      const { olmWasmPath, staffCanSee, authMetadata } = event.data;
+
+      if (!olmWasmPath || staffCanSee === undefined || !authMetadata) {
         return;
       }
 
       const webNotifsServiceUtils: WebNotifsServiceUtilsData = {
-        olmWasmPath: event.data.olmWasmPath,
-        staffCanSee: event.data.staffCanSee,
+        olmWasmPath: olmWasmPath,
+        staffCanSee: staffCanSee,
       };
 
-      await localforage.setItem(
-        WEB_NOTIFS_SERVICE_UTILS_KEY,
-        webNotifsServiceUtils,
-      );
+      await Promise.all([
+        localforage.setItem(
+          WEB_NOTIFS_SERVICE_UTILS_KEY,
+          webNotifsServiceUtils,
+        ),
+        persistAuthMetadata(authMetadata),
+      ]);
 
       await migrateLegacyOlmNotificationsSessions();
     })(),
