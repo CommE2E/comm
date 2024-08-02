@@ -54,6 +54,10 @@ import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import {
+  nuxTip,
+  NUXTipsContext,
+} from '../components/nux-tips-context.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
@@ -378,14 +382,43 @@ export default function ChatComponent(props: Props): React.Node {
     draftUpdater = <ThreadDraftUpdater />;
   }
 
+  const communityDrawerButtonRef =
+    React.useRef<?React.ElementRef<typeof View>>();
+
+  const tipsContext = React.useContext(NUXTipsContext);
+  invariant(tipsContext, 'NUXTipsContext should be defined');
+  const { registerTipButton } = tipsContext;
+
+  const communityDrawerButtonOnLayout = React.useCallback(() => {
+    communityDrawerButtonRef.current?.measure(
+      (x, y, width, height, pageX, pageY) => {
+        registerTipButton(nuxTip.COMMUNITY_DRAWER, {
+          x,
+          y,
+          width,
+          height,
+          pageX,
+          pageY,
+        });
+      },
+    );
+  }, [registerTipButton]);
+
   const headerLeftButton = React.useCallback(
     (headerProps: StackHeaderLeftButtonProps) => {
       if (headerProps.canGoBack) {
         return <HeaderBackButton {...headerProps} />;
       }
-      return <CommunityDrawerButton navigation={props.navigation} />;
+      return (
+        <View
+          onLayout={communityDrawerButtonOnLayout}
+          ref={communityDrawerButtonRef}
+        >
+          <CommunityDrawerButton navigation={props.navigation} />
+        </View>
+      );
     },
-    [props.navigation],
+    [communityDrawerButtonOnLayout, props.navigation],
   );
 
   const messageEditingContext = React.useContext(MessageEditingContext);
