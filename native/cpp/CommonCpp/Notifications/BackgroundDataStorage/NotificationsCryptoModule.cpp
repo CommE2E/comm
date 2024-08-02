@@ -561,6 +561,7 @@ std::string NotificationsCryptoModule::decrypt(
 crypto::EncryptedData NotificationsCryptoModule::encrypt(
     const std::string &deviceID,
     const std::string &payload) {
+  CommMMKV::ScopedCommMMKVLock scopedLock{};
   auto sessionWithPicklingKey =
       NotificationsCryptoModule::fetchNotificationsSession(false, deviceID);
   if (!sessionWithPicklingKey.has_value()) {
@@ -613,6 +614,7 @@ NotificationsCryptoModule::statefulPeerDecrypt(
         "Received message of invalid type from device: " + deviceID);
   }
 
+  CommMMKV::ScopedCommMMKVLock scopedLock{};
   auto maybeSessionWithPicklingKey =
       NotificationsCryptoModule::fetchNotificationsSession(false, deviceID);
 

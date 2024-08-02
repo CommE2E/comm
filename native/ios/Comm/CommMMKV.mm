@@ -6,6 +6,13 @@
 
 #import <Foundation/Foundation.h>
 #import <MMKV.h>
+#import <MMKVCore/MMKV.h>
+
+@interface MMKV () {
+@public
+  mmkv::MMKV *m_mmkv;
+}
+@end
 
 namespace comm {
 
@@ -27,6 +34,17 @@ MMKV *getMMKVInstance(NSString *mmkvID, NSString *encryptionKey) {
     throw std::runtime_error("Failed to instantiate MMKV object.");
   }
   return mmkv;
+}
+
+CommMMKV::ScopedCommMMKVLock::ScopedCommMMKVLock() {
+  CommMMKV::initialize();
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  mmkv->m_mmkv->lock();
+}
+
+CommMMKV::ScopedCommMMKVLock::~ScopedCommMMKVLock() {
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  mmkv->m_mmkv->unlock();
 }
 
 void assignInitializationData() {
