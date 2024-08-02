@@ -75,6 +75,15 @@ public class CommMMKV {
     }
   }
 
+  public static void lock() {
+    initialize();
+    getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey).lock();
+  }
+
+  public static void unlock() {
+    getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey).unlock();
+  }
+
   public static void clearSensitiveData() {
     initialize();
     synchronized (mmkvEncryptionKey) {

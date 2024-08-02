@@ -6,6 +6,18 @@
 
 #import <Foundation/Foundation.h>
 #import <MMKV.h>
+#import <MMKVCore/MMKV.h>
+
+// Core MMKV C++ implementation and Android wrapper have public `lock` and
+// `unlock` methods while Obj-C wrapper doesn't. However Obj-C wrapper has
+// private instance variable of type `mmkv::MMKV *`. Interface redeclaration
+// below lets us access it. This pattern is hacky but it is well known in
+// Obj-C and used in our codebase in CommSecureStore.
+@interface MMKV () {
+@public
+  mmkv::MMKV *m_mmkv;
+}
+@end
 
 namespace comm {
 
@@ -27,6 +39,17 @@ MMKV *getMMKVInstance(NSString *mmkvID, NSString *encryptionKey) {
     throw std::runtime_error("Failed to instantiate MMKV object.");
   }
   return mmkv;
+}
+
+CommMMKV::ScopedCommMMKVLock::ScopedCommMMKVLock() {
+  CommMMKV::initialize();
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  mmkv->m_mmkv->lock();
+}
+
+CommMMKV::ScopedCommMMKVLock::~ScopedCommMMKVLock() {
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  mmkv->m_mmkv->unlock();
 }
 
 void assignInitializationData() {

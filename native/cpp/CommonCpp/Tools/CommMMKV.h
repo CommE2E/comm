@@ -31,5 +31,11 @@ public:
   public:
     using std::runtime_error::runtime_error;
   };
+
+  class ScopedCommMMKVLock {
+  public:
+    ScopedCommMMKVLock();
+    ~ScopedCommMMKVLock();
+  };
 };
 } // namespace comm
