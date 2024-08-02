@@ -54,6 +54,7 @@ import { AutoJoinCommunityHandler } from './components/auto-join-community-handl
 import BackgroundIdentityLoginHandler from './components/background-identity-login-handler.react.js';
 import ConnectFarcasterAlertHandler from './components/connect-farcaster-alert-handler.react.js';
 import { FeatureFlagsProvider } from './components/feature-flags-provider.react.js';
+import { NUXTipsContextProvider } from './components/nux-tips-context.react.js';
 import PersistedStateGate from './components/persisted-state-gate.js';
 import ReportHandler from './components/report-handler.react.js';
 import VersionSupportedChecker from './components/version-supported.react.js';
@@ -303,7 +304,9 @@ function Root() {
           <ChatContextProvider>
             <DeepLinksContextProvider>
               <ChatMentionContextProvider>
-                <RootNavigator />
+                <NUXTipsContextProvider>
+                  <RootNavigator />
+                </NUXTipsContextProvider>
               </ChatMentionContextProvider>
             </DeepLinksContextProvider>
           </ChatContextProvider>
