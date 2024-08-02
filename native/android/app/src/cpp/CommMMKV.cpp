@@ -14,6 +14,18 @@ public:
     method(cls);
   }
 
+  static void lock() {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void()>("lock");
+    method(cls);
+  }
+
+  static void unlock() {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void()>("unlock");
+    method(cls);
+  }
+
   static void clearSensitiveData() {
     static const auto cls = javaClassStatic();
     static auto method = cls->getStaticMethod<void()>("clearSensitiveData");
@@ -91,6 +103,14 @@ namespace comm {
 void CommMMKV::initialize() {
   NativeAndroidAccessProvider::runTask(
       []() { CommMMKVJavaClass::initialize(); });
+}
+
+CommMMKV::ScopedCommMMKVLock::ScopedCommMMKVLock() {
+  NativeAndroidAccessProvider::runTask([]() { CommMMKVJavaClass::lock(); });
+}
+
+CommMMKV::ScopedCommMMKVLock::~ScopedCommMMKVLock() {
+  NativeAndroidAccessProvider::runTask([]() { CommMMKVJavaClass::unlock(); });
 }
 
 void CommMMKV::clearSensitiveData() {
