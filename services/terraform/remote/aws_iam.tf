@@ -70,6 +70,18 @@ data "aws_iam_policy_document" "assume_role_ecs_ec2" {
   }
 }
 
+# Role for keyserver service nodes
+# Allows for ecs exec
+resource "aws_iam_role" "keyserver_node_ecs_task_role" {
+  name               = "ecs-iam_role"
+  description        = "Allows to SSH into ECS containers"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_ecs_ec2.json
+
+  managed_policy_arns = [
+    aws_iam_policy.allow_ecs_exec.arn,
+  ]
+}
+
 # Allows ECS Exec to SSH into service task containers
 resource "aws_iam_policy" "allow_ecs_exec" {
   name        = "allow-ecs-exec"
