@@ -84,6 +84,7 @@ type NUXTipsOverlayProps<Base> = {
   +styles: $ReadOnly<typeof unboundStyles>,
   +closeTip: () => mixed,
   +contentContainerStyle: ViewStyle,
+  +opacityStyle: AnimatedViewStyle,
 };
 
 function createNUXTipsOverlay(
@@ -93,7 +94,6 @@ function createNUXTipsOverlay(
   class NUXTipsOverlay extends React.PureComponent<
     NUXTipsOverlayProps<BaseNUXTipsOverlayProps>,
   > {
-    backdropOpacity: Node;
     tipContainerOpacity: Node;
     tipVerticalAbove: Node;
     tipVerticalBelow: Node;
@@ -109,11 +109,6 @@ function createNUXTipsOverlay(
 
       const { position } = props;
 
-      this.backdropOpacity = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [0, 0.7],
-        extrapolate: Extrapolate.CLAMP,
-      });
       this.tipContainerOpacity = interpolateNode(position, {
         inputRange: [0, 0.1],
         outputRange: [0, 1],
@@ -146,13 +141,6 @@ function createNUXTipsOverlay(
         invertedPosition,
         props.dimensions.height,
       );
-    }
-
-    get opacityStyle(): AnimatedViewStyle {
-      return {
-        ...this.props.styles.backdrop,
-        opacity: this.backdropOpacity,
-      };
     }
 
     get buttonStyle(): ViewStyle {
@@ -208,6 +196,7 @@ function createNUXTipsOverlay(
         styles,
         closeTip,
         contentContainerStyle,
+        opacityStyle,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -253,7 +242,7 @@ function createNUXTipsOverlay(
       return (
         <TouchableWithoutFeedback onPress={this.props.closeTip}>
           <View style={styles.container}>
-            <AnimatedView style={this.opacityStyle} />
+            <AnimatedView style={opacityStyle} />
             <View style={this.props.contentContainerStyle}>
               <View style={this.buttonStyle}>
                 <ButtonComponent {...buttonProps} />
@@ -306,6 +295,18 @@ function createNUXTipsOverlay(
       };
     }, [dimensions.height, props.route.params, styles.contentContainer]);
 
+    const opacityStyle = React.useMemo(() => {
+      const backdropOpacity = interpolateNode(position, {
+        inputRange: [0, 1],
+        outputRange: [0, 0.7],
+        extrapolate: Extrapolate.CLAMP,
+      });
+      return {
+        ...styles.backdrop,
+        opacity: backdropOpacity,
+      };
+    }, [position, styles.backdrop]);
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -314,6 +315,7 @@ function createNUXTipsOverlay(
         styles={styles}
         closeTip={goBackOnce}
         contentContainerStyle={contentContainerStyle}
+        opacityStyle={opacityStyle}
       />
     );
   }
