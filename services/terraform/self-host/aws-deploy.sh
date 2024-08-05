@@ -60,12 +60,20 @@ check_health() {
   done
 }
 
-disable_lb_traffic() {
+disable_general_lb_traffic() {
+  # disables general ip access
   aws ec2 revoke-security-group-ingress \
       --group-id "$(aws ec2 describe-security-groups --filters "Name=group-name,Values=lb-sg" --query "SecurityGroups[0].GroupId" --output text)" \
       --protocol tcp \
       --port 443 \
       --cidr 0.0.0.0/0 > /dev/null
+
+  # enables traffic only for ip calling aws deploy script
+  aws ec2 authorize-security-group-ingress \
+    --group-id "$(aws ec2 describe-security-groups --filters "Name=group-name,Values=lb-sg" --query "SecurityGroups[0].GroupId" --output text)" \
+    --protocol tcp \
+    --port 443 \
+    --cidr "$(curl ipv4.wtfismyip.com/text)/32" > /dev/null
 }
 
 enable_lb_traffic() {
@@ -74,16 +82,22 @@ enable_lb_traffic() {
     --protocol tcp \
     --port 443 \
     --cidr 0.0.0.0/0 > /dev/null
+
+  # disables personal ip address ingress rule as no longer necessary
+  aws ec2 revoke-security-group-ingress \
+      --group-id "$(aws ec2 describe-security-groups --filters "Name=group-name,Values=lb-sg" --query "SecurityGroups[0].GroupId" --output text)" \
+      --protocol tcp \
+      --port 443 \
+      --cidr "$(curl ipv4.wtfismyip.com/text)/32" > /dev/null
 }
 
 # Stop all primary and secondary tasks and disable traffic to load balancer
 echo "Disabling traffic to load balancer"
-disable_lb_traffic
+disable_general_lb_traffic
 
 http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$health_check_url")
 if [[ "$http_code" -eq 000 ]]; then
   echo "Error: Health check timed out trying to access keyserver domain at ${health_check_url}."
-  echo "Ensure terraform variable allowed_ip is properly configured and run terraform apply"
 
     echo "Re-enabling traffic to load balancer until domain is accessible and migration script is rerun"
     enable_lb_traffic
