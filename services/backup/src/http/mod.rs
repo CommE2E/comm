@@ -11,6 +11,7 @@ use crate::{database::DatabaseClient, http::handlers::log::handle_ws, CONFIG};
 mod handlers {
   pub(super) mod backup;
   pub(super) mod log;
+  pub(super) mod user_data;
 }
 
 pub async fn run_http_server(
@@ -66,6 +67,14 @@ pub async fn run_http_server(
       .service(
         web::scope("/logs")
           .service(web::resource("").route(web::get().to(handle_ws))),
+      )
+      .service(
+        web::scope("/user_data")
+          .wrap(get_comm_authentication_middleware())
+          .service(
+            web::resource("{user_id}")
+              .route(web::delete().to(handlers::user_data::delete_user_data)),
+          ),
       )
   })
   .bind(("0.0.0.0", CONFIG.http_port))?
