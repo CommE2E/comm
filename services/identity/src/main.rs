@@ -1,3 +1,4 @@
+use comm_lib::auth::AuthService;
 use comm_lib::aws;
 use comm_lib::aws::config::timeout::TimeoutConfig;
 use comm_lib::aws::config::BehaviorVersion;
@@ -6,6 +7,7 @@ use database::DatabaseClient;
 use tonic::transport::Server;
 use tonic_web::GrpcWebLayer;
 
+mod backup;
 mod client_service;
 mod config;
 pub mod constants;
@@ -83,6 +85,8 @@ async fn main() -> Result<(), BoxedError> {
         .region("us-east-2")
         .load()
         .await;
+      let comm_auth_service =
+        AuthService::new(&aws_config, "http://localhost:50054".to_string());
       let database_client = DatabaseClient::new(&aws_config);
       let inner_client_service = ClientService::new(database_client.clone());
       let client_service = IdentityClientServiceServer::with_interceptor(
@@ -90,7 +94,7 @@ async fn main() -> Result<(), BoxedError> {
         grpc_services::shared::version_interceptor,
       );
       let inner_auth_service =
-        AuthenticatedService::new(database_client.clone());
+        AuthenticatedService::new(database_client.clone(), comm_auth_service);
       let db_client = database_client.clone();
       let auth_service =
         AuthServer::with_interceptor(inner_auth_service, move |req| {

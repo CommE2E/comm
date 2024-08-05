@@ -23,6 +23,8 @@ pub enum Error {
   #[display(...)]
   Serde(serde_json::Error),
   #[display(...)]
+  Reqwest(reqwest::Error),
+  #[display(...)]
   CannotOverwrite,
   #[display(...)]
   OneTimeKeyUploadLimitExceeded,
