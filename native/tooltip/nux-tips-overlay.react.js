@@ -86,6 +86,8 @@ type NUXTipsOverlayProps<Base> = {
   +contentContainerStyle: ViewStyle,
   +opacityStyle: AnimatedViewStyle,
   +buttonStyle: ViewStyle,
+  +tipHorizontalOffset: Value,
+  +onTipContainerLayout: (event: LayoutEvent) => void,
 };
 
 function createNUXTipsOverlay(
@@ -98,7 +100,6 @@ function createNUXTipsOverlay(
     tipContainerOpacity: Node;
     tipVerticalAbove: Node;
     tipVerticalBelow: Node;
-    tipHorizontalOffset: Value = new Value(0);
     tipHorizontal: Node;
     tipScale: Node;
     fixedTipVertical: Node;
@@ -130,7 +131,10 @@ function createNUXTipsOverlay(
 
       const invertedPosition = add(1, multiply(-1, position));
 
-      this.tipHorizontal = multiply(invertedPosition, this.tipHorizontalOffset);
+      this.tipHorizontal = multiply(
+        invertedPosition,
+        this.props.tipHorizontalOffset,
+      );
 
       this.tipScale = interpolateNode(position, {
         inputRange: [0, 0.2, 0.8, 1],
@@ -187,6 +191,8 @@ function createNUXTipsOverlay(
         contentContainerStyle,
         opacityStyle,
         buttonStyle,
+        tipHorizontalOffset,
+        onTipContainerLayout,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -220,7 +226,7 @@ function createNUXTipsOverlay(
       tip = (
         <AnimatedView
           style={this.tipContainerStyle}
-          onLayout={this.onTipContainerLayout}
+          onLayout={this.props.onTipContainerLayout}
         >
           {triangleUp}
           <View style={styles.items}>
@@ -243,23 +249,6 @@ function createNUXTipsOverlay(
         </TouchableWithoutFeedback>
       );
     }
-
-    onTipContainerLayout = (event: LayoutEvent) => {
-      const { route, dimensions } = this.props;
-      const { x, width } = route.params.initialCoordinates;
-
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-
-      const actualWidth = event.nativeEvent.layout.width;
-      if (extraLeftSpace < extraRightSpace) {
-        const minWidth = width + 2 * extraLeftSpace;
-        this.tipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
-      } else {
-        const minWidth = width + 2 * extraRightSpace;
-        this.tipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
-      }
-    };
   }
 
   function ConnectedNUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
@@ -309,6 +298,28 @@ function createNUXTipsOverlay(
       };
     }, [initialCoordinates, verticalBounds]);
 
+    const tipHorizontalOffsetRef = React.useRef(new Value(0));
+    const tipHorizontalOffset = tipHorizontalOffsetRef.current;
+
+    const onTipContainerLayout = React.useCallback(
+      (event: LayoutEvent) => {
+        const { x, width } = initialCoordinates;
+
+        const extraLeftSpace = x;
+        const extraRightSpace = dimensions.width - width - x;
+
+        const actualWidth = event.nativeEvent.layout.width;
+        if (extraLeftSpace < extraRightSpace) {
+          const minWidth = width + 2 * extraLeftSpace;
+          tipHorizontalOffset.setValue((minWidth - actualWidth) / 2);
+        } else {
+          const minWidth = width + 2 * extraRightSpace;
+          tipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
+        }
+      },
+      [dimensions.width, initialCoordinates, tipHorizontalOffset],
+    );
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -319,6 +330,8 @@ function createNUXTipsOverlay(
         contentContainerStyle={contentContainerStyle}
         opacityStyle={opacityStyle}
         buttonStyle={buttonStyle}
+        tipHorizontalOffset={tipHorizontalOffset}
+        onTipContainerLayout={onTipContainerLayout}
       />
     );
   }
