@@ -90,6 +90,8 @@ type NUXTipsOverlayProps<Base> = {
   +onTipContainerLayout: (event: LayoutEvent) => void,
   +tipContainerOpacity: Node,
   +tipVerticalBelow: Node,
+  +tipHorizontal: Node,
+  +tipScale: Node,
 };
 
 const tipHeight: number = 30;
@@ -103,8 +105,6 @@ function createNUXTipsOverlay(
     NUXTipsOverlayProps<BaseNUXTipsOverlayProps>,
   > {
     tipVerticalAbove: Node;
-    tipHorizontal: Node;
-    tipScale: Node;
     fixedTipVertical: Node;
 
     constructor(props: NUXTipsOverlayProps<BaseNUXTipsOverlayProps>) {
@@ -120,17 +120,6 @@ function createNUXTipsOverlay(
 
       const invertedPosition = add(1, multiply(-1, position));
 
-      this.tipHorizontal = multiply(
-        invertedPosition,
-        this.props.tipHorizontalOffset,
-      );
-
-      this.tipScale = interpolateNode(position, {
-        inputRange: [0, 0.2, 0.8, 1],
-        outputRange: [0, 0, 1, 1],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
       this.fixedTipVertical = multiply(
         invertedPosition,
         props.dimensions.height,
@@ -138,8 +127,14 @@ function createNUXTipsOverlay(
     }
 
     get tipContainerStyle(): AnimatedViewStyle {
-      const { dimensions, route, tipContainerOpacity, tipVerticalBelow } =
-        this.props;
+      const {
+        dimensions,
+        route,
+        tipContainerOpacity,
+        tipVerticalBelow,
+        tipHorizontal,
+        tipScale,
+      } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
 
@@ -150,7 +145,7 @@ function createNUXTipsOverlay(
 
       const transform: Array<ReanimatedTransform> = [];
 
-      transform.push({ translateX: this.tipHorizontal });
+      transform.push({ translateX: tipHorizontal });
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
@@ -165,7 +160,7 @@ function createNUXTipsOverlay(
       style.top =
         Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
       transform.push({ translateY: tipVerticalBelow });
-      transform.push({ scale: this.tipScale });
+      transform.push({ scale: tipScale });
       style.transform = transform;
 
       return style;
@@ -184,6 +179,8 @@ function createNUXTipsOverlay(
         onTipContainerLayout,
         tipContainerOpacity,
         tipVerticalBelow,
+        tipHorizontal,
+        tipScale,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -330,6 +327,21 @@ function createNUXTipsOverlay(
       [position],
     );
 
+    const tipHorizontal = React.useMemo(() => {
+      const invertedPosition = add(1, multiply(-1, position));
+      return multiply(invertedPosition, tipHorizontalOffset);
+    }, [position, tipHorizontalOffset]);
+
+    const tipScale = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 0.2, 0.8, 1],
+          outputRange: [0, 0, 1, 1],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -344,6 +356,8 @@ function createNUXTipsOverlay(
         onTipContainerLayout={onTipContainerLayout}
         tipContainerOpacity={tipContainerOpacity}
         tipVerticalBelow={tipVerticalBelow}
+        tipHorizontal={tipHorizontal}
+        tipScale={tipScale}
       />
     );
   }
