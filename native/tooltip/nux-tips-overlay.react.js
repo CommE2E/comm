@@ -88,7 +88,12 @@ type NUXTipsOverlayProps<Base> = {
   +buttonStyle: ViewStyle,
   +tipHorizontalOffset: Value,
   +onTipContainerLayout: (event: LayoutEvent) => void,
+  +tipContainerOpacity: Node,
+  +tipVerticalBelow: Node,
 };
+
+const tipHeight: number = 30;
+const margin: number = 20;
 
 function createNUXTipsOverlay(
   ButtonComponent: React.ComponentType<ButtonProps<BaseNUXTipsOverlayProps>>,
@@ -97,35 +102,19 @@ function createNUXTipsOverlay(
   class NUXTipsOverlay extends React.PureComponent<
     NUXTipsOverlayProps<BaseNUXTipsOverlayProps>,
   > {
-    tipContainerOpacity: Node;
     tipVerticalAbove: Node;
-    tipVerticalBelow: Node;
     tipHorizontal: Node;
     tipScale: Node;
     fixedTipVertical: Node;
-    tipHeight: number = 30;
-    margin: number = 20;
 
     constructor(props: NUXTipsOverlayProps<BaseNUXTipsOverlayProps>) {
       super(props);
 
       const { position } = props;
 
-      this.tipContainerOpacity = interpolateNode(position, {
-        inputRange: [0, 0.1],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
-      const { margin } = this;
       this.tipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
-        outputRange: [margin + this.tipHeight / 2, 0],
-        extrapolate: Extrapolate.CLAMP,
-      });
-      this.tipVerticalBelow = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [-margin - this.tipHeight / 2, 0],
+        outputRange: [margin + tipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
 
@@ -149,15 +138,15 @@ function createNUXTipsOverlay(
     }
 
     get tipContainerStyle(): AnimatedViewStyle {
-      const { dimensions, route } = this.props;
+      const { dimensions, route, tipContainerOpacity, tipVerticalBelow } =
+        this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin } = this;
 
       const style: WritableAnimatedStyleObj = {};
       style.position = 'absolute';
       style.alignItems = 'center';
-      style.opacity = this.tipContainerOpacity;
+      style.opacity = tipContainerOpacity;
 
       const transform: Array<ReanimatedTransform> = [];
 
@@ -175,7 +164,7 @@ function createNUXTipsOverlay(
 
       style.top =
         Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
-      transform.push({ translateY: this.tipVerticalBelow });
+      transform.push({ translateY: tipVerticalBelow });
       transform.push({ scale: this.tipScale });
       style.transform = transform;
 
@@ -193,6 +182,8 @@ function createNUXTipsOverlay(
         buttonStyle,
         tipHorizontalOffset,
         onTipContainerLayout,
+        tipContainerOpacity,
+        tipVerticalBelow,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -319,6 +310,26 @@ function createNUXTipsOverlay(
       [dimensions.width, props, tipHorizontalOffset],
     );
 
+    const tipContainerOpacity = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 0.1],
+          outputRange: [0, 1],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+
+    const tipVerticalBelow = React.useMemo(
+      () =>
+        interpolateNode(position, {
+          inputRange: [0, 1],
+          outputRange: [-margin - tipHeight / 2, 0],
+          extrapolate: Extrapolate.CLAMP,
+        }),
+      [position],
+    );
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -331,6 +342,8 @@ function createNUXTipsOverlay(
         buttonStyle={buttonStyle}
         tipHorizontalOffset={tipHorizontalOffset}
         onTipContainerLayout={onTipContainerLayout}
+        tipContainerOpacity={tipContainerOpacity}
+        tipVerticalBelow={tipVerticalBelow}
       />
     );
   }
