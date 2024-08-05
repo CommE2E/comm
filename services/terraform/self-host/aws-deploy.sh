@@ -19,6 +19,10 @@ secondary_service_name="keyserver-secondary-service"
 health_check_domain=$(echo "var.keyserver_domain_name" | terraform console -var-file terraform.tfvars.json | tr -d '"')
 health_check_url="https://${health_check_domain}/health"
 num_desired_secondary_nodes=$(echo "var.desired_secondary_nodes" | terraform console -var-file terraform.tfvars.json)
+aws_region=$(echo "var.region" | terraform console -var-file terraform.tfvars.json | tr -d '"')
+
+# Set aws-cli region to aws region self-hosted keyserver is deployed on
+export AWS_REGION=$aws_region
 
 if [[ -z "${AWS_ACCESS_KEY_ID}" || -z "${AWS_SECRET_ACCESS_KEY}" ]]; then
   echo "Error: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables must be set to run migration."
