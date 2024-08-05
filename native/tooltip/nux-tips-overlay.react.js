@@ -6,10 +6,7 @@ import { View, TouchableWithoutFeedback, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
@@ -83,7 +80,7 @@ type NUXTipsOverlayProps<Base> = {
   ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
-  +overlayContext: ?OverlayContextType,
+  +position: Animated.Node,
   +styles: $ReadOnly<typeof unboundStyles>,
   +closeTip: () => mixed,
   +contentContainerStyle: ViewStyle,
@@ -110,9 +107,7 @@ function createNUXTipsOverlay(
     constructor(props: NUXTipsOverlayProps<BaseNUXTipsOverlayProps>) {
       super(props);
 
-      const { overlayContext } = props;
-      invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
-      const { position } = overlayContext;
+      const { position } = props;
 
       this.backdropOpacity = interpolateNode(position, {
         inputRange: [0, 1],
@@ -209,7 +204,7 @@ function createNUXTipsOverlay(
     render(): React.Node {
       const {
         dimensions,
-        overlayContext,
+        position,
         styles,
         closeTip,
         contentContainerStyle,
@@ -235,9 +230,6 @@ function createNUXTipsOverlay(
       }
 
       const triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
-
-      invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
-      const { position } = overlayContext;
 
       const buttonProps: ButtonProps<BaseNUXTipsOverlayProps> = {
         ...navAndRouteForFlow,
@@ -294,6 +286,8 @@ function createNUXTipsOverlay(
   function ConnectedNUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
+    invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
+    const { position } = overlayContext;
 
     const { goBackOnce } = props.navigation;
 
@@ -316,7 +310,7 @@ function createNUXTipsOverlay(
       <NUXTipsOverlay
         {...props}
         dimensions={dimensions}
-        overlayContext={overlayContext}
+        position={position}
         styles={styles}
         closeTip={goBackOnce}
         contentContainerStyle={contentContainerStyle}
