@@ -280,6 +280,10 @@ pub mod tonic_status_messages {
 pub const TUNNELBROKER_GRPC_ENDPOINT: &str = "TUNNELBROKER_GRPC_ENDPOINT";
 pub const DEFAULT_TUNNELBROKER_ENDPOINT: &str = "http://localhost:50051";
 
+// Backup
+pub const BACKUP_SERVICE_URL: &str = "BACKUP_SERVICE_URL";
+pub const DEFAULT_BACKUP_SERVICE_URL: &str = "http://localhost:50052";
+
 // X3DH key management
 
 // Threshold for requesting more one_time keys
