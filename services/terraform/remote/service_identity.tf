@@ -77,6 +77,10 @@ resource "aws_ecs_task_definition" "identity_service" {
           value = local.tunnelbroker_local_grpc_url
         },
         {
+          name  = "BACKUP_SERVICE_URL",
+          value = local.backup_local_url
+        },
+        {
           name  = "OPENSEARCH_ENDPOINT"
           value = module.shared.opensearch_domain_identity.endpoint
         },
