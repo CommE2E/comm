@@ -13,6 +13,7 @@ use crate::{
   grpc_services::shared::{get_platform_metadata, get_value},
 };
 use chrono::DateTime;
+use comm_lib::auth::AuthService;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, trace, warn};
@@ -36,6 +37,7 @@ use super::protos::unauth::Empty;
 #[derive(derive_more::Constructor)]
 pub struct AuthenticatedService {
   db_client: DatabaseClient,
+  comm_auth_service: AuthService,
 }
 
 fn get_auth_info(req: &Request<()>) -> Option<(String, String, String)> {
@@ -103,6 +105,15 @@ fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
       device_ids.as_slice()
     );
     let result = crate::tunnelbroker::delete_devices_data(&device_ids).await;
+    consume_error(result);
+  });
+}
+
+fn spawn_delete_backup_data_task(user_id: String, auth_service: AuthService) {
+  tokio::spawn(async move {
+    debug!("Attempting to delete Backup data for user: {}", &user_id);
+    let result =
+      crate::backup::delete_backup_user_data(&user_id, &auth_service).await;
     consume_error(result);
   });
 }
@@ -570,10 +581,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let device_ids = self
       .db_client
-      .delete_user(user_id)
+      .delete_user(user_id.clone())
       .await
       .map_err(handle_db_error)?;
     spawn_delete_tunnelbroker_data_task(device_ids);
+    spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -657,10 +669,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let device_ids = self
       .db_client
-      .delete_user(user_id)
+      .delete_user(user_id.clone())
       .await
       .map_err(handle_db_error)?;
     spawn_delete_tunnelbroker_data_task(device_ids);
+    spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
 
     let response = Empty {};
     Ok(Response::new(response))
