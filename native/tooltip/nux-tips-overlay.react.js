@@ -8,7 +8,6 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type {
@@ -18,8 +17,6 @@ import type {
 import type { LayoutEvent } from '../types/react-native.js';
 import {
   AnimatedView,
-  type ViewStyle,
-  type AnimatedViewStyle,
   type WritableAnimatedStyleObj,
   type ReanimatedTransform,
 } from '../types/styles.js';
@@ -76,24 +73,6 @@ type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
 };
-type NUXTipsOverlayProps<Base> = {
-  ...Base,
-  // Redux state
-  +dimensions: DimensionsInfo,
-  +position: Animated.Node,
-  +styles: $ReadOnly<typeof unboundStyles>,
-  +closeTip: () => mixed,
-  +contentContainerStyle: ViewStyle,
-  +opacityStyle: AnimatedViewStyle,
-  +buttonStyle: ViewStyle,
-  +tipHorizontalOffset: Value,
-  +onTipContainerLayout: (event: LayoutEvent) => void,
-  +tipContainerOpacity: Node,
-  +tipVerticalBelow: Node,
-  +tipHorizontal: Node,
-  +tipScale: Node,
-  +tipContainerStyle: AnimatedViewStyle,
-};
 
 const tipHeight: number = 30;
 const margin: number = 20;
@@ -102,86 +81,20 @@ function createNUXTipsOverlay(
   ButtonComponent: React.ComponentType<ButtonProps<BaseNUXTipsOverlayProps>>,
   MenuComponent: React.ComponentType<BaseNUXTipsOverlayProps>,
 ): React.ComponentType<BaseNUXTipsOverlayProps> {
-  class NUXTipsOverlay extends React.PureComponent<
-    NUXTipsOverlayProps<BaseNUXTipsOverlayProps>,
-  > {
-    constructor(props: NUXTipsOverlayProps<BaseNUXTipsOverlayProps>) {
-      super(props);
-    }
-
-    render(): React.Node {
-      const {
-        dimensions,
-        position,
-        styles,
-        opacityStyle,
-        buttonStyle,
-        tipContainerStyle,
-        navigation,
-        route,
-      } = this.props;
-
-      let triangleStyle;
-      const { initialCoordinates } = route.params;
-      const { x, width } = initialCoordinates;
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        triangleStyle = {
-          alignSelf: 'flex-start',
-          left: extraLeftSpace + (width - 20) / 2,
-        };
-      } else {
-        triangleStyle = {
-          alignSelf: 'flex-end',
-          right: extraRightSpace + (width - 20) / 2,
-        };
-      }
-
-      return (
-        <TouchableWithoutFeedback onPress={this.props.closeTip}>
-          <View style={styles.container}>
-            <AnimatedView style={opacityStyle} />
-            <View style={this.props.contentContainerStyle}>
-              <View style={buttonStyle}>
-                <ButtonComponent
-                  navigation={navigation}
-                  route={route}
-                  progress={position}
-                />
-              </View>
-            </View>
-            <AnimatedView
-              style={tipContainerStyle}
-              onLayout={this.props.onTipContainerLayout}
-            >
-              <View style={[styles.triangleUp, triangleStyle]} />
-              <View style={styles.items}>
-                <MenuComponent
-                  navigation={navigation}
-                  route={route}
-                  key="menu"
-                />
-              </View>
-            </AnimatedView>
-          </View>
-        </TouchableWithoutFeedback>
-      );
-    }
-  }
-
   function ConnectedNUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
     const { position } = overlayContext;
 
-    const { goBackOnce } = props.navigation;
+    const { navigation, route } = props;
+
+    const { goBackOnce } = navigation;
 
     const styles = useStyles(unboundStyles);
 
     const contentContainerStyle = React.useMemo(() => {
-      const { verticalBounds } = props.route.params;
+      const { verticalBounds } = route.params;
       const fullScreenHeight = dimensions.height;
       const top = verticalBounds.y;
       const bottom =
@@ -191,7 +104,7 @@ function createNUXTipsOverlay(
         marginTop: top,
         marginBottom: bottom,
       };
-    }, [dimensions.height, props.route.params, styles.contentContainer]);
+    }, [dimensions.height, route.params, styles.contentContainer]);
 
     const opacityStyle = React.useMemo(() => {
       const backdropOpacity = interpolateNode(position, {
@@ -206,7 +119,7 @@ function createNUXTipsOverlay(
     }, [position, styles.backdrop]);
 
     const buttonStyle = React.useMemo(() => {
-      const { initialCoordinates, verticalBounds } = props.route.params;
+      const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
       return {
         width: Math.ceil(width),
@@ -214,13 +127,12 @@ function createNUXTipsOverlay(
         marginTop: y - verticalBounds.y,
         marginLeft: x,
       };
-    }, [props.route.params]);
+    }, [route.params]);
 
     const tipHorizontalOffset = React.useMemo(() => new Value(0), []);
 
     const onTipContainerLayout = React.useCallback(
       (event: LayoutEvent) => {
-        const { route } = props;
         const { x, width } = route.params.initialCoordinates;
 
         const extraLeftSpace = x;
@@ -235,7 +147,7 @@ function createNUXTipsOverlay(
           tipHorizontalOffset.setValue((actualWidth - minWidth) / 2);
         }
       },
-      [dimensions.width, props, tipHorizontalOffset],
+      [dimensions.width, route, tipHorizontalOffset],
     );
 
     const tipContainerOpacity = React.useMemo(
@@ -274,7 +186,6 @@ function createNUXTipsOverlay(
     );
 
     const tipContainerStyle = React.useMemo(() => {
-      const { route } = props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
 
@@ -306,31 +217,55 @@ function createNUXTipsOverlay(
       return style;
     }, [
       dimensions.width,
-      props,
+      route,
       tipContainerOpacity,
       tipHorizontal,
       tipScale,
       tipVerticalBelow,
     ]);
 
+    const triangleStyle = React.useMemo(() => {
+      const { initialCoordinates } = route.params;
+      const { x, width } = initialCoordinates;
+      const extraLeftSpace = x;
+      const extraRightSpace = dimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        return {
+          alignSelf: 'flex-start',
+          left: extraLeftSpace + (width - 20) / 2,
+        };
+      } else {
+        return {
+          alignSelf: 'flex-end',
+          right: extraRightSpace + (width - 20) / 2,
+        };
+      }
+    }, [dimensions.width, route.params]);
+
     return (
-      <NUXTipsOverlay
-        {...props}
-        dimensions={dimensions}
-        position={position}
-        styles={styles}
-        closeTip={goBackOnce}
-        contentContainerStyle={contentContainerStyle}
-        opacityStyle={opacityStyle}
-        buttonStyle={buttonStyle}
-        tipHorizontalOffset={tipHorizontalOffset}
-        onTipContainerLayout={onTipContainerLayout}
-        tipContainerOpacity={tipContainerOpacity}
-        tipVerticalBelow={tipVerticalBelow}
-        tipHorizontal={tipHorizontal}
-        tipScale={tipScale}
-        tipContainerStyle={tipContainerStyle}
-      />
+      <TouchableWithoutFeedback onPress={goBackOnce}>
+        <View style={styles.container}>
+          <AnimatedView style={opacityStyle} />
+          <View style={contentContainerStyle}>
+            <View style={buttonStyle}>
+              <ButtonComponent
+                navigation={props.navigation}
+                route={route}
+                progress={position}
+              />
+            </View>
+          </View>
+          <AnimatedView
+            style={tipContainerStyle}
+            onLayout={onTipContainerLayout}
+          >
+            <View style={[styles.triangleUp, triangleStyle]} />
+            <View style={styles.items}>
+              <MenuComponent navigation={navigation} route={route} key="menu" />
+            </View>
+          </AnimatedView>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
   return React.memo<BaseNUXTipsOverlayProps>(ConnectedNUXTipsOverlay);
