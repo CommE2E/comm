@@ -93,7 +93,10 @@ import {
   type RawMessageInfo,
 } from 'lib/types/message-types.js';
 import { minimallyEncodeRawThreadInfoWithMemberPermissions } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  RawThreadInfo,
+  ThinRawThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type {
   ReportStore,
   ClientReportCreationRequest,
@@ -103,6 +106,7 @@ import { defaultGlobalThemeInfo } from 'lib/types/theme-types.js';
 import type {
   ClientDBThreadInfo,
   LegacyRawThreadInfo,
+  LegacyThinRawThreadInfo,
   MixedRawThreadInfos,
   RawThreadInfos,
 } from 'lib/types/thread-types.js';
@@ -398,7 +402,7 @@ const legacyMigrations = {
       ],
     },
   }),
-  [28]: (state: AppState) => {
+  [28]: (state: any) => {
     const threadParentToChildren: { [string]: string[] } = {};
     for (const threadID in state.threadStore.threadInfos) {
       const threadInfo = state.threadStore.threadInfos[threadID];
@@ -420,7 +424,7 @@ const legacyMigrations = {
     }
 
     const threadInfos: {
-      [string]: LegacyRawThreadInfo | RawThreadInfo,
+      [string]: LegacyThinRawThreadInfo | ThinRawThreadInfo,
     } = {};
     const stack = [...rootIDs];
     while (stack.length > 0) {
