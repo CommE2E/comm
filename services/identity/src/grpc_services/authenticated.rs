@@ -107,6 +107,14 @@ fn spawn_delete_tunnelbroker_data_task(device_ids: Vec<String>) {
   });
 }
 
+fn spawn_delete_backup_data_task(user_id: String) {
+  tokio::spawn(async move {
+    debug!("Attempting to delete Backup data for user: {}", &user_id);
+    let result = crate::backup::delete_backup_user_data(&user_id).await;
+    consume_error(result);
+  });
+}
+
 #[tonic::async_trait]
 impl IdentityClientService for AuthenticatedService {
   #[tracing::instrument(skip_all)]
@@ -570,10 +578,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let device_ids = self
       .db_client
-      .delete_user(user_id)
+      .delete_user(user_id.clone())
       .await
       .map_err(handle_db_error)?;
     spawn_delete_tunnelbroker_data_task(device_ids);
+    spawn_delete_backup_data_task(user_id);
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -657,10 +666,11 @@ impl IdentityClientService for AuthenticatedService {
 
     let device_ids = self
       .db_client
-      .delete_user(user_id)
+      .delete_user(user_id.clone())
       .await
       .map_err(handle_db_error)?;
     spawn_delete_tunnelbroker_data_task(device_ids);
+    spawn_delete_backup_data_task(user_id);
 
     let response = Empty {};
     Ok(Response::new(response))
