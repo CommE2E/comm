@@ -105,26 +105,8 @@ function createNUXTipsOverlay(
   class NUXTipsOverlay extends React.PureComponent<
     NUXTipsOverlayProps<BaseNUXTipsOverlayProps>,
   > {
-    tipVerticalAbove: Node;
-    fixedTipVertical: Node;
-
     constructor(props: NUXTipsOverlayProps<BaseNUXTipsOverlayProps>) {
       super(props);
-
-      const { position } = props;
-
-      this.tipVerticalAbove = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [margin + tipHeight / 2, 0],
-        extrapolate: Extrapolate.CLAMP,
-      });
-
-      const invertedPosition = add(1, multiply(-1, position));
-
-      this.fixedTipVertical = multiply(
-        invertedPosition,
-        props.dimensions.height,
-      );
     }
 
     render(): React.Node {
