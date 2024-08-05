@@ -306,6 +306,24 @@ impl DatabaseClient {
 
 // general functions
 impl DatabaseClient {
+  pub async fn delete_user_data(
+    &self,
+    user_id: &str,
+    blob_client: &BlobServiceClient,
+  ) -> Result<(), Error> {
+    // query the index to avoid unnecessarily querying backup data
+    let items = self.query_ordered_backups_index(user_id, None).await?;
+
+    for item in items {
+      trace!("Removing backup item: {item:?}");
+      self
+        .remove_backup_item(user_id, &item.backup_id, blob_client)
+        .await?;
+    }
+
+    Ok(())
+  }
+
   async fn query_ordered_backups_index(
     &self,
     user_id: &str,
