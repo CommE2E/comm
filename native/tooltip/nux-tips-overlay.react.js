@@ -85,6 +85,7 @@ type NUXTipsOverlayProps<Base> = {
   +closeTip: () => mixed,
   +contentContainerStyle: ViewStyle,
   +opacityStyle: AnimatedViewStyle,
+  +buttonStyle: ViewStyle,
 };
 
 function createNUXTipsOverlay(
@@ -143,18 +144,6 @@ function createNUXTipsOverlay(
       );
     }
 
-    get buttonStyle(): ViewStyle {
-      const { params } = this.props.route;
-      const { initialCoordinates, verticalBounds } = params;
-      const { x, y, width, height } = initialCoordinates;
-      return {
-        width: Math.ceil(width),
-        height: Math.ceil(height),
-        marginTop: y - verticalBounds.y,
-        marginLeft: x,
-      };
-    }
-
     get tipContainerStyle(): AnimatedViewStyle {
       const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
@@ -197,6 +186,7 @@ function createNUXTipsOverlay(
         closeTip,
         contentContainerStyle,
         opacityStyle,
+        buttonStyle,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -244,7 +234,7 @@ function createNUXTipsOverlay(
           <View style={styles.container}>
             <AnimatedView style={opacityStyle} />
             <View style={this.props.contentContainerStyle}>
-              <View style={this.buttonStyle}>
+              <View style={buttonStyle}>
                 <ButtonComponent {...buttonProps} />
               </View>
             </View>
@@ -307,6 +297,18 @@ function createNUXTipsOverlay(
       };
     }, [position, styles.backdrop]);
 
+    const { initialCoordinates, verticalBounds } = props.route.params;
+
+    const buttonStyle = React.useMemo(() => {
+      const { x, y, width, height } = initialCoordinates;
+      return {
+        width: Math.ceil(width),
+        height: Math.ceil(height),
+        marginTop: y - verticalBounds.y,
+        marginLeft: x,
+      };
+    }, [initialCoordinates, verticalBounds]);
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -316,6 +318,7 @@ function createNUXTipsOverlay(
         closeTip={goBackOnce}
         contentContainerStyle={contentContainerStyle}
         opacityStyle={opacityStyle}
+        buttonStyle={buttonStyle}
       />
     );
   }
