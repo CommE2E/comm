@@ -89,33 +89,10 @@ impl DatabaseClient {
     &self,
     user_id: &str,
   ) -> Result<Option<OrderedBackupItem>, Error> {
-    let response = self
-      .client
-      .query()
-      .table_name(backup_table::TABLE_NAME)
-      .index_name(backup_table::CREATED_INDEX)
-      .key_condition_expression("#userID = :valueToMatch")
-      .expression_attribute_names("#userID", backup_table::attr::USER_ID)
-      .expression_attribute_values(
-        ":valueToMatch",
-        AttributeValue::S(user_id.to_string()),
-      )
-      .limit(1)
-      .scan_index_forward(false)
-      .send()
-      .await
-      .map_err(|e| {
-        error!("DynamoDB client failed to find last backup");
-        Error::AwsSdk(e.into())
-      })?;
-
-    match response.items.unwrap_or_default().pop() {
-      Some(item) => {
-        let backup_item = item.try_into()?;
-        Ok(Some(backup_item))
-      }
-      None => Ok(None),
-    }
+    let mut found_backups =
+      self.query_ordered_backups_index(user_id, Some(1)).await?;
+    let latest_backup = found_backups.pop();
+    Ok(latest_backup)
   }
 
   pub async fn remove_backup_item(
@@ -163,39 +140,7 @@ impl DatabaseClient {
     user_id: &str,
     blob_client: &BlobServiceClient,
   ) -> Result<Vec<BackupItem>, Error> {
-    let response = self
-      .client
-      .query()
-      .table_name(backup_table::TABLE_NAME)
-      .index_name(backup_table::CREATED_INDEX)
-      .key_condition_expression("#userID = :valueToMatch")
-      .expression_attribute_names("#userID", backup_table::attr::USER_ID)
-      .expression_attribute_values(
-        ":valueToMatch",
-        AttributeValue::S(user_id.to_string()),
-      )
-      .scan_index_forward(false)
-      .send()
-      .await
-      .map_err(|e| {
-        error!("DynamoDB client failed to fetch backups");
-        Error::AwsSdk(e.into())
-      })?;
-
-    if response.last_evaluated_key().is_some() {
-      // In the intial version of the backup service this function will be run
-      // for every new backup (each user only has one backup), so this shouldn't
-      // happen
-      warn!("Not all old backups have been cleaned up");
-    }
-
-    let items = response
-      .items
-      .unwrap_or_default()
-      .into_iter()
-      .map(OrderedBackupItem::try_from)
-      .collect::<Result<Vec<_>, _>>()?;
-
+    let items = self.query_ordered_backups_index(user_id, None).await?;
     let mut removed_backups = vec![];
 
     let Some(latest) = items.iter().map(|item| item.created).max() else {
@@ -356,5 +301,50 @@ impl DatabaseClient {
     .await?;
 
     Ok(())
+  }
+}
+
+// general functions
+impl DatabaseClient {
+  async fn query_ordered_backups_index(
+    &self,
+    user_id: &str,
+    limit: Option<i32>,
+  ) -> Result<Vec<OrderedBackupItem>, Error> {
+    let response = self
+      .client
+      .query()
+      .table_name(backup_table::TABLE_NAME)
+      .index_name(backup_table::CREATED_INDEX)
+      .key_condition_expression("#userID = :valueToMatch")
+      .expression_attribute_names("#userID", backup_table::attr::USER_ID)
+      .expression_attribute_values(
+        ":valueToMatch",
+        AttributeValue::S(user_id.to_string()),
+      )
+      .scan_index_forward(false)
+      .set_limit(limit)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to fetch backups");
+        Error::AwsSdk(e.into())
+      })?;
+
+    if response.last_evaluated_key().is_some() {
+      // In the intial version of the backup service this function will be run
+      // for every new backup (each user only has one backup), so this shouldn't
+      // happen
+      warn!("Not all backups have been retrieved from the index");
+    }
+
+    let items = response
+      .items
+      .unwrap_or_default()
+      .into_iter()
+      .map(OrderedBackupItem::try_from)
+      .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(items)
   }
 }
