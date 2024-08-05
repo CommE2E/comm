@@ -9,11 +9,11 @@ use tracing::{error, info};
 use url::Url;
 
 use crate::constants::{
-  cors::ALLOW_ORIGIN_LIST, cors::PROD_ORIGIN_HOST_STR,
-  DEFAULT_OPENSEARCH_ENDPOINT, DEFAULT_TUNNELBROKER_ENDPOINT,
-  KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT, OPAQUE_SERVER_SETUP,
-  OPENSEARCH_ENDPOINT, REDACT_SENSITIVE_DATA, SECRETS_DIRECTORY,
-  SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
+  cors::ALLOW_ORIGIN_LIST, cors::PROD_ORIGIN_HOST_STR, BACKUP_SERVICE_URL,
+  DEFAULT_BACKUP_SERVICE_URL, DEFAULT_OPENSEARCH_ENDPOINT,
+  DEFAULT_TUNNELBROKER_ENDPOINT, KEYSERVER_PUBLIC_KEY, LOCALSTACK_ENDPOINT,
+  OPAQUE_SERVER_SETUP, OPENSEARCH_ENDPOINT, REDACT_SENSITIVE_DATA,
+  SECRETS_DIRECTORY, SECRETS_SETUP_FILE, TUNNELBROKER_GRPC_ENDPOINT,
 };
 
 /// Raw CLI arguments, should be only used internally to create ServerConfig
@@ -65,6 +65,11 @@ struct Cli {
   #[arg(long, global = true, default_value_t = false)]
   #[arg(env = REDACT_SENSITIVE_DATA)]
   redact_sensitive_data: bool,
+
+  /// Backup service URL
+  #[arg(env = BACKUP_SERVICE_URL)]
+  #[arg(long, default_value = DEFAULT_BACKUP_SERVICE_URL)]
+  backup_service_url: reqwest::Url,
 }
 
 #[derive(Subcommand)]
@@ -88,6 +93,7 @@ pub struct ServerConfig {
   pub server_setup: comm_opaque2::ServerSetup<comm_opaque2::Cipher>,
   pub keyserver_public_key: Option<String>,
   pub tunnelbroker_endpoint: String,
+  pub backup_service_url: reqwest::Url,
   pub opensearch_endpoint: String,
   pub allow_origin: Option<AllowOrigin>,
   pub redact_sensitive_data: bool,
@@ -121,6 +127,7 @@ impl ServerConfig {
     Ok(Self {
       localstack_endpoint: cli.localstack_endpoint.clone(),
       tunnelbroker_endpoint: cli.tunnelbroker_endpoint.clone(),
+      backup_service_url: cli.backup_service_url.clone(),
       opensearch_endpoint: cli.opensearch_endpoint.clone(),
       server_setup,
       keyserver_public_key,
