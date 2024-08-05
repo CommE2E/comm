@@ -6,6 +6,7 @@ use database::DatabaseClient;
 use tonic::transport::Server;
 use tonic_web::GrpcWebLayer;
 
+mod backup;
 mod client_service;
 mod config;
 pub mod constants;
