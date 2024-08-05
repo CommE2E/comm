@@ -1,9 +1,17 @@
 locals {
-  backup_service_image_tag           = local.is_staging ? "0.4.1-staging" : "0.4.1"
-  backup_service_container_name      = "backup-service-server"
-  backup_service_server_image        = "commapp/backup-server:${local.backup_service_image_tag}"
+  backup_service_image_tag      = local.is_staging ? "0.4.1-staging" : "0.4.1"
+  backup_service_container_name = "backup-service-server"
+  backup_service_server_image   = "commapp/backup-server:${local.backup_service_image_tag}"
+  backup_service_domain_name    = "backup.${local.root_domain}"
+
+  # HTTP port & configuration for ECS Service Connect
   backup_service_container_http_port = 50052
-  backup_service_domain_name         = "backup.${local.root_domain}"
+  backup_sc_port_name                = "backup-service-ecs-http"
+  backup_sc_dns_name                 = "backup-service"
+
+  # URL accessible by other services in the same Service Connect namespace
+  # This renders to 'http://backup-service:50052'
+  backup_local_url = "http://${local.backup_sc_dns_name}:${local.backup_service_container_http_port}"
 }
 
 resource "aws_ecs_task_definition" "backup_service" {
@@ -77,8 +85,15 @@ resource "aws_ecs_service" "backup_service" {
   }
 
   service_connect_configuration {
-    # to be able to reach Blob service by DNS name
     enabled = true
+    service {
+      discovery_name = local.backup_sc_dns_name
+      port_name      = local.backup_sc_port_name
+      client_alias {
+        port     = local.backup_service_container_http_port
+        dns_name = local.backup_sc_dns_name
+      }
+    }
   }
 
   # HTTP
