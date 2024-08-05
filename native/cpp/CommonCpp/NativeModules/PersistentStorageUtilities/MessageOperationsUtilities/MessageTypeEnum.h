@@ -1,5 +1,7 @@
+#pragma once
 
 namespace comm {
+
 enum class MessageType {
   TEXT = 0,
   CREATE_THREAD = 1,
@@ -25,4 +27,5 @@ enum class MessageType {
   TOGGLE_PIN = 21,
   UPDATE_RELATIONSHIP = 22,
 };
+
 } // namespace comm
