@@ -114,22 +114,14 @@ function createNUXTipsOverlay(
         dimensions,
         position,
         styles,
-        closeTip,
-        contentContainerStyle,
         opacityStyle,
         buttonStyle,
-        tipHorizontalOffset,
-        onTipContainerLayout,
-        tipContainerOpacity,
-        tipVerticalBelow,
-        tipHorizontal,
-        tipScale,
         tipContainerStyle,
-        ...navAndRouteForFlow
+        navigation,
+        route,
       } = this.props;
 
       let triangleStyle;
-      const { route } = this.props;
       const { initialCoordinates } = route.params;
       const { x, width } = initialCoordinates;
       const extraLeftSpace = x;
@@ -146,37 +138,32 @@ function createNUXTipsOverlay(
         };
       }
 
-      const triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
-
-      const buttonProps: ButtonProps<BaseNUXTipsOverlayProps> = {
-        ...navAndRouteForFlow,
-        progress: position,
-      };
-
-      let tip = null;
-
-      tip = (
-        <AnimatedView
-          style={tipContainerStyle}
-          onLayout={this.props.onTipContainerLayout}
-        >
-          {triangleUp}
-          <View style={styles.items}>
-            <MenuComponent {...navAndRouteForFlow} key="menu" />
-          </View>
-        </AnimatedView>
-      );
-
       return (
         <TouchableWithoutFeedback onPress={this.props.closeTip}>
           <View style={styles.container}>
             <AnimatedView style={opacityStyle} />
             <View style={this.props.contentContainerStyle}>
               <View style={buttonStyle}>
-                <ButtonComponent {...buttonProps} />
+                <ButtonComponent
+                  navigation={navigation}
+                  route={route}
+                  progress={position}
+                />
               </View>
             </View>
-            {tip}
+            <AnimatedView
+              style={tipContainerStyle}
+              onLayout={this.props.onTipContainerLayout}
+            >
+              <View style={[styles.triangleUp, triangleStyle]} />
+              <View style={styles.items}>
+                <MenuComponent
+                  navigation={navigation}
+                  route={route}
+                  key="menu"
+                />
+              </View>
+            </AnimatedView>
           </View>
         </TouchableWithoutFeedback>
       );
