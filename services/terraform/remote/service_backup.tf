@@ -23,6 +23,7 @@ resource "aws_ecs_task_definition" "backup_service" {
       essential = true
       portMappings = [
         {
+          name          = local.backup_sc_port_name
           containerPort = local.backup_service_container_http_port
           protocol      = "tcp"
           appProtocol   = "http"
