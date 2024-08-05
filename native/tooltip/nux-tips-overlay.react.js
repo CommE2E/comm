@@ -92,6 +92,7 @@ type NUXTipsOverlayProps<Base> = {
   +tipVerticalBelow: Node,
   +tipHorizontal: Node,
   +tipScale: Node,
+  +tipContainerStyle: AnimatedViewStyle,
 };
 
 const tipHeight: number = 30;
@@ -126,46 +127,6 @@ function createNUXTipsOverlay(
       );
     }
 
-    get tipContainerStyle(): AnimatedViewStyle {
-      const {
-        dimensions,
-        route,
-        tipContainerOpacity,
-        tipVerticalBelow,
-        tipHorizontal,
-        tipScale,
-      } = this.props;
-      const { initialCoordinates, verticalBounds } = route.params;
-      const { x, y, width, height } = initialCoordinates;
-
-      const style: WritableAnimatedStyleObj = {};
-      style.position = 'absolute';
-      style.alignItems = 'center';
-      style.opacity = tipContainerOpacity;
-
-      const transform: Array<ReanimatedTransform> = [];
-
-      transform.push({ translateX: tipHorizontal });
-
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        style.left = 0;
-        style.minWidth = width + 2 * extraLeftSpace;
-      } else {
-        style.right = 0;
-        style.minWidth = width + 2 * extraRightSpace;
-      }
-
-      style.top =
-        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
-      transform.push({ translateY: tipVerticalBelow });
-      transform.push({ scale: tipScale });
-      style.transform = transform;
-
-      return style;
-    }
-
     render(): React.Node {
       const {
         dimensions,
@@ -181,6 +142,7 @@ function createNUXTipsOverlay(
         tipVerticalBelow,
         tipHorizontal,
         tipScale,
+        tipContainerStyle,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -213,7 +175,7 @@ function createNUXTipsOverlay(
 
       tip = (
         <AnimatedView
-          style={this.tipContainerStyle}
+          style={tipContainerStyle}
           onLayout={this.props.onTipContainerLayout}
         >
           {triangleUp}
@@ -343,6 +305,46 @@ function createNUXTipsOverlay(
       [position],
     );
 
+    const tipContainerStyle = React.useMemo(() => {
+      const { x, y, width, height } = initialCoordinates;
+
+      const style: WritableAnimatedStyleObj = {};
+      style.position = 'absolute';
+      style.alignItems = 'center';
+      style.opacity = tipContainerOpacity;
+
+      const transform: Array<ReanimatedTransform> = [];
+
+      transform.push({ translateX: tipHorizontal });
+
+      const extraLeftSpace = x;
+      const extraRightSpace = dimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        style.left = 0;
+        style.minWidth = width + 2 * extraLeftSpace;
+      } else {
+        style.right = 0;
+        style.minWidth = width + 2 * extraRightSpace;
+      }
+
+      style.top =
+        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+      transform.push({ translateY: tipVerticalBelow });
+      transform.push({ scale: tipScale });
+      style.transform = transform;
+
+      return style;
+    }, [
+      dimensions.width,
+      initialCoordinates,
+      tipContainerOpacity,
+      tipHorizontal,
+      tipScale,
+      tipVerticalBelow,
+      verticalBounds.height,
+      verticalBounds.y,
+    ]);
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -359,6 +361,7 @@ function createNUXTipsOverlay(
         tipVerticalBelow={tipVerticalBelow}
         tipHorizontal={tipHorizontal}
         tipScale={tipScale}
+        tipContainerStyle={tipContainerStyle}
       />
     );
   }
