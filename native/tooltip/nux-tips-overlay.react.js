@@ -86,6 +86,7 @@ type NUXTipsOverlayProps<Base> = {
   +overlayContext: ?OverlayContextType,
   +styles: $ReadOnly<typeof unboundStyles>,
   +closeTip: () => mixed,
+  +contentContainerStyle: ViewStyle,
 };
 
 function createNUXTipsOverlay(
@@ -159,19 +160,6 @@ function createNUXTipsOverlay(
       };
     }
 
-    get contentContainerStyle(): ViewStyle {
-      const { verticalBounds } = this.props.route.params;
-      const fullScreenHeight = this.props.dimensions.height;
-      const top = verticalBounds.y;
-      const bottom =
-        fullScreenHeight - verticalBounds.y - verticalBounds.height;
-      return {
-        ...this.props.styles.contentContainer,
-        marginTop: top,
-        marginBottom: bottom,
-      };
-    }
-
     get buttonStyle(): ViewStyle {
       const { params } = this.props.route;
       const { initialCoordinates, verticalBounds } = params;
@@ -224,6 +212,7 @@ function createNUXTipsOverlay(
         overlayContext,
         styles,
         closeTip,
+        contentContainerStyle,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -273,7 +262,7 @@ function createNUXTipsOverlay(
         <TouchableWithoutFeedback onPress={this.props.closeTip}>
           <View style={styles.container}>
             <AnimatedView style={this.opacityStyle} />
-            <View style={this.contentContainerStyle}>
+            <View style={this.props.contentContainerStyle}>
               <View style={this.buttonStyle}>
                 <ButtonComponent {...buttonProps} />
               </View>
@@ -310,6 +299,19 @@ function createNUXTipsOverlay(
 
     const styles = useStyles(unboundStyles);
 
+    const contentContainerStyle = React.useMemo(() => {
+      const { verticalBounds } = props.route.params;
+      const fullScreenHeight = dimensions.height;
+      const top = verticalBounds.y;
+      const bottom =
+        fullScreenHeight - verticalBounds.y - verticalBounds.height;
+      return {
+        ...styles.contentContainer,
+        marginTop: top,
+        marginBottom: bottom,
+      };
+    }, [dimensions.height, props.route.params, styles.contentContainer]);
+
     return (
       <NUXTipsOverlay
         {...props}
@@ -317,6 +319,7 @@ function createNUXTipsOverlay(
         overlayContext={overlayContext}
         styles={styles}
         closeTip={goBackOnce}
+        contentContainerStyle={contentContainerStyle}
       />
     );
   }
