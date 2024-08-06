@@ -62,6 +62,12 @@ resource "aws_sns_topic_subscription" "identity_email_subscription" {
   endpoint  = local.error_reports_subscribed_email
 }
 
+resource "aws_sns_topic_subscription" "ecs_task_stop_subscription" {
+  topic_arn = aws_sns_topic.ecs_task_stop_topic.arn
+  protocol  = "email"
+  endpoint  = local.error_reports_subscribed_email
+}
+
 resource "aws_cloudwatch_log_metric_filter" "identity_error_filters" {
   for_each = local.identity_error_patterns
 
@@ -92,49 +98,58 @@ resource "aws_cloudwatch_metric_alarm" "identity_error_alarms" {
   alarm_actions       = [aws_sns_topic.identity_error_topic.arn]
 }
 
+resource "aws_sns_topic" "ecs_task_stop_topic" {
+  name = "ecs-task-stop-topic"
+}
+
 resource "aws_cloudwatch_event_rule" "ecs_task_stop" {
-  name        = "ecs-task-stop-rule"
-  description = "Trigger when ECS tasks are stopped"
+  name        = "ecs-event-rule"
+  description = "Filters for ecs task stop events"
 
   event_pattern = jsonencode({
-    source      = ["aws.ecs"],
-    detail-type = ["ECS Task State Change"],
+    source = ["aws.ecs"],
     detail = {
       lastStatus = ["STOPPED"],
       clusterArn = [aws_ecs_cluster.comm_services.arn]
-      group      = ["service:${aws_ecs_service.identity_service.name}"]
     }
   })
 }
 
-resource "aws_sns_topic" "ecs_task_stop_topic" {
-  name = "ecs-task-stopped-topic"
+resource "aws_cloudwatch_log_group" "ecs_task_stop" {
+  name              = "/aws/events/ecs_task_stop"
+  retention_in_days = 1
 }
 
-resource "aws_sns_topic_subscription" "ecs_task_stop_subscription" {
-  topic_arn = aws_sns_topic.ecs_task_stop_topic.arn
-  protocol  = "email"
-  endpoint  = local.error_reports_subscribed_email
+resource "aws_cloudwatch_event_target" "ecs_task_stop" {
+  rule = aws_cloudwatch_event_rule.ecs_task_stop.name
+  arn  = aws_cloudwatch_log_group.ecs_task_stop.arn
 }
 
-resource "aws_cloudwatch_metric_alarm" "identity_ecs_task_stop" {
-  alarm_name          = "IdentityECSTaskStop"
+resource "aws_cloudwatch_log_metric_filter" "ecs_task_stop" {
+  name           = "ECSTaskStopCount"
+  log_group_name = aws_cloudwatch_log_group.ecs_task_stop.name
+  pattern        = "{ $.detail.stopCode = \"EssentialContainerExited\" }"
+
+  metric_transformation {
+    name          = "ECSTaskStopCount"
+    namespace     = "ECSMetrics"
+    value         = "1"
+    default_value = 0
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_task_stop" {
+  alarm_name          = "ECSTaskStop"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
-  metric_name         = "TaskStop"
-  namespace           = "AWS/ECS"
-  period              = "60"
-  statistic           = "SampleCount"
+  metric_name         = "ECSTaskStopCount"
+  namespace           = "ECSMetrics"
+  period              = "300"
+  statistic           = "Sum"
   threshold           = "1"
   alarm_description   = "This metric monitors ECS tasks stops"
-
-  dimensions = {
-    ClusterName = aws_ecs_cluster.comm_services.name
-    ServiceName = aws_ecs_service.identity_service.name
-  }
-
-  actions_enabled = true
-  alarm_actions   = [aws_sns_topic.ecs_task_stop_topic.arn]
+  actions_enabled     = true
+  alarm_actions       = [aws_sns_topic.ecs_task_stop_topic.arn]
 }
 
 resource "aws_sns_topic" "service_connection_error_topic" {
