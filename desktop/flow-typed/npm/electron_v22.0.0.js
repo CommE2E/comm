@@ -12,6 +12,24 @@ declare module 'electron' {
     setName: (name: string) => void,
     setAppUserModelId: (id: string) => void,
     getVersion: () => string,
+    getPath: (name: 
+      | 'home' 
+      | 'appData'
+      | 'userData'
+      | 'sessionData'
+      | 'temp'
+      | 'exe'
+      | 'module'
+      | 'desktop'
+      | 'documents'
+      | 'downloads'
+      | 'music'
+      | 'pictures'
+      | 'videos'
+      | 'recent'
+      | 'logs'
+      | 'crashDumps'
+    ) => string,
     dock: Dock,
     isPackaged: boolean,
     name: string,
@@ -404,6 +422,13 @@ declare module 'electron' {
       type: Type,
     ): $ElementType<UserDefaultTypes, Type>,
   };
+
+  declare export var dialog: Dialog;
+  declare type Dialog = {
+    +showErrorBox: (title: string, content: string) => void;
+    ...
+  };
+
   declare export type UserDefaultTypes = {
     string: string,
     boolean: boolean,
@@ -494,6 +519,7 @@ declare module 'electron/main' {
   declare export {
     app,
     BrowserWindow,
+    dialog,
     shell,
     Menu,
     ipcMain,
