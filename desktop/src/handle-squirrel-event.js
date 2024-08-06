@@ -1,7 +1,8 @@
 // @flow
 
 import { spawn, execSync } from 'child_process';
-import { app } from 'electron';
+import { app, dialog } from 'electron';
+import fs from 'fs';
 import path from 'path';
 
 // Squirrel will start the app with additional flags during installing,
@@ -21,6 +22,8 @@ export function handleSquirrelEvent(): boolean {
   };
 
   const squirrelEvent = process.argv[1];
+  app.setName('Comm');
+
   switch (squirrelEvent) {
     case '--squirrel-install':
     case '--squirrel-updated':
@@ -32,6 +35,16 @@ export function handleSquirrelEvent(): boolean {
 
     case '--squirrel-uninstall':
       spawnUpdate(['--removeShortcut', commExeName]);
+      try {
+        fs.rmdirSync(app.getPath('userData'), { recursive: true });
+      } catch (e) {
+        dialog.showErrorBox(
+          'Failed to remove folder!',
+          `You might need to manually remove ${app.getPath(
+            'userData',
+          )} folder.`,
+        );
+      }
       return true;
 
     case '--squirrel-obsolete':
