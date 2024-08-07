@@ -23,7 +23,7 @@
         ],
         "msvs_settings": {
             "VCCLCompilerTool": {
-                "AdditionalOptions": ["/ZW"],
+                "AdditionalOptions": ["/std:c++17", "/ZW"],
                 "DisableSpecificWarnings": [4609],
                 "AdditionalUsingDirectories": [
                     "$(VC_ReferencesPath_VC_x86)/store/references",
