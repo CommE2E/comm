@@ -79,12 +79,9 @@ async function processVideo(
     inputDuration: duration,
     inputDimensions: input.dimensions,
     outputDirectory: temporaryDirectoryPath,
-    // We want ffmpeg to use hardware-accelerated encoders. On iOS we can do
-    // this using VideoToolbox, but ffmpeg on Android is still missing
-    // MediaCodec encoding support: https://trac.ffmpeg.org/ticket/6407
     outputCodec: Platform.select({
       ios: 'h264_videotoolbox',
-      //android: 'h264_mediacodec',
+      android: 'h264_mediacodec',
       default: 'h264',
     }),
     clientConnectionInfo: {
