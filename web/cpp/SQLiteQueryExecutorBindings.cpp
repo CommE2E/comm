@@ -308,6 +308,9 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "markOutboundP2PMessageAsSent",
           &SQLiteQueryExecutor::markOutboundP2PMessageAsSent)
       .function(
+          "resetOutboundP2PMessagesForDevice",
+          &SQLiteQueryExecutor::resetOutboundP2PMessagesForDevice)
+      .function(
           "addInboundP2PMessage", &SQLiteQueryExecutor::addInboundP2PMessage)
       .function(
           "getAllInboundP2PMessage",
