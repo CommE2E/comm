@@ -8,8 +8,8 @@ use std::{
 };
 
 pub mod config;
-mod error;
-mod response;
+pub mod error;
+pub mod response;
 
 #[derive(Debug, Clone)]
 pub struct WNSAccessToken {
