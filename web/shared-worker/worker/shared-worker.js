@@ -364,6 +364,15 @@ async function processAppRequest(
       message.messageID,
       message.deviceID,
     );
+  } else if (
+    message.type === workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES
+  ) {
+    return {
+      type: workerResponseMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
+      messageIDs: sqliteQueryExecutor.resetOutboundP2PMessagesForDevice(
+        message.deviceID,
+      ),
+    };
   }
 
   persistNeeded = true;

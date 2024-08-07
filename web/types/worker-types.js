@@ -47,6 +47,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_RELATED_MESSAGES: 21,
   GET_OUTBOUND_P2P_MESSAGES_BY_ID: 22,
   SEARCH_MESSAGES: 23,
+  RESET_OUTBOUND_P2P_MESSAGES: 24,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -210,6 +211,11 @@ export type SearchMessagesRequestMessage = {
   +messageIDCursor: ?string,
 };
 
+export type ResetOutboundP2PMessagesRequestMessage = {
+  +type: 24,
+  +deviceID: string,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -234,7 +240,8 @@ export type WorkerRequestMessage =
   | RemoveOutboundP2PMessagesRequestMessage
   | GetRelatedMessagesRequestMessage
   | GetOutboundP2PMessagesByIDRequestMessage
-  | SearchMessagesRequestMessage;
+  | SearchMessagesRequestMessage
+  | ResetOutboundP2PMessagesRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,
@@ -252,6 +259,7 @@ export const workerResponseMessageTypes = Object.freeze({
   GET_INBOUND_P2P_MESSAGES: 6,
   GET_OUTBOUND_P2P_MESSAGES: 7,
   GET_MESSAGES: 8,
+  RESET_OUTBOUND_P2P_MESSAGES: 9,
 });
 
 export type PongWorkerResponseMessage = {
@@ -299,6 +307,11 @@ export type GetMessagesResponse = {
   +messages: $ReadOnlyArray<ClientDBMessageInfo>,
 };
 
+export type ResetOutboundP2PMessagesResponseMessage = {
+  +type: 9,
+  +messageIDs: $ReadOnlyArray<string>,
+};
+
 export type WorkerResponseMessage =
   | PongWorkerResponseMessage
   | ClientStoreResponseMessage
@@ -308,7 +321,8 @@ export type WorkerResponseMessage =
   | CallOLMApiMethodResponseMessage
   | GetInboundP2PMessagesResponseMessage
   | GetOutboundP2PMessagesResponseMessage
-  | GetMessagesResponse;
+  | GetMessagesResponse
+  | ResetOutboundP2PMessagesResponseMessage;
 
 export type WorkerResponseProxyMessage = {
   +id?: number,
