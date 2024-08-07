@@ -12,6 +12,7 @@ import { resolve } from 'path';
 import { isNormalStartup } from './handle-squirrel-event.js';
 
 let windowsPushNotificationManager;
+let windowsPushNotificationChannel;
 const windowsPushNotifEventEmitter = new EventEmitter();
 if (process.platform === 'win32' && app.isPackaged && isNormalStartup()) {
   void (async () => {
@@ -69,6 +70,9 @@ async function registerForNotifications(): Promise<?string> {
     }
   } else if (process.platform === 'win32' && windowsPushNotificationManager) {
     try {
+      if (windowsPushNotificationChannel) {
+        windowsPushNotificationChannel.close();
+      }
       const token = await new Promise<string>((resolvePromise, reject) => {
         windowsPushNotificationManager.createChannelAsync(
           'f09f4211-a998-40c1-a515-689e3faecb62',
@@ -76,6 +80,7 @@ async function registerForNotifications(): Promise<?string> {
             if (error) {
               reject(error);
             }
+            windowsPushNotificationChannel = result.channel;
             resolvePromise(result.channel.uri);
           },
         );
