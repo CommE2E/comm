@@ -364,6 +364,26 @@ async function processAppRequest(
       message.messageID,
       message.deviceID,
     );
+  } else if (
+    message.type === workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES
+  ) {
+    let messageIDs: $ReadOnlyArray<string> = [];
+    try {
+      sqliteQueryExecutor.beginTransaction();
+      messageIDs = sqliteQueryExecutor.resetOutboundP2PMessagesForDevice(
+        message.deviceID,
+      );
+      sqliteQueryExecutor.commitTransaction();
+    } catch (e) {
+      sqliteQueryExecutor.rollbackTransaction();
+      console.log('Error while resetting outbound P2P messages: ', e);
+      throw e;
+    }
+
+    return {
+      type: workerResponseMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
+      messageIDs,
+    };
   }
 
   persistNeeded = true;
