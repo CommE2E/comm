@@ -25,6 +25,7 @@ class NotificationsCryptoModule {
   getKeyserverNotificationsSessionKey(const std::string &keyserverID);
   static std::string
   getDeviceNotificationsSessionKey(const std::string &deviceID);
+  static void setNewSynchronizationValue();
   static std::string serializeNotificationsSession(
       std::shared_ptr<crypto::Session> session,
       std::string picklingKey);
@@ -63,7 +64,8 @@ public:
   // notifications account
   static void persistNotificationsAccount(
       const std::shared_ptr<crypto::CryptoModule> cryptoModule,
-      const std::string &picklingKey);
+      const std::string &picklingKey,
+      bool setNewSynchronizationValue);
   static std::optional<
       std::pair<std::shared_ptr<crypto::CryptoModule>, std::string>>
   fetchNotificationsAccount();
@@ -121,11 +123,13 @@ public:
         std::string sessionPicklingKey,
         std::string accountPicklingKey,
         std::string deviceID,
+        std::optional<std::string> expectedSynchronizationValue,
         std::string decryptedData);
     std::shared_ptr<crypto::Session> sessionState;
     std::shared_ptr<crypto::CryptoModule> accountState;
     std::string accountPicklingKey;
     std::string deviceID;
+    std::optional<std::string> expectedSynchronizationValue;
     friend NotificationsCryptoModule;
 
   public:
@@ -137,10 +141,12 @@ public:
         std::unique_ptr<crypto::Session> session,
         std::string deviceID,
         std::string picklingKey,
+        std::optional<std::string> expectedSynchronizationValue,
         std::string decryptedData);
 
     std::unique_ptr<crypto::Session> sessionState;
     std::string deviceID;
+    std::optional<std::string> expectedSynchronizationValue;
     friend NotificationsCryptoModule;
 
   public:
