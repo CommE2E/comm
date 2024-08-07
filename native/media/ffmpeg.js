@@ -1,6 +1,10 @@
 // @flow
 
-import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
+import {
+  FFmpegKit,
+  FFprobeKit,
+  FFmpegKitConfig,
+} from 'ffmpeg-kit-react-native';
 
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils.js';
 import type {
@@ -85,10 +89,9 @@ class FFmpeg {
   ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
     const wrappedCommand = async () => {
-      RNFFmpegConfig.resetStatistics();
       let lastStats;
       if (onTranscodingProgress) {
-        RNFFmpegConfig.enableStatisticsCallback(
+        FFmpegKitConfig.enableStatisticsCallback(
           (statisticsData: FFmpegStatistics) => {
             lastStats = statisticsData;
             const { time } = statisticsData;
@@ -96,8 +99,9 @@ class FFmpeg {
           },
         );
       }
-      const ffmpegResult = await RNFFmpeg.execute(ffmpegCommand);
-      return { ...ffmpegResult, lastStats };
+      const session = await FFmpegKit.execute(ffmpegCommand);
+      const rc = await session.getReturnCode();
+      return { rc, lastStats };
     };
     return this.queueCommand('process', wrappedCommand);
   }
@@ -113,8 +117,8 @@ class FFmpeg {
     outputPath: string,
   ): Promise<number> {
     const thumbnailCommand = `-i ${videoPath} -frames 1 -f singlejpeg ${outputPath}`;
-    const { rc } = await RNFFmpeg.execute(thumbnailCommand);
-    return rc;
+    const session = await FFmpegKit.execute(thumbnailCommand);
+    return await session.getReturnCode();
   }
 
   getVideoInfo(path: string): Promise<VideoInfo> {
@@ -123,7 +127,8 @@ class FFmpeg {
   }
 
   static async innerGetVideoInfo(path: string): Promise<VideoInfo> {
-    const info = await RNFFprobe.getMediaInformation(path);
+    const session = await FFprobeKit.getMediaInformation(path);
+    const info = await session.getMediaInformation();
     const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
     const codec = videoStreamInfo?.codec;
     const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
@@ -155,8 +160,10 @@ class FFmpeg {
   }
 
   static async innerHasMultipleFrames(path: string): Promise<boolean> {
-    await RNFFprobe.execute(getHasMultipleFramesProbeCommand(path));
-    const probeOutput = await RNFFmpegConfig.getLastCommandOutput();
+    const session = await FFprobeKit.execute(
+      getHasMultipleFramesProbeCommand(path),
+    );
+    const probeOutput = await session.getOutput();
     const numFrames = parseInt(probeOutput.lastCommandOutput);
     return numFrames > 1;
   }
