@@ -39,6 +39,7 @@ import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
 import type { DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { QueuedDMOperations } from 'lib/types/dm-ops.js';
+import { processDMOpsActionType } from 'lib/types/dm-ops.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
 import type { EntryStore } from 'lib/types/entry-types.js';
@@ -539,12 +540,18 @@ function validateStateAndQueueOpsProcessing(
     return state;
   }
 
+  let notificationsCreationData = null;
+  if (action.type === processDMOpsActionType) {
+    notificationsCreationData = action.payload.notificationsCreationData;
+  }
+
   return {
     ...state,
     dbOpsStore: queueDBOps(
       state.dbOpsStore,
       action.dispatchMetadata,
       storeOperations,
+      notificationsCreationData,
     ),
   };
 }
