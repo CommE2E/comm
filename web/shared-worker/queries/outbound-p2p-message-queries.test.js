@@ -1,6 +1,9 @@
 // @flow
 
-import type { OutboundP2PMessage } from 'lib/types/sqlite-types.js';
+import {
+  type OutboundP2PMessage,
+  outboundP2PMessageStatuses,
+} from 'lib/types/sqlite-types.js';
 
 import { getDatabaseModule } from '../db-module.js';
 import type { EmscriptenModule } from '../types/module.js';
@@ -174,5 +177,82 @@ describe('Outbound P2P messages queries', () => {
 
   it(`should return undefined when a message with ID doesn't exist`, () => {
     expect(queryExecutor?.getOutboundP2PMessagesByID(['id-5'])).toEqual([]);
+  });
+
+  it('should reset messages', () => {
+    const deviceID = 'deviceID';
+    const MSG_TO_RESET_1: OutboundP2PMessage = {
+      messageID: 'reset-1',
+      deviceID,
+      userID: 'user-1',
+      timestamp: '1',
+      plaintext: 'decrypted-1',
+      ciphertext: 'encrypted-1',
+      status: 'encrypted',
+      supportsAutoRetry: true,
+    };
+
+    const MSG_TO_RESET_2: OutboundP2PMessage = {
+      messageID: 'reset-2',
+      deviceID,
+      userID: 'user-1',
+      timestamp: '1',
+      plaintext: 'decrypted-1',
+      ciphertext: 'encrypted-1',
+      status: 'sent',
+      supportsAutoRetry: false,
+    };
+
+    const MSG_NOT_RESET: OutboundP2PMessage = {
+      messageID: 'reset-3',
+      deviceID,
+      userID: 'user-1',
+      timestamp: '3',
+      plaintext: 'decrypted-1',
+      ciphertext: 'encrypted-1',
+      status: 'encrypted',
+      supportsAutoRetry: false,
+    };
+
+    queryExecutor?.addOutboundP2PMessages([
+      MSG_TO_RESET_1,
+      MSG_TO_RESET_2,
+      MSG_NOT_RESET,
+    ]);
+
+    const messageIDs =
+      queryExecutor?.resetOutboundP2PMessagesForDevice(deviceID);
+
+    expect(messageIDs).toEqual([
+      MSG_TO_RESET_1.messageID,
+      MSG_TO_RESET_2.messageID,
+    ]);
+
+    const messagesAfterReset = [
+      {
+        ...MSG_TO_RESET_1,
+        status: outboundP2PMessageStatuses.persisted,
+        ciphertext: '',
+        supportsAutoRetry: true,
+      },
+      {
+        ...MSG_TO_RESET_2,
+        status: outboundP2PMessageStatuses.persisted,
+        ciphertext: '',
+        supportsAutoRetry: true,
+      },
+    ];
+    expect(queryExecutor?.getOutboundP2PMessagesByID(messageIDs ?? [])).toEqual(
+      messagesAfterReset,
+    );
+    expect(
+      queryExecutor?.getOutboundP2PMessagesByID([MSG_NOT_RESET.messageID]),
+    ).toEqual([
+      {
+        ...MSG_NOT_RESET,
+        ciphertext: '',
+        status: outboundP2PMessageStatuses.persisted,
+      },
+    ]);
   });
 });
