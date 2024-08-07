@@ -1,6 +1,10 @@
 // @flow
 
-import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
+import {
+  FFmpegKit,
+  FFprobeKit,
+  FFmpegKitConfig,
+} from 'ffmpeg-kit-react-native';
 
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils.js';
 import type {
@@ -85,19 +89,26 @@ class FFmpeg {
   ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
     const wrappedCommand = async () => {
-      RNFFmpegConfig.resetStatistics();
       let lastStats;
       if (onTranscodingProgress) {
-        RNFFmpegConfig.enableStatisticsCallback(
-          (statisticsData: FFmpegStatistics) => {
-            lastStats = statisticsData;
-            const { time } = statisticsData;
-            onTranscodingProgress(time / 1000 / duration);
-          },
-        );
+        FFmpegKitConfig.enableStatisticsCallback(statisticsObject => {
+          const time = statisticsObject.getTime();
+          onTranscodingProgress(time / 1000 / duration);
+          lastStats = {
+            speed: statisticsObject.getSpeed(),
+            time,
+            size: statisticsObject.getSize(),
+            videoQuality: statisticsObject.getVideoQuality(),
+            videoFrameNumber: statisticsObject.getVideoFrameNumber(),
+            videoFps: statisticsObject.getVideoFps(),
+            bitrate: statisticsObject.getBitrate(),
+          };
+        });
       }
-      const ffmpegResult = await RNFFmpeg.execute(ffmpegCommand);
-      return { ...ffmpegResult, lastStats };
+      const session = await FFmpegKit.execute(ffmpegCommand);
+      const returnCode = await session.getReturnCode();
+      const rc = returnCode.getValue();
+      return { rc, lastStats };
     };
     return this.queueCommand('process', wrappedCommand);
   }
@@ -112,9 +123,10 @@ class FFmpeg {
     videoPath: string,
     outputPath: string,
   ): Promise<number> {
-    const thumbnailCommand = `-i ${videoPath} -frames 1 -f singlejpeg ${outputPath}`;
-    const { rc } = await RNFFmpeg.execute(thumbnailCommand);
-    return rc;
+    const thumbnailCommand = `-i ${videoPath} -frames 1 -f mjpeg ${outputPath}`;
+    const session = await FFmpegKit.execute(thumbnailCommand);
+    const returnCode = await session.getReturnCode();
+    return returnCode.getValue();
   }
 
   getVideoInfo(path: string): Promise<VideoInfo> {
@@ -123,26 +135,28 @@ class FFmpeg {
   }
 
   static async innerGetVideoInfo(path: string): Promise<VideoInfo> {
-    const info = await RNFFprobe.getMediaInformation(path);
+    const session = await FFprobeKit.getMediaInformation(path);
+    const info = await session.getMediaInformation();
     const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
     const codec = videoStreamInfo?.codec;
     const dimensions = videoStreamInfo && videoStreamInfo.dimensions;
-    const format = info.format.split(',');
-    const duration = info.duration / 1000;
+    const format = info.getFormat().split(',');
+    const duration = info.getDuration();
     return { codec, format, dimensions, duration };
   }
 
   static getVideoStreamInfo(
     info: Object,
   ): ?{ +codec: string, +dimensions: Dimensions } {
-    if (!info.streams) {
+    const streams = info.getStreams();
+    if (!streams) {
       return null;
     }
-    for (const stream of info.streams) {
-      if (stream.type === 'video') {
-        const codec: string = stream.codec;
-        const width: number = stream.width;
-        const height: number = stream.height;
+    for (const stream of streams) {
+      if (stream.getType() === 'video') {
+        const codec: string = stream.getCodec();
+        const width: number = stream.getWidth();
+        const height: number = stream.getHeight();
         return { codec, dimensions: { width, height } };
       }
     }
@@ -155,9 +169,11 @@ class FFmpeg {
   }
 
   static async innerHasMultipleFrames(path: string): Promise<boolean> {
-    await RNFFprobe.execute(getHasMultipleFramesProbeCommand(path));
-    const probeOutput = await RNFFmpegConfig.getLastCommandOutput();
-    const numFrames = parseInt(probeOutput.lastCommandOutput);
+    const session = await FFprobeKit.execute(
+      getHasMultipleFramesProbeCommand(path),
+    );
+    const probeOutput = await session.getOutput();
+    const numFrames = parseInt(probeOutput);
     return numFrames > 1;
   }
 }

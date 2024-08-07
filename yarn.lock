@@ -11836,6 +11836,11 @@ fetch@1.1.0:
     biskviit "1.0.1"
     encoding "0.1.12"
 
+ffmpeg-kit-react-native@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/ffmpeg-kit-react-native/-/ffmpeg-kit-react-native-6.0.2.tgz#9eeac96ad89367c99480bd90431391405d4eb73e"
+  integrity sha512-r9uSmahq8TeyIb7fXf3ft+uUXyoeWRFa99+khjo0TAzWO9y0z9wU7eGnab9JLw1MmCB9v64o4yojNluJhVm9nQ==
+
 figma-squircle@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/figma-squircle/-/figma-squircle-0.1.2.tgz#fa97de644131d99f2c42a2d8b70d56a36783c234"
@@ -20252,11 +20257,6 @@ react-native-device-info@^10.3.0:
   version "10.3.0"
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.3.0.tgz#6bab64d84d3415dd00cc446c73ec5e2e61fddbe7"
   integrity sha512-/ziZN1sA1REbJTv5mQZ4tXggcTvSbct+u5kCaze8BmN//lbxcTvWsU6NQd4IihLt89VkbX+14IGc9sVApSxd/w==
-
-react-native-ffmpeg@^0.4.4:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/react-native-ffmpeg/-/react-native-ffmpeg-0.4.4.tgz#9f4dbda53c96078cecbbe83a866d4b535b957131"
-  integrity sha512-MUBV3Xvto1Hl049Y9EaOZdjazkK1ixQzCzPEt1o7V2duSOrM2kJ2o/RiC4rSRgapU2uqYRHMZ6X4JJI7y40qXw==
 
 react-native-figma-squircle@^0.1.2:
   version "0.1.2"
