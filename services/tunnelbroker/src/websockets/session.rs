@@ -3,6 +3,7 @@ use crate::constants::{
   RMQ_CONSUMER_TAG,
 };
 use crate::notifs::fcm::response::FCMErrorResponse;
+use crate::notifs::wns::response::WNSErrorResponse;
 use comm_lib::aws::ddb::error::SdkError;
 use comm_lib::aws::ddb::operation::put_item::PutItemError;
 use derive_more;
@@ -19,6 +20,7 @@ use lapin::types::FieldTable;
 use lapin::BasicProperties;
 use notifs::fcm::error::Error::FCMError as NotifsFCMError;
 use notifs::web_push::error::Error::WebPush as NotifsWebPushError;
+use notifs::wns::error::Error::WNSNotification as NotifsWNSError;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info, trace};
@@ -601,7 +603,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         };
 
         let device_token = match self
-          .get_device_token(notif.device_id, NotifClientType::WNS)
+          .get_device_token(notif.device_id.clone(), NotifClientType::WNS)
           .await
         {
           Ok(token) => token,
@@ -614,11 +616,25 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
         };
 
         let wns_notif = WNSNotif {
-          device_token,
+          device_token: device_token.clone(),
           payload: notif.payload,
         };
 
         let result = wns_client.send(wns_notif).await;
+        if let Err(NotifsWNSError(err)) = &result {
+          if matches!(err, WNSErrorResponse::NotFound | WNSErrorResponse::Gone)
+          {
+            if let Err(e) = self
+              .invalidate_device_token(notif.device_id, device_token.clone())
+              .await
+            {
+              error!(
+                "Error invalidating device token {}: {:?}",
+                device_token, e
+              );
+            };
+          }
+        }
         Some(
           self.get_message_to_device_status(&notif.client_message_id, result),
         )
