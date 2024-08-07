@@ -21,10 +21,12 @@ use lapin::BasicProperties;
 use notifs::fcm::error::Error::FCMError as NotifsFCMError;
 use notifs::web_push::error::Error::WebPush as NotifsWebPushError;
 use notifs::wns::error::Error::WNSNotification as NotifsWNSError;
+use reqwest::Url;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWrite;
 use tracing::{debug, error, info, trace};
 use tunnelbroker_messages::bad_device_token::BadDeviceToken;
+use tunnelbroker_messages::Platform;
 use tunnelbroker_messages::{
   message_to_device_request_status::Failure,
   message_to_device_request_status::MessageSentStatus, session::DeviceTypes,
@@ -84,6 +86,7 @@ pub enum SessionError {
   MissingDeviceToken,
   InvalidDeviceToken,
   InvalidNotifProvider,
+  InvalidDeviceTokenUpload,
 }
 
 // Parse a session request and retrieve the device information
@@ -304,6 +307,23 @@ impl<S: AsyncRead + AsyncWrite + Unpin> WebsocketSession<S> {
       MessageToTunnelbroker::SetDeviceTokenWithPlatform(
         token_with_platform,
       ) => {
+        if matches!(token_with_platform.platform, Platform::Windows) {
+          Url::parse(&token_with_platform.device_token)
+            .ok()
+            .filter(|url| {
+              url
+                .domain()
+                .is_some_and(|domain| domain.ends_with("notify.windows.com"))
+            })
+            .ok_or_else(|| {
+              debug!(
+                device_token = &token_with_platform.device_token,
+                device_id = &self.device_info.device_id,
+                "Invalid Windows device token"
+              );
+              SessionError::InvalidDeviceTokenUpload
+            })?;
+        }
         self
           .db_client
           .set_device_token(
