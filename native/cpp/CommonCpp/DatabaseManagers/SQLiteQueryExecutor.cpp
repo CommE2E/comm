@@ -9,6 +9,7 @@
 #include "entities/KeyserverInfo.h"
 #include "entities/LocalMessageInfo.h"
 #include "entities/Metadata.h"
+#include "entities/SQLiteDataConverters.h"
 #include "entities/SyncedMetadataEntry.h"
 #include "entities/UserInfo.h"
 #include <fstream>
@@ -2541,6 +2542,83 @@ void SQLiteQueryExecutor::markOutboundP2PMessageAsSent(
   bindStringToSQL(deviceID.c_str(), preparedSQL, 2);
 
   sqlite3_step(preparedSQL);
+}
+
+std::vector<std::string> SQLiteQueryExecutor::resetOutboundP2PMessagesForDevice(
+    std::string deviceID) const {
+  // Query all messages that need to be resent - all message that supports
+  // auto retry or already sent messages.
+  std::string queryMessageIDsToResend =
+      "SELECT message_id "
+      "FROM outbound_p2p_messages "
+      "WHERE device_id = ? AND ( "
+      "  supports_auto_retry = 1 "
+      "  OR (supports_auto_retry = 0 AND status = 'sent') "
+      ");";
+
+  SQLiteStatementWrapper preparedQueryMessageIDsSQL(
+      SQLiteQueryExecutor::getConnection(),
+      queryMessageIDsToResend,
+      "Failed to get all messages to reset");
+
+  bindStringToSQL(deviceID.c_str(), preparedQueryMessageIDsSQL, 1);
+  std::vector<std::string> messageIDs;
+  for (int stepResult = sqlite3_step(preparedQueryMessageIDsSQL);
+       stepResult == SQLITE_ROW;
+       stepResult = sqlite3_step(preparedQueryMessageIDsSQL)) {
+    messageIDs.push_back(getStringFromSQLRow(preparedQueryMessageIDsSQL, 0));
+  }
+
+  // Setting ciphertext to an empty string to make sure this message will be
+  // encrypted again with a new session, update the status, and set
+  // supports_auto_retry to true.
+  // Updating supports_auto_retry to true because those are already sent
+  // messages (from the UI perspective), but the recipient failed to decrypt
+  // so needs to be automatically resent.
+  std::stringstream resetMessagesSQLStream;
+  resetMessagesSQLStream
+      << "UPDATE outbound_p2p_messages "
+      << "SET supports_auto_retry = 1, status = 'persisted', ciphertext = '' "
+      << "WHERE message_id IN " << getSQLStatementArray(messageIDs.size())
+      << ";";
+
+  SQLiteStatementWrapper preparedUpdateSQL(
+      SQLiteQueryExecutor::getConnection(),
+      resetMessagesSQLStream.str(),
+      "Failed to reset messages.");
+
+  for (int i = 0; i < messageIDs.size(); i++) {
+    int bindResult = bindStringToSQL(messageIDs[i], preparedUpdateSQL, i + 1);
+    if (bindResult != SQLITE_OK) {
+      std::stringstream error_message;
+      error_message << "Failed to bind key to SQL statement. Details: "
+                    << sqlite3_errstr(bindResult) << std::endl;
+      sqlite3_finalize(preparedUpdateSQL);
+      throw std::runtime_error(error_message.str());
+    }
+  }
+  sqlite3_step(preparedUpdateSQL);
+
+  // This handles the case of messages that are encrypted (with a malformed
+  // session) but not yet queued on Tunnelbroker. In this case, this message
+  // is not considered to be sent (from the UI perspective),
+  // and supports_auto_retry is not updated.
+  std::string updateCiphertextQuery =
+      "UPDATE outbound_p2p_messages "
+      "SET ciphertext = '', status = 'persisted'"
+      "WHERE device_id = ? "
+      "  AND supports_auto_retry = 0 "
+      "  AND status = 'encrypted';";
+
+  SQLiteStatementWrapper preparedUpdateCiphertextSQL(
+      SQLiteQueryExecutor::getConnection(),
+      updateCiphertextQuery,
+      "Failed to set ciphertext");
+
+  bindStringToSQL(deviceID.c_str(), preparedUpdateCiphertextSQL, 1);
+  sqlite3_step(preparedUpdateCiphertextSQL);
+
+  return messageIDs;
 }
 
 void SQLiteQueryExecutor::addInboundP2PMessage(
