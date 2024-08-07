@@ -796,9 +796,14 @@ impl IdentityClientService for AuthenticatedService {
     &self,
     request: tonic::Request<UpdateDeviceListRequest>,
   ) -> Result<Response<Empty>, tonic::Status> {
-    let (user_id, _device_id) = get_user_and_device_id(&request)?;
-    // TODO: when we stop doing "primary device rotation" (migration procedure)
-    // we should verify if this RPC is called by primary device only
+    let (user_id, device_id) = get_user_and_device_id(&request)?;
+    self
+      .verify_device_on_device_list(
+        &user_id,
+        &device_id,
+        DeviceListItemKind::Primary,
+      )
+      .await?;
 
     let new_list = SignedDeviceList::try_from(request.into_inner())?;
     let update = DeviceListUpdate::try_from(new_list)?;
