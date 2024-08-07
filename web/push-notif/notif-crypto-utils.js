@@ -207,12 +207,6 @@ async function getNotifsAccountWithOlmData(
     synchronizationValue,
   } = queryResult;
 
-  if (!notificationAccount || !notificationAccountEncryptionKey) {
-    throw new Error(
-      'Attempt to decrypt notification but olm account not initialized.',
-    );
-  }
-
   const encryptedOlmData: ?EncryptedData = maybeEncryptedOlmData
     ? assertWithValidator(maybeEncryptedOlmData, encryptedAESDataValidator)
     : undefined;
@@ -227,7 +221,7 @@ async function getNotifsAccountWithOlmData(
 
   const [encryptionKey, accountEncryptionKey] = await Promise.all([
     validateCryptoKeyOptional(olmDataEncryptionKey),
-    validateCryptoKey(notificationAccountEncryptionKey),
+    validateCryptoKeyOptional(notificationAccountEncryptionKey),
   ]);
 
   return {
