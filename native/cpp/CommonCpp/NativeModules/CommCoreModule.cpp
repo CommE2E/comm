@@ -588,7 +588,8 @@ void CommCoreModule::persistCryptoModules(
           if (maybeUpdatedNotifsCryptoModule.has_value()) {
             NotificationsCryptoModule::persistNotificationsAccount(
                 maybeUpdatedNotifsCryptoModule.value().first,
-                maybeUpdatedNotifsCryptoModule.value().second);
+                maybeUpdatedNotifsCryptoModule.value().second,
+                true);
           }
           DatabaseManager::getQueryExecutor().commitTransaction();
           persistencePromise.set_value();
