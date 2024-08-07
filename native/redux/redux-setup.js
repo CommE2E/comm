@@ -28,6 +28,7 @@ import {
   identityInvalidSessionDowngrade,
 } from 'lib/shared/session-utils.js';
 import { isStaff } from 'lib/shared/staff-utils.js';
+import { processDMOpsActionType } from 'lib/types/dm-ops.js';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
 import { rehydrateActionType } from 'lib/types/redux-types.js';
 import type { SetSessionPayload } from 'lib/types/session-types.js';
@@ -312,6 +313,19 @@ function reducer(state: AppState = defaultState, inputAction: Action) {
     ...storeOperations,
     threadStoreOperations: threadStoreOperationsWithUnreadFix,
   };
+
+  if (action.type === processDMOpsActionType) {
+    const { notificationsCreationData } = action.payload;
+    return {
+      ...state,
+      dbOpsStore: queueDBOps(
+        state.dbOpsStore,
+        action.dispatchMetadata,
+        ops,
+        notificationsCreationData,
+      ),
+    };
+  }
   state = {
     ...state,
     dbOpsStore: queueDBOps(state.dbOpsStore, action.dispatchMetadata, ops),
