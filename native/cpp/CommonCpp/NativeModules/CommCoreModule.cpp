@@ -2855,6 +2855,54 @@ jsi::Value CommCoreModule::removeOutboundP2PMessagesOlderThan(
       });
 }
 
+jsi::Value CommCoreModule::resetOutboundP2PMessagesForDevice(
+    jsi::Runtime &rt,
+    jsi::String deviceID) {
+  std::string deviceIDCpp{deviceID.utf8(rt)};
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<std::string> messageIDs;
+
+          try {
+            DatabaseManager::getQueryExecutor().beginTransaction();
+            messageIDs = DatabaseManager::getQueryExecutor()
+                             .resetOutboundP2PMessagesForDevice(deviceIDCpp);
+            DatabaseManager::getQueryExecutor().commitTransaction();
+          } catch (std::system_error &e) {
+            error = e.what();
+            DatabaseManager::getQueryExecutor().rollbackTransaction();
+          }
+
+          auto messageIDsPtr =
+              std::make_shared<std::vector<std::string>>(std::move(messageIDs));
+
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, messageIDsPtr, error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+
+                jsi::Array jsiMessageIDs =
+                    jsi::Array(innerRt, messageIDsPtr->size());
+                size_t writeIdx = 0;
+                for (const std::string &id : *messageIDsPtr) {
+                  jsi::String jsiString =
+                      jsi::String::createFromUtf8(innerRt, id);
+                  jsiMessageIDs.setValueAtIndex(innerRt, writeIdx++, jsiString);
+                }
+
+                promise->resolve(std::move(jsiMessageIDs));
+              });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::getSyncedDatabaseVersion(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

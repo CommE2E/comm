@@ -184,6 +184,9 @@ interface Spec extends TurboModule {
     messageID: string,
     deviceID: string,
   ) => Promise<void>;
+  +resetOutboundP2PMessagesForDevice: (
+    deviceID: string,
+  ) => Promise<Array<string>>;
   +getSyncedDatabaseVersion: () => Promise<string>;
   +markPrekeysAsPublished: () => Promise<void>;
   +getRelatedMessages: (

@@ -220,6 +220,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PM
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessagesOlderThan(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->removeOutboundP2PMessagesOlderThan(rt, args[0].asString(rt), args[1].asString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->resetOutboundP2PMessagesForDevice(rt, args[0].asString(rt));
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getSyncedDatabaseVersion(rt);
 }
@@ -302,6 +305,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getAllOutboundP2PMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllOutboundP2PMessages};
   methodMap_["markOutboundP2PMessageAsSent"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markOutboundP2PMessageAsSent};
   methodMap_["removeOutboundP2PMessagesOlderThan"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeOutboundP2PMessagesOlderThan};
+  methodMap_["resetOutboundP2PMessagesForDevice"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_resetOutboundP2PMessagesForDevice};
   methodMap_["getSyncedDatabaseVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getSyncedDatabaseVersion};
   methodMap_["markPrekeysAsPublished"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished};
   methodMap_["getRelatedMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessages};
