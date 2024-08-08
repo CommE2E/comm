@@ -565,6 +565,7 @@ const olmAPI: OlmAPI = {
     return {
       message: encryptedContent.body,
       messageType: encryptedContent.type,
+      sessionVersion: olmSession.version,
     };
   },
   async encryptAndPersist(
@@ -594,6 +595,7 @@ const olmAPI: OlmAPI = {
     const result: EncryptedData = {
       message: encryptedContent.body,
       messageType: encryptedContent.type,
+      sessionVersion: olmSession.version,
     };
 
     sqliteQueryExecutor.beginTransaction();
@@ -636,6 +638,13 @@ const olmAPI: OlmAPI = {
       throw new Error(olmSessionErrors.sessionNotExists);
     }
 
+    if (
+      encryptedData.sessionVersion &&
+      encryptedData.sessionVersion < olmSession.version
+    ) {
+      throw new Error(olmSessionErrors.invalidSessionVersion);
+    }
+
     const result = olmSession.session.decrypt(
       encryptedData.messageType,
       encryptedData.message,
@@ -658,6 +667,13 @@ const olmAPI: OlmAPI = {
     if (!olmSession) {
       console.log(`No session for deviceID: ${deviceID}`);
       throw new Error(olmSessionErrors.sessionNotExists);
+    }
+
+    if (
+      encryptedData.sessionVersion &&
+      encryptedData.sessionVersion < olmSession.version
+    ) {
+      throw new Error(olmSessionErrors.invalidSessionVersion);
     }
 
     const result = olmSession.session.decrypt(
@@ -776,6 +792,7 @@ const olmAPI: OlmAPI = {
     const encryptedData: EncryptedData = {
       message: initialEncryptedData.body,
       messageType: initialEncryptedData.type,
+      sessionVersion: newSessionVersion,
     };
 
     return { encryptedData, sessionVersion: newSessionVersion };
