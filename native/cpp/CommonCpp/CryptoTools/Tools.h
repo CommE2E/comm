@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@ struct Keys {
 struct EncryptedData {
   OlmBuffer message;
   size_t messageType;
+  std::optional<int> sessionVersion;
 };
 
 class Tools {
