@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, TouchableWithoutFeedback, Platform } from 'react-native';
+import { View, TouchableWithoutFeedback, Platform, Text } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
@@ -58,6 +58,11 @@ const unboundStyles = {
     height: 10,
     width: 10,
   },
+  tipText: {
+    color: 'panelForegroundLabel',
+    fontSize: 20,
+    padding: 15,
+  },
 };
 
 export type NUXTipsOverlayParams = {
@@ -79,7 +84,7 @@ const margin: number = 20;
 
 function createNUXTipsOverlay(
   ButtonComponent: React.ComponentType<ButtonProps<BaseNUXTipsOverlayProps>>,
-  MenuComponent: React.ComponentType<BaseNUXTipsOverlayProps>,
+  tipText: string,
 ): React.ComponentType<BaseNUXTipsOverlayProps> {
   function ConnectedNUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
@@ -263,7 +268,7 @@ function createNUXTipsOverlay(
           >
             <View style={[styles.triangleUp, triangleStyle]} />
             <View style={styles.items}>
-              <MenuComponent navigation={navigation} route={route} key="menu" />
+              <Text style={styles.tipText}>{tipText}</Text>
             </View>
           </AnimatedView>
         </View>
