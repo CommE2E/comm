@@ -12,6 +12,10 @@
 namespace comm {
 namespace crypto {
 
+// This definition should remain in sync with the value defined in
+// the corresponding JavaScript file at `lib/utils/olm-utils.js`.
+const std::string SESSION_NOT_EXISTS_ERROR{"SESSION_NOT_EXISTS"};
+
 CryptoModule::CryptoModule(std::string id) : id{id} {
   this->createAccount();
 }
@@ -381,7 +385,7 @@ EncryptedData CryptoModule::encrypt(
     const std::string &targetDeviceId,
     const std::string &content) {
   if (!this->hasSessionFor(targetDeviceId)) {
-    throw std::runtime_error{"error encrypt => uninitialized session"};
+    throw std::runtime_error{SESSION_NOT_EXISTS_ERROR};
   }
   return this->sessions.at(targetDeviceId)->encrypt(content);
 }
@@ -390,7 +394,7 @@ std::string CryptoModule::decrypt(
     const std::string &targetDeviceId,
     EncryptedData &encryptedData) {
   if (!this->hasSessionFor(targetDeviceId)) {
-    throw std::runtime_error{"error decrypt => uninitialized session"};
+    throw std::runtime_error{SESSION_NOT_EXISTS_ERROR};
   }
   return this->sessions.at(targetDeviceId)->decrypt(encryptedData);
 }
