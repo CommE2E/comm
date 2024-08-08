@@ -555,7 +555,7 @@ const olmAPI: OlmAPI = {
     }
     const olmSession = cryptoStore.contentSessions[deviceID];
     if (!olmSession) {
-      throw new Error(`No session for deviceID: ${deviceID}`);
+      throw new Error(olmSessionErrors.sessionDoesNotExists);
     }
     const encryptedContent = olmSession.session.encrypt(content);
 
@@ -576,7 +576,7 @@ const olmAPI: OlmAPI = {
     }
     const olmSession = cryptoStore.contentSessions[deviceID];
     if (!olmSession) {
-      throw new Error(`No session for deviceID: ${deviceID}`);
+      throw new Error(olmSessionErrors.sessionDoesNotExists);
     }
 
     const encryptedContent = olmSession.session.encrypt(content);
@@ -630,7 +630,7 @@ const olmAPI: OlmAPI = {
 
     const olmSession = cryptoStore.contentSessions[deviceID];
     if (!olmSession) {
-      throw new Error(`No session for deviceID: ${deviceID}`);
+      throw new Error(olmSessionErrors.sessionDoesNotExists);
     }
 
     const result = olmSession.session.decrypt(
@@ -653,7 +653,7 @@ const olmAPI: OlmAPI = {
 
     const olmSession = cryptoStore.contentSessions[deviceID];
     if (!olmSession) {
-      throw new Error(`No session for deviceID: ${deviceID}`);
+      throw new Error(olmSessionErrors.sessionDoesNotExists);
     }
 
     const result = olmSession.session.decrypt(
