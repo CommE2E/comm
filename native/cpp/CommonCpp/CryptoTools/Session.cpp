@@ -201,7 +201,7 @@ EncryptedData Session::encrypt(const std::string &content) {
     throw std::runtime_error{
         "error encrypt => " + std::string{::olm_session_last_error(session)}};
   }
-  return {encryptedMessage, messageType};
+  return {encryptedMessage, messageType, this->getVersion()};
 }
 
 int Session::getVersion() {

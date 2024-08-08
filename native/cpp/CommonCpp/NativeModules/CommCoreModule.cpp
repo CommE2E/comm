@@ -868,6 +868,12 @@ jsi::Object parseEncryptedData(
   encryptedDataJSI.setProperty(rt, "message", messageJSI);
   encryptedDataJSI.setProperty(
       rt, "messageType", static_cast<int>(encryptedData.messageType));
+  if (encryptedData.sessionVersion.has_value()) {
+    encryptedDataJSI.setProperty(
+        rt,
+        "sessionVersion",
+        static_cast<int>(encryptedData.sessionVersion.value()));
+  }
   return encryptedDataJSI;
 }
 
@@ -1839,6 +1845,13 @@ jsi::Value CommCoreModule::decrypt(
   std::string message =
       encryptedDataJSI.getProperty(rt, "message").asString(rt).utf8(rt);
   auto deviceIDCpp{deviceID.utf8(rt)};
+
+  std::optional<int> sessionVersion;
+  if (encryptedDataJSI.hasProperty(rt, "sessionVersion")) {
+    sessionVersion = std::lround(
+        encryptedDataJSI.getProperty(rt, "sessionVersion").asNumber());
+  }
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -1847,7 +1860,8 @@ jsi::Value CommCoreModule::decrypt(
           try {
             crypto::EncryptedData encryptedData{
                 std::vector<uint8_t>(message.begin(), message.end()),
-                messageType};
+                messageType,
+                sessionVersion};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
             this->persistCryptoModules(true, std::nullopt);
@@ -1876,6 +1890,13 @@ jsi::Value CommCoreModule::decryptAndPersist(
       std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
   std::string message =
       encryptedDataJSI.getProperty(rt, "message").asString(rt).utf8(rt);
+
+  std::optional<int> sessionVersion;
+  if (encryptedDataJSI.hasProperty(rt, "sessionVersion")) {
+    sessionVersion = std::lround(
+        encryptedDataJSI.getProperty(rt, "sessionVersion").asNumber());
+  }
+
   auto deviceIDCpp{deviceID.utf8(rt)};
   auto messageIDCpp{messageID.utf8(rt)};
   return createPromiseAsJSIValue(
@@ -1886,7 +1907,8 @@ jsi::Value CommCoreModule::decryptAndPersist(
           try {
             crypto::EncryptedData encryptedData{
                 std::vector<uint8_t>(message.begin(), message.end()),
-                messageType};
+                messageType,
+                sessionVersion};
             decryptedMessage =
                 this->contentCryptoModule->decrypt(deviceIDCpp, encryptedData);
 
