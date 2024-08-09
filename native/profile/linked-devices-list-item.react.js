@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 
@@ -10,6 +11,7 @@ import {
 
 import Pill from '../components/pill.react.js';
 import SWMIcon from '../components/swmansion-icon.react.js';
+import { LinkedDevicesBottomSheetRouteName } from '../navigation/route-names.js';
 import { useStyles, useColors } from '../themes/colors.js';
 
 type Props = {
@@ -24,6 +26,14 @@ function LinkedDevicesListItem(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+
+  const { navigate } = useNavigation();
+
+  const onPress = React.useCallback(() => {
+    navigate<'LinkedDevicesBottomSheet'>({
+      name: LinkedDevicesBottomSheetRouteName,
+    });
+  }, [navigate]);
 
   const deviceType = platformDetails?.deviceType;
 
@@ -63,7 +73,7 @@ function LinkedDevicesListItem(props: Props): React.Node {
 
   const deviceListItem = React.useMemo(
     () => (
-      <TouchableOpacity style={styles.listItemContainer}>
+      <TouchableOpacity style={styles.listItemContainer} onPress={onPress}>
         <View style={styles.pillContainer}>
           <Pill
             label={label}
@@ -76,6 +86,7 @@ function LinkedDevicesListItem(props: Props): React.Node {
     [
       styles.listItemContainer,
       styles.pillContainer,
+      onPress,
       label,
       colors.codeBackground,
       deviceIcon,
