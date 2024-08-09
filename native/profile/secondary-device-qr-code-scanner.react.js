@@ -11,7 +11,7 @@ import {
   useBroadcastDeviceListUpdates,
   useGetAndUpdateDeviceListsForUsers,
 } from 'lib/hooks/peer-list-hooks.js';
-import { getForeignPeerDevices } from 'lib/selectors/user-selectors.js';
+import { getForeignPeerDeviceIDs } from 'lib/selectors/user-selectors.js';
 import { addDeviceToDeviceList } from 'lib/shared/device-list-utils.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
@@ -73,7 +73,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
   const broadcastDeviceListUpdates = useBroadcastDeviceListUpdates();
   const getAndUpdateDeviceListsForUsers = useGetAndUpdateDeviceListsForUsers();
 
-  const foreignPeerDevices = useSelector(getForeignPeerDevices);
+  const foreignPeerDevices = useSelector(getForeignPeerDeviceIDs);
 
   const { panelForegroundTertiaryLabel } = useColors();
 
