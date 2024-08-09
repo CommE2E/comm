@@ -388,8 +388,6 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
     [processDeviceListUpdate],
   );
 
-  const onCancelScan = React.useCallback(() => setScanned(false), []);
-
   const handleBarCodeScanned = React.useCallback(
     (barCodeEvent: BarCodeEvent) => {
       setScanned(true);
@@ -400,7 +398,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
           {
             text: 'Cancel',
             style: 'cancel',
-            onPress: onCancelScan,
+            onPress: goBack,
           },
           {
             text: 'Connect',
@@ -410,7 +408,7 @@ function SecondaryDeviceQRCodeScanner(props: Props): React.Node {
         { cancelable: false },
       );
     },
-    [onCancelScan, onConnect],
+    [goBack, onConnect],
   );
 
   if (hasPermission === null) {
