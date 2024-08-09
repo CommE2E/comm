@@ -56,6 +56,7 @@ import {
   TagFarcasterChannelNavigatorRouteName,
   CreateMissingSIWEBackupMessageRouteName,
   RestoreSIWEBackupRouteName,
+  LinkedDevicesBottomSheetRouteName,
 } from './route-names.js';
 import LoggedOutModal from '../account/logged-out-modal.react.js';
 import CreateMissingSIWEBackupMessage from '../account/registration/missing-registration-data/missing-siwe-backup-message.react.js';
@@ -76,6 +77,7 @@ import ConnectFarcasterBottomSheet from '../components/connect-farcaster-bottom-
 import InviteLinksNavigator from '../invite-links/invite-links-navigator.react.js';
 import CustomServerModal from '../profile/custom-server-modal.react.js';
 import KeyserverSelectionBottomSheet from '../profile/keyserver-selection-bottom-sheet.react.js';
+import LinkedDevicesBottomSheet from '../profile/linked-devices-bottom-sheet.react.js';
 import QRCodeSignInNavigator from '../qr-code/qr-code-sign-in-navigator.react.js';
 import RolesNavigator from '../roles/roles-navigator.react.js';
 import UserProfileBottomSheetNavigator from '../user-profile/user-profile-bottom-sheet-navigator.react.js';
@@ -290,6 +292,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={KeyserverSelectionBottomSheetRouteName}
         component={KeyserverSelectionBottomSheet}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={LinkedDevicesBottomSheetRouteName}
+        component={LinkedDevicesBottomSheet}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen

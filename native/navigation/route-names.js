@@ -92,6 +92,7 @@ export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const InviteLinkModalRouteName = 'InviteLinkModal';
 export const InviteLinkNavigatorRouteName = 'InviteLinkNavigator';
 export const LinkedDevicesRouteName = 'LinkedDevices';
+export const LinkedDevicesBottomSheetRouteName = 'LinkedDevicesBottomSheet';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const ManagePublicLinkRouteName = 'ManagePublicLink';
 export const MessageListRouteName = 'MessageList';
@@ -189,6 +190,7 @@ export type RootParamList = {
   +UserProfileBottomSheetNavigator: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
+  +LinkedDevicesBottomSheet: void,
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
