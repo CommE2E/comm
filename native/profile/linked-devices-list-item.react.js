@@ -32,8 +32,11 @@ function LinkedDevicesListItem(props: Props): React.Node {
   const onPress = React.useCallback(() => {
     navigate<'LinkedDevicesBottomSheet'>({
       name: LinkedDevicesBottomSheetRouteName,
+      params: {
+        deviceID,
+      },
     });
-  }, [navigate]);
+  }, [deviceID, navigate]);
 
   const deviceType = platformDetails?.deviceType;
 
