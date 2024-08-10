@@ -16,6 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 
 import { MediaCacheContext } from 'lib/components/media-cache-provider.react.js';
+import { encryptedMediaBlobURI } from 'lib/media/media-utils.js';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
@@ -92,19 +93,24 @@ type Props = {
 function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
 
-  const { uri: videoUri, holder: blobURI, encryptionKey } = mediaInfo;
+  const { uri: videoURI } = mediaInfo;
   const [videoSource, setVideoSource] = React.useState(
-    videoUri ? { uri: videoUri } : undefined,
+    videoURI ? { uri: videoURI } : undefined,
   );
 
   const mediaCache = React.useContext(MediaCacheContext);
   const fetchAndDecryptMedia = useFetchAndDecryptMedia();
 
   React.useEffect(() => {
-    // skip for unencrypted videos
-    if (!blobURI || !encryptionKey) {
+    if (
+      mediaInfo.type !== 'encrypted_photo' &&
+      mediaInfo.type !== 'encrypted_video'
+    ) {
       return undefined;
     }
+    const { index, ...rest } = mediaInfo;
+    const blobURI = encryptedMediaBlobURI(rest);
+    const { encryptionKey } = mediaInfo;
 
     let isMounted = true;
     let uriToDispose;
@@ -143,7 +149,7 @@ function VideoPlaybackModal(props: Props): React.Node {
         filesystem.unlink(uriToDispose);
       }
     };
-  }, [blobURI, encryptionKey, mediaCache, fetchAndDecryptMedia]);
+  }, [mediaInfo, mediaCache, fetchAndDecryptMedia]);
 
   const closeButtonX = useValue(-1);
   const closeButtonY = useValue(-1);
