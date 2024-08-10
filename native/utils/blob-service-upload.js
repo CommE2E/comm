@@ -18,6 +18,7 @@ const blobServiceUploadHandler: BlobServiceUploadHandler = async (
   if (input.blobInput.type !== 'uri') {
     throw new Error('Wrong blob data type');
   }
+
   let path = input.blobInput.uri;
   if (Platform.OS === 'android') {
     const resolvedPath = pathFromURI(path);
@@ -25,17 +26,29 @@ const blobServiceUploadHandler: BlobServiceUploadHandler = async (
       path = resolvedPath;
     }
   }
+
   const headers = authMetadata && createDefaultHTTPRequestHeaders(authMetadata);
+  let uploadOptions = {
+    uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+    fieldName: 'blob_data',
+    httpMethod: method,
+    parameters: { blob_hash: input.blobHash },
+    headers,
+  };
+  if (Platform.OS === 'android' && path.endsWith('.dat')) {
+    // expo-file-system is not able to deduce the MIME type of .dat files, so we
+    // specify it explicitly here. Without this, we get this error:
+    //   guessContentTypeFromName(file.name) must not be null
+    uploadOptions = {
+      ...uploadOptions,
+      mimeType: 'application/octet-stream',
+    };
+  }
+
   const uploadTask = FileSystem.createUploadTask(
     url,
     path,
-    {
-      uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-      fieldName: 'blob_data',
-      httpMethod: method,
-      parameters: { blob_hash: input.blobHash },
-      headers,
-    },
+    uploadOptions,
     uploadProgress => {
       if (options?.onProgress) {
         const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
