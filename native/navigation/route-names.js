@@ -48,6 +48,7 @@ import type { ThreadAvatarCameraModalParams } from '../media/thread-avatar-camer
 import type { VideoPlaybackModalParams } from '../media/video-playback-modal.react.js';
 import type { CustomServerModalParams } from '../profile/custom-server-modal.react.js';
 import type { KeyserverSelectionBottomSheetParams } from '../profile/keyserver-selection-bottom-sheet.react.js';
+import type { LinkedDevicesBottomSheetParams } from '../profile/linked-devices-bottom-sheet.react.js';
 import type { UserRelationshipTooltipModalParams } from '../profile/user-relationship-tooltip-modal.react.js';
 import type { ChangeRolesScreenParams } from '../roles/change-roles-screen.react.js';
 import type { CommunityRolesScreenParams } from '../roles/community-roles-screen.react.js';
@@ -196,7 +197,7 @@ export type RootParamList = {
   +UserProfileBottomSheetNavigator: void,
   +TunnelbrokerMenu: void,
   +KeyserverSelectionBottomSheet: KeyserverSelectionBottomSheetParams,
-  +LinkedDevicesBottomSheet: void,
+  +LinkedDevicesBottomSheet: LinkedDevicesBottomSheetParams,
   +ConnectFarcasterBottomSheet: void,
   +TagFarcasterChannelNavigator: void,
   +CreateMissingSIWEBackupMessage: void,
