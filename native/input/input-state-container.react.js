@@ -1229,17 +1229,29 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         path = resolvedPath;
       }
     }
+
+    let uploadOptions = {
+      uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+      fieldName: 'multimedia',
+      headers: {
+        Accept: 'application/json',
+      },
+      parameters,
+    };
+    if (Platform.OS === 'android' && path.endsWith('.dat')) {
+      // expo-file-system is not able to deduce the MIME type of .dat files, so
+      // we specify it explicitly here. Without this, we get this error:
+      //   guessContentTypeFromName(file.name) must not be null
+      uploadOptions = {
+        ...uploadOptions,
+        mimeType: 'application/octet-stream',
+      };
+    }
+
     const uploadTask = FileSystem.createUploadTask(
       url,
       path,
-      {
-        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
-        fieldName: 'multimedia',
-        headers: {
-          Accept: 'application/json',
-        },
-        parameters,
-      },
+      uploadOptions,
       uploadProgress => {
         if (options && options.onProgress) {
           const { totalByteSent, totalBytesExpectedToSend } = uploadProgress;
