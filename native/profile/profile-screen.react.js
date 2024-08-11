@@ -11,9 +11,11 @@ import {
 } from 'lib/actions/user-actions.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { getOwnPrimaryDeviceID } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
+import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -155,6 +157,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
+  +primaryDeviceID: ?string,
   +logOutLoading: boolean,
   +colors: Colors,
   +styles: $ReadOnly<typeof unboundStyles>,
@@ -259,13 +262,8 @@ class ProfileScreen extends React.PureComponent<Props> {
         <>
           <ProfileRow
             danger
-            content="Log out (primary device)"
-            onPress={this.onPressPrimaryDeviceLogout}
-          />
-          <ProfileRow
-            danger
-            content="Log out (secondary device)"
-            onPress={this.onPressSecondaryDeviceLogout}
+            content="Log out (new flow)"
+            onPress={this.onPressNewLogout}
           />
         </>
       );
@@ -380,44 +378,40 @@ class ProfileScreen extends React.PureComponent<Props> {
     );
   };
 
-  onPressPrimaryDeviceLogout = () => {
-    if (this.loggedOutOrLoggingOut) {
-      return;
-    }
-    // TODO: Add check for primary device
-    Alert.alert(
-      'Log out primary device',
-      'Are you sure you want to log out all devices?',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes',
-          onPress: this.logOutPrimaryDevice,
-          style: 'destructive',
-        },
-      ],
-      { cancelable: true },
-    );
-  };
+  onPressNewLogout = () => {
+    void (async () => {
+      if (this.loggedOutOrLoggingOut) {
+        return;
+      }
+      const { primaryDeviceID } = this.props;
+      const currentDeviceID = await getContentSigningKey();
+      const isPrimaryDevice = currentDeviceID === primaryDeviceID;
 
-  onPressSecondaryDeviceLogout = () => {
-    if (this.loggedOutOrLoggingOut) {
-      return;
-    }
-    // TODO: Add check for secondary device
-    Alert.alert(
-      'Log out secondary device',
-      'Are you sure you want to log out this device?',
-      [
-        { text: 'No', style: 'cancel' },
-        {
-          text: 'Yes',
-          onPress: this.logOutSecondaryDevice,
-          style: 'destructive',
-        },
-      ],
-      { cancelable: true },
-    );
+      let alertTitle, alertMessage, onPressAction;
+      if (isPrimaryDevice) {
+        alertTitle = 'Log out primary device';
+        alertMessage = 'Are you sure you want to log out all devices?';
+        onPressAction = this.logOutPrimaryDevice;
+      } else {
+        alertTitle = 'Log out secondary device';
+        alertMessage = 'Are you sure you want to log out this device?';
+        onPressAction = this.logOutSecondaryDevice;
+      }
+
+      Alert.alert(
+        alertTitle,
+        alertMessage,
+        [
+          { text: 'No', style: 'cancel' },
+          {
+            text: 'Yes',
+            onPress: onPressAction,
+            style: 'destructive',
+          },
+        ],
+        { cancelable: true },
+      );
+    })();
   };
 
   logOutWithoutDeletingNativeCredentialsWrapper = () => {
@@ -531,6 +525,7 @@ const logOutLoadingStatusSelector =
 const ConnectedProfileScreen: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedProfileScreen(props: BaseProps) {
     const currentUserInfo = useSelector(state => state.currentUserInfo);
+    const primaryDeviceID = useSelector(getOwnPrimaryDeviceID);
     const logOutLoading =
       useSelector(logOutLoadingStatusSelector) === 'loading';
     const colors = useColors();
@@ -549,6 +544,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       <ProfileScreen
         {...props}
         currentUserInfo={currentUserInfo}
+        primaryDeviceID={primaryDeviceID}
         logOutLoading={logOutLoading}
         colors={colors}
         styles={styles}
