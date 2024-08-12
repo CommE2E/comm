@@ -105,6 +105,24 @@ enable_lb_traffic() {
       --cidr "${ip_address}/32" > /dev/null
 }
 
+# Check if initial deployment is required
+cluster_status=$(aws ecs describe-clusters --clusters "keyserver-cluster" --query 'clusters[0].status' --output text)
+if [[ "$cluster_status" == "None" || "$cluster_status" == "INACTIVE" ]]; then
+  echo "Could not find active keyserver in configured AWS region"
+
+  read -r -p "Would you like to initialize a fresh keyserver? (y/n): " initialize_choice
+
+  if [[ "$initialize_choice" == "y" ]]; then
+    echo "Initializing fresh keyserver and creating ECS cluster..."
+    terraform apply -auto-approve
+    echo "Keyserver initialized"
+    exit 0
+  else
+    echo "Exited deploy script"
+    exit 1
+  fi
+fi
+
 # Stop all primary and secondary tasks and disable traffic to load balancer
 echo "Disabling traffic to load balancer"
 disable_general_lb_traffic
@@ -157,6 +175,10 @@ while true; do
     total_elapsed_time=$(( total_elapsed_time + retry_interval ))
     sleep $retry_interval
 done
+
+
+echo "Applying terraform changes"
+terraform apply -auto-approve
 
 echo "Redeploying primary service in $cluster_name"
 aws ecs update-service --cluster "$cluster_name" --service "$primary_service_name" --force-new-deployment --desired-count 1 > /dev/null
