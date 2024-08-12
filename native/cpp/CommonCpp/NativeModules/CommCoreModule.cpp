@@ -1884,6 +1884,7 @@ jsi::Value CommCoreModule::decryptAndPersist(
     jsi::Runtime &rt,
     jsi::Object encryptedDataJSI,
     jsi::String deviceID,
+    jsi::String userID,
     jsi::String messageID) {
   size_t messageType =
       std::lround(encryptedDataJSI.getProperty(rt, "messageType").asNumber());
@@ -1898,6 +1899,7 @@ jsi::Value CommCoreModule::decryptAndPersist(
 
   auto deviceIDCpp{deviceID.utf8(rt)};
   auto messageIDCpp{messageID.utf8(rt)};
+  auto userIDCpp{userID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -1926,7 +1928,8 @@ jsi::Value CommCoreModule::decryptAndPersist(
                         messageIDCpp,
                         deviceIDCpp,
                         decryptedMessage,
-                        "decrypted"};
+                        "decrypted",
+                        userIDCpp};
 
                     DatabaseManager::getQueryExecutor().beginTransaction();
                     DatabaseManager::getQueryExecutor().addInboundP2PMessage(
@@ -2667,6 +2670,8 @@ jsi::Value CommCoreModule::getAllInboundP2PMessages(jsi::Runtime &rt) {
                       innerRt, "senderDeviceID", msg.sender_device_id);
                   jsiMsg.setProperty(innerRt, "plaintext", msg.plaintext);
                   jsiMsg.setProperty(innerRt, "status", msg.status);
+                  jsiMsg.setProperty(
+                      innerRt, "senderUserID", msg.sender_user_id);
                   jsiMessages.setValueAtIndex(innerRt, writeIdx++, jsiMsg);
                 }
 
