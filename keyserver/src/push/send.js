@@ -19,7 +19,12 @@ import {
   createAndroidBadgeOnlyNotification,
 } from 'lib/push/android-notif-creators.js';
 import { apnMaxNotificationPayloadByteSize } from 'lib/push/apns-notif-creators.js';
-import type { PushUserInfo, PushInfo, Device } from 'lib/push/send-utils.js';
+import type {
+  PushUserInfo,
+  PushInfo,
+  Device,
+  CollapsableNotifInfo,
+} from 'lib/push/send-utils.js';
 import {
   stringToVersionKey,
   getDevicesByPlatform,
@@ -87,7 +92,6 @@ import {
 import createIDs from '../creators/id-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, mergeOrConditions, SQL } from '../database/database.js';
-import type { CollapsableNotifInfo } from '../fetchers/message-fetchers.js';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetchers.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
