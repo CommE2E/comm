@@ -481,6 +481,7 @@ function VideoPlaybackModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'VideoPlaybackModal should have OverlayContext');
   const navigationProgress = overlayContext.position;
+  invariant(navigationProgress, 'position should be defined in tooltip');
 
   const reverseNavigationProgress = React.useMemo(
     () => sub(1, navigationProgress),
