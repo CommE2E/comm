@@ -109,7 +109,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt(jsi::Run
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decrypt(rt, args[0].asObject(rt), args[1].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decryptAndPersist(rt, args[0].asObject(rt), args[1].asString(rt), args[2].asString(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->decryptAndPersist(rt, args[0].asObject(rt), args[1].asString(rt), args[2].asString(rt), args[3].asString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->signMessage(rt, args[0].asString(rt));
@@ -269,7 +269,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["encryptNotification"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encryptNotification};
   methodMap_["encryptAndPersist"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_encryptAndPersist};
   methodMap_["decrypt"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decrypt};
-  methodMap_["decryptAndPersist"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist};
+  methodMap_["decryptAndPersist"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_decryptAndPersist};
   methodMap_["signMessage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_signMessage};
   methodMap_["verifySignature"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_verifySignature};
   methodMap_["getCodeVersion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCodeVersion};
