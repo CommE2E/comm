@@ -251,6 +251,7 @@ class FullScreenViewModal extends React.PureComponent<Props, State> {
     const { overlayContext } = props;
     invariant(overlayContext, 'FullScreenViewModal should have OverlayContext');
     const navigationProgress = overlayContext.position;
+    invariant(navigationProgress, 'position should be defined in tooltip');
 
     // The inputs we receive from PanGestureHandler
     const panState = new Value(-1);

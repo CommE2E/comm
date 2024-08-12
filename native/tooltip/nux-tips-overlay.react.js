@@ -90,7 +90,8 @@ function createNUXTipsOverlay(
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
-    const { position } = overlayContext;
+
+    const position = React.useMemo(() => new Animated.Value(1), []);
 
     const { navigation, route } = props;
 
