@@ -15,6 +15,7 @@ const device2 = 'device-2';
 const TEST_MSG_1: InboundP2PMessage = {
   messageID: 'id-1',
   senderDeviceID: device1,
+  senderUserID: 'user-1',
   plaintext: 'decrypted-1',
   status: 'none',
 };
@@ -22,6 +23,7 @@ const TEST_MSG_1: InboundP2PMessage = {
 const TEST_MSG_2: InboundP2PMessage = {
   messageID: 'id-2',
   senderDeviceID: device2,
+  senderUserID: 'user-1',
   plaintext: 'decrypted-2',
   status: 'none',
 };
@@ -29,6 +31,7 @@ const TEST_MSG_2: InboundP2PMessage = {
 const TEST_MSG_3: InboundP2PMessage = {
   messageID: 'id-3',
   senderDeviceID: device1,
+  senderUserID: 'user-1',
   plaintext: 'decrypted-3',
   status: 'none',
 };

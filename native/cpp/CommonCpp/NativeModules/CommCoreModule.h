@@ -170,6 +170,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::Object encryptedDataJSI,
       jsi::String deviceID,
+      jsi::String userID,
       jsi::String messageID) override;
   virtual jsi::Value
   signMessage(jsi::Runtime &rt, jsi::String message) override;
