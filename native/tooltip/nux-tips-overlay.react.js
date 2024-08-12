@@ -21,7 +21,7 @@ import {
   type ReanimatedTransform,
 } from '../types/styles.js';
 
-const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
+const { Value, Extrapolate, add, multiply, interpolateNode } = Animated;
 
 const unboundStyles = {
   backdrop: {
@@ -70,23 +70,19 @@ export type NUXTipsOverlayParams = {
   +verticalBounds: VerticalBounds,
 };
 
-export type BaseNUXTipsOverlayProps = {
+export type NUXTipsOverlayProps = {
   +navigation: AppNavigationProp<'NUXTipsOverlay'>,
   +route: NavigationRoute<'NUXTipsOverlay'>,
-};
-type ButtonProps<Base> = {
-  ...Base,
-  +progress: Node,
 };
 
 const tipHeight: number = 30;
 const margin: number = 20;
 
 function createNUXTipsOverlay(
-  ButtonComponent: React.ComponentType<ButtonProps<BaseNUXTipsOverlayProps>>,
+  ButtonComponent: React.ComponentType<NUXTipsOverlayProps>,
   tipText: string,
-): React.ComponentType<BaseNUXTipsOverlayProps> {
-  function NUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
+): React.ComponentType<NUXTipsOverlayProps> {
+  function NUXTipsOverlay(props: NUXTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
@@ -256,11 +252,7 @@ function createNUXTipsOverlay(
           <AnimatedView style={opacityStyle} />
           <View style={contentContainerStyle}>
             <View style={buttonStyle}>
-              <ButtonComponent
-                navigation={props.navigation}
-                route={route}
-                progress={position}
-              />
+              <ButtonComponent navigation={props.navigation} route={route} />
             </View>
           </View>
           <AnimatedView
@@ -276,7 +268,7 @@ function createNUXTipsOverlay(
       </TouchableWithoutFeedback>
     );
   }
-  return React.memo<BaseNUXTipsOverlayProps>(NUXTipsOverlay);
+  return React.memo<NUXTipsOverlayProps>(NUXTipsOverlay);
 }
 
 export { createNUXTipsOverlay };
