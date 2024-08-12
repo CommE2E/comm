@@ -13,6 +13,7 @@ struct InboundP2PMessage {
   std::string sender_device_id;
   std::string plaintext;
   std::string status;
+  std::string sender_user_id;
 
   static InboundP2PMessage fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return InboundP2PMessage{
@@ -20,6 +21,7 @@ struct InboundP2PMessage {
         getStringFromSQLRow(sqlRow, idx + 1),
         getStringFromSQLRow(sqlRow, idx + 2),
         getStringFromSQLRow(sqlRow, idx + 3),
+        getStringFromSQLRow(sqlRow, idx + 4),
     };
   }
 
@@ -27,7 +29,8 @@ struct InboundP2PMessage {
     bindStringToSQL(message_id, sql, idx);
     bindStringToSQL(sender_device_id, sql, idx + 1);
     bindStringToSQL(plaintext, sql, idx + 2);
-    return bindStringToSQL(status, sql, idx + 3);
+    bindStringToSQL(status, sql, idx + 3);
+    return bindStringToSQL(sender_user_id, sql, idx + 4);
   }
 };
 
