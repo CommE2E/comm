@@ -2,16 +2,19 @@
 
 import invariant from 'invariant';
 
-import type { PushInfo } from 'lib/push/send-utils.js';
 import {
-  sortMessageInfoList,
+  type PushInfo,
+  type FetchCollapsableNotifsResult,
+  pushInfoToCollapsableNotifInfo,
+  mergeUserToCollapsableInfo,
+} from 'lib/push/send-utils.js';
+import {
   shimUnsupportedRawMessageInfos,
   isInvalidSidebarSource,
   isUnableToBeRenderedIndependently,
   isInvalidPinSource,
 } from 'lib/shared/message-utils.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
-import { getNotifCollapseKey } from 'lib/shared/notif-utils.js';
 import {
   messageTypes,
   type MessageType,
@@ -54,15 +57,6 @@ import {
   localIDFromCreationString,
 } from '../utils/idempotent.js';
 
-export type CollapsableNotifInfo = {
-  collapseKey: ?string,
-  existingMessageInfos: RawMessageInfo[],
-  newMessageInfos: RawMessageInfo[],
-};
-export type FetchCollapsableNotifsResult = {
-  [userID: string]: CollapsableNotifInfo[],
-};
-
 const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
 
 // This function doesn't filter RawMessageInfos based on what messageTypes the
@@ -72,39 +66,8 @@ async function fetchCollapsableNotifs(
   pushInfo: PushInfo,
 ): Promise<FetchCollapsableNotifsResult> {
   // First, we need to fetch any notifications that should be collapsed
-  const usersToCollapseKeysToInfo: {
-    [string]: { [string]: CollapsableNotifInfo },
-  } = {};
-  const usersToCollapsableNotifInfo: { [string]: Array<CollapsableNotifInfo> } =
-    {};
-  for (const userID in pushInfo) {
-    usersToCollapseKeysToInfo[userID] = {};
-    usersToCollapsableNotifInfo[userID] = [];
-    for (let i = 0; i < pushInfo[userID].messageInfos.length; i++) {
-      const rawMessageInfo = pushInfo[userID].messageInfos[i];
-      const messageData = pushInfo[userID].messageDatas[i];
-      const collapseKey = getNotifCollapseKey(rawMessageInfo, messageData);
-      if (!collapseKey) {
-        const collapsableNotifInfo: CollapsableNotifInfo = {
-          collapseKey,
-          existingMessageInfos: [],
-          newMessageInfos: [rawMessageInfo],
-        };
-        usersToCollapsableNotifInfo[userID].push(collapsableNotifInfo);
-        continue;
-      }
-      if (!usersToCollapseKeysToInfo[userID][collapseKey]) {
-        usersToCollapseKeysToInfo[userID][collapseKey] = ({
-          collapseKey,
-          existingMessageInfos: [],
-          newMessageInfos: [],
-        }: CollapsableNotifInfo);
-      }
-      usersToCollapseKeysToInfo[userID][collapseKey].newMessageInfos.push(
-        rawMessageInfo,
-      );
-    }
-  }
+  const { usersToCollapsableNotifInfo, usersToCollapseKeysToInfo } =
+    pushInfoToCollapsableNotifInfo(pushInfo);
 
   const sqlTuples = [];
   for (const userID in usersToCollapseKeysToInfo) {
@@ -168,19 +131,10 @@ async function fetchCollapsableNotifs(
     }
   }
 
-  for (const userID in usersToCollapseKeysToInfo) {
-    const collapseKeysToInfo = usersToCollapseKeysToInfo[userID];
-    for (const collapseKey in collapseKeysToInfo) {
-      const info = collapseKeysToInfo[collapseKey];
-      usersToCollapsableNotifInfo[userID].push({
-        collapseKey: info.collapseKey,
-        existingMessageInfos: sortMessageInfoList(info.existingMessageInfos),
-        newMessageInfos: sortMessageInfoList(info.newMessageInfos),
-      });
-    }
-  }
-
-  return usersToCollapsableNotifInfo;
+  return mergeUserToCollapsableInfo(
+    usersToCollapseKeysToInfo,
+    usersToCollapsableNotifInfo,
+  );
 }
 
 type MessageSQLResultRow = {
@@ -1035,6 +989,7 @@ async function searchMessagesInSingleChat(
 
 export {
   fetchCollapsableNotifs,
+  pushInfoToCollapsableNotifInfo,
   fetchMessageInfos,
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
