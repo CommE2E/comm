@@ -657,6 +657,7 @@ const olmAPI: OlmAPI = {
   async decryptAndPersist(
     encryptedData: EncryptedData,
     deviceID: string,
+    userID: string,
     messageID: string,
   ): Promise<string> {
     if (!cryptoStore) {
@@ -692,6 +693,7 @@ const olmAPI: OlmAPI = {
     const receivedMessage: InboundP2PMessage = {
       messageID,
       senderDeviceID: deviceID,
+      senderUserID: userID,
       plaintext: result,
       status: 'decrypted',
     };

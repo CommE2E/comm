@@ -47,7 +47,7 @@ std::unordered_set<std::string> SQLiteQueryExecutor::backedUpTablesBlocklist = {
     "olm_persist_sessions",
     "metadata",
     "outbound_p2p_messages",
-    "received_messages_to_device",
+    "inbound_p2p_messages",
     "integrity_store",
     "persist_storage",
     "keyservers",
@@ -789,6 +789,24 @@ bool create_message_search_table(sqlite3 *db) {
   return create_table(db, query, "message_search");
 }
 
+bool recreate_inbound_p2p_messages_table(sqlite3 *db) {
+  std::string query =
+      "DROP TABLE IF EXISTS received_messages_to_device;"
+      "CREATE TABLE IF NOT EXISTS inbound_p2p_messages ("
+      "  id INTEGER PRIMARY KEY,"
+      "  message_id TEXT NOT NULL,"
+      "  sender_device_id TEXT NOT NULL,"
+      "  plaintext TEXT NOT NULL,"
+      "  status TEXT NOT NULL,"
+      "  sender_user_id TEXT NOT NULL"
+      ");";
+
+  "CREATE INDEX IF NOT EXISTS outbound_p2p_messages_idx_id_timestamp"
+  "  ON outbound_p2p_messages (device_id, timestamp);";
+
+  return create_table(db, query, "inbound_p2p_messages");
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
@@ -936,12 +954,13 @@ bool create_schema(sqlite3 *db) {
       "  thread_activity_store_entry TEXT NOT NULL"
       ");"
 
-      "CREATE TABLE IF NOT EXISTS received_messages_to_device ("
+      "CREATE TABLE IF NOT EXISTS inbound_p2p_messages ("
       "  id INTEGER PRIMARY KEY,"
       "  message_id TEXT NOT NULL,"
       "  sender_device_id TEXT NOT NULL,"
       "  plaintext TEXT NOT NULL,"
-      "  status TEXT NOT NULL"
+      "  status TEXT NOT NULL,"
+      "  sender_user_id TEXT NOT NULL"
       ");"
 
       "CREATE TABLE IF NOT EXISTS entries ("
@@ -1222,7 +1241,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {48, {create_messages_idx_target_message_type_time, true}},
      {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}},
      {50, {create_message_search_table, true}},
-     {51, {update_messages_idx_target_message_type_time, true}}}};
+     {51, {update_messages_idx_target_message_type_time, true}},
+     {52, {recreate_inbound_p2p_messages_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -2624,9 +2644,9 @@ std::vector<std::string> SQLiteQueryExecutor::resetOutboundP2PMessagesForDevice(
 void SQLiteQueryExecutor::addInboundP2PMessage(
     InboundP2PMessage message) const {
   static std::string addMessage =
-      "REPLACE INTO received_messages_to_device ("
-      " message_id, sender_device_id, plaintext, status)"
-      "VALUES (?, ?, ?, ?);";
+      "REPLACE INTO inbound_p2p_messages ("
+      "  message_id, sender_device_id, plaintext, status, sender_user_id)"
+      "VALUES (?, ?, ?, ?, ?);";
 
   replaceEntity<InboundP2PMessage>(
       SQLiteQueryExecutor::getConnection(), addMessage, message);
@@ -2635,8 +2655,8 @@ void SQLiteQueryExecutor::addInboundP2PMessage(
 std::vector<InboundP2PMessage>
 SQLiteQueryExecutor::getAllInboundP2PMessage() const {
   static std::string query =
-      "SELECT message_id, sender_device_id, plaintext, status "
-      "FROM received_messages_to_device;";
+      "SELECT message_id, sender_device_id, plaintext, status, sender_user_id "
+      "FROM inbound_p2p_messages;";
   return getAllEntities<InboundP2PMessage>(
       SQLiteQueryExecutor::getConnection(), query);
 }
@@ -2648,7 +2668,7 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
   }
 
   std::stringstream removeMessagesSQLStream;
-  removeMessagesSQLStream << "DELETE FROM received_messages_to_device "
+  removeMessagesSQLStream << "DELETE FROM inbound_p2p_messages "
                              "WHERE message_id IN "
                           << getSQLStatementArray(ids.size()) << ";";
 

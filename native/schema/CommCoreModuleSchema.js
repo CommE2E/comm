@@ -119,6 +119,7 @@ interface Spec extends TurboModule {
   +decryptAndPersist: (
     encryptedData: Object,
     deviceID: string,
+    userID: string,
     messageID: string,
   ) => Promise<string>;
   +signMessage: (message: string) => Promise<string>;
@@ -209,6 +210,7 @@ export interface CoreModuleSpec extends Spec {
   +decryptAndPersist: (
     encryptedData: EncryptedData,
     deviceID: string,
+    userID: string,
     messageID: string,
   ) => Promise<string>;
   +initializeContentInboundSession: (
