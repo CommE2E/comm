@@ -181,6 +181,7 @@ function createTooltip<
       const { overlayContext } = props;
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
+      invariant(position, 'position should be defined in tooltip');
 
       this.backdropOpacity = interpolateNode(position, {
         inputRange: [0, 1],
@@ -432,6 +433,8 @@ function createTooltip<
 
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
+      invariant(position, 'position should be defined in tooltip');
+
       const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
 
       const buttonProps: ButtonProps<BaseTooltipPropsType> = {
