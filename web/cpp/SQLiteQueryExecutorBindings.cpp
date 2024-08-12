@@ -134,6 +134,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
   value_object<InboundP2PMessage>("InboundP2PMessage")
       .field("messageID", &InboundP2PMessage::message_id)
       .field("senderDeviceID", &InboundP2PMessage::sender_device_id)
+      .field("senderUserID", &InboundP2PMessage::sender_user_id)
       .field("plaintext", &InboundP2PMessage::plaintext)
       .field("status", &InboundP2PMessage::status);
 
