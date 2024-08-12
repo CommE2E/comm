@@ -86,7 +86,7 @@ function createNUXTipsOverlay(
   ButtonComponent: React.ComponentType<ButtonProps<BaseNUXTipsOverlayProps>>,
   getTipText: () => string,
 ): React.ComponentType<BaseNUXTipsOverlayProps> {
-  function ConnectedNUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
+  function NUXTipsOverlay(props: BaseNUXTipsOverlayProps) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
@@ -277,7 +277,7 @@ function createNUXTipsOverlay(
       </TouchableWithoutFeedback>
     );
   }
-  return React.memo<BaseNUXTipsOverlayProps>(ConnectedNUXTipsOverlay);
+  return React.memo<BaseNUXTipsOverlayProps>(NUXTipsOverlay);
 }
 
 export { createNUXTipsOverlay };
