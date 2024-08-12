@@ -36,8 +36,14 @@ import type {
   OverlayRouterExtraNavigationHelpers,
   OverlayRouterNavigationAction,
 } from './overlay-router.js';
-import { scrollBlockingModals, TabNavigatorRouteName } from './route-names.js';
+import {
+  scrollBlockingModals,
+  TabNavigatorRouteName,
+  NUXTipsOverlayRouteName,
+} from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
+
+const newReanimatedRoutes = new Set([NUXTipsOverlayRouteName]);
 
 export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
   {
@@ -60,7 +66,9 @@ type Scene = {
   +route: Route<>,
   +descriptor: Descriptor<OverlayNavigationHelpers<>, {}>,
   +context: {
-    +position: Value,
+    +position: ?Value,
+    +shouldRenderScreenContent: boolean,
+    +onExitFinish?: () => void,
     +isDismissing: boolean,
   },
   +ordering: {
@@ -127,7 +135,9 @@ const OverlayNavigator = React.memo<Props>(
             descriptor,
             `OverlayNavigator could not find descriptor for ${route.key}`,
           );
-          if (!positions[route.key]) {
+          const shouldUseLegacyAnimation = !newReanimatedRoutes.has(route.name);
+
+          if (!positions[route.key] && shouldUseLegacyAnimation) {
             positions[route.key] = new Value(firstRender ? 1 : 0);
           }
           return {
@@ -136,6 +146,7 @@ const OverlayNavigator = React.memo<Props>(
             context: {
               position: positions[route.key],
               isDismissing: curIndex < routeIndex,
+              shouldRenderScreenContent: true,
             },
             ordering: {
               routeIndex,
@@ -166,6 +177,7 @@ const OverlayNavigator = React.memo<Props>(
         routeKey: route.key,
         routeName: route.name,
         position: positions[route.key],
+        shouldRenderScreenContent: true,
         presentedFrom,
       };
     };
@@ -341,50 +353,47 @@ const OverlayNavigator = React.memo<Props>(
         // A route just got dismissed
         // We'll watch the animation to determine when to clear the screen
         const { position } = data.context;
-        invariant(position, `should have position for dismissed key ${key}`);
+        const removeScreen = () => {
+          // This gets called when the scene is no longer visible and
+          // handles cleaning up our data structures to remove it
+          const curVisibleOverlays = visibleOverlaysRef.current;
+          invariant(curVisibleOverlays, 'visibleOverlaysRef should be set');
+          const newVisibleOverlays = curVisibleOverlays.filter(
+            (overlay: VisibleOverlay) => overlay.routeKey !== key,
+          );
+          if (newVisibleOverlays.length === curVisibleOverlays.length) {
+            return;
+          }
+          visibleOverlaysRef.current = newVisibleOverlays;
+          setSceneData(curSceneData => {
+            const newSceneData: { [string]: SceneData } = {};
+            for (const sceneKey in curSceneData) {
+              if (sceneKey === key) {
+                continue;
+              }
+              newSceneData[sceneKey] = {
+                ...curSceneData[sceneKey],
+                context: {
+                  ...curSceneData[sceneKey].context,
+                  visibleOverlays: newVisibleOverlays,
+                },
+              };
+            }
+            return newSceneData;
+          });
+        };
+        const listeners = position
+          ? [cond(lessOrEq(position, 0), call([], removeScreen))]
+          : [];
         updatedSceneData[key] = {
           ...data,
           context: {
             ...data.context,
             isDismissing: true,
+            shouldRenderScreenContent: false,
+            onExitFinish: removeScreen,
           },
-          listeners: [
-            cond(
-              lessOrEq(position, 0),
-              call([], () => {
-                // This gets called when the scene is no longer visible and
-                // handles cleaning up our data structures to remove it
-                const curVisibleOverlays = visibleOverlaysRef.current;
-                invariant(
-                  curVisibleOverlays,
-                  'visibleOverlaysRef should be set',
-                );
-                const newVisibleOverlays = curVisibleOverlays.filter(
-                  (overlay: VisibleOverlay) => overlay.routeKey !== key,
-                );
-                if (newVisibleOverlays.length === curVisibleOverlays.length) {
-                  return;
-                }
-                visibleOverlaysRef.current = newVisibleOverlays;
-                setSceneData(curSceneData => {
-                  const newSceneData: { [string]: SceneData } = {};
-                  for (const sceneKey in curSceneData) {
-                    if (sceneKey === key) {
-                      continue;
-                    }
-                    newSceneData[sceneKey] = {
-                      ...curSceneData[sceneKey],
-                      context: {
-                        ...curSceneData[sceneKey].context,
-                        visibleOverlays: newVisibleOverlays,
-                      },
-                    };
-                  }
-                  return newSceneData;
-                });
-              }),
-            ),
-          ],
+          listeners,
         };
         sceneDataChanged = true;
         queueAnimation(key, 0);
@@ -413,8 +422,12 @@ const OverlayNavigator = React.memo<Props>(
         return;
       }
       for (const key in pendingAnimations) {
-        const toValue = pendingAnimations[key];
         const position = positions[key];
+        if (!position) {
+          continue;
+        }
+        const toValue = pendingAnimations[key];
+
         let duration = 150;
         if (isMessageTooltipKey(key)) {
           const navigationTransitionSpec =
@@ -426,7 +439,6 @@ const OverlayNavigator = React.memo<Props>(
               navigationTransitionSpec.config.duration) ||
             400;
         }
-        invariant(position, `should have position for animating key ${key}`);
         timing(position, {
           duration,
           easing: EasingNode.inOut(EasingNode.ease),

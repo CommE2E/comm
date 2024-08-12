@@ -52,6 +52,7 @@ function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
     'ReactionSelectionPopover should have OverlayContext',
   );
   const { position } = overlayContext;
+  invariant(position, 'position should be defined in ReactionSelectionPopover');
 
   const dimensions = useSelector(state => state.dimensions);
 
