@@ -3,10 +3,17 @@
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual.js';
 
-import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
-import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
-import type { ThinThreadType } from 'lib/types/thread-types-enum.js';
+import { specialRoles } from 'lib/permissions/special-roles.js';
+import {
+  getRolePermissionBlobs,
+  getThreadPermissionBlobFromUserSurfacedPermissions,
+} from 'lib/permissions/thread-permissions.js';
+import {
+  type ThinThreadType,
+  threadTypeIsCommunityRoot,
+} from 'lib/types/thread-types-enum.js';
 import type { ServerLegacyRoleInfo } from 'lib/types/thread-types.js';
+import { userSurfacedPermissionsFromRolePermissions } from 'lib/utils/role-utils.js';
 
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -21,34 +28,88 @@ async function updateRoles(
   const currentRoles: $ReadOnlyArray<ServerLegacyRoleInfo> =
     await fetchRoles(threadID);
 
-  const currentRolePermissions: { [string]: ThreadRolePermissionsBlob } = {};
-  const currentRoleIDs: { [string]: string } = {};
-  for (const roleInfo of currentRoles) {
-    currentRolePermissions[roleInfo.name] = roleInfo.permissions;
-    currentRoleIDs[roleInfo.name] = roleInfo.id;
+  const defaultRolePermissions = getRolePermissionBlobs(threadType);
+  const newAdminRolePermissions = defaultRolePermissions.Admins;
+
+  const rolesNeedingUpdate = [];
+  let adminRoleIDNeedingDeletion;
+  for (const currentRole of currentRoles) {
+    if (currentRole.specialRole === specialRoles.ADMIN_ROLE) {
+      const newRolePermissions = defaultRolePermissions.Admins;
+      if (!newRolePermissions) {
+        adminRoleIDNeedingDeletion = currentRole.id;
+      } else if (!_isEqual(newRolePermissions)(currentRole.permissions)) {
+        rolesNeedingUpdate.push({
+          ...currentRole,
+          permissions: newRolePermissions,
+        });
+      }
+      continue;
+    }
+
+    if (!threadTypeIsCommunityRoot(threadType)) {
+      const newRolePermissions = defaultRolePermissions.Members;
+      if (!_isEqual(newRolePermissions)(currentRole.permissions)) {
+        rolesNeedingUpdate.push({
+          ...currentRole,
+          permissions: newRolePermissions,
+        });
+      }
+      continue;
+    }
+
+    const currentlySelectedUserSurfacedPermissions =
+      userSurfacedPermissionsFromRolePermissions(currentRole.permissions);
+    const newRolePermissions =
+      getThreadPermissionBlobFromUserSurfacedPermissions(
+        [...currentlySelectedUserSurfacedPermissions],
+        threadType,
+      );
+    if (!_isEqual(newRolePermissions)(currentRole.permissions)) {
+      rolesNeedingUpdate.push({
+        ...currentRole,
+        permissions: newRolePermissions,
+      });
+    }
   }
 
-  const rolePermissions = getRolePermissionBlobs(threadType);
-  if (_isEqual(rolePermissions)(currentRolePermissions)) {
+  let adminRoleNeedsCreation = false;
+  if (newAdminRolePermissions) {
+    const adminRoleAlreadyExists = currentRoles.some(
+      currentRole => currentRole.specialRole === specialRoles.ADMIN_ROLE,
+    );
+    if (!adminRoleAlreadyExists) {
+      adminRoleNeedsCreation = true;
+    }
+  }
+
+  if (
+    rolesNeedingUpdate.length === 0 &&
+    !adminRoleIDNeedingDeletion &&
+    !adminRoleNeedsCreation
+  ) {
     return;
   }
 
-  const promises = [];
+  const adminRoleCreationPromise = (async () => {
+    if (!adminRoleNeedsCreation) {
+      return;
+    }
 
-  if (rolePermissions.Admins && !currentRolePermissions.Admins) {
     const [id] = await createIDs('roles', 1);
+
     const newRow = [
       id,
       threadID,
       'Admins',
-      JSON.stringify(rolePermissions.Admins),
+      JSON.stringify(newAdminRolePermissions),
       Date.now(),
     ];
+
     const insertQuery = SQL`
       INSERT INTO roles (id, thread, name, permissions, creation_time)
       VALUES ${[newRow]}
     `;
-    promises.push(dbQuery(insertQuery));
     const setAdminQuery = SQL`
       UPDATE memberships
       SET role = ${id}
@@ -56,52 +117,44 @@ async function updateRoles(
         AND user = ${viewer.userID}
         AND role > 0
     `;
-    promises.push(dbQuery(setAdminQuery));
-  } else if (!rolePermissions.Admins && currentRolePermissions.Admins) {
-    invariant(
-      currentRoleIDs.Admins && currentRoleIDs.Members,
-      'ids should exist for both Admins and Members roles',
+    await Promise.all([dbQuery(insertQuery), dbQuery(setAdminQuery)]);
+  })();
+
+  const adminRoleDeletionPromise = (async () => {
+    if (!adminRoleIDNeedingDeletion) {
+      return;
+    }
+    const memberRole = currentRoles.find(
+      currentRole => currentRole.specialRole === specialRoles.DEFAULT_ROLE,
     );
-    const id = currentRoleIDs.Admins;
+    invariant(memberRole, 'DEFAULT_ROLE should exist for every thread');
     const deleteQuery = SQL`
       DELETE r, i
       FROM roles r
       LEFT JOIN ids i ON i.id = r.id
-      WHERE r.id = ${id}
+      WHERE r.id = ${adminRoleIDNeedingDeletion}
     `;
-    promises.push(dbQuery(deleteQuery));
     const updateMembershipsQuery = SQL`
       UPDATE memberships
-      SET role = ${currentRoleIDs.Members}
+      SET role = ${memberRole.id}
       WHERE thread = ${threadID}
-        AND role > 0
+        AND role = ${adminRoleIDNeedingDeletion}
     `;
-    promises.push(dbQuery(updateMembershipsQuery));
-  }
+    await Promise.all([dbQuery(deleteQuery), dbQuery(updateMembershipsQuery)]);
+  })();
 
-  const updatePermissions: { [string]: ThreadRolePermissionsBlob } = {};
-  for (const name in currentRoleIDs) {
-    const currentPermissions = currentRolePermissions[name];
-    const permissions = rolePermissions[name];
-    if (
-      !permissions ||
-      !currentPermissions ||
-      _isEqual(permissions)(currentPermissions)
-    ) {
-      continue;
+  const roleUpdatePromise = (async () => {
+    if (rolesNeedingUpdate.length === 0) {
+      return;
     }
-    const id = currentRoleIDs[name];
-    updatePermissions[id] = permissions;
-  }
-  if (Object.values(updatePermissions).length > 0) {
     const updateQuery = SQL`
       UPDATE roles
       SET permissions = CASE id
     `;
-    for (const id in updatePermissions) {
-      const permissionsBlob = JSON.stringify(updatePermissions[id]);
+    for (const role of rolesNeedingUpdate) {
+      const permissionsBlob = JSON.stringify(role.permissions);
       updateQuery.append(SQL`
-        WHEN ${id} THEN ${permissionsBlob}
+        WHEN ${role.id} THEN ${permissionsBlob}
       `);
     }
     updateQuery.append(SQL`
@@ -109,10 +162,14 @@ async function updateRoles(
       END
       WHERE thread = ${threadID}
     `);
-    promises.push(dbQuery(updateQuery));
-  }
+    await dbQuery(updateQuery);
+  })();
 
-  await Promise.all(promises);
+  await Promise.all([
+    adminRoleCreationPromise,
+    adminRoleDeletionPromise,
+    roleUpdatePromise,
+  ]);
 }
 
 export { updateRoles };
