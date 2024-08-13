@@ -194,44 +194,56 @@ function createNUXTipsOverlay(
       [position],
     );
 
-    const tipContainerStyle = React.useMemo(() => {
-      const { x, y, width, height } = initialCoordinates;
+    const baseTipContainerStyle = React.useMemo(() => {
+      const { y, x, height, width } = initialCoordinates;
 
+      const top =
+        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+
+      const extraLeftSpace = x;
+      const extraRightSpace = dimensions.width - width - x;
+      if (extraLeftSpace < extraRightSpace) {
+        return {
+          top,
+          position: 'absolute',
+          alignItems: 'center',
+          left: 0,
+          minWidth: width + 2 * extraLeftSpace,
+        };
+      } else {
+        return {
+          top,
+          position: 'absolute',
+          alignItems: 'center',
+          right: 0,
+          minWidth: width + 2 * extraRightSpace,
+        };
+      }
+    }, [
+      dimensions.width,
+      initialCoordinates,
+      verticalBounds.height,
+      verticalBounds.y,
+    ]);
+
+    const tipContainerStyle = React.useMemo(() => {
       const style: WritableAnimatedStyleObj = {};
-      style.position = 'absolute';
-      style.alignItems = 'center';
       style.opacity = tipContainerOpacity;
 
       const transform: Array<ReanimatedTransform> = [];
 
       transform.push({ translateX: tipHorizontal });
-
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        style.left = 0;
-        style.minWidth = width + 2 * extraLeftSpace;
-      } else {
-        style.right = 0;
-        style.minWidth = width + 2 * extraRightSpace;
-      }
-
-      style.top =
-        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
       transform.push({ translateY: tipVerticalBelow });
       transform.push({ scale: tipScale });
       style.transform = transform;
 
-      return style;
+      return { ...baseTipContainerStyle, ...style };
     }, [
-      dimensions.width,
-      initialCoordinates,
+      baseTipContainerStyle,
       tipContainerOpacity,
       tipHorizontal,
       tipScale,
       tipVerticalBelow,
-      verticalBounds.height,
-      verticalBounds.y,
     ]);
 
     const triangleStyle = React.useMemo(() => {
