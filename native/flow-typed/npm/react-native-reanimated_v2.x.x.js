@@ -47,33 +47,33 @@ declare module 'react-native-reanimated' {
   declare class ViewImpl extends React$Component<{
     +entering?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | EntryAnimationFunction
       | Keyframe,
     +exiting?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | ExitAnimationFunction
       | Keyframe,
     ...
   }> { }
   declare class TextImpl extends React$Component<{
     +entering?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | EntryAnimationFunction
       | Keyframe,
     +exiting?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | ExitAnimationFunction
       | Keyframe,
     ...
   }> { }
   declare class ImageImpl extends React$Component<{
     +entering?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | EntryAnimationFunction
       | Keyframe,
     +exiting?:
       | ReanimatedAnimationBuilder
-      | EntryExitAnimationFunction
+      | ExitAnimationFunction
       | Keyframe,
     ...
   }> { }
@@ -306,7 +306,7 @@ declare module 'react-native-reanimated' {
 
   declare type AnimationFunction = (a?: any, b?: any, c?: any) => any;
 
-  declare type EntryAnimationsValues = {|
+  declare export type EntryAnimationsValues = {|
     +targetOriginX: number,
     +targetOriginY: number,
     +targetWidth: number,
@@ -315,7 +315,7 @@ declare module 'react-native-reanimated' {
     +targetGlobalOriginY: number,
   |};
 
-  declare type ExitAnimationsValues = {|
+  declare export type ExitAnimationsValues = {|
     +currentOriginX: number,
     +currentOriginY: number,
     +currentWidth: number,
@@ -324,8 +324,13 @@ declare module 'react-native-reanimated' {
     +currentGlobalOriginY: number,
   |};
 
-  declare export type EntryExitAnimationFunction = (
-    targetValues: EntryAnimationsValues | ExitAnimationsValues,
+
+  declare export type EntryAnimationFunction = (
+    targetValues: EntryAnimationsValues,
+  ) => LayoutAnimation;
+
+  declare export type ExitAnimationFunction = (
+    targetValues: ExitAnimationsValues,
   ) => LayoutAnimation;
 
   declare type AnimationConfigFunction<T> = (
@@ -396,7 +401,7 @@ declare module 'react-native-reanimated' {
     getDelay(): number;
     getDelayFunction(): AnimationFunction;
 
-    static build(): EntryExitAnimationFunction | LayoutAnimationFunction;
+    static build(): EntryAnimationFunction | ExitAnimationFunction | LayoutAnimationFunction;
   }
 
   declare export type ReanimatedAnimationBuilder =
