@@ -5,7 +5,7 @@ import _isEqual from 'lodash/fp/isEqual.js';
 
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import type { ThreadRolePermissionsBlob } from 'lib/types/thread-permission-types.js';
-import type { ThreadType } from 'lib/types/thread-types-enum.js';
+import type { ThinThreadType } from 'lib/types/thread-types-enum.js';
 import type { ServerLegacyRoleInfo } from 'lib/types/thread-types.js';
 
 import createIDs from '../creators/id-creator.js';
@@ -16,7 +16,7 @@ import type { Viewer } from '../session/viewer.js';
 async function updateRoles(
   viewer: Viewer,
   threadID: string,
-  threadType: ThreadType,
+  threadType: ThinThreadType,
 ): Promise<void> {
   const currentRoles: $ReadOnlyArray<ServerLegacyRoleInfo> =
     await fetchRoles(threadID);
