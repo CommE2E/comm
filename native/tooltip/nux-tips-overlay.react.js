@@ -3,7 +3,14 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, Platform, Text } from 'react-native';
-import Animated, { withTiming } from 'react-native-reanimated';
+import Animated, {
+  FadeOut,
+  withTiming,
+  // eslint-disable-next-line no-unused-vars
+  type EntryAnimationsValues,
+  // eslint-disable-next-line no-unused-vars
+  type ExitAnimationsValues,
+} from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -15,13 +22,9 @@ import type {
   VerticalBounds,
 } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
-import {
-  AnimatedView,
-  type WritableAnimatedStyleObj,
-  type ReanimatedTransform,
-} from '../types/styles.js';
+import { AnimatedView } from '../types/styles.js';
 
-const { Value, Extrapolate, add, multiply, interpolateNode } = Animated;
+const { Value } = Animated;
 
 const animationDuration = 150;
 
@@ -77,8 +80,8 @@ export type NUXTipsOverlayProps = {
   +route: NavigationRoute<'NUXTipsOverlay'>,
 };
 
-const tipHeight: number = 30;
 const margin: number = 20;
+const tipContainerTranslateY = -80;
 
 function opacityEnteringAnimation() {
   'worklet';
@@ -103,8 +106,6 @@ function createNUXTipsOverlay(
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
     const { animationCallback } = overlayContext;
-
-    const position = React.useMemo(() => new Animated.Value(1), []);
 
     const { navigation, route } = props;
 
@@ -159,41 +160,6 @@ function createNUXTipsOverlay(
       [dimensions.width, initialCoordinates, tipHorizontalOffset],
     );
 
-    const tipContainerOpacity = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 0.1],
-          outputRange: [0, 1],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
-
-    const tipVerticalBelow = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 1],
-          outputRange: [-margin - tipHeight / 2, 0],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
-
-    const tipHorizontal = React.useMemo(() => {
-      const invertedPosition = add(1, multiply(-1, position));
-      return multiply(invertedPosition, tipHorizontalOffset);
-    }, [position, tipHorizontalOffset]);
-
-    const tipScale = React.useMemo(
-      () =>
-        interpolateNode(position, {
-          inputRange: [0, 0.2, 0.8, 1],
-          outputRange: [0, 0, 1, 1],
-          extrapolate: Extrapolate.CLAMP,
-        }),
-      [position],
-    );
-
     const baseTipContainerStyle = React.useMemo(() => {
       const { y, x, height, width } = initialCoordinates;
 
@@ -226,26 +192,6 @@ function createNUXTipsOverlay(
       verticalBounds.y,
     ]);
 
-    const tipContainerStyle = React.useMemo(() => {
-      const style: WritableAnimatedStyleObj = {};
-      style.opacity = tipContainerOpacity;
-
-      const transform: Array<ReanimatedTransform> = [];
-
-      transform.push({ translateX: tipHorizontal });
-      transform.push({ translateY: tipVerticalBelow });
-      transform.push({ scale: tipScale });
-      style.transform = transform;
-
-      return { ...baseTipContainerStyle, ...style };
-    }, [
-      baseTipContainerStyle,
-      tipContainerOpacity,
-      tipHorizontal,
-      tipScale,
-      tipVerticalBelow,
-    ]);
-
     const triangleStyle = React.useMemo(() => {
       const { x, width } = initialCoordinates;
       const extraLeftSpace = x;
@@ -253,12 +199,12 @@ function createNUXTipsOverlay(
       if (extraLeftSpace < extraRightSpace) {
         return {
           alignSelf: 'flex-start',
-          left: extraLeftSpace + (width - 20) / 2,
+          left: extraLeftSpace + (width - (20 / 100) * width) / 2,
         };
       } else {
         return {
           alignSelf: 'flex-end',
-          right: extraRightSpace + (width - 20) / 2,
+          right: extraRightSpace + (width - (20 / 100) * width) / 2,
         };
       }
     }, [dimensions.width, initialCoordinates]);
@@ -277,6 +223,78 @@ function createNUXTipsOverlay(
       };
     }, [animationCallback]);
 
+    // prettier-ignore
+    const tipContainerEnteringAnimation = React.useCallback(
+      (values/*: EntryAnimationsValues*/) => {
+        'worklet';
+
+        const initialX =
+          (-values.targetWidth +
+            initialCoordinates.width +
+            initialCoordinates.x) /
+          2;
+        const initialY = tipContainerTranslateY;
+
+        return {
+          animations: {
+            opacity: withTiming(1, { duration: animationDuration }),
+            transform: [
+              { translateX: withTiming(0, { duration: animationDuration }) },
+              { translateY: withTiming(0, { duration: animationDuration }) },
+              { scale: withTiming(1, { duration: animationDuration }) },
+            ],
+          },
+          initialValues: {
+            opacity: 0,
+            transform: [
+              { translateX: initialX },
+              { translateY: initialY },
+              { scale: 0 },
+            ],
+          },
+        };
+      },
+      [initialCoordinates.width, initialCoordinates.x],
+    );
+
+    // prettier-ignore
+    const tipContainerExitingAnimation = React.useCallback(
+      (values/*: ExitAnimationsValues*/) => {
+        'worklet';
+
+        const toValueX =
+          (-values.currentWidth +
+            initialCoordinates.width +
+            initialCoordinates.x) /
+          2;
+        const toValueY = tipContainerTranslateY;
+
+        return {
+          animations: {
+            opacity: withTiming(0, { duration: animationDuration }),
+            transform: [
+              {
+                translateX: withTiming(toValueX, {
+                  duration: animationDuration,
+                }),
+              },
+              {
+                translateY: withTiming(toValueY, {
+                  duration: animationDuration,
+                }),
+              },
+              { scale: withTiming(0, { duration: animationDuration }) },
+            ],
+          },
+          initialValues: {
+            opacity: 1,
+            transform: [{ translateX: 0 }, { translateY: 0 }, { scale: 1 }],
+          },
+        };
+      },
+      [initialCoordinates.width, initialCoordinates.x],
+    );
+
     return (
       <TouchableWithoutFeedback onPress={goBackOnce}>
         <View style={styles.container}>
@@ -287,13 +305,18 @@ function createNUXTipsOverlay(
             exiting={opacityExitingAnimation}
           />
           <View style={contentContainerStyle}>
-            <View style={buttonStyle}>
+            <Animated.View
+              style={buttonStyle}
+              exiting={FadeOut.duration(animationDuration)}
+            >
               <ButtonComponent navigation={props.navigation} route={route} />
-            </View>
+            </Animated.View>
           </View>
           <AnimatedView
-            style={tipContainerStyle}
+            style={baseTipContainerStyle}
             onLayout={onTipContainerLayout}
+            entering={tipContainerEnteringAnimation}
+            exiting={tipContainerExitingAnimation}
           >
             <View style={[styles.triangleUp, triangleStyle]} />
             <View style={styles.items}>
