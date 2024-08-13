@@ -4,7 +4,8 @@ import * as React from 'react';
 import { View, Text, Image } from 'react-native';
 import Animated, {
   type ReanimatedAnimationBuilder,
-  type EntryExitAnimationFunction,
+  type EntryAnimationFunction,
+  type ExitAnimationFunction,
   type SharedValue,
 } from 'react-native-reanimated';
 
@@ -50,11 +51,8 @@ export type AnimatedViewStyle =
 const AnimatedView: React.ComponentType<{
   ...$Diff<ViewProps, { style: ViewStyle }>,
   +style: AnimatedViewStyle,
-  +entering?:
-    | ReanimatedAnimationBuilder
-    | EntryExitAnimationFunction
-    | Keyframe,
-  +exiting?: ReanimatedAnimationBuilder | EntryExitAnimationFunction | Keyframe,
+  +entering?: ReanimatedAnimationBuilder | EntryAnimationFunction | Keyframe,
+  +exiting?: ReanimatedAnimationBuilder | ExitAnimationFunction | Keyframe,
 }> = Animated.View;
 
 export type AnimatedTextStyle =
