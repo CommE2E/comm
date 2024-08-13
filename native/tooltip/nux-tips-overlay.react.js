@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback, Platform, Text } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { withTiming } from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
@@ -22,6 +22,8 @@ import {
 } from '../types/styles.js';
 
 const { Value, Extrapolate, add, multiply, interpolateNode } = Animated;
+
+const animationDuration = 150;
 
 const unboundStyles = {
   backdrop: {
@@ -78,6 +80,20 @@ export type NUXTipsOverlayProps = {
 const tipHeight: number = 30;
 const margin: number = 20;
 
+function opacityEnteringAnimation() {
+  'worklet';
+
+  return {
+    animations: {
+      opacity: withTiming(0.7, { duration: animationDuration }),
+      transform: [{}],
+    },
+    initialValues: {
+      opacity: 0,
+    },
+  };
+}
+
 function createNUXTipsOverlay(
   ButtonComponent: React.ComponentType<NUXTipsOverlayProps>,
   tipText: string,
@@ -86,6 +102,7 @@ function createNUXTipsOverlay(
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
+    const { animationCallback } = overlayContext;
 
     const position = React.useMemo(() => new Animated.Value(1), []);
 
@@ -107,18 +124,6 @@ function createNUXTipsOverlay(
         marginBottom: bottom,
       };
     }, [dimensions.height, route.params, styles.contentContainer]);
-
-    const opacityStyle = React.useMemo(() => {
-      const backdropOpacity = interpolateNode(position, {
-        inputRange: [0, 1],
-        outputRange: [0, 0.7],
-        extrapolate: Extrapolate.CLAMP,
-      });
-      return {
-        ...styles.backdrop,
-        opacity: backdropOpacity,
-      };
-    }, [position, styles.backdrop]);
 
     const { initialCoordinates, verticalBounds } = props.route.params;
 
@@ -246,10 +251,29 @@ function createNUXTipsOverlay(
       }
     }, [dimensions.width, initialCoordinates]);
 
+    const opacityExitingAnimation = React.useCallback(() => {
+      'worklet';
+
+      return {
+        animations: {
+          opacity: withTiming(0, { duration: animationDuration }),
+        },
+        initialValues: {
+          opacity: 0.7,
+        },
+        callback: animationCallback,
+      };
+    }, [animationCallback]);
+
     return (
       <TouchableWithoutFeedback onPress={goBackOnce}>
         <View style={styles.container}>
-          <AnimatedView style={opacityStyle} />
+          <AnimatedView
+            style={styles.backdrop}
+            // $FlowFixMe
+            entering={opacityEnteringAnimation}
+            exiting={opacityExitingAnimation}
+          />
           <View style={contentContainerStyle}>
             <View style={buttonStyle}>
               <ButtonComponent navigation={props.navigation} route={route} />
@@ -268,7 +292,17 @@ function createNUXTipsOverlay(
       </TouchableWithoutFeedback>
     );
   }
-  return React.memo<NUXTipsOverlayProps>(NUXTipsOverlay);
+
+  function NUXTipsOverlayWrapper(props: NUXTipsOverlayProps) {
+    const overlayContext = React.useContext(OverlayContext);
+    invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
+
+    const { renderChild } = overlayContext;
+
+    return renderChild ? <NUXTipsOverlay {...props} /> : null;
+  }
+
+  return React.memo<NUXTipsOverlayProps>(NUXTipsOverlayWrapper);
 }
 
 export { createNUXTipsOverlay };
