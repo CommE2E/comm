@@ -23,6 +23,7 @@ import type {
 } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import { AnimatedView } from '../types/styles.js';
+import type { WritableAnimatedStyleObj } from '../types/styles.js';
 
 const { Value } = Animated;
 
@@ -63,6 +64,20 @@ const unboundStyles = {
     height: 10,
     width: 10,
   },
+  triangleDown: {
+    borderBottomColor: 'transparent',
+    borderBottomWidth: 0,
+    borderLeftColor: 'transparent',
+    borderLeftWidth: 10,
+    borderRightColor: 'transparent',
+    borderRightWidth: 10,
+    borderStyle: 'solid',
+    borderTopColor: 'tooltipBackground',
+    borderTopWidth: 10,
+    height: 10,
+    top: Platform.OS === 'android' ? -1 : 0,
+    width: 10,
+  },
   tipText: {
     color: 'panelForegroundLabel',
     fontSize: 20,
@@ -73,6 +88,7 @@ const unboundStyles = {
 export type NUXTipsOverlayParams = {
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
+  +tooltipLocation: 'above' | 'below',
 };
 
 export type NUXTipsOverlayProps = {
@@ -81,7 +97,6 @@ export type NUXTipsOverlayProps = {
 };
 
 const margin: number = 20;
-const tipContainerTranslateY = -80;
 
 function opacityEnteringAnimation() {
   'worklet';
@@ -112,6 +127,9 @@ function createNUXTipsOverlay(
     const { goBackOnce } = navigation;
 
     const styles = useStyles(unboundStyles);
+
+    const tipContainerTranslateY =
+      route.params.tooltipLocation === 'below' ? -80 : 80;
 
     const contentContainerStyle = React.useMemo(() => {
       const { verticalBounds } = route.params;
@@ -160,34 +178,40 @@ function createNUXTipsOverlay(
       [dimensions.width, initialCoordinates, tipHorizontalOffset],
     );
 
+    const { tooltipLocation } = route.params;
+
     const baseTipContainerStyle = React.useMemo(() => {
       const { y, x, height, width } = initialCoordinates;
 
-      const top =
-        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+      const style: WritableAnimatedStyleObj = {
+        position: 'absolute',
+        alignItems: 'center',
+      };
+
+      if (tooltipLocation === 'below') {
+        style.top =
+          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
+          margin;
+      } else {
+        style.bottom =
+          dimensions.height - Math.max(y, verticalBounds.y) + margin;
+      }
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
       if (extraLeftSpace < extraRightSpace) {
-        return {
-          top,
-          position: 'absolute',
-          alignItems: 'center',
-          left: 0,
-          minWidth: width + 2 * extraLeftSpace,
-        };
+        style.left = 0;
+        style.minWidth = width + 2 * extraLeftSpace;
       } else {
-        return {
-          top,
-          position: 'absolute',
-          alignItems: 'center',
-          right: 0,
-          minWidth: width + 2 * extraRightSpace,
-        };
+        (style.right = 0), (style.minWidth = width + 2 * extraRightSpace);
       }
+
+      return style;
     }, [
+      dimensions.height,
       dimensions.width,
       initialCoordinates,
+      tooltipLocation,
       verticalBounds.height,
       verticalBounds.y,
     ]);
@@ -254,7 +278,7 @@ function createNUXTipsOverlay(
           },
         };
       },
-      [initialCoordinates.width, initialCoordinates.x],
+      [initialCoordinates.width, initialCoordinates.x, tipContainerTranslateY],
     );
 
     // prettier-ignore
@@ -292,8 +316,16 @@ function createNUXTipsOverlay(
           },
         };
       },
-      [initialCoordinates.width, initialCoordinates.x],
+      [initialCoordinates.width, initialCoordinates.x, tipContainerTranslateY],
     );
+
+    let triangleDown = null;
+    let triangleUp = null;
+    if (tooltipLocation === 'above') {
+      triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
+    } else if (tooltipLocation === 'below') {
+      triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
+    }
 
     return (
       <TouchableWithoutFeedback onPress={goBackOnce}>
@@ -318,10 +350,11 @@ function createNUXTipsOverlay(
             entering={tipContainerEnteringAnimation}
             exiting={tipContainerExitingAnimation}
           >
-            <View style={[styles.triangleUp, triangleStyle]} />
+            {triangleUp}
             <View style={styles.items}>
               <Text style={styles.tipText}>{tipText}</Text>
             </View>
+            {triangleDown}
           </AnimatedView>
         </View>
       </TouchableWithoutFeedback>
