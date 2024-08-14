@@ -186,9 +186,6 @@ aws ecs update-service --cluster "$cluster_name" --service "$primary_service_nam
 echo "Waiting for health check at $health_check_domain to return status 200 OK"
 check_health
 
-echo "Primary node successfully running. Re-enabling public access to load balancer"
-enable_lb_traffic
-
 echo "Setting desired count of secondary service to $num_desired_secondary_nodes".
 aws ecs update-service --cluster "$cluster_name" --service "$secondary_service_name" --desired-count "$num_desired_secondary_nodes" --force-new-deployment > /dev/null
 
