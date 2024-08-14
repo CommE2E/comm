@@ -43,7 +43,7 @@ export const workerRequestMessageTypes = Object.freeze({
   REMOVE_INBOUND_P2P_MESSAGES: 17,
   GET_OUTBOUND_P2P_MESSAGES: 18,
   MARK_OUTBOUND_P2P_MESSAGE_AS_SENT: 19,
-  REMOVE_OUTBOUND_P2P_MESSAGES: 20,
+  REMOVE_OUTBOUND_P2P_MESSAGE: 20,
   GET_RELATED_MESSAGES: 21,
   GET_OUTBOUND_P2P_MESSAGES_BY_ID: 22,
   SEARCH_MESSAGES: 23,
@@ -59,7 +59,7 @@ export const workerWriteRequests: $ReadOnlyArray<number> = [
   workerRequestMessageTypes.INITIALIZE_CRYPTO_ACCOUNT,
   workerRequestMessageTypes.REMOVE_INBOUND_P2P_MESSAGES,
   workerRequestMessageTypes.MARK_OUTBOUND_P2P_MESSAGE_AS_SENT,
-  workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGES,
+  workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGE,
   workerRequestMessageTypes.RESET_OUTBOUND_P2P_MESSAGES,
 ];
 
@@ -188,7 +188,7 @@ export type MarkOutboundP2PMessageAsSentRequestMessage = {
   +deviceID: string,
 };
 
-export type RemoveOutboundP2PMessagesRequestMessage = {
+export type RemoveOutboundP2PMessageRequestMessage = {
   +type: 20,
   +messageID: string,
   +deviceID: string,
@@ -238,7 +238,7 @@ export type WorkerRequestMessage =
   | RemoveInboundP2PMessagesRequestMessage
   | GetOutboundP2PMessagesRequestMessage
   | MarkOutboundP2PMessageAsSentRequestMessage
-  | RemoveOutboundP2PMessagesRequestMessage
+  | RemoveOutboundP2PMessageRequestMessage
   | GetRelatedMessagesRequestMessage
   | GetOutboundP2PMessagesByIDRequestMessage
   | SearchMessagesRequestMessage

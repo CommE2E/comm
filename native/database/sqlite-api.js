@@ -22,8 +22,7 @@ const sqliteAPI: SQLiteAPI = {
   markOutboundP2PMessageAsSent: commCoreModule.markOutboundP2PMessageAsSent,
   resetOutboundP2PMessagesForDevice:
     commCoreModule.resetOutboundP2PMessagesForDevice,
-  removeOutboundP2PMessagesOlderThan:
-    commCoreModule.removeOutboundP2PMessagesOlderThan,
+  removeOutboundP2PMessage: commCoreModule.removeOutboundP2PMessage,
 
   async processDBStoreOperations(
     storeOperations: StoreOperations,
