@@ -6,12 +6,14 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 
 import ActionResultModal from './action-result-modal.react.js';
 import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';
+import CommunityDrawerTip from './community-drawer-tip.react.js';
 import { createOverlayNavigator } from './overlay-navigator.react.js';
 import type {
   OverlayNavigationProp,
   OverlayNavigationHelpers,
 } from './overlay-navigator.react.js';
 import type { RootNavigationProp } from './root-navigator.react.js';
+import { CommunityDrawerTipRouteName } from './route-names.js';
 import {
   UserAvatarCameraModalRouteName,
   ThreadAvatarCameraModalRouteName,
@@ -152,6 +154,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
         <App.Screen
           name={VideoPlaybackModalRouteName}
           component={VideoPlaybackModal}
+        />
+        <App.Screen
+          name={CommunityDrawerTipRouteName}
+          component={CommunityDrawerTip}
         />
         <App.Screen name={TogglePinModalRouteName} component={TogglePinModal} />
       </App.Navigator>

@@ -121,7 +121,7 @@ function opacityEnteringAnimation() {
 }
 
 function createNUXTipsOverlay<Route: NUXTipRouteNames>(
-  ButtonComponent: React.ComponentType<NUXTipsOverlayProps<Route>>,
+  ButtonComponent: React.ComponentType<void | NUXTipsOverlayProps<Route>>,
   tipText: string,
 ): React.ComponentType<NUXTipsOverlayProps<Route>> {
   function NUXTipsOverlay(props: NUXTipsOverlayProps<Route>) {
