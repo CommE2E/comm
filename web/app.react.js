@@ -24,6 +24,7 @@ import { NeynarClientProvider } from 'lib/components/neynar-client-provider.reac
 import PlatformDetailsSynchronizer from 'lib/components/platform-details-synchronizer.react.js';
 import { QRAuthProvider } from 'lib/components/qr-auth-provider.react.js';
 import { StaffContextProvider } from 'lib/components/staff-provider.react.js';
+import { DBOpsHandler } from 'lib/handlers/db-ops-handler.react.js';
 import { TunnelbrokerDeviceTokenHandler } from 'lib/handlers/tunnelbroker-device-token-handler.react.js';
 import { UserInfosHandler } from 'lib/handlers/user-infos-handler.react.js';
 import { IdentitySearchProvider } from 'lib/identity-search/identity-search-context.js';
@@ -54,7 +55,6 @@ import { EditModalProvider } from './chat/edit-message-provider.js';
 import { MemberListSidebarProvider } from './chat/member-list-sidebar/member-list-sidebar-provider.react.js';
 import { AutoJoinCommunityHandler } from './components/auto-join-community-handler.react.js';
 import CommunitiesRefresher from './components/communities-refresher.react.js';
-import { DBOpsHandler } from './components/db-ops-handler.react.js';
 import LogOutIfMissingCSATHandler from './components/log-out-if-missing-csat-handler.react.js';
 import NavigationArrows from './components/navigation-arrows.react.js';
 import MinVersionHandler from './components/version-handler.react.js';
