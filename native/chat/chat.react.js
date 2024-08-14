@@ -34,10 +34,15 @@ import { threadIsPending, threadIsSidebar } from 'lib/shared/thread-utils.js';
 
 import BackgroundChatThreadList from './background-chat-thread-list.react.js';
 import ChatHeader from './chat-header.react.js';
+import {
+  backgroundChatThreadListOptions,
+  homeChatThreadListOptions,
+} from './chat-options.js';
 import ChatRouter, {
   type ChatRouterNavigationHelpers,
   type ChatRouterNavigationAction,
 } from './chat-router.js';
+import TabBar from './chat-tab-bar.react.js';
 import ComposeSubchannel from './compose-subchannel.react.js';
 import ComposeThreadButton from './compose-thread-button.react.js';
 import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.react.js';
@@ -58,7 +63,6 @@ import {
   nuxTip,
   NUXTipsContext,
 } from '../components/nux-tips-context.react.js';
-import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react.js';
 import HeaderBackButton from '../navigation/header-back-button.react.js';
@@ -119,19 +123,6 @@ export type ChatTopTabsNavigationProp<
 export type ChatTopTabsNavigationHelpers =
   MaterialTopTabNavigationHelpers<ScreenParamList>;
 
-const homeChatThreadListOptions = {
-  title: threadSettingsNotificationsCopy.HOME,
-  tabBarIcon: ({ color }: { +color: string, ... }) => (
-    <SWMansionIcon name="home-1" size={22} style={{ color }} />
-  ),
-};
-const backgroundChatThreadListOptions = {
-  title: threadSettingsNotificationsCopy.MUTED,
-  tabBarIcon: ({ color }: { +color: string, ... }) => (
-    <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
-  ),
-};
-
 const ChatThreadsTopTab = createMaterialTopTabNavigator<
   ScreenParamList,
   ChatTopTabsParamList,
@@ -156,8 +147,9 @@ function ChatThreadsComponent(): React.Node {
     }),
     [tabBarAccent, tabBarBackground],
   );
+
   return (
-    <ChatThreadsTopTab.Navigator screenOptions={screenOptions}>
+    <ChatThreadsTopTab.Navigator screenOptions={screenOptions} tabBar={TabBar}>
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}
