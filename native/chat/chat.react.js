@@ -38,6 +38,7 @@ import ChatRouter, {
   type ChatRouterNavigationHelpers,
   type ChatRouterNavigationAction,
 } from './chat-router.js';
+import TabBar from './chat-tab-bar.react.js';
 import ComposeSubchannel from './compose-subchannel.react.js';
 import ComposeThreadButton from './compose-thread-button.react.js';
 import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.react.js';
@@ -119,15 +120,21 @@ export type ChatTopTabsNavigationProp<
 export type ChatTopTabsNavigationHelpers =
   MaterialTopTabNavigationHelpers<ScreenParamList>;
 
-const homeChatThreadListOptions = {
+const homeChatThreadListOptions: {
+  title: string,
+  tabBarIcon: ({ +color: string, ... }) => React$Node,
+} = {
   title: threadSettingsNotificationsCopy.HOME,
-  tabBarIcon: ({ color }: { +color: string, ... }) => (
+  tabBarIcon: ({ color }) => (
     <SWMansionIcon name="home-1" size={22} style={{ color }} />
   ),
 };
-const backgroundChatThreadListOptions = {
+const backgroundChatThreadListOptions: {
+  title: string,
+  tabBarIcon: ({ +color: string, ... }) => React$Node,
+} = {
   title: threadSettingsNotificationsCopy.MUTED,
-  tabBarIcon: ({ color }: { +color: string, ... }) => (
+  tabBarIcon: ({ color }) => (
     <SWMansionIcon name="bell-disabled" size={22} style={{ color }} />
   ),
 };
@@ -156,8 +163,9 @@ function ChatThreadsComponent(): React.Node {
     }),
     [tabBarAccent, tabBarBackground],
   );
+
   return (
-    <ChatThreadsTopTab.Navigator screenOptions={screenOptions}>
+    <ChatThreadsTopTab.Navigator screenOptions={screenOptions} tabBar={TabBar}>
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}
@@ -533,3 +541,5 @@ export default function ChatComponent(props: Props): React.Node {
     </View>
   );
 }
+
+export { backgroundChatThreadListOptions, homeChatThreadListOptions };
