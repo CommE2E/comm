@@ -4,8 +4,11 @@ import * as React from 'react';
 
 import { values } from 'lib/utils/objects.js';
 
+import {
+  CommunityDrawerTipRouteName,
+  MutedTabTipRouteName,
+} from '../navigation/route-names.js';
 import type { NUXTipRouteNames } from '../navigation/route-names.js';
-import { MutedTabTipRouteName } from '../navigation/route-names.js';
 
 const nuxTip = Object.freeze({
   COMMUNITY_DRAWER: 'community_drawer',
@@ -21,7 +24,15 @@ type NUXTipParams = {
   +nextRouteName: ?NUXTipRouteNames,
 };
 
-const nuxTipParams: { [NUXTip]: NUXTipParams } = {
+const firstNUXTipKey = 'firstTip';
+type NUXTipParamsKeys = NUXTip | 'firstTip';
+
+const nuxTipParams: { +[NUXTipParamsKeys]: NUXTipParams } = {
+  [firstNUXTipKey]: {
+    nextTip: nuxTip.COMMUNITY_DRAWER,
+    tooltipLocation: 'below',
+    nextRouteName: CommunityDrawerTipRouteName,
+  },
   [nuxTip.COMMUNITY_DRAWER]: {
     nextTip: nuxTip.MUTED,
     tooltipLocation: 'below',
@@ -34,7 +45,7 @@ const nuxTipParams: { [NUXTip]: NUXTipParams } = {
   },
 };
 
-function getNUXTipParams(currentTipKey: NUXTip): NUXTipParams {
+function getNUXTipParams(currentTipKey: NUXTipParamsKeys): NUXTipParams {
   return nuxTipParams[currentTipKey];
 }
 
@@ -49,7 +60,7 @@ type TipProps = {
 
 export type NUXTipsContextType = {
   +registerTipButton: (type: NUXTip, tipProps: ?TipProps) => void,
-  +getTipsProps: () => ?{ +[type: NUXTip]: TipProps },
+  +tipsProps: ?{ +[type: NUXTip]: TipProps },
 };
 
 const NUXTipsContext: React.Context<?NUXTipsContextType> =
@@ -62,33 +73,39 @@ type Props = {
 function NUXTipsContextProvider(props: Props): React.Node {
   const { children } = props;
 
-  const tipsProps = React.useRef<{ [tip: NUXTip]: ?TipProps }>({});
+  const [tipsPropsState, setTipsPropsState] = React.useState<{
+    +[tip: NUXTip]: ?TipProps,
+  }>(() => ({}));
 
   const registerTipButton = React.useCallback(
     (type: NUXTip, tipProps: ?TipProps) => {
-      tipsProps.current[type] = tipProps;
+      setTipsPropsState(currenttipsPropsState => {
+        const newtipsPropsState = { ...currenttipsPropsState };
+        newtipsPropsState[type] = tipProps;
+        return newtipsPropsState;
+      });
     },
     [],
   );
 
-  const getTipsProps = React.useCallback(() => {
+  const tipsProps = React.useMemo(() => {
     const result: { [tip: NUXTip]: TipProps } = {};
     for (const type of values(nuxTip)) {
-      if (!tipsProps.current[type]) {
+      if (!tipsPropsState[type]) {
         return null;
       }
-      result[type] = tipsProps.current[type];
+      result[type] = tipsPropsState[type];
     }
 
     return result;
-  }, []);
+  }, [tipsPropsState]);
 
   const value = React.useMemo(
     () => ({
       registerTipButton,
-      getTipsProps,
+      tipsProps,
     }),
-    [getTipsProps, registerTipButton],
+    [tipsProps, registerTipButton],
   );
 
   return (
@@ -96,4 +113,10 @@ function NUXTipsContextProvider(props: Props): React.Node {
   );
 }
 
-export { NUXTipsContext, NUXTipsContextProvider, nuxTip, getNUXTipParams };
+export {
+  NUXTipsContext,
+  NUXTipsContextProvider,
+  nuxTip,
+  getNUXTipParams,
+  firstNUXTipKey,
+};
