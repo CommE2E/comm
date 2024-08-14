@@ -12,7 +12,9 @@ import Animated, {
   type ExitAnimationsValues,
 } from 'react-native-reanimated';
 
+import LoadingButton from '../components/loading-button.react.js';
 import {
+  getNUXTipParams,
   NUXTipsContext,
   type NUXTip,
 } from '../components/nux-tips-context.react.js';
@@ -52,6 +54,7 @@ const unboundStyles = {
     backgroundColor: 'tooltipBackground',
     borderRadius: 5,
     overflow: 'hidden',
+    padding: 20,
   },
   triangleUp: {
     borderBottomColor: 'tooltipBackground',
@@ -84,7 +87,11 @@ const unboundStyles = {
   tipText: {
     color: 'panelForegroundLabel',
     fontSize: 20,
-    padding: 15,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    width: 100,
+    alignSelf: 'flex-end',
   },
 };
 
@@ -346,6 +353,28 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
     }
 
+    const callbackParams = getNUXTipParams(route.params.tipKey);
+
+    const onPressOk = React.useCallback(() => {
+      const {
+        nextTip,
+        tooltipLocation: nextLocation,
+        nextRouteName,
+      } = callbackParams;
+      goBackOnce();
+
+      if (!nextTip || !nextRouteName) {
+        return;
+      }
+      navigation.navigate<NUXTipRouteNames>({
+        name: nextRouteName,
+        params: {
+          tipKey: nextTip,
+          tooltipLocation: nextLocation,
+        },
+      });
+    }, [callbackParams, goBackOnce, navigation]);
+
     return (
       <TouchableWithoutFeedback onPress={goBackOnce}>
         <View style={styles.container}>
@@ -372,6 +401,13 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
             {triangleUp}
             <View style={styles.items}>
               <Text style={styles.tipText}>{tipText}</Text>
+              <View style={styles.buttonContainer}>
+                <LoadingButton
+                  onPress={onPressOk}
+                  label="Next"
+                  variant="enabled"
+                />
+              </View>
             </View>
             {triangleDown}
           </AnimatedView>
