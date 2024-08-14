@@ -129,7 +129,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     const { navigation, route } = props;
 
     const { initialCoordinates, verticalBounds } = React.useMemo(() => {
-      const tipsProps = nuxTipContext?.getTipsProps();
+      const tipsProps = nuxTipContext?.tipsProps;
       invariant(tipsProps, 'tips props should be defined in nux tips overlay');
       const { pageX, pageY, width, height } = tipsProps[route.params.tipKey];
 
