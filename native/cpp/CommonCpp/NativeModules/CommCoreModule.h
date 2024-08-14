@@ -252,7 +252,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       jsi::String messageID,
       jsi::String deviceID) override;
-  virtual jsi::Value removeOutboundP2PMessagesOlderThan(
+  virtual jsi::Value removeOutboundP2PMessage(
       jsi::Runtime &rt,
       jsi::String messageID,
       jsi::String deviceID) override;

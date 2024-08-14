@@ -2852,7 +2852,7 @@ jsi::Value CommCoreModule::markOutboundP2PMessageAsSent(
       });
 }
 
-jsi::Value CommCoreModule::removeOutboundP2PMessagesOlderThan(
+jsi::Value CommCoreModule::removeOutboundP2PMessage(
     jsi::Runtime &rt,
     jsi::String messageID,
     jsi::String deviceID) {
@@ -2864,8 +2864,8 @@ jsi::Value CommCoreModule::removeOutboundP2PMessagesOlderThan(
         taskType job = [=]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor()
-                .removeOutboundP2PMessagesOlderThan(messageIDCpp, deviceIDCpp);
+            DatabaseManager::getQueryExecutor().removeOutboundP2PMessage(
+                messageIDCpp, deviceIDCpp);
           } catch (std::system_error &e) {
             error = e.what();
           }

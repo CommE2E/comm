@@ -115,14 +115,14 @@ const sqliteAPI: SQLiteAPI = {
     return messageIDs ? [...messageIDs] : [];
   },
 
-  async removeOutboundP2PMessagesOlderThan(
+  async removeOutboundP2PMessage(
     messageID: string,
     deviceID: string,
   ): Promise<void> {
     const sharedWorker = await getCommSharedWorker();
 
     await sharedWorker.schedule({
-      type: workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGES,
+      type: workerRequestMessageTypes.REMOVE_OUTBOUND_P2P_MESSAGE,
       messageID,
       deviceID,
     });

@@ -291,8 +291,8 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
           "addOutboundP2PMessages",
           &SQLiteQueryExecutor::addOutboundP2PMessages)
       .function(
-          "removeOutboundP2PMessagesOlderThan",
-          &SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan)
+          "removeOutboundP2PMessage",
+          &SQLiteQueryExecutor::removeOutboundP2PMessage)
       .function(
           "removeAllOutboundP2PMessages",
           &SQLiteQueryExecutor::removeAllOutboundP2PMessages)
