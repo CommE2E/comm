@@ -169,6 +169,7 @@ export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
 export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
 export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
+export const MutedTabTipRouteName = 'MutedTabTip';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -199,7 +200,9 @@ export type RootParamList = {
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
-export type NUXTipRouteNames = typeof CommunityDrawerTipRouteName;
+export type NUXTipRouteNames =
+  | typeof CommunityDrawerTipRouteName
+  | typeof MutedTabTipRouteName;
 
 export type MessageTooltipRouteNames =
   | typeof RobotextMessageTooltipModalRouteName
@@ -229,6 +232,7 @@ export type OverlayParamList = {
   +VideoPlaybackModal: VideoPlaybackModalParams,
   +TogglePinModal: TogglePinModalParams,
   +CommunityDrawerTip: NUXTipsOverlayParams,
+  +MutedTabTip: NUXTipsOverlayParams,
   ...TooltipModalParamList,
 };
 
