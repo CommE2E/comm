@@ -14,7 +14,6 @@ import {
   parsePendingThreadID,
   createPendingThread,
 } from 'lib/shared/thread-utils.js';
-import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
 import {
   type CommunityLinks,
@@ -73,7 +72,6 @@ async function getInitialReduxStateResponder(
   request: InitialReduxStateRequest,
 ): Promise<ServerWebInitialReduxStateResponse> {
   const { urlInfo, excludedData, clientUpdatesCurrentAsOf } = request;
-  const useDatabase = viewer.loggedIn && canUseDatabaseOnWeb(viewer.userID);
 
   const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
     viewer.id,
@@ -117,10 +115,9 @@ async function getInitialReduxStateResponder(
     };
   })();
   const messageSelectionCriteria = { joinedThreads: true };
-  const serverUpdatesCurrentAsOf =
-    useDatabase && clientUpdatesCurrentAsOf
-      ? clientUpdatesCurrentAsOf
-      : Date.now();
+  const serverUpdatesCurrentAsOf = clientUpdatesCurrentAsOf
+    ? clientUpdatesCurrentAsOf
+    : Date.now();
 
   const threadInfoPromise = fetchThreadInfos(viewer);
   const messageInfoPromise = fetchMessageInfos(
@@ -144,7 +141,7 @@ async function getInitialReduxStateResponder(
   })();
 
   const threadStorePromise = (async () => {
-    if (excludedData.threadStore && useDatabase) {
+    if (excludedData.threadStore) {
       return { threadInfos: {} };
     }
     const [{ threadInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
@@ -187,7 +184,7 @@ async function getInitialReduxStateResponder(
     return freshStore;
   })();
   const finalMessageStorePromise: Promise<MessageStore> = (async () => {
-    if (excludedData.messageStore && useDatabase) {
+    if (excludedData.messageStore) {
       return {
         messages: {},
         threads: {},
@@ -216,7 +213,7 @@ async function getInitialReduxStateResponder(
     };
   })();
   const finalEntryStorePromise = (async () => {
-    if (excludedData.entryStore && useDatabase) {
+    if (excludedData.entryStore) {
       return {
         entryInfos: {},
         daysToEntries: {},
@@ -233,7 +230,7 @@ async function getInitialReduxStateResponder(
     return hasNotAcknowledgedPolicies ? {} : userInfos;
   })();
   const finalUserInfosPromise = (async () => {
-    if (excludedData.userStore && useDatabase) {
+    if (excludedData.userStore) {
       return {};
     }
     return await userInfosPromise;

@@ -11,7 +11,6 @@ import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-op
 import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
 import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
 import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
-import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type {
   ClientStore,
   StoreOperations,
@@ -163,7 +162,6 @@ async function getClientDBStore(): Promise<ClientStore> {
 
 async function processDBStoreOperations(
   storeOperations: StoreOperations,
-  userID?: ?string,
 ): Promise<void> {
   const {
     draftStoreOperations,
@@ -182,11 +180,8 @@ async function processDBStoreOperations(
     messageSearchStoreOperations,
   } = storeOperations;
 
-  const canUseDatabase = canUseDatabaseOnWeb(userID);
-
-  const convertedThreadStoreOperations = canUseDatabase
-    ? threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations)
-    : [];
+  const convertedThreadStoreOperations =
+    threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations);
   const convertedReportStoreOperations =
     reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
   const convertedKeyserverStoreOperations =
@@ -257,19 +252,16 @@ async function processDBStoreOperations(
     });
   } catch (e) {
     console.log(e);
-    if (canUseDatabase) {
-      window.alert(e.message);
-      if (
-        entries(storeOperations).some(
-          ([key, ops]) =>
-            key !== 'draftStoreOperations' &&
-            key !== 'reportStoreOperations' &&
-            ops.length > 0,
-        )
-      ) {
-        await sharedWorker.init({ clearDatabase: true, markAsCorrupted: true });
-        location.reload();
-      }
+    if (
+      entries(storeOperations).some(
+        ([key, ops]) =>
+          key !== 'draftStoreOperations' &&
+          key !== 'reportStoreOperations' &&
+          ops.length > 0,
+      )
+    ) {
+      await sharedWorker.init({ clearDatabase: true, markAsCorrupted: true });
+      location.reload();
     }
   }
 }

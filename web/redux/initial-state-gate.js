@@ -11,7 +11,6 @@ import type { ThreadStoreOperation } from 'lib/ops/thread-store-ops.js';
 import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
-import { canUseDatabaseOnWeb } from 'lib/shared/web-database.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
@@ -89,9 +88,8 @@ function InitialReduxStateGate(props: Props): React.Node {
         const currentLoggedInUserID = payload.currentUserInfo?.anonymous
           ? null
           : payload.currentUserInfo?.id;
-        const useDatabase = canUseDatabaseOnWeb(currentLoggedInUserID);
 
-        if (!currentLoggedInUserID || !useDatabase) {
+        if (!currentLoggedInUserID) {
           dispatch({ type: setInitialReduxState, payload });
           return;
         }
@@ -168,24 +166,21 @@ function InitialReduxStateGate(props: Props): React.Node {
           const messageSearchStoreOperations = getMessageSearchStoreOps(
             messageStoreOperations,
           );
-          await processDBStoreOperations(
-            {
-              threadStoreOperations,
-              draftStoreOperations: [],
-              messageStoreOperations,
-              reportStoreOperations: [],
-              userStoreOperations,
-              keyserverStoreOperations: [],
-              communityStoreOperations: [],
-              integrityStoreOperations: [],
-              syncedMetadataStoreOperations: [],
-              auxUserStoreOperations: [],
-              threadActivityStoreOperations: [],
-              entryStoreOperations,
-              messageSearchStoreOperations,
-            },
-            currentLoggedInUserID,
-          );
+          await processDBStoreOperations({
+            threadStoreOperations,
+            draftStoreOperations: [],
+            messageStoreOperations,
+            reportStoreOperations: [],
+            userStoreOperations,
+            keyserverStoreOperations: [],
+            communityStoreOperations: [],
+            integrityStoreOperations: [],
+            syncedMetadataStoreOperations: [],
+            auxUserStoreOperations: [],
+            threadActivityStoreOperations: [],
+            entryStoreOperations,
+            messageSearchStoreOperations,
+          });
         }
 
         dispatch({
