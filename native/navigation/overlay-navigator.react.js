@@ -39,11 +39,11 @@ import type {
 import {
   scrollBlockingModals,
   TabNavigatorRouteName,
-  NUXTipsOverlayRouteName,
+  CommunityDrawerTipRouteName,
 } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
-const newReanimatedRoutes = new Set([NUXTipsOverlayRouteName]);
+const newReanimatedRoutes = new Set([CommunityDrawerTipRouteName]);
 
 export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
   {

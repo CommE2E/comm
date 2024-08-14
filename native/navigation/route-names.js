@@ -167,7 +167,7 @@ export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
 export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
 export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
-export const NUXTipsOverlayRouteName = 'NUXTipsOverlay';
+export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -197,6 +197,8 @@ export type RootParamList = {
   +RestoreSIWEBackup: RestoreSIWEBackupParams,
 };
 
+export type NUXTipRouteNames = typeof CommunityDrawerTipRouteName;
+
 export type MessageTooltipRouteNames =
   | typeof RobotextMessageTooltipModalRouteName
   | typeof MultimediaMessageTooltipModalRouteName
@@ -224,7 +226,7 @@ export type OverlayParamList = {
   +ThreadAvatarCameraModal: ThreadAvatarCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   +TogglePinModal: TogglePinModalParams,
-  +NUXTipsOverlay: NUXTipsOverlayParams,
+  +CommunityDrawerTip: NUXTipsOverlayParams,
   ...TooltipModalParamList,
 };
 
