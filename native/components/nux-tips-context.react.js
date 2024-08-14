@@ -4,20 +4,45 @@ import * as React from 'react';
 
 import { values } from 'lib/utils/objects.js';
 
+import type { NUXTipRouteNames } from '../navigation/route-names.js';
+
 const nuxTip = Object.freeze({
-  MUTED: 'muted',
   COMMUNITY_DRAWER: 'community_drawer',
+  MUTED: 'muted',
 });
 
-type NUXTip = $Values<typeof nuxTip>;
+export type NUXTip = $Values<typeof nuxTip>;
+
+type NUXTipParams = {
+  +nextTip: ?NUXTip,
+  +tooltipLocation: 'below' | 'above',
+  +nextRouteName: ?NUXTipRouteNames,
+};
+
+const nuxTipParams: { [NUXTip]: NUXTipParams } = {
+  [nuxTip.COMMUNITY_DRAWER]: {
+    nextTip: nuxTip.MUTED,
+    tooltipLocation: 'below',
+    nextRouteName: undefined, //TODO: update to the next screens name
+  },
+  [nuxTip.MUTED]: {
+    nextTip: undefined,
+    nextRouteName: undefined,
+    tooltipLocation: 'below',
+  },
+};
+
+function getNUXTipParams(currentTipKey: NUXTip): NUXTipParams {
+  return nuxTipParams[currentTipKey];
+}
 
 type TipProps = {
-  +x: ?number,
-  +y: ?number,
-  +width: ?number,
-  +height: ?number,
-  +pageX: ?number,
-  +pageY: ?number,
+  +x: number,
+  +y: number,
+  +width: number,
+  +height: number,
+  +pageX: number,
+  +pageY: number,
 };
 
 export type NUXTipsContextType = {
@@ -69,4 +94,4 @@ function NUXTipsContextProvider(props: Props): React.Node {
   );
 }
 
-export { NUXTipsContext, NUXTipsContextProvider, nuxTip };
+export { NUXTipsContext, NUXTipsContextProvider, nuxTip, getNUXTipParams };
