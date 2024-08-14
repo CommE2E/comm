@@ -1,19 +1,7 @@
 // @flow
 
-import { auxUserStoreOpsHandlers } from 'lib/ops/aux-user-store-ops.js';
-import { communityStoreOpsHandlers } from 'lib/ops/community-store-ops.js';
-import { entryStoreOpsHandlers } from 'lib/ops/entries-store-ops.js';
-import { integrityStoreOpsHandlers } from 'lib/ops/integrity-store-ops.js';
-import {
-  getKeyserversToRemoveFromNotifsStore,
-  keyserverStoreOpsHandlers,
-} from 'lib/ops/keyserver-store-ops.js';
-import { messageStoreOpsHandlers } from 'lib/ops/message-store-ops.js';
-import { reportStoreOpsHandlers } from 'lib/ops/report-store-ops.js';
-import { syncedMetadataStoreOpsHandlers } from 'lib/ops/synced-metadata-store-ops.js';
-import { threadActivityStoreOpsHandlers } from 'lib/ops/thread-activity-store-ops.js';
-import { threadStoreOpsHandlers } from 'lib/ops/thread-store-ops.js';
-import { userStoreOpsHandlers } from 'lib/ops/user-store-ops.js';
+import { getKeyserversToRemoveFromNotifsStore } from 'lib/ops/keyserver-store-ops.js';
+import { convertStoreOperationsToClientDBStoreOperations } from 'lib/shared/redux/client-db-utils.js';
 import type { SQLiteAPI } from 'lib/types/sqlite-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types';
 import { values } from 'lib/utils/objects.js';
@@ -40,57 +28,10 @@ const sqliteAPI: SQLiteAPI = {
   async processDBStoreOperations(
     storeOperations: StoreOperations,
   ): Promise<void> {
-    const {
-      draftStoreOperations,
-      threadStoreOperations,
-      messageStoreOperations,
-      reportStoreOperations,
-      keyserverStoreOperations,
-      userStoreOperations,
-      integrityStoreOperations,
-      communityStoreOperations,
-      syncedMetadataStoreOperations,
-      auxUserStoreOperations,
-      threadActivityStoreOperations,
-      outboundP2PMessages,
-      entryStoreOperations,
-      messageSearchStoreOperations,
-    } = storeOperations;
-
-    const convertedThreadStoreOperations =
-      threadStoreOpsHandlers.convertOpsToClientDBOps(threadStoreOperations);
-    const convertedMessageStoreOperations =
-      messageStoreOpsHandlers.convertOpsToClientDBOps(messageStoreOperations);
-    const convertedReportStoreOperations =
-      reportStoreOpsHandlers.convertOpsToClientDBOps(reportStoreOperations);
-    const convertedUserStoreOperations =
-      userStoreOpsHandlers.convertOpsToClientDBOps(userStoreOperations);
-    const convertedKeyserverStoreOperations =
-      keyserverStoreOpsHandlers.convertOpsToClientDBOps(
-        keyserverStoreOperations,
-      );
-    const convertedCommunityStoreOperations =
-      communityStoreOpsHandlers.convertOpsToClientDBOps(
-        communityStoreOperations,
-      );
-    const convertedSyncedMetadataStoreOperations =
-      syncedMetadataStoreOpsHandlers.convertOpsToClientDBOps(
-        syncedMetadataStoreOperations,
-      );
     const keyserversToRemoveFromNotifsStore =
-      getKeyserversToRemoveFromNotifsStore(keyserverStoreOperations ?? []);
-    const convertedIntegrityStoreOperations =
-      integrityStoreOpsHandlers.convertOpsToClientDBOps(
-        integrityStoreOperations,
+      getKeyserversToRemoveFromNotifsStore(
+        storeOperations.keyserverStoreOperations ?? [],
       );
-    const convertedAuxUserStoreOperations =
-      auxUserStoreOpsHandlers.convertOpsToClientDBOps(auxUserStoreOperations);
-    const convertedThreadActivityStoreOperations =
-      threadActivityStoreOpsHandlers.convertOpsToClientDBOps(
-        threadActivityStoreOperations,
-      );
-    const convertedEntryStoreOperations =
-      entryStoreOpsHandlers.convertOpsToClientDBOps(entryStoreOperations);
 
     try {
       const promises = [];
@@ -102,22 +43,8 @@ const sqliteAPI: SQLiteAPI = {
         );
       }
 
-      const dbOps = {
-        draftStoreOperations,
-        threadStoreOperations: convertedThreadStoreOperations,
-        messageStoreOperations: convertedMessageStoreOperations,
-        reportStoreOperations: convertedReportStoreOperations,
-        userStoreOperations: convertedUserStoreOperations,
-        keyserverStoreOperations: convertedKeyserverStoreOperations,
-        communityStoreOperations: convertedCommunityStoreOperations,
-        integrityStoreOperations: convertedIntegrityStoreOperations,
-        syncedMetadataStoreOperations: convertedSyncedMetadataStoreOperations,
-        auxUserStoreOperations: convertedAuxUserStoreOperations,
-        threadActivityStoreOperations: convertedThreadActivityStoreOperations,
-        outboundP2PMessages,
-        entryStoreOperations: convertedEntryStoreOperations,
-        messageSearchStoreOperations,
-      };
+      const dbOps =
+        convertStoreOperationsToClientDBStoreOperations(storeOperations);
       if (values(dbOps).some(ops => ops && ops.length > 0)) {
         promises.push(commCoreModule.processDBStoreOperations(dbOps));
       }
