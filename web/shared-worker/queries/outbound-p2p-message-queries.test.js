@@ -105,26 +105,17 @@ describe('Outbound P2P messages queries', () => {
     expect(messages).toStrictEqual(messagesOrdered);
   });
 
-  it('should not remove messages for a different deviceID', () => {
-    queryExecutor?.removeOutboundP2PMessagesOlderThan(
+  it('should remove message', () => {
+    queryExecutor?.removeOutboundP2PMessage(
       TEST_MSG_4.messageID,
       TEST_MSG_4.deviceID,
     );
 
-    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(1);
+    expect(queryExecutor?.getAllOutboundP2PMessages().length).toBe(3);
     expect(queryExecutor?.getAllOutboundP2PMessages()).toStrictEqual([
+      TEST_MSG_3,
+      TEST_MSG_1,
       TEST_MSG_2,
-    ]);
-  });
-
-  it('should remove older messages', () => {
-    queryExecutor?.removeOutboundP2PMessagesOlderThan(
-      TEST_MSG_1.messageID,
-      TEST_MSG_1.deviceID,
-    );
-    expect(queryExecutor?.getAllOutboundP2PMessages()).toStrictEqual([
-      TEST_MSG_2,
-      TEST_MSG_4,
     ]);
   });
 

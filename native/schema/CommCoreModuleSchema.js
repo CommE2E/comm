@@ -181,7 +181,7 @@ interface Spec extends TurboModule {
     messageID: string,
     deviceID: string,
   ) => Promise<void>;
-  +removeOutboundP2PMessagesOlderThan: (
+  +removeOutboundP2PMessage: (
     messageID: string,
     deviceID: string,
   ) => Promise<void>;

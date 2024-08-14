@@ -2488,24 +2488,19 @@ SQLiteQueryExecutor::getAllOutboundP2PMessages() const {
   return messages;
 }
 
-void SQLiteQueryExecutor::removeOutboundP2PMessagesOlderThan(
-    std::string lastConfirmedMessageID,
+void SQLiteQueryExecutor::removeOutboundP2PMessage(
+    std::string confirmedMessageID,
     std::string deviceID) const {
   std::string query =
       "DELETE FROM outbound_p2p_messages "
-      "WHERE timestamp <= ("
-      "  SELECT timestamp "
-      "  FROM outbound_p2p_messages"
-      "  WHERE message_id = ?"
-      ") "
-      "AND device_id IN (?);";
+      "WHERE message_id = ? AND device_id = ?;";
 
   comm::SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       query,
       "Failed to remove messages to device");
 
-  bindStringToSQL(lastConfirmedMessageID.c_str(), preparedSQL, 1);
+  bindStringToSQL(confirmedMessageID.c_str(), preparedSQL, 1);
   bindStringToSQL(deviceID.c_str(), preparedSQL, 2);
 
   sqlite3_step(preparedSQL);
