@@ -44,6 +44,7 @@ import type {
   ChatTopTabsNavigationProp,
 } from './chat.react.js';
 import { useNavigateToThread } from './message-list-types.js';
+import { NUXHandler } from '../components/nux-handler.react.js';
 import {
   BackgroundChatThreadListRouteName,
   HomeChatThreadListRouteName,
@@ -387,6 +388,7 @@ function ChatThreadList(props: BaseProps): React.Node {
           ref={flatListRef}
         />
         {floatingAction}
+        <NUXHandler />
       </View>
     ),
     [
