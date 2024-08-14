@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {
   getAvatarForUser,
-  useENSResolvedAvatar,
+  useResolvedAvatar,
 } from 'lib/shared/avatar-utils.js';
 import type { AvatarSize } from 'lib/types/avatar-types.js';
 
@@ -25,7 +25,7 @@ function UserAvatar(props: Props): React.Node {
   );
   const avatarInfo = getAvatarForUser(userInfo);
 
-  const resolvedUserAvatar = useENSResolvedAvatar(avatarInfo, userInfo);
+  const resolvedUserAvatar = useResolvedAvatar(avatarInfo, userInfo);
 
   return (
     <Avatar
