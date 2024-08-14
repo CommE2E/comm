@@ -59,6 +59,7 @@ import ThreadScreenPruner from './thread-screen-pruner.react.js';
 import ThreadSettingsButton from './thread-settings-button.react.js';
 import ThreadSettingsHeaderTitle from './thread-settings-header-title.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import { NUXHandler } from '../components/nux-handler.react.js';
 import {
   nuxTip,
   NUXTipsContext,
@@ -520,6 +521,7 @@ export default function ChatComponent(props: Props): React.Node {
         </Chat.Navigator>
         <MessageStorePruner frozen={frozen} activeThreadID={activeThreadID} />
         <ThreadScreenPruner />
+        <NUXHandler />
         {draftUpdater}
       </KeyboardAvoidingView>
     </View>
