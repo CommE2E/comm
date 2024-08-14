@@ -12,6 +12,7 @@ import type { UserStoreOperation } from 'lib/ops/user-store-ops.js';
 import { getMessageSearchStoreOps } from 'lib/reducers/db-ops-reducer.js';
 import { allUpdatesCurrentAsOfSelector } from 'lib/selectors/keyserver-selectors.js';
 import type { RawThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { getConfig } from 'lib/utils/config.js';
 import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
@@ -24,10 +25,7 @@ import {
 import { useSelector } from './redux-utils.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import Loading from '../loading.react.js';
-import {
-  getClientDBStore,
-  processDBStoreOperations,
-} from '../shared-worker/utils/store.js';
+import { getClientDBStore } from '../shared-worker/utils/store.js';
 import type { InitialReduxStateActionPayload } from '../types/redux-types.js';
 
 type Props = {
@@ -166,7 +164,8 @@ function InitialReduxStateGate(props: Props): React.Node {
           const messageSearchStoreOperations = getMessageSearchStoreOps(
             messageStoreOperations,
           );
-          await processDBStoreOperations({
+          const { sqliteAPI } = getConfig();
+          await sqliteAPI.processDBStoreOperations({
             threadStoreOperations,
             draftStoreOperations: [],
             messageStoreOperations,
