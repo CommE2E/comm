@@ -62,26 +62,26 @@ type Props = {
 function NUXTipsContextProvider(props: Props): React.Node {
   const { children } = props;
 
-  const tipsProps = React.useRef<{ [tip: NUXTip]: ?TipProps }>({});
+  const tipsProps = React.useMemo<{ [tip: NUXTip]: ?TipProps }>(() => ({}), []);
 
   const registerTipButton = React.useCallback(
     (type: NUXTip, tipProps: ?TipProps) => {
-      tipsProps.current[type] = tipProps;
+      tipsProps[type] = tipProps;
     },
-    [],
+    [tipsProps],
   );
 
   const getTipsProps = React.useCallback(() => {
     const result: { [tip: NUXTip]: TipProps } = {};
     for (const type of values(nuxTip)) {
-      if (!tipsProps.current[type]) {
+      if (!tipsProps[type]) {
         return null;
       }
-      result[type] = tipsProps.current[type];
+      result[type] = tipsProps[type];
     }
 
     return result;
-  }, []);
+  }, [tipsProps]);
 
   const value = React.useMemo(
     () => ({
