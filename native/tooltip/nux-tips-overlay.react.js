@@ -12,9 +12,14 @@ import Animated, {
   type ExitAnimationsValues,
 } from 'react-native-reanimated';
 
+import { NUXTipsContext } from '../components/nux-tips-context.react.js';
+import type { NUXTip } from '../components/nux-tips-context.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
-import type { NavigationRoute } from '../navigation/route-names.js';
+import type {
+  NavigationRoute,
+  NUXTipRouteNames,
+} from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStyles } from '../themes/colors.js';
 import type {
@@ -86,14 +91,13 @@ const unboundStyles = {
 };
 
 export type NUXTipsOverlayParams = {
-  +initialCoordinates: LayoutCoordinates,
-  +verticalBounds: VerticalBounds,
+  +tipKey: NUXTip,
   +tooltipLocation: 'above' | 'below',
 };
 
-export type NUXTipsOverlayProps = {
-  +navigation: AppNavigationProp<'NUXTipsOverlay'>,
-  +route: NavigationRoute<'NUXTipsOverlay'>,
+export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
+  +navigation: AppNavigationProp<Route>,
+  +route: NavigationRoute<Route>,
 };
 
 const margin: number = 20;
@@ -112,17 +116,39 @@ function opacityEnteringAnimation() {
   };
 }
 
-function createNUXTipsOverlay(
-  ButtonComponent: React.ComponentType<NUXTipsOverlayProps>,
+function useCoordinates(): (tipKey: NUXTip) => {
+  initialCoordinates: LayoutCoordinates,
+  verticalBounds: VerticalBounds,
+} {
+  const nuxTipContext = React.useContext(NUXTipsContext);
+
+  return React.useCallback(
+    tipKey => {
+      const tipsProps = nuxTipContext?.getTipsProps();
+      invariant(tipsProps, 'tips props should be defined in nux tips overlay');
+      const { pageX, pageY, width, height } = tipsProps[tipKey];
+      const initialCoordinates = { height, width, x: pageX, y: pageY };
+      const verticalBounds = { height, y: pageY };
+
+      return { initialCoordinates, verticalBounds };
+    },
+    [nuxTipContext],
+  );
+}
+
+function createNUXTipsOverlay<Route: NUXTipRouteNames>(
+  ButtonComponent: React.ComponentType<NUXTipsOverlayProps<Route>>,
   tipText: string,
-): React.ComponentType<NUXTipsOverlayProps> {
-  function NUXTipsOverlay(props: NUXTipsOverlayProps) {
+): React.ComponentType<NUXTipsOverlayProps<Route>> {
+  function NUXTipsOverlay(props: NUXTipsOverlayProps<Route>) {
+    const { navigation, route } = props;
+    const { initialCoordinates, verticalBounds } = useCoordinates()(
+      route.params.tipKey,
+    );
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
     const { animationCallback } = overlayContext;
-
-    const { navigation, route } = props;
 
     const { goBackOnce } = navigation;
 
@@ -132,7 +158,6 @@ function createNUXTipsOverlay(
       route.params.tooltipLocation === 'below' ? -80 : 80;
 
     const contentContainerStyle = React.useMemo(() => {
-      const { verticalBounds } = route.params;
       const fullScreenHeight = dimensions.height;
       const top = verticalBounds.y;
       const bottom =
@@ -142,9 +167,12 @@ function createNUXTipsOverlay(
         marginTop: top,
         marginBottom: bottom,
       };
-    }, [dimensions.height, route.params, styles.contentContainer]);
-
-    const { initialCoordinates, verticalBounds } = props.route.params;
+    }, [
+      dimensions.height,
+      styles.contentContainer,
+      verticalBounds.height,
+      verticalBounds.y,
+    ]);
 
     const buttonStyle = React.useMemo(() => {
       const { x, y, width, height } = initialCoordinates;
@@ -361,16 +389,15 @@ function createNUXTipsOverlay(
     );
   }
 
-  function NUXTipsOverlayWrapper(props: NUXTipsOverlayProps) {
+  function NUXTipsOverlayWrapper(props: NUXTipsOverlayProps<Route>) {
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
-
     const { renderChild } = overlayContext;
 
     return renderChild ? <NUXTipsOverlay {...props} /> : null;
   }
 
-  return React.memo<NUXTipsOverlayProps>(NUXTipsOverlayWrapper);
+  return React.memo<NUXTipsOverlayProps<Route>>(NUXTipsOverlayWrapper);
 }
 
 export { createNUXTipsOverlay };
