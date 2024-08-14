@@ -5,6 +5,7 @@ import * as React from 'react';
 import { values } from 'lib/utils/objects.js';
 
 import type { NUXTipRouteNames } from '../navigation/route-names.js';
+import { MutedTabTipRouteName } from '../navigation/route-names.js';
 
 const nuxTip = Object.freeze({
   COMMUNITY_DRAWER: 'community_drawer',
@@ -24,7 +25,7 @@ const nuxTipParams: { [NUXTip]: NUXTipParams } = {
   [nuxTip.COMMUNITY_DRAWER]: {
     nextTip: nuxTip.MUTED,
     tooltipLocation: 'below',
-    nextRouteName: undefined, //TODO: update to the next screens name
+    nextRouteName: MutedTabTipRouteName,
   },
   [nuxTip.MUTED]: {
     nextTip: undefined,
