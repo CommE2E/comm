@@ -40,10 +40,14 @@ import {
   scrollBlockingModals,
   TabNavigatorRouteName,
   CommunityDrawerTipRouteName,
+  MutedTabTipRouteName,
 } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
-const newReanimatedRoutes = new Set([CommunityDrawerTipRouteName]);
+const newReanimatedRoutes = new Set([
+  CommunityDrawerTipRouteName,
+  MutedTabTipRouteName,
+]);
 
 export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
   {
