@@ -9,6 +9,7 @@ import type { NUXTipRouteNames } from '../navigation/route-names.js';
 const nuxTip = Object.freeze({
   COMMUNITY_DRAWER: 'community_drawer',
   MUTED: 'muted',
+  HOME: 'home',
 });
 
 export type NUXTip = $Values<typeof nuxTip>;
