@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { NeynarClientContext } from 'lib/components/neynar-client-provider.react.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
@@ -61,7 +62,7 @@ function ConnectFarcaster(prop: Props): React.Node {
 
   const { ethereumAccount } = cachedSelections;
   const goToNextStep = React.useCallback(
-    (fid?: ?string) => {
+    (fid?: ?string, farcasterAvatarURL: ?string) => {
       setWebViewState('closed');
       invariant(
         !ethereumAccount || ethereumAccount.nonceTimestamp,
@@ -85,6 +86,7 @@ function ConnectFarcaster(prop: Props): React.Node {
             userSelections: {
               ...userSelections,
               farcasterID: fid,
+              farcasterAvatarURL: farcasterAvatarURL,
             },
           },
         });
@@ -95,6 +97,7 @@ function ConnectFarcaster(prop: Props): React.Node {
         ...userSelections,
         farcasterID: fid,
         accountSelection: ethereumAccount,
+        farcasterAvatarURL: farcasterAvatarURL,
       };
       setSkipEthereumLoginOnce(false);
       navigate<'AvatarSelection'>({
@@ -119,12 +122,19 @@ function ConnectFarcaster(prop: Props): React.Node {
     identityServiceClient?.identityClient.getFarcasterUsers;
   invariant(getFarcasterUsers, 'Could not get getFarcasterUsers');
 
+  const neynarClient = React.useContext(NeynarClientContext);
+  const getFCAvatarURLs = neynarClient?.getFCAvatarURLs;
+  invariant(getFCAvatarURLs, 'Could not get getFCAvatarURLs');
+
   const [queuedAlert, setQueuedAlert] = React.useState<?AlertDetails>();
 
   const onSuccess = React.useCallback(
     async (fid: string) => {
       try {
-        const commFCUsers = await getFarcasterUsers([fid]);
+        const [commFCUsers, farcasterAvatarURLs] = await Promise.all([
+          getFarcasterUsers([fid]),
+          getFCAvatarURLs([{ fid, pfpURL: null }]),
+        ]);
         if (commFCUsers.length > 0 && commFCUsers[0].farcasterID === fid) {
           const commUsername = commFCUsers[0].username;
 
@@ -134,10 +144,15 @@ function ConnectFarcaster(prop: Props): React.Node {
           setQueuedAlert(alert);
           setWebViewState('closed');
         } else {
-          goToNextStep(fid);
+          const farcasterAvatarURL =
+            farcasterAvatarURLs.length > 0 && farcasterAvatarURLs[0].pfpURL
+              ? farcasterAvatarURLs[0].pfpURL
+              : null;
+          goToNextStep(fid, farcasterAvatarURL);
           setCachedSelections(oldUserSelections => ({
             ...oldUserSelections,
             farcasterID: fid,
+            farcasterAvatarURL: farcasterAvatarURL ?? undefined,
           }));
         }
       } catch (e) {
@@ -150,7 +165,7 @@ function ConnectFarcaster(prop: Props): React.Node {
         setWebViewState('closed');
       }
     },
-    [goToNextStep, setCachedSelections, getFarcasterUsers],
+    [getFarcasterUsers, getFCAvatarURLs, goToNextStep, setCachedSelections],
   );
 
   const isAppForegrounded = useIsAppForegrounded();
@@ -162,7 +177,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     setQueuedAlert(null);
   }, [queuedAlert, isAppForegrounded]);
 
-  const { farcasterID } = cachedSelections;
+  const { farcasterID, farcasterAvatarURL } = cachedSelections;
   const alreadyHasConnected = !!farcasterID;
 
   const onPressConnectFarcaster = React.useCallback(() => {
@@ -185,8 +200,8 @@ function ConnectFarcaster(prop: Props): React.Node {
       farcasterID,
       'farcasterID should be set in onUseAlreadyConnectedAccount',
     );
-    goToNextStep(farcasterID);
-  }, [farcasterID, goToNextStep]);
+    goToNextStep(farcasterID, farcasterAvatarURL);
+  }, [farcasterAvatarURL, farcasterID, goToNextStep]);
 
   const alreadyConnectedButton = React.useMemo(() => {
     if (!alreadyHasConnected) {
