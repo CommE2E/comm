@@ -4,7 +4,7 @@ import { getCommConfig } from 'lib/utils/comm-config.js';
 import {
   getFCNames as baseGetFCNames,
   type GetFCNames,
-  type BaseFCInfo,
+  type BaseFCNamesInfo,
 } from 'lib/utils/farcaster-helpers.js';
 import { FCCache } from 'lib/utils/fc-cache.js';
 import { NeynarClient } from 'lib/utils/neynar-client.js';
@@ -24,7 +24,7 @@ async function initFCCache() {
   }
   neynarClient = new NeynarClient(neynarKey);
   const fcCache = new FCCache(neynarClient);
-  getFCNames = <T: ?BaseFCInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
+  getFCNames = <T: ?BaseFCNamesInfo>(users: $ReadOnlyArray<T>): Promise<T[]> =>
     baseGetFCNames(fcCache, users);
 }
 
