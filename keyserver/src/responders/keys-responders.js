@@ -2,12 +2,15 @@
 
 import type { Account as OlmAccount } from '@commapp/olm';
 
+import { type RecreateNotifsOlmSessionRequest } from 'lib/types/keyserver-types.js';
 import type {
   OlmSessionInitializationInfo,
   GetOlmSessionInitializationDataResponse,
 } from 'lib/types/request-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { createAndPersistOlmSession } from '../creators/olm-session-creator.js';
+import type { Viewer } from '../session/viewer.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 
 type SessionInitializationKeysSet = {
@@ -96,4 +99,25 @@ async function getOlmSessionInitializationDataResponder(): Promise<GetOlmSession
   };
 }
 
-export { getOlmSessionInitializationDataResponder };
+async function recreateNotifsOlmSessionResponder(
+  viewer: Viewer,
+  request: RecreateNotifsOlmSessionRequest,
+): Promise<void> {
+  const {
+    initialEncryptedMessage,
+    identityKeysBlob: {
+      notificationIdentityPublicKeys: { curve25519 },
+    },
+  } = request;
+  await createAndPersistOlmSession(
+    initialEncryptedMessage,
+    'notifications',
+    viewer.cookieID,
+    curve25519,
+  );
+}
+
+export {
+  getOlmSessionInitializationDataResponder,
+  recreateNotifsOlmSessionResponder,
+};
