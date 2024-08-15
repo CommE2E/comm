@@ -52,6 +52,7 @@ export type ConnectEthereumParams = {
     +coolOrNerdMode?: ?CoolOrNerdMode,
     +keyserverURL?: ?string,
     +farcasterID: ?string,
+    +farcasterAvatarURL: ?string,
   },
 };
 
