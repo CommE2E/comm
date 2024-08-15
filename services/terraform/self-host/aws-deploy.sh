@@ -77,10 +77,10 @@ check_health() {
 disable_general_lb_traffic() {
   # disables general ip access
   aws ec2 revoke-security-group-ingress \
-      --group-id "$keyserver_lb_sg_id" \
-      --protocol tcp \
-      --port 443 \
-      --cidr 0.0.0.0/0 > /dev/null
+    --group-id "$keyserver_lb_sg_id" \
+    --protocol tcp \
+    --port 443 \
+    --cidr 0.0.0.0/0 > /dev/null
 
   # enables traffic only for ip calling aws deploy script
   aws ec2 authorize-security-group-ingress \
@@ -99,10 +99,10 @@ enable_lb_traffic() {
 
   # disables personal ip address ingress rule as no longer necessary
   aws ec2 revoke-security-group-ingress \
-      --group-id "$keyserver_lb_sg_id" \
-      --protocol tcp \
-      --port 443 \
-      --cidr "${ip_address}/32" > /dev/null
+    --group-id "$keyserver_lb_sg_id" \
+    --protocol tcp \
+    --port 443 \
+    --cidr "${ip_address}/32" > /dev/null
 }
 
 # Check if initial deployment is required
@@ -131,9 +131,9 @@ http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$health_check_u
 if [[ "$http_code" -eq 000 ]]; then
   echo "Error: Health check timed out trying to access keyserver domain at ${health_check_url}."
 
-    echo "Re-enabling traffic to load balancer until domain is accessible and migration script is rerun"
-    enable_lb_traffic
-    exit 1
+  echo "Re-enabling traffic to load balancer until domain is accessible and migration script is rerun"
+  enable_lb_traffic
+  exit 1
 fi
 
 echo "Set desired count of secondary service to 0"
@@ -163,17 +163,17 @@ echo "Waiting until primary and secondary nodes have been shutdown"
 total_elapsed_time=0
 retry_interval=10
 while true; do
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" "$health_check_url")
+  http_code=$(curl -s -o /dev/null -w "%{http_code}" "$health_check_url")
 
-    echo "Health check returned status $http_code. Elapsed time: $(convert_seconds $total_elapsed_time)"
+  echo "Health check returned status $http_code. Elapsed time: $(convert_seconds $total_elapsed_time)"
 
-    if [[ "$http_code" -ne 200 ]]; then
-        echo "Stopping primary and secondary nodes was successful. Continuing with migration."
-        break
-    fi
+  if [[ "$http_code" -ne 200 ]]; then
+    echo "Stopping primary and secondary nodes was successful. Continuing with migration."
+    break
+  fi
 
-    total_elapsed_time=$(( total_elapsed_time + retry_interval ))
-    sleep $retry_interval
+  total_elapsed_time=$(( total_elapsed_time + retry_interval ))
+  sleep $retry_interval
 done
 
 echo "Applying terraform changes"
