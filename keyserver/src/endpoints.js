@@ -7,6 +7,7 @@ import { baseLegalPolicies } from 'lib/facts/policies.js';
 import type { PolicyType } from 'lib/facts/policies.js';
 import type { Endpoint } from 'lib/types/endpoints.js';
 import { calendarQueryValidator } from 'lib/types/entry-types.js';
+import { recreateNotifsOlmSessionRequestValidator } from 'lib/types/keyserver-types.js';
 import { sessionStateValidator } from 'lib/types/session-types.js';
 import { endpointValidators } from 'lib/types/validators/endpoint-validators.js';
 import { updateUserAvatarRequestValidator } from 'lib/utils/avatar-utils.js';
@@ -45,7 +46,10 @@ import {
 } from './responders/farcaster-channel-tag-responders.js';
 import type { JSONResponder } from './responders/handlers.js';
 import { createJSONResponder } from './responders/handlers.js';
-import { getOlmSessionInitializationDataResponder } from './responders/keys-responders.js';
+import {
+  getOlmSessionInitializationDataResponder,
+  recreateNotifsOlmSessionResponder,
+} from './responders/keys-responders.js';
 import {
   createOrUpdatePublicLinkResponder,
   disableInviteLinkResponder,
@@ -484,6 +488,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   get_olm_session_initialization_data: {
     responder: getOlmSessionInitializationDataResponder,
     inputValidator: ignoredArgumentValidator,
+    policies: [],
+  },
+  recreate_notifs_olm_session: {
+    responder: recreateNotifsOlmSessionResponder,
+    inputValidator: recreateNotifsOlmSessionRequestValidator,
     policies: [],
   },
   version: {
