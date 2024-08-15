@@ -127,7 +127,7 @@ fi
 echo "Disabling traffic to load balancer"
 disable_general_lb_traffic
 
-http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$health_check_url")
+http_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$health_check_url")
 if [[ "$http_code" -eq 000 ]]; then
   echo "Error: Health check timed out trying to access keyserver domain at ${health_check_url}."
 
