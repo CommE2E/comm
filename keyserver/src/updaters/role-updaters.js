@@ -11,6 +11,7 @@ import {
 import {
   type ThinThreadType,
   threadTypeIsCommunityRoot,
+  threadTypes,
 } from 'lib/types/thread-types-enum.js';
 import type { ServerLegacyRoleInfo } from 'lib/types/thread-types.js';
 import { userSurfacedPermissionsFromRolePermissions } from 'lib/utils/role-utils.js';
@@ -47,7 +48,10 @@ async function updateRoles(
       continue;
     }
 
-    if (!threadTypeIsCommunityRoot(threadType)) {
+    if (
+      !threadTypeIsCommunityRoot(threadType) ||
+      threadType === threadTypes.GENESIS
+    ) {
       const newRolePermissions = defaultRolePermissions.Members;
       if (!_isEqual(newRolePermissions)(currentRole.permissions)) {
         rolesNeedingUpdate.push({
