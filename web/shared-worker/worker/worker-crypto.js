@@ -36,6 +36,7 @@ import {
   retrieveIdentityKeysAndPrekeys,
   olmSessionErrors,
 } from 'lib/utils/olm-utils.js';
+import { assertWithValidator } from 'lib/utils/validation-utils.js';
 
 import { getIdentityClient } from './identity-client.js';
 import { getProcessingStoreOpsExceptionMessage } from './process-operations.js';
@@ -53,6 +54,8 @@ import {
   type NotificationAccountWithPicklingKey,
   getNotifsCryptoAccount,
   persistNotifsAccountWithOlmData,
+  getAllNotifsOlmSessionDBKeys,
+  persistNotifsAccountWithOlmDataInputValidator,
 } from '../../push-notif/notif-crypto-utils.js';
 import {
   type WorkerRequestMessage,
@@ -155,12 +158,21 @@ async function persistCryptoStore(
   }
 }
 
-async function createAndPersistNotificationsOutboundSession(
+async function createNotificationsOutboundSession(
   notificationsIdentityKeys: OLMIdentityKeys,
   notificationsInitializationInfo: OlmSessionInitializationInfo,
   dataPersistenceKey: string,
   dataEncryptionKeyDBLabel: string,
-): Promise<EncryptedData> {
+): Promise<{
+  +accountEncryptionKey?: ?CryptoKey,
+  +accountWithPicklingKey?: PickledOLMAccount,
+  +encryptionKey?: ?CryptoKey,
+  +olmData?: ?NotificationsOlmDataType,
+  +olmDataKey?: string,
+  +olmEncryptionKeyDBLabel?: string,
+  +synchronizationValue: ?string,
+  +initialEncryptedData: EncryptedData,
+}> {
   if (!cryptoStore) {
     throw new Error('Crypto account not initialized');
   }
@@ -213,17 +225,37 @@ async function createAndPersistNotificationsOutboundSession(
     picklingKey,
   };
 
-  await persistNotifsAccountWithOlmData({
+  return {
     accountEncryptionKey,
     accountWithPicklingKey,
     olmDataKey: dataPersistenceKey,
     olmData: notificationsOlmData,
     olmEncryptionKeyDBLabel: dataEncryptionKeyDBLabel,
     synchronizationValue,
+    initialEncryptedData: { message, messageType },
+  };
+}
+
+async function createAndPersistNotificationsOutboundSession(
+  notificationsIdentityKeys: OLMIdentityKeys,
+  notificationsInitializationInfo: OlmSessionInitializationInfo,
+  dataPersistenceKey: string,
+  dataEncryptionKeyDBLabel: string,
+): Promise<EncryptedData> {
+  const sessionCreationOutput = await createNotificationsOutboundSession(
+    notificationsIdentityKeys,
+    notificationsInitializationInfo,
+    dataPersistenceKey,
+    dataEncryptionKeyDBLabel,
+  );
+
+  const { initialEncryptedData, ...rest } = sessionCreationOutput;
+  await persistNotifsAccountWithOlmData({
+    ...rest,
     forceWrite: true,
   });
 
-  return { message, messageType };
+  return initialEncryptedData;
 }
 
 async function getOrCreateOlmAccount(accountIDInDB: number): Promise<{
@@ -798,6 +830,19 @@ const olmAPI: OlmAPI = {
       dataEncryptionKeyDBLabel,
     );
   },
+  async isKeyserverNotificationsSessionInitialized(keyserverID: string) {
+    try {
+      const allNotifsKeys = await getAllNotifsOlmSessionDBKeys(keyserverID);
+      return !!allNotifsKeys;
+    } catch (e) {
+      console.log(
+        `Detected inconsistency with notifs olm data with keyserver ${keyserverID}. Details ${
+          getMessageForException(e) ?? ''
+        }`,
+      );
+      return false;
+    }
+  },
   async isDeviceNotificationsSessionInitialized(deviceID: string) {
     const dataPersistenceKey = getOlmDataKeyForDeviceID(deviceID);
     const dataEncryptionKeyDBLabel =
@@ -851,6 +896,51 @@ const olmAPI: OlmAPI = {
     );
 
     return message;
+  },
+  async ephemeralKeyserverNotifsSessionCreator(
+    cookie: ?string,
+    notificationsIdentityKeys: OLMIdentityKeys,
+    notificationsInitializationInfo: OlmSessionInitializationInfo,
+    keyserverID: string,
+  ): Promise<{
+    +initialEncryptedMessage: string,
+    +sessionPersistenceData: { +[string]: mixed },
+  }> {
+    const platformDetails = getPlatformDetails();
+    if (!platformDetails) {
+      throw new Error('Worker not initialized');
+    }
+
+    const { notifsOlmDataContentKey, notifsOlmDataEncryptionKeyDBLabel } =
+      getNotifsPersistenceKeys(cookie, keyserverID, platformDetails);
+
+    const sessionCreationOutput = await createNotificationsOutboundSession(
+      notificationsIdentityKeys,
+      notificationsInitializationInfo,
+      notifsOlmDataContentKey,
+      notifsOlmDataEncryptionKeyDBLabel,
+    );
+
+    const {
+      initialEncryptedData: { message: initialEncryptedMessage },
+      ...rest
+    } = sessionCreationOutput;
+
+    const sessionPersistenceData = {
+      ...rest,
+      forceWrite: false,
+    };
+
+    return { initialEncryptedMessage, sessionPersistenceData };
+  },
+  async persistEphemeralKeyserverNotifsSession(sessionPersistenceData: {
+    +[string]: mixed,
+  }): Promise<void> {
+    const persistNotifsAccountWithOlmDataInput = assertWithValidator(
+      sessionPersistenceData,
+      persistNotifsAccountWithOlmDataInputValidator,
+    );
+    await persistNotifsAccountWithOlmData(persistNotifsAccountWithOlmDataInput);
   },
   async reassignNotificationsSession(
     prevCookie: ?string,

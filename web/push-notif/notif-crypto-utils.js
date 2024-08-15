@@ -4,12 +4,15 @@ import olm from '@commapp/olm';
 import type { EncryptResult } from '@commapp/olm';
 import invariant from 'invariant';
 import localforage from 'localforage';
+import t, { type TInterface } from 'tcomb';
 import uuid from 'uuid';
 
 import {
   olmEncryptedMessageTypes,
   type NotificationsOlmDataType,
   type PickledOLMAccount,
+  pickledOLMAccountValidator,
+  notificationsOlmDataTypeValidator,
 } from 'lib/types/crypto-types.js';
 import type {
   PlainTextWebNotification,
@@ -19,7 +22,7 @@ import type {
 import { getCookieIDFromCookie } from 'lib/utils/cookie-utils.js';
 import { getMessageForException } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
-import { assertWithValidator } from 'lib/utils/validation-utils.js';
+import { assertWithValidator, tShape } from 'lib/utils/validation-utils.js';
 
 import {
   fetchAuthMetadata,
@@ -32,6 +35,7 @@ import {
   importJWKKey,
   exportKeyToJWK,
   generateCryptoKey,
+  cryptoKeyValidator,
   encryptedAESDataValidator,
   extendedCryptoKeyValidator,
 } from '../crypto/aes-gcm-crypto-utils.js';
@@ -235,7 +239,7 @@ async function getNotifsAccountWithOlmData(
   };
 }
 
-async function persistNotifsAccountWithOlmData(input: {
+type PersistNotifsAccountWithOlmDataInput = {
   +olmDataKey?: string,
   +olmEncryptionKeyDBLabel?: string,
   +olmData?: ?NotificationsOlmDataType,
@@ -244,7 +248,23 @@ async function persistNotifsAccountWithOlmData(input: {
   +accountWithPicklingKey?: PickledOLMAccount,
   +synchronizationValue: ?string,
   +forceWrite: boolean,
-}): Promise<void> {
+};
+
+export const persistNotifsAccountWithOlmDataInputValidator: TInterface<PersistNotifsAccountWithOlmDataInput> =
+  tShape<PersistNotifsAccountWithOlmDataInput>({
+    olmDataKey: t.maybe(t.String),
+    olmEncryptionKeyDBLabel: t.maybe(t.String),
+    olmData: t.maybe(notificationsOlmDataTypeValidator),
+    encryptionKey: t.maybe(cryptoKeyValidator),
+    accountEncryptionKey: t.maybe(cryptoKeyValidator),
+    accountWithPicklingKey: t.maybe(pickledOLMAccountValidator),
+    synchronizationValue: t.maybe(t.String),
+    forceWrite: t.Boolean,
+  });
+
+async function persistNotifsAccountWithOlmData(
+  input: PersistNotifsAccountWithOlmDataInput,
+): Promise<void> {
   const {
     olmData,
     olmDataKey,
@@ -1022,9 +1042,11 @@ async function persistEncryptionKey(
   await localforage.setItem(encryptionKeyDBLabel, cryptoKeyPersistentForm);
 }
 
-async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
-  +olmDataKey: string,
-  +encryptionKeyDBKey: string,
+async function getAllNotifsOlmSessionDBKeys(keyserverID?: string): Promise<?{
+  +olmDataKeys: $ReadOnlyArray<string>,
+  +encryptionKeyDBLabels: $ReadOnlyArray<string>,
+  +latestDataKey: string,
+  +latestEncryptionKeyDBKey: string,
 }> {
   const olmDataKeyForKeyserverPrefix = getOlmDataKeyForCookie(
     undefined,
@@ -1045,9 +1067,7 @@ async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
   );
 
   if (olmDataKeys.length === 0 || encryptionKeyDBLabels.length === 0) {
-    throw new Error(
-      'Received encrypted notification but olm session was not created',
-    );
+    return undefined;
   }
 
   const latestDataKey = olmDataKeys[olmDataKeys.length - 1];
@@ -1066,6 +1086,32 @@ async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
         `id for olm session encryption keys ${latestEncryptionKeyCookieID}`,
     );
   }
+
+  return {
+    olmDataKeys,
+    encryptionKeyDBLabels,
+    latestDataKey,
+    latestEncryptionKeyDBKey,
+  };
+}
+
+async function getNotifsOlmSessionDBKeys(keyserverID?: string): Promise<{
+  +olmDataKey: string,
+  +encryptionKeyDBKey: string,
+}> {
+  const allNotifsKeys = await getAllNotifsOlmSessionDBKeys(keyserverID);
+  if (!allNotifsKeys) {
+    throw new Error(
+      'Received encrypted notification but olm session was not created',
+    );
+  }
+
+  const {
+    olmDataKeys,
+    encryptionKeyDBLabels,
+    latestDataKey,
+    latestEncryptionKeyDBKey,
+  } = allNotifsKeys;
 
   const olmDBKeys = {
     olmDataKey: latestDataKey,
@@ -1261,4 +1307,5 @@ export {
   persistEncryptionKey,
   retrieveEncryptionKey,
   persistNotifsAccountWithOlmData,
+  getAllNotifsOlmSessionDBKeys,
 };
