@@ -129,6 +129,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
             try {
               await registrationServerCall({
                 farcasterID: null,
+                farcasterAvatarURL: null,
                 accountSelection: {
                   accountType: 'ethereum',
                   ...result,

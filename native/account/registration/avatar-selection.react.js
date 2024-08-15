@@ -40,6 +40,7 @@ export type AvatarSelectionParams = {
     +keyserverURL?: ?string,
     +accountSelection: AccountSelection,
     +farcasterID: ?string,
+    +farcasterAvatarURL: ?string,
   },
 };
 

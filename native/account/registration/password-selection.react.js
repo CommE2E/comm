@@ -27,6 +27,7 @@ export type PasswordSelectionParams = {
     +keyserverURL?: ?string,
     +farcasterID: ?string,
     +username: string,
+    farcasterAvatarURL: ?string,
   },
 };
 

@@ -44,6 +44,7 @@ export type RegistrationServerCallInput = {
   +accountSelection: AccountSelection,
   +avatarData: ?AvatarData,
   +siweBackupSecrets?: ?SIWEBackupSecrets,
+  +farcasterAvatarURL: ?string,
   +clearCachedSelections: () => void,
   +onNonceExpired: () => mixed,
   +onAlertAcknowledged?: () => mixed,
@@ -58,6 +59,7 @@ export type CachedUserSelections = {
   +ethereumAccount?: ?EthereumAccountSelection,
   +farcasterID?: string,
   +siweBackupSecrets?: ?SIWEBackupSecrets,
+  +farcasterAvatarURL?: string,
 };
 
 export const ensAvatarSelection: AvatarData = {

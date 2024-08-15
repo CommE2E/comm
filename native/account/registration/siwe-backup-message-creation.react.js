@@ -139,6 +139,7 @@ export type CreateSIWEBackupMessageParams = {
     +farcasterID: ?string,
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
+    +farcasterAvatarURL: ?string,
   },
 };
 
