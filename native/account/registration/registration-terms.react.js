@@ -31,6 +31,7 @@ export type RegistrationTermsParams = {
     +accountSelection: AccountSelection,
     +avatarData: ?AvatarData,
     +siweBackupSecrets?: ?SIWEBackupSecrets,
+    +farcasterAvatarURL: ?string,
   },
 };
 
@@ -62,16 +63,24 @@ function RegistrationTerms(props: Props): React.Node {
 
   const { navigation } = props;
   const { reconnectEthereum } = navigation;
-  const { coolOrNerdMode, keyserverURL, farcasterID } = userSelections;
+  const { coolOrNerdMode, keyserverURL, farcasterID, farcasterAvatarURL } =
+    userSelections;
   const navigateToConnectEthereum = React.useCallback(() => {
     reconnectEthereum({
       userSelections: {
         coolOrNerdMode,
         keyserverURL,
         farcasterID,
+        farcasterAvatarURL,
       },
     });
-  }, [reconnectEthereum, coolOrNerdMode, keyserverURL, farcasterID]);
+  }, [
+    reconnectEthereum,
+    coolOrNerdMode,
+    keyserverURL,
+    farcasterID,
+    farcasterAvatarURL,
+  ]);
   const onNonceExpired = React.useCallback(() => {
     setCachedSelections(oldUserSelections => ({
       ...oldUserSelections,
