@@ -10,29 +10,40 @@ import type {
   GenericUserInfoWithAvatar,
   AvatarSize,
 } from 'lib/types/avatar-types.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import Avatar from './avatar.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 
 type Props =
   | { +userID: ?string, +size: AvatarSize }
-  | { +userInfo: ?GenericUserInfoWithAvatar, +size: AvatarSize };
+  | { +userInfo: ?GenericUserInfoWithAvatar, +size: AvatarSize, +fid: ?string };
 function UserAvatar(props: Props): React.Node {
-  const { userID, userInfo: userInfoProp, size } = props;
+  const { userID, userInfo: userInfoProp, size, fid } = props;
 
-  const userInfo = useSelector(state => {
+  const currentUserFID = useCurrentUserFID();
+  const userAvatarInfo = useSelector(state => {
     if (!userID) {
-      return userInfoProp;
+      return {
+        ...userInfoProp,
+        farcasterID: fid,
+      };
     } else if (userID === state.currentUserInfo?.id) {
-      return state.currentUserInfo;
+      return {
+        ...state.currentUserInfo,
+        farcasterID: currentUserFID,
+      };
     } else {
-      return state.userStore.userInfos[userID];
+      return {
+        ...state.userStore.userInfos[userID],
+        farcasterID: state.auxUserStore.auxUserInfos[userID]?.fid,
+      };
     }
   });
 
-  const avatarInfo = getAvatarForUser(userInfo);
+  const avatar = getAvatarForUser(userAvatarInfo);
 
-  const resolvedUserAvatar = useResolvedAvatar(avatarInfo, userInfo);
+  const resolvedUserAvatar = useResolvedAvatar(avatar, userAvatarInfo);
 
   return <Avatar size={size} avatarInfo={resolvedUserAvatar} />;
 }

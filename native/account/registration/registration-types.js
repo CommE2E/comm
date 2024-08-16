@@ -67,3 +67,9 @@ export const ensAvatarSelection: AvatarData = {
   updateUserAvatarRequest: { type: 'ens' },
   clientAvatar: { type: 'ens' },
 };
+
+export const farcasterAvatarSelection: AvatarData = {
+  needsUpload: false,
+  updateUserAvatarRequest: { type: 'farcaster' },
+  clientAvatar: { type: 'farcaster' },
+};
