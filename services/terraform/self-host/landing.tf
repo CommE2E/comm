@@ -19,7 +19,7 @@ module "landing_service" {
   count  = var.enable_landing_service ? 1 : 0
 
   container_name              = "landing"
-  image                       = local.keyserver_service_server_image
+  image                       = var.keyserver_image
   service_name                = "landing"
   cluster_id                  = aws_ecs_cluster.keyserver_cluster.id
   domain_name                 = var.landing_domain_name
