@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "keyserver_secondary_service" {
   container_definitions = jsonencode([
     {
       name      = local.keyserver_secondary_container_name
-      image     = local.keyserver_service_server_image
+      image     = var.keyserver_image
       essential = true
       portMappings = [
         {

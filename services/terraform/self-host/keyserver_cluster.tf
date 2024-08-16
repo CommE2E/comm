@@ -1,10 +1,3 @@
-locals {
-  keyserver_service_image_tag = "1.0.105"
-  keyserver_service_server_image = (var.custom_keyserver_image != null ?
-    var.custom_keyserver_image :
-  "commapp/keyserver:${local.keyserver_service_image_tag}")
-}
-
 resource "aws_ecs_cluster" "keyserver_cluster" {
   # Do not change without replacing cluster_name in aws-deploy.sh
   name = "keyserver-cluster"

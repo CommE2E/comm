@@ -1,3 +1,9 @@
+variable "keyserver_image" {
+  description = "Keyserver image"
+  type        = string
+  default     = "commapp/keyserver:1.0.105"
+}
+
 variable "keyserver_domain_name" {
   description = "Domain name for your keyserver"
   type        = string
@@ -41,12 +47,6 @@ variable "desired_secondary_nodes" {
   description = "Desired number of secondary nodes"
   type        = number
   default     = 1
-}
-
-variable "custom_keyserver_image" {
-  description = "Specify custom keyserver image. Should be reserved for development purposes"
-  type        = string
-  default     = null
 }
 
 # Web app

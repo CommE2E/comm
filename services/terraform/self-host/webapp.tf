@@ -19,7 +19,7 @@ module "webapp_service" {
   count  = var.enable_webapp_service ? 1 : 0
 
   container_name              = "webapp"
-  image                       = local.keyserver_service_server_image
+  image                       = var.keyserver_image
   service_name                = "webapp"
   cluster_id                  = aws_ecs_cluster.keyserver_cluster.id
   domain_name                 = var.webapp_domain_name
