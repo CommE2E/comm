@@ -68,6 +68,12 @@ export const ensAvatarSelection: AvatarData = {
   clientAvatar: { type: 'ens' },
 };
 
+export const farcasterAvatarSelection: AvatarData = {
+  needsUpload: false,
+  updateUserAvatarRequest: { type: 'farcaster' },
+  clientAvatar: { type: 'farcaster' },
+};
+
 export const enableNewRegistrationMode = __DEV__;
 
 export const enableSIWEBackupCreation = __DEV__;
