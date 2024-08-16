@@ -18,7 +18,6 @@ secondary_service_name="keyserver-secondary-service"
 # Grab user configuration variables from terraform.tfvars
 health_check_domain=$(echo "var.keyserver_domain_name" | terraform console -var-file terraform.tfvars.json | tr -d '"')
 health_check_url="https://${health_check_domain}/health"
-num_desired_secondary_nodes=$(echo "var.desired_secondary_nodes" | terraform console -var-file terraform.tfvars.json)
 aws_region=$(echo "var.region" | terraform console -var-file terraform.tfvars.json | tr -d '"')
 
 # Set aws-cli region to aws region self-hosted keyserver is deployed on
@@ -54,24 +53,6 @@ convert_seconds() {
   else
     echo "${seconds} seconds"
   fi
-}
-
-check_health() {
-  local retry_interval=10
-  local total_elapsed_time=0
-  
-  while true; do
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" "$health_check_url")
-    if [[ "$http_code" -eq 200 ]]; then
-      echo "Health check returned status 200 OK $http_code. Primary keyserver node ready"
-      return 0
-    fi
-    total_elapsed_time="$(( total_elapsed_time + retry_interval ))"
-    converted_time="$(convert_seconds $total_elapsed_time)"
-
-    echo "Health check returned status $http_code. Elapsed time: ${converted_time}."
-    sleep $retry_interval
-  done
 }
 
 disable_general_lb_traffic() {
@@ -178,20 +159,5 @@ done
 
 echo "Applying terraform changes"
 terraform apply -auto-approve
-
-echo "Redisabling general lb traffic"
-disable_general_lb_traffic
-
-echo "Redeploying primary service in $cluster_name"
-aws ecs update-service --cluster "$cluster_name" --service "$primary_service_name" --force-new-deployment --desired-count 1 > /dev/null
-
-echo "Waiting for health check at $health_check_domain to return status 200 OK"
-check_health
-
-echo "Primary node successfully running. Re-enabling public access to load balancer"
-enable_lb_traffic
-
-echo "Setting desired count of secondary service to $num_desired_secondary_nodes".
-aws ecs update-service --cluster "$cluster_name" --service "$secondary_service_name" --desired-count "$num_desired_secondary_nodes" --force-new-deployment > /dev/null
 
 echo "Successfully ran migration"
