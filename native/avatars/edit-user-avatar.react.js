@@ -7,8 +7,10 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
+import { useFarcasterAvatar } from 'lib/hooks/fc-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import {
   useNativeSetUserAvatar,
@@ -31,7 +33,8 @@ type Props =
   | {
       +userInfo: ?GenericUserInfoWithAvatar,
       +disabled?: boolean,
-      +prefetchedAvatarURI: ?string,
+      +prefetchedENSAvatarURI: ?string,
+      +prefetchedFarcasterAvatarURL: ?string,
     };
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
@@ -53,7 +56,13 @@ function EditUserAvatar(props: Props): React.Node {
     [userInfo],
   );
   const fetchedENSAvatarURI = useENSAvatar(ethAddress);
-  const ensAvatarURI = fetchedENSAvatarURI ?? props.prefetchedAvatarURI;
+  const ensAvatarURI = fetchedENSAvatarURI ?? props.prefetchedENSAvatarURI;
+
+  const currentUserFID = useCurrentUserFID();
+  const fid = userInfo?.farcasterID ?? currentUserFID;
+  const fetchedFarcasterAvatarURL = useFarcasterAvatar(fid);
+  const farcasterAvatarURL =
+    fetchedFarcasterAvatarURL ?? props.prefetchedFarcasterAvatarURL;
 
   const { navigate } = useNavigation();
 
@@ -82,6 +91,11 @@ function EditUserAvatar(props: Props): React.Node {
     [nativeSetUserAvatar],
   );
 
+  const setFarcasterUserAvatar = React.useCallback(
+    () => nativeSetUserAvatar({ type: 'farcaster' }),
+    [nativeSetUserAvatar],
+  );
+
   const removeUserAvatar = React.useCallback(
     () => nativeSetUserAvatar({ type: 'remove' }),
     [nativeSetUserAvatar],
@@ -99,19 +113,25 @@ function EditUserAvatar(props: Props): React.Node {
       configOptions.push({ id: 'ens', onPress: setENSUserAvatar });
     }
 
+    if (farcasterAvatarURL) {
+      configOptions.push({ id: 'farcaster', onPress: setFarcasterUserAvatar });
+    }
+
     if (hasCurrentAvatar) {
       configOptions.push({ id: 'remove', onPress: removeUserAvatar });
     }
 
     return configOptions;
   }, [
-    hasCurrentAvatar,
-    ensAvatarURI,
-    navigateToCamera,
     navigateToEmojiSelection,
-    removeUserAvatar,
-    setENSUserAvatar,
     selectFromGalleryAndUpdateUserAvatar,
+    navigateToCamera,
+    ensAvatarURI,
+    farcasterAvatarURL,
+    hasCurrentAvatar,
+    setENSUserAvatar,
+    setFarcasterUserAvatar,
+    removeUserAvatar,
   ]);
 
   const showAvatarActionSheet = useShowAvatarActionSheet(actionSheetConfig);

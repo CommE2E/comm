@@ -469,7 +469,7 @@ function useSelectFromGalleryAndUpdateThreadAvatar(): (
 }
 
 type ShowAvatarActionSheetOptions = {
-  +id: 'emoji' | 'image' | 'camera' | 'ens' | 'cancel' | 'remove',
+  +id: 'emoji' | 'image' | 'camera' | 'ens' | 'farcaster' | 'cancel' | 'remove',
   +onPress?: () => mixed,
 };
 function useShowAvatarActionSheet(
@@ -491,6 +491,8 @@ function useShowAvatarActionSheet(
         return 'Open camera';
       } else if (option.id === 'ens') {
         return 'Use ENS avatar';
+      } else if (option.id === 'farcaster') {
+        return 'Use Farcaster avatar';
       } else if (option.id === 'remove') {
         return 'Reset to default';
       } else {
