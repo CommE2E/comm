@@ -97,6 +97,9 @@ if [[ "$cluster_status" == "None" || "$cluster_status" == "INACTIVE" ]]; then
     echo "Initializing fresh keyserver and creating ECS cluster..."
     terraform apply -auto-approve
     echo "Keyserver initialized"
+
+    aws logs tail /ecs/keyserver-primary-task-def --format short --since 1d |  cut -d ' ' -f 2-
+
     exit 0
   else
     echo "Exited deploy script"
