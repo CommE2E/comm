@@ -51,7 +51,7 @@ type Props = {
 };
 function AvatarSelection(props: Props): React.Node {
   const { userSelections } = props.route.params;
-  const { accountSelection, farcasterAvatarURL, farcasterID } = userSelections;
+  const { accountSelection, farcasterAvatarURL } = userSelections;
   const usernameOrETHAddress =
     accountSelection.accountType === 'username'
       ? accountSelection.username
@@ -186,7 +186,6 @@ function AvatarSelection(props: Props): React.Node {
               userInfo={userInfoOverride}
               prefetchedENSAvatarURI={prefetchedENSAvatarURI}
               prefetchedFarcasterAvatarURL={farcasterAvatarURL}
-              fid={farcasterID}
             />
           </View>
         </View>

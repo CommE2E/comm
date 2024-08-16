@@ -10,6 +10,7 @@ import { useENSAvatar } from 'lib/hooks/ens-cache.js';
 import { useFarcasterAvatar } from 'lib/hooks/fc-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
 import type { GenericUserInfoWithAvatar } from 'lib/types/avatar-types.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import {
   useNativeSetUserAvatar,
@@ -34,7 +35,6 @@ type Props =
       +disabled?: boolean,
       +prefetchedENSAvatarURI: ?string,
       +prefetchedFarcasterAvatarURL: ?string,
-      +fid: ?string,
     };
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
@@ -58,8 +58,9 @@ function EditUserAvatar(props: Props): React.Node {
   const fetchedENSAvatarURI = useENSAvatar(ethAddress);
   const ensAvatarURI = fetchedENSAvatarURI ?? props.prefetchedENSAvatarURI;
 
+  const fid = useCurrentUserFID();
   const farcasterAvatarURL =
-    useFarcasterAvatar(props.fid) ?? props.prefetchedFarcasterAvatarURL;
+    useFarcasterAvatar(fid) ?? props.prefetchedFarcasterAvatarURL;
 
   const { navigate } = useNavigation();
 
