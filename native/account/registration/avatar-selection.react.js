@@ -168,7 +168,7 @@ function AvatarSelection(props: Props): React.Node {
     () => ({
       username: usernameOrETHAddress,
       avatar: clientAvatar,
-      farcasterID: farcasterID,
+      farcasterID,
     }),
     [usernameOrETHAddress, clientAvatar, farcasterID],
   );
@@ -184,7 +184,6 @@ function AvatarSelection(props: Props): React.Node {
               userInfo={userInfoOverride}
               prefetchedENSAvatarURI={prefetchedENSAvatarURI}
               prefetchedFarcasterAvatarURL={farcasterAvatarURL}
-              fid={farcasterID}
             />
           </View>
         </View>

@@ -35,7 +35,6 @@ type Props =
       +disabled?: boolean,
       +prefetchedENSAvatarURI: ?string,
       +prefetchedFarcasterAvatarURL: ?string,
-      +fid: ?string,
     };
 function EditUserAvatar(props: Props): React.Node {
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
