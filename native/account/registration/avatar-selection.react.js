@@ -19,6 +19,7 @@ import {
   type AccountSelection,
   type AvatarData,
   ensAvatarSelection,
+  farcasterAvatarSelection,
 } from './registration-types.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
@@ -49,7 +50,7 @@ type Props = {
 };
 function AvatarSelection(props: Props): React.Node {
   const { userSelections } = props.route.params;
-  const { accountSelection } = userSelections;
+  const { accountSelection, farcasterAvatarURL, farcasterID } = userSelections;
   const usernameOrETHAddress =
     accountSelection.accountType === 'username'
       ? accountSelection.username
@@ -63,14 +64,16 @@ function AvatarSelection(props: Props): React.Node {
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
   const { setRegistrationMode } = editUserAvatarContext;
 
-  const prefetchedAvatarURI =
+  const prefetchedENSAvatarURI =
     accountSelection.accountType === 'ethereum'
       ? accountSelection.avatarURI
       : undefined;
 
   let initialAvatarData = cachedSelections.avatarData;
-  if (!initialAvatarData && prefetchedAvatarURI) {
+  if (!initialAvatarData && prefetchedENSAvatarURI) {
     initialAvatarData = ensAvatarSelection;
+  } else if (!initialAvatarData && farcasterAvatarURL) {
+    initialAvatarData = farcasterAvatarSelection;
   }
 
   const [avatarData, setAvatarData] =
@@ -178,7 +181,9 @@ function AvatarSelection(props: Props): React.Node {
           <View style={styles.editUserAvatar}>
             <EditUserAvatar
               userInfo={userInfoOverride}
-              prefetchedAvatarURI={prefetchedAvatarURI}
+              prefetchedENSAvatarURI={prefetchedENSAvatarURI}
+              prefetchedFarcasterAvatarURL={farcasterAvatarURL}
+              fid={farcasterID}
             />
           </View>
         </View>

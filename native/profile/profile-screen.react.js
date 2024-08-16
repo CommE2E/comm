@@ -25,6 +25,7 @@ import type { DMCreateThreadOperation } from 'lib/types/dm-ops';
 import { thickThreadTypes } from 'lib/types/thread-types-enum.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -178,6 +179,7 @@ type Props = {
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,
   +onCreateDMThread: () => Promise<void>,
+  +currentUserFID: ?string,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -301,7 +303,10 @@ class ProfileScreen extends React.PureComponent<Props> {
           <View
             style={[this.props.styles.section, this.props.styles.avatarSection]}
           >
-            <EditUserAvatar userID={this.props.currentUserInfo?.id} />
+            <EditUserAvatar
+              userID={this.props.currentUserInfo?.id}
+              fid={this.props.currentUserFID}
+            />
           </View>
           <Text style={this.props.styles.header}>ACCOUNT</Text>
           <View style={this.props.styles.section}>
@@ -568,6 +573,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
     const isAccountWithPassword = useSelector(state =>
       accountHasPassword(state.currentUserInfo),
     );
+    const currentUserID = useCurrentUserFID();
 
     const userID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
@@ -612,6 +618,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         stringForUser={stringForUser}
         isAccountWithPassword={isAccountWithPassword}
         onCreateDMThread={onCreateDMThread}
+        currentUserFID={currentUserID}
       />
     );
   });
