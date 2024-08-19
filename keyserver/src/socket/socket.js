@@ -9,7 +9,6 @@ import WebSocket from 'ws';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
-import { isStaff } from 'lib/shared/staff-utils.js';
 import {
   serverRequestSocketTimeout,
   serverResponseTimeout,
@@ -378,8 +377,7 @@ class Socket {
 
     if (
       !viewer?.platformDetails ||
-      !hasMinCodeVersion(viewer.platformDetails, minVersionsForCompression) ||
-      !isStaff(viewer.id)
+      !hasMinCodeVersion(viewer.platformDetails, minVersionsForCompression)
     ) {
       this.ws.send(stringMessage);
       return;
