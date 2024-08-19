@@ -40,8 +40,10 @@ if [[ -z "$ip_address" ]]; then
   exit 1
 fi
 
+
 # Grab resource info from AWS
 keyserver_lb_sg_id="$(aws ec2 describe-security-groups --filters "Name=group-name,Values=lb-sg" --query "SecurityGroups[0].GroupId" --output text)"
+mariadb_sg_id="$(aws ec2 describe-security-groups --filters "Name=group-name,Values=keyserver-mariadb-sg" --query "SecurityGroups[0].GroupId" --output text)"
 
 convert_seconds() {
   total_seconds="$1"
@@ -106,6 +108,116 @@ if [[ "$cluster_status" == "None" || "$cluster_status" == "INACTIVE" ]]; then
     exit 1
   fi
 fi
+
+# Determine whether migration is necessary. If not, terraform apply and exit early
+
+# Identify old database version
+echo "Checking if current ip is authorized to access MariaDB"
+mariadb_authorized=$(aws ec2 describe-security-groups \
+  --group-ids "$mariadb_sg_id" \
+  --query "SecurityGroups[0].IpPermissions[0].IpRanges[?CidrIp=='${ip_address}/32']" \
+  --output text)
+
+if [[ -z "$mariadb_authorized" ]]; then
+  aws ec2 authorize-security-group-ingress \
+    --group-id "$mariadb_sg_id" \
+    --protocol tcp \
+    --port 3307 \
+    --cidr "${ip_address}/32" > /dev/null
+  echo "IP address ${ip_address} has been authorized on port 3307."
+else
+  echo "IP address ${ip_address} is already authorized on port 3307."
+fi
+
+ENV_FILE=".env"
+
+# Extract specific variables using grep and awk
+db_name=$(grep '^COMM_DATABASE_DATABASE=' "$ENV_FILE" | awk -F '=' '{print $2}')
+db_user=$(grep '^COMM_DATABASE_USER=' "$ENV_FILE" | awk -F '=' '{print $2}')
+db_password=$(grep '^COMM_DATABASE_PASSWORD=' "$ENV_FILE" | awk -F '=' '{print $2}')
+
+current_db_version=$(mysql \
+  -u "$db_user" \
+  --port=3307 \
+  --host=mariadb-instance.cx6oqk2wud5y.us-east-1.rds.amazonaws.com \
+  -p"$db_password" \
+  -D "$db_name" \
+  -s -N -e "SELECT data FROM metadata WHERE name = 'db_version';")
+
+echo "Keyserver current running on database version: $current_db_version"
+
+if [[ -z "$current_db_version" || ! "$current_db_version" =~ ^-?[0-9]+$ ]]; then
+    echo "Failed to fetch current keyserver database version"
+    exit 1
+fi
+
+if [[ -z "$mariadb_authorized" ]]; then
+  aws ec2 revoke-security-group-ingress \
+    --group-id "$mariadb_sg_id" \
+    --protocol tcp \
+    --port 3307 \
+    --cidr "${ip_address}/32" > /dev/null
+  echo "IP address ${ip_address} has been revoked on port 3307."
+fi
+
+# Identify new database version
+
+keyserver_image=$(echo "var.keyserver_image" | terraform console -var-file terraform.tfvars.json | tr -d '"')
+
+echo "Pulling keyserver docker image: $keyserver_image"
+docker pull --quiet "$keyserver_image" > /dev/null
+
+image_id=$(docker images -q "$keyserver_image")
+
+if [[ -z "$image_id" ]]; then
+  echo "Failed to pull keyserver image: $keyserver_image."
+  exit 1
+fi
+
+new_db_version=$(docker inspect --format '{{ index .Config.Labels "db_version" }}' "$image_id")
+
+if [[ -z "$new_db_version" || ! "$new_db_version" =~ ^-?[0-9]+$ ]]; then
+  echo "Failed to fetch new keyserver database version. Database version invalid or missing in image."
+
+  echo "WARNING: Upgrading your keyserver image could introduce errors and is not recommended"
+  # Prompt the user to force the migration process
+  read -r -p "Do you still want to force an image upgrade? (y/n): " choice
+
+  # Check if the user wants to continue
+  if [[ "$choice" != "y" ]]; then
+      echo "Migration process aborted."
+      exit
+  fi
+fi
+
+# Evaluate db version
+if [[ "$new_db_version" -eq "$current_db_version" ]]; then
+    echo "New database version $new_db_version is equal to the current version $current_db_version."
+    echo "No migration needed. Proceeding with terraform apply."
+    terraform apply -auto-approve
+
+    exit
+elif [[ "$new_db_version" -gt "$current_db_version" ]]; then
+    echo "New database version $new_db_version is greater than current version $current_db_version."
+    echo "Migration process is required which will include downtime."
+
+    # Prompt the user to continue with the migration process
+    read -r -p "Do you want to continue with the migration process? (y/n): " choice
+
+    # Check if the user wants to continue
+    if [[ "$choice" != "y" ]]; then
+        echo "Migration process aborted."
+        exit
+    else
+        echo "Continuing with migration..."
+    fi
+elif [[ "$new_db_version" -lt "$current_db_version" ]]; then
+    echo "Error: New database version ($new_db_version) is less than the current version ($current_db_version)."
+    echo "Invalid migration. Aborting..."
+    exit 1
+fi
+
+# Migration process
 
 # Stop all primary and secondary tasks and disable traffic to load balancer
 echo "Disabling traffic to load balancer"
