@@ -31,12 +31,11 @@ jobs:
           file: ./keyserver/Dockerfile
           push: true
           tags: commapp/keyserver:1.0.${{steps.keyserver_code_version.outputs.patch_version}}
-          platforms:
-            - linux/arm64
-          build-args:
-            - HOST_GID=20
-            - HOST_UID=501
-            - COMM_JSONCONFIG_secrets_alchemy='{"key":"'"${{secrets.ALCHEMY_API_KEY}}"'"}'
-            - COMM_JSONCONFIG_secrets_walletconnect='{"key":"'"${{secrets.WALLETCONNECT_API_KEY}}"'"}'
-            - COMM_JSONCONFIG_secrets_neynar='{"key":"'"${{secrets.NEYNAR_API_KEY}}"'"}'
-            - COMM_JSONCONFIG_secrets_geoip_license='{"key":"'"${{secrets.GEOIP_LICENSE}}"'"}' 
+          platforms: linux/arm64
+          build-args: |
+            HOST_GID=20
+            HOST_UID=501
+            COMM_JSONCONFIG_secrets_alchemy='{"key":"'"${{secrets.ALCHEMY_API_KEY}}"'"}'
+            COMM_JSONCONFIG_secrets_walletconnect='{"key":"'"${{secrets.WALLETCONNECT_API_KEY}}"'"}'
+            COMM_JSONCONFIG_secrets_neynar='{"key":"'"${{secrets.NEYNAR_API_KEY}}"'"}'
+            COMM_JSONCONFIG_secrets_geoip_license='{"key":"'"${{secrets.GEOIP_LICENSE}}"'"}'
