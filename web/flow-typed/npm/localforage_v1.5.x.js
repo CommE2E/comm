@@ -47,6 +47,7 @@ type Driver = {
     newSynchronizationValue: string,
     forceWrite: boolean
   ): Promise<void>,
+  setMultipleItemsRaceConditionError(): string,
   ...
 };
 
@@ -87,6 +88,7 @@ type localforageInstance = {
     newSynchronizationValue: string,
     forceWrite: boolean
   ): Promise<void>,
+  setMultipleItemsRaceConditionError(): string,
   iterate<T>(
     iteratorCallback: (value: T, key: string, iterationNumber: number) => mixed,
     successCallback?: (result: void | [string, T]) => mixed,

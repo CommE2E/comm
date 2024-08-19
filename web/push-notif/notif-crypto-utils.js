@@ -322,6 +322,11 @@ async function persistNotifsAccountWithOlmData(input: {
       forceWrite,
     );
   } catch (e) {
+    if (
+      !e.message?.includes(localforage.setMultipleItemsRaceConditionError())
+    ) {
+      throw e;
+    }
     // likely shared worker persisted its own data
     console.log(e);
   }
