@@ -23,6 +23,9 @@ jobs:
         run: |
           echo "patch_version=`grep keyserverCodeVersion keyserver/src/version.js | sed -r 's/^[^0-9]*([0-9]+);$/\1/g'`" >> $GITHUB_OUTPUT
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v6
