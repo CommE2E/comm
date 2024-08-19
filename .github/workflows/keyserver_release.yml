@@ -1,0 +1,42 @@
+name: Build keyserver Docker image and upload to Docker Hub
+
+on:
+  push:
+    tags:
+      - keyserver-**
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action
+        with:
+          username: ${{secrets.DOCKER_USERNAME}}
+          password: ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Determine current keyserverCodeVersion
+        id: keyserver_code_version
+        run: |
+          echo "patch_version=`grep keyserverCodeVersion keyserver/src/version.js | sed -r 's/^[^0-9]*([0-9]+);$/\1/g'`" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action
+        with:
+          context: .
+          file: ./keyserver/Dockerfile
+          push: true
+          tags: commapp/keyserver:1.0.${{steps.keyserver_code_version.outputs.patch_version}}
+          platforms:
+            - linux/arm64
+          build-args:
+            - HOST_GID=20
+            - HOST_UID=501
+            - COMM_JSONCONFIG_secrets_alchemy='{"key":"'"${{secrets.ALCHEMY_API_KEY}}"'"}'
+            - COMM_JSONCONFIG_secrets_walletconnect='{"key":"'"${{secrets.WALLETCONNECT_API_KEY}}"'"}'
+            - COMM_JSONCONFIG_secrets_neynar='{"key":"'"${{secrets.NEYNAR_API_KEY}}"'"}'
+            - COMM_JSONCONFIG_secrets_geoip_license='{"key":"'"${{secrets.GEOIP_LICENSE}}"'"}' 
