@@ -376,7 +376,7 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     }, [callbackParams, goBackOnce, navigation]);
 
     return (
-      <TouchableWithoutFeedback onPress={goBackOnce}>
+      <TouchableWithoutFeedback onPress={onPressOk}>
         <View style={styles.container}>
           <AnimatedView
             style={styles.backdrop}
