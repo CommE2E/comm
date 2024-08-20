@@ -338,7 +338,6 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
         <View style={styles.container}>
           <AnimatedView
             style={styles.backdrop}
-            // $FlowFixMe
             entering={opacityEnteringAnimation}
             exiting={opacityExitingAnimation}
           />

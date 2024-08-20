@@ -28,8 +28,6 @@ declare module 'react-native-reanimated' {
   declare type TextStyleProp = StyleObj;
 
   declare type StyleProps = $ReadOnly<{|
-    ...ViewStyleProp,
-    ...TextStyleProp,
     +originX?: number,
     +originY?: number,
     +[key: string]: any,
