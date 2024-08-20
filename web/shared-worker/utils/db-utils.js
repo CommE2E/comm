@@ -44,7 +44,9 @@ function isSQLiteSupported(): boolean {
 }
 
 const isDesktopSafari: boolean =
-  browser && browser.name === 'safari' && browser.os === 'Mac OS';
+  browser &&
+  (browser.name === 'safari' || browser.name === 'ios-webview') &&
+  browser.os === 'Mac OS';
 
 export {
   isSQLiteSupported,
