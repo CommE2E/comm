@@ -12,12 +12,12 @@ import Animated, {
   type ExitAnimationsValues,
 } from 'react-native-reanimated';
 
+import Button from '../components/button.react.js';
 import {
   getNUXTipParams,
   NUXTipsContext,
   type NUXTip,
 } from '../components/nux-tips-context.react.js';
-import PrimaryButton from '../components/primary-button.react.js';
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import type {
@@ -54,7 +54,9 @@ const unboundStyles = {
     backgroundColor: 'tooltipBackground',
     borderRadius: 5,
     overflow: 'hidden',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 18,
   },
   triangleUp: {
     borderBottomColor: 'tooltipBackground',
@@ -86,12 +88,22 @@ const unboundStyles = {
   },
   tipText: {
     color: 'panelForegroundLabel',
-    fontSize: 20,
+    fontSize: 18,
     marginBottom: 10,
   },
   buttonContainer: {
-    width: 100,
     alignSelf: 'flex-end',
+  },
+  okButtonText: {
+    fontSize: 18,
+    color: 'panelForegroundLabel',
+    textAlign: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  okButton: {
+    backgroundColor: 'purpleButton',
+    borderRadius: 8,
   },
 };
 
@@ -105,7 +117,8 @@ export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
   +route: NavigationRoute<Route>,
 };
 
-const margin: number = 20;
+const marginVertical: number = 20;
+const marginHorizontal: number = 10;
 
 function opacityEnteringAnimation() {
   'worklet';
@@ -210,20 +223,22 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       if (tooltipLocation === 'below') {
         style.top =
           Math.min(y + height, verticalBounds.y + verticalBounds.height) +
-          margin;
+          marginVertical;
       } else {
         style.bottom =
-          dimensions.height - Math.max(y, verticalBounds.y) + margin;
+          dimensions.height - Math.max(y, verticalBounds.y) + marginVertical;
       }
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
       if (extraLeftSpace < extraRightSpace) {
-        style.left = 0;
+        style.left = marginHorizontal;
         style.minWidth = width + 2 * extraLeftSpace;
+        style.marginRight = 2 * marginHorizontal;
       } else {
-        style.right = 0;
+        style.right = marginHorizontal;
         style.minWidth = width + 2 * extraRightSpace;
+        style.marginLeft = 2 * marginHorizontal;
       }
 
       return style;
@@ -243,12 +258,12 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       if (extraLeftSpace < extraRightSpace) {
         return {
           alignSelf: 'flex-start',
-          left: extraLeftSpace + (4 / 10) * width,
+          left: extraLeftSpace + (4 / 10) * width - marginHorizontal,
         };
       } else {
         return {
           alignSelf: 'flex-end',
-          right: extraRightSpace + (4 / 10) * width,
+          right: extraRightSpace + (4 / 10) * width - marginHorizontal,
         };
       }
     }, [dimensions.width, initialCoordinates]);
@@ -401,11 +416,14 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
             <View style={styles.items}>
               <Text style={styles.tipText}>{tipText}</Text>
               <View style={styles.buttonContainer}>
-                <PrimaryButton
+                <Button
                   onPress={onPressOk}
-                  label="Next"
-                  variant="enabled"
-                />
+                  iosActiveOpacity={0.6}
+                  style={styles.okButton}
+                  disabled={false}
+                >
+                  <Text style={styles.okButtonText}>Next</Text>
+                </Button>
               </View>
             </View>
             {triangleDown}
