@@ -7,13 +7,13 @@ import { View, Text, Platform, TextInput } from 'react-native';
 import sleep from 'lib/utils/sleep.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import RegistrationTextInput from './registration-text-input.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import PrimaryButton from '../../components/primary-button.react.js';
 import {
   type NavigationRoute,
   AvatarSelectionRouteName,
@@ -218,7 +218,7 @@ function PasswordSelection(props: Props): React.Node {
         <View style={styles.error}>{errorText}</View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton
+        <PrimaryButton
           onPress={onProceed}
           label="Next"
           variant={passwordsMatch && !passwordIsEmpty ? 'enabled' : 'disabled'}

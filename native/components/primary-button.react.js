@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { Text, View, ActivityIndicator } from 'react-native';
 
-import Button from '../../components/button.react.js';
-import { useColors, useStyles } from '../../themes/colors.js';
+import Button from './button.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
   +onPress: () => mixed,
   +label: string,
   +variant?: 'enabled' | 'disabled' | 'loading' | 'outline',
 };
-function RegistrationButton(props: Props): React.Node {
+function PrimaryButton(props: Props): React.Node {
   const { onPress, label, variant } = props;
 
   const styles = useStyles(unboundStyles);
@@ -98,4 +98,4 @@ const unboundStyles = {
   },
 };
 
-export default RegistrationButton;
+export default PrimaryButton;
