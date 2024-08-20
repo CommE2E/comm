@@ -33,6 +33,8 @@ import {
   exportKeyToJWK,
   generateCryptoKey,
   encryptedAESDataValidator,
+  cryptoKeyValidator,
+  subtleCrypto$JsonWebKeyValidator,
   extendedCryptoKeyValidator,
 } from '../crypto/aes-gcm-crypto-utils.js';
 import { initOlm } from '../olm/olm-utils.js';
@@ -125,10 +127,15 @@ async function serializeUnencryptedData<T>(
 async function validateCryptoKey(
   cryptoKey: CryptoKey | SubtleCrypto$JsonWebKey,
 ): Promise<CryptoKey> {
-  if (!isDesktopSafari) {
-    return ((cryptoKey: any): CryptoKey);
+  try {
+    return assertWithValidator(cryptoKey, cryptoKeyValidator);
+  } catch (e) {
+    const jwkCryptoKey = assertWithValidator(
+      cryptoKey,
+      subtleCrypto$JsonWebKeyValidator,
+    );
+    return await importJWKKey(jwkCryptoKey);
   }
-  return await importJWKKey(((cryptoKey: any): SubtleCrypto$JsonWebKey));
 }
 
 async function validateCryptoKeyOptional(
