@@ -8,7 +8,6 @@ import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
 import { siweNonceExpired } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -17,6 +16,7 @@ import type { CoolOrNerdMode } from './registration-types.js';
 import FarcasterPrompt from '../../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../../components/farcaster-web-view.react.js';
+import PrimaryButton from '../../components/primary-button.react.js';
 import {
   type NavigationRoute,
   ConnectEthereumRouteName,
@@ -194,7 +194,7 @@ function ConnectFarcaster(prop: Props): React.Node {
     }
 
     return (
-      <RegistrationButton
+      <PrimaryButton
         onPress={onUseAlreadyConnectedAccount}
         label="Use connected Farcaster account"
         variant="enabled"
@@ -208,7 +208,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       return undefined;
     }
     return (
-      <RegistrationButton
+      <PrimaryButton
         onPress={onSkip}
         label="Do not connect"
         variant="outline"
@@ -226,7 +226,7 @@ function ConnectFarcaster(prop: Props): React.Node {
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
           {alreadyConnectedButton}
-          <RegistrationButton
+          <PrimaryButton
             onPress={onPressConnectFarcaster}
             label={connectButtonText}
             variant={connectButtonVariant}

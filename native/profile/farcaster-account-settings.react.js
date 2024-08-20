@@ -6,10 +6,10 @@ import { View } from 'react-native';
 import { useCurrentUserFID, useUnlinkFID } from 'lib/utils/farcaster-utils.js';
 
 import type { ProfileNavigationProp } from './profile.react.js';
-import RegistrationButton from '../account/registration/registration-button.react.js';
 import FarcasterPrompt from '../components/farcaster-prompt.react.js';
 import FarcasterWebView from '../components/farcaster-web-view.react.js';
 import type { FarcasterWebViewState } from '../components/farcaster-web-view.react.js';
+import PrimaryButton from '../components/primary-button.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
 import { unknownErrorAlertDetails } from '../utils/alert-messages.js';
@@ -77,7 +77,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
   const button = React.useMemo(() => {
     if (fid) {
       return (
-        <RegistrationButton
+        <PrimaryButton
           onPress={onPressDisconnect}
           label="Disconnect"
           variant={disconnectButtonVariant}
@@ -86,7 +86,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     }
 
     return (
-      <RegistrationButton
+      <PrimaryButton
         onPress={onPressConnectFarcaster}
         label="Connect Farcaster account"
         variant={connectButtonVariant}

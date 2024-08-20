@@ -11,7 +11,7 @@ import {
 } from 'lib/shared/community-utils.js';
 
 import type { TagFarcasterChannelNavigationProp } from './tag-farcaster-channel-navigator.react.js';
-import RegistrationButton from '../../account/registration/registration-button.react.js';
+import PrimaryButton from '../../components/primary-button.react.js';
 import TextInput from '../../components/text-input.react.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import { useStyles, useColors } from '../../themes/colors.js';
@@ -96,7 +96,7 @@ function TagFarcasterChannelByName(prop: Props): React.Node {
           />
         </View>
         {errorMessage}
-        <RegistrationButton
+        <PrimaryButton
           onPress={onPressTagChannel}
           label="Tag channel"
           variant={submitButtonVariant}

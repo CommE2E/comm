@@ -4,10 +4,10 @@ import * as React from 'react';
 import { Text, View, Image } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import PrimaryButton from '../../components/primary-button.react.js';
 import commSwooshSource from '../../img/comm-swoosh.png';
 import {
   type NavigationRoute,
@@ -41,7 +41,7 @@ function AccountDoesNotExist(props: Props): React.Node {
         </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton onPress={onSubmit} label="Next" variant="enabled" />
+        <PrimaryButton onPress={onSubmit} label="Next" variant="enabled" />
       </RegistrationButtonContainer>
     </RegistrationContainer>
   );

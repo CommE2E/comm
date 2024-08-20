@@ -19,12 +19,12 @@ import {
   siweNonceExpired,
 } from './ethereum-utils.js';
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import PrimaryButton from '../../components/primary-button.react.js';
 import { commRustModule } from '../../native-modules.js';
 import {
   type NavigationRoute,
@@ -260,7 +260,7 @@ function ConnectEthereum(props: Props): React.Node {
   let alreadyConnectedButton;
   if (alreadyHasConnected) {
     alreadyConnectedButton = (
-      <RegistrationButton
+      <PrimaryButton
         onPress={onUseAlreadyConnectedWallet}
         label="Use connected Ethereum wallet"
         variant="enabled"
@@ -282,12 +282,12 @@ function ConnectEthereum(props: Props): React.Node {
         </RegistrationContentContainer>
         <RegistrationButtonContainer>
           {alreadyConnectedButton}
-          <RegistrationButton
+          <PrimaryButton
             onPress={openPanel}
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          <RegistrationButton
+          <PrimaryButton
             onPress={onSkip}
             label="Do not connect"
             variant="outline"
