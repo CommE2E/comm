@@ -14,6 +14,7 @@ import { WagmiProvider } from 'wagmi';
 import IntegrityHandler from 'lib/components/integrity-handler.react.js';
 import PrekeysHandler from 'lib/components/prekeys-handler.react.js';
 import ReportHandler from 'lib/components/report-handler.react.js';
+import { UserIdentityCacheProvider } from 'lib/components/user-identity-cache.react.js';
 import { CallKeyserverEndpointProvider } from 'lib/keyserver-conn/call-keyserver-endpoint-provider.react.js';
 import KeyserverConnectionsHandler from 'lib/keyserver-conn/keyserver-connections-handler.js';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
@@ -68,14 +69,16 @@ const RootProvider = (): React.Node => (
           <CallKeyserverEndpointProvider>
             <InitialReduxStateGate persistor={persistor}>
               <IdentityServiceContextProvider>
-                <Router history={history.getHistoryObject()}>
-                  <Route path="*" component={App} />
-                </Router>
-                <KeyserverConnectionsHandler socketComponent={Socket} />
-                <PrekeysHandler />
-                <SQLiteDataHandler />
-                <IntegrityHandler />
-                <ReportHandler canSendReports={true} />
+                <UserIdentityCacheProvider>
+                  <Router history={history.getHistoryObject()}>
+                    <Route path="*" component={App} />
+                  </Router>
+                  <KeyserverConnectionsHandler socketComponent={Socket} />
+                  <PrekeysHandler />
+                  <SQLiteDataHandler />
+                  <IntegrityHandler />
+                  <ReportHandler canSendReports={true} />
+                </UserIdentityCacheProvider>
               </IdentityServiceContextProvider>
             </InitialReduxStateGate>
           </CallKeyserverEndpointProvider>
