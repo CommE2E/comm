@@ -8,7 +8,6 @@ import { View, Text } from 'react-native';
 import { type SIWEResult, SIWEMessageTypes } from 'lib/types/siwe-types.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -18,6 +17,7 @@ import type {
   AccountSelection,
   AvatarData,
 } from './registration-types.js';
+import LoadingButton from '../../components/loading-button.react.js';
 import {
   type NavigationRoute,
   RegistrationTermsRouteName,
@@ -78,7 +78,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
       let useExistingSignatureButton;
       if (onExistingWalletSignature) {
         useExistingSignatureButton = (
-          <RegistrationButton
+          <LoadingButton
             onPress={onExistingWalletSignature}
             label="Encrypt with existing signature"
             variant="enabled"
@@ -89,7 +89,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
       let onSkipButton;
       if (onSkip) {
         onSkipButton = (
-          <RegistrationButton onPress={onSkip} label="Skip" variant="outline" />
+          <LoadingButton onPress={onSkip} label="Skip" variant="outline" />
         );
       }
 
@@ -118,7 +118,7 @@ const CreateSIWEBackupMessageBase: React.ComponentType<CreateSIWEBackupMessageBa
             </RegistrationContentContainer>
             <RegistrationButtonContainer>
               {useExistingSignatureButton}
-              <RegistrationButton
+              <LoadingButton
                 onPress={openPanel}
                 label={newSignatureButtonText}
                 variant={newSignatureButtonVariant}
@@ -280,12 +280,12 @@ function SignSIWEBackupMessageForRestore(
           </View>
         </RegistrationContentContainer>
         <RegistrationButtonContainer>
-          <RegistrationButton
+          <LoadingButton
             onPress={openPanel}
             label="Decrypt with Ethereum signature"
             variant="enabled"
           />
-          <RegistrationButton onPress={onSkip} label="Skip" variant="outline" />
+          <LoadingButton onPress={onSkip} label="Skip" variant="outline" />
         </RegistrationButtonContainer>
       </RegistrationContainer>
       {siwePanel}

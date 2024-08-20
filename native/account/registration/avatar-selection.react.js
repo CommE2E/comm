@@ -10,7 +10,6 @@ import {
 } from 'lib/components/edit-user-avatar-provider.react.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -23,6 +22,7 @@ import {
 } from './registration-types.js';
 import { enableSIWEBackupCreation } from './registration-types.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
+import LoadingButton from '../../components/loading-button.react.js';
 import { useCurrentLeafRouteName } from '../../navigation/nav-selectors.js';
 import {
   type NavigationRoute,
@@ -186,7 +186,7 @@ function AvatarSelection(props: Props): React.Node {
         </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton onPress={onProceed} label="Next" />
+        <LoadingButton onPress={onProceed} label="Next" />
       </RegistrationButtonContainer>
     </RegistrationContainer>
   );

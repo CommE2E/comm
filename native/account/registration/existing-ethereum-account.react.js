@@ -18,11 +18,11 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
 import type { RegistrationNavigationProp } from './registration-navigator.react.js';
+import LoadingButton from '../../components/loading-button.react.js';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
 import type {
   NavigationRoute,
@@ -156,12 +156,12 @@ function ExistingEthereumAccount(props: Props): React.Node {
         </View>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton
+        <LoadingButton
           onPress={onProceedToLogIn}
           label="Log in to account"
           variant={logInPending ? 'loading' : 'enabled'}
         />
-        <RegistrationButton
+        <LoadingButton
           onPress={goBack}
           label="Use a different wallet"
           variant="outline"

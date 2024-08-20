@@ -5,7 +5,6 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import RegistrationButtonContainer from './registration-button-container.react.js';
-import RegistrationButton from './registration-button.react.js';
 import RegistrationContainer from './registration-container.react.js';
 import RegistrationContentContainer from './registration-content-container.react.js';
 import { RegistrationContext } from './registration-context.js';
@@ -15,6 +14,7 @@ import {
   RegistrationTileHeader,
 } from './registration-tile.react.js';
 import type { CoolOrNerdMode } from './registration-types.js';
+import LoadingButton from '../../components/loading-button.react.js';
 import {
   type NavigationRoute,
   KeyserverSelectionRouteName,
@@ -101,11 +101,7 @@ function CoolOrNerdModeSelection(props: Props): React.Node {
         </RegistrationTile>
       </RegistrationContentContainer>
       <RegistrationButtonContainer>
-        <RegistrationButton
-          onPress={onSubmit}
-          label="Next"
-          variant={buttonState}
-        />
+        <LoadingButton onPress={onSubmit} label="Next" variant={buttonState} />
       </RegistrationButtonContainer>
     </RegistrationContainer>
   );
