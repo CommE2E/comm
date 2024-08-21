@@ -74,6 +74,67 @@ impl Drop for Defer<'_> {
   }
 }
 
+pub trait IntoChunks<T> {
+  /// Splits the vec into `num_chunks` chunks and returns an iterator
+  /// over these chunks. The chunks do not overlap.
+  ///
+  /// Chunks size is given by `ceil(vector_length / num_chunks)`.
+  /// If vector length is not divisible by `num_chunks`,
+  /// the last chunk will have less elements.
+  ///
+  /// If you're looking for chunks of given size, use [`chunks`] instead.
+  ///
+  /// # Panics
+  ///
+  /// Panics if `num_chunks` is 0.
+  ///
+  /// # Examples
+  ///
+  /// ```
+  /// use comm_lib::tools::IntoChunks;
+  ///
+  /// let items = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  /// let mut iter = items.into_n_chunks(3);
+  /// assert_eq!(&iter.next().unwrap(), &[1, 2, 3, 4]);
+  /// assert_eq!(&iter.next().unwrap(), &[5, 6, 7, 8]);
+  /// assert_eq!(&iter.next().unwrap(), &[9, 10]);
+  /// assert!(iter.next().is_none());
+  /// ```
+  ///
+  /// [`chunks`]: slice::chunks
+  fn into_n_chunks(self, num_chunks: usize) -> impl Iterator<Item = Vec<T>>;
+}
+
+impl<T> IntoChunks<T> for Vec<T> {
+  fn into_n_chunks(self, num_chunks: usize) -> impl Iterator<Item = Vec<T>> {
+    struct ChunksIterator<I> {
+      pub slice: Vec<I>,
+      pub chunk_size: usize,
+    }
+    impl<I> Iterator for ChunksIterator<I> {
+      type Item = Vec<I>;
+      fn next(&mut self) -> Option<Vec<I>> {
+        let next_size = std::cmp::min(self.slice.len(), self.chunk_size);
+        if next_size == 0 {
+          None
+        } else {
+          let next_chunk = self.slice.drain(0..next_size).collect();
+          Some(next_chunk)
+        }
+      }
+    }
+
+    assert!(num_chunks > 0, "Number of chunks cannot be 0");
+    let len = self.len();
+    let rem = len % num_chunks;
+    let chunk_size = len / num_chunks + if rem > 0 { 1 } else { 0 };
+    ChunksIterator {
+      slice: self,
+      chunk_size,
+    }
+  }
+}
+
 pub fn generate_random_string(
   length: usize,
   rng: &mut (impl Rng + CryptoRng),
@@ -128,6 +189,11 @@ mod valid_identifier_tests {
   fn empty_is_invalid() {
     assert!(!is_valid_identifier(""));
   }
+}
+
+#[cfg(test)]
+mod defer_tests {
+  use super::*;
 
   #[test]
   fn defer_runs() {
@@ -162,5 +228,52 @@ mod valid_identifier_tests {
     let mut v = false;
     let _ = f(&mut v);
     assert!(v)
+  }
+}
+
+#[cfg(test)]
+mod vec_utils_tests {
+  use super::*;
+
+  #[test]
+  fn test_chunks_without_remainder() {
+    let items = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    let mut iter = items.into_n_chunks(3);
+    assert_eq!(&iter.next().unwrap(), &[1, 2, 3, 4]);
+    assert_eq!(&iter.next().unwrap(), &[5, 6, 7, 8]);
+    assert_eq!(&iter.next().unwrap(), &[9, 10, 11, 12]);
+    assert!(iter.next().is_none());
+  }
+
+  #[test]
+  fn test_chunks_with_remainder() {
+    let items = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let mut iter = items.into_n_chunks(3);
+    assert_eq!(&iter.next().unwrap(), &[1, 2, 3, 4]);
+    assert_eq!(&iter.next().unwrap(), &[5, 6, 7, 8]);
+    assert_eq!(&iter.next().unwrap(), &[9, 10]);
+    assert!(iter.next().is_none());
+  }
+
+  #[test]
+  fn test_one_chunk() {
+    let items: Vec<i32> = vec![1, 2, 3];
+    let mut iter = items.into_n_chunks(1);
+    assert_eq!(&iter.next().unwrap(), &[1, 2, 3]);
+    assert!(iter.next().is_none());
+  }
+
+  #[test]
+  fn test_empty_vec() {
+    let items: Vec<i32> = vec![];
+    let mut iter = items.into_n_chunks(2);
+    assert!(iter.next().is_none());
+  }
+
+  #[test]
+  #[should_panic]
+  fn into_n_chunks_panics_with_0_chunks() {
+    let items = vec![1, 2, 3];
+    let _ = items.into_n_chunks(0);
   }
 }
