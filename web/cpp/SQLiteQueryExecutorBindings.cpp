@@ -144,7 +144,7 @@ EMSCRIPTEN_BINDINGS(SQLiteQueryExecutor) {
       .function("getAllDrafts", &SQLiteQueryExecutor::getAllDrafts)
       .function("removeAllDrafts", &SQLiteQueryExecutor::removeAllDrafts)
       .function("removeDrafts", &SQLiteQueryExecutor::removeDrafts)
-      .function("getAllMessagesWeb", &SQLiteQueryExecutor::getAllMessagesWeb)
+      .function("getInitialMessagesWeb", &SQLiteQueryExecutor::getInitialMessagesWeb)
       .function("removeAllMessages", &SQLiteQueryExecutor::removeAllMessages)
       .function("removeMessages", &SQLiteQueryExecutor::removeMessages)
       .function(

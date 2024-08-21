@@ -39,7 +39,7 @@ interface Spec extends TurboModule {
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getClientDBStore: () => Promise<ClientDBStore>;
   +removeAllDrafts: () => Promise<void>;
-  +getAllMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
+  +getInitialMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => void;

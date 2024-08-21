@@ -25,7 +25,7 @@ public:
   virtual jsi::Value moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) = 0;
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
-  virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) = 0;
+  virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) = 0;
   virtual void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
   virtual void processReportStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
@@ -153,13 +153,13 @@ private:
       return bridging::callFromJs<jsi::Value>(
           rt, &T::removeAllDrafts, jsInvoker_, instance_);
     }
-    jsi::Array getAllMessagesSync(jsi::Runtime &rt) override {
+    jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override {
       static_assert(
-          bridging::getParameterCount(&T::getAllMessagesSync) == 1,
-          "Expected getAllMessagesSync(...) to have 1 parameters");
+          bridging::getParameterCount(&T::getInitialMessagesSync) == 1,
+          "Expected getInitialMessagesSync(...) to have 1 parameters");
 
       return bridging::callFromJs<jsi::Array>(
-          rt, &T::getAllMessagesSync, jsInvoker_, instance_);
+          rt, &T::getInitialMessagesSync, jsInvoker_, instance_);
     }
     void processMessageStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) override {
       static_assert(

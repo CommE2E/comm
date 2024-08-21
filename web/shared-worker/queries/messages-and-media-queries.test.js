@@ -90,7 +90,7 @@ describe('Message and media store queries', () => {
   });
 
   it('should return all messages with media', () => {
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages.length).toBe(3);
     expect(allMessages[0].medias.length).toBe(2);
     expect(allMessages[1].medias.length).toBe(0);
@@ -99,13 +99,13 @@ describe('Message and media store queries', () => {
 
   it('should remove all messages', () => {
     queryExecutor.removeAllMessages();
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages.length).toBe(0);
   });
 
   it('should remove all media', () => {
     queryExecutor.removeAllMedia();
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages[0].medias.length).toBe(0);
     expect(allMessages[1].medias.length).toBe(0);
     expect(allMessages[2].medias.length).toBe(0);
@@ -113,19 +113,19 @@ describe('Message and media store queries', () => {
 
   it('should remove all messages for threads', () => {
     queryExecutor.removeMessagesForThreads(['1']);
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages.length).toBe(1);
   });
 
   it('should remove all messages with ids', () => {
     queryExecutor.removeMessages(['1']);
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages.length).toBe(2);
   });
 
   it('should remove all media for message', () => {
     queryExecutor.removeMediaForMessage('1');
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages[0].medias.length).toBe(0);
     expect(allMessages[1].medias.length).toBe(0);
     expect(allMessages[2].medias.length).toBe(2);
@@ -133,7 +133,7 @@ describe('Message and media store queries', () => {
 
   it('should remove all media for messages', () => {
     queryExecutor.removeMediaForMessages(['3']);
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages[0].medias.length).toBe(2);
     expect(allMessages[1].medias.length).toBe(0);
     expect(allMessages[2].medias.length).toBe(0);
@@ -141,7 +141,7 @@ describe('Message and media store queries', () => {
 
   it('should remove all media for threads', () => {
     queryExecutor.removeMediaForThreads(['2']);
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages[0].medias.length).toBe(2);
     expect(allMessages[1].medias.length).toBe(0);
     expect(allMessages[2].medias.length).toBe(0);
@@ -149,7 +149,7 @@ describe('Message and media store queries', () => {
 
   it('should rekey media containers', () => {
     queryExecutor.rekeyMediaContainers('1', '3');
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages[0].medias.length).toBe(0);
     expect(allMessages[1].medias.length).toBe(0);
     expect(allMessages[2].medias.length).toBe(4);
@@ -157,7 +157,7 @@ describe('Message and media store queries', () => {
 
   it('should rekey message', () => {
     queryExecutor.rekeyMessage('3', '2');
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     expect(allMessages.length).toBe(2);
     const rekeyedMessage = allMessages.find(
       messageWithMedia => messageWithMedia.message.id === '2',
@@ -166,7 +166,7 @@ describe('Message and media store queries', () => {
   });
 
   it('should correctly handle nullable integer', () => {
-    const allMessages = queryExecutor.getAllMessagesWeb();
+    const allMessages = queryExecutor.getInitialMessagesWeb();
     const messageWithNullFutureType = allMessages.find(
       messageWithMedia => messageWithMedia.message.id === '1',
     );

@@ -520,7 +520,7 @@ const legacyMigrations = {
   [36]: (state: AppState) => {
     // 1. Get threads and messages from SQLite `threads` and `messages` tables.
     const clientDBThreadInfos = commCoreModule.getAllThreadsSync();
-    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+    const clientDBMessageInfos = commCoreModule.getInitialMessagesSync();
 
     // 2. Translate `ClientDBThreadInfo`s to `RawThreadInfo`s and
     //    `ClientDBMessageInfo`s to `RawMessageInfo`s.
@@ -1225,7 +1225,7 @@ const legacyMigrations = {
     return newState;
   },
   [70]: (state: any) => {
-    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+    const clientDBMessageInfos = commCoreModule.getInitialMessagesSync();
     const unsupportedMessageIDsToRemove = clientDBMessageInfos
       .filter(
         message =>

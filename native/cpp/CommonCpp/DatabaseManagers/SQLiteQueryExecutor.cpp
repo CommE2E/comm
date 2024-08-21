@@ -1474,8 +1474,8 @@ void SQLiteQueryExecutor::removeAllMessages() const {
   removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllMessagesSQL);
 }
 
-std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
-  static std::string getAllMessagesSQL =
+std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
+  static std::string getInitialMessagesSQL =
       "SELECT * "
       "FROM messages "
       "LEFT JOIN media "
@@ -1483,7 +1483,7 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
       "ORDER BY messages.id;";
   SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
-      getAllMessagesSQL,
+      getInitialMessagesSQL,
       "Failed to retrieve all messages.");
   return this->processMessagesResults(preparedSQL);
 }
@@ -1491,23 +1491,23 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getAllMessages() const {
 std::vector<MessageEntity> SQLiteQueryExecutor::processMessagesResults(
     SQLiteStatementWrapper &preparedSQL) const {
   std::string prevMsgIdx{};
-  std::vector<MessageEntity> allMessages;
+  std::vector<MessageEntity> messages;
 
   for (int stepResult = sqlite3_step(preparedSQL); stepResult == SQLITE_ROW;
        stepResult = sqlite3_step(preparedSQL)) {
     Message message = Message::fromSQLResult(preparedSQL, 0);
     if (message.id == prevMsgIdx) {
-      allMessages.back().second.push_back(Media::fromSQLResult(preparedSQL, 9));
+      messages.back().second.push_back(Media::fromSQLResult(preparedSQL, 9));
     } else {
       prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
       if (sqlite3_column_type(preparedSQL, 9) != SQLITE_NULL) {
         mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 9));
       }
-      allMessages.push_back(std::make_pair(std::move(message), mediaForMsg));
+      messages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
   }
-  return allMessages;
+  return messages;
 }
 
 void SQLiteQueryExecutor::removeMessages(
@@ -2785,11 +2785,12 @@ void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
   this->replaceThread(thread.toThread());
 };
 
-std::vector<MessageWithMedias> SQLiteQueryExecutor::getAllMessagesWeb() const {
-  auto allMessages = this->getAllMessages();
+std::vector<MessageWithMedias>
+SQLiteQueryExecutor::getInitialMessagesWeb() const {
+  auto messages = this->getInitialMessages();
 
   std::vector<MessageWithMedias> allMessageWithMedias;
-  for (auto &messageWithMedia : allMessages) {
+  for (auto &messageWithMedia : messages) {
     allMessageWithMedias.push_back(
         {std::move(messageWithMedia.first), messageWithMedia.second});
   }
