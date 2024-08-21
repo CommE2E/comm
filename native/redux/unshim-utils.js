@@ -24,7 +24,7 @@ function unshimClientDB(
   handleMigrationFailure?: AppState => AppState,
 ): AppState {
   // 1. Get messages from SQLite `messages` table.
-  const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+  const clientDBMessageInfos = commCoreModule.getInitialMessagesSync();
 
   // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
   const rawMessageInfos = clientDBMessageInfos.map(
