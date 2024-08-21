@@ -883,16 +883,16 @@ impl IdentityClientService for AuthenticatedService {
     request: tonic::Request<UserIdentitiesRequest>,
   ) -> Result<Response<UserIdentitiesResponse>, tonic::Status> {
     let message = request.into_inner();
+    let user_ids: HashSet<String> = message.user_ids.into_iter().collect();
 
     let users_table_results = self
       .db_client
-      .find_db_user_identities(message.user_ids.clone())
+      .find_db_user_identities(user_ids.clone())
       .await
       .map_err(handle_db_error)?;
 
     // Look up only user IDs that haven't been found in users table
-    let reserved_user_ids_to_query: Vec<String> = message
-      .user_ids
+    let reserved_user_ids_to_query: Vec<String> = user_ids
       .into_iter()
       .filter(|user_id| !users_table_results.contains_key(user_id))
       .collect();

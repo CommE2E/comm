@@ -214,7 +214,7 @@ impl PlatformDetails {
       (Some(metadata_value), Some(key_upload_value)) => {
         if metadata_value != key_upload_value {
           warn!(
-            "DeviceKeyUpload device type ({}) mismatches request metadata platform ({}). {}",
+            "DeviceKeyUpload device type ({1}) mismatches request metadata platform ({2}). {0}",
             "Preferring value from key uplaod.",
             key_upload_value.as_str_name(),
             metadata_value.as_str_name()
