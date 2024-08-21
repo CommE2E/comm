@@ -623,7 +623,7 @@ function getClientStoreFromQueryExecutor(
   return {
     drafts: sqliteQueryExecutor.getAllDrafts(),
     messages: sqliteQueryExecutor
-      .getAllMessagesWeb()
+      .getInitialMessagesWeb()
       .map(webMessageToClientDBMessageInfo),
     threads: sqliteQueryExecutor
       .getAllThreadsWeb()
