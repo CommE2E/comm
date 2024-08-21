@@ -129,7 +129,7 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
             messagesVector =
-                DatabaseManager::getQueryExecutor().getAllMessages();
+                DatabaseManager::getQueryExecutor().getInitialMessages();
             threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
             messageStoreThreadsVector =
                 DatabaseManager::getQueryExecutor().getAllMessageStoreThreads();
@@ -317,11 +317,11 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
       });
 }
 
-jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
+jsi::Array CommCoreModule::getInitialMessagesSync(jsi::Runtime &rt) {
   auto messagesVector =
       NativeModuleUtils::runSyncOrThrowJSError<std::vector<MessageEntity>>(
           rt, []() {
-            return DatabaseManager::getQueryExecutor().getAllMessages();
+            return DatabaseManager::getQueryExecutor().getInitialMessages();
           });
   auto messagesVectorPtr =
       std::make_shared<std::vector<MessageEntity>>(std::move(messagesVector));

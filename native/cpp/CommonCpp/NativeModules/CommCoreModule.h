@@ -73,7 +73,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) override;
   virtual jsi::Value getClientDBStore(jsi::Runtime &rt) override;
   virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
-  virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
+  virtual jsi::Array getInitialMessagesSync(jsi::Runtime &rt) override;
   virtual void processReportStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;

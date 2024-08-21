@@ -41,7 +41,7 @@ public:
   virtual void removeAllDrafts() const = 0;
   virtual void removeDrafts(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessages() const = 0;
-  virtual std::vector<MessageEntity> getAllMessages() const = 0;
+  virtual std::vector<MessageEntity> getInitialMessages() const = 0;
   virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(const std::vector<std::string> &threadIDs) const = 0;
@@ -189,7 +189,7 @@ public:
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
-  virtual std::vector<MessageWithMedias> getAllMessagesWeb() const = 0;
+  virtual std::vector<MessageWithMedias> getInitialMessagesWeb() const = 0;
   virtual void replaceMessageWeb(const WebMessage &message) const = 0;
   virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;
   virtual std::vector<MessageWithMedias>

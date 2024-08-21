@@ -62,7 +62,7 @@ declare export class SQLiteQueryExecutor {
   removeAllDrafts(): void;
   removeDrafts(ids: $ReadOnlyArray<string>): void;
 
-  getAllMessagesWeb(): $ReadOnlyArray<MessageEntity>;
+  getInitialMessagesWeb(): $ReadOnlyArray<MessageEntity>;
   removeAllMessages(): void;
   removeMessages(ids: $ReadOnlyArray<string>): void;
   removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
