@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { values } from 'lib/utils/objects.js';
 
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
@@ -22,6 +23,9 @@ type NUXTipParams = {
   +nextTip: ?NUXTip,
   +tooltipLocation: 'below' | 'above',
   +nextRouteName: ?NUXTipRouteNames,
+  +exitingCallback?: <Route: NUXTipRouteNames>(
+    navigation: AppNavigationProp<Route>,
+  ) => void,
 };
 
 const firstNUXTipKey = 'firstTip';
@@ -42,6 +46,7 @@ const nuxTipParams: { +[NUXTipParamsKeys]: NUXTipParams } = {
     nextTip: undefined,
     nextRouteName: undefined,
     tooltipLocation: 'below',
+    exitingCallback: navigation => navigation.goBack(),
   },
 };
 
