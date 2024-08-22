@@ -47,6 +47,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
+  std::string getThickThreadTypesList() const;
 
 public:
   static std::string sqliteFilePath;

@@ -179,4 +179,5 @@ export {
   webThreadToClientDBThreadInfo,
   clientDBMessageInfoToWebMessage,
   webMessageToClientDBMessageInfo,
+  createNullableString,
 };
