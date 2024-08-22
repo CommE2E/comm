@@ -1,7 +1,10 @@
 #pragma once
 
+#import <vector>
+
 namespace comm {
 
+// Should be in sync with lib/types/thread-types-enum.js
 enum class ThreadType {
   SIDEBAR = 5,
   GENESIS_PERSONAL = 6,
@@ -18,5 +21,11 @@ enum class ThreadType {
   PRIVATE = 15,
   THICK_SIDEBAR = 16,
 };
+
+const std::vector<ThreadType> THICK_THREAD_TYPES{
+    ThreadType::LOCAL,
+    ThreadType::PERSONAL,
+    ThreadType::PRIVATE,
+    ThreadType::THICK_SIDEBAR};
 
 } // namespace comm

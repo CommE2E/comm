@@ -47,6 +47,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
   std::vector<MessageEntity>
   processMessagesResults(SQLiteStatementWrapper &preparedSQL) const;
+  std::string getThickThreadTypesList() const;
 
 public:
   static std::string sqliteFilePath;
@@ -64,6 +65,8 @@ public:
   void removeDrafts(const std::vector<std::string> &ids) const override;
   void removeAllMessages() const override;
   std::vector<MessageEntity> getInitialMessages() const override;
+  std::vector<MessageEntity>
+  fetchMessages(std::string threadID, int limit, int offset) const override;
   void removeMessages(const std::vector<std::string> &ids) const override;
   void removeMessagesForThreads(
       const std::vector<std::string> &threadIDs) const override;
@@ -206,6 +209,8 @@ public:
   std::vector<MessageWithMedias> transformToWebMessages(
       const std::vector<MessageEntity> &messages) const override;
   std::vector<MessageWithMedias> getInitialMessagesWeb() const override;
+  std::vector<MessageWithMedias>
+  fetchMessagesWeb(std::string threadID, int limit, int offset) const override;
   void replaceMessageWeb(const WebMessage &message) const override;
   NullableString getOlmPersistAccountDataWeb(int accountID) const override;
   std::vector<MessageWithMedias>

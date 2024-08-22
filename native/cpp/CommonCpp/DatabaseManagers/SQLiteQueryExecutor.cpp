@@ -1475,11 +1475,21 @@ void SQLiteQueryExecutor::removeAllMessages() const {
   removeAllEntities(SQLiteQueryExecutor::getConnection(), removeAllMessagesSQL);
 }
 
+std::string SQLiteQueryExecutor::getThickThreadTypesList() const {
+  std::stringstream resultStream;
+  for (auto it = THICK_THREAD_TYPES.begin(); it != THICK_THREAD_TYPES.end();
+       ++it) {
+    int typeInt = static_cast<int>(*it);
+    resultStream << typeInt;
+
+    if (it + 1 != THICK_THREAD_TYPES.end()) {
+      resultStream << ",";
+    }
+  }
+  return resultStream.str();
+}
+
 std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
-  int threadTypeLocal = static_cast<int>(ThreadType::LOCAL);
-  int threadTypePersonal = static_cast<int>(ThreadType::PERSONAL);
-  int threadTypePrivate = static_cast<int>(ThreadType::PRIVATE);
-  int threadTypeThickSidebar = static_cast<int>(ThreadType::THICK_SIDEBAR);
   static std::string getInitialMessagesSQL =
       "SELECT s.id, s.local_id, s.thread, s.user, s.type, s.future_type, "
       "  s.content, s.time, m.id, m.container, m.thread, m.uri, m.type, "
@@ -1497,16 +1507,38 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
       "INNER JOIN threads AS t "
       "  ON s.thread = t.id "
       "WHERE s.r <= 20 OR t.type NOT IN ( " +
-      std::to_string(threadTypeLocal) + ", " +
-      std::to_string(threadTypePersonal) + ", " +
-      std::to_string(threadTypePrivate) + ", " +
-      std::to_string(threadTypeThickSidebar) +
+      this->getThickThreadTypesList() +
       ") "
       "ORDER BY s.time, s.id;";
   SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       getInitialMessagesSQL,
       "Failed to retrieve all messages.");
+  return this->processMessagesResults(preparedSQL);
+}
+
+std::vector<MessageEntity> SQLiteQueryExecutor::fetchMessages(
+    std::string threadID,
+    int limit,
+    int offset) const {
+  static std::string query =
+      "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, media.id, media.container, media.thread, "
+      "  media.uri, media.type, media.extras "
+      "FROM messages AS m "
+      "LEFT JOIN media "
+      "  ON m.id = media.container "
+      "WHERE m.thread = ? "
+      "ORDER BY m.time DESC, m.id DESC "
+      "LIMIT ? OFFSET ?;";
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(), query, "Failed to fetch messages.");
+
+  bindStringToSQL(threadID.c_str(), preparedSQL, 1);
+  bindIntToSQL(limit, preparedSQL, 2);
+  bindIntToSQL(offset, preparedSQL, 3);
+
   return this->processMessagesResults(preparedSQL);
 }
 
@@ -2829,6 +2861,14 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
 std::vector<MessageWithMedias>
 SQLiteQueryExecutor::getInitialMessagesWeb() const {
   auto messages = this->getInitialMessages();
+  return this->transformToWebMessages(messages);
+}
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::fetchMessagesWeb(
+    std::string threadID,
+    int limit,
+    int offset) const {
+  auto messages = this->fetchMessages(threadID, limit, offset);
   return this->transformToWebMessages(messages);
 }
 
