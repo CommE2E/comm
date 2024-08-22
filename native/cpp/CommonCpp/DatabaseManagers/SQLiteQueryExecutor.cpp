@@ -2,6 +2,7 @@
 #include "Logger.h"
 
 #include "../NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageTypeEnum.h"
+#include "../NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities/ThreadTypeEnum.h"
 #include "entities/CommunityInfo.h"
 #include "entities/EntityQueryHelpers.h"
 #include "entities/EntryInfo.h"
@@ -1475,12 +1476,33 @@ void SQLiteQueryExecutor::removeAllMessages() const {
 }
 
 std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
+  int threadTypeLocal = static_cast<int>(ThreadType::LOCAL);
+  int threadTypePersonal = static_cast<int>(ThreadType::PERSONAL);
+  int threadTypePrivate = static_cast<int>(ThreadType::PRIVATE);
+  int threadTypeThickSidebar = static_cast<int>(ThreadType::THICK_SIDEBAR);
   static std::string getInitialMessagesSQL =
-      "SELECT * "
-      "FROM messages "
-      "LEFT JOIN media "
-      "  ON messages.id = media.container "
-      "ORDER BY messages.id;";
+      "SELECT s.id, s.local_id, s.thread, s.user, s.type, s.future_type, "
+      "  s.content, s.time, m.id, m.container, m.thread, m.uri, m.type, "
+      "  m.extras "
+      "FROM ( "
+      "  SELECT "
+      "    m.*, "
+      "    ROW_NUMBER() OVER ( "
+      "      PARTITION BY thread ORDER BY m.time DESC, m.id DESC "
+      "    ) AS r "
+      "  FROM messages AS m "
+      ") AS s "
+      "LEFT JOIN media AS m "
+      "  ON s.id = m.container "
+      "INNER JOIN threads AS t "
+      "  ON s.thread = t.id "
+      "WHERE s.r <= 20 OR t.type NOT IN ( " +
+      std::to_string(threadTypeLocal) + "  , " +
+      std::to_string(threadTypePersonal) + "  , " +
+      std::to_string(threadTypePrivate) + "  , " +
+      std::to_string(threadTypeThickSidebar) +
+      ") "
+      "ORDER BY s.time, s.id;";
   SQLiteStatementWrapper preparedSQL(
       SQLiteQueryExecutor::getConnection(),
       getInitialMessagesSQL,
@@ -1497,12 +1519,12 @@ std::vector<MessageEntity> SQLiteQueryExecutor::processMessagesResults(
        stepResult = sqlite3_step(preparedSQL)) {
     Message message = Message::fromSQLResult(preparedSQL, 0);
     if (message.id == prevMsgIdx) {
-      messages.back().second.push_back(Media::fromSQLResult(preparedSQL, 9));
+      messages.back().second.push_back(Media::fromSQLResult(preparedSQL, 8));
     } else {
       prevMsgIdx = message.id;
       std::vector<Media> mediaForMsg;
-      if (sqlite3_column_type(preparedSQL, 9) != SQLITE_NULL) {
-        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 9));
+      if (sqlite3_column_type(preparedSQL, 8) != SQLITE_NULL) {
+        mediaForMsg.push_back(Media::fromSQLResult(preparedSQL, 8));
       }
       messages.push_back(std::make_pair(std::move(message), mediaForMsg));
     }
@@ -2659,8 +2681,11 @@ void SQLiteQueryExecutor::removeInboundP2PMessages(
 std::vector<MessageEntity>
 SQLiteQueryExecutor::getRelatedMessages(const std::string &messageID) const {
   static std::string getMessageSQL =
-      "SELECT * "
-      "FROM messages "
+      "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, media.id, media.container, media.thread, "
+      "  media.uri, media.type, media.extras "
+      "FROM messages AS m "
       "LEFT JOIN media "
       "  ON messages.id = media.container "
       "WHERE messages.id = ? OR messages.target_message = ? "
@@ -2741,13 +2766,18 @@ std::vector<MessageEntity> SQLiteQueryExecutor::searchMessages(
 std::vector<MessageEntity> SQLiteQueryExecutor::getRelatedMessagesForSearch(
     const std::vector<std::string> &messageIDs) const {
   std::stringstream selectRelatedMessagesSQLStream;
-  selectRelatedMessagesSQLStream << "SELECT * "
-                                    "FROM messages "
+  selectRelatedMessagesSQLStream << "SELECT "
+                                    "  m.id, m.local_id, m.thread, m.user, "
+                                    "  m.type, m.future_type, m.content, "
+                                    "  m.time, media.id, media.container, "
+                                    "  media.thread, media.uri, media.type, "
+                                    "  media.extras "
+                                    "FROM messages AS m "
                                     "LEFT JOIN media "
-                                    "  ON messages.id = media.container "
-                                    "WHERE messages.target_message IN "
+                                    "  ON m.id = media.container "
+                                    "WHERE m.target_message IN "
                                  << getSQLStatementArray(messageIDs.size())
-                                 << "ORDER BY messages.time DESC";
+                                 << "ORDER BY m.time DESC";
 
   std::string selectRelatedMessagesSQL = selectRelatedMessagesSQLStream.str();
 
