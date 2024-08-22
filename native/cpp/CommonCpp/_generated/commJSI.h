@@ -92,6 +92,7 @@ public:
   virtual jsi::Value markPrekeysAsPublished(jsi::Runtime &rt) = 0;
   virtual jsi::Value getRelatedMessages(jsi::Runtime &rt, jsi::String messageID) = 0;
   virtual jsi::Value searchMessages(jsi::Runtime &rt, jsi::String query, jsi::String threadID, std::optional<jsi::String> timestampCursor, std::optional<jsi::String> messageIDCursor) = 0;
+  virtual jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) = 0;
 
 };
 
@@ -688,6 +689,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::searchMessages, jsInvoker_, instance_, std::move(query), std::move(threadID), std::move(timestampCursor), std::move(messageIDCursor));
+    }
+    jsi::Value fetchMessages(jsi::Runtime &rt, jsi::String threadID, double limit, double offset) override {
+      static_assert(
+          bridging::getParameterCount(&T::fetchMessages) == 4,
+          "Expected fetchMessages(...) to have 4 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::fetchMessages, jsInvoker_, instance_, std::move(threadID), std::move(limit), std::move(offset));
     }
 
   private:
