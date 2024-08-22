@@ -10,8 +10,6 @@ import { getConfig } from 'lib/utils/config.js';
 
 import css from './qr-code-login.css';
 
-const { platform } = getConfig().platformDetails;
-
 function QRCodeLogin(): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
 
@@ -19,6 +17,7 @@ function QRCodeLogin(): React.Node {
     void generateQRCode();
   }, [generateQRCode]);
 
+  const { platform } = getConfig().platformDetails;
   const qrCodeURL = React.useMemo(() => {
     if (!qrData) {
       return undefined;
@@ -27,7 +26,7 @@ function QRCodeLogin(): React.Node {
     const identityDeviceType = platformToIdentityDeviceType[platform];
 
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, identityDeviceType);
-  }, [qrData]);
+  }, [platform, qrData]);
 
   return (
     <div className={css.qrContainer}>

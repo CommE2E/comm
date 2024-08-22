@@ -18,8 +18,6 @@ type QRCodeScreenProps = {
   +route: NavigationRoute<'QRCodeScreen'>,
 };
 
-const { platform } = getConfig().platformDetails;
-
 // eslint-disable-next-line no-unused-vars
 function QRCodeScreen(props: QRCodeScreenProps): React.Node {
   const { qrData, generateQRCode } = useQRAuthContext();
@@ -28,6 +26,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
     void generateQRCode();
   }, [generateQRCode]);
 
+  const { platform } = getConfig().platformDetails;
   const qrCodeURL = React.useMemo(() => {
     if (!qrData) {
       return undefined;
@@ -35,7 +34,7 @@ function QRCodeScreen(props: QRCodeScreenProps): React.Node {
 
     const deviceType = platformToIdentityDeviceType[platform];
     return qrCodeLinkURL(qrData.aesKey, qrData.deviceID, deviceType);
-  }, [qrData]);
+  }, [platform, qrData]);
 
   const styles = useStyles(unboundStyles);
   return (
