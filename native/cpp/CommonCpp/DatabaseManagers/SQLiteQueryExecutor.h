@@ -42,6 +42,8 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   static void initializeTablesForLogMonitoring();
 #else
   static SQLiteConnectionManager connectionManager;
+  std::vector<MessageWithMedias>
+  transformToWebMessages(const std::vector<MessageEntity> &messages) const;
 #endif
 
   std::optional<int> getSyncedDatabaseVersion(sqlite3 *db) const;
