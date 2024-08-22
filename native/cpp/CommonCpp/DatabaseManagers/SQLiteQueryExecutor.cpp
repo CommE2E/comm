@@ -1517,6 +1517,31 @@ std::vector<MessageEntity> SQLiteQueryExecutor::getInitialMessages() const {
   return this->processMessagesResults(preparedSQL);
 }
 
+std::vector<MessageEntity> SQLiteQueryExecutor::fetchMessages(
+    std::string threadID,
+    int limit,
+    int offset) const {
+  static std::string query =
+      "SELECT "
+      "  m.id, m.local_id, m.thread, m.user, m.type, m.future_type, "
+      "  m.content, m.time, media.id, media.container, media.thread, "
+      "  media.uri, media.type, media.extras "
+      "FROM messages AS m "
+      "LEFT JOIN media "
+      "  ON m.id = media.container "
+      "WHERE m.thread = ? "
+      "ORDER BY m.time DESC, m.id DESC "
+      "LIMIT ? OFFSET ?;";
+  SQLiteStatementWrapper preparedSQL(
+      SQLiteQueryExecutor::getConnection(), query, "Failed to fetch messages.");
+
+  bindStringToSQL(threadID.c_str(), preparedSQL, 1);
+  bindIntToSQL(limit, preparedSQL, 2);
+  bindIntToSQL(offset, preparedSQL, 3);
+
+  return this->processMessagesResults(preparedSQL);
+}
+
 std::vector<MessageEntity> SQLiteQueryExecutor::processMessagesResults(
     SQLiteStatementWrapper &preparedSQL) const {
   std::string prevMsgIdx{};
@@ -2836,6 +2861,14 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
 std::vector<MessageWithMedias>
 SQLiteQueryExecutor::getInitialMessagesWeb() const {
   auto messages = this->getInitialMessages();
+  return this->transformToWebMessages(messages);
+}
+
+std::vector<MessageWithMedias> SQLiteQueryExecutor::fetchMessagesWeb(
+    std::string threadID,
+    int limit,
+    int offset) const {
+  auto messages = this->fetchMessages(threadID, limit, offset);
   return this->transformToWebMessages(messages);
 }
 

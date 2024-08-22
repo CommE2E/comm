@@ -48,7 +48,7 @@ export type OlmPersistSession = {
   +version: number,
 };
 
-type MessageEntity = {
+export type MessageEntity = {
   +message: WebMessage,
   +medias: $ReadOnlyArray<Media>,
 };
@@ -63,6 +63,11 @@ declare export class SQLiteQueryExecutor {
   removeDrafts(ids: $ReadOnlyArray<string>): void;
 
   getInitialMessagesWeb(): $ReadOnlyArray<MessageEntity>;
+  fetchMessagesWeb(
+    threadID: string,
+    limit: number,
+    offset: number,
+  ): $ReadOnlyArray<MessageEntity>;
   removeAllMessages(): void;
   removeMessages(ids: $ReadOnlyArray<string>): void;
   removeMessagesForThreads(threadIDs: $ReadOnlyArray<string>): void;
