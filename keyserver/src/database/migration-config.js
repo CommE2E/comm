@@ -24,6 +24,7 @@ import { processMessagesInDBForSearch } from '../database/search-utils.js';
 import { deleteThread } from '../deleters/thread-deleters.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { fetchOlmAccount } from '../updaters/olm-account-updater.js';
+import { updateChangedUndirectedRelationships } from '../updaters/relationship-updaters.js';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { ensureUserCredentials } from '../user/checks.js';
@@ -32,6 +33,7 @@ import {
   publishPrekeysToIdentity,
 } from '../utils/olm-utils.js';
 import type { PickledOlmAccount } from '../utils/olm-utils.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
 import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
 
 const botViewer = createScriptViewer(bots.commbot.userID);
@@ -897,6 +899,36 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       }
 
       await updateRolesAndPermissionsForAllThreads();
+    },
+  ],
+  [
+    70,
+    async () => {
+      const relationshipChangeset = new RelationshipChangeset();
+
+      const threadToUsers = new Map<string, string[]>();
+      const query = SQL`
+        SELECT user, thread
+        FROM memberships
+        WHERE thread != ${genesis().id}
+      `;
+      const [results] = await dbQuery(query);
+      for (const row of results) {
+        const { user, thread } = row;
+        let users = threadToUsers.get(thread);
+        if (!users) {
+          users = [];
+          threadToUsers.set(thread, users);
+        }
+        users.push(user);
+      }
+
+      for (const [, users] of threadToUsers) {
+        relationshipChangeset.setAllRelationshipsNeeded(users);
+      }
+
+      const relationshipRows = relationshipChangeset.getRows();
+      await updateChangedUndirectedRelationships(relationshipRows);
     },
   ],
 ]);
