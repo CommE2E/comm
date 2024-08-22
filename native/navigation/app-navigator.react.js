@@ -8,6 +8,7 @@ import ActionResultModal from './action-result-modal.react.js';
 import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';
 import CommunityDrawerTip from './community-drawer-tip.react.js';
 import MutedTabTip from './muted-tab-tip.react.js';
+import NUXTipOverlayBackdrop from './nux-tip-overlay-backdrop.react.js';
 import { createOverlayNavigator } from './overlay-navigator.react.js';
 import type {
   OverlayNavigationProp,
@@ -17,6 +18,7 @@ import type { RootNavigationProp } from './root-navigator.react.js';
 import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
+  NUXTipOverlayBackdropRouteName,
 } from './route-names.js';
 import {
   UserAvatarCameraModalRouteName,
@@ -164,6 +166,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           component={CommunityDrawerTip}
         />
         <App.Screen name={MutedTabTipRouteName} component={MutedTabTip} />
+        <App.Screen
+          name={NUXTipOverlayBackdropRouteName}
+          component={NUXTipOverlayBackdrop}
+        />
         <App.Screen name={TogglePinModalRouteName} component={TogglePinModal} />
       </App.Navigator>
       {pushHandler}

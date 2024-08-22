@@ -35,14 +35,6 @@ const { Value } = Animated;
 const animationDuration = 150;
 
 const unboundStyles = {
-  backdrop: {
-    backgroundColor: 'black',
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
   container: {
     flex: 1,
   },
@@ -119,19 +111,6 @@ export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
 
 const marginVertical: number = 20;
 const marginHorizontal: number = 10;
-
-function opacityEnteringAnimation() {
-  'worklet';
-
-  return {
-    animations: {
-      opacity: withTiming(0.7, { duration: animationDuration }),
-    },
-    initialValues: {
-      opacity: 0,
-    },
-  };
-}
 
 function createNUXTipsOverlay<Route: NUXTipRouteNames>(
   ButtonComponent: React.ComponentType<void | NUXTipsOverlayProps<Route>>,
@@ -268,20 +247,6 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       }
     }, [dimensions.width, initialCoordinates]);
 
-    const opacityExitingAnimation = React.useCallback(() => {
-      'worklet';
-
-      return {
-        animations: {
-          opacity: withTiming(0, { duration: animationDuration }),
-        },
-        initialValues: {
-          opacity: 0.7,
-        },
-        callback: onExitFinish,
-      };
-    }, [onExitFinish]);
-
     // prettier-ignore
     const tipContainerEnteringAnimation = React.useCallback(
       (values/*: EntryAnimationsValues*/) => {
@@ -355,9 +320,10 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
             opacity: 1,
             transform: [{ translateX: 0 }, { translateY: 0 }, { scale: 1 }],
           },
+          callback: onExitFinish,
         };
       },
-      [initialCoordinates.width, initialCoordinates.x, tooltipLocation],
+      [initialCoordinates.width, initialCoordinates.x, onExitFinish, tooltipLocation],
     );
 
     let triangleDown = null;
@@ -368,15 +334,20 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
     }
 
-    const callbackParams = getNUXTipParams(route.params.tipKey);
-
     const onPressOk = React.useCallback(() => {
+      const callbackParams = getNUXTipParams(route.params.tipKey);
+
       const {
         nextTip,
         tooltipLocation: nextLocation,
         nextRouteName,
+        exitingCallback,
       } = callbackParams;
       goBackOnce();
+
+      if (exitingCallback) {
+        exitingCallback?.(navigation);
+      }
 
       if (!nextTip || !nextRouteName) {
         return;
@@ -388,16 +359,11 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
           tooltipLocation: nextLocation,
         },
       });
-    }, [callbackParams, goBackOnce, navigation]);
+    }, [goBackOnce, navigation, route.params.tipKey]);
 
     return (
       <TouchableWithoutFeedback onPress={onPressOk}>
         <View style={styles.container}>
-          <AnimatedView
-            style={styles.backdrop}
-            entering={opacityEnteringAnimation}
-            exiting={opacityExitingAnimation}
-          />
           <View style={contentContainerStyle}>
             <Animated.View
               style={buttonStyle}
@@ -443,4 +409,4 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
   return React.memo<NUXTipsOverlayProps<Route>>(NUXTipsOverlayWrapper);
 }
 
-export { createNUXTipsOverlay };
+export { createNUXTipsOverlay, animationDuration };
