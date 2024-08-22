@@ -180,4 +180,5 @@ export {
   clientDBMessageInfoToWebMessage,
   webMessageToClientDBMessageInfo,
   createNullableString,
+  createNullableInt,
 };
