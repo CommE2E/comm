@@ -203,6 +203,8 @@ public:
 #ifdef EMSCRIPTEN
   std::vector<WebThread> getAllThreadsWeb() const override;
   void replaceThreadWeb(const WebThread &thread) const override;
+  std::vector<MessageWithMedias> transformToWebMessages(
+      const std::vector<MessageEntity> &messages) const override;
   std::vector<MessageWithMedias> getInitialMessagesWeb() const override;
   void replaceMessageWeb(const WebMessage &message) const override;
   NullableString getOlmPersistAccountDataWeb(int accountID) const override;
