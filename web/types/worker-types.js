@@ -48,6 +48,7 @@ export const workerRequestMessageTypes = Object.freeze({
   GET_OUTBOUND_P2P_MESSAGES_BY_ID: 22,
   SEARCH_MESSAGES: 23,
   RESET_OUTBOUND_P2P_MESSAGES: 24,
+  FETCH_MESSAGES: 25,
 });
 
 export const workerWriteRequests: $ReadOnlyArray<number> = [
@@ -217,6 +218,13 @@ export type ResetOutboundP2PMessagesRequestMessage = {
   +deviceID: string,
 };
 
+export type FetchMessagesRequestMessage = {
+  +type: 25,
+  +threadID: string,
+  +limit: number,
+  +offset: number,
+};
+
 export type WorkerRequestMessage =
   | PingWorkerRequestMessage
   | InitWorkerRequestMessage
@@ -242,7 +250,8 @@ export type WorkerRequestMessage =
   | GetRelatedMessagesRequestMessage
   | GetOutboundP2PMessagesByIDRequestMessage
   | SearchMessagesRequestMessage
-  | ResetOutboundP2PMessagesRequestMessage;
+  | ResetOutboundP2PMessagesRequestMessage
+  | FetchMessagesRequestMessage;
 
 export type WorkerRequestProxyMessage = {
   +id: number,

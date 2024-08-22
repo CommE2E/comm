@@ -281,6 +281,16 @@ async function processAppRequest(
       type: workerResponseMessageTypes.GET_MESSAGES,
       messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
     };
+  } else if (message.type === workerRequestMessageTypes.FETCH_MESSAGES) {
+    const webMessageEntities = sqliteQueryExecutor.fetchMessagesWeb(
+      message.threadID,
+      message.limit,
+      message.offset,
+    );
+    return {
+      type: workerResponseMessageTypes.GET_MESSAGES,
+      messages: webMessageEntities.map(webMessageToClientDBMessageInfo),
+    };
   }
 
   // write operations
