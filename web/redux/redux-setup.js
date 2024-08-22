@@ -37,10 +37,7 @@ import {
 import type { AlertStore } from 'lib/types/alert-types.js';
 import type { AuxUserStore } from 'lib/types/aux-user-types.js';
 import type { CommunityStore } from 'lib/types/community-types.js';
-import type {
-  MessageSourceMetadata,
-  DBOpsStore,
-} from 'lib/types/db-ops-types.js';
+import type { DBOpsStore } from 'lib/types/db-ops-types.js';
 import type { QueuedDMOperations } from 'lib/types/dm-ops.js';
 import type { DraftStore } from 'lib/types/draft-types.js';
 import type { EnabledApps } from 'lib/types/enabled-apps.js';
@@ -54,7 +51,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { MessageStore } from 'lib/types/message-types.js';
 import type { WebNavInfo } from 'lib/types/nav-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
-import type { BaseAction } from 'lib/types/redux-types.js';
+import type { BaseAction, DispatchMetadata } from 'lib/types/redux-types.js';
 import type { ReportStore } from 'lib/types/report-types.js';
 import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import type { SyncedMetadataStore } from 'lib/types/synced-metadata-types.js';
@@ -140,7 +137,7 @@ export type AppState = {
 export type Action = $ReadOnly<
   | BaseAction
   | {
-      +messageSourceMetadata?: MessageSourceMetadata,
+      +dispatchMetadata?: DispatchMetadata,
       ...
         | { +type: 'UPDATE_NAV_INFO', +payload: Partial<WebNavInfo> }
         | {
@@ -546,7 +543,7 @@ function validateStateAndQueueOpsProcessing(
     ...state,
     dbOpsStore: queueDBOps(
       state.dbOpsStore,
-      action.messageSourceMetadata,
+      action.dispatchMetadata,
       storeOperations,
     ),
   };

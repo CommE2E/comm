@@ -3,8 +3,7 @@
 import type { Orientations } from 'react-native-orientation-locker';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
-import type { MessageSourceMetadata } from 'lib/types/db-ops-types.js';
-import type { BaseAction } from 'lib/types/redux-types.js';
+import type { BaseAction, DispatchMetadata } from 'lib/types/redux-types.js';
 
 import type { DimensionsInfo } from './dimensions-updater.react.js';
 import type { AppState } from './state-types.js';
@@ -28,7 +27,7 @@ export const backgroundActionTypes: Set<string> = new Set([
 export type Action = $ReadOnly<
   | BaseAction
   | {
-      +messageSourceMetadata?: MessageSourceMetadata,
+      +dispatchMetadata?: DispatchMetadata,
       ...
         | {
             +type: 'SET_REDUX_STATE',
