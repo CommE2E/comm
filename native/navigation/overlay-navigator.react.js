@@ -41,12 +41,14 @@ import {
   TabNavigatorRouteName,
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
+  NUXTipOverlayBackdropRouteName,
 } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
 const newReanimatedRoutes = new Set([
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
+  NUXTipOverlayBackdropRouteName,
 ]);
 
 export type OverlayNavigationHelpers<ParamList: ParamListBase = ParamListBase> =
