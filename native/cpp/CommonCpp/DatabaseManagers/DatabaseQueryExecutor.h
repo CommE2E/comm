@@ -42,6 +42,8 @@ public:
   virtual void removeDrafts(const std::vector<std::string> &ids) const = 0;
   virtual void removeAllMessages() const = 0;
   virtual std::vector<MessageEntity> getInitialMessages() const = 0;
+  virtual std::vector<MessageEntity>
+  fetchMessages(std::string threadID, int limit, int offset) const = 0;
   virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(const std::vector<std::string> &threadIDs) const = 0;
@@ -192,6 +194,8 @@ public:
   virtual std::vector<MessageWithMedias>
   transformToWebMessages(const std::vector<MessageEntity> &messages) const = 0;
   virtual std::vector<MessageWithMedias> getInitialMessagesWeb() const = 0;
+  virtual std::vector<MessageWithMedias>
+  fetchMessagesWeb(std::string threadID, int limit, int offset) const = 0;
   virtual void replaceMessageWeb(const WebMessage &message) const = 0;
   virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;
   virtual std::vector<MessageWithMedias>
