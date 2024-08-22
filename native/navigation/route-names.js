@@ -170,6 +170,7 @@ export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
 export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
 export const MutedTabTipRouteName = 'MutedTabTip';
+export const NUXTipOverlayBackdropRouteName = 'NUXTipOverlayBackdrop';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -233,6 +234,7 @@ export type OverlayParamList = {
   +TogglePinModal: TogglePinModalParams,
   +CommunityDrawerTip: NUXTipsOverlayParams,
   +MutedTabTip: NUXTipsOverlayParams,
+  +NUXTipOverlayBackdrop: void,
   ...TooltipModalParamList,
 };
 
