@@ -28,8 +28,13 @@ import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
 import { fetchCallUpdateOlmAccount } from '../updaters/olm-account-updater.js';
 import { validateAndUploadAccountPrekeys } from '../utils/olm-utils.js';
-import { isPrimaryNode } from '../utils/primary-secondary-utils.js';
+import {
+  isPrimaryNode,
+  isAuxiliaryNode,
+} from '../utils/primary-secondary-utils.js';
 import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-links-with-blobs.js';
+
+const { RUN_COMM_TEAM_DEV_SCRIPTS } = process.env;
 
 if (cluster.isMaster) {
   schedule.scheduleJob(
@@ -73,48 +78,6 @@ if (cluster.isMaster) {
       },
     );
     schedule.scheduleJob(
-      '0 */4 * * *', // every four hours
-      async () => {
-        try {
-          await backupDB();
-        } catch (e) {
-          console.warn('encountered error while trying to backup database', e);
-        }
-      },
-    );
-    schedule.scheduleJob(
-      '0 0 * * *', // every day at midnight in the keyserver's timezone
-      async () => {
-        try {
-          if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
-            // This is a job that the Comm internal team uses
-            await createDailyUpdatesThread();
-          }
-        } catch (e) {
-          console.warn(
-            'encountered error while trying to create daily updates thread',
-            e,
-          );
-        }
-      },
-    );
-    schedule.scheduleJob(
-      '0 0 8 * *', // 8th of every month at midnight in the keyserver's timezone
-      async () => {
-        try {
-          if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
-            // This is a job that the Comm internal team uses
-            await postLeaderboard();
-          }
-        } catch (e) {
-          console.warn(
-            'encountered error while trying to post Phabricator leaderboard',
-            e,
-          );
-        }
-      },
-    );
-    schedule.scheduleJob(
       '0 5 * * *', // every day at 5:00 AM in the keyserver's timezone
       async () => {
         try {
@@ -154,6 +117,46 @@ if (cluster.isMaster) {
         } catch (e) {
           console.warn(
             'encountered an error while trying to synchronize invite links with blobs',
+            e,
+          );
+        }
+      },
+    );
+  }
+  if (isPrimaryNode || isAuxiliaryNode) {
+    schedule.scheduleJob(
+      '0 */4 * * *', // every four hours
+      async () => {
+        try {
+          await backupDB();
+        } catch (e) {
+          console.warn('encountered error while trying to backup database', e);
+        }
+      },
+    );
+  }
+  if (RUN_COMM_TEAM_DEV_SCRIPTS && (isPrimaryNode || isAuxiliaryNode)) {
+    schedule.scheduleJob(
+      '0 0 * * *', // every day at midnight in the keyserver's timezone
+      async () => {
+        try {
+          await createDailyUpdatesThread();
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to create daily updates thread',
+            e,
+          );
+        }
+      },
+    );
+    schedule.scheduleJob(
+      '0 0 8 * *', // 8th of every month at midnight in the keyserver's timezone
+      async () => {
+        try {
+          await postLeaderboard();
+        } catch (e) {
+          console.warn(
+            'encountered error while trying to post Phabricator leaderboard',
             e,
           );
         }
