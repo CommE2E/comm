@@ -189,6 +189,8 @@ public:
 #ifdef EMSCRIPTEN
   virtual std::vector<WebThread> getAllThreadsWeb() const = 0;
   virtual void replaceThreadWeb(const WebThread &thread) const = 0;
+  virtual std::vector<MessageWithMedias>
+  transformToWebMessages(const std::vector<MessageEntity> &messages) const = 0;
   virtual std::vector<MessageWithMedias> getInitialMessagesWeb() const = 0;
   virtual void replaceMessageWeb(const WebMessage &message) const = 0;
   virtual NullableString getOlmPersistAccountDataWeb(int accountID) const = 0;

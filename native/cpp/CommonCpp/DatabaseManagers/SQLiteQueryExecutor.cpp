@@ -2822,17 +2822,21 @@ void SQLiteQueryExecutor::replaceThreadWeb(const WebThread &thread) const {
   this->replaceThread(thread.toThread());
 };
 
-std::vector<MessageWithMedias>
-SQLiteQueryExecutor::getInitialMessagesWeb() const {
-  auto messages = this->getInitialMessages();
-
-  std::vector<MessageWithMedias> allMessageWithMedias;
+std::vector<MessageWithMedias> SQLiteQueryExecutor::transformToWebMessages(
+    const std::vector<MessageEntity> &messages) const {
+  std::vector<MessageWithMedias> messageWithMedias;
   for (auto &messageWithMedia : messages) {
-    allMessageWithMedias.push_back(
+    messageWithMedias.push_back(
         {std::move(messageWithMedia.first), messageWithMedia.second});
   }
 
-  return allMessageWithMedias;
+  return messageWithMedias;
+}
+
+std::vector<MessageWithMedias>
+SQLiteQueryExecutor::getInitialMessagesWeb() const {
+  auto messages = this->getInitialMessages();
+  return this->transformToWebMessages(messages);
 }
 
 void SQLiteQueryExecutor::replaceMessageWeb(const WebMessage &message) const {
@@ -2852,14 +2856,7 @@ SQLiteQueryExecutor::getOlmPersistAccountDataWeb(int accountID) const {
 std::vector<MessageWithMedias>
 SQLiteQueryExecutor::getRelatedMessagesWeb(const std::string &messageID) const {
   auto relatedMessages = this->getRelatedMessages(messageID);
-
-  std::vector<MessageWithMedias> relatedMessagesWithMedias;
-  for (auto &messageWithMedia : relatedMessages) {
-    relatedMessagesWithMedias.push_back(
-        {std::move(messageWithMedia.first), messageWithMedia.second});
-  }
-
-  return relatedMessagesWithMedias;
+  return this->transformToWebMessages(relatedMessages);
 }
 
 std::vector<MessageWithMedias> SQLiteQueryExecutor::searchMessagesWeb(
@@ -2867,16 +2864,9 @@ std::vector<MessageWithMedias> SQLiteQueryExecutor::searchMessagesWeb(
     std::string threadID,
     std::optional<std::string> timestampCursor,
     std::optional<std::string> messageIDCursor) const {
-  auto allMessages =
+  auto messages =
       this->searchMessages(query, threadID, timestampCursor, messageIDCursor);
-
-  std::vector<MessageWithMedias> allMessagesWithMedias;
-  for (auto &messageWithMedia : allMessages) {
-    allMessagesWithMedias.push_back(
-        {std::move(messageWithMedia.first), messageWithMedia.second});
-  }
-
-  return allMessagesWithMedias;
+  return this->transformToWebMessages(messages);
 }
 #else
 void SQLiteQueryExecutor::clearSensitiveData() {
