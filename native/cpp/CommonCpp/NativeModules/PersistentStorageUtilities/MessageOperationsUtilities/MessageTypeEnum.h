@@ -2,6 +2,7 @@
 
 namespace comm {
 
+// Should be in sync with lib/types/message-types-enum.js
 enum class MessageType {
   TEXT = 0,
   CREATE_THREAD = 1,
