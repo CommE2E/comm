@@ -1,6 +1,9 @@
 // @flow
 
+import { threadTypes } from 'lib/types/thread-types-enum.js';
+
 import { getDatabaseModule } from '../db-module.js';
+import { createNullableString } from '../types/entities.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -82,6 +85,42 @@ describe('Message and media store queries', () => {
       uri: '1',
       type: 'photo',
       extras: '1',
+    });
+    queryExecutor.replaceThreadWeb({
+      id: '1',
+      type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+      name: createNullableString(),
+      avatar: createNullableString(),
+      description: createNullableString(),
+      color: 'ffffff',
+      creationTime: '1',
+      parentThreadID: createNullableString(),
+      containingThreadID: createNullableString(),
+      community: createNullableString(),
+      members: '1',
+      roles: '1',
+      currentUser: '{}',
+      sourceMessageID: createNullableString(),
+      repliesCount: 0,
+      pinnedCount: 0,
+    });
+    queryExecutor.replaceThreadWeb({
+      id: '2',
+      type: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
+      name: createNullableString(),
+      avatar: createNullableString(),
+      description: createNullableString(),
+      color: 'ffffff',
+      creationTime: '1',
+      parentThreadID: createNullableString(),
+      containingThreadID: createNullableString(),
+      community: createNullableString(),
+      members: '1',
+      roles: '1',
+      currentUser: '{}',
+      sourceMessageID: createNullableString(),
+      repliesCount: 0,
+      pinnedCount: 0,
     });
   });
 
