@@ -87,26 +87,28 @@ function mysqldump(
   extraParams: $ReadOnlyArray<string>,
   pipeParams?: { end?: boolean, ... },
 ): Promise<void> {
-  const mysqlDump = childProcess.spawn(
-    'mysqldump',
-    [
-      '-h',
-      dbConfig.host,
-      '-u',
-      dbConfig.user,
-      `-p${dbConfig.password}`,
-      '--single-transaction',
-      '--no-tablespaces',
-      '--default-character-set=utf8mb4',
-      '--net-buffer-length=523264',
-      '--max-allowed-packet=256M',
-      ...extraParams,
-      dbConfig.database,
-    ],
-    {
-      stdio: ['ignore', 'pipe', 'ignore'],
-    },
+  const params = [
+    '-h',
+    dbConfig.host,
+    '-u',
+    dbConfig.user,
+    `-p${dbConfig.password}`,
+  ];
+  if (dbConfig.port) {
+    params.push('-P', String(dbConfig.port));
+  }
+  params.push(
+    '--single-transaction',
+    '--no-tablespaces',
+    '--default-character-set=utf8mb4',
+    '--net-buffer-length=523264',
+    '--max-allowed-packet=256M',
+    ...extraParams,
+    dbConfig.database,
   );
+  const mysqlDump = childProcess.spawn('mysqldump', params, {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
   const extraParamsString = extraParams.join(' ');
   return new Promise((resolve, reject) => {
     mysqlDump.on('error', (e: Error) => {
