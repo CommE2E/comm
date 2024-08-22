@@ -269,6 +269,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::String threadID,
       std::optional<jsi::String> timestampCursor,
       std::optional<jsi::String> messageIDCursor) override;
+  virtual jsi::Value fetchMessages(
+      jsi::Runtime &rt,
+      jsi::String threadID,
+      double limit,
+      double offset) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
