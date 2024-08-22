@@ -198,6 +198,11 @@ interface Spec extends TurboModule {
     timestampCursor: ?string,
     messageIDCursor: ?string,
   ) => Promise<Array<ClientDBMessageInfo>>;
+  +fetchMessages: (
+    threadID: string,
+    limit: number,
+    offset: number,
+  ) => Promise<Array<ClientDBMessageInfo>>;
 }
 
 export interface CoreModuleSpec extends Spec {
