@@ -235,6 +235,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessag
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->searchMessages(rt, args[0].asString(rt), args[1].asString(rt), args[2].isNull() || args[2].isUndefined() ? std::nullopt : std::make_optional(args[2].asString(rt)), args[3].isNull() || args[3].isUndefined() ? std::nullopt : std::make_optional(args[3].asString(rt)));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->fetchMessages(rt, args[0].asString(rt), args[1].asNumber(), args[2].asNumber());
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -310,6 +313,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["markPrekeysAsPublished"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_markPrekeysAsPublished};
   methodMap_["getRelatedMessages"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getRelatedMessages};
   methodMap_["searchMessages"] = MethodMetadata {4, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_searchMessages};
+  methodMap_["fetchMessages"] = MethodMetadata {3, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_fetchMessages};
 }
 
 
