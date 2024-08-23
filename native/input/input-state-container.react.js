@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { createSelector } from 'reselect';
+import uuid from 'uuid';
 
 import type {
   SendMultimediaMessageInput,
@@ -45,6 +46,11 @@ import {
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
 import {
+  dmOperationSpecificationTypes,
+  type OutboundDMOperationSpecification,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
+import {
   createMediaMessageInfo,
   useMessageCreationSideEffectsFunc,
   getNextLocalID,
@@ -83,7 +89,10 @@ import {
   type ClientMediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types.js';
-import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsThick,
+  threadTypeIsSidebar,
+} from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -155,6 +164,9 @@ type Props = {
     input: SendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
+  +processAndSendDMOperation: (
+    dmOperationSpecification: OutboundDMOperationSpecification,
+  ) => Promise<void>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
@@ -457,6 +469,28 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parentThreadInfo: ?ThreadInfo,
   ) => {
     this.sendCallbacks.forEach(callback => callback());
+
+    // TODO: this should be update according to thread creation logic
+    // (ENG-8567)
+    if (threadTypeIsThick(inputThreadInfo.type)) {
+      const recipientIDs = inputThreadInfo.members.map(member => member.id);
+      void this.props.processAndSendDMOperation({
+        type: dmOperationSpecificationTypes.OUTBOUND,
+        op: {
+          type: 'send_text_message',
+          threadID: inputThreadInfo.id,
+          creatorID: messageInfo.creatorID,
+          time: Date.now(),
+          messageID: uuid.v4(),
+          text: messageInfo.text,
+        },
+        recipients: {
+          type: 'some_users',
+          userIDs: recipientIDs,
+        },
+      });
+      return;
+    }
 
     const { localID } = messageInfo;
     invariant(
@@ -1755,6 +1789,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
+    const processAndSendDMOperation = useProcessAndSendDMOperation();
 
     return (
       <InputStateContainer
@@ -1769,6 +1804,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         blobServiceUpload={callBlobServiceUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
+        processAndSendDMOperation={processAndSendDMOperation}
         newThinThread={callNewThinThread}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
