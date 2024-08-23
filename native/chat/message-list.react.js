@@ -6,25 +6,11 @@ import * as React from 'react';
 import { TouchableWithoutFeedback, View } from 'react-native';
 import { createSelector } from 'reselect';
 
-import {
-  fetchMessagesBeforeCursorActionTypes,
-  type FetchMessagesBeforeCursorInput,
-  fetchMostRecentMessagesActionTypes,
-  type FetchMostRecentMessagesInput,
-  useFetchMessagesBeforeCursor,
-  useFetchMostRecentMessages,
-} from 'lib/actions/message-actions.js';
-import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
-import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { useFetchMessages } from 'lib/actions/message-actions.js';
 import { messageKey } from 'lib/shared/message-utils.js';
 import { useWatchThread } from 'lib/shared/watch-thread-utils.js';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/redux-promise-utils.js';
 
 import ChatList from './chat-list.react.js';
 import type { ChatNavigationProp } from './chat.react.js';
@@ -78,16 +64,9 @@ type Props = {
   +startReached: boolean,
   +styles: $ReadOnly<typeof unboundStyles>,
   +indicatorStyle: IndicatorStyle,
-  +dispatchActionPromise: DispatchActionPromise,
-  +fetchMessagesBeforeCursor: (
-    input: FetchMessagesBeforeCursorInput,
-  ) => Promise<FetchMessageInfosPayload>,
-  +fetchMostRecentMessages: (
-    input: FetchMostRecentMessagesInput,
-  ) => Promise<FetchMessageInfosPayload>,
   +overlayContext: ?OverlayContextType,
   +keyboardState: ?KeyboardState,
-  +oldestMessageServerID: ?string,
+  +fetchMessages: () => Promise<mixed>,
 };
 type State = {
   +focusedMessageKey: ?string,
@@ -300,34 +279,16 @@ class MessageList extends React.PureComponent<Props, State> {
     }
 
     this.setState({ loadingFromScroll: true });
-    const { oldestMessageServerID } = this.props;
-    const threadID = this.props.threadInfo.id;
 
     void (async () => {
       try {
-        if (oldestMessageServerID) {
-          await this.props.dispatchActionPromise(
-            fetchMessagesBeforeCursorActionTypes,
-            this.props.fetchMessagesBeforeCursor({
-              threadID,
-              beforeMessageID: oldestMessageServerID,
-            }),
-          );
-        } else {
-          await this.props.dispatchActionPromise(
-            fetchMostRecentMessagesActionTypes,
-            this.props.fetchMostRecentMessages({ threadID }),
-          );
-        }
+        await this.props.fetchMessages();
       } finally {
         this.setState({ loadingFromScroll: false });
       }
     })();
   };
 }
-
-registerFetchKey(fetchMessagesBeforeCursorActionTypes);
-registerFetchKey(fetchMostRecentMessagesActionTypes);
 
 const ConnectedMessageList: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedMessageList(props: BaseProps) {
@@ -346,11 +307,7 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callFetchMessagesBeforeCursor = useFetchMessagesBeforeCursor();
-    const callFetchMostRecentMessages = useFetchMostRecentMessages();
-
-    const oldestMessageServerID = useOldestMessageServerID(threadID);
+    const fetchMessages = useFetchMessages(props.threadInfo);
 
     useWatchThread(props.threadInfo);
 
@@ -360,12 +317,9 @@ const ConnectedMessageList: React.ComponentType<BaseProps> =
         startReached={startReached}
         styles={styles}
         indicatorStyle={indicatorStyle}
-        dispatchActionPromise={dispatchActionPromise}
-        fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-        fetchMostRecentMessages={callFetchMostRecentMessages}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
-        oldestMessageServerID={oldestMessageServerID}
+        fetchMessages={fetchMessages}
       />
     );
   });
