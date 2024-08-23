@@ -6,19 +6,8 @@ import invariant from 'invariant';
 import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
-import type {
-  FetchMessagesBeforeCursorInput,
-  FetchMostRecentMessagesInput,
-} from 'lib/actions/message-actions.js';
-import {
-  fetchMessagesBeforeCursorActionTypes,
-  fetchMostRecentMessagesActionTypes,
-  useFetchMessagesBeforeCursor,
-  useFetchMostRecentMessages,
-} from 'lib/actions/message-actions.js';
+import { useFetchMessages } from 'lib/actions/message-actions.js';
 import { useThreadChatMentionCandidates } from 'lib/hooks/chat-mention-hooks.js';
-import { useOldestMessageServerID } from 'lib/hooks/message-hooks.js';
-import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import {
   type ChatMessageItem,
   useMessageListData,
@@ -28,13 +17,8 @@ import {
   threadIsPending,
   threadOtherMembers,
 } from 'lib/shared/thread-utils.js';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import {
-  type DispatchActionPromise,
-  useDispatchActionPromise,
-} from 'lib/utils/redux-promise-utils.js';
 
 import { defaultMaxTextAreaHeight, editBoxHeight } from './chat-constants.js';
 import css from './chat-message-list.css';
@@ -66,20 +50,13 @@ type Props = {
   +activeChatThreadID: ?string,
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
-  +dispatchActionPromise: DispatchActionPromise,
-  +fetchMessagesBeforeCursor: (
-    input: FetchMessagesBeforeCursorInput,
-  ) => Promise<FetchMessageInfosPayload>,
-  +fetchMostRecentMessages: (
-    input: FetchMostRecentMessagesInput,
-  ) => Promise<FetchMessageInfosPayload>,
   +inputState: ?InputState,
   +clearTooltip: () => mixed,
-  +oldestMessageServerID: ?string,
   +isEditState: boolean,
   +addScrollToMessageListener: ScrollToMessageCallback => mixed,
   +removeScrollToMessageListener: ScrollToMessageCallback => mixed,
   +viewerID: ?string,
+  +fetchMessages: () => Promise<mixed>,
 };
 type Snapshot = {
   +scrollTop: number,
@@ -401,33 +378,14 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
     this.loadingFromScroll = true;
 
-    const threadID = this.props.activeChatThreadID;
-    invariant(threadID, 'should be set');
-
     try {
-      const { oldestMessageServerID } = this.props;
-      if (oldestMessageServerID) {
-        await this.props.dispatchActionPromise(
-          fetchMessagesBeforeCursorActionTypes,
-          this.props.fetchMessagesBeforeCursor({
-            threadID,
-            beforeMessageID: oldestMessageServerID,
-          }),
-        );
-      } else {
-        await this.props.dispatchActionPromise(
-          fetchMostRecentMessagesActionTypes,
-          this.props.fetchMostRecentMessages({ threadID }),
-        );
-      }
+      await this.props.fetchMessages();
     } finally {
       this.loadingFromScroll = false;
     }
   }
 }
 
-registerFetchKey(fetchMessagesBeforeCursorActionTypes);
-registerFetchKey(fetchMostRecentMessagesActionTypes);
 const ConnectedChatMessageList: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedChatMessageList(
     props: BaseProps,
@@ -456,9 +414,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
       return threadMessageInfo.startReached;
     });
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callFetchMessagesBeforeCursor = useFetchMessagesBeforeCursor();
-    const callFetchMostRecentMessages = useFetchMostRecentMessages();
+    const fetchMessages = useFetchMessages(threadInfo);
 
     const inputState = React.useContext(InputStateContext);
 
@@ -475,8 +431,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
       }
       return { getTextMessageMarkdownRules };
     }, [getTextMessageMarkdownRules]);
-
-    const oldestMessageServerID = useOldestMessageServerID(threadInfo.id);
 
     const {
       editState,
@@ -495,15 +449,12 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> =
           messageListData={messageListData}
           startReached={startReached}
           inputState={inputState}
-          dispatchActionPromise={dispatchActionPromise}
-          fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-          fetchMostRecentMessages={callFetchMostRecentMessages}
           clearTooltip={clearTooltip}
-          oldestMessageServerID={oldestMessageServerID}
           isEditState={isEditState}
           addScrollToMessageListener={addScrollToMessageListener}
           removeScrollToMessageListener={removeScrollToMessageListener}
           viewerID={viewerID}
+          fetchMessages={fetchMessages}
         />
       </MessageListContext.Provider>
     );
