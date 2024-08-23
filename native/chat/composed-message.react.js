@@ -125,7 +125,13 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       let deliveryIconName;
       let deliveryIconColor = `#${item.threadInfo.color}`;
 
-      if (id !== null && id !== undefined) {
+      const notDeliveredP2PMessages =
+        item?.localMessageInfo?.outboundP2PMessageIDs ?? [];
+      if (
+        id !== null &&
+        id !== undefined &&
+        notDeliveredP2PMessages.length === 0
+      ) {
         deliveryIconName = 'check-circle';
       } else if (sendFailed) {
         deliveryIconName = 'x-circle';
@@ -149,6 +155,7 @@ const ConnectedComposedMessage: React.ComponentType<Props> = React.memo<Props>(
       deliveryIconOpacity,
       id,
       isViewer,
+      item?.localMessageInfo?.outboundP2PMessageIDs,
       item.threadInfo.color,
       sendFailed,
     ]);

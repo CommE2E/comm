@@ -116,7 +116,14 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (isViewer) {
       let deliveryIconSpan;
       let deliveryIconColor = threadColor;
-      if (id !== null && id !== undefined) {
+
+      const notDeliveredP2PMessages =
+        item?.localMessageInfo?.outboundP2PMessageIDs ?? [];
+      if (
+        id !== null &&
+        id !== undefined &&
+        notDeliveredP2PMessages.length === 0
+      ) {
         deliveryIconSpan = <CheckCircleIcon />;
       } else if (this.props.sendFailed) {
         deliveryIconSpan = <XCircleIcon />;
