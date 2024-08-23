@@ -5,11 +5,16 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { useRetrySendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { messageID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { RawComposableMessageInfo } from 'lib/types/message-types.js';
-import { assertComposableRawMessage } from 'lib/types/message-types.js';
+import {
+  type RawComposableMessageInfo,
+  assertComposableRawMessage,
+  type LocalMessageInfo,
+} from 'lib/types/message-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 
 import { multimediaMessageSendFailed } from './multimedia-message-utils.js';
 import textMessageSendFailed from './text-message-send-failed.js';
@@ -47,6 +52,10 @@ type Props = {
   +styles: $ReadOnly<typeof unboundStyles>,
   +inputState: ?InputState,
   +parentThreadInfo: ?ThreadInfo,
+  +retrySendDMOperation: (
+    messageID: string,
+    localMessageInfo: LocalMessageInfo,
+  ) => Promise<void>,
 };
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;
@@ -135,6 +144,18 @@ class FailedSend extends React.PureComponent<Props> {
       this.retryingMedia = true;
     }
 
+    if (threadTypeIsThick(this.props.item.threadInfo.type)) {
+      const failedMessageID = this.props.rawMessageInfo?.id;
+      invariant(failedMessageID, 'failedMessageID should be set for DMs');
+      const localMessageInfo = this.props.item.localMessageInfo;
+      invariant(
+        localMessageInfo,
+        'localMessageInfo should be set for failed message',
+      );
+      void this.props.retrySendDMOperation(failedMessageID, localMessageInfo);
+      return;
+    }
+
     const { inputState } = this.props;
     invariant(
       inputState,
@@ -163,6 +184,8 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
     const parentThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
+    const retrySendDMOperation = useRetrySendDMOperation();
+
     return (
       <FailedSend
         {...props}
@@ -170,6 +193,7 @@ const ConnectedFailedSend: React.ComponentType<BaseProps> =
         styles={styles}
         inputState={inputState}
         parentThreadInfo={parentThreadInfo}
+        retrySendDMOperation={retrySendDMOperation}
       />
     );
   });
