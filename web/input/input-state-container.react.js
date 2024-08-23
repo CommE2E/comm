@@ -9,6 +9,7 @@ import _sortBy from 'lodash/fp/sortBy.js';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
+import uuid from 'uuid';
 
 import type {
   LegacySendMultimediaMessageInput,
@@ -42,6 +43,11 @@ import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import {
+  dmOperationSpecificationTypes,
+  type OutboundDMOperationSpecification,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
@@ -80,7 +86,10 @@ import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
-import { threadTypeIsSidebar } from 'lib/types/thread-types-enum.js';
+import {
+  threadTypeIsSidebar,
+  threadTypeIsThick,
+} from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -149,6 +158,9 @@ type Props = {
     input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
+  +processAndSendDMOperation: (
+    dmOperationSpecification: OutboundDMOperationSpecification,
+  ) => Promise<void>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
@@ -1268,6 +1280,31 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
+    // TODO: this should be update according to thread creation logic
+    // (ENG-8567)
+    if (threadTypeIsThick(inputThreadInfo.type)) {
+      const recipientIDs = inputThreadInfo.members
+        .filter(member => !member.isSender)
+        .map(member => member.id);
+      void this.props.processAndSendDMOperation({
+        type: dmOperationSpecificationTypes.OUTBOUND,
+        op: {
+          type: 'send_text_message',
+          threadID: inputThreadInfo.id,
+          creatorID: messageInfo.creatorID,
+          time: Date.now(),
+          messageID: uuid.v4(),
+          text: messageInfo.text,
+        },
+        supportsAutoRetry: false,
+        recipients: {
+          type: 'some_users',
+          userIDs: recipientIDs,
+        },
+      });
+      return;
+    }
+
     const { localID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
@@ -1678,6 +1715,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
     const identityContext = React.useContext(IdentityClientContext);
+    const processAndSendDMOperation = useProcessAndSendDMOperation();
 
     const [sendCallbacks, setSendCallbacks] = React.useState<
       $ReadOnlyArray<() => mixed>,
@@ -1710,6 +1748,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
+        processAndSendDMOperation={processAndSendDMOperation}
         newThinThread={callNewThinThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
