@@ -85,6 +85,7 @@
     "sharp": "^0.30.5",
     "siwe": "^2.1.4",
     "sql-template-strings": "^2.2.2",
+    "stoppable": "^1.1.0",
     "tcomb": "^3.2.29",
     "twin-bcrypt": "^2.1.1",
     "uuid": "^3.4.0",
