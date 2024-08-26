@@ -27,6 +27,11 @@ public:
   static std::vector<std::string> getAllKeys();
   static void removeKeys(const std::vector<std::string> &keys);
 
+  static void addElementToStringSet(std::string setKey, std::string element);
+  static void
+  removeElementFromStringSet(std::string setKey, std::string element);
+  static int getStringSetSize(std::string setKey);
+
   class InitFromNSEForbiddenError : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
