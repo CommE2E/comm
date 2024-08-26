@@ -96,6 +96,32 @@ public:
     }
     method(cls, keysJava);
   }
+
+  static void addElementToStringSet(std::string setKey, std::string element) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void(std::string, std::string)>(
+        "addElementToStringSet");
+    method(cls, setKey, element);
+  }
+
+  static void
+  removeElementFromStringSet(std::string setKey, std::string element) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void(std::string, std::string)>(
+        "removeElementFromStringSet");
+    method(cls, setKey, element);
+  }
+
+  static int getStringSetSize(std::string setKey) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JInteger(std::string)>("getStringSetSize");
+    const auto result = method(cls, setKey);
+    if (result) {
+      return result->value();
+    }
+    return 0;
+  }
 };
 
 namespace comm {
@@ -156,5 +182,25 @@ std::vector<std::string> CommMMKV::getAllKeys() {
 void CommMMKV::removeKeys(const std::vector<std::string> &keys) {
   NativeAndroidAccessProvider::runTask(
       [&]() { CommMMKVJavaClass::removeKeys(keys); });
+}
+
+void CommMMKV::addElementToStringSet(std::string setKey, std::string element) {
+  NativeAndroidAccessProvider::runTask(
+      [&]() { CommMMKVJavaClass::addElementToStringSet(setKey, element); });
+}
+
+void CommMMKV::removeElementFromStringSet(
+    std::string setKey,
+    std::string element) {
+  NativeAndroidAccessProvider::runTask([&]() {
+    CommMMKVJavaClass::removeElementFromStringSet(setKey, element);
+  });
+}
+
+int CommMMKV::getStringSetSize(std::string setKey) {
+  int result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::getStringSetSize(setKey); });
+  return result;
 }
 } // namespace comm
