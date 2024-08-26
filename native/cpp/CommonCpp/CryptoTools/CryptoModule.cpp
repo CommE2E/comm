@@ -14,7 +14,7 @@ namespace crypto {
 
 // This definition should remain in sync with the value defined in
 // the corresponding JavaScript file at `lib/utils/olm-utils.js`.
-const std::string SESSION_DOES_NOT_EXISTS_ERROR{"SESSION_DOES_NOT_EXISTS"};
+const std::string SESSION_DOES_NOT_EXIST_ERROR{"SESSION_DOES_NOT_EXIST"};
 const std::string INVALID_SESSION_VERSION_ERROR{"INVALID_SESSION_VERSION"};
 
 CryptoModule::CryptoModule(std::string id) : id{id} {
@@ -386,7 +386,7 @@ EncryptedData CryptoModule::encrypt(
     const std::string &targetDeviceId,
     const std::string &content) {
   if (!this->hasSessionFor(targetDeviceId)) {
-    throw std::runtime_error{SESSION_DOES_NOT_EXISTS_ERROR};
+    throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
   return this->sessions.at(targetDeviceId)->encrypt(content);
 }
@@ -395,7 +395,7 @@ std::string CryptoModule::decrypt(
     const std::string &targetDeviceId,
     EncryptedData &encryptedData) {
   if (!this->hasSessionFor(targetDeviceId)) {
-    throw std::runtime_error{SESSION_DOES_NOT_EXISTS_ERROR};
+    throw std::runtime_error{SESSION_DOES_NOT_EXIST_ERROR};
   }
   auto session = this->sessions.at(targetDeviceId);
   if (encryptedData.sessionVersion.has_value() &&
