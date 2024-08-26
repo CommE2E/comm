@@ -715,9 +715,19 @@ NotificationsCryptoModule::statefulPeerDecrypt(
   // At this point we either face race condition or session reset attempt or
   // session initialization attempt. For each of this scenario new inbound
   // session must be created in order to decrypt message
-  std::string notifInboundKeys =
+  std::string notifsCurve25519 =
       NotificationsInboundKeysProvider::getNotifsInboundKeysForDeviceID(
           deviceID);
+  // There are several reason to create JSON with curve25519 only:
+  //    1. We only need curve25519 to create inbound session.
+  //    2. In Session.cpp there is a convention to pass curve25519
+  //       key as JSON and then add offset length to advance
+  //       the string pointer.
+  //    3. There is a risk that stringification might not preserve
+  //       the order.
+
+  std::string notifInboundKeys =
+      folly::toJson(folly::dynamic::object("curve25519", notifsCurve25519));
 
   if (!maybeAccountWithPicklingKey.has_value()) {
     throw std::runtime_error("Notifications account not initialized.");
