@@ -12,6 +12,7 @@
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const messageInfosKey = @"messageInfos";
+NSString *const threadIDKey = @"threadID";
 NSString *const encryptedPayloadKey = @"encryptedPayload";
 NSString *const encryptionFailedKey = @"encryptionFailed";
 NSString *const collapseIDKey = @"collapseID";
@@ -28,6 +29,7 @@ NSString *const needsSilentBadgeUpdateKey = @"needsSilentBadgeUpdate";
 const std::string mmkvKeySeparator = ".";
 const std::string mmkvKeyserverPrefix = "KEYSERVER";
 const std::string mmkvUnreadCountSuffix = "UNREAD_COUNT";
+const std::string unreadThickThreads = "NOTIFS.UNREAD_THICK_THREADS";
 
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -177,27 +179,25 @@ std::string joinStrings(
   }
 
   // Step 3: Cumulative unread count calculation
-  if (content.badge) {
-    std::string unreadCountCalculationError;
-    try {
-      @try {
-        [self calculateTotalUnreadCountInPlace:content];
-      } @catch (NSException *e) {
-        unreadCountCalculationError =
-            "Obj-C exception: " + std::string([e.name UTF8String]) +
-            " during unread count calculation.";
-      }
-    } catch (const std::exception &e) {
-      unreadCountCalculationError = "C++ exception: " + std::string(e.what()) +
+  std::string unreadCountCalculationError;
+  try {
+    @try {
+      [self calculateTotalUnreadCountInPlace:content];
+    } @catch (NSException *e) {
+      unreadCountCalculationError =
+          "Obj-C exception: " + std::string([e.name UTF8String]) +
           " during unread count calculation.";
     }
+  } catch (const std::exception &e) {
+    unreadCountCalculationError = "C++ exception: " + std::string(e.what()) +
+        " during unread count calculation.";
+  }
 
-    if (unreadCountCalculationError.size() &&
-        comm::StaffUtils::isStaffRelease()) {
-      [errorMessages
-          addObject:[NSString stringWithUTF8String:unreadCountCalculationError
-                                                       .c_str()]];
-    }
+  if (unreadCountCalculationError.size() &&
+      comm::StaffUtils::isStaffRelease()) {
+    [errorMessages
+        addObject:[NSString stringWithUTF8String:unreadCountCalculationError
+                                                     .c_str()]];
   }
 
   // Step 4: (optional) rescind read notifications
@@ -208,11 +208,21 @@ std::string joinStrings(
     std::string rescindErrorMessage;
     try {
       @try {
-        [self removeNotificationsWithCondition:^BOOL(
-                  UNNotification *_Nonnull notif) {
-          return [content.userInfo[@"notificationId"]
-              isEqualToString:notif.request.content.userInfo[@"id"]];
-        }];
+        if (content.userInfo[@"notificationId"]) {
+          // thin thread rescind
+          [self removeNotificationsWithCondition:^BOOL(
+                    UNNotification *_Nonnull notif) {
+            return [content.userInfo[@"notificationId"]
+                isEqualToString:notif.request.content.userInfo[@"id"]];
+          }];
+        } else if (content.userInfo[threadIDKey]) {
+          // thick thread rescind
+          [self removeNotificationsWithCondition:^BOOL(
+                    UNNotification *_Nonnull notif) {
+            return [content.userInfo[threadIDKey]
+                isEqualToString:notif.request.content.userInfo[threadIDKey]];
+          }];
+        }
       } @catch (NSException *e) {
         rescindErrorMessage =
             "Obj-C exception: " + std::string([e.name UTF8String]) +
@@ -505,20 +515,32 @@ std::string joinStrings(
 
 - (void)calculateTotalUnreadCountInPlace:
     (UNMutableNotificationContent *)content {
-  if (!content.userInfo[keyserverIDKey]) {
-    return;
+
+  if (content.userInfo[keyserverIDKey] && content.badge) {
+    std::string senderKeyserverID =
+        std::string([content.userInfo[keyserverIDKey] UTF8String]);
+    std::string senderKeyserverUnreadCountKey = joinStrings(
+        mmkvKeySeparator,
+        {mmkvKeyserverPrefix, senderKeyserverID, mmkvUnreadCountSuffix});
+
+    int senderKeyserverUnreadCount = [content.badge intValue];
+    comm::CommMMKV::setInt(
+        senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
   }
-  std::string senderKeyserverID =
-      std::string([content.userInfo[keyserverIDKey] UTF8String]);
 
-  std::string senderKeyserverUnreadCountKey = joinStrings(
-      mmkvKeySeparator,
-      {mmkvKeyserverPrefix, senderKeyserverID, mmkvUnreadCountSuffix});
+  if (content.userInfo[senderDeviceIDKey] && content.userInfo[threadIDKey] &&
+      [self isRescind:content.userInfo]) {
+    comm::CommMMKV::removeElementFromStringSet(
+        unreadThickThreads,
+        std::string([content.userInfo[threadIDKey] UTF8String]));
+  } else if (
+      content.userInfo[senderDeviceIDKey] && content.userInfo[threadIDKey]) {
+    comm::CommMMKV::addElementToStringSet(
+        unreadThickThreads,
+        std::string([content.userInfo[threadIDKey] UTF8String]));
+  }
 
-  int senderKeyserverUnreadCount = [content.badge intValue];
-  comm::CommMMKV::setInt(
-      senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
-
+  // calculate unread counts from keyservers
   int totalUnreadCount = 0;
   std::vector<std::string> allKeys = comm::CommMMKV::getAllKeys();
   for (const auto &key : allKeys) {
@@ -538,6 +560,9 @@ std::string joinStrings(
     }
     totalUnreadCount += unreadCount.value();
   }
+
+  // calculate unread counts from thick threads
+  totalUnreadCount += comm::CommMMKV::getStringSet(unreadThickThreads).size();
 
   content.badge = @(totalUnreadCount);
 }
@@ -658,10 +683,10 @@ std::string joinStrings(
     mutableUserInfo[needsSilentBadgeUpdateKey] = @(YES);
   }
 
-  NSString *threadID = decryptedPayload[@"threadID"];
+  NSString *threadID = decryptedPayload[threadIDKey];
   if (threadID) {
     content.threadIdentifier = threadID;
-    mutableUserInfo[@"threadID"] = threadID;
+    mutableUserInfo[threadIDKey] = threadID;
     if (mutableAps) {
       mutableAps[@"thread-id"] = threadID;
     }
@@ -678,7 +703,7 @@ std::string joinStrings(
 
   // The rest have been already decrypted and handled.
   static NSArray<NSString *> *handledKeys =
-      @[ @"merged", @"badge", @"threadID" ];
+      @[ @"merged", @"badge", threadIDKey ];
 
   for (NSString *payloadKey in decryptedPayload) {
     if ([handledKeys containsObject:payloadKey]) {
