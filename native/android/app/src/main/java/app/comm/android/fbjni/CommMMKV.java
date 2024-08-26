@@ -6,6 +6,7 @@ import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.PlatformSpecificTools;
 import com.tencent.mmkv.MMKV;
 import java.util.Base64;
+import java.util.Set;
 
 public class CommMMKV {
   private static final int MMKV_ENCRYPTION_KEY_SIZE = 16;
@@ -134,5 +135,49 @@ public class CommMMKV {
     initialize();
     getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey)
         .removeValuesForKeys(keys);
+  }
+
+  public static void addElementToStringSet(String setKey, String element) {
+    initialize();
+    MMKV mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+    mmkv.lock();
+    try {
+      Set<String> stringSet = mmkv.decodeStringSet(setKey);
+      if (stringSet != null) {
+        stringSet.add(element);
+      } else {
+        stringSet = Set.of(element);
+      }
+      mmkv.encode(setKey, stringSet);
+    } finally {
+      mmkv.unlock();
+    }
+  }
+
+  public static void removeElementFromStringSet(String setKey, String element) {
+    initialize();
+    MMKV mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+    mmkv.lock();
+    try {
+      Set<String> stringSet = mmkv.decodeStringSet(setKey);
+      if (stringSet == null) {
+        return;
+      }
+      stringSet.remove(element);
+      mmkv.encode(setKey, stringSet);
+    } finally {
+      mmkv.unlock();
+    }
+  }
+
+  public static String[] getStringSet(String setKey) {
+    initialize();
+    Set<String> stringSet = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey)
+                                .decodeStringSet(setKey);
+    if (stringSet == null) {
+      return new String[0];
+    }
+
+    return stringSet.toArray(new String[stringSet.size()]);
   }
 }
