@@ -212,4 +212,62 @@ void CommMMKV::removeKeys(const std::vector<std::string> &keys) {
   [mmkv removeValuesForKeys:keysObjC];
 }
 
+void CommMMKV::addElementToStringSet(std::string setKey, std::string element) {
+  NSString *setKeyObjC = [NSString stringWithCString:setKey.c_str()
+                                            encoding:NSUTF8StringEncoding];
+  NSString *elementObjC = [NSString stringWithCString:element.c_str()
+                                             encoding:NSUTF8StringEncoding];
+
+  CommMMKV::ScopedCommMMKVLock();
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  NSMutableSet *stringSet =
+      [mmkv getObjectOfClass:NSMutableSet.class forKey:setKeyObjC];
+
+  if (stringSet) {
+    [stringSet addObject:elementObjC];
+  } else {
+    stringSet = [NSMutableSet setWithObject:elementObjC];
+  }
+
+  [mmkv setObject:stringSet forKey:setKeyObjC];
+}
+
+void CommMMKV::removeElementFromStringSet(
+    std::string setKey,
+    std::string element) {
+  NSString *setKeyObjC = [NSString stringWithCString:setKey.c_str()
+                                            encoding:NSUTF8StringEncoding];
+  NSString *elementObjC = [NSString stringWithCString:element.c_str()
+                                             encoding:NSUTF8StringEncoding];
+
+  CommMMKV::ScopedCommMMKVLock();
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  NSMutableSet *stringSet =
+      [mmkv getObjectOfClass:NSMutableSet.class forKey:setKeyObjC];
+
+  if (!stringSet) {
+    return;
+  }
+
+  [stringSet removeObject:elementObjC];
+  [mmkv setObject:stringSet forKey:setKeyObjC];
+}
+
+std::vector<std::string> CommMMKV::getStringSet(std::string setKey) {
+  NSString *setKeyObjC = [NSString stringWithCString:setKey.c_str()
+                                            encoding:NSUTF8StringEncoding];
+
+  CommMMKV::ScopedCommMMKVLock();
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  NSMutableSet *stringSet =
+      [mmkv getObjectOfClass:NSMutableSet.class forKey:setKeyObjC];
+
+  std::vector<std::string> stringSetCpp{};
+  for (NSString *element in stringSet) {
+    stringSetCpp.emplace_back(std::string{[element UTF8String]});
+  }
+
+  return stringSetCpp;
+}
+
 } // namespace comm
