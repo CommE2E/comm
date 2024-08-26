@@ -11,6 +11,7 @@ import type { $Request, $Response } from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 import qrcode from 'qrcode';
+import stoppable from 'stoppable';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
@@ -110,12 +111,41 @@ void (async () => {
 
   if (cluster.isMaster) {
     if (isPrimaryNode) {
+      const healthCheckApp = express();
+      healthCheckApp.use(express.json({ limit: '250mb' }));
+      healthCheckApp.get('/health', (req: $Request, res: $Response) => {
+        res.send('OK');
+      });
+
+      // We use stoppable to allow forcibly stopping the health check server
+      // on the master process so that non-master processes can successfully
+      // initialize their express servers on the same port without conflict
+      const healthCheckServer = stoppable(
+        healthCheckApp.listen(
+          parseInt(process.env.PORT, 10) || 3000,
+          listenAddress,
+        ),
+        0,
+      );
+
       const didMigrationsSucceed: boolean = await migrate();
       if (!didMigrationsSucceed) {
         // The following line uses exit code 2 to ensure nodemon exits
         // in a dev environment, instead of restarting. Context provided
         // in https://github.com/remy/nodemon/issues/751
         process.exit(2);
+      }
+
+      if (healthCheckServer) {
+        await new Promise((resolve, reject) => {
+          healthCheckServer.stop(err => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
       }
     }
 
