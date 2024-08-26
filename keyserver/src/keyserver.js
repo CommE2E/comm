@@ -17,7 +17,10 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { identityDeviceTypes } from 'lib/types/identity-service-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
+import sleep from 'lib/utils/sleep.js';
 
+import { fetchDBVersion } from './database/db-version.js';
+import { newDatabaseVersion } from './database/migration-config.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
@@ -192,6 +195,27 @@ void (async () => {
       res.send('OK');
     });
 
+    const listenAddress = (() => {
+      if (process.env.COMM_LISTEN_ADDR) {
+        return process.env.COMM_LISTEN_ADDR;
+      } else if (process.env.NODE_ENV === 'development') {
+        return undefined;
+      } else {
+        return 'localhost';
+      }
+    })();
+
+    server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
+
+    if (isSecondaryNode) {
+      let dbVersion = await fetchDBVersion();
+      while (dbVersion < newDatabaseVersion) {
+        await sleep(10000);
+
+        dbVersion = await fetchDBVersion();
+      }
+    }
+
     // Note - the order of router declarations matters. On prod we have
     // keyserverBaseRoutePath configured to '/', which means it's a catch-all.
     // If we call server.use on keyserverRouter first, it will catch all
@@ -316,17 +340,5 @@ void (async () => {
         res.redirect(newURL);
       });
     }
-
-    const listenAddress = (() => {
-      if (process.env.COMM_LISTEN_ADDR) {
-        return process.env.COMM_LISTEN_ADDR;
-      } else if (process.env.NODE_ENV === 'development') {
-        return undefined;
-      } else {
-        return 'localhost';
-      }
-    })();
-
-    server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
   }
 })();
