@@ -96,6 +96,35 @@ public:
     }
     method(cls, keysJava);
   }
+
+  static void addElementToStringSet(std::string setKey, std::string element) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void(std::string, std::string)>(
+        "addElementToStringSet");
+    method(cls, setKey, element);
+  }
+
+  static void
+  removeElementFromStringSet(std::string setKey, std::string element) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<void(std::string, std::string)>(
+        "removeElementFromStringSet");
+    method(cls, setKey, element);
+  }
+
+  static std::vector<std::string> getStringSet(std::string setKey) {
+    static const auto cls = javaClassStatic();
+    static auto method =
+        cls->getStaticMethod<JArrayClass<JString>(std::string)>("getStringSet");
+    auto methodResult = method(cls, setKey);
+
+    std::vector<std::string> result;
+    for (int i = 0; i < methodResult->size(); i++) {
+      result.push_back(methodResult->getElement(i)->toStdString());
+    }
+
+    return result;
+  }
 };
 
 namespace comm {
@@ -156,5 +185,25 @@ std::vector<std::string> CommMMKV::getAllKeys() {
 void CommMMKV::removeKeys(const std::vector<std::string> &keys) {
   NativeAndroidAccessProvider::runTask(
       [&]() { CommMMKVJavaClass::removeKeys(keys); });
+}
+
+void CommMMKV::addElementToStringSet(std::string setKey, std::string element) {
+  NativeAndroidAccessProvider::runTask(
+      [&]() { CommMMKVJavaClass::addElementToStringSet(setKey, element); });
+}
+
+void CommMMKV::removeElementFromStringSet(
+    std::string setKey,
+    std::string element) {
+  NativeAndroidAccessProvider::runTask([&]() {
+    CommMMKVJavaClass::removeElementFromStringSet(setKey, element);
+  });
+}
+
+std::vector<std::string> CommMMKV::getStringSet(std::string setKey) {
+  std::vector<std::string> result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::getStringSet(setKey); });
+  return result;
 }
 } // namespace comm
