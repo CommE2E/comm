@@ -68,6 +68,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String MMKV_KEY_SEPARATOR = ".";
   private static final String MMKV_KEYSERVER_PREFIX = "KEYSERVER";
   private static final String MMKV_UNREAD_COUNT_SUFFIX = "UNREAD_COUNT";
+  private static final String MMKV_UNREAD_THICK_THREADS =
+      "NOTIFS.UNREAD_THICK_THREADS";
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
@@ -244,13 +246,22 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     for (StatusBarNotification notification :
          notificationManager.getActiveNotifications()) {
       String tag = notification.getTag();
+      Bundle data = notification.getNotification().extras;
+
+      boolean thinThreadRescind =
+          tag != null && rescindID != null && tag.equals(rescindID);
+
+      boolean thickThreadRescind = tag != null && data != null &&
+          threadID.equals(data.getString("threadID"));
+
       boolean isGroupMember =
           threadID.equals(notification.getNotification().getGroup());
+
       boolean isGroupSummary =
           (notification.getNotification().flags &
            Notification.FLAG_GROUP_SUMMARY) == Notification.FLAG_GROUP_SUMMARY;
 
-      if (tag != null && tag.equals(rescindID)) {
+      if (thinThreadRescind || thickThreadRescind) {
         notificationManager.cancel(notification.getTag(), notification.getId());
       } else if (
           isGroupMember && isGroupSummary && StaffUtils.isStaffRelease()) {
@@ -271,30 +282,38 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   }
 
   private void handleUnreadCountUpdate(RemoteMessage message) {
-    if (message.getData().get(KEYSERVER_ID_KEY) == null) {
-      return;
+    if (message.getData().get(KEYSERVER_ID_KEY) != null &&
+        message.getData().get(BADGE_KEY) != null) {
+      String badge = message.getData().get(BADGE_KEY);
+      String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
+      String senderKeyserverUnreadCountKey = String.join(
+          MMKV_KEY_SEPARATOR,
+          MMKV_KEYSERVER_PREFIX,
+          senderKeyserverID,
+          MMKV_UNREAD_COUNT_SUFFIX);
+
+      int senderKeyserverUnreadCount;
+      try {
+        senderKeyserverUnreadCount = Integer.parseInt(badge);
+      } catch (NumberFormatException e) {
+        Log.w("COMM", "Invalid badge count", e);
+        return;
+      }
+      CommMMKV.setInt(
+          senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
     }
 
-    String badge = message.getData().get(BADGE_KEY);
-    if (badge == null) {
-      return;
+    if (message.getData().get(SENDER_DEVICE_ID_KEY) != null &&
+        message.getData().get(THREAD_ID_KEY) != null &&
+        message.getData().get(RESCIND_KEY) != null) {
+      CommMMKV.removeElementFromStringSet(
+          MMKV_UNREAD_THICK_THREADS, message.getData().get(THREAD_ID_KEY));
+    } else if (
+        message.getData().get(SENDER_DEVICE_ID_KEY) != null &&
+        message.getData().get(THREAD_ID_KEY) != null) {
+      CommMMKV.addElementToStringSet(
+          MMKV_UNREAD_THICK_THREADS, message.getData().get(THREAD_ID_KEY));
     }
-
-    String senderKeyserverID = message.getData().get(KEYSERVER_ID_KEY);
-    String senderKeyserverUnreadCountKey = String.join(
-        MMKV_KEY_SEPARATOR,
-        MMKV_KEYSERVER_PREFIX,
-        senderKeyserverID,
-        MMKV_UNREAD_COUNT_SUFFIX);
-
-    int senderKeyserverUnreadCount;
-    try {
-      senderKeyserverUnreadCount = Integer.parseInt(badge);
-    } catch (NumberFormatException e) {
-      Log.w("COMM", "Invalid badge count", e);
-      return;
-    }
-    CommMMKV.setInt(senderKeyserverUnreadCountKey, senderKeyserverUnreadCount);
 
     int totalUnreadCount = 0;
     String[] allKeys = CommMMKV.getAllKeys();
@@ -312,6 +331,8 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
 
       totalUnreadCount += unreadCount;
     }
+
+    totalUnreadCount += CommMMKV.getStringSet(MMKV_UNREAD_THICK_THREADS).length;
 
     if (totalUnreadCount > 0) {
       ShortcutBadger.applyCount(this, totalUnreadCount);
