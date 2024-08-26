@@ -11,6 +11,7 @@ import type { $Request, $Response } from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 import qrcode from 'qrcode';
+import stoppable from 'stoppable';
 
 import './cron/cron.js';
 import { qrCodeLinkURL } from 'lib/facts/links.js';
@@ -95,14 +96,50 @@ void (async () => {
   const areEndpointMetricsEnabled =
     process.env.KEYSERVER_ENDPOINT_METRICS_ENABLED;
 
+  const listenAddress = (() => {
+    if (process.env.COMM_LISTEN_ADDR) {
+      return process.env.COMM_LISTEN_ADDR;
+    } else if (process.env.NODE_ENV === 'development') {
+      return undefined;
+    } else {
+      return 'localhost';
+    }
+  })();
+
   if (cluster.isMaster) {
     if (isPrimaryNode) {
+      const healthCheckApp = express();
+      healthCheckApp.use(express.json({ limit: '250mb' }));
+      healthCheckApp.get('/health', (req: $Request, res: $Response) => {
+        res.send('OK');
+      });
+
+      const healthCheckServer = stoppable(
+        healthCheckApp.listen(
+          parseInt(process.env.PORT, 10) || 3000,
+          listenAddress,
+        ),
+        0,
+      );
+
       const didMigrationsSucceed: boolean = await migrate();
       if (!didMigrationsSucceed) {
         // The following line uses exit code 2 to ensure nodemon exits
         // in a dev environment, instead of restarting. Context provided
         // in https://github.com/remy/nodemon/issues/751
         process.exit(2);
+      }
+
+      if (healthCheckServer) {
+        await new Promise((resolve, reject) => {
+          healthCheckServer.stop(err => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
+        });
       }
     }
 
@@ -316,16 +353,6 @@ void (async () => {
         res.redirect(newURL);
       });
     }
-
-    const listenAddress = (() => {
-      if (process.env.COMM_LISTEN_ADDR) {
-        return process.env.COMM_LISTEN_ADDR;
-      } else if (process.env.NODE_ENV === 'development') {
-        return undefined;
-      } else {
-        return 'localhost';
-      }
-    })();
 
     server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
   }
