@@ -1,6 +1,8 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
+import uuid from 'uuid';
 
 import {
   leaveThreadActionTypes,
@@ -11,15 +13,22 @@ import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
 import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
+  type OutboundDMOperationSpecification,
+  dmOperationSpecificationTypes,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
+import {
   threadIsChannel,
   useThreadHasPermission,
   viewerIsMember,
 } from 'lib/shared/thread-utils.js';
+import { type DMLeaveThreadOperation } from 'lib/types/dm-ops.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import {
   threadTypes,
   threadTypeIsSidebar,
+  threadTypeIsThick,
 } from 'lib/types/thread-types-enum.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -196,14 +205,48 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callLeaveThread = useLeaveThread();
+  const processAndSendDMOperation = useProcessAndSendDMOperation();
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
 
   const onConfirmLeaveThread = React.useCallback(() => {
-    void dispatchActionPromise(
-      leaveThreadActionTypes,
-      callLeaveThread({ threadID: threadInfo.id }),
-    );
+    if (threadTypeIsThick(threadInfo.type)) {
+      // TODO: This should also handle leaving sidebars (ENG-9098)
+      invariant(viewerID, 'viewerID should be set');
+      const op: DMLeaveThreadOperation = {
+        type: 'leave_thread',
+        editorID: viewerID,
+        time: Date.now(),
+        messageID: uuid.v4(),
+        threadID: threadInfo.id,
+      };
+      const opSpecification: OutboundDMOperationSpecification = {
+        type: dmOperationSpecificationTypes.OUTBOUND,
+        op,
+        recipients: {
+          type: 'some_users',
+          userIDs: threadInfo.members.map(member => member.id),
+        },
+      };
+      void processAndSendDMOperation(opSpecification);
+    } else {
+      void dispatchActionPromise(
+        leaveThreadActionTypes,
+        callLeaveThread({ threadID: threadInfo.id }),
+      );
+    }
     popModal();
-  }, [callLeaveThread, popModal, dispatchActionPromise, threadInfo.id]);
+  }, [
+    threadInfo.type,
+    threadInfo.id,
+    threadInfo.members,
+    dispatchActionPromise,
+    callLeaveThread,
+    popModal,
+    viewerID,
+    processAndSendDMOperation,
+  ]);
 
   const onClickLeaveThread = React.useCallback(
     () =>
