@@ -34,7 +34,7 @@ function EditTextMessage(props: Props): React.Node {
   const { background, threadInfo, item } = props;
   const { editState, clearEditModal, setDraft, setError, updatePosition } =
     useEditModalContext();
-  const editMessage = useEditMessage();
+  const editMessage = useEditMessage(threadInfo);
 
   const myRef = React.useRef<?HTMLDivElement>(null);
 
