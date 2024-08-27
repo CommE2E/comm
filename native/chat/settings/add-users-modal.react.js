@@ -11,9 +11,11 @@ import { useENSNames } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
+import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
 import { usePotentialMemberItems } from 'lib/shared/search-utils.js';
 import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { type AccountUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -102,15 +104,29 @@ function AddUsersModal(props: Props): React.Node {
   const inputLength = userInfoInputArray.length;
   const dispatchActionPromise = useDispatchActionPromise();
   const userInfoInputArrayEmpty = inputLength === 0;
+  const addDMThreadMembers = useAddDMThreadMembers();
+
   const onPressAdd = React.useCallback(() => {
     if (userInfoInputArrayEmpty) {
       return;
     }
-    void dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      addUsersToThread(),
-    );
-  }, [userInfoInputArrayEmpty, dispatchActionPromise, addUsersToThread]);
+
+    if (threadTypeIsThick(threadInfo.type)) {
+      void addDMThreadMembers(userInfoInputIDs, threadInfo);
+    } else {
+      void dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        addUsersToThread(),
+      );
+    }
+  }, [
+    userInfoInputArrayEmpty,
+    threadInfo,
+    dispatchActionPromise,
+    addUsersToThread,
+    addDMThreadMembers,
+    userInfoInputIDs,
+  ]);
 
   const changeThreadSettingsLoadingStatus = useSelector(
     createLoadingStatusSelector(changeThreadSettingsActionTypes),
