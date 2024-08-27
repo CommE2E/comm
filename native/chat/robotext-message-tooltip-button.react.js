@@ -90,11 +90,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     messageInfo,
   );
 
-  const sendReaction = useSendReaction(
-    messageInfo.id,
-    threadInfo.id,
-    reactions,
-  );
+  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
 
   const [emojiPickerOpen, setEmojiPickerOpen] = React.useState<boolean>(false);
   const openEmojiPicker = React.useCallback(() => {
