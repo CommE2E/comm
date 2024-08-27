@@ -7,6 +7,7 @@ import { PersistGate } from 'redux-persist/es/integration/react.js';
 import ActionResultModal from './action-result-modal.react.js';
 import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';
 import CommunityDrawerTip from './community-drawer-tip.react.js';
+import HomeTabTip from './home-tab-tip.react.js';
 import MutedTabTip from './muted-tab-tip.react.js';
 import NUXTipOverlayBackdrop from './nux-tip-overlay-backdrop.react.js';
 import { createOverlayNavigator } from './overlay-navigator.react.js';
@@ -16,6 +17,7 @@ import type {
 } from './overlay-navigator.react.js';
 import type { RootNavigationProp } from './root-navigator.react.js';
 import {
+  HomeTabTipRouteName,
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
   NUXTipOverlayBackdropRouteName,
@@ -165,6 +167,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           name={CommunityDrawerTipRouteName}
           component={CommunityDrawerTip}
         />
+        <App.Screen name={HomeTabTipRouteName} component={HomeTabTip} />
         <App.Screen name={MutedTabTipRouteName} component={MutedTabTip} />
         <App.Screen
           name={NUXTipOverlayBackdropRouteName}
