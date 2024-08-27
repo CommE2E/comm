@@ -245,11 +245,7 @@ function InlineEngagement(props: Props): React.Node {
     repliesText,
   ]);
 
-  const sendReaction = useSendReaction(
-    messageInfo.id,
-    threadInfo.id,
-    reactions,
-  );
+  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
 
   const onPressReaction = React.useCallback(
     (reaction: string) => sendReaction(reaction),
