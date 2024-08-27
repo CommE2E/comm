@@ -1978,11 +1978,67 @@ declare module '@react-navigation/core' {
     +descriptors: {| +[key: string]: MaterialTopTabDescriptor |},
   |};
 
-  declare export type MaterialTopTabBarProps = {|
+  declare export type TabDescriptor<T: Route<>> = {|
+    +accessibilityLabel?: string;
+    +accessible?: boolean;
+    +testID?: string;
+    +labelText?: string;
+    +labelAllowFontScaling?: boolean;
+    +href?: string;
+    +label?: (props: {
+      +route: T;
+      +labelText?: string;
+      +focused: boolean;
+      +color: string;
+      +allowFontScaling?: boolean;
+      +style?: TextStyleProp;
+    }) => React$Node;
+    +icon?: (props: {
+      +route: T;
+      +focused: boolean;
+      +color: string;
+      +size: number;
+    }) => React$Node;
+    +badge?: (props: { route: T }) => React$Node;
+  |};
+
+  declare export type OpaqueColorValue = Symbol & {|+__TYPE__: 'Color'|};
+  declare export type ColorValue = string | OpaqueColorValue;
+
+  declare export interface PressableAndroidRippleConfig {
+    +color?: ?ColorValue;
+    +borderless?: ?boolean;
+    +radius?: ?number;
+    +foreground?: ?boolean;
+  }
+  
+
+  declare export type TabBarItemProps<T: Route<>> = $ReadOnly<{
+    ...TabDescriptor<T>, 
+    +position: AnimatedInterpolation;
+    +route: T;
+    +navigationState: NavigationState;
+    +activeColor?: string;
+    +inactiveColor?: string;
+    +pressColor?: string;
+    +pressOpacity?: number;
+    +onLayout?: (event: LayoutEvent) => void;
+    +onPress: () => void;
+    +onLongPress: () => void;
+    +defaultTabWidth?: number;
+    +labelStyle?: TextStyleProp;
+    +style: ViewStyleProp;
+    +android_ripple?: PressableAndroidRippleConfig;
+  }>;
+
+  declare export type MaterialTopTabBarProps<T: Route<>> = {|
     ...MaterialTopTabNavigationBuilderResult,
     +layout: {| +width: number, +height: number |},
     +position: any, // Reanimated.Node<number>
     +jumpTo: string => void,
+    +renderTabBarItem:  (
+      props: $ReadOnly<{...TabBarItemProps<T>, key: string }>,
+    ) => React$Node,
   |};
 
   declare export type MaterialTopTabNavigationConfig = {|
@@ -1996,7 +2052,7 @@ declare module '@react-navigation/core' {
     +style?: ViewStyleProp,
     +gestureHandlerProps?: PanGestureHandlerProps,
     +pager?: MaterialTopTabPagerProps => React$Node,
-    +tabBar?: MaterialTopTabBarProps => React$Node,
+    +tabBar?: MaterialTopTabBarProps<Route <>> => React$Node,
   |};
 
   declare export type ExtraMaterialTopTabNavigatorProps = {|
