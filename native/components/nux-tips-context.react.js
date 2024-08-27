@@ -5,16 +5,17 @@ import * as React from 'react';
 import { values } from 'lib/utils/objects.js';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
+import type { NUXTipRouteNames } from '../navigation/route-names.js';
 import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
+  HomeTabTipRouteName,
 } from '../navigation/route-names.js';
-import type { NUXTipRouteNames } from '../navigation/route-names.js';
 
 const nuxTip = Object.freeze({
   COMMUNITY_DRAWER: 'community_drawer',
-  MUTED: 'muted',
   HOME: 'home',
+  MUTED: 'muted',
 });
 
 export type NUXTip = $Values<typeof nuxTip>;
@@ -38,6 +39,11 @@ const nuxTipParams: { +[NUXTipParamsKeys]: NUXTipParams } = {
     nextRouteName: CommunityDrawerTipRouteName,
   },
   [nuxTip.COMMUNITY_DRAWER]: {
+    nextTip: nuxTip.HOME,
+    tooltipLocation: 'below',
+    nextRouteName: HomeTabTipRouteName,
+  },
+  [nuxTip.HOME]: {
     nextTip: nuxTip.MUTED,
     tooltipLocation: 'below',
     nextRouteName: MutedTabTipRouteName,
