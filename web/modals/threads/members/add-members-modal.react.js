@@ -6,7 +6,11 @@ import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { useAddDMThreadMembers } from 'lib/shared/dm-ops/dm-op-utils.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
+import { useSelector } from 'lib/utils/redux-utils.js';
 
 import css from './members-modal.css';
 import Button from '../../../components/button.react.js';
@@ -59,22 +63,32 @@ function AddMembersModalContent(props: Props): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callChangeThreadSettings = useChangeThreadSettings();
+  const addDMThreadMembers = useAddDMThreadMembers();
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
 
   const addUsers = React.useCallback(() => {
-    void dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      callChangeThreadSettings({
-        threadID,
-        changes: { newMemberIDs: Array.from(pendingUsersToAdd.keys()) },
-      }),
-    );
+    const newMemberIDs = Array.from(pendingUsersToAdd.keys());
+
+    if (threadTypeIsThick(threadInfo.type)) {
+      void addDMThreadMembers(newMemberIDs, threadInfo);
+    } else {
+      void dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        callChangeThreadSettings({
+          threadID,
+          changes: { newMemberIDs },
+        }),
+      );
+    }
     onClose();
   }, [
+    addDMThreadMembers,
     callChangeThreadSettings,
     dispatchActionPromise,
     onClose,
     pendingUsersToAdd,
     threadID,
+    threadInfo,
   ]);
 
   const primaryButton = React.useMemo(
