@@ -168,6 +168,7 @@ export const TagFarcasterChannelRouteName = 'TagFarcasterChannel';
 export const TagFarcasterChannelByNameRouteName = 'TagFarcasterChannelByName';
 export const ThreadSettingsNotificationsRouteName =
   'ThreadSettingsNotifications';
+export const IntroTipRouteName = 'IntroTip';
 export const CommunityDrawerTipRouteName = 'CommunityDrawerTip';
 export const HomeTabTipRouteName = 'HomeTabTip';
 export const MutedTabTipRouteName = 'MutedTabTip';
@@ -203,6 +204,7 @@ export type RootParamList = {
 };
 
 export type NUXTipRouteNames =
+  | typeof IntroTipRouteName
   | typeof CommunityDrawerTipRouteName
   | typeof HomeTabTipRouteName
   | typeof MutedTabTipRouteName;
@@ -234,6 +236,7 @@ export type OverlayParamList = {
   +ThreadAvatarCameraModal: ThreadAvatarCameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   +TogglePinModal: TogglePinModalParams,
+  +IntroTip: NUXTipsOverlayParams,
   +CommunityDrawerTip: NUXTipsOverlayParams,
   +HomeTabTip: NUXTipsOverlayParams,
   +MutedTabTip: NUXTipsOverlayParams,
