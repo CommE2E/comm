@@ -101,7 +101,7 @@ const unboundStyles = {
 
 export type NUXTipsOverlayParams = {
   +tipKey: NUXTip,
-  +tooltipLocation: 'above' | 'below',
+  +tooltipLocation: 'above' | 'below' | 'absolute',
 };
 
 export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
@@ -113,25 +113,34 @@ const marginVertical: number = 20;
 const marginHorizontal: number = 10;
 
 function createNUXTipsOverlay<Route: NUXTipRouteNames>(
-  ButtonComponent: React.ComponentType<void | NUXTipsOverlayProps<Route>>,
+  ButtonComponent: ?React.ComponentType<void | NUXTipsOverlayProps<Route>>,
   tipText: string,
 ): React.ComponentType<NUXTipsOverlayProps<Route>> {
   function NUXTipsOverlay(props: NUXTipsOverlayProps<Route>) {
     const nuxTipContext = React.useContext(NUXTipsContext);
     const { navigation, route } = props;
 
+    const dimensions = useSelector(state => state.dimensions);
+
     const { initialCoordinates, verticalBounds } = React.useMemo(() => {
-      const tipsProps = nuxTipContext?.tipsProps;
-      invariant(tipsProps, 'tips props should be defined in nux tips overlay');
-      const { pageX, pageY, width, height } = tipsProps[route.params.tipKey];
+      if (!ButtonComponent) {
+        const y = (dimensions.height * 2) / 5;
+        const x = dimensions.width / 2;
+        return {
+          initialCoordinates: { height: 0, width: 0, x, y },
+          verticalBounds: { height: 0, y },
+        };
+      }
+      const tipProps = nuxTipContext?.tipsProps?.[route.params.tipKey];
+      invariant(tipProps, 'button should be registered with nuxTipContext');
+      const { pageX, pageY, width, height } = tipProps;
 
       return {
         initialCoordinates: { height, width, x: pageX, y: pageY },
         verticalBounds: { height, y: pageY },
       };
-    }, [nuxTipContext, route.params.tipKey]);
+    }, [dimensions, nuxTipContext?.tipsProps, route.params.tipKey]);
 
-    const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     invariant(overlayContext, 'NUXTipsOverlay should have OverlayContext');
     const { onExitFinish } = overlayContext;
@@ -210,7 +219,10 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
+      if (tooltipLocation === 'absolute') {
+        style.left = marginHorizontal;
+        style.right = marginHorizontal;
+      } else if (extraLeftSpace < extraRightSpace) {
         style.left = marginHorizontal;
         style.minWidth = width + 2 * extraLeftSpace;
         style.marginRight = 2 * marginHorizontal;
@@ -252,6 +264,23 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       (values/*: EntryAnimationsValues*/) => {
         'worklet';
 
+        if(tooltipLocation === 'absolute'){
+          return {
+            animations: {
+              opacity: withTiming(1, { duration: animationDuration }),
+              transform: [     
+                { scale: withTiming(1, { duration: animationDuration }) },
+              ],
+            },
+            initialValues: {
+              opacity: 0,
+              transform: [
+                { scale: 0 },
+              ],
+            },
+          };
+        }
+
         const initialX =
           (-values.targetWidth +
             initialCoordinates.width +
@@ -288,6 +317,22 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     const tipContainerExitingAnimation = React.useCallback(
       (values/*: ExitAnimationsValues*/) => {
         'worklet';
+
+        if(tooltipLocation === 'absolute'){
+          return {
+            animations: {
+              opacity: withTiming(0, { duration: animationDuration }),
+              transform: [
+                { scale: withTiming(0, { duration: animationDuration }) },
+              ],
+            },
+            initialValues: {
+              opacity: 1,
+              transform: [ { scale: 1 }],
+            },
+            callback: onExitFinish,
+          };
+        }
 
         const toValueX =
           (-values.currentWidth +
@@ -361,9 +406,9 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       });
     }, [goBackOnce, navigation, route.params.tipKey]);
 
-    return (
-      <TouchableWithoutFeedback onPress={onPressOk}>
-        <View style={styles.container}>
+    const button = React.useMemo(
+      () =>
+        ButtonComponent ? (
           <View style={contentContainerStyle}>
             <Animated.View
               style={buttonStyle}
@@ -372,6 +417,14 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
               <ButtonComponent navigation={props.navigation} route={route} />
             </Animated.View>
           </View>
+        ) : undefined,
+      [buttonStyle, contentContainerStyle, props.navigation, route],
+    );
+
+    return (
+      <TouchableWithoutFeedback onPress={onPressOk}>
+        <View style={styles.container}>
+          {button}
           <AnimatedView
             style={baseTipContainerStyle}
             onLayout={onTipContainerLayout}
