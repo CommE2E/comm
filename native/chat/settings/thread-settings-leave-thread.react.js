@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
+import uuid from 'uuid';
 
 import type { LeaveThreadInput } from 'lib/actions/thread-actions.js';
 import {
@@ -11,9 +12,19 @@ import {
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { otherUsersButNoOtherAdmins } from 'lib/selectors/thread-selectors.js';
+import {
+  type OutboundDMOperationSpecification,
+  dmOperationSpecificationTypes,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils.js';
+import type { DMLeaveThreadOperation } from 'lib/types/dm-ops';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import {
+  thickThreadTypes,
+  threadTypeIsThick,
+} from 'lib/types/thread-types-enum.js';
 import type { LeaveThreadPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
@@ -64,6 +75,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +leaveThread: (input: LeaveThreadInput) => Promise<LeaveThreadPayload>,
+  +leaveDMThread: () => Promise<void>,
   // withNavContext
   +navContext: ?NavContextType,
 };
@@ -114,13 +126,24 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 
   onConfirmLeaveThread = () => {
     const threadID = this.props.threadInfo.id;
-    void this.props.dispatchActionPromise(
-      leaveThreadActionTypes,
-      this.leaveThread(),
-      {
-        customKeyName: `${leaveThreadActionTypes.started}:${threadID}`,
-      },
-    );
+
+    if (threadTypeIsThick(this.props.threadInfo.type)) {
+      const { navContext } = this.props;
+      invariant(navContext, 'navContext should exist in leaveThread');
+      navContext.dispatch({
+        type: clearThreadsActionType,
+        payload: { threadIDs: [threadID] },
+      });
+      void this.props.leaveDMThread();
+    } else {
+      void this.props.dispatchActionPromise(
+        leaveThreadActionTypes,
+        this.leaveThread(),
+        {
+          customKeyName: `${leaveThreadActionTypes.started}:${threadID}`,
+        },
+      );
+    }
   };
 
   async leaveThread(): Promise<LeaveThreadPayload> {
@@ -174,6 +197,35 @@ const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
     const dispatchActionPromise = useDispatchActionPromise();
     const callLeaveThread = useLeaveThread();
     const navContext = React.useContext(NavContext);
+    const processAndSendDMOperation = useProcessAndSendDMOperation();
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+
+    const leaveDMThread = React.useCallback(async () => {
+      invariant(viewerID, 'viewerID should be set');
+      const op: DMLeaveThreadOperation = {
+        type: 'leave_thread',
+        editorID: viewerID,
+        time: Date.now(),
+        messageID: uuid.v4(),
+        threadID: props.threadInfo.id,
+      };
+      const opSpecification: OutboundDMOperationSpecification = {
+        type: dmOperationSpecificationTypes.OUTBOUND,
+        op,
+        recipients: {
+          type: 'all_thread_members',
+          threadID:
+            this.props.threadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
+            this.props.threadInfo.parentThreadID
+              ? this.props.threadInfo.parentThreadID
+              : this.props.threadInfo.id,
+        },
+      };
+      await processAndSendDMOperation(opSpecification);
+    }, [processAndSendDMOperation, props.threadInfo.id, viewerID]);
+
     return (
       <ThreadSettingsLeaveThread
         {...props}
@@ -184,6 +236,7 @@ const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> =
         dispatchActionPromise={dispatchActionPromise}
         leaveThread={callLeaveThread}
         navContext={navContext}
+        leaveDMThread={leaveDMThread}
       />
     );
   });
