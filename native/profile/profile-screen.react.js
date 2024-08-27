@@ -1,7 +1,9 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Platform, ScrollView } from 'react-native';
+import uuid from 'uuid';
 
 import {
   logOutActionTypes,
@@ -13,7 +15,14 @@ import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { getOwnPrimaryDeviceID } from 'lib/selectors/user-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import {
+  type OutboundDMOperationSpecification,
+  dmOperationSpecificationTypes,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import type { LogOutResult } from 'lib/types/account-types.js';
+import type { DMCreateThreadOperation } from 'lib/types/dm-ops';
+import { nonSidebarThickThreadTypes } from 'lib/types/thread-types-enum.js';
 import { type CurrentUserInfo } from 'lib/types/user-types.js';
 import { getContentSigningKey } from 'lib/utils/crypto-utils.js';
 import {
@@ -168,6 +177,7 @@ type Props = {
   +staffCanSee: boolean,
   +stringForUser: ?string,
   +isAccountWithPassword: boolean,
+  +onCreateDMThread: () => Promise<void>,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
@@ -269,6 +279,18 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let dmActions;
+    if (staffCanSee) {
+      dmActions = (
+        <>
+          <ProfileRow
+            content="Create local DM thread"
+            onPress={this.onPressCreateThread}
+          />
+        </>
+      );
+    }
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -321,6 +343,7 @@ class ProfileScreen extends React.PureComponent<Props> {
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
             {experimentalLogoutActions}
+            {dmActions}
           </View>
           <View style={this.props.styles.unpaddedSection}>
             <ProfileRow
@@ -519,6 +542,10 @@ class ProfileScreen extends React.PureComponent<Props> {
   onPressKeyserverSelection = () => {
     this.props.navigation.navigate({ name: KeyserverSelectionListRouteName });
   };
+
+  onPressCreateThread = () => {
+    void this.props.onCreateDMThread();
+  };
 }
 
 const logOutLoadingStatusSelector =
@@ -542,6 +569,33 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
       accountHasPassword(state.currentUserInfo),
     );
 
+    const userID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const processAndSendDMOperation = useProcessAndSendDMOperation();
+
+    const onCreateDMThread = React.useCallback(async () => {
+      invariant(userID, 'userID should be set');
+      const op: DMCreateThreadOperation = {
+        type: 'create_thread',
+        threadID: uuid.v4(),
+        creatorID: userID,
+        time: Date.now(),
+        threadType: nonSidebarThickThreadTypes.LOCAL,
+        memberIDs: [],
+        roleID: uuid.v4(),
+        newMessageID: uuid.v4(),
+      };
+      const specification: OutboundDMOperationSpecification = {
+        type: dmOperationSpecificationTypes.OUTBOUND,
+        op,
+        recipients: {
+          type: 'self_devices',
+        },
+      };
+      await processAndSendDMOperation(specification);
+    }, [processAndSendDMOperation, userID]);
+
     return (
       <ProfileScreen
         {...props}
@@ -557,6 +611,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> =
         staffCanSee={staffCanSee}
         stringForUser={stringForUser}
         isAccountWithPassword={isAccountWithPassword}
+        onCreateDMThread={onCreateDMThread}
       />
     );
   });
