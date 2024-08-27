@@ -2,6 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
+import uuid from 'uuid';
 
 import {
   useSendReactionMessage,
@@ -10,10 +11,17 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
+import {
+  dmOperationSpecificationTypes,
+  type OutboundDMOperationSpecification,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { getNextLocalID } from 'lib/shared/message-utils.js';
+import { type DMSendReactionMessageOperation } from 'lib/types/dm-ops.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { cloneError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -38,6 +46,7 @@ function useSendReaction(
 
   const callSendReactionMessage = useSendReactionMessage();
   const dispatchActionPromise = useDispatchActionPromise();
+  const processAndSendDMOperation = useProcessAndSendDMOperation();
 
   return React.useCallback(
     reaction => {
@@ -55,6 +64,29 @@ function useSendReaction(
       const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
       const threadID = threadInfo.id;
+
+      if (threadTypeIsThick(threadInfo.type)) {
+        const op: DMSendReactionMessageOperation = {
+          type: 'send_reaction_message',
+          threadID,
+          creatorID: viewerID,
+          time: Date.now(),
+          messageID: uuid.v4(),
+          targetMessageID: messageID,
+          reaction,
+          action,
+        };
+        const opSpecification: OutboundDMOperationSpecification = {
+          type: dmOperationSpecificationTypes.OUTBOUND,
+          op,
+          recipients: {
+            type: 'some_users',
+            userIDs: threadInfo.members.map(member => member.id),
+          },
+        };
+        void processAndSendDMOperation(opSpecification);
+        return;
+      }
 
       const reactionMessagePromise = (async () => {
         try {
@@ -113,7 +145,10 @@ function useSendReaction(
       viewerID,
       reactions,
       threadInfo.id,
+      threadInfo.type,
+      threadInfo.members,
       dispatchActionPromise,
+      processAndSendDMOperation,
       callSendReactionMessage,
       pushModal,
     ],
