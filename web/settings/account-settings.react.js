@@ -1,6 +1,8 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
+import uuid from 'uuid';
 
 import {
   useLogOut,
@@ -11,8 +13,15 @@ import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
+import {
+  dmOperationSpecificationTypes,
+  type OutboundDMOperationSpecification,
+} from 'lib/shared/dm-ops/dm-op-utils.js';
+import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
+import type { DMCreateThreadOperation } from 'lib/types/dm-ops.js';
+import { nonSidebarThickThreadTypes } from 'lib/types/thread-types-enum.js';
 import {
   createOlmSessionsWithOwnDevices,
   getContentSigningKey,
@@ -130,6 +139,29 @@ function AccountSettings(): React.Node {
     () => pushModal(<BackupTestRestoreModal onClose={popModal} />),
     [popModal, pushModal],
   );
+
+  const processAndSendDMOperation = useProcessAndSendDMOperation();
+  const onCreateDMThread = React.useCallback(async () => {
+    invariant(userID, 'userID should be set');
+    const op: DMCreateThreadOperation = {
+      type: 'create_thread',
+      threadID: uuid.v4(),
+      creatorID: userID,
+      time: Date.now(),
+      threadType: nonSidebarThickThreadTypes.LOCAL,
+      memberIDs: [],
+      roleID: uuid.v4(),
+      newMessageID: uuid.v4(),
+    };
+    const specification: OutboundDMOperationSpecification = {
+      type: dmOperationSpecificationTypes.OUTBOUND,
+      op,
+      recipients: {
+        type: 'self_devices',
+      },
+    };
+    await processAndSendDMOperation(specification);
+  }, [processAndSendDMOperation, userID]);
 
   const showAppearanceModal = React.useCallback(
     () => pushModal(<AppearanceChangeModal />),
@@ -260,6 +292,24 @@ function AccountSettings(): React.Node {
       </div>
     );
   }
+  let dms;
+  if (staffCanSee) {
+    dms = (
+      <div className={css.preferencesContainer}>
+        <h4 className={css.preferencesHeader}>DMs menu</h4>
+        <div className={css.content}>
+          <ul>
+            <li>
+              <span>Create local DM thread</span>
+              <Button variant="text" onClick={onCreateDMThread}>
+                <p className={css.buttonText}>Create</p>
+              </Button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -297,6 +347,7 @@ function AccountSettings(): React.Node {
         {tunnelbroker}
         {backup}
         {deviceData}
+        {dms}
       </div>
     </div>
   );
