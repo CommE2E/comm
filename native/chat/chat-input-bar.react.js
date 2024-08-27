@@ -69,10 +69,7 @@ import type { SetState } from 'lib/types/hook-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { PhotoPaste } from 'lib/types/media-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type {
-  MessageInfo,
-  SendEditMessageResponse,
-} from 'lib/types/message-types.js';
+import type { MessageInfo } from 'lib/types/message-types.js';
 import type {
   RelativeMemberInfo,
   ThreadInfo,
@@ -299,10 +296,7 @@ type Props = {
   +parentThreadInfo: ?ThreadInfo,
   +editedMessagePreview: ?MessagePreviewResult,
   +editedMessageInfo: ?MessageInfo,
-  +editMessage: (
-    messageID: string,
-    text: string,
-  ) => Promise<SendEditMessageResponse>,
+  +editMessage: (messageID: string, text: string) => Promise<void>,
   +navigation: ?ChatNavigationProp<'MessageList'>,
   +overlayContext: ?OverlayContextType,
   +messageEditingContext: ?MessageEditingContextType,
