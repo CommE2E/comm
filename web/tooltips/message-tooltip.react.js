@@ -169,11 +169,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     };
   }, [emojiKeyboardPosition]);
 
-  const sendReaction = useSendReaction(
-    messageInfo.id,
-    threadInfo.id,
-    reactions,
-  );
+  const sendReaction = useSendReaction(messageInfo.id, threadInfo, reactions);
 
   const onEmojiSelect = React.useCallback(
     (emoji: { +native: string, ... }) => {
