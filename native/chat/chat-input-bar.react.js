@@ -1280,7 +1280,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     props.threadInfo,
     getDefaultTextMessageRules(chatMentionCandidates).simpleMarkdownRules,
   );
-  const editMessage = useEditMessage();
+  const editMessage = useEditMessage(props.threadInfo);
 
   const [selectionState, setSelectionState] =
     React.useState<SyncedSelectionData>({
