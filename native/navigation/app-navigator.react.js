@@ -8,6 +8,7 @@ import ActionResultModal from './action-result-modal.react.js';
 import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';
 import CommunityDrawerTip from './community-drawer-tip.react.js';
 import HomeTabTip from './home-tab-tip.react.js';
+import IntroTip from './intro-tip.react.js';
 import MutedTabTip from './muted-tab-tip.react.js';
 import NUXTipOverlayBackdrop from './nux-tip-overlay-backdrop.react.js';
 import { createOverlayNavigator } from './overlay-navigator.react.js';
@@ -21,6 +22,7 @@ import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
   NUXTipOverlayBackdropRouteName,
+  IntroTipRouteName,
 } from './route-names.js';
 import {
   UserAvatarCameraModalRouteName,
@@ -163,6 +165,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
           name={VideoPlaybackModalRouteName}
           component={VideoPlaybackModal}
         />
+        <App.Screen name={IntroTipRouteName} component={IntroTip} />
         <App.Screen
           name={CommunityDrawerTipRouteName}
           component={CommunityDrawerTip}

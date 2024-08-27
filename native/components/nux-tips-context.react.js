@@ -10,9 +10,11 @@ import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
   HomeTabTipRouteName,
+  IntroTipRouteName,
 } from '../navigation/route-names.js';
 
 const nuxTip = Object.freeze({
+  INTRO: 'intro',
   COMMUNITY_DRAWER: 'community_drawer',
   HOME: 'home',
   MUTED: 'muted',
@@ -22,7 +24,7 @@ export type NUXTip = $Values<typeof nuxTip>;
 
 type NUXTipParams = {
   +nextTip: ?NUXTip,
-  +tooltipLocation: 'below' | 'above',
+  +tooltipLocation: 'below' | 'above' | 'absolute',
   +nextRouteName: ?NUXTipRouteNames,
   +exitingCallback?: <Route: NUXTipRouteNames>(
     navigation: AppNavigationProp<Route>,
@@ -34,6 +36,11 @@ type NUXTipParamsKeys = NUXTip | 'firstTip';
 
 const nuxTipParams: { +[NUXTipParamsKeys]: NUXTipParams } = {
   [firstNUXTipKey]: {
+    nextTip: nuxTip.INTRO,
+    tooltipLocation: 'absolute',
+    nextRouteName: IntroTipRouteName,
+  },
+  [nuxTip.INTRO]: {
     nextTip: nuxTip.COMMUNITY_DRAWER,
     tooltipLocation: 'below',
     nextRouteName: CommunityDrawerTipRouteName,
@@ -102,6 +109,9 @@ function NUXTipsContextProvider(props: Props): React.Node {
   const tipsProps = React.useMemo(() => {
     const result: { [tip: NUXTip]: TipProps } = {};
     for (const type of values(nuxTip)) {
+      if (nuxTipParams[type].tooltipLocation === 'absolute') {
+        continue;
+      }
       if (!tipsPropsState[type]) {
         return null;
       }
