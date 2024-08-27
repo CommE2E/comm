@@ -63,6 +63,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
+import { type DMOperationResult } from 'lib/types/dm-ops.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Media,
@@ -166,7 +167,7 @@ type Props = {
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +processAndSendDMOperation: (
     dmOperationSpecification: OutboundDMOperationSpecification,
-  ) => Promise<void>,
+  ) => Promise<DMOperationResult>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
