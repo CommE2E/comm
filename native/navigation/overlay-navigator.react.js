@@ -42,11 +42,13 @@ import {
   CommunityDrawerTipRouteName,
   MutedTabTipRouteName,
   NUXTipOverlayBackdropRouteName,
+  HomeTabTipRouteName,
 } from './route-names.js';
 import { isMessageTooltipKey } from '../chat/utils.js';
 
 const newReanimatedRoutes = new Set([
   CommunityDrawerTipRouteName,
+  HomeTabTipRouteName,
   MutedTabTipRouteName,
   NUXTipOverlayBackdropRouteName,
 ]);
