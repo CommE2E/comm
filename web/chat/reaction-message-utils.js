@@ -13,6 +13,7 @@ import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import { getNextLocalID } from 'lib/shared/message-utils.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
+import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { cloneError } from 'lib/utils/errors.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 
@@ -26,7 +27,7 @@ import { getAppContainerPositionInfo } from '../utils/window-utils.js';
 
 function useSendReaction(
   messageID: ?string,
-  threadID: string,
+  threadInfo: ThreadInfo,
   reactions: ReactionInfo,
 ): (reaction: string) => mixed {
   const { pushModal } = useModalContext();
@@ -52,6 +53,8 @@ function useSendReaction(
         ? reactions[reaction].viewerReacted
         : false;
       const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
+
+      const threadID = threadInfo.id;
 
       const reactionMessagePromise = (async () => {
         try {
@@ -109,7 +112,7 @@ function useSendReaction(
       messageID,
       viewerID,
       reactions,
-      threadID,
+      threadInfo.id,
       dispatchActionPromise,
       callSendReactionMessage,
       pushModal,
