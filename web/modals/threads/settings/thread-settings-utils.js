@@ -32,7 +32,7 @@ function useOnSaveGeneralThreadSettings(
     params;
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useChangeThreadSettings();
+  const callChangeThreadSettings = useChangeThreadSettings(threadInfo);
 
   const changeThreadSettingsAction = React.useCallback(async () => {
     try {

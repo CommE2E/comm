@@ -176,7 +176,9 @@ const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
     const windowWidth = useSelector(state => state.dimensions.width);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings();
+    const callChangeThreadSettings = useChangeThreadSettings(
+      props.route.params.threadInfo,
+    );
 
     return (
       <ColorSelectorModal
