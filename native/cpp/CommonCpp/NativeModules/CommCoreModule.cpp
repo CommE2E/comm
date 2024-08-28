@@ -1471,6 +1471,74 @@ jsi::Value CommCoreModule::getKeyserverDataFromNotifStorage(
       });
 }
 
+jsi::Value CommCoreModule::updateUnreadThickThreadsInNotifsStorage(
+    jsi::Runtime &rt,
+    jsi::Array unreadThickThreadIDs) {
+  std::vector<std::string> unreadThickThreadIDsCpp{};
+  for (auto idx = 0; idx < unreadThickThreadIDs.size(rt); idx++) {
+    std::string thickThreadID =
+        unreadThickThreadIDs.getValueAtIndex(rt, idx).asString(rt).utf8(rt);
+    unreadThickThreadIDsCpp.push_back(thickThreadID);
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        try {
+          CommMMKV::setStringSet(
+              "NOTIFS.UNREAD_THICK_THREADS", unreadThickThreadIDsCpp);
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+          promise->resolve(jsi::Value::undefined());
+        });
+      });
+}
+
+jsi::Value
+CommCoreModule::getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        std::string error;
+        std::vector<std::string> unreadThickThreadIDs{};
+        try {
+          unreadThickThreadIDs =
+              CommMMKV::getStringSet("NOTIFS.UNREAD_THICK_THREADS");
+        } catch (const std::exception &e) {
+          error = e.what();
+        }
+
+        auto unreadThreadThickThreadIDsPtr =
+            std::make_shared<std::vector<std::string>>(
+                std::move(unreadThickThreadIDs));
+
+        this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          if (error.size()) {
+            promise->reject(error);
+            return;
+          }
+
+          jsi::Array jsiUnreadThickThreadIDs =
+              jsi::Array(innerRt, unreadThreadThickThreadIDsPtr->size());
+          size_t writeIdx = 0;
+
+          for (const auto &thickThreadID : *unreadThreadThickThreadIDsPtr) {
+            jsi::String jsiThickThreadID =
+                jsi::String::createFromUtf8(innerRt, thickThreadID);
+            jsiUnreadThickThreadIDs.setValueAtIndex(
+                innerRt, writeIdx++, jsiThickThreadID);
+          }
+          promise->resolve(std::move(jsiUnreadThickThreadIDs));
+        });
+      });
+}
+
 jsi::Value CommCoreModule::initializeContentOutboundSession(
     jsi::Runtime &rt,
     jsi::String identityKeys,
