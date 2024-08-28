@@ -362,6 +362,70 @@ export type WalletAuthRequestObject = {
   initialDeviceList: string,
 };
 
+declare export class RestorePasswordUserRequest extends Message {
+  getUsername(): string;
+  setUsername(value: string): RestorePasswordUserRequest;
+
+  getNonce(): string;
+  setNonce(value: string): RestorePasswordUserRequest;
+
+  getNonceSignature(): string;
+  setNonceSignature(value: string): RestorePasswordUserRequest;
+
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): RestorePasswordUserRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): RestorePasswordUserRequest;
+
+  getDeviceList(): string;
+  setDeviceList(value: string): RestorePasswordUserRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RestorePasswordUserRequestObject;
+  static toObject(includeInstance: boolean, msg: RestorePasswordUserRequest): RestorePasswordUserRequestObject;
+  static serializeBinaryToWriter(message: RestorePasswordUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RestorePasswordUserRequest;
+  static deserializeBinaryFromReader(message: RestorePasswordUserRequest, reader: BinaryReader): RestorePasswordUserRequest;
+}
+
+export type RestorePasswordUserRequestObject = {
+  username: string,
+  nonce: string,
+  nonceSignature: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+  deviceList: string,
+}
+
+declare export class RestoreWalletUserRequest extends Message {
+  getSiweMessage(): string;
+  setSiweMessage(value: string): RestoreWalletUserRequest;
+
+  getSiweSignature(): string;
+  setSiweSignature(value: string): RestoreWalletUserRequest;
+
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): RestoreWalletUserRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): RestoreWalletUserRequest;
+
+  getDeviceList(): string;
+  setDeviceList(value: string): RestoreWalletUserRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RestoreWalletUserRequestObject;
+  static toObject(includeInstance: boolean, msg: RestoreWalletUserRequest): RestoreWalletUserRequestObject;
+  static serializeBinaryToWriter(message: RestoreWalletUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RestoreWalletUserRequest;
+  static deserializeBinaryFromReader(message: RestoreWalletUserRequest, reader: BinaryReader): RestoreWalletUserRequest;
+}
+
+export type RestoreWalletUserRequestObject = {
+  siweMessage: string,
+  siweSignature: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+  deviceList: string,
+}
+
 declare export class SecondaryDeviceKeysUploadRequest extends Message {
   getUserId(): string;
   setUserId(value: string): SecondaryDeviceKeysUploadRequest;
