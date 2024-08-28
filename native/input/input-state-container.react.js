@@ -92,6 +92,7 @@ import {
 import {
   threadTypeIsThick,
   threadTypeIsSidebar,
+  thickThreadTypes,
 } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
@@ -473,7 +474,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     // TODO: this should be update according to thread creation logic
     // (ENG-8567)
     if (threadTypeIsThick(inputThreadInfo.type)) {
-      const recipientIDs = inputThreadInfo.members.map(member => member.id);
       void this.props.processAndSendDMOperation({
         type: dmOperationSpecificationTypes.OUTBOUND,
         op: {
@@ -485,8 +485,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           text: messageInfo.text,
         },
         recipients: {
-          type: 'some_users',
-          userIDs: recipientIDs,
+          type: 'all_thread_members',
+          threadID:
+            inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
+            inputThreadInfo.parentThreadID
+              ? inputThreadInfo.parentThreadID
+              : inputThreadInfo.id,
         },
       });
       return;
