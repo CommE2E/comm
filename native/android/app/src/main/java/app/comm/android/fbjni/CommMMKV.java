@@ -180,4 +180,11 @@ public class CommMMKV {
 
     return stringSet.toArray(new String[stringSet.size()]);
   }
+
+  public static boolean setStringSet(String key, String[] elements) {
+    initialize();
+    Set<String> stringSet = Set.of(elements);
+    return getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey)
+        .encode(key, stringSet);
+  }
 }
