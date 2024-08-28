@@ -35,22 +35,39 @@ async function migrate(): Promise<boolean> {
   for (const {
     version: idx,
     migrationPromise: migration,
+    migrationType,
   } of migrations.values()) {
     if (idx <= dbVersion) {
       continue;
     }
 
     try {
-      await startTransaction();
+      if (
+        !migrationType ||
+        migrationType === 'wrap_in_transaction_and_block_requests'
+      ) {
+        await startTransaction();
+      }
       await migration();
       await updateDBVersion(idx);
-      await commitTransaction();
+      if (
+        !migrationType ||
+        migrationType === 'wrap_in_transaction_and_block_requests'
+      ) {
+        await commitTransaction();
+      }
       console.log(`(node:${process.pid}) migration ${idx} succeeded.`);
     } catch (e) {
       const transactionExceptionMessage = String(getMessageForException(e));
       console.error(`(node:${process.pid}) migration ${idx} failed.`);
       console.error(transactionExceptionMessage);
-      await rollbackTransaction();
+
+      if (
+        !migrationType ||
+        migrationType === 'wrap_in_transaction_and_block_requests'
+      ) {
+        await rollbackTransaction();
+      }
       return false;
     }
   }
