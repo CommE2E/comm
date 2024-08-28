@@ -101,7 +101,6 @@ const unboundStyles = {
 
 export type NUXTipsOverlayParams = {
   +tipKey: NUXTip,
-  +tooltipLocation: 'above' | 'below' | 'absolute',
 };
 
 export type NUXTipsOverlayProps<Route: NUXTipRouteNames> = {
@@ -198,7 +197,8 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
       [dimensions.width, initialCoordinates, tipHorizontalOffset],
     );
 
-    const { tooltipLocation } = route.params;
+    const tipParams = getNUXTipParams(route.params.tipKey);
+    const { tooltipLocation } = tipParams;
 
     const baseTipContainerStyle = React.useMemo(() => {
       const { y, x, height, width } = initialCoordinates;
@@ -380,31 +380,25 @@ function createNUXTipsOverlay<Route: NUXTipRouteNames>(
     }
 
     const onPressOk = React.useCallback(() => {
-      const callbackParams = getNUXTipParams(route.params.tipKey);
-
-      const {
-        nextTip,
-        tooltipLocation: nextLocation,
-        nextRouteName,
-        exitingCallback,
-      } = callbackParams;
+      const { nextTip, exitingCallback } = tipParams;
       goBackOnce();
 
       if (exitingCallback) {
         exitingCallback?.(navigation);
       }
 
-      if (!nextTip || !nextRouteName) {
+      if (!nextTip) {
         return;
       }
+      const { routeName } = getNUXTipParams(nextTip);
+
       navigation.navigate<NUXTipRouteNames>({
-        name: nextRouteName,
+        name: routeName,
         params: {
           tipKey: nextTip,
-          tooltipLocation: nextLocation,
         },
       });
-    }, [goBackOnce, navigation, route.params.tipKey]);
+    }, [goBackOnce, navigation, tipParams]);
 
     const button = React.useMemo(
       () =>
