@@ -6,6 +6,7 @@ div.modalContentContainer {
   flex-direction: column;
   font-size: var(--l-font-18);
   overflow-y: auto;
+  max-height: 100%;
 }
 
 div.userRowContainer {

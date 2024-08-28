@@ -4,6 +4,8 @@ div.container {
   row-gap: 20px;
   min-width: 343px;
   width: min-content;
+  overflow: auto;
+  max-height: 100%;
 }
 
 p.notice {
