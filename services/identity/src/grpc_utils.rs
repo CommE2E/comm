@@ -14,6 +14,7 @@ use crate::{
     unauth::{
       DeviceKeyUpload, ExistingDeviceLoginRequest, OpaqueLoginStartRequest,
       RegistrationStartRequest, ReservedRegistrationStartRequest,
+      RestorePasswordUserRequest, RestoreWalletUserRequest,
       SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
     },
   },
@@ -40,6 +41,16 @@ impl TryFrom<&SecondaryDeviceKeysUploadRequest> for SignedNonce {
 impl TryFrom<&ExistingDeviceLoginRequest> for SignedNonce {
   type Error = Status;
   fn try_from(value: &ExistingDeviceLoginRequest) -> Result<Self, Self::Error> {
+    Ok(Self {
+      nonce: value.nonce.to_string(),
+      signature: value.nonce_signature.to_string(),
+    })
+  }
+}
+
+impl TryFrom<&RestorePasswordUserRequest> for SignedNonce {
+  type Error = Status;
+  fn try_from(value: &RestorePasswordUserRequest) -> Result<Self, Self::Error> {
     Ok(Self {
       nonce: value.nonce.to_string(),
       signature: value.nonce_signature.to_string(),
@@ -166,6 +177,18 @@ impl DeviceKeyUploadData for WalletAuthRequest {
 }
 
 impl DeviceKeyUploadData for SecondaryDeviceKeysUploadRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+}
+
+impl DeviceKeyUploadData for RestorePasswordUserRequest {
+  fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
+    self.device_key_upload.as_ref()
+  }
+}
+
+impl DeviceKeyUploadData for RestoreWalletUserRequest {
   fn device_key_upload(&self) -> Option<&DeviceKeyUpload> {
     self.device_key_upload.as_ref()
   }

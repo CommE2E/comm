@@ -72,6 +72,20 @@ declare export class IdentityClientServiceClient {
                response: identityStructs.AuthResponse) => void
   ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
 
+  restorePasswordUser(
+    request: identityStructs.RestorePasswordUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
+
+  restoreWalletUser(
+    request: identityStructs.RestoreWalletUserRequest,
+    metadata: grpcWeb.Metadata | void,
+    callback: (err: grpcWeb.RpcError,
+               response: identityStructs.AuthResponse) => void
+  ): grpcWeb.ClientReadableStream<identityStructs.AuthResponse>;
+
   verifyUserAccessToken(
     request: identityStructs.VerifyUserAccessTokenRequest,
     metadata: grpcWeb.Metadata | void,
@@ -169,6 +183,16 @@ registerPasswordUserFinish(
 
   logInExistingDevice(
     request: identityStructs.ExistingDeviceLoginRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.AuthResponse>;
+
+  restorePasswordUser(
+    request: identityStructs.RestorePasswordUserRequest,
+    metadata?: grpcWeb.Metadata
+  ): Promise<identityStructs.AuthResponse>;
+
+  restoreWalletUser(
+    request: identityStructs.RestoreWalletUserRequest,
     metadata?: grpcWeb.Metadata
   ): Promise<identityStructs.AuthResponse>;
 

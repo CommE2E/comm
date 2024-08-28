@@ -27,6 +27,7 @@ use crate::grpc_services::protos::unauth::{
   OpaqueLoginStartResponse, RegistrationFinishRequest, RegistrationStartRequest,
   RegistrationStartResponse, RemoveReservedUsernameRequest,
   ReservedRegistrationStartRequest,
+  RestorePasswordUserRequest, RestoreWalletUserRequest,
   SecondaryDeviceKeysUploadRequest, VerifyUserAccessTokenRequest,
   VerifyUserAccessTokenResponse, WalletAuthRequest, GetFarcasterUsersRequest,
   GetFarcasterUsersResponse
@@ -685,6 +686,20 @@ impl IdentityClientService for ClientService {
       username: wallet_address,
     };
     Ok(Response::new(response))
+  }
+
+  async fn restore_password_user(
+    &self,
+    request: tonic::Request<RestorePasswordUserRequest>,
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
+    unimplemented!();
+  }
+
+  async fn restore_wallet_user(
+    &self,
+    request: tonic::Request<RestoreWalletUserRequest>,
+  ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
+    unimplemented!();
   }
 
   #[tracing::instrument(skip_all)]
