@@ -84,6 +84,12 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeKeyserverD
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getKeyserverDataFromNotifStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getKeyserverDataFromNotifStorage(rt, args[0].asObject(rt).asArray(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateUnreadThickThreadsInNotifsStorage(rt, args[0].asObject(rt).asArray(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUnreadThickThreadIDsFromNotifsStorage(rt);
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentOutboundSession(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeContentOutboundSession(rt, args[0].asString(rt), args[1].asString(rt), args[2].asString(rt), args[3].isNull() || args[3].isUndefined() ? std::nullopt : std::make_optional(args[3].asString(rt)), args[4].asString(rt));
 }
@@ -264,6 +270,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["updateKeyserverDataInNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateKeyserverDataInNotifStorage};
   methodMap_["removeKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeKeyserverDataFromNotifStorage};
   methodMap_["getKeyserverDataFromNotifStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getKeyserverDataFromNotifStorage};
+  methodMap_["updateUnreadThickThreadsInNotifsStorage"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateUnreadThickThreadsInNotifsStorage};
+  methodMap_["getUnreadThickThreadIDsFromNotifsStorage"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUnreadThickThreadIDsFromNotifsStorage};
   methodMap_["initializeContentOutboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentOutboundSession};
   methodMap_["initializeContentInboundSession"] = MethodMetadata {5, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeContentInboundSession};
   methodMap_["isContentSessionInitialized"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_isContentSessionInitialized};

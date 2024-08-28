@@ -43,6 +43,8 @@ public:
   virtual jsi::Value updateKeyserverDataInNotifStorage(jsi::Runtime &rt, jsi::Array keyserversData) = 0;
   virtual jsi::Value removeKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDsToDelete) = 0;
   virtual jsi::Value getKeyserverDataFromNotifStorage(jsi::Runtime &rt, jsi::Array keyserverIDs) = 0;
+  virtual jsi::Value updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, jsi::Array unreadThickThreadIDs) = 0;
+  virtual jsi::Value getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) = 0;
   virtual jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) = 0;
   virtual jsi::Value initializeContentInboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::Object encryptedContent, jsi::String deviceID, double sessionVersion, bool overwrite) = 0;
   virtual jsi::Value isContentSessionInitialized(jsi::Runtime &rt, jsi::String deviceID) = 0;
@@ -297,6 +299,22 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::getKeyserverDataFromNotifStorage, jsInvoker_, instance_, std::move(keyserverIDs));
+    }
+    jsi::Value updateUnreadThickThreadsInNotifsStorage(jsi::Runtime &rt, jsi::Array unreadThickThreadIDs) override {
+      static_assert(
+          bridging::getParameterCount(&T::updateUnreadThickThreadsInNotifsStorage) == 2,
+          "Expected updateUnreadThickThreadsInNotifsStorage(...) to have 2 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::updateUnreadThickThreadsInNotifsStorage, jsInvoker_, instance_, std::move(unreadThickThreadIDs));
+    }
+    jsi::Value getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::getUnreadThickThreadIDsFromNotifsStorage) == 1,
+          "Expected getUnreadThickThreadIDsFromNotifsStorage(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::getUnreadThickThreadIDsFromNotifsStorage, jsInvoker_, instance_);
     }
     jsi::Value initializeContentOutboundSession(jsi::Runtime &rt, jsi::String identityKeys, jsi::String prekey, jsi::String prekeySignature, std::optional<jsi::String> oneTimeKey, jsi::String deviceID) override {
       static_assert(

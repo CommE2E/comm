@@ -11,6 +11,7 @@
 #include <Notifications/BackgroundDataStorage/NotificationsCryptoModuleJNIHelper.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
+#include <Tools/CommMMKVJNIHelper.h>
 #include <Tools/StaffUtilsJNIHelper.h>
 
 namespace jni = facebook::jni;
@@ -76,5 +77,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
     comm::DatabaseInitializerJNIHelper::registerNatives();
     comm::NotificationsCryptoModuleJNIHelper::registerNatives();
     comm::StaffUtilsJNIHelper::registerNatives();
+    comm::CommMMKVJNIHelper::registerNatives();
   });
 }

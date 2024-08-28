@@ -20,6 +20,8 @@ public class CommMMKV {
   private static String mmkvEncryptionKey;
   private static String mmkvIdentifier;
 
+  public static native String notifsStorageUnreadThickThreadsKey();
+
   private static MMKV getMMKVInstance(String mmkvID, String encryptionKey) {
     MMKV mmkv = MMKV.mmkvWithID(mmkvID, MMKV.MULTI_PROCESS_MODE, encryptionKey);
     if (mmkv == null) {

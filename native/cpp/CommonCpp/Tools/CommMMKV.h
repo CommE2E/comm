@@ -34,6 +34,9 @@ public:
   static bool
   setStringSet(std::string key, const std::vector<std::string> &elements);
 
+  inline static const std::string notifsStorageUnreadThickThreadsKey =
+      "NOTIFS.UNREAD_THICK_THREADS";
+
   class InitFromNSEForbiddenError : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
