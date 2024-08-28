@@ -230,7 +230,7 @@ const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
     );
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings();
+    const callChangeThreadSettings = useChangeThreadSettings(props.threadInfo);
 
     return (
       <ThreadSettingsName

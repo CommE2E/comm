@@ -306,7 +306,7 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings();
+    const callChangeThreadSettings = useChangeThreadSettings(props.threadInfo);
 
     const canEditThreadDescription = useThreadHasPermission(
       props.threadInfo,
