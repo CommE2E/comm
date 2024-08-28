@@ -628,6 +628,67 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInExisting
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.RestoreUserRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_RestoreUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/RestoreUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.RestoreUserRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.RestoreUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.RestoreUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.restoreUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestoreUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestoreUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.RestoreUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.restoreUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestoreUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestoreUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.VerifyUserAccessTokenRequest,
  *   !proto.identity.unauth.VerifyUserAccessTokenResponse>}
  */
@@ -1053,3 +1114,4 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.getFarcasterU
 
 
 module.exports = proto.identity.unauth;
+
