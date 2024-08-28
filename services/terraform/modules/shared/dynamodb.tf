@@ -1,3 +1,7 @@
+locals {
+  pitr_enabled = terraform.workspace == "production" ? true : false
+}
+
 resource "aws_dynamodb_table" "backup-service-backup" {
   name         = "backup-service-backup"
   hash_key     = "userID"
@@ -26,6 +30,10 @@ resource "aws_dynamodb_table" "backup-service-backup" {
     projection_type    = "INCLUDE"
     non_key_attributes = ["userKeys", "siweBackupMsg"]
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "backup-service-log" {
@@ -42,6 +50,10 @@ resource "aws_dynamodb_table" "backup-service-log" {
   attribute {
     name = "logID"
     type = "N"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
 
@@ -77,6 +89,10 @@ resource "aws_dynamodb_table" "blob-service-blobs" {
     range_key       = "last_modified"
     projection_type = "KEYS_ONLY"
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
@@ -93,6 +109,10 @@ resource "aws_dynamodb_table" "tunnelbroker-undelivered-messages" {
   attribute {
     name = "messageID"
     type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
 
@@ -115,6 +135,10 @@ resource "aws_dynamodb_table" "tunnelbroker-device-tokens" {
     name            = "deviceToken-index"
     hash_key        = "deviceToken"
     projection_type = "KEYS_ONLY"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
 
@@ -174,6 +198,10 @@ resource "aws_dynamodb_table" "identity-users" {
     hash_key        = "usernameLower"
     projection_type = "KEYS_ONLY"
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "identity-devices" {
@@ -219,6 +247,10 @@ resource "aws_dynamodb_table" "identity-devices" {
     range_key       = "loginTime"
     projection_type = "KEYS_ONLY"
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "identity-tokens" {
@@ -235,6 +267,10 @@ resource "aws_dynamodb_table" "identity-tokens" {
   attribute {
     name = "signingPublicKey"
     type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
 
@@ -304,6 +340,10 @@ resource "aws_dynamodb_table" "identity-reserved-usernames" {
     hash_key        = "userID"
     projection_type = "KEYS_ONLY"
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "identity-one-time-keys" {
@@ -320,6 +360,10 @@ resource "aws_dynamodb_table" "identity-one-time-keys" {
   attribute {
     name = "timestamp#keyNumber"
     type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
 
@@ -338,6 +382,10 @@ resource "aws_dynamodb_table" "feature-flags" {
     name = "feature"
     type = "S"
   }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
+  }
 }
 
 resource "aws_dynamodb_table" "reports-service-reports" {
@@ -348,5 +396,9 @@ resource "aws_dynamodb_table" "reports-service-reports" {
   attribute {
     name = "reportID"
     type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = local.pitr_enabled
   }
 }
