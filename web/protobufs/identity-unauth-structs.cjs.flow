@@ -362,6 +362,44 @@ export type WalletAuthRequestObject = {
   initialDeviceList: string,
 };
 
+declare export class RestoreUserRequest extends Message {
+  getUserId(): string;
+  setUserId(value: string): RestoreUserRequest;
+
+  getSiweMessage(): string;
+  setSiweMessage(value: string): RestoreUserRequest;
+  hasSiweMessage(): boolean;
+  clearSiweMessage(): RestoreUserRequest;
+
+  getSiweSignature(): string;
+  setSiweSignature(value: string): RestoreUserRequest;
+  hasSiweSignature(): boolean;
+  clearSiweSignature(): RestoreUserRequest;
+
+  getDeviceKeyUpload(): DeviceKeyUpload | void;
+  setDeviceKeyUpload(value?: DeviceKeyUpload): RestoreUserRequest;
+  hasDeviceKeyUpload(): boolean;
+  clearDeviceKeyUpload(): RestoreUserRequest;
+
+  getDeviceList(): string;
+  setDeviceList(value: string): RestoreUserRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): RestoreUserRequestObject;
+  static toObject(includeInstance: boolean, msg: RestoreUserRequest): RestoreUserRequestObject;
+  static serializeBinaryToWriter(message: RestoreUserRequest, writer: BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RestoreUserRequest;
+  static deserializeBinaryFromReader(message: RestoreUserRequest, reader: BinaryReader): RestoreUserRequest;
+}
+
+export type RestoreUserRequestObject = {
+  userId: string,
+  siweMessage?: string,
+  siweSignature?: string,
+  deviceKeyUpload?: DeviceKeyUploadObject,
+  deviceList: string,
+}
+
 declare export class SecondaryDeviceKeysUploadRequest extends Message {
   getUserId(): string;
   setUserId(value: string): SecondaryDeviceKeysUploadRequest;
