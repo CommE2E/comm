@@ -270,4 +270,26 @@ std::vector<std::string> CommMMKV::getStringSet(std::string setKey) {
   return stringSetCpp;
 }
 
+bool CommMMKV::setStringSet(
+    std::string key,
+    const std::vector<std::string> &elements) {
+  CommMMKV::initialize();
+  NSString *keyObjC = [NSString stringWithCString:key.c_str()
+                                         encoding:NSUTF8StringEncoding];
+
+  NSMutableSet *stringSet = [[NSMutableSet alloc] init];
+  for (const auto &element : elements) {
+    [stringSet addObject:[NSString stringWithCString:element.c_str()
+                                            encoding:NSUTF8StringEncoding]];
+  }
+
+  MMKV *mmkv = getMMKVInstance(mmkvIdentifier, mmkvEncryptionKey);
+  BOOL result = [mmkv setObject:stringSet forKey:keyObjC];
+
+  if (!result) {
+    Logger::log("Attempt to write in background or failure during write.");
+  }
+  return result;
+}
+
 } // namespace comm
