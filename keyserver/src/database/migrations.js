@@ -32,7 +32,10 @@ async function migrate(): Promise<boolean> {
   }
 
   setConnectionContext({ migrationsActive: true });
-  for (const [idx, migration] of migrations.entries()) {
+  for (const {
+    version: idx,
+    migrationPromise: migration,
+  } of migrations.values()) {
     if (idx <= dbVersion) {
       continue;
     }
