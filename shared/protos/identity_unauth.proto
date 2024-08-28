@@ -30,6 +30,9 @@ service IdentityClientService {
     returns (AuthResponse) {}
   rpc LogInExistingDevice(ExistingDeviceLoginRequest) returns (AuthResponse) {}
 
+  // Called by primary device during backup restore protocol
+  rpc RestoreUser(RestoreUserRequest) returns (AuthResponse) {}
+
   /* Service actions */
 
   // Called by other services to verify a user's access token
@@ -228,6 +231,25 @@ message WalletAuthRequest {
   // It's an empty string when used outside `RegisterWalletUser` RPC
   // and for older clients which don't sign device lists yet.
   string initial_device_list = 5;
+}
+
+// Primary backup restore
+
+message RestoreUserRequest {
+  string user_id = 1;
+  optional string siwe_message = 2;
+  optional string siwe_signature = 3;
+  DeviceKeyUpload device_key_upload = 4;
+  // A stringified JSON object of the following format:
+  // {
+  //   "rawDeviceList": JSON.stringify({
+  //     "devices": [<primary_device_id: string>]
+  //     "timestamp": <UTC timestamp in milliseconds: int>,
+  //   }),
+  //   "curPrimarySignature": "base64-encoded new primary device signature",
+  //   "lastPrimarySignature": "base64-encoded old primary device signature"
+  // }
+  string device_list = 5;
 }
 
 // UploadKeysForRegisteredDeviceAndLogIn
