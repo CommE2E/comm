@@ -68,8 +68,6 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
   private static final String MMKV_KEY_SEPARATOR = ".";
   private static final String MMKV_KEYSERVER_PREFIX = "KEYSERVER";
   private static final String MMKV_UNREAD_COUNT_SUFFIX = "UNREAD_COUNT";
-  private static final String MMKV_UNREAD_THICK_THREADS =
-      "NOTIFS.UNREAD_THICK_THREADS";
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
@@ -307,12 +305,14 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
         message.getData().get(THREAD_ID_KEY) != null &&
         message.getData().get(RESCIND_KEY) != null) {
       CommMMKV.removeElementFromStringSet(
-          MMKV_UNREAD_THICK_THREADS, message.getData().get(THREAD_ID_KEY));
+          CommMMKV.notifsStorageUnreadThickThreadsKey(),
+          message.getData().get(THREAD_ID_KEY));
     } else if (
         message.getData().get(SENDER_DEVICE_ID_KEY) != null &&
         message.getData().get(THREAD_ID_KEY) != null) {
       CommMMKV.addElementToStringSet(
-          MMKV_UNREAD_THICK_THREADS, message.getData().get(THREAD_ID_KEY));
+          CommMMKV.notifsStorageUnreadThickThreadsKey(),
+          message.getData().get(THREAD_ID_KEY));
     }
 
     int totalUnreadCount = 0;
@@ -332,7 +332,9 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
       totalUnreadCount += unreadCount;
     }
 
-    totalUnreadCount += CommMMKV.getStringSet(MMKV_UNREAD_THICK_THREADS).length;
+    totalUnreadCount +=
+        CommMMKV.getStringSet(CommMMKV.notifsStorageUnreadThickThreadsKey())
+            .length;
 
     if (totalUnreadCount > 0) {
       ShortcutBadger.applyCount(this, totalUnreadCount);
