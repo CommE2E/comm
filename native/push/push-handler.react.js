@@ -28,9 +28,11 @@ import {
 import {
   threadInfoSelector,
   allUnreadCounts,
+  unreadThickThreadIDsSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   alertTypes,
   type AlertInfo,
@@ -107,6 +109,7 @@ type Props = {
   +activeThread: ?string,
   // Redux state
   +unreadCount: { +[keyserverID: string]: number },
+  +unreadThickThreadIDs: $ReadOnlyArray<string>,
   +connection: { +[keyserverID: string]: ?ConnectionInfo },
   +deviceTokens: {
     +[keyserverID: string]: ?string,
@@ -134,6 +137,14 @@ type Props = {
   // withRootContext
   +rootContext: ?RootContextType,
   +localToken: ?string,
+  +tunnelbrokerSocketState:
+    | {
+        +connected: true,
+        +isAuthorized: boolean,
+      }
+    | {
+        +connected: false,
+      },
 };
 type State = {
   +inAppNotifProps: ?{
@@ -318,6 +329,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     const curUnreadCounts = this.props.unreadCount;
     const curConnections = this.props.connection;
 
+    const currentUnreadThickThreads = this.props.unreadThickThreadIDs;
+    const currentTunnelbrokerConnectionStatus =
+      this.props.tunnelbrokerSocketState.connected;
+
     const notifStorageUpdates: Array<{
       +id: string,
       +unreadCount: number,
@@ -341,9 +356,21 @@ class PushHandler extends React.PureComponent<Props, State> {
       +unreadCount: number,
     }> = [];
 
+    const handleUnreadThickThreadIDsInNotifsStorage = (async () => {
+      if (currentTunnelbrokerConnectionStatus) {
+        await commCoreModule.updateUnreadThickThreadsInNotifsStorage(
+          currentUnreadThickThreads,
+        );
+        return currentUnreadThickThreads;
+      }
+      return await commCoreModule.getUnreadThickThreadIDsFromNotifsStorage();
+    })();
+
+    let unreadThickThreadIDs: $ReadOnlyArray<string>;
     try {
-      [queriedKeyserverData] = await Promise.all([
+      [queriedKeyserverData, unreadThickThreadIDs] = await Promise.all([
         commCoreModule.getKeyserverDataFromNotifStorage(notifsStorageQueries),
+        handleUnreadThickThreadIDsInNotifsStorage,
         commCoreModule.updateKeyserverDataInNotifStorage(notifStorageUpdates),
       ]);
     } catch (e) {
@@ -365,6 +392,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       totalUnreadCount += keyserverData.unreadCount;
     }
 
+    totalUnreadCount += unreadThickThreadIDs.length;
     if (Platform.OS === 'ios') {
       CommIOSNotifications.setBadgesCount(totalUnreadCount);
     } else if (Platform.OS === 'android') {
@@ -800,6 +828,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
     const boundUnreadCount = useSelector(allUnreadCounts);
+    const boundUnreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
     const boundConnection = useSelector(allConnectionInfosSelector);
     const deviceTokens = useSelector(deviceTokensSelector);
     const threadInfos = useSelector(threadInfoSelector);
@@ -818,11 +847,13 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
     const callSetDeviceToken = useSetDeviceToken();
     const callSetDeviceTokenFanout = useSetDeviceTokenFanout();
     const rootContext = React.useContext(RootContext);
+    const { socketState: boundTunnelbrokerSocketState } = useTunnelbroker();
     return (
       <PushHandler
         {...props}
         activeThread={activeThread}
         unreadCount={boundUnreadCount}
+        unreadThickThreadIDs={boundUnreadThickThreadIDs}
         connection={boundConnection}
         deviceTokens={deviceTokens}
         threadInfos={threadInfos}
@@ -837,6 +868,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
         setDeviceTokenFanout={callSetDeviceTokenFanout}
         rootContext={rootContext}
         localToken={localToken}
+        tunnelbrokerSocketState={boundTunnelbrokerSocketState}
       />
     );
   });
