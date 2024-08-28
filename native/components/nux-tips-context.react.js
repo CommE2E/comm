@@ -25,39 +25,34 @@ export type NUXTip = $Values<typeof nuxTip>;
 type NUXTipParams = {
   +nextTip: ?NUXTip,
   +tooltipLocation: 'below' | 'above' | 'absolute',
-  +nextRouteName: ?NUXTipRouteNames,
+  +routeName: NUXTipRouteNames,
   +exitingCallback?: <Route: NUXTipRouteNames>(
     navigation: AppNavigationProp<Route>,
   ) => void,
 };
 
-const firstNUXTipKey = 'firstTip';
-type NUXTipParamsKeys = NUXTip | 'firstTip';
+const firstNUXTipKey = nuxTip.INTRO;
+type NUXTipParamsKeys = NUXTip;
 
 const nuxTipParams: { +[NUXTipParamsKeys]: NUXTipParams } = {
-  [firstNUXTipKey]: {
-    nextTip: nuxTip.INTRO,
-    tooltipLocation: 'absolute',
-    nextRouteName: IntroTipRouteName,
-  },
   [nuxTip.INTRO]: {
     nextTip: nuxTip.COMMUNITY_DRAWER,
-    tooltipLocation: 'below',
-    nextRouteName: CommunityDrawerTipRouteName,
+    tooltipLocation: 'absolute',
+    routeName: IntroTipRouteName,
   },
   [nuxTip.COMMUNITY_DRAWER]: {
     nextTip: nuxTip.HOME,
     tooltipLocation: 'below',
-    nextRouteName: HomeTabTipRouteName,
+    routeName: CommunityDrawerTipRouteName,
   },
   [nuxTip.HOME]: {
     nextTip: nuxTip.MUTED,
     tooltipLocation: 'below',
-    nextRouteName: MutedTabTipRouteName,
+    routeName: HomeTabTipRouteName,
   },
   [nuxTip.MUTED]: {
     nextTip: undefined,
-    nextRouteName: undefined,
+    routeName: MutedTabTipRouteName,
     tooltipLocation: 'below',
     exitingCallback: navigation => navigation.goBack(),
   },
@@ -109,7 +104,7 @@ function NUXTipsContextProvider(props: Props): React.Node {
   const tipsProps = React.useMemo(() => {
     const result: { [tip: NUXTip]: TipProps } = {};
     for (const type of values(nuxTip)) {
-      if (type === nuxTip.INTRO) {
+      if (nuxTipParams[type].tooltipLocation === 'absolute') {
         continue;
       }
       if (!tipsPropsState[type]) {

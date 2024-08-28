@@ -64,17 +64,14 @@ function NUXTipOverlayBackdropInner(props: Props): React.Node {
     };
   }, [onExitFinish]);
 
-  const { nextTip, tooltipLocation, nextRouteName } =
-    getNUXTipParams(firstNUXTipKey);
-  invariant(nextRouteName && nextTip, 'first nux tip should be defined');
+  const { routeName } = getNUXTipParams(firstNUXTipKey);
 
   React.useEffect(
     () =>
       props.navigation.navigate<NUXTipRouteNames>({
-        name: nextRouteName,
+        name: routeName,
         params: {
-          tipKey: nextTip,
-          tooltipLocation,
+          tipKey: firstNUXTipKey,
         },
       }),
     // We want this effect to run exactly once, when this component is mounted
