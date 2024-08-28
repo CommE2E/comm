@@ -83,6 +83,12 @@ interface Spec extends TurboModule {
   +getKeyserverDataFromNotifStorage: (
     keyserverIDs: $ReadOnlyArray<string>,
   ) => Promise<$ReadOnlyArray<{ +id: string, +unreadCount: number }>>;
+  +updateUnreadThickThreadsInNotifsStorage: (
+    unreadThickThreadIDs: $ReadOnlyArray<string>,
+  ) => Promise<void>;
+  +getUnreadThickThreadIDsFromNotifsStorage: () => Promise<
+    $ReadOnlyArray<string>,
+  >;
   +initializeContentOutboundSession: (
     identityKeys: string,
     prekey: string,
