@@ -128,6 +128,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual jsi::Value getKeyserverDataFromNotifStorage(
       jsi::Runtime &rt,
       jsi::Array keyserverIDs) override;
+  virtual jsi::Value updateUnreadThickThreadsInNotifsStorage(
+      jsi::Runtime &rt,
+      jsi::Array unreadThickThreadIDs) override;
+  virtual jsi::Value
+  getUnreadThickThreadIDsFromNotifsStorage(jsi::Runtime &rt) override;
   virtual jsi::Value initializeContentOutboundSession(
       jsi::Runtime &rt,
       jsi::String identityKeys,
