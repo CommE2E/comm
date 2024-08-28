@@ -30,7 +30,6 @@ NSString *const notificationIdKey = @"notificationId";
 const std::string mmkvKeySeparator = ".";
 const std::string mmkvKeyserverPrefix = "KEYSERVER";
 const std::string mmkvUnreadCountSuffix = "UNREAD_COUNT";
-const std::string unreadThickThreads = "NOTIFS.UNREAD_THICK_THREADS";
 
 // The context for this constant can be found here:
 // https://linear.app/comm/issue/ENG-3074#comment-bd2f5e28
@@ -532,12 +531,12 @@ std::string joinStrings(
   if (content.userInfo[senderDeviceIDKey] && content.userInfo[threadIDKey] &&
       [self isRescind:content.userInfo]) {
     comm::CommMMKV::removeElementFromStringSet(
-        unreadThickThreads,
+        comm::CommMMKV::notifsStorageUnreadThickThreadsKey,
         std::string([content.userInfo[threadIDKey] UTF8String]));
   } else if (
       content.userInfo[senderDeviceIDKey] && content.userInfo[threadIDKey]) {
     comm::CommMMKV::addElementToStringSet(
-        unreadThickThreads,
+        comm::CommMMKV::notifsStorageUnreadThickThreadsKey,
         std::string([content.userInfo[threadIDKey] UTF8String]));
   }
 
@@ -563,7 +562,9 @@ std::string joinStrings(
   }
 
   // calculate unread counts from thick threads
-  totalUnreadCount += comm::CommMMKV::getStringSet(unreadThickThreads).size();
+  totalUnreadCount += comm::CommMMKV::getStringSet(
+                          comm::CommMMKV::notifsStorageUnreadThickThreadsKey)
+                          .size();
 
   content.badge = @(totalUnreadCount);
 }
