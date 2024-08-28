@@ -125,6 +125,22 @@ public:
 
     return result;
   }
+
+  static bool
+  setStringSet(std::string key, const std::vector<std::string> &elements) {
+    static const auto cls = javaClassStatic();
+    static auto method = cls->getStaticMethod<jboolean(
+        std::string, local_ref<JArrayClass<JString>>)>("setStringSet");
+
+    local_ref<JArrayClass<JString>> elementsJava =
+        JArrayClass<JString>::newArray(elements.size());
+
+    for (int i = 0; i < elements.size(); i++) {
+      elementsJava->setElement(i, *make_jstring(elements[i]));
+    }
+
+    return method(cls, key, elementsJava);
+  }
 };
 
 namespace comm {
@@ -204,6 +220,15 @@ std::vector<std::string> CommMMKV::getStringSet(std::string setKey) {
   std::vector<std::string> result;
   NativeAndroidAccessProvider::runTask(
       [&]() { result = CommMMKVJavaClass::getStringSet(setKey); });
+  return result;
+}
+
+bool CommMMKV::setStringSet(
+    std::string key,
+    const std::vector<std::string> &elements) {
+  bool result;
+  NativeAndroidAccessProvider::runTask(
+      [&]() { result = CommMMKVJavaClass::setStringSet(key, elements); });
   return result;
 }
 } // namespace comm

@@ -31,6 +31,8 @@ public:
   static void
   removeElementFromStringSet(std::string setKey, std::string element);
   static std::vector<std::string> getStringSet(std::string setKey);
+  static bool
+  setStringSet(std::string key, const std::vector<std::string> &elements);
 
   class InitFromNSEForbiddenError : public std::runtime_error {
   public:
