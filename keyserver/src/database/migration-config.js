@@ -38,40 +38,48 @@ import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-lin
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
-const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
-  [
-    0,
-    async () => {
+export type Migration = {
+  +version: number,
+  +migrationPromise: () => Promise<mixed>,
+};
+
+const migrations: $ReadOnlyArray<Migration> = [
+  {
+    version: 0,
+    migrationPromise: async () => {
       await makeSureBaseRoutePathExists('facts/commapp_url.json');
       await makeSureBaseRoutePathExists('facts/squadcal_url.json');
     },
-  ],
-  [
-    1,
-    async () => {
+  },
+  {
+    version: 1,
+    migrationPromise: async () => {
       try {
         await fs.promises.unlink('facts/url.json');
       } catch {}
     },
-  ],
-  [
-    2,
-    async () => {
+  },
+  {
+    version: 2,
+    migrationPromise: async () => {
       await fixBaseRoutePathForLocalhost('facts/commapp_url.json');
       await fixBaseRoutePathForLocalhost('facts/squadcal_url.json');
     },
-  ],
+  },
 
-  [3, updateRolesAndPermissionsForAllThreads],
-  [
-    4,
-    async () => {
+  {
+    version: 3,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 4,
+    migrationPromise: async () => {
       await dbQuery(SQL`ALTER TABLE uploads ADD INDEX container (container)`);
     },
-  ],
-  [
-    5,
-    async () => {
+  },
+  {
+    version: 5,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE cookies
           ADD device_id varchar(255) DEFAULT NULL,
@@ -79,10 +87,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
           ADD social_proof varchar(255) DEFAULT NULL;
       `);
     },
-  ],
-  [
-    7,
-    async () => {
+  },
+  {
+    version: 7,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE users
@@ -95,10 +103,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    8,
-    async () => {
+  },
+  {
+    version: 8,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE users
@@ -106,10 +114,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [
-    9,
-    async () => {
+  },
+  {
+    version: 9,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE messages
@@ -121,10 +129,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    10,
-    async () => {
+  },
+  {
+    version: 10,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         CREATE TABLE IF NOT EXISTS policy_acknowledgments (
           user bigint(20) NOT NULL,
@@ -135,10 +143,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       `);
     },
-  ],
-  [
-    11,
-    async () => {
+  },
+  {
+    version: 11,
+    migrationPromise: async () => {
       const time = Date.now();
       await dbQuery(SQL`
         INSERT IGNORE INTO policy_acknowledgments (policy, user, date, 
@@ -147,10 +155,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         FROM users
       `);
     },
-  ],
-  [
-    12,
-    async () => {
+  },
+  {
+    version: 12,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         CREATE TABLE IF NOT EXISTS siwe_nonces (
           nonce char(17) NOT NULL,
@@ -159,28 +167,28 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       `);
     },
-  ],
-  [
-    13,
-    async () => {
+  },
+  {
+    version: 13,
+    migrationPromise: async () => {
       await Promise.all([
         writeSquadCalRoute('facts/squadcal_url.json'),
         moveToNonApacheConfig('facts/commapp_url.json', '/comm/'),
         moveToNonApacheConfig('facts/landing_url.json', '/commlanding/'),
       ]);
     },
-  ],
-  [
-    14,
-    async () => {
+  },
+  {
+    version: 14,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE cookies MODIFY COLUMN social_proof mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL;
       `);
     },
-  ],
-  [
-    15,
-    async () => {
+  },
+  {
+    version: 15,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE uploads 
@@ -196,10 +204,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    16,
-    async () => {
+  },
+  {
+    version: 16,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE cookies
@@ -214,10 +222,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    17,
-    async () => {
+  },
+  {
+    version: 17,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE cookies 
@@ -233,12 +241,15 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [18, updateRolesAndPermissionsForAllThreads],
-  [19, updateRolesAndPermissionsForAllThreads],
-  [
-    20,
-    async () => {
+  },
+  {
+    version: 18,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  { version: 19, migrationPromise: updateRolesAndPermissionsForAllThreads },
+  {
+    version: 20,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE threads
           ADD COLUMN IF NOT EXISTS avatar varchar(191)
@@ -246,10 +257,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
             DEFAULT NULL;
       `);
     },
-  ],
-  [
-    21,
-    async () => {
+  },
+  {
+    version: 21,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE reports
           DROP INDEX IF EXISTS user,
@@ -257,10 +268,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
             (user, type, platform, creation_time);
       `);
     },
-  ],
-  [
-    22,
-    async () => {
+  },
+  {
+    version: 22,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE cookies
@@ -305,12 +316,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [23, updateRolesAndPermissionsForAllThreads],
-  [24, updateRolesAndPermissionsForAllThreads],
-  [
-    25,
-    async () => {
+  },
+  {
+    version: 23,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 24,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 25,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           CREATE TABLE IF NOT EXISTS message_search (
@@ -326,11 +343,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [26, processMessagesInDBForSearch],
-  [
-    27,
-    async () => {
+  },
+  {
+    version: 26,
+    migrationPromise: processMessagesInDBForSearch,
+  },
+  {
+    version: 27,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE messages
           ADD COLUMN IF NOT EXISTS pinned tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
@@ -338,26 +358,29 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
           ADD INDEX IF NOT EXISTS thread_pinned (thread, pinned);
       `);
     },
-  ],
-  [
-    28,
-    async () => {
+  },
+  {
+    version: 28,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE threads
           ADD COLUMN IF NOT EXISTS pinned_count int UNSIGNED NOT NULL DEFAULT 0;
       `);
     },
-  ],
-  [29, updateRolesAndPermissionsForAllThreads],
-  [
-    30,
-    async () => {
+  },
+  {
+    version: 29,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 30,
+    migrationPromise: async () => {
       await dbQuery(SQL`DROP TABLE versions;`);
     },
-  ],
-  [
-    31,
-    async () => {
+  },
+  {
+    version: 31,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           CREATE TABLE IF NOT EXISTS invite_links (
@@ -378,20 +401,20 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    32,
-    async () => {
+  },
+  {
+    version: 32,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         UPDATE messages
         SET target_message = JSON_VALUE(content, "$.sourceMessageID")
         WHERE type = ${messageTypes.SIDEBAR_SOURCE};
       `);
     },
-  ],
-  [
-    33,
-    async () => {
+  },
+  {
+    version: 33,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           CREATE TABLE IF NOT EXISTS olm_sessions (
@@ -409,10 +432,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    34,
-    async () => {
+  },
+  {
+    version: 34,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           CREATE TABLE IF NOT EXISTS olm_accounts (
@@ -432,17 +455,20 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    35,
-    async () => {
+  },
+  {
+    version: 35,
+    migrationPromise: async () => {
       await createOlmAccounts();
     },
-  ],
-  [36, updateRolesAndPermissionsForAllThreads],
-  [
-    37,
-    async () => {
+  },
+  {
+    version: 36,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 37,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           DELETE FROM olm_accounts;
@@ -452,10 +478,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       );
       await createOlmAccounts();
     },
-  ],
-  [
-    38,
-    async () => {
+  },
+  {
+    version: 38,
+    migrationPromise: async () => {
       const [result] = await dbQuery(SQL`
         SELECT t.id
         FROM threads t
@@ -487,22 +513,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         );
       }
     },
-  ],
-  [39, ensureUserCredentials],
-  [
-    40,
+  },
+  {
+    version: 39,
+    migrationPromise: ensureUserCredentials,
+  },
+  {
+    version: 40,
     // Tokens from identity service are 512 characters long
-    () =>
+    migrationPromise: () =>
       dbQuery(
         SQL`
           ALTER TABLE metadata
           MODIFY COLUMN data VARCHAR(1023)
         `,
       ),
-  ],
-  [
-    41,
-    () =>
+  },
+  {
+    version: 41,
+    migrationPromise: () =>
       dbQuery(
         SQL`
           ALTER TABLE memberships
@@ -510,19 +539,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
             ADD KEY user_role_thread (user, role, thread)
         `,
       ),
-  ],
-  [
-    42,
-    async () => {
+  },
+  {
+    version: 42,
+    migrationPromise: async () => {
       await dbQuery(SQL`
         ALTER TABLE roles
         ADD UNIQUE KEY thread_name (thread, name);
       `);
     },
-  ],
-  [
-    43,
-    () =>
+  },
+  {
+    version: 43,
+    migrationPromise: () =>
       dbQuery(
         SQL`
           UPDATE threads
@@ -534,10 +563,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
           )
         `,
       ),
-  ],
-  [
-    44,
-    async () => {
+  },
+  {
+    version: 44,
+    migrationPromise: async () => {
       const { SIDEBAR_SOURCE, TOGGLE_PIN } = messageTypes;
       const [result] = await dbQuery(SQL`
         SELECT m1.thread
@@ -558,10 +587,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         ),
       );
     },
-  ],
-  [
-    45,
-    () =>
+  },
+  {
+    version: 45,
+    migrationPromise: () =>
       dbQuery(
         SQL`
           ALTER TABLE uploads
@@ -576,10 +605,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
               CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL;
         `,
       ),
-  ],
-  [
-    46,
-    async () => {
+  },
+  {
+    version: 46,
+    migrationPromise: async () => {
       try {
         const [content, notif] = await Promise.all([
           fetchOlmAccount('content'),
@@ -593,15 +622,15 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         }
       }
     },
-  ],
-  [
-    47,
-    () =>
+  },
+  {
+    version: 47,
+    migrationPromise: () =>
       dbQuery(SQL`ALTER TABLE cookies MODIFY COLUMN hash char(64) NOT NULL`),
-  ],
-  [
-    48,
-    async () => {
+  },
+  {
+    version: 48,
+    migrationPromise: async () => {
       const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
       const query = SQL`
         UPDATE memberships mm
@@ -630,10 +659,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       `;
       await dbQuery(query);
     },
-  ],
-  [
-    49,
-    async () => {
+  },
+  {
+    version: 49,
+    migrationPromise: async () => {
       if (isDockerEnvironment()) {
         return;
       }
@@ -642,17 +671,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       };
       await writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
     },
-  ],
-  [
-    50,
-    async () => {
+  },
+  {
+    version: 50,
+    migrationPromise: async () => {
       await moveToNonApacheConfig('facts/webapp_url.json', '/webapp/');
       await moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
-  ],
-  [
-    51,
-    async () => {
+  },
+  {
+    version: 51,
+    migrationPromise: async () => {
       if (permissionsToRemoveInMigration.length === 0) {
         return;
       }
@@ -677,10 +706,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
 
       await dbQuery(updateQuery);
     },
-  ],
-  [
-    52,
-    async () => {
+  },
+  {
+    version: 52,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE roles
@@ -691,18 +720,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
 
       await updateRolesAndPermissionsForAllThreads();
     },
-  ],
-  [
-    53,
-    async () =>
+  },
+  {
+    version: 53,
+    migrationPromise: async () =>
       dbQuery(SQL`
         ALTER TABLE invite_links 
           ADD COLUMN blob_holder char(36) CHARSET latin1
       `),
-  ],
-  [
-    54,
-    async () => {
+  },
+  {
+    version: 54,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE roles
@@ -718,10 +747,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    55,
-    async () => {
+  },
+  {
+    version: 55,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE threads
@@ -729,10 +758,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [
-    56,
-    async () => {
+  },
+  {
+    version: 56,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           UPDATE roles
@@ -741,11 +770,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [57, synchronizeInviteLinksWithBlobs],
-  [
-    58,
-    async () => {
+  },
+  {
+    version: 57,
+    migrationPromise: synchronizeInviteLinksWithBlobs,
+  },
+  {
+    version: 58,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE updates
@@ -753,11 +785,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [59, () => dbQuery(SQL`DROP TABLE one_time_keys`)],
-  [
-    60,
-    async () => {
+  },
+  {
+    version: 59,
+    migrationPromise: () => dbQuery(SQL`DROP TABLE one_time_keys`),
+  },
+  {
+    version: 60,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           DELETE
@@ -767,10 +802,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [
-    61,
-    async () => {
+  },
+  {
+    version: 61,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE uploads
@@ -778,10 +813,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [
-    62,
-    async () => {
+  },
+  {
+    version: 62,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE uploads
@@ -789,10 +824,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         `,
       );
     },
-  ],
-  [
-    63,
-    async () => {
+  },
+  {
+    version: 63,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           ALTER TABLE uploads
@@ -809,10 +844,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    64,
-    async () => {
+  },
+  {
+    version: 64,
+    migrationPromise: async () => {
       await dbQuery(
         SQL`
           CREATE TABLE IF NOT EXISTS communities (
@@ -832,23 +867,32 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
         { multipleStatements: true },
       );
     },
-  ],
-  [
-    65,
-    () =>
+  },
+  {
+    version: 65,
+    migrationPromise: () =>
       dbQuery(SQL`
         ALTER TABLE invite_links
           ADD COLUMN IF NOT EXISTS thread bigint(20) DEFAULT NULL,
           ADD COLUMN IF NOT EXISTS thread_role bigint(20) DEFAULT NULL,
           ADD INDEX IF NOT EXISTS community_thread (community, thread);
       `),
-  ],
-  [66, updateRolesAndPermissionsForAllThreads],
-  [67, updateRolesAndPermissionsForAllThreads],
-  [68, updateRolesAndPermissionsForAllThreads],
-  [
-    69,
-    async () => {
+  },
+  {
+    version: 66,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 67,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 68,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+  },
+  {
+    version: 69,
+    migrationPromise: async () => {
       const [result] = await dbQuery(SQL`
         SELECT r.id, r.permissions
         FROM threads t
@@ -900,10 +944,10 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
 
       await updateRolesAndPermissionsForAllThreads();
     },
-  ],
-  [
-    70,
-    async () => {
+  },
+  {
+    version: 70,
+    migrationPromise: async () => {
       const relationshipChangeset = new RelationshipChangeset();
 
       const threadToUsers = new Map<string, string[]>();
@@ -930,9 +974,12 @@ const migrations: $ReadOnlyMap<number, () => Promise<mixed>> = new Map([
       const relationshipRows = relationshipChangeset.getRows();
       await updateChangedUndirectedRelationships(relationshipRows);
     },
-  ],
-]);
-const newDatabaseVersion: number = Math.max(...migrations.keys());
+  },
+];
+const versions: $ReadOnlyArray<number> = migrations.map(
+  migration => migration.version,
+);
+const newDatabaseVersion: number = Math.max(...versions);
 
 async function writeJSONToFile(data: any, filePath: string): Promise<void> {
   console.warn(`updating ${filePath} to ${JSON.stringify(data)}`);
