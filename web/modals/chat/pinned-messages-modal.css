@@ -1,5 +1,7 @@
 .container {
   height: 80vh;
+  overflow: scroll;
+  max-height: 100%;
 }
 
 hr.separator {

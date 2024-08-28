@@ -74,6 +74,7 @@ h2.subtitle {
 
 .modalContentContainer {
   padding: 16px 32px 24px;
+  overflow: hidden;
 }
 
 .buttonContainer {

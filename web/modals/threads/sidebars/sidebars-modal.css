@@ -3,6 +3,7 @@ div.sidebarListContainer {
   flex-direction: column;
   line-height: var(--line-height-text);
   height: 80vh;
+  overflow: hidden;
 }
 
 div.sidebarList {
