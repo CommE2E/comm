@@ -628,6 +628,128 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.logInExisting
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.RestorePasswordUserRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_RestorePasswordUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/RestorePasswordUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.RestorePasswordUserRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.RestorePasswordUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.RestorePasswordUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.restorePasswordUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestorePasswordUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestorePasswordUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.RestorePasswordUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.restorePasswordUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestorePasswordUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestorePasswordUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.identity.unauth.RestoreWalletUserRequest,
+ *   !proto.identity.unauth.AuthResponse>}
+ */
+const methodDescriptor_IdentityClientService_RestoreWalletUser = new grpc.web.MethodDescriptor(
+  '/identity.unauth.IdentityClientService/RestoreWalletUser',
+  grpc.web.MethodType.UNARY,
+  proto.identity.unauth.RestoreWalletUserRequest,
+  proto.identity.unauth.AuthResponse,
+  /**
+   * @param {!proto.identity.unauth.RestoreWalletUserRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.identity.unauth.AuthResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.identity.unauth.RestoreWalletUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.identity.unauth.AuthResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.identity.unauth.AuthResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.identity.unauth.IdentityClientServiceClient.prototype.restoreWalletUser =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestoreWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestoreWalletUser,
+      callback);
+};
+
+
+/**
+ * @param {!proto.identity.unauth.RestoreWalletUserRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.identity.unauth.AuthResponse>}
+ *     Promise that resolves to the response
+ */
+proto.identity.unauth.IdentityClientServicePromiseClient.prototype.restoreWalletUser =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/identity.unauth.IdentityClientService/RestoreWalletUser',
+      request,
+      metadata || {},
+      methodDescriptor_IdentityClientService_RestoreWalletUser);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
  *   !proto.identity.unauth.VerifyUserAccessTokenRequest,
  *   !proto.identity.unauth.VerifyUserAccessTokenResponse>}
  */
@@ -1053,3 +1175,4 @@ proto.identity.unauth.IdentityClientServicePromiseClient.prototype.getFarcasterU
 
 
 module.exports = proto.identity.unauth;
+
