@@ -38,9 +38,13 @@ import { synchronizeInviteLinksWithBlobs } from '../utils/synchronize-invite-lin
 
 const botViewer = createScriptViewer(bots.commbot.userID);
 
+export type MigrationType =
+  | 'wrap_in_transaction_and_block_requests'
+  | 'run_simultaneously_with_requests';
 export type Migration = {
   +version: number,
   +migrationPromise: () => Promise<mixed>,
+  +migrationType: MigrationType,
 };
 
 const migrations: $ReadOnlyArray<Migration> = [
@@ -50,6 +54,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       await makeSureBaseRoutePathExists('facts/commapp_url.json');
       await makeSureBaseRoutePathExists('facts/squadcal_url.json');
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 1,
@@ -58,6 +63,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         await fs.promises.unlink('facts/url.json');
       } catch {}
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 2,
@@ -65,17 +71,20 @@ const migrations: $ReadOnlyArray<Migration> = [
       await fixBaseRoutePathForLocalhost('facts/commapp_url.json');
       await fixBaseRoutePathForLocalhost('facts/squadcal_url.json');
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
 
   {
     version: 3,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 4,
     migrationPromise: async () => {
       await dbQuery(SQL`ALTER TABLE uploads ADD INDEX container (container)`);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 5,
@@ -87,6 +96,7 @@ const migrations: $ReadOnlyArray<Migration> = [
           ADD social_proof varchar(255) DEFAULT NULL;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 7,
@@ -103,6 +113,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 8,
@@ -114,6 +125,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 9,
@@ -129,6 +141,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 10,
@@ -143,6 +156,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 11,
@@ -155,6 +169,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         FROM users
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 12,
@@ -167,6 +182,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 13,
@@ -177,6 +193,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         moveToNonApacheConfig('facts/landing_url.json', '/commlanding/'),
       ]);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 14,
@@ -185,6 +202,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ALTER TABLE cookies MODIFY COLUMN social_proof mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 15,
@@ -204,6 +222,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 16,
@@ -222,6 +241,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 17,
@@ -241,12 +261,18 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 18,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
-  { version: 19, migrationPromise: updateRolesAndPermissionsForAllThreads },
+  {
+    version: 19,
+    migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
+  },
   {
     version: 20,
     migrationPromise: async () => {
@@ -257,6 +283,7 @@ const migrations: $ReadOnlyArray<Migration> = [
             DEFAULT NULL;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 21,
@@ -268,6 +295,7 @@ const migrations: $ReadOnlyArray<Migration> = [
             (user, type, platform, creation_time);
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 22,
@@ -316,14 +344,17 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 23,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 24,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 25,
@@ -343,10 +374,12 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 26,
     migrationPromise: processMessagesInDBForSearch,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 27,
@@ -358,6 +391,7 @@ const migrations: $ReadOnlyArray<Migration> = [
           ADD INDEX IF NOT EXISTS thread_pinned (thread, pinned);
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 28,
@@ -367,16 +401,19 @@ const migrations: $ReadOnlyArray<Migration> = [
           ADD COLUMN IF NOT EXISTS pinned_count int UNSIGNED NOT NULL DEFAULT 0;
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 29,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 30,
     migrationPromise: async () => {
       await dbQuery(SQL`DROP TABLE versions;`);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 31,
@@ -401,6 +438,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 32,
@@ -411,6 +449,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         WHERE type = ${messageTypes.SIDEBAR_SOURCE};
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 33,
@@ -432,6 +471,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 34,
@@ -455,16 +495,19 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 35,
     migrationPromise: async () => {
       await createOlmAccounts();
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 36,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 37,
@@ -478,6 +521,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       );
       await createOlmAccounts();
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 38,
@@ -513,10 +557,12 @@ const migrations: $ReadOnlyArray<Migration> = [
         );
       }
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 39,
     migrationPromise: ensureUserCredentials,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 40,
@@ -528,6 +574,7 @@ const migrations: $ReadOnlyArray<Migration> = [
           MODIFY COLUMN data VARCHAR(1023)
         `,
       ),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 41,
@@ -539,6 +586,7 @@ const migrations: $ReadOnlyArray<Migration> = [
             ADD KEY user_role_thread (user, role, thread)
         `,
       ),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 42,
@@ -548,6 +596,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ADD UNIQUE KEY thread_name (thread, name);
       `);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 43,
@@ -563,6 +612,7 @@ const migrations: $ReadOnlyArray<Migration> = [
           )
         `,
       ),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 44,
@@ -587,6 +637,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ),
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 45,
@@ -605,6 +656,7 @@ const migrations: $ReadOnlyArray<Migration> = [
               CHARSET latin1 COLLATE latin1_swedish_ci NOT NULL;
         `,
       ),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 46,
@@ -622,11 +674,13 @@ const migrations: $ReadOnlyArray<Migration> = [
         }
       }
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 47,
     migrationPromise: () =>
       dbQuery(SQL`ALTER TABLE cookies MODIFY COLUMN hash char(64) NOT NULL`),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 48,
@@ -659,6 +713,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       `;
       await dbQuery(query);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 49,
@@ -671,6 +726,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       };
       await writeJSONToFile(defaultCorsConfig, 'facts/webapp_cors.json');
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 50,
@@ -678,6 +734,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       await moveToNonApacheConfig('facts/webapp_url.json', '/webapp/');
       await moveToNonApacheConfig('facts/keyserver_url.json', '/keyserver/');
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 51,
@@ -706,6 +763,7 @@ const migrations: $ReadOnlyArray<Migration> = [
 
       await dbQuery(updateQuery);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 52,
@@ -720,6 +778,7 @@ const migrations: $ReadOnlyArray<Migration> = [
 
       await updateRolesAndPermissionsForAllThreads();
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 53,
@@ -728,6 +787,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         ALTER TABLE invite_links 
           ADD COLUMN blob_holder char(36) CHARSET latin1
       `),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 54,
@@ -747,6 +807,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 55,
@@ -758,6 +819,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 56,
@@ -770,10 +832,12 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 57,
     migrationPromise: synchronizeInviteLinksWithBlobs,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 58,
@@ -785,10 +849,12 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 59,
     migrationPromise: () => dbQuery(SQL`DROP TABLE one_time_keys`),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 60,
@@ -802,6 +868,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 61,
@@ -813,6 +880,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 62,
@@ -824,6 +892,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         `,
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 63,
@@ -844,6 +913,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 64,
@@ -867,6 +937,7 @@ const migrations: $ReadOnlyArray<Migration> = [
         { multipleStatements: true },
       );
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 65,
@@ -877,18 +948,22 @@ const migrations: $ReadOnlyArray<Migration> = [
           ADD COLUMN IF NOT EXISTS thread_role bigint(20) DEFAULT NULL,
           ADD INDEX IF NOT EXISTS community_thread (community, thread);
       `),
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 66,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 67,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 68,
     migrationPromise: updateRolesAndPermissionsForAllThreads,
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 69,
@@ -944,6 +1019,7 @@ const migrations: $ReadOnlyArray<Migration> = [
 
       await updateRolesAndPermissionsForAllThreads();
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
   {
     version: 70,
@@ -974,6 +1050,7 @@ const migrations: $ReadOnlyArray<Migration> = [
       const relationshipRows = relationshipChangeset.getRows();
       await updateChangedUndirectedRelationships(relationshipRows);
     },
+    migrationType: 'wrap_in_transaction_and_block_requests',
   },
 ];
 const versions: $ReadOnlyArray<number> = migrations.map(
