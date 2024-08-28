@@ -17,7 +17,10 @@ import { qrCodeLinkURL } from 'lib/facts/links.js';
 import { identityDeviceTypes } from 'lib/types/identity-service-types.js';
 import { isDev } from 'lib/utils/dev-utils.js';
 import { ignorePromiseRejections } from 'lib/utils/promises.js';
+import sleep from 'lib/utils/sleep.js';
 
+import { fetchDBVersion } from './database/db-version.js';
+import { latestWrapInTransactionAndBlockRequestsVersion } from './database/migration-config.js';
 import { migrate } from './database/migrations.js';
 import { jsonEndpoints } from './endpoints.js';
 import { logEndpointMetrics } from './middleware/endpoint-profiling.js';
@@ -94,6 +97,16 @@ void (async () => {
   const isCPUProfilingEnabled = process.env.KEYSERVER_CPU_PROFILING_ENABLED;
   const areEndpointMetricsEnabled =
     process.env.KEYSERVER_ENDPOINT_METRICS_ENABLED;
+
+  const listenAddress = (() => {
+    if (process.env.COMM_LISTEN_ADDR) {
+      return process.env.COMM_LISTEN_ADDR;
+    } else if (process.env.NODE_ENV === 'development') {
+      return undefined;
+    } else {
+      return 'localhost';
+    }
+  })();
 
   if (cluster.isMaster) {
     if (isPrimaryNode) {
@@ -191,6 +204,17 @@ void (async () => {
     server.get('/health', (req: $Request, res: $Response) => {
       res.send('OK');
     });
+
+    server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
+
+    if (isSecondaryNode) {
+      let dbVersion;
+      do {
+        dbVersion = await fetchDBVersion();
+
+        await sleep(5000);
+      } while (dbVersion < latestWrapInTransactionAndBlockRequestsVersion);
+    }
 
     // Note - the order of router declarations matters. On prod we have
     // keyserverBaseRoutePath configured to '/', which means it's a catch-all.
@@ -316,17 +340,5 @@ void (async () => {
         res.redirect(newURL);
       });
     }
-
-    const listenAddress = (() => {
-      if (process.env.COMM_LISTEN_ADDR) {
-        return process.env.COMM_LISTEN_ADDR;
-      } else if (process.env.NODE_ENV === 'development') {
-        return undefined;
-      } else {
-        return 'localhost';
-      }
-    })();
-
-    server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
   }
 })();

@@ -1058,6 +1058,17 @@ const versions: $ReadOnlyArray<number> = migrations.map(
 );
 const newDatabaseVersion: number = Math.max(...versions);
 
+const wrapInTransactionAndBlockRequestsVersions = migrations
+  .filter(
+    migration =>
+      !migration.migrationType ||
+      migration.migrationType === 'wrap_in_transaction_and_block_requests',
+  )
+  .map(migration => migration.version);
+const latestWrapInTransactionAndBlockRequestsVersion: number = Math.max(
+  ...wrapInTransactionAndBlockRequestsVersions,
+);
+
 async function writeJSONToFile(data: any, filePath: string): Promise<void> {
   console.warn(`updating ${filePath} to ${JSON.stringify(data)}`);
   const fileHandle = await fs.promises.open(filePath, 'w');
@@ -1190,6 +1201,7 @@ function isDockerEnvironment(): boolean {
 export {
   migrations,
   newDatabaseVersion,
+  latestWrapInTransactionAndBlockRequestsVersion,
   createOlmAccounts,
   saveNewOlmAccounts,
 };
