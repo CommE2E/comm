@@ -17,6 +17,7 @@ import { convertIDToNewSchema } from 'lib/utils/migration-utils.js';
 import { entries, values } from 'lib/utils/objects.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 import { infoFromURL } from 'lib/utils/url-utils.js';
+import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
 
 import {
   setInitialReduxState,
@@ -56,8 +57,10 @@ function InitialReduxStateGate(props: Props): React.Node {
     void (async () => {
       try {
         let urlInfo = infoFromURL(decodeURI(window.location.href));
+        const isThickThreadOpen =
+          urlInfo.thread && thickThreadIDRegex.test(urlInfo.thread);
         // Handle older links
-        if (urlInfo.thread) {
+        if (urlInfo.thread && !isThickThreadOpen) {
           urlInfo = {
             ...urlInfo,
             thread: convertIDToNewSchema(
@@ -82,6 +85,10 @@ function InitialReduxStateGate(props: Props): React.Node {
           },
           allUpdatesCurrentAsOf,
         });
+
+        if (isThickThreadOpen) {
+          payload.navInfo.activeChatThreadID = urlInfo.thread;
+        }
 
         const currentLoggedInUserID = payload.currentUserInfo?.anonymous
           ? null

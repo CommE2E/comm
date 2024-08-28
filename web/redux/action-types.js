@@ -1,6 +1,6 @@
 // @flow
 
-import { extractKeyserverIDFromID } from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { useKeyserverCall } from 'lib/keyserver-conn/keyserver-call.js';
 import type { CallKeyserverEndpoint } from 'lib/keyserver-conn/keyserver-conn-types.js';
 import { defaultCalendarFilters } from 'lib/types/filter-types.js';
@@ -42,7 +42,9 @@ const getInitialReduxState =
     const requests: { [string]: InitialReduxStateRequest } = {};
     const { urlInfo, excludedData, allUpdatesCurrentAsOf } = input;
     const { thread, inviteSecret, ...rest } = urlInfo;
-    const threadKeyserverID = thread ? extractKeyserverIDFromID(thread) : null;
+    const threadKeyserverID = thread
+      ? extractKeyserverIDFromIDOptional(thread)
+      : null;
 
     for (const keyserverID of allKeyserverIDs) {
       const clientUpdatesCurrentAsOf = allUpdatesCurrentAsOf[keyserverID];
