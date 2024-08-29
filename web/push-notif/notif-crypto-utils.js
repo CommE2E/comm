@@ -88,6 +88,12 @@ const INDEXED_DB_NOTIFS_ACCOUNT_KEY = 'notificationAccount';
 const INDEXED_DB_NOTIFS_ACCOUNT_ENCRYPTION_KEY_DB_LABEL =
   'notificationAccountEncryptionKey';
 
+// thick threads unread count
+const INDEXED_DB_UNREAD_THICK_THREAD_IDS = 'unreadThickThreadIDs';
+const INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL =
+  'unreadThickThreadIDsEncryptionKey';
+const INDEXED_DB_UNREAD_THICK_THREADS_SYNC_KEY = 'unreadThickThreadIDsSyncKey';
+
 async function deserializeEncryptedData<T>(
   encryptedData: EncryptedData,
   encryptionKey: CryptoKey,
@@ -456,16 +462,25 @@ async function decryptWebNotification(
       updatedOlmData = resultUpdatedOlmData;
       updatedNotifsAccount = resultUpdatedNotifsAccount;
 
-      await persistNotifsAccountWithOlmData({
-        accountWithPicklingKey: updatedNotifsAccount,
-        accountEncryptionKey,
-        encryptionKey,
-        olmData: updatedOlmData,
-        olmDataKey,
-        olmEncryptionKeyDBLabel,
-        synchronizationValue,
-        forceWrite: false,
-      });
+      const { threadID } = decryptedNotification;
+
+      await Promise.all([
+        persistNotifsAccountWithOlmData({
+          accountWithPicklingKey: updatedNotifsAccount,
+          accountEncryptionKey,
+          encryptionKey,
+          olmData: updatedOlmData,
+          olmDataKey,
+          olmEncryptionKeyDBLabel,
+          synchronizationValue,
+          forceWrite: false,
+        }),
+        updateNotifsUnreadThickThreadIDsStorage({
+          type: 'add',
+          threadIDs: [threadID],
+          forceWrite: false,
+        }),
+      ]);
 
       return { id, ...decryptedNotification };
     }
@@ -585,16 +600,26 @@ async function decryptDesktopNotification(
           encryptedPayload,
         );
 
-      await persistNotifsAccountWithOlmData({
-        accountWithPicklingKey: updatedNotifsAccount,
-        accountEncryptionKey,
-        encryptionKey,
-        olmData: updatedOlmData,
-        olmDataKey,
-        olmEncryptionKeyDBLabel,
-        synchronizationValue,
-        forceWrite: false,
-      });
+      const { threadID } = decryptedNotification;
+      invariant(typeof threadID === 'string', 'threadID should be string');
+
+      await Promise.all([
+        persistNotifsAccountWithOlmData({
+          accountWithPicklingKey: updatedNotifsAccount,
+          accountEncryptionKey,
+          encryptionKey,
+          olmData: updatedOlmData,
+          olmDataKey,
+          olmEncryptionKeyDBLabel,
+          synchronizationValue,
+          forceWrite: false,
+        }),
+        updateNotifsUnreadThickThreadIDsStorage({
+          type: 'add',
+          threadIDs: [threadID],
+          forceWrite: false,
+        }),
+      ]);
 
       return decryptedNotification;
     }
@@ -1253,6 +1278,118 @@ async function queryNotifsUnreadCountStorage(
   return Object.fromEntries(queriedUnreadCounts);
 }
 
+async function updateNotifsUnreadThickThreadIDsStorage(input: {
+  +type: 'add' | 'remove' | 'set',
+  +threadIDs: $ReadOnlyArray<string>,
+  +forceWrite: boolean,
+}): Promise<void> {
+  const { type, threadIDs, forceWrite } = input;
+
+  const {
+    values: {
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS]: encryptedData,
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL]:
+        encryptionKey,
+    },
+    synchronizationValue,
+  } = await localforage.getMultipleItems<{
+    unreadThickThreadIDs: ?EncryptedData,
+    unreadThickThreadIDsEncryptionKey: ?(CryptoKey | SubtleCrypto$JsonWebKey),
+  }>(
+    [
+      INDEXED_DB_UNREAD_THICK_THREAD_IDS,
+      INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL,
+    ],
+    INDEXED_DB_UNREAD_THICK_THREADS_SYNC_KEY,
+  );
+
+  let unreadThickThreadIDs;
+  let unreadThickThreadIDsEncryptionKey;
+
+  if (encryptedData && encryptionKey) {
+    unreadThickThreadIDsEncryptionKey = await validateCryptoKey(encryptionKey);
+    unreadThickThreadIDs = new Set(
+      await deserializeEncryptedData<Array<string>>(
+        encryptedData,
+        unreadThickThreadIDsEncryptionKey,
+      ),
+    );
+  } else {
+    unreadThickThreadIDs = new Set<string>();
+    unreadThickThreadIDsEncryptionKey = await generateCryptoKey({
+      extractable: isDesktopSafari,
+    });
+  }
+
+  if (type === 'add') {
+    for (const threadID of threadIDs) {
+      unreadThickThreadIDs.add(threadID);
+    }
+  } else if (type === 'remove') {
+    for (const threadID of threadIDs) {
+      unreadThickThreadIDs.delete(threadID);
+    }
+  } else {
+    unreadThickThreadIDs = new Set(threadIDs);
+  }
+
+  const [encryptionKeyPersistentForm, updatedEncryptedData] = await Promise.all(
+    [
+      getCryptoKeyPersistentForm(unreadThickThreadIDsEncryptionKey),
+      serializeUnencryptedData(
+        [...unreadThickThreadIDs],
+        unreadThickThreadIDsEncryptionKey,
+      ),
+    ],
+  );
+
+  const newSynchronizationValue = uuid.v4();
+  await localforage.setMultipleItems(
+    {
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS]: updatedEncryptedData,
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL]:
+        encryptionKeyPersistentForm,
+    },
+    INDEXED_DB_UNREAD_THICK_THREADS_SYNC_KEY,
+    synchronizationValue,
+    newSynchronizationValue,
+    forceWrite,
+  );
+}
+
+async function getNotifsUnreadThickThreadIDs(): Promise<
+  $ReadOnlyArray<string>,
+> {
+  const {
+    values: {
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS]: encryptedData,
+      [INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL]:
+        encryptionKey,
+    },
+  } = await localforage.getMultipleItems<{
+    unreadThickThreadIDs: ?EncryptedData,
+    unreadThickThreadIDsEncryptionKey: ?(CryptoKey | SubtleCrypto$JsonWebKey),
+  }>(
+    [
+      INDEXED_DB_UNREAD_THICK_THREAD_IDS,
+      INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL,
+    ],
+    INDEXED_DB_UNREAD_THICK_THREADS_SYNC_KEY,
+  );
+
+  if (!encryptionKey || !encryptedData) {
+    return [];
+  }
+
+  const unreadThickThreadIDsEncryptionKey =
+    await validateCryptoKey(encryptionKey);
+
+  return await deserializeEncryptedData<Array<string>>(
+    encryptedData,
+    unreadThickThreadIDsEncryptionKey,
+  );
+}
+
 export {
   decryptWebNotification,
   decryptDesktopNotification,
@@ -1268,4 +1405,6 @@ export {
   persistEncryptionKey,
   retrieveEncryptionKey,
   persistNotifsAccountWithOlmData,
+  updateNotifsUnreadThickThreadIDsStorage,
+  getNotifsUnreadThickThreadIDs,
 };
