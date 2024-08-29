@@ -10,6 +10,8 @@ import { NUXTipsContext } from './nux-tips-context.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useOnFirstLaunchEffect } from '../utils/hooks.js';
 
+const showTipsFlag = false;
+
 function NUXHandler(): React.Node {
   const nuxTipsContext = React.useContext(NUXTipsContext);
   invariant(nuxTipsContext, 'nuxTipsContext should be defined');
@@ -17,7 +19,7 @@ function NUXHandler(): React.Node {
 
   const loggedIn = useSelector(isLoggedIn);
 
-  if (!tipsProps || !loggedIn) {
+  if (!tipsProps || !loggedIn || !showTipsFlag) {
     return null;
   }
 
