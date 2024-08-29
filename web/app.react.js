@@ -69,7 +69,7 @@ import { MenuProvider } from './menu-provider.react.js';
 import UpdateModalHandler from './modals/update-modal.react.js';
 import SettingsSwitcher from './navigation-panels/settings-switcher.react.js';
 import Topbar from './navigation-panels/topbar.react.js';
-import useBadgeHandler from './push-notif/badge-handler.react.js';
+import BadgeHandler from './push-notif/badge-handler.react.js';
 import encryptedNotifUtilsAPI from './push-notif/encrypted-notif-utils-api.js';
 import { PushNotificationsHandler } from './push-notif/push-notifs-handler.js';
 import { updateNavInfoActionType } from './redux/action-types.js';
@@ -532,8 +532,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
     );
 
-    useBadgeHandler();
-
     const dispatch = useDispatch();
     const modalContext = useModalContext();
     const modals = React.useMemo(
@@ -561,6 +559,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
           onClose={releaseLockOrAbortRequest}
           secondaryTunnelbrokerConnection={secondaryTunnelbrokerConnection}
         >
+          <BadgeHandler />
           <IdentitySearchProvider>
             <QRAuthProvider
               parseTunnelbrokerQRAuthMessage={parseTunnelbrokerQRAuthMessage}

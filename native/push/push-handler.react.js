@@ -27,7 +27,7 @@ import {
 } from 'lib/selectors/keyserver-selectors.js';
 import {
   threadInfoSelector,
-  allUnreadCounts,
+  thinThreadsUnreadCountSelector,
   unreadThickThreadIDsSelector,
 } from 'lib/selectors/thread-selectors.js';
 import { isLoggedIn } from 'lib/selectors/user-selectors.js';
@@ -108,7 +108,7 @@ type Props = {
   // Navigation state
   +activeThread: ?string,
   // Redux state
-  +unreadCount: { +[keyserverID: string]: number },
+  +thinThreadsUnreadCount: { +[keyserverID: string]: number },
   +unreadThickThreadIDs: $ReadOnlyArray<string>,
   +connection: { +[keyserverID: string]: ?ConnectionInfo },
   +deviceTokens: {
@@ -326,7 +326,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async updateBadgeCount() {
-    const curUnreadCounts = this.props.unreadCount;
+    const curThinUnreadCounts = this.props.thinThreadsUnreadCount;
     const curConnections = this.props.connection;
 
     const currentUnreadThickThreads = this.props.unreadThickThreadIDs;
@@ -339,7 +339,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     }> = [];
     const notifsStorageQueries: Array<string> = [];
 
-    for (const keyserverID in curUnreadCounts) {
+    for (const keyserverID in curThinUnreadCounts) {
       if (curConnections[keyserverID]?.status !== 'connected') {
         notifsStorageQueries.push(keyserverID);
         continue;
@@ -347,7 +347,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
       notifStorageUpdates.push({
         id: keyserverID,
-        unreadCount: curUnreadCounts[keyserverID],
+        unreadCount: curThinUnreadCounts[keyserverID],
       });
     }
 
@@ -401,7 +401,9 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async resetBadgeCount() {
-    const keyserversDataToRemove = Object.keys(this.props.unreadCount);
+    const keyserversDataToRemove = Object.keys(
+      this.props.thinThreadsUnreadCount,
+    );
     try {
       await commCoreModule.removeKeyserverDataFromNotifStorage(
         keyserversDataToRemove,
@@ -827,7 +829,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedPushHandler(props: BaseProps) {
     const navContext = React.useContext(NavContext);
     const activeThread = activeMessageListSelector(navContext);
-    const unreadCount = useSelector(allUnreadCounts);
+    const thinThreadsUnreadCount = useSelector(thinThreadsUnreadCountSelector);
     const unreadThickThreadIDs = useSelector(unreadThickThreadIDsSelector);
     const connection = useSelector(allConnectionInfosSelector);
     const deviceTokens = useSelector(deviceTokensSelector);
@@ -852,7 +854,7 @@ const ConnectedPushHandler: React.ComponentType<BaseProps> =
       <PushHandler
         {...props}
         activeThread={activeThread}
-        unreadCount={unreadCount}
+        thinThreadsUnreadCount={thinThreadsUnreadCount}
         unreadThickThreadIDs={unreadThickThreadIDs}
         connection={connection}
         deviceTokens={deviceTokens}
