@@ -26,6 +26,7 @@ const clientDBThreadInfo: ClientDBThreadInfo = {
   community: '1',
   avatar: null,
   pinnedCount: 0,
+  timestamps: null,
 };
 
 const clientDBThreadInfoWithAvatar: ClientDBThreadInfo = {
