@@ -103,6 +103,7 @@ describe('Message and media store queries', () => {
       sourceMessageID: createNullableString(),
       repliesCount: 0,
       pinnedCount: 0,
+      timestamps: createNullableString(),
     });
     queryExecutor.replaceThreadWeb({
       id: '2',
@@ -121,6 +122,7 @@ describe('Message and media store queries', () => {
       sourceMessageID: createNullableString(),
       repliesCount: 0,
       pinnedCount: 0,
+      timestamps: createNullableString(),
     });
   });
 
