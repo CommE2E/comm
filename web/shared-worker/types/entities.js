@@ -31,6 +31,7 @@ export type WebClientDBThreadInfo = {
   +sourceMessageID: NullableString,
   +repliesCount: number,
   +pinnedCount: number,
+  +timestamps: NullableString,
 };
 
 function createNullableString(value: ?string): NullableString {
@@ -79,6 +80,7 @@ function clientDBThreadInfoToWebThread(
     sourceMessageID: createNullableString(info.sourceMessageID),
     repliesCount: info.repliesCount,
     pinnedCount: info.pinnedCount || 0,
+    timestamps: createNullableString(info.timestamps),
   };
 }
 
@@ -105,6 +107,7 @@ function webThreadToClientDBThreadInfo(
     currentUser: thread.currentUser,
     repliesCount: thread.repliesCount,
     pinnedCount: thread.pinnedCount,
+    timestamps: thread.timestamps.isNull ? null : thread.timestamps.value,
   };
   if (!thread.sourceMessageID.isNull) {
     result = {
