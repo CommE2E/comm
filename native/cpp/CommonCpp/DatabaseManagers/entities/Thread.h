@@ -26,6 +26,7 @@ struct Thread {
   int replies_count;
   std::unique_ptr<std::string> avatar;
   int pinned_count;
+  std::unique_ptr<std::string> timestamps;
 
   static Thread fromSQLResult(sqlite3_stmt *sqlRow, int idx) {
     return Thread{
@@ -45,6 +46,7 @@ struct Thread {
         getIntFromSQLRow(sqlRow, idx + 13),
         getStringPtrFromSQLRow(sqlRow, idx + 14),
         getIntFromSQLRow(sqlRow, idx + 15),
+        getStringPtrFromSQLRow(sqlRow, idx + 16),
     };
   }
 
@@ -64,7 +66,8 @@ struct Thread {
     bindStringPtrToSQL(source_message_id, sql, idx + 12);
     bindIntToSQL(replies_count, sql, idx + 13);
     bindStringPtrToSQL(avatar, sql, idx + 14);
-    return bindIntToSQL(pinned_count, sql, idx + 15);
+    bindIntToSQL(pinned_count, sql, idx + 15);
+    return bindStringPtrToSQL(avatar, sql, idx + 16);
   }
 };
 
@@ -85,6 +88,7 @@ struct WebThread {
   int replies_count;
   NullableString avatar;
   int pinned_count;
+  NullableString timestamps;
 
   WebThread() = default;
 
@@ -105,6 +109,7 @@ struct WebThread {
     replies_count = thread.replies_count;
     avatar = NullableString(thread.avatar);
     pinned_count = thread.pinned_count;
+    timestamps = NullableString(thread.timestamps);
   }
 
   Thread toThread() const {
@@ -125,6 +130,7 @@ struct WebThread {
     thread.replies_count = replies_count;
     thread.avatar = avatar.resetValue();
     thread.pinned_count = pinned_count;
+    thread.timestamps = timestamps.resetValue();
     return thread;
   }
 };

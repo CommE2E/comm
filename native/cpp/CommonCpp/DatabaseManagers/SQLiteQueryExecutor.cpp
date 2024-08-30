@@ -805,6 +805,28 @@ bool recreate_inbound_p2p_messages_table(sqlite3 *db) {
   return create_table(db, query, "inbound_p2p_messages");
 }
 
+bool add_timestamps_column_to_threads_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE threads"
+      "  ADD COLUMN timestamps TEXT;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error updating threads table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 bool create_schema(sqlite3 *db) {
   char *error;
   int sidebarSourceTypeInt = static_cast<int>(MessageType::SIDEBAR_SOURCE);
@@ -877,7 +899,8 @@ bool create_schema(sqlite3 *db) {
       "  source_message_id TEXT,"
       "  replies_count INTEGER NOT NULL,"
       "  avatar TEXT,"
-      "  pinned_count INTEGER NOT NULL DEFAULT 0"
+      "  pinned_count INTEGER NOT NULL DEFAULT 0,"
+      "  timestamps TEXT"
       ");"
 
       "CREATE TABLE IF NOT EXISTS metadata ("
@@ -1240,7 +1263,8 @@ std::vector<std::pair<unsigned int, SQLiteMigration>> migrations{
      {49, {add_supports_auto_retry_column_to_p2p_messages_table, true}},
      {50, {create_message_search_table, true}},
      {51, {update_messages_idx_target_message_type_time, true}},
-     {52, {recreate_inbound_p2p_messages_table, true}}}};
+     {52, {recreate_inbound_p2p_messages_table, true}},
+     {53, {add_timestamps_column_to_threads_table, true}}}};
 
 enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
 
@@ -1826,8 +1850,8 @@ void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
       "REPLACE INTO threads ("
       " id, type, name, description, color, creation_time, parent_thread_id,"
       " containing_thread_id, community, members, roles, current_user,"
-      " source_message_id, replies_count, avatar, pinned_count) "
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+      " source_message_id, replies_count, avatar, pinned_count, timestamps) "
+      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
   replaceEntity<Thread>(
       SQLiteQueryExecutor::getConnection(), replaceThreadSQL, thread);
