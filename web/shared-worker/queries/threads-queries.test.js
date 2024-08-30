@@ -1,6 +1,7 @@
 // @flow
 
 import { getDatabaseModule } from '../db-module.js';
+import { createNullableString } from '../types/entities.js';
 import { clearSensitiveData } from '../utils/db-utils.js';
 
 const FILE_PATH = 'test.sqlite';
@@ -24,56 +25,59 @@ describe('Threads queries', () => {
     queryExecutor.replaceThreadWeb({
       id: '1',
       type: 1,
-      name: { value: '', isNull: true },
-      avatar: { value: '', isNull: true },
-      description: { value: '', isNull: true },
+      name: createNullableString(),
+      avatar: createNullableString(),
+      description: createNullableString(),
       color: '1',
       creationTime: '1',
-      parentThreadID: { value: '', isNull: true },
-      containingThreadID: { value: '', isNull: true },
-      community: { value: '', isNull: true },
+      parentThreadID: createNullableString(),
+      containingThreadID: createNullableString(),
+      community: createNullableString(),
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: { value: '', isNull: true },
+      sourceMessageID: createNullableString(),
       repliesCount: 1,
       pinnedCount: 1,
+      timestamps: createNullableString(),
     });
     queryExecutor.replaceThreadWeb({
       id: '2',
       type: 1,
-      name: { value: '', isNull: true },
-      avatar: { value: '', isNull: true },
-      description: { value: '', isNull: true },
+      name: createNullableString(),
+      avatar: createNullableString(),
+      description: createNullableString(),
       color: '1',
       creationTime: '1',
-      parentThreadID: { value: '', isNull: true },
-      containingThreadID: { value: '', isNull: true },
-      community: { value: '', isNull: true },
+      parentThreadID: createNullableString(),
+      containingThreadID: createNullableString(),
+      community: createNullableString(),
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: { value: '', isNull: true },
+      sourceMessageID: createNullableString(),
       repliesCount: 1,
       pinnedCount: 1,
+      timestamps: createNullableString(),
     });
     queryExecutor.replaceThreadWeb({
       id: '3',
       type: 1,
-      name: { value: '', isNull: true },
-      avatar: { value: '', isNull: true },
-      description: { value: '', isNull: true },
+      name: createNullableString(),
+      avatar: createNullableString(),
+      description: createNullableString(),
       color: '1',
       creationTime: '1',
-      parentThreadID: { value: '', isNull: true },
-      containingThreadID: { value: '', isNull: true },
-      community: { value: '', isNull: true },
+      parentThreadID: createNullableString(),
+      containingThreadID: createNullableString(),
+      community: createNullableString(),
       members: '1',
       roles: '1',
       currentUser: '1',
-      sourceMessageID: { value: '', isNull: true },
+      sourceMessageID: createNullableString(),
       repliesCount: 1,
       pinnedCount: 1,
+      timestamps: createNullableString(),
     });
   });
 

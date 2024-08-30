@@ -73,6 +73,11 @@ jsi::Array ThreadStore::parseDBDataStore(
       jsiThread.setProperty(rt, "avatar", avatar);
     }
 
+    if (thread.timestamps) {
+      auto timestamps = jsi::String::createFromUtf8(rt, *thread.timestamps);
+      jsiThread.setProperty(rt, "timestamps", timestamps);
+    }
+
     jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
   }
   return jsiThreads;
@@ -169,6 +174,11 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
       int pinnedCount = maybePinnedCount.isNumber()
           ? std::lround(maybePinnedCount.asNumber())
           : 0;
+
+      jsi::Value maybeTimestamps = threadObj.getProperty(rt, "timestamps");
+      std::unique_ptr<std::string> timestamps = maybeTimestamps.isString()
+          ? std::make_unique<std::string>(maybeTimestamps.asString(rt).utf8(rt))
+          : nullptr;
       Thread thread{
           threadID,
           type,
@@ -185,7 +195,8 @@ std::vector<std::unique_ptr<DBOperationBase>> ThreadStore::createOperations(
           std::move(sourceMessageID),
           repliesCount,
           std::move(avatar),
-          pinnedCount};
+          pinnedCount,
+          std::move(timestamps)};
 
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
