@@ -436,6 +436,41 @@ impl DatabaseClient {
     Ok(())
   }
 
+  pub async fn update_wallet_user_social_proof(
+    &self,
+    user_id: &str,
+    social_proof: SocialProof,
+  ) -> Result<(), Error> {
+    self
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(
+        USERS_TABLE_PARTITION_KEY,
+        AttributeValue::S(user_id.to_string()),
+      )
+      .update_expression("SET #social_proof = :v")
+      .condition_expression("attribute_exists(#social_proof)")
+      .expression_attribute_names(
+        "#social_proof",
+        USERS_TABLE_SOCIAL_PROOF_ATTRIBUTE_NAME,
+      )
+      .expression_attribute_values(":v", social_proof.into())
+      .send()
+      .await
+      .map_err(|e| {
+        // ConditionalCheckFailedException means we're updating
+        // non-wallet user (DB item without social proof)
+        error!(
+          errorType = error_types::GENERIC_DB_LOG,
+          "DynamoDB client failed to update social proof: {:?}", e
+        );
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
+  }
+
   pub async fn get_keyserver_keys_for_user(
     &self,
     user_id: &str,
