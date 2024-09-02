@@ -1,6 +1,6 @@
 pub mod session;
 
-use crate::constants::SOCKET_HEARTBEAT_TIMEOUT;
+use crate::constants::{SOCKET_HEARTBEAT_TIMEOUT, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::DatabaseClient;
 use crate::notifs::NotifClient;
 use crate::websockets::session::{initialize_amqp, SessionError};
@@ -233,7 +233,12 @@ async fn accept_connection(
     tokio::select! {
       Some(Ok(delivery)) = session.next_amqp_message() => {
         if let Ok(message) = std::str::from_utf8(&delivery.data) {
-          session.send_message_to_device(Message::Text(message.to_string())).await;
+          if message == WS_SESSION_CLOSE_AMQP_MSG {
+            debug!("Connection to {} closed by server.", addr);
+            break;
+          } else {
+            session.send_message_to_device(Message::Text(message.to_string())).await;
+          }
         } else {
           error!("Invalid payload");
         }
