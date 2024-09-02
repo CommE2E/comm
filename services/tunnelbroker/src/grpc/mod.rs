@@ -11,7 +11,7 @@ use tonic::transport::Server;
 use tracing::debug;
 use tunnelbroker_messages::MessageToDevice;
 
-use crate::constants::CLIENT_RMQ_MSG_PRIORITY;
+use crate::constants::{CLIENT_RMQ_MSG_PRIORITY, WS_SESSION_CLOSE_AMQP_MSG};
 use crate::database::{handle_ddb_error, DatabaseClient};
 use crate::{constants, CONFIG};
 
@@ -64,6 +64,35 @@ impl TunnelbrokerService for TunnelbrokerGRPC {
         BasicPublishOptions::default(),
         serialized_message.as_bytes(),
         BasicProperties::default().with_priority(CLIENT_RMQ_MSG_PRIORITY),
+      )
+      .await
+      .map_err(handle_amqp_error)?;
+
+    let response = tonic::Response::new(Empty {});
+    Ok(response)
+  }
+
+  async fn force_close_device_connection(
+    &self,
+    request: tonic::Request<proto::DeviceConnectionCloseRequest>,
+  ) -> Result<tonic::Response<proto::Empty>, tonic::Status> {
+    let message = request.into_inner();
+
+    debug!("Connection close request for device {}", &message.device_id);
+
+    self
+      .amqp_channel
+      .basic_publish(
+        "",
+        &message.device_id,
+        BasicPublishOptions::default(),
+        WS_SESSION_CLOSE_AMQP_MSG.as_bytes(),
+        BasicProperties::default()
+          // Connection close request should have higher priority
+          .with_priority(CLIENT_RMQ_MSG_PRIORITY + 1)
+          // The message should expire quickly. If the device isn't connected
+          // (there's no consumer), there's no point in keeping this message.
+          .with_expiration("1000".into()),
       )
       .await
       .map_err(handle_amqp_error)?;
