@@ -323,6 +323,7 @@ impl<T: RegistrationData + DeviceKeyUploadActions> RegistrationActions for T {
     crate::device_list::verify_singleton_device_list(
       &update_payload,
       &primary_device_id,
+      None,
     )?;
 
     Ok(Some(signed_list))
