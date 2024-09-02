@@ -464,12 +464,7 @@ impl IdentityClientService for AuthenticatedService {
 
     // Get and verify singleton device list
     let parsed_device_list: SignedDeviceList =
-      message.signed_device_list.parse().map_err(|err| {
-        warn!("Failed to deserialize device list: {}", err);
-        tonic::Status::invalid_argument(
-          tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
-        )
-      })?;
+      message.signed_device_list.parse()?;
 
     let update_payload = DeviceListUpdate::try_from(parsed_device_list)?;
     crate::device_list::verify_singleton_device_list(
