@@ -16,6 +16,10 @@ service TunnelbrokerService {
 
   // Deleting data associated with device.
   rpc DeleteDeviceData(DeleteDeviceDataRequest) returns (Empty) {}
+
+  // Force close connection with device.
+  rpc ForceCloseDeviceConnection(DeviceConnectionCloseRequest) returns 
+    (Empty) {}
 }
 
 message Empty {}
@@ -28,6 +32,11 @@ message MessageToDevice {
 }
 
 message DeleteDeviceDataRequest {
+  // The primary identity key of a device
+  string device_id = 1;
+}
+
+message DeviceConnectionCloseRequest {
   // The primary identity key of a device
   string device_id = 1;
 }
