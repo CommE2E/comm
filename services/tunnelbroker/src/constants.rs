@@ -11,6 +11,7 @@ pub const MAX_RMQ_MSG_PRIORITY: u8 = 10;
 pub const DDB_RMQ_MSG_PRIORITY: u8 = 10;
 pub const CLIENT_RMQ_MSG_PRIORITY: u8 = 1;
 pub const RMQ_CONSUMER_TAG: &str = "tunnelbroker";
+pub const WS_SESSION_CLOSE_AMQP_MSG: &str = "SessionClose";
 pub const ENV_APNS_CONFIG: &str = "APNS_CONFIG";
 pub const ENV_FCM_CONFIG: &str = "FCM_CONFIG";
 pub const ENV_WEB_PUSH_CONFIG: &str = "WEB_PUSH_CONFIG";
