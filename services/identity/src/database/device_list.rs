@@ -1284,14 +1284,21 @@ impl DatabaseClient {
     device_key_upload: FlattenedDeviceKeyUpload,
     platform_metadata: PlatformMetadata,
     login_time: DateTime<Utc>,
-    initial_device_list: DeviceListUpdate,
+    singleton_device_list: DeviceListUpdate,
   ) -> Result<(), Error> {
     let user_id: String = user_id.into();
     self
       .transact_update_devicelist(&user_id, |device_ids, devices_data| {
-        if !device_ids.is_empty() || !devices_data.is_empty() {
+        // Allow replacing existing device list if last_primary_signature is present.
+        // This is the case for backup restore protocol.
+        let allow_device_list_overwrite =
+          singleton_device_list.last_primary_signature.is_some();
+
+        if (!device_ids.is_empty() && !allow_device_list_overwrite)
+          || !devices_data.is_empty()
+        {
           warn!(
-            "Tried creating initial device list for already existing user
+            "Tried creating singleton device list for already existing user
               (userID={})",
             redact_sensitive_data(&user_id),
           );
@@ -1299,7 +1306,7 @@ impl DatabaseClient {
         }
 
         // Set device list
-        *device_ids = initial_device_list.devices.clone();
+        *device_ids = singleton_device_list.devices.clone();
 
         let primary_device = DeviceRow::from_device_key_upload(
           &user_id,
@@ -1323,7 +1330,7 @@ impl DatabaseClient {
           TransactWriteItem::builder().put(put_device).build();
 
         let update_info =
-          UpdateOperationInfo::primary_device_issued(initial_device_list)
+          UpdateOperationInfo::primary_device_issued(singleton_device_list)
             .with_ddb_operation(put_device_operation);
         Ok(update_info)
       })
