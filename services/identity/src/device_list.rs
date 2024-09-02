@@ -95,19 +95,19 @@ impl TryFrom<DeviceListRow> for SignedDeviceList {
 impl TryFrom<UpdateDeviceListRequest> for SignedDeviceList {
   type Error = tonic::Status;
   fn try_from(request: UpdateDeviceListRequest) -> Result<Self, Self::Error> {
-    request.new_device_list.parse().map_err(|err| {
-      warn!("Failed to deserialize device list update: {}", err);
-      tonic::Status::invalid_argument(
-        tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
-      )
-    })
+    request.new_device_list.parse()
   }
 }
 
 impl FromStr for SignedDeviceList {
-  type Err = serde_json::Error;
+  type Err = tonic::Status;
   fn from_str(s: &str) -> Result<Self, Self::Err> {
-    serde_json::from_str(s)
+    serde_json::from_str(s).map_err(|err| {
+      warn!("Failed to deserialize device list: {}", err);
+      tonic::Status::invalid_argument(
+        tonic_status_messages::INVALID_DEVICE_LIST_PAYLOAD,
+      )
+    })
   }
 }
 
