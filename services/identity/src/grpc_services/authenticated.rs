@@ -475,6 +475,7 @@ impl IdentityClientService for AuthenticatedService {
     crate::device_list::verify_singleton_device_list(
       &update_payload,
       &device_id,
+      None,
     )?;
 
     self
