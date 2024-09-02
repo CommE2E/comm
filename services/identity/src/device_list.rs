@@ -226,20 +226,38 @@ pub fn verify_device_list_signatures(
 pub fn verify_singleton_device_list(
   device_list: &DeviceListUpdate,
   expected_primary_device_id: &str,
+  // expected primary device ID for "lastPrimarySignature".
+  // Use `None` if the device list isn't expected to contain last signature.
+  expected_previous_primary_device_id: Option<&String>,
 ) -> Result<(), tonic::Status> {
   use tonic::Status;
-  if device_list.last_primary_signature.is_some() {
-    debug!("Received lastPrimarySignature for singleton device list");
-    return Err(Status::invalid_argument(
-      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
-    ));
-  }
+  use tonic_status_messages::INVALID_DEVICE_LIST_UPDATE as INVALID_DEVICE_LIST;
+
+  match (
+    &device_list.last_primary_signature,
+    expected_previous_primary_device_id,
+  ) {
+    (None, None) => (),
+    (Some(_), None) => {
+      debug!("Unexpected lastPrimarySignature for singleton device list");
+      return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
+    }
+    (None, Some(_)) => {
+      debug!("Missing lastPrimarySignature for singleton device list");
+      return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
+    }
+    (Some(last_signature), Some(last_signing_public_key)) => {
+      crate::grpc_utils::ed25519_verify(
+        last_signing_public_key,
+        &device_list.raw_payload,
+        last_signature,
+      )?;
+    }
+  };
 
   let Some(signature) = &device_list.current_primary_signature else {
     debug!("Missing curPrimarySignature for singleton device list");
-    return Err(Status::invalid_argument(
-      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
-    ));
+    return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   };
 
   crate::grpc_utils::ed25519_verify(
@@ -250,9 +268,7 @@ pub fn verify_singleton_device_list(
 
   if device_list.devices.len() != 1 {
     debug!("Invalid device list length");
-    return Err(Status::invalid_argument(
-      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
-    ));
+    return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   }
 
   if device_list
@@ -262,9 +278,7 @@ pub fn verify_singleton_device_list(
     .is_none()
   {
     debug!("Invalid primary device ID for singleton device list");
-    return Err(Status::invalid_argument(
-      tonic_status_messages::INVALID_DEVICE_LIST_UPDATE,
-    ));
+    return Err(Status::invalid_argument(INVALID_DEVICE_LIST));
   }
 
   Ok(())
