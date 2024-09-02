@@ -197,6 +197,10 @@ impl DeviceListRow {
   pub fn has_secondary_device(&self, device_id: &String) -> bool {
     self.has_device(device_id) && !self.is_primary_device(device_id)
   }
+
+  pub fn primary_device_id(&self) -> Option<&String> {
+    self.device_ids.first()
+  }
 }
 
 impl PlatformDetails {
