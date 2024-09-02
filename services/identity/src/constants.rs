@@ -233,6 +233,7 @@ pub mod tonic_status_messages {
   pub const USERNAME_RESERVED: &str = "username_reserved";
   pub const WALLET_ADDRESS_TAKEN: &str = "wallet_address_taken";
   pub const WALLET_ADDRESS_NOT_RESERVED: &str = "wallet_address_not_reserved";
+  pub const WALLET_ADDRESS_MISMATCH: &str = "wallet_address_mismatch";
   pub const DEVICE_ID_ALREADY_EXISTS: &str = "device_id_already_exists";
   pub const USER_NOT_FOUND: &str = "user_not_found";
   pub const INVALID_NONCE: &str = "invalid_nonce";

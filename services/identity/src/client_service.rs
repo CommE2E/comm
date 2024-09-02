@@ -5,6 +5,7 @@ use std::str::FromStr;
 use comm_lib::aws::DynamoDBError;
 use comm_lib::shared::reserved_users::RESERVED_USERNAME_SET;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
+use grpc_clients::identity::PlatformMetadata;
 use rand::rngs::OsRng;
 use serde::{Deserialize, Serialize};
 use siwe::eip55;
@@ -15,8 +16,9 @@ use tracing::{debug, error, info, warn};
 use crate::config::CONFIG;
 use crate::constants::{error_types, tonic_status_messages};
 use crate::database::{
-  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload, UserInfoAndPasswordFile
+  DBDeviceTypeInt, DatabaseClient, DeviceType, KeyPayload, UserInfoAndPasswordFile,
 };
+use crate::ddb_utils::Identifier;
 use crate::device_list::SignedDeviceList;
 use crate::error::{DeviceListError, Error as DBError};
 use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo};
@@ -692,7 +694,81 @@ impl IdentityClientService for ClientService {
     &self,
     request: tonic::Request<RestoreUserRequest>,
   ) -> Result<tonic::Response<AuthResponse>, tonic::Status> {
-    unimplemented!();
+    let platform_metadata = get_platform_metadata(&request)?;
+    let message = request.into_inner();
+    debug!(
+      "Attempting to restore user: {}",
+      redact_sensitive_data(&message.user_id)
+    );
+
+    let user_identifier = self
+      .client
+      .get_user_identity(&message.user_id)
+      .await?
+      .ok_or_else(|| {
+        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+      })?
+      .identifier;
+
+    if matches!(user_identifier, Identifier::Username(_))
+      && (message.siwe_message.is_some() || message.siwe_signature.is_some())
+    {
+      debug!("SIWE data present for password user!");
+      return Err(tonic::Status::invalid_argument(
+        tonic_status_messages::PASSWORD_USER,
+      ));
+    }
+
+    if let Identifier::WalletAddress(ref eth_identity) = &user_identifier {
+      let (Some(siwe_message), Some(siwe_signature)) =
+        (&message.siwe_message, &message.siwe_signature)
+      else {
+        debug!("SIWE data absent for wallet user!");
+        return Err(tonic::Status::invalid_argument(
+          tonic_status_messages::WALLET_USER,
+        ));
+      };
+      let parsed_message =
+        parse_and_verify_siwe_message(siwe_message, siwe_signature).await?;
+      self.verify_and_remove_nonce(&parsed_message.nonce).await?;
+
+      let wallet_address = eip55(&parsed_message.address);
+      if wallet_address != eth_identity.wallet_address {
+        debug!(
+          "Wallet address mismatch: expected '{}' but got '{}' instead",
+          &eth_identity.wallet_address, &wallet_address
+        );
+        return Err(tonic::Status::invalid_argument(
+          tonic_status_messages::WALLET_ADDRESS_MISMATCH,
+        ));
+      }
+
+      debug!("Updating social proof...");
+      let social_proof =
+        SocialProof::new(siwe_message.to_string(), siwe_signature.to_string());
+      self
+        .client
+        .update_wallet_user_social_proof(&message.user_id, social_proof)
+        .await?;
+    }
+
+    let flattened_device_key_upload =
+      construct_flattened_device_key_upload(&message)?;
+    let access_token = self
+      .restore_primary_device_and_get_csat(
+        message.user_id.clone(),
+        message.device_list,
+        platform_metadata,
+        flattened_device_key_upload,
+      )
+      .await?;
+
+    let response = AuthResponse {
+      user_id: message.user_id,
+      access_token,
+      username: user_identifier.username().to_string(),
+    };
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
@@ -1159,6 +1235,92 @@ impl ClientService {
       ))
     }
   }
+
+  /// This function is used in Backup Restore protocol. It:
+  /// - Verifies singleton device list with both old and new primary signature
+  /// - Performs device list update (updates with singleton payload)
+  /// - Removes all CSATs, OTKs, Devices data for all devices
+  /// - Closes Tunnelbroker connections with these devices
+  /// - Registers the new primary device (Device Key Upload)
+  /// - Issues a new CSAT for the new primary device and returns it
+  async fn restore_primary_device_and_get_csat(
+    &self,
+    user_id: String,
+    device_list_payload: String,
+    platform_metadata: PlatformMetadata,
+    device_key_upload: FlattenedDeviceKeyUpload,
+  ) -> Result<String, tonic::Status> {
+    debug!("Verifying device list...");
+    let new_primary_device_id = device_key_upload.device_id_key.clone();
+    let previous_primary_device_id = self
+      .client
+      .get_current_device_list(&user_id)
+      .await?
+      .and_then(|device_list| device_list.primary_device_id().cloned())
+      .ok_or_else(|| {
+        error!(
+          user_id = redact_sensitive_data(&user_id),
+          errorType = error_types::GRPC_SERVICES_LOG,
+          "User had missing or empty device list (before backup restore)!"
+        );
+        tonic::Status::failed_precondition(
+          tonic_status_messages::NO_DEVICE_LIST,
+        )
+      })?;
+
+    // Verify device list payload
+    let signed_list: SignedDeviceList = device_list_payload.parse()?;
+    let device_list_payload =
+      crate::database::DeviceListUpdate::try_from(signed_list)?;
+    crate::device_list::verify_singleton_device_list(
+      &device_list_payload,
+      &new_primary_device_id,
+      Some(&previous_primary_device_id),
+    )?;
+
+    debug!(user_id, "Attempting to revoke user's old access tokens");
+    self.client.delete_all_tokens_for_user(&user_id).await?;
+    // We must delete the one-time keys first because doing so requires device
+    // IDs from the devices table
+    debug!(user_id, "Attempting to delete user's old one-time keys");
+    self
+      .client
+      .delete_otks_table_rows_for_user(&user_id)
+      .await?;
+    debug!(user_id, "Attempting to delete user's old devices");
+    let _old_device_ids =
+      self.client.delete_devices_data_for_user(&user_id).await?;
+
+    // TODO: Revoke TB sessions with previous devices
+
+    // Reset device list (perform update)
+    let login_time = chrono::Utc::now();
+    debug!(user_id, "Registering new primary device...");
+    self
+      .client
+      .register_primary_device(
+        &user_id,
+        device_key_upload,
+        platform_metadata,
+        login_time,
+        device_list_payload,
+      )
+      .await?;
+
+    // Create new access token
+    let token_data = AccessTokenData::with_created_time(
+      user_id.clone(),
+      new_primary_device_id,
+      login_time,
+      crate::token::AuthType::Password,
+      &mut OsRng,
+    );
+
+    let access_token = token_data.access_token.clone();
+    self.client.put_access_token_data(token_data).await?;
+
+    Ok(access_token)
+  }
 }
 
 #[tracing::instrument(skip_all)]
@@ -1190,6 +1352,12 @@ pub fn handle_db_error(db_error: DBError) -> tonic::Status {
         tonic_status_messages::UNEXPECTED_ERROR,
       )
     }
+  }
+}
+
+impl From<DBError> for tonic::Status {
+  fn from(err: DBError) -> Self {
+    handle_db_error(err)
   }
 }
 
