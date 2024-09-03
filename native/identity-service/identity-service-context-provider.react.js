@@ -507,6 +507,42 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           primaryIdentityPublicKeys.ed25519,
         );
       },
+      restoreUser: async (
+        userID: string,
+        deviceList: SignedDeviceList,
+        siweMessage?: string,
+        siweSignature?: string,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const restoreResult = await commRustModule.restoreUser(
+          userID,
+          siweMessage,
+          siweSignature,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+          JSON.stringify(deviceList),
+        );
+
+        return await processAuthResult(
+          restoreResult,
+          primaryIdentityPublicKeys.ed25519,
+        );
+      },
       uploadKeysForRegisteredDeviceAndLogIn: async (
         userID: string,
         nonceChallengeResponse: SignedNonce,
