@@ -75,6 +75,33 @@ class CommRustModule : public facebook::react::CommRustModuleSchemaCxxSpecJSI {
       jsi::String contentPrekeySignature,
       jsi::String notifPrekey,
       jsi::String notifPrekeySignature) override;
+  virtual jsi::Value restorePasswordUser(
+      jsi::Runtime &rt,
+      jsi::String username,
+      jsi::String nonce,
+      jsi::String nonceSignature,
+      jsi::String keyPayload,
+      jsi::String keyPayloadSignature,
+      jsi::String contentPrekey,
+      jsi::String contentPrekeySignature,
+      jsi::String notifPrekey,
+      jsi::String notifPrekeySignature,
+      jsi::Array contentOneTimeKeys,
+      jsi::Array notifOneTimeKeys,
+      jsi::String deviceList) override;
+  virtual jsi::Value restoreWalletUser(
+      jsi::Runtime &rt,
+      jsi::String siweMessage,
+      jsi::String siweSignature,
+      jsi::String keyPayload,
+      jsi::String keyPayloadSignature,
+      jsi::String contentPrekey,
+      jsi::String contentPrekeySignature,
+      jsi::String notifPrekey,
+      jsi::String notifPrekeySignature,
+      jsi::Array contentOneTimeKeys,
+      jsi::Array notifOneTimeKeys,
+      jsi::String deviceList) override;
   virtual jsi::Value updatePassword(
       jsi::Runtime &rt,
       jsi::String userID,
