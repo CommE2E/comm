@@ -20,7 +20,7 @@ use crate::database::{
 };
 use crate::ddb_utils::Identifier;
 use crate::device_list::SignedDeviceList;
-use crate::error::{DeviceListError, Error as DBError};
+use crate::error::{DeviceListError, Error as DBError, consume_error};
 use crate::grpc_services::authenticated::{DeletePasswordUserInfo, UpdatePasswordInfo};
 use crate::grpc_services::protos::unauth::{
   find_user_id_request, AddReservedUsernamesRequest, AuthResponse, Empty,
@@ -1282,10 +1282,10 @@ impl ClientService {
       .delete_otks_table_rows_for_user(&user_id)
       .await?;
     debug!(user_id, "Attempting to delete user's old devices");
-    let _old_device_ids =
+    let old_device_ids =
       self.client.delete_devices_data_for_user(&user_id).await?;
 
-    // TODO: Revoke TB sessions with previous devices
+    spawn_force_close_tb_session_task(old_device_ids);
 
     // Reset device list (perform update)
     let login_time = chrono::Utc::now();
@@ -1410,4 +1410,16 @@ fn construct_flattened_device_key_upload(
   };
 
   Ok(flattened_device_key_upload)
+}
+
+fn spawn_force_close_tb_session_task(device_ids: Vec<String>) {
+  tokio::spawn(async move {
+    debug!(
+      "Attempting to terminate Tunnelbroker sessions for devices: {:?}",
+      device_ids.as_slice()
+    );
+    let result =
+      crate::tunnelbroker::terminate_device_sessions(&device_ids).await;
+    consume_error(result);
+  });
 }
