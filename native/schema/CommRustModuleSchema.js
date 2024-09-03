@@ -70,6 +70,20 @@ export interface Spec extends TurboModule {
     notifPrekey: string,
     notifPrekeySignature: string,
   ) => Promise<string>;
+  +restoreUser: (
+    user_id: string,
+    siweMessage: ?string,
+    siweSignature: ?string,
+    keyPayload: string,
+    keyPayloadSignature: string,
+    contentPrekey: string,
+    contentPrekeySignature: string,
+    notifPrekey: string,
+    notifPrekeySignature: string,
+    contentOneTimeKeys: $ReadOnlyArray<string>,
+    notifOneTimeKeys: $ReadOnlyArray<string>,
+    deviceList: string,
+  ) => Promise<string>;
   +updatePassword: (
     userID: string,
     deviceID: string,
