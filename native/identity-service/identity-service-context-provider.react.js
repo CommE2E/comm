@@ -507,6 +507,77 @@ function IdentityServiceContextProvider(props: Props): React.Node {
           primaryIdentityPublicKeys.ed25519,
         );
       },
+      restorePasswordUser: async (
+        username: string,
+        deviceList: SignedDeviceList,
+        signedNonce: SignedNonce,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const { nonce, nonceSignature } = signedNonce;
+        const restoreResult = await commRustModule.restorePasswordUser(
+          username,
+          nonce,
+          nonceSignature,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+          JSON.stringify(deviceList),
+        );
+
+        return await processAuthResult(
+          restoreResult,
+          primaryIdentityPublicKeys.ed25519,
+        );
+      },
+      restoreWalletUser: async (
+        walletAddress: string,
+        siweMessage: string,
+        siweSignature: string,
+        deviceList: SignedDeviceList,
+      ) => {
+        await commCoreModule.initializeCryptoAccount();
+        const [
+          { blobPayload, signature, primaryIdentityPublicKeys },
+          { contentOneTimeKeys, notificationsOneTimeKeys },
+          prekeys,
+        ] = await Promise.all([
+          commCoreModule.getUserPublicKey(),
+          commCoreModule.getOneTimeKeys(ONE_TIME_KEYS_NUMBER),
+          commCoreModule.validateAndGetPrekeys(),
+        ]);
+        const restoreResult = await commRustModule.restoreWalletUser(
+          siweMessage,
+          siweSignature,
+          blobPayload,
+          signature,
+          prekeys.contentPrekey,
+          prekeys.contentPrekeySignature,
+          prekeys.notifPrekey,
+          prekeys.notifPrekeySignature,
+          getOneTimeKeyValues(contentOneTimeKeys),
+          getOneTimeKeyValues(notificationsOneTimeKeys),
+          JSON.stringify(deviceList),
+        );
+
+        return await processAuthResult(
+          restoreResult,
+          primaryIdentityPublicKeys.ed25519,
+        );
+      },
       uploadKeysForRegisteredDeviceAndLogIn: async (
         userID: string,
         nonceChallengeResponse: SignedNonce,
