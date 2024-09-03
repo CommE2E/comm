@@ -301,6 +301,7 @@ resource "aws_lb_listener" "tunnelbroker_ws" {
 }
 
 resource "aws_lb_listener" "tunnelbroker_grpc" {
+  count             = local.is_staging ? 1 : 0
   load_balancer_arn = aws_lb.tunnelbroker.arn
   port              = local.tunnelbroker_config.grpc_port
   protocol          = "HTTPS"
