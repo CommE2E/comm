@@ -4,6 +4,7 @@ use grpc_clients::identity::{
   protos::unauth::{
     DeviceKeyUpload, ExistingDeviceLoginRequest, IdentityKeyInfo,
     OpaqueLoginFinishRequest, OpaqueLoginStartRequest, Prekey,
+    RestorePasswordUserRequest, RestoreWalletUserRequest,
     SecondaryDeviceKeysUploadRequest, WalletAuthRequest,
   },
 };
@@ -11,7 +12,7 @@ use tracing::instrument;
 
 use super::{
   IdentityAuthResult, LogInPasswordUserInfo, LogInWalletUserInfo,
-  PLATFORM_METADATA,
+  RestorePasswordUserInfo, RestoreWalletUserInfo, PLATFORM_METADATA,
 };
 use crate::utils::jsi_callbacks::handle_string_result_as_callback;
 use crate::{Error, DEVICE_TYPE, IDENTITY_SOCKET_ADDR, RUNTIME};
@@ -84,6 +85,81 @@ pub mod ffi {
         },
       };
       let result = log_in_wallet_user_helper(wallet_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  // Primary device restore
+  #[instrument]
+  pub fn restore_password_user(
+    username: String,
+    nonce: String,
+    nonce_signature: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    device_list: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let password_user_info = RestorePasswordUserInfo {
+        username,
+        nonce,
+        nonce_signature,
+        device_list,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
+      };
+      let result = restore_password_user_helper(password_user_info).await;
+      handle_string_result_as_callback(result, promise_id);
+    });
+  }
+
+  #[instrument]
+  pub fn restore_wallet_user(
+    siwe_message: String,
+    siwe_signature: String,
+    key_payload: String,
+    key_payload_signature: String,
+    content_prekey: String,
+    content_prekey_signature: String,
+    notif_prekey: String,
+    notif_prekey_signature: String,
+    content_one_time_keys: Vec<String>,
+    notif_one_time_keys: Vec<String>,
+    device_list: String,
+    promise_id: u32,
+  ) {
+    RUNTIME.spawn(async move {
+      let wallet_user_info = RestoreWalletUserInfo {
+        siwe_message,
+        siwe_signature,
+        device_list,
+        device_keys: DeviceKeys {
+          key_payload,
+          key_payload_signature,
+          content_prekey,
+          content_prekey_signature,
+          notif_prekey,
+          notif_prekey_signature,
+          content_one_time_keys,
+          notif_one_time_keys,
+        },
+      };
+      let result = restore_wallet_user_helper(wallet_user_info).await;
       handle_string_result_as_callback(result, promise_id);
     });
   }
@@ -215,6 +291,53 @@ async fn log_in_wallet_user_helper(
     .into_inner();
 
   let auth_result = IdentityAuthResult::from(login_response);
+  Ok(serde_json::to_string(&auth_result)?)
+}
+
+async fn restore_password_user_helper(
+  password_user_info: RestorePasswordUserInfo,
+) -> Result<String, Error> {
+  let restore_request = RestorePasswordUserRequest {
+    username: password_user_info.username,
+    nonce: password_user_info.nonce,
+    nonce_signature: password_user_info.nonce_signature,
+    device_list: password_user_info.device_list,
+    device_key_upload: Some(password_user_info.device_keys.into()),
+  };
+
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
+
+  let auth_response = identity_client
+    .restore_password_user(restore_request)
+    .await?
+    .into_inner();
+
+  let auth_result = IdentityAuthResult::from(auth_response);
+  Ok(serde_json::to_string(&auth_result)?)
+}
+
+async fn restore_wallet_user_helper(
+  wallet_user_info: RestoreWalletUserInfo,
+) -> Result<String, Error> {
+  let restore_request = RestoreWalletUserRequest {
+    siwe_message: wallet_user_info.siwe_message,
+    siwe_signature: wallet_user_info.siwe_signature,
+    device_list: wallet_user_info.device_list,
+    device_key_upload: Some(wallet_user_info.device_keys.into()),
+  };
+
+  let mut identity_client =
+    get_unauthenticated_client(IDENTITY_SOCKET_ADDR, PLATFORM_METADATA.clone())
+      .await?;
+
+  let auth_response = identity_client
+    .restore_wallet_user(restore_request)
+    .await?
+    .into_inner();
+
+  let auth_result = IdentityAuthResult::from(auth_response);
   Ok(serde_json::to_string(&auth_result)?)
 }
 
