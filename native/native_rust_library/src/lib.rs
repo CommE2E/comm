@@ -125,6 +125,39 @@ mod ffi {
       promise_id: u32,
     );
 
+    #[cxx_name = "identityRestorePasswordUser"]
+    fn restore_password_user(
+      username: String,
+      nonce: String,
+      nonce_signature: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      device_list: String,
+      promise_id: u32,
+    );
+
+    #[cxx_name = "identityRestoreWalletUser"]
+    fn restore_wallet_user(
+      siwe_message: String,
+      siwe_signature: String,
+      key_payload: String,
+      key_payload_signature: String,
+      content_prekey: String,
+      content_prekey_signature: String,
+      notif_prekey: String,
+      notif_prekey_signature: String,
+      content_one_time_keys: Vec<String>,
+      notif_one_time_keys: Vec<String>,
+      device_list: String,
+      promise_id: u32,
+    );
+
     #[cxx_name = "identityUpdateUserPassword"]
     fn update_user_password(
       user_id: String,
