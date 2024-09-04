@@ -40,6 +40,7 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useNewThickThread } from 'lib/hooks/thread-search-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
@@ -94,6 +95,7 @@ import {
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
+  type NewThickThreadRequest,
 } from 'lib/types/thread-types.js';
 import {
   blobHashFromBlobServiceURI,
@@ -165,6 +167,7 @@ type Props = {
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
+  +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
   +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
@@ -597,6 +600,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         threadInfo,
         dispatchActionPromise: this.props.dispatchActionPromise,
         createNewThinThread: this.props.newThinThread,
+        createNewThickThread: this.props.newThickThread,
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
         calendarQuery,
@@ -1274,37 +1278,37 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
+  async processAndSendDMOperation(
+    messageInfo: RawTextMessageInfo,
+    inputThreadInfo: ThreadInfo,
+  ) {
+    void this.props.processAndSendDMOperation({
+      type: dmOperationSpecificationTypes.OUTBOUND,
+      op: {
+        type: 'send_text_message',
+        threadID: inputThreadInfo.id,
+        creatorID: messageInfo.creatorID,
+        time: Date.now(),
+        messageID: uuid.v4(),
+        text: messageInfo.text,
+      },
+      recipients: {
+        type: 'all_thread_members',
+        threadID:
+          inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
+          inputThreadInfo.parentThreadID
+            ? inputThreadInfo.parentThreadID
+            : inputThreadInfo.id,
+      },
+    });
+  }
+
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
     inputThreadInfo: ThreadInfo,
     parentThreadInfo: ?ThreadInfo,
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
-
-    // TODO: this should be update according to thread creation logic
-    // (ENG-8567)
-    if (threadTypeIsThick(inputThreadInfo.type)) {
-      void this.props.processAndSendDMOperation({
-        type: dmOperationSpecificationTypes.OUTBOUND,
-        op: {
-          type: 'send_text_message',
-          threadID: inputThreadInfo.id,
-          creatorID: messageInfo.creatorID,
-          time: Date.now(),
-          messageID: uuid.v4(),
-          text: messageInfo.text,
-        },
-        recipients: {
-          type: 'all_thread_members',
-          threadID:
-            inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-            inputThreadInfo.parentThreadID
-              ? inputThreadInfo.parentThreadID
-              : inputThreadInfo.id,
-        },
-      });
-      return;
-    }
 
     const { localID } = messageInfo;
     invariant(
@@ -1316,6 +1320,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (!threadIsPending(inputThreadInfo.id)) {
+      if (threadTypeIsThick(inputThreadInfo.type)) {
+        void this.processAndSendDMOperation(messageInfo, inputThreadInfo);
+        return;
+      }
       void this.props.dispatchActionPromise(
         sendTextMessageActionTypes,
         this.sendTextMessageAction(
@@ -1379,6 +1387,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       ...threadInfo,
       id: newThreadID,
     };
+
+    if (threadTypeIsThick(inputThreadInfo.type)) {
+      void this.processAndSendDMOperation(newMessageInfo, newThreadInfo);
+      return;
+    }
 
     void this.props.dispatchActionPromise(
       sendTextMessageActionTypes,
@@ -1712,6 +1725,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
     const callSendTextMessage = useSendTextMessage();
     const callNewThinThread = useNewThinThread();
+    const callNewThickThread = useNewThickThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
@@ -1751,6 +1765,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         sendTextMessage={callSendTextMessage}
         processAndSendDMOperation={processAndSendDMOperation}
         newThinThread={callNewThinThread}
+        newThickThread={callNewThickThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         pushModal={modalContext.pushModal}
