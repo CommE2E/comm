@@ -16,10 +16,7 @@ import {
   useSetDeviceTokenFanout,
 } from 'lib/actions/device-actions.js';
 import { saveMessagesActionType } from 'lib/actions/message-actions.js';
-import {
-  extractKeyserverIDFromID,
-  extractKeyserverIDFromIDOptional,
-} from 'lib/keyserver-conn/keyserver-call-utils.js';
+import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import {
   deviceTokensSelector,
   allUpdatesCurrentAsOfSelector,
@@ -793,15 +790,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
     const { messageInfos } = parsedMessage;
     this.saveMessageInfos(messageInfos);
-
-    const keyserverID = extractKeyserverIDFromID(message.threadID);
-    const updateCurrentAsOf = this.props.allUpdatesCurrentAsOf[keyserverID];
-
-    handleAndroidMessage(
-      parsedMessage,
-      updateCurrentAsOf,
-      this.handleAndroidNotificationIfActive,
-    );
+    handleAndroidMessage(parsedMessage, this.handleAndroidNotificationIfActive);
   };
 
   handleAndroidNotificationIfActive = (
