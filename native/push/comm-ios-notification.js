@@ -7,6 +7,7 @@ import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
@@ -49,6 +50,15 @@ export class CommIOSNotification {
 
   constructor(notification: CoreIOSNotificationData) {
     this.remoteNotificationCompleteCallbackCalled = false;
+    const { threadID, messageInfos } = notification;
+
+    if (thickThreadIDRegex.test(threadID)) {
+      this.data = {
+        ...notification,
+        messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
+      };
+      return;
+    }
 
     this.data = {
       ...notification,
