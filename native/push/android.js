@@ -8,6 +8,7 @@ import {
   convertNonPendingIDToNewSchema,
   convertNotificationMessageInfoToNewIDSchema,
 } from 'lib/utils/migration-utils.js';
+import { thickThreadIDRegex } from 'lib/utils/validation-utils.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 
@@ -50,6 +51,14 @@ export type ParsedAndroidMessage = {
 };
 
 function parseAndroidMessage(message: AndroidMessage): ParsedAndroidMessage {
+  const { threadID, messageInfos } = message;
+  if (thickThreadIDRegex.test(threadID)) {
+    return {
+      ...message,
+      messageInfos: messageInfos ? JSON.parse(messageInfos) : null,
+    };
+  }
+
   return {
     ...message,
     threadID: convertNonPendingIDToNewSchema(
@@ -69,7 +78,6 @@ const androidNotificationChannelID = 'default';
 
 function handleAndroidMessage(
   message: ParsedAndroidMessage,
-  updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
     texts: { body: string, title: ?string },
