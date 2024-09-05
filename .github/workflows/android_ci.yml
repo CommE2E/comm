@@ -57,3 +57,7 @@ jobs:
         env:
           ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
         run: JAVA_HOME=${JAVA_HOME_11_arm64} ./gradlew bundleRelease
+
+      - name: Set up tmate session
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
