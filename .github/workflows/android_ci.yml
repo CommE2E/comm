@@ -37,6 +37,9 @@ jobs:
       - name: yarn ci-cleaninstall
         run: yarn ci-cleaninstall
 
+      - name: Set up tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Save ANDROID_KEY_STORE_B64 to file
         env:
           ANDROID_KEY_STORE_B64: ${{secrets.ANDROID_KEY_STORE_B64}}
@@ -57,7 +60,3 @@ jobs:
         env:
           ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
         run: JAVA_HOME=${JAVA_HOME_11_arm64} ./gradlew bundleRelease
-
-      - name: Set up tmate session
-        if: failure()
-        uses: mxschmitt/action-tmate@v3
