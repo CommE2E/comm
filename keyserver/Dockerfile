@@ -87,7 +87,8 @@ RUN mkdir /home/comm/backups
 #-------------------------------------------------------------------------------
 
 # Install Rust and add Cargo's bin directory to the $PATH environment variable
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+  --default-toolchain 1.76
 ENV PATH /home/comm/.cargo/bin:$PATH
 
 #-------------------------------------------------------------------------------
