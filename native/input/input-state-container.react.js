@@ -643,7 +643,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
+    return (
+      threadTypeIsThick(threadInfo.type) ||
+      threadInfoInsideCommunity(threadInfo, commStaffCommunity.id)
+    );
   }
 
   sendMultimediaMessage = async (
@@ -871,12 +874,16 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       uploadResult,
       uploadThumbnailResult,
       mediaMissionResult;
+
+    const isThickThread = threadTypeIsThick(threadInfo.type);
+    const useBlobService = isThickThread || this.useBlobServiceUploads;
     try {
       if (
-        this.useBlobServiceUploads &&
+        useBlobService &&
         (processedMedia.mediaType === 'encrypted_photo' ||
           processedMedia.mediaType === 'encrypted_video')
       ) {
+        const uploadMetadataToKeyserver = !isThickThread;
         const uploadPromise = this.props.blobServiceUpload({
           uploadInput: {
             blobInput: {
@@ -893,7 +900,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 ? processedMedia.thumbHash
                 : null,
           },
-          keyserverOrThreadID: threadInfo.id,
+          keyserverOrThreadID: uploadMetadataToKeyserver ? threadInfo.id : null,
           callbacks: {
             blobServiceUploadHandler,
             onProgress: (percent: number) => {
@@ -926,7 +933,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
                 dimensions: processedMedia.dimensions,
                 thumbHash: processedMedia.thumbHash,
               },
-              keyserverOrThreadID: threadInfo.id,
+              keyserverOrThreadID: uploadMetadataToKeyserver
+                ? threadInfo.id
+                : null,
               callbacks: {
                 blobServiceUploadHandler,
               },
