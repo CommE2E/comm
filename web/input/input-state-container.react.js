@@ -444,7 +444,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   shouldEncryptMedia(threadInfo: ThreadInfo): boolean {
-    return threadInfoInsideCommunity(threadInfo, commStaffCommunity.id);
+    return (
+      threadTypeIsThick(threadInfo.type) ||
+      threadInfoInsideCommunity(threadInfo, commStaffCommunity.id)
+    );
   }
 
   async sendMultimediaMessage(
@@ -761,7 +764,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           },
         };
       },
-      () => this.uploadFiles(threadInfo.id, newUploads),
+      () => this.uploadFiles(threadInfo, newUploads),
     );
     return true;
   }
@@ -871,16 +874,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   uploadFiles(
-    threadID: string,
+    threadInfo: ThreadInfo,
     uploads: $ReadOnlyArray<PendingMultimediaUpload>,
   ): Promise<mixed> {
     return Promise.all(
-      uploads.map(upload => this.uploadFile(threadID, upload)),
+      uploads.map(upload => this.uploadFile(threadInfo, upload)),
     );
   }
 
-  async uploadFile(threadID: string, upload: PendingMultimediaUpload) {
+  async uploadFile(threadInfo: ThreadInfo, upload: PendingMultimediaUpload) {
     const { selectTime, localID, encryptionKey } = upload;
+    const threadID = threadInfo.id;
     const isEncrypted =
       !!encryptionKey &&
       (upload.mediaType === 'encrypted_photo' ||
@@ -922,8 +926,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         abortHandler: (abort: () => void) =>
           this.handleAbortCallback(threadID, localID, abort),
       };
+      const isThickThread = threadTypeIsThick(threadInfo.type);
+      const useBlobService = isThickThread || this.useBlobServiceUploads;
       if (
-        this.useBlobServiceUploads &&
+        useBlobService &&
         (upload.mediaType === 'encrypted_photo' ||
           upload.mediaType === 'encrypted_video')
       ) {
@@ -945,7 +951,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             loop: false,
             thumbHash,
           },
-          keyserverOrThreadID: threadID,
+          keyserverOrThreadID: isThickThread ? null : threadID,
           callbacks,
         });
       } else {
@@ -1660,7 +1666,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    void this.uploadFiles(threadInfo.id, uploadsToRetry);
+    void this.uploadFiles(threadInfo, uploadsToRetry);
   }
 
   addReply = (message: string) => {
