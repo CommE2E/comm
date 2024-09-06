@@ -1,5 +1,6 @@
 pub mod add_reserved_usernames;
 pub mod config;
+mod find_user_identities;
 pub mod get_farcaster_users;
 pub mod get_inbound_keys_for_user;
 pub mod login;

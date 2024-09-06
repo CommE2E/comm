@@ -4,6 +4,7 @@ import type { SignedIdentityKeysBlob } from 'lib/types/crypto-types.js';
 import type {
   InboundKeyInfoResponse,
   FarcasterUser,
+  UserIdentitiesResponse,
 } from 'lib/types/identity-service-types.js';
 
 import type { IdentityInfo } from '../../src/user/identity.js';
@@ -74,6 +75,12 @@ type RustNativeBindingAPI = {
     contentOneTimeKeys: $ReadOnlyArray<string>,
     notifOneTimeKeys: $ReadOnlyArray<string>,
   ) => Promise<IdentityInfo>,
+  +findUserIdentities: (
+    authUserId: string,
+    authDeviceId: string,
+    authAccessToken: string,
+    userIds: $ReadOnlyArray<string>,
+  ) => Promise<UserIdentitiesResponse>,
 };
 
 export type { RustNativeBindingAPI };
