@@ -1243,7 +1243,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
-  const callJoinThread = useJoinThread();
+  const rawThreadInfo = useSelector(
+    state => state.threadStore.threadInfos[props.threadInfo.id],
+  );
+  const callJoinThread = useJoinThread(rawThreadInfo);
 
   const { getChatMentionSearchIndex } = useChatMentionContext();
   const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);

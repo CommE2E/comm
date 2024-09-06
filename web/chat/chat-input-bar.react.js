@@ -573,7 +573,10 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const threadCreationInProgress = createThreadLoadingStatus === 'loading';
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
-    const callJoinThread = useJoinThread();
+    const rawThreadInfo = useSelector(
+      state => state.threadStore.threadInfos[props.threadInfo.id],
+    );
+    const callJoinThread = useJoinThread(rawThreadInfo);
     const { getChatMentionSearchIndex } = useChatMentionContext();
     const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
 
