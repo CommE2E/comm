@@ -10,6 +10,7 @@ import type {
   ThreadInfo,
   RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -58,7 +59,9 @@ function EditThreadAvatarMenu(props: Props): React.Node {
     [],
   );
 
-  const uploadAvatarMedia = useUploadAvatarMedia();
+  const uploadAvatarMedia = useUploadAvatarMedia({
+    uploadMetadataToKeyserver: !threadTypeIsThick(threadInfo.type),
+  });
   const onImageSelected = React.useCallback(
     async (event: SyntheticEvent<HTMLInputElement>) => {
       const { target } = event;
