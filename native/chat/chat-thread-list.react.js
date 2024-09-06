@@ -35,6 +35,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
+import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
 import ChatThreadListSearch from './chat-thread-list-search.react.js';
@@ -135,9 +136,12 @@ function ChatThreadList(props: BaseProps): React.Node {
     if (!loggedInUserInfo) {
       return;
     }
+    const threadType = usingOlmViaTunnelbrokerForDMs
+      ? threadTypes.PRIVATE
+      : threadTypes.GENESIS_PRIVATE;
     const threadInfo = createPendingThread({
       viewerID: loggedInUserInfo.id,
-      threadType: threadTypes.GENESIS_PRIVATE,
+      threadType,
       members: [loggedInUserInfo],
     });
     navigateToThread({ threadInfo, searching: true });
