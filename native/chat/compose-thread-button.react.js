@@ -28,7 +28,7 @@ function ComposeThreadButton(props: Props) {
       params: {
         threadInfo: createPendingThread({
           viewerID: loggedInUserInfo.id,
-          threadType: threadTypes.GENESIS_PRIVATE,
+          threadType: threadTypes.PRIVATE,
           members: [loggedInUserInfo],
         }),
         searching: true,
