@@ -42,7 +42,10 @@ import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
+import {
+  threadInfoSelector,
+  pendingToRealizedThreadIDsSelector,
+} from 'lib/selectors/thread-selectors.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
@@ -140,7 +143,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +activeChatThreadID: ?string,
+  +activeChatThreadInfo: ?ThreadInfo,
   +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
@@ -609,17 +612,21 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputBaseStateSelector: (?string) => PropsAndState => BaseInputState =
-    _memoize((threadID: ?string) =>
+  inputBaseStateSelector: (?ThreadInfo) => PropsAndState => BaseInputState =
+    _memoize((activeThreadInfo: ?ThreadInfo) =>
       createSelector(
         (propsAndState: PropsAndState) =>
-          threadID ? propsAndState.pendingUploads[threadID] : null,
-        (propsAndState: PropsAndState) =>
-          threadID
-            ? propsAndState.drafts[draftKeyFromThreadID(threadID)]
+          activeThreadInfo
+            ? propsAndState.pendingUploads[activeThreadInfo.id]
             : null,
         (propsAndState: PropsAndState) =>
-          threadID ? propsAndState.textCursorPositions[threadID] : null,
+          activeThreadInfo
+            ? propsAndState.drafts[draftKeyFromThreadID(activeThreadInfo.id)]
+            : null,
+        (propsAndState: PropsAndState) =>
+          activeThreadInfo
+            ? propsAndState.textCursorPositions[activeThreadInfo.id]
+            : null,
         (
           pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
           draft: ?string,
@@ -644,6 +651,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               ];
             }
           }
+          const threadID = activeThreadInfo?.id;
           return ({
             pendingUploads: threadPendingUploads,
             assignedUploads,
@@ -654,7 +662,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               files: $ReadOnlyArray<File>,
             ) => this.appendFiles(threadInfo, files),
             cancelPendingUpload: (localUploadID: string) =>
-              this.cancelPendingUpload(threadID, localUploadID),
+              this.cancelPendingUpload(activeThreadInfo, localUploadID),
             sendTextMessage: (
               messageInfo: RawTextMessageInfo,
               threadInfo: ThreadInfo,
@@ -760,7 +768,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           },
         };
       },
-      () => this.uploadFiles(threadInfo.id, newUploads),
+      () => this.uploadFiles(threadInfo, newUploads),
     );
     return true;
   }
@@ -1207,12 +1215,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.props.dispatch({ type: queueReportsActionType, payload: { reports } });
   }
 
-  cancelPendingUpload(threadID: ?string, localUploadID: string) {
-    invariant(threadID, 'threadID should be set in cancelPendingUpload');
+  cancelPendingUpload(threadInfo: ?ThreadInfo, localUploadID: string) {
+    invariant(threadInfo, 'threadID should be set in cancelPendingUpload');
 
     let revokeURL: ?string, abortRequest: ?() => void;
     this.setState(
       prevState => {
+        const threadID = threadInfo.id;
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
         const currentPendingUploads = prevState.pendingUploads[newThreadID];
         if (!currentPendingUploads) {
@@ -1229,10 +1238,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           abortRequest = pendingUpload.abort;
         }
         if (pendingUpload.serverID) {
-          void this.props.deleteUpload({
-            id: pendingUpload.serverID,
-            keyserverOrThreadID: threadID,
-          });
+          const { serverID } = pendingUpload;
+          if (!threadTypeIsThick(threadInfo.type)) {
+            void this.props.deleteUpload({
+              id: serverID,
+              keyserverOrThreadID: threadID,
+            });
+          }
           if (isBlobServiceURI(pendingUpload.uri)) {
             const identityContext = this.props.identityContext;
             invariant(identityContext, 'Identity context should be set');
@@ -1669,11 +1681,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   render(): React.Node {
-    const { activeChatThreadID } = this.props;
+    const { activeChatThreadInfo } = this.props;
 
     // we're going with two selectors as we want to avoid
     // recreation of chat state setter functions on typeahead state updates
-    const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
+    const inputBaseState = this.inputBaseStateSelector(activeChatThreadInfo)({
       ...this.state,
       ...this.props,
     });
@@ -1700,6 +1712,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedInputStateContainer(props) {
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
+    );
+    const activeChatThreadInfo = useSelector(state =>
+      activeChatThreadID ? threadInfoSelector(state)[activeChatThreadID] : null,
     );
     const drafts = useSelector(state => state.draftStore.drafts);
     const viewerID = useSelector(
@@ -1744,7 +1759,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     return (
       <InputStateContainer
         {...props}
-        activeChatThreadID={activeChatThreadID}
+        activeChatThreadInfo={activeChatThreadInfo}
         drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
