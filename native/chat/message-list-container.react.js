@@ -167,7 +167,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
-            childThreadType={pendingThreadType(userInfoInputArray.length)}
+            childThreadType={pendingThreadType(
+              userInfoInputArray.length,
+              'thin',
+            )}
           />
         );
       }
