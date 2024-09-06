@@ -24,10 +24,12 @@ function renderDeviceListItem({
   item,
   index,
   thisDeviceID,
+  shouldAllowDeviceRemoval,
 }: {
   +item: DeviceIDAndPlatformDetails,
   +index: number,
   +thisDeviceID: ?string,
+  +shouldAllowDeviceRemoval: boolean,
   ...
 }) {
   return (
@@ -35,6 +37,7 @@ function renderDeviceListItem({
       {...item}
       isPrimary={index === 0}
       isThisDevice={item.deviceID === thisDeviceID}
+      shouldAllowDeviceRemoval={shouldAllowDeviceRemoval}
     />
   );
 }
@@ -48,18 +51,22 @@ function LinkedDevices(props: Props): React.Node {
 
   const userDevicesInfos: $ReadOnlyArray<DeviceIDAndPlatformDetails> =
     useSelector(getOwnPeerDevices);
+  const primaryDeviceID = userDevicesInfos[0].deviceID;
 
   const identityContext = React.useContext(IdentityClientContext);
   invariant(identityContext, 'identity context not set');
   const { getAuthMetadata } = identityContext;
   const [thisDeviceID, setThisDeviceID] = React.useState<?string>(null);
+  const [shouldAllowDeviceRemoval, setShouldAllowDeviceRemoval] =
+    React.useState<boolean>(false);
 
   React.useEffect(() => {
     void (async () => {
       const { deviceID } = await getAuthMetadata();
       setThisDeviceID(deviceID);
+      setShouldAllowDeviceRemoval(deviceID === primaryDeviceID);
     })();
-  }, [getAuthMetadata]);
+  }, [getAuthMetadata, primaryDeviceID]);
 
   const separatorComponent = React.useCallback(
     () => <View style={styles.separator} />,
@@ -73,7 +80,12 @@ function LinkedDevices(props: Props): React.Node {
         <FlatList
           data={userDevicesInfos}
           renderItem={({ item, index }) =>
-            renderDeviceListItem({ item, index, thisDeviceID })
+            renderDeviceListItem({
+              item,
+              index,
+              thisDeviceID,
+              shouldAllowDeviceRemoval,
+            })
           }
           keyExtractor={keyExtractor}
           contentContainerStyle={styles.deviceListContentContainer}
@@ -82,12 +94,13 @@ function LinkedDevices(props: Props): React.Node {
       </View>
     ),
     [
-      separatorComponent,
-      userDevicesInfos,
       styles.container,
       styles.header,
       styles.deviceListContentContainer,
+      userDevicesInfos,
+      separatorComponent,
       thisDeviceID,
+      shouldAllowDeviceRemoval,
     ],
   );
 
