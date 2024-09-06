@@ -31,6 +31,7 @@ import {
   newThreadActionTypes,
   useJoinThread,
 } from 'lib/actions/thread-actions.js';
+import type { UseJoinThreadInput } from 'lib/actions/thread-actions.js';
 import {
   useChatMentionContext,
   useThreadChatMentionCandidates,
@@ -73,12 +74,12 @@ import type { MessageInfo } from 'lib/types/message-types.js';
 import type {
   RelativeMemberInfo,
   ThreadInfo,
+  RawThreadInfo,
 } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import type {
   ChatMentionCandidates,
-  ClientThreadJoinRequest,
   ThreadJoinPayload,
 } from 'lib/types/thread-types.js';
 import {
@@ -276,6 +277,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +viewerID: ?string,
+  +rawThreadInfo: RawThreadInfo,
   +draft: string,
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
@@ -288,7 +290,7 @@ type Props = {
   +keyboardState: ?KeyboardState,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
-  +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  +joinThread: (input: UseJoinThreadInput) => Promise<ThreadJoinPayload>,
   +inputState: ?InputState,
   +userMentionsCandidates: $ReadOnlyArray<RelativeMemberInfo>,
   +chatMentionSearchIndex: ?SentencePrefixSearchIndex,
@@ -1143,18 +1145,31 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   async joinAction(): Promise<ThreadJoinPayload> {
-    const query = this.props.calendarQuery();
-    return await this.props.joinThread({
-      threadID: this.props.threadInfo.id,
-      calendarQuery: {
-        startDate: query.startDate,
-        endDate: query.endDate,
-        filters: [
-          ...query.filters,
-          { type: 'threads', threadIDs: [this.props.threadInfo.id] },
-        ],
-      },
-    });
+    let joinThreadInput;
+    if (this.props.rawThreadInfo.thick) {
+      joinThreadInput = {
+        thick: true,
+        rawThreadInfo: this.props.rawThreadInfo,
+      };
+    } else {
+      const query = this.props.calendarQuery();
+      joinThreadInput = {
+        thick: false,
+        request: {
+          threadID: this.props.threadInfo.id,
+          calendarQuery: {
+            startDate: query.startDate,
+            endDate: query.endDate,
+            filters: [
+              ...query.filters,
+              { type: 'threads', threadIDs: [this.props.threadInfo.id] },
+            ],
+          },
+        },
+      };
+    }
+
+    return await this.props.joinThread(joinThreadInput);
   }
 
   expandButtons = () => {
@@ -1243,6 +1258,9 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
 
   const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
+  const rawThreadInfo = useSelector(
+    state => state.threadStore.threadInfos[props.threadInfo.id],
+  );
   const callJoinThread = useJoinThread();
 
   const { getChatMentionSearchIndex } = useChatMentionContext();
@@ -1340,6 +1358,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
     <ChatInputBar
       {...props}
       viewerID={viewerID}
+      rawThreadInfo={rawThreadInfo}
       draft={draft}
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       threadCreationInProgress={threadCreationInProgress}
