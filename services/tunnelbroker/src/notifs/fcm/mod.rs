@@ -1,3 +1,4 @@
+use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
 use crate::notifs::fcm::config::FCMConfig;
 use crate::notifs::fcm::error::Error::FCMError;
 use crate::notifs::fcm::firebase_message::{FCMMessage, FCMMessageWrapper};
@@ -23,7 +24,9 @@ pub struct FCMClient {
 
 impl FCMClient {
   pub fn new(config: &FCMConfig) -> Result<Self, error::Error> {
-    let http_client = reqwest::Client::builder().build()?;
+    let http_client = reqwest::Client::builder()
+      .timeout(PUSH_SERVICE_REQUEST_TIMEOUT)
+      .build()?;
 
     // Token must be a short-lived token (60 minutes) and in a reasonable
     // timeframe.

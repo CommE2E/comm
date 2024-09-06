@@ -20,6 +20,8 @@ pub const LOG_LEVEL_ENV_VAR: &str =
   tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 pub const FCM_ACCESS_TOKEN_GENERATION_THRESHOLD: u64 = 5 * 60;
 
+pub const PUSH_SERVICE_REQUEST_TIMEOUT: Duration = Duration::from_secs(8);
+
 pub mod dynamodb {
   // This table holds messages which could not be immediately delivered to
   // a device.
