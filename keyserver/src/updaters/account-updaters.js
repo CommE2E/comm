@@ -116,6 +116,11 @@ async function updateUserAvatar(
     throw new ServerError('not_logged_in');
   }
 
+  // keyserver shouldn't support thick-thread-specific requests
+  if (request.type === 'thick_thread_image') {
+    throw new ServerError('invalid_parameters');
+  }
+
   const newAvatarValue =
     request.type === 'remove' ? null : JSON.stringify(request);
 
