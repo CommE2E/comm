@@ -53,7 +53,13 @@ impl WebPushClient {
     builder.set_vapid_signature(vapid_signature);
 
     let message = builder.build()?;
-    self.inner_client.send(message).await?;
+    let response_future = self.inner_client.send(message);
+
+    tokio::time::timeout(std::time::Duration::from_secs(5), response_future)
+      .await
+      .map_err(|err| {
+        error::Error::WebPush(web_push::WebPushError::Other(err.to_string()))
+      })??;
 
     Ok(())
   }
