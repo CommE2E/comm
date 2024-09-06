@@ -9,6 +9,7 @@ import {
   newThreadActionTypes,
   useJoinThread,
 } from 'lib/actions/thread-actions.js';
+import type { UseJoinThreadInput } from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import {
   useChatMentionContext,
@@ -35,12 +36,12 @@ import {
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import { messageTypes } from 'lib/types/message-types-enum.js';
-import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import type {
+  ThreadInfo,
+  RawThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  type ClientThreadJoinRequest,
-  type ThreadJoinPayload,
-} from 'lib/types/thread-types.js';
+import { type ThreadJoinPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -71,12 +72,13 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +viewerID: ?string,
+  +rawThreadInfo: RawThreadInfo,
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
   +isThreadActive: boolean,
   +dispatchActionPromise: DispatchActionPromise,
-  +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  +joinThread: (input: UseJoinThreadInput) => Promise<ThreadJoinPayload>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestions: $ReadOnlyArray<MentionTypeaheadSuggestionItem>,
   +parentThreadInfo: ?ThreadInfo,
@@ -534,18 +536,29 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   async joinAction(): Promise<ThreadJoinPayload> {
-    const query = this.props.calendarQuery();
-    return await this.props.joinThread({
-      threadID: this.props.threadInfo.id,
-      calendarQuery: {
-        startDate: query.startDate,
-        endDate: query.endDate,
-        filters: [
-          ...query.filters,
-          { type: 'threads', threadIDs: [this.props.threadInfo.id] },
-        ],
-      },
-    });
+    let joinThreadInput;
+    if (this.props.rawThreadInfo.thick) {
+      joinThreadInput = {
+        thick: true,
+        rawThreadInfo: this.props.rawThreadInfo,
+      };
+    } else {
+      const query = this.props.calendarQuery();
+      joinThreadInput = {
+        thick: false,
+        threadID: this.props.threadInfo.id,
+        calendarQuery: {
+          startDate: query.startDate,
+          endDate: query.endDate,
+          filters: [
+            ...query.filters,
+            { type: 'threads', threadIDs: [this.props.threadInfo.id] },
+          ],
+        },
+      };
+    }
+
+    return await this.props.joinThread(joinThreadInput);
   }
 }
 
@@ -573,6 +586,9 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
     const threadCreationInProgress = createThreadLoadingStatus === 'loading';
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
+    const rawThreadInfo = useSelector(
+      state => state.threadStore.threadInfos[props.threadInfo.id],
+    );
     const callJoinThread = useJoinThread();
     const { getChatMentionSearchIndex } = useChatMentionContext();
     const chatMentionSearchIndex = getChatMentionSearchIndex(props.threadInfo);
@@ -672,6 +688,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
       <ChatInputBar
         {...props}
         viewerID={viewerID}
+        rawThreadInfo={rawThreadInfo}
         joinThreadLoadingStatus={joinThreadLoadingStatus}
         threadCreationInProgress={threadCreationInProgress}
         calendarQuery={calendarQuery}
