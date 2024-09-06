@@ -95,7 +95,8 @@ function AvatarSelection(props: Props): React.Node {
         const clientRequest = selection.updateUserAvatarRequest;
         invariant(
           clientRequest.type !== 'image' &&
-            clientRequest.type !== 'encrypted_image',
+            clientRequest.type !== 'encrypted_image' &&
+            clientRequest.type !== 'non_keyserver_image',
           'image avatars need to be uploaded',
         );
         const newAvatarData = {
