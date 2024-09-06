@@ -17,7 +17,15 @@ import { validateFile } from '../media/media-utils.js';
 // TODO: flip the switch
 const useBlobServiceUploads = false;
 
-function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
+type AvatarMediaUploadOptions = {
+  +uploadMetadataToKeyserver?: boolean,
+};
+
+function useUploadAvatarMedia(
+  options: AvatarMediaUploadOptions = {},
+): File => Promise<UpdateUserAvatarRequest> {
+  const { uploadMetadataToKeyserver = true } = options;
+
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
   const uploadAvatarMedia = React.useCallback(
@@ -32,7 +40,9 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
         ...dimensions,
         loop: false,
       };
-      if (!useBlobServiceUploads) {
+      const useBlobService =
+        !uploadMetadataToKeyserver || useBlobServiceUploads;
+      if (!useBlobService) {
         const { id } = await callUploadMultimedia(fixedFile, uploadExtras);
         return { type: 'image', uploadID: id };
       }
@@ -56,7 +66,7 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
         ? thumbHashResult.thumbHash
         : null;
 
-      const { id } = await callBlobServiceUpload({
+      const { id, uri } = await callBlobServiceUpload({
         uploadInput: {
           blobInput: {
             type: 'file',
@@ -68,13 +78,24 @@ function useUploadAvatarMedia(): File => Promise<UpdateUserAvatarRequest> {
           loop: false,
           thumbHash,
         },
-        keyserverOrThreadID: authoritativeKeyserverID,
+        keyserverOrThreadID: uploadMetadataToKeyserver
+          ? authoritativeKeyserverID
+          : null,
         callbacks: {},
       });
 
-      return { type: 'encrypted_image', uploadID: id };
+      if (uploadMetadataToKeyserver) {
+        return { type: 'encrypted_image', uploadID: id };
+      }
+
+      return {
+        type: 'non_keyserver_image',
+        blobURI: uri,
+        thumbHash,
+        encryptionKey,
+      };
     },
-    [callBlobServiceUpload, callUploadMultimedia],
+    [callBlobServiceUpload, callUploadMultimedia, uploadMetadataToKeyserver],
   );
   return uploadAvatarMedia;
 }
