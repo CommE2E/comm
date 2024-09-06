@@ -6,6 +6,7 @@ import { StyleSheet } from 'react-native';
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
 import { createPendingThread } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
+import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
@@ -23,12 +24,15 @@ function ComposeThreadButton(props: Props) {
     if (!loggedInUserInfo) {
       return;
     }
+    const threadType = usingOlmViaTunnelbrokerForDMs
+      ? threadTypes.PRIVATE
+      : threadTypes.GENESIS_PRIVATE;
     navigate<'MessageList'>({
       name: MessageListRouteName,
       params: {
         threadInfo: createPendingThread({
           viewerID: loggedInUserInfo.id,
-          threadType: threadTypes.GENESIS_PRIVATE,
+          threadType,
           members: [loggedInUserInfo],
         }),
         searching: true,

@@ -13,6 +13,7 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
+import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -53,18 +54,22 @@ function useThreadInfoForPossiblyPendingThread(
     }),
   );
 
+  const threadType = usingOlmViaTunnelbrokerForDMs
+    ? threadTypes.PRIVATE
+    : threadTypes.GENESIS_PRIVATE;
+
   const newThreadID = 'pending/new_thread';
   const pendingNewThread = React.useMemo(
     () => ({
       ...createPendingThread({
         viewerID: loggedInUserInfo.id,
-        threadType: threadTypes.GENESIS_PRIVATE,
+        threadType,
         members: [loggedInUserInfo],
         name: 'New thread',
       }),
       id: newThreadID,
     }),
-    [loggedInUserInfo],
+    [loggedInUserInfo, threadType],
   );
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
     pendingPrivateThread.current,
