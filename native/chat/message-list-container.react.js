@@ -159,6 +159,7 @@ class MessageListContainer extends React.PureComponent<Props, State> {
 
     let searchComponent = null;
     if (searching) {
+      console.log('searching');
       const { userInfoInputArray, genesisThreadInfo } = this.props;
       // It's technically possible for the client to be missing the Genesis
       // ThreadInfo when it first opens up (before the server delivers it)
@@ -167,7 +168,10 @@ class MessageListContainer extends React.PureComponent<Props, State> {
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
-            childThreadType={pendingThreadType(userInfoInputArray.length)}
+            childThreadType={pendingThreadType(
+              userInfoInputArray.length,
+              false,
+            )}
           />
         );
       }
