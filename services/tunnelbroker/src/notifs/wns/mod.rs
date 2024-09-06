@@ -1,3 +1,4 @@
+use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
 use crate::notifs::wns::config::WNSConfig;
 use error::WNSTokenError;
 use reqwest::StatusCode;
@@ -32,7 +33,9 @@ pub struct WNSClient {
 
 impl WNSClient {
   pub fn new(config: &WNSConfig) -> Result<Self, error::Error> {
-    let http_client = reqwest::Client::builder().build()?;
+    let http_client = reqwest::Client::builder()
+      .timeout(PUSH_SERVICE_REQUEST_TIMEOUT)
+      .build()?;
     Ok(WNSClient {
       http_client,
       config: config.clone(),
