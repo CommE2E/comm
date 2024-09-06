@@ -1,3 +1,4 @@
+use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
 use serde::{Deserialize, Serialize};
 use web_push::{
   ContentEncoding, HyperWebPushClient, SubscriptionInfo, VapidSignatureBuilder,
@@ -53,7 +54,13 @@ impl WebPushClient {
     builder.set_vapid_signature(vapid_signature);
 
     let message = builder.build()?;
-    self.inner_client.send(message).await?;
+    let response_future = self.inner_client.send(message);
+
+    tokio::time::timeout(PUSH_SERVICE_REQUEST_TIMEOUT, response_future)
+      .await
+      .map_err(|err| {
+        error::Error::WebPush(web_push::WebPushError::Other(err.to_string()))
+      })??;
 
     Ok(())
   }

@@ -1,3 +1,4 @@
+use crate::constants::PUSH_SERVICE_REQUEST_TIMEOUT;
 use crate::notifs::apns::config::APNsConfig;
 use crate::notifs::apns::error::Error::ResponseError;
 use crate::notifs::apns::headers::{NotificationHeaders, PushType};
@@ -38,6 +39,7 @@ impl APNsClient {
       .http2_prior_knowledge()
       .http2_keep_alive_interval(Some(Duration::from_secs(5)))
       .http2_keep_alive_while_idle(true)
+      .timeout(PUSH_SERVICE_REQUEST_TIMEOUT)
       .build()?;
 
     Ok(APNsClient {
