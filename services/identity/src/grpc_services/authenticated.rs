@@ -16,7 +16,7 @@ use chrono::DateTime;
 use comm_lib::auth::AuthService;
 use comm_opaque2::grpc::protocol_error_to_grpc_status;
 use tonic::{Request, Response, Status};
-use tracing::{debug, error, trace, warn};
+use tracing::{debug, error, trace};
 
 use super::protos::auth::{
   identity_client_service_server::IdentityClientService,
@@ -67,13 +67,11 @@ pub fn auth_interceptor(
   // This function cannot be `async`, yet must call the async db call
   // Force tokio to resolve future in current thread without an explicit .await
   let valid_token = tokio::task::block_in_place(move || {
-    handle
-      .block_on(new_db_client.verify_access_token(
-        user_id,
-        device_id,
-        access_token,
-      ))
-      .map_err(handle_db_error)
+    handle.block_on(new_db_client.verify_access_token(
+      user_id,
+      device_id,
+      access_token,
+    ))
   })?;
 
   if !valid_token {
@@ -145,8 +143,7 @@ impl IdentityClientService for AuthenticatedService {
         content_key.into(),
         notif_key.into(),
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(Empty {});
     Ok(response)
@@ -163,8 +160,7 @@ impl IdentityClientService for AuthenticatedService {
     let devices_map = self
       .db_client
       .get_keys_for_user(user_id, true)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .ok_or_else(|| {
         tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
       })?;
@@ -204,8 +200,7 @@ impl IdentityClientService for AuthenticatedService {
     let identifier = self
       .db_client
       .get_user_identity(user_id)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .ok_or_else(|| {
         tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
       })?;
@@ -226,8 +221,7 @@ impl IdentityClientService for AuthenticatedService {
     let identifier = self
       .db_client
       .get_user_identity(&message.user_id)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .ok_or_else(|| {
         tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
       })?;
@@ -235,8 +229,7 @@ impl IdentityClientService for AuthenticatedService {
     let Some(keyserver_info) = self
       .db_client
       .get_keyserver_keys_for_user(&message.user_id)
-      .await
-      .map_err(handle_db_error)?
+      .await?
     else {
       return Err(Status::not_found(
         tonic_status_messages::KEYSERVER_NOT_FOUND,
@@ -246,8 +239,7 @@ impl IdentityClientService for AuthenticatedService {
     let primary_device_data = self
       .db_client
       .get_primary_device_data(&message.user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
     let primary_device_keys = primary_device_data.device_key_info;
 
     let response = Response::new(KeyserverKeysResponse {
@@ -276,8 +268,7 @@ impl IdentityClientService for AuthenticatedService {
         &message.content_one_time_prekeys,
         &message.notif_one_time_prekeys,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     Ok(tonic::Response::new(Empty {}))
   }
@@ -293,8 +284,7 @@ impl IdentityClientService for AuthenticatedService {
     let Some((username, password_file)) = self
       .db_client
       .get_username_and_password_file(&user_id)
-      .await
-      .map_err(handle_db_error)?
+      .await?
     else {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::WALLET_USER,
@@ -326,8 +316,7 @@ impl IdentityClientService for AuthenticatedService {
     let session_id = self
       .db_client
       .insert_workflow(WorkflowInProgress::Update(Box::new(update_state)))
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = UpdateUserPasswordStartResponse {
       session_id,
@@ -346,11 +335,8 @@ impl IdentityClientService for AuthenticatedService {
 
     let message = request.into_inner();
 
-    let Some(WorkflowInProgress::Update(state)) = self
-      .db_client
-      .get_workflow(message.session_id)
-      .await
-      .map_err(handle_db_error)?
+    let Some(WorkflowInProgress::Update(state)) =
+      self.db_client.get_workflow(message.session_id).await?
     else {
       return Err(tonic::Status::not_found(
         tonic_status_messages::SESSION_NOT_FOUND,
@@ -370,8 +356,7 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .update_user_password(user_id, password_file)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -384,23 +369,17 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<tonic::Response<Empty>, tonic::Status> {
     let (user_id, device_id) = get_user_and_device_id(&request)?;
 
-    self
-      .db_client
-      .remove_device(&user_id, &device_id)
-      .await
-      .map_err(handle_db_error)?;
+    self.db_client.remove_device(&user_id, &device_id).await?;
 
     self
       .db_client
       .delete_otks_table_rows_for_user_device(&user_id, &device_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     self
       .db_client
       .delete_access_token_data(&user_id, &device_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let device_list = self
       .db_client
@@ -485,15 +464,10 @@ impl IdentityClientService for AuthenticatedService {
         // on our own. (Side effect would skip the primary device).
         false,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     debug!(user_id, "Attempting to delete user's access tokens");
-    self
-      .db_client
-      .delete_all_tokens_for_user(&user_id)
-      .await
-      .map_err(handle_db_error)?;
+    self.db_client.delete_all_tokens_for_user(&user_id).await?;
 
     // We must delete the one-time keys first because doing so requires device
     // IDs from the devices table
@@ -501,15 +475,13 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .delete_otks_table_rows_for_user(&user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     debug!(user_id, "Attempting to delete user's devices");
     let device_ids = self
       .db_client
       .delete_devices_data_for_user(&user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     spawn_delete_tunnelbroker_data_task(device_ids);
 
@@ -539,14 +511,12 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .delete_access_token_data(&user_id, &device_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     self
       .db_client
       .delete_otks_table_rows_for_user_device(&user_id, &device_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     spawn_delete_tunnelbroker_data_task([device_id].into());
 
@@ -566,8 +536,7 @@ impl IdentityClientService for AuthenticatedService {
     let user_is_password_authenticated = self
       .db_client
       .user_is_password_authenticated(&user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     if user_is_password_authenticated {
       return Err(tonic::Status::permission_denied(
@@ -575,11 +544,7 @@ impl IdentityClientService for AuthenticatedService {
       ));
     }
 
-    let device_ids = self
-      .db_client
-      .delete_user(user_id.clone())
-      .await
-      .map_err(handle_db_error)?;
+    let device_ids = self.db_client.delete_user(user_id.clone()).await?;
     spawn_delete_tunnelbroker_data_task(device_ids);
     spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
 
@@ -600,8 +565,7 @@ impl IdentityClientService for AuthenticatedService {
     let maybe_username_and_password_file = self
       .db_client
       .get_username_and_password_file(&user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let Some((username, password_file_bytes)) =
       maybe_username_and_password_file
@@ -628,8 +592,7 @@ impl IdentityClientService for AuthenticatedService {
       .insert_workflow(WorkflowInProgress::PasswordUserDeletion(Box::new(
         delete_state,
       )))
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(DeletePasswordUserStartResponse {
       session_id,
@@ -647,11 +610,8 @@ impl IdentityClientService for AuthenticatedService {
     let message = request.into_inner();
 
     debug!("Attempting to finish deleting password user: {}", user_id);
-    let Some(WorkflowInProgress::PasswordUserDeletion(state)) = self
-      .db_client
-      .get_workflow(message.session_id)
-      .await
-      .map_err(handle_db_error)?
+    let Some(WorkflowInProgress::PasswordUserDeletion(state)) =
+      self.db_client.get_workflow(message.session_id).await?
     else {
       return Err(tonic::Status::not_found(
         tonic_status_messages::SESSION_NOT_FOUND,
@@ -663,11 +623,7 @@ impl IdentityClientService for AuthenticatedService {
       .finish(&message.opaque_login_upload)
       .map_err(protocol_error_to_grpc_status)?;
 
-    let device_ids = self
-      .db_client
-      .delete_user(user_id.clone())
-      .await
-      .map_err(handle_db_error)?;
+    let device_ids = self.db_client.delete_user(user_id.clone()).await?;
     spawn_delete_tunnelbroker_data_task(device_ids);
     spawn_delete_backup_data_task(user_id, self.comm_auth_service.clone());
 
@@ -698,8 +654,7 @@ impl IdentityClientService for AuthenticatedService {
     let mut db_result = self
       .db_client
       .get_device_list_history(user_id, since)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     // these should be sorted already, but just in case
     db_result.sort_by_key(|list| list.timestamp);
@@ -734,11 +689,8 @@ impl IdentityClientService for AuthenticatedService {
     );
 
     // 1. Fetch device lists
-    let device_lists = self
-      .db_client
-      .get_current_device_lists(user_ids)
-      .await
-      .map_err(handle_db_error)?;
+    let device_lists =
+      self.db_client.get_current_device_lists(user_ids).await?;
     trace!("Found device lists for {} users", device_lists.keys().len());
 
     // 2. Fetch platform details
@@ -756,8 +708,7 @@ impl IdentityClientService for AuthenticatedService {
     let platform_details = self
       .db_client
       .get_devices_platform_details(flattened_user_device_ids)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
     trace!(
       "Found platform details for {} users",
       platform_details.keys().len()
@@ -808,8 +759,7 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .apply_devicelist_update(&user_id, update, Some(validator), true)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     Ok(Response::new(Empty {}))
   }
@@ -825,8 +775,7 @@ impl IdentityClientService for AuthenticatedService {
     let mut get_farcaster_users_response = self
       .db_client
       .get_farcaster_users(vec![message.farcaster_id.clone()])
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     if get_farcaster_users_response.len() > 1 {
       error!(
@@ -849,8 +798,7 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .add_farcaster_id(user_id, message.farcaster_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -863,11 +811,7 @@ impl IdentityClientService for AuthenticatedService {
   ) -> Result<Response<Empty>, tonic::Status> {
     let (user_id, _) = get_user_and_device_id(&request)?;
 
-    self
-      .db_client
-      .remove_farcaster_id(user_id)
-      .await
-      .map_err(handle_db_error)?;
+    self.db_client.remove_farcaster_id(user_id).await?;
 
     let response = Empty {};
     Ok(Response::new(response))
@@ -884,8 +828,7 @@ impl IdentityClientService for AuthenticatedService {
     let users_table_results = self
       .db_client
       .find_db_user_identities(user_ids.clone())
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     // Look up only user IDs that haven't been found in users table
     let reserved_user_ids_to_query: Vec<String> = user_ids
@@ -895,8 +838,7 @@ impl IdentityClientService for AuthenticatedService {
     let reserved_user_identifiers = self
       .db_client
       .query_reserved_usernames_by_user_ids(reserved_user_ids_to_query)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let identities = users_table_results
       .into_iter()
@@ -927,8 +869,7 @@ impl IdentityClientService for AuthenticatedService {
     self
       .db_client
       .update_device_platform_details(user_id, device_id, platform_details)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     Ok(Response::new(Empty {}))
   }
