@@ -120,8 +120,7 @@ impl IdentityClientService for ClientService {
     let username_in_reserved_usernames_table = self
       .client
       .get_user_id_from_reserved_usernames_table(&message.username)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .is_some();
 
     if username_in_reserved_usernames_table {
@@ -165,8 +164,7 @@ impl IdentityClientService for ClientService {
       .insert_workflow(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = RegistrationStartResponse {
       session_id,
@@ -192,8 +190,7 @@ impl IdentityClientService for ClientService {
     let Some(original_username) = self
       .client
       .get_original_username_from_reserved_usernames_table(&message.username)
-      .await
-      .map_err(handle_db_error)?
+      .await?
     else {
       return Err(tonic::Status::permission_denied(
         tonic_status_messages::USERNAME_NOT_RESERVED,
@@ -232,8 +229,7 @@ impl IdentityClientService for ClientService {
       .insert_workflow(WorkflowInProgress::Registration(Box::new(
         registration_state,
       )))
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = RegistrationStartResponse {
       session_id,
@@ -250,11 +246,8 @@ impl IdentityClientService for ClientService {
     let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
-    if let Some(WorkflowInProgress::Registration(state)) = self
-      .client
-      .get_workflow(message.session_id)
-      .await
-      .map_err(handle_db_error)?
+    if let Some(WorkflowInProgress::Registration(state)) =
+      self.client.get_workflow(message.session_id).await?
     {
       let server_registration = comm_opaque2::server::Registration::new();
       let password_file = server_registration
@@ -272,8 +265,7 @@ impl IdentityClientService for ClientService {
           platform_metadata,
           login_time,
         )
-        .await
-        .map_err(handle_db_error)?;
+        .await?;
 
       // Create access token
       let token = AccessTokenData::with_created_time(
@@ -286,11 +278,7 @@ impl IdentityClientService for ClientService {
 
       let access_token = token.access_token.clone();
 
-      self
-        .client
-        .put_access_token_data(token)
-        .await
-        .map_err(handle_db_error)?;
+      self.client.put_access_token_data(token).await?;
 
       let response = AuthResponse {
         user_id,
@@ -316,8 +304,7 @@ impl IdentityClientService for ClientService {
     let user_id_and_password_file = self
       .client
       .get_user_info_and_password_file_from_username(&message.username)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let UserInfoAndPasswordFile {
       user_id,
@@ -334,8 +321,7 @@ impl IdentityClientService for ClientService {
       let username_in_reserved_usernames_table = self
         .client
         .get_user_id_from_reserved_usernames_table(&message.username)
-        .await
-        .map_err(handle_db_error)?
+        .await?
         .is_some();
 
       if username_in_reserved_usernames_table {
@@ -396,8 +382,7 @@ impl IdentityClientService for ClientService {
     let session_id = self
       .client
       .insert_workflow(WorkflowInProgress::Login(Box::new(login_state)))
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(OpaqueLoginStartResponse {
       session_id,
@@ -414,11 +399,8 @@ impl IdentityClientService for ClientService {
     let platform_metadata = get_platform_metadata(&request)?;
     let message = request.into_inner();
 
-    let Some(WorkflowInProgress::Login(state)) = self
-      .client
-      .get_workflow(message.session_id)
-      .await
-      .map_err(handle_db_error)?
+    let Some(WorkflowInProgress::Login(state)) =
+      self.client.get_workflow(message.session_id).await?
     else {
       return Err(tonic::Status::not_found(
         tonic_status_messages::SESSION_NOT_FOUND,
@@ -434,8 +416,7 @@ impl IdentityClientService for ClientService {
       self
         .client
         .remove_device(state.user_id.clone(), device_to_remove)
-        .await
-        .map_err(handle_db_error)?;
+        .await?;
     }
 
     let login_time = chrono::Utc::now();
@@ -447,8 +428,7 @@ impl IdentityClientService for ClientService {
         platform_metadata,
         login_time,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     // Create access token
     let token = AccessTokenData::with_created_time(
@@ -461,11 +441,7 @@ impl IdentityClientService for ClientService {
 
     let access_token = token.access_token.clone();
 
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
+    self.client.put_access_token_data(token).await?;
 
     let response = AuthResponse {
       user_id: state.user_id,
@@ -508,8 +484,7 @@ impl IdentityClientService for ClientService {
     let user_id = if let Some(user_id) = self
       .client
       .get_user_id_from_user_info(wallet_address.clone(), &AuthType::Wallet)
-      .await
-      .map_err(handle_db_error)?
+      .await?
     {
       self
         .check_device_id_taken(&flattened_device_key_upload, Some(&user_id))
@@ -523,16 +498,14 @@ impl IdentityClientService for ClientService {
           platform_metadata,
           login_time,
         )
-        .await
-        .map_err(handle_db_error)?;
+        .await?;
 
       user_id
     } else {
       let Some(user_id) = self
         .client
         .get_user_id_from_reserved_usernames_table(&wallet_address)
-        .await
-        .map_err(handle_db_error)?
+        .await?
       else {
         return Err(tonic::Status::not_found(
           tonic_status_messages::USER_NOT_FOUND,
@@ -570,8 +543,7 @@ impl IdentityClientService for ClientService {
           message.farcaster_id,
           None,
         )
-        .await
-        .map_err(handle_db_error)?;
+        .await?;
 
       user_id
     };
@@ -587,11 +559,7 @@ impl IdentityClientService for ClientService {
 
     let access_token = token.access_token.clone();
 
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
+    self.client.put_access_token_data(token).await?;
 
     let response = AuthResponse {
       user_id,
@@ -623,8 +591,7 @@ impl IdentityClientService for ClientService {
     let username_in_reserved_usernames_table = self
       .client
       .get_user_id_from_reserved_usernames_table(&wallet_address)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .is_some();
 
     if username_in_reserved_usernames_table {
@@ -661,8 +628,7 @@ impl IdentityClientService for ClientService {
         message.farcaster_id,
         initial_device_list,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     // Create access token
     let token = AccessTokenData::with_created_time(
@@ -675,11 +641,7 @@ impl IdentityClientService for ClientService {
 
     let access_token = token.access_token.clone();
 
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
+    self.client.put_access_token_data(token).await?;
 
     let response = AuthResponse {
       user_id,
@@ -796,17 +758,13 @@ impl IdentityClientService for ClientService {
     let user_identity = self
       .client
       .get_user_identity(&user_id)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .ok_or_else(|| {
         tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
       })?;
 
-    let Some(device_list) = self
-      .client
-      .get_current_device_list(&user_id)
-      .await
-      .map_err(handle_db_error)?
+    let Some(device_list) =
+      self.client.get_current_device_list(&user_id).await?
     else {
       warn!("User {} does not have valid device list. Secondary device auth impossible.", redact_sensitive_data(&user_id));
       return Err(tonic::Status::aborted(
@@ -831,11 +789,7 @@ impl IdentityClientService for ClientService {
       &mut OsRng,
     );
     let access_token = token.access_token.clone();
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
+    self.client.put_access_token_data(token).await?;
 
     self
       .client
@@ -845,8 +799,7 @@ impl IdentityClientService for ClientService {
         platform_metadata,
         login_time,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = AuthResponse {
       user_id,
@@ -874,20 +827,17 @@ impl IdentityClientService for ClientService {
       self.client.get_user_identity(&user_id),
       self.client.get_current_device_list(&user_id)
     );
-    let user_identity =
-      identity_response.map_err(handle_db_error)?.ok_or_else(|| {
-        tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
-      })?;
+    let user_identity = identity_response?.ok_or_else(|| {
+      tonic::Status::not_found(tonic_status_messages::USER_NOT_FOUND)
+    })?;
 
-    let device_list = device_list_response
-      .map_err(handle_db_error)?
-      .ok_or_else(|| {
-        warn!(
-          "User {} does not have a valid device list.",
-          redact_sensitive_data(&user_id)
-        );
-        tonic::Status::aborted(tonic_status_messages::DEVICE_LIST_ERROR)
-      })?;
+    let device_list = device_list_response?.ok_or_else(|| {
+      warn!(
+        "User {} does not have a valid device list.",
+        redact_sensitive_data(&user_id)
+      );
+      tonic::Status::aborted(tonic_status_messages::DEVICE_LIST_ERROR)
+    })?;
 
     if !device_list.device_ids.contains(&device_id) {
       return Err(tonic::Status::permission_denied(
@@ -906,11 +856,7 @@ impl IdentityClientService for ClientService {
       &mut OsRng,
     );
     let access_token = token.access_token.clone();
-    self
-      .client
-      .put_access_token_data(token)
-      .await
-      .map_err(handle_db_error)?;
+    self.client.put_access_token_data(token).await?;
 
     let response = AuthResponse {
       user_id,
@@ -926,16 +872,15 @@ impl IdentityClientService for ClientService {
     _request: tonic::Request<Empty>,
   ) -> Result<tonic::Response<GenerateNonceResponse>, tonic::Status> {
     let nonce_data = generate_nonce_data(&mut OsRng);
-    match self
+    self
       .client
       .add_nonce_to_nonces_table(nonce_data.clone())
-      .await
-    {
-      Ok(_) => Ok(Response::new(GenerateNonceResponse {
-        nonce: nonce_data.nonce,
-      })),
-      Err(e) => Err(handle_db_error(e)),
-    }
+      .await?;
+
+    let response = GenerateNonceResponse {
+      nonce: nonce_data.nonce,
+    };
+    Ok(Response::new(response))
   }
 
   #[tracing::instrument(skip_all)]
@@ -953,8 +898,7 @@ impl IdentityClientService for ClientService {
         message.device_id.clone(),
         message.access_token,
       )
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(VerifyUserAccessTokenResponse { token_valid });
     debug!(
@@ -976,17 +920,13 @@ impl IdentityClientService for ClientService {
       &message.signature,
     )?;
 
-    let filtered_user_details = self
-      .client
-      .filter_out_taken_usernames(user_details)
-      .await
-      .map_err(handle_db_error)?;
+    let filtered_user_details =
+      self.client.filter_out_taken_usernames(user_details).await?;
 
     self
       .client
       .add_usernames_to_reserved_usernames_table(filtered_user_details)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(Empty {});
     Ok(response)
@@ -1007,8 +947,7 @@ impl IdentityClientService for ClientService {
     self
       .client
       .delete_username_from_reserved_usernames_table(username)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let response = Response::new(Empty {});
     Ok(response)
@@ -1049,10 +988,9 @@ impl IdentityClientService for ClientService {
         .client
         .get_user_id_from_user_info(user_ident.clone(), &auth_type),
     );
-    let is_reserved = get_user_id_from_reserved_usernames_table_result
-      .map_err(handle_db_error)?
-      .is_some();
-    let user_id = user_id_result.map_err(handle_db_error)?;
+    let is_reserved =
+      get_user_id_from_reserved_usernames_table_result?.is_some();
+    let user_id = user_id_result?;
 
     Ok(Response::new(FindUserIdResponse {
       user_id,
@@ -1070,8 +1008,7 @@ impl IdentityClientService for ClientService {
     let farcaster_users = self
       .client
       .get_farcaster_users(message.farcaster_ids)
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .into_iter()
       .map(|d| d.0)
       .collect();
@@ -1085,11 +1022,8 @@ impl ClientService {
     &self,
     username: &str,
   ) -> Result<(), tonic::Status> {
-    let username_taken = self
-      .client
-      .username_taken(username.to_string())
-      .await
-      .map_err(handle_db_error)?;
+    let username_taken =
+      self.client.username_taken(username.to_string()).await?;
     if username_taken {
       return Err(tonic::Status::already_exists(
         tonic_status_messages::USERNAME_ALREADY_EXISTS,
@@ -1105,8 +1039,7 @@ impl ClientService {
     let wallet_address_taken = self
       .client
       .wallet_address_taken(wallet_address.to_string())
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
     if wallet_address_taken {
       return Err(tonic::Status::already_exists(
         tonic_status_messages::WALLET_ADDRESS_TAKEN,
@@ -1122,8 +1055,7 @@ impl ClientService {
     let fid_already_registered = !self
       .client
       .get_farcaster_users(vec![farcaster_id.to_string()])
-      .await
-      .map_err(handle_db_error)?
+      .await?
       .is_empty();
     if fid_already_registered {
       return Err(tonic::Status::already_exists(
@@ -1139,11 +1071,8 @@ impl ClientService {
     requesting_user_id: Option<&str>,
   ) -> Result<(), tonic::Status> {
     let device_id = key_upload.device_id_key.as_str();
-    let Some(existing_device_user_id) = self
-      .client
-      .find_user_id_for_device(device_id)
-      .await
-      .map_err(handle_db_error)?
+    let Some(existing_device_user_id) =
+      self.client.find_user_id_for_device(device_id).await?
     else {
       // device ID doesn't exist
       return Ok(());
@@ -1171,12 +1100,7 @@ impl ClientService {
     &self,
     nonce: &str,
   ) -> Result<(), tonic::Status> {
-    match self
-      .client
-      .get_nonce_from_nonces_table(nonce)
-      .await
-      .map_err(handle_db_error)?
-    {
+    match self.client.get_nonce_from_nonces_table(nonce).await? {
       None => {
         return Err(tonic::Status::invalid_argument(
           tonic_status_messages::INVALID_NONCE,
@@ -1189,11 +1113,12 @@ impl ClientService {
           tonic_status_messages::NONCE_EXPIRED,
         ));
       }
-      Some(nonce_data) => self
-        .client
-        .remove_nonce_from_nonces_table(&nonce_data.nonce)
-        .await
-        .map_err(handle_db_error)?,
+      Some(nonce_data) => {
+        self
+          .client
+          .remove_nonce_from_nonces_table(&nonce_data.nonce)
+          .await?
+      }
     };
     Ok(())
   }
@@ -1212,8 +1137,7 @@ impl ClientService {
     let maybe_keyserver_device_id = self
       .client
       .get_keyserver_device_id_for_user(user_id)
-      .await
-      .map_err(handle_db_error)?;
+      .await?;
 
     let Some(existing_keyserver_device_id) = maybe_keyserver_device_id else {
       return Ok(None);
@@ -1411,8 +1335,7 @@ fn construct_flattened_device_key_upload(
     notif_prekey: message.notif_prekey()?,
     notif_prekey_signature: message.notif_prekey_signature()?,
     notif_one_time_keys: message.one_time_notif_prekeys()?,
-    device_type: DeviceType::try_from(DBDeviceTypeInt(message.device_type()?))
-      .map_err(handle_db_error)?,
+    device_type: DeviceType::try_from(DBDeviceTypeInt(message.device_type()?))?,
   };
 
   Ok(flattened_device_key_upload)
