@@ -238,12 +238,12 @@ void (async () => {
     server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
 
     if (isSecondaryNode) {
-      let dbVersion;
-      do {
+      let dbVersion = await fetchDBVersion();
+      while (dbVersion < latestWrapInTransactionAndBlockRequestsVersion) {
         await sleep(5000);
 
         dbVersion = await fetchDBVersion();
-      } while (dbVersion < latestWrapInTransactionAndBlockRequestsVersion);
+      }
     }
 
     // Note - the order of router declarations matters. On prod we have
