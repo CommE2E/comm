@@ -146,7 +146,7 @@ resource "aws_cloudwatch_log_metric_filter" "ecs_task_stop" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_task_stop" {
-  alarm_name          = "ECSTaskStop"
+  alarm_name          = "ECS${local.is_staging ? "Staging" : "Production"}TaskStopAlarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "ECSTaskStopCount"
