@@ -240,9 +240,9 @@ void (async () => {
     if (isSecondaryNode) {
       let dbVersion;
       do {
-        await sleep(5000);
-
         dbVersion = await fetchDBVersion();
+
+        await sleep(5000);
       } while (dbVersion < latestWrapInTransactionAndBlockRequestsVersion);
     }
 
