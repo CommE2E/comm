@@ -243,7 +243,8 @@ std::string joinStrings(
   }
 
   // Step 5: (optional) execute notification coalescing
-  if ([self isCollapsible:content.userInfo]) {
+  if ([self isCollapsible:content.userInfo] &&
+      !content.userInfo[needsSilentBadgeUpdateKey]) {
     std::string coalescingErrorMessage;
     try {
       @try {
