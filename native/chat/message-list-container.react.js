@@ -18,6 +18,7 @@ import {
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 import { pinnedMessageCountText } from 'lib/utils/message-pinning-utils.js';
 
@@ -160,10 +161,23 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     let searchComponent = null;
     if (searching) {
       const { userInfoInputArray, genesisThreadInfo } = this.props;
+      const childThreadType = pendingThreadType(
+        userInfoInputArray.length,
+        true,
+      );
       // It's technically possible for the client to be missing the Genesis
       // ThreadInfo when it first opens up (before the server delivers it)
       let parentThreadHeader;
-      if (genesisThreadInfo) {
+      if (threadTypeIsThick(childThreadType)) {
+        parentThreadHeader = (
+          <ParentThreadHeader
+            childThreadType={pendingThreadType(
+              userInfoInputArray.length,
+              false,
+            )}
+          />
+        );
+      } else if (genesisThreadInfo) {
         parentThreadHeader = (
           <ParentThreadHeader
             parentThreadInfo={genesisThreadInfo}
