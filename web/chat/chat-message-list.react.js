@@ -294,7 +294,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     const messages = messageListData.map(this.renderItem);
 
     let relationshipPrompt = null;
-    if (threadInfo.type === threadTypes.GENESIS_PERSONAL) {
+    if (
+      threadInfo.type === threadTypes.GENESIS_PERSONAL ||
+      threadInfo.type === threadTypes.PERSONAL
+    ) {
       const otherMembers = threadOtherMembers(
         threadInfo.members,
         this.props.viewerID,

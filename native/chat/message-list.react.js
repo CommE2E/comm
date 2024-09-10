@@ -197,7 +197,10 @@ class MessageList extends React.PureComponent<Props, State> {
     const { messageListData, startReached } = this.props;
     const footer = startReached ? this.ListFooterComponent : undefined;
     let relationshipPrompt = null;
-    if (this.props.threadInfo.type === threadTypes.GENESIS_PERSONAL) {
+    if (
+      this.props.threadInfo.type === threadTypes.GENESIS_PERSONAL ||
+      this.props.threadInfo.type === threadTypes.PERSONAL
+    ) {
       relationshipPrompt = (
         <RelationshipPrompt
           pendingPersonalThreadUserInfo={
