@@ -60,9 +60,9 @@ function EditThreadAvatar(props: Props): React.Node {
   const navigateToCamera = React.useCallback(() => {
     navigate<'ThreadAvatarCameraModal'>({
       name: ThreadAvatarCameraModalRouteName,
-      params: { threadID: threadInfo.id },
+      params: { threadInfo },
     });
-  }, [navigate, threadInfo.id]);
+  }, [navigate, threadInfo]);
 
   const removeAvatar = React.useCallback(
     () => nativeSetThreadAvatar(threadInfo.id, { type: 'remove' }),
