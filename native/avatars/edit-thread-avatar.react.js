@@ -53,8 +53,8 @@ function EditThreadAvatar(props: Props): React.Node {
   }, [navigate, threadInfo]);
 
   const selectFromGallery = React.useCallback(
-    () => selectFromGalleryAndUpdateThreadAvatar(threadInfo.id),
-    [selectFromGalleryAndUpdateThreadAvatar, threadInfo.id],
+    () => selectFromGalleryAndUpdateThreadAvatar(threadInfo),
+    [selectFromGalleryAndUpdateThreadAvatar, threadInfo],
   );
 
   const navigateToCamera = React.useCallback(() => {
