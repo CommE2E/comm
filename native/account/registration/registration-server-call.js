@@ -567,7 +567,10 @@ function useRegistrationServerCall(): RegistrationServerCallInput => Promise<voi
           ({ updateUserAvatarRequest } = avatarData);
         } else {
           const { mediaSelection } = avatarData;
-          updateUserAvatarRequest = await uploadSelectedMedia(mediaSelection);
+          updateUserAvatarRequest = await uploadSelectedMedia(
+            mediaSelection,
+            true,
+          );
           if (!updateUserAvatarRequest) {
             return;
           }
