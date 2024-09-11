@@ -13,13 +13,12 @@ import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
 } from 'lib/actions/thread-actions.js';
+import type { UseChangeThreadSettingsInput } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type {
-  ChangeThreadSettingsPayload,
-  UpdateThreadRequest,
-} from 'lib/types/thread-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
+import type { ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   type DispatchActionPromise,
@@ -77,7 +76,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +changeThreadSettings: (
-    update: UpdateThreadRequest,
+    input: UseChangeThreadSettingsInput,
   ) => Promise<ChangeThreadSettingsPayload>,
 };
 class ThreadSettingsName extends React.PureComponent<Props> {
@@ -193,10 +192,22 @@ class ThreadSettingsName extends React.PureComponent<Props> {
 
   async editName(newName: string): Promise<ChangeThreadSettingsPayload> {
     try {
-      return await this.props.changeThreadSettings({
+      const changeThreadSetingsRequest = {
         threadID: this.props.threadInfo.id,
         changes: { name: newName },
-      });
+      };
+
+      const changeThreadSettingsInput = threadTypeIsThick(
+        this.props.threadInfo.type,
+      )
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            ...changeThreadSetingsRequest,
+          }
+        : { thick: false, ...changeThreadSetingsRequest };
+
+      return await this.props.changeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
       Alert.alert(
         unknownErrorAlertDetails.title,
@@ -230,7 +241,7 @@ const ConnectedThreadSettingsName: React.ComponentType<BaseProps> =
     );
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings(props.threadInfo);
+    const callChangeThreadSettings = useChangeThreadSettings();
 
     return (
       <ThreadSettingsName
