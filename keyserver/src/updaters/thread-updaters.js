@@ -1,5 +1,7 @@
 // @flow
 
+import { getRustAPI } from 'rust-node-addon';
+
 import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
@@ -48,6 +50,7 @@ import { dbQuery, SQL } from '../database/database.js';
 import { fetchCommunityFarcasterChannelTag } from '../fetchers/community-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
+import { fetchRoles } from '../fetchers/role-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -66,6 +69,9 @@ import {
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { verifyUserLoggedIn } from '../user/login.js';
+import { neynarClient } from '../utils/fc-cache.js';
+import { getContentSigningKey } from '../utils/olm-utils.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
 type UpdateRoleOptions = {
@@ -826,11 +832,20 @@ async function joinThread(
   }
 
   const permissionPromise = (async () => {
+    const communityFarcasterChannelTagPromise =
+      fetchCommunityFarcasterChannelTag(viewer, request.threadID);
+
     if (request.inviteLinkSecret) {
-      return await checkIfInviteLinkIsValid(
-        request.inviteLinkSecret,
-        request.threadID,
-      );
+      const [inviteLinkIsValid, communityFarcasterChannelTag] =
+        await Promise.all([
+          checkIfInviteLinkIsValid(request.inviteLinkSecret, request.threadID),
+          communityFarcasterChannelTagPromise,
+        ]);
+
+      return {
+        hasPermission: inviteLinkIsValid,
+        communityFarcasterChannelTag,
+      };
     }
 
     const threadPermissionPromise = checkThreadPermission(
@@ -839,21 +854,23 @@ async function joinThread(
       threadPermissions.JOIN_THREAD,
     );
 
-    const communityFarcasterChannelTagPromise =
-      fetchCommunityFarcasterChannelTag(viewer, request.threadID);
-
     const [threadPermission, communityFarcasterChannelTag] = await Promise.all([
       threadPermissionPromise,
       communityFarcasterChannelTagPromise,
     ]);
 
-    return threadPermission || !!communityFarcasterChannelTag;
+    return {
+      hasPermission: threadPermission || !!communityFarcasterChannelTag,
+      communityFarcasterChannelTag,
+    };
   })();
 
-  const [isMember, hasPermission] = await Promise.all([
-    fetchViewerIsMember(viewer, request.threadID),
-    permissionPromise,
-  ]);
+  const [isMember, { hasPermission, communityFarcasterChannelTag }] =
+    await Promise.all([
+      fetchViewerIsMember(viewer, request.threadID),
+      permissionPromise,
+    ]);
+
   if (!hasPermission) {
     throw new ServerError('invalid_parameters');
   }
@@ -882,7 +899,16 @@ async function joinThread(
     }
   }
 
-  const changeset = await changeRole(request.threadID, [viewer.userID], null, {
+  let role = null;
+  if (communityFarcasterChannelTag) {
+    role = await fetchUserRoleForThread(
+      viewer,
+      request.threadID,
+      communityFarcasterChannelTag,
+    );
+  }
+
+  const changeset = await changeRole(request.threadID, [viewer.userID], role, {
     defaultSubscription: request.defaultSubscription,
   });
 
@@ -910,6 +936,50 @@ async function joinThread(
       newUpdates: membershipResult.viewerUpdates,
     },
   };
+}
+
+async function fetchUserRoleForThread(
+  viewer: Viewer,
+  threadID: string,
+  communityFarcasterChannelTag: string,
+): Promise<string | null> {
+  const [rustAPI, identityInfo, deviceID] = await Promise.all([
+    getRustAPI(),
+    verifyUserLoggedIn(),
+    getContentSigningKey(),
+  ]);
+
+  const response = await rustAPI.findUserIdentities(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    [viewer.userID],
+  );
+
+  const { farcasterID } = response.identities[viewer.userID];
+
+  if (!farcasterID) {
+    return null;
+  }
+
+  const ledChannels =
+    await neynarClient?.fetchLedFarcasterChannels(farcasterID);
+
+  if (
+    !ledChannels ||
+    !ledChannels.some(channel => channel.id === communityFarcasterChannelTag)
+  ) {
+    return null;
+  }
+
+  const roleInfos = await fetchRoles(threadID);
+  for (const roleInfo of roleInfos) {
+    if (roleInfo.specialRole === specialRoles.ADMIN_ROLE) {
+      return roleInfo.id;
+    }
+  }
+
+  return null;
 }
 
 async function toggleMessagePinForThread(
