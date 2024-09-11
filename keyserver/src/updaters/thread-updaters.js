@@ -1,5 +1,7 @@
 // @flow
 
+import { getRustAPI } from 'rust-node-addon';
+
 import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
@@ -48,6 +50,7 @@ import { dbQuery, SQL } from '../database/database.js';
 import { fetchCommunityFarcasterChannelTag } from '../fetchers/community-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
+import { fetchRoles } from '../fetchers/role-fetchers.js';
 import {
   fetchThreadInfos,
   fetchServerThreadInfos,
@@ -66,6 +69,9 @@ import {
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { verifyUserLoggedIn } from '../user/login.js';
+import { neynarClient } from '../utils/fc-cache.js';
+import { getContentSigningKey } from '../utils/olm-utils.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
 type UpdateRoleOptions = {
@@ -825,6 +831,8 @@ async function joinThread(
     throw new ServerError('not_logged_in');
   }
 
+  let farcasterChannelTag;
+
   const permissionPromise = (async () => {
     if (request.inviteLinkSecret) {
       return await checkIfInviteLinkIsValid(
@@ -847,7 +855,9 @@ async function joinThread(
       communityFarcasterChannelTagPromise,
     ]);
 
-    return threadPermission || !!communityFarcasterChannelTag;
+    farcasterChannelTag = communityFarcasterChannelTag;
+
+    return threadPermission || !!farcasterChannelTag;
   })();
 
   const [isMember, hasPermission] = await Promise.all([
@@ -882,7 +892,43 @@ async function joinThread(
     }
   }
 
-  const changeset = await changeRole(request.threadID, [viewer.userID], null, {
+  const [rustAPI, identityInfo, deviceID] = await Promise.all([
+    getRustAPI(),
+    verifyUserLoggedIn(),
+    getContentSigningKey(),
+  ]);
+
+  const response = await rustAPI.findUserIdentities(
+    identityInfo.userId,
+    deviceID,
+    identityInfo.accessToken,
+    [viewer.userID],
+  );
+
+  let farcasterID;
+  if (response.identities[viewer.userID].farcasterID) {
+    farcasterID = response.identities[viewer.userID].farcasterID;
+  }
+
+  let ledChannels;
+  if (farcasterID) {
+    ledChannels = await neynarClient?.fetchLedFarcasterChannels(farcasterID);
+  }
+
+  let role = null;
+  if (
+    ledChannels &&
+    ledChannels.some(channel => channel.id === farcasterChannelTag)
+  ) {
+    const roleInfos = await fetchRoles(request.threadID);
+    for (const roleInfo of roleInfos) {
+      if (roleInfo.specialRole === specialRoles.ADMIN_ROLE) {
+        role = roleInfo.id;
+      }
+    }
+  }
+
+  const changeset = await changeRole(request.threadID, [viewer.userID], role, {
     defaultSubscription: request.defaultSubscription,
   });
 
