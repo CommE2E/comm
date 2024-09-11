@@ -19,10 +19,7 @@ import {
   extensionFromFilename,
   filenameFromPathOrURI,
 } from 'lib/media/file-utils.js';
-import type {
-  AvatarDBContent,
-  UpdateUserAvatarRequest,
-} from 'lib/types/avatar-types.js';
+import type { UpdateUserAvatarRequest } from 'lib/types/avatar-types.js';
 import type {
   NativeMediaSelection,
   MediaLibrarySelection,
@@ -54,71 +51,85 @@ function displayAvatarUpdateFailureAlert(): void {
   );
 }
 
-function useUploadProcessedMedia(): MediaResult => Promise<?AvatarDBContent> {
+function useUploadProcessedMedia(): (
+  media: MediaResult,
+  metadataUploadLocation: 'keyserver' | 'none',
+) => Promise<?UpdateUserAvatarRequest> {
   const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
   const callBlobServiceUpload = useBlobServiceUpload();
-  const uploadProcessedMultimedia: MediaResult => Promise<?AvatarDBContent> =
-    React.useCallback(
-      async processedMedia => {
-        if (!useBlobServiceUploads) {
-          const { uploadURI, filename, mime, dimensions } = processedMedia;
-          const { id } = await callUploadMultimedia(
-            {
-              uri: uploadURI,
-              name: filename,
-              type: mime,
-            },
-            dimensions,
-          );
-          if (!id) {
-            return undefined;
-          }
-          return { type: 'image', uploadID: id };
-        }
-
-        const { result: encryptionResult } = await encryptMedia(processedMedia);
-        if (!encryptionResult.success) {
-          throw new Error('Avatar media encryption failed.');
-        }
-
-        invariant(
-          encryptionResult.mediaType === 'encrypted_photo',
-          'Invalid mediaType after encrypting avatar',
+  return React.useCallback(
+    async (processedMedia, metadataUploadLocation) => {
+      const useBlobService =
+        metadataUploadLocation !== 'keyserver' || useBlobServiceUploads;
+      if (!useBlobService) {
+        const { uploadURI, filename, mime, dimensions } = processedMedia;
+        const { id } = await callUploadMultimedia(
+          {
+            uri: uploadURI,
+            name: filename,
+            type: mime,
+          },
+          dimensions,
         );
-        const {
-          uploadURI,
-          filename,
-          mime,
+        if (!id) {
+          return undefined;
+        }
+        return { type: 'image', uploadID: id };
+      }
+
+      const { result: encryptionResult } = await encryptMedia(processedMedia);
+      if (!encryptionResult.success) {
+        throw new Error('Avatar media encryption failed.');
+      }
+
+      invariant(
+        encryptionResult.mediaType === 'encrypted_photo',
+        'Invalid mediaType after encrypting avatar',
+      );
+      const {
+        uploadURI,
+        filename,
+        mime,
+        blobHash,
+        encryptionKey,
+        dimensions,
+        thumbHash,
+      } = encryptionResult;
+      const { id, uri } = await callBlobServiceUpload({
+        uploadInput: {
+          blobInput: {
+            type: 'uri',
+            uri: uploadURI,
+            filename,
+            mimeType: mime,
+          },
           blobHash,
           encryptionKey,
           dimensions,
           thumbHash,
-        } = encryptionResult;
-        const { id } = await callBlobServiceUpload({
-          uploadInput: {
-            blobInput: {
-              type: 'uri',
-              uri: uploadURI,
-              filename,
-              mimeType: mime,
-            },
-            blobHash,
-            encryptionKey,
-            dimensions,
-            thumbHash,
-            loop: false,
-          },
-          keyserverOrThreadID: authoritativeKeyserverID,
-          callbacks: { blobServiceUploadHandler },
-        });
-        if (!id) {
-          return undefined;
-        }
-        return { type: 'encrypted_image', uploadID: id };
-      },
-      [callUploadMultimedia, callBlobServiceUpload],
-    );
-  return uploadProcessedMultimedia;
+          loop: false,
+        },
+        keyserverOrThreadID:
+          metadataUploadLocation === 'keyserver'
+            ? authoritativeKeyserverID
+            : null,
+        callbacks: { blobServiceUploadHandler },
+      });
+      if (metadataUploadLocation !== 'keyserver') {
+        return {
+          type: 'non_keyserver_image',
+          blobURI: uri,
+          thumbHash,
+          encryptionKey,
+        };
+      }
+      if (!id) {
+        return undefined;
+      }
+      return { type: 'encrypted_image', uploadID: id };
+    },
+    [callUploadMultimedia, callBlobServiceUpload],
+  );
 }
 
 function useProcessSelectedMedia(): NativeMediaSelection => Promise<
@@ -185,12 +196,15 @@ async function selectFromGallery(): Promise<?MediaLibrarySelection> {
 
 function useUploadSelectedMedia(
   setProcessingOrUploadInProgress?: (inProgress: boolean) => mixed,
-): (selection: NativeMediaSelection) => Promise<?AvatarDBContent> {
+): (
+  selection: NativeMediaSelection,
+  metadataUploadLocation: 'keyserver' | 'none',
+) => Promise<?UpdateUserAvatarRequest> {
   const processSelectedMedia = useProcessSelectedMedia();
   const uploadProcessedMedia = useUploadProcessedMedia();
 
   return React.useCallback(
-    async (selection: NativeMediaSelection) => {
+    async (selection: NativeMediaSelection, metadataUploadLocation) => {
       setProcessingOrUploadInProgress?.(true);
       const urisToBeDisposed: Set<string> = new Set([selection.uri]);
 
@@ -220,10 +234,14 @@ function useUploadSelectedMedia(
         return undefined;
       }
 
-      let uploadedMedia: ?AvatarDBContent;
+      let uploadedMedia: ?UpdateUserAvatarRequest;
       try {
-        uploadedMedia = await uploadProcessedMedia(processedMedia);
+        uploadedMedia = await uploadProcessedMedia(
+          processedMedia,
+          metadataUploadLocation,
+        );
         urisToBeDisposed.forEach(filesystem.unlink);
+        setProcessingOrUploadInProgress?.(false);
       } catch {
         urisToBeDisposed.forEach(filesystem.unlink);
         Alert.alert(
@@ -319,7 +337,10 @@ function useNativeUpdateUserImageAvatar(): (
         return;
       }
 
-      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
+      const imageAvatarUpdateRequest = await uploadSelectedMedia(
+        selection,
+        'keyserver',
+      );
       if (!imageAvatarUpdateRequest) {
         return;
       }
@@ -400,7 +421,10 @@ function useNativeUpdateThreadImageAvatar(): (
       selection: NativeMediaSelection,
       threadID: string,
     ): Promise<void> => {
-      const imageAvatarUpdateRequest = await uploadSelectedMedia(selection);
+      const imageAvatarUpdateRequest = await uploadSelectedMedia(
+        selection,
+        'keyserver',
+      );
       if (!imageAvatarUpdateRequest) {
         return;
       }
