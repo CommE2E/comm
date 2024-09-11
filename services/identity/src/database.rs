@@ -497,7 +497,8 @@ impl DatabaseClient {
         OlmAccountType::Notification,
         true,
       )
-      .await?;
+      .await
+      .unwrap_or((None, true));
     let (content_one_time_key, _) = self
       .get_one_time_key(
         user_id,
@@ -505,7 +506,8 @@ impl DatabaseClient {
         OlmAccountType::Content,
         !requested_more_keys,
       )
-      .await?;
+      .await
+      .unwrap_or((None, true));
 
     debug!(
       "Able to get notif one-time key for keyserver {}: {}",
@@ -787,7 +789,8 @@ impl DatabaseClient {
             OlmAccountType::Notification,
             true,
           )
-          .await?;
+          .await
+          .unwrap_or((None, true));
         (device_keys.content_one_time_key, _) = self
           .get_one_time_key(
             user_id,
@@ -795,7 +798,8 @@ impl DatabaseClient {
             OlmAccountType::Content,
             !requested_more_keys,
           )
-          .await?;
+          .await
+          .unwrap_or((None, true));
       }
     }
 
