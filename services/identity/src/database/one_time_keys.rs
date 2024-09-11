@@ -14,7 +14,7 @@ use comm_lib::{
     DBItemAttributeError, DBItemError,
   },
 };
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, warn};
 
 use crate::{
   constants::{
@@ -94,7 +94,7 @@ impl DatabaseClient {
         .await?
         .pop()
       else {
-        return Err(Error::NotEnoughOneTimeKeys);
+        return Ok((None, requested_more_keys));
       };
 
       let delete_otk_operation = otk_row.as_delete_request();
@@ -209,11 +209,7 @@ impl DatabaseClient {
 
     if let Some(limit) = num_keys {
       if otk_rows.len() != limit {
-        error!(
-          errorType = error_types::OTK_DB_LOG,
-          "There are fewer one-time keys than the number requested"
-        );
-        return Err(Error::NotEnoughOneTimeKeys);
+        warn!("There are fewer one-time keys than the number requested");
       }
     }
 
