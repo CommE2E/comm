@@ -7,12 +7,11 @@ import { TouchableHighlight } from 'react-native';
 import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
+  type UseChangeThreadSettingsInput,
 } from 'lib/actions/thread-actions.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import {
-  type ChangeThreadSettingsPayload,
-  type UpdateThreadRequest,
-} from 'lib/types/thread-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
+import { type ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -78,7 +77,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +changeThreadSettings: (
-    request: UpdateThreadRequest,
+    input: UseChangeThreadSettingsInput,
   ) => Promise<ChangeThreadSettingsPayload>,
 };
 function ColorSelectorModal(props: Props): React.Node {
@@ -99,10 +98,21 @@ function ColorSelectorModal(props: Props): React.Node {
     async (newColor: string) => {
       const threadID = threadInfo.id;
       try {
-        return await updateThreadSettings({
+        const changeThreadSettingRequest = {
           threadID,
           changes: { color: newColor },
-        });
+        };
+
+        const changeThreadSettingInput = threadTypeIsThick(
+          props.route.params.threadInfo.type,
+        )
+          ? {
+              thick: true,
+              threadInfo: props.route.params.threadInfo,
+              ...changeThreadSettingRequest,
+            }
+          : { thick: false, ...changeThreadSettingRequest };
+        return await updateThreadSettings(changeThreadSettingInput);
       } catch (e) {
         Alert.alert(
           unknownErrorAlertDetails.title,
@@ -113,7 +123,12 @@ function ColorSelectorModal(props: Props): React.Node {
         throw e;
       }
     },
-    [onErrorAcknowledged, threadInfo.id, updateThreadSettings],
+    [
+      onErrorAcknowledged,
+      threadInfo.id,
+      updateThreadSettings,
+      props.route.params.threadInfo,
+    ],
   );
 
   const onColorSelected = React.useCallback(
@@ -176,9 +191,7 @@ const ConnectedColorSelectorModal: React.ComponentType<BaseProps> =
     const windowWidth = useSelector(state => state.dimensions.width);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings(
-      props.route.params.threadInfo,
-    );
+    const callChangeThreadSettings = useChangeThreadSettings();
 
     return (
       <ColorSelectorModal
