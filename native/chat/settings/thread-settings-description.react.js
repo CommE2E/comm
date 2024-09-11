@@ -12,16 +12,15 @@ import {
 import {
   changeThreadSettingsActionTypes,
   useChangeThreadSettings,
+  type UseChangeThreadSettingsInput,
 } from 'lib/actions/thread-actions.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
-import {
-  type ChangeThreadSettingsPayload,
-  type UpdateThreadRequest,
-} from 'lib/types/thread-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
+import { type ChangeThreadSettingsPayload } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -105,7 +104,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +changeThreadSettings: (
-    update: UpdateThreadRequest,
+    input: UseChangeThreadSettingsInput,
   ) => Promise<ChangeThreadSettingsPayload>,
   +canEditThreadDescription: boolean,
 };
@@ -265,10 +264,22 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     newDescription: string,
   ): Promise<ChangeThreadSettingsPayload> {
     try {
-      return await this.props.changeThreadSettings({
+      const changeThreadSettingsRequest = {
         threadID: this.props.threadInfo.id,
         changes: { description: newDescription },
-      });
+      };
+
+      const changeThreadSettingsInput = threadTypeIsThick(
+        this.props.threadInfo.type,
+      )
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            ...changeThreadSettingsRequest,
+          }
+        : { thick: false, ...changeThreadSettingsRequest };
+
+      return await this.props.changeThreadSettings(changeThreadSettingsInput);
     } catch (e) {
       Alert.alert(
         unknownErrorAlertDetails.title,
@@ -306,7 +317,7 @@ const ConnectedThreadSettingsDescription: React.ComponentType<BaseProps> =
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useChangeThreadSettings(props.threadInfo);
+    const callChangeThreadSettings = useChangeThreadSettings();
 
     const canEditThreadDescription = useThreadHasPermission(
       props.threadInfo,
