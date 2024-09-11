@@ -497,7 +497,14 @@ impl DatabaseClient {
         OlmAccountType::Notification,
         true,
       )
-      .await?;
+      .await
+      .unwrap_or_else(|e| {
+        error!(
+          errorType = error_types::OTK_DB_LOG,
+          "Error retrieving notification one-time key: {:?}", e
+        );
+        (None, true)
+      });
     let (content_one_time_key, _) = self
       .get_one_time_key(
         user_id,
@@ -505,7 +512,14 @@ impl DatabaseClient {
         OlmAccountType::Content,
         !requested_more_keys,
       )
-      .await?;
+      .await
+      .unwrap_or_else(|e| {
+        error!(
+          errorType = error_types::OTK_DB_LOG,
+          "Error retrieving content one-time key: {:?}", e
+        );
+        (None, true)
+      });
 
     debug!(
       "Able to get notif one-time key for keyserver {}: {}",
@@ -787,7 +801,14 @@ impl DatabaseClient {
             OlmAccountType::Notification,
             true,
           )
-          .await?;
+          .await
+          .unwrap_or_else(|e| {
+            error!(
+              errorType = error_types::OTK_DB_LOG,
+              "Error retrieving notification one-time key: {:?}", e
+            );
+            (None, true)
+          });
         (device_keys.content_one_time_key, _) = self
           .get_one_time_key(
             user_id,
@@ -795,7 +816,14 @@ impl DatabaseClient {
             OlmAccountType::Content,
             !requested_more_keys,
           )
-          .await?;
+          .await
+          .unwrap_or_else(|e| {
+            error!(
+              errorType = error_types::OTK_DB_LOG,
+              "Error retrieving content one-time key: {:?}", e
+            );
+            (None, true)
+          });
       }
     }
 

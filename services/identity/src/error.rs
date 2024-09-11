@@ -34,8 +34,6 @@ pub enum Error {
   IllegalState,
   #[display(...)]
   InvalidFormat,
-  #[display(...)]
-  NotEnoughOneTimeKeys,
 }
 
 #[derive(Debug, derive_more::Display, derive_more::Error)]
