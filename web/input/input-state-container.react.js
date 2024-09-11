@@ -94,6 +94,7 @@ import {
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
+  type RawThreadInfos,
 } from 'lib/types/thread-types.js';
 import {
   blobHashFromBlobServiceURI,
@@ -161,7 +162,8 @@ type Props = {
   +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
   +processAndSendDMOperation: (
     dmOperationSpecification: OutboundDMOperationSpecification,
-  ) => Promise<void>,
+    localMessageID?: string,
+  ) => Promise<$ReadOnlyArray<string>>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
@@ -171,6 +173,8 @@ type Props = {
   +unregisterSendCallback: (() => mixed) => void,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +identityContext: ?IdentityClientContextType,
+  //TODO improve this
+  +threadInfos: RawThreadInfos,
 };
 type WritableState = {
   pendingUploads: {
@@ -541,6 +545,52 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     for (const { id } of messageInfo.media) {
       mediaIDs.push(id);
     }
+
+    const messageID = uuid.v4();
+
+    const threadInfo = this.props.threadInfos[threadID];
+    if (threadInfo.thick) {
+      const messageIDs = await this.props.processAndSendDMOperation(
+        {
+          type: dmOperationSpecificationTypes.OUTBOUND,
+          op: {
+            type: 'send_media_message',
+            threadID,
+            creatorID: messageInfo.creatorID,
+            time: Date.now(),
+            messageID,
+            media: messageInfo.media,
+          },
+          recipients: {
+            type: 'all_thread_members',
+            threadID:
+              threadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
+              threadInfo.parentThreadID
+                ? threadInfo.parentThreadID
+                : threadInfo.id,
+          },
+          sendOnly: true,
+        },
+        localID,
+      );
+      if (messageIDs.length > 0) {
+        const copy: any = cloneError({});
+        copy.localID = messageInfo.localID;
+        copy.threadID = messageInfo.threadID;
+        copy.messageIDs = messageIDs;
+        throw copy;
+      }
+      this.pendingSidebarCreationMessageLocalIDs.delete(localID);
+      return {
+        localID,
+        serverID: messageID,
+        threadID: threadID,
+        time: Date.now(),
+        //TODO
+        interface: 'socket',
+      };
+    }
+
     try {
       const result = await this.props.sendMultimediaMessage({
         threadID,
@@ -1281,31 +1331,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ) {
     this.props.sendCallbacks.forEach(callback => callback());
 
-    // TODO: this should be update according to thread creation logic
-    // (ENG-8567)
-    if (threadTypeIsThick(inputThreadInfo.type)) {
-      void this.props.processAndSendDMOperation({
-        type: dmOperationSpecificationTypes.OUTBOUND,
-        op: {
-          type: 'send_text_message',
-          threadID: inputThreadInfo.id,
-          creatorID: messageInfo.creatorID,
-          time: Date.now(),
-          messageID: uuid.v4(),
-          text: messageInfo.text,
-        },
-        recipients: {
-          type: 'all_thread_members',
-          threadID:
-            inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-            inputThreadInfo.parentThreadID
-              ? inputThreadInfo.parentThreadID
-              : inputThreadInfo.id,
-        },
-      });
-      return;
-    }
-
     const { localID } = messageInfo;
     invariant(
       localID !== null && localID !== undefined,
@@ -1410,6 +1435,51 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       const sidebarCreation =
         this.pendingSidebarCreationMessageLocalIDs.has(localID);
+
+      const messageID = uuid.v4();
+
+      if (threadTypeIsThick(threadInfo.type)) {
+        const messageIDs = await this.props.processAndSendDMOperation(
+          {
+            type: dmOperationSpecificationTypes.OUTBOUND,
+            op: {
+              type: 'send_text_message',
+              threadID: threadInfo.id,
+              creatorID: messageInfo.creatorID,
+              time: Date.now(),
+              messageID,
+              text: messageInfo.text,
+            },
+            recipients: {
+              type: 'all_thread_members',
+              threadID:
+                threadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
+                threadInfo.parentThreadID
+                  ? threadInfo.parentThreadID
+                  : threadInfo.id,
+            },
+            sendOnly: true,
+          },
+          localID,
+        );
+        if (messageIDs.length > 0) {
+          const copy: any = cloneError({});
+          copy.localID = messageInfo.localID;
+          copy.threadID = messageInfo.threadID;
+          copy.messageIDs = messageIDs;
+          throw copy;
+        }
+        this.pendingSidebarCreationMessageLocalIDs.delete(localID);
+        return {
+          localID,
+          serverID: messageID,
+          threadID: messageInfo.threadID,
+          time: Date.now(),
+          //TODO
+          interface: 'socket',
+        };
+      }
+
       const result = await this.props.sendTextMessage({
         threadID: messageInfo.threadID,
         localID,
@@ -1735,6 +1805,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
 
+    const threads = useSelector(state => state.threadStore.threadInfos);
+
     return (
       <InputStateContainer
         {...props}
@@ -1759,6 +1831,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         unregisterSendCallback={unregisterSendCallback}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         identityContext={identityContext}
+        threadInfos={threads}
       />
     );
   });
