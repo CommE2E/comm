@@ -35,8 +35,8 @@ function ThreadAvatarCameraModal(props: Props): React.Node {
 
   const sendPhoto = React.useCallback(
     (capture: PhotoCapture) =>
-      nativeUpdateThreadImageAvatar(capture, threadInfo.id),
-    [threadInfo.id, nativeUpdateThreadImageAvatar],
+      nativeUpdateThreadImageAvatar(capture, threadInfo),
+    [threadInfo, nativeUpdateThreadImageAvatar],
   );
 
   return <CameraModal handlePhotoCapture={sendPhoto} navigation={navigation} />;

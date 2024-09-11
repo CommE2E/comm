@@ -25,6 +25,11 @@ import type {
   MediaLibrarySelection,
   MediaMissionFailure,
 } from 'lib/types/media-types.js';
+import type {
+  RawThreadInfo,
+  ThreadInfo,
+} from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import CommIcon from '../components/comm-icon.react.js';
@@ -405,7 +410,7 @@ function useNativeSetThreadAvatar(): (
 
 function useNativeUpdateThreadImageAvatar(): (
   selection: NativeMediaSelection,
-  threadID: string,
+  threadInfo: ThreadInfo | RawThreadInfo,
 ) => Promise<void> {
   const editThreadAvatarContext = React.useContext(EditThreadAvatarContext);
   invariant(editThreadAvatarContext, 'editThreadAvatarContext must be defined');
@@ -419,18 +424,21 @@ function useNativeUpdateThreadImageAvatar(): (
   const nativeUpdateThreadImageAvatar = React.useCallback(
     async (
       selection: NativeMediaSelection,
-      threadID: string,
+      threadInfo: ThreadInfo | RawThreadInfo,
     ): Promise<void> => {
+      const metadataUploadLocation = threadTypeIsThick(threadInfo.type)
+        ? 'none'
+        : 'keyserver';
       const imageAvatarUpdateRequest = await uploadSelectedMedia(
         selection,
-        'keyserver',
+        metadataUploadLocation,
       );
       if (!imageAvatarUpdateRequest) {
         return;
       }
 
       try {
-        await baseSetThreadAvatar(threadID, imageAvatarUpdateRequest);
+        await baseSetThreadAvatar(threadInfo.id, imageAvatarUpdateRequest);
       } catch {
         displayAvatarUpdateFailureAlert();
       }
@@ -442,17 +450,17 @@ function useNativeUpdateThreadImageAvatar(): (
 }
 
 function useSelectFromGalleryAndUpdateThreadAvatar(): (
-  threadID: string,
+  threadInfo: ThreadInfo | RawThreadInfo,
 ) => Promise<void> {
   const nativeUpdateThreadImageAvatar = useNativeUpdateThreadImageAvatar();
 
   const selectFromGalleryAndUpdateThreadAvatar = React.useCallback(
-    async (threadID: string): Promise<void> => {
+    async (threadInfo: ThreadInfo | RawThreadInfo): Promise<void> => {
       const selection: ?MediaLibrarySelection = await selectFromGallery();
       if (!selection) {
         return;
       }
-      await nativeUpdateThreadImageAvatar(selection, threadID);
+      await nativeUpdateThreadImageAvatar(selection, threadInfo);
     },
     [nativeUpdateThreadImageAvatar],
   );
