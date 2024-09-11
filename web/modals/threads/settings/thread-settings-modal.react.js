@@ -20,7 +20,7 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadChanges } from 'lib/types/thread-types.js';
+import { type ThickThreadChanges } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
 import ThreadSettingsDeleteButton from './thread-settings-delete-button.react.js';
@@ -60,9 +60,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> =
     const [errorMessage, setErrorMessage] = React.useState<?string>('');
     const [currentTabType, setCurrentTabType] =
       React.useState<TabType>('general');
-    const [queuedChanges, setQueuedChanges] = React.useState<ThreadChanges>(
-      Object.freeze({}),
-    );
+    const [queuedChanges, setQueuedChanges] =
+      React.useState<ThickThreadChanges>(Object.freeze({}));
 
     const threadInfoWithNoName = React.useMemo(() => {
       invariant(threadInfo, 'threadInfo should exist in threadInfoWithNoName');

@@ -7,7 +7,7 @@ import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
 import { type SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { type ThreadChanges } from 'lib/types/thread-types.js';
+import { type ThickThreadChanges } from 'lib/types/thread-types.js';
 
 import css from './thread-settings-privacy-tab.css';
 import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
@@ -32,8 +32,8 @@ const secretStatements = [
 
 type ThreadSettingsPrivacyTabProps = {
   +threadInfo: ThreadInfo,
-  +queuedChanges: ThreadChanges,
-  +setQueuedChanges: SetState<ThreadChanges>,
+  +queuedChanges: ThickThreadChanges,
+  +setQueuedChanges: SetState<ThickThreadChanges>,
 };
 function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,

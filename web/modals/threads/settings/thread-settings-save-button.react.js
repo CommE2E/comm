@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { SetState } from 'lib/types/hook-types.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
-import type { ThreadChanges } from 'lib/types/thread-types.js';
+import type { ThickThreadChanges } from 'lib/types/thread-types.js';
 
 import {
   useOnSaveGeneralThreadSettings,
@@ -15,8 +15,8 @@ import Button from '../../../components/button.react.js';
 type Props = {
   +activeTab: 'general' | 'privacy',
   +threadInfo: ThreadInfo,
-  +queuedChanges: ThreadChanges,
-  +setQueuedChanges: SetState<ThreadChanges>,
+  +queuedChanges: ThickThreadChanges,
+  +setQueuedChanges: SetState<ThickThreadChanges>,
   +setErrorMessage: SetState<?string>,
   +threadSettingsOperationInProgress: boolean,
 };
