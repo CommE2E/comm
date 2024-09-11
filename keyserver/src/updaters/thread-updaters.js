@@ -45,7 +45,7 @@ import {
 import createMessages from '../creators/message-creator.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
-import { checkIfCommunityHasFarcasterChannelTag } from '../fetchers/community-fetchers.js';
+import { fetchCommunityFarcasterChannelTag } from '../fetchers/community-fetchers.js';
 import { checkIfInviteLinkIsValid } from '../fetchers/link-fetchers.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
@@ -840,15 +840,14 @@ async function joinThread(
     );
 
     const communityFarcasterChannelTagPromise =
-      checkIfCommunityHasFarcasterChannelTag(viewer, request.threadID);
+      fetchCommunityFarcasterChannelTag(viewer, request.threadID);
 
-    const [threadPermission, hasCommunityFarcasterChannelTag] =
-      await Promise.all([
-        threadPermissionPromise,
-        communityFarcasterChannelTagPromise,
-      ]);
+    const [threadPermission, communityFarcasterChannelTag] = await Promise.all([
+      threadPermissionPromise,
+      communityFarcasterChannelTagPromise,
+    ]);
 
-    return threadPermission || hasCommunityFarcasterChannelTag;
+    return threadPermission || !!communityFarcasterChannelTag;
   })();
 
   const [isMember, hasPermission] = await Promise.all([
