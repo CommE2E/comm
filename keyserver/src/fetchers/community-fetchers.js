@@ -44,12 +44,12 @@ async function fetchCommunityInfos(
   return communityInfos;
 }
 
-async function checkIfCommunityHasFarcasterChannelTag(
+async function fetchCommunityFarcasterChannelTag(
   viewer: Viewer,
   communityID: string,
-): Promise<boolean> {
+): Promise<?string> {
   if (!viewer.loggedIn) {
-    return false;
+    return null;
   }
 
   const query = SQL`
@@ -62,7 +62,7 @@ async function checkIfCommunityHasFarcasterChannelTag(
 
   const communityInfo = result[0];
 
-  return !!communityInfo?.farcasterChannelID;
+  return communityInfo?.farcasterChannelID;
 }
 
-export { fetchCommunityInfos, checkIfCommunityHasFarcasterChannelTag };
+export { fetchCommunityInfos, fetchCommunityFarcasterChannelTag };
