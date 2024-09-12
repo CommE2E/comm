@@ -6,7 +6,7 @@ import { View, Text } from 'react-native';
 import { useStyles } from '../themes/colors.js';
 import FarcasterLogo from '../vectors/farcaster-logo.react.js';
 
-type TextType = 'required' | 'optional' | 'disconnect';
+type TextType = 'connect' | 'disconnect';
 
 type Props = {
   +textType: TextType,
@@ -16,21 +16,14 @@ function FarcasterPrompt(props: Props): React.Node {
   const { textType } = props;
 
   let headerText;
-  if (textType === 'required') {
-    headerText = 'Connect your Farcaster account';
-  } else if (textType === 'disconnect') {
+  if (textType === 'disconnect') {
     headerText = 'Disconnect from Farcaster';
   } else {
     headerText = 'Do you want to connect your Farcaster account?';
   }
 
   let bodyText;
-  if (textType === 'required') {
-    bodyText =
-      'Connecting a Farcaster account is currently required. We use it to ' +
-      'boostrap your social graph, and to surface communities based on your ' +
-      'Farcaster channels.';
-  } else if (textType === 'disconnect') {
+  if (textType === 'disconnect') {
     bodyText = 'You can disconnect your Farcaster account at any time.';
   } else {
     bodyText =
