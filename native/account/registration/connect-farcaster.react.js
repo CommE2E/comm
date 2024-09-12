@@ -27,7 +27,6 @@ import {
   type AlertDetails,
 } from '../../utils/alert-messages.js';
 import Alert from '../../utils/alert.js';
-import { useStaffCanSee } from '../../utils/staff-utils.js';
 
 export type ConnectFarcasterParams = ?{
   +userSelections?: {
@@ -202,26 +201,11 @@ function ConnectFarcaster(prop: Props): React.Node {
     );
   }, [alreadyHasConnected, onUseAlreadyConnectedAccount]);
 
-  const staffCanSee = useStaffCanSee();
-  const skipButton = React.useMemo(() => {
-    if (!staffCanSee) {
-      return undefined;
-    }
-    return (
-      <PrimaryButton
-        onPress={onSkip}
-        label="Do not connect"
-        variant="outline"
-      />
-    );
-  }, [staffCanSee, onSkip]);
-
-  const farcasterPromptTextType = staffCanSee ? 'optional' : 'required';
   const connectFarcaster = React.useMemo(
     () => (
       <RegistrationContainer>
         <RegistrationContentContainer style={styles.scrollViewContentContainer}>
-          <FarcasterPrompt textType={farcasterPromptTextType} />
+          <FarcasterPrompt textType="connect" />
         </RegistrationContentContainer>
         <FarcasterWebView onSuccess={onSuccess} webViewState={webViewState} />
         <RegistrationButtonContainer>
@@ -231,7 +215,11 @@ function ConnectFarcaster(prop: Props): React.Node {
             label={connectButtonText}
             variant={connectButtonVariant}
           />
-          {skipButton}
+          <PrimaryButton
+            onPress={onSkip}
+            label="Do not connect"
+            variant="outline"
+          />
         </RegistrationButtonContainer>
       </RegistrationContainer>
     ),
@@ -242,8 +230,7 @@ function ConnectFarcaster(prop: Props): React.Node {
       onPressConnectFarcaster,
       onSuccess,
       webViewState,
-      farcasterPromptTextType,
-      skipButton,
+      onSkip,
     ],
   );
 

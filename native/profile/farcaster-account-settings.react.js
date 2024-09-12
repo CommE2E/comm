@@ -100,7 +100,7 @@ function FarcasterAccountSettings(props: Props): React.Node {
     onPressDisconnect,
   ]);
 
-  const farcasterPromptTextType = fid ? 'disconnect' : 'optional';
+  const farcasterPromptTextType = fid ? 'disconnect' : 'connect';
   const farcasterAccountSettings = React.useMemo(
     () => (
       <View style={styles.connectContainer}>
