@@ -30,12 +30,9 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { splashBackgroundURI } from './background-info.js';
 import FullscreenSIWEPanel from './fullscreen-siwe-panel.react.js';
-import LegacyRegisterPanel from './legacy-register-panel.react.js';
-import type { LegacyRegisterState } from './legacy-register-panel.react.js';
 import LogInPanel from './log-in-panel.react.js';
 import type { LogInState } from './log-in-panel.react.js';
 import LoggedOutStaffInfo from './logged-out-staff-info.react.js';
-import { enableNewRegistrationMode } from './registration/registration-types.js';
 import { authoritativeKeyserverID } from '../authoritative-keyserver.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ConnectedStatusBar from '../connected-status-bar.react.js';
@@ -60,12 +57,7 @@ import EthereumLogo from '../vectors/ethereum-logo.react.js';
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
 
-export type LoggedOutMode =
-  | 'loading'
-  | 'prompt'
-  | 'log-in'
-  | 'register'
-  | 'siwe';
+export type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'siwe';
 
 const timingConfig = {
   duration: 250,
@@ -85,8 +77,6 @@ function getPanelPaddingTop(
     containerSize += Platform.OS === 'ios' ? 40 : 61;
   } else if (modeValue === 'log-in') {
     containerSize += 140;
-  } else if (modeValue === 'register') {
-    containerSize += Platform.OS === 'ios' ? 181 : 180;
   } else if (modeValue === 'siwe') {
     containerSize += 250;
   }
@@ -232,11 +222,6 @@ const initialLogInState = {
   usernameInputText: null,
   passwordInputText: null,
 };
-const initialLegacyRegisterState = {
-  usernameInputText: '',
-  passwordInputText: '',
-  confirmPasswordInputText: '',
-};
 
 type Mode = {
   +curMode: LoggedOutMode,
@@ -276,28 +261,6 @@ function LoggedOutModal(props: Props) {
       setState: setLogInState,
     }),
     [logInState, setLogInState],
-  );
-
-  const [legacyRegisterState, baseSetLegacyRegisterState] =
-    React.useState<LegacyRegisterState>(initialLegacyRegisterState);
-  const setLegacyRegisterState = React.useCallback(
-    (newLegacyRegisterState: Partial<LegacyRegisterState>) => {
-      if (!mountedRef.current) {
-        return;
-      }
-      baseSetLegacyRegisterState(prevLegacyRegisterState => ({
-        ...prevLegacyRegisterState,
-        ...newLegacyRegisterState,
-      }));
-    },
-    [],
-  );
-  const legacyRegisterStateContainer = React.useMemo(
-    () => ({
-      state: legacyRegisterState,
-      setState: setLegacyRegisterState,
-    }),
-    [legacyRegisterState, setLegacyRegisterState],
   );
 
   const persistedStateLoaded = usePersistedStateLoaded();
@@ -468,10 +431,6 @@ function LoggedOutModal(props: Props) {
     navigate(QRCodeSignInNavigatorRouteName);
   }, [navigate]);
 
-  const onPressRegister = React.useCallback(() => {
-    combinedSetMode('register');
-  }, [combinedSetMode]);
-
   const onPressNewRegister = React.useCallback(() => {
     navigate(RegistrationRouteName);
   }, [navigate]);
@@ -490,14 +449,6 @@ function LoggedOutModal(props: Props) {
           logInState={logInStateContainer}
         />
       );
-    } else if (mode.curMode === 'register') {
-      return (
-        <LegacyRegisterPanel
-          setActiveAlert={setActiveAlert}
-          opacityStyle={opacityStyle}
-          legacyRegisterState={legacyRegisterStateContainer}
-        />
-      );
     } else if (mode.curMode === 'loading') {
       return (
         <ActivityIndicator
@@ -513,7 +464,6 @@ function LoggedOutModal(props: Props) {
     setActiveAlert,
     opacityStyle,
     logInStateContainer,
-    legacyRegisterStateContainer,
     styles.loadingIndicator,
   ]);
 
@@ -543,30 +493,6 @@ function LoggedOutModal(props: Props) {
   const buttons = React.useMemo(() => {
     if (mode.curMode !== 'prompt') {
       return null;
-    }
-
-    const registerButtons = [];
-    registerButtons.push(
-      <TouchableOpacity
-        onPress={onPressRegister}
-        style={classicAuthButtonStyle}
-        activeOpacity={0.6}
-        key="old"
-      >
-        <Text style={classicAuthButtonTextStyle}>Register</Text>
-      </TouchableOpacity>,
-    );
-    if (enableNewRegistrationMode) {
-      registerButtons.push(
-        <TouchableOpacity
-          onPress={onPressNewRegister}
-          style={classicAuthButtonStyle}
-          activeOpacity={0.6}
-          key="new"
-        >
-          <Text style={classicAuthButtonTextStyle}>Register (new)</Text>
-        </TouchableOpacity>,
-      );
     }
 
     const signInButtons = [];
@@ -612,12 +538,20 @@ function LoggedOutModal(props: Props) {
           <View style={styles.siweOrRightHR} />
         </View>
         <View style={styles.signInButtons}>{signInButtons}</View>
-        <View style={styles.registerButtons}>{registerButtons}</View>
+        <View style={styles.registerButtons}>
+          <TouchableOpacity
+            onPress={onPressNewRegister}
+            style={classicAuthButtonStyle}
+            activeOpacity={0.6}
+            key="new"
+          >
+            <Text style={classicAuthButtonTextStyle}>Register</Text>
+          </TouchableOpacity>
+        </View>
       </AnimatedView>
     );
   }, [
     mode.curMode,
-    onPressRegister,
     onPressNewRegister,
     onPressLogIn,
     onPressQRCodeSignIn,
