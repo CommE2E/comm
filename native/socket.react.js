@@ -18,8 +18,8 @@ import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { useDispatch } from 'lib/utils/redux-utils.js';
 
 import {
-  activeMessageListSelector,
   nativeCalendarQuery,
+  useForegroundActiveThread,
 } from './navigation/nav-selectors.js';
 import { NavContext } from './navigation/navigation-context.js';
 import { useSelector } from './redux/redux-utils.js';
@@ -77,12 +77,7 @@ const NativeSocket: React.ComponentType<BaseSocketProps> =
       }),
     );
 
-    const activeThread = React.useMemo(() => {
-      if (!active) {
-        return null;
-      }
-      return activeMessageListSelector(navContext);
-    }, [active, navContext]);
+    const activeThread = useForegroundActiveThread();
 
     const lastCommunicatedPlatformDetails = useSelector(
       lastCommunicatedPlatformDetailsSelector(keyserverID),
