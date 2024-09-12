@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
 import type {
@@ -86,6 +87,20 @@ function activeThreadSelector(state: AppState): ?string {
   return state.navInfo.tab === 'chat' ? state.navInfo.activeChatThreadID : null;
 }
 
+const foregroundActiveThreadSelector: (state: AppState) => ?string =
+  createSelector(
+    (state: AppState) =>
+      isLoggedIn(state) && state.lifecycleState !== 'background',
+    (state: AppState) => state.windowActive,
+    activeThreadSelector,
+    (active: boolean, windowActive: boolean, activeThread: ?string) => {
+      if (!active || !windowActive) {
+        return null;
+      }
+      return activeThread;
+    },
+  );
+
 const webCalendarQuery: (state: AppState) => () => CalendarQuery =
   createSelector(
     currentCalendarQuery,
@@ -137,4 +152,5 @@ export {
   nonThreadCalendarQuery,
   navTabSelector,
   navSettingsSectionSelector,
+  foregroundActiveThreadSelector,
 };
