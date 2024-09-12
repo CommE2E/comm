@@ -18,7 +18,6 @@ import { commCoreModule } from '../../../native-modules.js';
 import { CreateMissingSIWEBackupMessageRouteName } from '../../../navigation/route-names.js';
 import { useSelector } from '../../../redux/redux-utils.js';
 import { RegistrationContext } from '../registration-context.js';
-import { enableSIWEBackupCreation } from '../registration-types.js';
 
 function MissingRegistrationDataHandler(): React.Node {
   const loggedIn = useSelector(isLoggedIn);
@@ -36,7 +35,6 @@ function MissingRegistrationDataHandler(): React.Node {
 
   React.useEffect(() => {
     if (
-      !enableSIWEBackupCreation ||
       !loggedIn ||
       accountHasPassword(currentUserInfo) ||
       cachedSelections.siweBackupSecrets ||
