@@ -141,6 +141,7 @@ impl DatabaseClient {
       match transaction {
         Ok(_) => return Ok((Some(otk_row.otk), requested_more_keys)),
         Err(e) => {
+          info!("Error retrieving one-time key: {:?}", e);
           let dynamo_db_error = DynamoDBError::from(e);
           let retryable_codes = HashSet::from([
             retry::CONDITIONAL_CHECK_FAILED,
