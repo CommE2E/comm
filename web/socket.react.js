@@ -19,8 +19,8 @@ import { useDispatch } from 'lib/utils/redux-utils.js';
 import { useNetworkConnected } from './redux/keyserver-reachability-handler.js';
 import { useSelector } from './redux/redux-utils.js';
 import {
-  activeThreadSelector,
   webCalendarQuery,
+  foregroundActiveThreadSelector,
 } from './selectors/nav-selectors.js';
 import {
   sessionIdentificationSelector,
@@ -65,14 +65,7 @@ const WebSocket: React.ComponentType<BaseSocketProps> =
     );
     const currentCalendarQuery = useSelector(webCalendarQuery);
 
-    const reduxActiveThread = useSelector(activeThreadSelector);
-    const windowActive = useSelector(state => state.windowActive);
-    const activeThread = React.useMemo(() => {
-      if (!active || !windowActive) {
-        return null;
-      }
-      return reduxActiveThread;
-    }, [active, windowActive, reduxActiveThread]);
+    const activeThread = useSelector(foregroundActiveThreadSelector);
 
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();

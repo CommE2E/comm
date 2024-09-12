@@ -8,6 +8,7 @@ import { createSelector } from 'reselect';
 
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors.js';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 import { useCanEditMessage } from 'lib/shared/edit-messages-utils.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type { CalendarFilter } from 'lib/types/filter-types.js';
@@ -208,6 +209,19 @@ const activeMessageListSelector: (context: ?NavContextType) => ?string =
     (navigationState: ?PossiblyStaleNavigationState): ?string =>
       activeThread(navigationState, messageListRouteNames),
   );
+
+function useForegroundActiveThread(): ?string {
+  const active = useSelector(
+    state => isLoggedIn(state) && state.lifecycleState !== 'background',
+  );
+  const navContext = React.useContext(NavContext);
+  return React.useMemo(() => {
+    if (!active) {
+      return null;
+    }
+    return activeMessageListSelector(navContext);
+  }, [active, navContext]);
+}
 
 function useActiveThread(): ?string {
   const navContext = React.useContext(NavContext);
@@ -442,4 +456,5 @@ export {
   getTabNavState,
   getChatNavStateFromTabNavState,
   useCanEditMessageNative,
+  useForegroundActiveThread,
 };
