@@ -14,7 +14,6 @@ import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
 
 import { useGetEthereumAccountFromSIWEResult } from './registration/ethereum-utils.js';
 import { RegistrationContext } from './registration/registration-context.js';
-import { enableNewRegistrationMode } from './registration/registration-types.js';
 import { useLegacySIWEServerCall } from './siwe-hooks.js';
 import SIWEPanel from './siwe-panel.react.js';
 import { commRustModule } from '../native-modules.js';
@@ -48,8 +47,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
 
   const registrationContext = React.useContext(RegistrationContext);
   invariant(registrationContext, 'registrationContext should be set');
-  const { setSkipEthereumLoginOnce, register: registrationServerCall } =
-    registrationContext;
+  const { setSkipEthereumLoginOnce } = registrationContext;
 
   const getEthereumAccountFromSIWEResult =
     useGetEthereumAccountFromSIWEResult();
@@ -123,26 +121,8 @@ function FullscreenSIWEPanel(props: Props): React.Node {
                 throw e;
               }
             }
-          } else if (enableNewRegistrationMode) {
-            await onAccountDoesNotExist(result);
           } else {
-            try {
-              await registrationServerCall({
-                farcasterID: null,
-                accountSelection: {
-                  accountType: 'ethereum',
-                  ...result,
-                  avatarURI: null,
-                },
-                avatarData: null,
-                clearCachedSelections: () => {},
-                onNonceExpired: () => onNonceExpired('registration'),
-                onAlertAcknowledged: goBackToPrompt,
-              });
-            } catch {
-              // We swallow exceptions here because registrationServerCall
-              // already handles showing Alerts, and we don't want to show two
-            }
+            await onAccountDoesNotExist(result);
           }
         } catch (e) {
           Alert.alert(
@@ -156,7 +136,7 @@ function FullscreenSIWEPanel(props: Props): React.Node {
         try {
           await legacySiweServerCall({
             ...result,
-            doNotRegister: enableNewRegistrationMode,
+            doNotRegister: true,
           });
         } catch (e) {
           if (
@@ -194,7 +174,6 @@ function FullscreenSIWEPanel(props: Props): React.Node {
     },
     [
       walletLogIn,
-      registrationServerCall,
       goBackToPrompt,
       dispatch,
       legacySiweServerCall,
