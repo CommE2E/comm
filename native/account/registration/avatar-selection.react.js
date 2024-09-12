@@ -20,7 +20,6 @@ import {
   type AvatarData,
   ensAvatarSelection,
 } from './registration-types.js';
-import { enableSIWEBackupCreation } from './registration-types.js';
 import EditUserAvatar from '../../avatars/edit-user-avatar.react.js';
 import PrimaryButton from '../../components/primary-button.react.js';
 import { useCurrentLeafRouteName } from '../../navigation/nav-selectors.js';
@@ -146,10 +145,7 @@ function AvatarSelection(props: Props): React.Node {
       ...userSelections,
       avatarData,
     };
-    if (
-      userSelections.accountSelection.accountType === 'ethereum' &&
-      enableSIWEBackupCreation
-    ) {
+    if (userSelections.accountSelection.accountType === 'ethereum') {
       navigate<'CreateSIWEBackupMessage'>({
         name: CreateSIWEBackupMessageRouteName,
         params: { userSelections: newUserSelections },

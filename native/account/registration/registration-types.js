@@ -65,5 +65,3 @@ export const ensAvatarSelection: AvatarData = {
   updateUserAvatarRequest: { type: 'ens' },
   clientAvatar: { type: 'ens' },
 };
-
-export const enableSIWEBackupCreation = __DEV__;
