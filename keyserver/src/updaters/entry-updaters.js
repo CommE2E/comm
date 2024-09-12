@@ -157,7 +157,7 @@ async function updateEntry(
     `),
     );
   }
-  const updatedEntryInfo = {
+  const updatedEntryInfo: RawEntryInfo = {
     ...entryInfo,
     text: request.text,
   };
