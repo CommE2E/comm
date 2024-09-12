@@ -104,7 +104,6 @@ function useSendReaction(
             serverID: result.id,
             threadID,
             time: result.time,
-            interface: result.interface,
           };
         } catch (e) {
           Alert.alert(
