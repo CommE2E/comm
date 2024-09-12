@@ -9,7 +9,6 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import type { CallSingleKeyserverEndpointResultInfoInterface } from 'lib/keyserver-conn/call-single-keyserver-endpoint.js';
 import type { ReactionInfo } from 'lib/selectors/chat-selectors';
 import {
   dmOperationSpecificationTypes,
@@ -106,14 +105,11 @@ function useSendReaction(
           });
           const serverID: string = result.id;
           const time: number = result.time;
-          const interfaceInfo: CallSingleKeyserverEndpointResultInfoInterface =
-            result.interface;
           return {
             localID,
             serverID,
             threadID,
             time,
-            interface: interfaceInfo,
           };
         } catch (e) {
           pushModal(
