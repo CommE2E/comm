@@ -9,7 +9,6 @@ import {
   exactSearchUserActionTypes,
 } from 'lib/actions/user-actions.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
 import { usingCommServicesAccessToken } from 'lib/utils/services-utils.js';
@@ -28,12 +27,7 @@ import {
   type NavigationRoute,
   PasswordSelectionRouteName,
 } from '../../navigation/route-names.js';
-import { useSelector } from '../../redux/redux-utils.js';
 import { useStyles } from '../../themes/colors.js';
-
-const exactSearchUserLoadingStatusSelector = createLoadingStatusSelector(
-  exactSearchUserActionTypes,
-);
 
 export type UsernameSelectionParams = {
   +userSelections: {
@@ -80,6 +74,9 @@ function UsernameSelection(props: Props): React.Node {
     return undefined;
   }, [keyserverURL]);
 
+  const [usernameSearchLoading, setUsernameSearchLoading] =
+    React.useState(false);
+
   const exactSearchUserCall = useLegacyAshoatKeyserverCall(
     exactSearchUser,
     serverCallParamOverride,
@@ -91,18 +88,24 @@ function UsernameSelection(props: Props): React.Node {
       return;
     }
 
+    setUsernameSearchLoading(true);
+
     let userAlreadyExists;
-    if (usingCommServicesAccessToken) {
-      const findUserIDResponseString =
-        await commRustModule.findUserIDForUsername(username);
-      const findUserIDResponse = JSON.parse(findUserIDResponseString);
-      userAlreadyExists =
-        !!findUserIDResponse.userID || findUserIDResponse.isReserved;
-    } else {
-      const searchPromise = exactSearchUserCall(username);
-      void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
-      const { userInfo } = await searchPromise;
-      userAlreadyExists = !!userInfo;
+    try {
+      if (usingCommServicesAccessToken) {
+        const findUserIDResponseString =
+          await commRustModule.findUserIDForUsername(username);
+        const findUserIDResponse = JSON.parse(findUserIDResponseString);
+        userAlreadyExists =
+          !!findUserIDResponse.userID || findUserIDResponse.isReserved;
+      } else {
+        const searchPromise = exactSearchUserCall(username);
+        void dispatchActionPromise(exactSearchUserActionTypes, searchPromise);
+        const { userInfo } = await searchPromise;
+        userAlreadyExists = !!userInfo;
+      }
+    } finally {
+      setUsernameSearchLoading(false);
     }
 
     if (userAlreadyExists) {
@@ -134,11 +137,8 @@ function UsernameSelection(props: Props): React.Node {
     userSelections,
   ]);
 
-  const exactSearchUserCallLoading = useSelector(
-    state => exactSearchUserLoadingStatusSelector(state) === 'loading',
-  );
   let buttonVariant = 'disabled';
-  if (exactSearchUserCallLoading) {
+  if (usernameSearchLoading) {
     buttonVariant = 'loading';
   } else if (validUsername) {
     buttonVariant = 'enabled';
@@ -195,7 +195,7 @@ function UsernameSelection(props: Props): React.Node {
           autoComplete="username-new"
           returnKeyType="go"
           onSubmitEditing={onProceed}
-          editable={!exactSearchUserCallLoading}
+          editable={!usernameSearchLoading}
           onBlur={checkUsernameValidity}
         />
         <View style={styles.error}>{errorText}</View>
