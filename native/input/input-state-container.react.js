@@ -30,6 +30,7 @@ import {
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import type {
   CallSingleKeyserverEndpointOptions,
@@ -175,6 +176,7 @@ type Props = {
   ) => Promise<NewThreadResult>,
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
+  +usingOlmViaTunnelbrokerForDMs: boolean,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -611,6 +613,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         sourceMessageID: threadInfo.sourceMessageID,
         viewerID: this.props.viewerID,
         calendarQuery,
+        usingOlmViaTunnelbrokerForDMs: this.props.usingOlmViaTunnelbrokerForDMs,
       });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1819,6 +1822,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
     const processAndSendDMOperation = useProcessAndSendDMOperation();
+    const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
 
     return (
       <InputStateContainer
@@ -1840,6 +1844,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         dispatch={dispatch}
         staffCanSee={staffCanSee}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
+        usingOlmViaTunnelbrokerForDMs={usingOlmViaTunnelbrokerForDMs}
       />
     );
   });

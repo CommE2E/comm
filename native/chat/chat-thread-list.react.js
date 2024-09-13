@@ -23,6 +23,7 @@ import { FloatingAction } from 'react-native-floating-action';
 import { useSharedValue } from 'react-native-reanimated';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { useThreadListSearch } from 'lib/hooks/thread-search-hooks.js';
 import {
   type ChatThreadItem,
@@ -35,7 +36,6 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
-import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import { ChatThreadListItem } from './chat-thread-list-item.react.js';
 import ChatThreadListSearch from './chat-thread-list-search.react.js';
@@ -132,6 +132,8 @@ function ChatThreadList(props: BaseProps): React.Node {
     [],
   );
 
+  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
+
   const composeThread = React.useCallback(() => {
     if (!loggedInUserInfo) {
       return;
@@ -145,7 +147,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       members: [loggedInUserInfo],
     });
     navigateToThread({ threadInfo, searching: true });
-  }, [loggedInUserInfo, navigateToThread]);
+  }, [loggedInUserInfo, navigateToThread, usingOlmViaTunnelbrokerForDMs]);
 
   const onSearchFocus = React.useCallback(() => {
     if (searchStatus !== 'inactive') {
@@ -277,6 +279,8 @@ function ChatThreadList(props: BaseProps): React.Node {
     ],
   );
 
+  const allowOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
+
   const listData: $ReadOnlyArray<Item> = React.useMemo(() => {
     const chatThreadItems = getThreadListSearchResults(
       boundChatListData,
@@ -285,6 +289,7 @@ function ChatThreadList(props: BaseProps): React.Node {
       threadSearchResults,
       usersSearchResults,
       loggedInUserInfo,
+      allowOlmViaTunnelbrokerForDMs,
     );
 
     const chatItems: Item[] = [...chatThreadItems];
@@ -299,6 +304,7 @@ function ChatThreadList(props: BaseProps): React.Node {
 
     return chatItems;
   }, [
+    allowOlmViaTunnelbrokerForDMs,
     boundChatListData,
     emptyItem,
     filterThreads,
