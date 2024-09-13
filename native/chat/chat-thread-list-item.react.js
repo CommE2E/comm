@@ -1,10 +1,12 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { UserInfo } from 'lib/types/user-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
@@ -148,10 +150,22 @@ function ChatThreadListItem({
     [data.threadInfo, styles.avatarContainer],
   );
 
+  const isThick = threadTypeIsThick(data.threadInfo.type);
+  const iconStyle = data.threadInfo.currentUser.unread
+    ? styles.iconUnread
+    : styles.iconRead;
+
+  const iconName = isThick ? 'lock' : 'server';
+
   const threadDetails = React.useMemo(
     () => (
       <View style={styles.threadDetails}>
-        <ThreadAncestorsLabel threadInfo={data.threadInfo} />
+        <View style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Icon name={iconName} size={12} style={iconStyle} />
+          </View>
+          <ThreadAncestorsLabel threadInfo={data.threadInfo} />
+        </View>
         <View style={styles.row}>
           <SingleLine style={threadNameStyle}>
             {resolvedThreadInfo.uiName}
@@ -164,11 +178,15 @@ function ChatThreadListItem({
       </View>
     ),
     [
+      iconStyle,
       data.threadInfo,
+      iconName,
       lastActivity,
       lastActivityStyle,
       lastMessage,
       resolvedThreadInfo.uiName,
+      styles.header,
+      styles.iconContainer,
       styles.row,
       styles.threadDetails,
       threadNameStyle,
@@ -291,6 +309,19 @@ const unboundStyles = {
   },
   spacer: {
     height: spacerHeight,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    marginRight: 6,
+  },
+  iconRead: {
+    color: 'listForegroundTertiaryLabel',
+  },
+  iconUnread: {
+    color: 'listForegroundLabel',
   },
 };
 

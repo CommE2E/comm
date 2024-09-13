@@ -284,3 +284,21 @@ img.arrow {
 .searchBarContainer {
   padding: 1rem;
 }
+
+.iconRead {
+  color: var(--breadcrumb-color);
+}
+
+.iconUnread {
+  color: var(--breadcrumb-color-unread);
+}
+
+.iconWrapper {
+  padding: 7px 6px 2px 0;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
