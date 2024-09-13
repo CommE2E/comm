@@ -415,4 +415,8 @@ impl crate::http::auth_service::HttpAuthenticatedService for BlobServiceClient {
   ) -> Self {
     self.with_authentication(auth_credential)
   }
+
+  fn accepts_services_token(&self, _req: &actix_web::HttpRequest) -> bool {
+    true
+  }
 }
