@@ -43,10 +43,7 @@ import commStaffCommunity from 'lib/facts/comm-staff-community.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
-import {
-  threadInfoSelector,
-  pendingToRealizedThreadIDsSelector,
-} from 'lib/selectors/thread-selectors.js';
+import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
 import {
   dmOperationSpecificationTypes,
   type OutboundDMOperationSpecification,
@@ -145,7 +142,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +activeChatThreadInfo: ?ThreadInfo,
+  +activeChatThreadID: ?string,
   +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
@@ -616,21 +613,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputBaseStateSelector: (?ThreadInfo) => PropsAndState => BaseInputState =
-    _memoize((activeThreadInfo: ?ThreadInfo) =>
+  inputBaseStateSelector: (?string) => PropsAndState => BaseInputState =
+    _memoize(threadID =>
       createSelector(
         (propsAndState: PropsAndState) =>
-          activeThreadInfo
-            ? propsAndState.pendingUploads[activeThreadInfo.id]
+          threadID ? propsAndState.pendingUploads[threadID] : null,
+        (propsAndState: PropsAndState) =>
+          threadID
+            ? propsAndState.drafts[draftKeyFromThreadID(threadID)]
             : null,
         (propsAndState: PropsAndState) =>
-          activeThreadInfo
-            ? propsAndState.drafts[draftKeyFromThreadID(activeThreadInfo.id)]
-            : null,
-        (propsAndState: PropsAndState) =>
-          activeThreadInfo
-            ? propsAndState.textCursorPositions[activeThreadInfo.id]
-            : null,
+          threadID ? propsAndState.textCursorPositions[threadID] : null,
         (
           pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
           draft: ?string,
@@ -655,7 +648,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               ];
             }
           }
-          const threadID = activeThreadInfo?.id;
           return ({
             pendingUploads: threadPendingUploads,
             assignedUploads,
@@ -665,8 +657,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               threadInfo: ThreadInfo,
               files: $ReadOnlyArray<File>,
             ) => this.appendFiles(threadInfo, files),
-            cancelPendingUpload: (localUploadID: string) =>
-              this.cancelPendingUpload(activeThreadInfo, localUploadID),
+            cancelPendingUpload: this.cancelPendingUpload,
             sendTextMessage: (
               messageInfo: RawTextMessageInfo,
               threadInfo: ThreadInfo,
@@ -1219,14 +1210,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     this.props.dispatch({ type: queueReportsActionType, payload: { reports } });
   }
 
-  cancelPendingUpload(threadInfo: ?ThreadInfo, localUploadID: string) {
-    invariant(threadInfo, 'threadID should be set in cancelPendingUpload');
-
+  cancelPendingUpload = (threadInfo: ThreadInfo, localUploadID: string) => {
     let revokeURL: ?string, abortRequest: ?() => void;
     this.setState(
       prevState => {
-        const threadID = threadInfo.id;
-        const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+        const newThreadID = this.getRealizedOrPendingThreadID(threadInfo.id);
         const currentPendingUploads = prevState.pendingUploads[newThreadID];
         if (!currentPendingUploads) {
           return {};
@@ -1246,7 +1234,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           if (!threadTypeIsThick(threadInfo.type)) {
             void this.props.deleteUpload({
               id: serverID,
-              keyserverOrThreadID: threadID,
+              keyserverOrThreadID: threadInfo.id,
             });
           }
           if (isBlobServiceURI(pendingUpload.uri)) {
@@ -1294,7 +1282,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         }
       },
     );
-  }
+  };
 
   async processAndSendTextMessageDMOperation(
     messageInfo: RawTextMessageInfo,
@@ -1696,11 +1684,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   };
 
   render(): React.Node {
-    const { activeChatThreadInfo } = this.props;
+    const { activeChatThreadID } = this.props;
 
     // we're going with two selectors as we want to avoid
     // recreation of chat state setter functions on typeahead state updates
-    const inputBaseState = this.inputBaseStateSelector(activeChatThreadInfo)({
+    const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
       ...this.state,
       ...this.props,
     });
@@ -1727,9 +1715,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
   React.memo<BaseProps>(function ConnectedInputStateContainer(props) {
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
-    );
-    const activeChatThreadInfo = useSelector(state =>
-      activeChatThreadID ? threadInfoSelector(state)[activeChatThreadID] : null,
     );
     const drafts = useSelector(state => state.draftStore.drafts);
     const viewerID = useSelector(
@@ -1775,7 +1760,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     return (
       <InputStateContainer
         {...props}
-        activeChatThreadInfo={activeChatThreadInfo}
+        activeChatThreadID={activeChatThreadID}
         drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}

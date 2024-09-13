@@ -66,7 +66,7 @@ export type BaseInputState = {
     threadInfo: ThreadInfo,
     files: $ReadOnlyArray<File>,
   ) => Promise<boolean>,
-  +cancelPendingUpload: (localUploadID: string) => void,
+  +cancelPendingUpload: (threadInfo: ThreadInfo, localUploadID: string) => void,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
