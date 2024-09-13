@@ -573,11 +573,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parentThreadInfo: ?ThreadInfo,
   ): Promise<SendMessagePayload> {
     try {
-      await this.props.textMessageCreationSideEffectsFunc(
-        messageInfo,
-        threadInfo,
-        parentThreadInfo,
-      );
+      if (!threadTypeIsThick(threadInfo.type)) {
+        await this.props.textMessageCreationSideEffectsFunc(
+          messageInfo,
+          threadInfo,
+          parentThreadInfo,
+        );
+      }
       const { localID } = messageInfo;
       invariant(
         localID !== null && localID !== undefined,
@@ -591,6 +593,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         parentThreadInfo,
         sidebarCreation,
       );
+      if (threadTypeIsThick(threadInfo.type)) {
+        await this.props.textMessageCreationSideEffectsFunc(
+          messageInfo,
+          threadInfo,
+          parentThreadInfo,
+        );
+      }
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       return result;
     } catch (e) {
