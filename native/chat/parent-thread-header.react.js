@@ -14,7 +14,7 @@ import ThreadVisibility from '../components/thread-visibility.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
-  +parentThreadInfo: ThreadInfo,
+  +parentThreadInfo?: ThreadInfo,
   +childThreadType: ThreadType,
 };
 function ParentThreadHeader(props: Props): React.Node {
@@ -26,8 +26,23 @@ function ParentThreadHeader(props: Props): React.Node {
 
   const navigateToThread = useNavigateToThread();
   const onPressParentThread = React.useCallback(() => {
+    if (!parentThreadInfo) {
+      return;
+    }
     navigateToThread({ threadInfo: parentThreadInfo });
   }, [parentThreadInfo, navigateToThread]);
+
+  let parentThreadButton;
+  if (parentThreadInfo) {
+    parentThreadButton = (
+      <>
+        <Text style={styles.within}>within</Text>
+        <Button onPress={onPressParentThread}>
+          <CommunityPill community={parentThreadInfo} />
+        </Button>
+      </>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -40,10 +55,7 @@ function ParentThreadHeader(props: Props): React.Node {
           threadType={childThreadType}
           color={threadVisibilityColor}
         />
-        <Text style={styles.within}>within</Text>
-        <Button onPress={onPressParentThread}>
-          <CommunityPill community={parentThreadInfo} />
-        </Button>
+        {parentThreadButton}
       </ScrollView>
     </View>
   );
