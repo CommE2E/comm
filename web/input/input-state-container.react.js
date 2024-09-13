@@ -9,18 +9,13 @@ import _sortBy from 'lodash/fp/sortBy.js';
 import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
-import uuid from 'uuid';
 
-import type {
-  LegacySendMultimediaMessageInput,
-  SendTextMessageInput,
-} from 'lib/actions/message-actions.js';
+import type { LegacySendMultimediaMessageInput } from 'lib/actions/message-actions.js';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendTextMessageActionTypes,
   useLegacySendMultimediaMessage,
-  useSendTextMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThinThread } from 'lib/actions/thread-actions.js';
@@ -40,15 +35,11 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useInputStateContainerSendTextMessage } from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors.js';
-import {
-  dmOperationSpecificationTypes,
-  type OutboundDMOperationSpecification,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
-import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import { IdentityClientContext } from 'lib/shared/identity-client-context.js';
 import type { IdentityClientContextType } from 'lib/shared/identity-client-context.js';
 import {
@@ -88,7 +79,6 @@ import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { reportTypes } from 'lib/types/report-types.js';
 import {
-  thickThreadTypes,
   threadTypeIsSidebar,
   threadTypeIsThick,
 } from 'lib/types/thread-types-enum.js';
@@ -160,10 +150,12 @@ type Props = {
   +sendMultimediaMessage: (
     input: LegacySendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
-  +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +processAndSendDMOperation: (
-    dmOperationSpecification: OutboundDMOperationSpecification,
-  ) => Promise<void>,
+  +sendTextMessage: (
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
+    sidebarCreation: boolean,
+  ) => Promise<SendMessagePayload>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
@@ -1284,48 +1276,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   }
 
-  async processAndSendTextMessageDMOperation(
-    messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo,
-  ) {
-    void this.props.processAndSendDMOperation({
-      type: dmOperationSpecificationTypes.OUTBOUND,
-      op: {
-        type: 'send_text_message',
-        threadID: inputThreadInfo.id,
-        creatorID: messageInfo.creatorID,
-        time: Date.now(),
-        messageID: uuid.v4(),
-        text: messageInfo.text,
-      },
-      recipients: {
-        type: 'all_thread_members',
-        threadID:
-          inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-          inputThreadInfo.parentThreadID
-            ? inputThreadInfo.parentThreadID
-            : inputThreadInfo.id,
-      },
-    });
-  }
-
-  async generateAndSendTextMessageAction(
-    messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
-  ) {
-    if (threadTypeIsThick(threadInfo.type)) {
-      void this.processAndSendTextMessageDMOperation(messageInfo, threadInfo);
-      return;
-    }
-    void this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
-      undefined,
-      messageInfo,
-    );
-  }
-
   async sendTextMessage(
     messageInfo: RawTextMessageInfo,
     inputThreadInfo: ThreadInfo,
@@ -1343,20 +1293,23 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (!threadIsPending(inputThreadInfo.id)) {
-      void this.generateAndSendTextMessageAction(
+      void this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendTextMessageAction(
+          messageInfo,
+          inputThreadInfo,
+          parentThreadInfo,
+        ),
+        undefined,
         messageInfo,
-        inputThreadInfo,
-        parentThreadInfo,
       );
       return;
     }
 
-    if (!threadTypeIsThick(inputThreadInfo.type)) {
-      this.props.dispatch({
-        type: sendTextMessageActionTypes.started,
-        payload: messageInfo,
-      });
-    }
+    this.props.dispatch({
+      type: sendTextMessageActionTypes.started,
+      payload: messageInfo,
+    });
 
     let threadInfo = inputThreadInfo;
     const { viewerID } = this.props;
@@ -1383,13 +1336,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
       copy.threadID = messageInfo.threadID;
-      if (!threadTypeIsThick(inputThreadInfo.type)) {
-        this.props.dispatch({
-          type: sendTextMessageActionTypes.failed,
-          payload: copy,
-          error: true,
-        });
-      }
+      this.props.dispatch({
+        type: sendTextMessageActionTypes.failed,
+        payload: copy,
+        error: true,
+      });
       return;
     } finally {
       this.pendingThreadCreations.delete(threadInfo.id);
@@ -1405,11 +1356,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       ...threadInfo,
       id: newThreadID,
     };
-
-    void this.generateAndSendTextMessageAction(
+    void this.props.dispatchActionPromise(
+      sendTextMessageActionTypes,
+      this.sendTextMessageAction(
+        newMessageInfo,
+        newThreadInfo,
+        parentThreadInfo,
+      ),
+      undefined,
       newMessageInfo,
-      newThreadInfo,
-      parentThreadInfo,
     );
   }
 
@@ -1431,20 +1386,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       const sidebarCreation =
         this.pendingSidebarCreationMessageLocalIDs.has(localID);
-      const result = await this.props.sendTextMessage({
-        threadID: messageInfo.threadID,
-        localID,
-        text: messageInfo.text,
+      const result = await this.props.sendTextMessage(
+        messageInfo,
+        threadInfo,
+        parentThreadInfo,
         sidebarCreation,
-      });
+      );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-        interface: result.interface,
-      };
+      return result;
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -1731,14 +1680,13 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callBlobServiceUpload = useBlobServiceUpload();
     const callDeleteUpload = useDeleteUpload();
     const callSendMultimediaMessage = useLegacySendMultimediaMessage();
-    const callSendTextMessage = useSendTextMessage();
+    const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const modalContext = useModalContext();
     const identityContext = React.useContext(IdentityClientContext);
-    const processAndSendDMOperation = useProcessAndSendDMOperation();
 
     const [sendCallbacks, setSendCallbacks] = React.useState<
       $ReadOnlyArray<() => mixed>,
@@ -1771,7 +1719,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         deleteUpload={callDeleteUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
-        processAndSendDMOperation={processAndSendDMOperation}
         newThinThread={callNewThinThread}
         newThickThread={callNewThickThread}
         dispatch={dispatch}
