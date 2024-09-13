@@ -5,18 +5,13 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Platform } from 'react-native';
 import { createSelector } from 'reselect';
-import uuid from 'uuid';
 
-import type {
-  SendMultimediaMessageInput,
-  SendTextMessageInput,
-} from 'lib/actions/message-actions.js';
+import type { SendMultimediaMessageInput } from 'lib/actions/message-actions.js';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendTextMessageActionTypes,
   useSendMultimediaMessage,
-  useSendTextMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThinThread } from 'lib/actions/thread-actions.js';
@@ -30,6 +25,7 @@ import {
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
+import { useInputStateContainerSendTextMessage } from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import type {
   CallSingleKeyserverEndpointOptions,
@@ -46,11 +42,6 @@ import {
   combineLoadingStatuses,
   createLoadingStatusSelector,
 } from 'lib/selectors/loading-selectors.js';
-import {
-  dmOperationSpecificationTypes,
-  type OutboundDMOperationSpecification,
-} from 'lib/shared/dm-ops/dm-op-utils.js';
-import { useProcessAndSendDMOperation } from 'lib/shared/dm-ops/process-dm-ops.js';
 import {
   createMediaMessageInfo,
   useMessageCreationSideEffectsFunc,
@@ -93,7 +84,6 @@ import {
 import {
   threadTypeIsThick,
   threadTypeIsSidebar,
-  thickThreadTypes,
 } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
@@ -166,10 +156,12 @@ type Props = {
   +sendMultimediaMessage: (
     input: SendMultimediaMessageInput,
   ) => Promise<SendMessageResult>,
-  +sendTextMessage: (input: SendTextMessageInput) => Promise<SendMessageResult>,
-  +processAndSendDMOperation: (
-    dmOperationSpecification: OutboundDMOperationSpecification,
-  ) => Promise<void>,
+  +sendTextMessage: (
+    messageInfo: RawTextMessageInfo,
+    threadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
+    sidebarCreation: boolean,
+  ) => Promise<SendMessagePayload>,
   +newThinThread: (
     request: ClientNewThinThreadRequest,
   ) => Promise<NewThreadResult>,
@@ -467,48 +459,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  async processAndSendTextMessageDMOperation(
-    messageInfo: RawTextMessageInfo,
-    inputThreadInfo: ThreadInfo,
-  ) {
-    void this.props.processAndSendDMOperation({
-      type: dmOperationSpecificationTypes.OUTBOUND,
-      op: {
-        type: 'send_text_message',
-        threadID: inputThreadInfo.id,
-        creatorID: messageInfo.creatorID,
-        time: Date.now(),
-        messageID: uuid.v4(),
-        text: messageInfo.text,
-      },
-      recipients: {
-        type: 'all_thread_members',
-        threadID:
-          inputThreadInfo.type === thickThreadTypes.THICK_SIDEBAR &&
-          inputThreadInfo.parentThreadID
-            ? inputThreadInfo.parentThreadID
-            : inputThreadInfo.id,
-      },
-    });
-  }
-
-  async generateAndSendTextMessageAction(
-    messageInfo: RawTextMessageInfo,
-    threadInfo: ThreadInfo,
-    parentThreadInfo: ?ThreadInfo,
-  ) {
-    if (threadTypeIsThick(threadInfo.type)) {
-      void this.processAndSendTextMessageDMOperation(messageInfo, threadInfo);
-      return;
-    }
-    void this.props.dispatchActionPromise(
-      sendTextMessageActionTypes,
-      this.sendTextMessageAction(messageInfo, threadInfo, parentThreadInfo),
-      undefined,
-      messageInfo,
-    );
-  }
-
   sendTextMessage = async (
     messageInfo: RawTextMessageInfo,
     inputThreadInfo: ThreadInfo,
@@ -526,20 +476,23 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
 
     if (!threadIsPending(inputThreadInfo.id)) {
-      void this.generateAndSendTextMessageAction(
+      void this.props.dispatchActionPromise(
+        sendTextMessageActionTypes,
+        this.sendTextMessageAction(
+          messageInfo,
+          inputThreadInfo,
+          parentThreadInfo,
+        ),
+        undefined,
         messageInfo,
-        inputThreadInfo,
-        parentThreadInfo,
       );
       return;
     }
 
-    if (!threadTypeIsThick(inputThreadInfo.type)) {
-      this.props.dispatch({
-        type: sendTextMessageActionTypes.started,
-        payload: messageInfo,
-      });
-    }
+    this.props.dispatch({
+      type: sendTextMessageActionTypes.started,
+      payload: messageInfo,
+    });
 
     let threadInfo = inputThreadInfo;
     const { viewerID } = this.props;
@@ -566,13 +519,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
       copy.threadID = messageInfo.threadID;
-      if (!threadTypeIsThick(inputThreadInfo.type)) {
-        this.props.dispatch({
-          type: sendTextMessageActionTypes.failed,
-          payload: copy,
-          error: true,
-        });
-      }
+      this.props.dispatch({
+        type: sendTextMessageActionTypes.failed,
+        payload: copy,
+        error: true,
+      });
       return;
     } finally {
       this.pendingThreadCreations.delete(threadInfo.id);
@@ -589,10 +540,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       id: newThreadID,
     };
 
-    void this.generateAndSendTextMessageAction(
+    void this.props.dispatchActionPromise(
+      sendTextMessageActionTypes,
+      this.sendTextMessageAction(
+        newMessageInfo,
+        newThreadInfo,
+        parentThreadInfo,
+      ),
+      undefined,
       newMessageInfo,
-      newThreadInfo,
-      parentThreadInfo,
     );
   };
 
@@ -635,20 +591,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       const sidebarCreation =
         this.pendingSidebarCreationMessageLocalIDs.has(localID);
-      const result = await this.props.sendTextMessage({
-        threadID: messageInfo.threadID,
-        localID,
-        text: messageInfo.text,
+      const result = await this.props.sendTextMessage(
+        messageInfo,
+        threadInfo,
+        parentThreadInfo,
         sidebarCreation,
-      });
+      );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
-      return {
-        localID,
-        serverID: result.id,
-        threadID: messageInfo.threadID,
-        time: result.time,
-        interface: result.interface,
-      };
+      return result;
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -1809,7 +1759,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callSendMultimediaMessage = useSendMultimediaMessage();
-    const callSendTextMessage = useSendTextMessage();
+    const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
     const dispatchActionPromise = useDispatchActionPromise();
@@ -1818,7 +1768,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const staffCanSee = useStaffCanSee();
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
-    const processAndSendDMOperation = useProcessAndSendDMOperation();
 
     return (
       <InputStateContainer
@@ -1833,7 +1782,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         blobServiceUpload={callBlobServiceUpload}
         sendMultimediaMessage={callSendMultimediaMessage}
         sendTextMessage={callSendTextMessage}
-        processAndSendDMOperation={processAndSendDMOperation}
         newThinThread={callNewThinThread}
         newThickThread={callNewThickThread}
         dispatchActionPromise={dispatchActionPromise}
