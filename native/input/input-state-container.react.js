@@ -6,12 +6,10 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { createSelector } from 'reselect';
 
-import type { SendMultimediaMessageInput } from 'lib/actions/message-actions.js';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendTextMessageActionTypes,
-  useSendMultimediaMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThinThread } from 'lib/actions/thread-actions.js';
@@ -25,7 +23,10 @@ import {
   useBlobServiceUpload,
 } from 'lib/actions/upload-actions.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
-import { useInputStateContainerSendTextMessage } from 'lib/hooks/input-state-container-hooks.js';
+import {
+  useInputStateContainerSendMultimediaMessage,
+  useInputStateContainerSendTextMessage,
+} from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import type {
   CallSingleKeyserverEndpointOptions,
@@ -69,11 +70,9 @@ import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
-  type SendMessageResult,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
-import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/media.js';
 import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
@@ -154,8 +153,10 @@ type Props = {
   ) => Promise<UploadMultimediaResult>,
   +blobServiceUpload: BlobServiceUploadAction,
   +sendMultimediaMessage: (
-    input: SendMultimediaMessageInput,
-  ) => Promise<SendMessageResult>,
+    messageInfo: RawMultimediaMessageInfo,
+    sidebarCreation: boolean,
+    isLegacy: boolean,
+  ) => Promise<SendMessagePayload>,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
@@ -384,24 +385,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
     const sidebarCreation =
       this.pendingSidebarCreationMessageLocalIDs.has(localID);
-    const mediaMessageContents = getMediaMessageServerDBContentsFromMedia(
-      messageInfo.media,
-    );
     try {
-      const result = await this.props.sendMultimediaMessage({
-        threadID,
-        localID,
-        mediaMessageContents,
+      const result = await this.props.sendMultimediaMessage(
+        messageInfo,
         sidebarCreation,
-      });
+        false,
+      );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
-      return {
-        localID,
-        serverID: result.id,
-        threadID,
-        time: result.time,
-        interface: result.interface,
-      };
+      return result;
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = localID;
@@ -1758,7 +1749,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
-    const callSendMultimediaMessage = useSendMultimediaMessage();
+    const callSendMultimediaMessage =
+      useInputStateContainerSendMultimediaMessage();
     const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
