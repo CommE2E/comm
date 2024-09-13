@@ -1,11 +1,17 @@
 // @flow
 
+import {
+  faServer as server,
+  faLock as lock,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import {
   useResolvedThreadInfo,
@@ -124,6 +130,12 @@ function ChatThreadListItem(props: Props): React.Node {
 
   const { uiName } = useResolvedThreadInfo(threadInfo);
 
+  const isThick = threadTypeIsThick(threadInfo.type);
+
+  const iconClass = unread ? css.iconUnread : css.iconRead;
+  const icon = isThick ? lock : server;
+  const breadCrumbs = isThick ? 'Local DM' : ancestorPath;
+
   return (
     <>
       <a className={containerClassName} onClick={selectItemIfNotActiveCreation}>
@@ -134,7 +146,12 @@ function ChatThreadListItem(props: Props): React.Node {
           </div>
         </div>
         <div className={css.threadButton}>
-          <p className={breadCrumbsClassName}>{ancestorPath}</p>
+          <div className={css.header}>
+            <div className={css.iconWrapper}>
+              <FontAwesomeIcon size="xs" className={iconClass} icon={icon} />
+            </div>
+            <p className={breadCrumbsClassName}>{breadCrumbs}</p>
+          </div>
           <div className={css.threadRow}>
             <div className={titleClassName}>{uiName}</div>
           </div>
