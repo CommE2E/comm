@@ -85,6 +85,7 @@ type Props = {
   +currentUserIsVoiced: boolean,
   +currentUserCanJoinThread: boolean,
   +threadFrozen: boolean,
+  +cancelPendingUpload: (uploadID: string) => void,
 };
 
 class ChatInputBar extends React.PureComponent<Props> {
@@ -240,7 +241,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
-    const { pendingUploads, cancelPendingUpload } = this.props.inputState;
+    const { pendingUploads } = this.props.inputState;
     const multimediaPreviews = pendingUploads.map(pendingUpload => {
       const { uri, mediaType, thumbHash, dimensions } = pendingUpload;
       let mediaSource = { thumbHash, dimensions };
@@ -270,7 +271,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         <Multimedia
           mediaSource={mediaSource}
           pendingUpload={pendingUpload}
-          remove={cancelPendingUpload}
+          remove={this.props.cancelPendingUpload}
           multimediaCSSClass={css.multimedia}
           multimediaImageCSSClass={css.multimediaImage}
           key={pendingUpload.localID}
@@ -684,6 +685,13 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         [suggestedUsers, suggestedChats],
       );
 
+    const cancelPendingUpload = React.useCallback(
+      (uploadID: string) => {
+        props.inputState.cancelPendingUpload(props.threadInfo, uploadID);
+      },
+      [props.inputState, props.threadInfo],
+    );
+
     return (
       <ChatInputBar
         {...props}
@@ -701,6 +709,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> =
         currentUserIsVoiced={currentUserIsVoiced}
         currentUserCanJoinThread={currentUserCanJoinThread}
         threadFrozen={threadFrozen}
+        cancelPendingUpload={cancelPendingUpload}
       />
     );
   });
