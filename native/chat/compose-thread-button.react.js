@@ -4,9 +4,9 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { createPendingThread } from 'lib/shared/thread-utils.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
-import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
@@ -20,6 +20,7 @@ type Props = {
 function ComposeThreadButton(props: Props) {
   const { navigate } = props;
   const loggedInUserInfo = useLoggedInUserInfo();
+  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
   const onPress = React.useCallback(() => {
     if (!loggedInUserInfo) {
       return;
@@ -38,7 +39,7 @@ function ComposeThreadButton(props: Props) {
         searching: true,
       },
     });
-  }, [navigate, loggedInUserInfo]);
+  }, [loggedInUserInfo, usingOlmViaTunnelbrokerForDMs, navigate]);
 
   const { listForegroundSecondaryLabel } = useColors();
   return (

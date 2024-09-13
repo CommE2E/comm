@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { useLoggedInUserInfo } from 'lib/hooks/account-hooks.js';
+import { useAllowOlmViaTunnelbrokerForDMs } from 'lib/hooks/flag-hooks.js';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { userInfoSelectorForPotentialMembers } from 'lib/selectors/user-selectors.js';
 import {
@@ -13,7 +14,6 @@ import {
 import type { ThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
-import { usingOlmViaTunnelbrokerForDMs } from 'lib/utils/services-utils.js';
 
 import { useSelector } from '../redux/redux-utils.js';
 
@@ -53,6 +53,8 @@ function useThreadInfoForPossiblyPendingThread(
       members: [loggedInUserInfo],
     }),
   );
+
+  const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
 
   const threadType = usingOlmViaTunnelbrokerForDMs
     ? threadTypes.PRIVATE
