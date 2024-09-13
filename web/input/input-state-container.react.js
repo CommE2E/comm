@@ -1281,8 +1281,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   async processAndSendTextMessageDMOperation(
     messageInfo: RawTextMessageInfo,
     inputThreadInfo: ThreadInfo,
+    parentThreadInfo: ?ThreadInfo,
   ) {
-    void this.props.processAndSendDMOperation({
+    await this.props.processAndSendDMOperation({
       type: dmOperationSpecificationTypes.OUTBOUND,
       op: {
         type: 'send_text_message',
@@ -1301,6 +1302,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             : inputThreadInfo.id,
       },
     });
+
+    await this.props.textMessageCreationSideEffectsFunc(
+      messageInfo,
+      inputThreadInfo,
+      parentThreadInfo,
+    );
   }
 
   async generateAndSendTextMessageAction(
@@ -1309,7 +1316,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     parentThreadInfo: ?ThreadInfo,
   ) {
     if (threadTypeIsThick(threadInfo.type)) {
-      void this.processAndSendTextMessageDMOperation(messageInfo, threadInfo);
+      void this.processAndSendTextMessageDMOperation(
+        messageInfo,
+        threadInfo,
+        parentThreadInfo,
+      );
       return;
     }
     void this.props.dispatchActionPromise(
