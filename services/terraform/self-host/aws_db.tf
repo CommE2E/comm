@@ -37,25 +37,23 @@ resource "aws_security_group" "keyserver_mariadb_security_group" {
 
 # MariaDB RDS Instance
 resource "aws_db_instance" "mariadb" {
-  allocated_storage       = 100
-  max_allocated_storage   = 3000
-  storage_type            = "gp3"
-  db_name                 = "mariadb"
-  identifier              = "mariadb-instance"
-  engine                  = "mariadb"
-  engine_version          = "10.11"
-  backup_retention_period = 7
-  backup_window           = "06:00-07:00"
-  instance_class          = var.db_instance_class
-  db_subnet_group_name    = aws_db_subnet_group.public_db_subnet_group.name
-  vpc_security_group_ids  = [aws_security_group.keyserver_mariadb_security_group.id]
-  username                = local.mariadb_username
-  password                = local.mariadb_password
-  parameter_group_name    = aws_db_parameter_group.mariadb_parameter_group.name
-  storage_encrypted       = true
-  publicly_accessible     = true
-  port                    = local.mariadb_port
-  skip_final_snapshot     = true
+  allocated_storage      = 100
+  max_allocated_storage  = 3000
+  storage_type           = "gp3"
+  db_name                = "mariadb"
+  identifier             = "mariadb-instance"
+  engine                 = "mariadb"
+  engine_version         = "10.11"
+  instance_class         = var.db_instance_class
+  db_subnet_group_name   = aws_db_subnet_group.public_db_subnet_group.name
+  vpc_security_group_ids = [aws_security_group.keyserver_mariadb_security_group.id]
+  username               = local.mariadb_username
+  password               = local.mariadb_password
+  parameter_group_name   = aws_db_parameter_group.mariadb_parameter_group.name
+  storage_encrypted      = true
+  publicly_accessible    = true
+  port                   = local.mariadb_port
+  skip_final_snapshot    = true
 }
 
 # MariaDB Parameter Group
