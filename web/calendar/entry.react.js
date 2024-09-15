@@ -12,6 +12,7 @@ import {
   deleteEntryActionTypes,
   useDeleteEntry,
   concurrentModificationResetActionType,
+  type UseCreateEntryInput,
 } from 'lib/actions/entry-actions.js';
 import {
   type PushModal,
@@ -25,7 +26,6 @@ import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import {
   type EntryInfo,
-  type CreateEntryInfo,
   type SaveEntryInfo,
   type SaveEntryResult,
   type SaveEntryPayload,
@@ -38,6 +38,7 @@ import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ResolvedThreadInfo } from 'lib/types/minimally-encoded-thread-permissions-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { threadPermissions } from 'lib/types/thread-permission-types.js';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import { dateString } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
@@ -71,7 +72,7 @@ type Props = {
   +online: boolean,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
-  +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
+  +createEntry: (input: UseCreateEntryInput) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
   +pushModal: PushModal,
@@ -322,7 +323,7 @@ class Entry extends React.PureComponent<Props, State> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     this.guardedSetState({ loadingStatus: 'loading' });
     try {
-      const response = await this.props.createEntry({
+      const createEntryInfo = {
         text,
         timestamp: this.props.entryInfo.creationTime,
         date: dateString(
@@ -333,7 +334,20 @@ class Entry extends React.PureComponent<Props, State> {
         threadID: this.props.entryInfo.threadID,
         localID,
         calendarQuery: this.props.calendarQuery(),
-      });
+      };
+
+      const useCreateEntryInput = threadTypeIsThick(this.props.threadInfo.type)
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            createEntryInfo,
+          }
+        : {
+            thick: false,
+            createEntryInfo,
+          };
+
+      const response = await this.props.createEntry(useCreateEntryInput);
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
