@@ -10,12 +10,10 @@ import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
-import type { LegacySendMultimediaMessageInput } from 'lib/actions/message-actions.js';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
   sendTextMessageActionTypes,
-  useLegacySendMultimediaMessage,
 } from 'lib/actions/message-actions.js';
 import { queueReportsActionType } from 'lib/actions/report-actions.js';
 import { useNewThinThread } from 'lib/actions/thread-actions.js';
@@ -35,7 +33,10 @@ import {
 } from 'lib/components/modal-provider.react.js';
 import blobService from 'lib/facts/blob-service.js';
 import commStaffCommunity from 'lib/facts/comm-staff-community.js';
-import { useInputStateContainerSendTextMessage } from 'lib/hooks/input-state-container-hooks.js';
+import {
+  useInputStateContainerSendMultimediaMessage,
+  useInputStateContainerSendTextMessage,
+} from 'lib/hooks/input-state-container-hooks.js';
 import { useNewThickThread } from 'lib/hooks/thread-hooks.js';
 import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
 import { getNextLocalUploadID } from 'lib/media/media-utils.js';
@@ -70,7 +71,6 @@ import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessagePayload,
-  type SendMessageResult,
 } from 'lib/types/message-types.js';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media.js';
@@ -148,8 +148,10 @@ type Props = {
   +blobServiceUpload: BlobServiceUploadAction,
   +deleteUpload: (input: DeleteUploadInput) => Promise<void>,
   +sendMultimediaMessage: (
-    input: LegacySendMultimediaMessageInput,
-  ) => Promise<SendMessageResult>,
+    messageInfo: RawMultimediaMessageInfo,
+    sidebarCreation: boolean,
+    isLegacy: boolean,
+  ) => Promise<SendMessagePayload>,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
@@ -540,12 +542,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaIDs.push(id);
     }
     try {
-      const result = await this.props.sendMultimediaMessage({
-        threadID,
-        localID,
-        mediaIDs,
+      const result = await this.props.sendMultimediaMessage(
+        messageInfo,
         sidebarCreation,
-      });
+        true,
+      );
       this.pendingSidebarCreationMessageLocalIDs.delete(localID);
       this.setState(prevState => {
         const newThreadID = this.getRealizedOrPendingThreadID(threadID);
@@ -558,7 +559,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           } else if (!upload.uriIsReal) {
             newUploads[localUploadID] = {
               ...upload,
-              messageID: result.id,
+              messageID: result.serverID,
             };
           }
         }
@@ -569,13 +570,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           },
         };
       });
-      return {
-        localID,
-        serverID: result.id,
-        threadID,
-        time: result.time,
-        interface: result.interface,
-      };
+      return result;
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = localID;
@@ -1679,7 +1674,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const callUploadMultimedia = useLegacyAshoatKeyserverCall(uploadMultimedia);
     const callBlobServiceUpload = useBlobServiceUpload();
     const callDeleteUpload = useDeleteUpload();
-    const callSendMultimediaMessage = useLegacySendMultimediaMessage();
+    const callSendMultimediaMessage =
+      useInputStateContainerSendMultimediaMessage();
     const callSendTextMessage = useInputStateContainerSendTextMessage();
     const callNewThinThread = useNewThinThread();
     const callNewThickThread = useNewThickThread();
