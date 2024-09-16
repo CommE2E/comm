@@ -27,6 +27,7 @@ import {
   useSaveEntry,
   type UseCreateEntryInput,
   type UseSaveEntryInput,
+  type UseDeleteEntryInput,
 } from 'lib/actions/entry-actions.js';
 import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
@@ -37,7 +38,6 @@ import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import type {
   CalendarQuery,
   CreateEntryPayload,
-  DeleteEntryInfo,
   DeleteEntryResult,
   SaveEntryPayload,
   SaveEntryResult,
@@ -209,7 +209,7 @@ type Props = {
   // async functions that hit server APIs
   +createEntry: (input: UseCreateEntryInput) => Promise<CreateEntryPayload>,
   +saveEntry: (input: UseSaveEntryInput) => Promise<SaveEntryResult>,
-  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +deleteEntry: (input: UseDeleteEntryInput) => Promise<DeleteEntryResult>,
   +canEditEntry: boolean,
 };
 type State = {
@@ -786,15 +786,28 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   async deleteAction(
-    serverID: ?string,
+    entryID: ?string,
     prevText: string,
   ): Promise<?DeleteEntryResult> {
-    if (serverID) {
-      return await this.props.deleteEntry({
-        entryID: serverID,
+    if (entryID) {
+      const deleteEntryInfo = {
+        entryID,
         prevText,
         calendarQuery: this.props.calendarQuery(),
-      });
+      };
+
+      const useDeleteEntryInput = threadTypeIsThick(this.props.threadInfo.type)
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            deleteEntryInfo,
+          }
+        : {
+            thick: false,
+            deleteEntryInfo,
+          };
+
+      return await this.props.deleteEntry(useDeleteEntryInput);
     } else if (this.creating || this.currentlySaving) {
       this.needsDeleteAfterSave = true;
     }
