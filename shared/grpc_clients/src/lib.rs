@@ -10,14 +10,16 @@ use std::time::Duration;
 use tonic::transport::Channel;
 use tracing::info;
 
-const CONNECT_TIMEOUT_DURATION: Duration = Duration::from_secs(5);
+const CONNECT_TIMEOUT_DURATION: Duration = Duration::from_secs(10);
+const REQUEST_TIMEOUT_DURATION: Duration = Duration::from_secs(30);
 
 pub(crate) async fn get_grpc_service_channel(
   url: &str,
 ) -> Result<Channel, Error> {
   info!("Connecting to gRPC service at {}", url);
   let channel = Channel::from_shared(url.to_string())?
-    .connect_timeout(CONNECT_TIMEOUT_DURATION);
+    .connect_timeout(CONNECT_TIMEOUT_DURATION)
+    .timeout(REQUEST_TIMEOUT_DURATION);
 
   Ok(channel.connect().await?)
 }
