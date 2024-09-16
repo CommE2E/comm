@@ -26,6 +26,7 @@ import {
   useDeleteEntry,
   useSaveEntry,
   type UseCreateEntryInput,
+  type UseSaveEntryInput,
 } from 'lib/actions/entry-actions.js';
 import { extractKeyserverIDFromIDOptional } from 'lib/keyserver-conn/keyserver-call-utils.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
@@ -38,7 +39,6 @@ import type {
   CreateEntryPayload,
   DeleteEntryInfo,
   DeleteEntryResult,
-  SaveEntryInfo,
   SaveEntryPayload,
   SaveEntryResult,
 } from 'lib/types/entry-types.js';
@@ -208,7 +208,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +createEntry: (input: UseCreateEntryInput) => Promise<CreateEntryPayload>,
-  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
+  +saveEntry: (input: UseSaveEntryInput) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
   +canEditEntry: boolean,
 };
@@ -697,13 +697,26 @@ class InternalEntry extends React.Component<Props, State> {
   ): Promise<SaveEntryPayload> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     try {
-      const response = await this.props.saveEntry({
+      const saveEntryInfo = {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
-      });
+      };
+
+      const useSaveEntryInput = threadTypeIsThick(this.props.threadInfo.type)
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            saveEntryInfo,
+          }
+        : {
+            thick: false,
+            saveEntryInfo,
+          };
+
+      const response = await this.props.saveEntry(useSaveEntryInput);
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
