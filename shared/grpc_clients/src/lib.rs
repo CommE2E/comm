@@ -10,7 +10,7 @@ use std::time::Duration;
 use tonic::transport::Channel;
 use tracing::info;
 
-const CONNECT_TIMEOUT_DURATION: Duration = Duration::from_secs(5);
+const CONNECT_TIMEOUT_DURATION: Duration = Duration::from_secs(10);
 
 pub(crate) async fn get_grpc_service_channel(
   url: &str,
