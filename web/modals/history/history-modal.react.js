@@ -30,6 +30,7 @@ import type {
   HistoryRevisionInfo,
 } from 'lib/types/history-types.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { RawThreadInfos } from 'lib/types/thread-types.js';
 import { prettyDateWithoutDay } from 'lib/utils/date-utils.js';
 import {
   useDispatchActionPromise,
@@ -52,6 +53,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +entryInfos: ?(EntryInfo[]),
+  +threadInfos: ?RawThreadInfos,
   +dayLoadingStatus: LoadingStatus,
   +entryLoadingStatus: LoadingStatus,
   +calendarFilters: $ReadOnlyArray<CalendarFilter>,
@@ -112,9 +114,13 @@ class HistoryModal extends React.PureComponent<Props, State> {
 
     let entries;
     const entryInfos = this.props.entryInfos;
+    const threadInfos = this.props.threadInfos;
     if (entryInfos) {
       entries = _flow(
-        _filter((entryInfo: EntryInfo) => entryInfo.id),
+        _filter(
+          (entryInfo: EntryInfo) =>
+            entryInfo.id && !threadInfos?.[entryInfo.threadID].thick,
+        ),
         _map((entryInfo: EntryInfo) => {
           const serverID = entryInfo.id;
           invariant(serverID, 'serverID should be set');
@@ -259,6 +265,7 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> =
     const entryInfos = useSelector(
       state => allDaysToEntries(state)[props.dayString],
     );
+    const threadInfos = useSelector(state => state.threadStore.threadInfos);
     const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
     const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
     const calendarFilters = useSelector(
@@ -273,6 +280,7 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> =
       <HistoryModal
         {...props}
         entryInfos={entryInfos}
+        threadInfos={threadInfos}
         dayLoadingStatus={dayLoadingStatus}
         entryLoadingStatus={entryLoadingStatus}
         calendarFilters={calendarFilters}
