@@ -35,6 +35,7 @@ import { connectionSelector } from 'lib/selectors/keyserver-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import type {
   CalendarQuery,
   CreateEntryPayload,
@@ -851,7 +852,7 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
 
     const keyserverID = extractKeyserverIDFromIDOptional(threadInfo.id);
-    const connection = useSelector(state => {
+    const keyserverConnectionStatus = useSelector(state => {
       if (!keyserverID) {
         return {
           status: 'connected',
@@ -859,11 +860,15 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       }
       return connectionSelector(keyserverID)(state);
     });
+    const { socketState } = useTunnelbroker();
     invariant(
-      connection,
+      keyserverConnectionStatus,
       `keyserver ${keyserverID ?? 'null'} missing from keyserverStore`,
     );
-    const online = connection.status === 'connected';
+
+    const online = threadTypeIsThick(threadInfo.type)
+      ? !!socketState.connected
+      : keyserverConnectionStatus.status === 'connected';
 
     const canEditEntry = useThreadHasPermission(
       threadInfo,

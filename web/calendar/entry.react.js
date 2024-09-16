@@ -26,6 +26,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/color-utils.js';
 import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
+import { useTunnelbroker } from 'lib/tunnelbroker/tunnelbroker-context.js';
 import {
   type EntryInfo,
   type SaveEntryResult,
@@ -516,13 +517,20 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       threadPermissions.EDIT_ENTRIES,
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
+    const { socketState } = useTunnelbroker();
+
     const keyserverID = extractKeyserverIDFromIDOptional(threadID);
-    const online = useSelector(state => {
+    const keyserverConnectionStatus = useSelector(state => {
       if (!keyserverID) {
         return true;
       }
       return connectionSelector(keyserverID)(state) === 'connected';
     });
+
+    const online = threadTypeIsThick(threadInfo.type)
+      ? !!socketState.connected
+      : keyserverConnectionStatus;
+
     const callCreateEntry = useCreateEntry();
     const callSaveEntry = useSaveEntry();
     const callDeleteEntry = useDeleteEntry();
