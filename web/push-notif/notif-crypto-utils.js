@@ -10,6 +10,7 @@ import {
   olmEncryptedMessageTypes,
   type NotificationsOlmDataType,
   type PickledOLMAccount,
+  type OlmEncryptedMessageTypes,
 } from 'lib/types/crypto-types.js';
 import type {
   PlainTextWebNotification,
@@ -414,6 +415,7 @@ async function decryptWebNotification(
       } = await commonDecrypt<PlainTextWebNotification>(
         notificationsOlmData,
         encryptedPayload,
+        olmEncryptedMessageTypes.TEXT,
       );
 
       decryptedNotification = resultDecryptedNotification;
@@ -544,7 +546,7 @@ async function decryptDesktopNotification(
 
       const { decryptedNotification, updatedOlmData } = await commonDecrypt<{
         +[string]: mixed,
-      }>(notificationsOlmData, encryptedPayload);
+      }>(notificationsOlmData, encryptedPayload, olmEncryptedMessageTypes.TEXT);
 
       const updatedOlmDataPersistencePromise = persistNotifsAccountWithOlmData({
         olmDataKey,
@@ -634,6 +636,7 @@ async function decryptDesktopNotification(
 async function commonDecrypt<T>(
   notificationsOlmData: NotificationsOlmDataType,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): Promise<{
   +decryptedNotification: T,
   +updatedOlmData: NotificationsOlmDataType,
@@ -655,6 +658,7 @@ async function commonDecrypt<T>(
     pendingSessionUpdate,
     picklingKey,
     encryptedPayload,
+    type,
   );
 
   if (decryptionWithPendingSessionResult.decryptedNotification) {
@@ -675,7 +679,7 @@ async function commonDecrypt<T>(
     const {
       newUpdateCreationTimestamp,
       decryptedNotification: notifDecryptedWithMainSession,
-    } = decryptWithSession<T>(mainSession, picklingKey, encryptedPayload);
+    } = decryptWithSession<T>(mainSession, picklingKey, encryptedPayload, type);
 
     decryptedNotification = notifDecryptedWithMainSession;
     updatedOlmData = {
@@ -709,6 +713,11 @@ async function commonPeerDecrypt<T>(
     );
   }
 
+  const messageTypeAsNumber: OlmEncryptedMessageTypes =
+    messageType === olmEncryptedMessageTypes.PREKEY.toString()
+      ? olmEncryptedMessageTypes.PREKEY
+      : olmEncryptedMessageTypes.TEXT;
+
   let isSenderChainEmpty = true;
   let hasReceivedMessage = false;
   const sessionExists = !!notificationsOlmData;
@@ -736,7 +745,11 @@ async function commonPeerDecrypt<T>(
     hasReceivedMessage;
 
   if (!!notificationsOlmData && (isRegularMessage || isRegularPrekeyMessage)) {
-    return await commonDecrypt<T>(notificationsOlmData, encryptedPayload);
+    return await commonDecrypt<T>(
+      notificationsOlmData,
+      encryptedPayload,
+      messageTypeAsNumber,
+    );
   }
 
   // At this point we either face race condition or session reset attempt or
@@ -770,9 +783,10 @@ async function commonPeerDecrypt<T>(
     notifInboundKeys.curve25519,
     encryptedPayload,
   );
+  account.remove_one_time_keys(session);
 
   const decryptedNotification: T = JSON.parse(
-    session.decrypt(Number(messageType), encryptedPayload),
+    session.decrypt(messageTypeAsNumber, encryptedPayload),
   );
 
   // session reset attempt or session initialization - handled the same
@@ -820,12 +834,13 @@ function decryptWithSession<T>(
   pickledSession: string,
   picklingKey: string,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> {
   const session = new olm.Session();
 
   session.unpickle(picklingKey, pickledSession);
   const decryptedNotification: T = JSON.parse(
-    session.decrypt(olmEncryptedMessageTypes.TEXT, encryptedPayload),
+    session.decrypt(type, encryptedPayload),
   );
 
   const newPendingSessionUpdate = session.pickle(picklingKey);
@@ -842,6 +857,7 @@ function decryptWithPendingSession<T>(
   pendingSessionUpdate: string,
   picklingKey: string,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> | { +error: string } {
   try {
     const {
@@ -852,6 +868,7 @@ function decryptWithPendingSession<T>(
       pendingSessionUpdate,
       picklingKey,
       encryptedPayload,
+      type,
     );
     return {
       newPendingSessionUpdate,
