@@ -14,6 +14,7 @@ import {
   concurrentModificationResetActionType,
   type UseCreateEntryInput,
   type UseSaveEntryInput,
+  type UseDeleteEntryInput,
 } from 'lib/actions/entry-actions.js';
 import {
   type PushModal,
@@ -30,7 +31,6 @@ import {
   type SaveEntryResult,
   type SaveEntryPayload,
   type CreateEntryPayload,
-  type DeleteEntryInfo,
   type DeleteEntryResult,
   type CalendarQuery,
 } from 'lib/types/entry-types.js';
@@ -74,7 +74,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +createEntry: (input: UseCreateEntryInput) => Promise<CreateEntryPayload>,
   +saveEntry: (input: UseSaveEntryInput) => Promise<SaveEntryResult>,
-  +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +deleteEntry: (input: UseDeleteEntryInput) => Promise<DeleteEntryResult>,
   +pushModal: PushModal,
   +popModal: () => void,
 };
@@ -444,7 +444,7 @@ class Entry extends React.PureComponent<Props, State> {
   }
 
   async deleteAction(
-    serverID: ?string,
+    entryID: ?string,
     focusOnNextEntry: boolean,
   ): Promise<?DeleteEntryResult> {
     invariant(
@@ -454,12 +454,25 @@ class Entry extends React.PureComponent<Props, State> {
     if (focusOnNextEntry) {
       this.props.focusOnFirstEntryNewerThan(this.props.entryInfo.creationTime);
     }
-    if (serverID) {
-      return await this.props.deleteEntry({
-        entryID: serverID,
+    if (entryID) {
+      const deleteEntryInfo = {
+        entryID,
         prevText: this.props.entryInfo.text,
         calendarQuery: this.props.calendarQuery(),
-      });
+      };
+
+      const useDeleteEntryInput = threadTypeIsThick(this.props.threadInfo.type)
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            deleteEntryInfo,
+          }
+        : {
+            thick: false,
+            deleteEntryInfo,
+          };
+
+      return await this.props.deleteEntry(useDeleteEntryInput);
     } else if (this.creating) {
       this.needsDeleteAfterCreation = true;
     }
