@@ -172,7 +172,10 @@ class Entry extends React.PureComponent<Props, State> {
     let actionLinks = null;
     if (this.state.focused) {
       let historyButton = null;
-      if (this.props.entryInfo.id) {
+      if (
+        this.props.entryInfo.id &&
+        !threadTypeIsThick(this.props.threadInfo.type)
+      ) {
         historyButton = (
           <a href="#" onClick={this.onHistory}>
             <HistoryVector className={css.history} />
