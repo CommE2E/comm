@@ -13,6 +13,7 @@ import {
   useDeleteEntry,
   concurrentModificationResetActionType,
   type UseCreateEntryInput,
+  type UseSaveEntryInput,
 } from 'lib/actions/entry-actions.js';
 import {
   type PushModal,
@@ -26,7 +27,6 @@ import { entryKey } from 'lib/shared/entry-utils.js';
 import { useThreadHasPermission } from 'lib/shared/thread-utils.js';
 import {
   type EntryInfo,
-  type SaveEntryInfo,
   type SaveEntryResult,
   type SaveEntryPayload,
   type CreateEntryPayload,
@@ -73,7 +73,7 @@ type Props = {
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +createEntry: (input: UseCreateEntryInput) => Promise<CreateEntryPayload>,
-  +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
+  +saveEntry: (input: UseSaveEntryInput) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
   +pushModal: PushModal,
   +popModal: () => void,
@@ -378,13 +378,26 @@ class Entry extends React.PureComponent<Props, State> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     this.guardedSetState({ loadingStatus: 'loading' });
     try {
-      const response = await this.props.saveEntry({
+      const saveEntryInfo = {
         entryID,
         text: newText,
         prevText: this.props.entryInfo.text,
         timestamp: Date.now(),
         calendarQuery: this.props.calendarQuery(),
-      });
+      };
+
+      const useSaveEntryInput = threadTypeIsThick(this.props.threadInfo.type)
+        ? {
+            thick: true,
+            threadInfo: this.props.threadInfo,
+            saveEntryInfo,
+          }
+        : {
+            thick: false,
+            saveEntryInfo,
+          };
+
+      const response = await this.props.saveEntry(useSaveEntryInput);
       if (curSaveAttempt + 1 === this.nextSaveAttemptIndex) {
         this.guardedSetState({ loadingStatus: 'inactive' });
       }
