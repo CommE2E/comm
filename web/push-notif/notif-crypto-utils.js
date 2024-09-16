@@ -10,7 +10,9 @@ import {
   olmEncryptedMessageTypes,
   type NotificationsOlmDataType,
   type PickledOLMAccount,
+  type OlmEncryptedMessageTypes,
 } from 'lib/types/crypto-types.js';
+import { olmEncryptedMessageTypesValidator } from 'lib/types/crypto-types.js';
 import type {
   PlainTextWebNotification,
   EncryptedWebNotification,
@@ -94,6 +96,15 @@ const INDEXED_DB_UNREAD_THICK_THREAD_IDS_ENCRYPTION_KEY_DB_LABEL =
   'unreadThickThreadIDsEncryptionKey';
 const INDEXED_DB_UNREAD_THICK_THREADS_SYNC_KEY = 'unreadThickThreadIDsSyncKey';
 
+function stringToOlmEncryptedMessageType(
+  messageType: string,
+): OlmEncryptedMessageTypes {
+  const messageTypeAsNumber = Number(messageType);
+  return assertWithValidator(
+    messageTypeAsNumber,
+    olmEncryptedMessageTypesValidator,
+  );
+}
 async function deserializeEncryptedData<T>(
   encryptedData: EncryptedData,
   encryptionKey: CryptoKey,
@@ -346,11 +357,11 @@ async function decryptWebNotification(
   const {
     id,
     encryptedPayload,
-    type: messageType,
+    type: rawMessageType,
     ...rest
   } = encryptedNotification;
   const senderDeviceDescriptor: SenderDeviceDescriptor = rest;
-
+  const messageType = stringToOlmEncryptedMessageType(rawMessageType);
   const utilsData = await localforage.getItem<WebNotifsServiceUtilsData>(
     WEB_NOTIFS_SERVICE_UTILS_KEY,
   );
@@ -414,6 +425,7 @@ async function decryptWebNotification(
       } = await commonDecrypt<PlainTextWebNotification>(
         notificationsOlmData,
         encryptedPayload,
+        messageType,
       );
 
       decryptedNotification = resultDecryptedNotification;
@@ -495,12 +507,12 @@ async function decryptWebNotification(
 
 async function decryptDesktopNotification(
   encryptedPayload: string,
-  messageType: string,
+  rawMessageType: string,
   staffCanSee: boolean,
   senderDeviceDescriptor: SenderDeviceDescriptor,
 ): Promise<{ +[string]: mixed }> {
   const { keyserverID, senderDeviceID } = senderDeviceDescriptor;
-
+  const messageType = stringToOlmEncryptedMessageType(rawMessageType);
   let notifsAccountWithOlmData;
   try {
     [notifsAccountWithOlmData] = await Promise.all([
@@ -544,7 +556,7 @@ async function decryptDesktopNotification(
 
       const { decryptedNotification, updatedOlmData } = await commonDecrypt<{
         +[string]: mixed,
-      }>(notificationsOlmData, encryptedPayload);
+      }>(notificationsOlmData, encryptedPayload, olmEncryptedMessageTypes.TEXT);
 
       const updatedOlmDataPersistencePromise = persistNotifsAccountWithOlmData({
         olmDataKey,
@@ -634,6 +646,7 @@ async function decryptDesktopNotification(
 async function commonDecrypt<T>(
   notificationsOlmData: NotificationsOlmDataType,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): Promise<{
   +decryptedNotification: T,
   +updatedOlmData: NotificationsOlmDataType,
@@ -655,6 +668,7 @@ async function commonDecrypt<T>(
     pendingSessionUpdate,
     picklingKey,
     encryptedPayload,
+    type,
   );
 
   if (decryptionWithPendingSessionResult.decryptedNotification) {
@@ -675,7 +689,7 @@ async function commonDecrypt<T>(
     const {
       newUpdateCreationTimestamp,
       decryptedNotification: notifDecryptedWithMainSession,
-    } = decryptWithSession<T>(mainSession, picklingKey, encryptedPayload);
+    } = decryptWithSession<T>(mainSession, picklingKey, encryptedPayload, type);
 
     decryptedNotification = notifDecryptedWithMainSession;
     updatedOlmData = {
@@ -693,22 +707,13 @@ async function commonPeerDecrypt<T>(
   senderDeviceID: string,
   notificationsOlmData: ?NotificationsOlmDataType,
   notificationAccount: PickledOLMAccount,
-  messageType: string,
+  messageType: OlmEncryptedMessageTypes,
   encryptedPayload: string,
 ): Promise<{
   +decryptedNotification: T,
   +updatedOlmData?: NotificationsOlmDataType,
   +updatedNotifsAccount?: PickledOLMAccount,
 }> {
-  if (
-    messageType !== olmEncryptedMessageTypes.PREKEY.toString() &&
-    messageType !== olmEncryptedMessageTypes.TEXT.toString()
-  ) {
-    throw new Error(
-      `Received message of invalid type from device: ${senderDeviceID}`,
-    );
-  }
-
   let isSenderChainEmpty = true;
   let hasReceivedMessage = false;
   const sessionExists = !!notificationsOlmData;
@@ -726,17 +731,20 @@ async function commonPeerDecrypt<T>(
 
   // regular message
   const isRegularMessage =
-    !!notificationsOlmData &&
-    messageType === olmEncryptedMessageTypes.TEXT.toString();
+    !!notificationsOlmData && messageType === olmEncryptedMessageTypes.TEXT;
 
   const isRegularPrekeyMessage =
     !!notificationsOlmData &&
-    messageType === olmEncryptedMessageTypes.PREKEY.toString() &&
+    messageType === olmEncryptedMessageTypes.PREKEY &&
     isSenderChainEmpty &&
     hasReceivedMessage;
 
   if (!!notificationsOlmData && (isRegularMessage || isRegularPrekeyMessage)) {
-    return await commonDecrypt<T>(notificationsOlmData, encryptedPayload);
+    return await commonDecrypt<T>(
+      notificationsOlmData,
+      encryptedPayload,
+      messageType,
+    );
   }
 
   // At this point we either face race condition or session reset attempt or
@@ -772,7 +780,7 @@ async function commonPeerDecrypt<T>(
   );
 
   const decryptedNotification: T = JSON.parse(
-    session.decrypt(Number(messageType), encryptedPayload),
+    session.decrypt(messageType, encryptedPayload),
   );
 
   // session reset attempt or session initialization - handled the same
@@ -820,12 +828,13 @@ function decryptWithSession<T>(
   pickledSession: string,
   picklingKey: string,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> {
   const session = new olm.Session();
 
   session.unpickle(picklingKey, pickledSession);
   const decryptedNotification: T = JSON.parse(
-    session.decrypt(olmEncryptedMessageTypes.TEXT, encryptedPayload),
+    session.decrypt(type, encryptedPayload),
   );
 
   const newPendingSessionUpdate = session.pickle(picklingKey);
@@ -842,6 +851,7 @@ function decryptWithPendingSession<T>(
   pendingSessionUpdate: string,
   picklingKey: string,
   encryptedPayload: string,
+  type: OlmEncryptedMessageTypes,
 ): DecryptionResult<T> | { +error: string } {
   try {
     const {
@@ -852,6 +862,7 @@ function decryptWithPendingSession<T>(
       pendingSessionUpdate,
       picklingKey,
       encryptedPayload,
+      type,
     );
     return {
       newPendingSessionUpdate,
