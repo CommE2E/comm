@@ -484,7 +484,7 @@ pub mod batch_operations {
   }
 
   impl ExponentialBackoffConfig {
-    fn new_counter(&self) -> ExponentialBackoffHelper {
+    pub fn new_counter(&self) -> ExponentialBackoffHelper {
       ExponentialBackoffHelper::new(self)
     }
     fn backoff_enabled(&self) -> bool {
@@ -691,7 +691,7 @@ pub mod batch_operations {
   }
 
   /// internal helper struct
-  struct ExponentialBackoffHelper<'cfg> {
+  pub struct ExponentialBackoffHelper<'cfg> {
     config: &'cfg ExponentialBackoffConfig,
     attempt: u32,
   }
@@ -702,12 +702,12 @@ pub mod batch_operations {
     }
 
     /// reset counter after successfull operation
-    fn reset(&mut self) {
+    pub fn reset(&mut self) {
       self.attempt = 0;
     }
 
     /// increase counter and sleep in case of failure
-    async fn sleep_and_retry(&mut self) -> Result<(), super::Error> {
+    pub async fn sleep_and_retry(&mut self) -> Result<(), super::Error> {
       let jitter_factor = 1f32.min(0f32.max(self.config.jitter_factor));
       let random_multiplier =
         1.0 + rand::thread_rng().gen_range(-jitter_factor..=jitter_factor);

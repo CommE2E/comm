@@ -68,17 +68,16 @@ impl DatabaseClient {
 
     // TODO: Introduce `transact_write_helper` similar to `batch_write_helper`
     // in `comm-lib` to handle transactions with retries
-    let mut attempt = 0;
+    let retry_config = ExponentialBackoffConfig {
+      max_attempts: retry::MAX_ATTEMPTS as u32,
+      ..Default::default()
+    };
 
     // TODO: Introduce nanny task that handles calling `spawn_refresh_keys_task`
     let mut requested_more_keys = false;
 
+    let mut exponential_backoff = retry_config.new_counter();
     loop {
-      attempt += 1;
-      if attempt > retry::MAX_ATTEMPTS {
-        return Err(Error::MaxRetriesExceeded);
-      }
-
       let otk_count =
         self.get_otk_count(user_id, device_id, account_type).await?;
       if otk_count < ONE_TIME_KEY_MINIMUM_THRESHOLD && can_request_more_keys {
@@ -149,6 +148,7 @@ impl DatabaseClient {
           ]);
           if is_transaction_retryable(&dynamo_db_error, &retryable_codes) {
             info!("Encountered transaction conflict while retrieving one-time key - retrying");
+            exponential_backoff.sleep_and_retry().await?;
           } else {
             error!(
               errorType = error_types::OTK_DB_LOG,
