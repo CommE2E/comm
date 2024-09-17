@@ -86,15 +86,25 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     );
   }, [adminMembers, allMembers, tab, threadInfo]);
 
-  const threadMembersModalContent = React.useMemo(
-    () => (
+  const threadMembersModalContent = React.useMemo(() => {
+    if (adminMembers.length === 0) {
+      return (
+        <div className={css.modalContentContainer}>
+          <ThreadMembersList
+            threadInfo={threadInfo}
+            threadMembers={allMembers}
+          />
+        </div>
+      );
+    }
+
+    return (
       <div className={css.modalContentContainer}>
         {tabs}
         <div className={css.membersListTabsContent}>{tabContent}</div>
       </div>
-    ),
-    [tabContent, tabs],
-  );
+    );
+  }, [tabContent, tabs, adminMembers.length, allMembers, threadInfo]);
 
   return threadMembersModalContent;
 }
