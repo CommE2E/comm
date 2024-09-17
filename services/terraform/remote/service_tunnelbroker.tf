@@ -186,10 +186,13 @@ resource "aws_ecs_service" "tunnelbroker" {
   }
 
   # gRPC
-  load_balancer {
-    target_group_arn = aws_lb_target_group.tunnelbroker_grpc.arn
-    container_name   = local.tunnelbroker_config.container_name
-    container_port   = local.tunnelbroker_config.grpc_port
+  dynamic "load_balancer" {
+    for_each = aws_lb_listener.tunnelbroker_grpc
+    content {
+      target_group_arn = aws_lb_target_group.tunnelbroker_grpc.arn
+      container_name   = local.tunnelbroker_config.container_name
+      container_port   = local.tunnelbroker_config.grpc_port
+    }
   }
 
   deployment_circuit_breaker {
@@ -255,6 +258,17 @@ resource "aws_lb_target_group" "tunnelbroker_ws" {
 
   }
 }
+
+/* This is generally a dead (empty) resource on prod, i.e. it should not have
+ * any targets registered. We have gRPC listener resource disabled on prod,
+ * which results in the following exception if any targets are registered here:
+ *   "The target group "tunnelbroker-grpc-tg" does not have
+ *    an associated load balancer."
+ *
+ * See also `aws_lb_listener.tunnelbroker_grpc` and the "dynamic" block in
+ * `aws_ecs_service.tunnelbroker` on how this is disabled.
+ * The `count` or `for_each` isn't added here to avoid complicating things more.
+ */
 resource "aws_lb_target_group" "tunnelbroker_grpc" {
   name             = "tunnelbroker-grpc-tg"
   port             = local.tunnelbroker_config.grpc_port
