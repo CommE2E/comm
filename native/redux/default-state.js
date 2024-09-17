@@ -99,7 +99,10 @@ const defaultState = ({
     tunnelbrokerToken: null,
   },
   queuedDMOperations: {
-    operations: {},
+    threadQueue: {},
+    messageQueue: {},
+    entryQueue: {},
+    membershipQueue: {},
   },
 }: AppState);
 
