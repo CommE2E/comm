@@ -620,6 +620,18 @@ const migrations = {
     },
     ops: [],
   }),
+  [82]: (state: any) => ({
+    state: {
+      ...state,
+      queuedDMOperations: {
+        threadQueue: state.queuedDMOperations.operations,
+        messageQueue: {},
+        entryQueue: {},
+        membershipQueue: {},
+      },
+    },
+    ops: [],
+  }),
 };
 
 const persistConfig: PersistConfig = {
