@@ -34,6 +34,7 @@ web/backup-client-wasm/target
 keyserver/dist
 keyserver/node_modules
 keyserver/facts
+keyserver/certs
 keyserver/secrets
 keyserver/*.env
 keyserver/*.env.*
