@@ -142,12 +142,16 @@ async function fcmPush({
   for (let i = 0; i < results.length; i++) {
     const pushResult = results[i];
     for (const error of pushResult.errors) {
-      errors.push(error.error);
-      const errorCode =
-        error.type === 'firebase_error'
-          ? error.error.errorInfo.code
-          : undefined;
-      if (errorCode && fcmTokenInvalidationErrors.has(errorCode)) {
+      errors.push(error);
+      if (
+        error &&
+        typeof error === 'object' &&
+        error.errorInfo &&
+        typeof error.errorInfo === 'object' &&
+        error.errorInfo.code &&
+        typeof error.errorInfo.code === 'string' &&
+        fcmTokenInvalidationErrors.has(error.errorInfo.code)
+      ) {
         invalidTokens.push(targetedNotifications[i].deliveryID);
       }
     }
@@ -171,12 +175,9 @@ async function fcmPush({
   return result;
 }
 
-type FCMSinglePushError =
-  | { +type: 'firebase_error', +error: FirebaseError }
-  | { +type: 'exception', +error: mixed };
 type FCMSinglePushResult = {
   +fcmIDs: $ReadOnlyArray<string>,
-  +errors: $ReadOnlyArray<FCMSinglePushError>,
+  +errors: $ReadOnlyArray<mixed>,
 };
 async function fcmSinglePush(
   provider: FirebaseApp,
@@ -185,21 +186,14 @@ async function fcmSinglePush(
   options: Object,
 ): Promise<FCMSinglePushResult> {
   try {
-    const deliveryResult = await provider
-      .messaging()
-      .sendToDevice(deviceToken, notification, options);
-    const errors = [];
-    const ids = [];
-    for (const fcmResult of deliveryResult.results) {
-      if (fcmResult.error) {
-        errors.push({ type: 'firebase_error', error: fcmResult.error });
-      } else if (fcmResult.messageId) {
-        ids.push(fcmResult.messageId);
-      }
-    }
-    return { fcmIDs: ids, errors };
+    const fcmMessageID = await provider.messaging().send({
+      ...notification,
+      token: deviceToken,
+      android: options,
+    });
+    return { fcmIDs: [fcmMessageID], errors: [] };
   } catch (e) {
-    return { fcmIDs: [], errors: [{ type: 'exception', error: e }] };
+    return { fcmIDs: [], errors: [e] };
   }
 }
 
@@ -211,7 +205,7 @@ async function getUnreadCounts(
   const query = SQL`
     SELECT user, COUNT(thread) AS unread_count
     FROM memberships
-    WHERE user IN (${userIDs}) AND last_message > last_read_message 
+    WHERE user IN (${userIDs}) AND last_message > last_read_message
       AND role > 0
       AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
       AND JSON_EXTRACT(subscription, ${notificationExtractString})

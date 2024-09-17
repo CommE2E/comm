@@ -22,11 +22,7 @@ declare module 'firebase-admin' {
   };
 
   declare export type FirebaseMessaging = {
-    +sendToDevice: (
-      deviceToken: string,
-      notification: Object,
-      options: Object,
-    ) => Promise<FirebaseDeliveryResult>,
+    +send: (notif: Object) => Promise<string>,
     ...
   };
 
