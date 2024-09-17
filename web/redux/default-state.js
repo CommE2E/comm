@@ -95,7 +95,10 @@ const defaultWebState: AppState = Object.freeze({
     tunnelbrokerToken: null,
   },
   queuedDMOperations: {
-    operations: {},
+    threadQueue: {},
+    messageQueue: {},
+    entryQueue: {},
+    membershipQueue: {},
   },
 });
 
