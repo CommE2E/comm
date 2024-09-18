@@ -1475,6 +1475,15 @@ const migrations = {
     },
     ops: [],
   }),
+  [83]: (state: AppState) => ({
+    state: {
+      ...state,
+      holderStore: {
+        storedHolders: {},
+      },
+    },
+    ops: [],
+  }),
 };
 
 // NOTE: renaming this object, and especially the `version` property
@@ -1485,7 +1494,7 @@ const persistConfig = {
   storage: AsyncStorage,
   blacklist: persistBlacklist,
   debug: __DEV__,
-  version: 82,
+  version: 83,
   transforms: [
     messageStoreMessagesBlocklistTransform,
     reportStoreTransform,
