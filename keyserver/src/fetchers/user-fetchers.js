@@ -179,6 +179,14 @@ async function fetchKnownUserInfos(
     let clientAvatar: ?ClientAvatar;
     if (
       avatar &&
+      avatar.type === 'farcaster' &&
+      !hasMinCodeVersion(viewer.platformDetails, {
+        native: FUTURE_CODE_VERSION,
+      })
+    ) {
+      clientAvatar = null;
+    } else if (
+      avatar &&
       avatar.type !== 'image' &&
       avatar.type !== 'encrypted_image'
     ) {
@@ -382,7 +390,19 @@ async function fetchLoggedInUserInfo(
     : null;
 
   let clientAvatar: ?ClientAvatar;
-  if (avatar && avatar.type !== 'image' && avatar.type !== 'encrypted_image') {
+  if (
+    avatar &&
+    avatar.type === 'farcaster' &&
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: FUTURE_CODE_VERSION,
+    })
+  ) {
+    clientAvatar = null;
+  } else if (
+    avatar &&
+    avatar.type !== 'image' &&
+    avatar.type !== 'encrypted_image'
+  ) {
     clientAvatar = avatar;
   } else if (
     avatar &&
