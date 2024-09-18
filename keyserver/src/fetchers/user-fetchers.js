@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import {
   hasMinCodeVersion,
   FUTURE_CODE_VERSION,
+  NEXT_CODE_VERSION,
 } from 'lib/shared/version-utils.js';
 import type { AvatarDBContent, ClientAvatar } from 'lib/types/avatar-types.js';
 import type { UserDetail } from 'lib/types/crypto-types.js';
@@ -178,6 +179,14 @@ async function fetchKnownUserInfos(
 
     let clientAvatar: ?ClientAvatar;
     if (
+      avatar &&
+      avatar.type === 'farcaster' &&
+      !hasMinCodeVersion(viewer.platformDetails, {
+        native: NEXT_CODE_VERSION,
+      })
+    ) {
+      clientAvatar = null;
+    } else if (
       avatar &&
       avatar.type !== 'image' &&
       avatar.type !== 'encrypted_image'
@@ -382,7 +391,19 @@ async function fetchLoggedInUserInfo(
     : null;
 
   let clientAvatar: ?ClientAvatar;
-  if (avatar && avatar.type !== 'image' && avatar.type !== 'encrypted_image') {
+  if (
+    avatar &&
+    avatar.type === 'farcaster' &&
+    !hasMinCodeVersion(viewer.platformDetails, {
+      native: NEXT_CODE_VERSION,
+    })
+  ) {
+    clientAvatar = null;
+  } else if (
+    avatar &&
+    avatar.type !== 'image' &&
+    avatar.type !== 'encrypted_image'
+  ) {
     clientAvatar = avatar;
   } else if (
     avatar &&
