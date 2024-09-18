@@ -37,11 +37,20 @@ function ThreadAvatar(props: Props): React.Node {
     displayUserIDForThread = getSingleOtherUser(threadInfo, viewerID);
   }
 
-  const displayUser = useSelector(state =>
-    displayUserIDForThread
-      ? state.userStore.userInfos[displayUserIDForThread]
-      : null,
-  );
+  const displayUser = useSelector(state => {
+    if (!displayUserIDForThread) {
+      return null;
+    }
+
+    const userBase = state.userStore.userInfos[displayUserIDForThread];
+    const farcasterID =
+      state.auxUserStore.auxUserInfos[displayUserIDForThread]?.fid;
+
+    return {
+      ...userBase,
+      farcasterID,
+    };
+  });
 
   const resolvedThreadAvatar = useResolvedAvatar(avatarInfo, displayUser);
 
