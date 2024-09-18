@@ -7,7 +7,9 @@ import { EditUserAvatarContext } from 'lib/components/edit-user-avatar-provider.
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/swmansion-icon.react.js';
 import { useENSAvatar } from 'lib/hooks/ens-cache.js';
+import { useFarcasterAvatarURL } from 'lib/hooks/fc-cache.js';
 import { getETHAddressForUserInfo } from 'lib/shared/account-utils.js';
+import { useCurrentUserFID } from 'lib/utils/farcaster-utils.js';
 
 import { useUploadAvatarMedia } from './avatar-hooks.react.js';
 import css from './edit-avatar-menu.css';
@@ -26,11 +28,13 @@ const editIcon = (
 
 function EditUserAvatarMenu(): React.Node {
   const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const currentUserFID = useCurrentUserFID();
   const ethAddress: ?string = React.useMemo(
     () => getETHAddressForUserInfo(currentUserInfo),
     [currentUserInfo],
   );
   const ensAvatarURI: ?string = useENSAvatar(ethAddress);
+  const farcasterAvatarURL = useFarcasterAvatarURL(currentUserFID);
 
   const editUserAvatarContext = React.useContext(EditUserAvatarContext);
   invariant(editUserAvatarContext, 'editUserAvatarContext should be set');
@@ -112,6 +116,27 @@ function EditUserAvatarMenu(): React.Node {
     [ethereumIcon, setENSUserAvatar],
   );
 
+  const setFarcasterUserAvatar = React.useCallback(
+    () => baseSetUserAvatar({ type: 'farcaster' }),
+    [baseSetUserAvatar],
+  );
+
+  const farcasterIcon = React.useMemo(
+    () => <CommIcon icon="farcaster-outline" size={22} />,
+    [],
+  );
+
+  const farcasterMenuItem = React.useMemo(
+    () => (
+      <MenuItem
+        key="farcaster"
+        text="Use Farcaster avatar"
+        onClick={setFarcasterUserAvatar}
+        iconComponent={farcasterIcon}
+      />
+    ),
+    [farcasterIcon, setFarcasterUserAvatar],
+  );
   const removeMenuItem = React.useMemo(
     () => (
       <MenuItem
@@ -129,16 +154,21 @@ function EditUserAvatarMenu(): React.Node {
     if (ensAvatarURI) {
       items.push(ensMenuItem);
     }
+    if (farcasterAvatarURL) {
+      items.push(farcasterMenuItem);
+    }
     if (currentUserInfo?.avatar) {
       items.push(removeMenuItem);
     }
     return items;
   }, [
-    currentUserInfo?.avatar,
     emojiMenuItem,
-    ensAvatarURI,
-    ensMenuItem,
     imageMenuItem,
+    ensAvatarURI,
+    farcasterAvatarURL,
+    currentUserInfo?.avatar,
+    ensMenuItem,
+    farcasterMenuItem,
     removeMenuItem,
   ]);
 
