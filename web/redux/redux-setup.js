@@ -58,6 +58,7 @@ import type { StoreOperations } from 'lib/types/store-ops-types.js';
 import type { SyncedMetadataStore } from 'lib/types/synced-metadata-types.js';
 import type { GlobalThemeInfo } from 'lib/types/theme-types.js';
 import type { ThreadActivityStore } from 'lib/types/thread-activity-types';
+import { threadTypeIsThick } from 'lib/types/thread-types-enum.js';
 import type { ThreadStore } from 'lib/types/thread-types.js';
 import type { TunnelbrokerDeviceToken } from 'lib/types/tunnelbroker-device-token-types.js';
 import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
@@ -455,7 +456,8 @@ function validateStateAndQueueOpsProcessing(
     'hasFocus' in document &&
     document.hasFocus() &&
     !state.navInfo.pendingThread &&
-    state.threadStore.threadInfos[activeThread].currentUser.unread
+    state.threadStore.threadInfos[activeThread].currentUser.unread &&
+    !threadTypeIsThick(state.threadStore.threadInfos[activeThread].type)
   ) {
     // Makes sure a currently focused thread is never unread
     const activeThreadInfo = state.threadStore.threadInfos[activeThread];
