@@ -25,7 +25,8 @@ export type CommIcons =
   | 'ethereum-outline'
   | 'link_plus-outline'
   | 'user-filled'
-  | 'user-edit';
+  | 'user-edit'
+  | 'farcaster-outline';
 
 type CommIconProps = {
   +icon: CommIcons,
