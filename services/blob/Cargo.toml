@@ -33,5 +33,5 @@ tonic = "0.8"
 tracing = { workspace = true }
 tracing-actix-web = { workspace = true }
 tracing-futures = { workspace = true, features = ["futures-03"] }
-tracing-subscriber = { workspace = true, features = ["env-filter"] }
+tracing-subscriber = { workspace = true, features = ["env-filter", "json"] }
 serde_json = { workspace = true }
