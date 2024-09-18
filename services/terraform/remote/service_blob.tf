@@ -49,6 +49,10 @@ resource "aws_ecs_task_definition" "blob_service" {
         {
           name  = "COMM_SERVICES_DISABLE_CSAT_VERIFICATION",
           value = local.is_staging ? "false" : "true"
+        },
+        {
+          name  = "COMM_SERVICES_USE_JSON_LOGS",
+          value = local.comm_services_use_json_logs
         }
       ]
       logConfiguration = {
