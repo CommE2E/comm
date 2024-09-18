@@ -141,6 +141,7 @@ type Props = {
       }
     | {
         +connected: false,
+        +retryCount: number,
       },
 };
 type State = {
