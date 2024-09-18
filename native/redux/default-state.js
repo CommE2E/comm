@@ -104,6 +104,9 @@ const defaultState = ({
     entryQueue: {},
     membershipQueue: {},
   },
+  holderStore: {
+    storedHolders: {},
+  },
 }: AppState);
 
 export { defaultState };

@@ -100,6 +100,9 @@ const defaultWebState: AppState = Object.freeze({
     entryQueue: {},
     membershipQueue: {},
   },
+  holderStore: {
+    storedHolders: {},
+  },
 });
 
 export { defaultWebState };

@@ -632,6 +632,15 @@ const migrations = {
     },
     ops: [],
   }),
+  [83]: (state: AppState) => ({
+    state: {
+      ...state,
+      holderStore: {
+        storedHolders: {},
+      },
+    },
+    ops: [],
+  }),
 };
 
 const persistConfig: PersistConfig = {
