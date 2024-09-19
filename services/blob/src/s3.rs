@@ -7,6 +7,8 @@ use aws_sdk_s3::{
 use std::ops::{Bound, RangeBounds};
 use tracing::{debug, error, trace};
 
+use crate::constants::error_types;
+
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
 )]
@@ -132,7 +134,10 @@ impl S3Client {
       .send()
       .await
       .map_err(|e| {
-        error!("S3 failed to get object metadata");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "S3 failed to get object metadata"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
@@ -171,11 +176,14 @@ impl S3Client {
     }
 
     let response = request.send().await.map_err(|e| {
-      error!("S3 failed to get object");
+      error!(errorType = error_types::S3_ERROR, "S3 failed to get object");
       Error::AwsSdk(Box::new(e.into()))
     })?;
     let data = response.body.collect().await.map_err(|e| {
-      error!("S3 failed to stream object bytes");
+      error!(
+        errorType = error_types::S3_ERROR,
+        "S3 failed to stream object bytes"
+      );
       Error::ByteStream(e.into())
     })?;
     Ok(data.to_vec())
@@ -191,7 +199,10 @@ impl S3Client {
       .send()
       .await
       .map_err(|e| {
-        error!("S3 failed to delete object");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "S3 failed to delete object"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
@@ -228,7 +239,10 @@ impl S3Client {
       .send()
       .await
       .map_err(|e| {
-        error!("S3 failed to batch delete objects");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "S3 failed to batch delete objects"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
@@ -259,12 +273,18 @@ impl MultiPartUploadSession {
       .send()
       .await
       .map_err(|e| {
-        error!("S3 failed to start upload session");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "S3 failed to start upload session"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
     let upload_id = multipart_upload_res.upload_id().ok_or_else(|| {
-      error!("Upload ID expected to be present");
+      error!(
+        errorType = error_types::S3_ERROR,
+        "Upload ID expected to be present"
+      );
       Error::MissingUploadID
     })?;
     debug!("Started multipart upload session with ID: {}", upload_id);
@@ -293,7 +313,10 @@ impl MultiPartUploadSession {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to add upload part");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "Failed to add upload part"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
@@ -331,7 +354,10 @@ impl MultiPartUploadSession {
       .send()
       .await
       .map_err(|e| {
-        error!("Failed to finish upload session");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "Failed to finish upload session"
+        );
         Error::AwsSdk(Box::new(e.into()))
       })?;
 
