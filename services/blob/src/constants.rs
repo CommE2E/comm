@@ -42,3 +42,12 @@ pub const DEFAULT_S3_BUCKET_NAME: &str = "commapp-blob";
 pub const S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE: u64 = 5 * 1024 * 1024;
 
 pub const INVITE_LINK_BLOB_HASH_PREFIX: &str = "invite_";
+
+// Error Types
+
+pub mod error_types {
+  pub const S3_ERROR: &str = "S3 Error";
+  pub const DDB_ERROR: &str = "DDB Error";
+  pub const HTTP_ERROR: &str = "HTTP Error";
+  pub const OTHER_ERROR: &str = "Other Error";
+}

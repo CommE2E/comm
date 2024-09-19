@@ -14,6 +14,7 @@ use std::collections::HashMap;
 use tracing::{debug, error, trace};
 
 use crate::constants::db::*;
+use crate::constants::error_types;
 
 use super::errors::{BlobDBError, Error as DBError};
 use super::types::*;
@@ -205,7 +206,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|err| {
-        error!("DynamoDB client failed to query holders: {:?}", err);
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to query holders: {:?}", err
+        );
         DBError::AwsSdk(Box::new(err.into()))
       })?;
 
@@ -274,7 +278,10 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|err| {
-        error!("DynamoDB client failed to query unchecked items: {:?}", err);
+        error!(
+          errorType = error_types::DDB_ERROR,
+          "DynamoDB client failed to query unchecked items: {:?}", err
+        );
         DBError::AwsSdk(Box::new(err.into()))
       })?;
 

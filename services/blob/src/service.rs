@@ -24,7 +24,10 @@ use crate::database::types::{
 use crate::database::DBError;
 use crate::s3::{Error as S3Error, S3Client, S3Path};
 use crate::tools::MemOps;
-use crate::{constants::BLOB_DOWNLOAD_CHUNK_SIZE, database::DatabaseClient};
+use crate::{
+  constants::error_types, constants::BLOB_DOWNLOAD_CHUNK_SIZE,
+  database::DatabaseClient,
+};
 
 #[derive(
   Debug, derive_more::Display, derive_more::From, derive_more::Error,
@@ -120,14 +123,20 @@ impl BlobService {
     let blob_size = object_metadata
       .content_length()
       .ok_or_else(|| {
-        error!("Failed to get S3 object content length");
+        error!(
+          errorType = error_types::S3_ERROR,
+          "Failed to get S3 object content length"
+        );
         BlobServiceError::InvalidState
       })
       .and_then(|len| {
         if len >= 0 {
           Ok(len as u64)
         } else {
-          error!("S3 object content length is negative");
+          error!(
+            errorType = error_types::S3_ERROR,
+            "S3 object content length is negative"
+          );
           Err(BlobServiceError::InvalidState)
         }
       })?;
