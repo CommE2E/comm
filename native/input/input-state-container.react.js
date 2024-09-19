@@ -57,6 +57,7 @@ import {
   threadIsPending,
   threadIsPendingSidebar,
 } from 'lib/shared/thread-utils.js';
+import type { AuxUserInfos } from 'lib/types/aux-user-types';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   Media,
@@ -85,6 +86,7 @@ import {
   threadTypeIsThick,
   threadTypeIsSidebar,
 } from 'lib/types/thread-types-enum.js';
+import type { ThreadType } from 'lib/types/thread-types-enum.js';
 import {
   type ClientNewThinThreadRequest,
   type NewThreadResult,
@@ -170,6 +172,7 @@ type Props = {
   +newThickThread: (request: NewThickThreadRequest) => Promise<string>,
   +textMessageCreationSideEffectsFunc: CreationSideEffectsFunc<RawTextMessageInfo>,
   +usingOlmViaTunnelbrokerForDMs: boolean,
+  +auxUserInfos: AuxUserInfos,
 };
 type State = {
   +pendingUploads: PendingMultimediaUploads,
@@ -185,7 +188,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     (params: EditInputBarMessageParameters) => void,
   > = [];
   scrollToMessageCallbacks: Array<(messageID: string) => void> = [];
-  pendingThreadCreations: Map<string, Promise<string>> = new Map();
+  pendingThreadCreations: Map<
+    string,
+    Promise<{
+      +threadID: string,
+      +threadType: ThreadType,
+    }>,
+  > = new Map();
   pendingThreadUpdateHandlers: Map<string, (ThreadInfo) => mixed> = new Map();
   // TODO: flip the switch
   // Note that this enables Blob service for encrypted media only
@@ -349,7 +358,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         // again.
         throw new Error('Thread creation failed');
       }
-      newThreadID = await threadCreationPromise;
+      const result = await threadCreationPromise;
+      newThreadID = result.threadID;
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -505,9 +515,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       }
     }
 
-    let newThreadID = null;
+    let threadCreationResult = null;
     try {
-      newThreadID = await this.startThreadCreation(threadInfo);
+      threadCreationResult = await this.startThreadCreation(threadInfo);
     } catch (e) {
       const copy = cloneError(e);
       copy.localID = messageInfo.localID;
@@ -524,13 +534,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const newMessageInfo = {
       ...messageInfo,
-      threadID: newThreadID,
+      threadID: threadCreationResult?.threadID,
       time: Date.now(),
     };
 
     const newThreadInfo = {
       ...threadInfo,
-      id: newThreadID,
+      id: threadCreationResult?.threadID,
+      type: threadCreationResult?.threadType ?? threadInfo.type,
     };
 
     void this.props.dispatchActionPromise(
@@ -545,9 +556,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
   };
 
-  startThreadCreation(threadInfo: ThreadInfo): Promise<string> {
+  startThreadCreation(
+    threadInfo: ThreadInfo,
+  ): Promise<{ +threadID: string, +threadType: ThreadType }> {
     if (!threadIsPending(threadInfo.id)) {
-      return Promise.resolve(threadInfo.id);
+      return Promise.resolve({
+        threadID: threadInfo.id,
+        threadType: threadInfo.type,
+      });
     }
     let threadCreationPromise = this.pendingThreadCreations.get(threadInfo.id);
     if (!threadCreationPromise) {
@@ -561,6 +577,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         viewerID: this.props.viewerID,
         calendarQuery,
         usingOlmViaTunnelbrokerForDMs: this.props.usingOlmViaTunnelbrokerForDMs,
+        auxUserInfos: this.props.auxUserInfos,
       });
       this.pendingThreadCreations.set(threadInfo.id, threadCreationPromise);
     }
@@ -1773,6 +1790,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
     const textMessageCreationSideEffectsFunc =
       useMessageCreationSideEffectsFunc<RawTextMessageInfo>(messageTypes.TEXT);
     const usingOlmViaTunnelbrokerForDMs = useAllowOlmViaTunnelbrokerForDMs();
+    const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
 
     return (
       <InputStateContainer
@@ -1794,6 +1812,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> =
         staffCanSee={staffCanSee}
         textMessageCreationSideEffectsFunc={textMessageCreationSideEffectsFunc}
         usingOlmViaTunnelbrokerForDMs={usingOlmViaTunnelbrokerForDMs}
+        auxUserInfos={auxUserInfos}
       />
     );
   });
