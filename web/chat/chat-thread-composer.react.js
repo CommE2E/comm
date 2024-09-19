@@ -31,6 +31,7 @@ import Search from '../components/search.react.js';
 import type { InputState } from '../input/input-state.js';
 import Alert from '../modals/alert.react.js';
 import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
@@ -57,9 +58,11 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const searchResults = useSearchUsers(usernameInputText);
 
+  const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userListItems = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
+    auxUserInfos,
     excludeUserIDs: userInfoInputIDs,
     includeServerSearchUsers: searchResults,
   });

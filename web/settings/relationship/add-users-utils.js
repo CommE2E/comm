@@ -147,9 +147,11 @@ function useAddMembersListUserInfos(params: UseAddMembersListUserInfosParams): {
     [previouslySelectedUsers, threadInfo.members],
   );
 
+  const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: searchText,
     userInfos: otherUserInfos,
+    auxUserInfos,
     excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
@@ -213,9 +215,11 @@ function useSubchannelAddMembersListUserInfos(
     [previouslySelectedUsers],
   );
 
+  const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: searchText,
     userInfos: otherUserInfos,
+    auxUserInfos,
     excludeUserIDs: previouslySelectedUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,

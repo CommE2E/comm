@@ -187,9 +187,11 @@ function AddUsersModal(props: Props): React.Node {
   const communityThreadInfo = useSelector(state =>
     community ? threadInfoSelector(state)[community] : null,
   );
+  const auxUserInfos = useSelector(state => state.auxUserStore.auxUserInfos);
   const userSearchResults = usePotentialMemberItems({
     text: usernameInputText,
     userInfos: otherUserInfos,
+    auxUserInfos,
     excludeUserIDs,
     inputParentThreadInfo: parentThreadInfo,
     inputCommunityThreadInfo: communityThreadInfo,
