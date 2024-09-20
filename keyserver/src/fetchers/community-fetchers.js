@@ -1,6 +1,9 @@
 // @flow
 
-import type { ServerCommunityInfo } from 'lib/types/community-types.js';
+import type {
+  ServerCommunityInfo,
+  ServerCommunityInfoWithCommunityName,
+} from 'lib/types/community-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
 import { Viewer } from '../session/viewer.js';
@@ -65,4 +68,28 @@ async function fetchCommunityFarcasterChannelTag(
   return communityInfo?.farcasterChannelID;
 }
 
-export { fetchCommunityInfos, fetchCommunityFarcasterChannelTag };
+async function fetchAllCommunityInfosWithNames(): Promise<
+  $ReadOnlyArray<ServerCommunityInfoWithCommunityName>,
+> {
+  const query = SQL`
+    SELECT c.id, t.name as communityName, c.farcaster_channel_id as farcasterChannelID
+    FROM communities c
+    INNER JOIN threads t ON c.id = t.id
+  `;
+
+  const [result] = await dbQuery(query);
+
+  const communityInfos = result.map(row => ({
+    id: row.id.toString(),
+    farcasterChannelID: row.farcasterChannelID,
+    communityName: row.communityName,
+  }));
+
+  return communityInfos;
+}
+
+export {
+  fetchCommunityInfos,
+  fetchCommunityFarcasterChannelTag,
+  fetchAllCommunityInfosWithNames,
+};
