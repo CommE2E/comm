@@ -27,6 +27,7 @@ import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers.js';
 import { fetchUserInfos } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
+import { findUserIdentities } from '../utils/identity-utils.js';
 
 async function updateRelationships(
   viewer: Viewer,
@@ -211,6 +212,28 @@ async function updateRelationships(
     `;
     await dbQuery(query);
   } else if (request.action === relationshipActions.FARCASTER_MUTUAL) {
+    const { identities: userIdentities } = await findUserIdentities([
+      ...userIDs,
+      viewerID,
+    ]);
+
+    const viewerFID = userIdentities[viewerID]?.farcasterID;
+    if (!viewerFID) {
+      throw new ServerError('viewer_fid_missing');
+    }
+
+    const userIDsToFIDs = new Map<string, string>();
+    for (const userID in userIdentities) {
+      if (userID === viewerID) {
+        continue;
+      }
+      const fid = userIdentities[userID].farcasterID;
+      if (fid) {
+        userIDsToFIDs.set(userID, fid);
+      }
+    }
+    const userIDsWithFID = [...userIDsToFIDs.keys()];
+
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
@@ -219,15 +242,10 @@ async function updateRelationships(
     const threadIDPerUser = await createPersonalThreads(
       viewer,
       request,
-      userIDs,
+      userIDsWithFID,
     );
 
-    const viewerFID = request.userIDsToFID[viewerID];
-    if (!viewerFID) {
-      throw new ServerError('viewer_fid_missing');
-    }
-
-    const insertRows = userIDs.map(otherUserID => {
+    const insertRows = userIDsWithFID.map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
       return { user1, user2, status: undirectedStatus.FRIEND };
     });
@@ -235,16 +253,18 @@ async function updateRelationships(
     await createUpdates(updateDatas);
 
     const now = Date.now();
-    const messageDatas = userIDs.map(otherUserID => ({
-      type: messageTypes.UPDATE_RELATIONSHIP,
-      threadID: threadIDPerUser[otherUserID],
-      creatorID: viewer.userID,
-      creatorFID: viewerFID,
-      targetID: otherUserID,
-      targetFID: request.userIDsToFID[otherUserID],
-      time: now,
-      operation: 'farcaster_mutual',
-    }));
+    const messageDatas = [...userIDsToFIDs.entries()].map(
+      ([otherUserID, otherUserFID]) => ({
+        type: messageTypes.UPDATE_RELATIONSHIP,
+        threadID: threadIDPerUser[otherUserID],
+        creatorID: viewer.userID,
+        creatorFID: viewerFID,
+        targetID: otherUserID,
+        targetFID: otherUserFID,
+        time: now,
+        operation: 'farcaster_mutual',
+      }),
+    );
     await createMessages(viewer, messageDatas, 'broadcast');
   } else if (request.action === relationshipActions.ACKNOWLEDGE) {
     updateIDs.push(...userIDs);
