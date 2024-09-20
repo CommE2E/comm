@@ -4,12 +4,9 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import {
-  updateRelationships as serverUpdateRelationships,
-  updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import {
   getRelationshipActionText,
   getRelationshipDispatchAction,
@@ -49,16 +46,11 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
 
     const [otherUserInfo] = useENSNames([otherUserInfoFromRedux]);
 
-    const callUpdateRelationships = useLegacyAshoatKeyserverCall(
-      serverUpdateRelationships,
-    );
+    const updateRelationships = useUpdateRelationships();
     const updateRelationship = React.useCallback(
       async (action: TraditionalRelationshipAction) => {
         try {
-          return await callUpdateRelationships({
-            action,
-            userIDs: [otherUserInfo.id],
-          });
+          return await updateRelationships(action, [otherUserInfo.id]);
         } catch (e) {
           Alert.alert(
             unknownErrorAlertDetails.title,
@@ -71,7 +63,7 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> =
           throw e;
         }
       },
-      [callUpdateRelationships, otherUserInfo],
+      [updateRelationships, otherUserInfo],
     );
 
     const { relationshipButton } = props;

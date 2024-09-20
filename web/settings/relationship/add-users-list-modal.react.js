@@ -2,12 +2,9 @@
 
 import * as React from 'react';
 
-import {
-  updateRelationships,
-  updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type {
   UserRelationshipStatus,
@@ -90,18 +87,17 @@ function AddUsersListModal(props: Props): React.Node {
     [excludedStatuses],
   );
 
-  const callUpdateRelationships =
-    useLegacyAshoatKeyserverCall(updateRelationships);
+  const updateRelationships = useUpdateRelationships();
 
   const dispatchActionPromise = useDispatchActionPromise();
 
   const updateRelationshipsPromiseCreator = React.useCallback(async () => {
     try {
       setErrorMessage('');
-      const result = await callUpdateRelationships({
-        action: relationshipAction,
-        userIDs: Array.from(pendingUsersToAdd.keys()),
-      });
+      const result = await updateRelationships(
+        relationshipAction,
+        Array.from(pendingUsersToAdd.keys()),
+      );
       popModal();
       return result;
     } catch (e) {
@@ -110,7 +106,7 @@ function AddUsersListModal(props: Props): React.Node {
     }
   }, [
     setErrorMessage,
-    callUpdateRelationships,
+    updateRelationships,
     relationshipAction,
     pendingUsersToAdd,
     popModal,
