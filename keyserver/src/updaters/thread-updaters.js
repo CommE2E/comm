@@ -1,7 +1,5 @@
 // @flow
 
-import { getRustAPI } from 'rust-node-addon';
-
 import { specialRoles } from 'lib/permissions/special-roles.js';
 import { getRolePermissionBlobs } from 'lib/permissions/thread-permissions.js';
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
@@ -69,9 +67,8 @@ import {
   verifyUserOrCookieIDs,
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import { verifyUserLoggedIn } from '../user/login.js';
 import { neynarClient } from '../utils/fc-cache.js';
-import { getContentSigningKey } from '../utils/olm-utils.js';
+import { findUserIdentities } from '../utils/identity-utils.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
 
 type UpdateRoleOptions = {
@@ -937,18 +934,7 @@ async function fetchUserRoleForThread(
   threadID: string,
   communityFarcasterChannelTag: string,
 ): Promise<string | null> {
-  const [rustAPI, identityInfo, deviceID] = await Promise.all([
-    getRustAPI(),
-    verifyUserLoggedIn(),
-    getContentSigningKey(),
-  ]);
-
-  const response = await rustAPI.findUserIdentities(
-    identityInfo.userId,
-    deviceID,
-    identityInfo.accessToken,
-    [viewer.userID],
-  );
+  const response = await findUserIdentities([viewer.userID]);
 
   const { farcasterID } = response.identities[viewer.userID];
 
