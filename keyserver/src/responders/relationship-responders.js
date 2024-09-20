@@ -10,6 +10,8 @@ import {
   legacyFarcasterRelationshipRequestValidator,
   relationshipActions,
   type RelationshipRequestUserInfo,
+  type RelationshipRequest,
+  relationshipActionsList,
 } from 'lib/types/relationship-types.js';
 import { tShape, tUserID } from 'lib/utils/validation-utils.js';
 
@@ -59,4 +61,22 @@ async function legacyUpdateRelationshipsResponder(
   return await updateRelationships(viewer, request);
 }
 
-export { legacyUpdateRelationshipsResponder };
+export const updateRelationshipInputValidator: TInterface<RelationshipRequest> =
+  tShape<RelationshipRequest>({
+    action: t.enums.of(relationshipActionsList, 'relationship action'),
+    users: t.dict(
+      tUserID,
+      tShape<RelationshipRequestUserInfo>({
+        createRobotextInThinThread: t.Boolean,
+      }),
+    ),
+  });
+
+async function updateRelationshipsResponder(
+  viewer: Viewer,
+  request: RelationshipRequest,
+): Promise<RelationshipErrors> {
+  return await updateRelationships(viewer, request);
+}
+
+export { legacyUpdateRelationshipsResponder, updateRelationshipsResponder };
