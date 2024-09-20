@@ -17,7 +17,10 @@ import {
   setThreadUnreadStatusValidator,
   updateActivityResponderInputValidator,
 } from './responders/activity-responders.js';
-import { fetchCommunityInfosResponder } from './responders/community-responders.js';
+import {
+  fetchCommunityInfosResponder,
+  fetchAllCommunityInfosWithNamesResponder,
+} from './responders/community-responders.js';
 import {
   deviceTokenUpdateResponder,
   deviceTokenUpdateRequestInputValidator,
@@ -493,6 +496,11 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
   },
   fetch_community_infos: {
     responder: fetchCommunityInfosResponder,
+    inputValidator: ignoredArgumentValidator,
+    policies: baseLegalPolicies,
+  },
+  fetch_all_community_infos_with_names: {
+    responder: fetchAllCommunityInfosWithNamesResponder,
     inputValidator: ignoredArgumentValidator,
     policies: baseLegalPolicies,
   },
