@@ -23,6 +23,8 @@ locals {
 
   target_account_id  = lookup(local.secrets.accountIDs, local.environment)
   terraform_role_arn = "arn:aws:iam::${local.target_account_id}:role/Terraform"
+
+  comm_services_use_json_logs = "true"
 }
 
 provider "aws" {

@@ -34,8 +34,6 @@ locals {
     http://localhost:3009
   EOT
   production_allow_origin_list    = "https://web.comm.app"
-
-  comm_services_use_json_logs = "true"
 }
 
 data "aws_secretsmanager_secret" "identity_server_setup" {
