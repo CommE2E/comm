@@ -9,11 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import {
-  updateRelationships,
-  updateRelationshipsActionTypes,
-} from 'lib/actions/relationship-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   getRelationshipActionText,
@@ -104,21 +101,17 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   }, [relationshipButton]);
 
   const dispatchActionPromise = useDispatchActionPromise();
-  const callUpdateRelationships =
-    useLegacyAshoatKeyserverCall(updateRelationships);
+  const updateRelationships = useUpdateRelationships();
 
   const updateRelationshipsActionPromise = React.useCallback(async () => {
     try {
       setErrorMessage?.('');
-      return await callUpdateRelationships({
-        action,
-        userIDs: [otherUserInfo.id],
-      });
+      return await updateRelationships(action, [otherUserInfo.id]);
     } catch (e) {
       setErrorMessage?.('Error updating relationship');
       throw e;
     }
-  }, [action, callUpdateRelationships, otherUserInfo.id, setErrorMessage]);
+  }, [action, updateRelationships, otherUserInfo.id, setErrorMessage]);
   const onClick = React.useCallback(() => {
     void dispatchActionPromise(
       updateRelationshipsActionTypes,
