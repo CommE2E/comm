@@ -5,12 +5,9 @@ import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
 import { useENSNames } from 'lib/hooks/ens-cache.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import { useUserSearchIndex } from 'lib/selectors/nav-selectors.js';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
@@ -200,8 +197,7 @@ function RelationshipList(props: Props): React.Node {
     tagInputRef.current?.focus();
   }, []);
 
-  const callUpdateRelationships =
-    useLegacyAshoatKeyserverCall(updateRelationships);
+  const updateRelationships = useUpdateRelationships();
   const updateRelationshipsOnServer = React.useCallback(async () => {
     const action = {
       [FriendListRouteName]: relationshipActions.FRIEND,
@@ -209,10 +205,7 @@ function RelationshipList(props: Props): React.Node {
     }[routeName];
     const userIDs = currentTags.map(userInfo => userInfo.id);
     try {
-      const result = await callUpdateRelationships({
-        action,
-        userIDs,
-      });
+      const result = await updateRelationships(action, userIDs);
       setCurrentTags([]);
       setSearchInputText('');
       return result;
@@ -228,7 +221,7 @@ function RelationshipList(props: Props): React.Node {
   }, [
     routeName,
     currentTags,
-    callUpdateRelationships,
+    updateRelationships,
     onUnknownErrorAlertAcknowledged,
   ]);
 

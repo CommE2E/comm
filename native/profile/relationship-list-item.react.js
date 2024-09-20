@@ -4,11 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import type { LoadingStatus } from 'lib/types/loading-types.js';
 import type { ReactRef } from 'lib/types/react-types.js';
@@ -17,7 +14,7 @@ import {
   type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
-  type LegacyRelationshipRequest,
+  type RelationshipAction,
 } from 'lib/types/relationship-types.js';
 import type {
   AccountUserInfo,
@@ -111,7 +108,8 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +updateRelationships: (
-    request: LegacyRelationshipRequest,
+    action: RelationshipAction,
+    userIDs: $ReadOnlyArray<string>,
   ) => Promise<RelationshipErrors>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
@@ -306,10 +304,9 @@ class RelationshipListItem extends React.PureComponent<Props> {
     action: TraditionalRelationshipAction,
   ): Promise<RelationshipErrors> {
     try {
-      return await this.props.updateRelationships({
-        action,
-        userIDs: [this.props.userInfo.id],
-      });
+      return await this.props.updateRelationships(action, [
+        this.props.userInfo.id,
+      ]);
     } catch (e) {
       Alert.alert(
         unknownErrorAlertDetails.title,
@@ -337,8 +334,7 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
-    const boundUpdateRelationships =
-      useLegacyAshoatKeyserverCall(updateRelationships);
+    const updateRelationships = useUpdateRelationships();
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
 
@@ -352,7 +348,7 @@ const ConnectedRelationshipListItem: React.ComponentType<BaseProps> =
         colors={colors}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
-        updateRelationships={boundUpdateRelationships}
+        updateRelationships={updateRelationships}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
         navigateToUserProfileBottomSheet={navigateToUserProfileBottomSheet}
