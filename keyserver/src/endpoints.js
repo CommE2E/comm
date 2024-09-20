@@ -80,8 +80,8 @@ import {
   initialReduxStateRequestValidator,
 } from './responders/redux-state-responders.js';
 import {
-  updateRelationshipsResponder,
-  updateRelationshipInputValidator,
+  legacyUpdateRelationshipsResponder,
+  legacyUpdateRelationshipInputValidator,
 } from './responders/relationship-responders.js';
 import {
   reportCreationResponder,
@@ -427,8 +427,8 @@ const jsonEndpointsData: { +[id: Endpoint]: EndpointData } = {
     policies: baseLegalPolicies,
   },
   update_relationships: {
-    responder: updateRelationshipsResponder,
-    inputValidator: updateRelationshipInputValidator,
+    responder: legacyUpdateRelationshipsResponder,
+    inputValidator: legacyUpdateRelationshipInputValidator,
     policies: baseLegalPolicies,
   },
   update_role: {
