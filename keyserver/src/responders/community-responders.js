@@ -1,8 +1,14 @@
 // @flow
 
-import type { FetchCommunityInfosResponse } from 'lib/types/community-types.js';
+import type {
+  FetchCommunityInfosResponse,
+  FetchAllCommunityInfosWithNamesResponse,
+} from 'lib/types/community-types.js';
 
-import { fetchCommunityInfos } from '../fetchers/community-fetchers.js';
+import {
+  fetchCommunityInfos,
+  fetchAllCommunityInfosWithNames,
+} from '../fetchers/community-fetchers.js';
 import { Viewer } from '../session/viewer.js';
 
 async function fetchCommunityInfosResponder(
@@ -18,4 +24,19 @@ async function fetchCommunityInfosResponder(
   return { communityInfos };
 }
 
-export { fetchCommunityInfosResponder };
+async function fetchAllCommunityInfosWithNamesResponder(
+  viewer: Viewer,
+): Promise<FetchAllCommunityInfosWithNamesResponse> {
+  if (!viewer.loggedIn) {
+    return { allCommunityInfosWithNames: [] };
+  }
+
+  const allCommunityInfosWithNames = await fetchAllCommunityInfosWithNames();
+
+  return { allCommunityInfosWithNames };
+}
+
+export {
+  fetchCommunityInfosResponder,
+  fetchAllCommunityInfosWithNamesResponder,
+};
