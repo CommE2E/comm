@@ -3,11 +3,8 @@
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-import {
-  updateRelationshipsActionTypes,
-  updateRelationships,
-} from 'lib/actions/relationship-actions.js';
-import { useLegacyAshoatKeyserverCall } from 'lib/keyserver-conn/legacy-keyserver-call.js';
+import { updateRelationshipsActionTypes } from 'lib/actions/relationship-actions.js';
+import { useUpdateRelationships } from 'lib/hooks/relationship-hooks.js';
 import { stringForUser } from 'lib/shared/user-utils.js';
 import type { RelativeUserInfo } from 'lib/types/user-types.js';
 import { useDispatchActionPromise } from 'lib/utils/redux-promise-utils.js';
@@ -39,18 +36,16 @@ type OnRemoveUserProps = {
   +action: Action,
 };
 function useRelationshipAction(input: OnRemoveUserProps) {
-  const boundRemoveRelationships =
-    useLegacyAshoatKeyserverCall(updateRelationships);
+  const updateRelationships = useUpdateRelationships();
   const dispatchActionPromise = useDispatchActionPromise();
   const userText = stringForUser(input.relativeUserInfo);
 
   return React.useCallback(() => {
     const callRemoveRelationships = async () => {
       try {
-        return await boundRemoveRelationships({
-          action: input.action,
-          userIDs: [input.relativeUserInfo.id],
-        });
+        return await updateRelationships(input.action, [
+          input.relativeUserInfo.id,
+        ]);
       } catch (e) {
         Alert.alert(
           unknownErrorAlertDetails.title,
@@ -90,7 +85,7 @@ function useRelationshipAction(input: OnRemoveUserProps) {
       ],
       { cancelable: true },
     );
-  }, [boundRemoveRelationships, dispatchActionPromise, userText, input]);
+  }, [updateRelationships, dispatchActionPromise, userText, input]);
 }
 
 function TooltipMenu(
