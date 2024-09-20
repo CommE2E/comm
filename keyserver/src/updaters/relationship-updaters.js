@@ -10,7 +10,7 @@ import {
   relationshipActions,
   undirectedStatus,
   directedStatus,
-  type RelationshipRequest,
+  type LegacyRelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResponse } from 'lib/types/thread-types.js';
@@ -31,7 +31,7 @@ import { findUserIdentities } from '../utils/identity-utils.js';
 
 async function updateRelationships(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: LegacyRelationshipRequest,
 ): Promise<RelationshipErrors> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -391,7 +391,7 @@ async function updateChangedUndirectedRelationships(
 
 async function createPersonalThreads(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: LegacyRelationshipRequest,
   userIDs: $ReadOnlyArray<string>,
 ) {
   invariant(
