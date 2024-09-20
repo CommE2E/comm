@@ -57,6 +57,9 @@ async function updateRelationships(
 
   const updateIDs = [];
   if (request.action === relationshipActions.FRIEND) {
+    const usersToCreateRobotextFor = userIDs.filter(
+      userID => request.users[userID].createRobotextInThinThread,
+    );
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
     // reported to the caller and can be repeated - there should be only
@@ -65,7 +68,7 @@ async function updateRelationships(
     const threadIDPerUser = await createPersonalThreads(
       viewer,
       request,
-      userIDs,
+      usersToCreateRobotextFor,
     );
     const { userRelationshipOperations, errors: friendRequestErrors } =
       await fetchFriendRequestRelationshipOperations(viewer, userIDs);
@@ -91,25 +94,29 @@ async function updateRelationships(
           const [user1, user2] = ids;
           const status = undirectedStatus.FRIEND;
           undirectedInsertRows.push({ user1, user2, status });
-          messageDatas.push({
-            type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
-            threadID: threadIDPerUser[userID],
-            creatorID: viewer.userID,
-            targetID: userID,
-            time: now,
-            operation: 'request_accepted',
-          });
+          if (request.users[userID].createRobotextInThinThread) {
+            messageDatas.push({
+              type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
+              threadID: threadIDPerUser[userID],
+              creatorID: viewer.userID,
+              targetID: userID,
+              time: now,
+              operation: 'request_accepted',
+            });
+          }
         } else if (operation === 'pending_friend') {
           const status = directedStatus.PENDING_FRIEND;
           directedInsertRows.push([viewer.userID, userID, status]);
-          messageDatas.push({
-            type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
-            threadID: threadIDPerUser[userID],
-            creatorID: viewer.userID,
-            targetID: userID,
-            time: now,
-            operation: 'request_sent',
-          });
+          if (request.users[userID].createRobotextInThinThread) {
+            messageDatas.push({
+              type: messageTypes.LEGACY_UPDATE_RELATIONSHIP,
+              threadID: threadIDPerUser[userID],
+              creatorID: viewer.userID,
+              targetID: userID,
+              time: now,
+              operation: 'request_sent',
+            });
+          }
         } else if (operation === 'know_of') {
           const [user1, user2] = ids;
           const status = undirectedStatus.KNOW_OF;
@@ -224,7 +231,12 @@ async function updateRelationships(
         userIDsToFIDs.set(userID, fid);
       }
     }
-    const userIDsWithFID = [...userIDsToFIDs.keys()];
+    const usersToCreateRobotextFor = [...userIDsToFIDs.entries()].filter(
+      ([userID]) => request.users[userID].createRobotextInThinThread,
+    );
+    const userIDsToCreateRobotextFor = usersToCreateRobotextFor.map(
+      ([userID]) => userID,
+    );
 
     // We have to create personal threads before setting the relationship
     // status. By doing that we make sure that failed thread creation is
@@ -234,10 +246,10 @@ async function updateRelationships(
     const threadIDPerUser = await createPersonalThreads(
       viewer,
       request,
-      userIDsWithFID,
+      userIDsToCreateRobotextFor,
     );
 
-    const insertRows = userIDsWithFID.map(otherUserID => {
+    const insertRows = [...userIDsToFIDs.keys()].map(otherUserID => {
       const [user1, user2] = sortUserIDs(viewer.userID, otherUserID);
       return { user1, user2, status: undirectedStatus.FRIEND };
     });
@@ -245,7 +257,7 @@ async function updateRelationships(
     await createUpdates(updateDatas);
 
     const now = Date.now();
-    const messageDatas = [...userIDsToFIDs.entries()].map(
+    const messageDatas = usersToCreateRobotextFor.map(
       ([otherUserID, otherUserFID]) => ({
         type: messageTypes.UPDATE_RELATIONSHIP,
         threadID: threadIDPerUser[otherUserID],
@@ -393,6 +405,10 @@ async function createPersonalThreads(
       'FARCASTER_MUTUAL requests, but we tried to do that for ' +
       request.action,
   );
+
+  if (userIDs.length === 0) {
+    return {};
+  }
 
   const threadIDPerUser: { [string]: string } = {};
 
