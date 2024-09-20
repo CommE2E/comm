@@ -8,6 +8,8 @@ import {
   traditionalRelationshipActionsList,
   type LegacyRelationshipRequest,
   legacyFarcasterRelationshipRequestValidator,
+  relationshipActions,
+  type RelationshipRequestUserInfo,
 } from 'lib/types/relationship-types.js';
 import { tShape, tUserID } from 'lib/utils/validation-utils.js';
 
@@ -31,8 +33,29 @@ export const legacyUpdateRelationshipInputValidator: TUnion<LegacyRelationshipRe
 
 async function legacyUpdateRelationshipsResponder(
   viewer: Viewer,
-  request: LegacyRelationshipRequest,
+  legacyRequest: LegacyRelationshipRequest,
 ): Promise<RelationshipErrors> {
+  let requestUserIDs;
+  const viewerID = viewer.userID;
+  if (legacyRequest.action === relationshipActions.FARCASTER_MUTUAL) {
+    requestUserIDs = Object.keys(legacyRequest.userIDsToFID).filter(
+      userID => userID !== viewerID,
+    );
+  } else {
+    requestUserIDs = legacyRequest.userIDs;
+  }
+
+  const requestUserInfos: { [userID: string]: RelationshipRequestUserInfo } =
+    {};
+  for (const userID of requestUserIDs) {
+    requestUserInfos[userID] = {
+      createRobotextInThinThread: true,
+    };
+  }
+  const request = {
+    action: legacyRequest.action,
+    users: requestUserInfos,
+  };
   return await updateRelationships(viewer, request);
 }
 

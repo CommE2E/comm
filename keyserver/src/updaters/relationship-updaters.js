@@ -10,7 +10,7 @@ import {
   relationshipActions,
   undirectedStatus,
   directedStatus,
-  type LegacyRelationshipRequest,
+  type RelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import { threadTypes } from 'lib/types/thread-types-enum.js';
 import type { NewThreadResponse } from 'lib/types/thread-types.js';
@@ -31,22 +31,13 @@ import { findUserIdentities } from '../utils/identity-utils.js';
 
 async function updateRelationships(
   viewer: Viewer,
-  request: LegacyRelationshipRequest,
+  request: RelationshipRequest,
 ): Promise<RelationshipErrors> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
   }
 
-  let requestUserIDs;
-  const viewerID = viewer.userID;
-  if (request.action === relationshipActions.FARCASTER_MUTUAL) {
-    requestUserIDs = Object.keys(request.userIDsToFID).filter(
-      userID => userID !== viewerID,
-    );
-  } else {
-    requestUserIDs = request.userIDs;
-  }
-
+  const requestUserIDs = Object.keys(request.users);
   const uniqueUserIDs = [...new Set(requestUserIDs)];
   const users = await fetchUserInfos(uniqueUserIDs);
 
@@ -212,6 +203,7 @@ async function updateRelationships(
     `;
     await dbQuery(query);
   } else if (request.action === relationshipActions.FARCASTER_MUTUAL) {
+    const viewerID = viewer.userID;
     const { identities: userIdentities } = await findUserIdentities([
       ...userIDs,
       viewerID,
@@ -391,7 +383,7 @@ async function updateChangedUndirectedRelationships(
 
 async function createPersonalThreads(
   viewer: Viewer,
-  request: LegacyRelationshipRequest,
+  request: RelationshipRequest,
   userIDs: $ReadOnlyArray<string>,
 ) {
   invariant(
