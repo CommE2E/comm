@@ -17,7 +17,7 @@ import {
   type RelationshipErrors,
   userRelationshipStatus,
   relationshipActions,
-  type RelationshipRequest,
+  type LegacyRelationshipRequest,
 } from 'lib/types/relationship-types.js';
 import type {
   AccountUserInfo,
@@ -111,7 +111,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +updateRelationships: (
-    request: RelationshipRequest,
+    request: LegacyRelationshipRequest,
   ) => Promise<RelationshipErrors>,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,

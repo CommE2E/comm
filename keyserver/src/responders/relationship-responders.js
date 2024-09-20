@@ -3,19 +3,19 @@
 import t, { type TInterface, type TUnion } from 'tcomb';
 
 import {
-  type TraditionalRelationshipRequest,
+  type LegacyTraditionalRelationshipRequest,
   type RelationshipErrors,
   traditionalRelationshipActionsList,
-  type RelationshipRequest,
-  farcasterRelationshipRequestValidator,
+  type LegacyRelationshipRequest,
+  legacyFarcasterRelationshipRequestValidator,
 } from 'lib/types/relationship-types.js';
 import { tShape, tUserID } from 'lib/utils/validation-utils.js';
 
 import type { Viewer } from '../session/viewer.js';
 import { updateRelationships } from '../updaters/relationship-updaters.js';
 
-export const traditionalRelationshipRequestValidator: TInterface<TraditionalRelationshipRequest> =
-  tShape<TraditionalRelationshipRequest>({
+const legacyTraditionalRelationshipRequestValidator: TInterface<LegacyTraditionalRelationshipRequest> =
+  tShape<LegacyTraditionalRelationshipRequest>({
     action: t.enums.of(
       traditionalRelationshipActionsList,
       'relationship action',
@@ -23,17 +23,17 @@ export const traditionalRelationshipRequestValidator: TInterface<TraditionalRela
     userIDs: t.list(tUserID),
   });
 
-export const updateRelationshipInputValidator: TUnion<RelationshipRequest> =
+export const legacyUpdateRelationshipInputValidator: TUnion<LegacyRelationshipRequest> =
   t.union([
-    traditionalRelationshipRequestValidator,
-    farcasterRelationshipRequestValidator,
+    legacyTraditionalRelationshipRequestValidator,
+    legacyFarcasterRelationshipRequestValidator,
   ]);
 
-async function updateRelationshipsResponder(
+async function legacyUpdateRelationshipsResponder(
   viewer: Viewer,
-  request: RelationshipRequest,
+  request: LegacyRelationshipRequest,
 ): Promise<RelationshipErrors> {
   return await updateRelationships(viewer, request);
 }
 
-export { updateRelationshipsResponder };
+export { legacyUpdateRelationshipsResponder };
